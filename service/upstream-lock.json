@@ -10,14 +10,73 @@
       "total": 569
     }
   },
+  "destinationClosure": {
+    "managedRoots": [
+      "README.md",
+      "packages/shared/src",
+      "packages/shared/test",
+      "packages/mcp/README.md",
+      "packages/mcp/src",
+      "packages/mcp/test",
+      "packages/plugin/protocol",
+      "packages/plugin/src",
+      "packages/plugin/ui",
+      "packages/plugin/test",
+      "skills/figma-codegen",
+      "skills/figma-build",
+      "test"
+    ],
+    "serviceOwnedFiles": [
+      {
+        "path": "test/bootstrap.test.ts",
+        "sha256": "61f083ae0e39f897240d1da6234585fe920cc304c8c09cde097b82cf48aa190f"
+      },
+      {
+        "path": "test/upstream-parity.test.ts",
+        "sha256": "68c755c675f9312940ecb5e7ba59e16ec92f8dea2ac1c9631a70572c3891b3c6"
+      },
+      {
+        "path": "test/vendor-upstreams.test.ts",
+        "sha256": "3c319edbfac8e1e24df21a6fda0bc374516898cf2f247b8d27e9c11786c40fb5"
+      }
+    ]
+  },
   "serviceFiles": [
+    {
+      "path": ".editorconfig",
+      "sha256": "67f13cc385330232a099c6530d06ebf331dcf119d8fe78db7858af1142fe898e"
+    },
+    {
+      "path": ".gitattributes",
+      "sha256": "d0350714e140738dc958633f49f17a02cc1436e7901178a8167bde87ba1826d0"
+    },
+    {
+      "path": ".gitignore",
+      "sha256": "6802f3fe5cd552b576af0e530a3f966ce430eda51867de0183ef06a11a43f869"
+    },
+    {
+      "path": ".node-version",
+      "sha256": "5c9160ca0ca43d0c49f5e254d49027c297167ac86be2287128b53ca3d9cd7296"
+    },
+    {
+      "path": ".npmrc",
+      "sha256": "7151cf397def0c2cb0ab65643701d27d335a72c90f775675b5f826bc7005818a"
+    },
+    {
+      "path": ".oxfmtrc.json",
+      "sha256": "ddd75d251e375886940f6cb449f035034915f528031b7d64b99881f7ba4f7538"
+    },
+    {
+      "path": ".oxlintrc.json",
+      "sha256": "812900f6b3bd6530adf3d5eb7303189ade21cc17d3a090749bd5e68b44a68b68"
+    },
     {
       "path": "LICENSE",
       "sha256": "71bdd83bd806bf641f813b89cae0325c9ec207d6b9cab501be827186c61432b7"
     },
     {
       "path": "PROVENANCE.md",
-      "sha256": "011a563d4ba4bc6fdeb116688e7da3e52df130cf13259776d167a5e79c77e318"
+      "sha256": "44948e8f9e7ea5ef3e1a2ec96ac11f33f2339a9f8a7a64a59fffc2d9babed07f"
     },
     {
       "path": "licenses/figma-mcp-rust-LICENSE",
@@ -32,6 +91,10 @@
       "sha256": "596f04ba93da8a848340599a9fafbbda8859d45a4087fd19c220bf16640c4d8f"
     },
     {
+      "path": "knip.json",
+      "sha256": "903e6773c50a222d6c2193345e27220d3c89e59ab977e14d46a79679873d46e4"
+    },
+    {
       "path": "packages/cli/src/index.ts",
       "sha256": "125d2c36e653abafaccad2140482c664ea85bba4f5bc14b7c9907a0194c9a8c8"
     },
@@ -40,12 +103,236 @@
       "sha256": "125d2c36e653abafaccad2140482c664ea85bba4f5bc14b7c9907a0194c9a8c8"
     },
     {
+      "path": "packages/cli/tsconfig.json",
+      "sha256": "8c3c22065b32aaf16d93def1c65c4c1574bf9503730351a5354c0dee301a004d"
+    },
+    {
+      "path": "packages/cli/tsdown.config.ts",
+      "sha256": "4249acfdcef36a0cac3f8887aecba2e1a0d2af7049209ac29e281449c552159b"
+    },
+    {
+      "path": "packages/cli/vitest.config.ts",
+      "sha256": "2e9322b92897aac96af7a2eca9229407c74bfc00d935801d27e2e42465b17578"
+    },
+    {
+      "path": "packages/ir/tsconfig.json",
+      "sha256": "8c3c22065b32aaf16d93def1c65c4c1574bf9503730351a5354c0dee301a004d"
+    },
+    {
+      "path": "packages/ir/vitest.config.ts",
+      "sha256": "899b41c980cc4cb39d0808c0c7e9bd8814afe8265344448e4ad0089e1a8cde3d"
+    },
+    {
+      "path": "packages/mcp/tsconfig.json",
+      "sha256": "8c3c22065b32aaf16d93def1c65c4c1574bf9503730351a5354c0dee301a004d"
+    },
+    {
+      "path": "packages/mcp/tsdown.config.ts",
+      "sha256": "b1204306ffcd2148c9cb8ed5cd1ddff890060e987744faecf8d7adcaaac0043e"
+    },
+    {
+      "path": "packages/mcp/vitest.config.ts",
+      "sha256": "b6b159662ab8e1db26fc92e959fb5fdf974ae51f4bda50d5e40f6a1bdcd8a522"
+    },
+    {
+      "path": "packages/plugin/manifest.json",
+      "sha256": "50dfca36db2f066e13f5cb424b86755537f31934420110492274b5e73c5a3fe8"
+    },
+    {
+      "path": "packages/plugin/tsconfig.json",
+      "sha256": "0cf4dcc5fa7a3e7e04fb613c2d4e35c1ea99c0fa193672a399c6f15ac6cba086"
+    },
+    {
+      "path": "packages/plugin/vite.config.main.ts",
+      "sha256": "e38c077e3a5c7e9aaec5e34c122a4f7e286fadad8378b66175dfb726affecc99"
+    },
+    {
+      "path": "packages/plugin/vite.config.ts",
+      "sha256": "554db53c70646e9a04c1928b1fe291019989547c7d25d2898eb627c9946925d8"
+    },
+    {
+      "path": "packages/plugin/vitest.config.ts",
+      "sha256": "f564fe1a831cfdc75233614ec43951084f9ab77b18cb7d724fe914e6155ecbbb"
+    },
+    {
+      "path": "packages/shared/tsconfig.json",
+      "sha256": "b2f030e6122d6a26fb8b3adc21f38c5b09868213b559926961be587b12b854d9"
+    },
+    {
+      "path": "packages/shared/vitest.config.ts",
+      "sha256": "90eaaf28fd7324e96a890ad058491d1cc8f6e4af82308a8ca256f081c3df44e7"
+    },
+    {
+      "path": "pnpm-lock.yaml",
+      "sha256": "d99a8d289ec62f70081313c88414391d9aeedeaa7b7210544a69a774d9132153"
+    },
+    {
+      "path": "pnpm-workspace.yaml",
+      "sha256": "9f9a122cd9b4b53847df3cc9600def649b134729b235b37ef8e570e43df9a277"
+    },
+    {
+      "path": "scripts/vendor-upstreams.mjs",
+      "sha256": "4dc4ce1ffb5105efd1077efea96a760ab3f250476891f9e1afcb032e3c8d08fe"
+    },
+    {
+      "path": "scripts/verify-runtime-specifiers.mjs",
+      "sha256": "56b5bc33ef7884c513b961a12b9285cf18c9ed037aeae1797427e008ba19046a"
+    },
+    {
+      "path": "scripts/verify-upstream-lock.mjs",
+      "sha256": "48a8ffc343808b439a154b3a567cc526b05565724bbd8de305062221eac059f0"
+    },
+    {
+      "path": "test/bootstrap.test.ts",
+      "sha256": "61f083ae0e39f897240d1da6234585fe920cc304c8c09cde097b82cf48aa190f"
+    },
+    {
+      "path": "test/upstream-parity.test.ts",
+      "sha256": "68c755c675f9312940ecb5e7ba59e16ec92f8dea2ac1c9631a70572c3891b3c6"
+    },
+    {
+      "path": "test/vendor-upstreams.test.ts",
+      "sha256": "3c319edbfac8e1e24df21a6fda0bc374516898cf2f247b8d27e9c11786c40fb5"
+    },
+    {
+      "path": "tsconfig.base.json",
+      "sha256": "fc3f0de37f4eb01ddab21e77985f3704361e1ed8fdb137245deb386418d7de4f"
+    },
+    {
+      "path": "tsconfig.json",
+      "sha256": "9666bbf28472841bcb3603dc3a548798ae5edb251fff06c1731ef8755fe43240"
+    },
+    {
       "path": "vendor-allowed-figwright-strings.json",
       "sha256": "0aaaa09cdd2f3eeaba96ff26ecf5ec39671e62ef94b7276432e93207ad77dd6f"
     },
     {
       "path": "vendor-rules.json",
       "sha256": "88d3cc7853ecae8423af2f8824ebce78249a293ab54a8951537981b321dbe993"
+    },
+    {
+      "path": "vitest.config.ts",
+      "sha256": "569ea7bec19aa62b23b164aa3e674646ed2bda9b4cf4810e5a2bc7d4a0191029"
+    }
+  ],
+  "packageAuthorities": [
+    {
+      "path": "package.json",
+      "projection": {
+        "name": "super-figma-pipeline",
+        "version": "0.1.0",
+        "private": true,
+        "type": "module",
+        "bin": null,
+        "files": null,
+        "exports": null,
+        "excludedScriptAuthority": {
+          "clean": null,
+          "postinstall": null,
+          "release": null
+        },
+        "serviceScripts": {
+          "build": "pnpm -r run build",
+          "desktop:acceptance": "node scripts/desktop-acceptance.mjs",
+          "format:check": "oxfmt --check .",
+          "knip": "knip",
+          "lint": "oxlint --deny-warnings .",
+          "test": "vitest run --exclude \"test/artifact-contents.test.ts\"",
+          "test:artifacts": "vitest run test/artifact-contents.test.ts",
+          "test:e2e": "vitest run packages/mcp/test/e2e",
+          "test:unit": "vitest run --exclude \"**/test/e2e/**\" --exclude \"test/artifact-contents.test.ts\"",
+          "typecheck": "pnpm -r run typecheck",
+          "verify": "pnpm typecheck && pnpm lint && pnpm format:check && pnpm knip && pnpm build && pnpm test",
+          "verify:release": "pnpm verify && node scripts/generate-sbom.mjs && node scripts/generate-notices.mjs && node scripts/package-artifacts.mjs && node scripts/generate-checksums.mjs && pnpm test:artifacts && node scripts/verify-artifacts.mjs"
+        }
+      }
+    },
+    {
+      "path": "packages/shared/package.json",
+      "projection": {
+        "name": "@sfp/shared",
+        "version": "0.1.0",
+        "private": true,
+        "type": "module",
+        "bin": null,
+        "files": null,
+        "exports": {
+          ".": {
+            "types": "./src/index.ts",
+            "default": "./src/index.ts"
+          }
+        },
+        "serviceScripts": {
+          "build": "tsc --noEmit -p tsconfig.json",
+          "typecheck": "tsc --noEmit -p tsconfig.json"
+        }
+      }
+    },
+    {
+      "path": "packages/ir/package.json",
+      "projection": {
+        "name": "@sfp/ir",
+        "version": "0.1.0",
+        "private": true,
+        "type": "module",
+        "bin": null,
+        "files": null,
+        "exports": null,
+        "serviceScripts": {
+          "build": "tsc --noEmit -p tsconfig.json",
+          "typecheck": "tsc --noEmit -p tsconfig.json"
+        }
+      }
+    },
+    {
+      "path": "packages/mcp/package.json",
+      "projection": {
+        "name": "@sfp/mcp",
+        "version": "0.1.0",
+        "private": true,
+        "type": "module",
+        "bin": null,
+        "files": null,
+        "exports": null,
+        "serviceScripts": {
+          "build": "tsdown",
+          "typecheck": "tsc --noEmit -p tsconfig.json"
+        }
+      }
+    },
+    {
+      "path": "packages/plugin/package.json",
+      "projection": {
+        "name": "@sfp/plugin",
+        "version": "0.1.0",
+        "private": true,
+        "type": "module",
+        "bin": null,
+        "files": null,
+        "exports": null,
+        "serviceScripts": {
+          "build": "pnpm run build:main && pnpm run build:ui",
+          "build:main": "vite build --config vite.config.main.ts",
+          "build:ui": "vite build --config vite.config.ts",
+          "typecheck": "vue-tsc --noEmit -p tsconfig.json"
+        }
+      }
+    },
+    {
+      "path": "packages/cli/package.json",
+      "projection": {
+        "name": "@sfp/cli",
+        "version": "0.1.0",
+        "private": true,
+        "type": "module",
+        "bin": null,
+        "files": null,
+        "exports": null,
+        "serviceScripts": {
+          "build": "tsdown",
+          "typecheck": "tsc --noEmit -p tsconfig.json"
+        }
+      }
     }
   ],
   "rootAuthority": {
@@ -75,12 +362,11 @@
       "packages/cli"
     ]
   },
-  "droppedScripts": ["postinstall", "release"],
+  "excludedUpstreamScriptInputs": ["clean", "postinstall", "release"],
   "manifestRequirements": [
     {
       "path": "package.json",
       "scripts": {
-        "clean": "pnpm -r exec rm -rf dist *.tsbuildinfo",
         "dev": "pnpm -r --parallel run dev",
         "format": "oxfmt .",
         "knip:fix": "knip --fix",

@@ -2,7 +2,8 @@
 
 Super Figma Pipeline is a standalone service. Runtime packages, skills, and package scripts do not
 read the local upstream checkouts. Reproduction uses the development-only vendoring and lock
-verification scripts; release verification uses the offline mode.
+verification scripts. Offline verification is available now; Task 15 wires it into the release
+verification and artifact pipeline.
 
 ## Pinned upstreams
 
@@ -31,8 +32,21 @@ not rewritten; the remaining raw strings are enumerated in
 `vendor-allowed-figwright-strings.json`. Root package and lock files, workspace package manifests,
 build/test configuration, and the plugin manifest remain service authorities. Only dependency,
 development-dependency, and non-release package-script inputs are merged into service manifests.
-Upstream `postinstall` and `release` scripts are intentionally dropped, so no skills-sync mirror is
-required.
+Upstream-only `clean`, `postinstall`, and `release` script inputs are excluded, so the Windows service
+does not advertise the POSIX clean command and no skills-sync mirror is required. A pre-existing
+service-owned lifecycle script is preserved and protected instead of being treated as an upstream
+contribution.
+
+Vendoring is closed-world. Before replacing the map, copy mode reconciles previous copy rows: an
+obsolete destination is deleted only when its bytes still match the previous `currentSha256`; a
+local modification fails with `VENDOR_STALE_MODIFIED` before any map or destination change. Offline
+and upstream-backed verification enumerate every managed destination root and accept only current
+vendor-map destinations or explicitly registered service-owned files. The lock also hashes the
+workspace lock/config/hygiene files and records normalized root/package authority projections.
+
+The shared package `exports` map is an explicit service-owned integration authority. It is the
+minimal entrypoint required for real workspace resolution of `@sfp/shared`; vendoring and offline
+verification protect it from upstream replacement or local drift.
 
 The root `README.md` and `packages/mcp/README.md` are copied as fixtures for the upstream docs-sync
 tests. They temporarily retain upstream product language; Task 14 replaces them with service-specific

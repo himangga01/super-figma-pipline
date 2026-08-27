@@ -5,7 +5,6 @@
   "type": "module",
   "scripts": {
     "build": "pnpm -r run build",
-    "clean": "pnpm -r exec rm -rf dist *.tsbuildinfo",
     "desktop:acceptance": "node scripts/desktop-acceptance.mjs",
     "dev": "pnpm -r --parallel run dev",
     "format": "oxfmt .",

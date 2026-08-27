@@ -1,7 +1,7 @@
 import { execFileSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
-import { mkdir, readFile, stat, writeFile } from 'node:fs/promises';
-import { dirname, extname, join, resolve } from 'node:path';
+import { mkdir, readFile, stat, unlink, writeFile } from 'node:fs/promises';
+import { dirname, extname, join, posix, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 import { format as formatWithOxfmt } from 'oxfmt';
@@ -13,6 +13,7 @@ const upstreamRoot = join(repositoryRoot, 'code-kb', 'figwright');
 const rulesPath = join(serviceRoot, 'vendor-rules.json');
 const vendorMapPath = join(serviceRoot, 'vendor-map.json');
 const allowedStringsPath = join(serviceRoot, 'vendor-allowed-figwright-strings.json');
+const upstreamLockPath = join(serviceRoot, 'upstream-lock.json');
 
 const codeExtensions = new Set(['.cjs', '.cts', '.js', '.jsx', '.mjs', '.mts', '.ts', '.tsx']);
 const dependencyFields = [
@@ -50,7 +51,7 @@ const packageRewrites = new Map([
   ['@figwright/mcp', '@sfp/mcp'],
   ['@figwright/plugin', '@sfp/plugin'],
 ]);
-const droppedScripts = new Set(['postinstall', 'release']);
+const excludedUpstreamScripts = new Set(['clean', 'postinstall', 'release']);
 const mergedManifestPaths = [
   'package.json',
   'packages/shared/package.json',
@@ -95,6 +96,14 @@ const serviceAuthorityPaths = [
 const compareStrings = (left, right) => (left < right ? -1 : left > right ? 1 : 0);
 const sha256 = contents => createHash('sha256').update(contents).digest('hex');
 const destinationPath = path => join(serviceRoot, ...path.split('/'));
+
+class VendorError extends Error {
+  constructor(code, message) {
+    super(`[${code}] ${message}`);
+    this.code = code;
+    this.name = 'VendorError';
+  }
+}
 
 const readJson = async path => JSON.parse(await readFile(path, 'utf8'));
 const writeJson = async (path, value) => {
@@ -356,6 +365,101 @@ const assertAuthoritiesUnchanged = async before => {
   }
 };
 
+const assertSafeManagedDestination = destination => {
+  const segments = typeof destination === 'string' ? destination.split('/') : [];
+  if (
+    segments.length === 0 ||
+    segments.some(
+      segment => segment === '' || segment === '.' || segment === '..' || segment.includes(':'),
+    ) ||
+    destination.includes('\\') ||
+    posix.isAbsolute(destination) ||
+    posix.normalize(destination) !== destination
+  ) {
+    throw new VendorError(
+      'VENDOR_MAP_INVALID',
+      `unsafe previous managed destination: ${String(destination)}`,
+    );
+  }
+  return destinationPath(destination);
+};
+
+const registeredServiceOwnedDestinations = async () => {
+  const lock = await readJson(upstreamLockPath).catch(error => {
+    if (error?.code === 'ENOENT') return null;
+    throw error;
+  });
+  if (lock === null) return new Set();
+  const entries = lock.destinationClosure?.serviceOwnedFiles;
+  if (!Array.isArray(entries)) {
+    throw new VendorError(
+      'DESTINATION_POLICY_INVALID',
+      'upstream-lock.json does not register service-owned managed destinations',
+    );
+  }
+  return new Set(
+    entries.map(entry => {
+      assertSafeManagedDestination(entry.path);
+      return entry.path;
+    }),
+  );
+};
+
+const planPreviousCopyReconciliation = async (selected, serviceOwnedDestinations) => {
+  const previousContents = await readFile(vendorMapPath, 'utf8').catch(error => {
+    if (error?.code === 'ENOENT') return null;
+    throw error;
+  });
+  if (previousContents === null) return [];
+  const previousMap = JSON.parse(previousContents);
+  if (previousMap.schemaVersion !== 1 || !Array.isArray(previousMap.files)) {
+    throw new VendorError(
+      'VENDOR_MAP_INVALID',
+      'previous vendor-map.json does not use schemaVersion 1',
+    );
+  }
+  const selectedDestinations = new Set(
+    selected.filter(row => row.mode === 'copy').map(row => row.sourcePath),
+  );
+  const obsoleteRows = previousMap.files.filter(
+    row =>
+      row.mode === 'copy' &&
+      !selectedDestinations.has(row.destination) &&
+      !serviceOwnedDestinations.has(row.destination),
+  );
+  const planned = await Promise.all(
+    obsoleteRows.map(async row => {
+      if (row.destination !== row.sourcePath || !/^[0-9a-f]{64}$/.test(row.currentSha256 ?? '')) {
+        throw new VendorError(
+          'VENDOR_MAP_INVALID',
+          `invalid previous copy row for ${String(row.sourcePath)}`,
+        );
+      }
+      const absoluteDestination = assertSafeManagedDestination(row.destination);
+      const metadata = await stat(absoluteDestination).catch(error => {
+        if (error?.code === 'ENOENT') return null;
+        throw error;
+      });
+      if (metadata === null) return null;
+      if (!metadata.isFile()) {
+        throw new VendorError(
+          'VENDOR_STALE_TYPE',
+          `obsolete managed destination is not a file: ${row.destination}`,
+        );
+      }
+      const currentSha256 = sha256(await readFile(absoluteDestination));
+      if (currentSha256 !== row.currentSha256) {
+        throw new VendorError(
+          'VENDOR_STALE_MODIFIED',
+          `obsolete managed destination has local changes: ${row.destination}`,
+        );
+      }
+      return absoluteDestination;
+    }),
+  );
+  return planned.filter(path => path !== null);
+};
+
 const rawFigwrightEntries = async copyRows => {
   const matcher = /@figwright\/[A-Za-z0-9._~@/-]+/g;
   const entries = (
@@ -392,6 +496,11 @@ const rawFigwrightEntries = async copyRows => {
 
 const copyOnly = async (rules, commit, selected) => {
   const authorityHashes = await hashAuthorities([...serviceAuthorityPaths, ...mergedManifestPaths]);
+  const serviceOwnedDestinations = await registeredServiceOwnedDestinations();
+  const obsoleteDestinations = await planPreviousCopyReconciliation(
+    selected,
+    serviceOwnedDestinations,
+  );
   const formatterConfig = await readJson(destinationPath('.oxfmtrc.json'));
   const formatterOptions = {
     ...formatterConfig,
@@ -400,12 +509,13 @@ const copyOnly = async (rules, commit, selected) => {
     tabWidth: 2,
     useTabs: false,
   };
-  const rows = await Promise.all(
+  const prepared = await Promise.all(
     selected.map(async selection => {
       const baseContents = readPinnedFile(commit, selection.sourcePath);
       const destination = selection.mode === 'referenceOnly' ? null : selection.sourcePath;
       let currentSha256 = null;
       let transformations = [];
+      let materialization = null;
       if (selection.mode === 'copy') {
         const rewritten = await rewriteCopyContents(
           selection.sourcePath,
@@ -413,23 +523,36 @@ const copyOnly = async (rules, commit, selected) => {
           formatterOptions,
         );
         const absoluteDestination = destinationPath(selection.sourcePath);
-        await mkdir(dirname(absoluteDestination), { recursive: true });
-        await writeFile(absoluteDestination, rewritten.contents);
         currentSha256 = sha256(rewritten.contents);
         transformations = rewritten.transformations;
+        materialization = { absoluteDestination, contents: rewritten.contents };
       }
       return {
-        mode: selection.mode,
-        originCommit: commit,
-        sourcePath: selection.sourcePath,
-        destination,
-        baseSha256: sha256(baseContents),
-        currentSha256,
-        transformations,
-        licenseId: 'MIT',
+        materialization,
+        row: {
+          mode: selection.mode,
+          originCommit: commit,
+          sourcePath: selection.sourcePath,
+          destination,
+          baseSha256: sha256(baseContents),
+          currentSha256,
+          transformations,
+          licenseId: 'MIT',
+        },
       };
     }),
   );
+  await Promise.all(obsoleteDestinations.map(path => unlink(path)));
+  await Promise.all(
+    prepared
+      .map(item => item.materialization)
+      .filter(materialization => materialization !== null)
+      .map(async materialization => {
+        await mkdir(dirname(materialization.absoluteDestination), { recursive: true });
+        await writeFile(materialization.absoluteDestination, materialization.contents);
+      }),
+  );
+  const rows = prepared.map(item => item.row);
 
   await assertAuthoritiesUnchanged(authorityHashes);
   const vendorMap = {
@@ -456,7 +579,7 @@ const copyOnly = async (rules, commit, selected) => {
   );
   const rewrittenCount = rows.filter(row => row.transformations.length > 0).length;
   console.log(
-    `vendor-copy=ok commit=${commit} copy=${counts.copy} merge=${counts.mergeDependencyManifest} reference=${counts.referenceOnly} rewritten=${rewrittenCount}`,
+    `vendor-copy=ok commit=${commit} copy=${counts.copy} merge=${counts.mergeDependencyManifest} reference=${counts.referenceOnly} rewritten=${rewrittenCount} removed=${obsoleteDestinations.length}`,
   );
 };
 
@@ -479,7 +602,9 @@ const mergeRecord = (serviceRecord = {}, upstreamRecord = {}, rewriteNames = fal
 const mergeManifest = (serviceManifest, upstreamManifest) => {
   const merged = { ...serviceManifest };
   const upstreamScripts = Object.fromEntries(
-    Object.entries(upstreamManifest.scripts ?? {}).filter(([name]) => !droppedScripts.has(name)),
+    Object.entries(upstreamManifest.scripts ?? {}).filter(
+      ([name]) => !excludedUpstreamScripts.has(name),
+    ),
   );
   merged.scripts = mergeRecord(serviceManifest.scripts, upstreamScripts);
   for (const field of dependencyFields) {
@@ -515,9 +640,9 @@ const assertManifestAuthority = (path, before, after) => {
       }
     }
   }
-  for (const name of droppedScripts) {
-    if (after.scripts?.[name] !== undefined) {
-      throw new Error(`dropped upstream script remains at ${path}#scripts.${name}`);
+  for (const name of excludedUpstreamScripts) {
+    if (before.scripts?.[name] === undefined && after.scripts?.[name] !== undefined) {
+      throw new Error(`excluded upstream script was newly contributed at ${path}#scripts.${name}`);
     }
   }
 };

@@ -1,7 +1,7 @@
 import { execFileSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
-import { readFile, readdir, stat } from 'node:fs/promises';
-import { dirname, join, resolve } from 'node:path';
+import { lstat, readFile, readdir, stat } from 'node:fs/promises';
+import { dirname, join, posix, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const serviceRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..');
@@ -20,6 +20,14 @@ const compareStrings = (left, right) => (left < right ? -1 : left > right ? 1 : 
 const sha256 = contents => createHash('sha256').update(contents).digest('hex');
 const servicePath = path => join(serviceRoot, ...path.split('/'));
 const readJson = async path => JSON.parse(await readFile(path, 'utf8'));
+
+class VerificationError extends Error {
+  constructor(code, message) {
+    super(`[${code}] ${message}`);
+    this.code = code;
+    this.name = 'VerificationError';
+  }
+}
 
 const assert = (condition, message) => {
   if (!condition) throw new Error(message);
@@ -98,11 +106,58 @@ const assertSubset = (actual, expected, label) => {
 };
 
 const verifyServiceFiles = async lock => {
+  assert(Array.isArray(lock.serviceFiles), 'upstream-lock.json serviceFiles must be an array');
+  const paths = lock.serviceFiles.map(entry => entry.path);
+  assert(
+    new Set(paths).size === paths.length,
+    'upstream-lock.json serviceFiles paths are not unique',
+  );
   await Promise.all(
     lock.serviceFiles.map(async entry => {
       assertSha(entry.sha256, `serviceFiles.${entry.path}`);
-      const actual = sha256(await readFile(servicePath(entry.path)));
-      assert(actual === entry.sha256, `service file hash mismatch: ${entry.path}`);
+      const contents = await readFile(servicePath(entry.path)).catch(error => {
+        throw new VerificationError(
+          'PROTECTED_AUTHORITY',
+          `protected service file is unavailable: ${entry.path} (${error?.code ?? 'read error'})`,
+        );
+      });
+      const actual = sha256(contents);
+      if (actual !== entry.sha256) {
+        throw new VerificationError(
+          'PROTECTED_AUTHORITY',
+          `protected service file hash mismatch: ${entry.path}`,
+        );
+      }
+    }),
+  );
+};
+
+const verifyPackageAuthorities = async lock => {
+  assert(
+    Array.isArray(lock.packageAuthorities),
+    'upstream-lock.json packageAuthorities must be an array',
+  );
+  const paths = lock.packageAuthorities.map(entry => entry.path);
+  assert(new Set(paths).size === paths.length, 'package authority paths are not unique');
+  await Promise.all(
+    lock.packageAuthorities.map(async entry => {
+      const manifest = await readJson(servicePath(entry.path));
+      const actual = {};
+      for (const [field, expected] of Object.entries(entry.projection)) {
+        if (field === 'serviceScripts' || field === 'excludedScriptAuthority') {
+          actual[field] = Object.fromEntries(
+            Object.keys(expected).map(name => [name, manifest.scripts?.[name] ?? null]),
+          );
+        } else {
+          actual[field] = manifest[field] ?? null;
+        }
+      }
+      if (JSON.stringify(actual) !== JSON.stringify(entry.projection)) {
+        throw new VerificationError(
+          'PROTECTED_AUTHORITY',
+          `protected package authority mismatch: ${entry.path}`,
+        );
+      }
     }),
   );
 };
@@ -194,6 +249,100 @@ const verifyVendorMap = async lock => {
   return vendorMap;
 };
 
+const assertSafeDestinationPath = (path, label) => {
+  const segments = typeof path === 'string' ? path.split('/') : [];
+  if (
+    segments.length === 0 ||
+    segments.some(
+      segment => segment === '' || segment === '.' || segment === '..' || segment.includes(':'),
+    ) ||
+    path.includes('\\') ||
+    posix.isAbsolute(path) ||
+    posix.normalize(path) !== path
+  ) {
+    throw new VerificationError('DESTINATION_POLICY_INVALID', `${label}: ${String(path)}`);
+  }
+};
+
+const collectManagedFiles = async path => {
+  assertSafeDestinationPath(path, 'unsafe managed root');
+  const absolutePath = servicePath(path);
+  const metadata = await lstat(absolutePath).catch(error => {
+    if (error?.code === 'ENOENT') return null;
+    throw error;
+  });
+  if (metadata === null) return [];
+  if (metadata.isSymbolicLink()) {
+    throw new VerificationError('MANAGED_DESTINATION_TYPE', `managed path is a symlink: ${path}`);
+  }
+  if (metadata.isFile()) return [path];
+  if (!metadata.isDirectory()) {
+    throw new VerificationError(
+      'MANAGED_DESTINATION_TYPE',
+      `managed path is not a file or directory: ${path}`,
+    );
+  }
+  const entries = (await readdir(absolutePath, { withFileTypes: true })).toSorted((left, right) =>
+    compareStrings(left.name, right.name),
+  );
+  const nested = await Promise.all(
+    entries.map(entry => collectManagedFiles(`${path}/${entry.name}`)),
+  );
+  return nested.flat();
+};
+
+const verifyDestinationClosure = async (lock, vendorMap) => {
+  const policy = lock.destinationClosure;
+  assert(
+    Array.isArray(policy?.managedRoots) && Array.isArray(policy?.serviceOwnedFiles),
+    'upstream-lock.json destinationClosure is invalid',
+  );
+  const managedRoots = policy.managedRoots.toSorted(compareStrings);
+  assert(
+    new Set(managedRoots).size === managedRoots.length,
+    'destinationClosure managed roots are not unique',
+  );
+  for (const root of managedRoots) assertSafeDestinationPath(root, 'unsafe managed root');
+
+  const vendoredDestinations = vendorMap.files
+    .filter(row => row.mode === 'copy')
+    .map(row => row.destination);
+  const serviceOwnedDestinations = policy.serviceOwnedFiles.map(entry => entry.path);
+  const expectedDestinations = [...vendoredDestinations, ...serviceOwnedDestinations];
+  assert(
+    new Set(expectedDestinations).size === expectedDestinations.length,
+    'vendored and service-owned managed destinations overlap',
+  );
+  for (const destination of expectedDestinations) {
+    assertSafeDestinationPath(destination, 'unsafe managed destination');
+    assert(
+      managedRoots.some(root => destination === root || destination.startsWith(`${root}/`)),
+      `managed destination is outside registered roots: ${destination}`,
+    );
+  }
+
+  await Promise.all(
+    policy.serviceOwnedFiles.map(async entry => {
+      assertSha(entry.sha256, `destinationClosure.serviceOwnedFiles.${entry.path}`);
+      const actual = sha256(await readFile(servicePath(entry.path)));
+      assert(actual === entry.sha256, `service-owned managed file hash mismatch: ${entry.path}`);
+    }),
+  );
+  const actualDestinations = new Set(
+    (await Promise.all(managedRoots.map(root => collectManagedFiles(root)))).flat(),
+  );
+  const expectedSet = new Set(expectedDestinations);
+  const unexpected = [...actualDestinations]
+    .filter(path => !expectedSet.has(path))
+    .toSorted(compareStrings);
+  if (unexpected.length > 0) {
+    throw new VerificationError(
+      'UNMANAGED_DESTINATION',
+      `files exist inside managed roots without provenance:\n${unexpected.join('\n')}`,
+    );
+  }
+};
+
 const verifyManifestContracts = async lock => {
   const rootManifest = await readJson(servicePath('package.json'));
   assert(
@@ -233,12 +382,6 @@ const verifyManifestContracts = async lock => {
 
   const manifests = [rootManifest, ...packageManifests];
   for (const manifest of manifests) {
-    for (const name of lock.droppedScripts) {
-      assert(
-        manifest.scripts?.[name] === undefined,
-        `dropped upstream script remains in ${manifest.name}: ${name}`,
-      );
-    }
     for (const command of Object.values(manifest.scripts ?? {})) {
       assert(
         !command.includes('scripts/sync-skills.mjs'),
@@ -360,6 +503,8 @@ const main = async () => {
   );
   await verifyServiceFiles(lock);
   const vendorMap = await verifyVendorMap(lock);
+  await verifyDestinationClosure(lock, vendorMap);
+  await verifyPackageAuthorities(lock);
   await verifyManifestContracts(lock);
   await verifyLicenseCopies(lock);
   if (mode === '--with-upstreams') {
