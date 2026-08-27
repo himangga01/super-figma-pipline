@@ -1,0 +1,248 @@
+{
+  "schemaVersion": 1,
+  "vendorMap": {
+    "path": "vendor-map.json",
+    "sha256": "844d2d2dda27e8473538f262447cf1d0bd01a4657b3f2a6cf951dd0dd3df28a2",
+    "counts": {
+      "copy": 546,
+      "mergeDependencyManifest": 4,
+      "referenceOnly": 19,
+      "total": 569
+    }
+  },
+  "serviceFiles": [
+    {
+      "path": "LICENSE",
+      "sha256": "71bdd83bd806bf641f813b89cae0325c9ec207d6b9cab501be827186c61432b7"
+    },
+    {
+      "path": "PROVENANCE.md",
+      "sha256": "011a563d4ba4bc6fdeb116688e7da3e52df130cf13259776d167a5e79c77e318"
+    },
+    {
+      "path": "licenses/figma-mcp-rust-LICENSE",
+      "sha256": "090008b93681f89f069796302925b21e031e8ac7c8c810cf75eb624cb8b195c2"
+    },
+    {
+      "path": "licenses/figmosha2-LICENSE",
+      "sha256": "88d4bc888f9604446e87873d7baf06925af639fe77c10ed3c90b0fb138ec4423"
+    },
+    {
+      "path": "licenses/figwright-LICENSE",
+      "sha256": "596f04ba93da8a848340599a9fafbbda8859d45a4087fd19c220bf16640c4d8f"
+    },
+    {
+      "path": "packages/cli/src/index.ts",
+      "sha256": "125d2c36e653abafaccad2140482c664ea85bba4f5bc14b7c9907a0194c9a8c8"
+    },
+    {
+      "path": "packages/ir/src/index.ts",
+      "sha256": "125d2c36e653abafaccad2140482c664ea85bba4f5bc14b7c9907a0194c9a8c8"
+    },
+    {
+      "path": "vendor-allowed-figwright-strings.json",
+      "sha256": "0aaaa09cdd2f3eeaba96ff26ecf5ec39671e62ef94b7276432e93207ad77dd6f"
+    },
+    {
+      "path": "vendor-rules.json",
+      "sha256": "88d3cc7853ecae8423af2f8824ebce78249a293ab54a8951537981b321dbe993"
+    }
+  ],
+  "rootAuthority": {
+    "packageManager": "pnpm@11.24.0",
+    "nodeEngine": ">=24.0.0 <25",
+    "scripts": {
+      "build": "pnpm -r run build",
+      "desktop:acceptance": "node scripts/desktop-acceptance.mjs",
+      "format:check": "oxfmt --check .",
+      "knip": "knip",
+      "lint": "oxlint --deny-warnings .",
+      "test": "vitest run --exclude \"test/artifact-contents.test.ts\"",
+      "test:artifacts": "vitest run test/artifact-contents.test.ts",
+      "test:e2e": "vitest run packages/mcp/test/e2e",
+      "test:unit": "vitest run --exclude \"**/test/e2e/**\" --exclude \"test/artifact-contents.test.ts\"",
+      "typecheck": "pnpm -r run typecheck",
+      "verify": "pnpm typecheck && pnpm lint && pnpm format:check && pnpm knip && pnpm build && pnpm test",
+      "verify:release": "pnpm verify && node scripts/generate-sbom.mjs && node scripts/generate-notices.mjs && node scripts/package-artifacts.mjs && node scripts/generate-checksums.mjs && pnpm test:artifacts && node scripts/verify-artifacts.mjs"
+    },
+    "workspacePackageNames": ["@sfp/shared", "@sfp/ir", "@sfp/mcp", "@sfp/plugin", "@sfp/cli"],
+    "knipWorkspaces": [
+      ".",
+      "packages/shared",
+      "packages/ir",
+      "packages/mcp",
+      "packages/plugin",
+      "packages/cli"
+    ]
+  },
+  "droppedScripts": ["postinstall", "release"],
+  "manifestRequirements": [
+    {
+      "path": "package.json",
+      "scripts": {
+        "clean": "pnpm -r exec rm -rf dist *.tsbuildinfo",
+        "dev": "pnpm -r --parallel run dev",
+        "format": "oxfmt .",
+        "knip:fix": "knip --fix",
+        "lint:fix": "oxlint --fix .",
+        "test:coverage": "vitest run --coverage",
+        "test:watch": "vitest"
+      },
+      "devDependencies": {
+        "changelogen": "^0.6.2"
+      }
+    },
+    {
+      "path": "packages/shared/package.json",
+      "topLevel": {
+        "exports": {
+          ".": {
+            "types": "./src/index.ts",
+            "default": "./src/index.ts"
+          }
+        }
+      },
+      "dependencies": {
+        "@msgpack/msgpack": "^3.1.3",
+        "zod": "^4.4.3"
+      }
+    },
+    {
+      "path": "packages/mcp/package.json",
+      "scripts": {
+        "dev": "tsdown --watch"
+      },
+      "dependencies": {
+        "@modelcontextprotocol/server": "^2.0.0",
+        "@msgpack/msgpack": "^3.1.3",
+        "fdir": "^6.5.0",
+        "ignore": "^7.0.6",
+        "oxc-parser": "^0.147.0",
+        "ws": "^8.21.3",
+        "zod": "^4.4.3"
+      },
+      "devDependencies": {
+        "@sfp/shared": "workspace:*",
+        "@types/ws": "^8.18.1",
+        "publint": "^0.3.24",
+        "tsdown": "^0.22.14"
+      }
+    },
+    {
+      "path": "packages/plugin/package.json",
+      "scripts": {
+        "dev": "vite build --config vite.config.ts --watch"
+      },
+      "dependencies": {
+        "@lucide/vue": "^1.34.0",
+        "@vueuse/core": "^14.4.0",
+        "vue": "^3.5.41",
+        "zod": "^4.4.3"
+      },
+      "devDependencies": {
+        "@figma/plugin-typings": "^1.135.0",
+        "@sfp/shared": "workspace:*",
+        "@tailwindcss/vite": "^4.3.3",
+        "@vitejs/plugin-vue": "^6.0.8",
+        "@vue/test-utils": "^2.4.11",
+        "happy-dom": "^20.11.6",
+        "tailwindcss": "^4.3.3",
+        "vite": "^8.2.2",
+        "vite-plugin-singlefile": "^2.3.3",
+        "vue-tsc": "^3.3.11"
+      }
+    }
+  ],
+  "upstreams": [
+    {
+      "id": "figma-mcp-rust",
+      "directory": "figma-mcp-rust",
+      "commit": "6094566436577b29d04393c774d51492c12671e1",
+      "license": {
+        "sourcePath": "LICENSE",
+        "servicePath": "licenses/figma-mcp-rust-LICENSE",
+        "sha256": "090008b93681f89f069796302925b21e031e8ac7c8c810cf75eb624cb8b195c2"
+      },
+      "attributionSources": [
+        {
+          "path": "README.md",
+          "ranges": ["3-7"],
+          "sha256": "980008b2ef141235f82123db2cc1dd1d874181b288b51a7d446e84af86b6f9c6"
+        },
+        {
+          "path": "plugin/src/read-export.ts",
+          "ranges": ["62-85"],
+          "sha256": "743482215c392db89e81c4a37b098134ac9bbfc2f1566979ee44b285cc565d47"
+        },
+        {
+          "path": "plugin/src/read-styles.ts",
+          "ranges": ["181-267"],
+          "sha256": "077ca508b4ad58c663e29c34714fa94eaa51cfc9d6b46f5c7d3d8fd9d63b9e1f"
+        },
+        {
+          "path": "src/bridge.rs",
+          "ranges": ["27-29", "280-301"],
+          "sha256": "1a2e1978e08bb5f5630ce11f47173204d509923d01ebd190657a2785dfd5b5ae"
+        },
+        {
+          "path": "src/pdf.rs",
+          "ranges": ["all"],
+          "sha256": "41e1ed153d1421eb4470cfb98cf766305d86804e4bf3c5eff82b0f4a7bfe83cb"
+        },
+        {
+          "path": "src/tools/special.rs",
+          "ranges": ["293-375"],
+          "sha256": "60532915e27be1710067c885070fdc8e9c8954cf226c2e8f26bff572e74f0f86"
+        }
+      ]
+    },
+    {
+      "id": "figmosha2",
+      "directory": "figmosha2",
+      "commit": "547cefb4c90abaa1da68db5455b921cbf3f8a5b9",
+      "license": {
+        "sourcePath": "LICENSE",
+        "servicePath": "licenses/figmosha2-LICENSE",
+        "sha256": "88d4bc888f9604446e87873d7baf06925af639fe77c10ed3c90b0fb138ec4423"
+      },
+      "attributionSources": [
+        {
+          "path": "CHANGELOG.md",
+          "ranges": ["74-75"],
+          "sha256": "6dab0e60c15f6658ba07a865fcdc9aba44e7d88e04086558558ca2d399ef752a"
+        },
+        {
+          "path": "bridge.py",
+          "ranges": ["72-109"],
+          "sha256": "9cb44cf8913c1b08737f918d51bbc034f5847bd75e3456b8ec3989bc60ad284a"
+        },
+        {
+          "path": "figmosha.py",
+          "ranges": ["137-179"],
+          "sha256": "85e14c443be937b136bb79f711943f413d370bea5626d67e0ad229a91178fb3b"
+        },
+        {
+          "path": "plugin/code.js",
+          "ranges": ["52-79", "96-200", "233-315"],
+          "sha256": "d542b3e77402f82e6ff447403cc8ff9f95ec541d5993915e0683da3ea185fa5a"
+        },
+        {
+          "path": "tests/helpers.test.js",
+          "ranges": ["all"],
+          "sha256": "c65e6833148c7b1aae823016be6a3b873fd0bab80d8a836f5fdb8f77208b25eb"
+        }
+      ]
+    },
+    {
+      "id": "figwright",
+      "directory": "figwright",
+      "commit": "a835e81b575eab2c9265a67f9353c89b848f81ca",
+      "license": {
+        "sourcePath": "LICENSE",
+        "servicePath": "licenses/figwright-LICENSE",
+        "sha256": "596f04ba93da8a848340599a9fafbbda8859d45a4087fd19c220bf16640c4d8f"
+      },
+      "attributionSources": []
+    }
+  ]
+}
