@@ -271,6 +271,22 @@ describe('protected service authorities', () => {
       mutate: contents => contents.replace("'egress.v1.json'", "'implicit-egress.json'"),
     },
     {
+      name: 'Task 5 fail-closed result-egress authority',
+      path: 'packages/mcp/src/policy/result-egress-policy.ts',
+      mutate: contents => contents.replace("'EGRESS_RESULT_INVALID'", "'EGRESS_MODE_UNKNOWN'"),
+    },
+    {
+      name: 'Task 5 exact image-source schema authority',
+      path: 'packages/mcp/src/tools/import-image.ts',
+      mutate: contents =>
+        contents.replace('requires exactly one', 'allows implicit precedence for'),
+    },
+    {
+      name: 'Task 5 exact image-source plugin authority',
+      path: 'packages/plugin/src/handlers/import-image.ts',
+      mutate: contents => contents.replace('provide exactly one', 'prefer data over'),
+    },
+    {
       name: 'pnpm lockfile bytes',
       path: 'pnpm-lock.yaml',
       mutate: contents => `${contents}# local mutation\n`,

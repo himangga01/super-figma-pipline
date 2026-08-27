@@ -2,8 +2,10 @@ import { createHash } from 'node:crypto';
 
 import { describe, expect, it } from 'vitest';
 
+import { BATCHABLE_TOOL_NAMES as POLICY_BATCHABLE_TOOL_NAMES } from '../packages/mcp/src/tools/batch.js';
 import { ALL_TOOL_SPECS } from '../packages/mcp/src/tools/registry.js';
 import { SERVER_ONLY_TOOLS, TOOL_RUNTIMES } from '../packages/mcp/src/tools/runtime-registry.js';
+import { BATCHABLE_TOOL_NAMES as PLUGIN_BATCHABLE_TOOL_NAMES } from '../packages/plugin/src/handlers/batch.js';
 import { createSandboxHandlers } from '../packages/plugin/src/handlers/registry.js';
 import {
   FIGMOSHA_FEATURE_MAP,
@@ -45,6 +47,12 @@ const EXPERIMENTAL_NATIVE = [
 ] as const;
 
 describe('tool contract authorities', () => {
+  it('keeps policy batch children equal to the plugin invertible allowlist', () => {
+    expect([...POLICY_BATCHABLE_TOOL_NAMES].toSorted()).toEqual(
+      [...PLUGIN_BATCHABLE_TOOL_NAMES].toSorted(),
+    );
+  });
+
   it('has one strict result schema and runtime for every baseline tool', () => {
     const names = ALL_TOOL_SPECS.map(spec => spec.name).toSorted();
 

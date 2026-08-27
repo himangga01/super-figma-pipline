@@ -62,7 +62,8 @@ export type EgressPolicyErrorCode =
   | 'EGRESS_CONFIG_WRITE_FAILED'
   | 'EGRESS_CONSENT_EXPIRED'
   | 'EGRESS_CONSENT_REQUIRED'
-  | 'EGRESS_MODE_UNKNOWN';
+  | 'EGRESS_MODE_UNKNOWN'
+  | 'EGRESS_RESULT_INVALID';
 
 export class EgressPolicyError extends Error {
   readonly code: EgressPolicyErrorCode;

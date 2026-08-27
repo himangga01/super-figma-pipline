@@ -8,10 +8,15 @@ import type {
   OperationPolicyRegistry,
 } from '@sfp/shared';
 
+import { parseBatchOperations } from '../tools/batch.js';
+
 type ParsedArgs = Readonly<Record<string, unknown>>;
 
 const FIGMA_READ = Object.freeze({ type: 'figma-read' } as const);
 const FIGMA_UI = Object.freeze({ type: 'figma-ui' } as const);
+const FIGMA_LIBRARY_IMPORT = Object.freeze({ type: 'figma-library-import' } as const);
+
+const network = (urlArg: string): Effect => Object.freeze({ type: 'network', urlArg });
 
 const figmaWrite = (destructive = false, broad = false): Effect =>
   Object.freeze({ type: 'figma-write', destructive, broad });
@@ -52,10 +57,12 @@ const policy = (
   effectsFor: OperationPolicy['effectsFor'],
   idempotencyFor: OperationPolicy['idempotencyFor'],
   concurrency: ConcurrencyRequirement,
+  possibleIdempotency: IdempotencyRequirement,
 ): OperationPolicy =>
   Object.freeze({
     toolName,
     possibleEffects: Object.freeze([...possibleEffects]),
+    possibleIdempotency,
     effectsFor,
     idempotencyFor,
     approvalFor: (effects: readonly Effect[]) => approvalForEffects(effects),
@@ -75,6 +82,7 @@ const staticPolicy = (
     () => immutableEffects,
     () => idempotency,
     concurrency,
+    idempotency,
   );
 };
 
@@ -118,7 +126,7 @@ const DESTRUCTIVE_WRITE_TOOL_NAMES = [
   'remove_manual_keyframe_track',
 ] as const;
 
-const BROAD_WRITE_TOOL_NAMES = ['find_replace_text', 'batch_rename_nodes', 'batch'] as const;
+const BROAD_WRITE_TOOL_NAMES = ['find_replace_text', 'batch_rename_nodes'] as const;
 
 const ORDINARY_WRITE_TOOL_NAMES = [
   'set_fills',
@@ -170,7 +178,6 @@ const ORDINARY_WRITE_TOOL_NAMES = [
   'add_page',
   'rename_page',
   'set_reactions',
-  'swap_component',
   'set_instance_properties',
   'add_component_property',
   'bind_component_property',
@@ -179,7 +186,6 @@ const ORDINARY_WRITE_TOOL_NAMES = [
   'create_ellipse',
   'create_component',
   'create_section',
-  'create_instance',
   'combine_as_variants',
   'apply_animation_style',
   'apply_manual_keyframe_track',
@@ -232,21 +238,82 @@ const filesystemWriterPolicy = (
       ]),
     () => idempotency,
     concurrency,
+    idempotency,
   );
 };
 
 const importImagePolicy = policy(
   'import_image',
-  [Object.freeze({ type: 'network', urlArg: 'url' } as const), figmaWrite()],
+  [network('url'), figmaWrite()],
   (args: ParsedArgs) => {
     const write = figmaWrite();
     return typeof args.url === 'string' && args.url.trim() !== ''
-      ? Object.freeze([Object.freeze({ type: 'network', urlArg: 'url' } as const), write])
+      ? Object.freeze([network('url'), write])
       : Object.freeze([write]);
   },
   (args: ParsedArgs) =>
     typeof args.url === 'string' && args.url.trim() !== '' ? 'never-auto-retry' : 'operation-id',
   'file-write',
+  'never-auto-retry',
+);
+
+const libraryImportPolicy = (toolName: 'create_instance' | 'swap_component'): OperationPolicy =>
+  policy(
+    toolName,
+    [FIGMA_LIBRARY_IMPORT, figmaWrite()],
+    (args: ParsedArgs) =>
+      typeof args.componentKey === 'string' && args.componentKey.trim() !== ''
+        ? Object.freeze([FIGMA_LIBRARY_IMPORT, figmaWrite()])
+        : Object.freeze([figmaWrite()]),
+    (args: ParsedArgs) =>
+      typeof args.componentKey === 'string' && args.componentKey.trim() !== ''
+        ? 'never-auto-retry'
+        : 'operation-id',
+    'file-write',
+    'never-auto-retry',
+  );
+
+const mergeBatchEffects = (effects: readonly Effect[]): readonly Effect[] => {
+  const nonWrites: Effect[] = [];
+  const seen = new Set<string>();
+  let destructive = false;
+  for (const effect of effects) {
+    if (effect.type === 'figma-write') {
+      destructive ||= effect.destructive;
+      continue;
+    }
+    const key = JSON.stringify(effect);
+    if (!seen.has(key)) {
+      seen.add(key);
+      nonWrites.push(effect);
+    }
+  }
+  return Object.freeze([...nonWrites, figmaWrite(destructive, true)]);
+};
+
+const idempotencyRank: Readonly<Record<IdempotencyRequirement, number>> = Object.freeze({
+  'safe-retry': 0,
+  'operation-id': 1,
+  'never-auto-retry': 2,
+});
+
+const batchPolicy = policy(
+  'batch',
+  [network('url'), FIGMA_LIBRARY_IMPORT, figmaWrite(false, true)],
+  (args: ParsedArgs, context) =>
+    mergeBatchEffects(
+      parseBatchOperations(args).flatMap(operation =>
+        operationPolicyFor(operation.tool).effectsFor(operation.params, context),
+      ),
+    ),
+  (args: ParsedArgs) =>
+    parseBatchOperations(args)
+      .map(operation => operationPolicyFor(operation.tool).idempotencyFor(operation.params))
+      .reduce((worst, current) =>
+        idempotencyRank[current] > idempotencyRank[worst] ? current : worst,
+      ),
+  'file-write',
+  'never-auto-retry',
 );
 
 const designDiffPolicy = policy(
@@ -263,6 +330,7 @@ const designDiffPolicy = policy(
     ]),
   () => 'operation-id',
   'file-write',
+  'operation-id',
 );
 
 const entries = [
@@ -283,8 +351,11 @@ const entries = [
   ...ordinaryWriteEntries,
   ...destructiveWriteEntries,
   ...broadWriteEntries,
+  ['create_instance', libraryImportPolicy('create_instance')],
+  ['swap_component', libraryImportPolicy('swap_component')],
   ['navigate_to_page', staticPolicy('navigate_to_page', [FIGMA_UI], 'safe-retry', 'file-write')],
   ['import_image', importImagePolicy],
+  ['batch', batchPolicy],
 ] as const satisfies readonly (readonly [string, OperationPolicy])[];
 
 const createRegistry = (

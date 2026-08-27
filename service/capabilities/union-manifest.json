@@ -2431,7 +2431,7 @@
           "schemaHash": "57420fbd250df60be614933158ba14518ce824ae7fe854d34c48f1ef09fd9b31"
         }
       ],
-      "targetContractHash": "f230e6b941bd8a2e2cf99532c603170b7a809d3621ebb5a2ae02ef6aede9482e",
+      "targetContractHash": "ab2b1ae5603c89ac9157103ea81a43974b84c90c488c1311d57819c7623950dc",
       "disposition": "adapter",
       "registration": "advertised",
       "availability": ["connected-plugin"],

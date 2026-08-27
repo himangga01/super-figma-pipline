@@ -25,17 +25,25 @@ export const createImportImageHandler =
       height?: unknown;
       scaleMode?: unknown;
     };
-    if (typeof p.data !== 'string' && typeof p.url !== 'string') {
-      throw new TypeError('import_image: provide data (base64) or url');
+    if (
+      (p.data !== undefined && typeof p.data !== 'string') ||
+      (p.url !== undefined && typeof p.url !== 'string')
+    ) {
+      throw new TypeError('import_image: provide exactly one nonempty data or url source');
+    }
+    const data = typeof p.data === 'string' && p.data.trim() !== '' ? p.data.trim() : undefined;
+    const url = typeof p.url === 'string' && p.url.trim() !== '' ? p.url.trim() : undefined;
+    if ((data === undefined) === (url === undefined)) {
+      throw new TypeError('import_image: provide exactly one nonempty data or url source');
     }
     const scaleMode: ScaleMode = SCALE_MODES.includes(p.scaleMode as ScaleMode)
       ? (p.scaleMode as ScaleMode)
       : 'FILL';
 
     const image =
-      typeof p.data === 'string'
-        ? figmaCtx.createImage(figmaCtx.base64Decode(p.data))
-        : await figmaCtx.createImageAsync(p.url as string);
+      data === undefined
+        ? await figmaCtx.createImageAsync(url as string)
+        : figmaCtx.createImage(figmaCtx.base64Decode(data));
     const size = await image.getSizeAsync();
 
     const rect = figmaCtx.createRectangle();

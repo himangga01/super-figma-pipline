@@ -1336,16 +1336,6 @@
     {
       "mode": "copy",
       "originCommit": "a835e81b575eab2c9265a67f9353c89b848f81ca",
-      "sourcePath": "packages/plugin/src/handlers/batch.ts",
-      "destination": "packages/plugin/src/handlers/batch.ts",
-      "baseSha256": "d683f54a9044e833706cd809b5778d33a5fe6d57327605cc790314152d9e1b3f",
-      "currentSha256": "957af86803361b9a919a803ef044075526cf981cd726e3b86f9455d5fd5aba70",
-      "transformations": ["package-specifier-rewrite", "oxfmt-normalize"],
-      "licenseId": "MIT"
-    },
-    {
-      "mode": "copy",
-      "originCommit": "a835e81b575eab2c9265a67f9353c89b848f81ca",
       "sourcePath": "packages/plugin/src/handlers/bind-component-property.ts",
       "destination": "packages/plugin/src/handlers/bind-component-property.ts",
       "baseSha256": "2551ee5c83339a6bf92188048cc89ba31e75c48707af23040d36a0941596f359",
@@ -1850,16 +1840,6 @@
       "destination": "packages/plugin/src/handlers/group-nodes.ts",
       "baseSha256": "ec53bd2e4359aa79a3029acccd8068ecdd689cf3afa515f1c3df2b9616a55881",
       "currentSha256": "227732e6068f56065b64fce51da7bc54c60558f7e11ef71b0a45e46ef80cdd99",
-      "transformations": ["package-specifier-rewrite", "oxfmt-normalize"],
-      "licenseId": "MIT"
-    },
-    {
-      "mode": "copy",
-      "originCommit": "a835e81b575eab2c9265a67f9353c89b848f81ca",
-      "sourcePath": "packages/plugin/src/handlers/import-image.ts",
-      "destination": "packages/plugin/src/handlers/import-image.ts",
-      "baseSha256": "9414be090ccb16057abc99737a5927776fd7f4005c9763aa462f5d2245c0651e",
-      "currentSha256": "9a15ffadc3c67fedf5d14564c2556ce220fa3f23d2dc742a91a7503ce1bad548",
       "transformations": ["package-specifier-rewrite", "oxfmt-normalize"],
       "licenseId": "MIT"
     },
@@ -3040,16 +3020,6 @@
       "destination": "packages/plugin/test/handlers/group-nodes.test.ts",
       "baseSha256": "b870e114d8ec5a09f684e02db5e08c96261228b4ff00f43b4d6c0942169a7d43",
       "currentSha256": "301317dea7f36ef561afe442238ae2143d44d6e2f9bcfb618b28cd9a0dd547c8",
-      "transformations": ["package-specifier-rewrite", "oxfmt-normalize"],
-      "licenseId": "MIT"
-    },
-    {
-      "mode": "copy",
-      "originCommit": "a835e81b575eab2c9265a67f9353c89b848f81ca",
-      "sourcePath": "packages/plugin/test/handlers/import-image.test.ts",
-      "destination": "packages/plugin/test/handlers/import-image.test.ts",
-      "baseSha256": "ddae6555656deb047663d083523ab6e7f9540a21e6aef696cc6f4df99d808d74",
-      "currentSha256": "71ec11932c6b0dbc675a5264e71e9f76fa6b02c888853147ea2af27836dadea2",
       "transformations": ["package-specifier-rewrite", "oxfmt-normalize"],
       "licenseId": "MIT"
     },

@@ -1,44 +1,53 @@
 import {
   ALL_DATA_CLASSES,
+  EgressPolicyError,
   type ClassifiedPayload,
   type DataClass,
   type ResultEgressPolicy,
   type ResultEgressPolicyRegistry,
 } from '@sfp/shared';
 
+import { RESULT_SCHEMAS } from '../../../shared/src/result-schemas.js';
+import { parseBatchOperations } from '../tools/batch.js';
+
 type UnknownRecord = Readonly<Record<string, unknown>>;
 
-const PUBLIC = ['public'] as const;
-const PROJECT_CODE = ['project-code'] as const;
-const DESIGN_TEXT = ['design-text'] as const;
-const DESIGN_IMAGE = ['design-image'] as const;
-const PROJECT_AND_DESIGN_TEXT = ['project-code', 'design-text'] as const;
+const frozenClasses = <T extends readonly DataClass[]>(...classes: T): Readonly<T> =>
+  Object.freeze(classes);
+
+const PUBLIC = frozenClasses('public');
+const PROJECT_CODE = frozenClasses('project-code');
+const DESIGN_TEXT = frozenClasses('design-text');
+const DESIGN_IMAGE = frozenClasses('design-image');
+const DESIGN_TEXT_AND_IMAGE = frozenClasses('design-text', 'design-image');
+const PROJECT_AND_DESIGN_TEXT = frozenClasses('project-code', 'design-text');
+const PROJECT_DESIGN_TEXT_AND_IMAGE = frozenClasses('project-code', 'design-text', 'design-image');
 
 /** Literal upper bounds. Each baseline name owns one row even when rows share pure classifiers. */
-const POSSIBLE_RESULT_CLASSES = {
-  ping: ['public', 'design-text', 'secret'],
-  get_selection: DESIGN_TEXT,
-  get_document: DESIGN_TEXT,
-  get_node: DESIGN_TEXT,
-  get_nodes_info: DESIGN_TEXT,
+const POSSIBLE_RESULT_CLASSES = Object.freeze({
+  ping: frozenClasses('public', 'design-text', 'secret'),
+  get_selection: DESIGN_TEXT_AND_IMAGE,
+  get_document: DESIGN_TEXT_AND_IMAGE,
+  get_node: DESIGN_TEXT_AND_IMAGE,
+  get_nodes_info: DESIGN_TEXT_AND_IMAGE,
   get_metadata: DESIGN_TEXT,
   get_pages: DESIGN_TEXT,
-  search_nodes: DESIGN_TEXT,
-  scan_text_nodes: DESIGN_TEXT,
-  scan_nodes_by_types: DESIGN_TEXT,
-  get_styles: DESIGN_TEXT,
-  get_variable_defs: DESIGN_TEXT,
+  search_nodes: DESIGN_TEXT_AND_IMAGE,
+  scan_text_nodes: DESIGN_TEXT_AND_IMAGE,
+  scan_nodes_by_types: DESIGN_TEXT_AND_IMAGE,
+  get_styles: PROJECT_DESIGN_TEXT_AND_IMAGE,
+  get_variable_defs: PROJECT_DESIGN_TEXT_AND_IMAGE,
   get_local_components: DESIGN_TEXT,
   get_component_api: DESIGN_TEXT,
   get_viewport: DESIGN_TEXT,
   get_fonts: DESIGN_TEXT,
   get_annotations: DESIGN_TEXT,
   get_reactions: DESIGN_TEXT,
-  get_motion_styles: DESIGN_TEXT,
-  get_node_motion: DESIGN_TEXT,
-  list_files: ['design-text', 'secret'],
-  get_design_context: ['project-code', 'design-text', 'design-image'],
-  get_screenshot: ['public', 'design-image'],
+  get_motion_styles: DESIGN_TEXT_AND_IMAGE,
+  get_node_motion: DESIGN_TEXT_AND_IMAGE,
+  list_files: frozenClasses('design-text', 'secret'),
+  get_design_context: PROJECT_DESIGN_TEXT_AND_IMAGE,
+  get_screenshot: frozenClasses('public', 'design-image'),
   save_screenshots: PROJECT_CODE,
   save_image_fills: PROJECT_CODE,
   export_pdf: PROJECT_CODE,
@@ -88,13 +97,13 @@ const POSSIBLE_RESULT_CLASSES = {
   delete_style: DESIGN_TEXT,
   create_variable_collection: DESIGN_TEXT,
   add_variable_mode: DESIGN_TEXT,
-  create_variable: ['project-code', 'design-text'],
-  set_variable_value: ['project-code', 'design-text'],
+  create_variable: PROJECT_AND_DESIGN_TEXT,
+  set_variable_value: PROJECT_AND_DESIGN_TEXT,
   bind_variable_to_node: PUBLIC,
   bind_variable_to_paint: PUBLIC,
-  rename_variable: ['project-code', 'design-text'],
-  set_variable_code_syntax: ['project-code', 'design-text'],
-  delete_variable: ['project-code', 'design-text'],
+  rename_variable: PROJECT_AND_DESIGN_TEXT,
+  set_variable_code_syntax: PROJECT_AND_DESIGN_TEXT,
+  delete_variable: PROJECT_AND_DESIGN_TEXT,
   delete_variable_collection: DESIGN_TEXT,
   group_nodes: DESIGN_TEXT,
   ungroup_nodes: PUBLIC,
@@ -127,8 +136,8 @@ const POSSIBLE_RESULT_CLASSES = {
   apply_manual_keyframe_track: PUBLIC,
   remove_manual_keyframe_track: PUBLIC,
   set_timeline_duration: PUBLIC,
-  batch: ['public', 'project-code', 'design-text', 'design-image'],
-} as const satisfies Readonly<Record<string, readonly DataClass[]>>;
+  batch: frozenClasses('public', 'project-code', 'design-text', 'design-image'),
+} as const satisfies Readonly<Record<string, readonly DataClass[]>>);
 
 const PROJECT_CODE_INPUTS = new Set([
   'save_screenshots',
@@ -196,6 +205,24 @@ const canonicalClasses = (classes: readonly DataClass[]): readonly DataClass[] =
 const nonEmptyString = (value: unknown): boolean =>
   typeof value === 'string' && value.trim() !== '';
 
+const collectKeyframeInputClasses = (value: unknown, classes: Set<DataClass>): void => {
+  if (Array.isArray(value)) {
+    for (const item of value) collectKeyframeInputClasses(item, classes);
+    return;
+  }
+  if (typeof value !== 'object' || value === null) return;
+  const record = value as Record<string, unknown>;
+  if (record.type === 'TEXT_DATA') classes.add('design-text');
+  if (
+    ['COLOR', 'VECTOR', 'CIRCLE', 'LINE', 'CIRCLE_POINT', 'COLOR_POINT'].includes(
+      String(record.type),
+    )
+  ) {
+    classes.add('design-image');
+  }
+  for (const child of Object.values(record)) collectKeyframeInputClasses(child, classes);
+};
+
 const possibleInputClassesFor = (toolName: string, args: UnknownRecord): readonly DataClass[] => {
   if (toolName === 'import_image') {
     const classes: DataClass[] = [];
@@ -209,7 +236,16 @@ const possibleInputClassesFor = (toolName: string, args: UnknownRecord): readonl
       : DESIGN_IMAGE;
   }
   if (toolName === 'batch') {
-    return canonicalClasses(['project-code', 'design-text', 'design-image']);
+    return canonicalClasses(
+      parseBatchOperations(args).flatMap(operation =>
+        resultEgressPolicyFor(operation.tool).possibleInputClasses(operation.params),
+      ),
+    );
+  }
+  if (toolName === 'apply_manual_keyframe_track') {
+    const classes = new Set<DataClass>();
+    collectKeyframeInputClasses(args.track, classes);
+    return classes.size === 0 ? PUBLIC : canonicalClasses([...classes]);
   }
   if (PROJECT_CODE_INPUTS.has(toolName)) return PROJECT_CODE;
   if (DESIGN_TEXT_INPUTS.has(toolName)) return DESIGN_TEXT;
@@ -234,6 +270,36 @@ const containsNonNullKey = (value: unknown, key: string): boolean => {
   return Object.values(record).some(item => containsNonNullKey(item, key));
 };
 
+const containsColorLikeValue = (value: unknown): boolean => {
+  if (Array.isArray(value)) return value.some(containsColorLikeValue);
+  if (typeof value !== 'object' || value === null) return false;
+  const record = value as Record<string, unknown>;
+  if (
+    typeof record.r === 'number' &&
+    typeof record.g === 'number' &&
+    typeof record.b === 'number'
+  ) {
+    return true;
+  }
+  return Object.values(record).some(containsColorLikeValue);
+};
+
+const hasNonEmptyArray = (value: unknown, keys: readonly string[]): boolean => {
+  if (typeof value !== 'object' || value === null) return false;
+  const record = value as Record<string, unknown>;
+  return keys.some(key => Array.isArray(record[key]) && record[key].length > 0);
+};
+
+const SERIALIZED_VISUAL_RESULT_NAMES = new Set([
+  'get_selection',
+  'get_document',
+  'get_node',
+  'get_nodes_info',
+  'search_nodes',
+  'scan_text_nodes',
+  'scan_nodes_by_types',
+]);
+
 const actualResultClassesFor = (
   toolName: string,
   result: unknown,
@@ -251,10 +317,28 @@ const actualResultClassesFor = (
       ? DESIGN_IMAGE
       : PUBLIC;
   }
+  if (SERIALIZED_VISUAL_RESULT_NAMES.has(toolName)) return DESIGN_TEXT_AND_IMAGE;
+  if (toolName === 'get_styles') {
+    const classes: DataClass[] = ['design-text'];
+    if (containsNonNullKey(result, 'codeSyntax')) classes.push('project-code');
+    if (hasNonEmptyArray(result, ['paints', 'texts', 'effects', 'grids'])) {
+      classes.push('design-image');
+    }
+    return canonicalClasses(classes);
+  }
+  if (toolName === 'get_variable_defs') {
+    const classes: DataClass[] = ['design-text'];
+    if (containsNonNullKey(result, 'codeSyntax')) classes.push('project-code');
+    if (containsColorLikeValue(result)) classes.push('design-image');
+    return canonicalClasses(classes);
+  }
+  if (toolName === 'get_motion_styles' || toolName === 'get_node_motion') {
+    return DESIGN_TEXT_AND_IMAGE;
+  }
   if (toolName === 'get_design_context') {
-    return containsNonNullKey(result, 'projectTokens')
+    return containsNonNullKey(result, 'projectTokens') || containsNonNullKey(result, 'codeSyntax')
       ? canonicalClasses(['project-code', 'design-text', 'design-image'])
-      : canonicalClasses(['design-text', 'design-image']);
+      : DESIGN_TEXT_AND_IMAGE;
   }
   if (VARIABLE_RESULT_NAMES.has(toolName)) {
     return containsNonNullKey(result, 'codeSyntax')
@@ -262,61 +346,6 @@ const actualResultClassesFor = (
       : DESIGN_TEXT;
   }
   return possible;
-};
-
-const SECRET_KEYS = new Set(['fileKey']);
-const IMAGE_KEYS = new Set(['base64', 'bytes']);
-const PROJECT_CODE_KEYS = new Set([
-  'configPath',
-  'evidence',
-  'filePath',
-  'from',
-  'importHint',
-  'loader',
-  'path',
-  'rootDir',
-  'snapshotPath',
-  'tokenSource',
-]);
-const DESIGN_TEXT_KEYS = new Set([
-  'characters',
-  'description',
-  'error',
-  'fileName',
-  'name',
-  'note',
-  'pageName',
-  'text',
-]);
-
-const redactValue = (value: unknown, denied: ReadonlySet<DataClass>, key?: string): unknown => {
-  if (key !== undefined) {
-    if (denied.has('secret') && SECRET_KEYS.has(key)) return null;
-    if (denied.has('design-image') && IMAGE_KEYS.has(key))
-      return key === 'base64' ? null : undefined;
-    const redactText =
-      (denied.has('project-code') && PROJECT_CODE_KEYS.has(key)) ||
-      (denied.has('design-text') && DESIGN_TEXT_KEYS.has(key));
-    if (redactText) {
-      if (typeof value === 'string') return '[redacted]';
-      if (Array.isArray(value)) {
-        return value.map(item =>
-          typeof item === 'string' ? '[redacted]' : redactValue(item, denied),
-        );
-      }
-    }
-  }
-  if (typeof value === 'string' && (denied.has('project-code') || denied.has('design-text'))) {
-    return '[redacted]';
-  }
-  if (Array.isArray(value)) return value.map(item => redactValue(item, denied));
-  if (typeof value !== 'object' || value === null) return value;
-  return Object.fromEntries(
-    Object.entries(value).map(([childKey, child]) => [
-      childKey,
-      redactValue(child, denied, childKey),
-    ]),
-  );
 };
 
 const createPolicy = (
@@ -332,12 +361,25 @@ const createPolicy = (
     classifyResult: (result: UnknownRecord) =>
       classified(result, actualResultClassesFor(toolName, result, possible)),
     redactResult: (result: UnknownRecord, allowed: readonly DataClass[]) => {
-      const denied = new Set(
-        actualResultClassesFor(toolName, result, possible).filter(
-          dataClass => !allowed.includes(dataClass),
-        ),
+      const deniedClass = actualResultClassesFor(toolName, result, possible).find(
+        dataClass => !allowed.includes(dataClass),
       );
-      return redactValue(result, denied) as UnknownRecord;
+      if (deniedClass !== undefined) {
+        throw new EgressPolicyError(
+          'EGRESS_CLASS_NOT_ALLOWED',
+          `result egress does not allow ${deniedClass}`,
+          { deniedClass },
+        );
+      }
+      const parsed = RESULT_SCHEMAS[toolName]?.safeParse(result);
+      if (parsed === undefined || !parsed.success) {
+        throw new EgressPolicyError(
+          'EGRESS_RESULT_INVALID',
+          `result does not match the ${toolName} schema`,
+          parsed === undefined ? {} : { cause: parsed.error },
+        );
+      }
+      return parsed.data as UnknownRecord;
     },
   });
 };

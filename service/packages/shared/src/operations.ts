@@ -38,6 +38,8 @@ export interface OperationPolicy<I = Readonly<Record<string, unknown>>> {
   toolName: string;
   /** Worst-case union used for static MCP annotations. */
   possibleEffects: readonly Effect[];
+  /** Worst retry behavior across all valid parsed argument branches. */
+  possibleIdempotency: IdempotencyRequirement;
   effectsFor(args: Readonly<I>, context: InvocationContext): readonly Effect[];
   idempotencyFor(args: Readonly<I>): IdempotencyRequirement;
   approvalFor(effects: readonly Effect[], context: InvocationContext): ApprovalRequirement;

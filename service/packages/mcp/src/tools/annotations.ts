@@ -25,7 +25,9 @@ export const annotationsFor = (spec: ToolSpec<unknown, unknown>): ToolAnnotation
   return {
     readOnlyHint,
     destructiveHint,
-    idempotentHint: policy.idempotencyFor({}) === 'safe-retry',
-    openWorldHint: possible.some(effect => effect.type === 'network'),
+    idempotentHint: policy.possibleIdempotency === 'safe-retry',
+    openWorldHint: possible.some(
+      effect => effect.type === 'network' || effect.type === 'figma-library-import',
+    ),
   };
 };

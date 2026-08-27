@@ -4,6 +4,7 @@ import { describe, expect, it } from 'vitest';
 import { OPERATION_POLICIES, operationPolicyFor } from '../../src/policy/operation-policy.js';
 import { evaluateOperationPolicy } from '../../src/policy/policy-engine.js';
 import { annotationsFor } from '../../src/tools/annotations.js';
+import { BATCHABLE_TOOL_NAMES as POLICY_BATCHABLE_TOOL_NAMES } from '../../src/tools/batch.js';
 import { ALL_TOOL_SPECS } from '../../src/tools/registry.js';
 
 const BASELINE_TOOL_NAMES = [
@@ -163,6 +164,11 @@ const spec = (name: string) => {
   return found;
 };
 
+const parsedBatch = (
+  ops: readonly Readonly<{ tool: string; params?: Readonly<Record<string, unknown>> }>[],
+): Readonly<Record<string, unknown>> =>
+  spec('batch').inputSchema.parse({ ops }) as Readonly<Record<string, unknown>>;
+
 describe('baseline operation policy authority', () => {
   it('has exactly one named policy for each literal baseline tool', () => {
     expect(BASELINE_TOOL_NAMES).toHaveLength(112);
@@ -174,11 +180,105 @@ describe('baseline operation policy authority', () => {
   });
 
   it('classifies import_image by its parsed source', () => {
-    expect(types(effects('import_image', { data: 'AA==' }))).toEqual(['figma-write']);
-    expect(types(effects('import_image', { url: 'https://assets.example.com/a.png' }))).toEqual([
-      'network',
+    const schema = spec('import_image').inputSchema;
+    for (const invalid of [
+      {},
+      { data: '', url: undefined },
+      { data: '   ' },
+      { url: '\t' },
+      { data: 'AA==', url: 'https://assets.example.com/a.png' },
+    ]) {
+      expect(schema.safeParse(invalid).success).toBe(false);
+    }
+
+    const dataArgs = schema.parse({ data: '  AA==  ' }) as Readonly<Record<string, unknown>>;
+    const urlArgs = schema.parse({
+      url: '  https://assets.example.com/a.png  ',
+    }) as Readonly<Record<string, unknown>>;
+    expect(dataArgs).toMatchObject({ data: 'AA==' });
+    expect(urlArgs).toMatchObject({ url: 'https://assets.example.com/a.png' });
+    expect(types(effects('import_image', dataArgs))).toEqual(['figma-write']);
+    expect(types(effects('import_image', urlArgs))).toEqual(['network', 'figma-write']);
+  });
+
+  it('classifies published component keys as library imports', () => {
+    for (const [name, args] of [
+      ['create_instance', { componentKey: 'published-component' }],
+      ['swap_component', { instanceId: '1:2', componentKey: 'published-component' }],
+    ] as const) {
+      const resolved = effects(name, args);
+      expect(resolved).toEqual([
+        { type: 'figma-library-import' },
+        { type: 'figma-write', destructive: false, broad: false },
+      ]);
+      expect(operationPolicyFor(name).approvalFor(resolved, context)).toBe('explicit-user');
+      expect(operationPolicyFor(name).idempotencyFor(args)).toBe('never-auto-retry');
+      expect(annotationsFor(spec(name))).toEqual({
+        readOnlyHint: false,
+        destructiveHint: false,
+        idempotentHint: false,
+        openWorldHint: true,
+      });
+    }
+
+    expect(types(effects('create_instance', { componentId: '1:3' }))).toEqual(['figma-write']);
+    expect(types(effects('swap_component', { instanceId: '1:2', componentId: '1:3' }))).toEqual([
       'figma-write',
     ]);
+  });
+
+  it('unions parsed batch child effects and derives the worst retry requirement', () => {
+    const libraryBatch = parsedBatch([
+      { tool: 'set_opacity', params: { nodeId: '1:2', opacity: 0.5 } },
+      { tool: 'create_instance', params: { componentKey: 'published-component' } },
+    ]);
+    const libraryEffects = effects('batch', libraryBatch);
+    expect(libraryEffects).toEqual([
+      { type: 'figma-library-import' },
+      { type: 'figma-write', destructive: false, broad: true },
+    ]);
+    expect(operationPolicyFor('batch').idempotencyFor(libraryBatch)).toBe('never-auto-retry');
+    expect(operationPolicyFor('batch').approvalFor(libraryEffects, context)).toBe('explicit-user');
+
+    const networkBatch = parsedBatch([
+      {
+        tool: 'import_image',
+        params: { url: 'https://assets.example.com/batch.png' },
+      },
+    ]);
+    expect(effects('batch', networkBatch)).toEqual([
+      { type: 'network', urlArg: 'url' },
+      { type: 'figma-write', destructive: false, broad: true },
+    ]);
+    expect(operationPolicyFor('batch').idempotencyFor(networkBatch)).toBe('never-auto-retry');
+    expect(annotationsFor(spec('batch')).openWorldHint).toBe(true);
+  });
+
+  it('rejects nested, unsupported, and malformed batch children before policy evaluation', () => {
+    expect(
+      spec('batch').inputSchema.safeParse({
+        ops: [{ tool: 'batch', params: { ops: [{ tool: 'set_opacity', params: {} }] } }],
+      }).success,
+    ).toBe(false);
+    expect(
+      spec('batch').inputSchema.safeParse({
+        ops: [{ tool: 'delete_nodes', params: { nodeIds: ['1:2'] } }],
+      }).success,
+    ).toBe(false);
+    expect(
+      spec('batch').inputSchema.safeParse({
+        ops: [{ tool: 'set_opacity', params: { nodeId: '1:2' } }],
+      }).success,
+    ).toBe(false);
+    expect(
+      spec('batch').inputSchema.safeParse({ ops: [{ tool: 'set_opacity', params: null }] }).success,
+    ).toBe(false);
+  });
+
+  it('covers the plugin invertible batch allowlist exactly without admitting nested batch', () => {
+    expect(POLICY_BATCHABLE_TOOL_NAMES).toHaveLength(30);
+    expect(POLICY_BATCHABLE_TOOL_NAMES).not.toContain('batch');
+    expect(POLICY_BATCHABLE_TOOL_NAMES).not.toContain('swap_component');
   });
 
   it('assigns the exact multi-effects to every baseline local tool', () => {
@@ -237,7 +337,13 @@ describe('baseline operation policy authority', () => {
 
     const missingDocumentWrite = writes
       .filter(tool => tool.name !== 'navigate_to_page')
-      .filter(tool => !types(effects(tool.name, {})).includes('figma-write'))
+      .filter(tool => {
+        const args =
+          tool.name === 'batch'
+            ? parsedBatch([{ tool: 'set_opacity', params: { nodeId: '1:2', opacity: 0.5 } }])
+            : {};
+        return !types(effects(tool.name, args)).includes('figma-write');
+      })
       .map(tool => tool.name);
     expect(missingDocumentWrite).toEqual([]);
   });
@@ -294,7 +400,10 @@ describe('baseline operation policy authority', () => {
         workspaceContext,
       ),
     ).toBe('client');
-    expect(operationPolicyFor('batch').approvalFor(effects('batch', {}), context)).toBe(
+    const batchArgs = parsedBatch([
+      { tool: 'set_opacity', params: { nodeId: '1:2', opacity: 0.5 } },
+    ]);
+    expect(operationPolicyFor('batch').approvalFor(effects('batch', batchArgs), context)).toBe(
       'explicit-user',
     );
     expect(

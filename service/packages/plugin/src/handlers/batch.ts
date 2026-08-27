@@ -416,6 +416,9 @@ const INVERSES: Readonly<Record<string, BatchInverse>> = {
   set_timeline_duration: setTimelineDurationInverse,
 };
 
+/** Public authority used to prove policy parsing covers every invertible plugin child exactly. */
+export const BATCHABLE_TOOL_NAMES = Object.freeze(Object.keys(INVERSES));
+
 interface ParsedOp {
   tool: string;
   params: unknown;
