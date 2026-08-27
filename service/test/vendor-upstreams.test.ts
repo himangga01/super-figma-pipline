@@ -347,10 +347,10 @@ describe('protected service authorities', () => {
         contents.replace('relayAuthenticator: pairing', 'relayAuthenticator: undefined'),
     },
     {
-      name: 'Task 6 cross-process pairing lock authority',
+      name: 'Task 6 atomic pairing revision authority',
       path: 'packages/mcp/src/security/pairing-manager.ts',
       mutate: contents =>
-        contents.replace("open(lockPath, 'wx', 0o600)", "open(lockPath, 'w', 0o600)"),
+        contents.replace('await link(temporary, target)', 'await rename(temporary, target)'),
     },
     {
       name: 'Task 6 recoverable hello commit authority',
@@ -362,6 +362,35 @@ describe('protected service authorities', () => {
       name: 'Task 6 fresh follower identity authority',
       path: 'packages/mcp/src/election/follower.ts',
       mutate: contents => contents.replace('await this.verifyFreshLeader()', 'undefined'),
+    },
+    {
+      name: 'Task 6 encrypted follower channel authority',
+      path: 'packages/mcp/src/election/follower.ts',
+      mutate: contents => contents.replace('body: sealed.body', 'body'),
+    },
+    {
+      name: 'Task 6 one-use follower challenge authority',
+      path: 'packages/mcp/src/security/follower-auth.ts',
+      mutate: contents => contents.replace('followerChallenges.delete(nonce)', '// replay allowed'),
+    },
+    {
+      name: 'Task 6 hello recovery binding authority',
+      path: 'packages/mcp/src/security/pairing-manager.ts',
+      mutate: contents => contents.replace("'hello-binding'", "'hello-unbound'"),
+    },
+    {
+      name: 'Task 6 identity-aware session cleanup authority',
+      path: 'packages/mcp/src/relay/session.ts',
+      mutate: contents => contents.replace('if (current !== session) return;', ''),
+    },
+    {
+      name: 'Task 6 zero pending-frame retention authority',
+      path: 'packages/mcp/src/relay/relay.ts',
+      mutate: contents =>
+        contents.replace(
+          "socket.close(1008, 'non-hello message while authentication is pending')",
+          '// queued until authentication completes',
+        ),
     },
     {
       name: 'Task 6 inline image cap authority',

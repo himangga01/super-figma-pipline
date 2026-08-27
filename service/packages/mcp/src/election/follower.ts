@@ -10,11 +10,16 @@ import {
 } from '@sfp/shared';
 
 import {
+  type FollowerChallenge,
+  sealFollowerRequest,
+  verifyFollowerChallenge,
+} from '../security/follower-auth.js';
+import {
   HTTP_RESPONSE_MAX_BYTES,
   readBoundedFetchBody,
   RequestLimitError,
 } from '../security/request-limits.js';
-import { ABDICATE_PATH, PING_PATH, RPC_PATH } from './leader-endpoints.js';
+import { ABDICATE_PATH, FOLLOWER_CHALLENGE_PATH, PING_PATH, RPC_PATH } from './leader-endpoints.js';
 
 export const DEFAULT_FOLLOWER_RPC_TIMEOUT_MS = 35_000;
 export const DEFAULT_PING_TIMEOUT_MS = 2_000;
@@ -35,6 +40,8 @@ interface VerifiedLeader {
   info: LeaderInfo;
   body: Record<string, unknown>;
   credential: FollowerCredential;
+  followerToken: string;
+  challenge: FollowerChallenge;
 }
 
 /**
@@ -143,15 +150,35 @@ export class Follower {
     };
   }
 
-  private followerHeaders(
-    contentType: string,
-    credential: FollowerCredential,
-  ): Record<string, string> {
-    return {
-      'content-type': contentType,
-      authorization: credential.value,
-      'x-sfp-leader-generation': credential.generation,
-    };
+  private followerToken(credential: FollowerCredential): string | undefined {
+    const match = /^Bearer ([A-Za-z0-9_-]{43})$/.exec(credential.value);
+    return match?.[1];
+  }
+
+  private async fetchFollowerChallenge(): Promise<FollowerChallenge | undefined> {
+    try {
+      const response = await this.opts.fetch(`${this.opts.leaderUrl}${FOLLOWER_CHALLENGE_PATH}`, {
+        signal: AbortSignal.timeout(this.opts.pingTimeoutMs),
+      });
+      if (!response.ok) return undefined;
+      const value: unknown = JSON.parse(
+        (await readBoundedFetchBody(response, this.opts.responseMaxBytes)).toString('utf8'),
+      ) as unknown;
+      if (typeof value !== 'object' || value === null || Array.isArray(value)) return undefined;
+      const challenge = value as Partial<FollowerChallenge>;
+      if (
+        challenge.product !== PRODUCT_MAGIC ||
+        typeof challenge.generation !== 'string' ||
+        typeof challenge.nonce !== 'string' ||
+        typeof challenge.expiresAt !== 'number' ||
+        typeof challenge.proof !== 'string'
+      ) {
+        return undefined;
+      }
+      return challenge as FollowerChallenge;
+    } catch {
+      return undefined;
+    }
   }
 
   private async verifyFreshLeader(): Promise<VerifiedLeader | undefined> {
@@ -168,16 +195,27 @@ export class Follower {
     }
     const body = await this.fetchPing();
     const info = this.parseLeaderInfo(body);
+    const followerToken = this.followerToken(credential);
     if (
       body === undefined ||
       info === undefined ||
+      followerToken === undefined ||
       info.leaderGeneration !== credential.generation
     ) {
       this.quarantined = true;
       return undefined;
     }
+    const challenge = await this.fetchFollowerChallenge();
+    if (
+      challenge === undefined ||
+      challenge.generation !== credential.generation ||
+      !verifyFollowerChallenge(followerToken, challenge)
+    ) {
+      this.quarantined = true;
+      return undefined;
+    }
     this.quarantined = false;
-    return { info, body, credential };
+    return { info, body, credential, followerToken, challenge };
   }
 
   /**
@@ -189,10 +227,17 @@ export class Follower {
     try {
       const verified = await this.verifyFreshLeader();
       if (verified === undefined || this.quarantined) return 'error';
+      const sealed = sealFollowerRequest(
+        verified.followerToken,
+        verified.challenge,
+        'POST',
+        ABDICATE_PATH,
+        Buffer.from(JSON.stringify({ buildId }), 'utf8'),
+      );
       const res = await this.opts.fetch(`${this.opts.leaderUrl}${ABDICATE_PATH}`, {
         method: 'POST',
-        headers: this.followerHeaders('application/json', verified.credential),
-        body: JSON.stringify({ buildId }),
+        headers: sealed.headers,
+        body: sealed.body,
         signal: AbortSignal.timeout(this.opts.pingTimeoutMs),
       });
       // A leader that predates the endpoint 404s ("not found" catch-all) — it can't be retired
@@ -259,6 +304,13 @@ export class Follower {
     };
     const bytes = encode(rpc);
     const body = Buffer.from(bytes.buffer, bytes.byteOffset, bytes.byteLength);
+    const sealed = sealFollowerRequest(
+      verified.followerToken,
+      verified.challenge,
+      'POST',
+      RPC_PATH,
+      body,
+    );
 
     // Per-tool follower budget when given (outermost layer); else the constructor default. Combined
     // with the caller's abort so whichever reason arrives first ends the wait.
@@ -269,8 +321,8 @@ export class Follower {
     try {
       res = await this.opts.fetch(`${this.opts.leaderUrl}${RPC_PATH}`, {
         method: 'POST',
-        headers: this.followerHeaders('application/msgpack', verified.credential),
-        body,
+        headers: sealed.headers,
+        body: sealed.body,
         signal,
       });
     } catch (err) {

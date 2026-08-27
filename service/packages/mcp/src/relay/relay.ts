@@ -108,9 +108,7 @@ export class Relay {
           return;
         }
         if (!isAllowedHost(req.headers.host)) {
-          this.opts.log(
-            `[relay] refused WebSocket upgrade for host ${req.headers.host ?? '(none)'}`,
-          );
+          this.opts.log('[relay] refused WebSocket upgrade (HOST_REJECTED)');
           done(false, 403, 'Forbidden');
           return;
         }
@@ -119,7 +117,7 @@ export class Relay {
           done(true);
           return;
         }
-        this.opts.log(`[relay] refused WebSocket upgrade from origin ${origin ?? '(none)'}`);
+        this.opts.log('[relay] refused WebSocket upgrade (ORIGIN_REJECTED)');
         done(false, 403, 'Forbidden');
       },
     });
@@ -350,7 +348,6 @@ export class Relay {
     let session: Session | undefined;
     let authenticating = false;
     let closed = false;
-    const earlyEnvelopes: Envelope[] = [];
 
     const helloTimeout = setTimeout(() => {
       if (session === undefined) {
@@ -371,8 +368,7 @@ export class Relay {
 
       if (session === undefined) {
         if (authenticating) {
-          if (earlyEnvelopes.length >= 16) socket.close(1008, 'too many pre-session messages');
-          else earlyEnvelopes.push(envelope);
+          socket.close(1008, 'non-hello message while authentication is pending');
           return;
         }
         authenticating = true;
@@ -381,14 +377,11 @@ export class Relay {
             const authenticated = await this.handleHello(socket, envelope);
             clearTimeout(helloTimeout);
             if (authenticated !== null && (closed || socket.readyState !== 1)) {
-              this.sessions.remove(authenticated.id);
+              this.sessions.remove(authenticated);
               return;
             }
             session = authenticated ?? undefined;
             if (session === undefined) socket.close(1008, 'hello failed');
-            else {
-              for (const queued of earlyEnvelopes.splice(0)) this.handleEnvelope(session, queued);
-            }
           } catch (error) {
             clearTimeout(helloTimeout);
             const errorType = error instanceof Error ? error.name : 'NonError';
@@ -560,7 +553,7 @@ export class Relay {
       await this.opts.beforeHelloResponse();
       await this.sendResponseAndWait(socket, env, result, authenticated.sessionId);
     } catch (error) {
-      this.sessions.remove(session.id);
+      this.sessions.remove(session);
       throw error;
     }
 

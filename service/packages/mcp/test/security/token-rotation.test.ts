@@ -5,7 +5,11 @@ import { join } from 'node:path';
 import { afterEach, describe, expect, it } from 'vitest';
 
 import { Node } from '../../src/election/node.js';
-import { createFollowerAuth } from '../../src/security/follower-auth.js';
+import {
+  createFollowerAuth,
+  sealFollowerRequest,
+  verifyFollowerChallenge,
+} from '../../src/security/follower-auth.js';
 
 const roots: string[] = [];
 
@@ -36,6 +40,110 @@ afterEach(async () => {
 });
 
 describe('leader-generation credentials', () => {
+  it('binds encrypted follower requests to one challenge, method, path, body, and generation', async () => {
+    let now = 1_000;
+    const generation = {
+      generation: Buffer.alloc(16, 91).toString('base64url'),
+      followerToken: Buffer.alloc(32, 92).toString('base64url'),
+      controlToken: Buffer.alloc(32, 93).toString('base64url'),
+      createdAt: now,
+    };
+    const auth = await createFollowerAuth({ memory: generation, now: () => now });
+    const challenge = await auth.issueFollowerChallenge();
+    expect(verifyFollowerChallenge(generation.followerToken, challenge, now)).toBe(true);
+    const plaintext = Buffer.from('sensitive rpc args');
+    const sealed = sealFollowerRequest(
+      generation.followerToken,
+      challenge,
+      'POST',
+      '/rpc',
+      plaintext,
+      size => Buffer.alloc(size, 94),
+      now,
+    );
+    expect(sealed.headers.authorization).toBeUndefined();
+    expect(sealed.body.equals(plaintext)).toBe(false);
+    await expect(
+      auth.openFollowerRequest({
+        method: 'POST',
+        path: '/rpc',
+        headers: sealed.headers,
+        ciphertext: sealed.body,
+      }),
+    ).resolves.toEqual(plaintext);
+    await expect(
+      auth.openFollowerRequest({
+        method: 'POST',
+        path: '/rpc',
+        headers: sealed.headers,
+        ciphertext: sealed.body,
+      }),
+    ).rejects.toMatchObject({ code: 'FOLLOWER_AUTH_INVALID' });
+
+    const wrongPathChallenge = await auth.issueFollowerChallenge();
+    const wrongPath = sealFollowerRequest(
+      generation.followerToken,
+      wrongPathChallenge,
+      'POST',
+      '/rpc',
+      plaintext,
+      size => Buffer.alloc(size, 95),
+      now,
+    );
+    await expect(
+      auth.openFollowerRequest({
+        method: 'POST',
+        path: '/abdicate',
+        headers: wrongPath.headers,
+        ciphertext: wrongPath.body,
+      }),
+    ).rejects.toMatchObject({ code: 'FOLLOWER_AUTH_INVALID' });
+
+    const tamperChallenge = await auth.issueFollowerChallenge();
+    const tampered = sealFollowerRequest(
+      generation.followerToken,
+      tamperChallenge,
+      'POST',
+      '/rpc',
+      plaintext,
+      size => Buffer.alloc(size, 96),
+      now,
+    );
+    tampered.body[0] = (tampered.body[0] ?? 0) ^ 1;
+    await expect(
+      auth.openFollowerRequest({
+        method: 'POST',
+        path: '/rpc',
+        headers: tampered.headers,
+        ciphertext: tampered.body,
+      }),
+    ).rejects.toMatchObject({ code: 'FOLLOWER_AUTH_INVALID' });
+
+    const wrongGenerationChallenge = await auth.issueFollowerChallenge();
+    const wrongGeneration = sealFollowerRequest(
+      generation.followerToken,
+      wrongGenerationChallenge,
+      'POST',
+      '/rpc',
+      plaintext,
+      size => Buffer.alloc(size, 97),
+      now,
+    );
+    wrongGeneration.headers['x-sfp-leader-generation'] = Buffer.alloc(16, 98).toString('base64url');
+    await expect(
+      auth.openFollowerRequest({
+        method: 'POST',
+        path: '/rpc',
+        headers: wrongGeneration.headers,
+        ciphertext: wrongGeneration.body,
+      }),
+    ).rejects.toMatchObject({ code: 'FOLLOWER_AUTH_INVALID' });
+
+    const expired = await auth.issueFollowerChallenge();
+    now = expired.expiresAt;
+    expect(verifyFollowerChallenge(generation.followerToken, expired, now)).toBe(false);
+  });
+
   it('reports no current credential before first rotation without verifying a missing file', async () => {
     const stateRoot = await mkdtemp(join(tmpdir(), 'sfp-generation-first-run-'));
     roots.push(stateRoot);

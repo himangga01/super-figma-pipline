@@ -120,14 +120,15 @@ export class SessionManager {
     return this.sessions.get(id);
   }
 
-  remove(id: string): void {
-    const s = this.sessions.get(id);
-    if (s !== undefined && s.disconnectTimer !== null) {
-      clearTimeout(s.disconnectTimer);
+  remove(session: Session): void {
+    const current = this.sessions.get(session.id);
+    if (current !== session) return;
+    if (session.disconnectTimer !== null) {
+      clearTimeout(session.disconnectTimer);
     }
-    s?.heartbeat?.stop();
-    if (s !== undefined) s.heartbeat = null;
-    this.sessions.delete(id);
+    session.heartbeat?.stop();
+    session.heartbeat = null;
+    this.sessions.delete(session.id);
   }
 
   list(): readonly Session[] {

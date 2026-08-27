@@ -183,6 +183,36 @@ describe('private-network pair exchange', () => {
     expect(response.headers['access-control-allow-methods']).toBeUndefined();
   });
 
+  it.each([
+    [
+      'body-bearing OPTIONS',
+      'OPTIONS',
+      '/pair/exchange',
+      { ...preflightHeaders('null'), 'content-length': '4' },
+      'body',
+      403,
+    ],
+    ['chunked GET ping', 'GET', '/ping', { 'transfer-encoding': 'chunked' }, 'body', 400],
+    [
+      'declared GET follower challenge',
+      'GET',
+      '/follower/challenge',
+      { 'content-length': '4' },
+      'body',
+      400,
+    ],
+    ['chunked generic 404', 'POST', '/not-a-route', {}, 'body', 404],
+  ])(
+    'closes %s without leaving unread bytes on keep-alive',
+    async (_case, method, path, headers, body, status) => {
+      const { port, pairing } = await start();
+      const response = await call(port, method, path, headers, body);
+      expect(response.status).toBe(status);
+      expect(response.headers.connection).toBe('close');
+      expect(pairing.exchangeCalls).toBe(0);
+    },
+  );
+
   it('rejects a non-loopback Host without an oracle response', async () => {
     const { port } = await start();
     const response = await call(port, 'OPTIONS', '/pair/exchange', {

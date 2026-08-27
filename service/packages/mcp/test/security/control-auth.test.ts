@@ -9,7 +9,11 @@ import { dispatchTool } from '../../src/dispatch.js';
 import { Follower } from '../../src/election/follower.js';
 import { attachLeaderEndpoints } from '../../src/election/leader-endpoints.js';
 import { NodeRole } from '../../src/election/node.js';
-import { createFollowerAuth } from '../../src/security/follower-auth.js';
+import {
+  createFollowerAuth,
+  type FollowerAuth,
+  sealFollowerRequest,
+} from '../../src/security/follower-auth.js';
 import { RPC_REQUEST_MAX_BYTES } from '../../src/security/request-limits.js';
 
 interface HttpResult {
@@ -98,6 +102,23 @@ const start = async () => {
   return { port: (http.address() as AddressInfo).port, generation, auth, challenges, relayed };
 };
 
+const sealedCall = async (
+  port: number,
+  auth: FollowerAuth,
+  followerToken: string,
+  path: '/rpc' | '/abdicate',
+  plaintext: Buffer,
+): Promise<HttpResult> => {
+  const sealed = sealFollowerRequest(
+    followerToken,
+    await auth.issueFollowerChallenge(),
+    'POST',
+    path,
+    plaintext,
+  );
+  return call(port, 'POST', path, sealed.headers, sealed.body);
+};
+
 afterEach(async () => {
   await Promise.all(
     servers.splice(0).map(
@@ -112,7 +133,7 @@ afterEach(async () => {
 
 describe('follower and control middleware', () => {
   it('requires the follower token on /rpc and never forwards unauthorized args', async () => {
-    const { port, generation, relayed } = await start();
+    const { port, generation, auth, relayed } = await start();
     const rpc = Buffer.from(
       encode({ requestId: 'r1', toolName: 'get_document', args: { secret: 'do-not-forward' } }),
     );
@@ -128,34 +149,24 @@ describe('follower and control middleware', () => {
     expect(missing.headers.connection).toBe('close');
     expect(relayed).toHaveLength(0);
 
-    const allowed = await call(
-      port,
-      'POST',
-      '/rpc',
-      {
-        'content-type': 'application/msgpack',
-        authorization: `Bearer ${generation.followerToken}`,
-        'x-sfp-leader-generation': generation.generation,
-      },
-      rpc,
-    );
+    const allowed = await sealedCall(port, auth, generation.followerToken, '/rpc', rpc);
     expect(allowed.status).toBe(200);
     expect(relayed).toEqual([{ secret: 'do-not-forward' }]);
   });
 
   it('rejects an oversized authenticated RPC before decoding or relaying it', async () => {
-    const { port, generation, relayed } = await start();
-    const response = await call(
-      port,
+    const { port, generation, auth, relayed } = await start();
+    const sealed = sealFollowerRequest(
+      generation.followerToken,
+      await auth.issueFollowerChallenge(),
       'POST',
       '/rpc',
-      {
-        'content-type': 'application/msgpack',
-        authorization: `Bearer ${generation.followerToken}`,
-        'x-sfp-leader-generation': generation.generation,
-      },
-      Buffer.alloc(RPC_REQUEST_MAX_BYTES + 1),
+      Buffer.from([1]),
     );
+    const response = await call(port, 'POST', '/rpc', {
+      ...sealed.headers,
+      'content-length': String(RPC_REQUEST_MAX_BYTES + 1),
+    });
     expect(response.status).toBe(413);
     expect(response.headers.connection).toBe('close');
     expect(decode(response.body)).toMatchObject({
@@ -166,7 +177,7 @@ describe('follower and control middleware', () => {
   });
 
   it('requires follower auth on /abdicate before parsing its body', async () => {
-    const { port, generation } = await start();
+    const { port, generation, auth } = await start();
     const missing = await call(
       port,
       'POST',
@@ -176,16 +187,12 @@ describe('follower and control middleware', () => {
     );
     expect(missing.status).toBe(401);
 
-    const allowed = await call(
+    const allowed = await sealedCall(
       port,
-      'POST',
+      auth,
+      generation.followerToken,
       '/abdicate',
-      {
-        'content-type': 'application/json',
-        authorization: `Bearer ${generation.followerToken}`,
-        'x-sfp-leader-generation': generation.generation,
-      },
-      JSON.stringify({ buildId: 1 }),
+      Buffer.from(JSON.stringify({ buildId: 1 }), 'utf8'),
     );
     expect(allowed.status).toBe(200);
   });
@@ -193,17 +200,13 @@ describe('follower and control middleware', () => {
   it.each([-1, 1.5, Number.MAX_SAFE_INTEGER + 1])(
     'rejects unsafe abdication buildId %s',
     async buildId => {
-      const { port, generation } = await start();
-      const response = await call(
+      const { port, generation, auth } = await start();
+      const response = await sealedCall(
         port,
-        'POST',
+        auth,
+        generation.followerToken,
         '/abdicate',
-        {
-          'content-type': 'application/json',
-          authorization: `Bearer ${generation.followerToken}`,
-          'x-sfp-leader-generation': generation.generation,
-        },
-        JSON.stringify({ buildId }),
+        Buffer.from(JSON.stringify({ buildId }), 'utf8'),
       );
       expect(response.status).toBe(400);
     },
@@ -294,17 +297,7 @@ describe('follower and control middleware', () => {
     });
     expect(oldControl.status).toBe(401);
 
-    const newFollower = await call(
-      port,
-      'POST',
-      '/rpc',
-      {
-        'content-type': 'application/msgpack',
-        authorization: `Bearer ${current.followerToken}`,
-        'x-sfp-leader-generation': current.generation,
-      },
-      body,
-    );
+    const newFollower = await sealedCall(port, auth, current.followerToken, '/rpc', body);
     expect(newFollower.status).toBe(200);
   });
 });
@@ -313,6 +306,14 @@ describe('leader identity and unknown-role handling', () => {
   it('quarantines a previously trusted follower before args or Authorization reach a replacement port', async () => {
     const generation = Buffer.alloc(16, 51).toString('base64url');
     const followerToken = Buffer.alloc(32, 52).toString('base64url');
+    const channelAuth = await createFollowerAuth({
+      memory: {
+        generation,
+        followerToken,
+        controlToken: Buffer.alloc(32, 53).toString('base64url'),
+        createdAt: 1,
+      },
+    });
     let identity: 'leader' | 'foreign' = 'leader';
     const sensitiveRequests: Array<{ authorization: string | undefined; body: string }> = [];
     const server = createServer((req, res) => {
@@ -334,6 +335,14 @@ describe('leader identity and unknown-role handling', () => {
               : { ok: true, serverVersion: 'lookalike' },
           ),
         );
+        return;
+      }
+      if (req.method === 'GET' && req.url === '/follower/challenge') {
+        void channelAuth.issueFollowerChallenge().then(challenge => {
+          res.writeHead(200, { 'content-type': 'application/json' });
+          res.end(JSON.stringify(identity === 'leader' ? challenge : { ...challenge, proof: 'x' }));
+          return undefined;
+        });
         return;
       }
       const chunks: Buffer[] = [];
@@ -370,6 +379,58 @@ describe('leader identity and unknown-role handling', () => {
     await expect(follower.requestAbdication(2)).resolves.toBe('error');
     await expect(follower.resolveActiveSession()).resolves.toBeUndefined();
     expect(sensitiveRequests).toEqual([]);
+  });
+
+  it('sends only bound ciphertext if a fully mimicking port replaces the leader after proof', async () => {
+    const generation = Buffer.alloc(16, 54).toString('base64url');
+    const followerToken = Buffer.alloc(32, 55).toString('base64url');
+    const auth = await createFollowerAuth({
+      memory: {
+        generation,
+        followerToken,
+        controlToken: Buffer.alloc(32, 56).toString('base64url'),
+        createdAt: 1,
+      },
+    });
+    let observedHeaders: Headers | undefined;
+    let observedCiphertext: Buffer | undefined;
+    const ping = JSON.stringify({
+      ok: true,
+      product: PRODUCT_MAGIC,
+      protocolVersion: PROTOCOL_VERSION,
+      role: 'leader',
+      serverVersion: '0.1.0',
+      buildId: 1,
+      leaderGeneration: generation,
+    });
+    const follower = new Follower({
+      leaderUrl: 'http://127.0.0.1:1',
+      credentialProvider: async () => ({
+        generation,
+        value: `Bearer ${followerToken}`,
+      }),
+      fetch: async (input, init) => {
+        if (init?.method === 'POST') {
+          observedHeaders = new Headers(init.headers);
+          observedCiphertext = Buffer.from(init.body as Buffer);
+          return new Response(Buffer.from([0xc0]), { status: 200 });
+        }
+        return new Response(
+          String(input).endsWith('/follower/challenge')
+            ? JSON.stringify(await auth.issueFollowerChallenge())
+            : ping,
+          { status: 200, headers: { 'content-type': 'application/json' } },
+        );
+      },
+    });
+    const secret = 'must-not-be-visible-to-replacement';
+    await follower.sendRpc('get_document', { secret }, 'mimic-rpc');
+    expect(observedHeaders?.get('authorization')).toBeNull();
+    expect(observedCiphertext).toBeDefined();
+    expect(observedCiphertext?.toString('utf8')).not.toContain(secret);
+    expect(observedCiphertext?.toString('base64')).not.toContain(
+      Buffer.from(secret).toString('base64'),
+    );
   });
 
   it('returns strict product/protocol/build identity and rejects a foreign 2xx responder', async () => {
@@ -419,6 +480,15 @@ describe('leader identity and unknown-role handling', () => {
 
   it('converts an oversized follower RPC response into typed PAYLOAD_TOO_LARGE', async () => {
     const generation = Buffer.alloc(16, 61).toString('base64url');
+    const followerToken = Buffer.alloc(32, 62).toString('base64url');
+    const channelAuth = await createFollowerAuth({
+      memory: {
+        generation,
+        followerToken,
+        controlToken: Buffer.alloc(32, 63).toString('base64url'),
+        createdAt: 1,
+      },
+    });
     const pingBody = JSON.stringify({
       ok: true,
       product: PRODUCT_MAGIC,
@@ -428,21 +498,25 @@ describe('leader identity and unknown-role handling', () => {
       buildId: 1,
       leaderGeneration: generation,
     });
-    const responseCap = Buffer.byteLength(pingBody) + 8;
+    const responseCap = 512;
     const follower = new Follower({
       leaderUrl: 'http://127.0.0.1:1',
       responseMaxBytes: responseCap,
       credentialProvider: async () => ({
         generation,
-        value: `Bearer ${Buffer.alloc(32, 62).toString('base64url')}`,
+        value: `Bearer ${followerToken}`,
       }),
-      fetch: async (_input, init) =>
-        init?.method === 'POST'
-          ? new Response(Buffer.alloc(responseCap + 1), { status: 200 })
-          : new Response(pingBody, {
-              status: 200,
-              headers: { 'content-type': 'application/json' },
-            }),
+      fetch: async (input, init) => {
+        if (init?.method === 'POST') {
+          return new Response(Buffer.alloc(responseCap + 1), { status: 200 });
+        }
+        return new Response(
+          String(input).endsWith('/follower/challenge')
+            ? JSON.stringify(await channelAuth.issueFollowerChallenge())
+            : pingBody,
+          { status: 200, headers: { 'content-type': 'application/json' } },
+        );
+      },
     });
     await expect(follower.sendRpc('get_document', {}, 'oversized-response')).resolves.toMatchObject(
       {

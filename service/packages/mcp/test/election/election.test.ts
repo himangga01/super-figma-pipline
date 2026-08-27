@@ -15,6 +15,7 @@ import {
 } from '../../src/election/leader-lock.js';
 import { Node, NodeRole } from '../../src/election/node.js';
 import { Relay } from '../../src/relay/relay.js';
+import { createFollowerAuth } from '../../src/security/follower-auth.js';
 
 interface LeaderHarness {
   node: Node;
@@ -31,15 +32,19 @@ const blockers: HttpServer[] = [];
 const lockedPorts: number[] = [];
 const TEST_GENERATION = Buffer.alloc(16, 1).toString('base64url');
 const TEST_FOLLOWER_TOKEN = Buffer.alloc(32, 2).toString('base64url');
+const TEST_CONTROL_TOKEN = Buffer.alloc(32, 3).toString('base64url');
 const TEST_AUTHORIZATION = {
   generation: TEST_GENERATION,
   value: `Bearer ${TEST_FOLLOWER_TOKEN}`,
 };
-const TEST_AUTH = {
-  authorizeFollower: async (value: string | undefined, generation: string | undefined) =>
-    value === TEST_AUTHORIZATION.value && generation === TEST_GENERATION,
-  authorizeControl: async () => false,
-};
+const TEST_AUTH = await createFollowerAuth({
+  memory: {
+    generation: TEST_GENERATION,
+    followerToken: TEST_FOLLOWER_TOKEN,
+    controlToken: TEST_CONTROL_TOKEN,
+    createdAt: 1,
+  },
+});
 const TEST_PAIRING = {
   createChallenge: async () => ({
     challengeId: 'ABCDEFGHIJ',

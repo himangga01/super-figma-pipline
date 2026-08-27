@@ -1,4 +1,4 @@
-import { chmod, lstat, mkdtemp, readFile, readdir, rm } from 'node:fs/promises';
+import { chmod, lstat, mkdtemp, readFile, readdir, rm, writeFile } from 'node:fs/promises';
 import { createServer, type Server } from 'node:http';
 import type { AddressInfo } from 'node:net';
 import { tmpdir } from 'node:os';
@@ -19,6 +19,7 @@ import { WebSocket } from 'ws';
 import { Relay } from '../../src/relay/relay.js';
 import {
   createPairingManager,
+  PAIR_HELLO_RECOVERY_TTL_MS,
   type PairingManager,
   pairingLockPath,
   redactAuthSecrets,
@@ -120,7 +121,24 @@ const nextEnvelope = (ws: WebSocket) =>
   });
 
 describe('pairing challenge and exchange', () => {
-  it('serializes independent store instances around the entire one-use exchange transaction', async () => {
+  it('restarts immediately without stealing or deleting a crash-left legacy lock owner', async () => {
+    const { stateRoot, permissions } = await secureTestRoot();
+    const legacyLock = pairingLockPath(stateRoot);
+    const sentinel = JSON.stringify({
+      pid: 999_999,
+      nonce: 'successor-owner',
+      createdAt: Date.now(),
+    });
+    await writeFile(legacyLock, sentinel, { mode: 0o600 });
+    const manager = await createPairingManager({ stateRoot, permissions });
+
+    await expect(manager.createChallenge('owner-local')).resolves.toMatchObject({
+      attemptsRemaining: 5,
+    });
+    expect(await readFile(legacyLock, 'utf8')).toBe(sentinel);
+  });
+
+  it('uses revision CAS so independent stores consume a one-use exchange exactly once', async () => {
     const { stateRoot, permissions } = await secureTestRoot();
     const setup = await createPairingManager({ stateRoot, permissions });
     const challenge = await setup.createChallenge('owner-local');
@@ -136,7 +154,7 @@ describe('pairing challenge and exchange', () => {
     const firstManager = await createPairingManager({
       stateRoot,
       permissions,
-      afterLockAcquired: async () => {
+      beforeStatePublish: async () => {
         entered();
         await barrier;
       },
@@ -145,14 +163,8 @@ describe('pairing challenge and exchange', () => {
 
     const first = firstManager.exchange(challenge.challengeId, challenge.code);
     await lockEntered;
-    await expect(lstat(pairingLockPath(stateRoot))).resolves.toBeDefined();
-
-    let secondSettled = false;
-    const second = secondManager.exchange(challenge.challengeId, challenge.code).finally(() => {
-      secondSettled = true;
-    });
-    await new Promise<void>(resolve => setTimeout(resolve, 25));
-    expect(secondSettled).toBe(false);
+    const second = secondManager.exchange(challenge.challengeId, challenge.code);
+    await expect(second).resolves.toMatchObject({ wsTicket: expect.any(String) });
     let drained = false;
     const drain = firstManager.drain().then(() => {
       drained = true;
@@ -168,10 +180,9 @@ describe('pairing challenge and exchange', () => {
     expect(rejected).toMatchObject({ reason: { code: 'PAIR_CODE_USED' } });
     await drain;
     expect(drained).toBe(true);
-    await expect(lstat(pairingLockPath(stateRoot))).rejects.toMatchObject({ code: 'ENOENT' });
   });
 
-  it('does not lose a different credential update while another store holds the state lock', async () => {
+  it('does not lose a different credential update across conflicting revision publications', async () => {
     const { stateRoot, permissions } = await secureTestRoot();
     const setup = await createPairingManager({ stateRoot, permissions });
     const challengeA = await setup.createChallenge('owner-a');
@@ -188,7 +199,7 @@ describe('pairing challenge and exchange', () => {
     const firstManager = await createPairingManager({
       stateRoot,
       permissions,
-      afterLockAcquired: async () => {
+      beforeStatePublish: async () => {
         entered();
         await barrier;
       },
@@ -344,6 +355,55 @@ describe('ticket and resume authentication', () => {
     ).rejects.toMatchObject({ code: 'PAIR_TICKET_USED' });
   });
 
+  it('binds exact hello recovery to all security fields and a short expiry window', async () => {
+    let now = 20_000;
+    const startedAt = now;
+    const { stateRoot, permissions } = await secureTestRoot();
+    const manager = await createPairingManager({ stateRoot, permissions, now: () => now });
+    const challenge = await manager.createChallenge('owner-local');
+    const { wsTicket } = await manager.exchange(challenge.challengeId, challenge.code);
+    const input = hello({ kind: 'ticket', value: wsTicket });
+    const prepared = await manager.prepareHello(input);
+    await manager.commitHello(prepared.preparationId);
+
+    const restarted = await createPairingManager({ stateRoot, permissions, now: () => now });
+    await expect(restarted.prepareHello(input)).resolves.toEqual(prepared);
+    await expect(
+      restarted.prepareHello({
+        ...input,
+        fileName: 'changed-after-commit',
+        capabilities: [...input.capabilities, 'extra-capability'],
+      }),
+    ).rejects.toMatchObject({ code: 'PAIR_CREDENTIAL_REQUIRED' });
+
+    now = startedAt + PAIR_HELLO_RECOVERY_TTL_MS - 1;
+    await expect(restarted.prepareHello(input)).resolves.toEqual(prepared);
+    now = startedAt + PAIR_HELLO_RECOVERY_TTL_MS;
+    await expect(restarted.prepareHello(input)).rejects.toMatchObject({
+      code: 'PAIR_TICKET_USED',
+    });
+    await expect(restarted.commitHello(prepared.preparationId)).rejects.toMatchObject({
+      code: 'PAIR_CREDENTIAL_REQUIRED',
+    });
+
+    const { port, relay } = await startRelay(restarted);
+    const replaySocket = await connect(port);
+    replaySocket.send(
+      encodeEnvelope(
+        createRequest({
+          id: 'expired-recovery',
+          sessionId: newId(),
+          method: SystemMethod.Hello,
+          params: input,
+        }),
+      ),
+    );
+    const replay = await nextEnvelope(replaySocket);
+    expect(replay.kind).toBe('err');
+    expect(relay.sessions.list()).toHaveLength(0);
+    replaySocket.close();
+  });
+
   it('recovers the exact prepared successor after an async socket flap without leaking a session', async () => {
     const manager = await openManager();
     const challenge = await manager.createChallenge('owner-local');
@@ -461,6 +521,66 @@ describe('ticket and resume authentication', () => {
     await expect(manager.prepareHello(input)).resolves.toMatchObject({
       result: { rotatedResumeToken: expect.any(String) },
     });
+  });
+
+  it('does not let an older failed retry remove the newer replacement Session object', async () => {
+    const manager = await openManager();
+    const challenge = await manager.createChallenge('owner-local');
+    const { wsTicket } = await manager.exchange(challenge.challengeId, challenge.code);
+    const input = hello({ kind: 'ticket', value: wsTicket });
+    let firstHook!: () => void;
+    let releaseFirst!: () => void;
+    const firstHookEntered = new Promise<void>(resolve => {
+      firstHook = resolve;
+    });
+    const firstBarrier = new Promise<void>(resolve => {
+      releaseFirst = resolve;
+    });
+    let hookCalls = 0;
+    const http = createServer();
+    const relay = new Relay({
+      server: http,
+      serverVersion: '0.1.0',
+      authenticator: manager,
+      beforeHelloResponse: async () => {
+        hookCalls += 1;
+        if (hookCalls === 1) {
+          firstHook();
+          await firstBarrier;
+        }
+      },
+    });
+    servers.push({ http, relay });
+    await new Promise<void>((resolve, reject) => {
+      http.once('error', reject);
+      http.listen(0, '127.0.0.1', resolve);
+    });
+    const port = (http.address() as AddressInfo).port;
+    const request = createRequest({
+      id: 'overlapping-retry',
+      sessionId: newId(),
+      method: SystemMethod.Hello,
+      params: input,
+    });
+
+    const olderSocket = await connect(port);
+    olderSocket.send(encodeEnvelope(request));
+    await firstHookEntered;
+    expect(relay.sessions.list()).toHaveLength(1);
+
+    const newerSocket = await connect(port);
+    newerSocket.send(encodeEnvelope(request));
+    const newerResponse = await nextEnvelope(newerSocket);
+    expect(newerResponse.kind).toBe('res');
+    const currentBeforeRelease = relay.sessions.list()[0];
+    expect(currentBeforeRelease?.socket).not.toBeNull();
+
+    releaseFirst();
+    await new Promise<void>(resolve => setTimeout(resolve, 20));
+    const currentAfterRelease = relay.sessions.list()[0];
+    expect(currentAfterRelease).toBe(currentBeforeRelease);
+    expect(relay.sessions.connected()).toHaveLength(1);
+    newerSocket.close();
   });
 
   it('rejects protocol mismatch before consuming the one-use ticket or logging reflected input', async () => {
@@ -603,7 +723,7 @@ describe('ticket and resume authentication', () => {
     const firstStore = await createPairingManager({
       stateRoot,
       permissions,
-      afterLockAcquired: async () => {
+      beforeStatePublish: async () => {
         entered();
         await barrier;
       },

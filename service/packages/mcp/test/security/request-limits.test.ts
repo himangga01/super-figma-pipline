@@ -207,6 +207,40 @@ describe('WebSocket ingress gates', () => {
     expect(status).toBe(403);
   });
 
+  it('logs fixed WebSocket reject reasons without reflecting hostile Host or Origin', async () => {
+    const server = createServer();
+    servers.push(server);
+    const logs: string[] = [];
+    const relay = new Relay({
+      server,
+      serverVersion: '0.1.0',
+      log: message => logs.push(message),
+      authenticator: {
+        authenticateHello: async () => {
+          throw new Error('not reached');
+        },
+      },
+    });
+    relays.push(relay);
+    await new Promise<void>((resolve, reject) => {
+      server.once('error', reject);
+      server.listen(0, '127.0.0.1', resolve);
+    });
+    const port = (server.address() as AddressInfo).port;
+    const hostileOrigin = 'https://evil.example/Bearer-reflected-secret';
+    const status = await new Promise<number>((resolve, reject) => {
+      const socket = new WebSocket(`ws://127.0.0.1:${port}/ws`, { origin: hostileOrigin });
+      socket.once('unexpected-response', (_request, response) => resolve(response.statusCode ?? 0));
+      socket.once('open', () => reject(new Error('hostile Origin must not open')));
+      socket.once('error', error => {
+        if (!error.message.includes('Unexpected server response')) reject(error);
+      });
+    });
+    expect(status).toBe(403);
+    expect(logs.join('\n')).not.toContain(hostileOrigin);
+    expect(logs.join('\n')).not.toContain('reflected-secret');
+  });
+
   it('does not register a session when the socket closes during asynchronous hello auth', async () => {
     const server = createServer();
     servers.push(server);
@@ -272,6 +306,82 @@ describe('WebSocket ingress gates', () => {
     await new Promise<void>(resolve => ws.once('close', () => resolve()));
     finishAuth();
     await new Promise<void>(resolve => setImmediate(resolve));
+    expect(relay.sessions.list()).toHaveLength(0);
+  });
+
+  it('retains zero pre-session frames by rejecting non-hello traffic while auth is pending', async () => {
+    const server = createServer();
+    servers.push(server);
+    let entered!: () => void;
+    let release!: () => void;
+    const authEntered = new Promise<void>(resolve => {
+      entered = resolve;
+    });
+    const authBarrier = new Promise<void>(resolve => {
+      release = resolve;
+    });
+    const relay = new Relay({
+      server,
+      serverVersion: '0.1.0',
+      authenticator: {
+        authenticateHello: async (_input, context) => {
+          entered();
+          await authBarrier;
+          return {
+            sessionId: context.requestedSessionId,
+            rotatedResumeToken: Buffer.alloc(32, 81).toString('base64url'),
+            resumeExpiresAt: Date.now() + 60_000,
+          };
+        },
+      },
+    });
+    relays.push(relay);
+    await new Promise<void>((resolve, reject) => {
+      server.once('error', reject);
+      server.listen(0, '127.0.0.1', resolve);
+    });
+    const port = (server.address() as AddressInfo).port;
+    const socket = new WebSocket(`ws://127.0.0.1:${port}/ws`, { origin: 'null' });
+    await new Promise<void>((resolve, reject) => {
+      socket.once('open', resolve);
+      socket.once('error', reject);
+    });
+    const sessionId = newId();
+    socket.send(
+      encodeEnvelope(
+        createRequest({
+          id: 'pending-auth',
+          sessionId,
+          method: SystemMethod.Hello,
+          params: {
+            credential: { kind: 'ticket', value: 'test-ticket' },
+            nonce: Buffer.alloc(16, 82).toString('base64url'),
+            protocolVersion: PROTOCOL_VERSION,
+            productVersion: '0.1.0',
+            pluginVersion: '0.1.0',
+            pluginGeneration: 'plugin-generation-test',
+            editorType: 'figma',
+            mode: 'default',
+            fileIdentity: { kind: 'figma-file-key', value: 'file-key-test' },
+            fileName: 'Pending Auth Test',
+            capabilities: [],
+          },
+        }),
+      ),
+    );
+    await authEntered;
+    const close = new Promise<number>(resolve => socket.once('close', code => resolve(code)));
+    socket.send(
+      encodeEnvelope(createRequest({ id: 'early-ping', sessionId, method: SystemMethod.Ping })),
+    );
+    const outcome = await Promise.race([
+      close.then(code => ({ kind: 'close' as const, code })),
+      new Promise<{ kind: 'timeout'; code: number }>(resolve =>
+        setTimeout(() => resolve({ kind: 'timeout', code: 0 }), 30),
+      ),
+    ]);
+    release();
+    expect(outcome).toEqual({ kind: 'close', code: 1008 });
     expect(relay.sessions.list()).toHaveLength(0);
   });
 

@@ -33,6 +33,7 @@ export const RPC_PATH = '/rpc';
 export const ABDICATE_PATH = '/abdicate';
 export const PAIR_EXCHANGE_PATH = '/pair/exchange';
 export const CONTROL_PAIR_CHALLENGE_PATH = '/control/pair/challenge';
+export const FOLLOWER_CHALLENGE_PATH = '/follower/challenge';
 
 export const ABDICATE_QUIET_WINDOW_MS = 10_000;
 
@@ -41,7 +42,8 @@ export interface LeaderEndpointDeps {
   serverVersion: string;
   buildId?: number;
   leaderGeneration: string;
-  auth: Pick<FollowerAuth, 'authorizeFollower' | 'authorizeControl'>;
+  auth: Pick<FollowerAuth, 'authorizeFollower' | 'authorizeControl'> &
+    Partial<Pick<FollowerAuth, 'issueFollowerChallenge' | 'openFollowerRequest'>>;
   pairing: Pick<PairingManager, 'createChallenge' | 'exchange'>;
   controlActor?: string;
   onAbdicate?: () => void;
@@ -225,11 +227,52 @@ export const attachLeaderEndpoints = (http: HttpServer, deps: LeaderEndpointDeps
     }
   };
 
+  const openFollowerBody = async (
+    req: IncomingMessage,
+    res: ServerResponse,
+    path: string,
+    maxBytes: number,
+  ): Promise<Buffer | undefined> => {
+    if (!hasContentType(header(req, 'content-type'), 'application/sfp-encrypted')) {
+      writeEmpty(res, 401, { connection: 'close' });
+      return undefined;
+    }
+    const ciphertext = await readBoundedBody(req, maxBytes);
+    try {
+      if (deps.auth.openFollowerRequest === undefined) throw new Error('follower auth unavailable');
+      return await deps.auth.openFollowerRequest({
+        method: 'POST',
+        path,
+        headers: {
+          'x-sfp-leader-generation': header(req, 'x-sfp-leader-generation'),
+          'x-sfp-follower-nonce': header(req, 'x-sfp-follower-nonce'),
+          'x-sfp-follower-proof': header(req, 'x-sfp-follower-proof'),
+          'x-sfp-follower-iv': header(req, 'x-sfp-follower-iv'),
+          'x-sfp-follower-tag': header(req, 'x-sfp-follower-tag'),
+          'x-sfp-body-sha256': header(req, 'x-sfp-body-sha256'),
+        },
+        ciphertext,
+      });
+    } catch {
+      writeEmpty(res, 401, { connection: 'close' });
+      return undefined;
+    }
+  };
+
   const handler = (req: IncomingMessage, res: ServerResponse): void => {
     void (async (): Promise<void> => {
       if (!isAllowedHost(header(req, 'host'))) {
         log(`[leader] refused ${req.method ?? '?'} request for a non-loopback Host`);
         writeEmpty(res, 403, { connection: 'close' });
+        return;
+      }
+
+      if (req.method === 'OPTIONS' && hasUnreadBody(req)) {
+        writeEmpty(res, 403, { connection: 'close' });
+        return;
+      }
+      if ((req.method === 'GET' || req.method === 'HEAD') && hasUnreadBody(req)) {
+        writeJson(res, 400, { error: 'request body not allowed' }, { connection: 'close' });
         return;
       }
 
@@ -280,6 +323,20 @@ export const attachLeaderEndpoints = (http: HttpServer, deps: LeaderEndpointDeps
         return;
       }
 
+      if (req.method === 'GET' && req.url === FOLLOWER_CHALLENGE_PATH) {
+        try {
+          if (deps.auth.issueFollowerChallenge === undefined) {
+            throw new Error('follower challenge unavailable');
+          }
+          writeJson(res, 200, await deps.auth.issueFollowerChallenge(), {
+            'cache-control': 'no-store',
+          });
+        } catch {
+          writeJson(res, 503, { code: 'FOLLOWER_AUTH_UNAVAILABLE' }, { connection: 'close' });
+        }
+        return;
+      }
+
       if (req.url === '/control' || req.url?.startsWith('/control/') === true) {
         if (!(await authorize(req, 'control', deps))) {
           writeEmpty(res, 401, { connection: 'close' });
@@ -317,26 +374,16 @@ export const attachLeaderEndpoints = (http: HttpServer, deps: LeaderEndpointDeps
       }
 
       if (req.method === 'POST' && req.url === ABDICATE_PATH) {
-        if (!(await authorize(req, 'follower', deps))) {
-          writeEmpty(res, 401, { connection: 'close' });
-          return;
-        }
-        if (!hasContentType(header(req, 'content-type'), 'application/json')) {
-          writeJson(
-            res,
-            415,
-            { ok: false, reason: 'unsupported media type' },
-            { connection: 'close' },
-          );
-          return;
-        }
         let requesterBuildId: number | undefined;
         try {
-          requesterBuildId = strictBuildId(
-            JSON.parse(
-              (await readBoundedBody(req, PAIR_METADATA_MAX_BYTES)).toString('utf8'),
-            ) as unknown,
+          const plaintext = await openFollowerBody(
+            req,
+            res,
+            ABDICATE_PATH,
+            PAIR_METADATA_MAX_BYTES,
           );
+          if (plaintext === undefined) return;
+          requesterBuildId = strictBuildId(JSON.parse(plaintext.toString('utf8')) as unknown);
         } catch (error) {
           if (error instanceof RequestLimitError) {
             writeJson(res, error.status, { code: error.code }, { connection: 'close' });
@@ -371,27 +418,11 @@ export const attachLeaderEndpoints = (http: HttpServer, deps: LeaderEndpointDeps
       }
 
       if (req.method === 'POST' && req.url === RPC_PATH) {
-        if (!(await authorize(req, 'follower', deps))) {
-          writeEmpty(res, 401, { connection: 'close' });
-          return;
-        }
-        if (!hasContentType(header(req, 'content-type'), 'application/msgpack')) {
-          writeMsgpack(
-            res,
-            415,
-            {
-              kind: 'err',
-              requestId: '',
-              code: ErrorCode.InvalidRequest,
-              message: 'expected content-type application/msgpack',
-            },
-            { connection: 'close' },
-          );
-          return;
-        }
         let body: Buffer;
         try {
-          body = await readBoundedBody(req, RPC_REQUEST_MAX_BYTES);
+          const plaintext = await openFollowerBody(req, res, RPC_PATH, RPC_REQUEST_MAX_BYTES);
+          if (plaintext === undefined) return;
+          body = plaintext;
         } catch (error) {
           if (error instanceof RequestLimitError) {
             writeMsgpack(
@@ -468,7 +499,7 @@ export const attachLeaderEndpoints = (http: HttpServer, deps: LeaderEndpointDeps
         return;
       }
 
-      writeJson(res, 404, { error: 'not found' });
+      writeJson(res, 404, { error: 'not found' }, unreadBodyHeaders(req));
     })().catch(() => {
       if (!res.headersSent) writeJson(res, 500, { error: 'internal' });
       else res.destroy();

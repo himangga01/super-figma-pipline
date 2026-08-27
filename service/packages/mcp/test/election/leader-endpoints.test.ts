@@ -27,6 +27,7 @@ import {
   RPC_PATH,
 } from '../../src/election/leader-endpoints.js';
 import { Relay } from '../../src/relay/relay.js';
+import { createFollowerAuth, sealFollowerRequest } from '../../src/security/follower-auth.js';
 
 interface Bound {
   http: HttpServer;
@@ -40,16 +41,22 @@ const all: Bound[] = [];
 const TEST_GENERATION = Buffer.alloc(16, 1).toString('base64url');
 const TEST_FOLLOWER_TOKEN = Buffer.alloc(32, 2).toString('base64url');
 const TEST_CONTROL_TOKEN = Buffer.alloc(32, 3).toString('base64url');
-const FOLLOWER_HEADERS = {
-  authorization: `Bearer ${TEST_FOLLOWER_TOKEN}`,
-  'x-sfp-leader-generation': TEST_GENERATION,
-};
-const TEST_AUTH = {
-  authorizeFollower: async (value: string | undefined, generation: string | undefined) =>
-    value === `Bearer ${TEST_FOLLOWER_TOKEN}` && generation === TEST_GENERATION,
-  authorizeControl: async (value: string | undefined, generation: string | undefined) =>
-    value === `Bearer ${TEST_CONTROL_TOKEN}` && generation === TEST_GENERATION,
-};
+const TEST_AUTH = await createFollowerAuth({
+  memory: {
+    generation: TEST_GENERATION,
+    followerToken: TEST_FOLLOWER_TOKEN,
+    controlToken: TEST_CONTROL_TOKEN,
+    createdAt: 1,
+  },
+});
+const sealBody = async (path: string, body: Buffer) =>
+  sealFollowerRequest(
+    TEST_FOLLOWER_TOKEN,
+    await TEST_AUTH.issueFollowerChallenge(),
+    'POST',
+    path,
+    body,
+  );
 const authenticatedHello = (clientVersion = MIN_PLUGIN_VERSION) => ({
   credential: { kind: 'ticket' as const, value: 'test-ticket' },
   nonce: Buffer.alloc(16, 4).toString('base64url'),
@@ -125,10 +132,12 @@ const postAbdicate = async (
   port: number,
   body: unknown,
 ): Promise<{ status: number; body: { ok: boolean; reason?: string } }> => {
+  const plaintext = Buffer.from(typeof body === 'string' ? body : JSON.stringify(body), 'utf8');
+  const sealed = await sealBody(ABDICATE_PATH, plaintext);
   const res = await fetch(`http://127.0.0.1:${port}${ABDICATE_PATH}`, {
     method: 'POST',
-    headers: { 'content-type': 'application/json', ...FOLLOWER_HEADERS },
-    body: typeof body === 'string' ? body : JSON.stringify(body),
+    headers: sealed.headers,
+    body: sealed.body,
   });
   return { status: res.status, body: (await res.json()) as { ok: boolean; reason?: string } };
 };
@@ -177,10 +186,11 @@ const attachFakePlugin = async (
 };
 
 const callRpc = async (port: number, req: RpcRequest): Promise<RpcResponse> => {
+  const sealed = await sealBody(RPC_PATH, Buffer.from(encode(req)));
   const res = await fetch(`http://127.0.0.1:${port}${RPC_PATH}`, {
     method: 'POST',
-    headers: { 'content-type': 'application/msgpack', ...FOLLOWER_HEADERS },
-    body: Buffer.from(encode(req)),
+    headers: sealed.headers,
+    body: sealed.body,
   });
   const buf = new Uint8Array(await res.arrayBuffer());
   return RpcResponseSchema.parse(decode(buf));
@@ -337,20 +347,22 @@ describe('leader endpoints', () => {
 
   it('POST /rpc rejects invalid msgpack body', async () => {
     const b = await startLeader();
+    const sealed = await sealBody(RPC_PATH, Buffer.from([0xff, 0xff, 0xff]));
     const res = await fetch(`http://127.0.0.1:${b.port}${RPC_PATH}`, {
       method: 'POST',
-      headers: { 'content-type': 'application/msgpack', ...FOLLOWER_HEADERS },
-      body: Buffer.from([0xff, 0xff, 0xff]),
+      headers: sealed.headers,
+      body: sealed.body,
     });
     expect(res.status).toBe(400);
   });
 
   it('POST /rpc rejects schema-invalid request', async () => {
     const b = await startLeader();
+    const sealed = await sealBody(RPC_PATH, Buffer.from(encode({ requestId: 'r-x' })));
     const res = await fetch(`http://127.0.0.1:${b.port}${RPC_PATH}`, {
       method: 'POST',
-      headers: { 'content-type': 'application/msgpack', ...FOLLOWER_HEADERS },
-      body: Buffer.from(encode({ requestId: 'r-x' })),
+      headers: sealed.headers,
+      body: sealed.body,
     });
     expect(res.status).toBe(400);
     const buf = new Uint8Array(await res.arrayBuffer());
@@ -417,24 +429,24 @@ describe('leader endpoints', () => {
     expect(status).toBe(403);
   });
 
-  it('POST /rpc refuses a media type that would skip the CORS preflight', async () => {
+  it('POST /rpc fails closed for the legacy plaintext follower transport', async () => {
     const b = await startLeader();
     const res = await fetch(`http://127.0.0.1:${b.port}${RPC_PATH}`, {
       method: 'POST',
-      headers: { 'content-type': 'text/plain', ...FOLLOWER_HEADERS },
+      headers: { 'content-type': 'text/plain' },
       body: Buffer.from(encode({ requestId: 'r-ct', toolName: 'ping' })),
     });
-    expect(res.status).toBe(415);
+    expect(res.status).toBe(401);
   });
 
-  it('POST /abdicate refuses a non-JSON media type', async () => {
+  it('POST /abdicate fails closed for the legacy plaintext follower transport', async () => {
     const b = await startLeader();
     const res = await fetch(`http://127.0.0.1:${b.port}${ABDICATE_PATH}`, {
       method: 'POST',
-      headers: { 'content-type': 'text/plain', ...FOLLOWER_HEADERS },
+      headers: { 'content-type': 'text/plain' },
       body: JSON.stringify({ buildId: 999_999 }),
     });
-    expect(res.status).toBe(415);
+    expect(res.status).toBe(401);
   });
 
   it('GET /ping advertises the buildId (0 when unset)', async () => {

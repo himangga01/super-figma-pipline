@@ -4,7 +4,7 @@ import {
   randomInt as systemRandomInt,
   timingSafeEqual,
 } from 'node:crypto';
-import { lstat, open, readFile, rename, rm } from 'node:fs/promises';
+import { link, lstat, open, readFile, readdir, rm } from 'node:fs/promises';
 import { dirname, join, resolve } from 'node:path';
 
 import {
@@ -22,6 +22,7 @@ export const PAIR_CHALLENGE_TTL_MS = 5 * 60 * 1000;
 export const PAIR_TICKET_TTL_MS = 30 * 1000;
 export const PAIR_RESUME_TTL_MS = 30 * 24 * 60 * 60 * 1000;
 export const PAIR_HELLO_PREPARE_TTL_MS = 30 * 1000;
+export const PAIR_HELLO_RECOVERY_TTL_MS = 5 * 1000;
 export const PAIR_ATTEMPTS = 5;
 
 export interface RateLimit {
@@ -38,10 +39,9 @@ export interface PairingManagerOptions {
   challengeRateLimit?: RateLimit;
   exchangeRateLimit?: RateLimit;
   log?: (message: string) => void;
-  lockTimeoutMs?: number;
-  staleLockMs?: number;
-  /** Test seam that pauses after the cross-process lock is exclusively owned. */
-  afterLockAcquired?: () => Promise<void>;
+  mutationRetryTimeoutMs?: number;
+  /** Test seam after a full mutation is durable but before its revision is atomically published. */
+  beforeStatePublish?: () => Promise<void>;
 }
 
 export class PairingError extends Error {
@@ -99,15 +99,19 @@ interface StoredHelloTransaction {
   credentialKind: 'ticket' | 'resume';
   credentialHash: string;
   nonceHash: string;
+  helloHash: string;
   sessionId: string;
   pluginGeneration: string;
+  credentialExpiresAt: number;
   resumeExpiresAt: number;
   prepareExpiresAt: number;
+  recoverUntil: number;
   committed: boolean;
 }
 
 interface PairingState {
   version: 1;
+  revision: number;
   challenges: StoredChallenge[];
   tickets: StoredTicket[];
   resumes: StoredResume[];
@@ -119,6 +123,9 @@ interface PairingState {
 const KEY_FILE = 'pairing-hmac.key';
 const STATE_FILE = 'pairing-state.json';
 const LOCK_FILE = '.pairing-state.lock';
+const STATE_REVISION = /^pairing-state\.v(\d{16})\.json$/;
+
+class PairingStateConflict extends Error {}
 
 export const pairingLockPath = (stateRoot: string): string => join(resolve(stateRoot), LOCK_FILE);
 
@@ -134,6 +141,7 @@ const pathExists = async (path: string): Promise<boolean> => {
 
 const emptyState = (): PairingState => ({
   version: 1,
+  revision: 0,
   challenges: [],
   tickets: [],
   resumes: [],
@@ -192,6 +200,8 @@ const parseState = (input: unknown): PairingState => {
   const value = input as Partial<PairingState>;
   if (
     value.version !== 1 ||
+    (value.revision !== undefined &&
+      (!Number.isSafeInteger(value.revision) || (value.revision ?? -1) < 0)) ||
     !Array.isArray(value.challenges) ||
     !Array.isArray(value.tickets) ||
     !Array.isArray(value.resumes) ||
@@ -241,7 +251,7 @@ const parseState = (input: unknown): PairingState => {
     }
     return { ...(item as StoredResume) };
   });
-  const helloTransactions = (value.helloTransactions ?? []).map(item => {
+  const helloTransactions = (value.helloTransactions ?? []).flatMap(item => {
     if (
       typeof item !== 'object' ||
       item === null ||
@@ -257,21 +267,41 @@ const parseState = (input: unknown): PairingState => {
     ) {
       throw new Error('invalid stored hello transaction');
     }
-    const transaction = item as StoredHelloTransaction;
-    return {
-      preparationId: transaction.preparationId,
-      credentialKind: transaction.credentialKind,
-      credentialHash: transaction.credentialHash,
-      nonceHash: transaction.nonceHash,
-      sessionId: transaction.sessionId,
-      pluginGeneration: transaction.pluginGeneration,
-      resumeExpiresAt: transaction.resumeExpiresAt,
-      prepareExpiresAt: transaction.prepareExpiresAt,
-      committed: transaction.committed,
-    };
+    const transaction = item as Partial<StoredHelloTransaction>;
+    if (
+      transaction.helloHash === undefined ||
+      transaction.credentialExpiresAt === undefined ||
+      transaction.recoverUntil === undefined
+    ) {
+      return [];
+    }
+    if (
+      typeof transaction.helloHash !== 'string' ||
+      !Number.isSafeInteger(transaction.credentialExpiresAt) ||
+      !Number.isSafeInteger(transaction.recoverUntil)
+    ) {
+      throw new Error('invalid stored hello recovery binding');
+    }
+    return [
+      {
+        preparationId: transaction.preparationId,
+        credentialKind: transaction.credentialKind,
+        credentialHash: transaction.credentialHash,
+        nonceHash: transaction.nonceHash,
+        helloHash: transaction.helloHash,
+        sessionId: transaction.sessionId,
+        pluginGeneration: transaction.pluginGeneration,
+        credentialExpiresAt: transaction.credentialExpiresAt,
+        resumeExpiresAt: transaction.resumeExpiresAt,
+        prepareExpiresAt: transaction.prepareExpiresAt,
+        recoverUntil: transaction.recoverUntil,
+        committed: transaction.committed,
+      } as StoredHelloTransaction,
+    ];
   });
   return {
     version: 1,
+    revision: value.revision ?? 0,
     challenges,
     tickets,
     resumes,
@@ -318,18 +348,9 @@ export const createPairingManager = async (
   const log = options.log ?? ((): void => {});
   const keyPath = join(stateRoot, KEY_FILE);
   const statePath = join(stateRoot, STATE_FILE);
-  const lockPath = pairingLockPath(stateRoot);
-  const lockTimeoutMs = options.lockTimeoutMs ?? 15_000;
-  const staleLockMs = options.staleLockMs ?? 120_000;
-  if (
-    !Number.isSafeInteger(lockTimeoutMs) ||
-    lockTimeoutMs <= 0 ||
-    !Number.isSafeInteger(staleLockMs) ||
-    staleLockMs <= lockTimeoutMs
-  ) {
-    throw new TypeError(
-      'pairing lock windows must be positive and staleLockMs must exceed timeout',
-    );
+  const mutationRetryTimeoutMs = options.mutationRetryTimeoutMs ?? 15_000;
+  if (!Number.isSafeInteger(mutationRetryTimeoutMs) || mutationRetryTimeoutMs <= 0) {
+    throw new TypeError('pairing mutation retry timeout must be a positive safe integer');
   }
 
   let activeMutations = 0;
@@ -347,69 +368,24 @@ export const createPairingManager = async (
     }
   };
 
-  const acquireMutationLock = async (): Promise<() => Promise<void>> => {
-    const startedAt = Date.now();
-    const nonce = randomBytes(16).toString('base64url');
-    /* eslint-disable no-await-in-loop -- exclusive-file lock acquisition is intentionally serial */
-    while (true) {
-      let handle: Awaited<ReturnType<typeof open>> | undefined;
-      let created = false;
-      try {
-        handle = await open(lockPath, 'wx', 0o600);
-        created = true;
-        await handle.writeFile(JSON.stringify({ pid: process.pid, nonce, createdAt: Date.now() }));
-        await handle.sync();
-        await handle.close();
-        handle = undefined;
-        await options.afterLockAcquired?.();
-        return async (): Promise<void> => {
-          if (!(await pathExists(lockPath))) return;
-          let owner: { nonce?: unknown } | undefined;
-          try {
-            owner = JSON.parse(await readFile(lockPath, 'utf8')) as { nonce?: unknown };
-          } catch (error) {
-            if ((error as NodeJS.ErrnoException).code === 'ENOENT') return;
-            throw error;
-          }
-          if (owner.nonce === nonce) {
-            await rm(lockPath, { force: true });
-            await syncStateDirectory();
-          }
-        };
-      } catch (error) {
-        await handle?.close().catch(() => {});
-        if ((error as NodeJS.ErrnoException).code !== 'EEXIST') {
-          if (created) await rm(lockPath, { force: true }).catch(() => {});
-          throw error;
-        }
-        const metadata = await lstat(lockPath).catch(() => undefined);
-        if (metadata !== undefined && Date.now() - metadata.mtimeMs >= staleLockMs) {
-          const stalePath = `${lockPath}.${randomBytes(8).toString('hex')}.stale`;
-          try {
-            await rename(lockPath, stalePath);
-            await rm(stalePath, { force: true });
-            continue;
-          } catch {
-            // Another contender or the owner changed the lock; retry the observed state.
-          }
-        }
-        if (Date.now() - startedAt >= lockTimeoutMs) {
-          throw new PairingError('PAIR_INTERNAL', 500, { cause: error });
-        }
-        await new Promise<void>(resolvePromise => setTimeout(resolvePromise, 5));
-      }
-    }
-    /* eslint-enable no-await-in-loop */
-  };
-
   const withMutation = async <T>(operation: () => Promise<T>): Promise<T> => {
     activeMutations += 1;
-    let release: (() => Promise<void>) | undefined;
+    const startedAt = Date.now();
     try {
-      release = await acquireMutationLock();
-      return await operation();
+      /* eslint-disable no-await-in-loop -- CAS conflicts must re-run the complete transaction */
+      while (true) {
+        try {
+          return await operation();
+        } catch (error) {
+          if (!(error instanceof PairingStateConflict)) throw error;
+          if (Date.now() - startedAt >= mutationRetryTimeoutMs) {
+            throw new PairingError('PAIR_INTERNAL', 500, { cause: error });
+          }
+          await new Promise<void>(resolvePromise => setTimeout(resolvePromise, 1));
+        }
+      }
+      /* eslint-enable no-await-in-loop */
     } finally {
-      await release?.();
       activeMutations -= 1;
       if (activeMutations === 0) {
         for (const waiter of drainWaiters) waiter();
@@ -463,34 +439,70 @@ export const createPairingManager = async (
     return hmac.digest();
   };
 
+  const revisionPath = (revision: number): string =>
+    join(stateRoot, `pairing-state.v${String(revision).padStart(16, '0')}.json`);
+
   const loadState = async (): Promise<PairingState> => {
+    const revisions = (await readdir(stateRoot))
+      .map(name => STATE_REVISION.exec(name))
+      .filter((match): match is RegExpExecArray => match !== null)
+      .map(match => Number(match[1]))
+      .filter(Number.isSafeInteger)
+      .toSorted((left, right) => right - left);
+    const latest = revisions[0];
+    if (latest !== undefined) {
+      const path = revisionPath(latest);
+      await options.permissions.verifySecure(path);
+      const state = parseState(JSON.parse(await readFile(path, 'utf8')) as unknown);
+      if (state.revision !== latest) throw new Error('pairing revision filename mismatch');
+      return state;
+    }
     if (!(await pathExists(statePath))) return emptyState();
     await options.permissions.verifySecure(statePath);
-    return parseState(JSON.parse(await readFile(statePath, 'utf8')) as unknown);
+    const legacy = parseState(JSON.parse(await readFile(statePath, 'utf8')) as unknown);
+    legacy.revision = 0;
+    return legacy;
   };
 
   const saveState = async (state: PairingState): Promise<void> => {
+    const nextRevision = state.revision + 1;
+    if (!Number.isSafeInteger(nextRevision)) throw new Error('pairing revision exhausted');
+    const target = revisionPath(nextRevision);
     const temporary = join(
       dirname(statePath),
-      `.${STATE_FILE}.${process.pid}.${randomBytes(8).toString('hex')}.tmp`,
+      `.${STATE_FILE}.${nextRevision}.${process.pid}.${randomBytes(8).toString('hex')}.tmp`,
     );
     let handle: Awaited<ReturnType<typeof open>> | undefined;
+    let published = false;
     try {
       handle = await open(temporary, 'wx', 0o600);
-      await handle.writeFile(JSON.stringify(state), 'utf8');
+      await handle.writeFile(JSON.stringify({ ...state, revision: nextRevision }), 'utf8');
       await handle.sync();
       await handle.close();
       handle = undefined;
       await options.permissions.ensureSecure(temporary);
       await options.permissions.verifySecure(temporary);
-      await rename(temporary, statePath);
-      await options.permissions.ensureSecure(statePath);
-      await options.permissions.verifySecure(statePath);
+      await options.beforeStatePublish?.();
+      try {
+        await link(temporary, target);
+        published = true;
+      } catch (error) {
+        if ((error as NodeJS.ErrnoException).code === 'EEXIST') {
+          throw new PairingStateConflict('pairing revision already published');
+        }
+        throw error;
+      }
+      await options.permissions.verifySecure(target);
+      state.revision = nextRevision;
       await syncStateDirectory();
     } catch (error) {
       await handle?.close().catch(() => {});
-      await rm(temporary, { force: true }).catch(() => {});
+      if (!published || error instanceof PairingStateConflict) {
+        await rm(temporary, { force: true }).catch(() => {});
+      }
       throw error;
+    } finally {
+      await rm(temporary, { force: true }).catch(() => {});
     }
   };
 
@@ -592,6 +604,23 @@ export const createPairingManager = async (
           ? digest('ws-ticket', hello.credential.value)
           : digest('resume-token', hello.credential.value);
       const nonceHash = digest('hello-nonce', hello.nonce);
+      const helloHash = digest(
+        'hello-binding',
+        JSON.stringify([
+          credentialKind,
+          credentialHash,
+          nonceHash,
+          hello.protocolVersion,
+          hello.productVersion,
+          hello.pluginVersion,
+          hello.pluginGeneration,
+          hello.editorType,
+          hello.mode,
+          hello.fileIdentity,
+          hello.fileName,
+          hello.capabilities,
+        ]),
+      );
       const exact = state.helloTransactions.find(
         transaction =>
           transaction.credentialKind === credentialKind &&
@@ -611,8 +640,24 @@ export const createPairingManager = async (
         },
       });
       if (exact !== undefined) {
-        if (exact.pluginGeneration !== hello.pluginGeneration) {
-          throw new PairingError('PAIR_GENERATION_MISMATCH', 401);
+        if (!secureHashEqual(exact.helloHash, helloHash)) {
+          throw new PairingError('PAIR_CREDENTIAL_REQUIRED', 401);
+        }
+        if (at >= exact.recoverUntil || at >= exact.credentialExpiresAt) {
+          state.helloTransactions = state.helloTransactions.filter(
+            transaction => transaction !== exact,
+          );
+          await saveState(state);
+          if (at >= exact.credentialExpiresAt) {
+            throw new PairingError(
+              exact.credentialKind === 'ticket' ? 'PAIR_TICKET_EXPIRED' : 'PAIR_RESUME_EXPIRED',
+              401,
+            );
+          }
+          throw new PairingError(
+            exact.credentialKind === 'ticket' ? 'PAIR_TICKET_USED' : 'PAIR_RESUME_USED',
+            401,
+          );
         }
         return resultFor(exact);
       }
@@ -630,8 +675,8 @@ export const createPairingManager = async (
       if (credentialKind === 'ticket') {
         const ticket = state.tickets.find(item => secureHashEqual(item.hash, credentialHash));
         if (ticket === undefined) throw new PairingError('PAIR_TICKET_INVALID', 401);
-        if (ticket.used) throw new PairingError('PAIR_TICKET_USED', 401);
         if (at >= ticket.expiresAt) throw new PairingError('PAIR_TICKET_EXPIRED', 401);
+        if (ticket.used) throw new PairingError('PAIR_TICKET_USED', 401);
         credentialExpiresAt = ticket.expiresAt;
         sessionId = derive('hello-session', credentialHash, nonceHash)
           .subarray(0, 16)
@@ -639,8 +684,8 @@ export const createPairingManager = async (
       } else {
         const resume = state.resumes.find(item => secureHashEqual(item.hash, credentialHash));
         if (resume === undefined) throw new PairingError('PAIR_RESUME_INVALID', 401);
-        if (resume.used) throw new PairingError('PAIR_RESUME_USED', 401);
         if (at >= resume.expiresAt) throw new PairingError('PAIR_RESUME_EXPIRED', 401);
+        if (resume.used) throw new PairingError('PAIR_RESUME_USED', 401);
         if (resume.pluginGeneration !== hello.pluginGeneration) {
           throw new PairingError('PAIR_GENERATION_MISMATCH', 401);
         }
@@ -653,10 +698,13 @@ export const createPairingManager = async (
         credentialKind,
         credentialHash,
         nonceHash,
+        helloHash,
         sessionId,
         pluginGeneration: hello.pluginGeneration,
+        credentialExpiresAt,
         resumeExpiresAt: at + PAIR_RESUME_TTL_MS,
         prepareExpiresAt: Math.min(at + PAIR_HELLO_PREPARE_TTL_MS, credentialExpiresAt),
+        recoverUntil: Math.min(at + PAIR_HELLO_RECOVERY_TTL_MS, credentialExpiresAt),
         committed: false,
       };
       state.helloTransactions.push(transaction);
@@ -675,8 +723,13 @@ export const createPairingManager = async (
         item => item.preparationId === preparationId,
       );
       if (transaction === undefined) throw new PairingError('PAIR_CREDENTIAL_REQUIRED', 401);
-      if (transaction.committed) return;
-      if (now() >= transaction.prepareExpiresAt) {
+      const at = now();
+      if (at >= transaction.recoverUntil || at >= transaction.credentialExpiresAt) {
+        state.helloTransactions = state.helloTransactions.filter(item => item !== transaction);
+        await saveState(state);
+        throw new PairingError('PAIR_CREDENTIAL_REQUIRED', 401);
+      }
+      if (at >= transaction.prepareExpiresAt) {
         throw new PairingError('PAIR_CREDENTIAL_REQUIRED', 401);
       }
 
@@ -685,6 +738,8 @@ export const createPairingManager = async (
           secureHashEqual(item.hash, transaction.credentialHash),
         );
         if (ticket === undefined) throw new PairingError('PAIR_TICKET_INVALID', 401);
+        if (at >= ticket.expiresAt) throw new PairingError('PAIR_TICKET_EXPIRED', 401);
+        if (transaction.committed) return;
         if (ticket.used) throw new PairingError('PAIR_TICKET_USED', 401);
         ticket.used = true;
       } else {
@@ -692,6 +747,8 @@ export const createPairingManager = async (
           secureHashEqual(item.hash, transaction.credentialHash),
         );
         if (resume === undefined) throw new PairingError('PAIR_RESUME_INVALID', 401);
+        if (at >= resume.expiresAt) throw new PairingError('PAIR_RESUME_EXPIRED', 401);
+        if (transaction.committed) return;
         if (resume.used) throw new PairingError('PAIR_RESUME_USED', 401);
         resume.used = true;
       }

@@ -20,6 +20,7 @@ import { WebSocket } from 'ws';
 import { Follower } from '../../src/election/follower.js';
 import { attachLeaderEndpoints } from '../../src/election/leader-endpoints.js';
 import { Node } from '../../src/election/node.js';
+import { createFollowerAuth } from '../../src/security/follower-auth.js';
 
 export interface LeaderHarness {
   node: Node;
@@ -50,6 +51,7 @@ export const startLeader = async (serverVersion = 'e2e-1.0.0'): Promise<LeaderHa
     },
   });
   const res = await node.becomeLeader();
+  const auth = await createFollowerAuth({ memory: res.credentials });
   const follower = new Follower({
     leaderUrl: `http://127.0.0.1:${port}`,
     credentialProvider: async () => ({
@@ -61,14 +63,7 @@ export const startLeader = async (serverVersion = 'e2e-1.0.0'): Promise<LeaderHa
     relay: res.relay,
     serverVersion,
     leaderGeneration: res.credentials.generation,
-    auth: {
-      authorizeFollower: async (value, generation) =>
-        value === `Bearer ${res.credentials.followerToken}` &&
-        generation === res.credentials.generation,
-      authorizeControl: async (value, generation) =>
-        value === `Bearer ${res.credentials.controlToken}` &&
-        generation === res.credentials.generation,
-    },
+    auth,
     pairing: {
       createChallenge: async () => ({
         challengeId: 'ABCDEFGHIJ',
