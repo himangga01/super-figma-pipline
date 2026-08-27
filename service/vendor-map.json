@@ -4126,16 +4126,6 @@
     {
       "mode": "copy",
       "originCommit": "a835e81b575eab2c9265a67f9353c89b848f81ca",
-      "sourcePath": "packages/shared/src/index.ts",
-      "destination": "packages/shared/src/index.ts",
-      "baseSha256": "d4b9956dc40c983ee4b2f0379ebac88cedbc9918f88605fef1a378b220947245",
-      "currentSha256": "d4b9956dc40c983ee4b2f0379ebac88cedbc9918f88605fef1a378b220947245",
-      "transformations": [],
-      "licenseId": "MIT"
-    },
-    {
-      "mode": "copy",
-      "originCommit": "a835e81b575eab2c9265a67f9353c89b848f81ca",
       "sourcePath": "packages/shared/src/protocol.ts",
       "destination": "packages/shared/src/protocol.ts",
       "baseSha256": "32f6048ebde70b903f427e9ab750475a15eda5cb427465cda02424445c280091",

@@ -241,6 +241,11 @@ describe('protected service authorities', () => {
       },
     },
     {
+      name: 'Task 4 runtime path authority',
+      path: 'packages/mcp/src/runtime-paths.ts',
+      mutate: contents => contents.replace('SuperFigmaPipeline', 'UntrustedPipelineState'),
+    },
+    {
       name: 'pnpm lockfile bytes',
       path: 'pnpm-lock.yaml',
       mutate: contents => `${contents}# local mutation\n`,

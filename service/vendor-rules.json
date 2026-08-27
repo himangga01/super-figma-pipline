@@ -168,6 +168,7 @@
     "packages/mcp/src/tools/update-text-style.ts",
     "packages/mcp/test/tool-schema.ts",
     "packages/mcp/test/tools/skew-notice.test.ts",
+    "packages/shared/src/index.ts",
     "test/tool-registry.test.ts"
   ]
 }
