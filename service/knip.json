@@ -1,0 +1,24 @@
+{
+  "$schema": "./node_modules/knip/schema.json",
+  "ignoreExportsUsedInFile": true,
+  "workspaces": {
+    ".": {
+      "project": ["*.{ts,js}"]
+    },
+    "packages/shared": {
+      "project": ["src/**/*.ts"]
+    },
+    "packages/ir": {
+      "project": ["src/**/*.ts"]
+    },
+    "packages/mcp": {
+      "project": ["src/**/*.ts"]
+    },
+    "packages/plugin": {
+      "project": ["protocol/**/*.ts", "src/**/*.ts", "ui/**/*.{ts,vue,css}"]
+    },
+    "packages/cli": {
+      "project": ["src/**/*.ts"]
+    }
+  }
+}

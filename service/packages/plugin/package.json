@@ -1,0 +1,15 @@
+{
+  "name": "@sfp/plugin",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "pnpm run build:main && pnpm run build:ui",
+    "build:main": "vite build --config vite.config.main.ts",
+    "build:ui": "vite build --config vite.config.ts",
+    "typecheck": "vue-tsc --noEmit -p tsconfig.json"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "^6.0.8"
+  }
+}

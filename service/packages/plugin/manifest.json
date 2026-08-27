@@ -1,0 +1,14 @@
+{
+  "name": "Super Figma Pipeline",
+  "id": "super-figma-pipeline-dev",
+  "api": "1.0.0",
+  "main": "dist/code.js",
+  "ui": "dist/index.html",
+  "editorType": ["figma", "figjam", "dev"],
+  "documentAccess": "dynamic-page",
+  "networkAccess": {
+    "allowedDomains": ["*"],
+    "reasoning": "The development plugin connects to the local Super Figma Pipeline relay and preserves the upstream URL-import baseline until the secured server-side fetch adapter is introduced."
+  },
+  "capabilities": ["inspect"]
+}

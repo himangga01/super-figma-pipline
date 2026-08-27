@@ -1,0 +1,16 @@
+node_modules
+dist
+build/
+coverage/
+.sfp
+artifacts/
+*.tgz
+*.zip
+.DS_Store
+*.log
+.idea/
+.env
+.env.local
+*.tsbuildinfo
+.turbo/
+.cache/

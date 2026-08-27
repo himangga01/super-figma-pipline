@@ -1,0 +1,2 @@
+# Keep repository text files on LF across platforms.
+* text=auto eol=lf
