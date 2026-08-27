@@ -5,6 +5,8 @@
 
 import type { ResultSchemaRegistry } from '../../../shared/src/result-schemas.js';
 import { RESULT_SCHEMAS } from '../../../shared/src/result-schemas.js';
+import { OPERATION_POLICIES } from '../policy/operation-policy.js';
+import { RESULT_EGRESS_POLICIES } from '../policy/result-egress-policy.js';
 import { addComponentPropertyTool } from './add-component-property.js';
 import { addPageTool } from './add-page.js';
 import { addVariableModeTool } from './add-variable-mode.js';
@@ -278,8 +280,31 @@ export const finalizeToolSpecs = (
   );
 };
 
+/** Close both policy maps against the same names before any partially governed server starts. */
+const assertPolicyAuthorities = (specs: readonly ToolSpec<unknown, unknown>[]): void => {
+  const names = new Set(specs.map(spec => spec.name));
+  for (const spec of specs) {
+    const operationPolicy = OPERATION_POLICIES[spec.name];
+    if (operationPolicy === undefined) throw new Error(`missing operation policy: ${spec.name}`);
+    if (operationPolicy.toolName !== spec.name) {
+      throw new Error(`operation policy name mismatch: ${spec.name}`);
+    }
+    if (RESULT_EGRESS_POLICIES[spec.name] === undefined) {
+      throw new Error(`missing result egress policy: ${spec.name}`);
+    }
+  }
+  for (const name of Object.keys(OPERATION_POLICIES)) {
+    if (!names.has(name)) throw new Error(`operation policy without raw tool spec: ${name}`);
+  }
+  for (const name of Object.keys(RESULT_EGRESS_POLICIES)) {
+    if (!names.has(name)) throw new Error(`result egress policy without raw tool spec: ${name}`);
+  }
+};
+
 /** Every tool the MCP server registers, finalized in ListTools order. */
-export const ALL_TOOL_SPECS = finalizeToolSpecs(RAW_TOOL_SPECS, RESULT_SCHEMAS, TOOL_RUNTIMES);
+const finalizedToolSpecs = finalizeToolSpecs(RAW_TOOL_SPECS, RESULT_SCHEMAS, TOOL_RUNTIMES);
+assertPolicyAuthorities(finalizedToolSpecs);
+export const ALL_TOOL_SPECS = finalizedToolSpecs;
 
 /**
  * Write tools get a server-generated requestId (stable across dispatch retries) so the plugin can

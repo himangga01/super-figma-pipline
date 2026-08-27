@@ -260,6 +260,17 @@ describe('protected service authorities', () => {
         ),
     },
     {
+      name: 'Task 5 dynamic operation-policy authority',
+      path: 'packages/mcp/src/policy/operation-policy.ts',
+      mutate: contents =>
+        contents.replace("effect.type === 'network'", "effect.type === 'offline'"),
+    },
+    {
+      name: 'Task 5 persisted egress-config authority',
+      path: 'packages/mcp/src/policy/policy-engine.ts',
+      mutate: contents => contents.replace("'egress.v1.json'", "'implicit-egress.json'"),
+    },
+    {
       name: 'pnpm lockfile bytes',
       path: 'pnpm-lock.yaml',
       mutate: contents => `${contents}# local mutation\n`,

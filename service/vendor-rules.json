@@ -50,6 +50,9 @@
     "**/dist/**",
     "**/node_modules/**",
     "packages/mcp/src/index.ts",
+    "packages/mcp/src/policy/operation-policy.ts",
+    "packages/mcp/src/policy/policy-engine.ts",
+    "packages/mcp/src/policy/result-egress-policy.ts",
     "packages/mcp/src/tools/add-component-property.ts",
     "packages/mcp/src/tools/add-page.ts",
     "packages/mcp/src/tools/add-variable-mode.ts",
@@ -166,9 +169,15 @@
     "packages/mcp/src/tools/update-effect-style.ts",
     "packages/mcp/src/tools/update-paint-style.ts",
     "packages/mcp/src/tools/update-text-style.ts",
+    "packages/mcp/test/e2e/mcp-wire.test.ts",
+    "packages/mcp/test/policy/egress-config.test.ts",
+    "packages/mcp/test/policy/operation-policy.test.ts",
+    "packages/mcp/test/policy/result-egress-policy.test.ts",
     "packages/mcp/test/tool-schema.ts",
     "packages/mcp/test/tools/skew-notice.test.ts",
+    "packages/shared/src/egress.ts",
     "packages/shared/src/index.ts",
+    "packages/shared/src/operations.ts",
     "test/tool-registry.test.ts"
   ]
 }

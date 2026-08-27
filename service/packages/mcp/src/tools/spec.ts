@@ -63,6 +63,7 @@ export interface RawToolSpec<I = unknown> {
 /** A finalized executable tool authority. Both input and output types are always explicit. */
 export interface ToolSpec<I, O> extends RawToolSpec<I> {
   resultSchema: z.ZodType<O>;
-  policyId: string;
+  /** Exact key/version for the separately closed operation and result-egress policy authorities. */
+  policyId: `tool:${string}:v1`;
   runtimeId: string;
 }

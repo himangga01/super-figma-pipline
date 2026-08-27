@@ -596,16 +596,6 @@
     {
       "mode": "copy",
       "originCommit": "a835e81b575eab2c9265a67f9353c89b848f81ca",
-      "sourcePath": "packages/mcp/test/e2e/mcp-wire.test.ts",
-      "destination": "packages/mcp/test/e2e/mcp-wire.test.ts",
-      "baseSha256": "d15775b798b866c1efacb335e5f24d0ab9a65a2d6c8168037fcb77d2ea694a1b",
-      "currentSha256": "d15775b798b866c1efacb335e5f24d0ab9a65a2d6c8168037fcb77d2ea694a1b",
-      "transformations": [],
-      "licenseId": "MIT"
-    },
-    {
-      "mode": "copy",
-      "originCommit": "a835e81b575eab2c9265a67f9353c89b848f81ca",
       "sourcePath": "packages/mcp/test/e2e/ping.test.ts",
       "destination": "packages/mcp/test/e2e/ping.test.ts",
       "baseSha256": "5da3eb151863d5447f6068ef8c9d3d76030b02a34cae5d254eaa21a261e4e0d7",

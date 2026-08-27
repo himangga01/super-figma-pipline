@@ -255,13 +255,51 @@ describe.skipIf(!existsSync(DIST_ENTRY))('MCP wire contract (built dist)', () =>
     // Pinned as literals on purpose. The check below compares the wire against `annotationsFor`,
     // which cannot tell a correct derivation from a broken one — flip the function and both sides
     // move together and it stays green. These are what the MCP spec means, so they are what the
-    // wire has to say: a client uses readOnlyHint to decide whether a call needs confirmation, and
-    // destructiveHint to decide how loudly to ask.
+    // wire has to say: a client uses readOnly/destructive to shape confirmation, idempotent to
+    // judge repeat safety, and openWorld to distinguish the conditional URL-import surface.
     const advertised = (name: string): unknown => tools.find(t => t.name === name)?.annotations;
-    expect(advertised('get_node')).toEqual({ readOnlyHint: true });
-    expect(advertised('analyze_project')).toEqual({ readOnlyHint: true });
-    expect(advertised('set_fills')).toEqual({ readOnlyHint: false, destructiveHint: false });
-    expect(advertised('delete_nodes')).toEqual({ readOnlyHint: false, destructiveHint: true });
+    expect(advertised('get_node')).toEqual({
+      readOnlyHint: true,
+      destructiveHint: false,
+      idempotentHint: true,
+      openWorldHint: false,
+    });
+    expect(advertised('analyze_project')).toEqual({
+      readOnlyHint: true,
+      destructiveHint: false,
+      idempotentHint: true,
+      openWorldHint: false,
+    });
+    expect(advertised('set_fills')).toEqual({
+      readOnlyHint: false,
+      destructiveHint: false,
+      idempotentHint: false,
+      openWorldHint: false,
+    });
+    expect(advertised('delete_nodes')).toEqual({
+      readOnlyHint: false,
+      destructiveHint: true,
+      idempotentHint: false,
+      openWorldHint: false,
+    });
+    expect(advertised('save_screenshots')).toEqual({
+      readOnlyHint: false,
+      destructiveHint: true,
+      idempotentHint: false,
+      openWorldHint: false,
+    });
+    expect(advertised('import_image')).toEqual({
+      readOnlyHint: false,
+      destructiveHint: false,
+      idempotentHint: false,
+      openWorldHint: true,
+    });
+    expect(advertised('navigate_to_page')).toEqual({
+      readOnlyHint: false,
+      destructiveHint: false,
+      idempotentHint: true,
+      openWorldHint: false,
+    });
   });
 
   it('advertises annotations derived from each spec', () => {
