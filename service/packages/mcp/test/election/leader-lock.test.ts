@@ -43,7 +43,12 @@ afterEach(() => {
 
 const writeLock = (port: number): void => {
   written.push(port);
-  writeLeaderLock({ port, buildId: 42, serverVersion: '9.9.9' });
+  writeLeaderLock({
+    port,
+    buildId: 42,
+    serverVersion: '9.9.9',
+    leaderGeneration: 'public-generation-a',
+  });
 };
 
 const writeRawLock = (port: number, body: string): void => {
@@ -79,6 +84,7 @@ describe('leader lock: write / read', () => {
     expect(lock?.port).toBe(port);
     expect(lock?.buildId).toBe(42);
     expect(lock?.serverVersion).toBe('9.9.9');
+    expect(lock?.leaderGeneration).toBe('public-generation-a');
     // The recorded start must be this process's own, not "now" — a follower promoted an hour into
     // its life would otherwise record a time no `ps` will ever agree with, and could never be named.
     const selfStart = Date.now() - Math.round(process.uptime() * 1_000);

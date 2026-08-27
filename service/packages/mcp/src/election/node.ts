@@ -1,9 +1,11 @@
+import { randomBytes } from 'node:crypto';
 import { createServer, type Server as HttpServer } from 'node:http';
 import type { AddressInfo } from 'node:net';
 
 import { DEFAULT_PORT } from '@sfp/shared';
 
-import { Relay } from '../relay/relay.js';
+import { Relay, type RelayAuthenticator } from '../relay/relay.js';
+import type { LeaderGenerationCredentials } from '../security/follower-auth.js';
 import { type PortHolder, portConflictMessage } from './leader-lock.js';
 
 export const NodeRole = {
@@ -25,12 +27,15 @@ export interface NodeOptions {
   port?: number;
   host?: string;
   log?: (msg: string) => void;
+  generationAuth?: { rotate(): Promise<LeaderGenerationCredentials> };
+  relayAuthenticator?: RelayAuthenticator;
 }
 
 export interface LeaderResources {
   http: HttpServer;
   relay: Relay;
   port: number;
+  credentials: LeaderGenerationCredentials;
 }
 
 export const isAddressInUse = (err: unknown): boolean =>
@@ -43,7 +48,10 @@ export class Node {
   private currentRole: NodeRole = NodeRole.Unknown;
   private leader: LeaderResources | null = null;
   private conflict: string | null = null;
-  private readonly opts: Required<NodeOptions>;
+  private readonly opts: Required<Omit<NodeOptions, 'generationAuth' | 'relayAuthenticator'>> & {
+    generationAuth: { rotate(): Promise<LeaderGenerationCredentials> };
+    relayAuthenticator: RelayAuthenticator;
+  };
   private readonly listeners = new Set<(role: NodeRole) => void>();
 
   constructor(opts: NodeOptions) {
@@ -52,6 +60,21 @@ export class Node {
       port: opts.port ?? DEFAULT_PORT,
       host: opts.host ?? '127.0.0.1',
       log: opts.log ?? (() => {}),
+      generationAuth: opts.generationAuth ?? {
+        rotate: async () => ({
+          generation: randomBytes(16).toString('base64url'),
+          followerToken: randomBytes(32).toString('base64url'),
+          controlToken: randomBytes(32).toString('base64url'),
+          createdAt: Date.now(),
+        }),
+      },
+      relayAuthenticator: opts.relayAuthenticator ?? {
+        authenticateHello: async () => {
+          throw Object.assign(new Error('authenticated credential required'), {
+            code: 'PAIR_CREDENTIAL_REQUIRED',
+          });
+        },
+      },
     };
   }
 
@@ -102,13 +125,21 @@ export class Node {
       throw err;
     }
 
+    let credentials: LeaderGenerationCredentials;
+    try {
+      credentials = await this.opts.generationAuth.rotate();
+    } catch (error) {
+      await new Promise<void>(resolvePromise => http.close(() => resolvePromise()));
+      throw error;
+    }
     const relay = new Relay({
       serverVersion: this.opts.serverVersion,
       server: http,
       log: this.opts.log,
+      authenticator: this.opts.relayAuthenticator,
     });
     const port = (http.address() as AddressInfo).port;
-    this.leader = { http, relay, port };
+    this.leader = { http, relay, port, credentials };
     this.setRole(NodeRole.Leader);
     this.opts.log(`[node] became LEADER on :${port}`);
     return this.leader;

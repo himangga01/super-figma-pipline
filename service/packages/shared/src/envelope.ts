@@ -69,6 +69,9 @@ export const HelloResultSchema = z.object({
   serverVersion: z.string(),
   protocolVersion: z.string(),
   sessionResumed: z.boolean(),
+  sessionId: z.string().optional(),
+  rotatedResumeToken: z.string().optional(),
+  resumeExpiresAt: z.number().optional(),
   // Set when this plugin predates the server: it is served anyway, but its results are unreliable.
   // A plugin old enough to lack this field ignores it (the client casts rather than parses), which
   // is the point — it costs nothing to send and lets any plugin new enough say so in its panel.

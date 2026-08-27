@@ -297,6 +297,56 @@ describe('protected service authorities', () => {
       mutate: contents => contents.replace("p.componentKey.trim() === ''", 'false'),
     },
     {
+      name: 'Task 6 product identity authority',
+      path: 'packages/shared/src/auth.ts',
+      mutate: contents => contents.replace('super-figma-pipeline', 'foreign-local-service'),
+    },
+    {
+      name: 'Task 6 unknown-role authority',
+      path: 'packages/mcp/src/dispatch.ts',
+      mutate: contents => contents.replace('ctx.node.role === NodeRole.Unknown', 'false'),
+    },
+    {
+      name: 'Task 6 follower bearer authority',
+      path: 'packages/mcp/src/security/follower-auth.ts',
+      mutate: contents => contents.replace('^Bearer ', '^Optional '),
+    },
+    {
+      name: 'Task 6 closed Origin authority',
+      path: 'packages/mcp/src/security/local-access.ts',
+      mutate: contents => contents.replace("'https://figma.com',", "'https://evil.example',"),
+    },
+    {
+      name: 'Task 6 pairing HMAC authority',
+      path: 'packages/mcp/src/security/pairing-manager.ts',
+      mutate: contents => contents.replace("digest('pair-code', code)", 'code'),
+    },
+    {
+      name: 'Task 6 request limit authority',
+      path: 'packages/mcp/src/security/request-limits.ts',
+      mutate: contents => contents.replace('16 * 1024', 'Number.MAX_SAFE_INTEGER'),
+    },
+    {
+      name: 'Task 6 PNA response authority',
+      path: 'packages/mcp/src/election/leader-endpoints.ts',
+      mutate: contents =>
+        contents.replace(
+          "'access-control-allow-origin': origin",
+          "'access-control-allow-origin': '*'",
+        ),
+    },
+    {
+      name: 'Task 6 WebSocket path authority',
+      path: 'packages/mcp/src/relay/relay.ts',
+      mutate: contents => contents.replace("path: '/ws'", "path: '/'"),
+    },
+    {
+      name: 'Task 6 process auth wiring authority',
+      path: 'packages/mcp/src/index.ts',
+      mutate: contents =>
+        contents.replace('relayAuthenticator: pairing', 'relayAuthenticator: undefined'),
+    },
+    {
       name: 'pnpm lockfile bytes',
       path: 'pnpm-lock.yaml',
       mutate: contents => `${contents}# local mutation\n`,

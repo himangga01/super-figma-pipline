@@ -1,6 +1,7 @@
 export * from './codec.js';
 export * from './components.js';
 export * from './config.js';
+export * from './auth.js';
 export * from './design-context.js';
 export * from './design-context-dedupe.js';
 export * from './egress.js';

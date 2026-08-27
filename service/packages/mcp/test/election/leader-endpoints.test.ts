@@ -11,7 +11,6 @@ import {
   MIN_PLUGIN_VERSION,
   newId,
   PROTOCOL_VERSION,
-  type HelloParams,
   type RpcRequest,
   type RpcResponse,
   RpcResponseSchema,
@@ -38,6 +37,32 @@ interface Bound {
 }
 
 const all: Bound[] = [];
+const TEST_GENERATION = Buffer.alloc(16, 1).toString('base64url');
+const TEST_FOLLOWER_TOKEN = Buffer.alloc(32, 2).toString('base64url');
+const TEST_CONTROL_TOKEN = Buffer.alloc(32, 3).toString('base64url');
+const FOLLOWER_HEADERS = {
+  authorization: `Bearer ${TEST_FOLLOWER_TOKEN}`,
+  'x-sfp-leader-generation': TEST_GENERATION,
+};
+const TEST_AUTH = {
+  authorizeFollower: async (value: string | undefined, generation: string | undefined) =>
+    value === `Bearer ${TEST_FOLLOWER_TOKEN}` && generation === TEST_GENERATION,
+  authorizeControl: async (value: string | undefined, generation: string | undefined) =>
+    value === `Bearer ${TEST_CONTROL_TOKEN}` && generation === TEST_GENERATION,
+};
+const authenticatedHello = (clientVersion = MIN_PLUGIN_VERSION) => ({
+  credential: { kind: 'ticket' as const, value: 'test-ticket' },
+  nonce: Buffer.alloc(16, 4).toString('base64url'),
+  protocolVersion: PROTOCOL_VERSION,
+  productVersion: '0.1.0',
+  pluginVersion: clientVersion,
+  pluginGeneration: 'plugin-generation-test',
+  editorType: 'figma' as const,
+  mode: 'default',
+  fileIdentity: { kind: 'figma-file-key' as const, value: 'file-key-test' },
+  fileName: 'Endpoint Test',
+  capabilities: [],
+});
 
 afterEach(async () => {
   await Promise.all(
@@ -58,12 +83,38 @@ const startLeader = async (
   const http = createServer();
   await new Promise<void>(resolve => http.listen(0, '127.0.0.1', () => resolve()));
   const port = (http.address() as AddressInfo).port;
-  const relay = new Relay({ serverVersion: '1.0.0', server: http });
+  const relay = new Relay({
+    serverVersion: '1.0.0',
+    server: http,
+    authenticator: {
+      authenticateHello: async (_input, context) => ({
+        sessionId: context.requestedSessionId,
+        rotatedResumeToken: Buffer.alloc(32, 5).toString('base64url'),
+        resumeExpiresAt: Date.now() + 60_000,
+      }),
+    },
+  });
   const detach = attachLeaderEndpoints(http, {
+    ...extraDeps,
     relay,
     serverVersion: '1.0.0',
     rpcTimeoutMs,
-    ...extraDeps,
+    leaderGeneration: extraDeps.leaderGeneration ?? TEST_GENERATION,
+    auth: extraDeps.auth ?? TEST_AUTH,
+    pairing:
+      extraDeps.pairing ??
+      ({
+        createChallenge: async () => ({
+          challengeId: 'ABCDEFGHIJ',
+          code: '12345678',
+          expiresAt: Date.now() + 60_000,
+          attemptsRemaining: 5,
+        }),
+        exchange: async () => ({
+          wsTicket: 'AAAAAAAAAAAAAAAAAAAAAA',
+          expiresAt: Date.now() + 30_000,
+        }),
+      } satisfies LeaderEndpointDeps['pairing']),
   });
   const b: Bound = { http, relay, port, detach, plugins: [] };
   all.push(b);
@@ -76,7 +127,7 @@ const postAbdicate = async (
 ): Promise<{ status: number; body: { ok: boolean; reason?: string } }> => {
   const res = await fetch(`http://127.0.0.1:${port}${ABDICATE_PATH}`, {
     method: 'POST',
-    headers: { 'content-type': 'application/json' },
+    headers: { 'content-type': 'application/json', ...FOLLOWER_HEADERS },
     body: typeof body === 'string' ? body : JSON.stringify(body),
   });
   return { status: res.status, body: (await res.json()) as { ok: boolean; reason?: string } };
@@ -87,7 +138,7 @@ const attachFakePlugin = async (
   handle: (method: string, params: unknown) => Promise<unknown>,
   clientVersion: string = MIN_PLUGIN_VERSION,
 ): Promise<WebSocket> => {
-  const ws = new WebSocket(`ws://127.0.0.1:${b.port}`);
+  const ws = new WebSocket(`ws://127.0.0.1:${b.port}/ws`, { origin: 'null' });
   ws.binaryType = 'arraybuffer';
   await new Promise<void>(resolve => ws.once('open', () => resolve()));
   const sessionId = newId();
@@ -114,11 +165,7 @@ const attachFakePlugin = async (
     }
   });
 
-  const helloParams: HelloParams = {
-    clientType: 'plugin',
-    clientVersion,
-    protocolVersion: PROTOCOL_VERSION,
-  };
+  const helloParams = authenticatedHello(clientVersion);
   ws.send(
     encodeEnvelope(
       createRequest({ id: 'h', sessionId, method: SystemMethod.Hello, params: helloParams }),
@@ -132,7 +179,7 @@ const attachFakePlugin = async (
 const callRpc = async (port: number, req: RpcRequest): Promise<RpcResponse> => {
   const res = await fetch(`http://127.0.0.1:${port}${RPC_PATH}`, {
     method: 'POST',
-    headers: { 'content-type': 'application/msgpack' },
+    headers: { 'content-type': 'application/msgpack', ...FOLLOWER_HEADERS },
     body: Buffer.from(encode(req)),
   });
   const buf = new Uint8Array(await res.arrayBuffer());
@@ -267,7 +314,7 @@ describe('leader endpoints', () => {
 
   it('POST /rpc returns TIMEOUT when plugin does not reply in time', async () => {
     const b = await startLeader(50);
-    const ws = new WebSocket(`ws://127.0.0.1:${b.port}`);
+    const ws = new WebSocket(`ws://127.0.0.1:${b.port}/ws`, { origin: 'null' });
     ws.binaryType = 'arraybuffer';
     await new Promise<void>(resolve => ws.once('open', () => resolve()));
     ws.send(
@@ -276,11 +323,7 @@ describe('leader endpoints', () => {
           id: 'h',
           sessionId: newId(),
           method: SystemMethod.Hello,
-          params: {
-            clientType: 'plugin',
-            clientVersion: MIN_PLUGIN_VERSION,
-            protocolVersion: PROTOCOL_VERSION,
-          } satisfies HelloParams,
+          params: authenticatedHello(),
         }),
       ),
     );
@@ -296,7 +339,7 @@ describe('leader endpoints', () => {
     const b = await startLeader();
     const res = await fetch(`http://127.0.0.1:${b.port}${RPC_PATH}`, {
       method: 'POST',
-      headers: { 'content-type': 'application/msgpack' },
+      headers: { 'content-type': 'application/msgpack', ...FOLLOWER_HEADERS },
       body: Buffer.from([0xff, 0xff, 0xff]),
     });
     expect(res.status).toBe(400);
@@ -306,7 +349,7 @@ describe('leader endpoints', () => {
     const b = await startLeader();
     const res = await fetch(`http://127.0.0.1:${b.port}${RPC_PATH}`, {
       method: 'POST',
-      headers: { 'content-type': 'application/msgpack' },
+      headers: { 'content-type': 'application/msgpack', ...FOLLOWER_HEADERS },
       body: Buffer.from(encode({ requestId: 'r-x' })),
     });
     expect(res.status).toBe(400);
@@ -378,7 +421,7 @@ describe('leader endpoints', () => {
     const b = await startLeader();
     const res = await fetch(`http://127.0.0.1:${b.port}${RPC_PATH}`, {
       method: 'POST',
-      headers: { 'content-type': 'text/plain' },
+      headers: { 'content-type': 'text/plain', ...FOLLOWER_HEADERS },
       body: Buffer.from(encode({ requestId: 'r-ct', toolName: 'ping' })),
     });
     expect(res.status).toBe(415);
@@ -388,7 +431,7 @@ describe('leader endpoints', () => {
     const b = await startLeader();
     const res = await fetch(`http://127.0.0.1:${b.port}${ABDICATE_PATH}`, {
       method: 'POST',
-      headers: { 'content-type': 'text/plain' },
+      headers: { 'content-type': 'text/plain', ...FOLLOWER_HEADERS },
       body: JSON.stringify({ buildId: 999_999 }),
     });
     expect(res.status).toBe(415);

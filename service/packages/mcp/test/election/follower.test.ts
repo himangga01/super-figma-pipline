@@ -10,7 +10,6 @@ import {
   MIN_PLUGIN_VERSION,
   newId,
   PROTOCOL_VERSION,
-  type HelloParams,
   SystemMethod,
 } from '@sfp/shared';
 import { afterEach, describe, expect, it } from 'vitest';
@@ -29,6 +28,35 @@ interface Bound {
 }
 
 const all: Bound[] = [];
+const TEST_GENERATION = Buffer.alloc(16, 1).toString('base64url');
+const TEST_FOLLOWER_TOKEN = Buffer.alloc(32, 2).toString('base64url');
+const TEST_AUTHORIZATION = {
+  generation: TEST_GENERATION,
+  value: `Bearer ${TEST_FOLLOWER_TOKEN}`,
+};
+const TEST_AUTH = {
+  authorizeFollower: async (value: string | undefined, generation: string | undefined) =>
+    value === TEST_AUTHORIZATION.value && generation === TEST_GENERATION,
+  authorizeControl: async () => false,
+};
+const TEST_PAIRING = {
+  createChallenge: async () => ({
+    challengeId: 'ABCDEFGHIJ',
+    code: '12345678',
+    expiresAt: Date.now() + 60_000,
+    attemptsRemaining: 5,
+  }),
+  exchange: async () => ({ wsTicket: 'AAAAAAAAAAAAAAAAAAAAAA', expiresAt: Date.now() + 30_000 }),
+};
+const TEST_RELAY_AUTHENTICATOR = {
+  authenticateHello: async (_input: unknown, context: { requestedSessionId: string }) => ({
+    sessionId: context.requestedSessionId,
+    rotatedResumeToken: Buffer.alloc(32, 3).toString('base64url'),
+    resumeExpiresAt: Date.now() + 60_000,
+  }),
+};
+const testFollower = (options: ConstructorParameters<typeof Follower>[0]): Follower =>
+  new Follower({ credentialProvider: async () => TEST_AUTHORIZATION, ...options });
 
 afterEach(async () => {
   await Promise.all(
@@ -46,8 +74,18 @@ const startLeader = async (): Promise<Bound> => {
   const http = createServer();
   await new Promise<void>(resolve => http.listen(0, '127.0.0.1', () => resolve()));
   const port = (http.address() as AddressInfo).port;
-  const relay = new Relay({ serverVersion: '1.0.0', server: http });
-  const detach = attachLeaderEndpoints(http, { relay, serverVersion: '1.0.0' });
+  const relay = new Relay({
+    serverVersion: '1.0.0',
+    server: http,
+    authenticator: TEST_RELAY_AUTHENTICATOR,
+  });
+  const detach = attachLeaderEndpoints(http, {
+    relay,
+    serverVersion: '1.0.0',
+    leaderGeneration: TEST_GENERATION,
+    auth: TEST_AUTH,
+    pairing: TEST_PAIRING,
+  });
   const b: Bound = { http, relay, port, detach, plugins: [] };
   all.push(b);
   return b;
@@ -57,11 +95,18 @@ const startLeaderWithTimeout = async (rpcTimeoutMs: number): Promise<Bound> => {
   const http = createServer();
   await new Promise<void>(resolve => http.listen(0, '127.0.0.1', () => resolve()));
   const port = (http.address() as AddressInfo).port;
-  const relay = new Relay({ serverVersion: '1.0.0', server: http });
+  const relay = new Relay({
+    serverVersion: '1.0.0',
+    server: http,
+    authenticator: TEST_RELAY_AUTHENTICATOR,
+  });
   const detach = attachLeaderEndpoints(http, {
     relay,
     serverVersion: '1.0.0',
     rpcTimeoutMs,
+    leaderGeneration: TEST_GENERATION,
+    auth: TEST_AUTH,
+    pairing: TEST_PAIRING,
   });
   const b: Bound = { http, relay, port, detach, plugins: [] };
   all.push(b);
@@ -72,7 +117,7 @@ const attachFakePlugin = async (
   b: Bound,
   handle: (method: string, params: unknown) => Promise<unknown>,
 ): Promise<void> => {
-  const ws = new WebSocket(`ws://127.0.0.1:${b.port}`);
+  const ws = new WebSocket(`ws://127.0.0.1:${b.port}/ws`, { origin: 'null' });
   ws.binaryType = 'arraybuffer';
   await new Promise<void>(resolve => ws.once('open', () => resolve()));
 
@@ -104,10 +149,18 @@ const attachFakePlugin = async (
         sessionId: newId(),
         method: SystemMethod.Hello,
         params: {
-          clientType: 'plugin',
-          clientVersion: MIN_PLUGIN_VERSION,
+          credential: { kind: 'ticket', value: 'test-ticket' },
+          nonce: Buffer.alloc(16, 4).toString('base64url'),
           protocolVersion: PROTOCOL_VERSION,
-        } satisfies HelloParams,
+          productVersion: '0.1.0',
+          pluginVersion: MIN_PLUGIN_VERSION,
+          pluginGeneration: 'plugin-generation-test',
+          editorType: 'figma',
+          mode: 'default',
+          fileIdentity: { kind: 'figma-file-key', value: 'file-key-test' },
+          fileName: 'Follower Test',
+          capabilities: [],
+        },
       }),
     ),
   );
@@ -118,12 +171,12 @@ const attachFakePlugin = async (
 describe('Follower HTTP client', () => {
   it('ping returns true when leader is up', async () => {
     const b = await startLeader();
-    const f = new Follower({ leaderUrl: `http://127.0.0.1:${b.port}` });
+    const f = testFollower({ leaderUrl: `http://127.0.0.1:${b.port}` });
     expect(await f.ping()).toBe(true);
   });
 
   it('ping returns false for unreachable leader', async () => {
-    const f = new Follower({
+    const f = testFollower({
       leaderUrl: 'http://127.0.0.1:1',
       pingTimeoutMs: 200,
     });
@@ -137,7 +190,7 @@ describe('Follower HTTP client', () => {
     });
     await new Promise<void>(resolve => http.listen(0, '127.0.0.1', () => resolve()));
     const port = (http.address() as AddressInfo).port;
-    const f = new Follower({ leaderUrl: `http://127.0.0.1:${port}` });
+    const f = testFollower({ leaderUrl: `http://127.0.0.1:${port}` });
     try {
       expect(await f.ping()).toBe(false);
     } finally {
@@ -153,7 +206,7 @@ describe('Follower HTTP client', () => {
       return { name: 'My Doc', pages: 3 };
     });
 
-    const f = new Follower({ leaderUrl: `http://127.0.0.1:${b.port}` });
+    const f = testFollower({ leaderUrl: `http://127.0.0.1:${b.port}` });
     const resp = await f.sendRpc('get_doc', { depth: 2 }, 'r-42');
     if (resp.kind !== 'ok') throw new Error(`expected ok, got ${resp.kind}`);
     expect(resp.requestId).toBe('r-42');
@@ -162,7 +215,7 @@ describe('Follower HTTP client', () => {
 
   it('sendRpc surfaces leader-side err response', async () => {
     const b = await startLeaderWithTimeout(50);
-    const f = new Follower({ leaderUrl: `http://127.0.0.1:${b.port}` });
+    const f = testFollower({ leaderUrl: `http://127.0.0.1:${b.port}` });
     const resp = await f.sendRpc('whatever', undefined, 'r-no-plugin');
     if (resp.kind !== 'err') throw new Error(`expected err, got ${resp.kind}`);
     expect(resp.code).toBe(ErrorCode.Timeout);
@@ -170,7 +223,7 @@ describe('Follower HTTP client', () => {
   });
 
   it('sendRpc returns Internal err when transport fails', async () => {
-    const f = new Follower({
+    const f = testFollower({
       leaderUrl: 'http://127.0.0.1:1',
       rpcTimeoutMs: 200,
     });
@@ -184,7 +237,7 @@ describe('Follower HTTP client', () => {
     // A leader that never answers — the shape of a wedged one. The budget here is 60s, so the only
     // thing that can end this call in test time is the abort actually reaching the request.
     const b = await startLeader();
-    const f = new Follower({ leaderUrl: `http://127.0.0.1:${b.port}` });
+    const f = testFollower({ leaderUrl: `http://127.0.0.1:${b.port}` });
     const abort = new AbortController();
     const started = Date.now();
     const pending = f.sendRpc('get_doc', {}, 'r-abort', undefined, 60_000, abort.signal);
@@ -200,7 +253,7 @@ describe('Follower HTTP client', () => {
 
   it('sendRpc still honours its own budget when no abort signal is given', async () => {
     const b = await startLeader();
-    const f = new Follower({ leaderUrl: `http://127.0.0.1:${b.port}` });
+    const f = testFollower({ leaderUrl: `http://127.0.0.1:${b.port}` });
     const started = Date.now();
     const resp = await f.sendRpc('get_doc', {}, 'r-budget', undefined, 300);
     if (resp.kind !== 'err') throw new Error(`expected err, got ${resp.kind}`);
@@ -209,7 +262,7 @@ describe('Follower HTTP client', () => {
 
   it('resolveActiveSession reads the leader-picked session id', async () => {
     const b = await startLeader();
-    const f = new Follower({ leaderUrl: `http://127.0.0.1:${b.port}` });
+    const f = testFollower({ leaderUrl: `http://127.0.0.1:${b.port}` });
     // No plugin yet → undefined, caller falls back to unpinned routing.
     expect(await f.resolveActiveSession()).toBeUndefined();
 
@@ -218,7 +271,7 @@ describe('Follower HTTP client', () => {
   });
 
   it('resolveActiveSession returns undefined when the leader is unreachable', async () => {
-    const f = new Follower({ leaderUrl: 'http://127.0.0.1:1', pingTimeoutMs: 200 });
+    const f = testFollower({ leaderUrl: 'http://127.0.0.1:1', pingTimeoutMs: 200 });
     expect(await f.resolveActiveSession()).toBeUndefined();
   });
 
@@ -226,16 +279,27 @@ describe('Follower HTTP client', () => {
     const http = createServer();
     await new Promise<void>(resolve => http.listen(0, '127.0.0.1', () => resolve()));
     const port = (http.address() as AddressInfo).port;
-    const relay = new Relay({ serverVersion: 'test-2.0.0', server: http });
+    const relay = new Relay({
+      serverVersion: 'test-2.0.0',
+      server: http,
+      authenticator: TEST_RELAY_AUTHENTICATOR,
+    });
     const detach = attachLeaderEndpoints(http, {
       relay,
       serverVersion: 'test-2.0.0',
       buildId: 777,
+      leaderGeneration: TEST_GENERATION,
+      auth: TEST_AUTH,
+      pairing: TEST_PAIRING,
     });
     all.push({ http, relay, port, detach, plugins: [] });
 
-    const f = new Follower({ leaderUrl: `http://127.0.0.1:${port}` });
-    expect(await f.leaderInfo()).toEqual({ serverVersion: 'test-2.0.0', buildId: 777 });
+    const f = testFollower({ leaderUrl: `http://127.0.0.1:${port}` });
+    expect(await f.leaderInfo()).toEqual({
+      serverVersion: 'test-2.0.0',
+      buildId: 777,
+      leaderGeneration: TEST_GENERATION,
+    });
   });
 
   it('leaderInfo is undefined for a non-figwright responder and an unreachable leader', async () => {
@@ -246,13 +310,13 @@ describe('Follower HTTP client', () => {
     await new Promise<void>(resolve => http.listen(0, '127.0.0.1', () => resolve()));
     const port = (http.address() as AddressInfo).port;
     try {
-      const f = new Follower({ leaderUrl: `http://127.0.0.1:${port}` });
+      const f = testFollower({ leaderUrl: `http://127.0.0.1:${port}` });
       expect(await f.leaderInfo()).toBeUndefined();
     } finally {
       await new Promise<void>(resolve => http.close(() => resolve()));
     }
 
-    const dead = new Follower({ leaderUrl: 'http://127.0.0.1:1', pingTimeoutMs: 200 });
+    const dead = testFollower({ leaderUrl: 'http://127.0.0.1:1', pingTimeoutMs: 200 });
     expect(await dead.leaderInfo()).toBeUndefined();
   });
 
@@ -264,7 +328,7 @@ describe('Follower HTTP client', () => {
     await new Promise<void>(resolve => http.listen(0, '127.0.0.1', () => resolve()));
     const port = (http.address() as AddressInfo).port;
     try {
-      const f = new Follower({ leaderUrl: `http://127.0.0.1:${port}` });
+      const f = testFollower({ leaderUrl: `http://127.0.0.1:${port}` });
       expect(await f.requestAbdication(200)).toBe('unsupported');
     } finally {
       await new Promise<void>(resolve => http.close(() => resolve()));
@@ -272,7 +336,7 @@ describe('Follower HTTP client', () => {
   });
 
   it('requestAbdication maps transport failure to error', async () => {
-    const f = new Follower({ leaderUrl: 'http://127.0.0.1:1', pingTimeoutMs: 200 });
+    const f = testFollower({ leaderUrl: 'http://127.0.0.1:1', pingTimeoutMs: 200 });
     expect(await f.requestAbdication(200)).toBe('error');
   });
 
@@ -280,7 +344,7 @@ describe('Follower HTTP client', () => {
     const b = await startLeader();
     await attachFakePlugin(b, async () => ({ ok: true }));
     const sid = b.relay.pickActiveSessionId();
-    const f = new Follower({ leaderUrl: `http://127.0.0.1:${b.port}` });
+    const f = testFollower({ leaderUrl: `http://127.0.0.1:${b.port}` });
 
     const ok = await f.sendRpc('get_design_context', {}, 'r-pin', sid);
     expect(ok.kind).toBe('ok');

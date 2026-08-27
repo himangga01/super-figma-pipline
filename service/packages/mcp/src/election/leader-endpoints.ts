@@ -1,188 +1,404 @@
 import type { IncomingMessage, Server as HttpServer, ServerResponse } from 'node:http';
 
 import { decode, encode } from '@msgpack/msgpack';
-import { ErrorCode, getRelayBudget, RpcRequestSchema, type RpcResponse } from '@sfp/shared';
+import {
+  ErrorCode,
+  getRelayBudget,
+  PairExchangeRequestSchema,
+  PRODUCT_MAGIC,
+  PROTOCOL_VERSION,
+  RpcRequestSchema,
+  type RpcResponse,
+} from '@sfp/shared';
 
-import { hasContentType, isAllowedHost, isAllowedHttpOrigin } from '../local-access.js';
 import type { Relay } from '../relay/relay.js';
+import type { FollowerAuth } from '../security/follower-auth.js';
+import {
+  hasContentType,
+  isAllowedHost,
+  isAllowedHttpOrigin,
+  isAllowedPluginOrigin,
+} from '../security/local-access.js';
+import { PairingError, type PairingManager } from '../security/pairing-manager.js';
+import {
+  fitsHttpResponse,
+  PAIR_METADATA_MAX_BYTES,
+  readBoundedBody,
+  RequestLimitError,
+  RPC_REQUEST_MAX_BYTES,
+} from '../security/request-limits.js';
 
 export const PING_PATH = '/ping';
 export const RPC_PATH = '/rpc';
 export const ABDICATE_PATH = '/abdicate';
+export const PAIR_EXCHANGE_PATH = '/pair/exchange';
+export const CONTROL_PAIR_CHALLENGE_PATH = '/control/pair/challenge';
 
-/**
- * Refuse to abdicate while relay traffic is this recent, even with nothing in flight: a multi-call
- * tool has idle gaps _between_ its pinned sub-calls, and a handoff inside one of those gaps would
- * strand the remaining sub-calls on the takeover window. A stale leader with an agent actively
- * working through it steps down at the next lull instead.
- */
 export const ABDICATE_QUIET_WINDOW_MS = 10_000;
 
 export interface LeaderEndpointDeps {
   relay: Relay;
   serverVersion: string;
-  /** This process's build stamp (see build-id.ts); advertised on /ping, compared on /abdicate. */
   buildId?: number;
-  /**
-   * Release leadership (called after an accepted /abdicate response has flushed). Wired to
-   * Election.yieldLeadership in production; leaving it unset makes /abdicate answer 'unsupported',
-   * which followers treat like a pre-abdication leader.
-   */
+  leaderGeneration: string;
+  auth: Pick<FollowerAuth, 'authorizeFollower' | 'authorizeControl'>;
+  pairing: Pick<PairingManager, 'createChallenge' | 'exchange'>;
+  controlActor?: string;
   onAbdicate?: () => void;
   log?: (msg: string) => void;
   rpcTimeoutMs?: number;
-  /** Test override for ABDICATE_QUIET_WINDOW_MS. */
   abdicateQuietWindowMs?: number;
 }
 
-const readBody = (req: IncomingMessage): Promise<Buffer> =>
-  new Promise<Buffer>((resolve, reject) => {
-    const chunks: Buffer[] = [];
-    req.on('data', (c: Buffer) => chunks.push(c));
-    req.on('end', () => resolve(Buffer.concat(chunks)));
-    req.on('error', reject);
-  });
-
-const writeMsgpack = (res: ServerResponse, status: number, body: RpcResponse): void => {
-  const bytes = encode(body);
-  const buf = Buffer.from(bytes.buffer, bytes.byteOffset, bytes.byteLength);
-  res.writeHead(status, {
-    'content-type': 'application/msgpack',
-    'content-length': buf.byteLength.toString(),
-  });
-  res.end(buf);
+const header = (req: IncomingMessage, name: string): string | undefined => {
+  const value = req.headers[name];
+  return typeof value === 'string' ? value : undefined;
 };
 
-const writeJson = (res: ServerResponse, status: number, body: unknown): void => {
-  const json = JSON.stringify(body);
-  res.writeHead(status, {
+const writeEmpty = (
+  res: ServerResponse,
+  status: number,
+  headers: Record<string, string> = {},
+): void => {
+  res.writeHead(status, { 'content-length': '0', ...headers });
+  res.end();
+};
+
+const jsonBytes = (body: unknown): Buffer => Buffer.from(JSON.stringify(body), 'utf8');
+
+const writeJson = (
+  res: ServerResponse,
+  status: number,
+  body: unknown,
+  headers: Record<string, string> = {},
+): void => {
+  let bytes = jsonBytes(body);
+  let safeStatus = status;
+  if (!fitsHttpResponse(bytes.byteLength)) {
+    safeStatus = 500;
+    bytes = jsonBytes({ code: 'PAYLOAD_TOO_LARGE' });
+  }
+  res.writeHead(safeStatus, {
     'content-type': 'application/json',
-    'content-length': Buffer.byteLength(json).toString(),
+    'content-length': bytes.byteLength.toString(),
+    ...headers,
   });
-  res.end(json);
+  res.end(bytes);
+};
+
+const writeMsgpack = (
+  res: ServerResponse,
+  status: number,
+  body: RpcResponse,
+  headers: Record<string, string> = {},
+): void => {
+  let bytes = Buffer.from(encode(body));
+  let safeStatus = status;
+  if (!fitsHttpResponse(bytes.byteLength)) {
+    safeStatus = 413;
+    bytes = Buffer.from(
+      encode({
+        kind: 'err',
+        requestId: body.requestId,
+        code: ErrorCode.PayloadTooLarge,
+        message: 'leader response exceeds the HTTP response limit',
+      } satisfies RpcResponse),
+    );
+  }
+  res.writeHead(safeStatus, {
+    'content-type': 'application/msgpack',
+    'content-length': bytes.byteLength.toString(),
+    ...headers,
+  });
+  res.end(bytes);
+};
+
+const pairHeaders = (origin: string): Record<string, string> => ({
+  'access-control-allow-origin': origin,
+  'access-control-allow-private-network': 'true',
+  'cache-control': 'no-store',
+  vary: 'Origin',
+});
+
+const writeAllowedPairJson = (
+  res: ServerResponse,
+  origin: string,
+  status: number,
+  body: unknown,
+  extraHeaders: Record<string, string> = {},
+): void => writeJson(res, status, body, { ...pairHeaders(origin), ...extraHeaders });
+
+const rejectPairOrigin = (res: ServerResponse): void =>
+  writeEmpty(res, 403, { connection: 'close', vary: 'Origin' });
+
+const exactPreflight = (req: IncomingMessage): string | undefined => {
+  const origin = header(req, 'origin');
+  if (
+    req.method !== 'OPTIONS' ||
+    req.url !== PAIR_EXCHANGE_PATH ||
+    !isAllowedPluginOrigin(origin) ||
+    header(req, 'access-control-request-method') !== 'POST' ||
+    header(req, 'access-control-request-headers')?.toLowerCase() !== 'content-type' ||
+    header(req, 'access-control-request-private-network') !== 'true'
+  ) {
+    return undefined;
+  }
+  return origin;
+};
+
+const pairErrorBody = (error: PairingError): Record<string, unknown> => ({
+  code: error.code,
+  ...(error.attemptsRemaining === undefined ? {} : { attemptsRemaining: error.attemptsRemaining }),
+});
+
+const authorize = async (
+  req: IncomingMessage,
+  kind: 'follower' | 'control',
+  deps: LeaderEndpointDeps,
+): Promise<boolean> => {
+  const authorization = header(req, 'authorization');
+  const generation = header(req, 'x-sfp-leader-generation');
+  return kind === 'follower'
+    ? deps.auth.authorizeFollower(authorization, generation)
+    : deps.auth.authorizeControl(authorization, generation);
+};
+
+const strictBuildId = (input: unknown): number | undefined => {
+  if (typeof input !== 'object' || input === null || Array.isArray(input)) return undefined;
+  const record = input as Record<string, unknown>;
+  if (Object.keys(record).length !== 1 || typeof record.buildId !== 'number') return undefined;
+  return Number.isFinite(record.buildId) ? record.buildId : undefined;
 };
 
 export const attachLeaderEndpoints = (http: HttpServer, deps: LeaderEndpointDeps): (() => void) => {
-  const { relay, serverVersion } = deps;
   const log = deps.log ?? ((): void => {});
 
-  const handler = (req: IncomingMessage, res: ServerResponse): void => {
-    // Addressed by a name that isn't ours: DNS rebinding, where the browser thinks it is talking to
-    // the attacker's domain and so both omits Origin and gets to read the reply.
-    if (!isAllowedHost(req.headers.host)) {
-      log(
-        `[leader] refused ${req.method ?? '?'} ${req.url ?? '?'} for host ${req.headers.host ?? ''}`,
-      );
-      writeJson(res, 403, { error: 'forbidden host' });
+  const routePairExchange = async (
+    req: IncomingMessage,
+    res: ServerResponse,
+    origin: string,
+  ): Promise<void> => {
+    if (!hasContentType(header(req, 'content-type'), 'application/json')) {
+      writeAllowedPairJson(res, origin, 400, { code: 'PAIR_BODY_INVALID' });
       return;
     }
-
-    // Followers reach these endpoints over Node's fetch, which sets no Origin. A request that does
-    // carry one came from a page in the user's browser, which has no legitimate reason to be here.
-    if (!isAllowedHttpOrigin(req.headers.origin)) {
-      log(
-        `[leader] refused ${req.method ?? '?'} ${req.url ?? '?'} from origin ${req.headers.origin ?? ''}`,
-      );
-      writeJson(res, 403, { error: 'forbidden origin' });
-      return;
-    }
-
-    if (req.method === 'GET' && req.url === PING_PATH) {
-      writeJson(res, 200, {
-        ok: true,
-        serverVersion,
-        // Build stamp for newest-build-wins election; 0 marks an unbundled process (never treated
-        // as newer than a real build).
-        buildId: deps.buildId ?? 0,
-        plugins: relay.sessions.connected().length,
-        // Lets a follower resolve the leader's current routing target once, then pin a multi-call
-        // tool's sub-calls to it. Absent/undefined when no plugin is connected.
-        activeSessionId: relay.pickActiveSessionId() ?? null,
-      });
-      return;
-    }
-
-    if (req.method === 'POST' && req.url === ABDICATE_PATH) {
-      if (!hasContentType(req.headers['content-type'], 'application/json')) {
-        writeJson(res, 415, { ok: false, reason: 'unsupported media type' });
+    try {
+      const body = await readBoundedBody(req, PAIR_METADATA_MAX_BYTES);
+      let decoded: unknown;
+      try {
+        decoded = JSON.parse(body.toString('utf8')) as unknown;
+      } catch {
+        throw new PairingError('PAIR_BODY_INVALID', 400);
+      }
+      const parsed = PairExchangeRequestSchema.safeParse(decoded);
+      if (!parsed.success) throw new PairingError('PAIR_BODY_INVALID', 400);
+      const result = await deps.pairing.exchange(parsed.data.challengeId, parsed.data.code);
+      writeAllowedPairJson(res, origin, 200, result);
+    } catch (error) {
+      if (error instanceof RequestLimitError) {
+        writeAllowedPairJson(
+          res,
+          origin,
+          error.status,
+          { code: error.code },
+          { connection: 'close' },
+        );
         return;
       }
-      void (async (): Promise<void> => {
-        let requesterBuildId: unknown;
-        try {
-          const body: unknown = JSON.parse((await readBody(req)).toString('utf8'));
-          requesterBuildId =
-            typeof body === 'object' && body !== null
-              ? (body as { buildId?: unknown }).buildId
-              : undefined;
-        } catch {
-          writeJson(res, 400, { ok: false, reason: 'invalid' });
-          return;
-        }
-        if (typeof requesterBuildId !== 'number' || !Number.isFinite(requesterBuildId)) {
-          writeJson(res, 400, { ok: false, reason: 'invalid' });
-          return;
-        }
+      if (error instanceof PairingError) {
+        writeAllowedPairJson(res, origin, error.status, pairErrorBody(error));
+        return;
+      }
+      log('[leader] pair exchange failed (PAIR_INTERNAL)');
+      writeAllowedPairJson(res, origin, 500, { code: 'PAIR_INTERNAL' });
+    }
+  };
 
-        // Only a strictly newer build may retire this leader — the requester decided the same from
-        // our /ping, so this re-check just closes the race where we were rebuilt/replaced between
-        // its read and this request.
+  const handler = (req: IncomingMessage, res: ServerResponse): void => {
+    void (async (): Promise<void> => {
+      if (!isAllowedHost(header(req, 'host'))) {
+        log(`[leader] refused ${req.method ?? '?'} request for a non-loopback Host`);
+        writeEmpty(res, 403, { connection: 'close' });
+        return;
+      }
+
+      if (req.method === 'OPTIONS') {
+        const origin = exactPreflight(req);
+        if (origin === undefined) {
+          writeEmpty(res, 403);
+          return;
+        }
+        writeEmpty(res, 204, {
+          'access-control-allow-origin': origin,
+          'access-control-allow-methods': 'POST',
+          'access-control-allow-headers': 'content-type',
+          'access-control-allow-private-network': 'true',
+          'access-control-max-age': '0',
+          vary: 'Origin, Access-Control-Request-Method, Access-Control-Request-Headers, Access-Control-Request-Private-Network',
+        });
+        return;
+      }
+
+      if (req.method === 'POST' && req.url === PAIR_EXCHANGE_PATH) {
+        const origin = header(req, 'origin');
+        if (!isAllowedPluginOrigin(origin)) {
+          rejectPairOrigin(res);
+          return;
+        }
+        await routePairExchange(req, res, origin);
+        return;
+      }
+
+      if (!isAllowedHttpOrigin(header(req, 'origin'))) {
+        writeEmpty(res, 403, { connection: 'close' });
+        return;
+      }
+
+      if (req.method === 'GET' && req.url === PING_PATH) {
+        writeJson(res, 200, {
+          ok: true,
+          product: PRODUCT_MAGIC,
+          protocolVersion: PROTOCOL_VERSION,
+          serverVersion: deps.serverVersion,
+          buildId: deps.buildId ?? 0,
+          leaderGeneration: deps.leaderGeneration,
+          role: 'leader',
+          plugins: deps.relay.sessions.connected().length,
+          activeSessionId: deps.relay.pickActiveSessionId() ?? null,
+        });
+        return;
+      }
+
+      if (req.url === '/control' || req.url?.startsWith('/control/') === true) {
+        if (!(await authorize(req, 'control', deps))) {
+          writeEmpty(res, 401, { connection: 'close' });
+          return;
+        }
+        if (req.method === 'POST' && req.url === CONTROL_PAIR_CHALLENGE_PATH) {
+          try {
+            const challenge = await deps.pairing.createChallenge(
+              deps.controlActor ?? 'owner-local',
+            );
+            writeJson(res, 200, challenge, { 'cache-control': 'no-store' });
+          } catch (error) {
+            if (error instanceof PairingError) {
+              writeJson(res, error.status, pairErrorBody(error), {
+                'cache-control': 'no-store',
+              });
+            } else {
+              log('[leader] control pair challenge failed (PAIR_INTERNAL)');
+              writeJson(res, 500, { code: 'PAIR_INTERNAL' }, { 'cache-control': 'no-store' });
+            }
+          }
+          return;
+        }
+        writeJson(res, 404, { error: 'not found' });
+        return;
+      }
+
+      if (req.method === 'POST' && req.url === ABDICATE_PATH) {
+        if (!(await authorize(req, 'follower', deps))) {
+          writeEmpty(res, 401, { connection: 'close' });
+          return;
+        }
+        if (!hasContentType(header(req, 'content-type'), 'application/json')) {
+          writeJson(
+            res,
+            415,
+            { ok: false, reason: 'unsupported media type' },
+            { connection: 'close' },
+          );
+          return;
+        }
+        let requesterBuildId: number | undefined;
+        try {
+          requesterBuildId = strictBuildId(
+            JSON.parse(
+              (await readBoundedBody(req, PAIR_METADATA_MAX_BYTES)).toString('utf8'),
+            ) as unknown,
+          );
+        } catch (error) {
+          if (error instanceof RequestLimitError) {
+            writeJson(res, error.status, { code: error.code }, { connection: 'close' });
+            return;
+          }
+        }
+        if (requesterBuildId === undefined) {
+          writeJson(res, 400, { ok: false, reason: 'invalid' });
+          return;
+        }
         if (requesterBuildId <= (deps.buildId ?? 0)) {
           writeJson(res, 200, { ok: false, reason: 'stale' });
           return;
         }
-
         if (deps.onAbdicate === undefined) {
           writeJson(res, 200, { ok: false, reason: 'unsupported' });
           return;
         }
-
         const quietWindowMs = deps.abdicateQuietWindowMs ?? ABDICATE_QUIET_WINDOW_MS;
-        const lastRequestAt = relay.lastRequestAt();
-        const busy =
-          relay.pendingCount() > 0 ||
-          (lastRequestAt !== 0 && Date.now() - lastRequestAt < quietWindowMs);
-        if (busy) {
+        const lastRequestAt = deps.relay.lastRequestAt();
+        if (
+          deps.relay.pendingCount() > 0 ||
+          (lastRequestAt !== 0 && Date.now() - lastRequestAt < quietWindowMs)
+        ) {
           writeJson(res, 200, { ok: false, reason: 'busy' });
           return;
         }
-
         log(`[leader] abdicating to a newer build (${requesterBuildId} > ${deps.buildId ?? 0})`);
-        // Release only after the acceptance has flushed to the requester, so it knows to grab the
-        // port the moment it frees — keeping the handoff gap to milliseconds.
         res.once('finish', () => deps.onAbdicate?.());
         writeJson(res, 200, { ok: true });
-      })();
-      return;
-    }
-
-    if (req.method === 'POST' && req.url === RPC_PATH) {
-      // A media type outside the CORS simple-request set, so a cross-origin POST has to preflight —
-      // and the preflight fails, because we answer no CORS headers.
-      if (!hasContentType(req.headers['content-type'], 'application/msgpack')) {
-        writeMsgpack(res, 415, {
-          kind: 'err',
-          requestId: '',
-          code: ErrorCode.InvalidRequest,
-          message: 'expected content-type application/msgpack',
-        });
         return;
       }
-      void (async (): Promise<void> => {
-        let body: Buffer;
-        try {
-          body = await readBody(req);
-        } catch (err) {
-          log(`[leader] rpc body read error: ${(err as Error).message}`);
-          writeJson(res, 400, { error: 'read body failed' });
+
+      if (req.method === 'POST' && req.url === RPC_PATH) {
+        if (!(await authorize(req, 'follower', deps))) {
+          writeEmpty(res, 401, { connection: 'close' });
           return;
         }
-
-        let parsed: unknown;
+        if (!hasContentType(header(req, 'content-type'), 'application/msgpack')) {
+          writeMsgpack(
+            res,
+            415,
+            {
+              kind: 'err',
+              requestId: '',
+              code: ErrorCode.InvalidRequest,
+              message: 'expected content-type application/msgpack',
+            },
+            { connection: 'close' },
+          );
+          return;
+        }
+        let body: Buffer;
         try {
-          parsed = decode(body);
-        } catch (err) {
-          log(`[leader] rpc decode error: ${(err as Error).message}`);
+          body = await readBoundedBody(req, RPC_REQUEST_MAX_BYTES);
+        } catch (error) {
+          if (error instanceof RequestLimitError) {
+            writeMsgpack(
+              res,
+              error.status,
+              {
+                kind: 'err',
+                requestId: '',
+                code: ErrorCode.PayloadTooLarge,
+                message: 'RPC request exceeds the payload limit',
+              },
+              { connection: 'close' },
+            );
+          } else {
+            writeMsgpack(res, 400, {
+              kind: 'err',
+              requestId: '',
+              code: ErrorCode.InvalidRequest,
+              message: 'request body failed',
+            });
+          }
+          return;
+        }
+        let decoded: unknown;
+        try {
+          decoded = decode(body);
+        } catch {
           writeMsgpack(res, 400, {
             kind: 'err',
             requestId: '',
@@ -191,8 +407,7 @@ export const attachLeaderEndpoints = (http: HttpServer, deps: LeaderEndpointDeps
           });
           return;
         }
-
-        const rpc = RpcRequestSchema.safeParse(parsed);
+        const rpc = RpcRequestSchema.safeParse(decoded);
         if (!rpc.success) {
           writeMsgpack(res, 400, {
             kind: 'err',
@@ -202,22 +417,16 @@ export const attachLeaderEndpoints = (http: HttpServer, deps: LeaderEndpointDeps
           });
           return;
         }
-
         const { requestId, toolName, args, sessionId } = rpc.data;
         try {
-          // Only the leader holds the relay, so the skew warning has to travel back with the result:
-          // a follower has no other way to know which plugin build served its call. Captured as the
-          // request is answered, so it names the session that actually served this one.
           let notice: string | null = null;
-          // Per-tool relay budget (B + margin) by default so a heavy follower-originated call gets the
-          // same headroom as a direct one; deps.rpcTimeoutMs overrides (tests).
-          const result = await relay.sendRequest(
+          const result = await deps.relay.sendRequest(
             toolName,
             args,
             deps.rpcTimeoutMs ?? getRelayBudget(toolName),
             sessionId,
             served => {
-              notice = relay.skewNotice(served);
+              notice = deps.relay.skewNotice(served);
             },
           );
           writeMsgpack(res, 200, {
@@ -226,8 +435,8 @@ export const attachLeaderEndpoints = (http: HttpServer, deps: LeaderEndpointDeps
             result,
             ...(notice === null ? {} : { notice }),
           });
-        } catch (err) {
-          const message = (err as Error).message;
+        } catch (error) {
+          const message = (error as Error).message;
           const code =
             message.startsWith('no plugin connected') || message.startsWith('pinned session')
               ? ErrorCode.PluginDisconnected
@@ -236,11 +445,14 @@ export const attachLeaderEndpoints = (http: HttpServer, deps: LeaderEndpointDeps
                 : ErrorCode.Internal;
           writeMsgpack(res, 200, { kind: 'err', requestId, code, message });
         }
-      })();
-      return;
-    }
+        return;
+      }
 
-    writeJson(res, 404, { error: 'not found' });
+      writeJson(res, 404, { error: 'not found' });
+    })().catch(() => {
+      if (!res.headersSent) writeJson(res, 500, { error: 'internal' });
+      else res.destroy();
+    });
   };
 
   http.on('request', handler);

@@ -2,6 +2,8 @@ import type { Server as HttpServer } from 'node:http';
 
 import {
   ActivityParamsSchema,
+  AuthenticatedHelloSchema,
+  type AuthenticatedHelloResult,
   createError,
   createRequest,
   createResponse,
@@ -13,7 +15,6 @@ import {
   HEARTBEAT_INTERVAL_MS,
   HEARTBEAT_MAX_MISSES,
   HeartbeatMonitor,
-  HelloParamsSchema,
   type HelloResult,
   newId,
   pluginSkewNotice,
@@ -23,8 +24,16 @@ import {
 } from '@sfp/shared';
 import { WebSocketServer, type WebSocket } from 'ws';
 
-import { isAllowedHost, isAllowedWsOrigin } from '../local-access.js';
+import { isAllowedHost, isAllowedWsOrigin } from '../security/local-access.js';
+import { WS_FRAME_MAX_BYTES } from '../security/request-limits.js';
 import { DEFAULT_DISCONNECT_GRACE_MS, type Session, SessionManager } from './session.js';
+
+export interface RelayAuthenticator {
+  authenticateHello(
+    input: unknown,
+    context: { requestedSessionId: string },
+  ): Promise<AuthenticatedHelloResult>;
+}
 
 export interface RelayOptions {
   serverVersion: string;
@@ -33,6 +42,8 @@ export interface RelayOptions {
   heartbeatIntervalMs?: number;
   heartbeatMaxMisses?: number;
   disconnectGraceMs?: number;
+  maxPayloadBytes?: number;
+  authenticator: RelayAuthenticator;
 }
 
 interface Pending {
@@ -70,13 +81,22 @@ export class Relay {
       heartbeatIntervalMs: opts.heartbeatIntervalMs ?? HEARTBEAT_INTERVAL_MS,
       heartbeatMaxMisses: opts.heartbeatMaxMisses ?? HEARTBEAT_MAX_MISSES,
       disconnectGraceMs: opts.disconnectGraceMs ?? DEFAULT_DISCONNECT_GRACE_MS,
+      maxPayloadBytes: opts.maxPayloadBytes ?? WS_FRAME_MAX_BYTES,
+      authenticator: opts.authenticator,
     };
     this.wss = new WebSocketServer({
       server: opts.server,
+      path: '/ws',
+      maxPayload: this.opts.maxPayloadBytes,
       // Refuse the upgrade before it becomes a session: an accepted socket can claim a plugin
       // identity via $hello and then win routing via $activity, which would put a web page between
       // the agent and the real file.
       verifyClient: ({ req }, done) => {
+        if (req.url !== '/ws') {
+          this.opts.log('[relay] refused WebSocket upgrade for a non-exact path');
+          done(false, 403, 'Forbidden');
+          return;
+        }
         if (!isAllowedHost(req.headers.host)) {
           this.opts.log(
             `[relay] refused WebSocket upgrade for host ${req.headers.host ?? '(none)'}`,
@@ -316,6 +336,8 @@ export class Relay {
     socket.binaryType = 'nodebuffer';
 
     let session: Session | undefined;
+    let authenticating = false;
+    let closed = false;
 
     const helloTimeout = setTimeout(() => {
       if (session === undefined) {
@@ -328,16 +350,34 @@ export class Relay {
       let envelope: Envelope;
       try {
         envelope = decodeEnvelope(raw as Uint8Array);
-      } catch (err) {
-        this.opts.log(`[relay] decode error: ${(err as Error).message}`);
+      } catch {
+        this.opts.log('[relay] decode error');
         socket.close(1003, 'invalid envelope');
         return;
       }
 
       if (session === undefined) {
-        clearTimeout(helloTimeout);
-        session = this.handleHello(socket, envelope) ?? undefined;
-        if (session === undefined) socket.close(1008, 'hello failed');
+        if (authenticating) {
+          socket.close(1008, 'hello already in progress');
+          return;
+        }
+        authenticating = true;
+        void (async (): Promise<void> => {
+          try {
+            const authenticated = await this.handleHello(socket, envelope);
+            clearTimeout(helloTimeout);
+            if (authenticated !== null && (closed || socket.readyState !== 1)) {
+              this.sessions.remove(authenticated.id);
+              return;
+            }
+            session = authenticated ?? undefined;
+            if (session === undefined) socket.close(1008, 'hello failed');
+          } catch {
+            clearTimeout(helloTimeout);
+            this.opts.log('[relay] authenticated hello failed internally');
+            socket.close(1011, 'hello failed');
+          }
+        })();
         return;
       }
 
@@ -345,6 +385,7 @@ export class Relay {
     });
 
     socket.on('close', () => {
+      closed = true;
       clearTimeout(helloTimeout);
       if (session !== undefined) {
         this.opts.log(
@@ -359,17 +400,33 @@ export class Relay {
     });
   }
 
-  private handleHello(socket: WebSocket, env: Envelope): Session | null {
+  private async handleHello(socket: WebSocket, env: Envelope): Promise<Session | null> {
     if (env.kind !== 'req' || env.method !== SystemMethod.Hello) {
       this.sendError(socket, env, ErrorCode.InvalidRequest, 'first message must be $hello');
       return null;
     }
 
-    const parsed = HelloParamsSchema.safeParse(env.params);
+    const parsed = AuthenticatedHelloSchema.safeParse(env.params);
     if (!parsed.success) {
-      this.sendError(socket, env, ErrorCode.InvalidParams, 'invalid $hello params');
+      this.sendError(socket, env, 'PAIR_CREDENTIAL_REQUIRED', 'authenticated credential required');
       return null;
     }
+
+    let authenticated: AuthenticatedHelloResult;
+    try {
+      authenticated = await this.opts.authenticator.authenticateHello(parsed.data, {
+        requestedSessionId: env.sessionId,
+      });
+    } catch (error) {
+      const code =
+        typeof error === 'object' && error !== null && 'code' in error
+          ? String((error as { code: unknown }).code)
+          : 'PAIR_CREDENTIAL_REQUIRED';
+      this.opts.log(`[relay] rejected authenticated hello (${code})`);
+      this.sendError(socket, env, code, code);
+      return null;
+    }
+    if (socket.readyState !== 1) return null;
 
     // Two gates, two different questions, both settled at the handshake because this relay is a
     // stateful session — the plugin connects once and is dispatched to for as long as the panel is
@@ -404,18 +461,24 @@ export class Relay {
     // second forever, because the "stop retrying" half can only ever live in a plugin new enough not
     // to be refused. What the server can do is make sure nobody is misled: every result this session
     // serves carries the notice below.
-    const compatible = checkPluginCompatibility(parsed.data.clientVersion, this.opts.serverVersion);
+    const compatible = checkPluginCompatibility(parsed.data.pluginVersion, this.opts.serverVersion);
     if (!compatible) {
       this.opts.log(
-        `[relay] plugin "${parsed.data.clientVersion}" predates this server (v${this.opts.serverVersion}); ` +
+        `[relay] plugin "${parsed.data.pluginVersion}" predates this server (v${this.opts.serverVersion}); ` +
           'serving it, and marking every result as unverified',
       );
     }
 
     const { session, resumed } = this.sessions.register({
-      id: env.sessionId,
+      id: authenticated.sessionId,
       socket,
-      clientVersion: parsed.data.clientVersion,
+      clientVersion: parsed.data.pluginVersion,
+      pluginGeneration: parsed.data.pluginGeneration,
+      editorType: parsed.data.editorType,
+      mode: parsed.data.mode,
+      fileIdentity: parsed.data.fileIdentity,
+      fileName: parsed.data.fileName,
+      capabilities: parsed.data.capabilities,
     });
 
     session.heartbeat = new HeartbeatMonitor({
@@ -444,18 +507,25 @@ export class Relay {
     const result: HelloResult = {
       serverVersion: this.opts.serverVersion,
       protocolVersion: PROTOCOL_VERSION,
-      sessionResumed: resumed,
+      sessionResumed: resumed || parsed.data.credential.kind === 'resume',
+      sessionId: authenticated.sessionId,
+      rotatedResumeToken: authenticated.rotatedResumeToken,
+      resumeExpiresAt: authenticated.resumeExpiresAt,
       ...(compatible
         ? {}
-        : { skewNotice: pluginSkewNotice(parsed.data.clientVersion, this.opts.serverVersion) }),
+        : { skewNotice: pluginSkewNotice(parsed.data.pluginVersion, this.opts.serverVersion) }),
     };
-    this.sendResponse(socket, env, result);
+    this.sendResponse(socket, env, result, authenticated.sessionId);
     this.opts.log(`[relay] session ${session.id} hello (resumed=${resumed})`);
     this.flushQueue(session);
     return session;
   }
 
   private handleEnvelope(session: Session, env: Envelope): void {
+    if (env.sessionId !== session.id) {
+      session.socket?.close(1008, 'session identity mismatch');
+      return;
+    }
     session.heartbeat?.notifyReceived();
     // Routing priority: only an explicit $activity event counts as user interaction. Heartbeat
     // replies and tool responses must NOT bump lastActivityAt — both fire on a timer / on
@@ -519,8 +589,13 @@ export class Relay {
     );
   }
 
-  private sendResponse(socket: WebSocket, req: Envelope, result: unknown): void {
-    socket.send(encodeEnvelope(createResponse({ id: req.id, sessionId: req.sessionId, result })));
+  private sendResponse(
+    socket: WebSocket,
+    req: Envelope,
+    result: unknown,
+    sessionId = req.sessionId,
+  ): void {
+    socket.send(encodeEnvelope(createResponse({ id: req.id, sessionId, result })));
   }
 
   private sendError(

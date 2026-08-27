@@ -64,6 +64,12 @@ export const dispatchTool = async (
       if (ctx.node.isConflicted()) {
         throw new DispatchError(ErrorCode.NotLeader, ctx.node.conflictMessage);
       }
+      if (ctx.node.role === NodeRole.Unknown) {
+        throw new DispatchError(
+          ErrorCode.NotLeader,
+          'leader election has not established an authenticated role',
+        );
+      }
 
       // A fresh controller per attempt, checked *after* the line above, because an abort is spent
       // once it fires. The best outcome of a wedge is that it heals — the holder was suspended, the

@@ -1,9 +1,10 @@
 import { type ChildProcess, spawn } from 'node:child_process';
 import { once as onExit } from 'node:events';
-import { existsSync, rmSync } from 'node:fs';
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync } from 'node:fs';
 import { createServer } from 'node:http';
 import type { AddressInfo } from 'node:net';
-import { join } from 'node:path';
+import { tmpdir } from 'node:os';
+import { join, relative, resolve as resolvePath } from 'node:path';
 
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 
@@ -56,12 +57,31 @@ class WireClient {
   stderr = '';
   /** Relay port this server owns, so a test can attach a plugin to the process it is driving. */
   port = 0;
+  private stateBase = '';
+  private stateRoot = '';
 
   async start(): Promise<void> {
     const port = await freePort();
     this.port = port;
+    this.stateBase = mkdtempSync(join(tmpdir(), 'sfp-wire-state-'));
+    const environment: Record<string, string | undefined> = {
+      ...process.env,
+      FIGWRIGHT_PORT: String(port),
+    };
+    if (process.platform === 'win32') {
+      environment.LOCALAPPDATA = this.stateBase;
+      this.stateRoot = join(this.stateBase, 'SuperFigmaPipeline');
+    } else if (process.platform === 'darwin') {
+      environment.HOME = this.stateBase;
+      const applicationSupport = join(this.stateBase, 'Library', 'Application Support');
+      mkdirSync(applicationSupport, { recursive: true, mode: 0o700 });
+      this.stateRoot = join(applicationSupport, 'SuperFigmaPipeline');
+    } else {
+      environment.XDG_STATE_HOME = this.stateBase;
+      this.stateRoot = join(this.stateBase, 'super-figma-pipeline');
+    }
     this.child = spawn(process.execPath, [DIST_ENTRY], {
-      env: { ...process.env, FIGWRIGHT_PORT: String(port) },
+      env: environment,
       stdio: ['pipe', 'pipe', 'pipe'],
     });
     this.child.stderr?.on('data', (d: Buffer) => {
@@ -83,6 +103,51 @@ class WireClient {
         }
       }
     });
+  }
+
+  async pairTicket(): Promise<string> {
+    const credentials = JSON.parse(
+      readFileSync(join(this.stateRoot, 'leader-auth.json'), 'utf8'),
+    ) as { generation: string; controlToken: string };
+    const controlHeaders = {
+      authorization: `Bearer ${credentials.controlToken}`,
+      'x-sfp-leader-generation': credentials.generation,
+    };
+    const challengeResponse = await fetch(`http://127.0.0.1:${this.port}/control/pair/challenge`, {
+      method: 'POST',
+      headers: controlHeaders,
+    });
+    if (!challengeResponse.ok) {
+      throw new Error(`control pair challenge failed (${challengeResponse.status})`);
+    }
+    const challenge = (await challengeResponse.json()) as { challengeId: string; code: string };
+    const exchangeResponse = await fetch(`http://127.0.0.1:${this.port}/pair/exchange`, {
+      method: 'POST',
+      headers: { origin: 'null', 'content-type': 'application/json' },
+      body: JSON.stringify({ challengeId: challenge.challengeId, code: challenge.code }),
+    });
+    if (!exchangeResponse.ok) {
+      throw new Error(`pair exchange failed (${exchangeResponse.status})`);
+    }
+    const exchange = (await exchangeResponse.json()) as { wsTicket: string };
+    return exchange.wsTicket;
+  }
+
+  private cleanupState(): void {
+    if (this.stateBase === '') return;
+    const temporaryRoot = resolvePath(tmpdir());
+    const candidate = resolvePath(this.stateBase);
+    const fromTemporary = relative(temporaryRoot, candidate);
+    if (
+      fromTemporary === '' ||
+      fromTemporary === '..' ||
+      fromTemporary.startsWith(`..${process.platform === 'win32' ? '\\' : '/'}`)
+    ) {
+      throw new Error('refusing to remove a wire-test path outside the OS temporary directory');
+    }
+    rmSync(candidate, { recursive: true, force: true });
+    this.stateBase = '';
+    this.stateRoot = '';
   }
 
   send(method: string, params: Record<string, unknown> = {}): Promise<JsonRpcResponse> {
@@ -131,7 +196,11 @@ class WireClient {
     // server, per run, on every dev machine and CI runner. Done here rather than in a hook because
     // this file creates WireClients inside individual tests too, not only in beforeAll.
     rmSync(leaderLockPath(this.port), { force: true });
-    if (this.child.exitCode !== null) return { code: this.child.exitCode, escalated: false };
+    if (this.child.exitCode !== null) {
+      const result = { code: this.child.exitCode, escalated: false };
+      this.cleanupState();
+      return result;
+    }
     // Subscribe before closing stdin, so a server that exits immediately can't be missed.
     const exited = onExit(this.child, 'exit');
     this.child.stdin?.end();
@@ -146,6 +215,7 @@ class WireClient {
       return { code, escalated };
     } finally {
       clearTimeout(escalate);
+      this.cleanupState();
     }
   }
 }
@@ -339,8 +409,10 @@ describe.skipIf(!existsSync(DIST_ENTRY))('MCP wire contract (built dist)', () =>
     const server = new WireClient();
     await server.start();
     await server.handshake(LATEST_CLIENT_PROTOCOL);
+    const wsTicket = await server.pairTicket();
     const plugin = await connectFakePlugin({
       port: server.port,
+      credential: { kind: 'ticket', value: wsTicket },
       clientVersion: '0.0.1',
       handlers: { get_selection: () => ({ pageId: '1:1', pageName: 'Page 1', nodes: [] }) },
     });
@@ -368,8 +440,10 @@ describe.skipIf(!existsSync(DIST_ENTRY))('MCP wire contract (built dist)', () =>
     const server = new WireClient();
     await server.start();
     await server.handshake(LATEST_CLIENT_PROTOCOL);
+    const wsTicket = await server.pairTicket();
     const plugin = await connectFakePlugin({
       port: server.port,
+      credential: { kind: 'ticket', value: wsTicket },
       clientVersion: '0.0.1',
       // No handler for the tool called below — exactly what a plugin that predates it does.
       handlers: {},
@@ -393,8 +467,10 @@ describe.skipIf(!existsSync(DIST_ENTRY))('MCP wire contract (built dist)', () =>
     const server = new WireClient();
     await server.start();
     await server.handshake(LATEST_CLIENT_PROTOCOL);
+    const wsTicket = await server.pairTicket();
     const plugin = await connectFakePlugin({
       port: server.port,
+      credential: { kind: 'ticket', value: wsTicket },
       handlers: { get_selection: () => ({ pageId: '1:1', pageName: 'Page 1', nodes: [] }) },
     });
 

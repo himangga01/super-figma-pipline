@@ -33,6 +33,8 @@ export interface LeaderLock {
   port: number;
   buildId: number;
   serverVersion: string;
+  /** Public generation identifier only; follower/control secret tokens never enter this note. */
+  leaderGeneration?: string;
   /**
    * When the _process_ started, not when it took the port — the fact the identity check compares
    * against. **Read from the same source the reader will use** (`ps`), rather than computed as
@@ -133,6 +135,7 @@ export const writeLeaderLock = (
     port: number;
     buildId: number;
     serverVersion: string;
+    leaderGeneration?: string;
   },
   probe: ProcessProbe = osProcessProbe,
 ): void => {
@@ -141,6 +144,7 @@ export const writeLeaderLock = (
     port: input.port,
     buildId: input.buildId,
     serverVersion: input.serverVersion,
+    ...(input.leaderGeneration === undefined ? {} : { leaderGeneration: input.leaderGeneration }),
     // The uptime form is only the fallback for a platform with no `ps` — where the reader can't
     // identify anything either, so the value it records is moot.
     processStartedAt:
@@ -179,6 +183,8 @@ export const readLeaderLock = (port: number): LeaderLock | undefined => {
       (lock.pid ?? 0) <= 0 ||
       lock.port !== port ||
       typeof lock.serverVersion !== 'string' ||
+      (lock.leaderGeneration !== undefined &&
+        (typeof lock.leaderGeneration !== 'string' || lock.leaderGeneration === '')) ||
       typeof lock.processStartedAt !== 'number'
     ) {
       return undefined;
@@ -188,6 +194,7 @@ export const readLeaderLock = (port: number): LeaderLock | undefined => {
       port,
       buildId: typeof lock.buildId === 'number' ? lock.buildId : 0,
       serverVersion: lock.serverVersion,
+      ...(lock.leaderGeneration === undefined ? {} : { leaderGeneration: lock.leaderGeneration }),
       processStartedAt: lock.processStartedAt,
     };
   } catch {

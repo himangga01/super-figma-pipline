@@ -19,6 +19,12 @@ describe('SessionManager.clear', () => {
         id: 's1',
         socket: fakeSocket(),
         clientVersion: '0.0.0',
+        pluginGeneration: 'generation-test',
+        editorType: 'figma',
+        mode: 'default',
+        fileIdentity: { kind: 'figma-file-key', value: 'file-key-test' },
+        fileName: 'Session Test',
+        capabilities: [],
       });
       const sendPing = vi.fn<() => void>();
       session.heartbeat = new HeartbeatMonitor({

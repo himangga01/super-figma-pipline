@@ -9,6 +9,7 @@ import {
   encodeEnvelope,
   type Envelope,
   ErrorCode,
+  type HelloCredential,
   MIN_PLUGIN_VERSION,
   newId,
   PROTOCOL_VERSION,
@@ -37,12 +38,49 @@ export const freePort = async (): Promise<number> => {
 
 export const startLeader = async (serverVersion = 'e2e-1.0.0'): Promise<LeaderHarness> => {
   const port = await freePort();
-  const node = new Node({ serverVersion, port });
-  const follower = new Follower({ leaderUrl: `http://127.0.0.1:${port}` });
+  const node = new Node({
+    serverVersion,
+    port,
+    relayAuthenticator: {
+      authenticateHello: async (_input, context) => ({
+        sessionId: context.requestedSessionId,
+        rotatedResumeToken: Buffer.alloc(32, 1).toString('base64url'),
+        resumeExpiresAt: Date.now() + 60_000,
+      }),
+    },
+  });
   const res = await node.becomeLeader();
+  const follower = new Follower({
+    leaderUrl: `http://127.0.0.1:${port}`,
+    credentialProvider: async () => ({
+      generation: res.credentials.generation,
+      value: `Bearer ${res.credentials.followerToken}`,
+    }),
+  });
   const detach = attachLeaderEndpoints(res.http, {
     relay: res.relay,
     serverVersion,
+    leaderGeneration: res.credentials.generation,
+    auth: {
+      authorizeFollower: async (value, generation) =>
+        value === `Bearer ${res.credentials.followerToken}` &&
+        generation === res.credentials.generation,
+      authorizeControl: async (value, generation) =>
+        value === `Bearer ${res.credentials.controlToken}` &&
+        generation === res.credentials.generation,
+    },
+    pairing: {
+      createChallenge: async () => ({
+        challengeId: 'ABCDEFGHIJ',
+        code: '12345678',
+        expiresAt: Date.now() + 60_000,
+        attemptsRemaining: 5,
+      }),
+      exchange: async () => ({
+        wsTicket: 'AAAAAAAAAAAAAAAAAAAAAA',
+        expiresAt: Date.now() + 30_000,
+      }),
+    },
   });
   return { node, follower, port, detach };
 };
@@ -58,11 +96,12 @@ export interface FakePluginOptions {
   handlers: Record<string, (params: unknown) => unknown>;
   /** Defaults to a version the server is happy with; override to exercise the skew warning. */
   clientVersion?: string;
+  credential?: HelloCredential;
 }
 
 export const connectFakePlugin = async (opts: FakePluginOptions): Promise<WebSocket> => {
   const sessionId = opts.sessionId ?? newId();
-  const ws = new WebSocket(`ws://127.0.0.1:${opts.port}`);
+  const ws = new WebSocket(`ws://127.0.0.1:${opts.port}/ws`, { origin: 'null' });
 
   await new Promise<void>((resolve, reject) => {
     const onError = (err: Error): void => reject(err);
@@ -85,11 +124,19 @@ export const connectFakePlugin = async (opts: FakePluginOptions): Promise<WebSoc
             sessionId,
             method: SystemMethod.Hello,
             params: {
-              clientType: 'plugin',
+              credential: opts.credential ?? { kind: 'ticket', value: 'test-ticket' },
+              nonce: Buffer.alloc(16, 2).toString('base64url'),
+              protocolVersion: PROTOCOL_VERSION,
+              productVersion: '0.1.0',
               // MIN_PLUGIN_VERSION is always accepted without a warning: the threshold actually
               // applied is capped at the server's own version, so this is never below it.
-              clientVersion: opts.clientVersion ?? MIN_PLUGIN_VERSION,
-              protocolVersion: PROTOCOL_VERSION,
+              pluginVersion: opts.clientVersion ?? MIN_PLUGIN_VERSION,
+              pluginGeneration: 'plugin-generation-e2e',
+              editorType: 'figma',
+              mode: 'default',
+              fileIdentity: { kind: 'figma-file-key', value: 'file-key-e2e' },
+              fileName: 'E2E Test',
+              capabilities: [],
             },
           }),
         ),

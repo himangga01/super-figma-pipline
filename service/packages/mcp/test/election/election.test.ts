@@ -29,6 +29,28 @@ const extraNodes: Node[] = [];
 const extraElections: Election[] = [];
 const blockers: HttpServer[] = [];
 const lockedPorts: number[] = [];
+const TEST_GENERATION = Buffer.alloc(16, 1).toString('base64url');
+const TEST_FOLLOWER_TOKEN = Buffer.alloc(32, 2).toString('base64url');
+const TEST_AUTHORIZATION = {
+  generation: TEST_GENERATION,
+  value: `Bearer ${TEST_FOLLOWER_TOKEN}`,
+};
+const TEST_AUTH = {
+  authorizeFollower: async (value: string | undefined, generation: string | undefined) =>
+    value === TEST_AUTHORIZATION.value && generation === TEST_GENERATION,
+  authorizeControl: async () => false,
+};
+const TEST_PAIRING = {
+  createChallenge: async () => ({
+    challengeId: 'ABCDEFGHIJ',
+    code: '12345678',
+    expiresAt: Date.now() + 60_000,
+    attemptsRemaining: 5,
+  }),
+  exchange: async () => ({ wsTicket: 'AAAAAAAAAAAAAAAAAAAAAA', expiresAt: Date.now() + 30_000 }),
+};
+const testFollower = (options: ConstructorParameters<typeof Follower>[0]): Follower =>
+  new Follower({ credentialProvider: async () => TEST_AUTHORIZATION, ...options });
 
 afterEach(async () => {
   for (const e of extraElections) e.stop();
@@ -64,6 +86,9 @@ const startLeaderHarness = async (port: number): Promise<LeaderHarness> => {
   const detach = attachLeaderEndpoints(res.http, {
     relay: res.relay,
     serverVersion: 'leader-1.0.0',
+    leaderGeneration: TEST_GENERATION,
+    auth: TEST_AUTH,
+    pairing: TEST_PAIRING,
   });
   const h: LeaderHarness = {
     node,
@@ -85,7 +110,7 @@ const buildElection = (
 ): { node: Node; election: Election; follower: Follower } => {
   const node = new Node({ serverVersion: 'challenger-1.0.0', port });
   extraNodes.push(node);
-  const follower = new Follower({
+  const follower = testFollower({
     leaderUrl: `http://127.0.0.1:${port}`,
     pingTimeoutMs,
   });
@@ -112,7 +137,10 @@ const startLeaderWithElection = async (
 ): Promise<{ node: Node; election: Election }> => {
   const node = new Node({ serverVersion: 'leader-1.0.0', port });
   extraNodes.push(node);
-  const follower = new Follower({ leaderUrl: `http://127.0.0.1:${port}`, pingTimeoutMs: 200 });
+  const follower = testFollower({
+    leaderUrl: `http://127.0.0.1:${port}`,
+    pingTimeoutMs: 200,
+  });
   const election = new Election({ node, follower, buildId, tickIntervalMs: 1_000_000 });
   extraElections.push(election);
   await election.determineRole();
@@ -123,6 +151,9 @@ const startLeaderWithElection = async (
     relay: res.relay,
     serverVersion: 'leader-1.0.0',
     buildId,
+    leaderGeneration: TEST_GENERATION,
+    auth: TEST_AUTH,
+    pairing: TEST_PAIRING,
     onAbdicate: () => election.yieldLeadership(),
     abdicateQuietWindowMs: 0,
   });
@@ -133,7 +164,7 @@ describe('Election', () => {
   it('tick: leader does nothing', async () => {
     const port = await freePort();
     const h = await startLeaderHarness(port);
-    const follower = new Follower({ leaderUrl: `http://127.0.0.1:${port}` });
+    const follower = testFollower({ leaderUrl: `http://127.0.0.1:${port}` });
     const election = new Election({ node: h.node, follower, tickIntervalMs: 1_000_000 });
     extraElections.push(election);
     await election.tickOnce();
@@ -305,7 +336,13 @@ describe('Election: a leader that holds the port but stops answering', () => {
       // would prove nothing: the conflict state is self-healing, so a wrongly-declared conflict is
       // back to follower one tick later and leaves no trace to assert on.
       expect(node.role).toBe(NodeRole.Follower);
-      h.detach = attachLeaderEndpoints(h.http, { relay: h.relay, serverVersion: 'leader-1.0.0' });
+      h.detach = attachLeaderEndpoints(h.http, {
+        relay: h.relay,
+        serverVersion: 'leader-1.0.0',
+        leaderGeneration: TEST_GENERATION,
+        auth: TEST_AUTH,
+        pairing: TEST_PAIRING,
+      });
       // eslint-disable-next-line no-await-in-loop -- ticks are sequential by definition
       await election.tickOnce();
       expect(node.role).toBe(NodeRole.Follower);
@@ -389,7 +426,13 @@ describe('Election: a leader that holds the port but stops answering', () => {
     expect(node.role).toBe(NodeRole.Conflicted);
 
     // What a successful SIGCONT looks like from here: the holder starts answering again.
-    h.detach = attachLeaderEndpoints(h.http, { relay: h.relay, serverVersion: 'leader-1.0.0' });
+    h.detach = attachLeaderEndpoints(h.http, {
+      relay: h.relay,
+      serverVersion: 'leader-1.0.0',
+      leaderGeneration: TEST_GENERATION,
+      auth: TEST_AUTH,
+      pairing: TEST_PAIRING,
+    });
     await election.tickOnce();
     expect(node.role).toBe(NodeRole.Follower);
     expect(node.conflictMessage).not.toContain('pid');

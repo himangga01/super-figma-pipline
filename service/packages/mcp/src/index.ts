@@ -15,6 +15,10 @@ import { SERVER_INSTRUCTIONS } from './instructions.js';
 import { wireShutdown } from './lifecycle.js';
 import { normalizeIdArgs } from './node-id.js';
 import { PROMPTS } from './prompts/registry.js';
+import { resolveDefaultStateRoot } from './runtime-paths.js';
+import { createFollowerAuth } from './security/follower-auth.js';
+import { createPairingManager } from './security/pairing-manager.js';
+import { createStatePermissions } from './security/state-permissions.js';
 import { ANALYZE_PROJECT_TOOL_NAME, handleAnalyzeProject } from './tools/analyze-project.js';
 import { annotationsFor } from './tools/annotations.js';
 import { COMPONENT_MAP_TOOL_NAME, handleComponentMap } from './tools/component-map.js';
@@ -47,8 +51,29 @@ const log = (msg: string): void => {
 const envPort = Number(process.env.FIGWRIGHT_PORT);
 const PORT = Number.isInteger(envPort) && envPort > 0 && envPort < 65_536 ? envPort : DEFAULT_PORT;
 
-const node = new Node({ serverVersion: SERVER_VERSION, port: PORT, log });
-const follower = new Follower({ leaderUrl: node.leaderUrl, log });
+const stateRoot = resolveDefaultStateRoot();
+const statePermissions = createStatePermissions(stateRoot);
+await statePermissions.ensureSecure(stateRoot);
+await statePermissions.verifySecure(stateRoot);
+const followerAuth = await createFollowerAuth({ stateRoot, permissions: statePermissions });
+const pairing = await createPairingManager({
+  stateRoot,
+  permissions: statePermissions,
+  log,
+});
+
+const node = new Node({
+  serverVersion: SERVER_VERSION,
+  port: PORT,
+  log,
+  generationAuth: followerAuth,
+  relayAuthenticator: pairing,
+});
+const follower = new Follower({
+  leaderUrl: node.leaderUrl,
+  log,
+  credentialProvider: () => followerAuth.authorization('follower'),
+});
 const election = new Election({ node, follower, buildId: BUILD_ID, log });
 
 let currentDetach: (() => void) | null = null;
@@ -64,11 +89,19 @@ node.onRoleChange(role => {
       // node that finds the port bound by something that won't answer /ping, which is the single
       // failure the election cannot resolve by waiting (see election/leader-lock.ts). Best-effort —
       // a server that can't write it still leads.
-      writeLeaderLock({ port: res.port, buildId: BUILD_ID, serverVersion: SERVER_VERSION });
+      writeLeaderLock({
+        port: res.port,
+        buildId: BUILD_ID,
+        serverVersion: SERVER_VERSION,
+        leaderGeneration: res.credentials.generation,
+      });
       currentDetach = attachLeaderEndpoints(res.http, {
         relay: res.relay,
         serverVersion: SERVER_VERSION,
         buildId: BUILD_ID,
+        leaderGeneration: res.credentials.generation,
+        auth: followerAuth,
+        pairing,
         // Newest build wins: a follower on a newer build asks us to step down; the port frees for
         // it within ms and the plugin reconnects to the new leader on its next retry (~250ms).
         onAbdicate: () => election.yieldLeadership(),

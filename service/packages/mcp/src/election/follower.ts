@@ -2,11 +2,14 @@ import { decode, encode } from '@msgpack/msgpack';
 import {
   ErrorCode,
   newId,
+  PRODUCT_MAGIC,
+  PROTOCOL_VERSION,
   type RpcRequest,
   type RpcResponse,
   RpcResponseSchema,
 } from '@sfp/shared';
 
+import { HTTP_RESPONSE_MAX_BYTES, readBoundedFetchBody } from '../security/request-limits.js';
 import { ABDICATE_PATH, PING_PATH, RPC_PATH } from './leader-endpoints.js';
 
 export const DEFAULT_FOLLOWER_RPC_TIMEOUT_MS = 35_000;
@@ -15,8 +18,8 @@ export const DEFAULT_PING_TIMEOUT_MS = 2_000;
 /** What a confirmed Figwright leader reports about itself over /ping (see leader-endpoints). */
 export interface LeaderInfo {
   serverVersion: string;
-  /** Build stamp of the leader's bundle; undefined on leaders that predate build ids. */
-  buildId: number | undefined;
+  buildId: number;
+  leaderGeneration?: string;
 }
 
 /**
@@ -36,11 +39,15 @@ export interface FollowerOptions {
   rpcTimeoutMs?: number;
   pingTimeoutMs?: number;
   fetch?: FetchFn;
+  credentialProvider?: () => Promise<{ generation: string; value: string } | undefined>;
+  responseMaxBytes?: number;
   log?: (msg: string) => void;
 }
 
 export class Follower {
-  private readonly opts: Required<FollowerOptions>;
+  private readonly opts: Required<Omit<FollowerOptions, 'credentialProvider'>> & {
+    credentialProvider: FollowerOptions['credentialProvider'] | undefined;
+  };
 
   constructor(opts: FollowerOptions) {
     this.opts = {
@@ -48,6 +55,8 @@ export class Follower {
       rpcTimeoutMs: opts.rpcTimeoutMs ?? DEFAULT_FOLLOWER_RPC_TIMEOUT_MS,
       pingTimeoutMs: opts.pingTimeoutMs ?? DEFAULT_PING_TIMEOUT_MS,
       fetch: opts.fetch ?? globalThis.fetch.bind(globalThis),
+      credentialProvider: opts.credentialProvider,
+      responseMaxBytes: opts.responseMaxBytes ?? HTTP_RESPONSE_MAX_BYTES,
       log: opts.log ?? ((): void => {}),
     };
   }
@@ -67,7 +76,9 @@ export class Follower {
         signal: AbortSignal.timeout(this.opts.pingTimeoutMs),
       });
       if (!res.ok) return undefined;
-      const body: unknown = await res.json();
+      const body: unknown = JSON.parse(
+        (await readBoundedFetchBody(res, this.opts.responseMaxBytes)).toString('utf8'),
+      ) as unknown;
       return typeof body === 'object' && body !== null
         ? (body as Record<string, unknown>)
         : undefined;
@@ -81,7 +92,7 @@ export class Follower {
     // to hold the port and answer 200 — otherwise this node would attach as a follower and every
     // RPC it forwards would fail. The leader's /ping returns { ok: true, serverVersion, … }.
     const body = await this.fetchPing();
-    return body !== undefined && body.ok === true && typeof body.serverVersion === 'string';
+    return this.parseLeaderInfo(body) !== undefined;
   }
 
   /**
@@ -91,12 +102,40 @@ export class Follower {
    */
   async leaderInfo(): Promise<LeaderInfo | undefined> {
     const body = await this.fetchPing();
-    if (body === undefined || body.ok !== true || typeof body.serverVersion !== 'string') {
+    return this.parseLeaderInfo(body);
+  }
+
+  private parseLeaderInfo(body: Record<string, unknown> | undefined): LeaderInfo | undefined {
+    if (
+      body === undefined ||
+      body.ok !== true ||
+      body.product !== PRODUCT_MAGIC ||
+      body.protocolVersion !== PROTOCOL_VERSION ||
+      body.role !== 'leader' ||
+      typeof body.serverVersion !== 'string' ||
+      body.serverVersion.trim() === '' ||
+      typeof body.buildId !== 'number' ||
+      !Number.isSafeInteger(body.buildId) ||
+      body.buildId < 0 ||
+      typeof body.leaderGeneration !== 'string' ||
+      !/^[A-Za-z0-9_-]{22}$/.test(body.leaderGeneration)
+    ) {
       return undefined;
     }
     return {
       serverVersion: body.serverVersion,
-      buildId: typeof body.buildId === 'number' ? body.buildId : undefined,
+      buildId: body.buildId,
+      leaderGeneration: body.leaderGeneration,
+    };
+  }
+
+  private async followerHeaders(contentType: string): Promise<Record<string, string> | undefined> {
+    const credential = await this.opts.credentialProvider?.();
+    if (credential === undefined) return undefined;
+    return {
+      'content-type': contentType,
+      authorization: credential.value,
+      'x-sfp-leader-generation': credential.generation,
     };
   }
 
@@ -107,9 +146,11 @@ export class Follower {
    */
   async requestAbdication(buildId: number): Promise<AbdicationOutcome> {
     try {
+      const headers = await this.followerHeaders('application/json');
+      if (headers === undefined) return 'error';
       const res = await this.opts.fetch(`${this.opts.leaderUrl}${ABDICATE_PATH}`, {
         method: 'POST',
-        headers: { 'content-type': 'application/json' },
+        headers,
         body: JSON.stringify({ buildId }),
         signal: AbortSignal.timeout(this.opts.pingTimeoutMs),
       });
@@ -117,7 +158,9 @@ export class Follower {
       // programmatically, only by a human killing it (ping's buildSkew message covers that).
       if (res.status === 404) return 'unsupported';
       if (!res.ok) return 'error';
-      const body: unknown = await res.json();
+      const body: unknown = JSON.parse(
+        (await readBoundedFetchBody(res, this.opts.responseMaxBytes)).toString('utf8'),
+      ) as unknown;
       if (typeof body !== 'object' || body === null) return 'error';
       if ((body as { ok?: unknown }).ok === true) return 'ok';
       const reason = (body as { reason?: unknown }).reason;
@@ -171,11 +214,21 @@ export class Follower {
     const budget = AbortSignal.timeout(timeoutMs ?? this.opts.rpcTimeoutMs);
     const signal = abort === undefined ? budget : AbortSignal.any([budget, abort]);
 
+    const headers = await this.followerHeaders('application/msgpack');
+    if (headers === undefined) {
+      return {
+        kind: 'err',
+        requestId: rpc.requestId,
+        code: ErrorCode.NotLeader,
+        message: 'follower credential unavailable',
+      };
+    }
+
     let res: Response;
     try {
       res = await this.opts.fetch(`${this.opts.leaderUrl}${RPC_PATH}`, {
         method: 'POST',
-        headers: { 'content-type': 'application/msgpack' },
+        headers,
         body,
         signal,
       });
@@ -189,7 +242,7 @@ export class Follower {
       };
     }
 
-    const buf = new Uint8Array(await res.arrayBuffer());
+    const buf = new Uint8Array(await readBoundedFetchBody(res, this.opts.responseMaxBytes));
     let parsed: unknown;
     try {
       parsed = decode(buf);

@@ -57,6 +57,13 @@ const startRelay = async (
     heartbeatIntervalMs: overrides.heartbeatIntervalMs ?? 60_000,
     heartbeatMaxMisses: overrides.heartbeatMaxMisses ?? 2,
     disconnectGraceMs: overrides.disconnectGraceMs ?? 30_000,
+    authenticator: {
+      authenticateHello: async (_input, context) => ({
+        sessionId: context.requestedSessionId,
+        rotatedResumeToken: Buffer.alloc(32, 1).toString('base64url'),
+        resumeExpiresAt: Date.now() + 60_000,
+      }),
+    },
   });
   const b: Bound = { relay, server, port };
   bound.push(b);
@@ -65,7 +72,7 @@ const startRelay = async (
 
 const connect = (port: number): Promise<WebSocket> =>
   new Promise((resolve, reject) => {
-    const ws = new WebSocket(`ws://127.0.0.1:${port}`);
+    const ws = new WebSocket(`ws://127.0.0.1:${port}/ws`, { origin: 'null' });
     ws.binaryType = 'arraybuffer';
     ws.once('open', () => resolve(ws));
     ws.once('error', reject);
@@ -77,17 +84,24 @@ const nextMessage = (ws: WebSocket): Promise<ArrayBuffer> =>
     ws.once('error', reject);
   });
 
-const helloParams = (overrides: Partial<HelloParams> = {}): HelloParams => ({
-  clientType: 'plugin',
-  clientVersion: MIN_PLUGIN_VERSION,
-  protocolVersion: PROTOCOL_VERSION,
-  ...overrides,
+const helloParams = (overrides: Partial<HelloParams> = {}) => ({
+  credential: { kind: 'ticket' as const, value: 'test-ticket' },
+  nonce: Buffer.alloc(16, 2).toString('base64url'),
+  protocolVersion: overrides.protocolVersion ?? PROTOCOL_VERSION,
+  productVersion: '0.1.0',
+  pluginVersion: overrides.clientVersion ?? MIN_PLUGIN_VERSION,
+  pluginGeneration: 'plugin-generation-test',
+  editorType: 'figma' as const,
+  mode: 'default',
+  fileIdentity: { kind: 'figma-file-key' as const, value: 'file-key-test' },
+  fileName: 'Relay Test',
+  capabilities: [],
 });
 
 describe('Relay upgrade gating', () => {
   it('refuses a WebSocket upgrade from a web page', async () => {
     const b = await startRelay();
-    const ws = new WebSocket(`ws://127.0.0.1:${b.port}`, {
+    const ws = new WebSocket(`ws://127.0.0.1:${b.port}/ws`, {
       headers: { origin: 'https://evil.example' },
     });
 
@@ -102,7 +116,7 @@ describe('Relay upgrade gating', () => {
 
   it('refuses an upgrade addressed to a rebound domain', async () => {
     const b = await startRelay();
-    const ws = new WebSocket(`ws://127.0.0.1:${b.port}`, {
+    const ws = new WebSocket(`ws://127.0.0.1:${b.port}/ws`, {
       headers: { host: `evil.example:${b.port}` },
     });
 
@@ -116,7 +130,7 @@ describe('Relay upgrade gating', () => {
 
   it('admits the plugin, whose sandboxed origin is the literal "null"', async () => {
     const b = await startRelay();
-    const ws = new WebSocket(`ws://127.0.0.1:${b.port}`, { headers: { origin: 'null' } });
+    const ws = new WebSocket(`ws://127.0.0.1:${b.port}/ws`, { headers: { origin: 'null' } });
     await new Promise<void>((resolve, reject) => {
       ws.once('open', () => resolve());
       ws.once('error', reject);

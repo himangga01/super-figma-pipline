@@ -1,4 +1,4 @@
-import type { HeartbeatMonitor } from '@sfp/shared';
+import type { FileIdentity, HeartbeatMonitor } from '@sfp/shared';
 import type { WebSocket } from 'ws';
 
 export type SessionState = 'connected' | 'disconnected';
@@ -8,6 +8,11 @@ export interface Session {
   socket: WebSocket | null;
   state: SessionState;
   clientVersion: string;
+  pluginGeneration: string;
+  editorType: 'figma' | 'figjam' | 'dev';
+  mode: string;
+  fileIdentity: FileIdentity;
+  capabilities: readonly string[];
   connectedAt: number;
   reconnectedAt: number | null;
   /** Updated on every `$activity` event from this session; multi-plugin routing picks the max. */
@@ -31,7 +36,17 @@ export const DEFAULT_DISCONNECT_GRACE_MS = 30_000;
 export class SessionManager {
   private readonly sessions = new Map<string, Session>();
 
-  register(input: { id: string; socket: WebSocket; clientVersion: string }): {
+  register(input: {
+    id: string;
+    socket: WebSocket;
+    clientVersion: string;
+    pluginGeneration: string;
+    editorType: 'figma' | 'figjam' | 'dev';
+    mode: string;
+    fileIdentity: FileIdentity;
+    fileName: string;
+    capabilities: readonly string[];
+  }): {
     session: Session;
     resumed: boolean;
   } {
@@ -56,6 +71,11 @@ export class SessionManager {
       socket: input.socket,
       state: 'connected',
       clientVersion: input.clientVersion,
+      pluginGeneration: input.pluginGeneration,
+      editorType: input.editorType,
+      mode: input.mode,
+      fileIdentity: input.fileIdentity,
+      capabilities: Object.freeze([...input.capabilities]),
       connectedAt: existing?.connectedAt ?? now,
       reconnectedAt: existing !== undefined ? now : null,
       // A *fresh* session (new sessionId = a plugin opened in a newly-focused file) counts as the most
@@ -67,7 +87,7 @@ export class SessionManager {
       lastActivityAt: existing === undefined ? now : existing.lastActivityAt,
       // Filled in by the first `$activity` event; null until then (a plugin that hasn't sent any
       // context push yet — e.g. mid-handshake — is still routable but won't have a display label).
-      fileName: existing?.fileName ?? null,
+      fileName: existing?.fileName ?? input.fileName,
       pageId: existing?.pageId ?? null,
       pageName: existing?.pageName ?? null,
       heartbeat: null,
@@ -105,6 +125,8 @@ export class SessionManager {
     if (s !== undefined && s.disconnectTimer !== null) {
       clearTimeout(s.disconnectTimer);
     }
+    s?.heartbeat?.stop();
+    if (s !== undefined) s.heartbeat = null;
     this.sessions.delete(id);
   }
 

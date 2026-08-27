@@ -15,6 +15,7 @@ export const ErrorCode = {
   NotLeader: 'NOT_LEADER',
   SessionUnknown: 'SESSION_UNKNOWN',
   ProtocolMismatch: 'PROTOCOL_MISMATCH',
+  PayloadTooLarge: 'PAYLOAD_TOO_LARGE',
 } as const;
 export type ErrorCode = (typeof ErrorCode)[keyof typeof ErrorCode];
 

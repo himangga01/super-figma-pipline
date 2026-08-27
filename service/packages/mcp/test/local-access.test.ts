@@ -5,7 +5,7 @@ import {
   isAllowedHost,
   isAllowedHttpOrigin,
   isAllowedWsOrigin,
-} from '../src/local-access.js';
+} from '../src/security/local-access.js';
 
 afterEach(() => {
   delete process.env.FIGWRIGHT_ALLOW_ANY_ORIGIN;
@@ -47,9 +47,9 @@ describe('isAllowedWsOrigin', () => {
     expect(isAllowedWsOrigin('null')).toBe(true);
   });
 
-  it('admits a non-browser client, which sends no Origin at all', () => {
-    expect(isAllowedWsOrigin(undefined)).toBe(true);
-    expect(isAllowedWsOrigin('')).toBe(true);
+  it('refuses an absent Origin because only an authenticated plugin browser uses /ws', () => {
+    expect(isAllowedWsOrigin(undefined)).toBe(false);
+    expect(isAllowedWsOrigin('')).toBe(false);
   });
 
   it('admits a plugin host that sends a real figma.com origin', () => {
@@ -68,9 +68,9 @@ describe('isAllowedWsOrigin', () => {
     expect(isAllowedWsOrigin('http://www.figma.com')).toBe(false);
   });
 
-  it('opens up under the escape hatch', () => {
+  it('does not allow an environment escape hatch to bypass the closed Origin set', () => {
     process.env.FIGWRIGHT_ALLOW_ANY_ORIGIN = '1';
-    expect(isAllowedWsOrigin('https://evil.example')).toBe(true);
+    expect(isAllowedWsOrigin('https://evil.example')).toBe(false);
   });
 });
 
@@ -86,9 +86,9 @@ describe('isAllowedHttpOrigin', () => {
     expect(isAllowedHttpOrigin('https://www.figma.com')).toBe(false);
   });
 
-  it('opens up under the escape hatch', () => {
+  it('does not allow an environment escape hatch to turn browser traffic into Node traffic', () => {
     process.env.FIGWRIGHT_ALLOW_ANY_ORIGIN = '1';
-    expect(isAllowedHttpOrigin('https://evil.example')).toBe(true);
+    expect(isAllowedHttpOrigin('https://evil.example')).toBe(false);
   });
 });
 
