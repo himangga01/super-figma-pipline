@@ -29,6 +29,7 @@ import { EXPORT_VIDEO_TOOL_NAME, handleExportVideo } from './tools/export-video.
 import { GET_DESIGN_CONTEXT_TOOL_NAME } from './tools/get-design-context.js';
 import { GET_SCREENSHOT_TOOL_NAME, screenshotContent } from './tools/get-screenshot.js';
 import { handleIconMap, ICON_MAP_TOOL_NAME } from './tools/icon-map.js';
+import { handleImportImage, IMPORT_IMAGE_TOOL_NAME } from './tools/import-image.js';
 import { formatPingResult, handlePing, pingTool, type PingResult } from './tools/ping.js';
 import { ALL_TOOL_SPECS } from './tools/registry.js';
 import { executeToolRuntime, type RuntimeExecutionContext } from './tools/runtime-registry.js';
@@ -160,6 +161,7 @@ const RAW_SPECIAL_HANDLERS: Record<string, RawToolHandler> = {
   [COMPONENT_MAP_TOOL_NAME]: async args => handleComponentMap(await routedDispatch(), args),
   [TOKEN_MAP_TOOL_NAME]: args => handleTokenMap(dispatch, args),
   [ICON_MAP_TOOL_NAME]: async args => handleIconMap(await routedDispatch(), args),
+  [IMPORT_IMAGE_TOOL_NAME]: args => handleImportImage(dispatch, args),
   [DESIGN_DIFF_TOOL_NAME]: args => handleDesignDiff(dispatch, args),
   // The guarded public path: arms the plugin's node-count bail (budget: true) and applies the
   // payload-size net + below-full note. Internal dispatches (design_diff, component/icon map) call

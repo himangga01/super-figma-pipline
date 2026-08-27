@@ -21,6 +21,7 @@ import type { AuthStatePermissions } from './follower-auth.js';
 export const PAIR_CHALLENGE_TTL_MS = 5 * 60 * 1000;
 export const PAIR_TICKET_TTL_MS = 30 * 1000;
 export const PAIR_RESUME_TTL_MS = 30 * 24 * 60 * 60 * 1000;
+export const PAIR_HELLO_PREPARE_TTL_MS = 30 * 1000;
 export const PAIR_ATTEMPTS = 5;
 
 export interface RateLimit {
@@ -37,6 +38,10 @@ export interface PairingManagerOptions {
   challengeRateLimit?: RateLimit;
   exchangeRateLimit?: RateLimit;
   log?: (message: string) => void;
+  lockTimeoutMs?: number;
+  staleLockMs?: number;
+  /** Test seam that pauses after the cross-process lock is exclusively owned. */
+  afterLockAcquired?: () => Promise<void>;
 }
 
 export class PairingError extends Error {
@@ -56,7 +61,15 @@ export class PairingError extends Error {
 export interface PairingManager {
   createChallenge(actor: string): Promise<PairChallengeIssued>;
   exchange(challengeId: string, code: string): Promise<PairExchangeResult>;
+  prepareHello(input: unknown): Promise<PreparedHello>;
+  commitHello(preparationId: string): Promise<void>;
   authenticateHello(input: unknown): Promise<AuthenticatedHelloResult>;
+  drain(): Promise<void>;
+}
+
+export interface PreparedHello {
+  preparationId: string;
+  result: AuthenticatedHelloResult;
 }
 
 interface StoredChallenge {
@@ -81,19 +94,33 @@ interface StoredResume {
   used: boolean;
 }
 
+interface StoredHelloTransaction {
+  preparationId: string;
+  credentialKind: 'ticket' | 'resume';
+  credentialHash: string;
+  nonceHash: string;
+  sessionId: string;
+  pluginGeneration: string;
+  resumeExpiresAt: number;
+  prepareExpiresAt: number;
+  committed: boolean;
+}
+
 interface PairingState {
   version: 1;
   challenges: StoredChallenge[];
   tickets: StoredTicket[];
   resumes: StoredResume[];
+  helloTransactions: StoredHelloTransaction[];
   challengeAttempts: number[];
   exchangeAttempts: number[];
 }
 
 const KEY_FILE = 'pairing-hmac.key';
 const STATE_FILE = 'pairing-state.json';
-const mutations = new Map<string, Promise<void>>();
-const noop = (): void => {};
+const LOCK_FILE = '.pairing-state.lock';
+
+export const pairingLockPath = (stateRoot: string): string => join(resolve(stateRoot), LOCK_FILE);
 
 const pathExists = async (path: string): Promise<boolean> => {
   try {
@@ -110,26 +137,10 @@ const emptyState = (): PairingState => ({
   challenges: [],
   tickets: [],
   resumes: [],
+  helloTransactions: [],
   challengeAttempts: [],
   exchangeAttempts: [],
 });
-
-const withMutation = async <T>(key: string, operation: () => Promise<T>): Promise<T> => {
-  const previous = mutations.get(key) ?? Promise.resolve();
-  let release = noop;
-  const current = new Promise<void>(resolvePromise => {
-    release = resolvePromise;
-  });
-  const queued = previous.then(() => current);
-  mutations.set(key, queued);
-  await previous;
-  try {
-    return await operation();
-  } finally {
-    release();
-    if (mutations.get(key) === queued) mutations.delete(key);
-  }
-};
 
 const secureHashEqual = (left: string, right: string): boolean => {
   const a = Buffer.from(left, 'base64url');
@@ -184,6 +195,7 @@ const parseState = (input: unknown): PairingState => {
     !Array.isArray(value.challenges) ||
     !Array.isArray(value.tickets) ||
     !Array.isArray(value.resumes) ||
+    (value.helloTransactions !== undefined && !Array.isArray(value.helloTransactions)) ||
     !strictNumberArray(value.challengeAttempts) ||
     !strictNumberArray(value.exchangeAttempts)
   ) {
@@ -229,11 +241,41 @@ const parseState = (input: unknown): PairingState => {
     }
     return { ...(item as StoredResume) };
   });
+  const helloTransactions = (value.helloTransactions ?? []).map(item => {
+    if (
+      typeof item !== 'object' ||
+      item === null ||
+      typeof (item as StoredHelloTransaction).preparationId !== 'string' ||
+      !['ticket', 'resume'].includes((item as StoredHelloTransaction).credentialKind) ||
+      typeof (item as StoredHelloTransaction).credentialHash !== 'string' ||
+      typeof (item as StoredHelloTransaction).nonceHash !== 'string' ||
+      typeof (item as StoredHelloTransaction).sessionId !== 'string' ||
+      typeof (item as StoredHelloTransaction).pluginGeneration !== 'string' ||
+      !Number.isSafeInteger((item as StoredHelloTransaction).resumeExpiresAt) ||
+      !Number.isSafeInteger((item as StoredHelloTransaction).prepareExpiresAt) ||
+      typeof (item as StoredHelloTransaction).committed !== 'boolean'
+    ) {
+      throw new Error('invalid stored hello transaction');
+    }
+    const transaction = item as StoredHelloTransaction;
+    return {
+      preparationId: transaction.preparationId,
+      credentialKind: transaction.credentialKind,
+      credentialHash: transaction.credentialHash,
+      nonceHash: transaction.nonceHash,
+      sessionId: transaction.sessionId,
+      pluginGeneration: transaction.pluginGeneration,
+      resumeExpiresAt: transaction.resumeExpiresAt,
+      prepareExpiresAt: transaction.prepareExpiresAt,
+      committed: transaction.committed,
+    };
+  });
   return {
     version: 1,
     challenges,
     tickets,
     resumes,
+    helloTransactions,
     challengeAttempts: [...value.challengeAttempts],
     exchangeAttempts: [...value.exchangeAttempts],
   };
@@ -276,6 +318,22 @@ export const createPairingManager = async (
   const log = options.log ?? ((): void => {});
   const keyPath = join(stateRoot, KEY_FILE);
   const statePath = join(stateRoot, STATE_FILE);
+  const lockPath = pairingLockPath(stateRoot);
+  const lockTimeoutMs = options.lockTimeoutMs ?? 15_000;
+  const staleLockMs = options.staleLockMs ?? 120_000;
+  if (
+    !Number.isSafeInteger(lockTimeoutMs) ||
+    lockTimeoutMs <= 0 ||
+    !Number.isSafeInteger(staleLockMs) ||
+    staleLockMs <= lockTimeoutMs
+  ) {
+    throw new TypeError(
+      'pairing lock windows must be positive and staleLockMs must exceed timeout',
+    );
+  }
+
+  let activeMutations = 0;
+  const drainWaiters = new Set<() => void>();
 
   await options.permissions.verifySecure(stateRoot);
 
@@ -287,6 +345,82 @@ export const createPairingManager = async (
     } finally {
       await directory.close();
     }
+  };
+
+  const acquireMutationLock = async (): Promise<() => Promise<void>> => {
+    const startedAt = Date.now();
+    const nonce = randomBytes(16).toString('base64url');
+    /* eslint-disable no-await-in-loop -- exclusive-file lock acquisition is intentionally serial */
+    while (true) {
+      let handle: Awaited<ReturnType<typeof open>> | undefined;
+      let created = false;
+      try {
+        handle = await open(lockPath, 'wx', 0o600);
+        created = true;
+        await handle.writeFile(JSON.stringify({ pid: process.pid, nonce, createdAt: Date.now() }));
+        await handle.sync();
+        await handle.close();
+        handle = undefined;
+        await options.afterLockAcquired?.();
+        return async (): Promise<void> => {
+          if (!(await pathExists(lockPath))) return;
+          let owner: { nonce?: unknown } | undefined;
+          try {
+            owner = JSON.parse(await readFile(lockPath, 'utf8')) as { nonce?: unknown };
+          } catch (error) {
+            if ((error as NodeJS.ErrnoException).code === 'ENOENT') return;
+            throw error;
+          }
+          if (owner.nonce === nonce) {
+            await rm(lockPath, { force: true });
+            await syncStateDirectory();
+          }
+        };
+      } catch (error) {
+        await handle?.close().catch(() => {});
+        if ((error as NodeJS.ErrnoException).code !== 'EEXIST') {
+          if (created) await rm(lockPath, { force: true }).catch(() => {});
+          throw error;
+        }
+        const metadata = await lstat(lockPath).catch(() => undefined);
+        if (metadata !== undefined && Date.now() - metadata.mtimeMs >= staleLockMs) {
+          const stalePath = `${lockPath}.${randomBytes(8).toString('hex')}.stale`;
+          try {
+            await rename(lockPath, stalePath);
+            await rm(stalePath, { force: true });
+            continue;
+          } catch {
+            // Another contender or the owner changed the lock; retry the observed state.
+          }
+        }
+        if (Date.now() - startedAt >= lockTimeoutMs) {
+          throw new PairingError('PAIR_INTERNAL', 500, { cause: error });
+        }
+        await new Promise<void>(resolvePromise => setTimeout(resolvePromise, 5));
+      }
+    }
+    /* eslint-enable no-await-in-loop */
+  };
+
+  const withMutation = async <T>(operation: () => Promise<T>): Promise<T> => {
+    activeMutations += 1;
+    let release: (() => Promise<void>) | undefined;
+    try {
+      release = await acquireMutationLock();
+      return await operation();
+    } finally {
+      await release?.();
+      activeMutations -= 1;
+      if (activeMutations === 0) {
+        for (const waiter of drainWaiters) waiter();
+        drainWaiters.clear();
+      }
+    }
+  };
+
+  const drain = async (): Promise<void> => {
+    if (activeMutations === 0) return;
+    await new Promise<void>(resolvePromise => drainWaiters.add(resolvePromise));
   };
 
   const loadKey = async (): Promise<Buffer> => {
@@ -323,6 +457,11 @@ export const createPairingManager = async (
   const key = await loadKey();
   const digest = (domain: string, secret: string): string =>
     createHmac('sha256', key).update(domain).update('\0').update(secret).digest('base64url');
+  const derive = (domain: string, ...parts: string[]): Buffer => {
+    const hmac = createHmac('sha256', key).update(domain);
+    for (const part of parts) hmac.update('\0').update(part);
+    return hmac.digest();
+  };
 
   const loadState = async (): Promise<PairingState> => {
     if (!(await pathExists(statePath))) return emptyState();
@@ -366,7 +505,7 @@ export const createPairingManager = async (
     if (typeof actor !== 'string' || actor.trim() === '') {
       throw new PairingError('PAIR_BODY_INVALID', 400);
     }
-    return withMutation(statePath, async () => {
+    return withMutation(async () => {
       const state = await loadState();
       const at = now();
       state.challengeAttempts = recordAttempt(state.challengeAttempts, challengeRateLimit, at);
@@ -395,7 +534,7 @@ export const createPairingManager = async (
   };
 
   const exchange = async (challengeId: string, code: string): Promise<PairExchangeResult> =>
-    withMutation(statePath, async () => {
+    withMutation(async () => {
       const state = await loadState();
       const at = now();
       state.exchangeAttempts = recordAttempt(state.exchangeAttempts, exchangeRateLimit, at);
@@ -437,54 +576,156 @@ export const createPairingManager = async (
       return result;
     });
 
-  const authenticateHello = async (input: unknown): Promise<AuthenticatedHelloResult> => {
+  const prepareHello = async (input: unknown): Promise<PreparedHello> => {
     const parsed = AuthenticatedHelloSchema.safeParse(input);
     if (!parsed.success) throw new PairingError('PAIR_CREDENTIAL_REQUIRED', 401);
     const hello: AuthenticatedHello = parsed.data;
-    return withMutation(statePath, async () => {
+    return withMutation(async () => {
       const state = await loadState();
       const at = now();
-      let sessionId: string;
+      state.helloTransactions = state.helloTransactions.filter(
+        transaction => transaction.committed || transaction.prepareExpiresAt > at,
+      );
+      const credentialKind = hello.credential.kind;
+      const credentialHash =
+        credentialKind === 'ticket'
+          ? digest('ws-ticket', hello.credential.value)
+          : digest('resume-token', hello.credential.value);
+      const nonceHash = digest('hello-nonce', hello.nonce);
+      const exact = state.helloTransactions.find(
+        transaction =>
+          transaction.credentialKind === credentialKind &&
+          secureHashEqual(transaction.credentialHash, credentialHash) &&
+          secureHashEqual(transaction.nonceHash, nonceHash),
+      );
+      const resultFor = (transaction: StoredHelloTransaction): PreparedHello => ({
+        preparationId: transaction.preparationId,
+        result: {
+          sessionId: transaction.sessionId,
+          rotatedResumeToken: derive(
+            'hello-resume-successor',
+            transaction.credentialHash,
+            transaction.nonceHash,
+          ).toString('base64url'),
+          resumeExpiresAt: transaction.resumeExpiresAt,
+        },
+      });
+      if (exact !== undefined) {
+        if (exact.pluginGeneration !== hello.pluginGeneration) {
+          throw new PairingError('PAIR_GENERATION_MISMATCH', 401);
+        }
+        return resultFor(exact);
+      }
+      const conflicting = state.helloTransactions.find(
+        transaction =>
+          !transaction.committed &&
+          transaction.credentialKind === credentialKind &&
+          secureHashEqual(transaction.credentialHash, credentialHash),
+      );
+      if (conflicting !== undefined) throw new PairingError('PAIR_HELLO_PENDING', 409);
 
-      if (hello.credential.kind === 'ticket') {
-        const supplied = digest('ws-ticket', hello.credential.value);
-        const ticket = state.tickets.find(item => secureHashEqual(item.hash, supplied));
+      let sessionId: string;
+      let credentialExpiresAt: number;
+
+      if (credentialKind === 'ticket') {
+        const ticket = state.tickets.find(item => secureHashEqual(item.hash, credentialHash));
         if (ticket === undefined) throw new PairingError('PAIR_TICKET_INVALID', 401);
         if (ticket.used) throw new PairingError('PAIR_TICKET_USED', 401);
         if (at >= ticket.expiresAt) throw new PairingError('PAIR_TICKET_EXPIRED', 401);
-        ticket.used = true;
-        sessionId = randomBytes(16).toString('base64url');
+        credentialExpiresAt = ticket.expiresAt;
+        sessionId = derive('hello-session', credentialHash, nonceHash)
+          .subarray(0, 16)
+          .toString('base64url');
       } else {
-        const supplied = digest('resume-token', hello.credential.value);
-        const resume = state.resumes.find(item => secureHashEqual(item.hash, supplied));
+        const resume = state.resumes.find(item => secureHashEqual(item.hash, credentialHash));
         if (resume === undefined) throw new PairingError('PAIR_RESUME_INVALID', 401);
         if (resume.used) throw new PairingError('PAIR_RESUME_USED', 401);
         if (at >= resume.expiresAt) throw new PairingError('PAIR_RESUME_EXPIRED', 401);
         if (resume.pluginGeneration !== hello.pluginGeneration) {
           throw new PairingError('PAIR_GENERATION_MISMATCH', 401);
         }
-        resume.used = true;
+        credentialExpiresAt = resume.expiresAt;
         sessionId = resume.sessionId;
       }
 
-      const rotatedResumeToken = randomBytes(32).toString('base64url');
-      const result: AuthenticatedHelloResult = {
-        sessionId,
-        rotatedResumeToken,
-        resumeExpiresAt: at + PAIR_RESUME_TTL_MS,
-      };
-      state.resumes.push({
-        hash: digest('resume-token', rotatedResumeToken),
+      const transaction: StoredHelloTransaction = {
+        preparationId: derive('hello-preparation', credentialHash, nonceHash).toString('base64url'),
+        credentialKind,
+        credentialHash,
+        nonceHash,
         sessionId,
         pluginGeneration: hello.pluginGeneration,
-        expiresAt: result.resumeExpiresAt,
-        used: false,
-      });
+        resumeExpiresAt: at + PAIR_RESUME_TTL_MS,
+        prepareExpiresAt: Math.min(at + PAIR_HELLO_PREPARE_TTL_MS, credentialExpiresAt),
+        committed: false,
+      };
+      state.helloTransactions.push(transaction);
       await saveState(state);
-      log(`[pairing] session ${sessionId} authenticated`);
-      return result;
+      return resultFor(transaction);
     });
   };
 
-  return Object.freeze({ createChallenge, exchange, authenticateHello });
+  const commitHello = async (preparationId: string): Promise<void> => {
+    if (!/^[A-Za-z0-9_-]{43}$/.test(preparationId)) {
+      throw new PairingError('PAIR_CREDENTIAL_REQUIRED', 401);
+    }
+    await withMutation(async () => {
+      const state = await loadState();
+      const transaction = state.helloTransactions.find(
+        item => item.preparationId === preparationId,
+      );
+      if (transaction === undefined) throw new PairingError('PAIR_CREDENTIAL_REQUIRED', 401);
+      if (transaction.committed) return;
+      if (now() >= transaction.prepareExpiresAt) {
+        throw new PairingError('PAIR_CREDENTIAL_REQUIRED', 401);
+      }
+
+      if (transaction.credentialKind === 'ticket') {
+        const ticket = state.tickets.find(item =>
+          secureHashEqual(item.hash, transaction.credentialHash),
+        );
+        if (ticket === undefined) throw new PairingError('PAIR_TICKET_INVALID', 401);
+        if (ticket.used) throw new PairingError('PAIR_TICKET_USED', 401);
+        ticket.used = true;
+      } else {
+        const resume = state.resumes.find(item =>
+          secureHashEqual(item.hash, transaction.credentialHash),
+        );
+        if (resume === undefined) throw new PairingError('PAIR_RESUME_INVALID', 401);
+        if (resume.used) throw new PairingError('PAIR_RESUME_USED', 401);
+        resume.used = true;
+      }
+
+      const rotatedResumeToken = derive(
+        'hello-resume-successor',
+        transaction.credentialHash,
+        transaction.nonceHash,
+      ).toString('base64url');
+      state.resumes.push({
+        hash: digest('resume-token', rotatedResumeToken),
+        sessionId: transaction.sessionId,
+        pluginGeneration: transaction.pluginGeneration,
+        expiresAt: transaction.resumeExpiresAt,
+        used: false,
+      });
+      transaction.committed = true;
+      await saveState(state);
+      log(`[pairing] session ${transaction.sessionId} authenticated`);
+    });
+  };
+
+  const authenticateHello = async (input: unknown): Promise<AuthenticatedHelloResult> => {
+    const prepared = await prepareHello(input);
+    await commitHello(prepared.preparationId);
+    return prepared.result;
+  };
+
+  return Object.freeze({
+    createChallenge,
+    exchange,
+    prepareHello,
+    commitHello,
+    authenticateHello,
+    drain,
+  });
 };

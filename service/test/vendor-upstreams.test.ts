@@ -347,6 +347,43 @@ describe('protected service authorities', () => {
         contents.replace('relayAuthenticator: pairing', 'relayAuthenticator: undefined'),
     },
     {
+      name: 'Task 6 cross-process pairing lock authority',
+      path: 'packages/mcp/src/security/pairing-manager.ts',
+      mutate: contents =>
+        contents.replace("open(lockPath, 'wx', 0o600)", "open(lockPath, 'w', 0o600)"),
+    },
+    {
+      name: 'Task 6 recoverable hello commit authority',
+      path: 'packages/mcp/src/relay/relay.ts',
+      mutate: contents =>
+        contents.replace('commitHello?.(preparationId)', 'authenticateHello?.(parsed.data)'),
+    },
+    {
+      name: 'Task 6 fresh follower identity authority',
+      path: 'packages/mcp/src/election/follower.ts',
+      mutate: contents => contents.replace('await this.verifyFreshLeader()', 'undefined'),
+    },
+    {
+      name: 'Task 6 inline image cap authority',
+      path: 'packages/mcp/src/tools/import-image.ts',
+      mutate: contents => contents.replace('assertBase64Payload(args.data', 'void (args.data'),
+    },
+    {
+      name: 'Task 6 native binary cap authority',
+      path: 'packages/mcp/src/tools/binary-payload.ts',
+      mutate: contents => contents.replace('carrier.bytes.byteLength', '0'),
+    },
+    {
+      name: 'Task 6 pre-write video cap authority',
+      path: 'packages/mcp/src/tools/export-video.ts',
+      mutate: contents => contents.replace("code: 'EXPORT_TOO_LARGE'", "code: 'PAYLOAD_TOO_LARGE'"),
+    },
+    {
+      name: 'Task 6 unread-body authority',
+      path: 'packages/mcp/src/election/leader-endpoints.ts',
+      mutate: contents => contents.replace('hasUnreadBody(req)', 'false'),
+    },
+    {
       name: 'pnpm lockfile bytes',
       path: 'pnpm-lock.yaml',
       mutate: contents => `${contents}# local mutation\n`,

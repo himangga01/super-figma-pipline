@@ -396,16 +396,6 @@
     {
       "mode": "copy",
       "originCommit": "a835e81b575eab2c9265a67f9353c89b848f81ca",
-      "sourcePath": "packages/mcp/src/tools/binary-payload.ts",
-      "destination": "packages/mcp/src/tools/binary-payload.ts",
-      "baseSha256": "a22ce039991061c5b784e403202109936308967ad5bad2a21bbf0cd9fae758b0",
-      "currentSha256": "a22ce039991061c5b784e403202109936308967ad5bad2a21bbf0cd9fae758b0",
-      "transformations": [],
-      "licenseId": "MIT"
-    },
-    {
-      "mode": "copy",
-      "originCommit": "a835e81b575eab2c9265a67f9353c89b848f81ca",
       "sourcePath": "packages/mcp/src/tools/binding-schema.ts",
       "destination": "packages/mcp/src/tools/binding-schema.ts",
       "baseSha256": "9b57408b0eb8110eea61a7f9d645aad1fd095b86229866a394f5d5c75b75b8aa",
@@ -826,16 +816,6 @@
     {
       "mode": "copy",
       "originCommit": "a835e81b575eab2c9265a67f9353c89b848f81ca",
-      "sourcePath": "packages/mcp/test/tools/binary-payload.test.ts",
-      "destination": "packages/mcp/test/tools/binary-payload.test.ts",
-      "baseSha256": "07e91904825595d1733808a28bffec754778727170079cc21f41be3ebe584665",
-      "currentSha256": "07e91904825595d1733808a28bffec754778727170079cc21f41be3ebe584665",
-      "transformations": [],
-      "licenseId": "MIT"
-    },
-    {
-      "mode": "copy",
-      "originCommit": "a835e81b575eab2c9265a67f9353c89b848f81ca",
       "sourcePath": "packages/mcp/test/tools/component-map.test.ts",
       "destination": "packages/mcp/test/tools/component-map.test.ts",
       "baseSha256": "058731561f5f3dcb5090095f125d32bdc2ea5f579d537a7f42b8f8e70666560e",
@@ -870,16 +850,6 @@
       "destination": "packages/mcp/test/tools/export-pdf.test.ts",
       "baseSha256": "17ab9df05ec60e3c0741a3aef9f0e7580cd1f92b5a7e718840c9cd2e4d6e0ef8",
       "currentSha256": "42c2eb3af050b22a870a9e76d472c90a4485e51d608ddc44745c0d4645784769",
-      "transformations": ["package-specifier-rewrite", "oxfmt-normalize"],
-      "licenseId": "MIT"
-    },
-    {
-      "mode": "copy",
-      "originCommit": "a835e81b575eab2c9265a67f9353c89b848f81ca",
-      "sourcePath": "packages/mcp/test/tools/export-video.test.ts",
-      "destination": "packages/mcp/test/tools/export-video.test.ts",
-      "baseSha256": "87c511440bfc46a028bdd71d25a20ffac058c4a3f2cfafa113f278a8e49e7f0e",
-      "currentSha256": "4eb2cd51f3430259fc3d3f025513ceb008b65983c4e2582d2fec37044e589913",
       "transformations": ["package-specifier-rewrite", "oxfmt-normalize"],
       "licenseId": "MIT"
     },
@@ -940,16 +910,6 @@
       "destination": "packages/mcp/test/tools/motion-schemas.test.ts",
       "baseSha256": "323268a47370992ce162252403785c8e7fb5e4148ca293f629d2ca029a80c6cd",
       "currentSha256": "323268a47370992ce162252403785c8e7fb5e4148ca293f629d2ca029a80c6cd",
-      "transformations": [],
-      "licenseId": "MIT"
-    },
-    {
-      "mode": "copy",
-      "originCommit": "a835e81b575eab2c9265a67f9353c89b848f81ca",
-      "sourcePath": "packages/mcp/test/tools/ping.test.ts",
-      "destination": "packages/mcp/test/tools/ping.test.ts",
-      "baseSha256": "172bfc21c1c241b03b52289c5b4e87a1eef0ee62bead67b094d930ef115e9479",
-      "currentSha256": "172bfc21c1c241b03b52289c5b4e87a1eef0ee62bead67b094d930ef115e9479",
       "transformations": [],
       "licenseId": "MIT"
     },

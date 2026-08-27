@@ -9,7 +9,11 @@ import {
   RpcResponseSchema,
 } from '@sfp/shared';
 
-import { HTTP_RESPONSE_MAX_BYTES, readBoundedFetchBody } from '../security/request-limits.js';
+import {
+  HTTP_RESPONSE_MAX_BYTES,
+  readBoundedFetchBody,
+  RequestLimitError,
+} from '../security/request-limits.js';
 import { ABDICATE_PATH, PING_PATH, RPC_PATH } from './leader-endpoints.js';
 
 export const DEFAULT_FOLLOWER_RPC_TIMEOUT_MS = 35_000;
@@ -19,7 +23,18 @@ export const DEFAULT_PING_TIMEOUT_MS = 2_000;
 export interface LeaderInfo {
   serverVersion: string;
   buildId: number;
-  leaderGeneration?: string;
+  leaderGeneration: string;
+}
+
+interface FollowerCredential {
+  generation: string;
+  value: string;
+}
+
+interface VerifiedLeader {
+  info: LeaderInfo;
+  body: Record<string, unknown>;
+  credential: FollowerCredential;
 }
 
 /**
@@ -48,6 +63,7 @@ export class Follower {
   private readonly opts: Required<Omit<FollowerOptions, 'credentialProvider'>> & {
     credentialProvider: FollowerOptions['credentialProvider'] | undefined;
   };
+  private quarantined = true;
 
   constructor(opts: FollowerOptions) {
     this.opts = {
@@ -91,8 +107,7 @@ export class Follower {
     // Confirm the responder is actually a figwright leader, not some unrelated process that happens
     // to hold the port and answer 200 — otherwise this node would attach as a follower and every
     // RPC it forwards would fail. The leader's /ping returns { ok: true, serverVersion, … }.
-    const body = await this.fetchPing();
-    return this.parseLeaderInfo(body) !== undefined;
+    return (await this.verifyFreshLeader()) !== undefined;
   }
 
   /**
@@ -101,8 +116,7 @@ export class Follower {
    * be false, so callers can use it as the health check and the info read in one round-trip.
    */
   async leaderInfo(): Promise<LeaderInfo | undefined> {
-    const body = await this.fetchPing();
-    return this.parseLeaderInfo(body);
+    return (await this.verifyFreshLeader())?.info;
   }
 
   private parseLeaderInfo(body: Record<string, unknown> | undefined): LeaderInfo | undefined {
@@ -129,14 +143,41 @@ export class Follower {
     };
   }
 
-  private async followerHeaders(contentType: string): Promise<Record<string, string> | undefined> {
-    const credential = await this.opts.credentialProvider?.();
-    if (credential === undefined) return undefined;
+  private followerHeaders(
+    contentType: string,
+    credential: FollowerCredential,
+  ): Record<string, string> {
     return {
       'content-type': contentType,
       authorization: credential.value,
       'x-sfp-leader-generation': credential.generation,
     };
+  }
+
+  private async verifyFreshLeader(): Promise<VerifiedLeader | undefined> {
+    let credential: FollowerCredential | undefined;
+    try {
+      credential = await this.opts.credentialProvider?.();
+    } catch {
+      this.quarantined = true;
+      return undefined;
+    }
+    if (credential === undefined) {
+      this.quarantined = true;
+      return undefined;
+    }
+    const body = await this.fetchPing();
+    const info = this.parseLeaderInfo(body);
+    if (
+      body === undefined ||
+      info === undefined ||
+      info.leaderGeneration !== credential.generation
+    ) {
+      this.quarantined = true;
+      return undefined;
+    }
+    this.quarantined = false;
+    return { info, body, credential };
   }
 
   /**
@@ -146,11 +187,11 @@ export class Follower {
    */
   async requestAbdication(buildId: number): Promise<AbdicationOutcome> {
     try {
-      const headers = await this.followerHeaders('application/json');
-      if (headers === undefined) return 'error';
+      const verified = await this.verifyFreshLeader();
+      if (verified === undefined || this.quarantined) return 'error';
       const res = await this.opts.fetch(`${this.opts.leaderUrl}${ABDICATE_PATH}`, {
         method: 'POST',
-        headers,
+        headers: this.followerHeaders('application/json', verified.credential),
         body: JSON.stringify({ buildId }),
         signal: AbortSignal.timeout(this.opts.pingTimeoutMs),
       });
@@ -180,8 +221,8 @@ export class Follower {
    * behavior.
    */
   async resolveActiveSession(): Promise<string | undefined> {
-    const body = await this.fetchPing();
-    const id = body?.activeSessionId;
+    const verified = await this.verifyFreshLeader();
+    const id = verified?.body.activeSessionId;
     return typeof id === 'string' ? id : undefined;
   }
 
@@ -200,8 +241,18 @@ export class Follower {
      */
     abort?: AbortSignal,
   ): Promise<RpcResponse> {
+    const resolvedRequestId = requestId ?? newId();
+    const verified = await this.verifyFreshLeader();
+    if (verified === undefined || this.quarantined) {
+      return {
+        kind: 'err',
+        requestId: resolvedRequestId,
+        code: ErrorCode.NotLeader,
+        message: 'leader identity is not freshly authenticated for this generation',
+      };
+    }
     const rpc: RpcRequest = {
-      requestId: requestId ?? newId(),
+      requestId: resolvedRequestId,
       toolName,
       ...(args === undefined ? {} : { args }),
       ...(sessionId === undefined ? {} : { sessionId }),
@@ -214,21 +265,11 @@ export class Follower {
     const budget = AbortSignal.timeout(timeoutMs ?? this.opts.rpcTimeoutMs);
     const signal = abort === undefined ? budget : AbortSignal.any([budget, abort]);
 
-    const headers = await this.followerHeaders('application/msgpack');
-    if (headers === undefined) {
-      return {
-        kind: 'err',
-        requestId: rpc.requestId,
-        code: ErrorCode.NotLeader,
-        message: 'follower credential unavailable',
-      };
-    }
-
     let res: Response;
     try {
       res = await this.opts.fetch(`${this.opts.leaderUrl}${RPC_PATH}`, {
         method: 'POST',
-        headers,
+        headers: this.followerHeaders('application/msgpack', verified.credential),
         body,
         signal,
       });
@@ -242,7 +283,20 @@ export class Follower {
       };
     }
 
-    const buf = new Uint8Array(await readBoundedFetchBody(res, this.opts.responseMaxBytes));
+    let buf: Uint8Array;
+    try {
+      buf = new Uint8Array(await readBoundedFetchBody(res, this.opts.responseMaxBytes));
+    } catch (error) {
+      return {
+        kind: 'err',
+        requestId: rpc.requestId,
+        code: error instanceof RequestLimitError ? ErrorCode.PayloadTooLarge : ErrorCode.Internal,
+        message:
+          error instanceof RequestLimitError
+            ? 'leader response exceeds the HTTP response limit'
+            : 'failed to read leader response',
+      };
+    }
     let parsed: unknown;
     try {
       parsed = decode(buf);

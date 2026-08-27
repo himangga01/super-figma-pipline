@@ -93,5 +93,6 @@ export const PairErrorCodeSchema = z.enum([
   'PAIR_RESUME_EXPIRED',
   'PAIR_RESUME_USED',
   'PAIR_GENERATION_MISMATCH',
+  'PAIR_HELLO_PENDING',
 ]);
 export type PairErrorCode = z.infer<typeof PairErrorCodeSchema>;

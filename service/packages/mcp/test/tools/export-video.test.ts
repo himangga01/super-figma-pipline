@@ -91,6 +91,20 @@ describe('writeExportedVideo', () => {
     });
     await expect(readFile(path)).rejects.toThrow(/ENOENT/);
   });
+
+  it('returns EXPORT_TOO_LARGE before creating a directory or partial video file', async () => {
+    const base = await makeDir();
+    const path = join(base, 'missing-parent', 'oversized.mp4');
+    await expect(
+      writeExportedVideo(
+        path,
+        { nodeId: '7:7', format: 'MP4', base64: null, bytes: new Uint8Array(5) },
+        4,
+      ),
+    ).rejects.toMatchObject({ code: 'EXPORT_TOO_LARGE' });
+    await expect(readFile(path)).rejects.toThrow(/ENOENT/);
+    await expect(readFile(join(base, 'missing-parent'))).rejects.toThrow(/ENOENT|EISDIR/);
+  });
 });
 
 describe('handleExportVideo', () => {

@@ -261,6 +261,31 @@ describe('private-network pair exchange', () => {
     expect(response.headers['access-control-allow-origin']).toBe('null');
   });
 
+  it.each([
+    ['chunked', {}],
+    ['declared', { 'content-length': String(32 * 1024) }],
+  ])('closes a wrong-media pair POST with unread %s bytes', async (_mode, extraHeaders) => {
+    const { port, pairing } = await start();
+    const response = await call(
+      port,
+      'POST',
+      '/pair/exchange',
+      { origin: 'null', 'content-type': 'text/plain', ...extraHeaders },
+      'x'.repeat(32 * 1024),
+    );
+    expect(response).toMatchObject({
+      status: 400,
+      json: { code: 'PAIR_BODY_INVALID' },
+    });
+    expect(response.headers).toMatchObject({
+      'access-control-allow-origin': 'null',
+      'access-control-allow-private-network': 'true',
+      connection: 'close',
+      vary: 'Origin',
+    });
+    expect(pairing.exchangeCalls).toBe(0);
+  });
+
   it.each([undefined, 'https://evil.example'])(
     'does not expose or consume a valid exchange for Origin %s',
     async origin => {

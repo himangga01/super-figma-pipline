@@ -29,10 +29,16 @@ import { WS_FRAME_MAX_BYTES } from '../security/request-limits.js';
 import { DEFAULT_DISCONNECT_GRACE_MS, type Session, SessionManager } from './session.js';
 
 export interface RelayAuthenticator {
-  authenticateHello(
+  authenticateHello?(
     input: unknown,
     context: { requestedSessionId: string },
   ): Promise<AuthenticatedHelloResult>;
+  prepareHello?(input: unknown): Promise<{
+    preparationId: string;
+    result: AuthenticatedHelloResult;
+  }>;
+  commitHello?(preparationId: string): Promise<void>;
+  drain?(): Promise<void>;
 }
 
 export interface RelayOptions {
@@ -43,6 +49,8 @@ export interface RelayOptions {
   heartbeatMaxMisses?: number;
   disconnectGraceMs?: number;
   maxPayloadBytes?: number;
+  /** Test seam after provisional registration and before the hello response write. */
+  beforeHelloResponse?: () => Promise<void>;
   authenticator: RelayAuthenticator;
 }
 
@@ -73,6 +81,7 @@ export class Relay {
   private readonly pending = new Map<string, Pending>();
   private heartbeatDeferrals = 0;
   private lastRequestAtMs = 0;
+  private readonly helloTasks = new Set<Promise<void>>();
 
   constructor(opts: RelayOptions) {
     this.opts = {
@@ -82,6 +91,7 @@ export class Relay {
       heartbeatMaxMisses: opts.heartbeatMaxMisses ?? HEARTBEAT_MAX_MISSES,
       disconnectGraceMs: opts.disconnectGraceMs ?? DEFAULT_DISCONNECT_GRACE_MS,
       maxPayloadBytes: opts.maxPayloadBytes ?? WS_FRAME_MAX_BYTES,
+      beforeHelloResponse: opts.beforeHelloResponse ?? (async () => {}),
       authenticator: opts.authenticator,
     };
     this.wss = new WebSocketServer({
@@ -126,6 +136,8 @@ export class Relay {
     for (const client of this.wss.clients) {
       client.terminate();
     }
+    await Promise.allSettled(this.helloTasks);
+    await this.opts.authenticator.drain?.();
     await new Promise<void>(resolve => this.wss.close(() => resolve()));
   }
 
@@ -338,6 +350,7 @@ export class Relay {
     let session: Session | undefined;
     let authenticating = false;
     let closed = false;
+    const earlyEnvelopes: Envelope[] = [];
 
     const helloTimeout = setTimeout(() => {
       if (session === undefined) {
@@ -358,11 +371,12 @@ export class Relay {
 
       if (session === undefined) {
         if (authenticating) {
-          socket.close(1008, 'hello already in progress');
+          if (earlyEnvelopes.length >= 16) socket.close(1008, 'too many pre-session messages');
+          else earlyEnvelopes.push(envelope);
           return;
         }
         authenticating = true;
-        void (async (): Promise<void> => {
+        const helloTask = (async (): Promise<void> => {
           try {
             const authenticated = await this.handleHello(socket, envelope);
             clearTimeout(helloTimeout);
@@ -372,12 +386,18 @@ export class Relay {
             }
             session = authenticated ?? undefined;
             if (session === undefined) socket.close(1008, 'hello failed');
-          } catch {
+            else {
+              for (const queued of earlyEnvelopes.splice(0)) this.handleEnvelope(session, queued);
+            }
+          } catch (error) {
             clearTimeout(helloTimeout);
-            this.opts.log('[relay] authenticated hello failed internally');
+            const errorType = error instanceof Error ? error.name : 'NonError';
+            this.opts.log(`[relay] authenticated hello failed internally (${errorType})`);
             socket.close(1011, 'hello failed');
           }
         })();
+        this.helloTasks.add(helloTask);
+        void helloTask.finally(() => this.helloTasks.delete(helloTask));
         return;
       }
 
@@ -412,22 +432,6 @@ export class Relay {
       return null;
     }
 
-    let authenticated: AuthenticatedHelloResult;
-    try {
-      authenticated = await this.opts.authenticator.authenticateHello(parsed.data, {
-        requestedSessionId: env.sessionId,
-      });
-    } catch (error) {
-      const code =
-        typeof error === 'object' && error !== null && 'code' in error
-          ? String((error as { code: unknown }).code)
-          : 'PAIR_CREDENTIAL_REQUIRED';
-      this.opts.log(`[relay] rejected authenticated hello (${code})`);
-      this.sendError(socket, env, code, code);
-      return null;
-    }
-    if (socket.readyState !== 1) return null;
-
     // Two gates, two different questions, both settled at the handshake because this relay is a
     // stateful session — the plugin connects once and is dispatched to for as long as the panel is
     // open, so there is no per-request point at which to answer them.
@@ -440,20 +444,50 @@ export class Relay {
     // Wire format: can we understand each other's envelopes at all?
     if (parsed.data.protocolVersion !== PROTOCOL_VERSION) {
       const message =
-        `protocol mismatch: server speaks ${PROTOCOL_VERSION}, plugin speaks ${parsed.data.protocolVersion} — ` +
+        `protocol mismatch: server speaks ${PROTOCOL_VERSION} — ` +
         'update the older Figwright half so both match (server: @figwright/mcp, plugin: re-import ' +
         // The reopen matters: a refused plugin stops retrying (retrying cannot fix it, and a plugin
         // old enough to be refused is old enough to lack any graceful handling of the refusal), so
         // fixing the *server* side leaves the panel sitting on this message until it is reopened.
         'the latest release), then reopen this plugin in Figma';
-      this.opts.log(`[relay] rejecting plugin — ${message}`);
+      this.opts.log('[relay] rejected hello (PROTOCOL_MISMATCH)');
       this.sendError(socket, env, ErrorCode.ProtocolMismatch, message, {
         reason: 'protocol',
         supported: PROTOCOL_VERSION,
-        requested: parsed.data.protocolVersion,
       });
       return null;
     }
+
+    let authenticated: AuthenticatedHelloResult;
+    let preparationId: string | undefined;
+    try {
+      if (
+        this.opts.authenticator.prepareHello !== undefined &&
+        this.opts.authenticator.commitHello !== undefined
+      ) {
+        const prepared = await this.opts.authenticator.prepareHello(parsed.data);
+        authenticated = prepared.result;
+        preparationId = prepared.preparationId;
+      } else if (this.opts.authenticator.authenticateHello !== undefined) {
+        authenticated = await this.opts.authenticator.authenticateHello(parsed.data, {
+          requestedSessionId: env.sessionId,
+        });
+      } else {
+        throw Object.assign(new Error('authenticator unavailable'), {
+          code: 'PAIR_CREDENTIAL_REQUIRED',
+        });
+      }
+    } catch (error) {
+      const rawCode =
+        typeof error === 'object' && error !== null && 'code' in error
+          ? String((error as { code: unknown }).code)
+          : '';
+      const code = /^[A-Z][A-Z0-9_]{0,63}$/.test(rawCode) ? rawCode : 'PAIR_CREDENTIAL_REQUIRED';
+      this.opts.log(`[relay] rejected authenticated hello (${code})`);
+      this.sendError(socket, env, code, code);
+      return null;
+    }
+    if (socket.readyState !== 1) return null;
 
     // Feature set: does this plugin still act on everything this server sends? A plugin below the
     // floor silently drops arguments it predates. It is served anyway — refusing it was built,
@@ -464,12 +498,30 @@ export class Relay {
     const compatible = checkPluginCompatibility(parsed.data.pluginVersion, this.opts.serverVersion);
     if (!compatible) {
       this.opts.log(
-        `[relay] plugin "${parsed.data.pluginVersion}" predates this server (v${this.opts.serverVersion}); ` +
-          'serving it, and marking every result as unverified',
+        '[relay] authenticated plugin version predates this server; serving it as unverified',
       );
     }
 
-    const { session, resumed } = this.sessions.register({
+    const resumed =
+      this.sessions.get(authenticated.sessionId) !== undefined ||
+      parsed.data.credential.kind === 'resume';
+    const result: HelloResult = {
+      serverVersion: this.opts.serverVersion,
+      protocolVersion: PROTOCOL_VERSION,
+      sessionResumed: resumed,
+      sessionId: authenticated.sessionId,
+      rotatedResumeToken: authenticated.rotatedResumeToken,
+      resumeExpiresAt: authenticated.resumeExpiresAt,
+      ...(compatible
+        ? {}
+        : { skewNotice: pluginSkewNotice(parsed.data.pluginVersion, this.opts.serverVersion) }),
+    };
+    if (preparationId !== undefined) {
+      await this.opts.authenticator.commitHello?.(preparationId);
+    }
+    if (socket.readyState !== 1) return null;
+
+    const { session } = this.sessions.register({
       id: authenticated.sessionId,
       socket,
       clientVersion: parsed.data.pluginVersion,
@@ -504,18 +556,14 @@ export class Relay {
     });
     session.heartbeat.start();
 
-    const result: HelloResult = {
-      serverVersion: this.opts.serverVersion,
-      protocolVersion: PROTOCOL_VERSION,
-      sessionResumed: resumed || parsed.data.credential.kind === 'resume',
-      sessionId: authenticated.sessionId,
-      rotatedResumeToken: authenticated.rotatedResumeToken,
-      resumeExpiresAt: authenticated.resumeExpiresAt,
-      ...(compatible
-        ? {}
-        : { skewNotice: pluginSkewNotice(parsed.data.pluginVersion, this.opts.serverVersion) }),
-    };
-    this.sendResponse(socket, env, result, authenticated.sessionId);
+    try {
+      await this.opts.beforeHelloResponse();
+      await this.sendResponseAndWait(socket, env, result, authenticated.sessionId);
+    } catch (error) {
+      this.sessions.remove(session.id);
+      throw error;
+    }
+
     this.opts.log(`[relay] session ${session.id} hello (resumed=${resumed})`);
     this.flushQueue(session);
     return session;
@@ -596,6 +644,24 @@ export class Relay {
     sessionId = req.sessionId,
   ): void {
     socket.send(encodeEnvelope(createResponse({ id: req.id, sessionId, result })));
+  }
+
+  private sendResponseAndWait(
+    socket: WebSocket,
+    req: Envelope,
+    result: unknown,
+    sessionId: string,
+  ): Promise<void> {
+    return new Promise<void>((resolvePromise, reject) => {
+      if (socket.readyState !== 1) {
+        reject(new Error('socket closed before authenticated hello response'));
+        return;
+      }
+      socket.send(encodeEnvelope(createResponse({ id: req.id, sessionId, result })), error => {
+        if (error == null) resolvePromise();
+        else reject(error);
+      });
+    });
   }
 
   private sendError(

@@ -130,7 +130,11 @@ describe('ping tool', () => {
       getLeader: () => null,
     });
     const follower = makeFollower({
-      leaderInfo: async () => ({ serverVersion: '1.0.0', buildId: 0 }),
+      leaderInfo: async () => ({
+        serverVersion: '1.0.0',
+        buildId: 0,
+        leaderGeneration: 'AAAAAAAAAAAAAAAAAAAAAA',
+      }),
       sendRpc: async () => ({
         kind: 'err' as const,
         requestId: 'r',
@@ -159,7 +163,11 @@ describe('ping tool', () => {
     });
     const follower = makeFollower({
       // stale older leader still owns the plugin
-      leaderInfo: async () => ({ serverVersion: '0.1.0', buildId: 100 }),
+      leaderInfo: async () => ({
+        serverVersion: '0.1.0',
+        buildId: 100,
+        leaderGeneration: 'AAAAAAAAAAAAAAAAAAAAAA',
+      }),
       sendRpc: async () => ({
         kind: 'ok' as const,
         requestId: 'r',
@@ -191,7 +199,11 @@ describe('ping tool', () => {
     });
     const follower = makeFollower({
       // Same released version, older local build — the dev-iteration zombie ping must expose.
-      leaderInfo: async () => ({ serverVersion: '0.2.0', buildId: 100 }),
+      leaderInfo: async () => ({
+        serverVersion: '0.2.0',
+        buildId: 100,
+        leaderGeneration: 'AAAAAAAAAAAAAAAAAAAAAA',
+      }),
       sendRpc: async () => ({
         kind: 'ok' as const,
         requestId: 'r',
@@ -218,7 +230,11 @@ describe('ping tool', () => {
       getLeader: () => null,
     });
     const follower = makeFollower({
-      leaderInfo: async () => ({ serverVersion: '0.2.0', buildId: 200 }),
+      leaderInfo: async () => ({
+        serverVersion: '0.2.0',
+        buildId: 200,
+        leaderGeneration: 'AAAAAAAAAAAAAAAAAAAAAA',
+      }),
       sendRpc: async () => ({
         kind: 'ok' as const,
         requestId: 'r',

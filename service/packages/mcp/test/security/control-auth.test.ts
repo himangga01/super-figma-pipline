@@ -190,6 +190,25 @@ describe('follower and control middleware', () => {
     expect(allowed.status).toBe(200);
   });
 
+  it.each([-1, 1.5, Number.MAX_SAFE_INTEGER + 1])(
+    'rejects unsafe abdication buildId %s',
+    async buildId => {
+      const { port, generation } = await start();
+      const response = await call(
+        port,
+        'POST',
+        '/abdicate',
+        {
+          'content-type': 'application/json',
+          authorization: `Bearer ${generation.followerToken}`,
+          'x-sfp-leader-generation': generation.generation,
+        },
+        JSON.stringify({ buildId }),
+      );
+      expect(response.status).toBe(400);
+    },
+  );
+
   it('requires control auth on every /control path and emits no CORS/PNA headers', async () => {
     const { port, generation, challenges } = await start();
     const missing = await call(port, 'POST', '/control/pair/challenge');
@@ -217,6 +236,38 @@ describe('follower and control middleware', () => {
       'x-sfp-leader-generation': generation.generation,
     });
     expect(forbiddenFutureRoute.status).toBe(404);
+  });
+
+  it('rejects unread chunked bodies on pair-challenge and closes unknown control routes', async () => {
+    const { port, generation, challenges, relayed } = await start();
+    const challengeBody = JSON.stringify({ actor: 'body-must-not-authorize' });
+    const headers = {
+      authorization: `Bearer ${generation.controlToken}`,
+      'content-type': 'application/json',
+      'x-sfp-leader-generation': generation.generation,
+    };
+    const challenge = await call(
+      port,
+      'POST',
+      '/control/pair/challenge',
+      { ...headers, 'content-length': String(Buffer.byteLength(challengeBody)) },
+      challengeBody,
+    );
+    expect(challenge.status).toBe(400);
+    expect(challenge.headers.connection).toBe('close');
+    expect(challenges).toEqual([]);
+
+    const unknown = await call(
+      port,
+      'POST',
+      '/control/not-a-route',
+      headers,
+      'x'.repeat(32 * 1024),
+    );
+    expect(unknown.status).toBe(404);
+    expect(unknown.headers.connection).toBe('close');
+    expect(challenges).toEqual([]);
+    expect(relayed).toEqual([]);
   });
 
   it('rejects old follower and control tokens immediately after generation rotation', async () => {
@@ -259,6 +310,68 @@ describe('follower and control middleware', () => {
 });
 
 describe('leader identity and unknown-role handling', () => {
+  it('quarantines a previously trusted follower before args or Authorization reach a replacement port', async () => {
+    const generation = Buffer.alloc(16, 51).toString('base64url');
+    const followerToken = Buffer.alloc(32, 52).toString('base64url');
+    let identity: 'leader' | 'foreign' = 'leader';
+    const sensitiveRequests: Array<{ authorization: string | undefined; body: string }> = [];
+    const server = createServer((req, res) => {
+      if (req.method === 'GET' && req.url === '/ping') {
+        res.writeHead(200, { 'content-type': 'application/json' });
+        res.end(
+          JSON.stringify(
+            identity === 'leader'
+              ? {
+                  ok: true,
+                  product: PRODUCT_MAGIC,
+                  protocolVersion: PROTOCOL_VERSION,
+                  role: 'leader',
+                  serverVersion: '0.1.0',
+                  buildId: 1,
+                  leaderGeneration: generation,
+                  activeSessionId: 'session-before-replacement',
+                }
+              : { ok: true, serverVersion: 'lookalike' },
+          ),
+        );
+        return;
+      }
+      const chunks: Buffer[] = [];
+      req.on('data', chunk => chunks.push(Buffer.from(chunk)));
+      req.on('end', () => {
+        sensitiveRequests.push({
+          authorization:
+            typeof req.headers.authorization === 'string' ? req.headers.authorization : undefined,
+          body: Buffer.concat(chunks).toString('base64'),
+        });
+        res.writeHead(200, { 'content-type': 'application/json' });
+        res.end('{}');
+      });
+    });
+    servers.push(server);
+    await new Promise<void>((resolve, reject) => {
+      server.once('error', reject);
+      server.listen(0, '127.0.0.1', resolve);
+    });
+    const port = (server.address() as AddressInfo).port;
+    const follower = new Follower({
+      leaderUrl: `http://127.0.0.1:${port}`,
+      credentialProvider: async () => ({
+        generation,
+        value: `Bearer ${followerToken}`,
+      }),
+    });
+    await expect(follower.leaderInfo()).resolves.toMatchObject({ leaderGeneration: generation });
+
+    identity = 'foreign';
+    await expect(
+      follower.sendRpc('get_document', { secret: 'must-not-reach-replacement' }, 'replacement-rpc'),
+    ).resolves.toMatchObject({ kind: 'err', code: 'NOT_LEADER' });
+    await expect(follower.requestAbdication(2)).resolves.toBe('error');
+    await expect(follower.resolveActiveSession()).resolves.toBeUndefined();
+    expect(sensitiveRequests).toEqual([]);
+  });
+
   it('returns strict product/protocol/build identity and rejects a foreign 2xx responder', async () => {
     const { port } = await start();
     const ping = await call(port, 'GET', '/ping');
@@ -302,6 +415,42 @@ describe('leader identity and unknown-role handling', () => {
         new Response(body, { status: 200, headers: { 'content-type': 'application/json' } }),
     });
     await expect(follower.ping()).resolves.toBe(false);
+  });
+
+  it('converts an oversized follower RPC response into typed PAYLOAD_TOO_LARGE', async () => {
+    const generation = Buffer.alloc(16, 61).toString('base64url');
+    const pingBody = JSON.stringify({
+      ok: true,
+      product: PRODUCT_MAGIC,
+      protocolVersion: PROTOCOL_VERSION,
+      role: 'leader',
+      serverVersion: '0.1.0',
+      buildId: 1,
+      leaderGeneration: generation,
+    });
+    const responseCap = Buffer.byteLength(pingBody) + 8;
+    const follower = new Follower({
+      leaderUrl: 'http://127.0.0.1:1',
+      responseMaxBytes: responseCap,
+      credentialProvider: async () => ({
+        generation,
+        value: `Bearer ${Buffer.alloc(32, 62).toString('base64url')}`,
+      }),
+      fetch: async (_input, init) =>
+        init?.method === 'POST'
+          ? new Response(Buffer.alloc(responseCap + 1), { status: 200 })
+          : new Response(pingBody, {
+              status: 200,
+              headers: { 'content-type': 'application/json' },
+            }),
+    });
+    await expect(follower.sendRpc('get_document', {}, 'oversized-response')).resolves.toMatchObject(
+      {
+        kind: 'err',
+        requestId: 'oversized-response',
+        code: 'PAYLOAD_TOO_LARGE',
+      },
+    );
   });
 
   it('rejects product-looking ping data with a malformed leader generation', async () => {

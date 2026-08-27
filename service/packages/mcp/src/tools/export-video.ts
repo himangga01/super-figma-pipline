@@ -4,6 +4,7 @@ import { dirname, resolve } from 'node:path';
 import type { ExportVideoResult, VideoExport } from '@sfp/shared';
 import { z } from 'zod';
 
+import { EXPERIMENTAL_VIDEO_MAX_BYTES } from '../security/request-limits.js';
 import { binaryPayload } from './binary-payload.js';
 import { videoExportConstraintSchema } from './motion-schemas.js';
 import type { RawToolSpec } from './spec.js';
@@ -64,12 +65,17 @@ export type ToolDispatcher = (toolName: string, args: unknown) => Promise<unknow
 export const writeExportedVideo = async (
   outPath: string,
   video: VideoExport,
+  maxBytes = EXPERIMENTAL_VIDEO_MAX_BYTES,
 ): Promise<ExportVideoResult> => {
   const miss = {
     ...(video.reason !== undefined ? { reason: video.reason } : {}),
     ...(video.error !== undefined ? { error: video.error } : {}),
   };
-  const payload = binaryPayload(video);
+  const payload = binaryPayload(video, {
+    encodedMaxBytes: Math.ceil(maxBytes / 3) * 4,
+    decodedMaxBytes: maxBytes,
+    code: 'EXPORT_TOO_LARGE',
+  });
   if (payload === null) {
     return { nodeId: video.nodeId, format: video.format, path: null, ...miss };
   }

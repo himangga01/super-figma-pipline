@@ -222,14 +222,14 @@ describe('Follower HTTP client', () => {
     expect(resp.requestId).toBe('r-no-plugin');
   });
 
-  it('sendRpc returns Internal err when transport fails', async () => {
+  it('sendRpc returns NotLeader before forwarding when strict identity is unreachable', async () => {
     const f = testFollower({
       leaderUrl: 'http://127.0.0.1:1',
       rpcTimeoutMs: 200,
     });
     const resp = await f.sendRpc('x', undefined, 'r-dead');
     if (resp.kind !== 'err') throw new Error(`expected err, got ${resp.kind}`);
-    expect(resp.code).toBe(ErrorCode.Internal);
+    expect(resp.code).toBe(ErrorCode.NotLeader);
     expect(resp.requestId).toBe('r-dead');
   });
 
@@ -320,7 +320,7 @@ describe('Follower HTTP client', () => {
     expect(await dead.leaderInfo()).toBeUndefined();
   });
 
-  it('requestAbdication maps a 404 (pre-abdication leader) to unsupported', async () => {
+  it('does not send abdication to a responder without strict leader identity', async () => {
     const http = createServer((_req, res) => {
       res.writeHead(404, { 'content-type': 'application/json' });
       res.end(JSON.stringify({ error: 'not found' }));
@@ -329,7 +329,7 @@ describe('Follower HTTP client', () => {
     const port = (http.address() as AddressInfo).port;
     try {
       const f = testFollower({ leaderUrl: `http://127.0.0.1:${port}` });
-      expect(await f.requestAbdication(200)).toBe('unsupported');
+      expect(await f.requestAbdication(200)).toBe('error');
     } finally {
       await new Promise<void>(resolve => http.close(() => resolve()));
     }

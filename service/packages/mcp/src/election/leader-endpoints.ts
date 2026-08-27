@@ -151,6 +151,17 @@ const pairErrorBody = (error: PairingError): Record<string, unknown> => ({
   ...(error.attemptsRemaining === undefined ? {} : { attemptsRemaining: error.attemptsRemaining }),
 });
 
+const hasUnreadBody = (req: IncomingMessage): boolean => {
+  const contentLength = header(req, 'content-length');
+  if (contentLength !== undefined && contentLength !== '0') return true;
+  return header(req, 'transfer-encoding') !== undefined;
+};
+
+const unreadBodyHeaders = (
+  req: IncomingMessage,
+  headers: Record<string, string> = {},
+): Record<string, string> => (hasUnreadBody(req) ? { ...headers, connection: 'close' } : headers);
+
 const authorize = async (
   req: IncomingMessage,
   kind: 'follower' | 'control',
@@ -167,7 +178,7 @@ const strictBuildId = (input: unknown): number | undefined => {
   if (typeof input !== 'object' || input === null || Array.isArray(input)) return undefined;
   const record = input as Record<string, unknown>;
   if (Object.keys(record).length !== 1 || typeof record.buildId !== 'number') return undefined;
-  return Number.isFinite(record.buildId) ? record.buildId : undefined;
+  return Number.isSafeInteger(record.buildId) && record.buildId >= 0 ? record.buildId : undefined;
 };
 
 export const attachLeaderEndpoints = (http: HttpServer, deps: LeaderEndpointDeps): (() => void) => {
@@ -179,7 +190,7 @@ export const attachLeaderEndpoints = (http: HttpServer, deps: LeaderEndpointDeps
     origin: string,
   ): Promise<void> => {
     if (!hasContentType(header(req, 'content-type'), 'application/json')) {
-      writeAllowedPairJson(res, origin, 400, { code: 'PAIR_BODY_INVALID' });
+      writeAllowedPairJson(res, origin, 400, { code: 'PAIR_BODY_INVALID' }, unreadBodyHeaders(req));
       return;
     }
     try {
@@ -275,6 +286,15 @@ export const attachLeaderEndpoints = (http: HttpServer, deps: LeaderEndpointDeps
           return;
         }
         if (req.method === 'POST' && req.url === CONTROL_PAIR_CHALLENGE_PATH) {
+          if (hasUnreadBody(req)) {
+            writeJson(
+              res,
+              400,
+              { code: 'PAIR_BODY_INVALID' },
+              unreadBodyHeaders(req, { 'cache-control': 'no-store' }),
+            );
+            return;
+          }
           try {
             const challenge = await deps.pairing.createChallenge(
               deps.controlActor ?? 'owner-local',
@@ -292,7 +312,7 @@ export const attachLeaderEndpoints = (http: HttpServer, deps: LeaderEndpointDeps
           }
           return;
         }
-        writeJson(res, 404, { error: 'not found' });
+        writeJson(res, 404, { error: 'not found' }, unreadBodyHeaders(req));
         return;
       }
 

@@ -1,5 +1,7 @@
 import { z } from 'zod';
 
+import { BASE64_IMAGE_MAX_BYTES, DECODED_IMAGE_MAX_BYTES } from '../security/request-limits.js';
+import { assertBase64Payload } from './binary-payload.js';
 import type { RawToolSpec } from './spec.js';
 
 export const IMPORT_IMAGE_TOOL_NAME = 'import_image';
@@ -37,4 +39,22 @@ export const importImageTool: RawToolSpec = {
     '(logos / icons) use import_svg instead. Returns { ok, nodeId, name, type }.',
   inputSchema,
   kind: 'write',
+};
+
+export type ToolDispatcher = (toolName: string, args: unknown) => Promise<unknown>;
+
+/** Validate inline bytes before any plugin dispatch; URL handling remains the existing plugin path. */
+export const handleImportImage = async (
+  dispatch: ToolDispatcher,
+  rawArgs: unknown,
+): Promise<unknown> => {
+  const args = inputSchema.parse(rawArgs);
+  if (args.data !== undefined) {
+    assertBase64Payload(args.data, {
+      encodedMaxBytes: BASE64_IMAGE_MAX_BYTES,
+      decodedMaxBytes: DECODED_IMAGE_MAX_BYTES,
+      code: 'PAYLOAD_TOO_LARGE',
+    });
+  }
+  return dispatch(IMPORT_IMAGE_TOOL_NAME, args);
 };

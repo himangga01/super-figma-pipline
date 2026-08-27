@@ -18,13 +18,61 @@ export interface BinaryCarrier {
   bytes?: Uint8Array | undefined;
 }
 
+export type BinaryPayloadLimitCode = 'PAYLOAD_TOO_LARGE' | 'EXPORT_TOO_LARGE';
+
+export interface BinaryPayloadLimits {
+  encodedMaxBytes?: number;
+  decodedMaxBytes: number;
+  code: BinaryPayloadLimitCode;
+}
+
+export class BinaryPayloadError extends Error {
+  readonly status = 413;
+
+  constructor(
+    readonly code: BinaryPayloadLimitCode,
+    readonly limit: number,
+    readonly observed: number,
+  ) {
+    super(`[${code}] binary payload ${observed} exceeds ${limit} bytes`);
+    this.name = 'BinaryPayloadError';
+  }
+}
+
+const assertLimit = (observed: number, limit: number, code: BinaryPayloadLimitCode): void => {
+  if (!Number.isSafeInteger(limit) || limit < 0) throw new TypeError('binary limit is invalid');
+  if (observed > limit) throw new BinaryPayloadError(code, limit, observed);
+};
+
+/** Computes decoded bytes without allocating/decoding the attacker-controlled base64 string. */
+export const base64DecodedByteLength = (base64: string): number =>
+  Buffer.byteLength(base64, 'base64');
+
+export const assertBase64Payload = (base64: string, limits: BinaryPayloadLimits): void => {
+  if (limits.encodedMaxBytes !== undefined) {
+    assertLimit(Buffer.byteLength(base64, 'utf8'), limits.encodedMaxBytes, limits.code);
+  }
+  assertLimit(base64DecodedByteLength(base64), limits.decodedMaxBytes, limits.code);
+};
+
 /**
  * The payload as bytes, or null when nothing was exported. `bytes` wins when present; otherwise the
  * legacy base64 is decoded. Both absent (or base64 null) means the node was missing, not
  * exportable, or the export failed — every caller maps that to a null path.
  */
-export const binaryPayload = (carrier: BinaryCarrier): Buffer | null => {
-  if (carrier.bytes !== undefined) return Buffer.from(carrier.bytes);
+export const binaryPayload = (
+  carrier: BinaryCarrier,
+  limits?: BinaryPayloadLimits,
+): Buffer | null => {
+  if (carrier.bytes !== undefined) {
+    if (limits !== undefined)
+      assertLimit(carrier.bytes.byteLength, limits.decodedMaxBytes, limits.code);
+    return Buffer.from(carrier.bytes);
+  }
   const b64 = carrier.base64;
-  return b64 === undefined || b64 === null ? null : Buffer.from(b64, 'base64');
+  if (b64 === undefined || b64 === null) return null;
+  if (limits !== undefined) assertBase64Payload(b64, limits);
+  const decoded = Buffer.from(b64, 'base64');
+  if (limits !== undefined) assertLimit(decoded.byteLength, limits.decodedMaxBytes, limits.code);
+  return decoded;
 };

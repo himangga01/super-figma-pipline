@@ -2,12 +2,12 @@
   "schemaVersion": 1,
   "vendorMap": {
     "path": "vendor-map.json",
-    "sha256": "171db29c64fcb242b49aa6ca95b34c6779b42a8677ef68616fd8d264ecccf1f2",
+    "sha256": "99c680520a94d48cbc8aa1eb0c050db7565e056c58b7bfd2d70803bb88f889b1",
     "counts": {
-      "copy": 399,
+      "copy": 395,
       "mergeDependencyManifest": 4,
       "referenceOnly": 19,
-      "total": 422
+      "total": 418
     }
   },
   "destinationClosure": {
@@ -46,11 +46,11 @@
       },
       {
         "path": "packages/mcp/src/election/follower.ts",
-        "sha256": "f88ed4b1fc16fa3e051f15ec7cda70f4cb21d9b6079e8cbda6aed376f99ed561"
+        "sha256": "c6586901edf2bdee716b8494702950c08d425f0c676db9cf0012141a4b735927"
       },
       {
         "path": "packages/mcp/src/election/leader-endpoints.ts",
-        "sha256": "85ae6f89b58aae805695b037163ee5e6421de482bd72dd2cc7a5925a060e1575"
+        "sha256": "cdc5b997ddf5017a53fadfa5cd200b7cde936d1bf338b9ad53b3fa40cf043a70"
       },
       {
         "path": "packages/mcp/src/election/leader-lock.ts",
@@ -70,7 +70,7 @@
       },
       {
         "path": "packages/mcp/src/index.ts",
-        "sha256": "e4ccd1609bcc305e350c5cad4006078d494d3116ccfc9dea9f43da126537eda5"
+        "sha256": "4eed80c4fddc732a9c2fa5706907c068da65c5e1921f77d168b929a467c2c73a"
       },
       {
         "path": "packages/mcp/src/policy/operation-policy.ts",
@@ -86,7 +86,7 @@
       },
       {
         "path": "packages/mcp/src/relay/relay.ts",
-        "sha256": "ae329e99ac0ea7d09916f1ee777e28fed15bb4beb73638c9e27a918616b19239"
+        "sha256": "bdc303a39940e015aacdcdd0600185ea08d8c1de9c680882e01a88e0ac566c86"
       },
       {
         "path": "packages/mcp/src/relay/session.ts",
@@ -106,7 +106,7 @@
       },
       {
         "path": "packages/mcp/src/security/pairing-manager.ts",
-        "sha256": "018d0bbd11e9d3fadff00587eeab20830ed1d718ba920ede776be580936283f7"
+        "sha256": "c1d7885d668e06a345c2f8a737a7824a444bbaab27f9910aad12e723932a431f"
       },
       {
         "path": "packages/mcp/src/security/request-limits.ts",
@@ -155,6 +155,10 @@
       {
         "path": "packages/mcp/src/tools/batch.ts",
         "sha256": "f4ee38aac17d54d3431a06d0229dcfded295f51a0a92ca3a0f059d32b5fc084d"
+      },
+      {
+        "path": "packages/mcp/src/tools/binary-payload.ts",
+        "sha256": "a228779e62a3d89942b82ed96bdf39171ae86cf833b0319a2c3d1aa445d84687"
       },
       {
         "path": "packages/mcp/src/tools/bind-component-property.ts",
@@ -274,7 +278,7 @@
       },
       {
         "path": "packages/mcp/src/tools/export-video.ts",
-        "sha256": "bf8c1d364ac6d238d58a1014c9551211531b14d24aa6da55f1f8a518bef41187"
+        "sha256": "b18fa0594a5e4ec8009465d4b36b205c9beb3f368ad57eb3bb32ce23eff257bb"
       },
       {
         "path": "packages/mcp/src/tools/find-replace-text.ts",
@@ -362,7 +366,7 @@
       },
       {
         "path": "packages/mcp/src/tools/import-image.ts",
-        "sha256": "a488a5c8ebd7846a98872a166b3a984d17588775b5aac351f2c35c14ef160dba"
+        "sha256": "0e8db6e0a7e2ccb12bf225bfd9ae015dc27aa85490c75d1699e4326d140b0b1e"
       },
       {
         "path": "packages/mcp/src/tools/import-svg.ts",
@@ -598,7 +602,7 @@
       },
       {
         "path": "packages/mcp/test/election/follower.test.ts",
-        "sha256": "703109c0a9229d2cac7b3db1a4af1873a3428c5bf7882935510fa5002e42599a"
+        "sha256": "a1eda2a55a9f3c3d902f6cd26524f868787f00434fa5e45881cee9997d864f93"
       },
       {
         "path": "packages/mcp/test/election/leader-endpoints.test.ts",
@@ -654,15 +658,15 @@
       },
       {
         "path": "packages/mcp/test/security/control-auth.test.ts",
-        "sha256": "c231f40466c107b8df817f52c45725c4cd01e3871aaf01bb3282e1ab42d6351b"
+        "sha256": "67be79aa5cd92c6db827b1312d6493325e53232ad55a3ce7995cb7951d9a41db"
       },
       {
         "path": "packages/mcp/test/security/pairing.test.ts",
-        "sha256": "be246d11795b98b1631de27f682a2ecedb769b0570fa0ee69bf7b86a8ef2eed2"
+        "sha256": "c88db091c1f362e4777e85bdb814477200d6238145f81092cf3354fd0d504a3d"
       },
       {
         "path": "packages/mcp/test/security/pna.test.ts",
-        "sha256": "5de8222b8420052edb16edd897f41a517a23c97c8a75251bbd54040f0def567f"
+        "sha256": "b62c71960d18ad2ce92fc6e34a8d2b126a15e8c47935dbe4c50aae8fb4059b5b"
       },
       {
         "path": "packages/mcp/test/security/request-limits.test.ts",
@@ -675,6 +679,22 @@
       {
         "path": "packages/mcp/test/tool-schema.ts",
         "sha256": "41537dd476f6dd15a40dea9267e4751bdddb7b62b31219ba1bfba0e13917b799"
+      },
+      {
+        "path": "packages/mcp/test/tools/binary-payload.test.ts",
+        "sha256": "31a2146e9b85d4375d642b20ec010c06c8fd50b3439039cc1ada7e3e6dae48e8"
+      },
+      {
+        "path": "packages/mcp/test/tools/export-video.test.ts",
+        "sha256": "f58685c37d0b7ea4fd01fe05608f4ee05b5063f7da983a9d3319e8e74562de64"
+      },
+      {
+        "path": "packages/mcp/test/tools/import-image.test.ts",
+        "sha256": "acc894e3aa6377da6c153abb76da71f106ba067edc3048387c8f88a734ddb7a6"
+      },
+      {
+        "path": "packages/mcp/test/tools/ping.test.ts",
+        "sha256": "81aab8bc6fcc7379f353c992d005bc6d4789c46739b207618e0536e9c245fcb8"
       },
       {
         "path": "packages/mcp/test/tools/result-validation.test.ts",
@@ -714,7 +734,7 @@
       },
       {
         "path": "packages/shared/src/auth.ts",
-        "sha256": "b76233c0ab75d854176fc903c681fd89168d29a46dd77c05574f1e61088559a6"
+        "sha256": "df945a0db981991f6e57dccfd838913ee105f3460f58769fda30583e78eb2ecf"
       },
       {
         "path": "packages/shared/src/capability-manifest.ts",
@@ -766,7 +786,7 @@
       },
       {
         "path": "test/vendor-upstreams.test.ts",
-        "sha256": "cc1e70ef24ea193f2c3f05abf254d21fa20e42a329be5381ddd79994a12da7c5"
+        "sha256": "49160c471d272b383f02214ccc5d8f36f8875329bf2e52a83f457664a4d499e9"
       }
     ]
   },
@@ -869,11 +889,11 @@
     },
     {
       "path": "packages/mcp/src/election/follower.ts",
-      "sha256": "f88ed4b1fc16fa3e051f15ec7cda70f4cb21d9b6079e8cbda6aed376f99ed561"
+      "sha256": "c6586901edf2bdee716b8494702950c08d425f0c676db9cf0012141a4b735927"
     },
     {
       "path": "packages/mcp/src/election/leader-endpoints.ts",
-      "sha256": "85ae6f89b58aae805695b037163ee5e6421de482bd72dd2cc7a5925a060e1575"
+      "sha256": "cdc5b997ddf5017a53fadfa5cd200b7cde936d1bf338b9ad53b3fa40cf043a70"
     },
     {
       "path": "packages/mcp/src/election/leader-lock.ts",
@@ -893,7 +913,7 @@
     },
     {
       "path": "packages/mcp/src/index.ts",
-      "sha256": "e4ccd1609bcc305e350c5cad4006078d494d3116ccfc9dea9f43da126537eda5"
+      "sha256": "4eed80c4fddc732a9c2fa5706907c068da65c5e1921f77d168b929a467c2c73a"
     },
     {
       "path": "packages/mcp/src/policy/operation-policy.ts",
@@ -909,7 +929,7 @@
     },
     {
       "path": "packages/mcp/src/relay/relay.ts",
-      "sha256": "ae329e99ac0ea7d09916f1ee777e28fed15bb4beb73638c9e27a918616b19239"
+      "sha256": "bdc303a39940e015aacdcdd0600185ea08d8c1de9c680882e01a88e0ac566c86"
     },
     {
       "path": "packages/mcp/src/relay/session.ts",
@@ -929,7 +949,7 @@
     },
     {
       "path": "packages/mcp/src/security/pairing-manager.ts",
-      "sha256": "018d0bbd11e9d3fadff00587eeab20830ed1d718ba920ede776be580936283f7"
+      "sha256": "c1d7885d668e06a345c2f8a737a7824a444bbaab27f9910aad12e723932a431f"
     },
     {
       "path": "packages/mcp/src/security/request-limits.ts",
@@ -978,6 +998,10 @@
     {
       "path": "packages/mcp/src/tools/batch.ts",
       "sha256": "f4ee38aac17d54d3431a06d0229dcfded295f51a0a92ca3a0f059d32b5fc084d"
+    },
+    {
+      "path": "packages/mcp/src/tools/binary-payload.ts",
+      "sha256": "a228779e62a3d89942b82ed96bdf39171ae86cf833b0319a2c3d1aa445d84687"
     },
     {
       "path": "packages/mcp/src/tools/bind-component-property.ts",
@@ -1097,7 +1121,7 @@
     },
     {
       "path": "packages/mcp/src/tools/export-video.ts",
-      "sha256": "bf8c1d364ac6d238d58a1014c9551211531b14d24aa6da55f1f8a518bef41187"
+      "sha256": "b18fa0594a5e4ec8009465d4b36b205c9beb3f368ad57eb3bb32ce23eff257bb"
     },
     {
       "path": "packages/mcp/src/tools/find-replace-text.ts",
@@ -1185,7 +1209,7 @@
     },
     {
       "path": "packages/mcp/src/tools/import-image.ts",
-      "sha256": "a488a5c8ebd7846a98872a166b3a984d17588775b5aac351f2c35c14ef160dba"
+      "sha256": "0e8db6e0a7e2ccb12bf225bfd9ae015dc27aa85490c75d1699e4326d140b0b1e"
     },
     {
       "path": "packages/mcp/src/tools/import-svg.ts",
@@ -1421,7 +1445,7 @@
     },
     {
       "path": "packages/mcp/test/election/follower.test.ts",
-      "sha256": "703109c0a9229d2cac7b3db1a4af1873a3428c5bf7882935510fa5002e42599a"
+      "sha256": "a1eda2a55a9f3c3d902f6cd26524f868787f00434fa5e45881cee9997d864f93"
     },
     {
       "path": "packages/mcp/test/election/leader-endpoints.test.ts",
@@ -1477,15 +1501,15 @@
     },
     {
       "path": "packages/mcp/test/security/control-auth.test.ts",
-      "sha256": "c231f40466c107b8df817f52c45725c4cd01e3871aaf01bb3282e1ab42d6351b"
+      "sha256": "67be79aa5cd92c6db827b1312d6493325e53232ad55a3ce7995cb7951d9a41db"
     },
     {
       "path": "packages/mcp/test/security/pairing.test.ts",
-      "sha256": "be246d11795b98b1631de27f682a2ecedb769b0570fa0ee69bf7b86a8ef2eed2"
+      "sha256": "c88db091c1f362e4777e85bdb814477200d6238145f81092cf3354fd0d504a3d"
     },
     {
       "path": "packages/mcp/test/security/pna.test.ts",
-      "sha256": "5de8222b8420052edb16edd897f41a517a23c97c8a75251bbd54040f0def567f"
+      "sha256": "b62c71960d18ad2ce92fc6e34a8d2b126a15e8c47935dbe4c50aae8fb4059b5b"
     },
     {
       "path": "packages/mcp/test/security/request-limits.test.ts",
@@ -1498,6 +1522,22 @@
     {
       "path": "packages/mcp/test/tool-schema.ts",
       "sha256": "41537dd476f6dd15a40dea9267e4751bdddb7b62b31219ba1bfba0e13917b799"
+    },
+    {
+      "path": "packages/mcp/test/tools/binary-payload.test.ts",
+      "sha256": "31a2146e9b85d4375d642b20ec010c06c8fd50b3439039cc1ada7e3e6dae48e8"
+    },
+    {
+      "path": "packages/mcp/test/tools/export-video.test.ts",
+      "sha256": "f58685c37d0b7ea4fd01fe05608f4ee05b5063f7da983a9d3319e8e74562de64"
+    },
+    {
+      "path": "packages/mcp/test/tools/import-image.test.ts",
+      "sha256": "acc894e3aa6377da6c153abb76da71f106ba067edc3048387c8f88a734ddb7a6"
+    },
+    {
+      "path": "packages/mcp/test/tools/ping.test.ts",
+      "sha256": "81aab8bc6fcc7379f353c992d005bc6d4789c46739b207618e0536e9c245fcb8"
     },
     {
       "path": "packages/mcp/test/tools/result-validation.test.ts",
@@ -1569,7 +1609,7 @@
     },
     {
       "path": "packages/shared/src/auth.ts",
-      "sha256": "b76233c0ab75d854176fc903c681fd89168d29a46dd77c05574f1e61088559a6"
+      "sha256": "df945a0db981991f6e57dccfd838913ee105f3460f58769fda30583e78eb2ecf"
     },
     {
       "path": "packages/shared/src/capability-manifest.ts",
@@ -1649,7 +1689,7 @@
     },
     {
       "path": "test/vendor-upstreams.test.ts",
-      "sha256": "cc1e70ef24ea193f2c3f05abf254d21fa20e42a329be5381ddd79994a12da7c5"
+      "sha256": "49160c471d272b383f02214ccc5d8f36f8875329bf2e52a83f457664a4d499e9"
     },
     {
       "path": "tsconfig.base.json",
@@ -1661,11 +1701,11 @@
     },
     {
       "path": "vendor-allowed-figwright-strings.json",
-      "sha256": "5f82668bbd38394e2061f2cde4ee3afb63cf5d5b159a9464bfd7f95e452eebdf"
+      "sha256": "75c26859fc4e22d30b3a5a9a0a4bf6ed914155769f9ac16eead04c44e25a217e"
     },
     {
       "path": "vendor-rules.json",
-      "sha256": "8a2462e9da8142dd75b68cde5f403cd2268ae9b7c1382446b99cab5e9fc3b05a"
+      "sha256": "7e78cfafcd369f872bef3fcf7dbe7276f6c545212a91c31e77cf9331f5d3ebd9"
     },
     {
       "path": "vitest.config.ts",
