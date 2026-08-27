@@ -34,9 +34,27 @@ describe('swap_component handler', () => {
       importComponentByKeyAsync,
     } as unknown as typeof figma;
 
-    await createSwapComponentHandler(f)({ instanceId: '1:1', componentKey: 'abc123' });
+    await createSwapComponentHandler(f)({ instanceId: '1:1', componentKey: '  abc123  ' });
     expect(importComponentByKeyAsync).toHaveBeenCalledWith('abc123');
     expect(swapComponent).toHaveBeenCalledWith(imported);
+  });
+
+  it('rejects a provided invalid componentKey before instance lookup or library import', async () => {
+    const importComponentByKeyAsync = vi.fn<(key: string) => Promise<unknown>>();
+    const getNodeByIdAsync = vi.fn<(id: string) => Promise<unknown>>();
+    const f = { getNodeByIdAsync, importComponentByKeyAsync } as unknown as typeof figma;
+
+    for (const componentKey of ['', '   ', 123]) {
+      await expect(
+        createSwapComponentHandler(f)({
+          instanceId: '1:1',
+          componentId: 'C:1',
+          componentKey,
+        }),
+      ).rejects.toThrow(/componentKey.*nonempty string/i);
+    }
+    expect(getNodeByIdAsync).not.toHaveBeenCalled();
+    expect(importComponentByKeyAsync).not.toHaveBeenCalled();
   });
 
   it('throws on bad input or non-instance', async () => {

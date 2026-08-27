@@ -26,13 +26,13 @@ export const createImportImageHandler =
       scaleMode?: unknown;
     };
     if (
-      (p.data !== undefined && typeof p.data !== 'string') ||
-      (p.url !== undefined && typeof p.url !== 'string')
+      (p.data !== undefined && (typeof p.data !== 'string' || p.data.trim() === '')) ||
+      (p.url !== undefined && (typeof p.url !== 'string' || p.url.trim() === ''))
     ) {
       throw new TypeError('import_image: provide exactly one nonempty data or url source');
     }
-    const data = typeof p.data === 'string' && p.data.trim() !== '' ? p.data.trim() : undefined;
-    const url = typeof p.url === 'string' && p.url.trim() !== '' ? p.url.trim() : undefined;
+    const data = typeof p.data === 'string' ? p.data.trim() : undefined;
+    const url = typeof p.url === 'string' ? p.url.trim() : undefined;
     if ((data === undefined) === (url === undefined)) {
       throw new TypeError('import_image: provide exactly one nonempty data or url source');
     }

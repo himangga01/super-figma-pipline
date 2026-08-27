@@ -17,7 +17,14 @@ export const createSwapComponentHandler =
     if (typeof p.instanceId !== 'string') {
       throw new TypeError('swap_component: instanceId must be a string');
     }
-    if (typeof p.componentId !== 'string' && typeof p.componentKey !== 'string') {
+    let componentKey: string | undefined;
+    if (p.componentKey !== undefined) {
+      if (typeof p.componentKey !== 'string' || p.componentKey.trim() === '') {
+        throw new TypeError('swap_component: componentKey must be a nonempty string');
+      }
+      componentKey = p.componentKey.trim();
+    }
+    if (typeof p.componentId !== 'string' && componentKey === undefined) {
       throw new TypeError('swap_component: provide componentId or componentKey');
     }
 
@@ -27,8 +34,8 @@ export const createSwapComponentHandler =
     }
 
     let component: ComponentNode;
-    if (typeof p.componentKey === 'string') {
-      component = await figmaCtx.importComponentByKeyAsync(p.componentKey);
+    if (componentKey !== undefined) {
+      component = await figmaCtx.importComponentByKeyAsync(componentKey);
     } else {
       const node = await figmaCtx.getNodeByIdAsync(p.componentId as string);
       if (node === null || node.type !== 'COMPONENT') {

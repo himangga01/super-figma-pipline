@@ -287,6 +287,16 @@ describe('protected service authorities', () => {
       mutate: contents => contents.replace('provide exactly one', 'prefer data over'),
     },
     {
+      name: 'Task 5 normalized component-key schema authority',
+      path: 'packages/mcp/src/tools/create-instance.ts',
+      mutate: contents => contents.replace('.trim()', ''),
+    },
+    {
+      name: 'Task 5 normalized component-key plugin authority',
+      path: 'packages/plugin/src/handlers/swap-component.ts',
+      mutate: contents => contents.replace("p.componentKey.trim() === ''", 'false'),
+    },
+    {
       name: 'pnpm lockfile bytes',
       path: 'pnpm-lock.yaml',
       mutate: contents => `${contents}# local mutation\n`,

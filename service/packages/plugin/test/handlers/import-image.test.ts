@@ -80,16 +80,26 @@ describe('import_image handler', () => {
   });
 
   it('requires exactly one nonempty trimmed data or URL source', async () => {
-    const { figma: f } = makeFigma();
+    const base64Decode = vi.fn<(value: string) => Uint8Array>(() => new Uint8Array([1]));
+    const createImageAsync = vi.fn<(value: string) => Promise<unknown>>(async () => ({
+      hash: 'URLHASH',
+      getSizeAsync: async () => ({ width: 50, height: 50 }),
+    }));
+    const { figma: base } = makeFigma();
+    const f = { ...base, base64Decode, createImageAsync } as unknown as typeof figma;
     for (const invalid of [
       { name: 'x' },
       { data: '' },
       { data: '   ' },
       { url: '\t' },
+      { data: '   ', url: 'https://x/y.png' },
+      { data: 'abc', url: '\t' },
       { data: 'abc', url: 'https://x/y.png' },
     ]) {
       await expect(createImportImageHandler(f)(invalid)).rejects.toThrow(/exactly one.*data.*url/i);
     }
+    expect(base64Decode).not.toHaveBeenCalled();
+    expect(createImageAsync).not.toHaveBeenCalled();
   });
 
   it('trims the selected source before invoking the matching Figma API', async () => {

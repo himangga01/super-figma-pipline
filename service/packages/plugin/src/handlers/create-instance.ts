@@ -18,13 +18,20 @@ export const createCreateInstanceHandler =
       x?: unknown;
       y?: unknown;
     };
-    if (typeof p.componentId !== 'string' && typeof p.componentKey !== 'string') {
+    let componentKey: string | undefined;
+    if (p.componentKey !== undefined) {
+      if (typeof p.componentKey !== 'string' || p.componentKey.trim() === '') {
+        throw new TypeError('create_instance: componentKey must be a nonempty string');
+      }
+      componentKey = p.componentKey.trim();
+    }
+    if (typeof p.componentId !== 'string' && componentKey === undefined) {
       throw new TypeError('create_instance: provide componentId or componentKey');
     }
 
     let component: ComponentNode;
-    if (typeof p.componentKey === 'string') {
-      component = await figmaCtx.importComponentByKeyAsync(p.componentKey);
+    if (componentKey !== undefined) {
+      component = await figmaCtx.importComponentByKeyAsync(componentKey);
     } else {
       const node = await figmaCtx.getNodeByIdAsync(p.componentId as string);
       if (node === null || node.type !== 'COMPONENT') {

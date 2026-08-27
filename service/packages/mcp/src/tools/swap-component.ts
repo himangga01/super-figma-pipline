@@ -12,7 +12,7 @@ export const swapComponentTool: RawToolSpec = {
   inputSchema: z.object({
     instanceId: z.string().describe('Instance node id to swap'),
     componentId: z.string().optional().describe('Local component node id'),
-    componentKey: z.string().optional().describe('Published component key'),
+    componentKey: z.string().trim().min(1).optional().describe('Published component key'),
   }),
   kind: 'write',
 };

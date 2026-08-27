@@ -2274,7 +2274,7 @@
           "schemaHash": "6ddff95873410fcb3c0180173c4f7685d4a134c9651e1ded9803937b201c81ef"
         }
       ],
-      "targetContractHash": "a75caa37a3c6ffaa08522085fe6face6433efb745dfb4c04c1ed220f43ce2889",
+      "targetContractHash": "10457d679b61682ab959f5293bcdbf097606be92b71e59cfca0519d5e4f3dc49",
       "disposition": "adapter",
       "registration": "advertised",
       "availability": ["connected-plugin"],
@@ -2551,7 +2551,7 @@
           "schemaHash": "72231d71c1f55e47581846cc8619947fdedc8bc65cffcff485f651f2fa2d9d77"
         }
       ],
-      "targetContractHash": "223c0f14375d026643488b8de31f7d1ac2e347aab8f1a92ea4dc6686f59f99e6",
+      "targetContractHash": "0c3b97828b309745e08bb2f986bb56b4257c7aed85c2e46d03f387d415c9e7c4",
       "disposition": "native",
       "registration": "advertised",
       "availability": ["connected-plugin"],

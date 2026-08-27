@@ -32,10 +32,28 @@ describe('create_instance handler', () => {
   });
 
   it('instantiates a published component by key', async () => {
-    const result = (await createCreateInstanceHandler(fakeFigma())({
-      componentKey: 'abc123',
+    const importComponentByKeyAsync = vi.fn<
+      (key: string) => Promise<{ createInstance: () => ReturnType<typeof makeInstance> }>
+    >(async () => ({ createInstance: () => makeInstance() }));
+    const result = (await createCreateInstanceHandler(fakeFigma({ importComponentByKeyAsync }))({
+      componentKey: '  abc123  ',
     })) as CreateResult;
     expect(result).toMatchObject({ ok: true, type: 'INSTANCE' });
+    expect(importComponentByKeyAsync).toHaveBeenCalledWith('abc123');
+  });
+
+  it('rejects a provided invalid componentKey before local fallback or library import', async () => {
+    const importComponentByKeyAsync = vi.fn<(key: string) => Promise<unknown>>();
+    const getNodeByIdAsync = vi.fn<(id: string) => Promise<unknown>>();
+    const figmaCtx = fakeFigma({ importComponentByKeyAsync, getNodeByIdAsync });
+
+    for (const componentKey of ['', '   ', 123]) {
+      await expect(
+        createCreateInstanceHandler(figmaCtx)({ componentId: 'C:1', componentKey }),
+      ).rejects.toThrow(/componentKey.*nonempty string/i);
+    }
+    expect(importComponentByKeyAsync).not.toHaveBeenCalled();
+    expect(getNodeByIdAsync).not.toHaveBeenCalled();
   });
 
   it('throws without componentId or componentKey, and when the component is missing', async () => {

@@ -186,6 +186,8 @@ describe('baseline operation policy authority', () => {
       { data: '', url: undefined },
       { data: '   ' },
       { url: '\t' },
+      { data: '   ', url: 'https://assets.example.com/a.png' },
+      { data: 'AA==', url: '\t' },
       { data: 'AA==', url: 'https://assets.example.com/a.png' },
     ]) {
       expect(schema.safeParse(invalid).success).toBe(false);
@@ -202,10 +204,17 @@ describe('baseline operation policy authority', () => {
   });
 
   it('classifies published component keys as library imports', () => {
-    for (const [name, args] of [
-      ['create_instance', { componentKey: 'published-component' }],
-      ['swap_component', { instanceId: '1:2', componentKey: 'published-component' }],
+    for (const [name, rawArgs] of [
+      ['create_instance', { componentKey: '  published-component  ' }],
+      ['swap_component', { instanceId: '1:2', componentKey: '  published-component  ' }],
     ] as const) {
+      const schema = spec(name).inputSchema;
+      expect(schema.safeParse({ ...rawArgs, componentKey: '   ' }).success).toBe(false);
+      expect(schema.safeParse({ ...rawArgs, componentId: '1:3', componentKey: '\t' }).success).toBe(
+        false,
+      );
+      const args = schema.parse(rawArgs) as Readonly<Record<string, unknown>>;
+      expect(args.componentKey).toBe('published-component');
       const resolved = effects(name, args);
       expect(resolved).toEqual([
         { type: 'figma-library-import' },
@@ -230,7 +239,7 @@ describe('baseline operation policy authority', () => {
   it('unions parsed batch child effects and derives the worst retry requirement', () => {
     const libraryBatch = parsedBatch([
       { tool: 'set_opacity', params: { nodeId: '1:2', opacity: 0.5 } },
-      { tool: 'create_instance', params: { componentKey: 'published-component' } },
+      { tool: 'create_instance', params: { componentKey: '  published-component  ' } },
     ]);
     const libraryEffects = effects('batch', libraryBatch);
     expect(libraryEffects).toEqual([
@@ -272,6 +281,16 @@ describe('baseline operation policy authority', () => {
     ).toBe(false);
     expect(
       spec('batch').inputSchema.safeParse({ ops: [{ tool: 'set_opacity', params: null }] }).success,
+    ).toBe(false);
+    expect(
+      spec('batch').inputSchema.safeParse({
+        ops: [
+          {
+            tool: 'create_instance',
+            params: { componentId: '1:3', componentKey: '   ' },
+          },
+        ],
+      }).success,
     ).toBe(false);
   });
 

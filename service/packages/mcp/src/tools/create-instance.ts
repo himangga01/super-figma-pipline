@@ -12,7 +12,12 @@ export const createInstanceTool: RawToolSpec = {
     'Returns { ok, nodeId, name, type } for the new instance.',
   inputSchema: z.object({
     componentId: z.string().optional().describe('Local component node id to instantiate'),
-    componentKey: z.string().optional().describe('Published component key to instantiate'),
+    componentKey: z
+      .string()
+      .trim()
+      .min(1)
+      .optional()
+      .describe('Published component key to instantiate'),
     parentId: z.string().optional().describe('Container node id; omit for current page'),
     name: z.string().optional().describe('Optional name for the new instance'),
     x: z.number().optional(),
