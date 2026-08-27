@@ -473,6 +473,22 @@ export const createStatePermissions = (
     }
   };
 
+  const currentBoundRootIdentity = async (): Promise<PathIdentity> => {
+    const identity = await pathIdentity(stateRoot);
+    assertBoundRootIdentity(identity);
+    return identity;
+  };
+
+  const assertRootIdentityUnchanged = (before: PathIdentity, after: PathIdentity): void => {
+    if (!sameIdentity(before, after)) {
+      throw new StatePermissionError(
+        'STATE_IDENTITY_CHANGED',
+        'bound product state root changed during state access',
+      );
+    }
+    assertBoundRootIdentity(after);
+  };
+
   const assertContained = (path: string, action: string): void => {
     if (!contains(stateRoot, path)) {
       throw new StatePermissionError(
@@ -533,9 +549,11 @@ export const createStatePermissions = (
           'state path ancestor resolves through a reparse boundary',
         );
       }
+      const identity = await pathIdentity(candidate);
+      if (comparable(candidate) === comparable(stateRoot)) assertBoundRootIdentity(identity);
       observedCandidates.push({
         canonical,
-        identity: await pathIdentity(candidate),
+        identity,
         path: candidate,
       });
     }
@@ -563,7 +581,11 @@ export const createStatePermissions = (
             'Windows state ancestor is a reparse point',
           );
         }
-        if (!sameIdentity(candidate.identity, await pathIdentity(candidate.path))) {
+        const identityAfter = await pathIdentity(candidate.path);
+        if (comparable(candidate.path) === comparable(stateRoot)) {
+          assertBoundRootIdentity(identityAfter);
+        }
+        if (!sameIdentity(candidate.identity, identityAfter)) {
           throw new StatePermissionError(
             'STATE_IDENTITY_CHANGED',
             'Windows state ancestor changed during reparse inspection',
@@ -633,11 +655,13 @@ export const createStatePermissions = (
     const path = safeResolvedPath(input);
     assertContained(path, 'inspect');
     await assertNoReparseAncestors(path);
+    const rootIdentityBefore = await currentBoundRootIdentity();
     if (platform === 'win32') {
       await verifyWindows(path, await currentWindowsSid(command));
     } else {
       await verifyUnix(path);
     }
+    assertRootIdentityUnchanged(rootIdentityBefore, await currentBoundRootIdentity());
     const identity = await pathIdentity(path);
     if (comparable(path) === comparable(stateRoot)) assertBoundRootIdentity(identity);
     return {
@@ -688,7 +712,11 @@ export const createStatePermissions = (
       }
 
       const identityBefore = await pathIdentity(path);
-      if (comparable(path) === comparable(stateRoot)) assertBoundRootIdentity(identityBefore);
+      const rootIdentityBefore =
+        comparable(path) === comparable(stateRoot)
+          ? identityBefore
+          : await currentBoundRootIdentity();
+      assertBoundRootIdentity(rootIdentityBefore);
 
       if (platform === 'win32') {
         const sid = await currentWindowsSid(command);
@@ -712,6 +740,11 @@ export const createStatePermissions = (
           );
         }
         if (comparable(path) === comparable(stateRoot)) assertBoundRootIdentity(identityAfter);
+        const rootIdentityAfter =
+          comparable(path) === comparable(stateRoot)
+            ? identityAfter
+            : await currentBoundRootIdentity();
+        assertRootIdentityUnchanged(rootIdentityBefore, rootIdentityAfter);
         await verifyWindows(path, sid, metadata.isDirectory());
         return;
       }
@@ -732,6 +765,11 @@ export const createStatePermissions = (
         );
       }
       if (comparable(path) === comparable(stateRoot)) assertBoundRootIdentity(identityAfter);
+      const rootIdentityAfter =
+        comparable(path) === comparable(stateRoot)
+          ? identityAfter
+          : await currentBoundRootIdentity();
+      assertRootIdentityUnchanged(rootIdentityBefore, rootIdentityAfter);
       await verifyUnix(path);
     },
     verifySecure: async (input: string): Promise<void> => {

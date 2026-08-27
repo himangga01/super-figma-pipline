@@ -251,6 +251,15 @@ describe('protected service authorities', () => {
       mutate: contents => contents.replace('-NoProfile', '-Profile'),
     },
     {
+      name: 'Task 4 canonical workspace-boundary authority',
+      path: 'packages/mcp/src/fs/workspace-policy.ts',
+      mutate: contents =>
+        contents.replace(
+          'addObservedPath(canonicalPath, followed);',
+          '// canonical boundary removed',
+        ),
+    },
+    {
       name: 'pnpm lockfile bytes',
       path: 'pnpm-lock.yaml',
       mutate: contents => `${contents}# local mutation\n`,

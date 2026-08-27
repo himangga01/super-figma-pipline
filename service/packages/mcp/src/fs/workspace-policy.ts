@@ -333,8 +333,17 @@ const walkDescendants = async (
   const rootDevice = (await stat(root)).dev;
   const descendant = relative(root, candidate);
   const segments = descendant === '' ? [] : descendant.split(sep);
-  const existingPaths = [root];
-  const observedIdentities = new Map<string, WorkspaceRootIdentity>([[root, identityBefore]]);
+  const existingPaths: string[] = [];
+  const observedIdentities = new Map<string, WorkspaceRootIdentity>();
+  const observedPathKeys = new Set<string>();
+  const addObservedPath = (path: string, metadata: Stats): void => {
+    const key = comparable(path);
+    if (observedPathKeys.has(key)) return;
+    observedPathKeys.add(key);
+    existingPaths.push(path);
+    observedIdentities.set(path, workspaceRootIdentity(metadata));
+  };
+  addObservedPath(root, rootMetadata);
   const assertBoundarySafe = async (): Promise<void> => {
     await boundaryInspector.assertSafe(root, existingPaths);
     const identitiesAfter = await Promise.all(
@@ -395,8 +404,7 @@ const walkDescendants = async (
         error,
       );
     }
-    existingPaths.push(current);
-    observedIdentities.set(current, workspaceRootIdentity(metadata));
+    addObservedPath(current, metadata);
     if (mode === 'write' && metadata.isSymbolicLink()) {
       throw new WorkspaceError(
         'WORKSPACE_PATH_REPARSE',
@@ -421,6 +429,7 @@ const walkDescendants = async (
         'workspace descendant resolves outside its approved root',
       );
     }
+    addObservedPath(canonicalPath, followed);
     if (followed.dev !== rootDevice) {
       throw new WorkspaceError(
         'WORKSPACE_PATH_REPARSE',

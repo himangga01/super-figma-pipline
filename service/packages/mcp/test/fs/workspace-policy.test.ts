@@ -1,11 +1,14 @@
 import { mkdtemp, mkdir, realpath, rename, rm, stat, symlink, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
-import { basename, dirname, isAbsolute, join, relative, resolve, sep } from 'node:path';
+import { basename, dirname, isAbsolute, join, posix, relative, resolve, sep } from 'node:path';
 
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { createWorkspaceConfigStore } from '../../src/fs/workspace-config-store.js';
-import { createWorkspacePolicy } from '../../src/fs/workspace-policy.js';
+import {
+  createLinuxBoundaryInspector,
+  createWorkspacePolicy,
+} from '../../src/fs/workspace-policy.js';
 import * as workspacePolicyModule from '../../src/fs/workspace-policy.js';
 import type { BoundStatePermissions } from '../../src/security/state-permissions.js';
 
@@ -85,6 +88,44 @@ describe('configured workspace authority', () => {
 });
 
 describe('platform boundary inspection', () => {
+  it('rejects a nested Linux bind mount hidden behind an in-root lexical alias', async () => {
+    const mountedTarget = join(workspaceRoot, 'src', 'mounted-target');
+    const alias = join(workspaceRoot, 'mounted-alias');
+    await mkdir(mountedTarget);
+    await writeFile(join(mountedTarget, 'inside.ts'), 'export {};');
+    await symlink(mountedTarget, alias, process.platform === 'win32' ? 'junction' : 'dir');
+    const canonicalTarget = await realpath(mountedTarget);
+    const mountPoint = posix.resolve(canonicalTarget);
+    const boundaryInspector = createLinuxBoundaryInspector({
+      readMountInfo: async () => `37 36 0:32 /source ${mountPoint} rw,relatime - ext4 /dev/root rw`,
+    });
+    const policy = createWorkspacePolicy(workspaceStore(), { boundaryInspector });
+
+    await expect(
+      policy.resolveRead(workspaceId, join('mounted-alias', 'inside.ts')),
+    ).rejects.toMatchObject({
+      code: 'WORKSPACE_PATH_REPARSE',
+    });
+  });
+
+  it('preserves an ordinary in-root alias when its canonical target has no boundary', async () => {
+    const target = join(workspaceRoot, 'src', 'ordinary-target');
+    const alias = join(workspaceRoot, 'ordinary-alias');
+    const file = join(target, 'inside.ts');
+    await mkdir(target);
+    await writeFile(file, 'export {};');
+    await symlink(target, alias, process.platform === 'win32' ? 'junction' : 'dir');
+    const boundaryInspector = createLinuxBoundaryInspector({
+      readMountInfo: async () =>
+        '37 36 0:32 /source /unrelated/mount rw,relatime - ext4 /dev/root rw',
+    });
+    const policy = createWorkspacePolicy(workspaceStore(), { boundaryInspector });
+
+    await expect(
+      policy.resolveRead(workspaceId, join('ordinary-alias', 'inside.ts')),
+    ).resolves.toBe(await realpath(file));
+  });
+
   it('rejects replacement of a descendant during platform boundary inspection', async () => {
     const file = join(workspaceRoot, 'src', 'inside.ts');
     const moved = `${file}.original`;
@@ -126,14 +167,7 @@ describe('platform boundary inspection', () => {
   });
 
   it('rejects a same-device Linux bind mount nested below the approved root', async () => {
-    const createLinuxBoundaryInspector = (
-      workspacePolicyModule as unknown as {
-        createLinuxBoundaryInspector: (options: { readMountInfo: () => Promise<string> }) => {
-          assertSafe: (root: string, paths: readonly string[]) => Promise<void>;
-        };
-      }
-    ).createLinuxBoundaryInspector;
-    const inspector = createLinuxBoundaryInspector?.({
+    const inspector = createLinuxBoundaryInspector({
       readMountInfo: async () =>
         [
           '36 25 0:32 / /approved rw,relatime - ext4 /dev/root rw',
@@ -191,13 +225,6 @@ describe('platform boundary inspection', () => {
   });
 
   it('fails closed when Linux mountinfo cannot be read', async () => {
-    const createLinuxBoundaryInspector = (
-      workspacePolicyModule as unknown as {
-        createLinuxBoundaryInspector: (options: { readMountInfo: () => Promise<string> }) => {
-          assertSafe: (root: string, paths: readonly string[]) => Promise<void>;
-        };
-      }
-    ).createLinuxBoundaryInspector;
     const inspector = createLinuxBoundaryInspector({
       readMountInfo: async () => {
         throw new Error('mountinfo unavailable');

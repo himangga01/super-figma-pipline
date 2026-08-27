@@ -46,7 +46,7 @@
       },
       {
         "path": "packages/mcp/src/fs/workspace-policy.ts",
-        "sha256": "f0b23b2a9b066a8e40ee1652475a28111fd8f7c0e28c7b7f6bfa129230a040f6"
+        "sha256": "d9c57f7dbc02915ea4859572d70ed1aa6c5fd2b8ff1f952ec4a5ce3148af97ec"
       },
       {
         "path": "packages/mcp/src/index.ts",
@@ -58,7 +58,7 @@
       },
       {
         "path": "packages/mcp/src/security/state-permissions.ts",
-        "sha256": "009dec7b05a7c04a276b57b00f19a6c2e7758d9dc16ffc8a3a69198ad24eb6b3"
+        "sha256": "830de6286944cc68b023e7e21b72901f522a46a7cd73503e96abaec205c90d80"
       },
       {
         "path": "packages/mcp/src/tools/add-component-property.ts",
@@ -530,7 +530,7 @@
       },
       {
         "path": "packages/mcp/test/fs/runtime-paths.test.ts",
-        "sha256": "3a32b52dccfa49aab2907f161a985b79ee953ac73171741892a6c23d4cbd40e9"
+        "sha256": "f5faccbd5ec914f7728e5a9d11680396b0dba3006910137d8bb870247e4d8662"
       },
       {
         "path": "packages/mcp/test/fs/shared-dependency-boundary.test.ts",
@@ -542,7 +542,7 @@
       },
       {
         "path": "packages/mcp/test/fs/workspace-policy.test.ts",
-        "sha256": "f42f4b65cb1897e9c0a32826d2d974a3d13d7e479594d29cd18905462bf9367c"
+        "sha256": "bc9f8866a91eb4b04bf5054e36ca410b490d22bddfd5b3b24a97d170e6429f21"
       },
       {
         "path": "packages/mcp/test/fs/workspace-usage-guard.test.ts",
@@ -594,7 +594,7 @@
       },
       {
         "path": "test/vendor-upstreams.test.ts",
-        "sha256": "2810b0dbe6292aed6c12bc05c93a0544744b8937553213c1c5dc115f986c47c0"
+        "sha256": "bd0bcf9f11233015b2f3b96e6e1f48381c7255365ccbf471ed85eeca1c50643a"
       }
     ]
   },
@@ -697,7 +697,7 @@
     },
     {
       "path": "packages/mcp/src/fs/workspace-policy.ts",
-      "sha256": "f0b23b2a9b066a8e40ee1652475a28111fd8f7c0e28c7b7f6bfa129230a040f6"
+      "sha256": "d9c57f7dbc02915ea4859572d70ed1aa6c5fd2b8ff1f952ec4a5ce3148af97ec"
     },
     {
       "path": "packages/mcp/src/index.ts",
@@ -709,7 +709,7 @@
     },
     {
       "path": "packages/mcp/src/security/state-permissions.ts",
-      "sha256": "009dec7b05a7c04a276b57b00f19a6c2e7758d9dc16ffc8a3a69198ad24eb6b3"
+      "sha256": "830de6286944cc68b023e7e21b72901f522a46a7cd73503e96abaec205c90d80"
     },
     {
       "path": "packages/mcp/src/tools/add-component-property.ts",
@@ -1181,7 +1181,7 @@
     },
     {
       "path": "packages/mcp/test/fs/runtime-paths.test.ts",
-      "sha256": "3a32b52dccfa49aab2907f161a985b79ee953ac73171741892a6c23d4cbd40e9"
+      "sha256": "f5faccbd5ec914f7728e5a9d11680396b0dba3006910137d8bb870247e4d8662"
     },
     {
       "path": "packages/mcp/test/fs/shared-dependency-boundary.test.ts",
@@ -1193,7 +1193,7 @@
     },
     {
       "path": "packages/mcp/test/fs/workspace-policy.test.ts",
-      "sha256": "f42f4b65cb1897e9c0a32826d2d974a3d13d7e479594d29cd18905462bf9367c"
+      "sha256": "bc9f8866a91eb4b04bf5054e36ca410b490d22bddfd5b3b24a97d170e6429f21"
     },
     {
       "path": "packages/mcp/test/fs/workspace-usage-guard.test.ts",
@@ -1305,7 +1305,7 @@
     },
     {
       "path": "test/vendor-upstreams.test.ts",
-      "sha256": "2810b0dbe6292aed6c12bc05c93a0544744b8937553213c1c5dc115f986c47c0"
+      "sha256": "bd0bcf9f11233015b2f3b96e6e1f48381c7255365ccbf471ed85eeca1c50643a"
     },
     {
       "path": "tsconfig.base.json",

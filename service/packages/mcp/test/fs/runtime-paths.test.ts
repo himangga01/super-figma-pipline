@@ -393,6 +393,88 @@ describe('owner-only state permissions', () => {
     });
   });
 
+  it('rejects descendant verification after the bound product root is replaced', async () => {
+    const product = await windowsProductState();
+    await mkdir(product.stateRoot);
+    const child = join(product.stateRoot, 'owner.json');
+    await writeFile(child, '{}');
+    const moved = `${product.stateRoot}-verified-root`;
+    const sid = 'S-1-5-21-111-222-333-1001';
+    const permissions = createStatePermissions(product.stateRoot, {
+      ...product.options,
+      command: async file =>
+        file === 'whoami.exe'
+          ? { stdout: `"owner","${sid}"\r\n`, stderr: '' }
+          : { stdout: '', stderr: '' },
+      windowsAclProbe: async path => {
+        const metadata = await stat(path);
+        return {
+          path,
+          attributes: metadata.isDirectory() ? 16 : 0,
+          sddl: metadata.isDirectory()
+            ? `D:PAI(A;OICI;FA;;;SY)(A;OICI;FA;;;${sid})`
+            : `D:P(A;;FA;;;SY)(A;;FA;;;${sid})`,
+        };
+      },
+      windowsBoundaryProbe: async paths =>
+        Promise.all(
+          paths.map(async path => ({
+            path,
+            attributes: (await stat(path)).isDirectory() ? 16 : 0,
+          })),
+        ),
+    });
+    await permissions.verifySecure(product.stateRoot);
+    await rename(product.stateRoot, moved);
+    await mkdir(product.stateRoot);
+    await writeFile(child, '{}');
+
+    await expect(permissions.verifySecure(child)).rejects.toMatchObject({
+      code: 'STATE_IDENTITY_CHANGED',
+    });
+  });
+
+  it('rejects descendant mutation after the bound product root is replaced', async () => {
+    const product = await windowsProductState();
+    await mkdir(product.stateRoot);
+    const child = join(product.stateRoot, 'owner.json');
+    await writeFile(child, '{}');
+    const moved = `${product.stateRoot}-mutation-root`;
+    const sid = 'S-1-5-21-111-222-333-1001';
+    const permissions = createStatePermissions(product.stateRoot, {
+      ...product.options,
+      command: async file =>
+        file === 'whoami.exe'
+          ? { stdout: `"owner","${sid}"\r\n`, stderr: '' }
+          : { stdout: '', stderr: '' },
+      windowsAclProbe: async path => {
+        const metadata = await stat(path);
+        return {
+          path,
+          attributes: metadata.isDirectory() ? 16 : 0,
+          sddl: metadata.isDirectory()
+            ? `D:PAI(A;OICI;FA;;;SY)(A;OICI;FA;;;${sid})`
+            : `D:P(A;;FA;;;SY)(A;;FA;;;${sid})`,
+        };
+      },
+      windowsBoundaryProbe: async paths =>
+        Promise.all(
+          paths.map(async path => ({
+            path,
+            attributes: (await stat(path)).isDirectory() ? 16 : 0,
+          })),
+        ),
+    });
+    await permissions.verifySecure(product.stateRoot);
+    await rename(product.stateRoot, moved);
+    await mkdir(product.stateRoot);
+    await writeFile(child, '{}');
+
+    await expect(permissions.ensureSecure(child)).rejects.toMatchObject({
+      code: 'STATE_IDENTITY_CHANGED',
+    });
+  });
+
   it('captures the exact Windows ACL through a fixed stdout probe without an in-root save file', async () => {
     const product = await windowsProductState();
     await mkdir(product.stateRoot);
