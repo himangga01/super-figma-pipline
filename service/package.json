@@ -9,10 +9,10 @@
     "format:check": "oxfmt --check .",
     "knip": "knip",
     "lint": "oxlint --deny-warnings .",
-    "test": "vitest run --exclude 'test/artifact-contents.test.ts'",
+    "test": "vitest run --exclude \"test/artifact-contents.test.ts\"",
     "test:artifacts": "vitest run test/artifact-contents.test.ts",
     "test:e2e": "vitest run packages/mcp/test/e2e",
-    "test:unit": "vitest run --exclude '**/test/e2e/**' --exclude 'test/artifact-contents.test.ts'",
+    "test:unit": "vitest run --exclude \"**/test/e2e/**\" --exclude \"test/artifact-contents.test.ts\"",
     "typecheck": "pnpm -r run typecheck",
     "verify": "pnpm typecheck && pnpm lint && pnpm format:check && pnpm knip && pnpm build && pnpm test",
     "verify:release": "pnpm verify && node scripts/generate-sbom.mjs && node scripts/generate-notices.mjs && node scripts/package-artifacts.mjs && node scripts/generate-checksums.mjs && pnpm test:artifacts && node scripts/verify-artifacts.mjs"
