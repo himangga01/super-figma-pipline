@@ -11,14 +11,15 @@ import type { z } from 'zod';
 
 export type ToolKind = 'read' | 'write' | 'local';
 
-export interface ToolSpec {
+/** The unchanged vendored declaration shape, before Task 3 attaches executable authorities. */
+export interface RawToolSpec<I = unknown> {
   name: string;
   description: string;
   /**
    * Arguments as a Zod object (e.g. `z.object({ nodeId: z.string() })`); `z.object({})` when the
    * tool takes none.
    */
-  inputSchema: z.ZodObject;
+  inputSchema: z.ZodObject & z.ZodType<I>;
   kind: ToolKind;
   /**
    * Marks a write that irreversibly destroys user data (a delete, ungrouping, clearing reactions,
@@ -58,3 +59,20 @@ export interface ToolSpec {
    */
   serverOnlyArgs?: readonly string[] | null;
 }
+
+export interface FinalizedToolSpec<I, O> extends RawToolSpec<I> {
+  resultSchema: z.ZodType<O>;
+  policyId: string;
+  runtimeId: string;
+}
+
+/**
+ * A finalized executable spec. The `O = never` default is a compatibility seam for the 112
+ * unchanged vendored declarations, which historically annotated themselves as `ToolSpec` before a
+ * registry existed to finalize them. Registry consumers use `ToolSpec<I, O>` with both parameters
+ * and therefore always receive the bound shape; new declarations should name `RawToolSpec`
+ * directly.
+ */
+export type ToolSpec<I = unknown, O = never> = [O] extends [never]
+  ? RawToolSpec<I>
+  : FinalizedToolSpec<I, O>;

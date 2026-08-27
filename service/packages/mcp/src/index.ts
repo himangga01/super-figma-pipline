@@ -25,8 +25,9 @@ import { EXPORT_VIDEO_TOOL_NAME, handleExportVideo } from './tools/export-video.
 import { GET_DESIGN_CONTEXT_TOOL_NAME } from './tools/get-design-context.js';
 import { GET_SCREENSHOT_TOOL_NAME, screenshotContent } from './tools/get-screenshot.js';
 import { handleIconMap, ICON_MAP_TOOL_NAME } from './tools/icon-map.js';
-import { formatPingResult, handlePing, pingTool } from './tools/ping.js';
+import { formatPingResult, handlePing, pingTool, type PingResult } from './tools/ping.js';
 import { ALL_TOOL_SPECS } from './tools/registry.js';
+import { executeToolRuntime, type RuntimeExecutionContext } from './tools/runtime-registry.js';
 import { handleSaveImageFills, SAVE_IMAGE_FILLS_TOOL_NAME } from './tools/save-image-fills.js';
 import { handleSaveScreenshots, SAVE_SCREENSHOTS_TOOL_NAME } from './tools/save-screenshots.js';
 import { handleScanComponents, SCAN_COMPONENTS_TOOL_NAME } from './tools/scan-components.js';
@@ -80,6 +81,7 @@ node.onRoleChange(role => {
 await election.start();
 
 type ToolHandler = (args: Record<string, unknown>) => Promise<CallToolResult>;
+type RawToolHandler = (args: Record<string, unknown>) => Promise<unknown>;
 
 const dispatch = (tool: string, args: unknown): Promise<unknown> =>
   dispatchTool({ node, follower, log }, tool, args);
@@ -97,55 +99,60 @@ const textResult = (data: unknown): CallToolResult => ({
   content: [{ type: 'text', text: JSON.stringify(data) }],
 });
 
-// Tools whose result isn't just JSON.stringify(dispatch(...)): ping reports election state, the
-// server-local tools read the filesystem (some reusing dispatch), and get_screenshot returns an
-// image content block. Everything else takes the generic dispatch path below.
-const SPECIAL_HANDLERS: Record<string, ToolHandler> = {
-  [pingTool.name]: async () => ({
-    content: [
-      {
-        type: 'text',
-        text: formatPingResult(
-          await handlePing({
-            node,
-            follower,
-            serverVersion: SERVER_VERSION,
-            buildId: BUILD_ID,
-            log,
-          }),
-        ),
-      },
-    ],
-  }),
-  [SAVE_SCREENSHOTS_TOOL_NAME]: async args =>
-    textResult(await handleSaveScreenshots(dispatch, args)),
-  [SAVE_IMAGE_FILLS_TOOL_NAME]: async args =>
-    textResult(await handleSaveImageFills(dispatch, args)),
-  [EXPORT_PDF_TOOL_NAME]: async args => textResult(await handleExportPdf(dispatch, args)),
-  [EXPORT_VIDEO_TOOL_NAME]: async args => textResult(await handleExportVideo(dispatch, args)),
+// Raw adapters run before presentation so every result, including binary and server-local paths,
+// crosses the canonical result schema. Everything else takes the generic dispatch path below.
+const RAW_SPECIAL_HANDLERS: Record<string, RawToolHandler> = {
+  [pingTool.name]: async () =>
+    handlePing({
+      node,
+      follower,
+      serverVersion: SERVER_VERSION,
+      buildId: BUILD_ID,
+      log,
+    }),
+  [SAVE_SCREENSHOTS_TOOL_NAME]: args => handleSaveScreenshots(dispatch, args),
+  [SAVE_IMAGE_FILLS_TOOL_NAME]: args => handleSaveImageFills(dispatch, args),
+  [EXPORT_PDF_TOOL_NAME]: args => handleExportPdf(dispatch, args),
+  [EXPORT_VIDEO_TOOL_NAME]: args => handleExportVideo(dispatch, args),
   // forVision marks this as the path whose rasters are inlined into the model's context, so the
   // sandbox caps an oversized scale to what a vision model can actually resolve. save_screenshots
   // dispatches the same tool without it — those bytes go to disk and keep the caller's scale.
-  [GET_SCREENSHOT_TOOL_NAME]: async args => ({
-    content: screenshotContent(
-      (await dispatch(GET_SCREENSHOT_TOOL_NAME, {
-        ...args,
-        forVision: true,
-      })) as GetScreenshotResult,
-    ),
-  }),
-  [ANALYZE_PROJECT_TOOL_NAME]: async args => textResult(await handleAnalyzeProject(args)),
-  [SCAN_COMPONENTS_TOOL_NAME]: async args => textResult(await handleScanComponents(args)),
-  [COMPONENT_MAP_TOOL_NAME]: async args =>
-    textResult(await handleComponentMap(await routedDispatch(), args)),
-  [TOKEN_MAP_TOOL_NAME]: async args => textResult(await handleTokenMap(dispatch, args)),
-  [ICON_MAP_TOOL_NAME]: async args => textResult(await handleIconMap(await routedDispatch(), args)),
-  [DESIGN_DIFF_TOOL_NAME]: async args => textResult(await handleDesignDiff(dispatch, args)),
+  [GET_SCREENSHOT_TOOL_NAME]: args =>
+    dispatch(GET_SCREENSHOT_TOOL_NAME, {
+      ...args,
+      forVision: true,
+    }),
+  [ANALYZE_PROJECT_TOOL_NAME]: args => handleAnalyzeProject(args),
+  [SCAN_COMPONENTS_TOOL_NAME]: args => handleScanComponents(args),
+  [COMPONENT_MAP_TOOL_NAME]: async args => handleComponentMap(await routedDispatch(), args),
+  [TOKEN_MAP_TOOL_NAME]: args => handleTokenMap(dispatch, args),
+  [ICON_MAP_TOOL_NAME]: async args => handleIconMap(await routedDispatch(), args),
+  [DESIGN_DIFF_TOOL_NAME]: args => handleDesignDiff(dispatch, args),
   // The guarded public path: arms the plugin's node-count bail (budget: true) and applies the
   // payload-size net + below-full note. Internal dispatches (design_diff, component/icon map) call
   // the tool directly and stay raw.
-  [GET_DESIGN_CONTEXT_TOOL_NAME]: async args =>
-    textResult(await handleDesignContext(dispatch, args)),
+  [GET_DESIGN_CONTEXT_TOOL_NAME]: args => handleDesignContext(dispatch, args),
+};
+
+const runtimeContext: RuntimeExecutionContext = {
+  execute: (toolName, args) => {
+    const special = RAW_SPECIAL_HANDLERS[toolName];
+    return special === undefined
+      ? dispatch(toolName, args)
+      : special(args as Record<string, unknown>);
+  },
+};
+
+const presentResult = (toolName: string, result: unknown): CallToolResult => {
+  if (toolName === GET_SCREENSHOT_TOOL_NAME) {
+    return { content: screenshotContent(result as GetScreenshotResult) };
+  }
+  if (toolName === pingTool.name) {
+    return {
+      content: [{ type: 'text', text: formatPingResult(result as PingResult) }],
+    };
+  }
+  return textResult(result);
 };
 
 // serveStdio owns the era decision for the connection: it reads the opening exchange, pins ONE
@@ -160,13 +167,17 @@ const createMcpServer = (): McpServer => {
   );
 
   for (const spec of ALL_TOOL_SPECS) {
-    const run: ToolHandler =
-      SPECIAL_HANDLERS[spec.name] ??
-      (async args => {
-        // Inject a stable idempotency key for writes before the (possibly retrying) dispatch.
-        const dispatchArgs = spec.kind === 'write' ? { ...args, requestId: newId() } : args;
-        return textResult(await dispatch(spec.name, dispatchArgs));
-      });
+    const run: ToolHandler = async args => {
+      // Inject a stable idempotency key for writes before the (possibly retrying) dispatch.
+      const dispatchArgs = spec.kind === 'write' ? { ...args, requestId: newId() } : args;
+      const result = await executeToolRuntime(
+        spec.name,
+        runtimeContext,
+        dispatchArgs,
+        new AbortController().signal,
+      );
+      return presentResult(spec.name, result);
+    };
     // Normalize id args (a pasted Figma URL or dash-form node id → canonical colon id) once here, so
     // every tool — generic or special-cased — accepts them without per-handler conversion.
     // An older plugin drops arguments it predates and still answers `{ ok: true }`, so the result

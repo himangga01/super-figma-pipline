@@ -186,16 +186,6 @@
     {
       "mode": "copy",
       "originCommit": "a835e81b575eab2c9265a67f9353c89b848f81ca",
-      "sourcePath": "packages/mcp/src/index.ts",
-      "destination": "packages/mcp/src/index.ts",
-      "baseSha256": "0c3d12f28b34028a522c98d7b97412b78cecb44d9e16534d6bbf99d845e0a279",
-      "currentSha256": "efc6262b9e9b6e302153a9107c5df252c5c852ee34e807a6297efab4ddd6ab1f",
-      "transformations": ["package-specifier-rewrite", "oxfmt-normalize"],
-      "licenseId": "MIT"
-    },
-    {
-      "mode": "copy",
-      "originCommit": "a835e81b575eab2c9265a67f9353c89b848f81ca",
       "sourcePath": "packages/mcp/src/instructions.ts",
       "destination": "packages/mcp/src/instructions.ts",
       "baseSha256": "e42360b1bed9d1b0dab872551e76c7771e2ec48f1639def109924449478d73bc",
@@ -1236,16 +1226,6 @@
     {
       "mode": "copy",
       "originCommit": "a835e81b575eab2c9265a67f9353c89b848f81ca",
-      "sourcePath": "packages/mcp/src/tools/registry.ts",
-      "destination": "packages/mcp/src/tools/registry.ts",
-      "baseSha256": "948ab255618041af4d70aab091475d21af8cee9130a9f2394d27dcac06512099",
-      "currentSha256": "948ab255618041af4d70aab091475d21af8cee9130a9f2394d27dcac06512099",
-      "transformations": [],
-      "licenseId": "MIT"
-    },
-    {
-      "mode": "copy",
-      "originCommit": "a835e81b575eab2c9265a67f9353c89b848f81ca",
       "sourcePath": "packages/mcp/src/tools/remove-animation-style.ts",
       "destination": "packages/mcp/src/tools/remove-animation-style.ts",
       "baseSha256": "717e329b39beaf68dbe7628f54a597b3bcc81e772763cea550608723e9baa9af",
@@ -1630,16 +1610,6 @@
       "destination": "packages/mcp/src/tools/skew-notice.ts",
       "baseSha256": "35ef974033ed2e09864d75216e309ad971734557dbbf05e3f420e43656a4d227",
       "currentSha256": "35ef974033ed2e09864d75216e309ad971734557dbbf05e3f420e43656a4d227",
-      "transformations": [],
-      "licenseId": "MIT"
-    },
-    {
-      "mode": "copy",
-      "originCommit": "a835e81b575eab2c9265a67f9353c89b848f81ca",
-      "sourcePath": "packages/mcp/src/tools/spec.ts",
-      "destination": "packages/mcp/src/tools/spec.ts",
-      "baseSha256": "7b7a6c2ed68e8720023d923ee97f9b6b4d75a20c44c88b36c65427e53d14f244",
-      "currentSha256": "7b7a6c2ed68e8720023d923ee97f9b6b4d75a20c44c88b36c65427e53d14f244",
       "transformations": [],
       "licenseId": "MIT"
     },
@@ -5650,16 +5620,6 @@
       "destination": "test/docs-sync.test.ts",
       "baseSha256": "f726e661afbf0cafba92c8826e57a39ad9d7744f7e6e3cd322e743f7218325f3",
       "currentSha256": "f726e661afbf0cafba92c8826e57a39ad9d7744f7e6e3cd322e743f7218325f3",
-      "transformations": [],
-      "licenseId": "MIT"
-    },
-    {
-      "mode": "copy",
-      "originCommit": "a835e81b575eab2c9265a67f9353c89b848f81ca",
-      "sourcePath": "test/tool-registry.test.ts",
-      "destination": "test/tool-registry.test.ts",
-      "baseSha256": "cee11b4e39c057bde1929755263bffe91dcd1101ef0fcc7aa7e989579dbc08ab",
-      "currentSha256": "cee11b4e39c057bde1929755263bffe91dcd1101ef0fcc7aa7e989579dbc08ab",
       "transformations": [],
       "licenseId": "MIT"
     },

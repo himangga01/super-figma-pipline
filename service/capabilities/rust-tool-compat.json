@@ -1,0 +1,1657 @@
+{
+  "schemaVersion": 1,
+  "tools": [
+    {
+      "name": "ping",
+      "sources": ["figwright"],
+      "compatibility": "unique",
+      "sourceContracts": [
+        {
+          "source": "figwright",
+          "schemaHash": "b5d9c491856160fd5908acb61b98670a5130dd86fe921d1440234e6b537b5ad2"
+        }
+      ],
+      "canonicalName": "ping"
+    },
+    {
+      "name": "get_selection",
+      "sources": ["figma-mcp-rust", "figwright"],
+      "compatibility": "same",
+      "sourceContracts": [
+        {
+          "source": "figma-mcp-rust",
+          "schemaHash": "f78763e39140162ca2836d8112890aa76b3106d21d5048ddca4501bff773fe45"
+        },
+        {
+          "source": "figwright",
+          "schemaHash": "b5d9c491856160fd5908acb61b98670a5130dd86fe921d1440234e6b537b5ad2"
+        }
+      ],
+      "canonicalName": "get_selection"
+    },
+    {
+      "name": "get_document",
+      "sources": ["figma-mcp-rust", "figwright"],
+      "compatibility": "same",
+      "sourceContracts": [
+        {
+          "source": "figma-mcp-rust",
+          "schemaHash": "874871598f811c79ccbf62316874ef2ca3795e1d6f2126b30db48a59fa69869c"
+        },
+        {
+          "source": "figwright",
+          "schemaHash": "b5d9c491856160fd5908acb61b98670a5130dd86fe921d1440234e6b537b5ad2"
+        }
+      ],
+      "canonicalName": "get_document"
+    },
+    {
+      "name": "get_node",
+      "sources": ["figma-mcp-rust", "figwright"],
+      "compatibility": "same",
+      "sourceContracts": [
+        {
+          "source": "figma-mcp-rust",
+          "schemaHash": "559234231ffe92e47c78a672371963764b044a638a589f41a8602dfd75284b80"
+        },
+        {
+          "source": "figwright",
+          "schemaHash": "9a6fd212223bddd4f9084ccba22be79f161c3f6da3c0719bc2e552a24f83bfad"
+        }
+      ],
+      "canonicalName": "get_node"
+    },
+    {
+      "name": "get_nodes_info",
+      "sources": ["figma-mcp-rust", "figwright"],
+      "compatibility": "same",
+      "sourceContracts": [
+        {
+          "source": "figma-mcp-rust",
+          "schemaHash": "6aa619227f04c923c93c96beabbe698f00445dd91f29ad8def745ee17c49a036"
+        },
+        {
+          "source": "figwright",
+          "schemaHash": "04d8518b8c11080e2ecc2c030614610142b22bf58d0272171abe6ff051617d6f"
+        }
+      ],
+      "canonicalName": "get_nodes_info"
+    },
+    {
+      "name": "get_metadata",
+      "sources": ["figma-mcp-rust", "figwright"],
+      "compatibility": "same",
+      "sourceContracts": [
+        {
+          "source": "figma-mcp-rust",
+          "schemaHash": "69c8e3effb15b725228060ecd7ee1a4b09a857a9a9f8a59cee35772c31c50de3"
+        },
+        {
+          "source": "figwright",
+          "schemaHash": "b5d9c491856160fd5908acb61b98670a5130dd86fe921d1440234e6b537b5ad2"
+        }
+      ],
+      "canonicalName": "get_metadata"
+    },
+    {
+      "name": "get_pages",
+      "sources": ["figma-mcp-rust", "figwright"],
+      "compatibility": "same",
+      "sourceContracts": [
+        {
+          "source": "figma-mcp-rust",
+          "schemaHash": "9e187fe49f43d24ee9adffa090128388eccdcb6b2f9c7c9f484c4e2ba07ac8f8"
+        },
+        {
+          "source": "figwright",
+          "schemaHash": "b5d9c491856160fd5908acb61b98670a5130dd86fe921d1440234e6b537b5ad2"
+        }
+      ],
+      "canonicalName": "get_pages"
+    },
+    {
+      "name": "search_nodes",
+      "sources": ["figma-mcp-rust", "figwright"],
+      "compatibility": "adapter",
+      "sourceContracts": [
+        {
+          "source": "figma-mcp-rust",
+          "schemaHash": "3ed321a3dc2f4801506d3acada121c8fdeabd35685455ec5c3a919e9cd71bed8"
+        },
+        {
+          "source": "figwright",
+          "schemaHash": "318b30e51f154cd6a9b6a964adbfa7e7b5e144b47dcb9f67416357bdaaf0905f"
+        }
+      ],
+      "canonicalName": "search_nodes"
+    },
+    {
+      "name": "scan_text_nodes",
+      "sources": ["figma-mcp-rust", "figwright"],
+      "compatibility": "adapter",
+      "sourceContracts": [
+        {
+          "source": "figma-mcp-rust",
+          "schemaHash": "b47430fd02c2a3fa94c3112660f394565bb2c9815fc7e3689ee996a8635d21f2"
+        },
+        {
+          "source": "figwright",
+          "schemaHash": "d8aa854162b0bd855b46b82657ebb53d5d3e1b99158f40b0a91795056eb2c924"
+        }
+      ],
+      "canonicalName": "scan_text_nodes"
+    },
+    {
+      "name": "scan_nodes_by_types",
+      "sources": ["figma-mcp-rust", "figwright"],
+      "compatibility": "adapter",
+      "sourceContracts": [
+        {
+          "source": "figma-mcp-rust",
+          "schemaHash": "5258a21859291bfc10bee6be56e981fecec607d346c5667bca3f22870c66fad3"
+        },
+        {
+          "source": "figwright",
+          "schemaHash": "c7791f6254e0feb442b8d938d9ac8ee08c471ab4244701ff6f889c52ce5bef60"
+        }
+      ],
+      "canonicalName": "scan_nodes_by_types"
+    },
+    {
+      "name": "get_styles",
+      "sources": ["figma-mcp-rust", "figwright"],
+      "compatibility": "same",
+      "sourceContracts": [
+        {
+          "source": "figma-mcp-rust",
+          "schemaHash": "5395db3cb3f245422f148f1d89e834f4abfa13249f5265099c2b8a0080227e44"
+        },
+        {
+          "source": "figwright",
+          "schemaHash": "b5d9c491856160fd5908acb61b98670a5130dd86fe921d1440234e6b537b5ad2"
+        }
+      ],
+      "canonicalName": "get_styles"
+    },
+    {
+      "name": "get_variable_defs",
+      "sources": ["figma-mcp-rust", "figwright"],
+      "compatibility": "same",
+      "sourceContracts": [
+        {
+          "source": "figma-mcp-rust",
+          "schemaHash": "6c8aa0c614b26aea8b8f4b8810465abcfe65cbe8f50762cb8bc1bb5065ade5c3"
+        },
+        {
+          "source": "figwright",
+          "schemaHash": "b5d9c491856160fd5908acb61b98670a5130dd86fe921d1440234e6b537b5ad2"
+        }
+      ],
+      "canonicalName": "get_variable_defs"
+    },
+    {
+      "name": "get_local_components",
+      "sources": ["figma-mcp-rust", "figwright"],
+      "compatibility": "same",
+      "sourceContracts": [
+        {
+          "source": "figma-mcp-rust",
+          "schemaHash": "5ccc3bacacd1f6f2ed879ee1458fb4b082ca118a9168d1c49c0417c4fcf67697"
+        },
+        {
+          "source": "figwright",
+          "schemaHash": "9aa25c710db8603678620adb43357be7c451e3d5df7d2e09869fb0c92f8be63e"
+        }
+      ],
+      "canonicalName": "get_local_components"
+    },
+    {
+      "name": "get_component_api",
+      "sources": ["figwright"],
+      "compatibility": "unique",
+      "sourceContracts": [
+        {
+          "source": "figwright",
+          "schemaHash": "2962b15660c7e639529982cadfc69976d4f7e68a0cef90b00bb238b8d9652dec"
+        }
+      ],
+      "canonicalName": "get_component_api"
+    },
+    {
+      "name": "get_viewport",
+      "sources": ["figma-mcp-rust", "figwright"],
+      "compatibility": "same",
+      "sourceContracts": [
+        {
+          "source": "figma-mcp-rust",
+          "schemaHash": "583e76eed6b3a30c9f9e848f5c5e1b2eede2b933aeb3d127d40e2199d9c1e903"
+        },
+        {
+          "source": "figwright",
+          "schemaHash": "b5d9c491856160fd5908acb61b98670a5130dd86fe921d1440234e6b537b5ad2"
+        }
+      ],
+      "canonicalName": "get_viewport"
+    },
+    {
+      "name": "get_fonts",
+      "sources": ["figma-mcp-rust", "figwright"],
+      "compatibility": "adapter",
+      "sourceContracts": [
+        {
+          "source": "figma-mcp-rust",
+          "schemaHash": "b2bda917d747cd61e12b1d81edd6383735fd7330936accfbb4cc67bfd7e0ec0a"
+        },
+        {
+          "source": "figwright",
+          "schemaHash": "b5d9c491856160fd5908acb61b98670a5130dd86fe921d1440234e6b537b5ad2"
+        }
+      ],
+      "canonicalName": "get_fonts"
+    },
+    {
+      "name": "get_annotations",
+      "sources": ["figma-mcp-rust", "figwright"],
+      "compatibility": "same",
+      "sourceContracts": [
+        {
+          "source": "figma-mcp-rust",
+          "schemaHash": "c5b1e2b7eaa405b9b942026a75859e6550c08d1a025c20a8972929a97fe738dc"
+        },
+        {
+          "source": "figwright",
+          "schemaHash": "d5a109b62cf3016721716d4340aeed732abe80f18015d955a67a672843ced1ea"
+        }
+      ],
+      "canonicalName": "get_annotations"
+    },
+    {
+      "name": "get_reactions",
+      "sources": ["figma-mcp-rust", "figwright"],
+      "compatibility": "adapter",
+      "sourceContracts": [
+        {
+          "source": "figma-mcp-rust",
+          "schemaHash": "c117137466532980fb74542c81aedc602a41944e13b5d984f3b4a791de867fc4"
+        },
+        {
+          "source": "figwright",
+          "schemaHash": "0c40933900a901ab5a75b8c93d7804ad50568c3175bac4ed6ecd317152521703"
+        }
+      ],
+      "canonicalName": "get_reactions"
+    },
+    {
+      "name": "get_motion_styles",
+      "sources": ["figwright"],
+      "compatibility": "unique",
+      "sourceContracts": [
+        {
+          "source": "figwright",
+          "schemaHash": "b5d9c491856160fd5908acb61b98670a5130dd86fe921d1440234e6b537b5ad2"
+        }
+      ],
+      "canonicalName": "get_motion_styles"
+    },
+    {
+      "name": "get_node_motion",
+      "sources": ["figwright"],
+      "compatibility": "unique",
+      "sourceContracts": [
+        {
+          "source": "figwright",
+          "schemaHash": "e771309c47a770ef171162a3f9802639ac9c5a9d8e306126c005bc7f7d90bfee"
+        }
+      ],
+      "canonicalName": "get_node_motion"
+    },
+    {
+      "name": "list_files",
+      "sources": ["figwright"],
+      "compatibility": "unique",
+      "sourceContracts": [
+        {
+          "source": "figwright",
+          "schemaHash": "b5d9c491856160fd5908acb61b98670a5130dd86fe921d1440234e6b537b5ad2"
+        }
+      ],
+      "canonicalName": "list_files"
+    },
+    {
+      "name": "get_design_context",
+      "sources": ["figma-mcp-rust", "figwright"],
+      "compatibility": "incompatible",
+      "sourceContracts": [
+        {
+          "source": "figma-mcp-rust",
+          "schemaHash": "d5433c5cf6768bc60d04e7574f1f6550ea69a38ee542670c41f6ff61417328f2"
+        },
+        {
+          "source": "figwright",
+          "schemaHash": "0ddd15ebb9a22eacbe79d5595d7eddee158b3f997336170989da964e9a12f388"
+        }
+      ],
+      "canonicalName": "get_design_context"
+    },
+    {
+      "name": "get_screenshot",
+      "sources": ["figma-mcp-rust", "figwright"],
+      "compatibility": "incompatible",
+      "sourceContracts": [
+        {
+          "source": "figma-mcp-rust",
+          "schemaHash": "e4cac8828051091ee07fbde144d21b825615fad400746483207d170590487f5c"
+        },
+        {
+          "source": "figwright",
+          "schemaHash": "d715256a9f3855f54d24b14a273ac7447bfd03157c03b19fea532b9f32634921"
+        }
+      ],
+      "canonicalName": "get_screenshot"
+    },
+    {
+      "name": "save_screenshots",
+      "sources": ["figma-mcp-rust", "figwright"],
+      "compatibility": "incompatible",
+      "sourceContracts": [
+        {
+          "source": "figma-mcp-rust",
+          "schemaHash": "13401271cd19b327e8f1e8ff0023f6095a49d6590da6454ed74787193687d92a"
+        },
+        {
+          "source": "figwright",
+          "schemaHash": "c70a9f0873a11da750c33a4679b6a74b04ec85deb9de397019ec7aad69a597b7"
+        }
+      ],
+      "canonicalName": "save_screenshots"
+    },
+    {
+      "name": "save_image_fills",
+      "sources": ["figwright"],
+      "compatibility": "unique",
+      "sourceContracts": [
+        {
+          "source": "figwright",
+          "schemaHash": "7351f481a29fdc045b2e8bebee3d372fa2eb1fce632bc15c50ab42b39d908a49"
+        }
+      ],
+      "canonicalName": "save_image_fills"
+    },
+    {
+      "name": "export_pdf",
+      "sources": ["figwright"],
+      "compatibility": "unique",
+      "sourceContracts": [
+        {
+          "source": "figwright",
+          "schemaHash": "25f4468b5edbf393ea9c186d0faba40267d3c8554001920655ed8638d0c3534d"
+        }
+      ],
+      "canonicalName": "export_pdf"
+    },
+    {
+      "name": "export_video",
+      "sources": ["figwright"],
+      "compatibility": "unique",
+      "sourceContracts": [
+        {
+          "source": "figwright",
+          "schemaHash": "0971464e22ff5e1ba3c2eaf2c31ca2676739026639367538564e293924b71a27"
+        }
+      ],
+      "canonicalName": "export_video"
+    },
+    {
+      "name": "analyze_project",
+      "sources": ["figwright"],
+      "compatibility": "unique",
+      "sourceContracts": [
+        {
+          "source": "figwright",
+          "schemaHash": "507d983d9c0977e1a02e7b30f365da5fdcf5da7a6d4d6901d6f3e8bb8f575a75"
+        }
+      ],
+      "canonicalName": "analyze_project"
+    },
+    {
+      "name": "scan_components",
+      "sources": ["figwright"],
+      "compatibility": "unique",
+      "sourceContracts": [
+        {
+          "source": "figwright",
+          "schemaHash": "f35bd6f02a34c64b984f0793588a00596f8c73e6db66edd0f07f8882895a09c5"
+        }
+      ],
+      "canonicalName": "scan_components"
+    },
+    {
+      "name": "component_map",
+      "sources": ["figwright"],
+      "compatibility": "unique",
+      "sourceContracts": [
+        {
+          "source": "figwright",
+          "schemaHash": "91e7a33092432568d06bdc31273a9d6e42bf773737f56e81f71ee0e41bea4115"
+        }
+      ],
+      "canonicalName": "component_map"
+    },
+    {
+      "name": "token_map",
+      "sources": ["figwright"],
+      "compatibility": "unique",
+      "sourceContracts": [
+        {
+          "source": "figwright",
+          "schemaHash": "68ff28308abeab7c5c933bdda6eb8af4685be8d283b930cf94c26b5da7c4c1fe"
+        }
+      ],
+      "canonicalName": "token_map"
+    },
+    {
+      "name": "icon_map",
+      "sources": ["figwright"],
+      "compatibility": "unique",
+      "sourceContracts": [
+        {
+          "source": "figwright",
+          "schemaHash": "91e7a33092432568d06bdc31273a9d6e42bf773737f56e81f71ee0e41bea4115"
+        }
+      ],
+      "canonicalName": "icon_map"
+    },
+    {
+      "name": "design_diff",
+      "sources": ["figwright"],
+      "compatibility": "unique",
+      "sourceContracts": [
+        {
+          "source": "figwright",
+          "schemaHash": "eeff81f9acea16b3a13c14dde5d1bf0539fd17aa885b6815520cf5f4c0b068c3"
+        }
+      ],
+      "canonicalName": "design_diff"
+    },
+    {
+      "name": "set_fills",
+      "sources": ["figma-mcp-rust", "figwright"],
+      "compatibility": "adapter",
+      "sourceContracts": [
+        {
+          "source": "figma-mcp-rust",
+          "schemaHash": "ed869273928248dbe6686c98daa98dea9472692def797bad2da14fd296ef63dc"
+        },
+        {
+          "source": "figwright",
+          "schemaHash": "c6b3e76d50d028444655a43ad8ce1053a774d3085946ac63e3d5460a4dbc8273"
+        }
+      ],
+      "canonicalName": "set_fills"
+    },
+    {
+      "name": "set_text",
+      "sources": ["figma-mcp-rust", "figwright"],
+      "compatibility": "same",
+      "sourceContracts": [
+        {
+          "source": "figma-mcp-rust",
+          "schemaHash": "c7eb1988108d22a6ae94f50d4c7b56b5123d6ff1a8122bd65280b9ca8f7ed6a1"
+        },
+        {
+          "source": "figwright",
+          "schemaHash": "801ba0279783e9bbe56c3d5f1a5b2e8447541659d2748a6ae3e22023d0874a6a"
+        }
+      ],
+      "canonicalName": "set_text"
+    },
+    {
+      "name": "set_text_properties",
+      "sources": ["figwright"],
+      "compatibility": "unique",
+      "sourceContracts": [
+        {
+          "source": "figwright",
+          "schemaHash": "368ed6fc02e8f34798649d4082cc4f5676160bfd3f37f91a79efd348f6b06dec"
+        }
+      ],
+      "canonicalName": "set_text_properties"
+    },
+    {
+      "name": "set_text_range",
+      "sources": ["figwright"],
+      "compatibility": "unique",
+      "sourceContracts": [
+        {
+          "source": "figwright",
+          "schemaHash": "d006fa389e8cb58b3f220a9565ef1cd549432f3bd53d04ab82bf505e35a4a881"
+        }
+      ],
+      "canonicalName": "set_text_range"
+    },
+    {
+      "name": "create_frame",
+      "sources": ["figma-mcp-rust", "figwright"],
+      "compatibility": "adapter",
+      "sourceContracts": [
+        {
+          "source": "figma-mcp-rust",
+          "schemaHash": "5e83cc603de21af12751a06559fc6ab9c85d0389e5c1058cfa99768c614adf15"
+        },
+        {
+          "source": "figwright",
+          "schemaHash": "63d9fb11b813d4b8319cdfce65c2959ee41ec7c96453077c9b07969ee6716c96"
+        }
+      ],
+      "canonicalName": "create_frame"
+    },
+    {
+      "name": "set_opacity",
+      "sources": ["figma-mcp-rust", "figwright"],
+      "compatibility": "adapter",
+      "sourceContracts": [
+        {
+          "source": "figma-mcp-rust",
+          "schemaHash": "ddd3238dde3b2a7aaa437a5773e91ee84725e7aad26eba0d5e93e156daac65c6"
+        },
+        {
+          "source": "figwright",
+          "schemaHash": "3d57ed71bba82381d3dd62a475bc3a5064ea0e2c5f6bf7596a9fb57d748ab6fc"
+        }
+      ],
+      "canonicalName": "set_opacity"
+    },
+    {
+      "name": "set_visible",
+      "sources": ["figma-mcp-rust", "figwright"],
+      "compatibility": "adapter",
+      "sourceContracts": [
+        {
+          "source": "figma-mcp-rust",
+          "schemaHash": "1383e32c977039c1c6fe5e9cf58a269c4754bf0f975fc787758998565a1593bc"
+        },
+        {
+          "source": "figwright",
+          "schemaHash": "a2590882bcab7d67101b78fbd5d62e2f32f0a111caa4d3fc21c44f00626ced5d"
+        }
+      ],
+      "canonicalName": "set_visible"
+    },
+    {
+      "name": "rename_node",
+      "sources": ["figma-mcp-rust", "figwright"],
+      "compatibility": "same",
+      "sourceContracts": [
+        {
+          "source": "figma-mcp-rust",
+          "schemaHash": "4edaab0ff3782f9bb7f0b2b7396515031bb4a6179acb254894a6ba3f4c552f2b"
+        },
+        {
+          "source": "figwright",
+          "schemaHash": "e42f865a2bd85502b99191a5b3324d1e85f9ee44e87e2b6f670eaef8387b6465"
+        }
+      ],
+      "canonicalName": "rename_node"
+    },
+    {
+      "name": "delete_nodes",
+      "sources": ["figma-mcp-rust", "figwright"],
+      "compatibility": "same",
+      "sourceContracts": [
+        {
+          "source": "figma-mcp-rust",
+          "schemaHash": "241c92f95fe7bc5201a4d5d28af906931065a6977d127c759103b1154d148dc9"
+        },
+        {
+          "source": "figwright",
+          "schemaHash": "edae055db1a37cbded01ce359332aaebfe42a33d109f6146bf0b9eac0941559a"
+        }
+      ],
+      "canonicalName": "delete_nodes"
+    },
+    {
+      "name": "create_text",
+      "sources": ["figma-mcp-rust", "figwright"],
+      "compatibility": "adapter",
+      "sourceContracts": [
+        {
+          "source": "figma-mcp-rust",
+          "schemaHash": "57b6c481d80d9022da9d65ff5bd7adedd81e9ea93d0057736d68c2e52ed23f83"
+        },
+        {
+          "source": "figwright",
+          "schemaHash": "e3e62b7cbedb32f479e1cd6dd6a0baac06c0393598fafdfd7d4b44c1d539badc"
+        }
+      ],
+      "canonicalName": "create_text"
+    },
+    {
+      "name": "create_rectangle",
+      "sources": ["figma-mcp-rust", "figwright"],
+      "compatibility": "adapter",
+      "sourceContracts": [
+        {
+          "source": "figma-mcp-rust",
+          "schemaHash": "7699a3b4c99508eebf4f210dcfd0c105d8c6ea37c5b9611bc1016bb5ba4bec61"
+        },
+        {
+          "source": "figwright",
+          "schemaHash": "6d714a1a6b3358191604f7acd1efd9db523dfd21f7afd5346cda2e7be1827c17"
+        }
+      ],
+      "canonicalName": "create_rectangle"
+    },
+    {
+      "name": "set_corner_radius",
+      "sources": ["figma-mcp-rust", "figwright"],
+      "compatibility": "adapter",
+      "sourceContracts": [
+        {
+          "source": "figma-mcp-rust",
+          "schemaHash": "c293ad8aa84133500d61d0bcbd36c8b69b98cafc2e58475cbe11b604c338f1be"
+        },
+        {
+          "source": "figwright",
+          "schemaHash": "d9d072233874b668395cdded5ce4e0458062c6163559abd828e07098f6feb1e3"
+        }
+      ],
+      "canonicalName": "set_corner_radius"
+    },
+    {
+      "name": "set_strokes",
+      "sources": ["figma-mcp-rust", "figwright"],
+      "compatibility": "adapter",
+      "sourceContracts": [
+        {
+          "source": "figma-mcp-rust",
+          "schemaHash": "7ea326cab0b1748a3173229a001437d61d7d83c2aebeb3b5278b3746c906908d"
+        },
+        {
+          "source": "figwright",
+          "schemaHash": "5db4c39b5fc9cc46d6086b8c29f7cde983a62226bb711d5be851d5ad0b72ec48"
+        }
+      ],
+      "canonicalName": "set_strokes"
+    },
+    {
+      "name": "move_nodes",
+      "sources": ["figma-mcp-rust", "figwright"],
+      "compatibility": "adapter",
+      "sourceContracts": [
+        {
+          "source": "figma-mcp-rust",
+          "schemaHash": "8f561b186ef7e1eee3877f65115bafcbad37edf455d8423c10ca6d1117cd298c"
+        },
+        {
+          "source": "figwright",
+          "schemaHash": "3cdc25f4c05a93304e0604ce6f738f616516e98192bfd6d27c731121dd196966"
+        }
+      ],
+      "canonicalName": "move_nodes"
+    },
+    {
+      "name": "set_position",
+      "sources": ["figwright"],
+      "compatibility": "unique",
+      "sourceContracts": [
+        {
+          "source": "figwright",
+          "schemaHash": "4e410c64726afc142e86b706dff279f968cc139dadccc41ecdf19aea09318426"
+        }
+      ],
+      "canonicalName": "set_position"
+    },
+    {
+      "name": "resize_nodes",
+      "sources": ["figma-mcp-rust", "figwright"],
+      "compatibility": "adapter",
+      "sourceContracts": [
+        {
+          "source": "figma-mcp-rust",
+          "schemaHash": "9afbc4ead99b5114526e9e538120b374c068a1bedab05049b3ce8180633415d1"
+        },
+        {
+          "source": "figwright",
+          "schemaHash": "5e0ed45b979be29730f729a7e787015c5aba6281b383d74a47b064d0427cfe04"
+        }
+      ],
+      "canonicalName": "resize_nodes"
+    },
+    {
+      "name": "set_auto_layout",
+      "sources": ["figma-mcp-rust", "figwright"],
+      "compatibility": "adapter",
+      "sourceContracts": [
+        {
+          "source": "figma-mcp-rust",
+          "schemaHash": "5e4bedda2d5c24f4c030b652a59abba42fd27af18be5f5ee904db88c5759a647"
+        },
+        {
+          "source": "figwright",
+          "schemaHash": "8d03ae04ea3a713365988fa2840a52d9fbc876fab9827c26acb4ef3068d14c71"
+        }
+      ],
+      "canonicalName": "set_auto_layout"
+    },
+    {
+      "name": "set_layout_props",
+      "sources": ["figwright"],
+      "compatibility": "unique",
+      "sourceContracts": [
+        {
+          "source": "figwright",
+          "schemaHash": "c5da3077599cf31c4bc199e02898866c266bcdcb77d8d2958cfaf67afbdfc9b2"
+        }
+      ],
+      "canonicalName": "set_layout_props"
+    },
+    {
+      "name": "set_layout_grids",
+      "sources": ["figwright"],
+      "compatibility": "unique",
+      "sourceContracts": [
+        {
+          "source": "figwright",
+          "schemaHash": "a9a4be8c6d662ba4a31a07ff967e952eec9223ff6406ee9319bd5a8b26a61f2b"
+        }
+      ],
+      "canonicalName": "set_layout_grids"
+    },
+    {
+      "name": "set_blend_mode",
+      "sources": ["figma-mcp-rust", "figwright"],
+      "compatibility": "adapter",
+      "sourceContracts": [
+        {
+          "source": "figma-mcp-rust",
+          "schemaHash": "c715986c5bac9029ec8386d9f657606826ec7ea7bca2036effbbb6e6ae473fd1"
+        },
+        {
+          "source": "figwright",
+          "schemaHash": "3216232405821a4137bd4aa6d0e5fe9691eea470b90fbfbcae24fcbad46748a6"
+        }
+      ],
+      "canonicalName": "set_blend_mode"
+    },
+    {
+      "name": "set_mask",
+      "sources": ["figwright"],
+      "compatibility": "unique",
+      "sourceContracts": [
+        {
+          "source": "figwright",
+          "schemaHash": "46bd191d1e45a5911530a300d8f0a680145445a3e7029be3c169b38e350df1db"
+        }
+      ],
+      "canonicalName": "set_mask"
+    },
+    {
+      "name": "set_arc",
+      "sources": ["figwright"],
+      "compatibility": "unique",
+      "sourceContracts": [
+        {
+          "source": "figwright",
+          "schemaHash": "bdcf831901af5ec67e616106d7c16ce307128a81b2db67c6f5ec80c8ef5c0886"
+        }
+      ],
+      "canonicalName": "set_arc"
+    },
+    {
+      "name": "set_constraints",
+      "sources": ["figma-mcp-rust", "figwright"],
+      "compatibility": "adapter",
+      "sourceContracts": [
+        {
+          "source": "figma-mcp-rust",
+          "schemaHash": "41c1ca760b6eee27ac826bf4f0e4019c9f538dca916ec84776ba49ae60cfbf57"
+        },
+        {
+          "source": "figwright",
+          "schemaHash": "77d3ef289ac6710f9cef6295499352f4cee891bb30bc079d77828d9588ec6c95"
+        }
+      ],
+      "canonicalName": "set_constraints"
+    },
+    {
+      "name": "rotate_nodes",
+      "sources": ["figma-mcp-rust", "figwright"],
+      "compatibility": "adapter",
+      "sourceContracts": [
+        {
+          "source": "figma-mcp-rust",
+          "schemaHash": "2e6172884f91d4aedc0f8e996116bc9c05c5a14d4a2a7c460608e6c497a96d4b"
+        },
+        {
+          "source": "figwright",
+          "schemaHash": "b5fa6df98f463d09a57c9530324ebdc6d0153b26fa83822e7dca2cd2f7ff993d"
+        }
+      ],
+      "canonicalName": "rotate_nodes"
+    },
+    {
+      "name": "lock_nodes",
+      "sources": ["figma-mcp-rust", "figwright"],
+      "compatibility": "adapter",
+      "sourceContracts": [
+        {
+          "source": "figma-mcp-rust",
+          "schemaHash": "5c19e15048537390fc8cc2486640d56fcae2f8414250225345e20b0aacd80de5"
+        },
+        {
+          "source": "figwright",
+          "schemaHash": "ddf8a27db84f6bd7eceb948544a753306cec9fe23ca27bddf1d1f45569cf1d8e"
+        }
+      ],
+      "canonicalName": "lock_nodes"
+    },
+    {
+      "name": "unlock_nodes",
+      "sources": ["figma-mcp-rust", "figwright"],
+      "compatibility": "adapter",
+      "sourceContracts": [
+        {
+          "source": "figma-mcp-rust",
+          "schemaHash": "bb227b61ad896875ef2ebfaa801178f91059feb3f66ddd3904a6ce932b9000ef"
+        },
+        {
+          "source": "figwright",
+          "schemaHash": "17f71bb0ce4e2f2f2fdce07321a6ad9f2c3a5d0df760bc9f1f1cd4ad45ae9ac4"
+        }
+      ],
+      "canonicalName": "unlock_nodes"
+    },
+    {
+      "name": "clone_node",
+      "sources": ["figma-mcp-rust", "figwright"],
+      "compatibility": "incompatible",
+      "sourceContracts": [
+        {
+          "source": "figma-mcp-rust",
+          "schemaHash": "ec43535eb336b8173a40d5aafda7a759fbea9554ddff8e5213ae04b49397b646"
+        },
+        {
+          "source": "figwright",
+          "schemaHash": "dd3800254ea7f96793ff7fe395635f3c7fcccbbfe01b94a05abfcf223d421b50"
+        }
+      ],
+      "canonicalName": "clone_node"
+    },
+    {
+      "name": "set_effects",
+      "sources": ["figma-mcp-rust", "figwright"],
+      "compatibility": "incompatible",
+      "sourceContracts": [
+        {
+          "source": "figma-mcp-rust",
+          "schemaHash": "a59710090597f8de2239a12bbda2d3d5f2fbb68216133a8d9073a30552fd2ee9"
+        },
+        {
+          "source": "figwright",
+          "schemaHash": "f696a4f30e7502784296b7bfdf3ec0fb3b296bb5335ffa2f39f99226c1b47750"
+        }
+      ],
+      "canonicalName": "set_effects"
+    },
+    {
+      "name": "create_paint_style",
+      "sources": ["figma-mcp-rust", "figwright"],
+      "compatibility": "adapter",
+      "sourceContracts": [
+        {
+          "source": "figma-mcp-rust",
+          "schemaHash": "b971e571e89dce1f441105157af726e8dca0749b434af0794b73518523961a23"
+        },
+        {
+          "source": "figwright",
+          "schemaHash": "a8005e655046a3bc3d8d6e43258159677dc0a1996447e0c2ccf332fb8318fda1"
+        }
+      ],
+      "canonicalName": "create_paint_style"
+    },
+    {
+      "name": "create_text_style",
+      "sources": ["figma-mcp-rust", "figwright"],
+      "compatibility": "adapter",
+      "sourceContracts": [
+        {
+          "source": "figma-mcp-rust",
+          "schemaHash": "0559f29d3bddfbb6d8d078e5e8717236ddf5fbc975e1b5d8bdfc072c6ea3364b"
+        },
+        {
+          "source": "figwright",
+          "schemaHash": "57a6f934b99e17c7ad80543b4b1893b012c43d433f44e83d68cf122d339d5910"
+        }
+      ],
+      "canonicalName": "create_text_style"
+    },
+    {
+      "name": "create_effect_style",
+      "sources": ["figma-mcp-rust", "figwright"],
+      "compatibility": "adapter",
+      "sourceContracts": [
+        {
+          "source": "figma-mcp-rust",
+          "schemaHash": "6401844e308f8f22af43bf97c9dca2ba87f3705a8d592bfea5ef536b8556d61f"
+        },
+        {
+          "source": "figwright",
+          "schemaHash": "37e505aa9de6eb9b2d0d7671202620f8d41a91ed5133e8f75d2f4e4b2a2719ce"
+        }
+      ],
+      "canonicalName": "create_effect_style"
+    },
+    {
+      "name": "create_grid_style",
+      "sources": ["figma-mcp-rust", "figwright"],
+      "compatibility": "adapter",
+      "sourceContracts": [
+        {
+          "source": "figma-mcp-rust",
+          "schemaHash": "25606e8f3a5764c33bc6d9e72082f32bb18419461899e71da68b7808e58613f9"
+        },
+        {
+          "source": "figwright",
+          "schemaHash": "b31f760f63e721f18059c55c3209c28a7104751cfac360779a9abf467a52b7fe"
+        }
+      ],
+      "canonicalName": "create_grid_style"
+    },
+    {
+      "name": "update_paint_style",
+      "sources": ["figma-mcp-rust", "figwright"],
+      "compatibility": "adapter",
+      "sourceContracts": [
+        {
+          "source": "figma-mcp-rust",
+          "schemaHash": "fd0442f0700436c85fbfe5954f7c269ca7c59a012c0560fbb8dfd2b7e2ff23eb"
+        },
+        {
+          "source": "figwright",
+          "schemaHash": "5757a39542cede7b1b5367df38c8523c720810d146dd0235bd4681d3b179e8ac"
+        }
+      ],
+      "canonicalName": "update_paint_style"
+    },
+    {
+      "name": "update_text_style",
+      "sources": ["figwright"],
+      "compatibility": "unique",
+      "sourceContracts": [
+        {
+          "source": "figwright",
+          "schemaHash": "372b8115083748cbe839c4531572228400c47d3f8dc57fc01558cd591cd7ed22"
+        }
+      ],
+      "canonicalName": "update_text_style"
+    },
+    {
+      "name": "update_effect_style",
+      "sources": ["figwright"],
+      "compatibility": "unique",
+      "sourceContracts": [
+        {
+          "source": "figwright",
+          "schemaHash": "a1f4f214946360a9a74e4545feb247f8adc476e96afcfa1d813ca4836ee8f319"
+        }
+      ],
+      "canonicalName": "update_effect_style"
+    },
+    {
+      "name": "apply_style_to_node",
+      "sources": ["figma-mcp-rust", "figwright"],
+      "compatibility": "adapter",
+      "sourceContracts": [
+        {
+          "source": "figma-mcp-rust",
+          "schemaHash": "78a1a1e95d6f66085d99b80315ef6b0397fbed3c10bb046379d905c2659f99b8"
+        },
+        {
+          "source": "figwright",
+          "schemaHash": "1d0e77fbb9519a2cc16964229423cda2d0e047e3323fcacd70cee21127efe999"
+        }
+      ],
+      "canonicalName": "apply_style_to_node"
+    },
+    {
+      "name": "delete_style",
+      "sources": ["figma-mcp-rust", "figwright"],
+      "compatibility": "same",
+      "sourceContracts": [
+        {
+          "source": "figma-mcp-rust",
+          "schemaHash": "a8bddd41755644cc93874c0d0cb81907d9a35f06092d8889d5bcf42063bb9ff6"
+        },
+        {
+          "source": "figwright",
+          "schemaHash": "2ff354c79233577bea53191d95438a963653ca54c6c9bd30be5ee0a2e19003b3"
+        }
+      ],
+      "canonicalName": "delete_style"
+    },
+    {
+      "name": "create_variable_collection",
+      "sources": ["figma-mcp-rust", "figwright"],
+      "compatibility": "adapter",
+      "sourceContracts": [
+        {
+          "source": "figma-mcp-rust",
+          "schemaHash": "5eb31a0b5baac5ce2950584332df0a247badb9f5a3863a1353f4ce279a1cbd45"
+        },
+        {
+          "source": "figwright",
+          "schemaHash": "3c0fdb760c11d7bfb73eb73e63caf07fb1576687be93b45dda18394b30270d59"
+        }
+      ],
+      "canonicalName": "create_variable_collection"
+    },
+    {
+      "name": "add_variable_mode",
+      "sources": ["figma-mcp-rust", "figwright"],
+      "compatibility": "same",
+      "sourceContracts": [
+        {
+          "source": "figma-mcp-rust",
+          "schemaHash": "15475741e707bfc6bc9c91b48ff1707157d1d837b451f979d38f41639b3d2373"
+        },
+        {
+          "source": "figwright",
+          "schemaHash": "03910397316da403b0762908944134fc24e7a38da8471f3472f9afb9159e1715"
+        }
+      ],
+      "canonicalName": "add_variable_mode"
+    },
+    {
+      "name": "create_variable",
+      "sources": ["figma-mcp-rust", "figwright"],
+      "compatibility": "incompatible",
+      "sourceContracts": [
+        {
+          "source": "figma-mcp-rust",
+          "schemaHash": "cb28c6e28ee80591b9fb3f3ddd1ec666eed6591a689f926ad4fbb834347ffac8"
+        },
+        {
+          "source": "figwright",
+          "schemaHash": "b3c136f4ee9ebce31eeabacca7546d1361d45d10d5d16261ad9db5042ce975af"
+        }
+      ],
+      "canonicalName": "create_variable"
+    },
+    {
+      "name": "set_variable_value",
+      "sources": ["figma-mcp-rust", "figwright"],
+      "compatibility": "adapter",
+      "sourceContracts": [
+        {
+          "source": "figma-mcp-rust",
+          "schemaHash": "4a58ce17425b9ac37830198683af638f03b8e7b316a737553478b8247e529939"
+        },
+        {
+          "source": "figwright",
+          "schemaHash": "8fb85aa0f6461446d23051fe2f31c56c60b4dd8161cbe583b240416720f42532"
+        }
+      ],
+      "canonicalName": "set_variable_value"
+    },
+    {
+      "name": "bind_variable_to_node",
+      "sources": ["figma-mcp-rust", "figwright"],
+      "compatibility": "adapter",
+      "sourceContracts": [
+        {
+          "source": "figma-mcp-rust",
+          "schemaHash": "b58a867ef2d986e82bd9a98b7047f7d3ac3279818a491c6af6783eb5be70ad00"
+        },
+        {
+          "source": "figwright",
+          "schemaHash": "5fe9e50a5f947d29ad1c077d2145919cd1246df5b9f9e4be249f2e87fb6e0b78"
+        }
+      ],
+      "canonicalName": "bind_variable_to_node"
+    },
+    {
+      "name": "bind_variable_to_paint",
+      "sources": ["figwright"],
+      "compatibility": "unique",
+      "sourceContracts": [
+        {
+          "source": "figwright",
+          "schemaHash": "477f098e352b711c796dd987352a56b485a668987697fb4106c4c5e8526f1a31"
+        }
+      ],
+      "canonicalName": "bind_variable_to_paint"
+    },
+    {
+      "name": "rename_variable",
+      "sources": ["figwright"],
+      "compatibility": "unique",
+      "sourceContracts": [
+        {
+          "source": "figwright",
+          "schemaHash": "4d68e0a9a9bce51fe02d17f7b019fc8dca369cfb107d8d1d919ef014697da662"
+        }
+      ],
+      "canonicalName": "rename_variable"
+    },
+    {
+      "name": "set_variable_code_syntax",
+      "sources": ["figwright"],
+      "compatibility": "unique",
+      "sourceContracts": [
+        {
+          "source": "figwright",
+          "schemaHash": "3fe3ecd04746551a76d67e8adedb64af229ca57255c48422ec2232e6073d8a6c"
+        }
+      ],
+      "canonicalName": "set_variable_code_syntax"
+    },
+    {
+      "name": "delete_variable",
+      "sources": ["figma-mcp-rust", "figwright"],
+      "compatibility": "incompatible",
+      "sourceContracts": [
+        {
+          "source": "figma-mcp-rust",
+          "schemaHash": "c6188f8f374935c07831b7d612ab40b871dea1971f22665c1ab9bfc35678bcfa"
+        },
+        {
+          "source": "figwright",
+          "schemaHash": "d90099402f6dc24c8a8e79e1994195713d1fd3742e1ad503d2166b5e0d8cea7d"
+        }
+      ],
+      "canonicalName": "delete_variable"
+    },
+    {
+      "name": "delete_variable_collection",
+      "sources": ["figwright"],
+      "compatibility": "unique",
+      "sourceContracts": [
+        {
+          "source": "figwright",
+          "schemaHash": "14a73678577b7d7358f20ec16847245b8c922c7d0b690b9e4080ebde2eb84f41"
+        }
+      ],
+      "canonicalName": "delete_variable_collection"
+    },
+    {
+      "name": "group_nodes",
+      "sources": ["figma-mcp-rust", "figwright"],
+      "compatibility": "adapter",
+      "sourceContracts": [
+        {
+          "source": "figma-mcp-rust",
+          "schemaHash": "784c0ec9397cdb4f5588de013f8fc4e2b2ac4bf00e26cb7a6468cb274d515d78"
+        },
+        {
+          "source": "figwright",
+          "schemaHash": "bcbb2602463ccba4d6f778d7112ec10c5f16e2542d8f68081e487f0c8e3b23e8"
+        }
+      ],
+      "canonicalName": "group_nodes"
+    },
+    {
+      "name": "ungroup_nodes",
+      "sources": ["figma-mcp-rust", "figwright"],
+      "compatibility": "same",
+      "sourceContracts": [
+        {
+          "source": "figma-mcp-rust",
+          "schemaHash": "eeb87f5ada94514dc873913b801fe1b8d9a0b72591a11e8559cc6b720c701d24"
+        },
+        {
+          "source": "figwright",
+          "schemaHash": "6b907996f5293016d482622a6fbcec18695321e88ae567db24e34b9833bd5081"
+        }
+      ],
+      "canonicalName": "ungroup_nodes"
+    },
+    {
+      "name": "reparent_nodes",
+      "sources": ["figma-mcp-rust", "figwright"],
+      "compatibility": "adapter",
+      "sourceContracts": [
+        {
+          "source": "figma-mcp-rust",
+          "schemaHash": "83e15058c62bdee12589ec5a0d5b3fbdbd1bf1297b430c65706b68336dcb59ce"
+        },
+        {
+          "source": "figwright",
+          "schemaHash": "416ec332246f4e86f011d2f847cb00456a75cfc5ab1d965339aa56640825cf32"
+        }
+      ],
+      "canonicalName": "reparent_nodes"
+    },
+    {
+      "name": "reorder_nodes",
+      "sources": ["figma-mcp-rust", "figwright"],
+      "compatibility": "incompatible",
+      "sourceContracts": [
+        {
+          "source": "figma-mcp-rust",
+          "schemaHash": "fd474cb9966c87f422c5fd3f9bca7b28e211a2d34dad1f5b8af76ebaab13523c"
+        },
+        {
+          "source": "figwright",
+          "schemaHash": "108f503b8aa587ee1d66edbb2be162ff03d44fab07109591d979ac1e3baf7a30"
+        }
+      ],
+      "canonicalName": "reorder_nodes"
+    },
+    {
+      "name": "find_replace_text",
+      "sources": ["figma-mcp-rust", "figwright"],
+      "compatibility": "adapter",
+      "sourceContracts": [
+        {
+          "source": "figma-mcp-rust",
+          "schemaHash": "80457e7ea452cb4d5ae189c0468bc4f2849537a1efda3609299794dcb3a2daa3"
+        },
+        {
+          "source": "figwright",
+          "schemaHash": "e7c0b22d0857318ce285e5f4d54960e3e88a196f40170a71e03974e31ba9b29e"
+        }
+      ],
+      "canonicalName": "find_replace_text"
+    },
+    {
+      "name": "batch_rename_nodes",
+      "sources": ["figma-mcp-rust", "figwright"],
+      "compatibility": "adapter",
+      "sourceContracts": [
+        {
+          "source": "figma-mcp-rust",
+          "schemaHash": "15620276dbea81d4a712d8f0e10005187efe5d003668a2f2b190518d7c9b5ecb"
+        },
+        {
+          "source": "figwright",
+          "schemaHash": "1066afc10a3b2a00c180b30ae10a975128fbac4cb937ea4596e4c217339ed6fb"
+        }
+      ],
+      "canonicalName": "batch_rename_nodes"
+    },
+    {
+      "name": "add_page",
+      "sources": ["figma-mcp-rust", "figwright"],
+      "compatibility": "adapter",
+      "sourceContracts": [
+        {
+          "source": "figma-mcp-rust",
+          "schemaHash": "10da81654443cb796b692bd4c6e61617425c71261a7ea2a3c7ef164b2f92696b"
+        },
+        {
+          "source": "figwright",
+          "schemaHash": "a260d6f65832b50bc06807fde4cfe594b0b41d8e4fa7ae4e43a0dac87bcf6513"
+        }
+      ],
+      "canonicalName": "add_page"
+    },
+    {
+      "name": "delete_page",
+      "sources": ["figma-mcp-rust", "figwright"],
+      "compatibility": "adapter",
+      "sourceContracts": [
+        {
+          "source": "figma-mcp-rust",
+          "schemaHash": "700e12d5ce6f4a8c2251131de4dcc2172b5410ccbb4e0a889b291efe0af6e5c6"
+        },
+        {
+          "source": "figwright",
+          "schemaHash": "8e0316fe73a023983910344ca47e6b47330fa68b899d99fe60d408243dfe3d27"
+        }
+      ],
+      "canonicalName": "delete_page"
+    },
+    {
+      "name": "rename_page",
+      "sources": ["figma-mcp-rust", "figwright"],
+      "compatibility": "adapter",
+      "sourceContracts": [
+        {
+          "source": "figma-mcp-rust",
+          "schemaHash": "28dc6084c02bddb29e9e721a4d8f382e03beeac13f8e5ba9fb2531f721c3e835"
+        },
+        {
+          "source": "figwright",
+          "schemaHash": "7035eca098de7c5c8aa98bf0aeb06f4df2825fbf356f6da30b4c0de33a48ce03"
+        }
+      ],
+      "canonicalName": "rename_page"
+    },
+    {
+      "name": "navigate_to_page",
+      "sources": ["figma-mcp-rust", "figwright"],
+      "compatibility": "adapter",
+      "sourceContracts": [
+        {
+          "source": "figma-mcp-rust",
+          "schemaHash": "2d2791d97953975a0eb1109d57e3b70715c30b8343c0175c9860d6efa23efaa4"
+        },
+        {
+          "source": "figwright",
+          "schemaHash": "8abd993b81bcb2a189c32eed1bf4d6e690aa580dbb8a160debb4276885524290"
+        }
+      ],
+      "canonicalName": "navigate_to_page"
+    },
+    {
+      "name": "set_reactions",
+      "sources": ["figma-mcp-rust", "figwright"],
+      "compatibility": "incompatible",
+      "sourceContracts": [
+        {
+          "source": "figma-mcp-rust",
+          "schemaHash": "7df3ff65a1c437fec93f89e9b9e7e493185d97a1aa8fae4372c4fb3ac2f365ad"
+        },
+        {
+          "source": "figwright",
+          "schemaHash": "e4a3e2b6f455a4dd2097cd9f8292e070f9fbd2ba1028b9c7c6daca3bf29a4077"
+        }
+      ],
+      "canonicalName": "set_reactions"
+    },
+    {
+      "name": "remove_reactions",
+      "sources": ["figma-mcp-rust", "figwright"],
+      "compatibility": "incompatible",
+      "sourceContracts": [
+        {
+          "source": "figma-mcp-rust",
+          "schemaHash": "3b3b6e183771787a574e4cc6edb3de9804d06abb091bbb667cd0d531c5aed17b"
+        },
+        {
+          "source": "figwright",
+          "schemaHash": "21e36449f13aed48bcecf72ace48442c8e2c96de35273940c37b4ddfe56972d8"
+        }
+      ],
+      "canonicalName": "remove_reactions"
+    },
+    {
+      "name": "swap_component",
+      "sources": ["figma-mcp-rust", "figwright"],
+      "compatibility": "adapter",
+      "sourceContracts": [
+        {
+          "source": "figma-mcp-rust",
+          "schemaHash": "b632f426255bbe5b6bda502c1f2f8aab188614dafcec6d6aa9ace93696c1f4f5"
+        },
+        {
+          "source": "figwright",
+          "schemaHash": "6ddff95873410fcb3c0180173c4f7685d4a134c9651e1ded9803937b201c81ef"
+        }
+      ],
+      "canonicalName": "swap_component"
+    },
+    {
+      "name": "set_instance_properties",
+      "sources": ["figwright"],
+      "compatibility": "unique",
+      "sourceContracts": [
+        {
+          "source": "figwright",
+          "schemaHash": "598332b51e2cf048905b6cc66e8cfc87aa8fd88e2c6c7df03da9af62432dc8d6"
+        }
+      ],
+      "canonicalName": "set_instance_properties"
+    },
+    {
+      "name": "add_component_property",
+      "sources": ["figwright"],
+      "compatibility": "unique",
+      "sourceContracts": [
+        {
+          "source": "figwright",
+          "schemaHash": "46d7dabee1e51167d8ceb1fb35f4e0eeda484200256242c6f4e3d9af97a8da20"
+        }
+      ],
+      "canonicalName": "add_component_property"
+    },
+    {
+      "name": "bind_component_property",
+      "sources": ["figwright"],
+      "compatibility": "unique",
+      "sourceContracts": [
+        {
+          "source": "figwright",
+          "schemaHash": "b2c9a8e2422de60d3ca91291e392de77afe269018c800936201e53730d44464f"
+        }
+      ],
+      "canonicalName": "bind_component_property"
+    },
+    {
+      "name": "edit_component_property",
+      "sources": ["figwright"],
+      "compatibility": "unique",
+      "sourceContracts": [
+        {
+          "source": "figwright",
+          "schemaHash": "da278d26175182c5bb46cc8eea2c7a1cdd5f83cb78e92f79e56ae2288ca3144a"
+        }
+      ],
+      "canonicalName": "edit_component_property"
+    },
+    {
+      "name": "delete_component_property",
+      "sources": ["figwright"],
+      "compatibility": "unique",
+      "sourceContracts": [
+        {
+          "source": "figwright",
+          "schemaHash": "95aead2fb6db260b3f4538efa0ee9ee181f1f817407ca7a9e5cb407253f444a5"
+        }
+      ],
+      "canonicalName": "delete_component_property"
+    },
+    {
+      "name": "detach_instance",
+      "sources": ["figma-mcp-rust", "figwright"],
+      "compatibility": "adapter",
+      "sourceContracts": [
+        {
+          "source": "figma-mcp-rust",
+          "schemaHash": "63d3304ac2b173b193b146f5a5a7640551988c4493dacaa09a92c3f5b953c735"
+        },
+        {
+          "source": "figwright",
+          "schemaHash": "50c9bf115ec41a43831c04a8695ee3ab3968ff54b6bead80da3b1359a0feeda3"
+        }
+      ],
+      "canonicalName": "detach_instance"
+    },
+    {
+      "name": "import_image",
+      "sources": ["figma-mcp-rust", "figwright"],
+      "compatibility": "incompatible",
+      "sourceContracts": [
+        {
+          "source": "figma-mcp-rust",
+          "schemaHash": "fe2bf4fc8ffab270bbafd432021c2e9413006357f7a9e3233282c910d48a6c0f"
+        },
+        {
+          "source": "figwright",
+          "schemaHash": "57420fbd250df60be614933158ba14518ce824ae7fe854d34c48f1ef09fd9b31"
+        }
+      ],
+      "canonicalName": "import_image"
+    },
+    {
+      "name": "import_svg",
+      "sources": ["figwright"],
+      "compatibility": "unique",
+      "sourceContracts": [
+        {
+          "source": "figwright",
+          "schemaHash": "3183161b04d1c0e59f21999eaca53738562d5bfd1cd23acf2164fecea4330b94"
+        }
+      ],
+      "canonicalName": "import_svg"
+    },
+    {
+      "name": "create_ellipse",
+      "sources": ["figma-mcp-rust", "figwright"],
+      "compatibility": "adapter",
+      "sourceContracts": [
+        {
+          "source": "figma-mcp-rust",
+          "schemaHash": "995f96359315ab9e880150460e275b1ce4766c7c7f09738938dbab58871228c8"
+        },
+        {
+          "source": "figwright",
+          "schemaHash": "83d33cc94f2b6d28fbfcd24f3489b26ee229b76d3665ca232203734498f1df5a"
+        }
+      ],
+      "canonicalName": "create_ellipse"
+    },
+    {
+      "name": "create_component",
+      "sources": ["figma-mcp-rust", "figwright"],
+      "compatibility": "adapter",
+      "sourceContracts": [
+        {
+          "source": "figma-mcp-rust",
+          "schemaHash": "779e51f7150510c870b8215e91c5347655aa973ab66a816a5b05dcdf3126b76b"
+        },
+        {
+          "source": "figwright",
+          "schemaHash": "6d1d2828c0e7cc3ed78d0eedc2d3ed05300e7edc650f65f3a16219fa7d72a29a"
+        }
+      ],
+      "canonicalName": "create_component"
+    },
+    {
+      "name": "create_section",
+      "sources": ["figma-mcp-rust", "figwright"],
+      "compatibility": "adapter",
+      "sourceContracts": [
+        {
+          "source": "figma-mcp-rust",
+          "schemaHash": "0a178bd59a19db036b4bd2a5a93bd226bd323b94b2bc6f4ede72d1b0bee7e989"
+        },
+        {
+          "source": "figwright",
+          "schemaHash": "98c834607fec0a4d124a3fd5c22f5eeccb6ba6268cfb83494eb4bc387938c72c"
+        }
+      ],
+      "canonicalName": "create_section"
+    },
+    {
+      "name": "create_instance",
+      "sources": ["figwright"],
+      "compatibility": "unique",
+      "sourceContracts": [
+        {
+          "source": "figwright",
+          "schemaHash": "72231d71c1f55e47581846cc8619947fdedc8bc65cffcff485f651f2fa2d9d77"
+        }
+      ],
+      "canonicalName": "create_instance"
+    },
+    {
+      "name": "combine_as_variants",
+      "sources": ["figwright"],
+      "compatibility": "unique",
+      "sourceContracts": [
+        {
+          "source": "figwright",
+          "schemaHash": "dc5d3d7534cc8fed10da9ae2c3b66c7a41b6854980f01487fbaa2cb6c2afefb8"
+        }
+      ],
+      "canonicalName": "combine_as_variants"
+    },
+    {
+      "name": "apply_animation_style",
+      "sources": ["figwright"],
+      "compatibility": "unique",
+      "sourceContracts": [
+        {
+          "source": "figwright",
+          "schemaHash": "849998d43ae2710e4f4694c9d24cc16bdf05d951d2e33038ad3b5902b750e856"
+        }
+      ],
+      "canonicalName": "apply_animation_style"
+    },
+    {
+      "name": "remove_animation_style",
+      "sources": ["figwright"],
+      "compatibility": "unique",
+      "sourceContracts": [
+        {
+          "source": "figwright",
+          "schemaHash": "88a02c56265ba4fa54110d43840138318e28c97a843ec5aea3349bed1bb63fa0"
+        }
+      ],
+      "canonicalName": "remove_animation_style"
+    },
+    {
+      "name": "apply_manual_keyframe_track",
+      "sources": ["figwright"],
+      "compatibility": "unique",
+      "sourceContracts": [
+        {
+          "source": "figwright",
+          "schemaHash": "a0cdd7187c0303aa3982c6bcd73ac632b41b1b9e0bdfa92017f9b1df3a2bb85d"
+        }
+      ],
+      "canonicalName": "apply_manual_keyframe_track"
+    },
+    {
+      "name": "remove_manual_keyframe_track",
+      "sources": ["figwright"],
+      "compatibility": "unique",
+      "sourceContracts": [
+        {
+          "source": "figwright",
+          "schemaHash": "07e221f25e587032e83e1a5c39af86ca9ff9821d4b892734cc914f58a84c35dd"
+        }
+      ],
+      "canonicalName": "remove_manual_keyframe_track"
+    },
+    {
+      "name": "set_timeline_duration",
+      "sources": ["figwright"],
+      "compatibility": "unique",
+      "sourceContracts": [
+        {
+          "source": "figwright",
+          "schemaHash": "bd3284c73a7ab8a222b81124191cb47cd224642d62a5aa238071eb5e53e1b5f8"
+        }
+      ],
+      "canonicalName": "set_timeline_duration"
+    },
+    {
+      "name": "batch",
+      "sources": ["figwright"],
+      "compatibility": "unique",
+      "sourceContracts": [
+        {
+          "source": "figwright",
+          "schemaHash": "07f9acb44a1be771fa8501a8e02d8eae74900fe8938b828ba3a97a7dba2130af"
+        }
+      ],
+      "canonicalName": "batch"
+    },
+    {
+      "name": "export_tokens",
+      "sources": ["figma-mcp-rust"],
+      "compatibility": "unique",
+      "sourceContracts": [
+        {
+          "source": "figma-mcp-rust",
+          "schemaHash": "ddba5ad38fe0355e6ee97d013bd014ae154ecff069b56ec261c100f85265be94"
+        }
+      ],
+      "canonicalName": "export_tokens"
+    },
+    {
+      "name": "export_frames_to_pdf",
+      "sources": ["figma-mcp-rust"],
+      "compatibility": "unique",
+      "sourceContracts": [
+        {
+          "source": "figma-mcp-rust",
+          "schemaHash": "d37db8dfde49b6a9e357b38f04eb245bc5c0665e2c1a01895bd3c96ff77709e7"
+        }
+      ],
+      "canonicalName": "export_frames_to_pdf"
+    }
+  ]
+}

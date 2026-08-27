@@ -2,34 +2,83 @@
   "schemaVersion": 1,
   "vendorMap": {
     "path": "vendor-map.json",
-    "sha256": "844d2d2dda27e8473538f262447cf1d0bd01a4657b3f2a6cf951dd0dd3df28a2",
+    "sha256": "c95939bdab451b62399c849ac94de14be66d9be19b9143edbae90cd28b75a131",
     "counts": {
-      "copy": 546,
+      "copy": 542,
       "mergeDependencyManifest": 4,
       "referenceOnly": 19,
-      "total": 569
+      "total": 565
     }
   },
   "destinationClosure": {
     "managedRoots": [
       "README.md",
-      "packages/shared/src",
-      "packages/shared/test",
+      "capabilities",
       "packages/mcp/README.md",
       "packages/mcp/src",
       "packages/mcp/test",
       "packages/plugin/protocol",
       "packages/plugin/src",
-      "packages/plugin/ui",
       "packages/plugin/test",
-      "skills/figma-codegen",
+      "packages/plugin/ui",
+      "packages/shared/src",
+      "packages/shared/test",
       "skills/figma-build",
+      "skills/figma-codegen",
       "test"
     ],
     "serviceOwnedFiles": [
       {
+        "path": "capabilities/figmosha-feature-map.json",
+        "sha256": "7038458a665fe6ae920acec6719a8283cf6ee71ddb1613b1b2ba0a4e3f8f0adb"
+      },
+      {
+        "path": "capabilities/rust-tool-compat.json",
+        "sha256": "a13fc9633b0406946b78f800135d1420d00de0da77cd27f4f62a4334dd70615a"
+      },
+      {
+        "path": "capabilities/union-manifest.json",
+        "sha256": "64eadaa5dfaf2a6e15ece0a2d62ef6ddea45d63a18eb8938bee4679652caac25"
+      },
+      {
+        "path": "packages/mcp/src/index.ts",
+        "sha256": "27b8d3079d70e88bed77e03e71c759142375af3122b93ed883195a8ad52291c2"
+      },
+      {
+        "path": "packages/mcp/src/tools/registry.ts",
+        "sha256": "316d0e3f7e4c248205af8e3283dc247babe4c33e7447858884b2aedebe761e11"
+      },
+      {
+        "path": "packages/mcp/src/tools/runtime-registry.ts",
+        "sha256": "7064d044c7cd000276836db7fbea30d657deddccda732090ad4575be9366ac23"
+      },
+      {
+        "path": "packages/mcp/src/tools/spec.ts",
+        "sha256": "37a50d765a990c14e70dc672cdca72be7094e962950846ae25aab2717dd7f5f4"
+      },
+      {
+        "path": "packages/mcp/test/tools/result-validation.test.ts",
+        "sha256": "076415dab3b5b4113a25343d94d53f5b3b7c0d63f0e356ffd9bfe4c5c229570d"
+      },
+      {
+        "path": "packages/shared/src/capability-manifest.ts",
+        "sha256": "19b01b8a18b13fa083a7269fe26980237a95e3a167a2db17aa34ca2541698454"
+      },
+      {
+        "path": "packages/shared/src/result-schemas.ts",
+        "sha256": "481d83153ffff928f662686ef37f0cd0a14303d39859bd20d76f2483ccb267ee"
+      },
+      {
         "path": "test/bootstrap.test.ts",
         "sha256": "61f083ae0e39f897240d1da6234585fe920cc304c8c09cde097b82cf48aa190f"
+      },
+      {
+        "path": "test/tool-contract.test.ts",
+        "sha256": "7989333a77e36cd30e431c085303372444f74689c5557966e2b78f221fb9a320"
+      },
+      {
+        "path": "test/tool-registry.test.ts",
+        "sha256": "39c63929b9e84916684157088209364c8829ae2fa5c9642c06f12dc225bd7e34"
       },
       {
         "path": "test/upstream-parity.test.ts",
@@ -79,6 +128,22 @@
       "sha256": "a7b79696822dfc9871908b5a47f9b7d24754b42705dd2b7d05f24b7673fc2b64"
     },
     {
+      "path": "capabilities/figmosha-feature-map.json",
+      "sha256": "7038458a665fe6ae920acec6719a8283cf6ee71ddb1613b1b2ba0a4e3f8f0adb"
+    },
+    {
+      "path": "capabilities/rust-tool-compat.json",
+      "sha256": "a13fc9633b0406946b78f800135d1420d00de0da77cd27f4f62a4334dd70615a"
+    },
+    {
+      "path": "capabilities/union-manifest.json",
+      "sha256": "64eadaa5dfaf2a6e15ece0a2d62ef6ddea45d63a18eb8938bee4679652caac25"
+    },
+    {
+      "path": "knip.json",
+      "sha256": "903e6773c50a222d6c2193345e27220d3c89e59ab977e14d46a79679873d46e4"
+    },
+    {
       "path": "licenses/figma-mcp-rust-LICENSE",
       "sha256": "090008b93681f89f069796302925b21e031e8ac7c8c810cf75eb624cb8b195c2"
     },
@@ -91,15 +156,7 @@
       "sha256": "596f04ba93da8a848340599a9fafbbda8859d45a4087fd19c220bf16640c4d8f"
     },
     {
-      "path": "knip.json",
-      "sha256": "903e6773c50a222d6c2193345e27220d3c89e59ab977e14d46a79679873d46e4"
-    },
-    {
       "path": "packages/cli/src/index.ts",
-      "sha256": "125d2c36e653abafaccad2140482c664ea85bba4f5bc14b7c9907a0194c9a8c8"
-    },
-    {
-      "path": "packages/ir/src/index.ts",
       "sha256": "125d2c36e653abafaccad2140482c664ea85bba4f5bc14b7c9907a0194c9a8c8"
     },
     {
@@ -115,12 +172,36 @@
       "sha256": "2e9322b92897aac96af7a2eca9229407c74bfc00d935801d27e2e42465b17578"
     },
     {
+      "path": "packages/ir/src/index.ts",
+      "sha256": "125d2c36e653abafaccad2140482c664ea85bba4f5bc14b7c9907a0194c9a8c8"
+    },
+    {
       "path": "packages/ir/tsconfig.json",
       "sha256": "8c3c22065b32aaf16d93def1c65c4c1574bf9503730351a5354c0dee301a004d"
     },
     {
       "path": "packages/ir/vitest.config.ts",
       "sha256": "899b41c980cc4cb39d0808c0c7e9bd8814afe8265344448e4ad0089e1a8cde3d"
+    },
+    {
+      "path": "packages/mcp/src/index.ts",
+      "sha256": "27b8d3079d70e88bed77e03e71c759142375af3122b93ed883195a8ad52291c2"
+    },
+    {
+      "path": "packages/mcp/src/tools/registry.ts",
+      "sha256": "316d0e3f7e4c248205af8e3283dc247babe4c33e7447858884b2aedebe761e11"
+    },
+    {
+      "path": "packages/mcp/src/tools/runtime-registry.ts",
+      "sha256": "7064d044c7cd000276836db7fbea30d657deddccda732090ad4575be9366ac23"
+    },
+    {
+      "path": "packages/mcp/src/tools/spec.ts",
+      "sha256": "37a50d765a990c14e70dc672cdca72be7094e962950846ae25aab2717dd7f5f4"
+    },
+    {
+      "path": "packages/mcp/test/tools/result-validation.test.ts",
+      "sha256": "076415dab3b5b4113a25343d94d53f5b3b7c0d63f0e356ffd9bfe4c5c229570d"
     },
     {
       "path": "packages/mcp/tsconfig.json",
@@ -155,6 +236,14 @@
       "sha256": "f564fe1a831cfdc75233614ec43951084f9ab77b18cb7d724fe914e6155ecbbb"
     },
     {
+      "path": "packages/shared/src/capability-manifest.ts",
+      "sha256": "19b01b8a18b13fa083a7269fe26980237a95e3a167a2db17aa34ca2541698454"
+    },
+    {
+      "path": "packages/shared/src/result-schemas.ts",
+      "sha256": "481d83153ffff928f662686ef37f0cd0a14303d39859bd20d76f2483ccb267ee"
+    },
+    {
       "path": "packages/shared/tsconfig.json",
       "sha256": "b2f030e6122d6a26fb8b3adc21f38c5b09868213b559926961be587b12b854d9"
     },
@@ -187,6 +276,14 @@
       "sha256": "61f083ae0e39f897240d1da6234585fe920cc304c8c09cde097b82cf48aa190f"
     },
     {
+      "path": "test/tool-contract.test.ts",
+      "sha256": "7989333a77e36cd30e431c085303372444f74689c5557966e2b78f221fb9a320"
+    },
+    {
+      "path": "test/tool-registry.test.ts",
+      "sha256": "39c63929b9e84916684157088209364c8829ae2fa5c9642c06f12dc225bd7e34"
+    },
+    {
       "path": "test/upstream-parity.test.ts",
       "sha256": "68c755c675f9312940ecb5e7ba59e16ec92f8dea2ac1c9631a70572c3891b3c6"
     },
@@ -208,7 +305,7 @@
     },
     {
       "path": "vendor-rules.json",
-      "sha256": "88d3cc7853ecae8423af2f8824ebce78249a293ab54a8951537981b321dbe993"
+      "sha256": "b21c670a01cb921bb5ac484f28a45babeb5a1b4b5eb3a08e0e044849e713fa82"
     },
     {
       "path": "vitest.config.ts",

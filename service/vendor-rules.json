@@ -44,5 +44,14 @@
     "packages/plugin/vite.config.main.ts",
     "packages/plugin/vitest.config.ts"
   ],
-  "exclude": ["**/dist/**", "**/node_modules/**", "**/coverage/**", "**/*.tsbuildinfo"]
+  "exclude": [
+    "**/dist/**",
+    "**/node_modules/**",
+    "**/coverage/**",
+    "**/*.tsbuildinfo",
+    "packages/mcp/src/index.ts",
+    "packages/mcp/src/tools/registry.ts",
+    "packages/mcp/src/tools/spec.ts",
+    "test/tool-registry.test.ts"
+  ]
 }

@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
 import { ALL_TOOL_SPECS, WRITE_TOOL_NAMES } from '../packages/mcp/src/tools/registry.js';
+import { SERVER_ONLY_TOOLS } from '../packages/mcp/src/tools/runtime-registry.js';
 import { toToolDefinition } from '../packages/mcp/test/tool-schema.js';
 import { createSandboxHandlers } from '../packages/plugin/src/handlers/registry.js';
 
@@ -10,21 +11,6 @@ import { createSandboxHandlers } from '../packages/plugin/src/handlers/registry.
 // input schema property is typed — declares a `type`, or is a union (anyOf/oneOf) whose members are
 // each typed. The bug this guards: set_variable_value's `value` once shipped untyped and got coerced
 // to a string in transit; it is now a real Zod union, which is typed under this rule.
-
-// Tools the server handles on its own and never dispatches to the plugin, so they have no sandbox
-// handler. save_screenshots is composed server-side from get_screenshot + filesystem writes;
-// analyze_project / scan_components / component_map / token_map / icon_map read the local project
-// filesystem (component_map / icon_map reuse get_design_context, token_map reuses get_variable_defs) and
-// never touch the sandbox.
-const SERVER_ONLY_TOOLS = new Set([
-  'save_screenshots',
-  'analyze_project',
-  'scan_components',
-  'component_map',
-  'token_map',
-  'icon_map',
-  'design_diff',
-]);
 
 const serverNames = ALL_TOOL_SPECS.map(s => s.name);
 const dispatchedNames = serverNames.filter(n => !SERVER_ONLY_TOOLS.has(n));

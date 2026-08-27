@@ -3,6 +3,8 @@
 // inputSchema); the write set is derived from `kind`, not maintained by hand. A registry test asserts
 // these stay in sync with the plugin's handler map so a new tool can't be half-wired.
 
+import type { ResultSchemaRegistry } from '../../../shared/src/result-schemas.js';
+import { RESULT_SCHEMAS } from '../../../shared/src/result-schemas.js';
 import { addComponentPropertyTool } from './add-component-property.js';
 import { addPageTool } from './add-page.js';
 import { addVariableModeTool } from './add-variable-mode.js';
@@ -80,6 +82,7 @@ import { reorderNodesTool } from './reorder-nodes.js';
 import { reparentNodesTool } from './reparent-nodes.js';
 import { resizeNodesTool } from './resize-nodes.js';
 import { rotateNodesTool } from './rotate-nodes.js';
+import { TOOL_RUNTIMES, type RuntimeRegistry } from './runtime-registry.js';
 import { saveImageFillsTool } from './save-image-fills.js';
 import { saveScreenshotsTool } from './save-screenshots.js';
 import { scanComponentsTool } from './scan-components.js';
@@ -108,7 +111,7 @@ import { setTimelineDurationTool } from './set-timeline-duration.js';
 import { setVariableCodeSyntaxTool } from './set-variable-code-syntax.js';
 import { setVariableValueTool } from './set-variable-value.js';
 import { setVisibleTool } from './set-visible.js';
-import type { ToolSpec } from './spec.js';
+import type { RawToolSpec, ToolSpec } from './spec.js';
 import { swapComponentTool } from './swap-component.js';
 import { tokenMapTool } from './token-map.js';
 import { ungroupNodesTool } from './ungroup-nodes.js';
@@ -117,8 +120,8 @@ import { updateEffectStyleTool } from './update-effect-style.js';
 import { updatePaintStyleTool } from './update-paint-style.js';
 import { updateTextStyleTool } from './update-text-style.js';
 
-/** Every tool the MCP server registers, in ListTools order. */
-export const ALL_TOOL_SPECS: readonly ToolSpec[] = [
+/** Every unchanged vendored declaration, in ListTools order. */
+const RAW_TOOL_SPECS: readonly RawToolSpec[] = [
   // Reads
   pingTool,
   getSelectionTool,
@@ -237,6 +240,46 @@ export const ALL_TOOL_SPECS: readonly ToolSpec[] = [
   setTimelineDurationTool,
   batchTool,
 ];
+
+/**
+ * Join raw declarations to the three exact executable authorities. All shape mismatches fail while
+ * the module initializes, before an MCP server can advertise a partially bound tool.
+ */
+export const finalizeToolSpecs = (
+  rawSpecs: readonly RawToolSpec[],
+  resultSchemas: ResultSchemaRegistry,
+  runtimes: RuntimeRegistry,
+): readonly ToolSpec<unknown, unknown>[] => {
+  const rawNames = new Set<string>();
+  for (const spec of rawSpecs) {
+    if (rawNames.has(spec.name)) throw new Error(`duplicate raw tool spec: ${spec.name}`);
+    rawNames.add(spec.name);
+    if (resultSchemas[spec.name] === undefined)
+      throw new Error(`missing result schema: ${spec.name}`);
+    if (runtimes[spec.name] === undefined) throw new Error(`missing runtime: ${spec.name}`);
+  }
+
+  for (const name of Object.keys(resultSchemas)) {
+    if (!rawNames.has(name)) throw new Error(`result schema without raw tool spec: ${name}`);
+  }
+  for (const name of Object.keys(runtimes)) {
+    if (!rawNames.has(name)) throw new Error(`runtime without raw tool spec: ${name}`);
+  }
+
+  return Object.freeze(
+    rawSpecs.map(spec =>
+      Object.freeze({
+        ...spec,
+        resultSchema: resultSchemas[spec.name]!,
+        runtimeId: `runtime:${spec.name}`,
+        policyId: `tool:${spec.name}:v1`,
+      }),
+    ),
+  );
+};
+
+/** Every tool the MCP server registers, finalized in ListTools order. */
+export const ALL_TOOL_SPECS = finalizeToolSpecs(RAW_TOOL_SPECS, RESULT_SCHEMAS, TOOL_RUNTIMES);
 
 /**
  * Write tools get a server-generated requestId (stable across dispatch retries) so the plugin can

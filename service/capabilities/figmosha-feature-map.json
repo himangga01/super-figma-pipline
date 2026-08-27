@@ -1,0 +1,263 @@
+{
+  "schemaVersion": 1,
+  "helpers": [
+    {
+      "name": "bF",
+      "source": "figmosha2",
+      "mapping": "bind_variable_to_paint(field=fill)",
+      "disposition": "alias",
+      "implementation": "packages/mcp/src/tools/bind-variable-to-paint.ts",
+      "test": "test/tool-contract.test.ts"
+    },
+    {
+      "name": "bS",
+      "source": "figmosha2",
+      "mapping": "bind_variable_to_paint(field=stroke)",
+      "disposition": "alias",
+      "implementation": "packages/mcp/src/tools/bind-variable-to-paint.ts",
+      "test": "test/tool-contract.test.ts"
+    },
+    {
+      "name": "bN",
+      "source": "figmosha2",
+      "mapping": "bind_variable_to_node",
+      "disposition": "alias",
+      "implementation": "packages/mcp/src/tools/bind-variable-to-node.ts",
+      "test": "test/tool-contract.test.ts"
+    },
+    {
+      "name": "findByName",
+      "source": "figmosha2",
+      "mapping": "search_nodes exact-name preset",
+      "disposition": "alias",
+      "implementation": "packages/mcp/src/tools/search-nodes.ts",
+      "test": "test/tool-contract.test.ts"
+    },
+    {
+      "name": "findAllByName",
+      "source": "figmosha2",
+      "mapping": "search_nodes exact-name preset",
+      "disposition": "alias",
+      "implementation": "packages/mcp/src/tools/search-nodes.ts",
+      "test": "test/tool-contract.test.ts"
+    },
+    {
+      "name": "dumpTree",
+      "source": "figmosha2",
+      "mapping": "get_design_context(compact/full)",
+      "disposition": "alias",
+      "implementation": "packages/mcp/src/tools/get-design-context.ts",
+      "test": "test/tool-contract.test.ts"
+    },
+    {
+      "name": "withFonts",
+      "source": "figmosha2",
+      "mapping": "range-aware typography preflight",
+      "disposition": "native",
+      "implementation": "packages/plugin/src/handlers/set-text.ts",
+      "test": "test/tool-contract.test.ts"
+    },
+    {
+      "name": "setText",
+      "source": "figmosha2",
+      "mapping": "set_text / set_text_range",
+      "disposition": "alias",
+      "implementation": "packages/mcp/src/tools/set-text.ts",
+      "test": "test/tool-contract.test.ts"
+    },
+    {
+      "name": "cloneNext",
+      "source": "figmosha2",
+      "mapping": "clone_node + set_position",
+      "disposition": "alias",
+      "implementation": "packages/mcp/src/tools/clone-node.ts",
+      "test": "test/tool-contract.test.ts"
+    },
+    {
+      "name": "variant",
+      "source": "figmosha2",
+      "mapping": "set_instance_properties",
+      "disposition": "alias",
+      "implementation": "packages/mcp/src/tools/set-instance-properties.ts",
+      "test": "test/tool-contract.test.ts"
+    },
+    {
+      "name": "variantsOf",
+      "source": "figmosha2",
+      "mapping": "get_component_api",
+      "disposition": "alias",
+      "implementation": "packages/mcp/src/tools/get-component-api.ts",
+      "test": "test/tool-contract.test.ts"
+    },
+    {
+      "name": "sel",
+      "source": "figmosha2",
+      "mapping": "get_selection",
+      "disposition": "alias",
+      "implementation": "packages/mcp/src/tools/get-selection.ts",
+      "test": "test/tool-contract.test.ts"
+    },
+    {
+      "name": "hex",
+      "source": "figmosha2",
+      "mapping": "client paint utility",
+      "disposition": "alias",
+      "implementation": "packages/mcp/src/tools/paint-schema.ts",
+      "test": "test/tool-contract.test.ts"
+    },
+    {
+      "name": "solid",
+      "source": "figmosha2",
+      "mapping": "canonical paint builder",
+      "disposition": "alias",
+      "implementation": "packages/mcp/src/tools/paint-schema.ts",
+      "test": "test/tool-contract.test.ts"
+    },
+    {
+      "name": "frame",
+      "source": "figmosha2",
+      "mapping": "batch(create_frame,set_auto_layout,set_fills)",
+      "disposition": "alias",
+      "implementation": "packages/mcp/src/tools/batch.ts",
+      "test": "test/tool-contract.test.ts"
+    },
+    {
+      "name": "resolve",
+      "source": "figmosha2",
+      "mapping": "target resolver",
+      "disposition": "native",
+      "implementation": "packages/mcp/src/node-id.ts",
+      "test": "test/tool-contract.test.ts"
+    },
+    {
+      "name": "node",
+      "source": "figmosha2",
+      "mapping": "get_node",
+      "disposition": "alias",
+      "implementation": "packages/mcp/src/tools/get-node.ts",
+      "test": "test/tool-contract.test.ts"
+    },
+    {
+      "name": "var_",
+      "source": "figmosha2",
+      "mapping": "variable resolver + library import",
+      "disposition": "adapter",
+      "implementation": "packages/mcp/src/tools/import-library-variable.ts",
+      "test": "test/tool-contract.test.ts"
+    },
+    {
+      "name": "importComp",
+      "source": "figmosha2",
+      "mapping": "create_instance(componentKey) 또는 swap_component(componentKey)",
+      "disposition": "alias",
+      "implementation": "packages/mcp/src/tools/create-instance.ts",
+      "test": "test/tool-contract.test.ts"
+    },
+    {
+      "name": "importVar",
+      "source": "figmosha2",
+      "mapping": "import_library_variable 신설",
+      "disposition": "adapter",
+      "implementation": "packages/mcp/src/tools/import-library-variable.ts",
+      "test": "test/tool-contract.test.ts"
+    }
+  ],
+  "cliParsers": [
+    {
+      "name": "status",
+      "source": "figmosha2",
+      "mapping": "ping summary",
+      "disposition": "alias",
+      "implementation": "packages/mcp/src/tools/ping.ts",
+      "test": "test/tool-contract.test.ts"
+    },
+    {
+      "name": "doctor",
+      "source": "figmosha2",
+      "mapping": "doctor orchestration 신설",
+      "disposition": "native",
+      "implementation": "packages/mcp/src/tools/doctor.ts",
+      "test": "test/tool-contract.test.ts"
+    },
+    {
+      "name": "sel",
+      "source": "figmosha2",
+      "mapping": "get_selection",
+      "disposition": "alias",
+      "implementation": "packages/mcp/src/tools/get-selection.ts",
+      "test": "test/tool-contract.test.ts"
+    },
+    {
+      "name": "exec",
+      "source": "figmosha2",
+      "mapping": "expert execution capability",
+      "disposition": "rejected",
+      "implementation": null,
+      "test": "test/tool-contract.test.ts"
+    },
+    {
+      "name": "tree",
+      "source": "figmosha2",
+      "mapping": "get_design_context",
+      "disposition": "alias",
+      "implementation": "packages/mcp/src/tools/get-design-context.ts",
+      "test": "test/tool-contract.test.ts"
+    },
+    {
+      "name": "find",
+      "source": "figmosha2",
+      "mapping": "search_nodes",
+      "disposition": "alias",
+      "implementation": "packages/mcp/src/tools/search-nodes.ts",
+      "test": "test/tool-contract.test.ts"
+    },
+    {
+      "name": "text",
+      "source": "figmosha2",
+      "mapping": "set_text/set_text_range",
+      "disposition": "alias",
+      "implementation": "packages/mcp/src/tools/set-text.ts",
+      "test": "test/tool-contract.test.ts"
+    },
+    {
+      "name": "variant",
+      "source": "figmosha2",
+      "mapping": "set_instance_properties",
+      "disposition": "alias",
+      "implementation": "packages/mcp/src/tools/set-instance-properties.ts",
+      "test": "test/tool-contract.test.ts"
+    },
+    {
+      "name": "clone",
+      "source": "figmosha2",
+      "mapping": "clone_node+set_position",
+      "disposition": "alias",
+      "implementation": "packages/mcp/src/tools/clone-node.ts",
+      "test": "test/tool-contract.test.ts"
+    },
+    {
+      "name": "rm",
+      "source": "figmosha2",
+      "mapping": "delete_nodes",
+      "disposition": "alias",
+      "implementation": "packages/mcp/src/tools/delete-nodes.ts",
+      "test": "test/tool-contract.test.ts"
+    },
+    {
+      "name": "import-component",
+      "source": "figmosha2",
+      "mapping": "create_instance(componentKey)",
+      "disposition": "alias",
+      "implementation": "packages/mcp/src/tools/create-instance.ts",
+      "test": "test/tool-contract.test.ts"
+    },
+    {
+      "name": "icomp",
+      "source": "figmosha2",
+      "mapping": "위와 동일",
+      "disposition": "alias",
+      "implementation": "packages/mcp/src/tools/create-instance.ts",
+      "test": "test/tool-contract.test.ts"
+    }
+  ]
+}
