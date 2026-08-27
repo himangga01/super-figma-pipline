@@ -1,0 +1,110 @@
+{
+  "schemaVersion": 1,
+  "entries": [
+    {
+      "path": "packages/mcp/README.md",
+      "line": 1,
+      "column": 3,
+      "value": "@figwright/mcp",
+      "reason": "upstream protocol tag, comment, fixture, or user guidance"
+    },
+    {
+      "path": "packages/mcp/README.md",
+      "line": 16,
+      "column": 23,
+      "value": "@figwright/mcp@latest",
+      "reason": "upstream protocol tag, comment, fixture, or user guidance"
+    },
+    {
+      "path": "packages/mcp/src/relay/relay.ts",
+      "line": 387,
+      "column": 65,
+      "value": "@figwright/mcp",
+      "reason": "upstream protocol tag, comment, fixture, or user guidance"
+    },
+    {
+      "path": "packages/plugin/protocol/bridge.ts",
+      "line": 7,
+      "column": 35,
+      "value": "@figwright/shared",
+      "reason": "upstream protocol tag, comment, fixture, or user guidance"
+    },
+    {
+      "path": "packages/plugin/protocol/bridge.ts",
+      "line": 19,
+      "column": 35,
+      "value": "@figwright/bridge",
+      "reason": "upstream protocol tag, comment, fixture, or user guidance"
+    },
+    {
+      "path": "packages/plugin/protocol/panel-control.ts",
+      "line": 5,
+      "column": 64,
+      "value": "@figwright/shared",
+      "reason": "upstream protocol tag, comment, fixture, or user guidance"
+    },
+    {
+      "path": "packages/plugin/protocol/panel-control.ts",
+      "line": 19,
+      "column": 43,
+      "value": "@figwright/shared",
+      "reason": "upstream protocol tag, comment, fixture, or user guidance"
+    },
+    {
+      "path": "packages/plugin/protocol/panel-control.ts",
+      "line": 34,
+      "column": 35,
+      "value": "@figwright/panel",
+      "reason": "upstream protocol tag, comment, fixture, or user guidance"
+    },
+    {
+      "path": "packages/plugin/test/dispatcher.test.ts",
+      "line": 111,
+      "column": 28,
+      "value": "@figwright/bridge",
+      "reason": "upstream protocol tag, comment, fixture, or user guidance"
+    },
+    {
+      "path": "packages/plugin/test/protocol/panel-control.test.ts",
+      "line": 61,
+      "column": 38,
+      "value": "@figwright/bridge",
+      "reason": "upstream protocol tag, comment, fixture, or user guidance"
+    },
+    {
+      "path": "packages/plugin/test/sandbox/messaging.test.ts",
+      "line": 132,
+      "column": 21,
+      "value": "@figwright/bridge",
+      "reason": "upstream protocol tag, comment, fixture, or user guidance"
+    },
+    {
+      "path": "packages/plugin/ui/env.d.ts",
+      "line": 4,
+      "column": 26,
+      "value": "@figwright/mcp",
+      "reason": "upstream protocol tag, comment, fixture, or user guidance"
+    },
+    {
+      "path": "packages/plugin/ui/sandbox/messaging.ts",
+      "line": 6,
+      "column": 47,
+      "value": "@figwright/shared",
+      "reason": "upstream protocol tag, comment, fixture, or user guidance"
+    },
+    {
+      "path": "packages/shared/src/tool-budgets.ts",
+      "line": 15,
+      "column": 76,
+      "value": "@figwright/shared",
+      "reason": "upstream protocol tag, comment, fixture, or user guidance"
+    },
+    {
+      "path": "packages/shared/src/version.ts",
+      "line": 5,
+      "column": 39,
+      "value": "@figwright/mcp@latest",
+      "reason": "upstream protocol tag, comment, fixture, or user guidance"
+    }
+  ]
+}

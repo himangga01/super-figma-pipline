@@ -1,0 +1,545 @@
+import type { Server as HttpServer } from 'node:http';
+
+import {
+  ActivityParamsSchema,
+  createError,
+  createRequest,
+  createResponse,
+  decodeEnvelope,
+  encodeEnvelope,
+  checkPluginCompatibility,
+  type Envelope,
+  ErrorCode,
+  HEARTBEAT_INTERVAL_MS,
+  HEARTBEAT_MAX_MISSES,
+  HeartbeatMonitor,
+  HelloParamsSchema,
+  type HelloResult,
+  newId,
+  pluginSkewNotice,
+  pluginSkewSummary,
+  PROTOCOL_VERSION,
+  SystemMethod,
+} from '@sfp/shared';
+import { WebSocketServer, type WebSocket } from 'ws';
+
+import { isAllowedHost, isAllowedWsOrigin } from '../local-access.js';
+import { DEFAULT_DISCONNECT_GRACE_MS, type Session, SessionManager } from './session.js';
+
+export interface RelayOptions {
+  serverVersion: string;
+  server: HttpServer;
+  log?: (msg: string) => void;
+  heartbeatIntervalMs?: number;
+  heartbeatMaxMisses?: number;
+  disconnectGraceMs?: number;
+}
+
+interface Pending {
+  resolve: (value: unknown) => void;
+  reject: (err: Error) => void;
+  timer: ReturnType<typeof setTimeout>;
+  method: string;
+  params: unknown;
+  dispatched: boolean;
+  // When set, this request is pinned to one session: it only dispatches/flushes to that session,
+  // never to whoever happens to be most-active. Used to keep a multi-call tool's sub-calls together.
+  pinnedSessionId: string | undefined;
+  // The session this request was actually dispatched to (set in dispatchPending). Scanned by
+  // sessionHasInflight so a busy plugin's heartbeat timeout is deferred rather than closing the socket.
+  dispatchedToSessionId: string | undefined;
+  // Filled with that session as the response lands, and read by the awaiting caller — per request,
+  // so concurrent calls cannot observe each other's. See sendRequest's `onServed`.
+  served: { sessionId: string | undefined };
+}
+
+export const DEFAULT_PLUGIN_REQUEST_TIMEOUT_MS = 30_000;
+
+export class Relay {
+  readonly sessions = new SessionManager();
+  private readonly wss: WebSocketServer;
+  private readonly opts: Required<Omit<RelayOptions, 'server'>>;
+  private readonly pending = new Map<string, Pending>();
+  private heartbeatDeferrals = 0;
+  private lastRequestAtMs = 0;
+
+  constructor(opts: RelayOptions) {
+    this.opts = {
+      serverVersion: opts.serverVersion,
+      log: opts.log ?? (() => {}),
+      heartbeatIntervalMs: opts.heartbeatIntervalMs ?? HEARTBEAT_INTERVAL_MS,
+      heartbeatMaxMisses: opts.heartbeatMaxMisses ?? HEARTBEAT_MAX_MISSES,
+      disconnectGraceMs: opts.disconnectGraceMs ?? DEFAULT_DISCONNECT_GRACE_MS,
+    };
+    this.wss = new WebSocketServer({
+      server: opts.server,
+      // Refuse the upgrade before it becomes a session: an accepted socket can claim a plugin
+      // identity via $hello and then win routing via $activity, which would put a web page between
+      // the agent and the real file.
+      verifyClient: ({ req }, done) => {
+        if (!isAllowedHost(req.headers.host)) {
+          this.opts.log(
+            `[relay] refused WebSocket upgrade for host ${req.headers.host ?? '(none)'}`,
+          );
+          done(false, 403, 'Forbidden');
+          return;
+        }
+        const origin = req.headers.origin;
+        if (isAllowedWsOrigin(origin)) {
+          done(true);
+          return;
+        }
+        this.opts.log(`[relay] refused WebSocket upgrade from origin ${origin ?? '(none)'}`);
+        done(false, 403, 'Forbidden');
+      },
+    });
+    this.wss.on('connection', socket => this.handleConnection(socket));
+  }
+
+  async stop(): Promise<void> {
+    for (const [, p] of this.pending) {
+      clearTimeout(p.timer);
+      p.reject(new Error(`relay stopping (pending ${p.method})`));
+    }
+    this.pending.clear();
+    this.sessions.clear();
+    for (const client of this.wss.clients) {
+      client.terminate();
+    }
+    await new Promise<void>(resolve => this.wss.close(() => resolve()));
+  }
+
+  async sendRequest(
+    method: string,
+    params?: unknown,
+    timeoutMs: number = DEFAULT_PLUGIN_REQUEST_TIMEOUT_MS,
+    sessionId?: string,
+    /**
+     * Called with the session that served this request, once it is answered.
+     *
+     * Recorded per request as the response lands, then invoked here — after the await, inside
+     * `sendRequest`'s own async context, which is the caller's. Both halves of that matter and each
+     * was got wrong once:
+     *
+     * - Recording per request rather than in a shared "who served last?" field means two concurrent
+     *   calls to plugins on different builds cannot read each other's answer.
+     * - Invoking it _here_ rather than from the socket handler is what lets the caller attribute the
+     *   result at all. The handler runs in the socket's async context, so anything context-scoped a
+     *   caller set up (`captureSkew`) is invisible from there — a callback fired at that point
+     *   reaches nobody, which is precisely what shipped until an end-to-end test caught it.
+     */
+    onServed?: (servingSessionId: string | undefined) => void,
+  ): Promise<unknown> {
+    const id = newId();
+    this.lastRequestAtMs = Date.now();
+    const served: { sessionId: string | undefined } = { sessionId: undefined };
+    try {
+      return await new Promise<unknown>((resolve, reject) => {
+        const timer = setTimeout(() => {
+          // Attributed like any other outcome: the call reached a plugin, it just never answered.
+          // An old plugin is a plausible cause rather than a bystander here — `get_design_context`
+          // arms its pre-serialization bail with `budget`, one of the arguments such a plugin drops,
+          // so a large tree it would have refused up front gets serialized in full instead. Without
+          // this the agent reads a bare timeout and blames the size of the file.
+          const pending = this.pending.get(id);
+          if (pending !== undefined) served.sessionId = pending.dispatchedToSessionId;
+          this.pending.delete(id);
+          reject(new Error(`plugin request timeout (method=${method})`));
+        }, timeoutMs);
+        const entry: Pending = {
+          resolve,
+          reject,
+          timer,
+          method,
+          params,
+          dispatched: false,
+          pinnedSessionId: sessionId,
+          dispatchedToSessionId: undefined,
+          served,
+        };
+        this.pending.set(id, entry);
+
+        if (sessionId !== undefined) {
+          // Pinned: route only to this session. If it's fully gone (not even within the disconnect
+          // grace window) fail fast — silently re-routing to another plugin is the drift bug we're
+          // fixing. If it exists but is momentarily socket-less, queue and flushQueue will deliver it
+          // when that same session reconnects (session ids survive resume).
+          const target = this.sessions.get(sessionId);
+          if (target === undefined) {
+            clearTimeout(timer);
+            this.pending.delete(id);
+            reject(
+              new Error(`pinned session not connected (sessionId=${sessionId}, method=${method})`),
+            );
+            return;
+          }
+          if (target.socket !== null && target.state === 'connected') {
+            this.dispatchPending(id, entry, target);
+          } else {
+            this.opts.log(`[relay] queued ${method} (pinned session ${sessionId} reconnecting)`);
+          }
+          return;
+        }
+
+        const session = this.pickActiveSession();
+        if (session !== undefined && session.socket !== null) {
+          this.dispatchPending(id, entry, session);
+        } else {
+          this.opts.log(`[relay] queued ${method} (no plugin connected)`);
+        }
+      });
+    } finally {
+      // In `finally`, so a failed call is attributed too. The loudest thing an out-of-date plugin
+      // does is answer METHOD_NOT_FOUND for a tool it predates — nine of them for the last shipped
+      // build — and an unattributed one reads as "this tool is broken", which is the same
+      // misdirection as a silent wrong write, just noisier.
+      onServed?.(served.sessionId);
+    }
+  }
+
+  /**
+   * The skew warning for one session, or null when that plugin is current.
+   *
+   * Takes a session id rather than looking up the active one, because with two Figma files open on
+   * different plugin builds "the active session" can differ between dispatching a call and
+   * answering it — and a warning attributed to the wrong plugin is worse than none. Callers that
+   * have just made a request pass the session that served it (see sendRequest's `onServed`); `ping`
+   * passes the one it is reporting on.
+   */
+  skewNotice(sessionId: string | undefined): string | null {
+    if (sessionId === undefined) return null;
+    const session = this.sessions.get(sessionId);
+    if (session === undefined) return null;
+    if (checkPluginCompatibility(session.clientVersion, this.opts.serverVersion)) return null;
+    // Full once per session, then the one-liner. The plugin cannot change under a session, so
+    // restating ~120 tokens on every call of a fifty-call codegen run spends thousands of them on
+    // one unchanging fact — and identical text repeated every turn is what teaches a model to skim
+    // past it, so paying that cost would also blunt the warning. The short form still carries both
+    // versions and the consequence, so a caller that only ever sees it is not misinformed.
+    if (session.skewExplained) {
+      return pluginSkewSummary(session.clientVersion, this.opts.serverVersion);
+    }
+    session.skewExplained = true;
+    return pluginSkewNotice(session.clientVersion, this.opts.serverVersion);
+  }
+
+  pendingCount(): number {
+    return this.pending.size;
+  }
+
+  queuedCount(): number {
+    let n = 0;
+    for (const [, p] of this.pending) if (!p.dispatched) n += 1;
+    return n;
+  }
+
+  /** How many heartbeat timeouts were deferred because the session was mid-request (busy ≠ dead). */
+  heartbeatDeferralCount(): number {
+    return this.heartbeatDeferrals;
+  }
+
+  /**
+   * Epoch ms of the most recent sendRequest, 0 if none yet. The abdication handler uses it as a
+   * quiet-window signal: a multi-call tool has idle moments _between_ sub-calls where pendingCount
+   * is 0, and abdicating in one of those gaps would strand the tool's remaining pinned sub-calls on
+   * the takeover window. Recent traffic means "probably mid-sequence — not now".
+   */
+  lastRequestAt(): number {
+    return this.lastRequestAtMs;
+  }
+
+  /**
+   * Does this session have a request that was dispatched to it and hasn't resolved yet? Scanned
+   * (not counted) so it can't desync across resolve/reject/timeout/stop. A plugin busy encoding a
+   * huge reply can't answer pings but isn't dead; its in-flight request bounds the deferral — the
+   * request's own timer is the backstop, so a plugin that truly died mid-request is still reaped
+   * once that fires.
+   */
+  private sessionHasInflight(sessionId: string): boolean {
+    for (const [, p] of this.pending) {
+      if (p.dispatched && p.dispatchedToSessionId === sessionId) return true;
+    }
+    return false;
+  }
+
+  /**
+   * Pick the connected session with the highest `lastActivityAt`. When the user opens the plugin in
+   * a newly-focused Figma file, that fresh session wins routing over an older idle one — the effect
+   * a user expects when they "switch which file Claude is looking at". With one plugin it's just
+   * that plugin; with N it's the most-recently-active.
+   */
+  pickActiveSession(): Session | undefined {
+    let best: Session | undefined;
+    for (const s of this.sessions.connected()) {
+      if (best === undefined || s.lastActivityAt > best.lastActivityAt) best = s;
+    }
+    return best;
+  }
+
+  /**
+   * The id of the session routing would currently pick. A multi-call tool resolves this once up
+   * front and then pins every sub-call to it, so the group can't drift across plugins if activity
+   * flips mid-flight. Returns undefined when no plugin is connected (caller falls back to unpinned
+   * live routing, which is the right cold-start behavior).
+   */
+  pickActiveSessionId(): string | undefined {
+    return this.pickActiveSession()?.id;
+  }
+
+  private dispatchPending(id: string, entry: Pending, session: Session): void {
+    if (session.socket === null) return;
+    entry.dispatched = true;
+    entry.dispatchedToSessionId = session.id;
+    session.socket.send(
+      encodeEnvelope(
+        createRequest({ id, sessionId: session.id, method: entry.method, params: entry.params }),
+      ),
+    );
+  }
+
+  private flushQueue(session: Session): void {
+    if (session.socket === null) return;
+    let flushed = 0;
+    for (const [id, entry] of this.pending) {
+      if (entry.dispatched) continue;
+      // A pinned request only flushes to its own session — never to whichever plugin reconnects
+      // first. An unpinned queued request flushes to whoever shows up.
+      if (entry.pinnedSessionId !== undefined && entry.pinnedSessionId !== session.id) continue;
+      this.dispatchPending(id, entry, session);
+      flushed += 1;
+    }
+    if (flushed > 0)
+      this.opts.log(`[relay] flushed ${flushed} queued request(s) to session ${session.id}`);
+  }
+
+  private handleConnection(socket: WebSocket): void {
+    socket.binaryType = 'nodebuffer';
+
+    let session: Session | undefined;
+
+    const helloTimeout = setTimeout(() => {
+      if (session === undefined) {
+        this.opts.log('[relay] hello timeout, closing socket');
+        socket.close(1008, 'hello timeout');
+      }
+    }, 5_000);
+
+    socket.on('message', raw => {
+      let envelope: Envelope;
+      try {
+        envelope = decodeEnvelope(raw as Uint8Array);
+      } catch (err) {
+        this.opts.log(`[relay] decode error: ${(err as Error).message}`);
+        socket.close(1003, 'invalid envelope');
+        return;
+      }
+
+      if (session === undefined) {
+        clearTimeout(helloTimeout);
+        session = this.handleHello(socket, envelope) ?? undefined;
+        if (session === undefined) socket.close(1008, 'hello failed');
+        return;
+      }
+
+      this.handleEnvelope(session, envelope);
+    });
+
+    socket.on('close', () => {
+      clearTimeout(helloTimeout);
+      if (session !== undefined) {
+        this.opts.log(
+          `[relay] session ${session.id} disconnected (grace ${this.opts.disconnectGraceMs}ms)`,
+        );
+        this.sessions.markDisconnected(session, this.opts.disconnectGraceMs);
+      }
+    });
+
+    socket.on('error', err => {
+      this.opts.log(`[relay] socket error: ${err.message}`);
+    });
+  }
+
+  private handleHello(socket: WebSocket, env: Envelope): Session | null {
+    if (env.kind !== 'req' || env.method !== SystemMethod.Hello) {
+      this.sendError(socket, env, ErrorCode.InvalidRequest, 'first message must be $hello');
+      return null;
+    }
+
+    const parsed = HelloParamsSchema.safeParse(env.params);
+    if (!parsed.success) {
+      this.sendError(socket, env, ErrorCode.InvalidParams, 'invalid $hello params');
+      return null;
+    }
+
+    // Two gates, two different questions, both settled at the handshake because this relay is a
+    // stateful session — the plugin connects once and is dispatched to for as long as the panel is
+    // open, so there is no per-request point at which to answer them.
+    //
+    // Both rejections carry structured `data` beside the prose, matching the shape MCP specifies for
+    // the same situation (`{ supported, requested }` on its version error). The text is written for
+    // the panel, since the spec's own note applies here too: for a peer with no way to fall forward,
+    // this message may be the only diagnostic a user ever sees.
+    //
+    // Wire format: can we understand each other's envelopes at all?
+    if (parsed.data.protocolVersion !== PROTOCOL_VERSION) {
+      const message =
+        `protocol mismatch: server speaks ${PROTOCOL_VERSION}, plugin speaks ${parsed.data.protocolVersion} — ` +
+        'update the older Figwright half so both match (server: @figwright/mcp, plugin: re-import ' +
+        // The reopen matters: a refused plugin stops retrying (retrying cannot fix it, and a plugin
+        // old enough to be refused is old enough to lack any graceful handling of the refusal), so
+        // fixing the *server* side leaves the panel sitting on this message until it is reopened.
+        'the latest release), then reopen this plugin in Figma';
+      this.opts.log(`[relay] rejecting plugin — ${message}`);
+      this.sendError(socket, env, ErrorCode.ProtocolMismatch, message, {
+        reason: 'protocol',
+        supported: PROTOCOL_VERSION,
+        requested: parsed.data.protocolVersion,
+      });
+      return null;
+    }
+
+    // Feature set: does this plugin still act on everything this server sends? A plugin below the
+    // floor silently drops arguments it predates. It is served anyway — refusing it was built,
+    // measured against a real v0.3.0 plugin, and abandoned when it produced ~7 rejected handshakes a
+    // second forever, because the "stop retrying" half can only ever live in a plugin new enough not
+    // to be refused. What the server can do is make sure nobody is misled: every result this session
+    // serves carries the notice below.
+    const compatible = checkPluginCompatibility(parsed.data.clientVersion, this.opts.serverVersion);
+    if (!compatible) {
+      this.opts.log(
+        `[relay] plugin "${parsed.data.clientVersion}" predates this server (v${this.opts.serverVersion}); ` +
+          'serving it, and marking every result as unverified',
+      );
+    }
+
+    const { session, resumed } = this.sessions.register({
+      id: env.sessionId,
+      socket,
+      clientVersion: parsed.data.clientVersion,
+    });
+
+    session.heartbeat = new HeartbeatMonitor({
+      intervalMs: this.opts.heartbeatIntervalMs,
+      maxMisses: this.opts.heartbeatMaxMisses,
+      sendPing: () => this.sendPing(session),
+      onTimeout: () => {
+        // Busy ≠ dead. A plugin mid-request can be stuck synchronously encoding a huge reply on the
+        // same thread that answers pings — it isn't gone. Re-arm a fresh window instead of closing;
+        // the request's own timer reaps it if it really died (and a dropped socket fires 'close'
+        // regardless). tick() already stopped the timer before calling us, so start() can't double-arm.
+        if (this.sessionHasInflight(session.id)) {
+          this.heartbeatDeferrals += 1;
+          this.opts.log(
+            `[relay] heartbeat timeout deferred — session ${session.id} busy (in-flight)`,
+          );
+          session.heartbeat?.start();
+          return;
+        }
+        this.opts.log(`[relay] session ${session.id} heartbeat timeout`);
+        socket.close(1001, 'heartbeat timeout');
+      },
+    });
+    session.heartbeat.start();
+
+    const result: HelloResult = {
+      serverVersion: this.opts.serverVersion,
+      protocolVersion: PROTOCOL_VERSION,
+      sessionResumed: resumed,
+      ...(compatible
+        ? {}
+        : { skewNotice: pluginSkewNotice(parsed.data.clientVersion, this.opts.serverVersion) }),
+    };
+    this.sendResponse(socket, env, result);
+    this.opts.log(`[relay] session ${session.id} hello (resumed=${resumed})`);
+    this.flushQueue(session);
+    return session;
+  }
+
+  private handleEnvelope(session: Session, env: Envelope): void {
+    session.heartbeat?.notifyReceived();
+    // Routing priority: only an explicit $activity event counts as user interaction. Heartbeat
+    // replies and tool responses must NOT bump lastActivityAt — both fire on a timer / on
+    // server-initiated calls and would race the two sessions to a coin flip every 15s.
+    if (env.kind === 'evt' && env.method === SystemMethod.Activity) {
+      session.lastActivityAt = Date.now();
+      const parsed = ActivityParamsSchema.safeParse(env.params);
+      if (parsed.success) {
+        // Params carry the current file/page so `ping` can advertise it; routing decision and
+        // user-facing label come off the same event.
+        session.fileName = parsed.data.fileName;
+        session.pageId = parsed.data.pageId;
+        session.pageName = parsed.data.pageName;
+      }
+      return;
+    }
+    if (env.kind === 'req' && env.method === SystemMethod.Ping) {
+      if (session.socket !== null) this.sendResponse(session.socket, env, { ok: true });
+      return;
+    }
+    if (env.kind === 'res') {
+      const p = this.pending.get(env.id);
+      if (p !== undefined) {
+        clearTimeout(p.timer);
+        this.pending.delete(env.id);
+        // Recorded, not dispatched: this runs in the socket's async context, where anything the
+        // caller scoped to its own tool call is out of reach. sendRequest reports it after the
+        // await instead.
+        p.served.sessionId = p.dispatchedToSessionId;
+        p.resolve(env.result);
+      }
+      return;
+    }
+    if (env.kind === 'err') {
+      const p = this.pending.get(env.id);
+      if (p !== undefined) {
+        clearTimeout(p.timer);
+        this.pending.delete(env.id);
+        // Recorded on the error path too: a plugin that answers METHOD_NOT_FOUND for a tool it
+        // predates is the most visible thing an out-of-date one does, and the least self-explaining.
+        p.served.sessionId = p.dispatchedToSessionId;
+        p.reject(new Error(`${env.error.code}: ${env.error.message}`));
+      }
+      return;
+    }
+    this.opts.log(
+      `[relay] session ${session.id} <- ${env.kind} ${'method' in env ? env.method : ''}`,
+    );
+  }
+
+  private sendPing(session: Session): void {
+    if (session.socket === null) return;
+    session.socket.send(
+      encodeEnvelope(
+        createRequest({
+          id: newId(),
+          sessionId: session.id,
+          method: SystemMethod.Ping,
+        }),
+      ),
+    );
+  }
+
+  private sendResponse(socket: WebSocket, req: Envelope, result: unknown): void {
+    socket.send(encodeEnvelope(createResponse({ id: req.id, sessionId: req.sessionId, result })));
+  }
+
+  private sendError(
+    socket: WebSocket,
+    req: Envelope,
+    code: string,
+    message: string,
+    data?: unknown,
+  ): void {
+    socket.send(
+      encodeEnvelope(
+        createError({
+          id: req.id || newId(),
+          sessionId: req.sessionId || newId(),
+          code,
+          message,
+          ...(data === undefined ? {} : { data }),
+        }),
+      ),
+    );
+  }
+}

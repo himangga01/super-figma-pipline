@@ -1,0 +1,209 @@
+import type { GetVariableDefsResult } from '@sfp/shared';
+import { describe, expect, it } from 'vitest';
+
+import { createGetVariableDefsHandler } from '../../src/handlers/get-variable-defs.js';
+
+const fakeFigma = (collections: unknown[], variables: unknown[]): typeof figma =>
+  ({
+    variables: {
+      getLocalVariableCollectionsAsync: async () => collections,
+      getLocalVariablesAsync: async () => variables,
+    },
+  }) as unknown as typeof figma;
+
+describe('get_variable_defs handler', () => {
+  it('serializes collections (modes + variableIds) and variables (valuesByMode)', async () => {
+    const handler = createGetVariableDefsHandler(
+      fakeFigma(
+        [
+          {
+            id: 'VC:1',
+            name: 'Theme',
+            key: 'ck',
+            defaultModeId: 'm1',
+            modes: [
+              { modeId: 'm1', name: 'Light' },
+              { modeId: 'm2', name: 'Dark' },
+            ],
+            variableIds: ['V:1', 'V:2'],
+          },
+        ],
+        [
+          {
+            id: 'V:1',
+            name: 'color/bg',
+            key: 'vk1',
+            resolvedType: 'COLOR',
+            variableCollectionId: 'VC:1',
+            valuesByMode: {
+              m1: { r: 1, g: 1, b: 1, a: 1 },
+              m2: { r: 0, g: 0, b: 0 },
+            },
+          },
+          {
+            id: 'V:2',
+            name: 'color/fg',
+            key: 'vk2',
+            resolvedType: 'COLOR',
+            variableCollectionId: 'VC:1',
+            valuesByMode: { m1: { type: 'VARIABLE_ALIAS', id: 'V:1' } },
+          },
+        ],
+      ),
+    );
+    const result = (await handler(undefined)) as GetVariableDefsResult;
+
+    expect(result.collections[0]).toMatchObject({
+      id: 'VC:1',
+      defaultModeId: 'm1',
+      variableIds: ['V:1', 'V:2'],
+    });
+    expect(result.collections[0]?.modes).toHaveLength(2);
+    // RGB (no alpha) is normalised to a=1, with a hex mirror
+    expect(result.variables[0]?.valuesByMode.m2).toEqual({
+      r: 0,
+      g: 0,
+      b: 0,
+      a: 1,
+      hex: '#000000',
+    });
+    expect(result.variables[0]?.valuesByMode.m1).toEqual({
+      r: 1,
+      g: 1,
+      b: 1,
+      a: 1,
+      hex: '#FFFFFF',
+    });
+    // alias passthrough
+    expect(result.variables[1]?.valuesByMode.m1).toEqual({ type: 'VARIABLE_ALIAS', id: 'V:1' });
+  });
+
+  it('adds a hex mirror to COLOR values, 8-digit when alpha < 1', async () => {
+    const handler = createGetVariableDefsHandler(
+      fakeFigma(
+        [],
+        [
+          {
+            id: 'V:4',
+            name: 'color/scrim',
+            key: 'vk4',
+            resolvedType: 'COLOR',
+            variableCollectionId: 'VC:1',
+            valuesByMode: {
+              opaque: { r: 1, g: 1, b: 1, a: 1 },
+              scrim: { r: 1, g: 1, b: 1, a: 0.6 },
+            },
+          },
+        ],
+      ),
+    );
+    const result = (await handler(undefined)) as GetVariableDefsResult;
+    expect(result.variables[0]?.valuesByMode.opaque).toEqual({
+      r: 1,
+      g: 1,
+      b: 1,
+      a: 1,
+      hex: '#FFFFFF',
+    });
+    // alpha < 1 → 8-digit hex (0.6 × 255 = 153 = 0x99), matching globalVars
+    expect(result.variables[0]?.valuesByMode.scrim).toEqual({
+      r: 1,
+      g: 1,
+      b: 1,
+      a: 0.6,
+      hex: '#FFFFFF99',
+    });
+  });
+
+  it('carries codeSyntax only when a platform name is actually declared', async () => {
+    const mkVar = (id: string, codeSyntax: unknown): unknown => ({
+      id,
+      name: `v/${id}`,
+      key: `k${id}`,
+      resolvedType: 'COLOR',
+      variableCollectionId: 'VC:1',
+      valuesByMode: { m1: { r: 0, g: 0, b: 0, a: 1 } },
+      codeSyntax,
+    });
+    const handler = createGetVariableDefsHandler(
+      fakeFigma(
+        [],
+        [
+          mkVar('V:1', { WEB: '--color-primary', iOS: 'ColorPrimary' }),
+          mkVar('V:2', {}), // nothing declared → field omitted
+          mkVar('V:3', { WEB: '' }), // cleared declaration (empty string) → omitted too
+        ],
+      ),
+    );
+    const result = (await handler(undefined)) as GetVariableDefsResult;
+
+    expect(result.variables[0]?.codeSyntax).toEqual({
+      WEB: '--color-primary',
+      iOS: 'ColorPrimary',
+    });
+    expect(result.variables[1]?.codeSyntax).toBeUndefined();
+    expect(result.variables[2]?.codeSyntax).toBeUndefined();
+  });
+
+  it('serializes an EASING value as a curve, not as a color', async () => {
+    const handler = createGetVariableDefsHandler(
+      fakeFigma(
+        [],
+        [
+          {
+            id: 'V:5',
+            name: 'motion/enter',
+            key: 'vk5',
+            resolvedType: 'EASING',
+            variableCollectionId: 'VC:1',
+            valuesByMode: {
+              preset: { type: 'EASE_IN_AND_OUT' },
+              bezier: {
+                type: 'CUSTOM_CUBIC_BEZIER',
+                easingFunctionCubicBezier: { x1: 0.2, y1: 0, x2: 0.8, y2: 1 },
+              },
+              spring: { type: 'CUSTOM_SPRING', easingFunctionSpring: { bounce: 0.4 } },
+            },
+          },
+        ],
+      ),
+    );
+    const result = (await handler(undefined)) as GetVariableDefsResult;
+    const values = result.variables[0]?.valuesByMode;
+
+    // The pre-1.133 code had no easing branch: every one of these fell through to the color cast and
+    // came out as { a: 1, hex: '#NANNANNAN' } with undefined channels.
+    expect(values?.preset).toEqual({ type: 'EASE_IN_AND_OUT' });
+    expect(values?.bezier).toEqual({
+      type: 'CUSTOM_CUBIC_BEZIER',
+      easingFunctionCubicBezier: { x1: 0.2, y1: 0, x2: 0.8, y2: 1 },
+    });
+    expect(values?.spring).toEqual({
+      type: 'CUSTOM_SPRING',
+      easingFunctionSpring: { bounce: 0.4 },
+    });
+    // the optional payloads stay absent rather than being emitted as undefined
+    expect(values?.preset).not.toHaveProperty('easingFunctionCubicBezier');
+    expect(values?.preset).not.toHaveProperty('easingFunctionSpring');
+  });
+
+  it('passes primitive values through unchanged', async () => {
+    const handler = createGetVariableDefsHandler(
+      fakeFigma(
+        [],
+        [
+          {
+            id: 'V:3',
+            name: 'spacing/md',
+            key: 'vk3',
+            resolvedType: 'FLOAT',
+            variableCollectionId: 'VC:1',
+            valuesByMode: { m1: 16, m2: 'auto', m3: true },
+          },
+        ],
+      ),
+    );
+    const result = (await handler(undefined)) as GetVariableDefsResult;
+    expect(result.variables[0]?.valuesByMode).toEqual({ m1: 16, m2: 'auto', m3: true });
+  });
+});

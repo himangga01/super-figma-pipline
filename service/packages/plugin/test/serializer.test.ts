@@ -1,0 +1,1536 @@
+import { MIXED } from '@sfp/shared';
+import { describe, expect, it, vi } from 'vitest';
+
+import {
+  serializeEffect,
+  serializeFlat,
+  serializeFlatSync,
+  serializeLayoutGrid,
+  serializePaint,
+  serializeTree,
+} from '../src/serializer.js';
+
+const fake = (overrides: Record<string, unknown> = {}): SceneNode =>
+  ({
+    id: '1:2',
+    name: 'Node',
+    type: 'RECTANGLE',
+    visible: true,
+    locked: false,
+    x: 0,
+    y: 0,
+    width: 10,
+    height: 10,
+    parent: { id: '1:1' },
+    ...overrides,
+  }) as unknown as SceneNode;
+
+describe('serializeFlat', () => {
+  it('returns only base fields when no mixin properties are present', () => {
+    const out = serializeFlatSync(fake());
+    expect(out).toEqual({
+      id: '1:2',
+      name: 'Node',
+      type: 'RECTANGLE',
+      visible: true,
+      locked: false,
+      x: 0,
+      y: 0,
+      width: 10,
+      height: 10,
+      parentId: '1:1',
+    });
+    expect(out.children).toBeUndefined();
+  });
+
+  it('enriches with rotation / opacity / cornerRadius / fills', () => {
+    const out = serializeFlatSync(
+      fake({
+        rotation: 45,
+        opacity: 0.5,
+        cornerRadius: 8,
+        fills: [{ type: 'SOLID', visible: true, opacity: 1, color: { r: 1, g: 0, b: 0 } }],
+      }),
+    );
+    expect(out.rotation).toBe(45);
+    expect(out.opacity).toBe(0.5);
+    expect(out.cornerRadius).toBe(8);
+    expect(out.fills).toEqual([
+      { type: 'SOLID', visible: true, opacity: 1, color: { r: 1, g: 0, b: 0 } },
+    ]);
+  });
+
+  it('marks cornerRadius=mixed when value is not a number (figma.mixed symbol)', () => {
+    const out = serializeFlatSync(fake({ cornerRadius: Symbol('figma.mixed') }));
+    expect(out.cornerRadius).toBe(MIXED);
+  });
+
+  it('surfaces per-corner cornerRadii when cornerRadius is mixed (e.g. top-only rounded card)', () => {
+    const out = serializeFlatSync(
+      fake({
+        cornerRadius: Symbol('figma.mixed'),
+        topLeftRadius: 8,
+        topRightRadius: 8,
+        bottomRightRadius: 0,
+        bottomLeftRadius: 0,
+      }),
+    );
+    expect(out.cornerRadius).toBe(MIXED);
+    expect(out.cornerRadii).toEqual({ topLeft: 8, topRight: 8, bottomRight: 0, bottomLeft: 0 });
+  });
+
+  it('omits cornerRadii when per-corner radii are unavailable (not all numeric)', () => {
+    const out = serializeFlatSync(fake({ cornerRadius: Symbol('figma.mixed') }));
+    expect(out.cornerRadii).toBeUndefined();
+  });
+
+  it('surfaces blendMode but omits the no-op PASS_THROUGH', () => {
+    expect(serializeFlatSync(fake({ blendMode: 'MULTIPLY' })).blendMode).toBe('MULTIPLY');
+    expect(serializeFlatSync(fake({ blendMode: 'PASS_THROUGH' })).blendMode).toBeUndefined();
+  });
+
+  it('surfaces isMask / maskType only for mask nodes', () => {
+    const out = serializeFlatSync(fake({ isMask: true, maskType: 'ALPHA' }));
+    expect(out.isMask).toBe(true);
+    expect(out.maskType).toBe('ALPHA');
+    expect(serializeFlatSync(fake({ isMask: false })).isMask).toBeUndefined();
+  });
+
+  it('surfaces ellipse arcData for a partial sweep (pie) or non-zero innerRadius (donut)', () => {
+    // Partial sweep → a pie slice / gauge.
+    const pie = serializeFlatSync(
+      fake({ arcData: { startingAngle: 0, endingAngle: Math.PI, innerRadius: 0 } }),
+    );
+    expect(pie.arcData).toEqual({ startingAngle: 0, endingAngle: Math.PI, innerRadius: 0 });
+    // Full sweep but a hole → a ring / donut.
+    const donut = serializeFlatSync(
+      fake({ arcData: { startingAngle: 0, endingAngle: Math.PI * 2, innerRadius: 0.6 } }),
+    );
+    expect(donut.arcData).toEqual({ startingAngle: 0, endingAngle: Math.PI * 2, innerRadius: 0.6 });
+  });
+
+  it('omits arcData for a plain full disc and for non-ellipse nodes', () => {
+    const disc = serializeFlatSync(
+      fake({ arcData: { startingAngle: 0, endingAngle: Math.PI * 2, innerRadius: 0 } }),
+    );
+    expect(disc.arcData).toBeUndefined();
+    expect(serializeFlatSync(fake()).arcData).toBeUndefined();
+  });
+
+  it('marks fills=mixed when value is not an array', () => {
+    const out = serializeFlatSync(fake({ fills: Symbol('figma.mixed') }));
+    expect(out.fills).toBe(MIXED);
+  });
+
+  it('serializes a gradient paint with its stops and transform', () => {
+    const out = serializeFlatSync(
+      fake({
+        fills: [
+          {
+            type: 'GRADIENT_LINEAR',
+            visible: true,
+            opacity: 0.8,
+            gradientStops: [
+              { position: 0, color: { r: 1, g: 0, b: 0, a: 1 } },
+              { position: 1, color: { r: 0, g: 0, b: 1, a: 0.5 } },
+            ],
+            gradientTransform: [
+              [1, 0, 0],
+              [0, 1, 0],
+            ],
+          },
+        ],
+      }),
+    );
+    expect(out.fills).toEqual([
+      {
+        type: 'GRADIENT_LINEAR',
+        visible: true,
+        opacity: 0.8,
+        gradientStops: [
+          { position: 0, color: { r: 1, g: 0, b: 0, a: 1 } },
+          { position: 1, color: { r: 0, g: 0, b: 1, a: 0.5 } },
+        ],
+        gradientTransform: [
+          [1, 0, 0],
+          [0, 1, 0],
+        ],
+      },
+    ]);
+  });
+
+  it('carries scaleMode on an IMAGE fill (object-fit equivalent)', () => {
+    const out = serializeFlatSync(
+      fake({ fills: [{ type: 'IMAGE', visible: true, opacity: 1, scaleMode: 'FILL' }] }),
+    );
+    expect(out.fills).toEqual([{ type: 'IMAGE', visible: true, opacity: 1, scaleMode: 'FILL' }]);
+  });
+
+  it('flags an IMAGE fill with non-zero adjustments; untouched filters stay clean', () => {
+    // Adjusted: the original bytes don't carry the grading → export the composited render instead.
+    const graded = serializeFlatSync(
+      fake({
+        fills: [
+          {
+            type: 'IMAGE',
+            visible: true,
+            opacity: 1,
+            scaleMode: 'FILL',
+            filters: { exposure: 0.3, contrast: 0, saturation: 0 },
+          },
+        ],
+      }),
+    );
+    expect(graded.fills?.[0]).toMatchObject({ filtersApplied: true });
+
+    // All-zero filters (Figma's default object) must NOT flag.
+    const untouched = serializeFlatSync(
+      fake({
+        fills: [
+          {
+            type: 'IMAGE',
+            visible: true,
+            opacity: 1,
+            scaleMode: 'FILL',
+            filters: { exposure: 0, contrast: 0 },
+          },
+        ],
+      }),
+    );
+    expect(untouched.fills?.[0]).not.toHaveProperty('filtersApplied');
+  });
+
+  it('embeds Dev Mode annotations and the sticky/aspect dimensions only when meaningful', () => {
+    const out = serializeFlatSync(
+      fake({
+        overflowDirection: 'VERTICAL',
+        numberOfFixedChildren: 2,
+        targetAspectRatio: { x: 16, y: 9 },
+        annotations: [{ label: 'brand colour', properties: [{ type: 'fills' }] }],
+      }),
+    );
+    expect(out.numberOfFixedChildren).toBe(2);
+    expect(out.targetAspectRatio).toEqual({ x: 16, y: 9 });
+    expect(out.annotations).toEqual([{ label: 'brand colour', properties: ['fills'] }]);
+
+    // Defaults stay omitted: 0 fixed children, no locked ratio, empty annotations.
+    const defaults = serializeFlatSync(
+      fake({ numberOfFixedChildren: 0, targetAspectRatio: null, annotations: [] }),
+    );
+    expect(defaults.numberOfFixedChildren).toBeUndefined();
+    expect(defaults.targetAspectRatio).toBeUndefined();
+    expect(defaults.annotations).toBeUndefined();
+
+    // A degenerate ratio (a zero side) is dropped, not emitted as an invalid aspect-[0/9].
+    const degenerate = serializeFlatSync(fake({ targetAspectRatio: { x: 0, y: 9 } }));
+    expect(degenerate.targetAspectRatio).toBeUndefined();
+  });
+
+  it('serializes a PATTERN paint with its tiling geometry (source node + repeat)', () => {
+    const out = serializeFlatSync(
+      fake({
+        fills: [
+          {
+            type: 'PATTERN',
+            visible: false,
+            opacity: 0.8,
+            sourceNodeId: '12:34',
+            tileType: 'RECTANGULAR',
+            scalingFactor: 0.5,
+            spacing: { x: 4, y: 8 },
+            horizontalAlignment: 'CENTER',
+          },
+        ],
+      }),
+    );
+    expect(out.fills).toEqual([
+      {
+        type: 'PATTERN',
+        visible: false,
+        opacity: 0.8,
+        sourceNodeId: '12:34',
+        tileType: 'RECTANGULAR',
+        scalingFactor: 0.5,
+        spacing: { x: 4, y: 8 },
+        horizontalAlignment: 'CENTER',
+      },
+    ]);
+  });
+
+  it('omits the no-op pattern defaults (spacing 0,0 / alignment START)', () => {
+    const out = serializeFlatSync(
+      fake({
+        fills: [
+          {
+            type: 'PATTERN',
+            visible: true,
+            opacity: 1,
+            sourceNodeId: '12:34',
+            tileType: 'RECTANGULAR',
+            scalingFactor: 1,
+            spacing: { x: 0, y: 0 },
+            horizontalAlignment: 'START',
+          },
+        ],
+      }),
+    );
+    expect(out.fills).toEqual([
+      {
+        type: 'PATTERN',
+        visible: true,
+        opacity: 1,
+        sourceNodeId: '12:34',
+        tileType: 'RECTANGULAR',
+        scalingFactor: 1,
+      },
+    ]);
+  });
+
+  it('falls back paint.visible/opacity to defaults when undefined', () => {
+    const out = serializeFlatSync(
+      fake({ fills: [{ type: 'SOLID', color: { r: 0, g: 0, b: 0 } }] }),
+    );
+    expect(out.fills).toEqual([
+      { type: 'SOLID', visible: true, opacity: 1, color: { r: 0, g: 0, b: 0 } },
+    ]);
+  });
+
+  it('adds text mixin (characters / fontSize / fontName) for TEXT nodes', () => {
+    const out = serializeFlatSync(
+      fake({
+        type: 'TEXT',
+        characters: 'Hello',
+        fontSize: 16,
+        fontName: { family: 'Inter', style: 'Bold' },
+      }),
+    );
+    expect(out.characters).toBe('Hello');
+    expect(out.fontSize).toBe(16);
+    expect(out.fontName).toEqual({ family: 'Inter', style: 'Bold' });
+  });
+
+  it('marks fontSize/fontName mixed when figma.mixed', () => {
+    const out = serializeFlatSync(
+      fake({
+        type: 'TEXT',
+        characters: 'Mixed',
+        fontSize: Symbol('figma.mixed'),
+        fontName: Symbol('figma.mixed'),
+      }),
+    );
+    expect(out.fontSize).toBe(MIXED);
+    expect(out.fontName).toBe(MIXED);
+  });
+
+  it('omits text mixin for non-TEXT nodes', () => {
+    const out = serializeFlatSync(fake({ type: 'RECTANGLE' }));
+    expect(out.characters).toBeUndefined();
+    expect(out.fontSize).toBeUndefined();
+    expect(out.fontName).toBeUndefined();
+  });
+});
+
+describe('serializeFlat — strokes / effects / auto layout', () => {
+  it('serializes strokes with weight and align', () => {
+    const out = serializeFlatSync(
+      fake({
+        strokes: [{ type: 'SOLID', visible: true, opacity: 1, color: { r: 0, g: 0, b: 0 } }],
+        strokeWeight: 2,
+        strokeAlign: 'INSIDE',
+      }),
+    );
+    expect(out.strokes).toEqual([
+      { type: 'SOLID', visible: true, opacity: 1, color: { r: 0, g: 0, b: 0 } },
+    ]);
+    expect(out.strokeWeight).toBe(2);
+    expect(out.strokeAlign).toBe('INSIDE');
+  });
+
+  it('marks strokeWeight=mixed when not a number', () => {
+    const out = serializeFlatSync(
+      fake({
+        strokes: [{ type: 'SOLID', visible: true, opacity: 1, color: { r: 0, g: 0, b: 0 } }],
+        strokeWeight: Symbol('figma.mixed'),
+      }),
+    );
+    expect(out.strokeWeight).toBe(MIXED);
+  });
+
+  it('surfaces dashPattern / non-default strokeCap / strokeJoin on a dashed stroke', () => {
+    const out = serializeFlatSync(
+      fake({
+        strokes: [{ type: 'SOLID', visible: true, opacity: 1, color: { r: 0, g: 0, b: 0 } }],
+        strokeWeight: 1,
+        dashPattern: [4, 2],
+        strokeCap: 'ROUND',
+        strokeJoin: 'ROUND',
+      }),
+    );
+    expect(out.dashPattern).toEqual([4, 2]);
+    expect(out.strokeCap).toBe('ROUND');
+    expect(out.strokeJoin).toBe('ROUND');
+  });
+
+  it('omits dashPattern (empty=solid) and the no-op strokeCap NONE / strokeJoin MITER', () => {
+    const out = serializeFlatSync(
+      fake({
+        strokes: [{ type: 'SOLID', visible: true, opacity: 1, color: { r: 0, g: 0, b: 0 } }],
+        strokeWeight: 1,
+        dashPattern: [],
+        strokeCap: 'NONE',
+        strokeJoin: 'MITER',
+      }),
+    );
+    expect(out.dashPattern).toBeUndefined();
+    expect(out.strokeCap).toBeUndefined();
+    expect(out.strokeJoin).toBeUndefined();
+  });
+
+  it('surfaces per-side strokeWeights when strokeWeight is mixed (e.g. a top/bottom-only border)', () => {
+    const out = serializeFlatSync(
+      fake({
+        strokes: [{ type: 'SOLID', visible: true, opacity: 1, color: { r: 0, g: 0, b: 0 } }],
+        strokeWeight: Symbol('figma.mixed'),
+        strokeTopWeight: 1,
+        strokeRightWeight: 0,
+        strokeBottomWeight: 1,
+        strokeLeftWeight: 0,
+      }),
+    );
+    expect(out.strokeWeight).toBe(MIXED);
+    expect(out.strokeWeights).toEqual({ top: 1, right: 0, bottom: 1, left: 0 });
+  });
+
+  it('omits strokeWeights when per-side weights are unavailable (not all numeric)', () => {
+    const out = serializeFlatSync(
+      fake({
+        strokes: [{ type: 'SOLID', visible: true, opacity: 1, color: { r: 0, g: 0, b: 0 } }],
+        strokeWeight: Symbol('figma.mixed'),
+      }),
+    );
+    expect(out.strokeWeights).toBeUndefined();
+  });
+
+  it('omits stroke fields when strokes is empty', () => {
+    const out = serializeFlatSync(fake({ strokes: [], strokeWeight: 1 }));
+    expect(out.strokes).toBeUndefined();
+    expect(out.strokeWeight).toBeUndefined();
+  });
+
+  it('serializes effects', () => {
+    const out = serializeFlatSync(
+      fake({
+        effects: [
+          {
+            type: 'DROP_SHADOW',
+            visible: true,
+            radius: 4,
+            color: { r: 0, g: 0, b: 0, a: 0.2 },
+            offset: { x: 0, y: 2 },
+            spread: 0,
+            blendMode: 'NORMAL',
+          },
+        ],
+      }),
+    );
+    expect(out.effects).toEqual([
+      {
+        type: 'DROP_SHADOW',
+        visible: true,
+        radius: 4,
+        color: { r: 0, g: 0, b: 0, a: 0.2 },
+        offset: { x: 0, y: 2 },
+        spread: 0,
+      },
+    ]);
+  });
+
+  it('omits effects when empty', () => {
+    expect(serializeFlatSync(fake({ effects: [] })).effects).toBeUndefined();
+  });
+
+  it('serializes auto layout for HORIZONTAL/VERTICAL layoutMode', () => {
+    const out = serializeFlatSync(
+      fake({
+        type: 'FRAME',
+        layoutMode: 'HORIZONTAL',
+        paddingTop: 4,
+        paddingRight: 8,
+        paddingBottom: 4,
+        paddingLeft: 8,
+        itemSpacing: 12,
+        primaryAxisAlignItems: 'CENTER',
+        counterAxisAlignItems: 'MIN',
+        layoutWrap: 'NO_WRAP',
+      }),
+    );
+    expect(out.layout).toEqual({
+      mode: 'HORIZONTAL',
+      paddingTop: 4,
+      paddingRight: 8,
+      paddingBottom: 4,
+      paddingLeft: 8,
+      itemSpacing: 12,
+      primaryAxisAlignItems: 'CENTER',
+      counterAxisAlignItems: 'MIN',
+      layoutWrap: 'NO_WRAP',
+    });
+  });
+
+  it('carries reversed paint order and stroke-in-layout only when non-default', () => {
+    const base = {
+      type: 'FRAME',
+      layoutMode: 'VERTICAL',
+      paddingTop: 0,
+      paddingRight: 0,
+      paddingBottom: 0,
+      paddingLeft: 0,
+      itemSpacing: -8,
+      primaryAxisAlignItems: 'MIN',
+      counterAxisAlignItems: 'MIN',
+    };
+    // The stacked-avatars shape: negative spacing + reversed z-order; strokes take layout space.
+    const reversed = serializeFlatSync(
+      fake({ ...base, itemReverseZIndex: true, strokesIncludedInLayout: true }),
+    );
+    expect(reversed.layout).toMatchObject({
+      itemReverseZIndex: true,
+      strokesIncludedInLayout: true,
+    });
+
+    // Defaults (false) stay omitted so an ordinary flex row stays clean.
+    const plain = serializeFlatSync(
+      fake({ ...base, itemReverseZIndex: false, strokesIncludedInLayout: false }),
+    );
+    expect(plain.layout).not.toHaveProperty('itemReverseZIndex');
+    expect(plain.layout).not.toHaveProperty('strokesIncludedInLayout');
+  });
+
+  it('serializes WRAP cross-axis spacing + alignment (non-default only), skips them when not wrapping', () => {
+    const base = {
+      type: 'FRAME',
+      layoutMode: 'HORIZONTAL',
+      paddingTop: 0,
+      paddingRight: 0,
+      paddingBottom: 0,
+      paddingLeft: 0,
+      itemSpacing: 8,
+      primaryAxisAlignItems: 'MIN',
+      counterAxisAlignItems: 'MIN',
+    } as const;
+
+    // WRAP with a real row gap → counterAxisSpacing surfaces; AUTO alignment is the default → omitted.
+    const wrapped = serializeFlatSync(
+      fake({
+        ...base,
+        layoutWrap: 'WRAP',
+        counterAxisSpacing: 16,
+        counterAxisAlignContent: 'AUTO',
+      }),
+    );
+    expect(wrapped.layout?.counterAxisSpacing).toBe(16);
+    expect(wrapped.layout?.counterAxisAlignContent).toBeUndefined();
+
+    // SPACE_BETWEEN distributes the rows → Figma reports counterAxisSpacing null; alignment surfaces.
+    const distributed = serializeFlatSync(
+      fake({
+        ...base,
+        layoutWrap: 'WRAP',
+        counterAxisSpacing: null,
+        counterAxisAlignContent: 'SPACE_BETWEEN',
+      }),
+    );
+    expect(distributed.layout?.counterAxisSpacing).toBeUndefined();
+    expect(distributed.layout?.counterAxisAlignContent).toBe('SPACE_BETWEEN');
+
+    // A non-wrapping flex never carries them, even if the underlying props are set.
+    const noWrap = serializeFlatSync(
+      fake({
+        ...base,
+        layoutWrap: 'NO_WRAP',
+        counterAxisSpacing: 16,
+        counterAxisAlignContent: 'SPACE_BETWEEN',
+      }),
+    );
+    expect(noWrap.layout?.counterAxisSpacing).toBeUndefined();
+    expect(noWrap.layout?.counterAxisAlignContent).toBeUndefined();
+  });
+
+  it('serializes GRID layoutMode with counts / gaps / track sizes, no H/V-only fields', () => {
+    const out = serializeFlatSync(
+      fake({
+        type: 'FRAME',
+        layoutMode: 'GRID',
+        paddingTop: 16,
+        paddingRight: 16,
+        paddingBottom: 16,
+        paddingLeft: 16,
+        gridRowCount: 2,
+        gridColumnCount: 3,
+        gridRowGap: 8,
+        gridColumnGap: 12,
+        gridRowSizes: [
+          { type: 'FLEX', value: 1 },
+          { type: 'FIXED', value: 100 },
+        ],
+        gridColumnSizes: [{ type: 'FLEX', value: 1 }],
+      }),
+    );
+    expect(out.layout).toEqual({
+      mode: 'GRID',
+      paddingTop: 16,
+      paddingRight: 16,
+      paddingBottom: 16,
+      paddingLeft: 16,
+      gridRowCount: 2,
+      gridColumnCount: 3,
+      gridRowGap: 8,
+      gridColumnGap: 12,
+      gridRowSizes: [
+        { type: 'FLEX', value: 1 },
+        { type: 'FIXED', value: 100 },
+      ],
+      gridColumnSizes: [{ type: 'FLEX', value: 1 }],
+    });
+    // GRID must not leak H/V-only flex fields
+    expect(out.layout?.itemSpacing).toBeUndefined();
+    expect(out.layout?.primaryAxisAlignItems).toBeUndefined();
+  });
+
+  it('omits layout when layoutMode is NONE or absent', () => {
+    expect(serializeFlatSync(fake({ type: 'FRAME', layoutMode: 'NONE' })).layout).toBeUndefined();
+    expect(serializeFlatSync(fake({ type: 'RECTANGLE' })).layout).toBeUndefined();
+  });
+});
+
+describe('serializeFlat — layout sizing / constraints / clipsContent', () => {
+  it('captures auto-layout child sizing only when the parent is auto-layout', () => {
+    const out = serializeFlatSync(
+      fake({
+        parent: { id: '1:1', layoutMode: 'HORIZONTAL' },
+        layoutSizingHorizontal: 'FILL',
+        layoutSizingVertical: 'HUG',
+        layoutGrow: 1,
+        layoutAlign: 'STRETCH',
+        layoutPositioning: 'AUTO',
+      }),
+    );
+    expect(out.layoutSizingHorizontal).toBe('FILL');
+    expect(out.layoutSizingVertical).toBe('HUG');
+    expect(out.layoutGrow).toBe(1);
+    expect(out.layoutAlign).toBe('STRETCH');
+    expect(out.layoutPositioning).toBeUndefined(); // AUTO is the default, omitted
+    expect(out.constraints).toBeUndefined();
+  });
+
+  it('captures min/max size bounds, omitting unset (null) ones', () => {
+    // Bounds apply to auto-layout frames AND their children — a top-level auto-layout frame
+    // (no auto-layout parent) still carries its own maxWidth, so no parent gating.
+    const out = serializeFlatSync(
+      fake({ minWidth: 120, maxWidth: null, minHeight: null, maxHeight: 480 }),
+    );
+    expect(out.minWidth).toBe(120);
+    expect(out.maxWidth).toBeUndefined();
+    expect(out.minHeight).toBeUndefined();
+    expect(out.maxHeight).toBe(480);
+  });
+
+  it('omits min/max entirely for nodes without the properties', () => {
+    const out = serializeFlatSync(fake({}));
+    expect(out.minWidth).toBeUndefined();
+    expect(out.maxHeight).toBeUndefined();
+  });
+
+  it('flags ABSOLUTE layoutPositioning', () => {
+    const out = serializeFlatSync(
+      fake({ parent: { id: '1:1', layoutMode: 'VERTICAL' }, layoutPositioning: 'ABSOLUTE' }),
+    );
+    expect(out.layoutPositioning).toBe('ABSOLUTE');
+  });
+
+  it('captures gridChild placement when the parent is a GRID (default span/align omitted)', () => {
+    const out = serializeFlatSync(
+      fake({
+        parent: { id: '1:1', layoutMode: 'GRID' },
+        gridRowAnchorIndex: 1,
+        gridColumnAnchorIndex: 2,
+        gridRowSpan: 2,
+        gridColumnSpan: 1,
+        gridChildHorizontalAlign: 'CENTER',
+        gridChildVerticalAlign: 'AUTO',
+      }),
+    );
+    expect(out.gridChild).toEqual({
+      rowAnchorIndex: 1,
+      columnAnchorIndex: 2,
+      rowSpan: 2, // columnSpan 1 (default) and verticalAlign AUTO (default) are omitted
+      horizontalAlign: 'CENTER',
+    });
+  });
+
+  it('omits gridChild for an auto-flowed cell (anchor -1, default span / align)', () => {
+    const out = serializeFlatSync(
+      fake({
+        parent: { id: '1:1', layoutMode: 'GRID' },
+        gridRowAnchorIndex: -1,
+        gridColumnAnchorIndex: -1,
+        gridRowSpan: 1,
+        gridColumnSpan: 1,
+        gridChildHorizontalAlign: 'AUTO',
+        gridChildVerticalAlign: 'AUTO',
+      }),
+    );
+    expect(out.gridChild).toBeUndefined();
+  });
+
+  it('omits gridChild when the parent is not a GRID', () => {
+    const out = serializeFlatSync(
+      fake({
+        parent: { id: '1:1', layoutMode: 'HORIZONTAL' },
+        gridRowAnchorIndex: 0,
+        gridColumnAnchorIndex: 0,
+      }),
+    );
+    expect(out.gridChild).toBeUndefined();
+  });
+
+  it('falls back to constraints when parent is not auto-layout', () => {
+    const out = serializeFlatSync(
+      fake({ constraints: { horizontal: 'STRETCH', vertical: 'MIN' } }),
+    );
+    expect(out.constraints).toEqual({ horizontal: 'STRETCH', vertical: 'MIN' });
+    expect(out.layoutSizingHorizontal).toBeUndefined();
+  });
+
+  it('serializes clipsContent', () => {
+    expect(serializeFlatSync(fake({ clipsContent: true })).clipsContent).toBe(true);
+  });
+
+  it("surfaces a frame's own layoutGrids (the responsive column system)", () => {
+    const out = serializeFlatSync(
+      fake({
+        type: 'FRAME',
+        layoutGrids: [
+          { pattern: 'COLUMNS', visible: true, count: 12, gutterSize: 24, alignment: 'STRETCH' },
+        ],
+      }),
+    );
+    expect(out.layoutGrids).toEqual([
+      { pattern: 'COLUMNS', visible: true, count: 12, gutterSize: 24, alignment: 'STRETCH' },
+    ]);
+  });
+
+  it('omits layoutGrids when the frame defines none', () => {
+    expect(serializeFlatSync(fake({ type: 'FRAME', layoutGrids: [] })).layoutGrids).toBeUndefined();
+  });
+
+  it('surfaces overflowDirection on a scrolling frame, omits the NONE default', () => {
+    expect(
+      serializeFlatSync(fake({ type: 'FRAME', overflowDirection: 'VERTICAL' })).overflowDirection,
+    ).toBe('VERTICAL');
+    expect(
+      serializeFlatSync(fake({ type: 'FRAME', overflowDirection: 'NONE' })).overflowDirection,
+    ).toBeUndefined();
+  });
+});
+
+describe('serializeFlat — style links / component properties', () => {
+  it('collects non-empty style ids and skips empty ones', () => {
+    const out = serializeFlatSync(
+      fake({ fillStyleId: 'S:abc', strokeStyleId: '', effectStyleId: 'S:def' }),
+    );
+    expect(out.styleIds).toEqual({ fill: 'S:abc', effect: 'S:def' });
+  });
+
+  it('collapses boundVariables to flat lists of variable ids', () => {
+    const out = serializeFlatSync(
+      fake({
+        boundVariables: {
+          fills: [{ type: 'VARIABLE_ALIAS', id: 'VariableID:1' }],
+          cornerRadius: { type: 'VARIABLE_ALIAS', id: 'VariableID:2' },
+        },
+      }),
+    );
+    expect(out.boundVariables).toEqual({ fills: ['VariableID:1'], cornerRadius: ['VariableID:2'] });
+  });
+
+  it('serializes instance component properties (variant / boolean / instance-swap)', () => {
+    const out = serializeFlatSync(
+      fake({
+        type: 'INSTANCE',
+        componentProperties: {
+          Size: { type: 'VARIANT', value: 'lg' },
+          Disabled: { type: 'BOOLEAN', value: false },
+          Icon: { type: 'INSTANCE_SWAP', value: '123:456' },
+        },
+      }),
+    );
+    expect(out.componentProperties).toEqual({
+      Size: { type: 'VARIANT', value: 'lg' },
+      Disabled: { type: 'BOOLEAN', value: false },
+      Icon: { type: 'INSTANCE_SWAP', value: '123:456' },
+    });
+  });
+});
+
+describe('serializeFlat — typography', () => {
+  it('captures alignment / lineHeight / letterSpacing / case / decoration', () => {
+    const out = serializeFlatSync(
+      fake({
+        type: 'TEXT',
+        characters: 'Hi',
+        fontSize: 14,
+        fontName: { family: 'Inter', style: 'Regular' },
+        textAlignHorizontal: 'CENTER',
+        textAlignVertical: 'TOP',
+        lineHeight: { unit: 'PIXELS', value: 20 },
+        letterSpacing: { unit: 'PERCENT', value: 2 },
+        textCase: 'UPPER',
+        textDecoration: 'UNDERLINE',
+      }),
+    );
+    expect(out.textAlignHorizontal).toBe('CENTER');
+    expect(out.textAlignVertical).toBe('TOP');
+    expect(out.lineHeight).toEqual({ unit: 'PIXELS', value: 20 });
+    expect(out.letterSpacing).toEqual({ unit: 'PERCENT', value: 2 });
+    expect(out.textCase).toBe('UPPER');
+    expect(out.textDecoration).toBe('UNDERLINE');
+  });
+
+  it('serializes AUTO lineHeight and marks mixed values', () => {
+    expect(
+      serializeFlatSync(fake({ type: 'TEXT', characters: 'a', lineHeight: { unit: 'AUTO' } }))
+        .lineHeight,
+    ).toEqual({
+      unit: 'AUTO',
+    });
+    const mixed = serializeFlatSync(
+      fake({
+        type: 'TEXT',
+        characters: 'a',
+        lineHeight: Symbol('figma.mixed'),
+        textCase: Symbol('m'),
+      }),
+    );
+    expect(mixed.lineHeight).toBe(MIXED);
+    expect(mixed.textCase).toBe(MIXED);
+  });
+
+  it('expands per-run segments only for mixed-style text', () => {
+    const segments = [
+      {
+        characters: 'A',
+        start: 0,
+        end: 1,
+        fontName: { family: 'Inter', style: 'Regular' },
+        fontSize: 14,
+        fills: [{ type: 'SOLID', visible: true, opacity: 1, color: { r: 0, g: 0, b: 0 } }],
+        textDecoration: 'NONE',
+        textCase: 'ORIGINAL',
+      },
+      {
+        characters: 'B',
+        start: 1,
+        end: 2,
+        fontName: { family: 'Inter', style: 'Bold' },
+        fontSize: 20,
+        fills: [{ type: 'SOLID', visible: true, opacity: 1, color: { r: 0, g: 0, b: 1 } }],
+        textDecoration: 'UNDERLINE',
+        textCase: 'ORIGINAL',
+      },
+    ];
+    const out = serializeFlatSync(
+      fake({
+        type: 'TEXT',
+        characters: 'AB',
+        fontSize: Symbol('figma.mixed'),
+        fontName: { family: 'Inter', style: 'Regular' },
+        getStyledTextSegments: () => segments,
+      }),
+    );
+    expect(out.segments).toHaveLength(2);
+    expect(out.segments?.[1]).toMatchObject({
+      characters: 'B',
+      fontName: { family: 'Inter', style: 'Bold' },
+      fontSize: 20,
+      textDecoration: 'UNDERLINE',
+    });
+    expect(out.segments?.[1]?.fills).toEqual([
+      { type: 'SOLID', visible: true, opacity: 1, color: { r: 0, g: 0, b: 1 } },
+    ]);
+  });
+
+  it('omits segments for uniform text', () => {
+    const out = serializeFlatSync(
+      fake({
+        type: 'TEXT',
+        characters: 'Hi',
+        fontSize: 14,
+        fontName: { family: 'Inter', style: 'Regular' },
+        textCase: 'ORIGINAL',
+        textDecoration: 'NONE',
+        getStyledTextSegments: () => [],
+      }),
+    );
+    expect(out.segments).toBeUndefined();
+  });
+
+  it('asks Figma for every per-run field the segment output can carry', () => {
+    // Every other segment test stubs getStyledTextSegments and ignores what was requested, so a
+    // field dropped from the request list stays green here while real Figma silently stops
+    // returning it. This is the only assertion on the request itself.
+    const getStyledTextSegments = vi.fn<(fields: readonly string[]) => unknown[]>(() => []);
+    serializeFlatSync(
+      fake({
+        type: 'TEXT',
+        characters: 'AB',
+        fontSize: Symbol('figma.mixed'),
+        fontName: { family: 'Inter', style: 'Regular' },
+        getStyledTextSegments,
+      }),
+    );
+    expect(getStyledTextSegments.mock.calls[0]?.[0]).toEqual([
+      'fontName',
+      'fontSize',
+      'fills',
+      'textDecoration',
+      'textCase',
+      'lineHeight',
+      'letterSpacing',
+      'hyperlink',
+      'listOptions',
+      'indentation',
+      'textWrapStyle',
+      'textStyleId',
+      'fillStyleId',
+      'boundVariables',
+    ]);
+  });
+
+  it('emits a uniform textWrapStyle node-level, without expanding segments', () => {
+    const out = serializeFlatSync(
+      fake({
+        type: 'TEXT',
+        characters: 'A balanced heading',
+        fontSize: 24,
+        fontName: { family: 'Inter', style: 'Bold' },
+        textCase: 'ORIGINAL',
+        textDecoration: 'NONE',
+        textWrapStyle: 'BALANCE',
+        getStyledTextSegments: () => [],
+      }),
+    );
+    expect(out.textWrapStyle).toBe('BALANCE');
+    expect(out.segments).toBeUndefined();
+  });
+
+  it('expands segments when textWrapStyle alone is mixed, and drops the node-level value', () => {
+    // Wrap style is paragraph-scoped, so two paragraphs disagreeing is enough to make the node-level
+    // read `mixed` while every other dimension stays uniform — nothing else would trip
+    // needsSegments, so without its own gate the real per-paragraph values would vanish entirely.
+    const uniform = {
+      fontName: { family: 'Inter', style: 'Regular' },
+      fontSize: 14,
+      fills: [{ type: 'SOLID', visible: true, opacity: 1, color: { r: 0, g: 0, b: 0 } }],
+      textDecoration: 'NONE',
+      textCase: 'ORIGINAL',
+    };
+    const segments = [
+      { ...uniform, characters: 'One\n', start: 0, end: 4, textWrapStyle: 'AUTO' },
+      { ...uniform, characters: 'Two', start: 4, end: 7, textWrapStyle: 'BALANCE' },
+    ];
+    const out = serializeFlatSync(
+      fake({
+        type: 'TEXT',
+        characters: 'One\nTwo',
+        fontSize: 14,
+        fontName: { family: 'Inter', style: 'Regular' },
+        textCase: 'ORIGINAL',
+        textDecoration: 'NONE',
+        textWrapStyle: Symbol('figma.mixed'),
+        getStyledTextSegments: () => segments,
+      }),
+    );
+    expect(out.textWrapStyle).toBeUndefined();
+    expect(out.segments).toHaveLength(2);
+    // AUTO is the no-op → left off the run; only the deliberate value is carried.
+    expect(out.segments?.[0]?.textWrapStyle).toBeUndefined();
+    expect(out.segments?.[1]?.textWrapStyle).toBe('BALANCE');
+  });
+
+  it('surfaces a node-level uniform hyperlink (whole text is one link)', () => {
+    const out = serializeFlatSync(
+      fake({
+        type: 'TEXT',
+        characters: 'Docs',
+        fontSize: 14,
+        fontName: { family: 'Inter', style: 'Regular' },
+        textCase: 'ORIGINAL',
+        textDecoration: 'NONE',
+        hyperlink: { type: 'URL', value: 'https://x.dev' },
+        getStyledTextSegments: () => [],
+      }),
+    );
+    expect(out.hyperlink).toEqual({ type: 'URL', value: 'https://x.dev' });
+  });
+
+  it('expands segments for a partial hyperlink even when the 5 style basics are uniform', () => {
+    const segments = [
+      {
+        characters: 'Agree to ',
+        start: 0,
+        end: 9,
+        fontName: { family: 'Inter', style: 'Regular' },
+        fontSize: 14,
+        fills: [{ type: 'SOLID', visible: true, opacity: 1, color: { r: 0, g: 0, b: 0 } }],
+        textDecoration: 'NONE',
+        textCase: 'ORIGINAL',
+      },
+      {
+        characters: 'Terms',
+        start: 9,
+        end: 14,
+        fontName: { family: 'Inter', style: 'Regular' },
+        fontSize: 14,
+        fills: [{ type: 'SOLID', visible: true, opacity: 1, color: { r: 0, g: 0, b: 0 } }],
+        textDecoration: 'NONE',
+        textCase: 'ORIGINAL',
+        hyperlink: { type: 'URL', value: 'https://x.dev/terms' },
+      },
+    ];
+    const out = serializeFlatSync(
+      fake({
+        type: 'TEXT',
+        characters: 'Agree to Terms',
+        fontSize: 14,
+        fontName: { family: 'Inter', style: 'Regular' },
+        textCase: 'ORIGINAL',
+        textDecoration: 'NONE',
+        // A partial link makes the node's hyperlink `mixed` (a symbol) → no node-level link, expand runs.
+        hyperlink: Symbol('figma.mixed'),
+        getStyledTextSegments: () => segments,
+      }),
+    );
+    expect(out.hyperlink).toBeUndefined();
+    expect(out.segments).toHaveLength(2);
+    expect(out.segments?.[1]?.hyperlink).toEqual({ type: 'URL', value: 'https://x.dev/terms' });
+    expect(out.segments?.[0]?.hyperlink).toBeUndefined();
+  });
+
+  it('expands segments for a uniform list (probed via getRangeListOptions) and carries listOptions', () => {
+    const segments = [
+      {
+        characters: 'One\nTwo',
+        start: 0,
+        end: 7,
+        fontName: { family: 'Inter', style: 'Regular' },
+        fontSize: 14,
+        fills: [{ type: 'SOLID', visible: true, opacity: 1, color: { r: 0, g: 0, b: 0 } }],
+        textDecoration: 'NONE',
+        textCase: 'ORIGINAL',
+        listOptions: { type: 'UNORDERED' },
+        indentation: 1,
+      },
+    ];
+    const out = serializeFlatSync(
+      fake({
+        type: 'TEXT',
+        characters: 'One\nTwo',
+        fontSize: 14,
+        fontName: { family: 'Inter', style: 'Regular' },
+        textCase: 'ORIGINAL',
+        textDecoration: 'NONE',
+        getRangeListOptions: () => ({ type: 'UNORDERED' }),
+        getStyledTextSegments: () => segments,
+      }),
+    );
+    expect(out.segments).toHaveLength(1);
+    expect(out.segments?.[0]?.listOptions).toBe('UNORDERED');
+    expect(out.segments?.[0]?.indentation).toBe(1);
+  });
+
+  it('skips the list probe entirely for single-line text (the hot-path perf gate)', () => {
+    let probed = false;
+    const out = serializeFlatSync(
+      fake({
+        type: 'TEXT',
+        characters: 'Buy now', // no newline → can't be a list → never probed
+        fontSize: 14,
+        fontName: { family: 'Inter', style: 'Regular' },
+        textCase: 'ORIGINAL',
+        textDecoration: 'NONE',
+        getRangeListOptions: () => {
+          probed = true;
+          return { type: 'UNORDERED' };
+        },
+        getStyledTextSegments: () => [],
+      }),
+    );
+    expect(probed).toBe(false);
+    expect(out.segments).toBeUndefined();
+  });
+
+  it('probes multi-line text but expands no segments when it is not a list (NONE)', () => {
+    let probed = false;
+    const out = serializeFlatSync(
+      fake({
+        type: 'TEXT',
+        characters: 'line one\nline two', // multi-line, but a plain paragraph, not a list
+        fontSize: 14,
+        fontName: { family: 'Inter', style: 'Regular' },
+        textCase: 'ORIGINAL',
+        textDecoration: 'NONE',
+        getRangeListOptions: () => {
+          probed = true;
+          return { type: 'NONE' };
+        },
+        getStyledTextSegments: () => [],
+      }),
+    );
+    expect(probed).toBe(true);
+    expect(out.segments).toBeUndefined();
+  });
+
+  it('carries per-run lineHeight only when non-default, never a mixed marker', () => {
+    const segments = [
+      {
+        characters: 'A',
+        start: 0,
+        end: 1,
+        fontName: { family: 'Inter', style: 'Regular' },
+        fontSize: 14,
+        fills: [{ type: 'SOLID', visible: true, opacity: 1, color: { r: 0, g: 0, b: 0 } }],
+        textDecoration: 'NONE',
+        textCase: 'ORIGINAL',
+        lineHeight: { unit: 'PIXELS', value: 22 },
+      },
+      {
+        characters: 'B',
+        start: 1,
+        end: 2,
+        fontName: { family: 'Inter', style: 'Bold' },
+        fontSize: 14,
+        fills: [{ type: 'SOLID', visible: true, opacity: 1, color: { r: 0, g: 0, b: 0 } }],
+        textDecoration: 'NONE',
+        textCase: 'ORIGINAL',
+        lineHeight: { unit: 'AUTO' },
+      },
+    ];
+    const out = serializeFlatSync(
+      fake({
+        type: 'TEXT',
+        characters: 'AB',
+        fontName: Symbol('figma.mixed'),
+        fontSize: 14,
+        textCase: 'ORIGINAL',
+        textDecoration: 'NONE',
+        getStyledTextSegments: () => segments,
+      }),
+    );
+    expect(out.segments?.[0]?.lineHeight).toEqual({ unit: 'PIXELS', value: 22 });
+    // AUTO leading is the no-op → omitted, never emitted as `mixed`.
+    expect(out.segments?.[1]?.lineHeight).toBeUndefined();
+  });
+
+  it('carries per-run token bindings (styleIds + boundVariables) on a mixed run', () => {
+    const segments = [
+      {
+        characters: 'Agree to ',
+        start: 0,
+        end: 9,
+        fontName: { family: 'Inter', style: 'Regular' },
+        fontSize: 14,
+        fills: [{ type: 'SOLID', visible: true, opacity: 1, color: { r: 0, g: 0, b: 0 } }],
+        textDecoration: 'NONE',
+        textCase: 'ORIGINAL',
+        textStyleId: '',
+        fillStyleId: '',
+      },
+      {
+        characters: 'Terms',
+        start: 9,
+        end: 14,
+        fontName: { family: 'Inter', style: 'Bold' },
+        fontSize: 14,
+        fills: [{ type: 'SOLID', visible: true, opacity: 1, color: { r: 0, g: 0.4, b: 1 } }],
+        textDecoration: 'UNDERLINE',
+        textCase: 'ORIGINAL',
+        // The link run binds a shared text style, a fill style, and a colour variable.
+        textStyleId: 'S:link,',
+        fillStyleId: 'S:brandfill,',
+        boundVariables: { fills: { type: 'VARIABLE_ALIAS', id: 'VariableID:primary' } },
+      },
+    ];
+    const out = serializeFlatSync(
+      fake({
+        type: 'TEXT',
+        characters: 'Agree to Terms',
+        fontName: Symbol('figma.mixed'),
+        fontSize: 14,
+        textCase: 'ORIGINAL',
+        textDecoration: Symbol('figma.mixed'),
+        getStyledTextSegments: () => segments,
+      }),
+    );
+    // The plain run carries no bindings (empty ids omitted).
+    expect(out.segments?.[0]?.styleIds).toBeUndefined();
+    expect(out.segments?.[0]?.boundVariables).toBeUndefined();
+    // The link run carries its style ids (raw, incl. Figma's trailing comma) + variable id list.
+    expect(out.segments?.[1]?.styleIds).toEqual({ text: 'S:link,', fill: 'S:brandfill,' });
+    expect(out.segments?.[1]?.boundVariables).toEqual({ fills: ['VariableID:primary'] });
+  });
+});
+
+describe('serializeTree', () => {
+  it('recurses into children', async () => {
+    const leaf = fake({ id: '1:3', parent: { id: '1:2' } });
+    const branch = fake({ id: '1:2', type: 'FRAME', children: [leaf] });
+    const root = fake({ id: '1:1', type: 'FRAME', parent: null, children: [branch] });
+    const out = await serializeTree(root);
+    expect(out.children).toBeDefined();
+    expect(out.children?.[0]?.id).toBe('1:2');
+    expect(out.children?.[0]?.children?.[0]?.id).toBe('1:3');
+  });
+
+  it('omits children when node has no children mixin', async () => {
+    const out = await serializeTree(fake({ type: 'RECTANGLE' }));
+    expect(out.children).toBeUndefined();
+  });
+
+  it('handles empty children array', async () => {
+    const out = await serializeTree(fake({ type: 'FRAME', children: [] }));
+    expect(out.children).toEqual([]);
+  });
+});
+
+describe('serializeFlat (async) — mainComponent', () => {
+  it('resolves the main component for an INSTANCE via getMainComponentAsync', async () => {
+    const node = fake({
+      type: 'INSTANCE',
+      getMainComponentAsync: async () => ({ id: '10:1', name: 'Button', key: 'abc123' }),
+    });
+    const out = await serializeFlat(node);
+    expect(out.mainComponent).toEqual({ id: '10:1', name: 'Button', key: 'abc123' });
+  });
+
+  it('carries the owning COMPONENT_SET id/name when the main component is a variant', async () => {
+    const node = fake({
+      type: 'INSTANCE',
+      getMainComponentAsync: async () => ({
+        id: '10:2',
+        name: 'Size=Large, State=Hover',
+        key: 'xyz',
+        parent: { id: '9:1', type: 'COMPONENT_SET', name: 'Button' },
+      }),
+    });
+    const out = await serializeFlat(node);
+    expect(out.mainComponent).toEqual({
+      id: '10:2',
+      name: 'Size=Large, State=Hover',
+      key: 'xyz',
+      componentSetId: '9:1',
+      componentSetName: 'Button',
+    });
+  });
+
+  it('omits mainComponent for non-instances and when resolution fails', async () => {
+    expect((await serializeFlat(fake({ type: 'FRAME' }))).mainComponent).toBeUndefined();
+    const broken = fake({
+      type: 'INSTANCE',
+      getMainComponentAsync: async () => {
+        throw new Error('not loaded');
+      },
+    });
+    expect((await serializeFlat(broken)).mainComponent).toBeUndefined();
+  });
+});
+
+describe('serializeEffect', () => {
+  it('serializes shadows with color / offset / spread', () => {
+    const out = serializeEffect({
+      type: 'DROP_SHADOW',
+      visible: true,
+      radius: 4,
+      color: { r: 0, g: 0, b: 0, a: 0.25 },
+      offset: { x: 1, y: 2 },
+      spread: 3,
+      blendMode: 'NORMAL',
+    } as unknown as Effect);
+    expect(out).toEqual({
+      type: 'DROP_SHADOW',
+      visible: true,
+      radius: 4,
+      color: { r: 0, g: 0, b: 0, a: 0.25 },
+      offset: { x: 1, y: 2 },
+      spread: 3,
+    });
+  });
+
+  it('defaults shadow spread to 0 when absent', () => {
+    const out = serializeEffect({
+      type: 'INNER_SHADOW',
+      visible: true,
+      radius: 2,
+      color: { r: 1, g: 1, b: 1, a: 1 },
+      offset: { x: 0, y: 0 },
+      blendMode: 'NORMAL',
+    } as unknown as Effect);
+    expect(out.spread).toBe(0);
+  });
+
+  it('serializes blurs with only type / visible / radius', () => {
+    const out = serializeEffect({
+      type: 'LAYER_BLUR',
+      visible: false,
+      radius: 8,
+    } as unknown as Effect);
+    expect(out).toEqual({ type: 'LAYER_BLUR', visible: false, radius: 8 });
+  });
+});
+
+describe('serializeLayoutGrid', () => {
+  it('serializes a COLUMNS grid with count / gutterSize / alignment / sectionSize', () => {
+    const out = serializeLayoutGrid({
+      pattern: 'COLUMNS',
+      visible: true,
+      count: 12,
+      gutterSize: 20,
+      alignment: 'STRETCH',
+      sectionSize: 80,
+    } as unknown as LayoutGrid);
+    expect(out).toEqual({
+      pattern: 'COLUMNS',
+      visible: true,
+      count: 12,
+      gutterSize: 20,
+      alignment: 'STRETCH',
+      sectionSize: 80,
+    });
+  });
+
+  it('omits sectionSize when absent on a row/column grid', () => {
+    const out = serializeLayoutGrid({
+      pattern: 'ROWS',
+      visible: true,
+      count: 5,
+      gutterSize: 10,
+      alignment: 'MIN',
+    } as unknown as LayoutGrid);
+    expect(out.sectionSize).toBeUndefined();
+  });
+
+  it('serializes a GRID pattern with sectionSize only', () => {
+    const out = serializeLayoutGrid({
+      pattern: 'GRID',
+      visible: true,
+      sectionSize: 8,
+    } as unknown as LayoutGrid);
+    expect(out).toEqual({ pattern: 'GRID', visible: true, sectionSize: 8 });
+  });
+
+  it('surfaces a non-zero offset (the page margin) on a row/column grid', () => {
+    const out = serializeLayoutGrid({
+      pattern: 'COLUMNS',
+      visible: true,
+      count: 12,
+      gutterSize: 24,
+      alignment: 'STRETCH',
+      offset: 32,
+    } as unknown as LayoutGrid);
+    expect(out.offset).toBe(32);
+  });
+
+  it('omits offset when it is 0 or when alignment is CENTER (which ignores it)', () => {
+    const zero = serializeLayoutGrid({
+      pattern: 'COLUMNS',
+      visible: true,
+      count: 12,
+      gutterSize: 24,
+      alignment: 'STRETCH',
+      offset: 0,
+    } as unknown as LayoutGrid);
+    expect(zero.offset).toBeUndefined();
+
+    const centered = serializeLayoutGrid({
+      pattern: 'COLUMNS',
+      visible: true,
+      count: 12,
+      gutterSize: 24,
+      alignment: 'CENTER',
+      offset: 32,
+    } as unknown as LayoutGrid);
+    expect(centered.offset).toBeUndefined();
+  });
+});
+
+// Variable bindings live ON the paint / stop / effect / grid, not in the owning node's
+// `boundVariables` — so dropping them made a variable-driven colour indistinguishable from a
+// hard-coded one (issue #164). The raw shapes below are the ones a live Figma file actually
+// returns (measured against the plugin API, not inferred): an alias object per field, and — the
+// detail a hand-written fixture would never guess — `boundVariables: {}` on an UNBOUND paint,
+// which must not turn into an empty field in the payload.
+describe('serializer — variable bindings on paints / effects / grids', () => {
+  const ALIAS = { type: 'VARIABLE_ALIAS', id: 'VariableID:5157:5005' };
+  const ALIAS2 = { type: 'VARIABLE_ALIAS', id: 'VariableID:5157:5006' };
+
+  it('carries a bound colour on a solid paint', () => {
+    const out = serializePaint({
+      type: 'SOLID',
+      visible: true,
+      opacity: 1,
+      blendMode: 'NORMAL',
+      color: { r: 0.1, g: 0.2, b: 0.3 },
+      boundVariables: { color: ALIAS },
+    } as unknown as Paint);
+    expect(out).toEqual({
+      type: 'SOLID',
+      visible: true,
+      opacity: 1,
+      color: { r: 0.1, g: 0.2, b: 0.3 },
+      boundVariables: { color: 'VariableID:5157:5005' },
+    });
+  });
+
+  it('omits the field on an unbound paint, including Figma’s empty boundVariables', () => {
+    const empty = serializePaint({
+      type: 'SOLID',
+      visible: true,
+      opacity: 1,
+      color: { r: 0, g: 1, b: 0 },
+      boundVariables: {},
+    } as unknown as Paint);
+    expect(empty).not.toHaveProperty('boundVariables');
+    const absent = serializePaint({
+      type: 'SOLID',
+      visible: true,
+      opacity: 1,
+      color: { r: 0, g: 1, b: 0 },
+    } as unknown as Paint);
+    expect(absent).not.toHaveProperty('boundVariables');
+  });
+
+  it('binds gradient stops independently of each other', () => {
+    const out = serializePaint({
+      type: 'GRADIENT_LINEAR',
+      visible: true,
+      opacity: 1,
+      gradientTransform: [
+        [1, 0, 0],
+        [0, 1, 0],
+      ],
+      gradientStops: [
+        { position: 0, color: { r: 0, g: 0, b: 0, a: 1 }, boundVariables: { color: ALIAS } },
+        { position: 1, color: { r: 1, g: 1, b: 1, a: 1 } },
+      ],
+    } as unknown as Paint) as { gradientStops: { boundVariables?: unknown }[] };
+    expect(out.gradientStops[0]?.boundVariables).toEqual({ color: 'VariableID:5157:5005' });
+    expect(out.gradientStops[1]).not.toHaveProperty('boundVariables');
+  });
+
+  it('carries every bound field on a shadow', () => {
+    const out = serializeEffect({
+      type: 'DROP_SHADOW',
+      visible: true,
+      radius: 24,
+      color: { r: 0.1, g: 0.2, b: 0.3, a: 1 },
+      offset: { x: 0, y: 2 },
+      spread: 0,
+      blendMode: 'NORMAL',
+      boundVariables: { color: ALIAS, radius: ALIAS2 },
+    } as unknown as Effect);
+    expect(out.boundVariables).toEqual({
+      color: 'VariableID:5157:5005',
+      radius: 'VariableID:5157:5006',
+    });
+    // The resolved literal stays alongside the binding — it is the fallback, not a replacement.
+    expect(out.color).toEqual({ r: 0.1, g: 0.2, b: 0.3, a: 1 });
+  });
+
+  it('carries a bound radius on a blur (the non-shadow branch)', () => {
+    const out = serializeEffect({
+      type: 'LAYER_BLUR',
+      visible: true,
+      radius: 8,
+      boundVariables: { radius: ALIAS2 },
+    } as unknown as Effect);
+    expect(out).toEqual({
+      type: 'LAYER_BLUR',
+      visible: true,
+      radius: 8,
+      boundVariables: { radius: 'VariableID:5157:5006' },
+    });
+  });
+
+  it('carries bindings on both layout-grid branches', () => {
+    const columns = serializeLayoutGrid({
+      pattern: 'COLUMNS',
+      visible: true,
+      count: 12,
+      gutterSize: 24,
+      alignment: 'STRETCH',
+      offset: 24,
+      boundVariables: { gutterSize: ALIAS2 },
+    } as unknown as LayoutGrid);
+    expect(columns.boundVariables).toEqual({ gutterSize: 'VariableID:5157:5006' });
+    const uniform = serializeLayoutGrid({
+      pattern: 'GRID',
+      visible: true,
+      sectionSize: 8,
+      boundVariables: { sectionSize: ALIAS2 },
+    } as unknown as LayoutGrid);
+    expect(uniform.boundVariables).toEqual({ sectionSize: 'VariableID:5157:5006' });
+  });
+
+  it('ignores a malformed alias rather than emitting a broken id', () => {
+    const out = serializeEffect({
+      type: 'LAYER_BLUR',
+      visible: true,
+      radius: 8,
+      // Three ways an alias can fail to be one: no id at all, a non-string id, and a null entry.
+      boundVariables: {
+        radius: { type: 'VARIABLE_ALIAS' },
+        spread: { type: 'VARIABLE_ALIAS', id: 123 },
+        color: null,
+      },
+    } as unknown as Effect);
+    expect(out).not.toHaveProperty('boundVariables');
+  });
+
+  it('keeps the well-formed bindings when a sibling field is malformed', () => {
+    const out = serializeEffect({
+      type: 'LAYER_BLUR',
+      visible: true,
+      radius: 8,
+      boundVariables: { radius: ALIAS2, color: { type: 'VARIABLE_ALIAS', id: 123 } },
+    } as unknown as Effect);
+    expect(out.boundVariables).toEqual({ radius: 'VariableID:5157:5006' });
+  });
+
+  it('surfaces a bound fill through a node, alongside the node’s own coarse binding list', () => {
+    const out = serializeFlatSync(
+      fake({
+        fills: [
+          {
+            type: 'SOLID',
+            visible: true,
+            opacity: 1,
+            color: { r: 0.1, g: 0.2, b: 0.3 },
+            boundVariables: { color: ALIAS },
+          },
+        ],
+        boundVariables: { fills: [ALIAS] },
+      }),
+    );
+    // The node-level list says *some* variable is bound; the paint says which field of which paint.
+    expect(out.boundVariables).toEqual({ fills: ['VariableID:5157:5005'] });
+    expect(out.fills).toEqual([
+      {
+        type: 'SOLID',
+        visible: true,
+        opacity: 1,
+        color: { r: 0.1, g: 0.2, b: 0.3 },
+        boundVariables: { color: 'VariableID:5157:5005' },
+      },
+    ]);
+  });
+});

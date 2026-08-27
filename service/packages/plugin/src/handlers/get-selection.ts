@@ -1,0 +1,16 @@
+import type { GetSelectionResult } from '@sfp/shared';
+
+import type { SandboxToolHandler } from '../dispatcher.js';
+import { serializeFlat } from '../serializer.js';
+
+export const createGetSelectionHandler =
+  (figmaCtx: typeof figma): SandboxToolHandler =>
+  async () => {
+    const page = figmaCtx.currentPage;
+    const result: GetSelectionResult = {
+      pageId: page.id,
+      pageName: page.name,
+      nodes: await Promise.all(page.selection.map(serializeFlat)),
+    };
+    return result;
+  };

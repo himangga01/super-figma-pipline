@@ -1,0 +1,274 @@
+import type {
+  DesignContextMetrics,
+  DesignContextNode,
+  GetDesignContextResult,
+  GlobalVars,
+} from './design-context.js';
+import { MIXED } from './serialized-node.js';
+import type {
+  SerializedColor,
+  SerializedColorStop,
+  SerializedEffect,
+  SerializedLetterSpacing,
+  SerializedLineHeight,
+  SerializedPaint,
+} from './serialized-node.js';
+
+/** JSON with sorted object keys, so equal-but-differently-ordered values hash identically. */
+const stableStringify = (value: unknown): string =>
+  JSON.stringify(value, (_k, v: unknown) => {
+    if (v !== null && typeof v === 'object' && !Array.isArray(v)) {
+      const sorted: Record<string, unknown> = {};
+      for (const k of Object.keys(v as Record<string, unknown>).toSorted()) {
+        sorted[k] = (v as Record<string, unknown>)[k];
+      }
+      return sorted;
+    }
+    return v;
+  });
+
+/** FNV-1a 32-bit → base36. Deterministic content hash → stable, diffable style ids across runs. */
+const hashString = (s: string): string => {
+  let h = 0x811c9dc5;
+  for (let i = 0; i < s.length; i++) {
+    h ^= s.charCodeAt(i);
+    h = Math.imul(h, 0x01000193);
+  }
+  return (h >>> 0).toString(36);
+};
+
+const clamp01 = (n: number): number => (n < 0 ? 0 : n > 1 ? 1 : n);
+const channel = (n: number): string =>
+  Math.round(clamp01(n) * 255)
+    .toString(16)
+    .padStart(2, '0');
+
+/**
+ * {r,g,b}(+optional alpha 0–1) → #RRGGBB or #RRGGBBAA (alpha only when < 1). Universal color
+ * literal.
+ */
+export const toHex = (c: SerializedColor, alpha?: number): string => {
+  const base = `#${channel(c.r)}${channel(c.g)}${channel(c.b)}`;
+  const withAlpha = alpha !== undefined && alpha < 1 ? base + channel(alpha) : base;
+  return withAlpha.toUpperCase();
+};
+
+export interface SimplifiedPaint {
+  type: string;
+  color?: string;
+  gradientStops?: { position: number; color: string }[];
+  /** The gradient's 2×3 axis matrix — the direction/angle, needed to emit a correct CSS gradient. */
+  gradientTransform?: number[][];
+  /** IMAGE/VIDEO object-fit equivalent: FILL=cover, FIT=contain, CROP, TILE=repeat. */
+  scaleMode?: string;
+  /** In-fill colour grading (exposure/contrast/…): export the composited render, not the original. */
+  filtersApplied?: true;
+  /** PATTERN tiling: the source tile node + how it repeats. See grounding.md "Pattern fills". */
+  sourceNodeId?: string;
+  tileType?: string;
+  scalingFactor?: number;
+  spacing?: { x: number; y: number };
+  horizontalAlignment?: string;
+  visible?: false;
+}
+
+/** Convert a serialized paint to a structured, codegen-friendly form (SOLID → hex). */
+export const simplifyPaint = (paint: SerializedPaint): SimplifiedPaint => {
+  const out: SimplifiedPaint = { type: paint.type };
+  if (paint.type === 'SOLID') {
+    out.color = toHex(paint.color, paint.opacity);
+  } else if ('gradientStops' in paint) {
+    out.gradientStops = paint.gradientStops.map((s: SerializedColorStop) => ({
+      position: s.position,
+      color: toHex(s.color, s.color.a),
+    }));
+    // Carry the axis matrix too — without it the gradient direction/angle is lost and the LLM can
+    // only guess (or flatten the gradient to a solid colour, the classic miss).
+    out.gradientTransform = paint.gradientTransform;
+  } else if ('scaleMode' in paint && paint.scaleMode !== undefined) {
+    out.scaleMode = paint.scaleMode;
+    if ('filtersApplied' in paint && paint.filtersApplied === true) out.filtersApplied = true;
+  } else if (paint.type === 'PATTERN') {
+    // The source tile + its repeat geometry — without it a pattern fill is just `{ type: 'PATTERN' }`
+    // and the LLM can only flatten it to a colour. The serializer already omits no-op defaults.
+    out.sourceNodeId = paint.sourceNodeId;
+    out.tileType = paint.tileType;
+    out.scalingFactor = paint.scalingFactor;
+    if (paint.spacing !== undefined) out.spacing = paint.spacing;
+    if (paint.horizontalAlignment !== undefined)
+      out.horizontalAlignment = paint.horizontalAlignment;
+  }
+  if (paint.visible === false) out.visible = false;
+  return out;
+};
+
+interface SimplifiedEffect {
+  type: string;
+  color?: string;
+  offset?: { x: number; y: number };
+  radius?: number;
+  spread?: number;
+  visible?: false;
+}
+
+/** Structured shadow/blur: color → hex, drops the always-true `visible`. */
+const simplifyEffect = (e: SerializedEffect): SimplifiedEffect => {
+  const out: SimplifiedEffect = { type: e.type };
+  if (e.color !== undefined) out.color = toHex(e.color, e.color.a);
+  if (e.offset !== undefined) out.offset = e.offset;
+  if (e.radius !== undefined) out.radius = e.radius;
+  if (e.spread !== undefined) out.spread = e.spread;
+  if (e.visible === false) out.visible = false;
+  return out;
+};
+
+interface TextStyleBundle {
+  fontFamily: string;
+  fontStyle: string;
+  fontSize: number;
+  lineHeight?: SerializedLineHeight;
+  letterSpacing?: SerializedLetterSpacing;
+  textCase?: string;
+  textDecoration?: string;
+  paragraphSpacing?: number;
+  paragraphIndent?: number;
+  textWrapStyle?: string;
+}
+
+/**
+ * Replace repeated inline style values (paint arrays, typography) with refs into a content-hash
+ * keyed `globalVars.styles` table. A style shared by N nodes becomes one entry + N refs.
+ */
+export const dedupeStyles = (
+  nodes: readonly DesignContextNode[],
+): { nodes: DesignContextNode[]; globalVars: GlobalVars } => {
+  const styles: Record<string, unknown> = {};
+  const byValue = new Map<string, string>(); // stableStringify(value) → id
+
+  const register = (value: unknown, prefix: string): string => {
+    const key = stableStringify(value);
+    const cached = byValue.get(key);
+    if (cached !== undefined) return cached;
+    // Collision guard: same hash, different value → suffix until free.
+    let id = `${prefix}_${hashString(key)}`;
+    let n = 1;
+    while (styles[id] !== undefined && stableStringify(styles[id]) !== key) {
+      id = `${prefix}_${hashString(key)}_${n++}`;
+    }
+    styles[id] = value;
+    byValue.set(key, id);
+    return id;
+  };
+
+  const transform = (n: DesignContextNode): DesignContextNode => {
+    // Keep `children` out until the end so a node's own style refs (fill / stroke / effect /
+    // textStyle) are emitted *before* its children — otherwise a trailing `effect` sits right after
+    // the last child and the model misattributes it (e.g. shadow lands on the button, not the card).
+    const { children, ...rest } = n;
+    const out: DesignContextNode = { ...rest };
+
+    if (Array.isArray(n.fills) && n.fills.length > 0) {
+      out.fill = register(n.fills.map(simplifyPaint), 'fill');
+      delete out.fills;
+    }
+
+    if (Array.isArray(n.strokes) && n.strokes.length > 0) {
+      out.stroke = register(n.strokes.map(simplifyPaint), 'stroke');
+      delete out.strokes;
+    }
+
+    if (Array.isArray(n.effects) && n.effects.length > 0) {
+      out.effect = register(n.effects.map(simplifyEffect), 'effect');
+      delete out.effects;
+    }
+
+    if (
+      typeof n.fontSize === 'number' &&
+      n.fontName !== undefined &&
+      typeof n.fontName === 'object' &&
+      'family' in n.fontName
+    ) {
+      const bundle: TextStyleBundle = {
+        fontFamily: n.fontName.family,
+        fontStyle: n.fontName.style,
+        fontSize: n.fontSize,
+      };
+      // Fold the rest of the typography (the fields a Figma text style carries) into the same bundle,
+      // and drop the now-redundant inline copy. A `mixed` value (per-segment styling) isn't a single
+      // style value, so leave it inline as the honest signal instead of forcing it into the bundle.
+      if (n.lineHeight !== undefined && n.lineHeight !== MIXED) {
+        bundle.lineHeight = n.lineHeight;
+        delete out.lineHeight;
+      }
+      if (n.letterSpacing !== undefined && n.letterSpacing !== MIXED) {
+        bundle.letterSpacing = n.letterSpacing;
+        delete out.letterSpacing;
+      }
+      if (typeof n.textCase === 'string' && n.textCase !== MIXED) {
+        bundle.textCase = n.textCase;
+        delete out.textCase;
+      }
+      if (typeof n.textDecoration === 'string' && n.textDecoration !== MIXED) {
+        bundle.textDecoration = n.textDecoration;
+        delete out.textDecoration;
+      }
+      // Paragraph structure is style-level too (a Figma text style carries both) and never `mixed`
+      // (node-level props), so present always means a real non-zero value → fold unconditionally.
+      if (typeof n.paragraphSpacing === 'number') {
+        bundle.paragraphSpacing = n.paragraphSpacing;
+        delete out.paragraphSpacing;
+      }
+      if (typeof n.paragraphIndent === 'number') {
+        bundle.paragraphIndent = n.paragraphIndent;
+        delete out.paragraphIndent;
+      }
+      // Wrap balancing is style-level as well, and the projection already dropped both the AUTO
+      // default and the `mixed` case — so present means one real value → fold unconditionally.
+      if (typeof n.textWrapStyle === 'string') {
+        bundle.textWrapStyle = n.textWrapStyle;
+        delete out.textWrapStyle;
+      }
+      out.textStyle = register(bundle, 'text');
+      delete out.fontSize;
+      delete out.fontName;
+    }
+
+    if (children) out.children = children.map(transform);
+    return out;
+  };
+
+  return { nodes: nodes.map(transform), globalVars: { styles } };
+};
+
+const countTree = (
+  nodes: readonly DesignContextNode[],
+): { nodeCount: number; maxDepth: number } => {
+  let nodeCount = 0;
+  let maxDepth = 0;
+  const walk = (n: DesignContextNode, depth: number): void => {
+    nodeCount++;
+    if (depth > maxDepth) maxDepth = depth;
+    if (n.children) for (const c of n.children) walk(c, depth + 1);
+  };
+  for (const n of nodes) walk(n, 1);
+  return { nodeCount, maxDepth };
+};
+
+const sizeKb = (value: unknown): number => Number((JSON.stringify(value).length / 1024).toFixed(2));
+
+/** Measure the simplification — chiefly inline (pre-dedup) vs deduped byte size. */
+export const computeMetrics = (
+  inlineNodes: readonly DesignContextNode[],
+  result: Pick<GetDesignContextResult, 'nodes' | 'globalVars' | 'variables' | 'styles'>,
+): DesignContextMetrics => {
+  const { nodeCount, maxDepth } = countTree(result.nodes);
+  return {
+    nodeCount,
+    maxDepth,
+    styleCount: result.globalVars ? Object.keys(result.globalVars.styles).length : 0,
+    tokenCount:
+      Object.keys(result.variables ?? {}).length + Object.keys(result.styles ?? {}).length,
+    inlineSizeKb: sizeKb(inlineNodes),
+    dedupedSizeKb: sizeKb({ nodes: result.nodes, globalVars: result.globalVars }),
+  };
+};

@@ -1,0 +1,717 @@
+import {
+  computeMetrics,
+  dedupeStyles,
+  DESIGN_CONTEXT_BAIL_NODES,
+  type DesignContextNode,
+  type DesignContextSection,
+  DETAIL_LEVELS,
+  type DetailLevel,
+  type GetDesignContextResult,
+  MIXED,
+  type MotionSummary,
+  planRootFrom,
+  type ResolvedToken,
+  type SerializedPaint,
+  simplifyPaint,
+} from '@sfp/shared';
+
+import type { SandboxToolHandler } from '../dispatcher.js';
+import { serializeCodeSyntax, serializeFlatSync } from '../serializer.js';
+
+const isSceneNode = (node: BaseNode): node is SceneNode =>
+  node.type !== 'DOCUMENT' && node.type !== 'PAGE';
+
+const isDetailLevel = (value: unknown): value is DetailLevel =>
+  typeof value === 'string' && (DETAIL_LEVELS as readonly string[]).includes(value);
+
+/**
+ * Strip Figma's trailing-comma artifact from *StyleId values (e.g. "S:abc,") so the id matches the
+ * `styles` resolution map key and joins cleanly downstream. Used for a node's own styleIds and for
+ * a mixed TEXT run's per-segment styleIds.
+ */
+const cleanStyleIds = (ids: Record<string, string>): Record<string, string> => {
+  const cleaned: Record<string, string> = {};
+  for (const [k, raw] of Object.entries(ids)) cleaned[k] = raw.replace(/,+$/, '');
+  return cleaned;
+};
+
+/**
+ * Project a node down to the fields a given detail level exposes. Detail-gated on purpose:
+ * get_design_context is the hot read path and defaults to `compact`, so minimal/compact read their
+ * few values straight off the node and skip the full serializeFlatSync — which maps every
+ * paint/effect and calls getStyledTextSegments on mixed TEXT, work that compact/minimal then
+ * discard. serializeNode is a pure passthrough for id/name/type/visible/x/y/w/h and
+ * enrichWithMixins never touches those, so the direct reads match projecting the serialized form.
+ * The full branch is one serializeFlatSync, every field from flat — so no detail level does more
+ * work than it used to. Across all branches, no-op defaults (visible=true / rotation=0 / opacity=1)
+ * are omitted.
+ *
+ * Exported for the projection-coverage guard test: the full branch below is a hand-copied field
+ * list, historically this codebase's most recurring bug (serializer emits a dimension, this
+ * projection silently drops it). The guard diffs these fields against SerializedNodeSchema so a new
+ * serializer dimension fails a test instead of silently missing from codegen grounding.
+ */
+export const project = (node: SceneNode, detail: DetailLevel): DesignContextNode => {
+  if (detail === 'minimal') return { id: node.id, name: node.name, type: node.type };
+  if (detail === 'compact') {
+    const out: DesignContextNode = {
+      id: node.id,
+      name: node.name,
+      type: node.type,
+      x: node.x,
+      y: node.y,
+      width: node.width,
+      height: node.height,
+    };
+    // Omit the no-op default (visible defaults to true); only a hidden node is worth a field.
+    if (node.visible === false) out.visible = false;
+    return out;
+  }
+
+  // full — unchanged from the original projection: serializeFlatSync once, every field from flat.
+  const flat = serializeFlatSync(node);
+  const out: DesignContextNode = { id: flat.id, name: flat.name, type: flat.type };
+  // No-op defaults are omitted (consistent with every other field here): absent visible = true,
+  // absent rotation = 0, absent opacity = 1, absent cornerRadius = 0 (unrounded). Strict equality so
+  // a 0.0001-rad rotation or a 0.99 opacity still surfaces; `mixed` corners (the MIXED symbol) are
+  // never 0 so they stay. The generated code is identical; the payload is just smaller. cornerRadius=0
+  // is the highest-volume of these — it sits on every frame/shape — so omitting it matters most.
+  if (flat.visible === false) out.visible = false;
+  out.x = flat.x;
+  out.y = flat.y;
+  out.width = flat.width;
+  out.height = flat.height;
+
+  if (flat.rotation !== undefined && flat.rotation !== 0) out.rotation = flat.rotation;
+  if (flat.opacity !== undefined && flat.opacity !== 1) out.opacity = flat.opacity;
+  if (flat.cornerRadius !== undefined && flat.cornerRadius !== 0)
+    out.cornerRadius = flat.cornerRadius;
+  if (flat.cornerRadii !== undefined) out.cornerRadii = flat.cornerRadii;
+  if (flat.blendMode !== undefined) out.blendMode = flat.blendMode;
+  if (flat.isMask !== undefined) out.isMask = flat.isMask;
+  if (flat.maskType !== undefined) out.maskType = flat.maskType;
+  if (flat.arcData !== undefined) out.arcData = flat.arcData;
+  if (flat.fills !== undefined) out.fills = flat.fills;
+  if (flat.strokes !== undefined) out.strokes = flat.strokes;
+  if (flat.strokeWeight !== undefined) out.strokeWeight = flat.strokeWeight;
+  if (flat.strokeWeights !== undefined) out.strokeWeights = flat.strokeWeights;
+  if (flat.strokeAlign !== undefined) out.strokeAlign = flat.strokeAlign;
+  if (flat.dashPattern !== undefined) out.dashPattern = flat.dashPattern;
+  if (flat.strokeCap !== undefined) out.strokeCap = flat.strokeCap;
+  if (flat.strokeJoin !== undefined) out.strokeJoin = flat.strokeJoin;
+  if (flat.effects !== undefined) out.effects = flat.effects;
+  // Auto-layout / positioning — surfaced here (not just get_node) so codegen reads exact padding /
+  // gap / justify / align / grid placement instead of inferring them from x/y/w/h geometry.
+  if (flat.layout !== undefined) out.layout = flat.layout;
+  if (flat.layoutSizingHorizontal !== undefined) {
+    out.layoutSizingHorizontal = flat.layoutSizingHorizontal;
+  }
+  if (flat.layoutSizingVertical !== undefined) out.layoutSizingVertical = flat.layoutSizingVertical;
+  if (flat.layoutGrow !== undefined) out.layoutGrow = flat.layoutGrow;
+  if (flat.layoutAlign !== undefined) out.layoutAlign = flat.layoutAlign;
+  if (flat.layoutPositioning !== undefined) out.layoutPositioning = flat.layoutPositioning;
+  // Min/max size bounds — explicit responsive constraints (→ min-w / max-w / min-h / max-h).
+  if (flat.minWidth !== undefined) out.minWidth = flat.minWidth;
+  if (flat.maxWidth !== undefined) out.maxWidth = flat.maxWidth;
+  if (flat.minHeight !== undefined) out.minHeight = flat.minHeight;
+  if (flat.maxHeight !== undefined) out.maxHeight = flat.maxHeight;
+  if (flat.gridChild !== undefined) out.gridChild = flat.gridChild;
+  if (flat.constraints !== undefined) out.constraints = flat.constraints;
+  if (flat.clipsContent !== undefined) out.clipsContent = flat.clipsContent;
+  // A frame's own layout grids (the explicit responsive column system) + scroll overflow — ground
+  // truth for breakpoints that codegen otherwise infers from geometry.
+  if (flat.layoutGrids !== undefined) out.layoutGrids = flat.layoutGrids;
+  if (flat.overflowDirection !== undefined) out.overflowDirection = flat.overflowDirection;
+  if (flat.numberOfFixedChildren !== undefined) {
+    out.numberOfFixedChildren = flat.numberOfFixedChildren;
+  }
+  if (flat.targetAspectRatio !== undefined) out.targetAspectRatio = flat.targetAspectRatio;
+  // Dev Mode annotations: the designer's notes written FOR the developer — ground truth that
+  // outranks inference, embedded so grounding carries them without a second tool call.
+  if (flat.annotations !== undefined) out.annotations = flat.annotations;
+  if (flat.characters !== undefined) out.characters = flat.characters;
+  if (flat.fontSize !== undefined) out.fontSize = flat.fontSize;
+  if (flat.fontName !== undefined) out.fontName = flat.fontName;
+  // Typography the serializer already computes but get_design_context used to drop — without these
+  // codegen eyeballs casing / leading / tracking / underlines / alignment / clamping off the raster.
+  // Surfaced only when it differs from the no-op default, so a plain left-aligned body paragraph
+  // stays clean and only the meaningful values show (a centered UPPERCASE tracked heading, an
+  // underlined link, a 2-line clamp). `mixed` (per-segment styling) is always meaningful → kept.
+  // Style-level ones (lineHeight/letterSpacing/textCase/textDecoration) fold into the textStyle
+  // bundle in dedupeStyles; align/truncation stay inline (they vary per instance, not per style).
+  const lh = flat.lineHeight;
+  if (lh !== undefined && (lh === MIXED || lh.unit !== 'AUTO')) out.lineHeight = lh;
+  const ls = flat.letterSpacing;
+  if (ls !== undefined && (ls === MIXED || ls.value !== 0)) out.letterSpacing = ls;
+  if (flat.textCase !== undefined && flat.textCase !== 'ORIGINAL') out.textCase = flat.textCase;
+  if (flat.textDecoration !== undefined && flat.textDecoration !== 'NONE') {
+    out.textDecoration = flat.textDecoration;
+  }
+  if (flat.textAlignHorizontal !== undefined && flat.textAlignHorizontal !== 'LEFT') {
+    out.textAlignHorizontal = flat.textAlignHorizontal;
+  }
+  if (flat.textAlignVertical !== undefined && flat.textAlignVertical !== 'TOP') {
+    out.textAlignVertical = flat.textAlignVertical;
+  }
+  if (flat.textTruncation !== undefined && flat.textTruncation !== 'DISABLED') {
+    out.textTruncation = flat.textTruncation;
+  }
+  if (typeof flat.maxLines === 'number') out.maxLines = flat.maxLines;
+  // Paragraph structure + box sizing the serializer computes but this view used to drop (same miss
+  // class as the typography above). paragraphSpacing/Indent are style-level → dedupeStyles folds
+  // them into the textStyle bundle; textAutoResize is per-node behaviour → stays inline. Each is
+  // omitted at its no-op default (0 / WIDTH_AND_HEIGHT hug) so plain text stays clean.
+  if (typeof flat.paragraphSpacing === 'number' && flat.paragraphSpacing !== 0) {
+    out.paragraphSpacing = flat.paragraphSpacing;
+  }
+  if (typeof flat.paragraphIndent === 'number' && flat.paragraphIndent !== 0) {
+    out.paragraphIndent = flat.paragraphIndent;
+  }
+  // Wrap balancing — style-level like the paragraph fields, omitted at the AUTO default so only a
+  // deliberately balanced heading / pretty-wrapped paragraph shows. Figma's three values are CSS
+  // `text-wrap`'s, so this reaches codegen as a value to emit, not one to infer.
+  if (typeof flat.textWrapStyle === 'string' && flat.textWrapStyle !== 'AUTO') {
+    out.textWrapStyle = flat.textWrapStyle;
+  }
+  if (flat.textAutoResize !== undefined && flat.textAutoResize !== 'WIDTH_AND_HEIGHT') {
+    out.textAutoResize = flat.textAutoResize;
+  }
+  // A node-level hyperlink (whole text is one link → <a href>); partial links ride in segments below.
+  if (flat.hyperlink !== undefined) out.hyperlink = flat.hyperlink;
+  // Per-run styling of a mixed TEXT node — serializeFlatSync already computed this (only set when the
+  // node is genuinely mixed, carries a partial link, or is a list), get_design_context just used to
+  // drop it. Carry it so inline bold / links / list items survive instead of collapsing to a single
+  // `mixed` marker. fills are simplified to hex like every other paint in this view; the structural
+  // per-run fields (hyperlink / listOptions / indentation) and leading/tracking pass through as-is.
+  if (flat.segments !== undefined) {
+    out.segments = flat.segments.map(s => {
+      const seg: NonNullable<DesignContextNode['segments']>[number] = {
+        characters: s.characters,
+        start: s.start,
+        end: s.end,
+        fontName: s.fontName,
+        fontSize: s.fontSize,
+        fills: s.fills.map(simplifyPaint),
+        textDecoration: s.textDecoration,
+        textCase: s.textCase,
+      };
+      if (s.lineHeight !== undefined) seg.lineHeight = s.lineHeight;
+      if (s.letterSpacing !== undefined) seg.letterSpacing = s.letterSpacing;
+      if (s.hyperlink !== undefined) seg.hyperlink = s.hyperlink;
+      if (s.listOptions !== undefined) seg.listOptions = s.listOptions;
+      if (s.indentation !== undefined) seg.indentation = s.indentation;
+      if (s.textWrapStyle !== undefined) seg.textWrapStyle = s.textWrapStyle;
+      // Per-run token bindings — same shape (and trailing-comma cleaning) as a node's own, so
+      // collectRefs / resolveTokens resolve them to names alongside the node-level ones.
+      if (s.styleIds !== undefined)
+        seg.styleIds = cleanStyleIds(s.styleIds as Record<string, string>);
+      if (s.boundVariables !== undefined) seg.boundVariables = s.boundVariables;
+      return seg;
+    });
+  }
+  // Grounding fields (M3 P1): surface what serializeFlatSync already captured but
+  // get_design_context used to drop. id→token-name resolution lands in P2 (top-level maps below);
+  // globalVars dedup in P3.
+  if (flat.styleIds !== undefined)
+    out.styleIds = cleanStyleIds(flat.styleIds as Record<string, string>);
+  if (flat.boundVariables !== undefined) out.boundVariables = flat.boundVariables;
+  if (flat.componentProperties !== undefined) out.componentProperties = flat.componentProperties;
+  return out;
+};
+
+/** Gather every variable id (boundVariables) and shared-style id (styleIds) referenced in a tree. */
+const collectRefs = (
+  nodes: readonly DesignContextNode[],
+): { varIds: Set<string>; styleIds: Set<string> } => {
+  const varIds = new Set<string>();
+  const styleIds = new Set<string>();
+  // A node and a mixed-TEXT run carry the same binding shape; collect from either.
+  const collectFrom = (bearer: {
+    boundVariables?: Readonly<Record<string, readonly string[]>>;
+    styleIds?: unknown;
+  }): void => {
+    if (bearer.boundVariables) {
+      for (const ids of Object.values(bearer.boundVariables)) for (const id of ids) varIds.add(id);
+    }
+    if (bearer.styleIds) {
+      for (const id of Object.values(bearer.styleIds as Record<string, string>)) {
+        if (id !== '') styleIds.add(id);
+      }
+    }
+  };
+  const visit = (n: DesignContextNode): void => {
+    collectFrom(n);
+    // Per-run token bindings on a mixed TEXT node resolve alongside the node-level ones.
+    if (n.segments) for (const seg of n.segments) collectFrom(seg);
+    if (n.children) for (const c of n.children) visit(c);
+  };
+  for (const n of nodes) visit(n);
+  return { varIds, styleIds };
+};
+
+/**
+ * Resolve referenced variable + style ids to names (deduped, top-level). Handles both local and
+ * library/published refs via the per-id async lookups. Unresolvable refs (e.g. a library variable
+ * not subscribed in this file) are silently skipped — the node's inline value stays the fallback.
+ */
+const resolveTokens = async (
+  figmaCtx: typeof figma,
+  nodes: readonly DesignContextNode[],
+): Promise<Pick<GetDesignContextResult, 'variables' | 'styles'>> => {
+  const { varIds, styleIds } = collectRefs(nodes);
+  const out: Pick<GetDesignContextResult, 'variables' | 'styles'> = {};
+
+  const getVar = figmaCtx.variables?.getVariableByIdAsync;
+  if (varIds.size > 0 && typeof getVar === 'function') {
+    const variables: Record<string, ResolvedToken> = {};
+    await Promise.all(
+      [...varIds].map(async id => {
+        try {
+          const v = await getVar.call(figmaCtx.variables, id);
+          if (v !== null) {
+            const token: ResolvedToken = { name: v.name, type: v.resolvedType };
+            // Designer-declared code-side name (e.g. WEB → `--color-primary`) — carried when
+            // declared so the consumer can skip the heuristic name join.
+            const codeSyntax = serializeCodeSyntax((v as { codeSyntax?: unknown }).codeSyntax);
+            if (codeSyntax !== undefined) token.codeSyntax = codeSyntax;
+            variables[id] = token;
+          }
+        } catch {
+          /* unresolved ref — skip, inline value remains the fallback */
+        }
+      }),
+    );
+    if (Object.keys(variables).length > 0) out.variables = variables;
+  }
+
+  const getStyle = figmaCtx.getStyleByIdAsync;
+  if (styleIds.size > 0 && typeof getStyle === 'function') {
+    const styles: Record<string, ResolvedToken> = {};
+    await Promise.all(
+      [...styleIds].map(async id => {
+        try {
+          const s = await getStyle.call(figmaCtx, id);
+          if (s !== null) styles[id] = { name: s.name, type: s.type };
+        } catch {
+          /* unresolved ref — skip */
+        }
+      }),
+    );
+    if (Object.keys(styles).length > 0) out.styles = styles;
+  }
+
+  return out;
+};
+
+/** Width buckets mirror responsive.md: ~≥1280 desktop · 600–1280 tablet · <600 mobile. */
+const widthBucket = (w: number): string => (w >= 1280 ? 'desktop' : w >= 600 ? 'tablet' : 'mobile');
+
+/**
+ * When the selection holds several top-level FRAMEs whose widths fall in _different_ buckets it's a
+ * breakpoint set — the exact shape that tempts a caller to size one breakpoint by eye off another
+ * (the failure mode behind "mixed desktop+mobile codegen is inaccurate"). Return the don't-merge
+ * rule so even a caller that skipped the figma-codegen skill (or used the grounding-free `compact`
+ * default) still gets it. Same-bucket siblings get nothing — two 375 frames are a screen + its menu
+ * state, two desktop frames are two screens; neither is a breakpoint diff to ground separately.
+ *
+ * Screen-count aware: more frames than buckets means at least one bucket holds >1 frame, i.e.
+ * several screens each with their own breakpoints are selected (A-desktop/A-mobile + B-desktop/
+ * B-mobile). Then the extra risk is mis-pairing across screens, so the hint leads with the pairing
+ * rule before the per-frame grounding rule.
+ */
+const breakpointHint = (roots: readonly SceneNode[]): string | undefined => {
+  const frames = roots.filter((r): r is FrameNode => r.type === 'FRAME');
+  if (frames.length < 2) return undefined;
+  const buckets = new Set(frames.map(f => widthBucket(f.width)));
+  if (buckets.size < 2) return undefined;
+
+  // Distinct widths, widest first — avoids "1440 / 375 / 1440 / 375" when several screens share buckets.
+  const widths = [...new Set(frames.map(f => Math.round(f.width)))]
+    .toSorted((a, b) => b - a)
+    .join(' / ');
+  const multipleScreens = frames.length > buckets.size;
+  const acrossScreens = multipleScreens ? ' or screens' : '';
+  const action =
+    `get_design_context on EACH frame by its own nodeId and take every size (font, line-height, ` +
+    `padding, gap) from that frame's own data — never carry sizes across breakpoints${acrossScreens}, ` +
+    `never pick one as canonical and scale the others by eye, and never read sizes off the screenshot ` +
+    `raster. The output stays responsive: emit these as mobile-first breakpoint variants (e.g. ` +
+    `px-4 lg:px-20), keep the container fluid (w-full / max-w), and never hardcode a frame's own ` +
+    `width — no w-[375px] root and no fixed-width mobile menu (a full-bleed menu is fixed inset-0 w-full).`;
+  const lead =
+    `Selection holds ${frames.length} top-level frames spanning widths ${widths}px — these are ` +
+    `breakpoints, not one combined screen. `;
+  return multipleScreens
+    ? lead +
+        `More than one screen is present: first pair each screen to its own breakpoint frames (by ` +
+        `normalized name / matching content), then run ${action}`
+    : lead + `Run ${action}`;
+};
+
+interface BuildCtx {
+  detail: DetailLevel;
+  dedupe: boolean;
+  seen: Set<string>;
+}
+
+/**
+ * The visible text a deduped instance actually renders — every visible TEXT descendant's
+ * `characters` in DFS order. Text-only on purpose: the structure/style subtree stays collapsed
+ * (that's the dedup win), but per-instance content (card titles, list items, form labels) survives
+ * so codegen needn't re-expand the tree. Hidden nodes are skipped (whole subtree) since they don't
+ * render; empty strings are dropped as noise.
+ */
+const collectTextOverrides = (instance: SceneNode): { name: string; characters: string }[] => {
+  const out: { name: string; characters: string }[] = [];
+  const visit = (n: SceneNode): void => {
+    if (n.visible === false) return;
+    if (n.type === 'TEXT') {
+      const chars = (n as TextNode).characters;
+      if (chars !== '') out.push({ name: n.name, characters: chars });
+      return;
+    }
+    if ('children' in n) {
+      for (const c of (n as SceneNode & { children: readonly SceneNode[] }).children) visit(c);
+    }
+  };
+  if ('children' in instance) {
+    for (const c of (instance as SceneNode & { children: readonly SceneNode[] }).children) visit(c);
+  }
+  return out;
+};
+
+/** Visual (non-text) fields a deduped instance may override; text lives in textOverrides. */
+const VISUAL_OVERRIDE_FIELDS = [
+  'fills',
+  'strokes',
+  'strokeWeight',
+  'strokeAlign',
+  'effects',
+  'cornerRadius',
+  'cornerRadii',
+  'opacity',
+  'blendMode',
+] as const;
+
+/**
+ * The non-text overrides a deduped instance actually renders — the visual counterpart to
+ * `collectTextOverrides`. Without it a deduped instance that recolours its title or hides an
+ * optional element collapses to the main component's defaults (the "every card looks identical"
+ * miss). Uses Figma's native `instance.overrides` to find exactly which nodes changed, then
+ * projects each one's visual fields (paints simplified to hex like globalVars). `characters` / font
+ * fields stay with textOverrides; visibility is carried since hiding an element is a common
+ * override. Hidden state and each field are only emitted when present, so an instance with only
+ * text changes yields nothing.
+ */
+const collectPropertyOverrides = (instance: InstanceNode): Record<string, unknown>[] => {
+  // Which descendant nodes Figma reports a non-text visual override on (id → changed fields). We
+  // read instance.overrides for the *what changed*, then walk the subtree (like collectTextOverrides)
+  // for the actual values — no figma.getNodeById, so this stays sync and dependency-free.
+  const overridden = new Set<string>();
+  // overrides is always present on a real InstanceNode; guard so a node lacking it (tests, an
+  // unexpected node) is a no-op rather than a throw.
+  const ovs =
+    (instance as { overrides?: readonly { id: string; overriddenFields: readonly string[] }[] })
+      .overrides ?? [];
+  for (const ov of ovs) {
+    if (ov.id === instance.id) continue; // instance-level (componentProperties), not a child's visual
+    const fields = ov.overriddenFields as readonly string[];
+    if (
+      fields.includes('visible') ||
+      fields.some(f => (VISUAL_OVERRIDE_FIELDS as readonly string[]).includes(f))
+    ) {
+      overridden.add(ov.id);
+    }
+  }
+  if (overridden.size === 0) return [];
+
+  const out: Record<string, unknown>[] = [];
+  const visit = (n: SceneNode): void => {
+    if (overridden.has(n.id)) {
+      const proj = project(n, 'full') as unknown as Record<string, unknown>;
+      const entry: Record<string, unknown> = { name: n.name };
+      if (n.visible === false) entry.visible = false;
+      for (const f of VISUAL_OVERRIDE_FIELDS) {
+        const v = proj[f];
+        if (v === undefined) continue;
+        entry[f] =
+          f === 'fills' || f === 'strokes' ? (v as SerializedPaint[]).map(simplifyPaint) : v;
+      }
+      // Only a node that actually carries a visual override (beyond its name) is worth an entry.
+      if (Object.keys(entry).length > 1) out.push(entry);
+    }
+    if ('children' in n) {
+      for (const c of (n as SceneNode & { children: readonly SceneNode[] }).children) visit(c);
+    }
+  };
+  if ('children' in instance) {
+    for (const c of (instance as SceneNode & { children: readonly SceneNode[] }).children) visit(c);
+  }
+  return out;
+};
+
+/**
+ * Compact Motion (beta) summary for a node that actually animates — applied preset names, the
+ * animated field names, and the containing timeline's duration. Read straight off the Motion mixin
+ * (sync); a node without the mixin, or a non-Figma editor where the read throws, yields undefined.
+ * Only produced when the node carries its own animation, so plain layers stay clean. Surfaced by
+ * buildNode (not project) at full detail — Motion is a Motion-API dimension, not a serializer one.
+ */
+export const motionSummary = (node: SceneNode): MotionSummary | undefined => {
+  if (!('animationStyles' in node)) return undefined;
+  const mn = node as SceneNode & MotionNodeMixin;
+  let styles: string[];
+  let props: string[];
+  let duration: number | undefined;
+  try {
+    styles = mn.animationStyles.map(s => s.name);
+    props = Object.keys(mn.animations);
+    duration = mn.timelines.length > 0 ? mn.timelines[0]!.duration : undefined;
+  } catch {
+    return undefined; // Motion unavailable in this editor — stay silent
+  }
+  if (styles.length === 0 && props.length === 0) return undefined;
+  const out: MotionSummary = {};
+  if (styles.length > 0) out.animationStyles = styles;
+  if (props.length > 0) out.animatedProperties = props;
+  if (duration !== undefined) out.timelineDuration = duration;
+  return out;
+};
+
+/** RemainingDepth: -1 = unlimited; otherwise levels of children still allowed below this node. */
+const buildNode = async (
+  node: SceneNode,
+  remainingDepth: number,
+  ctx: BuildCtx,
+): Promise<DesignContextNode> => {
+  const out = project(node, ctx.detail);
+
+  // Motion is a Motion-API dimension (not a serializer field), so it's attached here rather than in
+  // project(). Full detail only — the compact hot path stays untouched.
+  if (ctx.detail === 'full') {
+    const motion = motionSummary(node);
+    if (motion !== undefined) out.motion = motion;
+  }
+
+  let expandChildren = true;
+  // Resolve the main component when deduping (needs the id) or at full detail (needs name/key for
+  // component_map). componentProperties on the instance itself are surfaced in project() and survive
+  // dedup — only the expanded child subtree below is collapsed.
+  if (node.type === 'INSTANCE' && (ctx.dedupe || ctx.detail === 'full')) {
+    const main = await (node as InstanceNode).getMainComponentAsync();
+    if (main !== null) {
+      out.mainComponentId = main.id;
+      if (ctx.detail === 'full') {
+        const mc: NonNullable<DesignContextNode['mainComponent']> = {
+          id: main.id,
+          name: main.name,
+          key: main.key,
+        };
+        // A variant component's parent is the COMPONENT_SET. Carry its identity so component_map can
+        // group/name by the set ("Button") instead of the variant signature ("Size=…, State=…") —
+        // resolving it here (the parent is already loaded) avoids a doc-wide get_local_components scan.
+        const parent = main.parent;
+        if (parent != null && parent.type === 'COMPONENT_SET') {
+          mc.componentSetId = parent.id;
+          mc.componentSetName = parent.name;
+        }
+        out.mainComponent = mc;
+      }
+      if (ctx.dedupe) {
+        if (ctx.seen.has(main.id)) {
+          out.deduped = true;
+          expandChildren = false;
+          const overrides = collectTextOverrides(node);
+          if (overrides.length > 0) out.textOverrides = overrides;
+          const propOverrides = collectPropertyOverrides(node as InstanceNode);
+          if (propOverrides.length > 0) {
+            out.propertyOverrides = propOverrides as unknown as NonNullable<
+              DesignContextNode['propertyOverrides']
+            >;
+          }
+        } else {
+          ctx.seen.add(main.id);
+        }
+      }
+    }
+  }
+
+  if (expandChildren && 'children' in node) {
+    const children = (node as SceneNode & { children: readonly SceneNode[] }).children;
+    if (children.length > 0) {
+      if (remainingDepth === 0) {
+        out.truncated = true;
+      } else {
+        const next = remainingDepth < 0 ? -1 : remainingDepth - 1;
+        out.children = await Promise.all(children.map(child => buildNode(child, next, ctx)));
+      }
+    }
+  }
+
+  return out;
+};
+
+/**
+ * Count the nodes a buildNode walk would visit, honoring the same depth cap — pure and sync (no
+ * serialization, no async main-component resolves), so bailing on a hopeless tree costs
+ * milliseconds instead of the full serialization it avoids. Deliberately ignores dedupeComponents
+ * (dedupe shrinks the payload, not the visit count), which is one reason the bail threshold is set
+ * high.
+ */
+const countNodes = (nodes: readonly SceneNode[], remainingDepth: number): number => {
+  let total = 0;
+  for (const node of nodes) {
+    total += 1;
+    if (remainingDepth !== 0 && 'children' in node) {
+      const next = remainingDepth < 0 ? -1 : remainingDepth - 1;
+      total += countNodes((node as SceneNode & { children: readonly SceneNode[] }).children, next);
+    }
+  }
+  return total;
+};
+
+// A very wide flat tree (hundreds of direct children) would otherwise produce a plan as unwieldy as
+// the payload it replaces; keep the head and report how many were dropped.
+const MAX_PLAN_SECTIONS = 60;
+
+/**
+ * The bail response for a tree too large to serialize whole: the roots' identity plus a section
+ * plan (one entry per top-level subtree, with sizes) the caller grounds one at a time. Sections
+ * come from the single root's children (its grandchildren when it only has one child — a page-like
+ * wrapper); a multi-root selection sections at the roots themselves.
+ */
+const sectionPlanResult = (
+  roots: readonly SceneNode[],
+  totalNodes: number,
+): GetDesignContextResult => {
+  let sectionNodes: readonly SceneNode[] = roots;
+  for (let hops = 0; hops < 2 && sectionNodes.length === 1; hops += 1) {
+    const only = sectionNodes[0] as SceneNode;
+    if (!('children' in only)) break;
+    const children = (only as SceneNode & { children: readonly SceneNode[] }).children;
+    if (children.length === 0) break;
+    sectionNodes = children;
+  }
+  const sections: DesignContextSection[] = sectionNodes.slice(0, MAX_PLAN_SECTIONS).map(node => ({
+    nodeId: node.id,
+    name: node.name,
+    type: node.type,
+    childCount:
+      'children' in node
+        ? (node as SceneNode & { children: readonly SceneNode[] }).children.length
+        : 0,
+    nodes: countNodes([node], -1),
+  }));
+  const omitted = sectionNodes.length - sections.length;
+  return {
+    // Note first: the consumer is a model reading top to bottom, and a caveat placed after the
+    // payload is read after every value it is warning about (see withLeadingNote in the mcp guard).
+    note:
+      `This tree is ${totalNodes} nodes — too large to serialize whole. Ground it section by ` +
+      'section: call get_design_context per section nodeId (detail: full, dedupeComponents: true) ' +
+      'and build each before moving on. Do not retry this call unscoped and do not depth-cap the ' +
+      'whole page.',
+    // The roots keep their own layout: a plan tells the caller which sections to ground, but it is
+    // the root's layout that says how to build the container they go into (see planRootFrom).
+    nodes: roots.map(node => planRootFrom(project(node, 'full'))),
+    sectionPlan: {
+      reason: 'node-count',
+      totalNodes,
+      sections,
+      ...(omitted > 0 ? { sectionsOmitted: omitted } : {}),
+    },
+  };
+};
+
+export const createGetDesignContextHandler =
+  (figmaCtx: typeof figma): SandboxToolHandler =>
+  async params => {
+    const p = (params ?? {}) as {
+      nodeId?: unknown;
+      depth?: unknown;
+      detail?: unknown;
+      dedupeComponents?: unknown;
+      budget?: unknown;
+    };
+
+    if (p.nodeId !== undefined && typeof p.nodeId !== 'string') {
+      throw new TypeError('get_design_context: nodeId must be a string');
+    }
+    if (p.depth !== undefined && (typeof p.depth !== 'number' || p.depth < 0)) {
+      throw new TypeError('get_design_context: depth must be a non-negative number');
+    }
+    if (p.detail !== undefined && !isDetailLevel(p.detail)) {
+      throw new TypeError(`get_design_context: detail must be one of ${DETAIL_LEVELS.join(' / ')}`);
+    }
+    if (p.dedupeComponents !== undefined && typeof p.dedupeComponents !== 'boolean') {
+      throw new TypeError('get_design_context: dedupeComponents must be a boolean');
+    }
+
+    // depth omitted or 0 → unlimited (-1); positive → that many levels of children.
+    const remainingDepth = typeof p.depth === 'number' && p.depth > 0 ? p.depth : -1;
+    const ctx: BuildCtx = {
+      detail: isDetailLevel(p.detail) ? p.detail : 'compact',
+      dedupe: p.dedupeComponents === true,
+      seen: new Set<string>(),
+    };
+
+    let roots: readonly SceneNode[];
+    if (typeof p.nodeId === 'string') {
+      const node = await figmaCtx.getNodeByIdAsync(p.nodeId);
+      // A miss used to return { nodes: [] } — indistinguishable from an empty design, so the caller
+      // (an LLM, or component_map/icon_map reusing this handler) walked on with nothing and produced
+      // silently-wrong output. Refuse loudly with the id instead, like the empty-selection case.
+      if (node === null) {
+        throw new Error(
+          `get_design_context: node "${p.nodeId}" not found in this file. Check the id (a pasted ` +
+            'Figma URL works too), or select the target in Figma and call without nodeId.',
+        );
+      }
+      if (!isSceneNode(node)) {
+        throw new Error(
+          `get_design_context: "${p.nodeId}" is a ${node.type}, not a frame/layer. Pass a frame or ` +
+            'layer id, or select nodes on that page and call without nodeId — grounding a whole ' +
+            'page is too large and ambiguous.',
+        );
+      }
+      roots = [node];
+    } else if (figmaCtx.currentPage.selection.length > 0) {
+      roots = figmaCtx.currentPage.selection;
+    } else {
+      // No nodeId and nothing selected: refuse rather than fall back to the whole page. A bare
+      // currentPage.children scan times out on large pages, and the selection is also the signal
+      // that tells the user which frame they actually want generated. Ask for one explicitly.
+      throw new Error(
+        'Nothing selected. Select one or more frames/layers in Figma (or pass an explicit nodeId). ' +
+          'get_design_context no longer scans the whole page — it is too large and ambiguous.',
+      );
+    }
+
+    // Pre-serialization bail, public tool path only (budget is injected by the mcp tool handler and
+    // never by internal consumers — design_diff / component_map / icon_map read the payload
+    // in-process, where size is harmless, so they always get the raw tree). Full detail only:
+    // that's the branch whose per-node serialization + per-TEXT segment calls are worth skipping.
+    if (p.budget === true && ctx.detail === 'full') {
+      const total = countNodes(roots, remainingDepth);
+      if (total > DESIGN_CONTEXT_BAIL_NODES) return sectionPlanResult(roots, total);
+    }
+
+    const nodes = await Promise.all(roots.map(root => buildNode(root, remainingDepth, ctx)));
+    const result: GetDesignContextResult = { nodes };
+
+    // Multi-breakpoint selection → attach the ground-each-frame rule (any detail level; the
+    // grounding-free `compact` default is exactly where this is most needed).
+    const hint = breakpointHint(roots);
+    if (hint !== undefined) result.hint = hint;
+
+    // Full detail only: resolve token ids → names (P2), then dedupe styles into globalVars and
+    // measure the simplification (P3). Below full, styleIds/boundVariables/fills aren't surfaced.
+    if (ctx.detail === 'full') {
+      Object.assign(result, await resolveTokens(figmaCtx, nodes));
+      const { nodes: deduped, globalVars } = dedupeStyles(nodes);
+      result.nodes = deduped;
+      if (Object.keys(globalVars.styles).length > 0) result.globalVars = globalVars;
+      result.metrics = computeMetrics(nodes, result);
+    }
+    return result;
+  };

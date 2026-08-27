@@ -1,0 +1,48 @@
+{
+  "schemaVersion": 1,
+  "upstream": "figwright",
+  "commit": "a835e81b575eab2c9265a67f9353c89b848f81ca",
+  "copy": [
+    "README.md",
+    "packages/shared/src/**",
+    "packages/shared/test/**",
+    "packages/mcp/src/**",
+    "packages/mcp/test/**",
+    "packages/mcp/README.md",
+    "packages/plugin/protocol/**",
+    "packages/plugin/src/**",
+    "packages/plugin/ui/**",
+    "packages/plugin/test/**",
+    "skills/figma-codegen/**",
+    "skills/figma-build/**",
+    "test/**"
+  ],
+  "mergeDependencyManifests": [
+    "package.json",
+    "packages/shared/package.json",
+    "packages/mcp/package.json",
+    "packages/plugin/package.json"
+  ],
+  "referenceOnly": [
+    "pnpm-lock.yaml",
+    "pnpm-workspace.yaml",
+    "tsconfig.base.json",
+    "tsconfig.json",
+    "vitest.config.ts",
+    "knip.json",
+    ".node-version",
+    ".oxlintrc.json",
+    ".oxfmtrc.json",
+    "packages/shared/tsconfig.json",
+    "packages/shared/vitest.config.ts",
+    "packages/mcp/tsconfig.json",
+    "packages/mcp/tsdown.config.ts",
+    "packages/mcp/vitest.config.ts",
+    "packages/plugin/manifest.json",
+    "packages/plugin/tsconfig.json",
+    "packages/plugin/vite.config.ts",
+    "packages/plugin/vite.config.main.ts",
+    "packages/plugin/vitest.config.ts"
+  ],
+  "exclude": ["**/dist/**", "**/node_modules/**", "**/coverage/**", "**/*.tsbuildinfo"]
+}
