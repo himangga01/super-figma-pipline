@@ -1,11 +1,11 @@
 import { z } from 'zod';
 
 import { keyframeFieldSchema, manualKeyframeTrackInputSchema } from './motion-schemas.js';
-import type { ToolSpec } from './spec.js';
+import type { RawToolSpec } from './spec.js';
 
 export const APPLY_MANUAL_KEYFRAME_TRACK_TOOL_NAME = 'apply_manual_keyframe_track';
 
-export const applyManualKeyframeTrackTool: ToolSpec = {
+export const applyManualKeyframeTrackTool: RawToolSpec = {
   name: APPLY_MANUAL_KEYFRAME_TRACK_TOOL_NAME,
   description:
     'Set a hand-authored Figma Motion keyframe track on a node for one field — e.g. TRANSLATION_X, ' +

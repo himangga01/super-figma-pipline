@@ -24,6 +24,24 @@ const store = new AsyncLocalStorage<{ notice: string | null }>();
  */
 const asBlock = (notice: string): string => `\n\n⚠️ FIGWRIGHT PLUGIN OUT OF DATE\n${notice}`;
 
+/** Append in place so typed errors keep their identity and public authority fields. */
+const appendNoticeToError = (error: Error, notice: string): boolean => {
+  const block = asBlock(notice);
+  if (error.message.endsWith(block)) return true;
+  try {
+    Object.defineProperty(error, 'message', {
+      value: `${error.message}${block}`,
+      configurable: true,
+      enumerable: false,
+      writable: true,
+    });
+    return true;
+  } catch {
+    // A frozen/non-configurable foreign error cannot carry the notice without a wrapper.
+    return false;
+  }
+};
+
 /** Run a tool call with skew capture armed, then hand what was captured to `finish`. */
 export const captureSkew = async (
   run: () => Promise<CallToolResult>,
@@ -40,6 +58,7 @@ export const captureSkew = async (
     // turns a thrown error into the tool result the model sees, so the message is where it has to
     // go; `finish` never runs on this path.
     if (box.notice === null) throw err;
+    if (err instanceof Error && appendNoticeToError(err, box.notice)) throw err;
     const message = err instanceof Error ? err.message : String(err);
     throw new Error(`${message}${asBlock(box.notice)}`, { cause: err });
   }

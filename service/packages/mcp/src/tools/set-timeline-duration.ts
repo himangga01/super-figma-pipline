@@ -1,10 +1,10 @@
 import { z } from 'zod';
 
-import type { ToolSpec } from './spec.js';
+import type { RawToolSpec } from './spec.js';
 
 export const SET_TIMELINE_DURATION_TOOL_NAME = 'set_timeline_duration';
 
-export const setTimelineDurationTool: ToolSpec = {
+export const setTimelineDurationTool: RawToolSpec = {
   name: SET_TIMELINE_DURATION_TOOL_NAME,
   description:
     'Set the duration (in seconds, must be > 0) of a Figma Motion timeline. Get the timelineId from ' +

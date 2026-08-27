@@ -1,10 +1,10 @@
 import { z } from 'zod';
 
-import type { ToolSpec } from './spec.js';
+import type { RawToolSpec } from './spec.js';
 
 export const GET_STYLES_TOOL_NAME = 'get_styles';
 
-export const getStylesTool: ToolSpec = {
+export const getStylesTool: RawToolSpec = {
   name: GET_STYLES_TOOL_NAME,
   description:
     "Return the document's local styles grouped as { paints, texts, effects, grids }. " +

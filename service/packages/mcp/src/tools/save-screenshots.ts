@@ -12,7 +12,7 @@ import { z } from 'zod';
 
 import { binaryPayload } from './binary-payload.js';
 import { GET_SCREENSHOT_TOOL_NAME } from './get-screenshot.js';
-import type { ToolSpec } from './spec.js';
+import type { RawToolSpec } from './spec.js';
 
 export const SAVE_SCREENSHOTS_TOOL_NAME = 'save_screenshots';
 
@@ -26,7 +26,7 @@ const inputSchema = z.object({
   scale: z.number().positive().describe('Raster scale factor (PNG/JPG), default 1').optional(),
 });
 
-export const saveScreenshotsTool: ToolSpec = {
+export const saveScreenshotsTool: RawToolSpec = {
   name: SAVE_SCREENSHOTS_TOOL_NAME,
   description:
     'Export nodes and write them to disk under outDir: { saved: [{ nodeId, format, path, recovered?, empty? }] }. ' +

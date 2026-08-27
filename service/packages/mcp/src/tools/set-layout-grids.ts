@@ -1,11 +1,11 @@
 import { z } from 'zod';
 
 import { gridItemSchema } from './grid-schema.js';
-import type { ToolSpec } from './spec.js';
+import type { RawToolSpec } from './spec.js';
 
 export const SET_LAYOUT_GRIDS_TOOL_NAME = 'set_layout_grids';
 
-export const setLayoutGridsTool: ToolSpec = {
+export const setLayoutGridsTool: RawToolSpec = {
   name: SET_LAYOUT_GRIDS_TOOL_NAME,
   description:
     "Set a frame's own layout grids — the responsive column/row scaffold laid over it (the 12-column " +

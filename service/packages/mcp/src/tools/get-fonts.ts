@@ -1,10 +1,10 @@
 import { z } from 'zod';
 
-import type { ToolSpec } from './spec.js';
+import type { RawToolSpec } from './spec.js';
 
 export const GET_FONTS_TOOL_NAME = 'get_fonts';
 
-export const getFontsTool: ToolSpec = {
+export const getFontsTool: RawToolSpec = {
   name: GET_FONTS_TOOL_NAME,
   description:
     'Return every font used on the current page as { fonts: [{ fontName, count }] }, sorted by ' +

@@ -1,11 +1,11 @@
 import { z } from 'zod';
 
 import { animationStyleConfigSchema } from './motion-schemas.js';
-import type { ToolSpec } from './spec.js';
+import type { RawToolSpec } from './spec.js';
 
 export const APPLY_ANIMATION_STYLE_TOOL_NAME = 'apply_animation_style';
 
-export const applyAnimationStyleTool: ToolSpec = {
+export const applyAnimationStyleTool: RawToolSpec = {
   name: APPLY_ANIMATION_STYLE_TOOL_NAME,
   description:
     'Apply a Figma Motion animation-style preset to a node (get styleIds from get_motion_styles). ' +

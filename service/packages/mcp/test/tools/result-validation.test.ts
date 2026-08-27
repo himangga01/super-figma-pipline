@@ -9,7 +9,10 @@ import {
   type RuntimeBinding,
   type RuntimeExecutionContext,
 } from '../../src/tools/runtime-registry.js';
-import type { RawToolSpec } from '../../src/tools/spec.js';
+import type { RawToolSpec, ToolSpec } from '../../src/tools/spec.js';
+
+// @ts-expect-error ToolSpec is a finalized authority and requires explicit input/output types.
+export type BareToolSpecMustNotCompile = ToolSpec;
 
 const signal = new AbortController().signal;
 const contextReturning = (value: unknown): RuntimeExecutionContext => ({
@@ -107,6 +110,14 @@ describe('authority initialization failures', () => {
         ['example', binding],
       ]),
     ).toThrow(/duplicate runtime.*example/i);
+  });
+
+  it('strictifies a future object row instead of silently stripping unexpected fields', () => {
+    const registry = createResultSchemaRegistry([
+      ['future_tool', z.object({ ok: z.literal(true) })],
+    ]);
+
+    expect(registry.future_tool!.safeParse({ ok: true, unexpected: true }).success).toBe(false);
   });
 
   it('throws while finalizing duplicate, missing, or extra authority rows', () => {

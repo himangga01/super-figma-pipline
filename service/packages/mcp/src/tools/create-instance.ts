@@ -1,10 +1,10 @@
 import { z } from 'zod';
 
-import type { ToolSpec } from './spec.js';
+import type { RawToolSpec } from './spec.js';
 
 export const CREATE_INSTANCE_TOOL_NAME = 'create_instance';
 
-export const createInstanceTool: ToolSpec = {
+export const createInstanceTool: RawToolSpec = {
   name: CREATE_INSTANCE_TOOL_NAME,
   description:
     'Instantiate a component. Provide componentId (a local COMPONENT node) or componentKey (a ' +

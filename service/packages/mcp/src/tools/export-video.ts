@@ -6,7 +6,7 @@ import { z } from 'zod';
 
 import { binaryPayload } from './binary-payload.js';
 import { videoExportConstraintSchema } from './motion-schemas.js';
-import type { ToolSpec } from './spec.js';
+import type { RawToolSpec } from './spec.js';
 
 export const EXPORT_VIDEO_TOOL_NAME = 'export_video';
 
@@ -37,7 +37,7 @@ const inputSchema = z.object({
   outPath: z.string().describe('File path to write the video to (parent dirs created if missing)'),
 });
 
-export const exportVideoTool: ToolSpec = {
+export const exportVideoTool: RawToolSpec = {
   name: EXPORT_VIDEO_TOOL_NAME,
   description:
     'Export an animated Figma top-level frame to an MP4 / WebM / GIF file on disk. Pass any node in ' +

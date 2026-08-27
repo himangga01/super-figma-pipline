@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-import type { ToolSpec } from './spec.js';
+import type { RawToolSpec } from './spec.js';
 
 export const SET_VARIABLE_CODE_SYNTAX_TOOL_NAME = 'set_variable_code_syntax';
 
@@ -8,7 +8,7 @@ export const SET_VARIABLE_CODE_SYNTAX_TOOL_NAME = 'set_variable_code_syntax';
 // the same partial-update idiom as set_text_properties.
 const platformDeclaration = z.string().min(1).nullable();
 
-export const setVariableCodeSyntaxTool: ToolSpec = {
+export const setVariableCodeSyntaxTool: RawToolSpec = {
   name: SET_VARIABLE_CODE_SYNTAX_TOOL_NAME,
   description:
     "Declare a variable's code-side token name per platform (codeSyntax) — the write half of the " +

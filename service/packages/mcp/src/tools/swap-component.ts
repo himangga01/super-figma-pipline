@@ -1,10 +1,10 @@
 import { z } from 'zod';
 
-import type { ToolSpec } from './spec.js';
+import type { RawToolSpec } from './spec.js';
 
 export const SWAP_COMPONENT_TOOL_NAME = 'swap_component';
 
-export const swapComponentTool: ToolSpec = {
+export const swapComponentTool: RawToolSpec = {
   name: SWAP_COMPONENT_TOOL_NAME,
   description:
     "Swap an instance's main component. Provide componentKey (published component, imported via the " +

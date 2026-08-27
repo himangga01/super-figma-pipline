@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-import type { ToolSpec } from './spec.js';
+import type { RawToolSpec } from './spec.js';
 
 export const SET_INSTANCE_PROPERTIES_TOOL_NAME = 'set_instance_properties';
 
@@ -17,7 +17,7 @@ const instancePropertyValue = z
     'string (VARIANT / TEXT / INSTANCE_SWAP target component id) | boolean (BOOLEAN) | { type:"VARIABLE_ALIAS", id }',
   );
 
-export const setInstancePropertiesTool: ToolSpec = {
+export const setInstancePropertiesTool: RawToolSpec = {
   name: SET_INSTANCE_PROPERTIES_TOOL_NAME,
   description:
     "Set an instance's component properties (variant / boolean / text / instance-swap). Keys are the " +

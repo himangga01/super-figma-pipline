@@ -1,10 +1,10 @@
 import { z } from 'zod';
 
-import type { ToolSpec } from './spec.js';
+import type { RawToolSpec } from './spec.js';
 
 export const DETACH_INSTANCE_TOOL_NAME = 'detach_instance';
 
-export const detachInstanceTool: ToolSpec = {
+export const detachInstanceTool: RawToolSpec = {
   name: DETACH_INSTANCE_TOOL_NAME,
   description:
     'Detach a component instance into a plain frame, permanently breaking its link to the main ' +

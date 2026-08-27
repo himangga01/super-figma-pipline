@@ -1,11 +1,11 @@
 import { z } from 'zod';
 
 import { paintItemSchema } from './paint-schema.js';
-import type { ToolSpec } from './spec.js';
+import type { RawToolSpec } from './spec.js';
 
 export const CREATE_PAINT_STYLE_TOOL_NAME = 'create_paint_style';
 
-export const createPaintStyleTool: ToolSpec = {
+export const createPaintStyleTool: RawToolSpec = {
   name: CREATE_PAINT_STYLE_TOOL_NAME,
   description:
     'Create a reusable local paint (color) style from SOLID or gradient paints (same shape as ' +

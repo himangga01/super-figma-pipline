@@ -13,7 +13,7 @@ import {
 import { analyzeProject, type ProjectProfile } from '../profile/profile.js';
 import { scanComponents } from '../scan/scan.js';
 import { GET_DESIGN_CONTEXT_TOOL_NAME } from './get-design-context.js';
-import type { ToolSpec } from './spec.js';
+import type { RawToolSpec } from './spec.js';
 
 export const COMPONENT_MAP_TOOL_NAME = 'component_map';
 
@@ -45,7 +45,7 @@ export interface ComponentMapResult {
   staleOverrides?: { figmaComponentName: string; name: string; filePath: string }[];
 }
 
-export const componentMapTool: ToolSpec = {
+export const componentMapTool: RawToolSpec = {
   name: COMPONENT_MAP_TOOL_NAME,
   description:
     'Map the Figma component instances in a selection/subtree to existing local code components, so ' +

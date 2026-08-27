@@ -1,10 +1,10 @@
 import { z } from 'zod';
 
-import type { ToolSpec } from './spec.js';
+import type { RawToolSpec } from './spec.js';
 
 export const CREATE_ELLIPSE_TOOL_NAME = 'create_ellipse';
 
-export const createEllipseTool: ToolSpec = {
+export const createEllipseTool: RawToolSpec = {
   name: CREATE_ELLIPSE_TOOL_NAME,
   description:
     'Create an ellipse (a circle when width equals height), optionally sized/named/positioned under ' +

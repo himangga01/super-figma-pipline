@@ -56,11 +56,15 @@ export const createResultSchemaRegistry = (
   >;
   for (const [name, schema] of entries) {
     if (registry[name] !== undefined) throw new Error(`duplicate result schema: ${name}`);
-    const jsonSchema = schema.toJSONSchema({ unrepresentable: 'any' });
+    if (!(schema instanceof z.ZodObject)) {
+      throw new Error(`result schema must be a strict object: ${name}`);
+    }
+    const strictSchema = schema.strict();
+    const jsonSchema = strictSchema.toJSONSchema({ unrepresentable: 'any' });
     if (jsonSchema.type !== 'object' || jsonSchema.additionalProperties !== false) {
       throw new Error(`result schema must be a strict object: ${name}`);
     }
-    registry[name] = schema;
+    registry[name] = strictSchema;
   }
   return Object.freeze(registry);
 };

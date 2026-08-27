@@ -1,10 +1,10 @@
 import { z } from 'zod';
 
-import type { ToolSpec } from './spec.js';
+import type { RawToolSpec } from './spec.js';
 
 export const IMPORT_SVG_TOOL_NAME = 'import_svg';
 
-export const importSvgTool: ToolSpec = {
+export const importSvgTool: RawToolSpec = {
   name: IMPORT_SVG_TOOL_NAME,
   description:
     'Import an SVG and place it as editable vector nodes (a FRAME of VECTOR paths) via ' +

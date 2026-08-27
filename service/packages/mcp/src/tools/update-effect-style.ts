@@ -1,11 +1,11 @@
 import { z } from 'zod';
 
 import { effectItemSchema } from './effect-schema.js';
-import type { ToolSpec } from './spec.js';
+import type { RawToolSpec } from './spec.js';
 
 export const UPDATE_EFFECT_STYLE_TOOL_NAME = 'update_effect_style';
 
-export const updateEffectStyleTool: ToolSpec = {
+export const updateEffectStyleTool: RawToolSpec = {
   name: UPDATE_EFFECT_STYLE_TOOL_NAME,
   description:
     'Update an existing effect style by id. Any of name / effects / description may be omitted to ' +

@@ -11,7 +11,7 @@ import type { ToolSpec } from './spec.js';
  * Lives here rather than inline in index.ts so the wire gate can assert what a client actually
  * receives against this same function, instead of restating the rule and drifting from it.
  */
-export const annotationsFor = (spec: ToolSpec): ToolAnnotations =>
+export const annotationsFor = (spec: ToolSpec<unknown, unknown>): ToolAnnotations =>
   spec.kind === 'write'
     ? { readOnlyHint: false, destructiveHint: spec.destructive === true }
     : { readOnlyHint: true };

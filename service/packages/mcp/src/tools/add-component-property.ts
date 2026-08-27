@@ -1,10 +1,10 @@
 import { z } from 'zod';
 
-import type { ToolSpec } from './spec.js';
+import type { RawToolSpec } from './spec.js';
 
 export const ADD_COMPONENT_PROPERTY_TOOL_NAME = 'add_component_property';
 
-export const addComponentPropertyTool: ToolSpec = {
+export const addComponentPropertyTool: RawToolSpec = {
   name: ADD_COMPONENT_PROPERTY_TOOL_NAME,
   description:
     'Declare a component property on a component (or its variant set): BOOLEAN (show/hide a layer), ' +

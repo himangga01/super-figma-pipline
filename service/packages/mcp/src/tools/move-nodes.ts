@@ -1,10 +1,10 @@
 import { z } from 'zod';
 
-import type { ToolSpec } from './spec.js';
+import type { RawToolSpec } from './spec.js';
 
 export const MOVE_NODES_TOOL_NAME = 'move_nodes';
 
-export const moveNodesTool: ToolSpec = {
+export const moveNodesTool: RawToolSpec = {
   name: MOVE_NODES_TOOL_NAME,
   description:
     'Translate nodes by (dx, dy). Nodes without a position are skipped. Returns { ok, affected }.',

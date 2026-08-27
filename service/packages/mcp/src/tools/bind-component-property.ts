@@ -1,10 +1,10 @@
 import { z } from 'zod';
 
-import type { ToolSpec } from './spec.js';
+import type { RawToolSpec } from './spec.js';
 
 export const BIND_COMPONENT_PROPERTY_TOOL_NAME = 'bind_component_property';
 
-export const bindComponentPropertyTool: ToolSpec = {
+export const bindComponentPropertyTool: RawToolSpec = {
   name: BIND_COMPONENT_PROPERTY_TOOL_NAME,
   description:
     'Attach a declared component property (from add_component_property) to a sublayer field so it ' +

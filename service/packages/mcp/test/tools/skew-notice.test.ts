@@ -1,6 +1,11 @@
 import type { CallToolResult } from '@modelcontextprotocol/server';
 import { describe, expect, it } from 'vitest';
 
+import {
+  executeToolRuntime,
+  ToolResultInvalidError,
+  type RuntimeExecutionContext,
+} from '../../src/tools/runtime-registry.js';
 import { captureSkew, reportSkew, withSkewNotice } from '../../src/tools/skew-notice.js';
 
 const result = (text: string): CallToolResult => ({ content: [{ type: 'text', text }] });
@@ -99,6 +104,38 @@ describe('captureSkew', () => {
         r => r,
       ),
     ).rejects.toThrow(/METHOD_NOT_FOUND[\s\S]*OUT OF DATE[\s\S]*older than this server/);
+  });
+
+  it('preserves a typed result error and its authority fields while attaching the warning', async () => {
+    const context: RuntimeExecutionContext = { execute: async () => ({ unexpected: true }) };
+    let original: unknown;
+    let raised: unknown;
+
+    try {
+      await captureSkew(
+        async () => {
+          reportSkew(NOTICE);
+          try {
+            await executeToolRuntime('get_selection', context, {}, new AbortController().signal);
+          } catch (error) {
+            original = error;
+            throw error;
+          }
+          return result('unreachable');
+        },
+        r => r,
+      );
+    } catch (error) {
+      raised = error;
+    }
+
+    expect(raised).toBe(original);
+    expect(raised).toBeInstanceOf(ToolResultInvalidError);
+    expect(raised).toMatchObject({
+      code: 'PLUGIN_RESULT_INVALID',
+      toolName: 'get_selection',
+    });
+    expect((raised as Error).message).toMatch(/PLUGIN_RESULT_INVALID[\s\S]*OUT OF DATE/);
   });
 
   it('leaves a failure untouched when the plugin is current', async () => {

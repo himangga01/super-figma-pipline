@@ -1,10 +1,10 @@
 import { z } from 'zod';
 
-import type { ToolSpec } from './spec.js';
+import type { RawToolSpec } from './spec.js';
 
 export const REMOVE_REACTIONS_TOOL_NAME = 'remove_reactions';
 
-export const removeReactionsTool: ToolSpec = {
+export const removeReactionsTool: RawToolSpec = {
   name: REMOVE_REACTIONS_TOOL_NAME,
   description:
     'Clear every prototype reaction from a node (equivalent to set_reactions with an empty array). ' +

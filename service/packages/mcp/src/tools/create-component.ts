@@ -1,10 +1,10 @@
 import { z } from 'zod';
 
-import type { ToolSpec } from './spec.js';
+import type { RawToolSpec } from './spec.js';
 
 export const CREATE_COMPONENT_TOOL_NAME = 'create_component';
 
-export const createComponentTool: ToolSpec = {
+export const createComponentTool: RawToolSpec = {
   name: CREATE_COMPONENT_TOOL_NAME,
   description:
     'Create a reusable main component. Pass fromNodeId to convert an existing node into a component ' +

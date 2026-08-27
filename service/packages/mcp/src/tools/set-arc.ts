@@ -1,10 +1,10 @@
 import { z } from 'zod';
 
-import type { ToolSpec } from './spec.js';
+import type { RawToolSpec } from './spec.js';
 
 export const SET_ARC_TOOL_NAME = 'set_arc';
 
-export const setArcTool: ToolSpec = {
+export const setArcTool: RawToolSpec = {
   name: SET_ARC_TOOL_NAME,
   description:
     'Turn an ellipse into a pie slice / gauge or a ring / donut by setting its arc data. ' +

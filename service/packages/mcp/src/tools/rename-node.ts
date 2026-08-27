@@ -1,10 +1,10 @@
 import { z } from 'zod';
 
-import type { ToolSpec } from './spec.js';
+import type { RawToolSpec } from './spec.js';
 
 export const RENAME_NODE_TOOL_NAME = 'rename_node';
 
-export const renameNodeTool: ToolSpec = {
+export const renameNodeTool: RawToolSpec = {
   name: RENAME_NODE_TOOL_NAME,
   description:
     "Rename a single canvas node's layer name; does not affect a component's name elsewhere or its " +

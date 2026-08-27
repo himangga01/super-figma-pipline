@@ -1,10 +1,10 @@
 import { z } from 'zod';
 
-import type { ToolSpec } from './spec.js';
+import type { RawToolSpec } from './spec.js';
 
 export const SET_VISIBLE_TOOL_NAME = 'set_visible';
 
-export const setVisibleTool: ToolSpec = {
+export const setVisibleTool: RawToolSpec = {
   name: SET_VISIBLE_TOOL_NAME,
   description:
     'Show or hide a node by toggling its `visible` flag. A hidden node stays in the layer tree but ' +

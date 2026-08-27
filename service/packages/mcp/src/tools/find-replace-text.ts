@@ -1,10 +1,10 @@
 import { z } from 'zod';
 
-import type { ToolSpec } from './spec.js';
+import type { RawToolSpec } from './spec.js';
 
 export const FIND_REPLACE_TEXT_TOOL_NAME = 'find_replace_text';
 
-export const findReplaceTextTool: ToolSpec = {
+export const findReplaceTextTool: RawToolSpec = {
   name: FIND_REPLACE_TEXT_TOOL_NAME,
   description:
     'Replace a substring across all TEXT nodes under a scope. Without root the whole current ' +

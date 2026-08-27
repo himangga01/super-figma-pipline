@@ -1,10 +1,10 @@
 import { z } from 'zod';
 
-import type { ToolSpec } from './spec.js';
+import type { RawToolSpec } from './spec.js';
 
 export const GET_MOTION_STYLES_TOOL_NAME = 'get_motion_styles';
 
-export const getMotionStylesTool: ToolSpec = {
+export const getMotionStylesTool: RawToolSpec = {
   name: GET_MOTION_STYLES_TOOL_NAME,
   description:
     "List the file's available Figma Motion animation-style presets — the templates you apply with " +

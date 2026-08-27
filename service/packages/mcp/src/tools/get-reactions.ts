@@ -1,10 +1,10 @@
 import { z } from 'zod';
 
-import type { ToolSpec } from './spec.js';
+import type { RawToolSpec } from './spec.js';
 
 export const GET_REACTIONS_TOOL_NAME = 'get_reactions';
 
-export const getReactionsTool: ToolSpec = {
+export const getReactionsTool: RawToolSpec = {
   name: GET_REACTIONS_TOOL_NAME,
   description:
     'Return the prototype reactions on a node as { nodeId, reactions: [{ trigger, actions }] }. ' +

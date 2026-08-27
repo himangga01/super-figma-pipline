@@ -1,10 +1,10 @@
 import { z } from 'zod';
 
-import type { ToolSpec } from './spec.js';
+import type { RawToolSpec } from './spec.js';
 
 export const RENAME_VARIABLE_TOOL_NAME = 'rename_variable';
 
-export const renameVariableTool: ToolSpec = {
+export const renameVariableTool: RawToolSpec = {
   name: RENAME_VARIABLE_TOOL_NAME,
   description:
     'Rename a variable (e.g. "color/primary" → "color/brand"); use slashes in the name for folder ' +

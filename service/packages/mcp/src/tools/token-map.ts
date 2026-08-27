@@ -10,7 +10,7 @@ import { resolveFigmaTokens, resolvePaintStyleTokens } from '../tokens/figma-tok
 import { loadProjectTokens } from '../tokens/load.js';
 import { GET_STYLES_TOOL_NAME } from './get-styles.js';
 import { GET_VARIABLE_DEFS_TOOL_NAME } from './get-variable-defs.js';
-import type { ToolSpec } from './spec.js';
+import type { RawToolSpec } from './spec.js';
 
 export const TOKEN_MAP_TOOL_NAME = 'token_map';
 
@@ -70,7 +70,7 @@ export interface TokenMapResult {
   note?: string;
 }
 
-export const tokenMapTool: ToolSpec = {
+export const tokenMapTool: RawToolSpec = {
   name: TOKEN_MAP_TOOL_NAME,
   description:
     "Map the document's Figma variables — and its shared paint styles (single solid color styles, " +

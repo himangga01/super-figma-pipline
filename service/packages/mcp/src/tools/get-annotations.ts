@@ -1,10 +1,10 @@
 import { z } from 'zod';
 
-import type { ToolSpec } from './spec.js';
+import type { RawToolSpec } from './spec.js';
 
 export const GET_ANNOTATIONS_TOOL_NAME = 'get_annotations';
 
-export const getAnnotationsTool: ToolSpec = {
+export const getAnnotationsTool: RawToolSpec = {
   name: GET_ANNOTATIONS_TOOL_NAME,
   description:
     'Return Dev Mode annotations as { annotations: [{ nodeId, nodeName, annotations }] }. ' +

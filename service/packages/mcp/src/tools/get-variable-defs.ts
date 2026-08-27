@@ -1,10 +1,10 @@
 import { z } from 'zod';
 
-import type { ToolSpec } from './spec.js';
+import type { RawToolSpec } from './spec.js';
 
 export const GET_VARIABLE_DEFS_TOOL_NAME = 'get_variable_defs';
 
-export const getVariableDefsTool: ToolSpec = {
+export const getVariableDefsTool: RawToolSpec = {
   name: GET_VARIABLE_DEFS_TOOL_NAME,
   description:
     "Return the document's local variables as { collections, variables }. Each collection lists its modes " +

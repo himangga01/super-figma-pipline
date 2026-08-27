@@ -1,10 +1,10 @@
 import { z } from 'zod';
 
-import type { ToolSpec } from './spec.js';
+import type { RawToolSpec } from './spec.js';
 
 export const UNLOCK_NODES_TOOL_NAME = 'unlock_nodes';
 
-export const unlockNodesTool: ToolSpec = {
+export const unlockNodesTool: RawToolSpec = {
   name: UNLOCK_NODES_TOOL_NAME,
   description:
     'Unlock nodes so they can be selected and edited on the canvas again — the inverse of ' +

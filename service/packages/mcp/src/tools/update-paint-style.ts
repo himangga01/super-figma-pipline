@@ -1,11 +1,11 @@
 import { z } from 'zod';
 
 import { paintItemSchema } from './paint-schema.js';
-import type { ToolSpec } from './spec.js';
+import type { RawToolSpec } from './spec.js';
 
 export const UPDATE_PAINT_STYLE_TOOL_NAME = 'update_paint_style';
 
-export const updatePaintStyleTool: ToolSpec = {
+export const updatePaintStyleTool: RawToolSpec = {
   name: UPDATE_PAINT_STYLE_TOOL_NAME,
   description:
     'Update an existing paint style by id. Any of name / paints / description may be omitted to ' +

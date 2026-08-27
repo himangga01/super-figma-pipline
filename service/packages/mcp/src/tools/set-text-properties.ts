@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-import type { ToolSpec } from './spec.js';
+import type { RawToolSpec } from './spec.js';
 
 export const SET_TEXT_PROPERTIES_TOOL_NAME = 'set_text_properties';
 
@@ -16,7 +16,7 @@ const letterSpacing = z
   .object({ unit: z.enum(['PIXELS', 'PERCENT']), value: z.number() })
   .describe('Letter spacing: { unit: "PIXELS" | "PERCENT", value }');
 
-export const setTextPropertiesTool: ToolSpec = {
+export const setTextPropertiesTool: RawToolSpec = {
   name: SET_TEXT_PROPERTIES_TOOL_NAME,
   description:
     "Set a TEXT node's typography and layout/overflow properties. Typography: fontName " +

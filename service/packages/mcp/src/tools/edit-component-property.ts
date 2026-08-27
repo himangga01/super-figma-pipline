@@ -1,10 +1,10 @@
 import { z } from 'zod';
 
-import type { ToolSpec } from './spec.js';
+import type { RawToolSpec } from './spec.js';
 
 export const EDIT_COMPONENT_PROPERTY_TOOL_NAME = 'edit_component_property';
 
-export const editComponentPropertyTool: ToolSpec = {
+export const editComponentPropertyTool: RawToolSpec = {
   name: EDIT_COMPONENT_PROPERTY_TOOL_NAME,
   description:
     'Change an existing component property: rename it, change its defaultValue, or (INSTANCE_SWAP ' +

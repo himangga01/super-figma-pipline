@@ -1,11 +1,11 @@
 import { z } from 'zod';
 
 import { textStyleBindingsSchema } from './binding-schema.js';
-import type { ToolSpec } from './spec.js';
+import type { RawToolSpec } from './spec.js';
 
 export const CREATE_TEXT_STYLE_TOOL_NAME = 'create_text_style';
 
-export const createTextStyleTool: ToolSpec = {
+export const createTextStyleTool: RawToolSpec = {
   name: CREATE_TEXT_STYLE_TOOL_NAME,
   description:
     'Create a reusable local text style (a typography token) that can be applied to TEXT nodes with ' +

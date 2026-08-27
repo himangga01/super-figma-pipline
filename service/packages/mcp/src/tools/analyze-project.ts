@@ -1,7 +1,7 @@
 import { z } from 'zod';
 
 import { analyzeProject, type ProjectProfile } from '../profile/profile.js';
-import type { ToolSpec } from './spec.js';
+import type { RawToolSpec } from './spec.js';
 
 export const ANALYZE_PROJECT_TOOL_NAME = 'analyze_project';
 
@@ -9,7 +9,7 @@ const inputSchema = z.object({
   rootDir: z.string().describe('Project root to analyze; defaults to the server cwd').optional(),
 });
 
-export const analyzeProjectTool: ToolSpec = {
+export const analyzeProjectTool: RawToolSpec = {
   name: ANALYZE_PROJECT_TOOL_NAME,
   description:
     'Detect the local project profile (framework, language, styling system, component file ' +

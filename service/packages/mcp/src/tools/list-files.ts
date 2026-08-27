@@ -1,10 +1,10 @@
 import { z } from 'zod';
 
-import type { ToolSpec } from './spec.js';
+import type { RawToolSpec } from './spec.js';
 
 export const LIST_FILES_TOOL_NAME = 'list_files';
 
-export const listFilesTool: ToolSpec = {
+export const listFilesTool: RawToolSpec = {
   name: LIST_FILES_TOOL_NAME,
   description:
     'Return the files reachable from the plugin as { files: [{ fileKey, fileName, currentPage }] }. ' +

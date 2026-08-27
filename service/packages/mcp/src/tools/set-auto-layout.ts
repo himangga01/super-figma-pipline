@@ -1,10 +1,10 @@
 import { z } from 'zod';
 
-import type { ToolSpec } from './spec.js';
+import type { RawToolSpec } from './spec.js';
 
 export const SET_AUTO_LAYOUT_TOOL_NAME = 'set_auto_layout';
 
-export const setAutoLayoutTool: ToolSpec = {
+export const setAutoLayoutTool: RawToolSpec = {
   name: SET_AUTO_LAYOUT_TOOL_NAME,
   description:
     "Configure a frame's auto layout. layoutMode NONE disables it; HORIZONTAL/VERTICAL enable flex " +

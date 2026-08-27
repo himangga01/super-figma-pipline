@@ -2,7 +2,7 @@ import { z } from 'zod';
 
 import { analyzeProject, type ProjectProfile } from '../profile/profile.js';
 import { scanComponents, type ScannedComponent } from '../scan/scan.js';
-import type { ToolSpec } from './spec.js';
+import type { RawToolSpec } from './spec.js';
 
 export const SCAN_COMPONENTS_TOOL_NAME = 'scan_components';
 
@@ -14,7 +14,7 @@ const inputSchema = z.object({
     .optional(),
 });
 
-export const scanComponentsTool: ToolSpec = {
+export const scanComponentsTool: RawToolSpec = {
   name: SCAN_COMPONENTS_TOOL_NAME,
   description:
     'Scan the local project for existing UI components so they can be reused instead of regenerated. ' +

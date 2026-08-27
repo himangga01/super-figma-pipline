@@ -1,10 +1,10 @@
 import { z } from 'zod';
 
-import type { ToolSpec } from './spec.js';
+import type { RawToolSpec } from './spec.js';
 
 export const SCAN_NODES_BY_TYPES_TOOL_NAME = 'scan_nodes_by_types';
 
-export const scanNodesByTypesTool: ToolSpec = {
+export const scanNodesByTypesTool: RawToolSpec = {
   name: SCAN_NODES_BY_TYPES_TOOL_NAME,
   description:
     'Return a flat list of every node whose type is in `types`, searched recursively through a ' +

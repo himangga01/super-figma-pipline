@@ -1,11 +1,11 @@
 import { z } from 'zod';
 
 import { gridItemSchema } from './grid-schema.js';
-import type { ToolSpec } from './spec.js';
+import type { RawToolSpec } from './spec.js';
 
 export const CREATE_GRID_STYLE_TOOL_NAME = 'create_grid_style';
 
-export const createGridStyleTool: ToolSpec = {
+export const createGridStyleTool: RawToolSpec = {
   name: CREATE_GRID_STYLE_TOOL_NAME,
   description:
     'Create a reusable local layout-grid style for aligning content. Each grid pattern is GRID ' +

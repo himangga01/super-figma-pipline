@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-import type { ToolSpec } from './spec.js';
+import type { RawToolSpec } from './spec.js';
 
 export const SET_VARIABLE_VALUE_TOOL_NAME = 'set_variable_value';
 
@@ -33,7 +33,7 @@ const variableValue = z
     'boolean | number | string | { r,g,b,a } | { type:"VARIABLE_ALIAS", id } | { type: easing }',
   );
 
-export const setVariableValueTool: ToolSpec = {
+export const setVariableValueTool: RawToolSpec = {
   name: SET_VARIABLE_VALUE_TOOL_NAME,
   description:
     "Set a variable's value for one mode (modeId comes from the variable's collection). value must " +

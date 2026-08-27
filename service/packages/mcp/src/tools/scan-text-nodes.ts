@@ -1,10 +1,10 @@
 import { z } from 'zod';
 
-import type { ToolSpec } from './spec.js';
+import type { RawToolSpec } from './spec.js';
 
 export const SCAN_TEXT_NODES_TOOL_NAME = 'scan_text_nodes';
 
-export const scanTextNodesTool: ToolSpec = {
+export const scanTextNodesTool: RawToolSpec = {
   name: SCAN_TEXT_NODES_TOOL_NAME,
   description:
     'Return every TEXT node within a subtree, each with its characters / fontSize / fontName. ' +

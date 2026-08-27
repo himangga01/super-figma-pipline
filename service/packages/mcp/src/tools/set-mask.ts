@@ -1,10 +1,10 @@
 import { z } from 'zod';
 
-import type { ToolSpec } from './spec.js';
+import type { RawToolSpec } from './spec.js';
 
 export const SET_MASK_TOOL_NAME = 'set_mask';
 
-export const setMaskTool: ToolSpec = {
+export const setMaskTool: RawToolSpec = {
   name: SET_MASK_TOOL_NAME,
   description:
     'Set whether a node is a mask — a mask clips its later siblings to its own shape. Pass isMask ' +

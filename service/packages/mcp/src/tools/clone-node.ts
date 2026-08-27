@@ -1,10 +1,10 @@
 import { z } from 'zod';
 
-import type { ToolSpec } from './spec.js';
+import type { RawToolSpec } from './spec.js';
 
 export const CLONE_NODE_TOOL_NAME = 'clone_node';
 
-export const cloneNodeTool: ToolSpec = {
+export const cloneNodeTool: RawToolSpec = {
   name: CLONE_NODE_TOOL_NAME,
   description:
     'Duplicate a node — including its full subtree — and place the copy as a sibling right after ' +

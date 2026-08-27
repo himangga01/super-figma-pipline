@@ -1,10 +1,10 @@
 import { z } from 'zod';
 
-import type { ToolSpec } from './spec.js';
+import type { RawToolSpec } from './spec.js';
 
 export const IMPORT_IMAGE_TOOL_NAME = 'import_image';
 
-export const importImageTool: ToolSpec = {
+export const importImageTool: RawToolSpec = {
   name: IMPORT_IMAGE_TOOL_NAME,
   description:
     'Import a raster image (PNG / JPG / GIF) and place it as a rectangle with an IMAGE fill. Provide ' +

@@ -1,10 +1,10 @@
 import { z } from 'zod';
 
-import type { ToolSpec } from './spec.js';
+import type { RawToolSpec } from './spec.js';
 
 export const UNGROUP_NODES_TOOL_NAME = 'ungroup_nodes';
 
-export const ungroupNodesTool: ToolSpec = {
+export const ungroupNodesTool: RawToolSpec = {
   name: UNGROUP_NODES_TOOL_NAME,
   description:
     'Ungroup GROUP nodes by id; non-group nodes are skipped. ' +

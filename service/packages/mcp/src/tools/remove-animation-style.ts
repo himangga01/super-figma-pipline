@@ -1,10 +1,10 @@
 import { z } from 'zod';
 
-import type { ToolSpec } from './spec.js';
+import type { RawToolSpec } from './spec.js';
 
 export const REMOVE_ANIMATION_STYLE_TOOL_NAME = 'remove_animation_style';
 
-export const removeAnimationStyleTool: ToolSpec = {
+export const removeAnimationStyleTool: RawToolSpec = {
   name: REMOVE_ANIMATION_STYLE_TOOL_NAME,
   description:
     'Remove an applied Figma Motion animation style from a node. Pass animationStyleId (the ' +

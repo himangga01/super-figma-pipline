@@ -1,10 +1,10 @@
 import { z } from 'zod';
 
-import type { ToolSpec } from './spec.js';
+import type { RawToolSpec } from './spec.js';
 
 export const REPARENT_NODES_TOOL_NAME = 'reparent_nodes';
 
-export const reparentNodesTool: ToolSpec = {
+export const reparentNodesTool: RawToolSpec = {
   name: REPARENT_NODES_TOOL_NAME,
   description:
     'Move nodes into a different parent, optionally inserting at `index` (default: appended last). ' +

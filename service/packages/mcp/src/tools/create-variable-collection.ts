@@ -1,10 +1,10 @@
 import { z } from 'zod';
 
-import type { ToolSpec } from './spec.js';
+import type { RawToolSpec } from './spec.js';
 
 export const CREATE_VARIABLE_COLLECTION_TOOL_NAME = 'create_variable_collection';
 
-export const createVariableCollectionTool: ToolSpec = {
+export const createVariableCollectionTool: RawToolSpec = {
   name: CREATE_VARIABLE_COLLECTION_TOOL_NAME,
   description:
     'Create a variable collection. Figma auto-creates a default mode. ' +

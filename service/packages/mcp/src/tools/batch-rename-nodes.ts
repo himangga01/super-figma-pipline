@@ -1,10 +1,10 @@
 import { z } from 'zod';
 
-import type { ToolSpec } from './spec.js';
+import type { RawToolSpec } from './spec.js';
 
 export const BATCH_RENAME_NODES_TOOL_NAME = 'batch_rename_nodes';
 
-export const batchRenameNodesTool: ToolSpec = {
+export const batchRenameNodesTool: RawToolSpec = {
   name: BATCH_RENAME_NODES_TOOL_NAME,
   description:
     'Rename many nodes at once from a [{ nodeId, name }] list. Missing nodes are skipped. ' +

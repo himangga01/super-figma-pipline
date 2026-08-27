@@ -1,10 +1,10 @@
 import { z } from 'zod';
 
-import type { ToolSpec } from './spec.js';
+import type { RawToolSpec } from './spec.js';
 
 export const GET_VIEWPORT_TOOL_NAME = 'get_viewport';
 
-export const getViewportTool: ToolSpec = {
+export const getViewportTool: RawToolSpec = {
   name: GET_VIEWPORT_TOOL_NAME,
   description:
     'Return the current page viewport as { center, zoom, bounds } — the on-screen center point, ' +

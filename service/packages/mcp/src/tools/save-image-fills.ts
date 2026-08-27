@@ -11,7 +11,7 @@ import type {
 import { z } from 'zod';
 
 import { binaryPayload } from './binary-payload.js';
-import type { ToolSpec } from './spec.js';
+import type { RawToolSpec } from './spec.js';
 
 export const SAVE_IMAGE_FILLS_TOOL_NAME = 'save_image_fills';
 
@@ -22,7 +22,7 @@ const inputSchema = z.object({
     .describe('Directory to write the original image files into (created if missing)'),
 });
 
-export const saveImageFillsTool: ToolSpec = {
+export const saveImageFillsTool: RawToolSpec = {
   name: SAVE_IMAGE_FILLS_TOOL_NAME,
   description:
     "Extract the ORIGINAL image bytes behind each node's IMAGE fills and write them to disk under " +

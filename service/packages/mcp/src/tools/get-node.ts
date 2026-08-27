@@ -1,10 +1,10 @@
 import { z } from 'zod';
 
-import type { ToolSpec } from './spec.js';
+import type { RawToolSpec } from './spec.js';
 
 export const GET_NODE_TOOL_NAME = 'get_node';
 
-export const getNodeTool: ToolSpec = {
+export const getNodeTool: RawToolSpec = {
   name: GET_NODE_TOOL_NAME,
   description:
     'Return one node by id with its full recursive subtree at maximum fidelity — every serialized ' +

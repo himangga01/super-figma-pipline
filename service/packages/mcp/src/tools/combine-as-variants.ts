@@ -1,10 +1,10 @@
 import { z } from 'zod';
 
-import type { ToolSpec } from './spec.js';
+import type { RawToolSpec } from './spec.js';
 
 export const COMBINE_AS_VARIANTS_TOOL_NAME = 'combine_as_variants';
 
-export const combineAsVariantsTool: ToolSpec = {
+export const combineAsVariantsTool: RawToolSpec = {
   name: COMBINE_AS_VARIANTS_TOOL_NAME,
   description:
     'Combine two or more existing COMPONENT nodes into a single COMPONENT_SET (a variant set). ' +

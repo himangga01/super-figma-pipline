@@ -1,10 +1,10 @@
 import { z } from 'zod';
 
-import type { ToolSpec } from './spec.js';
+import type { RawToolSpec } from './spec.js';
 
 export const GET_METADATA_TOOL_NAME = 'get_metadata';
 
-export const getMetadataTool: ToolSpec = {
+export const getMetadataTool: RawToolSpec = {
   name: GET_METADATA_TOOL_NAME,
   description:
     'Return file metadata: fileName, current page, all page references, and which editor the file ' +

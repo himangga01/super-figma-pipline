@@ -1,10 +1,10 @@
 import { z } from 'zod';
 
-import type { ToolSpec } from './spec.js';
+import type { RawToolSpec } from './spec.js';
 
 export const RENAME_PAGE_TOOL_NAME = 'rename_page';
 
-export const renamePageTool: ToolSpec = {
+export const renamePageTool: RawToolSpec = {
   name: RENAME_PAGE_TOOL_NAME,
   description:
     'Rename a Figma page (a top-level page/tab in the document) by id. Affects only the page name; ' +

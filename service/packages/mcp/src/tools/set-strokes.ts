@@ -1,11 +1,11 @@
 import { z } from 'zod';
 
 import { paintItemSchema } from './paint-schema.js';
-import type { ToolSpec } from './spec.js';
+import type { RawToolSpec } from './spec.js';
 
 export const SET_STROKES_TOOL_NAME = 'set_strokes';
 
-export const setStrokesTool: ToolSpec = {
+export const setStrokesTool: RawToolSpec = {
   name: SET_STROKES_TOOL_NAME,
   description:
     "Set a node's strokes (SOLID or gradient paints, same shape as set_fills) plus optional " +

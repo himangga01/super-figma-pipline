@@ -1,10 +1,10 @@
 import { z } from 'zod';
 
-import type { ToolSpec } from './spec.js';
+import type { RawToolSpec } from './spec.js';
 
 export const CREATE_TEXT_TOOL_NAME = 'create_text';
 
-export const createTextTool: ToolSpec = {
+export const createTextTool: RawToolSpec = {
   name: CREATE_TEXT_TOOL_NAME,
   description:
     'Create a new TEXT node with the given characters (default font loaded automatically), ' +

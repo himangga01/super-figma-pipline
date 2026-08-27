@@ -1,10 +1,10 @@
 import { z } from 'zod';
 
-import type { ToolSpec } from './spec.js';
+import type { RawToolSpec } from './spec.js';
 
 export const SET_POSITION_TOOL_NAME = 'set_position';
 
-export const setPositionTool: ToolSpec = {
+export const setPositionTool: RawToolSpec = {
   name: SET_POSITION_TOOL_NAME,
   description:
     "Set a node's exact position (x / y), relative to its parent — for a top-level node these are " +

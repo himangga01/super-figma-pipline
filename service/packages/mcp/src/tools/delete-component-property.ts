@@ -1,10 +1,10 @@
 import { z } from 'zod';
 
-import type { ToolSpec } from './spec.js';
+import type { RawToolSpec } from './spec.js';
 
 export const DELETE_COMPONENT_PROPERTY_TOOL_NAME = 'delete_component_property';
 
-export const deleteComponentPropertyTool: ToolSpec = {
+export const deleteComponentPropertyTool: RawToolSpec = {
   name: DELETE_COMPONENT_PROPERTY_TOOL_NAME,
   description:
     'Remove a BOOLEAN / TEXT / INSTANCE_SWAP property from a component and every sublayer reference ' +

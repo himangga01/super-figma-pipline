@@ -1,10 +1,10 @@
 import { z } from 'zod';
 
-import type { ToolSpec } from './spec.js';
+import type { RawToolSpec } from './spec.js';
 
 export const SET_TEXT_TOOL_NAME = 'set_text';
 
-export const setTextTool: ToolSpec = {
+export const setTextTool: RawToolSpec = {
   name: SET_TEXT_TOOL_NAME,
   description:
     "Replace the entire text content of a TEXT node; the plugin loads the node's current fonts " +

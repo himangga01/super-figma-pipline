@@ -1,11 +1,11 @@
 import { z } from 'zod';
 
 import { paintItemSchema } from './paint-schema.js';
-import type { ToolSpec } from './spec.js';
+import type { RawToolSpec } from './spec.js';
 
 export const SET_FILLS_TOOL_NAME = 'set_fills';
 
-export const setFillsTool: ToolSpec = {
+export const setFillsTool: RawToolSpec = {
   name: SET_FILLS_TOOL_NAME,
   description:
     "Set a node's fills. SOLID: { type:'SOLID', color:{r,g,b} } (0–1). Gradient: " +

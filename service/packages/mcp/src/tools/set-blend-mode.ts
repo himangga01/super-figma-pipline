@@ -1,10 +1,10 @@
 import { z } from 'zod';
 
-import type { ToolSpec } from './spec.js';
+import type { RawToolSpec } from './spec.js';
 
 export const SET_BLEND_MODE_TOOL_NAME = 'set_blend_mode';
 
-export const setBlendModeTool: ToolSpec = {
+export const setBlendModeTool: RawToolSpec = {
   name: SET_BLEND_MODE_TOOL_NAME,
   description:
     'Set how a node composites with the layers beneath it (NORMAL, MULTIPLY, SCREEN, OVERLAY, ' +

@@ -1,10 +1,10 @@
 import { z } from 'zod';
 
-import type { ToolSpec } from './spec.js';
+import type { RawToolSpec } from './spec.js';
 
 export const DELETE_NODES_TOOL_NAME = 'delete_nodes';
 
-export const deleteNodesTool: ToolSpec = {
+export const deleteNodesTool: RawToolSpec = {
   name: DELETE_NODES_TOOL_NAME,
   description:
     'Permanently delete nodes by id; missing or non-removable nodes are skipped. To hide nodes ' +

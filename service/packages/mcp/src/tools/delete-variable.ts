@@ -1,10 +1,10 @@
 import { z } from 'zod';
 
-import type { ToolSpec } from './spec.js';
+import type { RawToolSpec } from './spec.js';
 
 export const DELETE_VARIABLE_TOOL_NAME = 'delete_variable';
 
-export const deleteVariableTool: ToolSpec = {
+export const deleteVariableTool: RawToolSpec = {
   name: DELETE_VARIABLE_TOOL_NAME,
   description:
     'Delete a single variable by id; any node or paint bound to it reverts to its raw value. To ' +

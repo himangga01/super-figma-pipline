@@ -1,10 +1,10 @@
 import { z } from 'zod';
 
-import type { ToolSpec } from './spec.js';
+import type { RawToolSpec } from './spec.js';
 
 export const CREATE_RECTANGLE_TOOL_NAME = 'create_rectangle';
 
-export const createRectangleTool: ToolSpec = {
+export const createRectangleTool: RawToolSpec = {
   name: CREATE_RECTANGLE_TOOL_NAME,
   description:
     'Create a rectangle, optionally sized/positioned and appended to a parent (default: current ' +

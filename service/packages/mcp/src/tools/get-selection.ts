@@ -1,10 +1,10 @@
 import { z } from 'zod';
 
-import type { ToolSpec } from './spec.js';
+import type { RawToolSpec } from './spec.js';
 
 export const GET_SELECTION_TOOL_NAME = 'get_selection';
 
-export const getSelectionTool: ToolSpec = {
+export const getSelectionTool: RawToolSpec = {
   name: GET_SELECTION_TOOL_NAME,
   description:
     'Return the current selection on the active Figma page: { pageId, pageName, nodes }, where ' +

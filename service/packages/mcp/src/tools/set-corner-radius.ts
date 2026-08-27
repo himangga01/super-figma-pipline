@@ -1,10 +1,10 @@
 import { z } from 'zod';
 
-import type { ToolSpec } from './spec.js';
+import type { RawToolSpec } from './spec.js';
 
 export const SET_CORNER_RADIUS_TOOL_NAME = 'set_corner_radius';
 
-export const setCornerRadiusTool: ToolSpec = {
+export const setCornerRadiusTool: RawToolSpec = {
   name: SET_CORNER_RADIUS_TOOL_NAME,
   description:
     "Set a node's corner radius. Pass radius for a uniform radius, and/or per-corner " +

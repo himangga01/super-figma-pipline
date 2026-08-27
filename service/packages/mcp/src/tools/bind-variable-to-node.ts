@@ -1,10 +1,10 @@
 import { z } from 'zod';
 
-import type { ToolSpec } from './spec.js';
+import type { RawToolSpec } from './spec.js';
 
 export const BIND_VARIABLE_TO_NODE_TOOL_NAME = 'bind_variable_to_node';
 
-export const bindVariableToNodeTool: ToolSpec = {
+export const bindVariableToNodeTool: RawToolSpec = {
   name: BIND_VARIABLE_TO_NODE_TOOL_NAME,
   description:
     'Bind a variable to a node field (e.g. width, height, characters, itemSpacing, topLeftRadius, ' +

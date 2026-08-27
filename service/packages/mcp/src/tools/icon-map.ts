@@ -10,7 +10,7 @@ import {
   readProjectDeps,
 } from '../profile/profile.js';
 import { GET_DESIGN_CONTEXT_TOOL_NAME } from './get-design-context.js';
-import type { ToolSpec } from './spec.js';
+import type { RawToolSpec } from './spec.js';
 
 export const ICON_MAP_TOOL_NAME = 'icon_map';
 
@@ -44,7 +44,7 @@ export interface IconMapResult {
   svgFileCount: number;
 }
 
-export const iconMapTool: ToolSpec = {
+export const iconMapTool: RawToolSpec = {
   name: ICON_MAP_TOOL_NAME,
   description:
     "Map the Figma icon nodes in a selection/subtree to the project's existing `.svg` files, so codegen " +

@@ -1,10 +1,10 @@
 import { z } from 'zod';
 
-import type { ToolSpec } from './spec.js';
+import type { RawToolSpec } from './spec.js';
 
 export const CREATE_VARIABLE_TOOL_NAME = 'create_variable';
 
-export const createVariableTool: ToolSpec = {
+export const createVariableTool: RawToolSpec = {
   name: CREATE_VARIABLE_TOOL_NAME,
   // EASING / TIMING are intentionally absent from the enum: Figma's createVariable rejects them
   // outright, so listing them would only steer an agent into a call that cannot succeed. The

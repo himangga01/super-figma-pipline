@@ -1,10 +1,10 @@
 import { z } from 'zod';
 
-import type { ToolSpec } from './spec.js';
+import type { RawToolSpec } from './spec.js';
 
 export const APPLY_STYLE_TO_NODE_TOOL_NAME = 'apply_style_to_node';
 
-export const applyStyleToNodeTool: ToolSpec = {
+export const applyStyleToNodeTool: RawToolSpec = {
   name: APPLY_STYLE_TO_NODE_TOOL_NAME,
   description:
     'Bind a shared style to a node. `field` selects which slot the style applies to: fill / ' +

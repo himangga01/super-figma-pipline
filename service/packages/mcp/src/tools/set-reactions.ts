@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-import type { ToolSpec } from './spec.js';
+import type { RawToolSpec } from './spec.js';
 
 export const SET_REACTIONS_TOOL_NAME = 'set_reactions';
 
@@ -23,7 +23,7 @@ const action = z.looseObject({
 
 const reaction = z.looseObject({ trigger, actions: z.array(action) });
 
-export const setReactionsTool: ToolSpec = {
+export const setReactionsTool: RawToolSpec = {
   name: SET_REACTIONS_TOOL_NAME,
   description:
     "Replace all of a node's prototype reactions — this overwrites existing reactions rather than " +

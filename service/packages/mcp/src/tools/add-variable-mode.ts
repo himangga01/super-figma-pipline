@@ -1,10 +1,10 @@
 import { z } from 'zod';
 
-import type { ToolSpec } from './spec.js';
+import type { RawToolSpec } from './spec.js';
 
 export const ADD_VARIABLE_MODE_TOOL_NAME = 'add_variable_mode';
 
-export const addVariableModeTool: ToolSpec = {
+export const addVariableModeTool: RawToolSpec = {
   name: ADD_VARIABLE_MODE_TOOL_NAME,
   description:
     'Add a mode (e.g. "Dark") to a variable collection. Returns { ok, modeId, name }. Mode count ' +

@@ -2,12 +2,12 @@
   "schemaVersion": 1,
   "vendorMap": {
     "path": "vendor-map.json",
-    "sha256": "c95939bdab451b62399c849ac94de14be66d9be19b9143edbae90cd28b75a131",
+    "sha256": "6dec9a85d7a27839960b038e0e6349beb8afbd7ab1270439e227e8814f1be654",
     "counts": {
-      "copy": 542,
+      "copy": 426,
       "mergeDependencyManifest": 4,
       "referenceOnly": 19,
-      "total": 565
+      "total": 449
     }
   },
   "destinationClosure": {
@@ -30,7 +30,7 @@
     "serviceOwnedFiles": [
       {
         "path": "capabilities/figmosha-feature-map.json",
-        "sha256": "7038458a665fe6ae920acec6719a8283cf6ee71ddb1613b1b2ba0a4e3f8f0adb"
+        "sha256": "8b84a17e372975e6590ced2315cbdcfb99f0def6259980e88eaf6c4294ca8956"
       },
       {
         "path": "capabilities/rust-tool-compat.json",
@@ -38,27 +38,491 @@
       },
       {
         "path": "capabilities/union-manifest.json",
-        "sha256": "64eadaa5dfaf2a6e15ece0a2d62ef6ddea45d63a18eb8938bee4679652caac25"
+        "sha256": "bd84b4ad20bd484b2fc7228326649869bb099e3ce7369d4341985362d12a3b8d"
       },
       {
         "path": "packages/mcp/src/index.ts",
         "sha256": "27b8d3079d70e88bed77e03e71c759142375af3122b93ed883195a8ad52291c2"
       },
       {
+        "path": "packages/mcp/src/tools/add-component-property.ts",
+        "sha256": "67e779850993f0d4da2abe233eeaa7b3de824f191d7261c5fcc9d1027c142760"
+      },
+      {
+        "path": "packages/mcp/src/tools/add-page.ts",
+        "sha256": "f032b5634ef2d5da12e992312c24391468b88264356b4fc510d30f864c34cc36"
+      },
+      {
+        "path": "packages/mcp/src/tools/add-variable-mode.ts",
+        "sha256": "a2f7e69e4f808c0cda2b27bf20cf9a5e53a9ed846ff91db806310f25aece9d0f"
+      },
+      {
+        "path": "packages/mcp/src/tools/analyze-project.ts",
+        "sha256": "7a78ef65bccd10eafe9c36c94f197fa469187d7c2e0a6cb52730a662fbf28edc"
+      },
+      {
+        "path": "packages/mcp/src/tools/annotations.ts",
+        "sha256": "e4980d3450ebc3b2ce1cd2cf266f68ca01108141746ee8273d2b2136c375036d"
+      },
+      {
+        "path": "packages/mcp/src/tools/apply-animation-style.ts",
+        "sha256": "384d6a87f4ad095cdb288f63bf36873560cdab3b3e619f2d3a301669dd949075"
+      },
+      {
+        "path": "packages/mcp/src/tools/apply-manual-keyframe-track.ts",
+        "sha256": "9c53799569753f92e5c9b30e43cf6889491324f0d24eafe5be705a57f9c67705"
+      },
+      {
+        "path": "packages/mcp/src/tools/apply-style-to-node.ts",
+        "sha256": "028b723bdcbe4512c0798f6f352cfed3f12a257a6996b93c0bd2d10cf1821516"
+      },
+      {
+        "path": "packages/mcp/src/tools/batch-rename-nodes.ts",
+        "sha256": "f89034a5ae981bac9bba9ae3707744258b2e6146f0db3d813403c8a14bc39f29"
+      },
+      {
+        "path": "packages/mcp/src/tools/batch.ts",
+        "sha256": "49d1fee970da9f2ba697d04fadfc93361382a30c16c6de0256c33c6b525a4339"
+      },
+      {
+        "path": "packages/mcp/src/tools/bind-component-property.ts",
+        "sha256": "50a450b192ac95c032cea73fce961505147525bb26fdf96822a3127399464e23"
+      },
+      {
+        "path": "packages/mcp/src/tools/bind-variable-to-node.ts",
+        "sha256": "aaeba1e64df466f984342b7ee18937706144329903f8f9cb11bd04d490714d7f"
+      },
+      {
+        "path": "packages/mcp/src/tools/bind-variable-to-paint.ts",
+        "sha256": "c2db296753aa013a6c7d5918850531ded6330eb875da28a6037cf398b8a7b02b"
+      },
+      {
+        "path": "packages/mcp/src/tools/clone-node.ts",
+        "sha256": "388ddd87ff78c3aeef04376f0d667f7a315ff0aa692456f12b5806e10e09ce2f"
+      },
+      {
+        "path": "packages/mcp/src/tools/combine-as-variants.ts",
+        "sha256": "9230c89e54399cb3fe6d1f70e00b440612ef29875c2b33154889385c56813df4"
+      },
+      {
+        "path": "packages/mcp/src/tools/component-map.ts",
+        "sha256": "19dbc31abbbfca55bbed47e90a3a2864052d55f2be8782a9d24f5bcee2061704"
+      },
+      {
+        "path": "packages/mcp/src/tools/create-component.ts",
+        "sha256": "4809c1bf64024eba5395ebc5927a2310877714166c55822d9e1fb57718ef9e8b"
+      },
+      {
+        "path": "packages/mcp/src/tools/create-effect-style.ts",
+        "sha256": "d4e30cfbf15cccc0a497aac718a11904e1ab9a2f6c922b83cd039b5137a1b193"
+      },
+      {
+        "path": "packages/mcp/src/tools/create-ellipse.ts",
+        "sha256": "47104f84a3a3f2acb66e286eb4df79e86ad6373c7aef7b514b501168eb6a87b1"
+      },
+      {
+        "path": "packages/mcp/src/tools/create-frame.ts",
+        "sha256": "ff90243286688f3e74d787e98b1eec076a3ddb4dbce7be7ee79734570fcc8449"
+      },
+      {
+        "path": "packages/mcp/src/tools/create-grid-style.ts",
+        "sha256": "17c9ad1a0f71426797d66c027940d5ba190b542cf69678b3853fdc368153c9e5"
+      },
+      {
+        "path": "packages/mcp/src/tools/create-instance.ts",
+        "sha256": "8b890708f968e4c0127918d67e842b0d96f99cb732bee25c73d8c07c572f2f33"
+      },
+      {
+        "path": "packages/mcp/src/tools/create-paint-style.ts",
+        "sha256": "4637ce4a8ccc0fbe243882227df03bab96f38d0b5f3be8651119c5013a9e2fee"
+      },
+      {
+        "path": "packages/mcp/src/tools/create-rectangle.ts",
+        "sha256": "f2e728b6d8baa412e1b9cec282b147e044935e1d67c41fb8eb628f9b1770ad2e"
+      },
+      {
+        "path": "packages/mcp/src/tools/create-section.ts",
+        "sha256": "58b00723e799a8f5c69c3f1d0f59af87d5943807572c60a682f94d6ccbc31be8"
+      },
+      {
+        "path": "packages/mcp/src/tools/create-text-style.ts",
+        "sha256": "b783f0453856bf375f9ff12d279312a94baf00c5c3d8c9a5bbece091c56b447f"
+      },
+      {
+        "path": "packages/mcp/src/tools/create-text.ts",
+        "sha256": "1b256e19a2f576c2616219c58694c3d7827ed2acf1ff5e2b0b955b0af4f4766f"
+      },
+      {
+        "path": "packages/mcp/src/tools/create-variable-collection.ts",
+        "sha256": "860f084b07c74ac1baed9aadfd6f567362252bd19a5dffbb3eb9dd067287bea9"
+      },
+      {
+        "path": "packages/mcp/src/tools/create-variable.ts",
+        "sha256": "85dd5c0f99b6b7286a19f253e321e36b7ba80cc4f745f933507bc7e0de8a5aee"
+      },
+      {
+        "path": "packages/mcp/src/tools/delete-component-property.ts",
+        "sha256": "de9624091e0705152280826ea1505619d9dd75084ce93e6b27cef9c91144faf0"
+      },
+      {
+        "path": "packages/mcp/src/tools/delete-nodes.ts",
+        "sha256": "6011fcdf610a3ae3f2f3b17a9fc4ad41aebea0c61b4bb07e928765db0b10affc"
+      },
+      {
+        "path": "packages/mcp/src/tools/delete-page.ts",
+        "sha256": "1498028a22b077edd5a0c1a4db0604642c59e15d4f515d919a5bb24e07b00280"
+      },
+      {
+        "path": "packages/mcp/src/tools/delete-style.ts",
+        "sha256": "6c63c82c991b75642c36b042de1c862b73017e98472b7b9b53e12a42e49f6699"
+      },
+      {
+        "path": "packages/mcp/src/tools/delete-variable-collection.ts",
+        "sha256": "9da157d65597a657c1c511ae0c6ada69d25c8421411273dc5081d5388d610cae"
+      },
+      {
+        "path": "packages/mcp/src/tools/delete-variable.ts",
+        "sha256": "fb7d85eb2626028851eb043ce178cb89b008523a8ad825371650ea94ff493745"
+      },
+      {
+        "path": "packages/mcp/src/tools/design-diff.ts",
+        "sha256": "d61e17fbb31f40a409ea85035a69cdcd5e0086097ed93e907436806391f725d8"
+      },
+      {
+        "path": "packages/mcp/src/tools/detach-instance.ts",
+        "sha256": "7e04d60452d4393bf8dc76f60cad18ecb854842236ec6d189c0cf5acb92cd376"
+      },
+      {
+        "path": "packages/mcp/src/tools/edit-component-property.ts",
+        "sha256": "19b4926e4b5f4d32a723e33a0d1047b212d7df7b9b7c1a6b7930a2e0d7439ace"
+      },
+      {
+        "path": "packages/mcp/src/tools/export-pdf.ts",
+        "sha256": "25bfccba6e9d7370e132be8357a933fe27f9e31709b6919527a2000e73d93fa9"
+      },
+      {
+        "path": "packages/mcp/src/tools/export-video.ts",
+        "sha256": "bf8c1d364ac6d238d58a1014c9551211531b14d24aa6da55f1f8a518bef41187"
+      },
+      {
+        "path": "packages/mcp/src/tools/find-replace-text.ts",
+        "sha256": "ee267778cf09774d4961e8224c56c4b77cc4db2cc4f7435e71888e134544f4dd"
+      },
+      {
+        "path": "packages/mcp/src/tools/get-annotations.ts",
+        "sha256": "be6737d402ee79d1c0da38eed18257f03ca41abfac8bc88aa5ddf7983c2d16eb"
+      },
+      {
+        "path": "packages/mcp/src/tools/get-component-api.ts",
+        "sha256": "53799296ecbb06e69e7a2803283a9cdd03862e003799dc1412a112c95a236d79"
+      },
+      {
+        "path": "packages/mcp/src/tools/get-design-context.ts",
+        "sha256": "debe0fe3a43f8cfefa0644ff63149ecea75e142cf1d4c3a76b31fe9fc10a6630"
+      },
+      {
+        "path": "packages/mcp/src/tools/get-document.ts",
+        "sha256": "95eb3c86a449a4d1b7bde095c717d96aa6ba306e916a90f3536f650c9502b224"
+      },
+      {
+        "path": "packages/mcp/src/tools/get-fonts.ts",
+        "sha256": "18084eb6f3e11557b03f926438f07b7d69f3f9ccb546e192fa73ff8e248ccbeb"
+      },
+      {
+        "path": "packages/mcp/src/tools/get-local-components.ts",
+        "sha256": "da03ca45bd7409d84d051a21d30d08b44d4c6229021ec3284ba54158c946db05"
+      },
+      {
+        "path": "packages/mcp/src/tools/get-metadata.ts",
+        "sha256": "134d30a201389a379f8f7de9a9c568f3df95626149714881bd72ffe6c862c5a5"
+      },
+      {
+        "path": "packages/mcp/src/tools/get-motion-styles.ts",
+        "sha256": "2c6a72465c48a8cf5f09f32e9ff868408fbd14af0bd4bc5b3d96ab58484ef070"
+      },
+      {
+        "path": "packages/mcp/src/tools/get-node-motion.ts",
+        "sha256": "3df6e04db49aab8a5e3e3be285793181b98395d03ae7724176c25ebc3e440e20"
+      },
+      {
+        "path": "packages/mcp/src/tools/get-node.ts",
+        "sha256": "9737081c007abf147e5b93d0e7ab2c3e8c4d5ada7870859b04ac3c605ec7beb9"
+      },
+      {
+        "path": "packages/mcp/src/tools/get-nodes-info.ts",
+        "sha256": "4ea02d6b1dfac0064d3701a81f752a10abdbb759ce9bf899a75c22976b83daaa"
+      },
+      {
+        "path": "packages/mcp/src/tools/get-pages.ts",
+        "sha256": "305ce7eb55a6a6cb5439560f4e77fc09ca1c99c18b72febad6a52c2ed024af07"
+      },
+      {
+        "path": "packages/mcp/src/tools/get-reactions.ts",
+        "sha256": "22f0e5dd78612467117f71d75e27f2aabc2ba834d45010cce2bae26b941ee651"
+      },
+      {
+        "path": "packages/mcp/src/tools/get-screenshot.ts",
+        "sha256": "332690741b85c005f3eeb958ea8657d072dfa4e7c22a4b717c99d45ae1a9cc02"
+      },
+      {
+        "path": "packages/mcp/src/tools/get-selection.ts",
+        "sha256": "c23f49c420f2f98737ad5e6800b363e34e05328330c3db41ba6c37544b3aaf3b"
+      },
+      {
+        "path": "packages/mcp/src/tools/get-styles.ts",
+        "sha256": "75d7edb96b8ad1c5b23bf53ea9ecd5fe2c9e4d9ab7d2c033f982f4ae30e7fdc1"
+      },
+      {
+        "path": "packages/mcp/src/tools/get-variable-defs.ts",
+        "sha256": "7667bd5d98a9ae774fb03a1783550a3fcaf59ffc0989c8feb4212914298bc04b"
+      },
+      {
+        "path": "packages/mcp/src/tools/get-viewport.ts",
+        "sha256": "332a6c661a8fcd06ab76f934ee05afe697d5d081bc194dc3c3d58f4e03241934"
+      },
+      {
+        "path": "packages/mcp/src/tools/group-nodes.ts",
+        "sha256": "c242067c34f9d1f7bfd68c21565cf4c75ef0ddf3c546f3430ef356fec9f78b10"
+      },
+      {
+        "path": "packages/mcp/src/tools/icon-map.ts",
+        "sha256": "5269c414bb57dba9846b9d327254983a953d00f48b73fa78874c2a85a35dd2ae"
+      },
+      {
+        "path": "packages/mcp/src/tools/import-image.ts",
+        "sha256": "466255478d0c3eb786148cc3049bada385d89d4b28d846a9b9b49056e7320feb"
+      },
+      {
+        "path": "packages/mcp/src/tools/import-svg.ts",
+        "sha256": "7d15e71c9d66f98d63b5aade99583e08033d4e239a24fb895acbe29fb1035037"
+      },
+      {
+        "path": "packages/mcp/src/tools/list-files.ts",
+        "sha256": "7f804ebf9c18981d7e38c7c60621431c04eb0a70a2ac4e645d03e07c54fc41e3"
+      },
+      {
+        "path": "packages/mcp/src/tools/lock-nodes.ts",
+        "sha256": "c47ae04d559ee9bc75ec2057422435bbdb6cd93d6a16f2b6539af3f777a5d586"
+      },
+      {
+        "path": "packages/mcp/src/tools/move-nodes.ts",
+        "sha256": "71e2c9ca403c4b3a7c9770b553cb838f6b447e3dc91fc6d15f8f3d60ca1bcb93"
+      },
+      {
+        "path": "packages/mcp/src/tools/navigate-to-page.ts",
+        "sha256": "393f285aa6061dd1387cc08f6ac38ae509c7f785fa171ba6880554db7bae786f"
+      },
+      {
+        "path": "packages/mcp/src/tools/ping.ts",
+        "sha256": "08dc11b037ae4afd166e534ba0da78bd68b2d3003213eceea12bac0f57c8a21e"
+      },
+      {
         "path": "packages/mcp/src/tools/registry.ts",
         "sha256": "316d0e3f7e4c248205af8e3283dc247babe4c33e7447858884b2aedebe761e11"
+      },
+      {
+        "path": "packages/mcp/src/tools/remove-animation-style.ts",
+        "sha256": "92aa69ccf121221176512cb595663320a62bfec9d8e1ce3df652e88ebaa6e94a"
+      },
+      {
+        "path": "packages/mcp/src/tools/remove-manual-keyframe-track.ts",
+        "sha256": "1b09c0f45c9f362818a497a974d207187b9d4a048c64ae4d10f26ca909081842"
+      },
+      {
+        "path": "packages/mcp/src/tools/remove-reactions.ts",
+        "sha256": "261a3f0405bcff7a8fdca023f8bcd22c0be33a7e8e7df7db32c46a70b7a79b8e"
+      },
+      {
+        "path": "packages/mcp/src/tools/rename-node.ts",
+        "sha256": "454ee6b648260974b913314e13df84d42085efa8be159bf4c8e54562de507970"
+      },
+      {
+        "path": "packages/mcp/src/tools/rename-page.ts",
+        "sha256": "313deba4eaf58fa7477d5f16e21195db89f77925087c6bed32648aad8c771ff8"
+      },
+      {
+        "path": "packages/mcp/src/tools/rename-variable.ts",
+        "sha256": "9a790b9367cdd478947a54abb4c7a38824e4914f3cbb976186cdbb36d4c0b757"
+      },
+      {
+        "path": "packages/mcp/src/tools/reorder-nodes.ts",
+        "sha256": "b973f2b8dc7b20e5ca028a863ca3897e4deb22561a50028d2fdac265f5330ec6"
+      },
+      {
+        "path": "packages/mcp/src/tools/reparent-nodes.ts",
+        "sha256": "dd75b84b1f004a2c639ee0d5e3ba600bbc2d8efc9a68400c4b2f17e303702cb0"
+      },
+      {
+        "path": "packages/mcp/src/tools/resize-nodes.ts",
+        "sha256": "5b491c17068f87d1a78895647add72a2d646a0d18b87d01caf5352ce95179f92"
+      },
+      {
+        "path": "packages/mcp/src/tools/rotate-nodes.ts",
+        "sha256": "8ee9cac1c596ee4301c13f09c3524b1dc33155e21c31c2354175ab1492f078c3"
       },
       {
         "path": "packages/mcp/src/tools/runtime-registry.ts",
         "sha256": "7064d044c7cd000276836db7fbea30d657deddccda732090ad4575be9366ac23"
       },
       {
+        "path": "packages/mcp/src/tools/save-image-fills.ts",
+        "sha256": "9df4e1fc95e0f56858a7224fa46d3b0a3a182b3cb20ccc6e3e82769975674fd0"
+      },
+      {
+        "path": "packages/mcp/src/tools/save-screenshots.ts",
+        "sha256": "0dc5c5c2947eeeb8bad1ffa867e0381c682ffedf44e66a85f05573259a77b6be"
+      },
+      {
+        "path": "packages/mcp/src/tools/scan-components.ts",
+        "sha256": "29ec2e40cb3f4f13aba1fe69c8b6c97c0a1b748f981f40d781cfd930ed3405cf"
+      },
+      {
+        "path": "packages/mcp/src/tools/scan-nodes-by-types.ts",
+        "sha256": "a248c30626159f8f8b1e4ffe3c15a96728e583cc3b80d76e023c1e54ecc3d491"
+      },
+      {
+        "path": "packages/mcp/src/tools/scan-text-nodes.ts",
+        "sha256": "0c655751648b1742f433545401ed83fab93aad0e5be14b5b89501a7bb6e6310c"
+      },
+      {
+        "path": "packages/mcp/src/tools/search-nodes.ts",
+        "sha256": "df6f17d2c8a4107b4ef004aa7394581d14fd73b4e7ec36b1d0724f190bd64d9d"
+      },
+      {
+        "path": "packages/mcp/src/tools/set-arc.ts",
+        "sha256": "dc9f8ba201019a57bf884918c509fda5a481a8d07328d57fecd885a3d6e9a907"
+      },
+      {
+        "path": "packages/mcp/src/tools/set-auto-layout.ts",
+        "sha256": "6880e0c640885b6a108dcfc7656c147108d749aeb4ccb8a152a2644789648f71"
+      },
+      {
+        "path": "packages/mcp/src/tools/set-blend-mode.ts",
+        "sha256": "08eb017eba58127251ea6e9963f3eabd9571d31ea79945578d41d00fd0a64881"
+      },
+      {
+        "path": "packages/mcp/src/tools/set-constraints.ts",
+        "sha256": "5b8f624b31cff2366bd4bf7af6a65ae9af823839b648630091c7c2a44d22e90c"
+      },
+      {
+        "path": "packages/mcp/src/tools/set-corner-radius.ts",
+        "sha256": "0d5f5b910868faf236c5f22b07df7066c7003b3bec9aad41d8380eaa9beb9134"
+      },
+      {
+        "path": "packages/mcp/src/tools/set-effects.ts",
+        "sha256": "416dabbb9112a9843782b4ddbc791c09e1346d16518d55e700920c59ba9e3f34"
+      },
+      {
+        "path": "packages/mcp/src/tools/set-fills.ts",
+        "sha256": "4e6546df43a95b0398357a4ee4fcaf153347927ce5c72631470881df0ac532dd"
+      },
+      {
+        "path": "packages/mcp/src/tools/set-instance-properties.ts",
+        "sha256": "7392a2e3e14fcf97a819324e624d142100634856b7042989496ab3d20b184ab6"
+      },
+      {
+        "path": "packages/mcp/src/tools/set-layout-grids.ts",
+        "sha256": "29b4f8b8647517aa87ff503e773c813dbf1edeed16de5208500fcb78812e5435"
+      },
+      {
+        "path": "packages/mcp/src/tools/set-layout-props.ts",
+        "sha256": "58d4c307c776b753006fe65b26a10b9e1b11dbcd8706bc2ba6f76522cdf662b1"
+      },
+      {
+        "path": "packages/mcp/src/tools/set-mask.ts",
+        "sha256": "8c2e9ec171e01d47032b362c4af04a2766499d40a06f80c1a725c399c67f7194"
+      },
+      {
+        "path": "packages/mcp/src/tools/set-opacity.ts",
+        "sha256": "e4a32d37f5f958b8fbaa8524c60b1dd2b79175ad942f8355c9d0a0c32abb2e99"
+      },
+      {
+        "path": "packages/mcp/src/tools/set-position.ts",
+        "sha256": "d40997f325ed662123241c4b35c9090d50facd32006f4850781a20286c87788f"
+      },
+      {
+        "path": "packages/mcp/src/tools/set-reactions.ts",
+        "sha256": "4e75cc456f991fb1eae2efae8830c2d8b358477755484bda8b38710a3cf1a30a"
+      },
+      {
+        "path": "packages/mcp/src/tools/set-strokes.ts",
+        "sha256": "b165a2851701b2182dc732eea1942add9b8578f13b08b507f5244836821823eb"
+      },
+      {
+        "path": "packages/mcp/src/tools/set-text-properties.ts",
+        "sha256": "90f0bc0248cde5a296159ca03232b951f713270d857726189defc7044b12a28e"
+      },
+      {
+        "path": "packages/mcp/src/tools/set-text-range.ts",
+        "sha256": "40241b66143ca1a980ee86cb6283eb889a2800e35c082e485acdffaff0bd80e8"
+      },
+      {
+        "path": "packages/mcp/src/tools/set-text.ts",
+        "sha256": "268e7b7d01e3c9dd82c699805bd811baf3ac99b3e4a46cba6855ae8e1186ac33"
+      },
+      {
+        "path": "packages/mcp/src/tools/set-timeline-duration.ts",
+        "sha256": "3853c689e754cd985a54666a4711273ad81f0e34bcf421be89d412a9248c445b"
+      },
+      {
+        "path": "packages/mcp/src/tools/set-variable-code-syntax.ts",
+        "sha256": "5e39c4b8b2242c6dd0165050cd4e49959c436cf8cc6043729b33c797358121fa"
+      },
+      {
+        "path": "packages/mcp/src/tools/set-variable-value.ts",
+        "sha256": "c32f7bbee73bcd93e389c6d49b4fc97493c3157c43978f3398e56401f88e51ff"
+      },
+      {
+        "path": "packages/mcp/src/tools/set-visible.ts",
+        "sha256": "3900aa9f49e9eabe20c775b6a3207b72739abf4c97cb0d10e59f4158b9f0482d"
+      },
+      {
+        "path": "packages/mcp/src/tools/skew-notice.ts",
+        "sha256": "9938b8eaab01dae871f559e43ca82b51d9a8ceb7ea74ead09adbcf6e5f5589b5"
+      },
+      {
         "path": "packages/mcp/src/tools/spec.ts",
-        "sha256": "37a50d765a990c14e70dc672cdca72be7094e962950846ae25aab2717dd7f5f4"
+        "sha256": "8f60e179ac203f11981dfd874e121a48dae5594d7a1c82ed083575add0fbd827"
+      },
+      {
+        "path": "packages/mcp/src/tools/swap-component.ts",
+        "sha256": "aa1427a11f51af895863cd0b3f83fd12394f71f67485e84ed6873344e0f80929"
+      },
+      {
+        "path": "packages/mcp/src/tools/token-map.ts",
+        "sha256": "aa885df05c3aa075aa8db2237d53d0c5983d7496d1d1c10f224eb0042f4a5aa1"
+      },
+      {
+        "path": "packages/mcp/src/tools/ungroup-nodes.ts",
+        "sha256": "a7c07719ad78d970c43e4256675c3a708b9ed1708d8d435116a825f46e40467a"
+      },
+      {
+        "path": "packages/mcp/src/tools/unlock-nodes.ts",
+        "sha256": "2c494f6e7f1126f752142a6c9b35e674cc0589a157d94a3ed3f747ef8209c05c"
+      },
+      {
+        "path": "packages/mcp/src/tools/update-effect-style.ts",
+        "sha256": "8975370099240618d3d90a026c87f15d790dc608213e6a9e9198fc939101aebe"
+      },
+      {
+        "path": "packages/mcp/src/tools/update-paint-style.ts",
+        "sha256": "f996a19f6ec10f01e3f449f52cec1c70e1c310785c45b513e8497d55e9017ff7"
+      },
+      {
+        "path": "packages/mcp/src/tools/update-text-style.ts",
+        "sha256": "4b5397fa854d88577ca440c545c60a95114c2845d16a75cbae39db13dfb19de9"
+      },
+      {
+        "path": "packages/mcp/test/tool-schema.ts",
+        "sha256": "41537dd476f6dd15a40dea9267e4751bdddb7b62b31219ba1bfba0e13917b799"
       },
       {
         "path": "packages/mcp/test/tools/result-validation.test.ts",
-        "sha256": "076415dab3b5b4113a25343d94d53f5b3b7c0d63f0e356ffd9bfe4c5c229570d"
+        "sha256": "7be208c6eb86b51113ad124944798e747cc5d7a3d3654f7a4fcc8b2ece7897c4"
+      },
+      {
+        "path": "packages/mcp/test/tools/skew-notice.test.ts",
+        "sha256": "6abcc53599fe95a537a29e2cd272e5127924d50b0fba3131f19e7623d354befc"
       },
       {
         "path": "packages/shared/src/capability-manifest.ts",
@@ -66,7 +530,7 @@
       },
       {
         "path": "packages/shared/src/result-schemas.ts",
-        "sha256": "481d83153ffff928f662686ef37f0cd0a14303d39859bd20d76f2483ccb267ee"
+        "sha256": "30f49e189da85e5e898b96ee4b725f9bb139daeb318e4b438ab422a3c162d473"
       },
       {
         "path": "test/bootstrap.test.ts",
@@ -74,7 +538,7 @@
       },
       {
         "path": "test/tool-contract.test.ts",
-        "sha256": "7989333a77e36cd30e431c085303372444f74689c5557966e2b78f221fb9a320"
+        "sha256": "f579e23960619f3e76c6be99450a7b7640f7f21d596945a1bdd4af4394519532"
       },
       {
         "path": "test/tool-registry.test.ts",
@@ -129,7 +593,7 @@
     },
     {
       "path": "capabilities/figmosha-feature-map.json",
-      "sha256": "7038458a665fe6ae920acec6719a8283cf6ee71ddb1613b1b2ba0a4e3f8f0adb"
+      "sha256": "8b84a17e372975e6590ced2315cbdcfb99f0def6259980e88eaf6c4294ca8956"
     },
     {
       "path": "capabilities/rust-tool-compat.json",
@@ -137,7 +601,7 @@
     },
     {
       "path": "capabilities/union-manifest.json",
-      "sha256": "64eadaa5dfaf2a6e15ece0a2d62ef6ddea45d63a18eb8938bee4679652caac25"
+      "sha256": "bd84b4ad20bd484b2fc7228326649869bb099e3ce7369d4341985362d12a3b8d"
     },
     {
       "path": "knip.json",
@@ -188,20 +652,484 @@
       "sha256": "27b8d3079d70e88bed77e03e71c759142375af3122b93ed883195a8ad52291c2"
     },
     {
+      "path": "packages/mcp/src/tools/add-component-property.ts",
+      "sha256": "67e779850993f0d4da2abe233eeaa7b3de824f191d7261c5fcc9d1027c142760"
+    },
+    {
+      "path": "packages/mcp/src/tools/add-page.ts",
+      "sha256": "f032b5634ef2d5da12e992312c24391468b88264356b4fc510d30f864c34cc36"
+    },
+    {
+      "path": "packages/mcp/src/tools/add-variable-mode.ts",
+      "sha256": "a2f7e69e4f808c0cda2b27bf20cf9a5e53a9ed846ff91db806310f25aece9d0f"
+    },
+    {
+      "path": "packages/mcp/src/tools/analyze-project.ts",
+      "sha256": "7a78ef65bccd10eafe9c36c94f197fa469187d7c2e0a6cb52730a662fbf28edc"
+    },
+    {
+      "path": "packages/mcp/src/tools/annotations.ts",
+      "sha256": "e4980d3450ebc3b2ce1cd2cf266f68ca01108141746ee8273d2b2136c375036d"
+    },
+    {
+      "path": "packages/mcp/src/tools/apply-animation-style.ts",
+      "sha256": "384d6a87f4ad095cdb288f63bf36873560cdab3b3e619f2d3a301669dd949075"
+    },
+    {
+      "path": "packages/mcp/src/tools/apply-manual-keyframe-track.ts",
+      "sha256": "9c53799569753f92e5c9b30e43cf6889491324f0d24eafe5be705a57f9c67705"
+    },
+    {
+      "path": "packages/mcp/src/tools/apply-style-to-node.ts",
+      "sha256": "028b723bdcbe4512c0798f6f352cfed3f12a257a6996b93c0bd2d10cf1821516"
+    },
+    {
+      "path": "packages/mcp/src/tools/batch-rename-nodes.ts",
+      "sha256": "f89034a5ae981bac9bba9ae3707744258b2e6146f0db3d813403c8a14bc39f29"
+    },
+    {
+      "path": "packages/mcp/src/tools/batch.ts",
+      "sha256": "49d1fee970da9f2ba697d04fadfc93361382a30c16c6de0256c33c6b525a4339"
+    },
+    {
+      "path": "packages/mcp/src/tools/bind-component-property.ts",
+      "sha256": "50a450b192ac95c032cea73fce961505147525bb26fdf96822a3127399464e23"
+    },
+    {
+      "path": "packages/mcp/src/tools/bind-variable-to-node.ts",
+      "sha256": "aaeba1e64df466f984342b7ee18937706144329903f8f9cb11bd04d490714d7f"
+    },
+    {
+      "path": "packages/mcp/src/tools/bind-variable-to-paint.ts",
+      "sha256": "c2db296753aa013a6c7d5918850531ded6330eb875da28a6037cf398b8a7b02b"
+    },
+    {
+      "path": "packages/mcp/src/tools/clone-node.ts",
+      "sha256": "388ddd87ff78c3aeef04376f0d667f7a315ff0aa692456f12b5806e10e09ce2f"
+    },
+    {
+      "path": "packages/mcp/src/tools/combine-as-variants.ts",
+      "sha256": "9230c89e54399cb3fe6d1f70e00b440612ef29875c2b33154889385c56813df4"
+    },
+    {
+      "path": "packages/mcp/src/tools/component-map.ts",
+      "sha256": "19dbc31abbbfca55bbed47e90a3a2864052d55f2be8782a9d24f5bcee2061704"
+    },
+    {
+      "path": "packages/mcp/src/tools/create-component.ts",
+      "sha256": "4809c1bf64024eba5395ebc5927a2310877714166c55822d9e1fb57718ef9e8b"
+    },
+    {
+      "path": "packages/mcp/src/tools/create-effect-style.ts",
+      "sha256": "d4e30cfbf15cccc0a497aac718a11904e1ab9a2f6c922b83cd039b5137a1b193"
+    },
+    {
+      "path": "packages/mcp/src/tools/create-ellipse.ts",
+      "sha256": "47104f84a3a3f2acb66e286eb4df79e86ad6373c7aef7b514b501168eb6a87b1"
+    },
+    {
+      "path": "packages/mcp/src/tools/create-frame.ts",
+      "sha256": "ff90243286688f3e74d787e98b1eec076a3ddb4dbce7be7ee79734570fcc8449"
+    },
+    {
+      "path": "packages/mcp/src/tools/create-grid-style.ts",
+      "sha256": "17c9ad1a0f71426797d66c027940d5ba190b542cf69678b3853fdc368153c9e5"
+    },
+    {
+      "path": "packages/mcp/src/tools/create-instance.ts",
+      "sha256": "8b890708f968e4c0127918d67e842b0d96f99cb732bee25c73d8c07c572f2f33"
+    },
+    {
+      "path": "packages/mcp/src/tools/create-paint-style.ts",
+      "sha256": "4637ce4a8ccc0fbe243882227df03bab96f38d0b5f3be8651119c5013a9e2fee"
+    },
+    {
+      "path": "packages/mcp/src/tools/create-rectangle.ts",
+      "sha256": "f2e728b6d8baa412e1b9cec282b147e044935e1d67c41fb8eb628f9b1770ad2e"
+    },
+    {
+      "path": "packages/mcp/src/tools/create-section.ts",
+      "sha256": "58b00723e799a8f5c69c3f1d0f59af87d5943807572c60a682f94d6ccbc31be8"
+    },
+    {
+      "path": "packages/mcp/src/tools/create-text-style.ts",
+      "sha256": "b783f0453856bf375f9ff12d279312a94baf00c5c3d8c9a5bbece091c56b447f"
+    },
+    {
+      "path": "packages/mcp/src/tools/create-text.ts",
+      "sha256": "1b256e19a2f576c2616219c58694c3d7827ed2acf1ff5e2b0b955b0af4f4766f"
+    },
+    {
+      "path": "packages/mcp/src/tools/create-variable-collection.ts",
+      "sha256": "860f084b07c74ac1baed9aadfd6f567362252bd19a5dffbb3eb9dd067287bea9"
+    },
+    {
+      "path": "packages/mcp/src/tools/create-variable.ts",
+      "sha256": "85dd5c0f99b6b7286a19f253e321e36b7ba80cc4f745f933507bc7e0de8a5aee"
+    },
+    {
+      "path": "packages/mcp/src/tools/delete-component-property.ts",
+      "sha256": "de9624091e0705152280826ea1505619d9dd75084ce93e6b27cef9c91144faf0"
+    },
+    {
+      "path": "packages/mcp/src/tools/delete-nodes.ts",
+      "sha256": "6011fcdf610a3ae3f2f3b17a9fc4ad41aebea0c61b4bb07e928765db0b10affc"
+    },
+    {
+      "path": "packages/mcp/src/tools/delete-page.ts",
+      "sha256": "1498028a22b077edd5a0c1a4db0604642c59e15d4f515d919a5bb24e07b00280"
+    },
+    {
+      "path": "packages/mcp/src/tools/delete-style.ts",
+      "sha256": "6c63c82c991b75642c36b042de1c862b73017e98472b7b9b53e12a42e49f6699"
+    },
+    {
+      "path": "packages/mcp/src/tools/delete-variable-collection.ts",
+      "sha256": "9da157d65597a657c1c511ae0c6ada69d25c8421411273dc5081d5388d610cae"
+    },
+    {
+      "path": "packages/mcp/src/tools/delete-variable.ts",
+      "sha256": "fb7d85eb2626028851eb043ce178cb89b008523a8ad825371650ea94ff493745"
+    },
+    {
+      "path": "packages/mcp/src/tools/design-diff.ts",
+      "sha256": "d61e17fbb31f40a409ea85035a69cdcd5e0086097ed93e907436806391f725d8"
+    },
+    {
+      "path": "packages/mcp/src/tools/detach-instance.ts",
+      "sha256": "7e04d60452d4393bf8dc76f60cad18ecb854842236ec6d189c0cf5acb92cd376"
+    },
+    {
+      "path": "packages/mcp/src/tools/edit-component-property.ts",
+      "sha256": "19b4926e4b5f4d32a723e33a0d1047b212d7df7b9b7c1a6b7930a2e0d7439ace"
+    },
+    {
+      "path": "packages/mcp/src/tools/export-pdf.ts",
+      "sha256": "25bfccba6e9d7370e132be8357a933fe27f9e31709b6919527a2000e73d93fa9"
+    },
+    {
+      "path": "packages/mcp/src/tools/export-video.ts",
+      "sha256": "bf8c1d364ac6d238d58a1014c9551211531b14d24aa6da55f1f8a518bef41187"
+    },
+    {
+      "path": "packages/mcp/src/tools/find-replace-text.ts",
+      "sha256": "ee267778cf09774d4961e8224c56c4b77cc4db2cc4f7435e71888e134544f4dd"
+    },
+    {
+      "path": "packages/mcp/src/tools/get-annotations.ts",
+      "sha256": "be6737d402ee79d1c0da38eed18257f03ca41abfac8bc88aa5ddf7983c2d16eb"
+    },
+    {
+      "path": "packages/mcp/src/tools/get-component-api.ts",
+      "sha256": "53799296ecbb06e69e7a2803283a9cdd03862e003799dc1412a112c95a236d79"
+    },
+    {
+      "path": "packages/mcp/src/tools/get-design-context.ts",
+      "sha256": "debe0fe3a43f8cfefa0644ff63149ecea75e142cf1d4c3a76b31fe9fc10a6630"
+    },
+    {
+      "path": "packages/mcp/src/tools/get-document.ts",
+      "sha256": "95eb3c86a449a4d1b7bde095c717d96aa6ba306e916a90f3536f650c9502b224"
+    },
+    {
+      "path": "packages/mcp/src/tools/get-fonts.ts",
+      "sha256": "18084eb6f3e11557b03f926438f07b7d69f3f9ccb546e192fa73ff8e248ccbeb"
+    },
+    {
+      "path": "packages/mcp/src/tools/get-local-components.ts",
+      "sha256": "da03ca45bd7409d84d051a21d30d08b44d4c6229021ec3284ba54158c946db05"
+    },
+    {
+      "path": "packages/mcp/src/tools/get-metadata.ts",
+      "sha256": "134d30a201389a379f8f7de9a9c568f3df95626149714881bd72ffe6c862c5a5"
+    },
+    {
+      "path": "packages/mcp/src/tools/get-motion-styles.ts",
+      "sha256": "2c6a72465c48a8cf5f09f32e9ff868408fbd14af0bd4bc5b3d96ab58484ef070"
+    },
+    {
+      "path": "packages/mcp/src/tools/get-node-motion.ts",
+      "sha256": "3df6e04db49aab8a5e3e3be285793181b98395d03ae7724176c25ebc3e440e20"
+    },
+    {
+      "path": "packages/mcp/src/tools/get-node.ts",
+      "sha256": "9737081c007abf147e5b93d0e7ab2c3e8c4d5ada7870859b04ac3c605ec7beb9"
+    },
+    {
+      "path": "packages/mcp/src/tools/get-nodes-info.ts",
+      "sha256": "4ea02d6b1dfac0064d3701a81f752a10abdbb759ce9bf899a75c22976b83daaa"
+    },
+    {
+      "path": "packages/mcp/src/tools/get-pages.ts",
+      "sha256": "305ce7eb55a6a6cb5439560f4e77fc09ca1c99c18b72febad6a52c2ed024af07"
+    },
+    {
+      "path": "packages/mcp/src/tools/get-reactions.ts",
+      "sha256": "22f0e5dd78612467117f71d75e27f2aabc2ba834d45010cce2bae26b941ee651"
+    },
+    {
+      "path": "packages/mcp/src/tools/get-screenshot.ts",
+      "sha256": "332690741b85c005f3eeb958ea8657d072dfa4e7c22a4b717c99d45ae1a9cc02"
+    },
+    {
+      "path": "packages/mcp/src/tools/get-selection.ts",
+      "sha256": "c23f49c420f2f98737ad5e6800b363e34e05328330c3db41ba6c37544b3aaf3b"
+    },
+    {
+      "path": "packages/mcp/src/tools/get-styles.ts",
+      "sha256": "75d7edb96b8ad1c5b23bf53ea9ecd5fe2c9e4d9ab7d2c033f982f4ae30e7fdc1"
+    },
+    {
+      "path": "packages/mcp/src/tools/get-variable-defs.ts",
+      "sha256": "7667bd5d98a9ae774fb03a1783550a3fcaf59ffc0989c8feb4212914298bc04b"
+    },
+    {
+      "path": "packages/mcp/src/tools/get-viewport.ts",
+      "sha256": "332a6c661a8fcd06ab76f934ee05afe697d5d081bc194dc3c3d58f4e03241934"
+    },
+    {
+      "path": "packages/mcp/src/tools/group-nodes.ts",
+      "sha256": "c242067c34f9d1f7bfd68c21565cf4c75ef0ddf3c546f3430ef356fec9f78b10"
+    },
+    {
+      "path": "packages/mcp/src/tools/icon-map.ts",
+      "sha256": "5269c414bb57dba9846b9d327254983a953d00f48b73fa78874c2a85a35dd2ae"
+    },
+    {
+      "path": "packages/mcp/src/tools/import-image.ts",
+      "sha256": "466255478d0c3eb786148cc3049bada385d89d4b28d846a9b9b49056e7320feb"
+    },
+    {
+      "path": "packages/mcp/src/tools/import-svg.ts",
+      "sha256": "7d15e71c9d66f98d63b5aade99583e08033d4e239a24fb895acbe29fb1035037"
+    },
+    {
+      "path": "packages/mcp/src/tools/list-files.ts",
+      "sha256": "7f804ebf9c18981d7e38c7c60621431c04eb0a70a2ac4e645d03e07c54fc41e3"
+    },
+    {
+      "path": "packages/mcp/src/tools/lock-nodes.ts",
+      "sha256": "c47ae04d559ee9bc75ec2057422435bbdb6cd93d6a16f2b6539af3f777a5d586"
+    },
+    {
+      "path": "packages/mcp/src/tools/move-nodes.ts",
+      "sha256": "71e2c9ca403c4b3a7c9770b553cb838f6b447e3dc91fc6d15f8f3d60ca1bcb93"
+    },
+    {
+      "path": "packages/mcp/src/tools/navigate-to-page.ts",
+      "sha256": "393f285aa6061dd1387cc08f6ac38ae509c7f785fa171ba6880554db7bae786f"
+    },
+    {
+      "path": "packages/mcp/src/tools/ping.ts",
+      "sha256": "08dc11b037ae4afd166e534ba0da78bd68b2d3003213eceea12bac0f57c8a21e"
+    },
+    {
       "path": "packages/mcp/src/tools/registry.ts",
       "sha256": "316d0e3f7e4c248205af8e3283dc247babe4c33e7447858884b2aedebe761e11"
+    },
+    {
+      "path": "packages/mcp/src/tools/remove-animation-style.ts",
+      "sha256": "92aa69ccf121221176512cb595663320a62bfec9d8e1ce3df652e88ebaa6e94a"
+    },
+    {
+      "path": "packages/mcp/src/tools/remove-manual-keyframe-track.ts",
+      "sha256": "1b09c0f45c9f362818a497a974d207187b9d4a048c64ae4d10f26ca909081842"
+    },
+    {
+      "path": "packages/mcp/src/tools/remove-reactions.ts",
+      "sha256": "261a3f0405bcff7a8fdca023f8bcd22c0be33a7e8e7df7db32c46a70b7a79b8e"
+    },
+    {
+      "path": "packages/mcp/src/tools/rename-node.ts",
+      "sha256": "454ee6b648260974b913314e13df84d42085efa8be159bf4c8e54562de507970"
+    },
+    {
+      "path": "packages/mcp/src/tools/rename-page.ts",
+      "sha256": "313deba4eaf58fa7477d5f16e21195db89f77925087c6bed32648aad8c771ff8"
+    },
+    {
+      "path": "packages/mcp/src/tools/rename-variable.ts",
+      "sha256": "9a790b9367cdd478947a54abb4c7a38824e4914f3cbb976186cdbb36d4c0b757"
+    },
+    {
+      "path": "packages/mcp/src/tools/reorder-nodes.ts",
+      "sha256": "b973f2b8dc7b20e5ca028a863ca3897e4deb22561a50028d2fdac265f5330ec6"
+    },
+    {
+      "path": "packages/mcp/src/tools/reparent-nodes.ts",
+      "sha256": "dd75b84b1f004a2c639ee0d5e3ba600bbc2d8efc9a68400c4b2f17e303702cb0"
+    },
+    {
+      "path": "packages/mcp/src/tools/resize-nodes.ts",
+      "sha256": "5b491c17068f87d1a78895647add72a2d646a0d18b87d01caf5352ce95179f92"
+    },
+    {
+      "path": "packages/mcp/src/tools/rotate-nodes.ts",
+      "sha256": "8ee9cac1c596ee4301c13f09c3524b1dc33155e21c31c2354175ab1492f078c3"
     },
     {
       "path": "packages/mcp/src/tools/runtime-registry.ts",
       "sha256": "7064d044c7cd000276836db7fbea30d657deddccda732090ad4575be9366ac23"
     },
     {
+      "path": "packages/mcp/src/tools/save-image-fills.ts",
+      "sha256": "9df4e1fc95e0f56858a7224fa46d3b0a3a182b3cb20ccc6e3e82769975674fd0"
+    },
+    {
+      "path": "packages/mcp/src/tools/save-screenshots.ts",
+      "sha256": "0dc5c5c2947eeeb8bad1ffa867e0381c682ffedf44e66a85f05573259a77b6be"
+    },
+    {
+      "path": "packages/mcp/src/tools/scan-components.ts",
+      "sha256": "29ec2e40cb3f4f13aba1fe69c8b6c97c0a1b748f981f40d781cfd930ed3405cf"
+    },
+    {
+      "path": "packages/mcp/src/tools/scan-nodes-by-types.ts",
+      "sha256": "a248c30626159f8f8b1e4ffe3c15a96728e583cc3b80d76e023c1e54ecc3d491"
+    },
+    {
+      "path": "packages/mcp/src/tools/scan-text-nodes.ts",
+      "sha256": "0c655751648b1742f433545401ed83fab93aad0e5be14b5b89501a7bb6e6310c"
+    },
+    {
+      "path": "packages/mcp/src/tools/search-nodes.ts",
+      "sha256": "df6f17d2c8a4107b4ef004aa7394581d14fd73b4e7ec36b1d0724f190bd64d9d"
+    },
+    {
+      "path": "packages/mcp/src/tools/set-arc.ts",
+      "sha256": "dc9f8ba201019a57bf884918c509fda5a481a8d07328d57fecd885a3d6e9a907"
+    },
+    {
+      "path": "packages/mcp/src/tools/set-auto-layout.ts",
+      "sha256": "6880e0c640885b6a108dcfc7656c147108d749aeb4ccb8a152a2644789648f71"
+    },
+    {
+      "path": "packages/mcp/src/tools/set-blend-mode.ts",
+      "sha256": "08eb017eba58127251ea6e9963f3eabd9571d31ea79945578d41d00fd0a64881"
+    },
+    {
+      "path": "packages/mcp/src/tools/set-constraints.ts",
+      "sha256": "5b8f624b31cff2366bd4bf7af6a65ae9af823839b648630091c7c2a44d22e90c"
+    },
+    {
+      "path": "packages/mcp/src/tools/set-corner-radius.ts",
+      "sha256": "0d5f5b910868faf236c5f22b07df7066c7003b3bec9aad41d8380eaa9beb9134"
+    },
+    {
+      "path": "packages/mcp/src/tools/set-effects.ts",
+      "sha256": "416dabbb9112a9843782b4ddbc791c09e1346d16518d55e700920c59ba9e3f34"
+    },
+    {
+      "path": "packages/mcp/src/tools/set-fills.ts",
+      "sha256": "4e6546df43a95b0398357a4ee4fcaf153347927ce5c72631470881df0ac532dd"
+    },
+    {
+      "path": "packages/mcp/src/tools/set-instance-properties.ts",
+      "sha256": "7392a2e3e14fcf97a819324e624d142100634856b7042989496ab3d20b184ab6"
+    },
+    {
+      "path": "packages/mcp/src/tools/set-layout-grids.ts",
+      "sha256": "29b4f8b8647517aa87ff503e773c813dbf1edeed16de5208500fcb78812e5435"
+    },
+    {
+      "path": "packages/mcp/src/tools/set-layout-props.ts",
+      "sha256": "58d4c307c776b753006fe65b26a10b9e1b11dbcd8706bc2ba6f76522cdf662b1"
+    },
+    {
+      "path": "packages/mcp/src/tools/set-mask.ts",
+      "sha256": "8c2e9ec171e01d47032b362c4af04a2766499d40a06f80c1a725c399c67f7194"
+    },
+    {
+      "path": "packages/mcp/src/tools/set-opacity.ts",
+      "sha256": "e4a32d37f5f958b8fbaa8524c60b1dd2b79175ad942f8355c9d0a0c32abb2e99"
+    },
+    {
+      "path": "packages/mcp/src/tools/set-position.ts",
+      "sha256": "d40997f325ed662123241c4b35c9090d50facd32006f4850781a20286c87788f"
+    },
+    {
+      "path": "packages/mcp/src/tools/set-reactions.ts",
+      "sha256": "4e75cc456f991fb1eae2efae8830c2d8b358477755484bda8b38710a3cf1a30a"
+    },
+    {
+      "path": "packages/mcp/src/tools/set-strokes.ts",
+      "sha256": "b165a2851701b2182dc732eea1942add9b8578f13b08b507f5244836821823eb"
+    },
+    {
+      "path": "packages/mcp/src/tools/set-text-properties.ts",
+      "sha256": "90f0bc0248cde5a296159ca03232b951f713270d857726189defc7044b12a28e"
+    },
+    {
+      "path": "packages/mcp/src/tools/set-text-range.ts",
+      "sha256": "40241b66143ca1a980ee86cb6283eb889a2800e35c082e485acdffaff0bd80e8"
+    },
+    {
+      "path": "packages/mcp/src/tools/set-text.ts",
+      "sha256": "268e7b7d01e3c9dd82c699805bd811baf3ac99b3e4a46cba6855ae8e1186ac33"
+    },
+    {
+      "path": "packages/mcp/src/tools/set-timeline-duration.ts",
+      "sha256": "3853c689e754cd985a54666a4711273ad81f0e34bcf421be89d412a9248c445b"
+    },
+    {
+      "path": "packages/mcp/src/tools/set-variable-code-syntax.ts",
+      "sha256": "5e39c4b8b2242c6dd0165050cd4e49959c436cf8cc6043729b33c797358121fa"
+    },
+    {
+      "path": "packages/mcp/src/tools/set-variable-value.ts",
+      "sha256": "c32f7bbee73bcd93e389c6d49b4fc97493c3157c43978f3398e56401f88e51ff"
+    },
+    {
+      "path": "packages/mcp/src/tools/set-visible.ts",
+      "sha256": "3900aa9f49e9eabe20c775b6a3207b72739abf4c97cb0d10e59f4158b9f0482d"
+    },
+    {
+      "path": "packages/mcp/src/tools/skew-notice.ts",
+      "sha256": "9938b8eaab01dae871f559e43ca82b51d9a8ceb7ea74ead09adbcf6e5f5589b5"
+    },
+    {
       "path": "packages/mcp/src/tools/spec.ts",
-      "sha256": "37a50d765a990c14e70dc672cdca72be7094e962950846ae25aab2717dd7f5f4"
+      "sha256": "8f60e179ac203f11981dfd874e121a48dae5594d7a1c82ed083575add0fbd827"
+    },
+    {
+      "path": "packages/mcp/src/tools/swap-component.ts",
+      "sha256": "aa1427a11f51af895863cd0b3f83fd12394f71f67485e84ed6873344e0f80929"
+    },
+    {
+      "path": "packages/mcp/src/tools/token-map.ts",
+      "sha256": "aa885df05c3aa075aa8db2237d53d0c5983d7496d1d1c10f224eb0042f4a5aa1"
+    },
+    {
+      "path": "packages/mcp/src/tools/ungroup-nodes.ts",
+      "sha256": "a7c07719ad78d970c43e4256675c3a708b9ed1708d8d435116a825f46e40467a"
+    },
+    {
+      "path": "packages/mcp/src/tools/unlock-nodes.ts",
+      "sha256": "2c494f6e7f1126f752142a6c9b35e674cc0589a157d94a3ed3f747ef8209c05c"
+    },
+    {
+      "path": "packages/mcp/src/tools/update-effect-style.ts",
+      "sha256": "8975370099240618d3d90a026c87f15d790dc608213e6a9e9198fc939101aebe"
+    },
+    {
+      "path": "packages/mcp/src/tools/update-paint-style.ts",
+      "sha256": "f996a19f6ec10f01e3f449f52cec1c70e1c310785c45b513e8497d55e9017ff7"
+    },
+    {
+      "path": "packages/mcp/src/tools/update-text-style.ts",
+      "sha256": "4b5397fa854d88577ca440c545c60a95114c2845d16a75cbae39db13dfb19de9"
+    },
+    {
+      "path": "packages/mcp/test/tool-schema.ts",
+      "sha256": "41537dd476f6dd15a40dea9267e4751bdddb7b62b31219ba1bfba0e13917b799"
     },
     {
       "path": "packages/mcp/test/tools/result-validation.test.ts",
-      "sha256": "076415dab3b5b4113a25343d94d53f5b3b7c0d63f0e356ffd9bfe4c5c229570d"
+      "sha256": "7be208c6eb86b51113ad124944798e747cc5d7a3d3654f7a4fcc8b2ece7897c4"
+    },
+    {
+      "path": "packages/mcp/test/tools/skew-notice.test.ts",
+      "sha256": "6abcc53599fe95a537a29e2cd272e5127924d50b0fba3131f19e7623d354befc"
     },
     {
       "path": "packages/mcp/tsconfig.json",
@@ -241,7 +1169,7 @@
     },
     {
       "path": "packages/shared/src/result-schemas.ts",
-      "sha256": "481d83153ffff928f662686ef37f0cd0a14303d39859bd20d76f2483ccb267ee"
+      "sha256": "30f49e189da85e5e898b96ee4b725f9bb139daeb318e4b438ab422a3c162d473"
     },
     {
       "path": "packages/shared/tsconfig.json",
@@ -277,7 +1205,7 @@
     },
     {
       "path": "test/tool-contract.test.ts",
-      "sha256": "7989333a77e36cd30e431c085303372444f74689c5557966e2b78f221fb9a320"
+      "sha256": "f579e23960619f3e76c6be99450a7b7640f7f21d596945a1bdd4af4394519532"
     },
     {
       "path": "test/tool-registry.test.ts",
@@ -305,7 +1233,7 @@
     },
     {
       "path": "vendor-rules.json",
-      "sha256": "b21c670a01cb921bb5ac484f28a45babeb5a1b4b5eb3a08e0e044849e713fa82"
+      "sha256": "76dba06e5e9bb3c7ccaa214dfaf55d5059f045bba7d44266faecd5ccb55cb993"
     },
     {
       "path": "vitest.config.ts",

@@ -1,10 +1,10 @@
 import { z } from 'zod';
 
-import type { ToolSpec } from './spec.js';
+import type { RawToolSpec } from './spec.js';
 
 export const LOCK_NODES_TOOL_NAME = 'lock_nodes';
 
-export const lockNodesTool: ToolSpec = {
+export const lockNodesTool: RawToolSpec = {
   name: LOCK_NODES_TOOL_NAME,
   description:
     "Lock nodes so they can't be selected or edited on the canvas (e.g. backgrounds); locking a " +

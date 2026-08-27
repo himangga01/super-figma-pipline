@@ -1,10 +1,10 @@
 import { z } from 'zod';
 
-import type { ToolSpec } from './spec.js';
+import type { RawToolSpec } from './spec.js';
 
 export const SET_OPACITY_TOOL_NAME = 'set_opacity';
 
-export const setOpacityTool: ToolSpec = {
+export const setOpacityTool: RawToolSpec = {
   name: SET_OPACITY_TOOL_NAME,
   description:
     "Set a node's layer opacity from 0 (transparent) to 1 (opaque); this multiplies with any fill " +

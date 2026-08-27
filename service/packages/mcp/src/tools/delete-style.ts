@@ -1,10 +1,10 @@
 import { z } from 'zod';
 
-import type { ToolSpec } from './spec.js';
+import type { RawToolSpec } from './spec.js';
 
 export const DELETE_STYLE_TOOL_NAME = 'delete_style';
 
-export const deleteStyleTool: ToolSpec = {
+export const deleteStyleTool: RawToolSpec = {
   name: DELETE_STYLE_TOOL_NAME,
   description:
     'Delete a local style (paint / text / effect / grid) by id. Returns { ok, styleId, name }.',

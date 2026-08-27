@@ -1,11 +1,11 @@
 import { z } from 'zod';
 
 import { effectItemSchema } from './effect-schema.js';
-import type { ToolSpec } from './spec.js';
+import type { RawToolSpec } from './spec.js';
 
 export const CREATE_EFFECT_STYLE_TOOL_NAME = 'create_effect_style';
 
-export const createEffectStyleTool: ToolSpec = {
+export const createEffectStyleTool: RawToolSpec = {
   name: CREATE_EFFECT_STYLE_TOOL_NAME,
   description:
     'Create a local effect style. Shadows (DROP_SHADOW / INNER_SHADOW) need color + offset; ' +

@@ -1,10 +1,10 @@
 import { z } from 'zod';
 
-import type { ToolSpec } from './spec.js';
+import type { RawToolSpec } from './spec.js';
 
 export const REORDER_NODES_TOOL_NAME = 'reorder_nodes';
 
-export const reorderNodesTool: ToolSpec = {
+export const reorderNodesTool: RawToolSpec = {
   name: REORDER_NODES_TOOL_NAME,
   description:
     'Reorder nodes within their current parent by inserting each at `index` (0 = bottom of the ' +

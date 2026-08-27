@@ -1,7 +1,7 @@
 import { z } from 'zod';
 
 import { paintItemSchema } from './paint-schema.js';
-import type { ToolSpec } from './spec.js';
+import type { RawToolSpec } from './spec.js';
 
 export const SET_TEXT_RANGE_TOOL_NAME = 'set_text_range';
 
@@ -60,7 +60,7 @@ const rangeSchema = z.object({
     ),
 });
 
-export const setTextRangeTool: ToolSpec = {
+export const setTextRangeTool: RawToolSpec = {
   name: SET_TEXT_RANGE_TOOL_NAME,
   description:
     'Style character ranges of an existing TEXT node — the write-side mirror of a read segment, for ' +

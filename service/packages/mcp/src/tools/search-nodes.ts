@@ -1,10 +1,10 @@
 import { z } from 'zod';
 
-import type { ToolSpec } from './spec.js';
+import type { RawToolSpec } from './spec.js';
 
 export const SEARCH_NODES_TOOL_NAME = 'search_nodes';
 
-export const searchNodesTool: ToolSpec = {
+export const searchNodesTool: RawToolSpec = {
   name: SEARCH_NODES_TOOL_NAME,
   description:
     'Search the node tree by case-insensitive name substring and/or exact node type. ' +

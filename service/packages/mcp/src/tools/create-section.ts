@@ -1,10 +1,10 @@
 import { z } from 'zod';
 
-import type { ToolSpec } from './spec.js';
+import type { RawToolSpec } from './spec.js';
 
 export const CREATE_SECTION_TOOL_NAME = 'create_section';
 
-export const createSectionTool: ToolSpec = {
+export const createSectionTool: RawToolSpec = {
   name: CREATE_SECTION_TOOL_NAME,
   description:
     'Create a section: a canvas-level container for grouping and labelling regions of a page (e.g. ' +

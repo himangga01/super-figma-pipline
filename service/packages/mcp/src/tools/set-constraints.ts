@@ -1,12 +1,12 @@
 import { z } from 'zod';
 
-import type { ToolSpec } from './spec.js';
+import type { RawToolSpec } from './spec.js';
 
 export const SET_CONSTRAINTS_TOOL_NAME = 'set_constraints';
 
 const constraint = z.enum(['MIN', 'CENTER', 'MAX', 'STRETCH', 'SCALE']);
 
-export const setConstraintsTool: ToolSpec = {
+export const setConstraintsTool: RawToolSpec = {
   name: SET_CONSTRAINTS_TOOL_NAME,
   description:
     'Set how a node responds when its parent frame is resized, via horizontal and vertical ' +

@@ -6,7 +6,7 @@ import { z } from 'zod';
 
 import { type DesignDiffChanges, diffDesignContext } from '../diff/design-diff.js';
 import { GET_DESIGN_CONTEXT_TOOL_NAME } from './get-design-context.js';
-import type { ToolSpec } from './spec.js';
+import type { RawToolSpec } from './spec.js';
 
 export const DESIGN_DIFF_TOOL_NAME = 'design_diff';
 
@@ -37,7 +37,7 @@ const inputSchema = z.object({
     .optional(),
 });
 
-export const designDiffTool: ToolSpec = {
+export const designDiffTool: RawToolSpec = {
   name: DESIGN_DIFF_TOOL_NAME,
   description:
     'Diff a Figma node against a saved baseline of itself, so after a design changes you edit only ' +

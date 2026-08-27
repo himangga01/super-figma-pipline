@@ -1,10 +1,10 @@
 import { z } from 'zod';
 
-import type { ToolSpec } from './spec.js';
+import type { RawToolSpec } from './spec.js';
 
 export const CREATE_FRAME_TOOL_NAME = 'create_frame';
 
-export const createFrameTool: ToolSpec = {
+export const createFrameTool: RawToolSpec = {
   name: CREATE_FRAME_TOOL_NAME,
   description:
     'Create a frame — the primary container for UI and the only node that hosts auto-layout — ' +

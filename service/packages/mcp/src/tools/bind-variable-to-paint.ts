@@ -1,10 +1,10 @@
 import { z } from 'zod';
 
-import type { ToolSpec } from './spec.js';
+import type { RawToolSpec } from './spec.js';
 
 export const BIND_VARIABLE_TO_PAINT_TOOL_NAME = 'bind_variable_to_paint';
 
-export const bindVariableToPaintTool: ToolSpec = {
+export const bindVariableToPaintTool: RawToolSpec = {
   name: BIND_VARIABLE_TO_PAINT_TOOL_NAME,
   description:
     'Bind a COLOR variable to a SOLID fill or stroke paint (the design-token way to colour a node) ' +

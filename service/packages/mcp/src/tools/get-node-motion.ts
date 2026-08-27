@@ -1,10 +1,10 @@
 import { z } from 'zod';
 
-import type { ToolSpec } from './spec.js';
+import type { RawToolSpec } from './spec.js';
 
 export const GET_NODE_MOTION_TOOL_NAME = 'get_node_motion';
 
-export const getNodeMotionTool: ToolSpec = {
+export const getNodeMotionTool: RawToolSpec = {
   name: GET_NODE_MOTION_TOOL_NAME,
   description:
     "Read a node's Figma Motion (animation) state: applied animation styles, all keyframe animations, " +

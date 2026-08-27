@@ -4698,7 +4698,7 @@
       {
         "name": "icomp",
         "source": "figmosha2",
-        "mapping": "위와 동일",
+        "mapping": "create_instance(componentKey)",
         "disposition": "alias",
         "implementation": "packages/mcp/src/tools/create-instance.ts",
         "test": "test/tool-contract.test.ts"

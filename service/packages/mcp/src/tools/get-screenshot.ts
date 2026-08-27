@@ -1,11 +1,11 @@
 import { type GetScreenshotResult, SCREENSHOT_FORMATS } from '@sfp/shared';
 import { z } from 'zod';
 
-import type { ToolSpec } from './spec.js';
+import type { RawToolSpec } from './spec.js';
 
 export const GET_SCREENSHOT_TOOL_NAME = 'get_screenshot';
 
-export const getScreenshotTool: ToolSpec = {
+export const getScreenshotTool: RawToolSpec = {
   name: GET_SCREENSHOT_TOOL_NAME,
   description:
     'Export nodes as images the model can see, one image block per node: { images: [{ nodeId, format, ' +

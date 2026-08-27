@@ -200,4 +200,13 @@ describe('two-layer capability manifest', () => {
     ).not.toContain('packages/cli/src/index.ts');
     expect(UNION_MANIFEST.canonicalTools.map(row => row.name)).not.toContain('exec');
   });
+
+  it('maps 12 figmosha CLI parsers to exactly 11 behavior identities', () => {
+    const parsers = UNION_MANIFEST.sourceSurfaces.figmoshaCliParsers;
+    const importComponent = parsers.find(row => row.name === 'import-component');
+    const importComponentAlias = parsers.find(row => row.name === 'icomp');
+
+    expect(new Set(parsers.map(row => row.mapping))).toHaveLength(11);
+    expect(importComponentAlias?.mapping).toBe(importComponent?.mapping);
+  });
 });

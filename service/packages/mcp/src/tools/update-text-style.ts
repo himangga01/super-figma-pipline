@@ -1,11 +1,11 @@
 import { z } from 'zod';
 
 import { textStyleBindingsSchema } from './binding-schema.js';
-import type { ToolSpec } from './spec.js';
+import type { RawToolSpec } from './spec.js';
 
 export const UPDATE_TEXT_STYLE_TOOL_NAME = 'update_text_style';
 
-export const updateTextStyleTool: ToolSpec = {
+export const updateTextStyleTool: RawToolSpec = {
   name: UPDATE_TEXT_STYLE_TOOL_NAME,
   description:
     'Update an existing text style (typography token) by id. Any of name / fontName / fontSize / ' +

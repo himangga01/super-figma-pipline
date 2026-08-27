@@ -1,10 +1,10 @@
 import { z } from 'zod';
 
-import type { ToolSpec } from './spec.js';
+import type { RawToolSpec } from './spec.js';
 
 export const GET_COMPONENT_API_TOOL_NAME = 'get_component_api';
 
-export const getComponentApiTool: ToolSpec = {
+export const getComponentApiTool: RawToolSpec = {
   name: GET_COMPONENT_API_TOOL_NAME,
   description:
     "Return a component's full property API — the prop contract behind its instances. Pass a " +

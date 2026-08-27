@@ -1,11 +1,11 @@
 import { DETAIL_LEVELS } from '@sfp/shared';
 import { z } from 'zod';
 
-import type { ToolSpec } from './spec.js';
+import type { RawToolSpec } from './spec.js';
 
 export const GET_DESIGN_CONTEXT_TOOL_NAME = 'get_design_context';
 
-export const getDesignContextTool: ToolSpec = {
+export const getDesignContextTool: RawToolSpec = {
   name: GET_DESIGN_CONTEXT_TOOL_NAME,
   description:
     'Get a depth-limited, token-efficient node tree — the main design-grounding read; prefer it ' +

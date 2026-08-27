@@ -1,10 +1,10 @@
 import { z } from 'zod';
 
-import type { ToolSpec } from './spec.js';
+import type { RawToolSpec } from './spec.js';
 
 export const SET_LAYOUT_PROPS_TOOL_NAME = 'set_layout_props';
 
-export const setLayoutPropsTool: ToolSpec = {
+export const setLayoutPropsTool: RawToolSpec = {
   name: SET_LAYOUT_PROPS_TOOL_NAME,
   description:
     "Set a node's auto-layout sizing and child properties. layoutSizingHorizontal / " +

@@ -1,10 +1,10 @@
 import { z } from 'zod';
 
-import type { ToolSpec } from './spec.js';
+import type { RawToolSpec } from './spec.js';
 
 export const RESIZE_NODES_TOOL_NAME = 'resize_nodes';
 
-export const resizeNodesTool: ToolSpec = {
+export const resizeNodesTool: RawToolSpec = {
   name: RESIZE_NODES_TOOL_NAME,
   description:
     'Resize nodes to the given width × height (positive). Non-resizable nodes are skipped. Returns { ok, affected }.',

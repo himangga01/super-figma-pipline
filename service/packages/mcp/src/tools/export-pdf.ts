@@ -5,7 +5,7 @@ import type { ExportPdfResult, PdfExport } from '@sfp/shared';
 import { z } from 'zod';
 
 import { binaryPayload } from './binary-payload.js';
-import type { ToolSpec } from './spec.js';
+import type { RawToolSpec } from './spec.js';
 
 export const EXPORT_PDF_TOOL_NAME = 'export_pdf';
 
@@ -19,7 +19,7 @@ const inputSchema = z.object({
   outPath: z.string().describe('File path to write the .pdf to (parent dirs created if missing)'),
 });
 
-export const exportPdfTool: ToolSpec = {
+export const exportPdfTool: RawToolSpec = {
   name: EXPORT_PDF_TOOL_NAME,
   description:
     "Export a node (or the current page) to a single-page vector PDF file on disk. Figma's plugin " +

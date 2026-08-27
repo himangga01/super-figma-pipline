@@ -1,10 +1,10 @@
 import { z } from 'zod';
 
-import type { ToolSpec } from './spec.js';
+import type { RawToolSpec } from './spec.js';
 
 export const DELETE_VARIABLE_COLLECTION_TOOL_NAME = 'delete_variable_collection';
 
-export const deleteVariableCollectionTool: ToolSpec = {
+export const deleteVariableCollectionTool: RawToolSpec = {
   name: DELETE_VARIABLE_COLLECTION_TOOL_NAME,
   description:
     'Delete a variable collection by id, removing the collection and every variable and mode in ' +

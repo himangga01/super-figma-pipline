@@ -1,10 +1,10 @@
 import { z } from 'zod';
 
-import type { ToolSpec } from './spec.js';
+import type { RawToolSpec } from './spec.js';
 
 export const ROTATE_NODES_TOOL_NAME = 'rotate_nodes';
 
-export const rotateNodesTool: ToolSpec = {
+export const rotateNodesTool: RawToolSpec = {
   name: ROTATE_NODES_TOOL_NAME,
   description:
     'Set absolute rotation (degrees) on nodes. Nodes without rotation are skipped. Returns { ok, affected }.',

@@ -1,10 +1,10 @@
 import { z } from 'zod';
 
-import type { ToolSpec } from './spec.js';
+import type { RawToolSpec } from './spec.js';
 
 export const GET_LOCAL_COMPONENTS_TOOL_NAME = 'get_local_components';
 
-export const getLocalComponentsTool: ToolSpec = {
+export const getLocalComponentsTool: RawToolSpec = {
   name: GET_LOCAL_COMPONENTS_TOOL_NAME,
   description:
     'Return the components and component sets within a node subtree (or the current selection) as ' +

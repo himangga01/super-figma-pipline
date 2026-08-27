@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-import type { ToolSpec } from './spec.js';
+import type { RawToolSpec } from './spec.js';
 
 export const BATCH_TOOL_NAME = 'batch';
 
@@ -11,7 +11,7 @@ export const BATCH_TOOL_NAME = 'batch';
  * destructive ops (delete_*, ungroup, …) can't be restored and are rejected, so the all-or-nothing
  * guarantee holds.
  */
-export const batchTool: ToolSpec = {
+export const batchTool: RawToolSpec = {
   name: BATCH_TOOL_NAME,
   description:
     'Apply multiple invertible write ops atomically (all-or-nothing with rollback). ops is an ordered ' +

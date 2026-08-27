@@ -3,11 +3,11 @@ import { z } from 'zod';
 import { dispatchTool } from '../dispatch.js';
 import type { Follower } from '../election/follower.js';
 import { type Node, NodeRole } from '../election/node.js';
-import type { ToolSpec } from './spec.js';
+import type { RawToolSpec } from './spec.js';
 
 export const PING_TOOL_NAME = 'ping';
 
-export const pingTool: ToolSpec = {
+export const pingTool: RawToolSpec = {
   name: PING_TOOL_NAME,
   description:
     'Health check. Returns server info plus, when a plugin is connected, end-to-end info from the ' +

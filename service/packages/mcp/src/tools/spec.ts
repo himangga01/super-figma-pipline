@@ -60,19 +60,9 @@ export interface RawToolSpec<I = unknown> {
   serverOnlyArgs?: readonly string[] | null;
 }
 
-export interface FinalizedToolSpec<I, O> extends RawToolSpec<I> {
+/** A finalized executable tool authority. Both input and output types are always explicit. */
+export interface ToolSpec<I, O> extends RawToolSpec<I> {
   resultSchema: z.ZodType<O>;
   policyId: string;
   runtimeId: string;
 }
-
-/**
- * A finalized executable spec. The `O = never` default is a compatibility seam for the 112
- * unchanged vendored declarations, which historically annotated themselves as `ToolSpec` before a
- * registry existed to finalize them. Registry consumers use `ToolSpec<I, O>` with both parameters
- * and therefore always receive the bound shape; new declarations should name `RawToolSpec`
- * directly.
- */
-export type ToolSpec<I = unknown, O = never> = [O] extends [never]
-  ? RawToolSpec<I>
-  : FinalizedToolSpec<I, O>;
