@@ -1,16 +1,37 @@
+import { execFile as execFileCallback } from 'node:child_process';
 import { createHash } from 'node:crypto';
-import { mkdtemp, mkdir, readFile, realpath, rm, stat, symlink, writeFile } from 'node:fs/promises';
+import {
+  chmod,
+  mkdtemp,
+  mkdir,
+  readFile,
+  realpath,
+  rename,
+  rm,
+  stat,
+  symlink,
+  writeFile,
+} from 'node:fs/promises';
 import { tmpdir } from 'node:os';
-import { isAbsolute, join, relative, resolve } from 'node:path';
+import { dirname, isAbsolute, join, relative, resolve } from 'node:path';
+import { promisify } from 'node:util';
 
+import type { WorkspaceUsageGuard } from '@sfp/shared';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
 import {
-  createWorkspaceConfigStore,
+  createWorkspaceConfigStore as createRawWorkspaceConfigStore,
+  type WorkspaceConfigDurability,
   workspaceConfigPath,
 } from '../../src/fs/workspace-config-store.js';
+import {
+  type BoundStatePermissions,
+  createStatePermissions,
+  type StatePermissionOptions,
+} from '../../src/security/state-permissions.js';
 
 const temporaryRoots: string[] = [];
+const execFile = promisify(execFileCallback);
 let stateRoot: string;
 let workspaceRoot: string;
 
@@ -22,10 +43,64 @@ const temporaryRoot = async (prefix: string): Promise<string> => {
   return root;
 };
 
+const productStateRoot = async (): Promise<{
+  options: StatePermissionOptions;
+  stateRoot: string;
+}> => {
+  const base = await temporaryRoot('sfp-task4-product-state-');
+  if (process.platform === 'win32') {
+    return {
+      options: {
+        platform: 'win32',
+        environment: { LOCALAPPDATA: base },
+        homeDirectory: dirname(base),
+      },
+      stateRoot: join(base, 'SuperFigmaPipeline'),
+    };
+  }
+  if (process.platform === 'darwin') {
+    return {
+      options: { platform: 'darwin', environment: {}, homeDirectory: base },
+      stateRoot: join(base, 'Library', 'Application Support', 'SuperFigmaPipeline'),
+    };
+  }
+  return {
+    options: {
+      platform: 'linux',
+      environment: { XDG_STATE_HOME: base },
+      homeDirectory: dirname(base),
+    },
+    stateRoot: join(base, 'super-figma-pipeline'),
+  };
+};
+
+const verifiedTestPermissions = (root: string): BoundStatePermissions => ({
+  stateRoot: resolve(root),
+  ensureSecure: async () => undefined,
+  verifySecure: async () => undefined,
+  inspectSecure: async path => {
+    const metadata = await stat(path, { bigint: true });
+    return {
+      canonicalPath: await realpath(path),
+      key: `${metadata.dev}:${metadata.ino}:${metadata.birthtimeNs}`,
+      directory: metadata.isDirectory(),
+      file: metadata.isFile(),
+    };
+  },
+});
+
+const createWorkspaceConfigStore = (
+  root: string,
+  guard: WorkspaceUsageGuard,
+  permissions: BoundStatePermissions = verifiedTestPermissions(root),
+  durability?: Partial<WorkspaceConfigDurability>,
+) => createRawWorkspaceConfigStore(root, guard, permissions, durability);
+
 beforeEach(async () => {
   const root = await temporaryRoot('sfp-task4-store-');
   stateRoot = join(root, 'state');
   workspaceRoot = join(root, 'workspace');
+  await mkdir(stateRoot);
   await mkdir(workspaceRoot);
 });
 
@@ -140,7 +215,184 @@ describe('workspace registration', () => {
   });
 });
 
+describe('secure owner-state prerequisite', () => {
+  it('serializes a canonical root and an alias by verified root identity', async () => {
+    const product = await productStateRoot();
+    await mkdir(product.stateRoot);
+    const permissions = verifiedTestPermissions(product.stateRoot);
+    const alias = join(await temporaryRoot('sfp-task4-state-alias-'), 'product-state-link');
+    await symlink(product.stateRoot, alias, process.platform === 'win32' ? 'junction' : 'dir');
+    const secondWorkspace = join(await temporaryRoot('sfp-task4-alias-workspace-'), 'workspace');
+    await mkdir(secondWorkspace);
+    const canonicalStore = createWorkspaceConfigStore(product.stateRoot, idleGuard, permissions);
+    const aliasStore = createWorkspaceConfigStore(alias, idleGuard, permissions);
+
+    await Promise.all([
+      canonicalStore.add('actor-1', workspaceRoot),
+      aliasStore.add('actor-2', secondWorkspace),
+    ]);
+
+    await expect(canonicalStore.list()).resolves.toHaveLength(2);
+  });
+
+  it('rejects replacement of the config pathname during secure inspection', async () => {
+    const basePermissions = verifiedTestPermissions(stateRoot);
+    const initialStore = createWorkspaceConfigStore(stateRoot, idleGuard, basePermissions);
+    await initialStore.add('actor', workspaceRoot);
+    const configPath = workspaceConfigPath(stateRoot);
+    const replacedPath = `${configPath}.replaced`;
+    const replacementPath = `${configPath}.replacement`;
+    const payload = { version: 1, workspaces: [] };
+    await writeFile(
+      replacementPath,
+      JSON.stringify({
+        ...payload,
+        checksum: createHash('sha256').update(JSON.stringify(payload)).digest('hex'),
+      }),
+    );
+    let replaced = false;
+    const adversarialPermissions: BoundStatePermissions = {
+      ...basePermissions,
+      inspectSecure: async path => {
+        if (resolve(path) === resolve(configPath) && !replaced) {
+          replaced = true;
+          await rename(configPath, replacedPath);
+          await rename(replacementPath, configPath);
+        }
+        return basePermissions.inspectSecure(path);
+      },
+      verifySecure: async path => {
+        await adversarialPermissions.inspectSecure(path);
+      },
+    };
+    const store = createWorkspaceConfigStore(stateRoot, idleGuard, adversarialPermissions);
+
+    await expect(store.list()).rejects.toMatchObject({ code: 'STATE_IDENTITY_CHANGED' });
+  });
+
+  it.runIf(process.platform === 'win32')(
+    'blocks an inherited broad state DACL until the bound authority explicitly hardens it',
+    async () => {
+      const product = await productStateRoot();
+      await mkdir(product.stateRoot);
+      const permissions = createStatePermissions(product.stateRoot, product.options);
+      const store = createWorkspaceConfigStore(product.stateRoot, idleGuard, permissions);
+
+      await expect(store.list()).rejects.toMatchObject({ code: 'STATE_ACL_INSECURE' });
+
+      await permissions.ensureSecure(product.stateRoot);
+      await expect(store.list()).resolves.toEqual([]);
+    },
+  );
+
+  it.runIf(process.platform !== 'win32')(
+    'blocks an existing 0755 state directory until the bound authority explicitly hardens it',
+    async () => {
+      const product = await productStateRoot();
+      await mkdir(product.stateRoot, { recursive: true, mode: 0o755 });
+      await chmod(product.stateRoot, 0o755);
+      const permissions = createStatePermissions(product.stateRoot, product.options);
+      const store = createWorkspaceConfigStore(product.stateRoot, idleGuard, permissions);
+
+      await expect(store.list()).rejects.toMatchObject({ code: 'STATE_MODE_INSECURE' });
+
+      await permissions.ensureSecure(product.stateRoot);
+      await expect(store.list()).resolves.toEqual([]);
+    },
+  );
+
+  it.runIf(process.platform === 'win32')(
+    'rejects a configured file after an unexpected allow ACE is added',
+    async () => {
+      const product = await productStateRoot();
+      const permissions = createStatePermissions(product.stateRoot, product.options);
+      await permissions.ensureSecure(product.stateRoot);
+      const store = createWorkspaceConfigStore(product.stateRoot, idleGuard, permissions);
+      await store.add('actor', workspaceRoot);
+      const configPath = workspaceConfigPath(product.stateRoot);
+      await execFile('icacls.exe', [configPath, '/grant', '*S-1-1-0:(R)'], {
+        windowsHide: true,
+      });
+
+      await expect(store.list()).rejects.toMatchObject({ code: 'STATE_ACL_INSECURE' });
+    },
+    30_000,
+  );
+
+  it.runIf(process.platform !== 'win32')(
+    'rejects a configured file after its mode is widened to 0644',
+    async () => {
+      const product = await productStateRoot();
+      const permissions = createStatePermissions(product.stateRoot, product.options);
+      await permissions.ensureSecure(product.stateRoot);
+      const store = createWorkspaceConfigStore(product.stateRoot, idleGuard, permissions);
+      await store.add('actor', workspaceRoot);
+      await chmod(workspaceConfigPath(product.stateRoot), 0o644);
+
+      await expect(store.list()).rejects.toMatchObject({ code: 'STATE_MODE_INSECURE' });
+    },
+  );
+});
+
 describe('checksummed atomic config', () => {
+  it('keeps a pre-rename private-mode failure distinct from an unknown commit outcome', async () => {
+    const permissions = verifiedTestPermissions(stateRoot);
+    const store = createWorkspaceConfigStore(stateRoot, idleGuard, permissions, {
+      setPrivateFileMode: async () => {
+        throw new Error('chmod failed');
+      },
+      syncDirectory: async () => undefined,
+    });
+
+    await expect(store.add('actor', workspaceRoot)).rejects.toMatchObject({
+      code: 'WORKSPACE_CONFIG_WRITE_FAILED',
+    });
+    await expect(store.list()).resolves.toEqual([]);
+  });
+
+  it('reports and reconciles a post-rename directory-sync failure', async () => {
+    const permissions = verifiedTestPermissions(stateRoot);
+    const store = createWorkspaceConfigStore(stateRoot, idleGuard, permissions, {
+      setPrivateFileMode: async () => undefined,
+      syncDirectory: async () => {
+        throw new Error('directory fsync failed');
+      },
+    });
+
+    await expect(store.add('actor', workspaceRoot)).rejects.toMatchObject({
+      code: 'COMMIT_OUTCOME_UNKNOWN',
+      committed: true,
+    });
+    const restarted = createWorkspaceConfigStore(stateRoot, idleGuard, permissions, {
+      setPrivateFileMode: async () => undefined,
+      syncDirectory: async () => undefined,
+    });
+    await expect(restarted.list()).resolves.toHaveLength(1);
+  });
+
+  it('does not reconcile corrupted records that retain the intended checksum string', async () => {
+    const permissions = verifiedTestPermissions(stateRoot);
+    const configPath = workspaceConfigPath(stateRoot);
+    const store = createWorkspaceConfigStore(stateRoot, idleGuard, permissions, {
+      setPrivateFileMode: async () => undefined,
+      syncDirectory: async () => {
+        const envelope = JSON.parse(await readFile(configPath, 'utf8')) as {
+          checksum: string;
+        };
+        await writeFile(
+          configPath,
+          JSON.stringify({ version: 1, workspaces: [], checksum: envelope.checksum }),
+        );
+        throw new Error('directory fsync failed after corruption');
+      },
+    });
+
+    await expect(store.add('actor', workspaceRoot)).rejects.toMatchObject({
+      code: 'COMMIT_OUTCOME_UNKNOWN',
+      committed: false,
+    });
+  });
+
   it('persists normalized records without persisting the actor', async () => {
     const store = createWorkspaceConfigStore(stateRoot, idleGuard);
     const workspace = await store.add('actor-secret', workspaceRoot);
@@ -192,7 +444,7 @@ describe('checksummed atomic config', () => {
     const store = createWorkspaceConfigStore(stateRoot, idleGuard);
     await store.add('actor', workspaceRoot);
 
-    expect((await stat(workspaceConfigPath(stateRoot))).mode & 0o777).toBe(0o600);
+    expect((await stat(workspaceConfigPath(stateRoot))).mode & 0o7777).toBe(0o600);
   });
 });
 

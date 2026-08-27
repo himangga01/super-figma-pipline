@@ -42,11 +42,11 @@
       },
       {
         "path": "packages/mcp/src/fs/workspace-config-store.ts",
-        "sha256": "7aa2263205eb19df808ee5427d267a8250a03613e6af3f7e74299ed74cb814dc"
+        "sha256": "9e08bb8803395b0489fe06eb3470559d91927316b0862ab36781c63ba8eac5f5"
       },
       {
         "path": "packages/mcp/src/fs/workspace-policy.ts",
-        "sha256": "dfa7b48400e413cc2ae15c19f74e2aa34ae884fd065e54bfe1702c4c7dcc2def"
+        "sha256": "f0b23b2a9b066a8e40ee1652475a28111fd8f7c0e28c7b7f6bfa129230a040f6"
       },
       {
         "path": "packages/mcp/src/index.ts",
@@ -54,11 +54,11 @@
       },
       {
         "path": "packages/mcp/src/runtime-paths.ts",
-        "sha256": "b10bad5ae58e8c14f6228a1a6960ab10e3c474d122d0e010b2ca381c65ab5ed4"
+        "sha256": "5a6f107d570f36a0f71b45b9863a2e35c9922f9818d7827724814d6ab405f48a"
       },
       {
         "path": "packages/mcp/src/security/state-permissions.ts",
-        "sha256": "113c928c1bd3ce91e994b6cbd3cf9022247e92e8fb2667c84ff6527368a4ef1a"
+        "sha256": "009dec7b05a7c04a276b57b00f19a6c2e7758d9dc16ffc8a3a69198ad24eb6b3"
       },
       {
         "path": "packages/mcp/src/tools/add-component-property.ts",
@@ -530,7 +530,7 @@
       },
       {
         "path": "packages/mcp/test/fs/runtime-paths.test.ts",
-        "sha256": "ac59ed03ee37835d71c616a72a380f303f1c27e8d7f094c255655da25422fa1a"
+        "sha256": "3a32b52dccfa49aab2907f161a985b79ee953ac73171741892a6c23d4cbd40e9"
       },
       {
         "path": "packages/mcp/test/fs/shared-dependency-boundary.test.ts",
@@ -538,15 +538,15 @@
       },
       {
         "path": "packages/mcp/test/fs/workspace-config-store.test.ts",
-        "sha256": "e452c51838bcf93dd6cafe8b1f09a89086603150e0a598bdf3d1dc8546bd5ae5"
+        "sha256": "1c168d0bd99c6d4fe5f8e9a9f81362fe857f5933383bc735fb8dd633dc1059c8"
       },
       {
         "path": "packages/mcp/test/fs/workspace-policy.test.ts",
-        "sha256": "080ba6b17164cf10c291cbb39b1ba2448514633ad3efedfcbe7beb6b246bd5a1"
+        "sha256": "f42f4b65cb1897e9c0a32826d2d974a3d13d7e479594d29cd18905462bf9367c"
       },
       {
         "path": "packages/mcp/test/fs/workspace-usage-guard.test.ts",
-        "sha256": "b4532a497e1265ccf80a4cdcbfd34de1cac81cac5c4c78224e7bcebbf6c25184"
+        "sha256": "a175d18ce6695e6eb869d45b81746e366caf3f676fce016d647846175ad8321b"
       },
       {
         "path": "packages/mcp/test/tool-schema.ts",
@@ -566,7 +566,7 @@
       },
       {
         "path": "packages/shared/src/config.ts",
-        "sha256": "d6f36ca3fe80fc193ca579e458e145d1a8304d58f45812ed413fcd29425c172b"
+        "sha256": "50ef8eebbf498c3998878e6051995ddf03cce82123d43db0d19a21a1e975d482"
       },
       {
         "path": "packages/shared/src/index.ts",
@@ -594,7 +594,7 @@
       },
       {
         "path": "test/vendor-upstreams.test.ts",
-        "sha256": "b025265286af4b43f4f7361f2eaa1909c8fc22cad207faf9145f94d63e59c360"
+        "sha256": "2810b0dbe6292aed6c12bc05c93a0544744b8937553213c1c5dc115f986c47c0"
       }
     ]
   },
@@ -693,11 +693,11 @@
     },
     {
       "path": "packages/mcp/src/fs/workspace-config-store.ts",
-      "sha256": "7aa2263205eb19df808ee5427d267a8250a03613e6af3f7e74299ed74cb814dc"
+      "sha256": "9e08bb8803395b0489fe06eb3470559d91927316b0862ab36781c63ba8eac5f5"
     },
     {
       "path": "packages/mcp/src/fs/workspace-policy.ts",
-      "sha256": "dfa7b48400e413cc2ae15c19f74e2aa34ae884fd065e54bfe1702c4c7dcc2def"
+      "sha256": "f0b23b2a9b066a8e40ee1652475a28111fd8f7c0e28c7b7f6bfa129230a040f6"
     },
     {
       "path": "packages/mcp/src/index.ts",
@@ -705,11 +705,11 @@
     },
     {
       "path": "packages/mcp/src/runtime-paths.ts",
-      "sha256": "b10bad5ae58e8c14f6228a1a6960ab10e3c474d122d0e010b2ca381c65ab5ed4"
+      "sha256": "5a6f107d570f36a0f71b45b9863a2e35c9922f9818d7827724814d6ab405f48a"
     },
     {
       "path": "packages/mcp/src/security/state-permissions.ts",
-      "sha256": "113c928c1bd3ce91e994b6cbd3cf9022247e92e8fb2667c84ff6527368a4ef1a"
+      "sha256": "009dec7b05a7c04a276b57b00f19a6c2e7758d9dc16ffc8a3a69198ad24eb6b3"
     },
     {
       "path": "packages/mcp/src/tools/add-component-property.ts",
@@ -1181,7 +1181,7 @@
     },
     {
       "path": "packages/mcp/test/fs/runtime-paths.test.ts",
-      "sha256": "ac59ed03ee37835d71c616a72a380f303f1c27e8d7f094c255655da25422fa1a"
+      "sha256": "3a32b52dccfa49aab2907f161a985b79ee953ac73171741892a6c23d4cbd40e9"
     },
     {
       "path": "packages/mcp/test/fs/shared-dependency-boundary.test.ts",
@@ -1189,15 +1189,15 @@
     },
     {
       "path": "packages/mcp/test/fs/workspace-config-store.test.ts",
-      "sha256": "e452c51838bcf93dd6cafe8b1f09a89086603150e0a598bdf3d1dc8546bd5ae5"
+      "sha256": "1c168d0bd99c6d4fe5f8e9a9f81362fe857f5933383bc735fb8dd633dc1059c8"
     },
     {
       "path": "packages/mcp/test/fs/workspace-policy.test.ts",
-      "sha256": "080ba6b17164cf10c291cbb39b1ba2448514633ad3efedfcbe7beb6b246bd5a1"
+      "sha256": "f42f4b65cb1897e9c0a32826d2d974a3d13d7e479594d29cd18905462bf9367c"
     },
     {
       "path": "packages/mcp/test/fs/workspace-usage-guard.test.ts",
-      "sha256": "b4532a497e1265ccf80a4cdcbfd34de1cac81cac5c4c78224e7bcebbf6c25184"
+      "sha256": "a175d18ce6695e6eb869d45b81746e366caf3f676fce016d647846175ad8321b"
     },
     {
       "path": "packages/mcp/test/tool-schema.ts",
@@ -1249,7 +1249,7 @@
     },
     {
       "path": "packages/shared/src/config.ts",
-      "sha256": "d6f36ca3fe80fc193ca579e458e145d1a8304d58f45812ed413fcd29425c172b"
+      "sha256": "50ef8eebbf498c3998878e6051995ddf03cce82123d43db0d19a21a1e975d482"
     },
     {
       "path": "packages/shared/src/index.ts",
@@ -1305,7 +1305,7 @@
     },
     {
       "path": "test/vendor-upstreams.test.ts",
-      "sha256": "b025265286af4b43f4f7361f2eaa1909c8fc22cad207faf9145f94d63e59c360"
+      "sha256": "2810b0dbe6292aed6c12bc05c93a0544744b8937553213c1c5dc115f986c47c0"
     },
     {
       "path": "tsconfig.base.json",

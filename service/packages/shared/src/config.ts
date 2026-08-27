@@ -33,6 +33,7 @@ export interface WorkspaceUsageGuard {
 
 /** Creates or verifies owner-only permissions without weakening a failed check. */
 export interface StatePermissions {
+  readonly stateRoot: string;
   ensureSecure(path: string): Promise<void>;
   verifySecure(path: string): Promise<void>;
 }

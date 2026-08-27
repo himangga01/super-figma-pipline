@@ -246,6 +246,11 @@ describe('protected service authorities', () => {
       mutate: contents => contents.replace('SuperFigmaPipeline', 'UntrustedPipelineState'),
     },
     {
+      name: 'Task 4 bound state-permissions authority',
+      path: 'packages/mcp/src/security/state-permissions.ts',
+      mutate: contents => contents.replace('-NoProfile', '-Profile'),
+    },
+    {
       name: 'pnpm lockfile bytes',
       path: 'pnpm-lock.yaml',
       mutate: contents => `${contents}# local mutation\n`,

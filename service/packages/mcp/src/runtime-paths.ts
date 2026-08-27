@@ -3,8 +3,11 @@ import { posix, resolve, win32 } from 'node:path';
 
 import type { RuntimePaths, WorkspaceConfigStore, WorkspaceRoot } from '@sfp/shared';
 
+import type { BoundStatePermissions } from './security/state-permissions.js';
+
 export type RuntimePathErrorCode =
   | 'STATE_LOCATION_UNAVAILABLE'
+  | 'STATE_PERMISSION_MISMATCH'
   | 'STATE_PLATFORM_UNSUPPORTED'
   | 'STATE_WORKSPACE_OVERLAP';
 
@@ -23,6 +26,10 @@ export interface RuntimePathOptions {
   environment?: Readonly<Record<string, string | undefined>>;
   homeDirectory?: string;
   stateRoot?: string;
+}
+
+export interface RuntimeInitializationOptions extends RuntimePathOptions {
+  permissions: BoundStatePermissions;
 }
 
 const requiredLocation = (value: string | undefined, variable: string): string => {
@@ -108,7 +115,7 @@ const immutableWorkspace = (workspace: WorkspaceRoot): WorkspaceRoot =>
 /** Load the approved roots independently from the platform-owned state location. */
 export const createRuntimePaths = async (
   store: Pick<WorkspaceConfigStore, 'list'>,
-  options: RuntimePathOptions = {},
+  options: RuntimeInitializationOptions,
 ): Promise<RuntimePaths> => {
   const platform = options.platform ?? process.platform;
   const rawStateRoot = options.stateRoot ?? resolveDefaultStateRoot(options);
@@ -118,6 +125,15 @@ export const createRuntimePaths = async (
       : platform === 'win32'
         ? win32.resolve(rawStateRoot)
         : posix.resolve(rawStateRoot);
+  const comparable = (path: string): string =>
+    platform === 'win32' ? win32.resolve(path).toLowerCase() : posix.resolve(path);
+  if (comparable(options.permissions.stateRoot) !== comparable(stateRoot)) {
+    throw new RuntimePathError(
+      'STATE_PERMISSION_MISMATCH',
+      'runtime state root does not match its bound permission authority',
+    );
+  }
+  await options.permissions.verifySecure(stateRoot);
   const workspaceRoots = (await store.list()).map(immutableWorkspace);
   const overlap = workspaceRoots.find(workspace =>
     overlaps(stateRoot, workspace.realPath, platform),

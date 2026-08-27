@@ -1,18 +1,13 @@
 import { createHash, randomUUID } from 'node:crypto';
-import {
-  chmod,
-  lstat,
-  mkdir,
-  open,
-  readFile,
-  realpath,
-  rename,
-  stat,
-  unlink,
-} from 'node:fs/promises';
+import { constants as fsConstants } from 'node:fs';
+import type { BigIntStats } from 'node:fs';
+import { chmod, lstat, open, realpath, rename, stat, unlink } from 'node:fs/promises';
 import { isAbsolute, join, parse, relative, resolve, sep } from 'node:path';
 
 import type { WorkspaceConfigStore, WorkspaceRoot, WorkspaceUsageGuard } from '@sfp/shared';
+
+import type { BoundStatePermissions, SecurePathIdentity } from '../security/state-permissions.js';
+import { StatePermissionError } from '../security/state-permissions.js';
 
 const CONFIG_VERSION = 1;
 const CONFIG_FILENAME = 'workspaces.v1.json';
@@ -25,9 +20,11 @@ interface StateMutationQueue {
 const stateMutationQueues = new Map<string, StateMutationQueue>();
 
 export type WorkspaceErrorCode =
+  | 'COMMIT_OUTCOME_UNKNOWN'
   | 'STATE_WORKSPACE_OVERLAP'
   | 'WORKSPACE_ALREADY_CONFIGURED'
   | 'WORKSPACE_AUTH_REQUIRED'
+  | 'WORKSPACE_BOUNDARY_UNAVAILABLE'
   | 'WORKSPACE_CONFIG_INVALID'
   | 'WORKSPACE_CONFIG_WRITE_FAILED'
   | 'WORKSPACE_DIRECTORY_REQUIRED'
@@ -48,6 +45,25 @@ export class WorkspaceError extends Error {
     this.name = 'WorkspaceError';
     this.code = code;
   }
+}
+
+export class WorkspaceCommitOutcomeUnknownError extends WorkspaceError {
+  readonly committed: boolean;
+
+  constructor(committed: boolean, cause: unknown) {
+    super(
+      'COMMIT_OUTCOME_UNKNOWN',
+      'workspace config rename completed but durability could not be confirmed',
+      cause,
+    );
+    this.name = 'WorkspaceCommitOutcomeUnknownError';
+    this.committed = committed;
+  }
+}
+
+export interface WorkspaceConfigDurability {
+  setPrivateFileMode(path: string): Promise<void>;
+  syncDirectory(path: string): Promise<void>;
 }
 
 interface WorkspaceConfigPayload {
@@ -166,50 +182,133 @@ const workspaceRecord = (workspace: WorkspaceRoot): WorkspaceRoot => ({
   addedAt: workspace.addedAt,
 });
 
+const handleIdentityKey = (metadata: BigIntStats): string =>
+  `${metadata.dev}:${metadata.ino}:${metadata.birthtimeNs}`;
+
 export const createWorkspaceConfigStore = (
   stateRootInput: string,
   usageGuard: WorkspaceUsageGuard,
+  permissions: BoundStatePermissions,
+  durabilityOverrides: Partial<WorkspaceConfigDurability> = {},
 ): WorkspaceConfigStore => {
-  const stateRoot = safeStateRoot(stateRootInput);
+  const requestedStateRoot = safeStateRoot(stateRootInput);
+  const stateRoot = safeStateRoot(permissions.stateRoot);
   const configPath = workspaceConfigPath(stateRoot);
-  const queueKey = normalizedForComparison(stateRoot);
-  let mutationQueue = stateMutationQueues.get(queueKey);
-  if (mutationQueue === undefined) {
-    mutationQueue = { tail: Promise.resolve() };
-    stateMutationQueues.set(queueKey, mutationQueue);
-  }
+  const durability: WorkspaceConfigDurability = {
+    setPrivateFileMode:
+      durabilityOverrides.setPrivateFileMode ??
+      (async path => {
+        if (process.platform !== 'win32') await chmod(path, 0o600);
+      }),
+    syncDirectory:
+      durabilityOverrides.syncDirectory ??
+      (async path => {
+        if (process.platform === 'win32') return;
+        const directory = await open(path, 'r');
+        try {
+          await directory.sync();
+        } finally {
+          await directory.close();
+        }
+      }),
+  };
 
-  const ensureStateRoot = async (): Promise<string> => {
-    await mkdir(stateRoot, { recursive: true, mode: 0o700 });
-    const metadata = await lstat(stateRoot).catch(error => {
+  const ensureStateRoot = async (): Promise<{
+    identity: SecurePathIdentity;
+    realPath: string;
+  }> => {
+    const identity = await permissions.inspectSecure(stateRoot);
+    const requestedRealPath = await realpath(requestedStateRoot).catch(error => {
+      throw new WorkspaceError(
+        'WORKSPACE_CONFIG_INVALID',
+        'workspace config state-root spelling cannot be resolved',
+        error,
+      );
+    });
+    if (
+      normalizedForComparison(requestedRealPath) !== normalizedForComparison(identity.canonicalPath)
+    ) {
+      throw new WorkspaceError(
+        'WORKSPACE_CONFIG_INVALID',
+        'workspace config state root does not match its bound permission authority',
+      );
+    }
+    const metadata = await lstat(stateRoot, { bigint: true }).catch(error => {
       throw new WorkspaceError(
         'WORKSPACE_CONFIG_INVALID',
         'owner state root is unavailable',
         error,
       );
     });
-    if (!metadata.isDirectory() || metadata.isSymbolicLink()) {
+    if (
+      !metadata.isDirectory() ||
+      metadata.isSymbolicLink() ||
+      handleIdentityKey(metadata) !== identity.key
+    ) {
       throw new WorkspaceError(
         'WORKSPACE_CONFIG_INVALID',
         'owner state root must be a real directory',
       );
     }
-    return realpath(stateRoot);
+    return { identity, realPath: identity.canonicalPath };
   };
 
-  const readConfig = async (): Promise<WorkspaceRoot[]> => {
-    const stateRealPath = await ensureStateRoot();
-    let raw: string;
+  const mutationQueue = async (): Promise<StateMutationQueue> => {
+    const { identity } = await ensureStateRoot();
+    const queueKey = `${identity.key}:${CONFIG_FILENAME}`;
+    let queue = stateMutationQueues.get(queueKey);
+    if (queue === undefined) {
+      queue = { tail: Promise.resolve() };
+      stateMutationQueues.set(queueKey, queue);
+    }
+    return queue;
+  };
+
+  const readSecureConfigText = async (): Promise<string | undefined> => {
+    let handle: Awaited<ReturnType<typeof open>>;
     try {
-      raw = await readFile(configPath, 'utf8');
+      handle = await open(configPath, fsConstants.O_RDONLY | (fsConstants.O_NOFOLLOW ?? 0));
     } catch (error) {
-      if ((error as NodeJS.ErrnoException).code === 'ENOENT') return [];
+      if ((error as NodeJS.ErrnoException).code === 'ENOENT') return undefined;
       throw new WorkspaceError(
         'WORKSPACE_CONFIG_INVALID',
-        'workspace config cannot be read',
+        'workspace config cannot be opened without following links',
         error,
       );
     }
+    try {
+      const handleBefore = await handle.stat({ bigint: true });
+      if (!handleBefore.isFile()) {
+        throw new WorkspaceError(
+          'WORKSPACE_CONFIG_INVALID',
+          'workspace config must be a regular file',
+        );
+      }
+      const inspected = await permissions.inspectSecure(configPath);
+      if (!inspected.file || inspected.key !== handleIdentityKey(handleBefore)) {
+        throw new StatePermissionError(
+          'STATE_IDENTITY_CHANGED',
+          'workspace config pathname does not identify the opened file',
+        );
+      }
+      const raw = await handle.readFile('utf8');
+      const handleAfter = await handle.stat({ bigint: true });
+      if (handleIdentityKey(handleBefore) !== handleIdentityKey(handleAfter)) {
+        throw new StatePermissionError(
+          'STATE_IDENTITY_CHANGED',
+          'workspace config identity changed while it was read',
+        );
+      }
+      return raw;
+    } finally {
+      await handle.close();
+    }
+  };
+
+  const readConfig = async (): Promise<WorkspaceRoot[]> => {
+    const { realPath: stateRealPath } = await ensureStateRoot();
+    const raw = await readSecureConfigText();
+    if (raw === undefined) return [];
     let unknownConfig: unknown;
     try {
       unknownConfig = JSON.parse(raw);
@@ -265,19 +364,30 @@ export const createWorkspaceConfigStore = (
       await handle.sync();
       await handle.close();
       handle = undefined;
-      if (process.platform !== 'win32') await chmod(temporaryPath, 0o600);
+      await durability.setPrivateFileMode(temporaryPath);
+      await permissions.ensureSecure(temporaryPath);
+      await permissions.verifySecure(temporaryPath);
       await rename(temporaryPath, configPath);
       renamed = true;
-      if (process.platform !== 'win32') {
-        await chmod(configPath, 0o600);
-        const directory = await open(stateRoot, 'r');
-        try {
-          await directory.sync();
-        } finally {
-          await directory.close();
-        }
-      }
+      await permissions.verifySecure(configPath);
+      await durability.syncDirectory(stateRoot);
     } catch (error) {
+      if (renamed) {
+        let committed = false;
+        try {
+          const observedRaw = await readSecureConfigText();
+          const observed =
+            observedRaw === undefined ? undefined : configFromUnknown(JSON.parse(observedRaw));
+          committed =
+            observed !== undefined &&
+            observed.checksum === envelope.checksum &&
+            checksumFor({ version: CONFIG_VERSION, workspaces: observed.workspaces }) ===
+              observed.checksum;
+        } catch {
+          committed = false;
+        }
+        throw new WorkspaceCommitOutcomeUnknownError(committed, error);
+      }
       throw new WorkspaceError(
         'WORKSPACE_CONFIG_WRITE_FAILED',
         'workspace config could not be committed atomically',
@@ -294,19 +404,21 @@ export const createWorkspaceConfigStore = (
   };
 
   const mutate = <T>(operation: () => Promise<T>): Promise<T> => {
-    const result = mutationQueue.tail.then(operation);
-    mutationQueue.tail = result.then(
-      () => undefined,
-      () => undefined,
-    );
-    return result;
+    return mutationQueue().then(queue => {
+      const result = queue.tail.then(operation);
+      queue.tail = result.then(
+        () => undefined,
+        () => undefined,
+      );
+      return result;
+    });
   };
 
   return Object.freeze({
     add: async (actorId: string, input: string): Promise<WorkspaceRoot> => {
       authenticatedActor(actorId);
       return mutate(async () => {
-        const stateRealPath = await ensureStateRoot();
+        const { realPath: stateRealPath } = await ensureStateRoot();
         if (typeof input !== 'string' || input.trim() === '') {
           throw new WorkspaceError(
             'WORKSPACE_DIRECTORY_REQUIRED',
@@ -366,7 +478,8 @@ export const createWorkspaceConfigStore = (
       });
     },
     list: async (): Promise<readonly WorkspaceRoot[]> => {
-      await mutationQueue.tail;
+      const queue = await mutationQueue();
+      await queue.tail;
       return Object.freeze((await readConfig()).map(immutableWorkspace));
     },
     remove: async (actorId: string, workspaceId: string): Promise<void> => {
