@@ -42,7 +42,10 @@ obsolete destination is deleted only when its bytes still match the previous `cu
 local modification fails with `VENDOR_STALE_MODIFIED` before any map or destination change. Offline
 and upstream-backed verification enumerate every managed destination root and accept only current
 vendor-map destinations or explicitly registered service-owned files. The lock also hashes the
-workspace lock/config/hygiene files and records normalized root/package authority projections.
+workspace lock/config/hygiene files and records normalized root/package authority projections. Every
+package projection includes exact `dependencies`, `devDependencies`, `optionalDependencies`, and
+`peerDependencies`, with `null` recording an absent field; an intentional package change must update
+the authority record in the same change.
 
 The shared package `exports` map is an explicit service-owned integration authority. It is the
 minimal entrypoint required for real workspace resolution of `@sfp/shared`; vendoring and offline

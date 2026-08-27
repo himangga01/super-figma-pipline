@@ -178,6 +178,15 @@ describe('protected service authorities', () => {
       },
     },
     {
+      name: 'root TypeScript devDependency',
+      path: 'package.json',
+      mutate: contents => {
+        const manifest = JSON.parse(contents) as { devDependencies: Record<string, string> };
+        manifest.devDependencies.typescript = '^0.0.0';
+        return `${JSON.stringify(manifest, null, 2)}\n`;
+      },
+    },
+    {
       name: 'MCP build script',
       path: 'packages/mcp/package.json',
       mutate: contents => {
@@ -192,6 +201,33 @@ describe('protected service authorities', () => {
       mutate: contents => {
         const manifest = JSON.parse(contents) as { exports?: unknown };
         manifest.exports = { '.': './src/index.ts' };
+        return `${JSON.stringify(manifest, null, 2)}\n`;
+      },
+    },
+    {
+      name: 'MCP ws dependency',
+      path: 'packages/mcp/package.json',
+      mutate: contents => {
+        const manifest = JSON.parse(contents) as { dependencies: Record<string, string> };
+        manifest.dependencies.ws = '^0.0.0';
+        return `${JSON.stringify(manifest, null, 2)}\n`;
+      },
+    },
+    {
+      name: 'MCP optionalDependencies absence',
+      path: 'packages/mcp/package.json',
+      mutate: contents => {
+        const manifest = JSON.parse(contents) as { optionalDependencies?: Record<string, string> };
+        manifest.optionalDependencies = { optional: '1.0.0' };
+        return `${JSON.stringify(manifest, null, 2)}\n`;
+      },
+    },
+    {
+      name: 'plugin peerDependencies absence',
+      path: 'packages/plugin/package.json',
+      mutate: contents => {
+        const manifest = JSON.parse(contents) as { peerDependencies?: Record<string, string> };
+        manifest.peerDependencies = { peer: '1.0.0' };
         return `${JSON.stringify(manifest, null, 2)}\n`;
       },
     },
