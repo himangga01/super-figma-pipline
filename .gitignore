@@ -1,0 +1,11 @@
+# Read-only open-source reference checkouts
+code-kb/
+
+# Superpowers execution scratch and optional worktrees
+.superpowers/
+.worktrees/
+
+# Workspace-wide local artifacts
+*.log
+.DS_Store
+Thumbs.db
