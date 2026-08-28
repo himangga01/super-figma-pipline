@@ -574,7 +574,7 @@ export interface OperationEvidenceLimits {
   maxRowBytes: 65536;
   maxNativeArtifacts: 256;
   maxNativeArtifactPathBytes: 1024;
-  maxNativeArtifactManifestBytes: 300277;
+  maxNativeArtifactManifestBytes: 299836;
   compactAtRows: 100000;
   compactAtBytes: 134217728;
   maxRowsPerActor: 131072;
@@ -1179,7 +1179,7 @@ Durable authorities are exact `stateRoot/journal/{actor-hash}.admin-audit.v1.jso
 In every SHA-256 or HMAC formula in this plan, textual notation `\0` denotes exactly one binary separator byte `0x00`; it never means the two UTF-8 bytes backslash and zero. Fixed-vector tests build the input with `Uint8Array([0])` and independently reject the ASCII `\\0` variant.
 
 Admin domains are literal `sfp-admin-audit-content-v1\0` and `sfp-admin-audit-record-v1\0`: `contentHash` hashes canonical `AdminAuditRecordV1` with `contentHash,recordHash,previousRecordHash` omitted; `recordHash` hashes record-domain + exact ASCII contentHash + null-framed previousRecordHash. Evidence domains are literal `sfp-operation-evidence-content-v1\0` and `sfp-operation-evidence-record-v1\0`: receipt `contentHash` hashes canonical `OperationEvidenceReceiptV1` with `contentHash,receiptHash,previousReceiptHash` omitted; chain-only `receiptHash` hashes record-domain + exact ASCII contentHash + null-framed previousReceiptHash. Terminal `operationEvidenceReceiptHash` equals the compaction-stable receipt contentHash, never receiptHash.
-The four literal checkpoint/anchor domains are `sfp-admin-audit-checkpoint-v1\0`, `sfp-admin-audit-anchor-v1\0`, `sfp-operation-evidence-checkpoint-v1\0`, and `sfp-operation-evidence-anchor-v1\0`. For each strict checkpoint/anchor, content/hash fields follow the defined projection. Generation publication reuses the same cross-platform exclusive hard-link primitive as artifact create: write+fsync log/checkpoint/anchor temps, hard-link each temp no-replace to its immutable generation name, fsync directory, atomically replace `.current` as sole commit point, fsync directory, then unlink temps. No generation rename fallback exists; unsupported link semantics fail closed. Recovery follows only the pointer-selected linked generation. Egress finalizer lookup remains available through retained checkpoint/anchor hashes after compaction.
+The four literal checkpoint/anchor domains are `sfp-admin-audit-checkpoint-v1\0`, `sfp-admin-audit-anchor-v1\0`, `sfp-operation-evidence-checkpoint-v1\0`, and `sfp-operation-evidence-anchor-v1\0`. Checkpoint `contentHash` hashes canonical bytes with `contentHash` and `checkpointHash` omitted; `checkpointHash===contentHash`. Anchor `contentHash` hashes canonical bytes with `contentHash` and `anchorHash` omitted; `anchorHash===contentHash`. Nullable hashes use one `0x00` byte for null or `0x01 || ASCII PrefixedSha256` for a value. Immutable generation names are `<base>.compact-<compactionId>.jsonl`, `.checkpoint.json`, and `.anchor.json`; strict `.current` contains only `{schemaVersion:1,compactionId,logDigest64,checkpointHash,anchorHash}`. Publication writes and fsyncs all three temps, hard-links each no-replace to its generation name, fsyncs the directory, atomically replaces `.current` as the sole commit point, fsyncs the directory, then unlinks temps. No rename fallback exists. Recovery accepts only the one fully linked pointer-selected generation, removes unreferenced partial or complete generations after validating they are not selected, and fails closed on an invalid pointer, ambiguous selected generation, broken link/hash, or middle corruption. Egress finalizer lookup remains available through retained checkpoint/anchor hashes after compaction.
 
 Exact files/checkpoints/anchors and hash rules remain. Active transactions survive; completed linked receipts and their result/native-manifest artifacts follow terminal/tombstone exact30-day retention then synchronous path-identity-checked removal. Prepared-only receipts are protected only until recovery resolves them. An artifact or native manifest fsynced before receipt is an orphan: recovery never exposes it as evidence, never reruns/overwrites the operation, and deletes it only after proving its fixed digest directory, workspace registration and absence of a linked receipt/finalizer; symlink/identity mismatch fails closed for manual cleanup.
 
@@ -1196,7 +1196,7 @@ OperationRecord/Tombstone/Resolution all persist nullable fileExecutionKeyHash, 
 `argsHash=sha256('sfp-parsed-args-v1\0'+canonicalJSON(parsedArgs))`; `fileExecutionKeyHash=sha256('sfp-file-execution-key-v1\0'+exact UTF-8 key)`; selected ordinary-entry targets derive `targetSessionIdHash=sha256('sfp-target-session-v1\0'+exact UTF-8 authenticated sessionId)` and `fileIdentityHash=canonicalFileIdentityHash(fileIdentity)`, then `targetBindingHash=sha256('sfp-entry-target-binding-v1\0'+canonicalJSON({targetSessionIdHash,fileIdentityHash,fileExecutionKeyHash,pluginGeneration,leaderGeneration}))` in that exact field order. Target-none has raw `fileExecutionKey:null`, all three target component hashes null, and targetBindingHash null; every selected target has all nonnull. `daemonGenerationHash=sha256('sfp-daemon-generation-v1\0'+exact UTF-8 leaderGeneration)`; leaderGeneration `gen-1` yields `sha256:85e8e0c326906bb652a64f9cbb10d28ab52c46047877211a84b23bd7906a6c97`. Append derives every component from admitted values; load recomputes args/capture/target binding where source components persist and validates strict hash/equality syntax otherwise. Record->Tombstone->Resolution copies permitted raw fileExecutionKey plus every component/link unchanged. Fixed vectors, restart, target-none/selected and one-field mismatch tests cover all.
 
 Capture and native evidence are orthogonal. `OperationEvidenceProjector` is pure: it receives frozen `{operationId,workspaceId}`, parsed args and strict redacted result, computes branded `contextHash=sha256('sfp-native-evidence-context-v1'+byte0x00+canonicalJSON({operationId,workspaceId}))`, and emits that hash plus candidate paths/source refs—never IO/digests/final evidence. Artifact/materializer ports recompute and compare against `VerifiedNativeEvidenceContextV1` before IO.
-Native exports preserve the product maximum of 256 artifacts without inflating the 65,536-byte receipt row. Task7 7C's `NativeEvidenceArtifactPort` resolves/revalidates every nonnull path against the registered workspace, rereads actual files, computes bytes/digests, and normalizes a unique sorted member set before writing fixed manifest. `NativeEvidenceMaterializerPort` separately rereads snapshot/graph candidate bytes and verifies embedded workspace/locator/checksum/fidelity before creating final snapshot/grounding NativeEvidenceV1; projector output alone is never final evidence. Duplicate result references to one image-fill file are allowed many-to-one. Portable artifact paths allow arbitrary Unicode but reject U+0022 quote, backslash, every C0 U+0000..U+001F, leading slash, empty/dot/dot-dot segments, drive/UNC and symlink escape; UTF-8 length remains1..1024. The final manifest stores unique `{artifactRelativePath,artifactDigest64,artifactBytes}`. Production canonical serializer fixture uses 256 unique portable 1024-byte paths, exact304-byte OperationId, max-safe integer counts, persisted contentHash and one LF and measures exactly300,277 bytes; injected300,278 rejects. Tests derive the literal from production serializer rather than padding.
+Native exports preserve the product maximum of 256 artifacts without inflating the 65,536-byte receipt row. Task7 7C's `NativeEvidenceArtifactPort` resolves/revalidates every nonnull path against the registered workspace, rereads actual files, computes bytes/digests, and normalizes a unique sorted member set before writing fixed manifest. `NativeEvidenceMaterializerPort` separately rereads snapshot/graph candidate bytes and verifies embedded workspace/locator/checksum/fidelity before creating final snapshot/grounding NativeEvidenceV1; projector output alone is never final evidence. Duplicate result references to one image-fill file are allowed many-to-one. Portable artifact paths allow arbitrary Unicode but reject U+0022 quote, backslash, every C0 U+0000..U+001F, leading slash, empty/dot/dot-dot segments, drive/UNC and symlink escape; UTF-8 length remains1..1024. The final manifest stores unique `{artifactRelativePath,artifactDigest64,artifactBytes}`. The reachable production-serializer maximum keeps `totalArtifactBytes` safe and equal to the member sum: 71 members use 15-digit byte counts and 185 use 14-digit counts, with 256 unique portable 1024-byte paths, the exact304-byte OperationId, persisted contentHash, and one LF. It measures exactly299,836 bytes; injected299,837 rejects. Tests derive the literal from the production serializer rather than padding.
 
 Task7 baseline projector covers exactly four native exporters `save_screenshots|save_image_fills|export_pdf|export_video`, other108 tools as no-artifact, and internal `identity.bootstrap` as no-artifact outside the canonical counts. Task11 registers the exact two service projectors `snapshot.capture -> snapshot` and `grounding.refresh -> grounding-graph` through the same central source/test. Task12B adds `export_tokens|export_frames_to_pdf`, yielding final six native exporters, other110 tools as no-artifact, service2 specialized, and internal system1 no-artifact. Structural coverage enumerates every literal name once; fallback/default cannot hide an unregistered canonical tool or service.
 
@@ -1950,7 +1950,7 @@ export interface CapacityCounterPort {
 | evidence hard bytes | 201,326,591 admits if rows permit | 201,326,592 held valid | next reserve and above-cap recovery fail closed |
 | native artifact manifest members | 255 valid | 256 valid | 257 rejects without receipt/overwrite/rerun |
 | native artifact relative path UTF-8 | 1,023 valid | 1,024 valid | 1,025 rejects |
-| native artifact manifest bytes incl LF | structurally valid serializers stay <=300,276 except max fixture | exact300,277 valid for 256x1024/exact304-byte opId/max-safe-int/contentHash fixture | injected300,278-byte serializer output rejects before receipt |
+| native artifact manifest bytes incl LF | structurally valid serializers stay <=299,835 except max fixture | exact299,836 valid for the safe-sum 256x1024/exact304-byte opId/contentHash fixture | injected299,837-byte serializer output rejects before receipt |
 | evidence retention | linked age<30d retained | linked age=30d synchronously removable with terminal/tombstone | older linked removable; prepared protected only through recovery |
 | progress phase | 63 ASCII chars valid | 64 valid | 65 invalid |
 | progress message | 1,023 UTF-8 bytes valid | 1,024 valid | 1,025 invalid |
@@ -2203,7 +2203,7 @@ After the clean Task16 commit, `verify:source-complete` creates exactly three ig
 
 Task16 extracts one application factory. Daemon args are exactly normal `--state-root ... --port ...` or standalone `--self-test`; self-test creates its own secure temp root and exits after internal start/ping/close.
 
-Task16 process tests retain exact children; real-Figma validation requires R26 READY.
+Task16 process tests retain exact children; real-Figma validation requires R27 READY.
 
 | Fake blocking check suffix | Typed fake input and positive assertion | Required negative assertion | Fake teardown |
 |---|---|---|---|
@@ -3295,7 +3295,7 @@ Closed-world order uses class-aware service fork model; edited upstream paths tr
 
 Before/after each 7A/7B/7C staged review, run the exact `TASK6_1_FROZEN_GREEN` block in section 3.5 plus the slice's Task7 focused tests. Reports record base `39a29373b91445e9242e82611f0a8a04fca525ea`, contract `bd296dabe872f08adca793d93a2cd6a2c7efca60c58127b07924b2f18840b27b`, manifest bytes 925, and the exact path list. Task7 execution remains gated only by a fresh READY rereview of this newly checksummed binding plan.
 
-The ignored Task7 brief remains quarantined until R26 READY.
+The ignored Task7 brief remains quarantined until R27 READY.
 
 **Exact staged path allowlists**
 
@@ -4107,7 +4107,7 @@ it('fsyncs a 256-member native artifact manifest and keeps the receipt row bound
   const projection = projector.project(Object.freeze({operationId,workspaceId}),'tool','save_screenshots',args,strictResult);
   const nativeEvidence = await evidenceArtifacts.createNativeManifest({context:verifiedNativeContext,projection});
   expect(nativeEvidence).toMatchObject({kind:'export',artifactCount:256,totalArtifactBytes:sumActualBytes(strictResult)});
-  expect(await canonicalFileBytes(nativeEvidence.manifestRelativePath)).toHaveLength(300277);
+  expect(await canonicalFileBytes(nativeEvidence.manifestRelativePath)).toHaveLength(299836);
   expect(canonicalReceiptBytes(receiptWith(nativeEvidence)).length).toBeLessThanOrEqual(65536);
   expect(events).toContainOrdered(['native-members-reread','native-manifest-fsync','native-manifest-directory-fsync','prepared-evidence-receipt-fsync']);
 });
@@ -4119,10 +4119,15 @@ it('deduplicates repeated image-fill refs many-to-one and rejects all-null outpu
   expect(eachNonnullSourceRefMapsExactlyOneMember()).toBe(true);
   expect(eachManifestMemberHasSourceRef()).toBe(true);
   expect(projector.project(context,'tool','save_image_fills',args,resultWithOnlyNullPaths()))
-    .toEqual({kind:'no-artifact',reasonCode:'native-output-path-null'});
+    .toEqual({contextHash: expectedNativeContextHash, kind:'no-artifact',reasonCode:'native-output-path-null'});
+  await expect(evidenceArtifacts.createNativeManifest({
+    context: differentVerifiedNativeContext,
+    projection: projector.project(context,'tool','save_image_fills',args,resultWithOnePath()),
+  })).rejects.toMatchObject({code:'EVIDENCE_CONTEXT_MISMATCH'});
+  expect(filesystemIoCalls).toBe(0);
 });
 
-it.each(['count257','path1025','quote','backslash','c0-control','injected-manifest300278','duplicate','unsorted','digest-mismatch','symlink','escape'])
+it.each(['count257','path1025','quote','backslash','c0-control','injected-manifest299837','duplicate','unsorted','digest-mismatch','symlink','escape'])
 ('rejects invalid native artifact manifest %s without overwrite or rerun', async fault => {
   await expect(projectNativeExport(fault)).rejects.toMatchObject({code:expect.stringMatching(/ARTIFACT|PATH|EVIDENCE/)});
   expect(overwriteCalls).toBe(0);
@@ -5022,8 +5027,13 @@ it('reads public health then owner-only control status without public session or
 it('sends selectors only and parses bounded NDJSON until one terminal frame', async () => {
   const result = await runCli(['tree', '--session', SESSION_ID_WITH_UNDERSCORE], fakeControl);
   expect(fakeControl.lastCall.body).toEqual(expect.objectContaining({
-    version: 1, targetSelector: { kind: 'session', sessionId: SESSION_ID_WITH_UNDERSCORE },
+    version: 1,
+    captureResult: false,
+    invocation: expect.objectContaining({
+      targetSelector: { kind: 'session', sessionId: SESSION_ID_WITH_UNDERSCORE },
+    }),
   }));
+  expect(fakeControl.lastCall.body).not.toHaveProperty('targetSelector');
   expect(fakeControl.lastCall.body).not.toEqual(expect.objectContaining({ actorId: expect.anything() }));
   expect(result.frames.map(x => x.type)).toEqual(['accepted', 'progress', 'result']);
 });
@@ -5300,7 +5310,7 @@ Stage only `task-15.json` union, byte-verify, review/rerun exact GREEN, then com
 
 - Consumes: Task15 verified local artifacts plus all Task1–15 source authorities and frozen Task6.1.
 - Produces: `createMcpApplication`, stdio/daemon parity, foreground source daemon entry, the exact fake16 evidence checks, strict redacted `CurrentWindowsDiagnosticV1`, `PreviewCandidateV1`, `SourceCompleteEvidenceV1`, and `SourceCompletePreviewV1`.
-- Real-Figma validation is governed only after R26 READY.
+- Real-Figma validation is governed only after R27 READY.
 
 **Commit protocol:** `task-16.json` includes exact root `service/package.json`, existing build-id serviceFork, sole build driver, MCP package/tsdown, application/daemon/index/local-binding sources, root dev-script test, four ControlStatus paths, schemas/scripts/config/lock/authority; generated dist is never staged.
 
@@ -5493,7 +5503,7 @@ Stage only the exact `task-16.json` union, compare staged names byte-for-byte wi
 
 - [ ] **Step 9: Review Task16 quality and scope**
 
-Reviewers defer real-Figma work until R26 READY.
+Reviewers defer real-Figma work until R27 READY.
 
 - [ ] **Step 10: Run the sole terminal source-complete command after the clean commit**
 
@@ -5539,7 +5549,7 @@ This plan contains no macOS external-validation files, commands, or completion c
 - CLI includes shared platform-default owner-secure stateRoot/port3055 discovery with no override, strict authenticated status, egress status/configure/reset, workspace set-default, and locator-based grounding refresh plus prior wrappers.
 - CLI generic `tools call` covers all116 through canonical schemas/the same plane and optional result artifacts; every wrapper uses the nested selector envelope, operation evidence returns server-verified status/receipt/finalizer view, and egress audit returns a strict redacted chain proof.
 - Canonical redacted result bytes are identical across cache/adapters/hash/capture; total receipts separate optional resultArtifact from native projector evidence with exact tool116+service2 coverage.
-- Native export evidence preserves up to256 artifacts through one fixed canonical manifest reference (portable member path1024/exact serialized max300277 incl LF) while every receipt row remains <=65536; Task7 7C fsync/reread and supplemental member verification pass.
+- Native export evidence preserves up to256 artifacts through one fixed canonical manifest reference (portable member path1024/reachable exact serialized max299836 incl LF) while every receipt row remains <=65536; Task7 7C fsync/reread and supplemental member verification pass.
 - Task8's exact six icons/profile/tokens direct-fs importers and ledger migrate to RepoReader/WorkspacePolicy; production project readers have zero unlisted node:fs imports.
 - All tools and Task11 service2 enter one plane; followers consume only final Task6.1 plaintext stream facade; route classes cannot cross-call.
 - Strict lower-snake tool and exact dotted service-name parsers feed one kind/name registry+journal; both service literals and invalid dot/slash/case/length/cross-kind fixtures pass. Requests produce native pre-admission rejection or accepted/progress/exactly-one-terminal with no Relay/runtime bypass.
@@ -6225,7 +6235,7 @@ Commit `97c17e86216dc28948f6524515ea8e899cfa1569` and plan SHA `0bb430ee61ab2f69
 | 7C/8A ownership | 7C owns exclusive-link atomic/evidence production cutover; 8A consumes it and closes the exact six icons/profile/tokens direct-fs importers with a strict ledger. |
 | Evidence view | Egress read verification and `OperationEvidenceViewV1.serverVerified` replace client-side journal joining across active/tombstone/resolution states. |
 | IDs/replay | Exact max384 operation token/HMAC and one nine-field fingerprint have literal byte0x00 domains, fixed vectors, stable-file generation/session and capture-toggle conflicts; unknown is settled. |
-| Hashes/stores | Correct byte0x00 generation/source-complete vectors, one checkpoint generation promotion order, compaction-stable finalizer lookup and real native manifest max300277 are binding. |
+| Hashes/stores | Correct byte0x00 generation/source-complete vectors, one checkpoint generation promotion order, compaction-stable finalizer lookup and reachable native manifest max299836 are binding. |
 | CLI/build/package | Platform-default owner-secure CLI discovery has no overrides; every wrapper nests selector; Task15 legal staging remains exact; Task16 finalizes status and two-entry build/watch scripts. |
 | Supplemental | Trusted SourceComplete claims replace live negative probes; pre-bearer packed/numeric identity then first-status identity, raw-NUL Git manifest parsing, dist-only package layout and access re-resolution are exact. |
 | Handoff | Superseded by R26. |
@@ -6237,11 +6247,24 @@ Commit `7ed0ba5386940f70d73da88f8bd491fd2e5f7beb` and plan SHA `537ff6d1338828e8
 | R26 scope | Binding resolution |
 |---|---|
 | Public evidence | Strict receipt projection removes actor/private chain fields; view and supplemental expose projections only. |
-| Materialization/path | Branded context binds projector to verified ports; export/snapshot/graph materialization and exact effects close IO. Portable paths avoid JSON escaping; production max is300277 incl LF. |
+| Materialization/path | Branded context binds projector to verified ports; export/snapshot/graph materialization and exact effects close IO. Portable paths avoid JSON escaping; reachable production max is299836 incl LF. |
 | CLI/resolution | Selector remains nested, discovery uses verifySecure, and all resolution statuses inherit verified OutcomeUnknown finalizer with null receipt. |
 | Fake proofs/Sites | SourceComplete claims execute real fake counters/state; Sites maps dist/hosting/drizzle exactly and closes defer/failure/success branches. |
 | Durability/build | Compaction publishes immutable generation files by exclusive hard link; root dev:mcp is an exact Task16 package authority. |
-| Handoff | This R26 three-document commit/checksum is the sole fresh READY target. |
+| Handoff | Superseded by R27. |
+
+### 2026-08-28 R27 final closure
+
+Commit `52ab106bf6a14a0f413c12edd7b7575db2cea7a4` and plan SHA `9b9c8da37e094fa08eda900959a53613a81c4742fdd47d54afa61439d0ffda73` received scoped R26 findings and is superseded for Task7 onward.
+
+| R27 scope | Binding resolution |
+|---|---|
+| Projector context | No-artifact fixtures include the required context hash and mismatched verified context fails before filesystem IO. |
+| Native bound | The production serializer's reachable safe-sum maximum is exactly 299,836 bytes including LF; 299,837 rejects. |
+| CLI envelope | Every wrapper, including `tree`, uses only nested `invocation.targetSelector`; the top-level selector is explicitly absent. |
+| Compaction | Store-specific hash projections, immutable generation names, strict current-pointer schema, exclusive-link publication, and partial/ambiguous recovery are one contract. |
+| Sites terminal | Exact helper source mappings remain; deployment polls only after an ID, deferral never polls, failure never opens, and success opens the returned URL. |
+| Handoff | This R27 three-document commit/checksum is the sole scoped READY target. |
 
 Prior service findings remain incorporated. Prior external-ceremony findings are explicitly superseded by this scope correction and require separate future authorization.
 
@@ -6249,4 +6272,4 @@ Prior service findings remain incorporated. Prior external-ceremony findings are
 
 ## 11. Execution Handoff
 
-Commit this R26 three-document change as sole review target. No execution before READY; regenerate the quarantined brief only afterward with the R26 commit/plan SHA and frozen Task6.1 evidence.
+Commit this R27 three-document change as sole review target. No execution before READY; regenerate the quarantined brief only afterward with the R27 commit/plan SHA and frozen Task6.1 evidence.
