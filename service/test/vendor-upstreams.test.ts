@@ -353,6 +353,21 @@ describe('protected service authorities', () => {
         contents.replace('await link(temporary, target)', 'await rename(temporary, target)'),
     },
     {
+      name: 'Task 6 atomic pairing key authority',
+      path: 'packages/mcp/src/security/pairing-manager.ts',
+      mutate: contents =>
+        contents.replace('await link(temporary, keyPath)', 'await rename(temporary, keyPath)'),
+    },
+    {
+      name: 'Task 6 bounded pairing revision authority',
+      path: 'packages/mcp/src/security/pairing-manager.ts',
+      mutate: contents =>
+        contents.replace(
+          'PAIR_STATE_REVISION_RETAIN_COUNT = 8',
+          'PAIR_STATE_REVISION_RETAIN_COUNT = 8000',
+        ),
+    },
+    {
       name: 'Task 6 recoverable hello commit authority',
       path: 'packages/mcp/src/relay/relay.ts',
       mutate: contents =>
@@ -367,6 +382,16 @@ describe('protected service authorities', () => {
       name: 'Task 6 encrypted follower channel authority',
       path: 'packages/mcp/src/election/follower.ts',
       mutate: contents => contents.replace('body: sealed.body', 'body'),
+    },
+    {
+      name: 'Task 6 authenticated follower response authority',
+      path: 'packages/mcp/src/election/follower.ts',
+      mutate: contents => contents.replace('openFollowerResponse(', 'Buffer.from('),
+    },
+    {
+      name: 'Task 6 follower response key separation authority',
+      path: 'packages/mcp/src/security/follower-auth.ts',
+      mutate: contents => contents.replace('sfp-follower-response-key', 'sfp-follower-request-key'),
     },
     {
       name: 'Task 6 one-use follower challenge authority',

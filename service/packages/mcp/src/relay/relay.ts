@@ -49,6 +49,7 @@ export interface RelayOptions {
   heartbeatMaxMisses?: number;
   disconnectGraceMs?: number;
   maxPayloadBytes?: number;
+  decodeFrame?: (bytes: Uint8Array) => Envelope;
   /** Test seam after provisional registration and before the hello response write. */
   beforeHelloResponse?: () => Promise<void>;
   authenticator: RelayAuthenticator;
@@ -91,6 +92,7 @@ export class Relay {
       heartbeatMaxMisses: opts.heartbeatMaxMisses ?? HEARTBEAT_MAX_MISSES,
       disconnectGraceMs: opts.disconnectGraceMs ?? DEFAULT_DISCONNECT_GRACE_MS,
       maxPayloadBytes: opts.maxPayloadBytes ?? WS_FRAME_MAX_BYTES,
+      decodeFrame: opts.decodeFrame ?? decodeEnvelope,
       beforeHelloResponse: opts.beforeHelloResponse ?? (async () => {}),
       authenticator: opts.authenticator,
     };
@@ -348,29 +350,34 @@ export class Relay {
     let session: Session | undefined;
     let authenticating = false;
     let closed = false;
+    let terminal = false;
 
     const helloTimeout = setTimeout(() => {
       if (session === undefined) {
+        terminal = true;
         this.opts.log('[relay] hello timeout, closing socket');
         socket.close(1008, 'hello timeout');
       }
     }, 5_000);
 
     socket.on('message', raw => {
+      if (terminal) return;
+      if (session === undefined && authenticating) {
+        terminal = true;
+        socket.close(1008, 'non-hello message while authentication is pending');
+        return;
+      }
       let envelope: Envelope;
       try {
-        envelope = decodeEnvelope(raw as Uint8Array);
+        envelope = this.opts.decodeFrame(raw as Uint8Array);
       } catch {
+        terminal = true;
         this.opts.log('[relay] decode error');
         socket.close(1003, 'invalid envelope');
         return;
       }
 
       if (session === undefined) {
-        if (authenticating) {
-          socket.close(1008, 'non-hello message while authentication is pending');
-          return;
-        }
         authenticating = true;
         const helloTask = (async (): Promise<void> => {
           try {
@@ -381,8 +388,12 @@ export class Relay {
               return;
             }
             session = authenticated ?? undefined;
-            if (session === undefined) socket.close(1008, 'hello failed');
+            if (session === undefined) {
+              terminal = true;
+              socket.close(1008, 'hello failed');
+            }
           } catch (error) {
+            terminal = true;
             clearTimeout(helloTimeout);
             const errorType = error instanceof Error ? error.name : 'NonError';
             this.opts.log(`[relay] authenticated hello failed internally (${errorType})`);
@@ -399,6 +410,7 @@ export class Relay {
 
     socket.on('close', () => {
       closed = true;
+      terminal = true;
       clearTimeout(helloTimeout);
       if (session !== undefined) {
         this.opts.log(

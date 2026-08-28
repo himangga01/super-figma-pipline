@@ -11,6 +11,7 @@ import {
 
 import {
   type FollowerChallenge,
+  openFollowerResponse,
   sealFollowerRequest,
   verifyFollowerChallenge,
 } from '../security/follower-auth.js';
@@ -227,12 +228,14 @@ export class Follower {
     try {
       const verified = await this.verifyFreshLeader();
       if (verified === undefined || this.quarantined) return 'error';
+      const requestId = newId();
       const sealed = sealFollowerRequest(
         verified.followerToken,
         verified.challenge,
         'POST',
         ABDICATE_PATH,
         Buffer.from(JSON.stringify({ buildId }), 'utf8'),
+        requestId,
       );
       const res = await this.opts.fetch(`${this.opts.leaderUrl}${ABDICATE_PATH}`, {
         method: 'POST',
@@ -240,13 +243,21 @@ export class Follower {
         body: sealed.body,
         signal: AbortSignal.timeout(this.opts.pingTimeoutMs),
       });
-      // A leader that predates the endpoint 404s ("not found" catch-all) — it can't be retired
-      // programmatically, only by a human killing it (ping's buildSkew message covers that).
+      const ciphertext = await readBoundedFetchBody(res, this.opts.responseMaxBytes);
+      const plaintext = openFollowerResponse(verified.followerToken, {
+        method: 'POST',
+        path: ABDICATE_PATH,
+        generation: verified.challenge.generation,
+        nonce: verified.challenge.nonce,
+        requestDigest: sealed.headers['x-sfp-request-digest'] as string,
+        status: res.status,
+        requestId,
+        headers: Object.fromEntries(res.headers.entries()),
+        ciphertext,
+      });
       if (res.status === 404) return 'unsupported';
       if (!res.ok) return 'error';
-      const body: unknown = JSON.parse(
-        (await readBoundedFetchBody(res, this.opts.responseMaxBytes)).toString('utf8'),
-      ) as unknown;
+      const body: unknown = JSON.parse(plaintext.toString('utf8')) as unknown;
       if (typeof body !== 'object' || body === null) return 'error';
       if ((body as { ok?: unknown }).ok === true) return 'ok';
       const reason = (body as { reason?: unknown }).reason;
@@ -310,6 +321,7 @@ export class Follower {
       'POST',
       RPC_PATH,
       body,
+      resolvedRequestId,
     );
 
     // Per-tool follower budget when given (outermost layer); else the constructor default. Combined
@@ -337,7 +349,20 @@ export class Follower {
 
     let buf: Uint8Array;
     try {
-      buf = new Uint8Array(await readBoundedFetchBody(res, this.opts.responseMaxBytes));
+      const ciphertext = await readBoundedFetchBody(res, this.opts.responseMaxBytes);
+      buf = new Uint8Array(
+        openFollowerResponse(verified.followerToken, {
+          method: 'POST',
+          path: RPC_PATH,
+          generation: verified.challenge.generation,
+          nonce: verified.challenge.nonce,
+          requestDigest: sealed.headers['x-sfp-request-digest'] as string,
+          status: res.status,
+          requestId: resolvedRequestId,
+          headers: Object.fromEntries(res.headers.entries()),
+          ciphertext,
+        }),
+      );
     } catch (error) {
       return {
         kind: 'err',
@@ -368,6 +393,14 @@ export class Follower {
         requestId: rpc.requestId,
         code: ErrorCode.Internal,
         message: 'invalid rpc response from leader',
+      };
+    }
+    if (safe.data.requestId !== rpc.requestId) {
+      return {
+        kind: 'err',
+        requestId: rpc.requestId,
+        code: ErrorCode.Internal,
+        message: 'leader response requestId does not match its authenticated request',
       };
     }
     return safe.data;

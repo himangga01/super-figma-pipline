@@ -20,6 +20,7 @@ import { Relay } from '../../src/relay/relay.js';
 import {
   createPairingManager,
   PAIR_HELLO_RECOVERY_TTL_MS,
+  PAIR_STATE_REVISION_RETAIN_COUNT,
   type PairingManager,
   pairingLockPath,
   redactAuthSecrets,
@@ -219,6 +220,75 @@ describe('pairing challenge and exchange', () => {
     ).resolves.toMatchObject({ sessionId: expect.any(String) });
   });
 
+  it('bounds monotonic revision GC across thousands of failed mutations and restart', async () => {
+    const { stateRoot, permissions } = await secureTestRoot();
+    const manager = await createPairingManager({
+      stateRoot,
+      permissions,
+      exchangeRateLimit: { limit: 2_000, windowMs: 60_000 },
+    });
+
+    const failures: string[] = [];
+    for (let index = 0; index < 1_024; index += 1) {
+      try {
+        await manager.exchange('AAAAAAAAAA', '00000000');
+        throw new Error('unknown challenge unexpectedly exchanged');
+      } catch (error) {
+        failures.push((error as { code?: string }).code ?? 'UNKNOWN');
+      }
+    }
+    expect(new Set(failures)).toEqual(new Set(['PAIR_CODE_WRONG']));
+    expect(failures).toHaveLength(1_024);
+
+    const revisions = (await readdir(stateRoot))
+      .filter(name => /^pairing-state\.v\d{16}\.json$/.test(name))
+      .toSorted();
+    expect(revisions).toHaveLength(PAIR_STATE_REVISION_RETAIN_COUNT);
+    expect(revisions.at(-1)).toBe('pairing-state.v0000000000001024.json');
+
+    const restarted = await createPairingManager({ stateRoot, permissions });
+    await expect(restarted.createChallenge('after-restart')).resolves.toMatchObject({
+      attemptsRemaining: 5,
+    });
+    const afterRestart = (await readdir(stateRoot)).filter(name =>
+      /^pairing-state\.v\d{16}\.json$/.test(name),
+    );
+    expect(afterRestart).toHaveLength(PAIR_STATE_REVISION_RETAIN_COUNT);
+  }, 30_000);
+
+  it('recovers a valid latest revision after a crash left predecessor GC incomplete', async () => {
+    const { stateRoot, permissions } = await secureTestRoot();
+    for (let revision = 1; revision <= 12; revision += 1) {
+      const path = join(stateRoot, `pairing-state.v${String(revision).padStart(16, '0')}.json`);
+      await writeFile(
+        path,
+        JSON.stringify({
+          version: 1,
+          revision,
+          challenges: [],
+          tickets: [],
+          resumes: [],
+          helloTransactions: [],
+          challengeAttempts: [],
+          exchangeAttempts: [],
+        }),
+        { mode: 0o600 },
+      );
+      await permissions.ensureSecure(path);
+    }
+
+    const restarted = await createPairingManager({ stateRoot, permissions });
+    const challenge = await restarted.createChallenge('crash-restart');
+    const revisions = (await readdir(stateRoot))
+      .filter(name => /^pairing-state\.v\d{16}\.json$/.test(name))
+      .toSorted();
+    expect(revisions).toHaveLength(PAIR_STATE_REVISION_RETAIN_COUNT);
+    expect(revisions.at(-1)).toBe('pairing-state.v0000000000000013.json');
+    expect(await readFile(join(stateRoot, revisions.at(-1)!), 'utf8')).toContain(
+      challenge.challengeId,
+    );
+  });
+
   it('creates first-run secret files without asking the permission authority to verify absence', async () => {
     const stateRoot = await mkdtemp(join(tmpdir(), 'sfp-pairing-first-run-'));
     roots.push(stateRoot);
@@ -245,6 +315,114 @@ describe('pairing challenge and exchange', () => {
     await expect(manager.createChallenge('owner-local')).resolves.toMatchObject({
       attemptsRemaining: 5,
     });
+  });
+
+  it('publishes a complete owner-secured pairing key from a same-directory temporary', async () => {
+    const { stateRoot, permissions } = await secureTestRoot();
+    const keyPath = join(stateRoot, 'pairing-hmac.key');
+    let observedTemporary: string | undefined;
+    const secured = new Set<string>();
+    const ensureSecure = permissions.ensureSecure;
+    permissions.ensureSecure = async path => {
+      await ensureSecure(path);
+      secured.add(path);
+    };
+    const manager = await createPairingManager({
+      stateRoot,
+      permissions,
+      randomBytes: size => Buffer.alloc(size, 0x5a),
+      beforeKeyPublish: async temporary => {
+        observedTemporary = temporary;
+        expect(
+          join(
+            stateRoot,
+            (await readdir(stateRoot)).find(name => temporary.endsWith(name))!,
+          ),
+        ).toBe(temporary);
+        expect(await readFile(temporary)).toEqual(Buffer.alloc(32, 0x5a));
+        expect(secured).toContain(temporary);
+        const allowedModes = process.platform === 'win32' ? [0o600, 0o666] : [0o600];
+        expect(allowedModes).toContain((await lstat(temporary)).mode & 0o777);
+        await expect(readFile(keyPath)).rejects.toMatchObject({ code: 'ENOENT' });
+      },
+    });
+
+    expect(observedTemporary).toBeDefined();
+    expect(await readFile(keyPath)).toEqual(Buffer.alloc(32, 0x5a));
+    const allowedModes = process.platform === 'win32' ? [0o600, 0o666] : [0o600];
+    expect(allowedModes).toContain((await lstat(keyPath)).mode & 0o777);
+    await expect(manager.createChallenge('owner-local')).resolves.toMatchObject({
+      attemptsRemaining: 5,
+    });
+  });
+
+  it('concurrent no-replace key publishers converge on exactly one complete key', async () => {
+    const { stateRoot, permissions } = await secureTestRoot();
+    let arrivals = 0;
+    let bothArrived!: () => void;
+    let release!: () => void;
+    const ready = new Promise<void>(resolve => {
+      bothArrived = resolve;
+    });
+    const barrier = new Promise<void>(resolve => {
+      release = resolve;
+    });
+    const rendezvous = async (): Promise<void> => {
+      arrivals += 1;
+      if (arrivals === 2) bothArrived();
+      await barrier;
+    };
+
+    const firstPromise = createPairingManager({
+      stateRoot,
+      permissions,
+      randomBytes: size => Buffer.alloc(size, 0x11),
+      beforeKeyPublish: rendezvous,
+    });
+    const secondPromise = createPairingManager({
+      stateRoot,
+      permissions,
+      randomBytes: size => Buffer.alloc(size, 0x22),
+      beforeKeyPublish: rendezvous,
+    });
+    await ready;
+    release();
+    const [first, second] = await Promise.all([firstPromise, secondPromise]);
+
+    const stored = await readFile(join(stateRoot, 'pairing-hmac.key'));
+    expect([Buffer.alloc(32, 0x11), Buffer.alloc(32, 0x22)]).toContainEqual(stored);
+    expect(
+      (await readdir(stateRoot)).filter(name => /^\.pairing-hmac\.key\..+\.tmp$/.test(name)),
+    ).toEqual([]);
+    const challenge = await first.createChallenge('owner-local');
+    await expect(second.exchange(challenge.challengeId, challenge.code)).resolves.toMatchObject({
+      wsTicket: expect.any(String),
+    });
+  });
+
+  it('fails closed on an incomplete published key and recovers only after it is removed', async () => {
+    const { stateRoot, permissions } = await secureTestRoot();
+    const keyPath = join(stateRoot, 'pairing-hmac.key');
+    await writeFile(keyPath, Buffer.from([0x7f]), { mode: 0o600 });
+
+    await expect(createPairingManager({ stateRoot, permissions })).rejects.toThrow(
+      'invalid pairing HMAC key',
+    );
+    expect(await readFile(keyPath)).toEqual(Buffer.from([0x7f]));
+
+    await rm(keyPath);
+    await expect(createPairingManager({ stateRoot, permissions })).resolves.toBeDefined();
+    expect(await readFile(keyPath)).toHaveLength(32);
+  });
+
+  it('removes crash-left key temporaries only after a valid key is published', async () => {
+    const { stateRoot, permissions } = await secureTestRoot();
+    const crashed = join(stateRoot, '.pairing-hmac.key.crashed.tmp');
+    await writeFile(crashed, Buffer.alloc(9, 0x33), { mode: 0o600 });
+
+    await expect(createPairingManager({ stateRoot, permissions })).resolves.toBeDefined();
+    await expect(readFile(crashed)).rejects.toMatchObject({ code: 'ENOENT' });
+    expect(await readFile(join(stateRoot, 'pairing-hmac.key'))).toHaveLength(32);
   });
 
   it('exchanges an eight-digit code once for a 128-bit ticket', async () => {

@@ -24,6 +24,8 @@ export const PAIR_RESUME_TTL_MS = 30 * 24 * 60 * 60 * 1000;
 export const PAIR_HELLO_PREPARE_TTL_MS = 30 * 1000;
 export const PAIR_HELLO_RECOVERY_TTL_MS = 5 * 1000;
 export const PAIR_ATTEMPTS = 5;
+/** The current monotonic revision plus seven immutable predecessors. */
+export const PAIR_STATE_REVISION_RETAIN_COUNT = 8;
 
 export interface RateLimit {
   limit: number;
@@ -40,6 +42,8 @@ export interface PairingManagerOptions {
   exchangeRateLimit?: RateLimit;
   log?: (message: string) => void;
   mutationRetryTimeoutMs?: number;
+  /** Test seam after the key temporary is durable/secured but before no-replace publication. */
+  beforeKeyPublish?: (temporary: string) => Promise<void>;
   /** Test seam after a full mutation is durable but before its revision is atomically published. */
   beforeStatePublish?: () => Promise<void>;
 }
@@ -124,6 +128,8 @@ const KEY_FILE = 'pairing-hmac.key';
 const STATE_FILE = 'pairing-state.json';
 const LOCK_FILE = '.pairing-state.lock';
 const STATE_REVISION = /^pairing-state\.v(\d{16})\.json$/;
+const KEY_TEMPORARY = /^\.pairing-hmac\.key\..+\.tmp$/;
+let keyTemporarySequence = 0;
 
 class PairingStateConflict extends Error {}
 
@@ -137,6 +143,11 @@ const pathExists = async (path: string): Promise<boolean> => {
     if ((error as NodeJS.ErrnoException).code === 'ENOENT') return false;
     throw error;
   }
+};
+
+const isMissingPath = (error: unknown): boolean => {
+  const candidate = error as NodeJS.ErrnoException & { cause?: NodeJS.ErrnoException };
+  return candidate.code === 'ENOENT' || candidate.cause?.code === 'ENOENT';
 };
 
 const emptyState = (): PairingState => ({
@@ -399,34 +410,90 @@ export const createPairingManager = async (
     await new Promise<void>(resolvePromise => drainWaiters.add(resolvePromise));
   };
 
+  const readPublishedKey = async (): Promise<Buffer> => {
+    await options.permissions.verifySecure(keyPath);
+    const stored = await readFile(keyPath);
+    if (stored.byteLength !== 32) throw new Error('invalid pairing HMAC key');
+    return stored;
+  };
+
+  const cleanKeyTemporaries = async (): Promise<void> => {
+    const temporaries = (await readdir(stateRoot)).filter(name => KEY_TEMPORARY.test(name));
+    let removed = false;
+    await Promise.all(
+      temporaries.map(async name => {
+        try {
+          await rm(join(stateRoot, name));
+          removed = true;
+        } catch (error) {
+          if (!isMissingPath(error)) log('[pairing] key temporary cleanup deferred');
+        }
+      }),
+    );
+    if (removed) {
+      try {
+        await syncStateDirectory();
+      } catch {
+        log('[pairing] key temporary directory sync deferred');
+      }
+    }
+  };
+
+  const readPublishedKeyAfterConflict = async (cause: unknown): Promise<Buffer> => {
+    let lastError: unknown = cause;
+    /* eslint-disable no-await-in-loop -- publication visibility retries are intentionally bounded */
+    for (let attempt = 0; attempt < 8; attempt += 1) {
+      try {
+        return await readPublishedKey();
+      } catch (error) {
+        lastError = error;
+        if (!isMissingPath(error)) throw error;
+        await new Promise<void>(resolvePromise => setTimeout(resolvePromise, 1));
+      }
+    }
+    /* eslint-enable no-await-in-loop */
+    throw new Error('pairing HMAC key publication disappeared', { cause: lastError });
+  };
+
   const loadKey = async (): Promise<Buffer> => {
     if (await pathExists(keyPath)) {
-      await options.permissions.verifySecure(keyPath);
-      const stored = await readFile(keyPath);
-      if (stored.byteLength !== 32) throw new Error('invalid pairing HMAC key');
+      const stored = await readPublishedKey();
+      await cleanKeyTemporaries();
       return stored;
     }
-    const candidate = randomBytes(32);
+    const candidate = Buffer.from(randomBytes(32));
+    if (candidate.byteLength !== 32) throw new Error('pairing HMAC key entropy source failed');
+    const temporary = join(
+      stateRoot,
+      `.${KEY_FILE}.${process.pid}.${keyTemporarySequence}.${randomBytes(8).toString('hex')}.tmp`,
+    );
+    keyTemporarySequence += 1;
     let handle: Awaited<ReturnType<typeof open>> | undefined;
     try {
-      handle = await open(keyPath, 'wx', 0o600);
+      handle = await open(temporary, 'wx', 0o600);
       await handle.writeFile(candidate);
       await handle.sync();
       await handle.close();
       handle = undefined;
-      await options.permissions.ensureSecure(keyPath);
+      await options.permissions.ensureSecure(temporary);
+      await options.permissions.verifySecure(temporary);
+      await options.beforeKeyPublish?.(temporary);
+      try {
+        await link(temporary, keyPath);
+      } catch (error) {
+        if (!['EEXIST', 'ENOENT'].includes((error as NodeJS.ErrnoException).code ?? ''))
+          throw error;
+        const stored = await readPublishedKeyAfterConflict(error);
+        await cleanKeyTemporaries();
+        return stored;
+      }
       await options.permissions.verifySecure(keyPath);
       await syncStateDirectory();
+      await cleanKeyTemporaries();
       return candidate;
-    } catch (error) {
+    } finally {
       await handle?.close().catch(() => {});
-      if ((error as NodeJS.ErrnoException).code !== 'EEXIST') throw error;
-      await options.permissions.verifySecure(keyPath);
-      const stored = await readFile(keyPath);
-      if (stored.byteLength !== 32) {
-        throw new Error('invalid pairing HMAC key', { cause: error });
-      }
-      return stored;
+      await rm(temporary, { force: true }).catch(() => {});
     }
   };
 
@@ -442,26 +509,67 @@ export const createPairingManager = async (
   const revisionPath = (revision: number): string =>
     join(stateRoot, `pairing-state.v${String(revision).padStart(16, '0')}.json`);
 
-  const loadState = async (): Promise<PairingState> => {
-    const revisions = (await readdir(stateRoot))
+  const revisionNumbers = async (): Promise<number[]> =>
+    (await readdir(stateRoot))
       .map(name => STATE_REVISION.exec(name))
       .filter((match): match is RegExpExecArray => match !== null)
       .map(match => Number(match[1]))
       .filter(Number.isSafeInteger)
       .toSorted((left, right) => right - left);
+
+  const loadState = async (): Promise<PairingState> => {
+    const revisions = await revisionNumbers();
     const latest = revisions[0];
     if (latest !== undefined) {
       const path = revisionPath(latest);
-      await options.permissions.verifySecure(path);
-      const state = parseState(JSON.parse(await readFile(path, 'utf8')) as unknown);
-      if (state.revision !== latest) throw new Error('pairing revision filename mismatch');
-      return state;
+      try {
+        await options.permissions.verifySecure(path);
+        const state = parseState(JSON.parse(await readFile(path, 'utf8')) as unknown);
+        if (state.revision !== latest) throw new Error('pairing revision filename mismatch');
+        return state;
+      } catch (error) {
+        // A process that was descheduled after readdir can observe a predecessor being GC'd.
+        // Re-run the entire mutation against the latest immutable revision in that case.
+        if (isMissingPath(error)) {
+          throw new PairingStateConflict('pairing revision advanced during read');
+        }
+        throw error;
+      }
     }
     if (!(await pathExists(statePath))) return emptyState();
     await options.permissions.verifySecure(statePath);
     const legacy = parseState(JSON.parse(await readFile(statePath, 'utf8')) as unknown);
     legacy.revision = 0;
     return legacy;
+  };
+
+  const collectOldRevisions = async (publishedRevision: number): Promise<void> => {
+    const oldestRetained = Math.max(1, publishedRevision - PAIR_STATE_REVISION_RETAIN_COUNT + 1);
+    const obsolete = (await revisionNumbers()).filter(
+      revision => revision < oldestRetained && revision < publishedRevision,
+    );
+    let removed = false;
+    await Promise.all(
+      obsolete.map(async revision => {
+        try {
+          // Revisions are immutable hardlink publications with monotonic IDs. Removing an old
+          // pathname can never remove current/future publications. Windows may temporarily deny
+          // deletion while another process has it open; leave it for the next bounded GC pass.
+          await rm(revisionPath(revision));
+          removed = true;
+        } catch (error) {
+          if (!isMissingPath(error)) log('[pairing] revision GC deferred');
+        }
+      }),
+    );
+    if (removed) {
+      try {
+        await syncStateDirectory();
+      } catch {
+        // The published revision is already durable. A later mutation repeats bounded GC.
+        log('[pairing] revision GC directory sync deferred');
+      }
+    }
   };
 
   const saveState = async (state: PairingState): Promise<void> => {
@@ -495,6 +603,7 @@ export const createPairingManager = async (
       await options.permissions.verifySecure(target);
       state.revision = nextRevision;
       await syncStateDirectory();
+      await collectOldRevisions(nextRevision);
     } catch (error) {
       await handle?.close().catch(() => {});
       if (!published || error instanceof PairingStateConflict) {

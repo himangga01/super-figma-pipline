@@ -2,7 +2,7 @@ import { createServer, request, type IncomingHttpHeaders, type Server } from 'no
 import type { AddressInfo } from 'node:net';
 
 import { decode, encode } from '@msgpack/msgpack';
-import { PRODUCT_MAGIC, PROTOCOL_VERSION } from '@sfp/shared';
+import { newId, PRODUCT_MAGIC, PROTOCOL_VERSION } from '@sfp/shared';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import { dispatchTool } from '../../src/dispatch.js';
@@ -12,6 +12,7 @@ import { NodeRole } from '../../src/election/node.js';
 import {
   createFollowerAuth,
   type FollowerAuth,
+  openFollowerResponse,
   sealFollowerRequest,
 } from '../../src/security/follower-auth.js';
 import { RPC_REQUEST_MAX_BYTES } from '../../src/security/request-limits.js';
@@ -109,14 +110,37 @@ const sealedCall = async (
   path: '/rpc' | '/abdicate',
   plaintext: Buffer,
 ): Promise<HttpResult> => {
-  const sealed = sealFollowerRequest(
-    followerToken,
-    await auth.issueFollowerChallenge(),
-    'POST',
+  const requestId =
+    path === '/rpc'
+      ? String((decode(plaintext) as { requestId?: unknown }).requestId ?? '')
+      : newId();
+  const challenge = await auth.issueFollowerChallenge();
+  const sealed = sealFollowerRequest(followerToken, challenge, 'POST', path, plaintext, requestId);
+  const response = await call(port, 'POST', path, sealed.headers, sealed.body);
+  if (response.headers['content-type'] !== 'application/sfp-encrypted') return response;
+  const body = openFollowerResponse(followerToken, {
+    method: 'POST',
     path,
-    plaintext,
-  );
-  return call(port, 'POST', path, sealed.headers, sealed.body);
+    generation: challenge.generation,
+    nonce: challenge.nonce,
+    requestDigest: sealed.headers['x-sfp-request-digest']!,
+    status: response.status,
+    requestId,
+    headers: Object.fromEntries(
+      Object.entries(response.headers).map(([name, value]) => [
+        name,
+        Array.isArray(value) ? value.join(', ') : value,
+      ]),
+    ),
+    ciphertext: response.body,
+  });
+  let json: Record<string, unknown> = {};
+  try {
+    json = JSON.parse(body.toString('utf8')) as Record<string, unknown>;
+  } catch {
+    // RPC remains MessagePack after the encrypted transport envelope is opened.
+  }
+  return { ...response, body, json };
 };
 
 afterEach(async () => {
@@ -154,6 +178,43 @@ describe('follower and control middleware', () => {
     expect(relayed).toEqual([{ secret: 'do-not-forward' }]);
   });
 
+  it('rejects a transport requestId that differs from the encrypted RPC requestId', async () => {
+    const { port, generation, auth, relayed } = await start();
+    const challenge = await auth.issueFollowerChallenge();
+    const sealed = sealFollowerRequest(
+      generation.followerToken,
+      challenge,
+      'POST',
+      '/rpc',
+      Buffer.from(encode({ requestId: 'body-request', toolName: 'get_document' })),
+      'transport-request',
+    );
+    const response = await call(port, 'POST', '/rpc', sealed.headers, sealed.body);
+    const plaintext = openFollowerResponse(generation.followerToken, {
+      method: 'POST',
+      path: '/rpc',
+      generation: challenge.generation,
+      nonce: challenge.nonce,
+      requestDigest: sealed.headers['x-sfp-request-digest']!,
+      status: response.status,
+      requestId: 'transport-request',
+      headers: Object.fromEntries(
+        Object.entries(response.headers).map(([name, value]) => [
+          name,
+          Array.isArray(value) ? value.join(', ') : value,
+        ]),
+      ),
+      ciphertext: response.body,
+    });
+    expect(response.status).toBe(400);
+    expect(decode(plaintext)).toMatchObject({
+      kind: 'err',
+      requestId: 'transport-request',
+      code: 'INVALID_REQUEST',
+    });
+    expect(relayed).toEqual([]);
+  });
+
   it('rejects an oversized authenticated RPC before decoding or relaying it', async () => {
     const { port, generation, auth, relayed } = await start();
     const sealed = sealFollowerRequest(
@@ -162,6 +223,7 @@ describe('follower and control middleware', () => {
       'POST',
       '/rpc',
       Buffer.from([1]),
+      'oversized-request',
     );
     const response = await call(port, 'POST', '/rpc', {
       ...sealed.headers,
@@ -525,6 +587,63 @@ describe('leader identity and unknown-role handling', () => {
         code: 'PAYLOAD_TOO_LARGE',
       },
     );
+  });
+
+  it('rejects an authenticated RPC response whose decoded requestId differs from its transport binding', async () => {
+    const generation = Buffer.alloc(16, 71).toString('base64url');
+    const followerToken = Buffer.alloc(32, 72).toString('base64url');
+    const channelAuth = await createFollowerAuth({
+      memory: {
+        generation,
+        followerToken,
+        controlToken: Buffer.alloc(32, 73).toString('base64url'),
+        createdAt: 1,
+      },
+    });
+    const pingBody = JSON.stringify({
+      ok: true,
+      product: PRODUCT_MAGIC,
+      protocolVersion: PROTOCOL_VERSION,
+      role: 'leader',
+      serverVersion: '0.1.0',
+      buildId: 1,
+      leaderGeneration: generation,
+    });
+    const follower = new Follower({
+      leaderUrl: 'http://127.0.0.1:1',
+      credentialProvider: async () => ({ generation, value: `Bearer ${followerToken}` }),
+      fetch: async (input, init) => {
+        if (init?.method === 'POST') {
+          const opened = await channelAuth.openFollowerRequest({
+            method: 'POST',
+            path: '/rpc',
+            headers: Object.fromEntries(new Headers(init.headers).entries()),
+            ciphertext: Buffer.from(init.body as Buffer),
+          });
+          const sealed = channelAuth.sealFollowerResponse(
+            opened.context,
+            200,
+            opened.context.requestId,
+            Buffer.from(
+              encode({ kind: 'ok', requestId: 'different-request', result: { leaked: true } }),
+            ),
+          );
+          return new Response(sealed.body, { status: 200, headers: sealed.headers });
+        }
+        return new Response(
+          String(input).endsWith('/follower/challenge')
+            ? JSON.stringify(await channelAuth.issueFollowerChallenge())
+            : pingBody,
+          { status: 200, headers: { 'content-type': 'application/json' } },
+        );
+      },
+    });
+
+    await expect(follower.sendRpc('get_document', {}, 'expected-request')).resolves.toMatchObject({
+      kind: 'err',
+      requestId: 'expected-request',
+      code: 'INTERNAL_ERROR',
+    });
   });
 
   it('rejects product-looking ping data with a malformed leader generation', async () => {

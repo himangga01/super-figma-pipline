@@ -27,7 +27,11 @@ import {
   RPC_PATH,
 } from '../../src/election/leader-endpoints.js';
 import { Relay } from '../../src/relay/relay.js';
-import { createFollowerAuth, sealFollowerRequest } from '../../src/security/follower-auth.js';
+import {
+  createFollowerAuth,
+  openFollowerResponse,
+  sealFollowerRequest,
+} from '../../src/security/follower-auth.js';
 
 interface Bound {
   http: HttpServer;
@@ -49,14 +53,28 @@ const TEST_AUTH = await createFollowerAuth({
     createdAt: 1,
   },
 });
-const sealBody = async (path: string, body: Buffer) =>
-  sealFollowerRequest(
-    TEST_FOLLOWER_TOKEN,
-    await TEST_AUTH.issueFollowerChallenge(),
-    'POST',
+const sealBody = async (path: string, body: Buffer, requestId = newId()) => {
+  const challenge = await TEST_AUTH.issueFollowerChallenge();
+  const sealed = sealFollowerRequest(TEST_FOLLOWER_TOKEN, challenge, 'POST', path, body, requestId);
+  return { challenge, requestId, sealed };
+};
+
+const openResponse = async (
+  path: string,
+  bound: Awaited<ReturnType<typeof sealBody>>,
+  response: Response,
+): Promise<Buffer> =>
+  openFollowerResponse(TEST_FOLLOWER_TOKEN, {
+    method: 'POST',
     path,
-    body,
-  );
+    generation: bound.challenge.generation,
+    nonce: bound.challenge.nonce,
+    requestDigest: bound.sealed.headers['x-sfp-request-digest']!,
+    status: response.status,
+    requestId: bound.requestId,
+    headers: Object.fromEntries(response.headers.entries()),
+    ciphertext: Buffer.from(await response.arrayBuffer()),
+  });
 const authenticatedHello = (clientVersion = MIN_PLUGIN_VERSION) => ({
   credential: { kind: 'ticket' as const, value: 'test-ticket' },
   nonce: Buffer.alloc(16, 4).toString('base64url'),
@@ -133,13 +151,19 @@ const postAbdicate = async (
   body: unknown,
 ): Promise<{ status: number; body: { ok: boolean; reason?: string } }> => {
   const plaintext = Buffer.from(typeof body === 'string' ? body : JSON.stringify(body), 'utf8');
-  const sealed = await sealBody(ABDICATE_PATH, plaintext);
+  const bound = await sealBody(ABDICATE_PATH, plaintext);
   const res = await fetch(`http://127.0.0.1:${port}${ABDICATE_PATH}`, {
     method: 'POST',
-    headers: sealed.headers,
-    body: sealed.body,
+    headers: bound.sealed.headers,
+    body: bound.sealed.body,
   });
-  return { status: res.status, body: (await res.json()) as { ok: boolean; reason?: string } };
+  return {
+    status: res.status,
+    body: JSON.parse((await openResponse(ABDICATE_PATH, bound, res)).toString('utf8')) as {
+      ok: boolean;
+      reason?: string;
+    },
+  };
 };
 
 const attachFakePlugin = async (
@@ -186,13 +210,13 @@ const attachFakePlugin = async (
 };
 
 const callRpc = async (port: number, req: RpcRequest): Promise<RpcResponse> => {
-  const sealed = await sealBody(RPC_PATH, Buffer.from(encode(req)));
+  const bound = await sealBody(RPC_PATH, Buffer.from(encode(req)), req.requestId);
   const res = await fetch(`http://127.0.0.1:${port}${RPC_PATH}`, {
     method: 'POST',
-    headers: sealed.headers,
-    body: sealed.body,
+    headers: bound.sealed.headers,
+    body: bound.sealed.body,
   });
-  const buf = new Uint8Array(await res.arrayBuffer());
+  const buf = new Uint8Array(await openResponse(RPC_PATH, bound, res));
   return RpcResponseSchema.parse(decode(buf));
 };
 
@@ -347,25 +371,25 @@ describe('leader endpoints', () => {
 
   it('POST /rpc rejects invalid msgpack body', async () => {
     const b = await startLeader();
-    const sealed = await sealBody(RPC_PATH, Buffer.from([0xff, 0xff, 0xff]));
+    const bound = await sealBody(RPC_PATH, Buffer.from([0xff, 0xff, 0xff]), 'invalid-msgpack');
     const res = await fetch(`http://127.0.0.1:${b.port}${RPC_PATH}`, {
       method: 'POST',
-      headers: sealed.headers,
-      body: sealed.body,
+      headers: bound.sealed.headers,
+      body: bound.sealed.body,
     });
     expect(res.status).toBe(400);
   });
 
   it('POST /rpc rejects schema-invalid request', async () => {
     const b = await startLeader();
-    const sealed = await sealBody(RPC_PATH, Buffer.from(encode({ requestId: 'r-x' })));
+    const bound = await sealBody(RPC_PATH, Buffer.from(encode({ requestId: 'r-x' })), 'r-x');
     const res = await fetch(`http://127.0.0.1:${b.port}${RPC_PATH}`, {
       method: 'POST',
-      headers: sealed.headers,
-      body: sealed.body,
+      headers: bound.sealed.headers,
+      body: bound.sealed.body,
     });
     expect(res.status).toBe(400);
-    const buf = new Uint8Array(await res.arrayBuffer());
+    const buf = new Uint8Array(await openResponse(RPC_PATH, bound, res));
     const parsed = RpcResponseSchema.parse(decode(buf));
     if (parsed.kind !== 'err') throw new Error(`expected err, got ${parsed.kind}`);
     expect(parsed.code).toBe(ErrorCode.InvalidParams);

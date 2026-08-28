@@ -17,7 +17,7 @@
     },
     {
       "path": "packages/mcp/src/relay/relay.ts",
-      "line": 441,
+      "line": 453,
       "column": 65,
       "value": "@figwright/mcp",
       "reason": "upstream protocol tag, comment, fixture, or user guidance"

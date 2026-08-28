@@ -12,7 +12,7 @@ import {
 } from '@sfp/shared';
 
 import type { Relay } from '../relay/relay.js';
-import type { FollowerAuth } from '../security/follower-auth.js';
+import type { FollowerAuth, OpenedFollowerRequest } from '../security/follower-auth.js';
 import {
   hasContentType,
   isAllowedHost,
@@ -43,7 +43,9 @@ export interface LeaderEndpointDeps {
   buildId?: number;
   leaderGeneration: string;
   auth: Pick<FollowerAuth, 'authorizeFollower' | 'authorizeControl'> &
-    Partial<Pick<FollowerAuth, 'issueFollowerChallenge' | 'openFollowerRequest'>>;
+    Partial<
+      Pick<FollowerAuth, 'issueFollowerChallenge' | 'openFollowerRequest' | 'sealFollowerResponse'>
+    >;
   pairing: Pick<PairingManager, 'createChallenge' | 'exchange'>;
   controlActor?: string;
   onAbdicate?: () => void;
@@ -232,7 +234,7 @@ export const attachLeaderEndpoints = (http: HttpServer, deps: LeaderEndpointDeps
     res: ServerResponse,
     path: string,
     maxBytes: number,
-  ): Promise<Buffer | undefined> => {
+  ): Promise<OpenedFollowerRequest | undefined> => {
     if (!hasContentType(header(req, 'content-type'), 'application/sfp-encrypted')) {
       writeEmpty(res, 401, { connection: 'close' });
       return undefined;
@@ -249,7 +251,8 @@ export const attachLeaderEndpoints = (http: HttpServer, deps: LeaderEndpointDeps
           'x-sfp-follower-proof': header(req, 'x-sfp-follower-proof'),
           'x-sfp-follower-iv': header(req, 'x-sfp-follower-iv'),
           'x-sfp-follower-tag': header(req, 'x-sfp-follower-tag'),
-          'x-sfp-body-sha256': header(req, 'x-sfp-body-sha256'),
+          'x-sfp-request-digest': header(req, 'x-sfp-request-digest'),
+          'x-sfp-request-id': header(req, 'x-sfp-request-id'),
         },
         ciphertext,
       });
@@ -257,6 +260,55 @@ export const attachLeaderEndpoints = (http: HttpServer, deps: LeaderEndpointDeps
       writeEmpty(res, 401, { connection: 'close' });
       return undefined;
     }
+  };
+
+  const writeFollowerBytes = (
+    res: ServerResponse,
+    status: number,
+    opened: OpenedFollowerRequest,
+    requestId: string,
+    plaintext: Buffer,
+  ): void => {
+    if (deps.auth.sealFollowerResponse === undefined) {
+      writeEmpty(res, 500, { connection: 'close' });
+      return;
+    }
+    const sealed = deps.auth.sealFollowerResponse(opened.context, status, requestId, plaintext);
+    res.writeHead(status, {
+      ...sealed.headers,
+      'content-length': sealed.body.byteLength.toString(),
+      'cache-control': 'no-store',
+    });
+    res.end(sealed.body);
+  };
+
+  const writeFollowerJson = (
+    res: ServerResponse,
+    status: number,
+    opened: OpenedFollowerRequest,
+    body: unknown,
+  ): void => writeFollowerBytes(res, status, opened, opened.context.requestId, jsonBytes(body));
+
+  const writeFollowerMsgpack = (
+    res: ServerResponse,
+    status: number,
+    opened: OpenedFollowerRequest,
+    body: RpcResponse,
+  ): void => {
+    let safeStatus = status;
+    let bytes = Buffer.from(encode(body));
+    if (!fitsHttpResponse(bytes.byteLength)) {
+      safeStatus = 413;
+      bytes = Buffer.from(
+        encode({
+          kind: 'err',
+          requestId: opened.context.requestId,
+          code: ErrorCode.PayloadTooLarge,
+          message: 'leader response exceeds the HTTP response limit',
+        } satisfies RpcResponse),
+      );
+    }
+    writeFollowerBytes(res, safeStatus, opened, opened.context.requestId, bytes);
   };
 
   const handler = (req: IncomingMessage, res: ServerResponse): void => {
@@ -374,32 +426,31 @@ export const attachLeaderEndpoints = (http: HttpServer, deps: LeaderEndpointDeps
       }
 
       if (req.method === 'POST' && req.url === ABDICATE_PATH) {
+        let opened: OpenedFollowerRequest | undefined;
         let requesterBuildId: number | undefined;
         try {
-          const plaintext = await openFollowerBody(
-            req,
-            res,
-            ABDICATE_PATH,
-            PAIR_METADATA_MAX_BYTES,
+          opened = await openFollowerBody(req, res, ABDICATE_PATH, PAIR_METADATA_MAX_BYTES);
+          if (opened === undefined) return;
+          requesterBuildId = strictBuildId(
+            JSON.parse(opened.plaintext.toString('utf8')) as unknown,
           );
-          if (plaintext === undefined) return;
-          requesterBuildId = strictBuildId(JSON.parse(plaintext.toString('utf8')) as unknown);
         } catch (error) {
           if (error instanceof RequestLimitError) {
             writeJson(res, error.status, { code: error.code }, { connection: 'close' });
             return;
           }
         }
+        if (opened === undefined) return;
         if (requesterBuildId === undefined) {
-          writeJson(res, 400, { ok: false, reason: 'invalid' });
+          writeFollowerJson(res, 400, opened, { ok: false, reason: 'invalid' });
           return;
         }
         if (requesterBuildId <= (deps.buildId ?? 0)) {
-          writeJson(res, 200, { ok: false, reason: 'stale' });
+          writeFollowerJson(res, 200, opened, { ok: false, reason: 'stale' });
           return;
         }
         if (deps.onAbdicate === undefined) {
-          writeJson(res, 200, { ok: false, reason: 'unsupported' });
+          writeFollowerJson(res, 200, opened, { ok: false, reason: 'unsupported' });
           return;
         }
         const quietWindowMs = deps.abdicateQuietWindowMs ?? ABDICATE_QUIET_WINDOW_MS;
@@ -408,21 +459,22 @@ export const attachLeaderEndpoints = (http: HttpServer, deps: LeaderEndpointDeps
           deps.relay.pendingCount() > 0 ||
           (lastRequestAt !== 0 && Date.now() - lastRequestAt < quietWindowMs)
         ) {
-          writeJson(res, 200, { ok: false, reason: 'busy' });
+          writeFollowerJson(res, 200, opened, { ok: false, reason: 'busy' });
           return;
         }
         log(`[leader] abdicating to a newer build (${requesterBuildId} > ${deps.buildId ?? 0})`);
         res.once('finish', () => deps.onAbdicate?.());
-        writeJson(res, 200, { ok: true });
+        writeFollowerJson(res, 200, opened, { ok: true });
         return;
       }
 
       if (req.method === 'POST' && req.url === RPC_PATH) {
+        let opened: OpenedFollowerRequest | undefined;
         let body: Buffer;
         try {
-          const plaintext = await openFollowerBody(req, res, RPC_PATH, RPC_REQUEST_MAX_BYTES);
-          if (plaintext === undefined) return;
-          body = plaintext;
+          opened = await openFollowerBody(req, res, RPC_PATH, RPC_REQUEST_MAX_BYTES);
+          if (opened === undefined) return;
+          body = opened.plaintext;
         } catch (error) {
           if (error instanceof RequestLimitError) {
             writeMsgpack(
@@ -446,13 +498,14 @@ export const attachLeaderEndpoints = (http: HttpServer, deps: LeaderEndpointDeps
           }
           return;
         }
+        if (opened === undefined) return;
         let decoded: unknown;
         try {
           decoded = decode(body);
         } catch {
-          writeMsgpack(res, 400, {
+          writeFollowerMsgpack(res, 400, opened, {
             kind: 'err',
-            requestId: '',
+            requestId: opened.context.requestId,
             code: ErrorCode.InvalidRequest,
             message: 'invalid msgpack body',
           });
@@ -460,15 +513,24 @@ export const attachLeaderEndpoints = (http: HttpServer, deps: LeaderEndpointDeps
         }
         const rpc = RpcRequestSchema.safeParse(decoded);
         if (!rpc.success) {
-          writeMsgpack(res, 400, {
+          writeFollowerMsgpack(res, 400, opened, {
             kind: 'err',
-            requestId: '',
+            requestId: opened.context.requestId,
             code: ErrorCode.InvalidParams,
             message: 'invalid rpc request',
           });
           return;
         }
         const { requestId, toolName, args, sessionId } = rpc.data;
+        if (requestId !== opened.context.requestId) {
+          writeFollowerMsgpack(res, 400, opened, {
+            kind: 'err',
+            requestId: opened.context.requestId,
+            code: ErrorCode.InvalidRequest,
+            message: 'transport requestId does not match RPC requestId',
+          });
+          return;
+        }
         try {
           let notice: string | null = null;
           const result = await deps.relay.sendRequest(
@@ -480,7 +542,7 @@ export const attachLeaderEndpoints = (http: HttpServer, deps: LeaderEndpointDeps
               notice = deps.relay.skewNotice(served);
             },
           );
-          writeMsgpack(res, 200, {
+          writeFollowerMsgpack(res, 200, opened, {
             kind: 'ok',
             requestId,
             result,
@@ -494,7 +556,12 @@ export const attachLeaderEndpoints = (http: HttpServer, deps: LeaderEndpointDeps
               : message.includes('timeout')
                 ? ErrorCode.Timeout
                 : ErrorCode.Internal;
-          writeMsgpack(res, 200, { kind: 'err', requestId, code, message });
+          writeFollowerMsgpack(res, 200, opened, {
+            kind: 'err',
+            requestId,
+            code,
+            message,
+          });
         }
         return;
       }

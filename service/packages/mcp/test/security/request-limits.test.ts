@@ -3,7 +3,14 @@ import type { AddressInfo } from 'node:net';
 import { Readable } from 'node:stream';
 
 import { encode } from '@msgpack/msgpack';
-import { createRequest, encodeEnvelope, newId, PROTOCOL_VERSION, SystemMethod } from '@sfp/shared';
+import {
+  createRequest,
+  decodeEnvelope,
+  encodeEnvelope,
+  newId,
+  PROTOCOL_VERSION,
+  SystemMethod,
+} from '@sfp/shared';
 import { afterEach, describe, expect, it } from 'vitest';
 import { WebSocket } from 'ws';
 
@@ -384,6 +391,124 @@ describe('WebSocket ingress gates', () => {
     expect(outcome).toEqual({ kind: 'close', code: 1008 });
     expect(relay.sessions.list()).toHaveLength(0);
   });
+
+  it.each([
+    ['exact cap plus another frame', 2_048, 1008],
+    ['cap plus one', 2_049, 1009],
+  ])(
+    'checks auth-pending raw frames before decode at %s',
+    async (_case, secondFrameBytes, expectedClose) => {
+      const server = createServer();
+      servers.push(server);
+      let entered!: () => void;
+      let release!: () => void;
+      const authEntered = new Promise<void>(resolve => {
+        entered = resolve;
+      });
+      const barrier = new Promise<void>(resolve => {
+        release = resolve;
+      });
+      let decodeCalls = 0;
+      let commitCalls = 0;
+      let provisionalResponseCalls = 0;
+      const logs: string[] = [];
+      const sessionId = newId();
+      const relay = new Relay({
+        server,
+        serverVersion: '0.1.0',
+        maxPayloadBytes: 2_048,
+        heartbeatIntervalMs: 1,
+        log: message => logs.push(message),
+        beforeHelloResponse: async () => {
+          provisionalResponseCalls += 1;
+        },
+        decodeFrame: bytes => {
+          decodeCalls += 1;
+          return decodeEnvelope(Buffer.from(bytes));
+        },
+        authenticator: {
+          prepareHello: async () => {
+            entered();
+            await barrier;
+            return {
+              preparationId: Buffer.alloc(32, 110).toString('base64url'),
+              result: {
+                sessionId,
+                rotatedResumeToken: Buffer.alloc(32, 111).toString('base64url'),
+                resumeExpiresAt: Date.now() + 60_000,
+              },
+            };
+          },
+          commitHello: async () => {
+            commitCalls += 1;
+          },
+        },
+      });
+      relays.push(relay);
+      await new Promise<void>((resolve, reject) => {
+        server.once('error', reject);
+        server.listen(0, '127.0.0.1', resolve);
+      });
+      const port = (server.address() as AddressInfo).port;
+      const socket = new WebSocket(`ws://127.0.0.1:${port}/ws`, { origin: 'null' });
+      await new Promise<void>((resolve, reject) => {
+        socket.once('open', resolve);
+        socket.once('error', reject);
+      });
+      socket.send(
+        encodeEnvelope(
+          createRequest({
+            id: 'raw-before-decode',
+            sessionId,
+            method: SystemMethod.Hello,
+            params: {
+              credential: { kind: 'ticket', value: 'test-ticket' },
+              nonce: Buffer.alloc(16, 112).toString('base64url'),
+              protocolVersion: PROTOCOL_VERSION,
+              productVersion: '0.1.0',
+              pluginVersion: '0.1.0',
+              pluginGeneration: 'plugin-generation-test',
+              editorType: 'figma',
+              mode: 'default',
+              fileIdentity: { kind: 'figma-file-key', value: 'file-key-test' },
+              fileName: 'Raw Gate Test',
+              capabilities: [],
+            },
+          }),
+        ),
+      );
+      await Promise.race([
+        authEntered,
+        new Promise<never>((_resolve, reject) =>
+          setTimeout(
+            () =>
+              reject(
+                new Error(
+                  `authenticator was not entered (decodeCalls=${decodeCalls}, logs=${logs.join('|')})`,
+                ),
+              ),
+            500,
+          ),
+        ),
+      ]);
+      const close = new Promise<number>(resolve => socket.once('close', code => resolve(code)));
+      socket.send(Buffer.alloc(secondFrameBytes));
+      if (secondFrameBytes === 2_048) socket.send(Buffer.from([1, 2, 3]));
+      const closeCode = await Promise.race([
+        close,
+        new Promise<number>(resolve => setTimeout(() => resolve(0), 500)),
+      ]);
+      release();
+      await new Promise(resolve => setTimeout(resolve, 10));
+      expect(closeCode).toBe(expectedClose);
+      expect(decodeCalls).toBe(1);
+      expect(commitCalls).toBe(0);
+      expect(provisionalResponseCalls).toBe(0);
+      expect(relay.sessions.list()).toHaveLength(0);
+      expect(relay.pendingCount()).toBe(0);
+      expect(relay.lastRequestAt()).toBe(0);
+    },
+  );
 
   it('logs only a generic pre-auth decode error and never attacker-controlled secret fields', async () => {
     const server = createServer();
