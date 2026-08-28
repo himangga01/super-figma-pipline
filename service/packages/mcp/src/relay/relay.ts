@@ -37,7 +37,7 @@ export interface RelayAuthenticator {
     preparationId: string;
     result: AuthenticatedHelloResult;
   }>;
-  commitHello?(preparationId: string): Promise<void>;
+  commitHello?(preparationId: string, signal?: AbortSignal): Promise<void>;
   drain?(): Promise<void>;
 }
 
@@ -49,6 +49,7 @@ export interface RelayOptions {
   heartbeatMaxMisses?: number;
   disconnectGraceMs?: number;
   maxPayloadBytes?: number;
+  helloTimeoutMs?: number;
   decodeFrame?: (bytes: Uint8Array) => Envelope;
   /** Test seam after provisional registration and before the hello response write. */
   beforeHelloResponse?: () => Promise<void>;
@@ -92,6 +93,7 @@ export class Relay {
       heartbeatMaxMisses: opts.heartbeatMaxMisses ?? HEARTBEAT_MAX_MISSES,
       disconnectGraceMs: opts.disconnectGraceMs ?? DEFAULT_DISCONNECT_GRACE_MS,
       maxPayloadBytes: opts.maxPayloadBytes ?? WS_FRAME_MAX_BYTES,
+      helloTimeoutMs: opts.helloTimeoutMs ?? 5_000,
       decodeFrame: opts.decodeFrame ?? decodeEnvelope,
       beforeHelloResponse: opts.beforeHelloResponse ?? (async () => {}),
       authenticator: opts.authenticator,
@@ -351,19 +353,24 @@ export class Relay {
     let authenticating = false;
     let closed = false;
     let terminal = false;
+    const connectionLifetime = new AbortController();
+    const markTerminal = (): void => {
+      terminal = true;
+      connectionLifetime.abort();
+    };
 
     const helloTimeout = setTimeout(() => {
       if (session === undefined) {
-        terminal = true;
+        markTerminal();
         this.opts.log('[relay] hello timeout, closing socket');
         socket.close(1008, 'hello timeout');
       }
-    }, 5_000);
+    }, this.opts.helloTimeoutMs);
 
     socket.on('message', raw => {
       if (terminal) return;
       if (session === undefined && authenticating) {
-        terminal = true;
+        markTerminal();
         socket.close(1008, 'non-hello message while authentication is pending');
         return;
       }
@@ -371,7 +378,7 @@ export class Relay {
       try {
         envelope = this.opts.decodeFrame(raw as Uint8Array);
       } catch {
-        terminal = true;
+        markTerminal();
         this.opts.log('[relay] decode error');
         socket.close(1003, 'invalid envelope');
         return;
@@ -381,7 +388,11 @@ export class Relay {
         authenticating = true;
         const helloTask = (async (): Promise<void> => {
           try {
-            const authenticated = await this.handleHello(socket, envelope);
+            const authenticated = await this.handleHello(
+              socket,
+              envelope,
+              connectionLifetime.signal,
+            );
             clearTimeout(helloTimeout);
             if (authenticated !== null && (closed || socket.readyState !== 1)) {
               this.sessions.remove(authenticated);
@@ -389,11 +400,11 @@ export class Relay {
             }
             session = authenticated ?? undefined;
             if (session === undefined) {
-              terminal = true;
+              markTerminal();
               socket.close(1008, 'hello failed');
             }
           } catch (error) {
-            terminal = true;
+            markTerminal();
             clearTimeout(helloTimeout);
             const errorType = error instanceof Error ? error.name : 'NonError';
             this.opts.log(`[relay] authenticated hello failed internally (${errorType})`);
@@ -410,7 +421,7 @@ export class Relay {
 
     socket.on('close', () => {
       closed = true;
-      terminal = true;
+      markTerminal();
       clearTimeout(helloTimeout);
       if (session !== undefined) {
         this.opts.log(
@@ -425,7 +436,11 @@ export class Relay {
     });
   }
 
-  private async handleHello(socket: WebSocket, env: Envelope): Promise<Session | null> {
+  private async handleHello(
+    socket: WebSocket,
+    env: Envelope,
+    connectionSignal: AbortSignal,
+  ): Promise<Session | null> {
     if (env.kind !== 'req' || env.method !== SystemMethod.Hello) {
       this.sendError(socket, env, ErrorCode.InvalidRequest, 'first message must be $hello');
       return null;
@@ -522,7 +537,7 @@ export class Relay {
         : { skewNotice: pluginSkewNotice(parsed.data.pluginVersion, this.opts.serverVersion) }),
     };
     if (preparationId !== undefined) {
-      await this.opts.authenticator.commitHello?.(preparationId);
+      await this.opts.authenticator.commitHello?.(preparationId, connectionSignal);
     }
     if (socket.readyState !== 1) return null;
 

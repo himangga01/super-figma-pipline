@@ -368,10 +368,30 @@ describe('protected service authorities', () => {
         ),
     },
     {
-      name: 'Task 6 recoverable hello commit authority',
+      name: 'Task 6 terminal-aware hello commit authority',
       path: 'packages/mcp/src/relay/relay.ts',
       mutate: contents =>
-        contents.replace('commitHello?.(preparationId)', 'authenticateHello?.(parsed.data)'),
+        contents.replace(
+          'commitHello?.(preparationId, connectionSignal)',
+          'commitHello?.(preparationId)',
+        ),
+    },
+    {
+      name: 'Task 6 pre-publication revision bound authority',
+      path: 'packages/mcp/src/security/pairing-manager.ts',
+      mutate: contents =>
+        contents.replace('await compactBeforePublication(state.revision);', '// cleanup skipped'),
+    },
+    {
+      name: 'Task 6 live key initializer ownership authority',
+      path: 'packages/mcp/src/security/pairing-manager.ts',
+      mutate: contents => contents.replace('if (path === ownTemporary) continue;', ''),
+    },
+    {
+      name: 'Task 6 bounded key temporary authority',
+      path: 'packages/mcp/src/security/pairing-manager.ts',
+      mutate: contents =>
+        contents.replace('PAIR_KEY_TEMP_SCAN_CAP = 256', 'PAIR_KEY_TEMP_SCAN_CAP = 256000'),
     },
     {
       name: 'Task 6 fresh follower identity authority',

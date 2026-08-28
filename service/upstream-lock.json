@@ -86,7 +86,7 @@
       },
       {
         "path": "packages/mcp/src/relay/relay.ts",
-        "sha256": "7d9057f88e1717481ab4458244cb25b46dc414dabb8c210dad4187d3e886e530"
+        "sha256": "fd893395b646221d24ffc1f3142ed4712d3f04d527e4d2855d31dda5857f3235"
       },
       {
         "path": "packages/mcp/src/relay/session.ts",
@@ -106,7 +106,7 @@
       },
       {
         "path": "packages/mcp/src/security/pairing-manager.ts",
-        "sha256": "87d8ba38f8cc38eee868b7cc53dcaad5c4160ac0533d6fb97ea9511990ee4563"
+        "sha256": "b7a06d83fd97f00d6ce315a4f76852f1e912cffb76474e1c4f610d3cc5b89ea6"
       },
       {
         "path": "packages/mcp/src/security/request-limits.ts",
@@ -662,7 +662,7 @@
       },
       {
         "path": "packages/mcp/test/security/pairing.test.ts",
-        "sha256": "34cbbb2e52345cad66f438662b94244ccef3692c070bc0a69494922ace98c91e"
+        "sha256": "75ba46eb2eb08d3ab284e0a9773b23e5e314891e9b9a33680d4d0e2fcff0e551"
       },
       {
         "path": "packages/mcp/test/security/pna.test.ts",
@@ -786,7 +786,7 @@
       },
       {
         "path": "test/vendor-upstreams.test.ts",
-        "sha256": "52535117e8a3b37f2cded84a67556ac5f27be85155995d68c750169c3a83186a"
+        "sha256": "0937a5a62f9ccb7c131c6c3dda3a8be9b9280271b6433311f5ff880d23c29239"
       }
     ]
   },
@@ -929,7 +929,7 @@
     },
     {
       "path": "packages/mcp/src/relay/relay.ts",
-      "sha256": "7d9057f88e1717481ab4458244cb25b46dc414dabb8c210dad4187d3e886e530"
+      "sha256": "fd893395b646221d24ffc1f3142ed4712d3f04d527e4d2855d31dda5857f3235"
     },
     {
       "path": "packages/mcp/src/relay/session.ts",
@@ -949,7 +949,7 @@
     },
     {
       "path": "packages/mcp/src/security/pairing-manager.ts",
-      "sha256": "87d8ba38f8cc38eee868b7cc53dcaad5c4160ac0533d6fb97ea9511990ee4563"
+      "sha256": "b7a06d83fd97f00d6ce315a4f76852f1e912cffb76474e1c4f610d3cc5b89ea6"
     },
     {
       "path": "packages/mcp/src/security/request-limits.ts",
@@ -1505,7 +1505,7 @@
     },
     {
       "path": "packages/mcp/test/security/pairing.test.ts",
-      "sha256": "34cbbb2e52345cad66f438662b94244ccef3692c070bc0a69494922ace98c91e"
+      "sha256": "75ba46eb2eb08d3ab284e0a9773b23e5e314891e9b9a33680d4d0e2fcff0e551"
     },
     {
       "path": "packages/mcp/test/security/pna.test.ts",
@@ -1689,7 +1689,7 @@
     },
     {
       "path": "test/vendor-upstreams.test.ts",
-      "sha256": "52535117e8a3b37f2cded84a67556ac5f27be85155995d68c750169c3a83186a"
+      "sha256": "0937a5a62f9ccb7c131c6c3dda3a8be9b9280271b6433311f5ff880d23c29239"
     },
     {
       "path": "tsconfig.base.json",
@@ -1701,7 +1701,7 @@
     },
     {
       "path": "vendor-allowed-figwright-strings.json",
-      "sha256": "bd795f5dbd5a97e0310564769802af65abccae0f3471a51392715e2b72375c1b"
+      "sha256": "2164913fe121d1aae76b76c2f4995401f7aa749fabf40aa8cb5e47447ef7a86c"
     },
     {
       "path": "vendor-rules.json",

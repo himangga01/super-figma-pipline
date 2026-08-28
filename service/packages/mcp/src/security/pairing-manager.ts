@@ -4,7 +4,7 @@ import {
   randomInt as systemRandomInt,
   timingSafeEqual,
 } from 'node:crypto';
-import { link, lstat, open, readFile, readdir, rm } from 'node:fs/promises';
+import { link, lstat, open, opendir, readFile, rm } from 'node:fs/promises';
 import { dirname, join, resolve } from 'node:path';
 
 import {
@@ -26,6 +26,8 @@ export const PAIR_HELLO_RECOVERY_TTL_MS = 5 * 1000;
 export const PAIR_ATTEMPTS = 5;
 /** The current monotonic revision plus seven immutable predecessors. */
 export const PAIR_STATE_REVISION_RETAIN_COUNT = 8;
+export const PAIR_KEY_TEMP_STALE_MS = 10 * 60 * 1000;
+export const PAIR_KEY_TEMP_SCAN_CAP = 256;
 
 export interface RateLimit {
   limit: number;
@@ -42,10 +44,18 @@ export interface PairingManagerOptions {
   exchangeRateLimit?: RateLimit;
   log?: (message: string) => void;
   mutationRetryTimeoutMs?: number;
+  /** Test seam after key bytes are durable but before owner-security verification. */
+  beforeKeySecurityVerification?: (temporary: string) => Promise<void>;
   /** Test seam after the key temporary is durable/secured but before no-replace publication. */
   beforeKeyPublish?: (temporary: string) => Promise<void>;
+  /** Test seam after a bounded revision scan but before its stale-snapshot validation pass. */
+  beforeRevisionCleanup?: () => Promise<void>;
+  /** Test seam for Windows sharing-denial and sequential revision cleanup fixtures. */
+  removeRevision?: (path: string) => Promise<void>;
   /** Test seam after a full mutation is durable but before its revision is atomically published. */
   beforeStatePublish?: () => Promise<void>;
+  /** Test seam that simulates process loss immediately after no-replace state publication. */
+  afterStatePublish?: () => Promise<void>;
 }
 
 export class PairingError extends Error {
@@ -66,7 +76,7 @@ export interface PairingManager {
   createChallenge(actor: string): Promise<PairChallengeIssued>;
   exchange(challengeId: string, code: string): Promise<PairExchangeResult>;
   prepareHello(input: unknown): Promise<PreparedHello>;
-  commitHello(preparationId: string): Promise<void>;
+  commitHello(preparationId: string, signal?: AbortSignal): Promise<void>;
   authenticateHello(input: unknown): Promise<AuthenticatedHelloResult>;
   drain(): Promise<void>;
 }
@@ -128,7 +138,8 @@ const KEY_FILE = 'pairing-hmac.key';
 const STATE_FILE = 'pairing-state.json';
 const LOCK_FILE = '.pairing-state.lock';
 const STATE_REVISION = /^pairing-state\.v(\d{16})\.json$/;
-const KEY_TEMPORARY = /^\.pairing-hmac\.key\..+\.tmp$/;
+const KEY_TEMPORARY = /^\.pairing-hmac\.key\.(\d+)\.(\d+)\.([a-f0-9]{16}|[a-f0-9]{32})\.tmp$/;
+const KEY_PUBLICATION_RETRY_TIMEOUT_MS = 15_000;
 let keyTemporarySequence = 0;
 
 class PairingStateConflict extends Error {}
@@ -149,6 +160,9 @@ const isMissingPath = (error: unknown): boolean => {
   const candidate = error as NodeJS.ErrnoException & { cause?: NodeJS.ErrnoException };
   return candidate.code === 'ENOENT' || candidate.cause?.code === 'ENOENT';
 };
+
+const isLostTemporary = (error: unknown): boolean =>
+  isMissingPath(error) || (error as NodeJS.ErrnoException).code === 'STATE_PATH_UNSAFE';
 
 const emptyState = (): PairingState => ({
   version: 1,
@@ -417,38 +431,59 @@ export const createPairingManager = async (
     return stored;
   };
 
-  const cleanKeyTemporaries = async (): Promise<void> => {
-    const temporaries = (await readdir(stateRoot)).filter(name => KEY_TEMPORARY.test(name));
+  const cleanStaleKeyTemporaries = async (
+    ownTemporary?: string,
+    reservedSlots = 0,
+  ): Promise<void> => {
+    const directory = await opendir(stateRoot);
+    let scanned = 0;
     let removed = false;
-    await Promise.all(
-      temporaries.map(async name => {
-        try {
-          await rm(join(stateRoot, name));
-          removed = true;
-        } catch (error) {
-          if (!isMissingPath(error)) log('[pairing] key temporary cleanup deferred');
-        }
-      }),
-    );
+    for await (const entry of directory) {
+      if (!KEY_TEMPORARY.test(entry.name)) continue;
+      scanned += 1;
+      if (scanned > PAIR_KEY_TEMP_SCAN_CAP - reservedSlots) {
+        throw new PairingError('PAIR_INTERNAL', 500);
+      }
+      const path = join(stateRoot, entry.name);
+      if (path === ownTemporary) continue;
+      let metadata: Awaited<ReturnType<typeof lstat>>;
+      try {
+        // eslint-disable-next-line no-await-in-loop -- bounded incremental scan avoids all-file allocation
+        metadata = await lstat(path);
+      } catch (error) {
+        if (isMissingPath(error)) continue;
+        throw new PairingError('PAIR_INTERNAL', 500, { cause: error });
+      }
+      if (now() - metadata.mtimeMs < PAIR_KEY_TEMP_STALE_MS) continue;
+      try {
+        // A delayed owner must treat ENOENT like a lost publication race and converge on the final.
+        // eslint-disable-next-line no-await-in-loop -- cleanup concurrency is deliberately one
+        await rm(path);
+        removed = true;
+      } catch (error) {
+        if (!isMissingPath(error)) throw new PairingError('PAIR_INTERNAL', 500, { cause: error });
+      }
+    }
     if (removed) {
       try {
         await syncStateDirectory();
-      } catch {
-        log('[pairing] key temporary directory sync deferred');
+      } catch (error) {
+        throw new PairingError('PAIR_INTERNAL', 500, { cause: error });
       }
     }
   };
 
   const readPublishedKeyAfterConflict = async (cause: unknown): Promise<Buffer> => {
     let lastError: unknown = cause;
+    const deadline = Date.now() + KEY_PUBLICATION_RETRY_TIMEOUT_MS;
     /* eslint-disable no-await-in-loop -- publication visibility retries are intentionally bounded */
-    for (let attempt = 0; attempt < 8; attempt += 1) {
+    while (Date.now() < deadline) {
       try {
         return await readPublishedKey();
       } catch (error) {
         lastError = error;
         if (!isMissingPath(error)) throw error;
-        await new Promise<void>(resolvePromise => setTimeout(resolvePromise, 1));
+        await new Promise<void>(resolvePromise => setTimeout(resolvePromise, 10));
       }
     }
     /* eslint-enable no-await-in-loop */
@@ -458,38 +493,43 @@ export const createPairingManager = async (
   const loadKey = async (): Promise<Buffer> => {
     if (await pathExists(keyPath)) {
       const stored = await readPublishedKey();
-      await cleanKeyTemporaries();
+      await cleanStaleKeyTemporaries();
       return stored;
     }
+    await cleanStaleKeyTemporaries(undefined, 1);
     const candidate = Buffer.from(randomBytes(32));
     if (candidate.byteLength !== 32) throw new Error('pairing HMAC key entropy source failed');
+    const ownerToken = randomBytes(16);
+    if (ownerToken.byteLength !== 16) throw new Error('pairing HMAC key entropy source failed');
     const temporary = join(
       stateRoot,
-      `.${KEY_FILE}.${process.pid}.${keyTemporarySequence}.${randomBytes(8).toString('hex')}.tmp`,
+      `.${KEY_FILE}.${process.pid}.${keyTemporarySequence}.${ownerToken.toString('hex')}.tmp`,
     );
     keyTemporarySequence += 1;
     let handle: Awaited<ReturnType<typeof open>> | undefined;
     try {
       handle = await open(temporary, 'wx', 0o600);
+      await cleanStaleKeyTemporaries(temporary);
       await handle.writeFile(candidate);
       await handle.sync();
       await handle.close();
       handle = undefined;
-      await options.permissions.ensureSecure(temporary);
-      await options.permissions.verifySecure(temporary);
-      await options.beforeKeyPublish?.(temporary);
       try {
+        await options.beforeKeySecurityVerification?.(temporary);
+        await options.permissions.ensureSecure(temporary);
+        await options.permissions.verifySecure(temporary);
+        await options.beforeKeyPublish?.(temporary);
         await link(temporary, keyPath);
       } catch (error) {
-        if (!['EEXIST', 'ENOENT'].includes((error as NodeJS.ErrnoException).code ?? ''))
+        if (!isLostTemporary(error) && (error as NodeJS.ErrnoException).code !== 'EEXIST')
           throw error;
         const stored = await readPublishedKeyAfterConflict(error);
-        await cleanKeyTemporaries();
+        await cleanStaleKeyTemporaries(temporary);
         return stored;
       }
       await options.permissions.verifySecure(keyPath);
       await syncStateDirectory();
-      await cleanKeyTemporaries();
+      await cleanStaleKeyTemporaries(temporary);
       return candidate;
     } finally {
       await handle?.close().catch(() => {});
@@ -509,17 +549,30 @@ export const createPairingManager = async (
   const revisionPath = (revision: number): string =>
     join(stateRoot, `pairing-state.v${String(revision).padStart(16, '0')}.json`);
 
-  const revisionNumbers = async (): Promise<number[]> =>
-    (await readdir(stateRoot))
-      .map(name => STATE_REVISION.exec(name))
-      .filter((match): match is RegExpExecArray => match !== null)
-      .map(match => Number(match[1]))
-      .filter(Number.isSafeInteger)
-      .toSorted((left, right) => right - left);
+  const scanRevisions = async (
+    visit: (revision: number) => void | Promise<void>,
+  ): Promise<void> => {
+    const directory = await opendir(stateRoot);
+    for await (const entry of directory) {
+      const match = STATE_REVISION.exec(entry.name);
+      if (match === null) continue;
+      const revision = Number(match[1]);
+      if (!Number.isSafeInteger(revision)) continue;
+      // eslint-disable-next-line no-await-in-loop -- directory traversal is intentionally bounded-concurrency
+      await visit(revision);
+    }
+  };
+
+  const latestRevision = async (): Promise<number | undefined> => {
+    let latest: number | undefined;
+    await scanRevisions(revision => {
+      if (latest === undefined || revision > latest) latest = revision;
+    });
+    return latest;
+  };
 
   const loadState = async (): Promise<PairingState> => {
-    const revisions = await revisionNumbers();
-    const latest = revisions[0];
+    const latest = await latestRevision();
     if (latest !== undefined) {
       const path = revisionPath(latest);
       try {
@@ -543,36 +596,85 @@ export const createPairingManager = async (
     return legacy;
   };
 
-  const collectOldRevisions = async (publishedRevision: number): Promise<void> => {
-    const oldestRetained = Math.max(1, publishedRevision - PAIR_STATE_REVISION_RETAIN_COUNT + 1);
-    const obsolete = (await revisionNumbers()).filter(
-      revision => revision < oldestRetained && revision < publishedRevision,
-    );
+  const removeRevision = options.removeRevision ?? (async (path: string) => rm(path));
+
+  const compactBeforePublication = async (snapshotRevision: number): Promise<void> => {
+    const predecessorReserve = PAIR_STATE_REVISION_RETAIN_COUNT - 2;
+    const newestPredecessors: number[] = [];
+    let snapshotSeen = snapshotRevision === 0;
+    await scanRevisions(revision => {
+      if (revision > snapshotRevision) {
+        throw new PairingStateConflict('pairing revision advanced before cleanup');
+      }
+      if (revision === snapshotRevision) {
+        snapshotSeen = true;
+        return;
+      }
+      newestPredecessors.push(revision);
+      newestPredecessors.sort((left, right) => right - left);
+      if (newestPredecessors.length > predecessorReserve) newestPredecessors.pop();
+    });
+    if (!snapshotSeen)
+      throw new PairingStateConflict('pairing snapshot disappeared before cleanup');
+
+    await options.beforeRevisionCleanup?.();
+
+    // A full validation pass occurs before any deletion, so a publisher that won while the first
+    // scan was paused forces a complete transaction retry without deleting from the stale view.
+    snapshotSeen = snapshotRevision === 0;
+    await scanRevisions(revision => {
+      if (revision > snapshotRevision) {
+        throw new PairingStateConflict('pairing revision advanced during cleanup validation');
+      }
+      if (revision === snapshotRevision) snapshotSeen = true;
+    });
+    if (!snapshotSeen) {
+      throw new PairingStateConflict('pairing snapshot disappeared during cleanup validation');
+    }
+
+    const retained = new Set(newestPredecessors);
     let removed = false;
-    await Promise.all(
-      obsolete.map(async revision => {
-        try {
-          // Revisions are immutable hardlink publications with monotonic IDs. Removing an old
-          // pathname can never remove current/future publications. Windows may temporarily deny
-          // deletion while another process has it open; leave it for the next bounded GC pass.
-          await rm(revisionPath(revision));
-          removed = true;
-        } catch (error) {
-          if (!isMissingPath(error)) log('[pairing] revision GC deferred');
-        }
-      }),
-    );
+    await scanRevisions(async revision => {
+      if (revision > snapshotRevision) {
+        throw new PairingStateConflict('pairing revision advanced during cleanup');
+      }
+      if (revision >= snapshotRevision || retained.has(revision)) return;
+      try {
+        // Sequential unlink keeps Windows sharing semantics and cleanup memory/concurrency bounded.
+        await removeRevision(revisionPath(revision));
+        removed = true;
+      } catch (error) {
+        if (isMissingPath(error)) return;
+        throw new PairingError('PAIR_INTERNAL', 500, { cause: error });
+      }
+    });
+
+    let remaining = 0;
+    await scanRevisions(revision => {
+      if (revision > snapshotRevision) {
+        throw new PairingStateConflict('pairing revision advanced after cleanup');
+      }
+      remaining += 1;
+    });
+    if (remaining >= PAIR_STATE_REVISION_RETAIN_COUNT) {
+      throw new PairingError('PAIR_INTERNAL', 500);
+    }
     if (removed) {
       try {
         await syncStateDirectory();
-      } catch {
-        // The published revision is already durable. A later mutation repeats bounded GC.
-        log('[pairing] revision GC directory sync deferred');
+      } catch (error) {
+        throw new PairingError('PAIR_INTERNAL', 500, { cause: error });
       }
     }
   };
 
-  const saveState = async (state: PairingState): Promise<void> => {
+  const assertCommitActive = (signal: AbortSignal | undefined): void => {
+    if (signal?.aborted === true) {
+      throw new PairingError('PAIR_CREDENTIAL_REQUIRED', 401, { cause: signal.reason });
+    }
+  };
+
+  const saveState = async (state: PairingState, signal?: AbortSignal): Promise<void> => {
     const nextRevision = state.revision + 1;
     if (!Number.isSafeInteger(nextRevision)) throw new Error('pairing revision exhausted');
     const target = revisionPath(nextRevision);
@@ -591,6 +693,9 @@ export const createPairingManager = async (
       await options.permissions.ensureSecure(temporary);
       await options.permissions.verifySecure(temporary);
       await options.beforeStatePublish?.();
+      assertCommitActive(signal);
+      await compactBeforePublication(state.revision);
+      assertCommitActive(signal);
       try {
         await link(temporary, target);
         published = true;
@@ -600,10 +705,10 @@ export const createPairingManager = async (
         }
         throw error;
       }
+      await options.afterStatePublish?.();
       await options.permissions.verifySecure(target);
       state.revision = nextRevision;
       await syncStateDirectory();
-      await collectOldRevisions(nextRevision);
     } catch (error) {
       await handle?.close().catch(() => {});
       if (!published || error instanceof PairingStateConflict) {
@@ -822,11 +927,12 @@ export const createPairingManager = async (
     });
   };
 
-  const commitHello = async (preparationId: string): Promise<void> => {
+  const commitHello = async (preparationId: string, signal?: AbortSignal): Promise<void> => {
     if (!/^[A-Za-z0-9_-]{43}$/.test(preparationId)) {
       throw new PairingError('PAIR_CREDENTIAL_REQUIRED', 401);
     }
     await withMutation(async () => {
+      assertCommitActive(signal);
       const state = await loadState();
       const transaction = state.helloTransactions.find(
         item => item.preparationId === preparationId,
@@ -835,7 +941,7 @@ export const createPairingManager = async (
       const at = now();
       if (at >= transaction.recoverUntil || at >= transaction.credentialExpiresAt) {
         state.helloTransactions = state.helloTransactions.filter(item => item !== transaction);
-        await saveState(state);
+        await saveState(state, signal);
         throw new PairingError('PAIR_CREDENTIAL_REQUIRED', 401);
       }
       if (at >= transaction.prepareExpiresAt) {
@@ -875,7 +981,7 @@ export const createPairingManager = async (
         used: false,
       });
       transaction.committed = true;
-      await saveState(state);
+      await saveState(state, signal);
       log(`[pairing] session ${transaction.sessionId} authenticated`);
     });
   };
