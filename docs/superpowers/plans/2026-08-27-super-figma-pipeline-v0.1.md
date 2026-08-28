@@ -319,6 +319,65 @@ MCP annotations use the union of possible effects and are conservative. Before `
 ~~~ts
 export type EgressMode = 'local-trusted' | 'external-model' | 'unknown-fail-closed';
 export type DataClass = 'public' | 'project-code' | 'design-text' | 'design-image' | 'secret';
+export type ExternalModelDataClass = Exclude<DataClass, 'secret'>;
+
+export type EgressConfigV1 =
+  | {
+      schemaVersion: 1;
+      mode: 'unknown-fail-closed';
+      allowedClasses: readonly [];
+      consentId: null;
+      configuredAt: string | null;
+      expiresAt: null;
+      configHash: `sha256:${string}`;
+    }
+  | {
+      schemaVersion: 1;
+      mode: 'local-trusted';
+      allowedClasses: readonly DataClass[];
+      consentId: null;
+      configuredAt: string;
+      expiresAt: null;
+      configHash: `sha256:${string}`;
+    }
+  | {
+      schemaVersion: 1;
+      mode: 'external-model';
+      allowedClasses: readonly ExternalModelDataClass[];
+      consentId: `sfp_consent1_${string}`;
+      configuredAt: string;
+      expiresAt: string;
+      configHash: `sha256:${string}`;
+    };
+
+export interface EgressConfigLoadResult {
+  config: Readonly<EgressConfigV1>;
+  expired: boolean;
+}
+
+export interface EgressConfigStore {
+  load(now?: number): Promise<Readonly<EgressConfigLoadResult>>;
+  save(next: Readonly<EgressConfigV1>, expectedConfigHash: `sha256:${string}`): Promise<void>;
+  reset(expectedConfigHash: `sha256:${string}`): Promise<Readonly<EgressConfigV1>>;
+}
+
+export interface EgressConfigStatusV1 {
+  schemaVersion: 1;
+  mode: EgressMode;
+  allowedClasses: readonly DataClass[];
+  configuredAt: string | null;
+  expiresAt: string | null;
+  configHash: `sha256:${string}`;
+  expired: boolean;
+}
+
+export interface EgressConfigureRequestV1 {
+  schemaVersion: 1;
+  mode: 'external-model';
+  allowedClasses: readonly ExternalModelDataClass[];
+  expiresInSeconds: number;
+  actionNonce: `sfp_an1_${string}`;
+}
 
 export interface ClassifiedPayload<T> {
   value: T;
@@ -425,7 +484,9 @@ export type ActionNonceAction =
   | 'workspace.set-default'
   | 'operation.resolve'
   | 'network-domain.add'
-  | 'network-domain.remove';
+  | 'network-domain.remove'
+  | 'egress.configure'
+  | 'egress.reset';
 
 export type ActionNonceIssueRequestV1 =
   | { action: 'workspace.add'; requestHash: `sha256:${string}`; registrationPath: string }
@@ -521,6 +582,7 @@ export interface ConsentContext {
   mode: EgressMode;
   consentId: string | null;
   allowedClasses: readonly DataClass[];
+  expiresAt: number | null;
 }
 
 export interface ConsentFingerprintV1 {
@@ -683,6 +745,8 @@ export interface ControlStatusV1 {
     pageName: string | null;
     fileIdentityKind: FileIdentity['kind'];
     pluginVersion: string;
+    pluginGenerationHash: `sha256:${string}`;
+    editorType: 'figma' | 'figjam' | 'dev';
     capabilities: readonly string[];
   };
 }
@@ -695,6 +759,7 @@ export type AdministrativeActionName =
   | 'approval.settle'
   | 'workspace.list'
   | 'network-domain.list'
+  | 'egress.status'
   | 'operation.issue'
   | 'operation.list'
   | 'operation.status';
@@ -705,6 +770,11 @@ export interface AdministrativeActionAuditRecord {
   actorId: `actor1_${string}`;
   authSessionId: `auth1_${string}`;
   requestHash: string | null;
+  egress: null | {
+    configHash: `sha256:${string}`;
+    allowedClasses: readonly ExternalModelDataClass[];
+    expiresAt: string | null;
+  };
   decidedAt: string;
 }
 
@@ -828,7 +898,11 @@ export const SERVICE_OPERATION_SPECS: Readonly<Partial<Record<ServiceOperationNa
 
 Task7 registers its one typed router at the frozen Task6.1 seam's exact `/control` prefix before listen; all sibling paths dispatch internally. Task7 router rejects duplicate method/path/decoder/post-freeze; Task6.1 seam rejects any second/descendant prefix. Task8/11 modify only route-registry; structural tests prove sibling reachability, single response, authenticated default404/body/CORS on decline, no standalone mount/producer edit.
 
-Authenticated `GET /control/status` is a Task7 admin route with empty strict input and exact `ControlStatusV1` output. Its `ControlStatusSource` combines final Task6.1 facade server/role/generation facts with a read-only Relay registry snapshot; it never calls public ping over HTTP. Session/file/plugin/capability oracles exist only here behind control auth. Tests cover unauthorized/foreign stateRoot, exact keys, redaction, zero/multiple plugins, active-session rotation, and absence of credentials/raw file identity values.
+Task5 owns `EgressConfigStore` at owner-secure `stateRoot/policy/egress-config.v1.json`. It strict-loads/checksums `EgressConfigV1`, writes through the Task4 atomic-file primitive, provides CAS `load/save/reset`, and treats missing, reset, checksum/schema corruption, or an expired external consent as `unknown-fail-closed`; read never silently renews or rewrites consent. `external-model` accepts a nonempty, UTF-8-byte-sorted, unique subset of exactly `public|project-code|design-text|design-image`; `secret` is impossible. `consentId` is server-generated `sfp_consent1_` plus `Base64Url128Schema` (128 random bits) and is never accepted from a body. `expiresInSeconds` is an integer `60..28800` inclusive, `expiresAt=configuredAt+expiresInSeconds*1000`, and `now>=expiresAt` fails closed with runtime0. `configHash` is `sha256:` plus SHA-256 of `sfp-egress-config-v1\0` and canonical JSON with `configHash` omitted.
+
+Task7 7B owns strict authenticated admin routes `GET /control/egress`, `POST /control/egress`, and `DELETE /control/egress`. GET accepts no body/query, returns only `EgressConfigStatusV1`, and redacts `consentId`, actor/auth, stateRoot, and raw config bytes. POST strict-parses `EgressConfigureRequestV1`, sorts/rejects duplicate classes, computes `hashActionRequest('egress.configure',{mode:'external-model',allowedClasses,expiresInSeconds})`, semantic-validates current generation/actor, consumes the exact action nonce CAS immediately before server consent issuance+store save, and returns the redacted status. DELETE accepts an empty body plus exact `x-sfp-action-nonce`, hashes `hashActionRequest('egress.reset',{})`, consumes immediately before `reset`, and durably restores `unknown-fail-closed`. Bodies/query can never set actor, authSession, consentId, configuredAt, expiresAt, generation, or configHash. Configure/reset audit stores actor/auth, action, request/config hash, sorted classes and expiry only—never consentId; strict audit refinement requires `egress:null` for every non-egress action and the exact redacted object for configure/reset. Reuse, wrong actor/generation/action/hash, expiry, concurrent CAS, malformed class/TTL/body, and foreign stateRoot fail with config unchanged; unknown/expired invocation fails before queue/runtime.
+
+Authenticated `GET /control/status` is a Task7 admin route with empty strict input and exact `ControlStatusV1` output. Its `ControlStatusSource` combines final Task6.1 facade server/role/generation facts with a read-only Relay registry snapshot; it never calls public ping over HTTP. For `activePlugin`, `editorType` is copied only from the authenticated registered Relay session and `pluginGenerationHash` is `sha256:` plus SHA-256 of `sfp-control-status-plugin-generation-v1\0` and exact UTF-8 plugin generation; raw generation is absent. Session/file/plugin/capability oracles exist only here behind control auth. Tests cover unauthorized/foreign stateRoot, exact keys, hash vectors, editor type, redaction, zero/multiple plugins, active-session rotation, and absence of credentials/raw file identity values.
 
 Tool and service public schemas remain distinct. Journal/idempotency codecs discriminate OperationKind: tool→ToolName, service→two exact names, system→literal identity.bootstrap. System has no public request/registry and is introduced only Task9C; cross-kind names reject. Tool/service tests retain all syntax boundaries and service count2.
 
@@ -1656,6 +1730,20 @@ export interface CurrentWindowsDiagnosticContext {
   expectedBuildId: number;
 }
 
+export interface VerifiedLocalDaemonBinding {
+  daemonUrl: `http://127.0.0.1:${number}`;
+  pid: number;
+  port: number;
+  product: 'super-figma-pipeline';
+  buildId: number;
+  leaderGeneration: string;
+  buildMatches: boolean;
+}
+
+export interface LocalDaemonBindingVerifier {
+  verifyWithoutCredential(context: Readonly<CurrentWindowsDiagnosticContext>): Promise<Readonly<VerifiedLocalDaemonBinding>>;
+}
+
 export type CurrentWindowsDiagnosticV1 =
   | {
       schemaVersion: 1;
@@ -1667,6 +1755,7 @@ export type CurrentWindowsDiagnosticV1 =
       pluginGenerationHash: PrefixedSha256;
       daemonGenerationHash: PrefixedSha256;
       coPresence: true;
+      noMutation: true;
       pairingAttempts: 0;
       mutationAttempts: 0;
       externalNetworkAttempts: 0;
@@ -1676,13 +1765,12 @@ export type CurrentWindowsDiagnosticV1 =
       schemaVersion: 1;
       status: 'error';
       code:
+        | 'LOCAL_DAEMON_MISMATCH'
         | 'DESKTOP_NOT_FOUND'
-        | 'MULTIPLE_DESKTOPS'
-        | 'PLUGIN_NOT_CONNECTED'
         | 'BUILD_MISMATCH'
-        | 'DAEMON_UNAVAILABLE'
-        | 'OWNER_CONTEXT_INVALID';
-      coPresence: boolean;
+        | 'PLUGIN_NOT_CONNECTED';
+      coPresence: false;
+      noMutation: true;
       pairingAttempts: 0;
       mutationAttempts: 0;
       externalNetworkAttempts: 0;
@@ -1691,18 +1779,16 @@ export type CurrentWindowsDiagnosticV1 =
 
 export const CURRENT_WINDOWS_DIAGNOSTIC_EXIT = {
   CONNECTED: 0,
-  DESKTOP_NOT_FOUND: 20,
-  PLUGIN_NOT_CONNECTED: 21,
+  LOCAL_DAEMON_MISMATCH: 20,
+  DESKTOP_NOT_FOUND: 21,
   BUILD_MISMATCH: 22,
-  DAEMON_UNAVAILABLE: 23,
-  OWNER_CONTEXT_INVALID: 24,
-  MULTIPLE_DESKTOPS: 25,
+  PLUGIN_NOT_CONNECTED: 23,
 } as const;
 ~~~
 
-`CurrentWindowsDiagnosticV1Schema` is a strict discriminated Zod union, not a fourth persisted Ajv schema. The success branch is emitted only when exactly one injected current-Windows Desktop observation, the retained daemon public identity, and an already-authenticated paired plugin session agree on product/build. `pluginGenerationHash` is `sha256:` plus SHA-256 of `sfp-diagnostic-plugin-generation-v1\0` and the exact UTF-8 generation; `daemonGenerationHash` uses `sfp-diagnostic-daemon-generation-v1\0` and exact UTF-8 `leaderGeneration`. The error union uses the exact exit map above; `BUILD_MISMATCH` alone has `coPresence:true`, and every other error has `coPresence:false`. Output has no PID, URL, stateRoot, raw generation/session/file identity, Desktop executable path/version, user data, plugin payload, or free-form message.
+`CurrentWindowsDiagnosticV1Schema` is a strict discriminated Zod union, not a fourth persisted Ajv schema. The success branch is emitted only when exactly one injected current-Windows Desktop observation, the retained daemon public identity, and an already-authenticated paired plugin session agree on product/build; it carries `noMutation:true`. It copies `activePlugin.pluginGenerationHash` and server-derived `editorType` from strict authenticated `ControlStatusV1`; `daemonGenerationHash` is `sha256:` plus SHA-256 of `sfp-diagnostic-daemon-generation-v1\0` and exact UTF-8 public `leaderGeneration`. Error precedence and exit mapping are exact: `LOCAL_DAEMON_MISMATCH` first, then `DESKTOP_NOT_FOUND`, then `BUILD_MISMATCH`, then `PLUGIN_NOT_CONNECTED`; every error has `coPresence:false` and `noMutation:true`. Output has no PID, URL, stateRoot, raw generation/session/file identity, Desktop executable path/version, user data, plugin payload, credential, or free-form message.
 
-The diagnostic receives `CurrentWindowsDiagnosticContext` explicitly from the source runner, validates the retained PID/loopback URL and owner-secure stateRoot before observation, reads public ping plus authenticated read-only control status, and observes only an already-paired session. It never creates a challenge, displays/submits a code, mutates Figma/workspace/domain state, imports anything, or opens non-loopback network. Success, Desktop absent, multiple Desktop, plugin absent, wrong build, daemon unavailable, invalid owner context, raw-sentinel redaction, exact exit codes, and zero side-effect counters are required tests.
+The diagnostic receives `CurrentWindowsDiagnosticContext` explicitly from the source runner. Before reading or sending any control credential, `LocalDaemonBindingVerifier` checks owner-secure stateRoot and its leader lock, requires lock PID=retained PID, lock port=URL port, strict public ping product/role, and lock generation=ping generation, and records whether ping build equals `expectedBuildId`. Public ping is the only request in this phase and carries no authorization. Wrong PID/port/generation, malformed/foreign loopback product, insecure/foreign stateRoot, or stale lock returns `LOCAL_DAEMON_MISMATCH` and the listener receives zero credential. Only after local binding, exactly-one Desktop, and build match does the diagnostic load owner control auth and read `/control/status`; it then observes only an already-paired session. It never creates a challenge, displays/submits a code, mutates Figma/workspace/domain/egress state, imports anything, or opens non-loopback network. Success plus each ordered negative, byte-level raw-sentinel redaction, exact exits, and zero side-effect counters are required tests.
 
 `PreviewCandidateV1.harnessManifestHash` is the lowercase SHA-256 of a UTF-8 manifest assembled from these exact sorted repo-relative paths at `sourceCommit` (never from worktree bytes):
 
@@ -1712,11 +1798,17 @@ service/.node-version
 service/package.json
 service/packages/mcp/package.json
 service/packages/mcp/src/application.ts
+service/packages/mcp/src/control/status-endpoint.ts
 service/packages/mcp/src/daemon-entry.ts
 service/packages/mcp/src/index.ts
+service/packages/mcp/src/security/local-daemon-binding-verifier.ts
 service/packages/mcp/test/application.test.ts
+service/packages/mcp/test/control/control-status.test.ts
 service/packages/mcp/test/e2e/daemon-entry.test.ts
+service/packages/mcp/test/security/local-daemon-binding-verifier.test.ts
 service/packages/mcp/tsdown.config.ts
+service/packages/shared/src/control.ts
+service/packages/shared/test/control-schema.test.ts
 service/pnpm-lock.yaml
 service/schemas/preview-candidate-v1.schema.json
 service/schemas/source-complete-evidence-v1.schema.json
@@ -1748,9 +1840,9 @@ One Ajv module exports exactly three strict assertions for unsigned `PreviewCand
 
 After the clean Task16 commit, `verify:source-complete` creates exactly three ignored files under `service/artifacts/`: `preview-candidate.v1.json`, `source-complete-evidence.v1.json`, and `source-complete-preview.v1.json`. Each writer uses an exclusive same-directory temporary file, fsync, atomic file replacement, reread/schema/content-hash verification, and parent fsync where supported. The marker rereads candidate and evidence bytes, verifies `candidateFileSha256`/`evidenceFileSha256`, requires `candidateContentHash===candidate.contentHash` and `evidenceContentHash===evidence.contentHash`, and requires identical source commit, harness manifest, artifact manifest/checksum, and artifact tuple across candidate/evidence before hashing itself. No content hash becomes a path segment.
 
-Task16 refactors composition from `packages/mcp/src/index.ts` into `packages/mcp/src/application.ts` with `createMcpApplication(options): Promise<{startHttp,attachStdio,close}>`. Existing `index.ts` remains only the stdio adapter. New `daemon-entry.ts` strict-parses `--state-root` and `--port`, calls only `startHttp`, owns no stdio protocol, ignores stdin/EOF, and stays alive until an awaited signal close. Application/index/daemon parity tests reject a second composition root.
+Task16 refactors composition from `packages/mcp/src/index.ts` into `packages/mcp/src/application.ts` with `createMcpApplication(options): Promise<{startHttp,attachStdio,close}>`. Existing `index.ts` remains only the stdio adapter. New `daemon-entry.ts` strict-parses `--state-root` plus either normal `--port` or bounded `--self-test`; both call only `startHttp`, own no stdio protocol, and ignore stdin/EOF. Normal mode stays alive until awaited signal close; self-test binds ephemeral loopback, pings internally, closes, and exits. Application/index/daemon parity tests reject a second composition root.
 
-Task16 process tests spawn the daemon entry as a normal child and retain the exact `ChildProcess` handle inside Vitest. They wait for strict public ping, execute the test, terminate and await that same handle in `afterEach`; no detached/background controller exists. The current-Windows diagnostic is non-destructive and supplemental: it checks only concurrent Desktop/retained-daemon/already-paired-plugin presence and emits the strict success/error union and exact exit map above. It cannot pair, create/register/import/mutate/delete, cannot contribute a blocking result, and is never written into the three source-complete documents. Any real-Figma validation requires fresh R16 READY plus the separately tracked `docs/superpowers/plans/2026-08-28-ecommerce-figma-service-validation.md`, its dedicated validation folder, and explicit user scope.
+Task16 process tests spawn the daemon entry as a normal child and retain the exact `ChildProcess` handle inside Vitest. They wait for strict public ping, execute the test, terminate and await that same handle in `afterEach`; no detached/background controller exists. The current-Windows diagnostic is non-destructive and supplemental: it checks only concurrent Desktop/retained-daemon/already-paired-plugin presence and emits the strict success/error union and exact exit map above. It cannot pair, create/register/import/mutate/delete, cannot contribute a blocking result, and is never written into the three source-complete documents. Any real-Figma validation requires fresh R17 READY plus the separately tracked `docs/superpowers/plans/2026-08-28-ecommerce-figma-service-validation.md`, its dedicated validation folder, and explicit user scope.
 
 | Fake blocking check suffix | Typed fake input and positive assertion | Required negative assertion | Fake teardown |
 |---|---|---|---|
@@ -1853,6 +1945,7 @@ service/
   packages/shared/src/approval.ts
   packages/shared/src/capability-manifest.ts
   packages/shared/src/config.ts
+  packages/shared/src/control.ts
   packages/shared/src/egress.ts
   packages/shared/src/invocation.ts
   packages/shared/src/error-guidance.ts
@@ -1864,6 +1957,7 @@ service/
   packages/shared/src/service-operations.ts
   packages/shared/src/index.ts
   packages/shared/src/result-schemas.ts
+  packages/shared/test/control-schema.test.ts
   packages/shared/test/file-identity-hash.test.ts
   packages/ir/src/canonical-json.ts
   packages/ir/src/fidelity.ts
@@ -1895,6 +1989,7 @@ service/
   packages/mcp/src/relay/session.ts
   packages/mcp/src/tools/runtime-registry.ts
   packages/mcp/src/security/state-permissions.ts
+  packages/mcp/src/security/local-daemon-binding-verifier.ts
   packages/mcp/src/security/pairing-manager.ts
   packages/mcp/src/security/follower-auth.ts
   packages/mcp/src/security/follower-transport.ts
@@ -1935,6 +2030,7 @@ service/
   packages/mcp/src/control/router.ts
   packages/mcp/src/control/route-registry.ts
   packages/mcp/src/control/status-endpoint.ts
+  packages/mcp/src/control/egress-endpoints.ts
   packages/mcp/src/control/action-nonce-endpoints.ts
   packages/mcp/src/control/action-nonce-store.ts
   packages/mcp/src/control/operation-endpoints.ts
@@ -1962,6 +2058,9 @@ service/
   packages/mcp/src/tools/export-frames-to-pdf.ts
   packages/mcp/src/tools/import-library-variable.ts
   packages/mcp/test/execution/action-nonce.test.ts
+  packages/mcp/test/control/control-status.test.ts
+  packages/mcp/test/control/egress-control.test.ts
+  packages/mcp/test/policy/egress-config.test.ts
   packages/mcp/test/execution/approval-broker.test.ts
   packages/mcp/test/execution/approval-plugin-port.test.ts
   packages/mcp/test/execution/approval-routing-matrix.test.ts
@@ -1983,6 +2082,7 @@ service/
   packages/mcp/test/fs/workspace-registration-atomicity.test.ts
   packages/mcp/test/tools/skew-notice.test.ts
   packages/mcp/test/security/follower-transport.test.ts
+  packages/mcp/test/security/local-daemon-binding-verifier.test.ts
   packages/mcp/test/election/control-route-registry.test.ts
   packages/plugin/src/file-identity.ts
   packages/plugin/src/mutation-handler-contract.ts
@@ -1998,6 +2098,7 @@ service/
   packages/cli/src/commands/approve.ts
   packages/cli/src/commands/compat.ts
   packages/cli/src/commands/doctor.ts
+  packages/cli/src/commands/egress.ts
   packages/cli/src/commands/find.ts
   packages/cli/src/commands/pair.ts
   packages/cli/src/commands/pdf.ts
@@ -2019,6 +2120,7 @@ service/
   packages/cli/src/commands/operations.ts
   packages/cli/src/compat/rust-tool-map.ts
   packages/cli/test/command-module-ledger.test.ts
+  packages/cli/test/commands/egress.test.ts
   test/bootstrap.test.ts
   test/upstream-parity.test.ts
   test/tool-contract.test.ts
@@ -2544,7 +2646,7 @@ Run: `git diff --check`, then `git add service/packages/shared/src/config.ts ser
 **Interfaces**
 
 - Consumes: Task 3 `ToolSpec`/manifest authority and Task 4 workspace overwrite resolution.
-- Produces: distinct auth-independent `PolicyInvocationContext {workspace,resolvedPaths}` with Task4 `ResolvedWorkspacePath`; `OPERATION_POLICIES` exact112; `RESULT_EGRESS_POLICIES` exact112; effects/approval/classifiers/annotations and explicit egress config. Task7 must extend—not replace or shadow—this context after resolving all declared paths before `effectsFor`.
+- Produces: distinct auth-independent `PolicyInvocationContext {workspace,resolvedPaths}` with Task4 `ResolvedWorkspacePath`; `OPERATION_POLICIES` exact112; `RESULT_EGRESS_POLICIES` exact112; effects/approval/classifiers/annotations; and the checked-in stateRoot-backed `EgressConfigStore` type in `shared/src/egress.ts` implemented by `policy/policy-engine.ts`. The completed Task5 base exposes load/save without CAS and no reset; Task7 7B must migrate those actual files/tests to the final CAS save/reset interface above without a compatibility alias. Task7 extends—not replaces or shadows—the policy context after resolving all declared paths before `effectsFor`.
 
 - [ ] **Step 1: Write conditional-effects RED**
 
@@ -2583,11 +2685,11 @@ Cover 112/112 names and all 79 baseline `kind:'write'` entries. Assert multi-eff
 
 - [ ] **Step 4: Implement conservative annotations, exact classifiers, and egress config**
 
-Annotations reflect the union of possible effects. Each result policy implements exact `possibleInputClasses`, `possibleResultClasses`, `classifyInput`, `classifyResult`, and `redactResult`; grouped schemas may share pure helpers but every tool name has one row. Runtime config requires `local-trusted`, `external-model`, or default `unknown-fail-closed`; source `mcp` never selects a mode automatically. Local-trusted may use `consentId:null`; external-model requires a non-null unexpired consent whose allowed classes cover both classified input and possible result classes.
+Annotations reflect the union of possible effects. Each result policy implements exact `possibleInputClasses`, `possibleResultClasses`, `classifyInput`, `classifyResult`, and `redactResult`; grouped schemas may share pure helpers but every tool name has one row. Runtime config requires `local-trusted`, `external-model`, or default `unknown-fail-closed`; source `mcp` never selects a mode automatically. Local-trusted may use `consentId:null`; external-model requires a server-issued non-null unexpired consent whose allowed classes cover both classified input and possible result classes. Task5 implements strict/checksummed/atomic load/save at the exact owner-state path; the binding final CAS save/reset, missing/corrupt/expired/reset→unknown behavior, max-eight-hour external TTL, no secret class, and no read-time renewal are the explicit 7B migration.
 
 - [ ] **Step 5: Run policy GREEN**
 
-Run: `pnpm -C service exec vitest run packages/mcp/test/policy test/tool-contract.test.ts test/tool-registry.test.ts`.
+Run: `pnpm -C service exec vitest run packages/mcp/test/policy test/tool-contract.test.ts test/tool-registry.test.ts`; the completed Task5 base covers its load/save behavior, while final reset/CAS/corruption/expiry/boundary cases are added and rerun in 7B.
 
 Expected: operation and egress policy coverage both 112/112, dynamic URL/outPath/update/navigation cases pass, classifiers are exact, annotations are conservative, and no unconfigured external call is allowed.
 
@@ -2601,7 +2703,7 @@ Reviewer checks policy purity, parsed-args typing, config fail-closed behavior, 
 
 - [ ] **Step 8: Commit dynamic policy**
 
-Run: `git diff --check`, then `git add service/packages/shared/src/operations.ts service/packages/shared/src/egress.ts service/packages/mcp/src/policy service/packages/mcp/src/tools/spec.ts service/packages/mcp/src/tools/annotations.ts service/packages/mcp/src/tools/registry.ts service/packages/mcp/test/policy`, then `git commit -m "feat(policy): resolve side effects and egress from parsed calls"`.
+Run: `git diff --check`, then `git add service/packages/shared/src/operations.ts service/packages/shared/src/egress.ts service/packages/mcp/src/policy service/packages/mcp/src/tools/spec.ts service/packages/mcp/src/tools/annotations.ts service/packages/mcp/src/tools/registry.ts service/packages/mcp/test/policy`, verify actual `policy-engine.ts` plus `egress-config.test.ts` are staged, then `git commit -m "feat(policy): resolve side effects and egress from parsed calls"`.
 
 ### Task 6 — Implement pairing, resume, follower auth, PNA, and control middleware
 
@@ -2761,14 +2863,14 @@ Run: `git diff --check`, then `git add service/packages/shared/src/auth.ts servi
 **Interfaces**
 
 - Consumes: Task3/Task5 current authorities, Task4 state/workspace/path, the existing Task6 Relay interfaces where this plan names them, and only the Task6.1 public-ping/follower/control facades frozen at `39a29373b91445e9242e82611f0a8a04fca525ea` under contract `bd296dabe872f08adca793d93a2cd6a2c7efca60c58127b07924b2f18840b27b`; the exact eight export/producer paths and hashes are the section 3.5 manifest.
-- Produces: leader-generation singleton `ExecutionPlane`; follower-only `FollowerInvocationClient`; strict distinct tool/service/cancel/frame schemas; MCP selector/workspace synthesis; one stable owner actor plus domain-separated MCP/control auth sessions; immutable `RuntimeExecutionScope extends PolicyInvocationContext`; `OperationInvocationService`; exact handler vs execution authorities (105/7 and 98/14); empty service-operation registry; `OperationIdIssuer`; kind/name-aware journal/tombstone/resolution; consent-fingerprinted redacted replay cache; durable exactly-once egress finalizer; bounded active admission; `FileExecutionKey` queue; strict approval prompt/decision broker with fake paired plugin; action-nonce/progress adapters; `JournalWorkspaceUsageGuard`; workspace default/registration resolver; authenticated tool/cancel/approval/workspace/operation admin routes. It does not wire the real plugin progress/cancel/approval consumer.
+- Produces: leader-generation singleton `ExecutionPlane`; follower-only `FollowerInvocationClient`; strict distinct tool/service/cancel/frame schemas; MCP selector/workspace synthesis; one stable owner actor plus domain-separated MCP/control auth sessions; immutable `RuntimeExecutionScope extends PolicyInvocationContext`; `OperationInvocationService`; exact handler vs execution authorities (105/7 and 98/14); empty service-operation registry; `OperationIdIssuer`; kind/name-aware journal/tombstone/resolution; consent-fingerprinted redacted replay cache; durable exactly-once egress finalizer; bounded active admission; `FileExecutionKey` queue; strict approval prompt/decision broker with fake paired plugin; action-nonce/progress adapters; `JournalWorkspaceUsageGuard`; workspace default/registration resolver; authenticated tool/cancel/approval/workspace/operation/egress admin routes and redacted status. It does not wire the real plugin progress/cancel/approval consumer.
 
 **Binding subtask/commit boundaries**
 
 | Subtask | Review surface | RED/GREEN gate | Commit and handoff |
 |---|---|---|---|
 | 7A — operation, policy, principal, target, and journal core | one owner actor/auth-session derivation, Task5 path-first policy context, handler/execution split14, TargetRequirement, empty service registry, strict admission, issuer/queue/journal, dispatched-fsync ordering, bounded two-phase demotion, opaque follower client | policy/authority/target/ownership/role-transition/demotion/crash-boundary plus ID/queue/journal/limit suites | `feat(execution): add issued idempotent journaled file queue`; exports frozen `RuntimeExecutionScope`, operation/service/journal/usage interfaces to 7B |
-| 7B — approval, authenticated admin control, and action nonce | approval durability, nonce issue/CAS/caps/canonical request hash, tool/approval/workspace/operation admin endpoints, cross-domain same-owner resolution audit | control rotation, origin/resolver sessions, cross-session cancel denial, foreign stateRoot, nonce and resolve/workspace-unblock suites | `feat(control): add approved workspace and operation control`; exports authenticated routes and nonce router to Tasks 8/13 |
+| 7B — approval, authenticated admin control, and action nonce | approval durability, nonce issue/CAS/caps/canonical request hash, tool/approval/workspace/operation/egress admin endpoints, redacted ControlStatus plugin hash/editor type, cross-domain same-owner resolution audit | control rotation, origin/resolver sessions, cross-session cancel denial, foreign stateRoot, nonce, egress config/runtime0 and resolve/workspace-unblock suites | `feat(control): add approved workspace and operation control`; exports authenticated routes, egress configuration, and nonce router to Tasks8/13 |
 | 7C — egress finalizer, inner progress/framing, and production integration | durable pre/final manifest store, runtime-zero enforcement, Task6.1-decrypted follower inner framing, control/MCP plus daemon fake-plugin progress/cancel, active admission, every tool invocation entry, generation-fenced terminal CAS | finalizer exit/restart/double/crash, inclusive limits, backpressure/cancel/terminal race, cross-entry parity, no-direct-relay/no-auth-import structural suites | `feat(egress): gate runtime and stream bounded progress`; Task 8 consumes only after all reviewed 7A–7C tree/commit hashes are frozen |
 
 Each subtask receives RED→GREEN, closed-world authority regeneration, and two independent reviews of one exact staged tree before its exact commit. Reviewers inspect `git diff --cached` plus the recorded `git write-tree` hash and do not edit. After either finding, the implementer fixes, restages, recomputes the tree, and repeats both reviews. Immediately before commit, rerun the slice GREEN, prove no unstaged tracked change, prove `git write-tree` still equals the reviewed hash, and after commit prove `HEAD^{tree}` equals it. The three already-reviewed subjects above remain binding; the amendment strengthens their contents and does not silently rename or add a fourth aggregate commit. Task 7 final review checks cross-slice execution order and authority closure without reopening an accepted tree absent a concrete finding.
@@ -2783,12 +2885,12 @@ Closed-world order uses class-aware service fork model; edited upstream paths tr
 
 Before/after each 7A/7B/7C staged review, run the exact `TASK6_1_FROZEN_GREEN` block in section 3.5 plus the slice's Task7 focused tests. Reports record base `39a29373b91445e9242e82611f0a8a04fca525ea`, contract `bd296dabe872f08adca793d93a2cd6a2c7efca60c58127b07924b2f18840b27b`, manifest bytes 925, and the exact path list. Task7 execution remains gated only by a fresh READY rereview of this newly checksummed binding plan.
 
-The existing ignored `.superpowers/sdd/2026-08-27-super-figma-pipeline-v0.1/task-7-brief.md` predates R15 and is quarantined: it is neither authority nor dispatch input and must not be executed, patched incrementally, or cited as current. Only after the R16 plan/checksum receives READY may the main agent regenerate that exact brief atomically from the committed binding plan, recording the R16 commit/plan SHA, frozen Task6.1 base/contract, and original 7A/B/C subjects before Task7 dispatch.
+The existing ignored `.superpowers/sdd/2026-08-27-super-figma-pipeline-v0.1/task-7-brief.md` predates R15 and is quarantined: it is neither authority nor dispatch input and must not be executed, patched incrementally, or cited as current. Only after the R17 plan/checksum receives READY may the main agent regenerate that exact brief atomically from the committed binding plan, recording the R17 commit/plan SHA, frozen Task6.1 base/contract, and original 7A/B/C subjects before Task7 dispatch.
 
 **Exact staged path allowlists**
 
 - 7A: `service/packages/shared/src/invocation.ts`, `service/packages/shared/src/operations.ts`, `service/packages/shared/src/service-operations.ts`, `service/packages/shared/src/index.ts`, `service/packages/mcp/src/security/principal-derivation.ts`, `service/packages/mcp/src/policy/operation-policy.ts`, `service/packages/mcp/src/policy/policy-engine.ts`, `service/packages/mcp/src/policy/result-egress-policy.ts`, `service/packages/mcp/src/tools/runtime-registry.ts`, `service/packages/mcp/src/execution/execution-plane.ts`, `service/packages/mcp/src/execution/target-resolver.ts`, `service/packages/mcp/src/execution/service-operation-registry.ts`, `service/packages/mcp/src/execution/follower-invocation-client.ts`, `service/packages/mcp/src/execution/file-queue.ts`, `service/packages/mcp/src/execution/operation-id.ts`, `service/packages/mcp/src/execution/operation-journal.ts`, `service/packages/mcp/src/execution/operation-resolution-intent.ts`, `service/packages/mcp/src/execution/operation-executor.ts`, `service/packages/mcp/src/tool-invocation-service.ts`, `service/packages/mcp/src/index.ts`, `service/packages/mcp/src/election/election.ts`, `service/packages/mcp/src/election/node.ts`, `service/packages/mcp/src/relay/session.ts`, `service/packages/mcp/src/tools/ping.ts`, `service/packages/mcp/test/execution/invocation-boundary.test.ts`, `service/packages/mcp/test/execution/policy-context.test.ts`, `service/packages/mcp/test/execution/target-resolution.test.ts`, `service/packages/mcp/test/execution/target-requirement.test.ts`, `service/packages/mcp/test/execution/runtime-authority.test.ts`, `service/packages/mcp/test/execution/service-operation-registry.test.ts`, `service/packages/mcp/test/execution/follower-invocation-client.test.ts`, `service/packages/mcp/test/execution/execution-plane-lifecycle.test.ts`, `service/packages/mcp/test/execution/operation-id.test.ts`, `service/packages/mcp/test/execution/file-queue.test.ts`, `service/packages/mcp/test/execution/operation-journal.test.ts`, `service/packages/mcp/test/execution/operation-executor.test.ts`, `service/packages/mcp/test/policy/operation-policy.test.ts`, `service/packages/mcp/test/policy/result-egress-policy.test.ts`, `service/packages/mcp/test/election/election.test.ts`, `service/packages/mcp/test/election/follower.test.ts`, `service/packages/mcp/test/election/node.test.ts`, `service/packages/mcp/test/relay/session.test.ts`, `service/packages/mcp/test/tools/ping.test.ts`, `service/test/tool-contract.test.ts`, `service/vendor-rules.json`, `service/vendor-map.json`, `service/upstream-lock.json`. No other path may be staged in 7A.
-- 7B: `service/packages/shared/src/action-nonce.ts`, `service/packages/shared/src/index.ts`, `service/packages/mcp/src/policy/approval-gate.ts`, `service/packages/mcp/src/control/action-nonce-store.ts`, `service/packages/mcp/src/control/action-nonce-endpoints.ts`, `service/packages/mcp/src/control/approval-endpoints.ts`, `service/packages/mcp/src/control/tool-call-endpoint.ts`, `service/packages/mcp/src/control/workspace-endpoints.ts`, `service/packages/mcp/src/control/operation-endpoints.ts`, `service/packages/mcp/src/index.ts`, `service/packages/mcp/test/execution/action-nonce.test.ts`, `service/packages/mcp/test/execution/control-tool-call.test.ts`, `service/packages/mcp/test/execution/operation-resolution.test.ts`, `service/packages/mcp/test/execution/workspace-endpoints.test.ts`, `service/packages/mcp/test/election/leader-endpoints.test.ts`, `service/packages/mcp/test/security/control-auth.test.ts`, `service/vendor-rules.json`, `service/vendor-map.json`, `service/upstream-lock.json`. No other path may be staged in 7B.
+- 7B: `service/packages/shared/src/action-nonce.ts`, `service/packages/shared/src/control.ts`, `service/packages/shared/src/egress.ts`, `service/packages/shared/src/index.ts`, `service/packages/shared/test/control-schema.test.ts`, `service/packages/mcp/src/policy/approval-gate.ts`, `service/packages/mcp/src/policy/policy-engine.ts`, `service/packages/mcp/src/control/action-nonce-store.ts`, `service/packages/mcp/src/control/action-nonce-endpoints.ts`, `service/packages/mcp/src/control/approval-endpoints.ts`, `service/packages/mcp/src/control/tool-call-endpoint.ts`, `service/packages/mcp/src/control/workspace-endpoints.ts`, `service/packages/mcp/src/control/operation-endpoints.ts`, `service/packages/mcp/src/control/egress-endpoints.ts`, `service/packages/mcp/src/index.ts`, `service/packages/mcp/test/execution/action-nonce.test.ts`, `service/packages/mcp/test/execution/control-tool-call.test.ts`, `service/packages/mcp/test/execution/operation-resolution.test.ts`, `service/packages/mcp/test/execution/workspace-endpoints.test.ts`, `service/packages/mcp/test/control/egress-control.test.ts`, `service/packages/mcp/test/policy/egress-config.test.ts`, `service/packages/mcp/test/election/leader-endpoints.test.ts`, `service/packages/mcp/test/security/control-auth.test.ts`, `service/vendor-rules.json`, `service/vendor-map.json`, `service/upstream-lock.json`. No other path may be staged in 7B.
 - 7C: `service/packages/shared/src/progress.ts`, `service/packages/shared/src/rpc.ts`, `service/packages/shared/src/envelope.ts`, `service/packages/shared/src/protocol.ts`, `service/packages/shared/src/operations.ts`, `service/packages/shared/src/service-operations.ts`, `service/packages/shared/src/index.ts`, `service/packages/mcp/src/policy/egress-policy.ts`, `service/packages/mcp/src/execution/egress-manifest-store.ts`, `service/packages/mcp/src/execution/follower-invocation-endpoint.ts`, `service/packages/mcp/src/execution/execution-plane.ts`, `service/packages/mcp/src/tool-invocation-service.ts`, `service/packages/mcp/src/tools/runtime-registry.ts`, `service/packages/mcp/src/relay/relay.ts`, `service/packages/mcp/src/relay/session.ts`, `service/packages/mcp/src/dispatch.ts`, `service/packages/mcp/src/index.ts`, `service/packages/mcp/src/election/election.ts`, `service/packages/mcp/src/election/leader-endpoints.ts`, `service/packages/mcp/src/election/node.ts`, `service/packages/mcp/test/execution/egress-policy.test.ts`, `service/packages/mcp/test/execution/egress-manifest-store.test.ts`, `service/packages/mcp/test/execution/egress-finalizer.test.ts`, `service/packages/mcp/test/execution/boundary-limits.test.ts`, `service/packages/mcp/test/execution/progress-transport.test.ts`, `service/packages/mcp/test/execution/progress-framing.test.ts`, `service/packages/mcp/test/execution/plugin-progress-adapter.test.ts`, `service/packages/mcp/test/execution/follower-stream.test.ts`, `service/packages/mcp/test/execution/no-direct-relay.test.ts`, `service/packages/mcp/test/execution/execution-plane-lifecycle.test.ts`, `service/packages/mcp/test/execution/service-operation-registry.test.ts`, `service/packages/mcp/test/dispatch.test.ts`, `service/packages/mcp/test/election/election.test.ts`, `service/packages/mcp/test/election/follower.test.ts`, `service/packages/mcp/test/election/leader-endpoints.test.ts`, `service/packages/mcp/test/election/leader-lock.test.ts`, `service/packages/mcp/test/election/node.test.ts`, `service/packages/mcp/test/relay/relay.test.ts`, `service/packages/mcp/test/relay/session.test.ts`, `service/packages/mcp/test/e2e/mcp-wire.test.ts`, `service/packages/mcp/test/e2e/process-lifecycle.test.ts`, `service/test/tool-contract.test.ts`, `service/vendor-rules.json`, `service/vendor-map.json`, `service/upstream-lock.json`. No other path may be staged in 7C.
 
 TREE_7A complete union is the base 7A line plus exactly: `service/packages/shared/test/file-identity-hash.test.ts`, `service/packages/mcp/src/tools/spec.ts`, `service/packages/mcp/src/tools/registry.ts`, `service/packages/mcp/src/execution/mcp-invocation-adapter.ts`, `service/packages/mcp/test/execution/mcp-selector-synthesis.test.ts`, `service/packages/mcp/test/execution/service-operation-name.test.ts`, `service/packages/mcp/test/execution/completed-result-replay.test.ts`, `service/packages/mcp/test/tools/result-validation.test.ts`, `service/packages/mcp/test/tools/skew-notice.test.ts`, `service/scripts/vendor-upstreams.mjs`, `service/test/vendor-upstreams.test.ts`, `service/vendor-allowed-figwright-strings.json`, `service/schemas/upstream-lock-v2.schema.json`, `service/scripts/update-service-forks.mjs`, `service/scripts/verify-upstream-lock.mjs`, `service/scripts/verify-staged-change-manifest.mjs`, `service/capabilities/task-7a-authority-classes.json`, `service/capabilities/change-manifests/task-7a.json`, `service/test/change-manifest.test.ts`, `service/test/authority-class-transition.test.ts`, `service/test/service-fork-lineage.test.ts`. No-other-path applies to this entire union. The staged-manifest verifier and its test are created in the 7A prelude because 7A and 7B must execute it before 7C exists.
@@ -2804,8 +2906,8 @@ Task6.1 ownership rule: remove all six byte-frozen core paths and legacy `follow
 - [ ] **7A RED:** First assert the checked-in legacy `InvocationContext`, `RuntimeExecutionContext`, and `RuntimeBinding.authority`, then add migration tests and run the first Vitest line of `7A_GREEN_COMMANDS`; expect migration/name/selector/new-plane assertions RED while the legacy-shape fixture is GREEN.
 - [ ] **7A GREEN:** Migrate the real legacy types and authority generator in one tree, then run `7A_GREEN_COMMANDS` below verbatim. Expect no `RuntimeExecutionContext`/`RuntimeBinding.authority`/policy `InvocationContext` residual; handler105/7 vs execution98/14; exact distinct name schemas; MCP selector parity; skew/result identities; target/service/journal/demotion gates; frozen Task6.1; and allowed-string count15. Final entry cutover remains 7C.
 - [ ] **7A authority, staged review, and exact commit:** Run updater before copy-only; edited `packages/mcp/src/election/election.ts` transitions to serviceFork with originCommit/base/previousMode lineage and staged current hash. Verify old copy row absent/no overwrite, review the same tree, commit exact `feat(execution): add issued idempotent journaled file queue`, and verify `HEAD^{tree}=TREE_7A`.
-- [ ] **7B RED:** Run action/approval/tool/resolution/workspace/binding/invocation plus control router/status tests; expect missing strict paired approval broker, workspace registration resolver/default binding, extensible frozen router, authenticated status, durable pending approval, admin/nonce/resolution/cancel gates.
-- [ ] **7B GREEN:** Implement strict approval prompt/decision broker and fake paired port, tool/workspace/default/operation admin/action-nonce endpoints, registration resolver, and production MCP workspace binding; update exact 7B authority classes, then run `7B_GREEN_COMMANDS` verbatim. Expect `sfp_an1_`+256-bit format; stat+directory+realpath issue binding and pre-effect revalidation; zero/one/multiple/default/restart workspace behavior; 120,000 ms nonce and approval TTLs; approval session/generation/target/hash CAS; durable pending before wait; same-owner admin resolution; cross-session cancel denial; and reserve/workspace unblock.
+- [ ] **7B RED:** Run action/approval/tool/resolution/workspace/egress/binding/invocation plus control router/status tests; expect missing strict paired approval broker, workspace registration resolver/default binding, extensible frozen router, authenticated status plugin-generation hash/editor type, durable pending approval, egress GET/configure/reset, admin/nonce/resolution/cancel gates.
+- [ ] **7B GREEN:** First migrate the checked-in Task5 `shared/src/egress.ts` + `policy/policy-engine.ts` load/save-no-CAS store and `policy/egress-config.test.ts` to final CAS save/reset—no invented store module or compatibility overload. Then implement strict approval prompt/decision broker and fake paired port, tool/workspace/default/operation/egress admin/action-nonce endpoints, registration resolver, and production MCP workspace binding; update exact 7B authority classes, then run `7B_GREEN_COMMANDS` verbatim. Expect `sfp_an1_`+256-bit format; stat+directory+realpath issue binding and pre-effect revalidation; zero/one/multiple/default/restart workspace behavior; 120,000 ms nonce and approval TTLs; exact egress class/60..28,800-second TTL boundaries, server consent issuance, read redaction and missing/corrupt/expired/reset runtime0; approval session/generation/target/hash CAS; durable pending before wait; same-owner admin resolution; cross-session cancel denial; and reserve/workspace unblock.
 - [ ] **7B authority, staged review, and exact commit:** Stage only the exact 7B allowlist, check staged names/diff, record `TREE_7B`, and obtain independent spec+quality PASS. Rerun the entire `7B_GREEN_COMMANDS` block **verbatim**; require no unstaged service path and identical tree; commit exact `feat(control): add approved workspace and operation control`; verify `HEAD^{tree}=TREE_7B`.
 - [ ] **7C RED:** Run egress/finalizer/boundary/progress/follower/no-bypass plus `test/change-manifest.test.ts`; expect missing finalizers, exact admission/inner stream, fake-plugin, terminal CAS, staged-byte verifier and convergence.
 - [ ] **7C GREEN:** Run `7C_GREEN_COMMANDS` below verbatim. Expect limits/finalizers/stream/router/fake-plugin/one-terminal/verifier parity; real plugin waits for9A.
@@ -2827,7 +2929,7 @@ node service/scripts/verify-staged-change-manifest.mjs --slice 7A
 **`7B_GREEN_COMMANDS` — copy/paste without path substitution before staging review and again before commit:**
 
 ~~~powershell
-pnpm -C service exec vitest run packages/mcp/test/execution/action-nonce.test.ts packages/mcp/test/execution/approval-broker.test.ts packages/mcp/test/execution/approval-plugin-port.test.ts packages/mcp/test/execution/approval-routing-matrix.test.ts packages/mcp/test/execution/control-tool-call.test.ts packages/mcp/test/execution/operation-resolution.test.ts packages/mcp/test/execution/workspace-endpoints.test.ts packages/mcp/test/execution/mcp-workspace-binding.test.ts packages/mcp/test/execution/invocation-boundary.test.ts packages/mcp/test/execution/policy-context.test.ts packages/mcp/test/execution/target-resolution.test.ts packages/mcp/test/execution/target-requirement.test.ts packages/mcp/test/execution/runtime-authority.test.ts packages/mcp/test/execution/service-operation-name.test.ts packages/mcp/test/execution/service-operation-registry.test.ts packages/mcp/test/execution/follower-invocation-client.test.ts packages/mcp/test/execution/execution-plane-lifecycle.test.ts packages/mcp/test/execution/operation-id.test.ts packages/mcp/test/execution/file-queue.test.ts packages/mcp/test/execution/operation-journal.test.ts packages/mcp/test/execution/operation-executor.test.ts packages/mcp/test/fs/workspace-config-store.test.ts packages/mcp/test/fs/workspace-registration-resolver.test.ts packages/mcp/test/fs/workspace-registration-atomicity.test.ts packages/mcp/test/control/control-router.test.ts packages/mcp/test/control/control-status.test.ts
+pnpm -C service exec vitest run packages/shared/test/control-schema.test.ts packages/mcp/test/execution/action-nonce.test.ts packages/mcp/test/execution/approval-broker.test.ts packages/mcp/test/execution/approval-plugin-port.test.ts packages/mcp/test/execution/approval-routing-matrix.test.ts packages/mcp/test/execution/control-tool-call.test.ts packages/mcp/test/execution/operation-resolution.test.ts packages/mcp/test/execution/workspace-endpoints.test.ts packages/mcp/test/execution/mcp-workspace-binding.test.ts packages/mcp/test/execution/invocation-boundary.test.ts packages/mcp/test/execution/policy-context.test.ts packages/mcp/test/execution/target-resolution.test.ts packages/mcp/test/execution/target-requirement.test.ts packages/mcp/test/execution/runtime-authority.test.ts packages/mcp/test/execution/service-operation-name.test.ts packages/mcp/test/execution/service-operation-registry.test.ts packages/mcp/test/execution/follower-invocation-client.test.ts packages/mcp/test/execution/execution-plane-lifecycle.test.ts packages/mcp/test/execution/operation-id.test.ts packages/mcp/test/execution/file-queue.test.ts packages/mcp/test/execution/operation-journal.test.ts packages/mcp/test/execution/operation-executor.test.ts packages/mcp/test/fs/workspace-config-store.test.ts packages/mcp/test/fs/workspace-registration-resolver.test.ts packages/mcp/test/fs/workspace-registration-atomicity.test.ts packages/mcp/test/control/control-router.test.ts packages/mcp/test/control/control-status.test.ts packages/mcp/test/control/egress-control.test.ts packages/mcp/test/policy/egress-config.test.ts
 pnpm -C service exec vitest run packages/mcp/test/security packages/mcp/test/election packages/mcp/test/relay
 pnpm -C service exec vitest run packages/mcp/test/policy packages/mcp/test/tools/ping.test.ts test/tool-contract.test.ts
 pnpm -C service typecheck
@@ -3230,6 +3332,39 @@ it('invalidates outstanding action nonces on restart or generation change and ne
   await expect(restarted.consumeCas(actor, nonce, 'workspace.remove', removeHash)).rejects.toMatchObject({ code: 'ACTION_NONCE_INVALID' });
 });
 
+it('configures and resets external-model egress only with exact bound nonces', async () => {
+  const allowedClasses = ['public', 'project-code', 'design-text', 'design-image'] as const;
+  const requestHash = hashActionRequest('egress.configure', {
+    mode: 'external-model', allowedClasses, expiresInSeconds: 7200,
+  });
+  const configureNonce = await issueNonce(actor, 'egress.configure', requestHash);
+  const configured = await control.post('/control/egress', {
+    schemaVersion: 1, mode: 'external-model', allowedClasses,
+    expiresInSeconds: 7200, actionNonce: configureNonce.value,
+  }, actorToken);
+  expect(configured).toMatchObject({ mode: 'external-model', allowedClasses, expired: false });
+  expect(configured).not.toHaveProperty('consentId');
+  await expect(control.post('/control/egress', {
+    schemaVersion: 1, mode: 'external-model', allowedClasses,
+    expiresInSeconds: 7200, actionNonce: configureNonce.value,
+  }, actorToken)).rejects.toMatchObject({ code: 'ACTION_NONCE_INVALID' });
+  const resetHash = hashActionRequest('egress.reset', {});
+  const resetNonce = await issueNonce(actor, 'egress.reset', resetHash);
+  await control.delete('/control/egress', { 'x-sfp-action-nonce': resetNonce.value }, actorToken);
+  await expect(invokeExternalTool()).rejects.toMatchObject({ code: 'EGRESS_CONFIG_REQUIRED' });
+  expect(runtime).not.toHaveBeenCalled();
+});
+
+it.each([
+  ['expired', expiredConfig],
+  ['corrupt', corruptConfig],
+  ['missing', missingConfig],
+])('fails %s egress configuration before runtime', async (_label, config) => {
+  egressConfigStore.seed(config);
+  await expect(invokeExternalTool()).rejects.toMatchObject({ code: 'EGRESS_CONFIG_REQUIRED' });
+  expect(runtime).not.toHaveBeenCalled();
+});
+
 it('rejects forged and expired server-issued operation IDs before runtime', async () => {
   const issued = issuer.issue(ownerActor1, nowMinusDays(31));
   await journal.purgeExpiredTombstones(now);
@@ -3412,7 +3547,7 @@ Before fsync, resolution-intent construction copies the active record’s signed
 
 `/control/tools/call` is routeClass tool and accepts only `InvocationRequestV1`; `/control/tools/cancel` accepts only `InvocationCancelV1` and enforces exact originAuthSession. MCP direct/follower and control tools use the same `invokeTool` plane path. The service-operation registry is exact empty in Task 7; no MCP registration/count changes. Task 11's snapshot/grounding endpoints later construct `ServiceOperationRequestV1` with the distinct dotted schema and call `invokeService`. Pair/workspace/network/approval/operation-resolution endpoints are routeClass admin and cannot pass a tool/service name or runtime. Approval endpoints append+fsync pending before wait, list redacted pending summaries, and route only strict `ApprovalPromptV1`/`ApprovalDecisionV1` through the broker/fake paired port. Runtime remains forbidden until one bound decision CAS; plugin control frames are not runtime and never carry a control token.
 
-Mount authenticated `POST /control/action-nonces` with strict `ActionNonceIssueRequestV1`. Workspace add resolves at issue, then invokes only atomic queued `WorkspaceConfigStore.addResolved(actor,expected,consumeNonceCas)`; `WorkspacePolicy` remains exclusively the registered-workspace access boundary and revalidates root identity on use. Every other nonce route validates its semantic object, recomputes hash, then consumes immediately before effect. Workspace add/remove/default uses JournalWorkspaceUsageGuard and v2 store. Mount POST/DELETE `/control/workspaces/default` with `workspace.set-default` nonce; current default removal is guarded. Operation issue/list/status use stable owner actor. Single-ID resolve records origin+resolver auth, requires nonce/evidence/confirmation, fsyncs reserve, never authorizes replay; foreign root and cross-session cancel fail. Tests cover every awaited directory-swap point with nonce unconsumed/config rows0/effects0, subsequent root replacement, default/restart, actor/generation/action/hash, Unicode, concurrency/expiry, reserve, and same-ID replay. Without valid paired approval or authenticated control waiter, explicit approval is `APPROVAL_CHANNEL_UNAVAILABLE`.
+Mount authenticated `POST /control/action-nonces` with strict `ActionNonceIssueRequestV1`. Workspace add resolves at issue, then invokes only atomic queued `WorkspaceConfigStore.addResolved(actor,expected,consumeNonceCas)`; `WorkspacePolicy` remains exclusively the registered-workspace access boundary and revalidates root identity on use. Every other nonce route validates its semantic object, recomputes hash, then consumes immediately before effect. Workspace add/remove/default uses JournalWorkspaceUsageGuard and v2 store. Mount POST/DELETE `/control/workspaces/default` with `workspace.set-default` nonce; current default removal is guarded. Mount exact GET/POST/DELETE `/control/egress` over Task5 `EgressConfigStore`; configure/reset use `egress.configure`/`egress.reset` nonce hashes and emit only redacted status/audit. Operation issue/list/status use stable owner actor. Single-ID resolve records origin+resolver auth, requires nonce/evidence/confirmation, fsyncs reserve, never authorizes replay; foreign root and cross-session cancel fail. Tests cover every awaited directory-swap point with nonce unconsumed/config rows0/effects0, subsequent root replacement, default/restart, actor/generation/action/hash, Unicode, egress reuse/wrong nonce/class/TTL/consent redaction/expiry/reset/runtime0, concurrency, reserve, and same-ID replay. Without valid paired approval or authenticated control waiter, explicit approval is `APPROVAL_CHANNEL_UNAVAILABLE`.
 
 - [ ] **Step 6: Implement result validation, egress ordering, and progress transport**
 
@@ -4130,6 +4265,7 @@ Run: `git diff --check`, `git log -2 --format="%H %s"`, full Task 12 GREEN/build
 - Create: command files listed in section 4, including `approve.ts` and `workspace.ts`.
 - Create exact default command `service/packages/cli/src/commands/workspace-set-default.ts` and `service/packages/cli/test/commands/workspace-set-default.test.ts` for `sfp workspaces set-default`.
 - Create: `service/packages/cli/src/commands/grounding.ts` and matching strict command test for `grounding refresh`.
+- Create: `service/packages/cli/src/commands/egress.ts` and `service/packages/cli/test/commands/egress.test.ts` for status/configure/reset.
 - Create: `service/packages/cli/src/compat/rust-tool-map.ts`.
 - Create: `service/packages/cli/test/client.test.ts`, `commands/*.test.ts`, `compat-mapping.test.ts`, `fixtures/fake-control-server.ts`.
 - Create exact command authority `service/capabilities/cli-command-modules.v1.json`, generator `service/scripts/generate-cli-command-module-ledger.mjs`, and `service/packages/cli/test/command-module-ledger.test.ts`.
@@ -4138,9 +4274,9 @@ Run: `git diff --check`, `git log -2 --format="%H %s"`, full Task 12 GREEN/build
 **Interfaces**
 
 - Consumes: final Task6.1 facade, Task7 tool/service/admin/status, Task8 domains, Task11 snapshot.capture+grounding.refresh, Task12 final authorities. CLI never sends identity/context or redefines wire.
-- Produces: authenticated `ControlClient`; workspace and remote-domain config commands; CLI exit codes 0 healthy, 1 degraded/rejected operation, 2 unavailable/config; command mappings below. CLI is a companion to an active MCP/daemon and never starts a hidden leader. Its library-only `ControlledSourceEndpoint {baseUrl,stateRoot}` option exists solely for an in-process source test runner, requires loopback HTTP plus an owner-only canonical stateRoot, and is not reachable from CLI argv, process environment, request bodies, output, or logs. Normal discovery remains unchanged.
+- Produces: authenticated `ControlClient`; workspace, remote-domain, and egress config commands; CLI exit codes 0 healthy, 1 degraded/rejected operation, 2 unavailable/config; command mappings below. CLI is a companion to an active MCP/daemon and never starts a hidden leader. Its library-only `ControlledSourceEndpoint {baseUrl,stateRoot}` option exists solely for an in-process source test runner, requires loopback HTTP plus an owner-only canonical stateRoot, and is not reachable from CLI argv, process environment, request bodies, output, or logs. Normal discovery remains unchanged.
 
-**Commit protocol:** `task-13.json` lists CLI index/client/output, every declared command module/test (including status, workspace set-default, and grounding), command ledger generator+authority+test, compat map/test, fake server, CLI/root package and pnpm lock, manifest/authority. CLI package+lock are mandatory staged rows after lockfile-only/frozen install. Modules/tests are not required to be one-to-one with command spellings.
+**Commit protocol:** `task-13.json` lists CLI index/client/output, every declared command module/test (including status, egress, workspace set-default, and grounding), command ledger generator+authority+test, compat map/test, fake server, CLI/root package and pnpm lock, manifest/authority. CLI package+lock are mandatory staged rows after lockfile-only/frozen install. Modules/tests are not required to be one-to-one with command spellings.
 
 ~~~ts
 export interface CommandModuleLedgerRowV1 {
@@ -4169,6 +4305,9 @@ The generator strict-parses every command and alias from the command contract, e
 | `sfp workspaces set-default` | `POST /control/workspaces/default` | workspaceId, `workspace.set-default` nonce | selected ID must exist; direct/follower MCP binding persists across restart |
 | `sfp network domains add` | `POST /control/network/domains` | exact three-or-more-label FQDN, nonce | exact equality only; changes owner allowlist, never implicit approval |
 | `sfp network domains list/remove` | `GET /control/network/domains`, `DELETE /control/network/domains/:domain` | remove domain+nonce | empty default; wildcard/IP/public suffix rejected |
+| `sfp egress status` | `GET /control/egress` | `--json` | redacted mode/classes/config hash/expiry; never consentId |
+| `sfp egress configure` | nonce then `POST /control/egress` | exact `--mode external-model`; repeatable `--allow public|project-code|design-text|design-image`; `--expires-in <Nm|Nh>`; `--json` | unique sorted nonempty classes; duration grammar `^[1-9][0-9]*(m|h)$`, maps to integer60..28800 seconds; server consent remains secret |
+| `sfp egress reset` | nonce then `DELETE /control/egress` | `--json` | durable `unknown-fail-closed`; no body actor/consent |
 | `sfp approvals list` | pending approvals API | `--json` | redacted summaries |
 | `sfp approve/reject` | approval settle API | approvalId | exact once; late settlement degraded 1 |
 | `sfp operations unresolved` | `GET /control/operations?status=outcome-unknown` | `--json` | unresolved records, no raw args/result |
@@ -4228,6 +4367,34 @@ it('maps workspace and network-domain commands to authenticated control routes',
   expect(fakeControl.calls[0]?.body).toMatchObject({ action: 'workspace.add', registrationPath: workspacePath });
 });
 
+it('maps egress status/configure/reset with exact semantic nonce hashes', async () => {
+  await runCli(['egress', 'status', '--json'], fakeControl);
+  await runCli([
+    'egress', 'configure', '--mode', 'external-model',
+    '--allow', 'design-image', '--allow', 'public', '--allow', 'design-text',
+    '--expires-in', '2h', '--json',
+  ], fakeControl);
+  await runCli(['egress', 'reset', '--json'], fakeControl);
+  expect(fakeControl.calls.map(x => [x.method, x.path])).toEqual([
+    ['GET', '/control/egress'],
+    ['POST', '/control/action-nonces'], ['POST', '/control/egress'],
+    ['POST', '/control/action-nonces'], ['DELETE', '/control/egress'],
+  ]);
+  expect(fakeControl.calls[1]?.body).toMatchObject({
+    action: 'egress.configure',
+    requestHash: hashActionRequest('egress.configure', {
+      mode: 'external-model',
+      allowedClasses: ['design-image', 'design-text', 'public'],
+      expiresInSeconds: 7200,
+    }),
+  });
+  expect(fakeControl.calls[3]?.body).toMatchObject({
+    action: 'egress.reset', requestHash: hashActionRequest('egress.reset', {}),
+  });
+  expect(fakeControl.calls[2]?.body).not.toHaveProperty('actorId');
+  expect(JSON.stringify(fakeControl.responses)).not.toMatch(/sfp_consent1_|actor1_|auth1_/);
+});
+
 it('reads public health then owner-only control status without public session oracle', async () => {
   await runCli(['status', '--json'], fakeControl);
   expect(fakeControl.calls.map(x => x.path)).toEqual(['/ping', '/control/status']);
@@ -4277,7 +4444,7 @@ Read the control token from stateRoot; use final Task6.1 public facade only for 
 
 - [ ] **Step 4: Implement workspace, pairing, and approval commands**
 
-Implement all table rows, terminal-only public Pair ID+code/paste-form display, pending approval list, exact approve/reject, operation issue/list/status/resolve, workspace realpath/default lifecycle, and exact-host allowlist lifecycle. Before each nonce-protected route, canonicalize the exact semantic request, call `POST /control/action-nonces`, and use the returned nonce once; do not generate/cache/reuse nonces locally. Workspace add computes `{realPath}`, but sends strict `{action:'workspace.add',requestHash,registrationPath}` so the server independently binds/revalidates identity. Workspace set-default hashes `{workspaceId}` and calls the exact route. Mutation wrappers request a server-issued operation ID before dispatch and surface it in accepted/progress/error/output. Operation resolve is an owner-local administrative call that requires exact `--confirm <operationId/resultHash-or-unknown>`, hashes reason/evidence locally, requests a bound nonce, and never resubmits the original tool. JSON pair output includes challengeId/expiry but redacts code after exchange; control token supplies actor identity and bodies cannot override it.
+Implement all table rows, terminal-only public Pair ID+code/paste-form display, pending approval list, exact approve/reject, operation issue/list/status/resolve, workspace realpath/default lifecycle, exact-host allowlist lifecycle, and egress status/configure/reset. Before each nonce-protected route, canonicalize the exact semantic request, call `POST /control/action-nonces`, and use the returned nonce once; do not generate/cache/reuse nonces locally. Egress configure parses the exact minute/hour grammar, rejects duplicate classes, sorts the unique classes before hashing, sends integer seconds, and never accepts/prints consentId; reset hashes `{}` and sends the nonce only in `x-sfp-action-nonce`. Workspace add computes `{realPath}`, but sends strict `{action:'workspace.add',requestHash,registrationPath}` so the server independently binds/revalidates identity. Workspace set-default hashes `{workspaceId}` and calls the exact route. Mutation wrappers request a server-issued operation ID before dispatch and surface it in accepted/progress/error/output. Operation resolve is an owner-local administrative call that requires exact `--confirm <operationId/resultHash-or-unknown>`, hashes reason/evidence locally, requests a bound nonce, and never resubmits the original tool. JSON pair output includes challengeId/expiry but redacts code after exchange; control token supplies actor identity and bodies cannot override it.
 
 `sfp pair --wait-for-authenticated` is explicitly interactive: it requires a TTY, writes Pair ID/code/paste form directly without buffering, never offers JSON/redirection mode, polls authenticated status without reprinting the code, and exits only on paired success, typed expiry/rejection, or interrupt. Its Task13 process tests prove stdout capture is rejected and the code is absent from logs after exchange. Task16 does not invoke this command or a TTY; its `fake.pair-resume` row drives the typed pairing/resume ports directly in process.
 
@@ -4310,15 +4477,15 @@ pnpm -C service exec vitest run test/vendor-upstreams.test.ts test/authority-cla
 node service/scripts/verify-staged-change-manifest.mjs --slice 13
 ~~~
 
-Expected: command table, approval/workspace/auth/progress/CJK/emoji/Windows path tests pass and help lists no exec.
+Expected: command table, egress duration/class/nonce/redaction, approval/workspace/auth/progress/CJK/emoji/Windows path tests pass and help lists no exec.
 
 - [ ] **Step 8: Request independent spec review**
 
-Reviewer checks every helper/parser mapping, command→tool policy path, exit codes, active-daemon constraint, and approval behavior.
+Reviewer checks every helper/parser mapping, command→tool/admin policy path, egress status/configure/reset hashes and no-consent output, exit codes, active-daemon constraint, and approval behavior.
 
 - [ ] **Step 9: Request independent quality review**
 
-Reviewer checks parseArgs ambiguity, terminal/JSON redaction, path quoting, progress cancellation, Unicode, and fake-server isolation.
+Reviewer checks parseArgs/duration/repeated-class ambiguity, terminal/JSON/egress redaction, path quoting, progress cancellation, Unicode, and fake-server isolation.
 
 - [ ] **Step 10: Commit CLI**
 
@@ -4354,6 +4521,14 @@ it('documents official write and code-to-canvas without frozen rate numbers', as
 it('does not call scan_components a Figma component browser', async () => {
   expect(await read('skills/figma-build/SKILL.md')).toContain('scan_components scans local code AST');
 });
+
+it('documents product egress configuration without exposing consent', async () => {
+  const policy = await read('docs/operation-policy.md');
+  expect(policy).toContain('sfp egress status');
+  expect(policy).toContain('sfp egress configure --mode external-model');
+  expect(policy).toContain('sfp egress reset');
+  expect(policy).not.toContain('consentId=');
+});
 ~~~
 
 - [ ] **Step 2: Run docs RED**
@@ -4372,7 +4547,7 @@ Document official `use_figma` write-to-canvas, `generate_figma_design` live UI c
 
 - [ ] **Step 5: Write capability/security/operator docs**
 
-Document final Task6.1 facade/stream boundary, owner/auth/policy/target/runtime, tool/service/admin with snapshot.capture+grounding.refresh service2, status, journal/finalizer/demotion/limits, plugin consumer and prior product boundaries.
+Document final Task6.1 facade/stream boundary, owner/auth/policy/target/runtime, tool/service/admin with snapshot.capture+grounding.refresh service2, status, journal/finalizer/demotion/limits, plugin consumer and prior product boundaries. Operator docs include exact egress status/configure/reset commands, class/TTL limits, unknown/expired runtime0, redacted status/audit, deterministic reset semantics, and no body actor/consent secret; a redacted external consent is never claimed restorable.
 
 - [ ] **Step 6: Run docs GREEN**
 
@@ -4487,7 +4662,7 @@ Stage only `task-15.json` union, byte-verify, review/rerun exact GREEN, then com
 
 **Files**
 
-- Create `service/packages/mcp/src/application.ts` and `service/packages/mcp/src/daemon-entry.ts`; modify `service/packages/mcp/src/index.ts`, `service/packages/mcp/package.json`, and `service/packages/mcp/tsdown.config.ts`; create `service/packages/mcp/test/application.test.ts` and `service/packages/mcp/test/e2e/daemon-entry.test.ts`.
+- Create `service/packages/mcp/src/application.ts`, `service/packages/mcp/src/daemon-entry.ts`, and `service/packages/mcp/src/security/local-daemon-binding-verifier.ts`; modify `service/packages/mcp/src/index.ts`, `service/packages/mcp/package.json`, and `service/packages/mcp/tsdown.config.ts`; create `service/packages/mcp/test/application.test.ts`, `service/packages/mcp/test/e2e/daemon-entry.test.ts`, and `service/packages/mcp/test/security/local-daemon-binding-verifier.test.ts`. Consume and rerun Task7 `service/packages/shared/src/control.ts`, `service/packages/mcp/src/control/status-endpoint.ts`, `service/packages/shared/test/control-schema.test.ts`, and `service/packages/mcp/test/control/control-status.test.ts` without redefining their wire.
 - Create `service/schemas/preview-candidate-v1.schema.json`, `service/schemas/source-complete-evidence-v1.schema.json`, and `service/schemas/source-complete-preview-v1.schema.json`.
 - Create `service/scripts/current-windows-diagnostic.mjs`, `run-fake-source-checks.mjs`, `source-complete-validator.mjs`, `write-preview-candidate.mjs`, and `write-source-complete-preview.mjs`.
 - Create exact root tests `service/test/preview-candidate.test.ts`, `source-complete-evidence.test.ts`, `current-windows-diagnostic-success.test.ts`, `current-windows-diagnostic-errors.test.ts`, `evidence-schema-draft.test.ts`, `source-harness-binding.test.ts`, `blocking-check-fixture-map.test.ts`, `daemon-artifact-surface.test.ts`, and `packed-daemon-bin.test.ts`; modify `service/test/workflow-hygiene.test.ts`, `service/vitest.config.ts`, and `service/vitest.artifacts.config.ts` so the final artifact-dependent tuple is exactly four rows.
@@ -4499,9 +4674,9 @@ Stage only `task-15.json` union, byte-verify, review/rerun exact GREEN, then com
 
 - Consumes: Task15 verified local artifacts plus all Task1–15 source authorities and frozen Task6.1.
 - Produces: `createMcpApplication`, stdio/daemon parity, foreground source daemon entry, the exact fake16 evidence checks, strict redacted `CurrentWindowsDiagnosticV1`, `PreviewCandidateV1`, `SourceCompleteEvidenceV1`, and `SourceCompletePreviewV1`.
-- Any real-Figma validation is governed only after R16 READY by `docs/superpowers/plans/2026-08-28-ecommerce-figma-service-validation.md`, using its dedicated validation folder and explicit user scope; Task16 neither executes nor claims it.
+- Any real-Figma validation is governed only after R17 READY by `docs/superpowers/plans/2026-08-28-ecommerce-figma-service-validation.md`, using its dedicated validation folder and explicit user scope; Task16 neither executes nor claims it.
 
-**Commit protocol:** `task-16.json` enumerates the exact two MCP sources plus index, MCP package/build config, two MCP tests, three schemas, five created scripts, two modified Task15 scripts, nine created root tests plus modified workflow test, both Vitest configs, root package+lock, artifact manifest authority, change manifest, and closed-world authority files. Generated outputs are absent from the staged tree; no directory/glob row is legal.
+**Commit protocol:** `task-16.json` enumerates the exact application/daemon/local-binding MCP sources plus index, MCP package/build config, three new MCP tests, three schemas, five created scripts, two modified Task15 scripts, nine created root tests plus modified workflow test, both Vitest configs, root package+lock, artifact manifest authority, change manifest, and closed-world authority files. Task7 ControlStatus sources/tests are consumed/rerun but not restaged. Generated outputs are absent from the staged tree; no directory/glob row is legal.
 
 - [ ] **Step 1: Write complete Task16 RED**
 
@@ -4550,9 +4725,24 @@ it('keeps the current-Windows diagnostic non-destructive and supplemental', asyn
   });
   expect(ok.pluginGenerationHash).toMatch(/^sha256:[0-9a-f]{64}$/);
   expect(ok.daemonGenerationHash).toMatch(/^sha256:[0-9a-f]{64}$/);
-  await expect(runCurrentWindowsDiagnostic(validRetainedContext, {
-    desktops: [injectedDesktop], authenticatedPlugin: null,
-  })).resolves.toMatchObject({ status: 'error', code: 'PLUGIN_NOT_CONNECTED' });
+  expect(ok.noMutation).toBe(true);
+  expect(pairCalls()).toBe(0);
+  expect(workspaceMutations()).toEqual([]);
+  expect(figmaMutations()).toEqual([]);
+  expect(externalNetworkCalls()).toEqual([]);
+});
+
+it.each([
+  ['foreign listener/wrong pid-port-generation', localDaemonMismatch, 'LOCAL_DAEMON_MISMATCH', 20, 0],
+  ['desktop absent', desktopAbsent, 'DESKTOP_NOT_FOUND', 21, 0],
+  ['wrong build', wrongBuild, 'BUILD_MISMATCH', 22, 0],
+  ['plugin absent', pluginAbsent, 'PLUGIN_NOT_CONNECTED', 23, 1],
+] as const)('returns ordered redacted diagnostic for %s', async (_label, fault, code, exitCode, controlReads) => {
+  const result = await runCurrentWindowsDiagnostic(fault.context, fault.observations);
+  expect(result).toMatchObject({ status: 'error', code, coPresence: false, noMutation: true });
+  expect(processExitFor(result)).toBe(exitCode);
+  expect(fault.listener.authorizationHeaders).toHaveLength(controlReads);
+  expect(serializedBytes(result)).not.toContainBytes(rawSentinels);
   expect(pairCalls()).toBe(0);
   expect(workspaceMutations()).toEqual([]);
   expect(figmaMutations()).toEqual([]);
@@ -4567,8 +4757,11 @@ it('preserves executable shebang and runs the packed npm bin shim', async () => 
     ? 'node_modules/.bin/sfp-daemon.cmd'
     : 'node_modules/.bin/sfp-daemon';
   await expect(packed.runShim(shim, ['--help'])).resolves.toMatchObject({ exitCode: 0 });
-  await expect(packed.startShimAndProbe(shim, secureTestRoot)).resolves.toMatchObject({
-    ready: true, ping: { product: 'super-figma-pipeline', buildId }, portClosedAfterStop: true,
+  await expect(packed.runShim(shim, ['--state-root', secureTestRoot, '--self-test']))
+    .resolves.toMatchObject({ exitCode: 0, selfTest: { ok: true } });
+  await expect(packed.startDistAndProbe(secureTestRoot)).resolves.toMatchObject({
+    exactNodeChild: true, ready: true,
+    ping: { product: 'super-figma-pipeline', buildId }, portClosedAfterStop: true,
   });
 });
 
@@ -4598,14 +4791,14 @@ The first packed-surface assertion is a RED-only baseline guard: it must observe
 pnpm -C service build
 node service/test/fixtures/assemble-baseline-artifacts.mjs
 pnpm -C service exec vitest run --config vitest.artifacts.config.ts test/daemon-artifact-surface.test.ts test/packed-daemon-bin.test.ts
-pnpm -C service exec vitest run packages/mcp/test/application.test.ts packages/mcp/test/e2e/daemon-entry.test.ts test/preview-candidate.test.ts test/source-complete-evidence.test.ts test/current-windows-diagnostic-success.test.ts test/current-windows-diagnostic-errors.test.ts test/evidence-schema-draft.test.ts test/source-harness-binding.test.ts test/blocking-check-fixture-map.test.ts test/workflow-hygiene.test.ts
+pnpm -C service exec vitest run packages/shared/test/control-schema.test.ts packages/mcp/test/application.test.ts packages/mcp/test/control/control-status.test.ts packages/mcp/test/e2e/daemon-entry.test.ts packages/mcp/test/security/local-daemon-binding-verifier.test.ts test/preview-candidate.test.ts test/source-complete-evidence.test.ts test/current-windows-diagnostic-success.test.ts test/current-windows-diagnostic-errors.test.ts test/evidence-schema-draft.test.ts test/source-harness-binding.test.ts test/blocking-check-fixture-map.test.ts test/workflow-hygiene.test.ts
 ~~~
 
-Expected behavioral RED: baseline inspection positively proves current `mcp.tgz` lacks `dist/daemon-entry.mjs`, `./daemon`, `sfp-daemon`, preserved shebang/mode, and npm bin shims, then the desired surface/bin assertions fail. Existing index still owns composition; daemon entry/factory and idempotent close contract are absent; stdin-EOF and cross-platform same-child semantics are unmet; typed fake pair/resume, candidate/evidence/marker cross-fields, exact three filenames, strict diagnostic success/error/exit/redaction, and zero-side-effect gates fail through explicit assertions. Every named test exists and runs; a missing test or an accidental module-resolution exception is not an acceptable RED.
+Expected behavioral RED: baseline inspection positively proves current `mcp.tgz` lacks `dist/daemon-entry.mjs`, `./daemon`, `sfp-daemon`, preserved shebang/mode, npm bin help/self-test, and packed-dist retained lifecycle, then the desired surface/bin assertions fail. Existing index still owns composition; daemon entry/factory and idempotent close contract are absent; stdin-EOF and cross-platform same-child semantics are unmet; typed fake pair/resume, candidate/evidence/marker cross-fields, exact three filenames, strict diagnostic precedence/binding/status/redaction, and zero-side-effect gates fail through explicit assertions. Every named test exists and runs; a missing test or an accidental module-resolution exception is not an acceptable RED.
 
 - [ ] **Step 3: Extract the application factory and implement foreground lifecycle**
 
-Move all composition into `createMcpApplication(options): Promise<{startHttp,attachStdio,close}>`; `index.ts` remains only the stdio adapter. `close()` is concurrency-safe, idempotent, gracefully stops admission/HTTP/stdio/application resources, and resolves only after owned ports close. `daemon-entry.ts` strict-parses an owner-secure absolute `--state-root` and decimal `--port` (`0` for OS assignment or `1024..65535`), calls only `startHttp`, never attaches stdio, ignores stdin/EOF, and awaits one idempotent close path for signals. A normal process never detaches itself or writes process-state metadata.
+Move all composition into `createMcpApplication(options): Promise<{startHttp,attachStdio,close}>`; `index.ts` remains only the stdio adapter. `close()` is concurrency-safe, idempotent, gracefully stops admission/HTTP/stdio/application resources, and resolves only after owned ports close. `daemon-entry.ts` strict-parses an owner-secure absolute `--state-root` and either decimal `--port` (`0` for OS assignment or `1024..65535`) or mutually exclusive `--self-test`. It calls only `startHttp`, never attaches stdio, ignores stdin/EOF, and awaits one idempotent close path for signals; self-test performs bounded internal start/ping/close then exits. A normal process never detaches itself or writes process-state metadata.
 
 The MCP process test spawns the freshly built `dist/daemon-entry.mjs` with piped stdin/stdout/stderr, closes stdin, waits 250 ms, and proves strict ping still works; the artifact-dependent root test separately repeats the core lifecycle against the unpacked tarball. POSIX sends `SIGTERM` and may assert `{code:0,signal:null}` within 5,000 ms because the handler closes cleanly. Windows calls `child.kill()` on the retained handle and asserts only that the same PID exits within 5,000 ms and the port closes; it makes no exit-code/signal claim. `afterEach` always terminates and awaits that exact handle.
 
@@ -4613,7 +4806,9 @@ The MCP process test spawns the freshly built `dist/daemon-entry.mjs` with piped
 
 `service/packages/mcp/tsdown.config.ts` has exact entries `{index:'src/index.ts','daemon-entry':'src/daemon-entry.ts'}` and config/output tests require exactly `dist/index.mjs` plus `dist/daemon-entry.mjs`, never `dist/daemon.mjs`. `service/packages/mcp/src/daemon-entry.ts` begins with exact bytes `#!/usr/bin/env node\n`; tsdown preserves that shebang in `dist/daemon-entry.mjs`. `service/packages/mcp/package.json` preserves existing fields, requires `files` to include `dist`, adds export `"./daemon":"./dist/daemon-entry.mjs"`, and adds exact bin `"sfp-daemon":"dist/daemon-entry.mjs"`. The packed tar entry has mode `0755`. Package/artifact tests reject a source-path fallback, an extra daemon path, missing/duplicated shebang, wrong mode, or any disagreement among package.json, tsdown output, `artifact-manifest.v1.json`, and tar contents.
 
-The authoritative packed-bin test installs the final `mcp.tgz` into a fresh prefix/cache, selects `node_modules/.bin/sfp-daemon` on POSIX or `node_modules/.bin/sfp-daemon.cmd` on Windows, and invokes that actual shim for both help and startup. Help requires exit0 within 2,000 ms, empty stderr, and exact stdout `Usage: sfp-daemon --state-root <absolute-path> --port <0|1024-65535>\n` (UTF-8, at most 512 bytes). Startup invokes the same shim with `--state-root <verifiedTestTemp> --port 0`; within 5,000 ms stdout must contain exactly one LF-terminated JSON line with key order `{"type":"sfp-daemon-ready-v1","port":<actualPort>}`, actualPort in `1024..65535`, no extra stdout, and empty stderr. The test strict-parses public ping within 2,000 ms, verifies build identity, terminates the retained shim child under the platform rules above, and proves connect fails/port closes within 2,000 ms. Direct `node package/dist/daemon-entry.mjs` help/startup remains only a supplemental diagnostic; it cannot satisfy the packed-bin gate. Step1's contradictory baseline assertion is replaced by final positive file/export/bin/shebang/mode/shim assertions.
+The packed-bin test installs the final `mcp.tgz` into a fresh prefix/cache and selects `node_modules/.bin/sfp-daemon` on POSIX or `node_modules/.bin/sfp-daemon.cmd` on Windows. The actual shim owns only two bounded checks: `--help` exits0 within 2,000 ms with empty stderr and exact stdout `Usage: sfp-daemon --state-root <absolute-path> --port <0|1024-65535> [--self-test]\n`; `--state-root <verifiedTestTemp> --self-test` internally binds an ephemeral loopback port, constructs/pings/closes the application, emits exact one-line `{"type":"sfp-daemon-self-test-v1","ok":true}`, exits0 within 5,000 ms, and leaves no port/process. Tests never claim killing a shim controls a daemon process tree.
+
+The authoritative long-lived lifecycle resolves checksum-verified `package/dist/daemon-entry.mjs` from the unpacked final tarball (or the identical file under the fresh prefix), then spawns exact `process.execPath` with that packed path, `--state-root <verifiedTestTemp> --port 0`. Within 5,000 ms stdout contains exactly one ready line, strict ping matches build, and the retained child is the actual Node daemon. POSIX signal/Windows `child.kill()` applies to this exact child; after await, connect fails within 2,000 ms. Source-tree `dist` can never satisfy this test. Step1's contradictory baseline assertion is replaced by final positive file/export/bin/shebang/mode/shim-self-test/packed-dist-lifecycle assertions.
 
 - [ ] **Step 5: Implement fake16 and the non-destructive diagnostic**
 
@@ -4631,7 +4826,7 @@ pnpm -C service install --frozen-lockfile
 pnpm -C service verify:artifacts
 pnpm -C service test:artifacts
 pnpm -C service exec vitest run --config vitest.artifacts.config.ts test/daemon-artifact-surface.test.ts test/packed-daemon-bin.test.ts
-pnpm -C service exec vitest run packages/mcp/test/application.test.ts packages/mcp/test/e2e/daemon-entry.test.ts test/preview-candidate.test.ts test/source-complete-evidence.test.ts test/current-windows-diagnostic-success.test.ts test/current-windows-diagnostic-errors.test.ts test/evidence-schema-draft.test.ts test/source-harness-binding.test.ts test/blocking-check-fixture-map.test.ts test/workflow-hygiene.test.ts
+pnpm -C service exec vitest run packages/shared/test/control-schema.test.ts packages/mcp/test/application.test.ts packages/mcp/test/control/control-status.test.ts packages/mcp/test/e2e/daemon-entry.test.ts packages/mcp/test/security/local-daemon-binding-verifier.test.ts test/preview-candidate.test.ts test/source-complete-evidence.test.ts test/current-windows-diagnostic-success.test.ts test/current-windows-diagnostic-errors.test.ts test/evidence-schema-draft.test.ts test/source-harness-binding.test.ts test/blocking-check-fixture-map.test.ts test/workflow-hygiene.test.ts
 pnpm -C service --filter @sfp/mcp build
 pnpm -C service typecheck
 node service/scripts/update-service-forks.mjs --slice 16 --index service/capabilities/change-manifests/task-16.json
@@ -4642,7 +4837,7 @@ node service/scripts/verify-staged-change-manifest.mjs --slice 16
 node -e "const f=require('node:fs');for(const p of ['service/artifacts/preview-candidate.v1.json','service/artifacts/source-complete-evidence.v1.json','service/artifacts/source-complete-preview.v1.json'])if(f.existsSync(p))process.exit(1)"
 ~~~
 
-Expected: application/stdio/daemon parity, idempotent application close, EOF survival, platform-specific retained-child teardown, exact tsdown key/output, shebang/mode, package metadata, real POSIX/Windows npm shim help/readiness/ping/port-close surface, fake16, strict diagnostic union/exit/redaction/zero-side-effects, three strict schemas, and full artifact suites pass. The precommit gate creates no candidate/evidence/marker.
+Expected: application/stdio/daemon parity, idempotent application close, EOF survival, platform-specific exact-Node-child teardown, exact tsdown key/output, shebang/mode, package metadata, POSIX/Windows npm shim help+self-test, checksum-verified packed-dist readiness/ping/port-close, fake16, strict diagnostic precedence/local-binding/status/exit/redaction/zero-side-effects, three strict schemas, and full artifact suites pass. The precommit gate creates no candidate/evidence/marker.
 
 - [ ] **Step 8: Stage the closed world and obtain same-tree reviews**
 
@@ -4650,11 +4845,11 @@ Stage only the exact `task-16.json` union, compare staged names byte-for-byte wi
 
 - [ ] **Step 9: Review Task16 quality and scope**
 
-The spec reviewer verifies the source-only boundary and that real-Figma work is deferred to the tracked supplemental plan after R16 READY. The quality reviewer checks one composition root, idempotent close, signal/EOF/platform behavior, exact tsdown output/shebang/mode, both real npm shims, bounded output/timeouts, package authority, fake determinism, strict diagnostic success/error/exit/redaction and zero side effects, plus three-file cross-validation. Any staged change restarts both reviews.
+The spec reviewer verifies the source-only boundary and that real-Figma work is deferred to the tracked supplemental plan after R17 READY. The quality reviewer checks one composition root, idempotent close, signal/EOF/platform behavior, exact tsdown output/shebang/mode, both npm shims' bounded help+self-test, checksum-verified packed-dist retained lifecycle, package authority, fake determinism, strict local-binding/status diagnostic precedence/error/exit/redaction and zero side effects, plus three-file cross-validation. Any staged change restarts both reviews.
 
 - [ ] **Step 10: Run the sole terminal source-complete command after the clean commit**
 
-From the clean Task16 commit run exactly `pnpm -C service verify:source-complete`. Its frozen order is dependency restoration, full source/build checks through `verify:artifacts`, final Task16 artifact assembly/verification (including both packed npm shims), PreviewCandidate creation, direct fake16 evidence creation, and marker reread/cross-validation. Assert the source-complete output-name set is exactly the three section3.13 filenames, then run `node service/scripts/source-complete-validator.mjs --candidate service/artifacts/preview-candidate.v1.json --evidence service/artifacts/source-complete-evidence.v1.json --marker service/artifacts/source-complete-preview.v1.json`. Only this command supports source-complete status; Task15 `verify:artifacts` does not.
+From the clean Task16 commit run exactly `pnpm -C service verify:source-complete`. Its frozen order is dependency restoration, full source/build checks through `verify:artifacts`, final Task16 artifact assembly/verification (both packed npm shim help+self-test and packed-dist retained lifecycle), PreviewCandidate creation, direct fake16 evidence creation, and marker reread/cross-validation. Assert the source-complete output-name set is exactly the three section3.13 filenames, then run `node service/scripts/source-complete-validator.mjs --candidate service/artifacts/preview-candidate.v1.json --evidence service/artifacts/source-complete-evidence.v1.json --marker service/artifacts/source-complete-preview.v1.json`. Only this command supports source-complete status; Task15 `verify:artifacts` does not.
 
 ### Task 17 — External Windows validation placeholder
 
@@ -4693,7 +4888,7 @@ This plan contains no macOS external-validation files, commands, or completion c
 - Selection/context/screenshot/component-token-icon grounding and typed writes pass unit/process/typed-fake checks; optional current-Windows diagnostic returns only typed non-destructive co-presence/connection results.
 - Mutating final real-Figma validation is not a DoD gate here; it requires a separately approved supplemental plan with a dedicated validation folder and explicit user scope.
 - `export_tokens`, ordered `export_frames_to_pdf`, `doctor`, and `import_library_variable` pass focused/process/source-fake capability tests.
-- CLI includes strict authenticated status, workspace set-default, and locator-based grounding refresh plus prior wrappers.
+- CLI includes strict authenticated status, egress status/configure/reset, workspace set-default, and locator-based grounding refresh plus prior wrappers.
 - All tools and Task11 service2 enter one plane; followers consume only final Task6.1 plaintext stream facade; route classes cannot cross-call.
 - Strict lower-snake tool and exact dotted service-name parsers feed one kind/name registry+journal; both service literals and invalid dot/slash/case/length/cross-kind fixtures pass. Requests produce native pre-admission rejection or accepted/progress/exactly-one-terminal with no Relay/runtime bypass.
 - Task9A real plugin and Task15 packed plugin consume Task7 progress/cancel schemas; Task9C consumes strict bound approval prompt/decision with duplicate/reconnect/late cleanup and no control token. Task7 fakes alone are insufficient.
@@ -4719,6 +4914,7 @@ This plan contains no macOS external-validation files, commands, or completion c
 - Null Origin alone never authenticates a plugin. Foreign product/2xx never becomes leader. Unknown role never forwards args.
 - Body identity/context is rejected. Path args resolve metadata/realpath into PolicyInvocationContext before effects with no content/network/runtime. MCP synthesizes forbidden→none, required→active, optional→none only after strict args/TargetRequirement; ping and doctor false/undefined are none, doctor true active, with leader/follower connected/disconnected parity. Target/key derive from authenticated Relay, deep-freeze, no filename fallback/reroute.
 - Dynamic effects distinguish data/URL, content/outPath, overwrite/create-new, read/write, library import, and experimental heavy operations.
+- Product egress state uses Task5 checksum/atomic `EgressConfigStore`; Task7 authenticated GET/POST/DELETE routes and Task13 CLI require actor/generation/action/request-hash-bound nonces for configure/reset. External mode permits only the four non-secret classes, server-issues consent, expires in at most8h, redacts reads/audit, and missing/corrupt/expired/reset state rejects before runtime.
 - Destructive, filesystem-write/overwrite, network, library-import, and broad-write actions receive the required explicit approval. Inside-root filesystem reads follow workspace/sensitivity policy without being mislabeled as writes.
 - Per-file queue serializes same file across sessions; different file identities can progress independently within read/heavy limits.
 - Same `(actorId,operationId,kind,name,args,workspace,file)` applies once; mismatch conflicts. Cache holds canonical redacted semantic bytes, never entry framing; current auth and kind/name/mode/ID/class/policy fingerprint must match before each adapter reframes. Otherwise payload-free settled+audit; no reruntime.
@@ -4749,7 +4945,7 @@ This plan contains no macOS external-validation files, commands, or completion c
 - MCP bundle contains shared+IR and CLI bundle contains shared; packed manifests have no workspace/private runtime dependency, and each tarball is checked alone in an empty prefix/cache and runs its packed bin/tool smoke.
 - Plugin ZIP has exact isolated manifest/dist/legal/capability paths, deterministic hash/timestamps and unpacked VM+happy-dom consumer execution; source tests cannot substitute.
 - Three unsigned local schemas cover PreviewCandidate, SourceCompleteEvidence and SourceCompletePreview; all outputs are fixed-name, ignored and hash-validated.
-- Packed `daemon-entry.mjs` shares the application factory; named package/tsdown/artifact authorities agree on the `daemon-entry` key, `dist/daemon-entry.mjs`, exact shebang/mode, `./daemon`, and `sfp-daemon`. Fresh-prefix POSIX/Windows npm shims pass help/readiness/ping/retained teardown; direct-node smoke is supplemental only. Stdin EOF is ignored, application close is idempotent, and the port closes. `CurrentWindowsDiagnosticV1` is a strict raw-free success/error union with exact exit codes, generation hashes and zero pairing/mutation/external-network attempts; it is supplemental and nonbinding.
+- Packed `daemon-entry.mjs` shares the application factory; named package/tsdown/artifact authorities agree on the `daemon-entry` key, `dist/daemon-entry.mjs`, exact shebang/mode, `./daemon`, and `sfp-daemon`. Fresh-prefix POSIX/Windows npm shims pass bounded help+self-test only; checksum-verified packed dist owns long-lived readiness/ping/exact-child teardown/port-close. Stdin EOF is ignored and application close is idempotent. `ControlStatusV1.activePlugin` supplies server-derived editorType+pluginGenerationHash. `LocalDaemonBindingVerifier` binds owner lock PID/port/build/generation to public ping before any credential, and `CurrentWindowsDiagnosticV1` enforces exact four-error precedence/exit map, raw-free bytes and zero mutation/network; it is supplemental and nonbinding.
 - Three upstream MIT notices, service license, pdf-lib notice, THIRD_PARTY_NOTICES, PROVENANCE, SBOM, and capability ledgers are present in every applicable artifact.
 - Solar CC BY assets and raw exec symbols are absent.
 - Offline upstream verification passes without original checkouts; parent-workspace verification confirms all three original repos remain clean at pinned commits.
@@ -5215,13 +5411,32 @@ Commit `a274a73e2a7baec9610b35bb8d59df63eaa93d9e` and plan SHA `af165bf3102d24f8
 | R16 item | Binding resolution |
 |---|---|
 | 1 tsdown key | The exact entry is `{index:'src/index.ts','daemon-entry':'src/daemon-entry.ts'}`; config/output tests require only `dist/index.mjs` and `dist/daemon-entry.mjs`, never `dist/daemon.mjs`. |
-| 2 packed executable | Source/dist preserve exact Node shebang and tar mode0755. Fresh-prefix POSIX and Windows npm shims, not direct-node execution, own help/start/readiness/ping/retained-stop/closed-port acceptance. |
-| 3 diagnostic | Strict raw-free `CurrentWindowsDiagnosticV1` success/error union, exact exit map, generation-hash domains, explicit retained daemon owner context, already-paired read-only observation, and zero pair/mutation/external-network calls are binding. |
+| 2 packed executable | Superseded by R17: shims own bounded help+self-test; checksum-verified packed dist owns the exact retained Node lifecycle. |
+| 3 diagnostic | Superseded by R17 exact four-error precedence, ControlStatus plugin hash/editor type, and credential-free local binding verifier. |
 | 4 Task16 paths | Success/error diagnostic tests and packed-bin test are exact files in RED, GREEN, harness manifest, four-row artifact tuple, Task16 change manifest, and both same-tree reviews. |
-| 5 supplemental validation | `docs/superpowers/plans/2026-08-28-ecommerce-figma-service-validation.md` starts from one clean `verify:source-complete`, revalidates exactly three documents, cross-checks same-run manifest/SHA256SUMS/candidate/evidence artifact tuples, and executes the final packed daemon/CLI/plugin. |
+| 5 supplemental validation | Superseded by R17 V1-first scaffold, V3 single-daemon/egress sequence, strict operation/file evidence, and V7 reset/stop. |
 | 6 OperationOrigin | Top-level plugin-generation equality belongs only to `OperationRecord`; tombstone/resolution copy the previously validated strict origin and define no nonexistent top-level equality. |
-| 7 brief quarantine | The pre-R15 ignored Task7 brief remains non-authoritative/non-dispatchable. The main agent regenerates it atomically only after R16 READY with R16 commit/plan SHA and frozen Task6.1 evidence. |
-| 8 handoff | The resulting three-document R16 commit and binding checksum are the sole rereview target; no Task7 dispatch or supplemental validation begins before READY. |
+| 7 brief quarantine | The pre-R15 ignored Task7 brief remains non-authoritative/non-dispatchable; R17 now owns its READY regeneration gate. |
+| 8 handoff | Superseded by the R17 three-document rereview target. |
+
+### 2026-08-28 R17 product-egress and validation-lifecycle amendment
+
+Commit `b132534ed10d4923a2f863f3bfdf991d7ae42bd7` and plan SHA `95d18c703d17874211f57a0a66a296bae2788aa8d12c7a5b30cf129546ce31e2` received NOT READY R16 rereviews and are superseded for Task7 onward. Frozen Task6.1, prior product scope, exact Task7 subjects, and source-only Task16 boundary remain unchanged.
+
+| R17 item | Binding resolution |
+|---|---|
+| 1 product egress | Task5 owns the checked-in atomic/checksummed store in shared egress+policy engine; Task7 7B migrates its actual load/save-no-CAS API/tests to final CAS save/reset and owns authenticated GET/POST/DELETE `/control/egress`, nonce hashes, server consent, max8h/nonsecret classes, redacted status/audit, and unknown/expired runtime0. |
+| 2 egress CLI | Task13 adds exact status/configure/reset commands, duration/class parsing, nonce routes/tests/ledger; Task14 documents operator behavior and no consent/body actor exposure. |
+| 3 V1-first Sites | Supplemental V1 uses exact Sites0.3.0+shadcn command as the first action, commits a clean scaffold, then performs the one source-complete run. Conditional social bitmap generation occurs only after V4 and cannot edit Site files outside the main agent. |
+| 4 one daemon/config | Source gate installs only. V3 reconciles port3055 without credentials, launches one final packed-dist Node child at platform default stateRoot, binds fixed plugin/CLI discovery, requires prior egress unknown, configures the four classes for <=2h, and retains the exact child through V7 reset/stop/port-close. |
+| 5 status/binding | Task7 ControlStatus active plugin adds server-derived editorType/pluginGenerationHash. Task16 `LocalDaemonBindingVerifier` matches owner lock PID/port/generation and public product/build before any credential; foreign/wrong listeners receive none. |
+| 6 packed lifecycle | POSIX/Windows shims own bounded help+self-test only; checksum-verified packed dist spawned by Node owns long-lived readiness and exact retained-child teardown. |
+| 7 diagnostic precedence | Strict result order is LOCAL_DAEMON_MISMATCH, DESKTOP_NOT_FOUND, BUILD_MISMATCH, PLUGIN_NOT_CONNECTED with exact exits, raw-free bytes, noMutation, and zero pair/mutation/external-network calls. |
+| 8 evidence | Supplemental schema separates RawDigest64 from WireSha256 and discriminates read/snapshot/export operations. Full-flag validator rehashes source/artifacts/assets and uses the same packed CLI against the live daemon for unique succeeded operation/result/snapshot/asset/reference/unresolved checks. |
+| 9 V7 closure | V7 validates while the one child is alive, resets and verifies unknown-fail-closed egress, then awaits that exact child and port close; no duplicate start or fake restoration claim remains. |
+| 10 Task16 exactness | Harness/file map/RED/GREEN include ControlStatus schema/status tests, local binding verifier, packed-bin self-test/dist lifecycle and diagnostic positive/all-negative suites. |
+| 11 OperationOrigin | Top-level pluginGeneration equality remains `OperationRecord`-only; tombstone/resolution copy strict validated origin. |
+| 12 handoff | The resulting binding plan/checksum/supplemental three-document commit is the sole R17 READY target; Task7 brief regeneration and supplemental execution wait for READY. |
 
 Prior service findings remain incorporated. Prior external-ceremony findings are explicitly superseded by this scope correction and require separate future authorization.
 
@@ -5229,4 +5444,4 @@ Prior service findings remain incorporated. Prior external-ceremony findings are
 
 ## 11. Execution Handoff
 
-Commit this R16 binding plan/checksum plus the tracked supplemental validation plan docs-only and record the resulting exact commit+plan SHA as the sole review target. No Task7 dispatch or supplemental execution begins before READY. After R16 READY, regenerate the quarantined Task7 brief from the committed binding plan and record the R16 plan/commit SHA, frozen Task6.1 hash, and original 7A/B/C subjects. Tasks17/18 remain non-dispatchable external placeholders.
+Commit this R17 binding plan/checksum plus the tracked supplemental validation plan docs-only and record the resulting exact commit+plan SHA as the sole review target. No Task7 dispatch or supplemental execution begins before READY. After R17 READY, regenerate the quarantined Task7 brief from the committed binding plan and record the R17 plan/commit SHA, frozen Task6.1 hash, and original 7A/B/C subjects. Tasks17/18 remain non-dispatchable external placeholders.
