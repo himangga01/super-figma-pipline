@@ -501,11 +501,11 @@ export interface OperationEvidenceReceiptV1 {
   workspaceId: string | null;
   fileExecutionKeyHash: `sha256:${string}` | null;
   targetBindingHash: `sha256:${string}` | null;
+  captureIntentHash: `sha256:${string}`;
   terminalStatus: 'succeeded' | 'failed' | 'rejected' | 'outcome-unknown';
   resultHash: `sha256:${string}` | null;
   resultBytes: number;
   finalizerHash: `sha256:${string}`;
-  terminalRecordHash: `sha256:${string}`;
   daemonGenerationHash: `sha256:${string}`;
   completedAt: string;
   evidence: OperationEvidenceV1;
@@ -524,32 +524,37 @@ export interface OperationEvidenceLimits {
 }
 
 export interface OperationEvidenceReceiptStore {
-  appendAndFsync(receipt: Omit<OperationEvidenceReceiptV1, 'previousReceiptHash'|'receiptHash'>): Promise<Readonly<OperationEvidenceReceiptV1>>;
+  reserveBeforeRuntime(actorId: `actor1_${string}`, operationId: string, projectedBytes: number): Promise<{reservationId:string;reservedBytes:65536}>;
+  prepareAndFsync(reservationId: string, receipt: Omit<OperationEvidenceReceiptV1, 'previousReceiptHash'|'receiptHash'>): Promise<Readonly<OperationEvidenceReceiptV1>>;
   get(actorId: `actor1_${string}`, operationId: string): Promise<Readonly<OperationEvidenceReceiptV1> | null>;
   recover(): Promise<void>;
 }
 
 export type AdminAuditStage = 'pending' | 'cas-intent' | 'committed' | 'recovered' | 'aborted';
-export interface AdminAuditRecordV1 {
+export interface AdminAuditCommonV1 {
   schemaVersion: 1;
   auditId: `sfp_audit1_${string}`;
   auditTransactionId: `sfp_atx1_${string}`;
   kind: 'egress';
-  stage: AdminAuditStage;
   actorId: `actor1_${string}`;
   authSessionId: `auth1_${string}`;
   action: 'egress.configure' | 'egress.reset';
   actionHash: `sha256:${string}`;
   requestHash: `sha256:${string}`;
   expectedConfigHash: `sha256:${string}`;
-  desiredConfigHash: `sha256:${string}`;
-  configHash: `sha256:${string}` | null;
   allowedClasses: readonly ExternalModelDataClass[];
   expiresAt: string | null;
   createdAt: string;
   previousRecordHash: `sha256:${string}` | null;
   recordHash: `sha256:${string}`;
 }
+
+export type AdminAuditRecordV1 = AdminAuditCommonV1 & (
+  | { stage:'pending'; desiredConfigHash:null; configHash:null }
+  | { stage:'cas-intent'; desiredConfigHash:`sha256:${string}`; configHash:null }
+  | { stage:'committed'|'recovered'; desiredConfigHash:`sha256:${string}`; configHash:`sha256:${string}` }
+  | { stage:'aborted'; desiredConfigHash:`sha256:${string}`|null; configHash:`sha256:${string}`; abortReason:string }
+);
 
 export interface AdminAuditLimits {
   maxRowBytes: 32768;
@@ -565,7 +570,7 @@ export interface AdminAuditLimits {
 
 export interface AdminAuditStore {
   appendAndFsync(record: Omit<AdminAuditRecordV1,'auditId'|'previousRecordHash'|'recordHash'>): Promise<Readonly<AdminAuditRecordV1>>;
-  queryEgress(since: string | null): Promise<readonly AdminAuditRecordV1[]>;
+  queryEgress(input:{since:string|null;cursor:string|null;limit:number}): Promise<{rows:readonly AdminAuditRecordV1[];nextCursor:string|null}>;
   recover(config: Readonly<EgressConfigLoadResult>): Promise<void>;
 }
 
@@ -630,6 +635,12 @@ export interface InvocationRequestV1 {
   operationId?: string;
   workspaceId?: string | null;
   targetSelector: InvocationTargetSelector;
+}
+
+export interface ToolCallControlEnvelopeV1 {
+  version: 1;
+  invocation: InvocationRequestV1;
+  captureResult: boolean;
 }
 
 export interface ServiceOperationRequestV1 {
@@ -911,7 +922,7 @@ export interface OperationRecord {
   approvalId: string | null;
   preExecutionConsentManifestHash: string | null;
   finalEgressManifestHash: string | null;
-  evidenceReceiptHash: `sha256:${string}` | null;
+  operationEvidenceReceiptHash: `sha256:${string}` | null;
   terminalRecordHash: `sha256:${string}` | null;
   sequence: number;
   previousStatus: OperationStatus | null;
@@ -995,11 +1006,15 @@ The frozen actual Task5 location remains owner-secure `stateRoot/egress.v1.json`
 
 Task7 7B owns strict authenticated admin routes `GET /control/egress`, `POST /control/egress`, and `DELETE /control/egress`. GET accepts no body/query, returns only `EgressConfigStatusV1`, and redacts `consentId`, actor/auth, stateRoot, and raw config bytes. POST strict-parses `EgressConfigureRequestV1`, sorts/rejects duplicate classes, computes `hashActionRequest('egress.configure',{mode:'external-model',allowedClasses,expiresInSeconds})`, semantic-validates current generation/actor, consumes the exact action nonce CAS immediately before server consent issuance+store save, and returns the redacted status. DELETE accepts an empty body plus exact `x-sfp-action-nonce`, hashes `hashActionRequest('egress.reset',{})`, consumes immediately before `reset`, and durably restores `unknown-fail-closed`. Bodies/query can never set actor, authSession, consentId, configuredAt, expiresAt, generation, or configHash. Configure/reset audit stores actor/auth, action, request/config hash, sorted classes and expiry only—never consentId; strict audit refinement requires `egress:null` for every non-egress action and the exact redacted object for configure/reset. Reuse, wrong actor/generation/action/hash, expiry, concurrent CAS, malformed class/TTL/body, and foreign stateRoot fail with config unchanged; unknown/expired invocation fails before queue/runtime.
 
-Task7 7B owns bounded `AdminAuditStore` at `stateRoot/journal/{actor-hash}.admin-audit.v1.jsonl`. Random128-bit transaction binds action/request/expected/desired hashes. One actor/config lock serializes reserve4 rows/131072 bytes, pending fsync, nonce CAS, cas-intent fsync, config CAS, terminal. Limits row32768, compact50000/67108864, hard65536/100663296, active1024, retention30d; inclusive below/exact/above and crash/concurrency tests, no live eviction.
+Task7 7B owns bounded AdminAudit. Under actor/config lock it generates hidden consentId and desiredConfigHash in memory, reserves4 rows/131072, fsyncs pending (desired null), consumes nonce CAS, fsyncs cas-intent (desired including consent), performs config CAS, then fsyncs terminal. Recovery correlates transaction ID. Limits remain exact with boundary/crash/concurrency tests.
 
-Task7 7C owns bounded evidence receipts: row65536, compact100000/134217728, hard131072/201326592, reservation65536/operation, retention30d, with inclusive below/exact/above tests. Under operation lock reserve before runtime; fsync artifacts, egress, prepared receipt, reciprocal terminal, then frame. Receipt binds args/workspace/target/status/result/finalizer/generation; exports use sorted unique artifact arrays. Orphans compact; succeeded without reciprocal receipt is impossible.
+Audit GET strict-parses kind, UTC since, cursor and limit1..1000; verifies the full retained chain; returns newest matching rows ascending with encoded response<=1048576 bytes. Malformed/foreign errors fail closed.
 
-Authenticated evidence GET verifies reciprocal links. The control-only generic envelope may add boolean `captureResult`; with workspaceId, the server derives fixed `.sfp/operation-evidence/<operationId>/result.v1.json`. Caller paths are impossible. MCP/follower wire remains unchanged.
+Task7 7C owns bounded evidence receipts. Under operation lock reserve before runtime; fsync fixed artifacts then output egress; build and fsync prepared receipt containing args/workspace/target/status/result/finalizer/generation but no terminal hash; append+fsync terminal journal with `operationEvidenceReceiptHash`; then frame. Endpoint requires terminal reference to existing receipt. Receipt-before-terminal is an orphan ignored/compacted; terminal implies receipt exists. This is noncircular.
+
+Receipt preflight reserves the worst possible row before runtime. Export artifacts max256; each normalized relative path max1024 UTF-8 bytes; paths unique and byte-sorted; projected canonical row must be <=65536. Post-result strict validation repeats exact count/path/total bounds. Name-kind matrix is closed: read-result only read tools/services, snapshot only `snapshot.capture`, export only `save_screenshots|save_image_fills|export_pdf|export_video|export_tokens` with outPath or `export_frames_to_pdf`; `import_image` is not export evidence. Table tests cover count/path/row below/exact/above and args/workspace/target mismatch.
+
+Control generic calls strict-parse `ToolCallControlEnvelopeV1`. `captureResult` and hash of its server-derived fixed operation path enter idempotency/replay/conflict fingerprint and receipt `captureIntentHash`; mismatch conflicts. Caller paths are impossible and MCP/follower wire remains unchanged.
 
 Authenticated `GET /control/status` is a Task7 admin route with empty strict input and exact `ControlStatusV1` output. Its `ControlStatusSource` combines final Task6.1 facade server/role/generation facts with a read-only Relay registry snapshot; it never calls public ping over HTTP. For `activePlugin`, `editorType` is copied only from the authenticated registered Relay session and `pluginGenerationHash` is `sha256:` plus SHA-256 of `sfp-control-status-plugin-generation-v1\0` and exact UTF-8 plugin generation; raw generation is absent. Session/file/plugin/capability oracles exist only here behind control auth. Tests cover unauthorized/foreign stateRoot, exact keys, hash vectors, editor type, redaction, zero/multiple plugins, active-session rotation, and absence of credentials/raw file identity values.
 
@@ -1035,7 +1050,7 @@ Followers construct only `FollowerInvocationClient` over the final Task6.1 strea
 
 Demotion is single-flight/two-phase and awaited by election; overlapping ticks cannot promote/demote/release. A one-use exact-generation DemotionTicket fixes one absolute 5,000 ms deadline and a 1,000 ms transport-drain deadline. Order: close admission → generation terminal fence → abort pending/queued → fsync dispatched unknown → finalize/flush egress → bounded drain/force close → destroy → release port. Prepare runs through destruction; finalize rejects stale/reused ticket and releases only after durability. Durability failure retains port with fatal guidance; no successor/old reply overlaps.
 
-Operation IDs are server-issued base64url envelopes with version/keyId/issuedAt/random128-bit nonce/owner-actor hash plus HMAC-SHA-256 under a dedicated stateRoot-lifetime key independent of transport credentials. Verify strict envelope, key/MAC/owner actor before lookup; age `>=2,592,000,000 ms` is `OPERATION_ID_EXPIRED`, future skew `>300,000 ms` or bad key/MAC/actor is `OPERATION_ID_INVALID`, all runtime zero. Exact replay key includes actor, operationId, kind, name, argsHash, workspaceId, and fileExecutionKey; mismatch conflicts. No raw result persists. In-memory result cache follows section3.12; persisted settled without cache returns nonretryable `OPERATION_ALREADY_SETTLED`. Tombstones last through horizon and signed age rejects after purge. Generation change uses bounded demotion. Manual same-owner control resolution is separate admin action with nonce/evidence/exact `${operationId}/${resultHash ?? 'unknown'}`, fsynced 1,048,576-byte reserve, origin/resolver auth audit, no replay authority, and typed reserve-full guidance.
+Operation IDs remain server-issued/HMAC/timestamp/owner-bound with exact horizon/skew checks. Replay identity adds control `captureIntentHash` to actor, operationId, kind/name, argsHash, workspaceId and fileExecutionKey; captureResult mismatch conflicts. All existing tombstone, cache, demotion and manual-resolution reserve/audit/no-replay rules remain binding.
 
 The completed-result cache stores only canonical deterministic UTF-8 JSON bytes of the already-redacted value after its strict result schema succeeds, plus resultSchemaHash and consent fingerprint. It never stores MCP content blocks, follower/control envelopes, progress/terminal framing, unknown objects, raw runtime output or pre-redaction values. Fingerprint input is exactly `{operationKind,operationName,mode,consentId,allowedClasses:sortedUnique,policyVersion:'egress-policy-v1'}` under domain `sfp-consent-fingerprint-v1`. Replay first reauthenticates current entry principal/consent, recomputes exact fingerprint, then parses cached bytes through the named strict result schema. Only exact valid match returns the semantic value; each entry adapter independently reframes it for MCP, follower MessagePack, or control NDJSON. Any kind/name/mode/ID/class/policy/auth/expiry/schema mismatch returns payload-free settled and raw-free old/new fingerprint audit, never runtime. Cross-entry tests assert semantic equality but distinct framing and prove no previous entry wire bytes leak.
 
@@ -1943,7 +1958,7 @@ After the clean Task16 commit, `verify:source-complete` creates exactly three ig
 
 Task16 extracts one application factory. Daemon args are exactly normal `--state-root ... --port ...` or standalone `--self-test`; self-test creates its own secure temp root and exits after internal start/ping/close.
 
-Task16 process tests retain exact children; real-Figma validation requires R19 READY and the tracked supplemental plan.
+Task16 process tests retain exact children; real-Figma validation requires R20 READY.
 
 | Fake blocking check suffix | Typed fake input and positive assertion | Required negative assertion | Fake teardown |
 |---|---|---|---|
@@ -2040,7 +2055,7 @@ service/
   scripts/write-source-complete-preview.mjs
   scripts/generate-task9b-handler-ledger.mjs
   scripts/generate-cli-command-module-ledger.mjs
-  scripts/generate-cli-tool-contracts.mjs
+  scripts/generate-cli-tool-contracts.ts
   scripts/update-service-forks.mjs
   packages/shared/src/auth.ts
   packages/shared/src/action-nonce.ts
@@ -2278,7 +2293,7 @@ Workspace-root class4 paths are `.gitignore` for ignored local preview outputs a
 | ir | `@sfp/shared` workspace, `zod` 4.4.3, Node crypto only; filesystem is an injected storage port implemented in MCP |
 | mcp | `@modelcontextprotocol/server` 2.x lock-resolved, `ws` 8.21.3, `fdir` 6.5.0, `ignore` 7.0.6, `oxc-parser` 0.147.0, `pdf-lib` 1.17.1, shared/ir workspaces |
 | plugin | Vue 3.5.41, VueUse 14.4.0, Lucide Vue 1.34.0, Zod 4.4.3, Vite 8.2.2 toolchain |
-| cli | shared workspace and Node stdlib; `node:util.parseArgs`; direct build devDependencies `tsdown` `^0.22.14` and `publint` `^0.3.24` |
+| cli | shared workspace, `ajv` 8.17.1 using `Ajv2020`, Node stdlib; build devDependencies tsdown/publint; root generator devDependency `tsx` `^4.8.1`; no MCP runtime dependency |
 
 Task16 adds root direct devDependency `ajv` exactly `8.17.1` for the three unsigned source-complete schemas.
 
@@ -3000,7 +3015,7 @@ Closed-world order uses class-aware service fork model; edited upstream paths tr
 
 Before/after each 7A/7B/7C staged review, run the exact `TASK6_1_FROZEN_GREEN` block in section 3.5 plus the slice's Task7 focused tests. Reports record base `39a29373b91445e9242e82611f0a8a04fca525ea`, contract `bd296dabe872f08adca793d93a2cd6a2c7efca60c58127b07924b2f18840b27b`, manifest bytes 925, and the exact path list. Task7 execution remains gated only by a fresh READY rereview of this newly checksummed binding plan.
 
-The ignored Task7 brief remains quarantined until R19 READY, then is regenerated with R19 SHA and frozen evidence.
+The ignored Task7 brief remains quarantined until R20 READY.
 
 **Exact staged path allowlists**
 
@@ -3012,7 +3027,7 @@ TREE_7A complete union is the base 7A line plus exactly: `service/packages/share
 
 TREE_7B complete union is base 7B line plus `service/packages/shared/src/approval.ts`, `service/packages/shared/src/config.ts`, `service/packages/mcp/src/policy/approval-broker.ts`, `service/packages/mcp/src/policy/approval-prompt.ts`, `service/packages/mcp/src/execution/mcp-workspace-binding.ts`, `service/packages/mcp/src/fs/workspace-config-store.ts`, `service/packages/mcp/src/fs/workspace-registration-resolver.ts`, `service/packages/mcp/src/control/router.ts`, `service/packages/mcp/src/control/route-registry.ts`, `service/packages/mcp/src/control/status-endpoint.ts`, `service/packages/mcp/test/execution/approval-broker.test.ts`, `service/packages/mcp/test/execution/approval-plugin-port.test.ts`, `service/packages/mcp/test/execution/approval-routing-matrix.test.ts`, `service/packages/mcp/test/execution/mcp-workspace-binding.test.ts`, `service/packages/mcp/test/fs/workspace-config-store.test.ts`, `service/packages/mcp/test/fs/workspace-registration-resolver.test.ts`, `service/packages/mcp/test/fs/workspace-registration-atomicity.test.ts`, `service/packages/mcp/test/control/control-router.test.ts`, `service/packages/mcp/test/control/control-status.test.ts`, `service/capabilities/change-manifests/task-7b.json`, `service/test/authority-class-transition.test.ts`, `service/test/service-fork-lineage.test.ts`. No other path.
 
-TREE_7C additionally includes exact `service/packages/mcp/src/control/operation-evidence-endpoint.ts`, `service/packages/mcp/test/control/operation-evidence.test.ts`, `service/capabilities/change-manifests/task-7c.json`, `service/test/authority-class-transition.test.ts`, and `service/test/service-fork-lineage.test.ts`; it consumes the already committed 7A staged-manifest verifier/test without modifying or restaging them. No other path.
+TREE_7C additionally includes exact `service/packages/mcp/src/control/operation-evidence-endpoint.ts`, `service/packages/mcp/src/execution/operation-journal.ts`, `service/packages/mcp/src/execution/operation-executor.ts`, `service/packages/mcp/test/control/operation-evidence.test.ts`, `service/packages/mcp/test/execution/operation-journal.test.ts`, `service/packages/mcp/test/execution/operation-executor.test.ts`, `service/capabilities/change-manifests/task-7c.json`, and authority tests. No other path.
 
 Task6.1 ownership rule: remove all six byte-frozen core paths and legacy `follower.ts` from every 7A/B/C staged allowlist. The sole manifest-path exception is `leader-endpoints.ts` in 7C, limited to inner-handler injection. The 7C staged report records both adapter baseline/staged hashes, proves `follower.ts` unchanged, and gives both reviewers the adapter diff plus `TASK6_1_FROZEN_GREEN` output. Any other manifest path or semantic change is out of scope and returns to Task6.1 review.
 
@@ -3026,7 +3041,7 @@ Task6.1 ownership rule: remove all six byte-frozen core paths and legacy `follow
 - [ ] **7B authority, staged review, and exact commit:** Stage only the exact 7B allowlist, check staged names/diff, record `TREE_7B`, and obtain independent spec+quality PASS. Rerun the entire `7B_GREEN_COMMANDS` block **verbatim**; require no unstaged service path and identical tree; commit exact `feat(control): add approved workspace and operation control`; verify `HEAD^{tree}=TREE_7B`.
 - [ ] **7C RED:** Run egress/finalizer/boundary/progress/follower/no-bypass plus `test/change-manifest.test.ts`; expect missing finalizers, exact admission/inner stream, fake-plugin, terminal CAS, staged-byte verifier and convergence.
 - [ ] **7C GREEN:** Run `7C_GREEN_COMMANDS` below verbatim. Expect limits/finalizers/operation-evidence receipt hash chain+fsync/recovery, stream/router/fake-plugin/one-terminal/verifier parity; real plugin waits for9A and Task8 binds canonical result artifact storage.
-- [ ] **7C authority, staged review, and exact commit:** The literal updater in `7C_GREEN_COMMANDS` transitions the `leader-endpoints.ts` semantic adapter baseline to serviceFork before copy-only while frozen semantics remain tested. Follower stays unchanged. Verify lineage/no overwrite, staged tree, two reviews, commit exact `feat(egress): gate runtime and stream bounded progress`, and verify `HEAD^{tree}=TREE_7C`.
+- [ ] **7C authority, staged review, and exact commit:** At frozen39a `leader-endpoints.ts` is already `serviceOwned`; refresh its serviceOwned current hash and review semantic adapter before/after. Do not create serviceFork lineage or claim previous copy mode. Follower stays unchanged; commit exact subject after both reviews.
 
 **`7A_GREEN_COMMANDS` — copy/paste literally before staged review and again before exact 7A commit:**
 
@@ -3575,9 +3590,9 @@ it('fsyncs preflight, dispatched, one finalizer, and terminal before frames', as
   await collect(plane.invokeTool(principal, requestFor('get_screenshot')));
   expect(events).toEqual([
     'pre-manifest-append', 'pre-manifest-fsync', 'output-row-reserved',
-    'queued', 'dispatched-append', 'dispatched-fsync', 'first-runtime-side-effect',
-    'output-finalizer-append', 'output-finalizer-fsync', 'reservation-released',
-    'terminal-operation-fsync', 'terminal-frame',
+    'evidence-capacity-reserved', 'queued', 'dispatched-append', 'dispatched-fsync', 'first-runtime-side-effect',
+    'canonical-artifact-fsync', 'output-finalizer-append', 'output-finalizer-fsync',
+    'prepared-evidence-receipt-fsync', 'terminal-operation-with-receipt-hash-fsync', 'terminal-frame',
   ]);
   expect(readDurableManifest(operationId)).not.toHaveProperty('rawArgs');
   expect(readDurableManifest(operationId)).not.toHaveProperty('result');
@@ -3667,6 +3682,8 @@ Mount authenticated `POST /control/action-nonces` with strict `ActionNonceIssueR
 - [ ] **Step 6: Implement result validation, egress ordering, and progress transport**
 
 Execute exact section3.3: strict request→args/workspace/path-policy→effects→target/deep-frozen ResolvedInvocationScope→capacity→durable pending/approval→egress authorization and final RuntimeExecutionScope→pre-egress fsync/reserve→queue→dispatched fsync→first effect→result/classify/hash/redact→one finalizer fsync→terminal fsync→one frame. Unknown/cap/target/policy/reserve rejection is runtime zero; post-runtime breach finalizes unknown. Hashing omits its own hash field.
+
+R20 inserts evidence receipt reservation before queue/runtime and, after result, artifact fsync -> output egress fsync -> prepared receipt fsync -> terminal-with-receipt-hash fsync -> frame. Crash after artifact/egress but before terminal compacts orphan receipt/artifact; crash after terminal treats receipt authoritative. No old event sequence remains.
 
 Use sections 3.11/3.12 exactly. Consume only Task6.1-authenticated decrypted follower plaintext, parse inner prefix before allocation, and keep Task6.1 outer transport opaque. Control uses bounded JSON/NDJSON; direct MCP uses the same logical cap and standard progress/cancel. Task 7 tests `$progress`/`$cancel` against a fake `PinnedPluginRuntimePort` only; Task 9A owns actual plugin listeners/wiring. Enforce inclusive phase/message/frame/rate/subscriber/active/raw-args caps, bounded drain, origin-auth-session cancel, and exact-one terminal CAS. Disconnect is never implicit retry/cancel.
 
@@ -4382,11 +4399,12 @@ Run: `git diff --check`, `git log -2 --format="%H %s"`, full Task 12 GREEN/build
 - Create: `service/packages/cli/src/commands/grounding.ts` and matching strict command test for `grounding refresh`.
 - Create: `service/packages/cli/src/commands/egress.ts` and `service/packages/cli/test/commands/egress.test.ts` for status/configure/reset.
 - Create: `service/packages/cli/src/commands/tools.ts`, `service/packages/cli/test/commands/tools.test.ts`, and `service/packages/cli/test/e2e/packed-tools-call.test.ts` for the generic 116-tool path.
-- Create build-time `service/scripts/generate-cli-tool-contracts.mjs`, exact sorted116 `service/packages/cli/src/generated/tool-input-contracts.json`, `tool-input-contracts.manifest.json`, and `service/packages/cli/test/tool-input-contracts.test.ts`. The generator alone imports the canonical MCP registry, calls Zod4 JSON Schema conversion, emits per-tool schemaHash plus whole-manifest hash, and exits nonzero if regeneration changes a checked-in byte.
+- Create build-time `service/scripts/generate-cli-tool-contracts.ts`, sorted116 generated contracts+manifest+tests. Root direct devDependency `tsx:"^4.8.1"`; generator runs only through `pnpm -C service exec tsx`, imports canonical TS registry, uses Zod4 draft2020 `$schema`, and clean regeneration is byte-identical.
+- Runtime imports `Ajv2020` from `ajv/dist/2020.js` with `{strict:true,allErrors:false,validateFormats:false}`. Generator parity fixtures cover Zod refinements, unions, bounds and unknown-key rejection; unsupported refinements fail generation rather than weaken validation.
 - Create: `service/packages/cli/src/compat/rust-tool-map.ts`.
 - Create: `service/packages/cli/test/client.test.ts`, `commands/*.test.ts`, `compat-mapping.test.ts`, `fixtures/fake-control-server.ts`.
 - Create exact command authority `service/capabilities/cli-command-modules.v1.json`, generator `service/scripts/generate-cli-command-module-ledger.mjs`, and `service/packages/cli/test/command-module-ledger.test.ts`.
-- Modify exact CLI package authority to direct runtime dependency `ajv:'8.17.1'`, `bin:{sfp:'dist/index.mjs'}`, `files:['dist']`, export `'.':'./dist/index.mjs'`, plus lockfile. The runtime bundle contains generated contracts+Ajv but no MCP package/import; root maps only invoke that package bin.
+- Modify CLI package with direct Ajv8.17.1 and exact bin/files/export; root adds direct devDependency `tsx:"^4.8.1"`; stage both manifests+lock. Runtime bundle has no MCP dependency/import.
 
 **Interfaces**
 
@@ -4425,7 +4443,7 @@ The generator strict-parses every command and alias from the command contract, e
 | `sfp egress status` | `GET /control/egress` | `--json` | redacted mode/classes/config hash/expiry; never consentId |
 | `sfp egress configure` | nonce then `POST /control/egress` | exact `--mode external-model`; repeatable `--allow public|project-code|design-text|design-image`; `--expires-in <Nm|Nh>`; `--json` | unique sorted nonempty classes; duration grammar `^[1-9][0-9]*(m|h)$`, maps to integer60..28800 seconds; server consent remains secret |
 | `sfp egress reset` | nonce then `DELETE /control/egress` | `--json` | durable `unknown-fail-closed`; no body actor/consent |
-| `sfp egress audit` | `GET /control/admin-audit?kind=egress&since=` | `--since <RFC3339>`, `--json` | verifies pending/cas-intent/committed/recovered/aborted; no consent |
+| `sfp egress audit` | strict admin-audit query | `--since`, optional `--cursor`, `--limit 1..1000`, `--json` | full-chain verification, newest matching ascending, response cap; no consent |
 | `sfp approvals list` | pending approvals API | `--json` | redacted summaries |
 | `sfp approve/reject` | approval settle API | approvalId | exact once; late settlement degraded 1 |
 | `sfp operations unresolved` | `GET /control/operations?status=outcome-unknown` | `--json` | unresolved records, no raw args/result |
@@ -4601,8 +4619,8 @@ Run this complete copy/paste block against the staged `task-13.json` tree:
 ~~~powershell
 pnpm -C service install --lockfile-only
 pnpm -C service install --frozen-lockfile
-node service/scripts/generate-cli-tool-contracts.mjs --write
-node service/scripts/generate-cli-tool-contracts.mjs --check
+pnpm -C service exec tsx scripts/generate-cli-tool-contracts.ts --write
+pnpm -C service exec tsx scripts/generate-cli-tool-contracts.ts --check
 node service/scripts/generate-cli-command-module-ledger.mjs --write service/capabilities/cli-command-modules.v1.json
 pnpm -C service exec vitest run packages/cli/test packages/cli/test/tool-input-contracts.test.ts packages/cli/test/e2e/packed-tools-call.test.ts
 pnpm -C service exec vitest run packages/cli/test/command-module-ledger.test.ts
@@ -4814,7 +4832,7 @@ Stage only `task-15.json` union, byte-verify, review/rerun exact GREEN, then com
 
 - Consumes: Task15 verified local artifacts plus all Task1–15 source authorities and frozen Task6.1.
 - Produces: `createMcpApplication`, stdio/daemon parity, foreground source daemon entry, the exact fake16 evidence checks, strict redacted `CurrentWindowsDiagnosticV1`, `PreviewCandidateV1`, `SourceCompleteEvidenceV1`, and `SourceCompletePreviewV1`.
-- Real-Figma validation is governed only after R19 READY by the tracked supplemental plan.
+- Real-Figma validation is governed only after R20 READY.
 
 **Commit protocol:** `task-16.json` enumerates the exact application/daemon/local-binding MCP sources plus index, MCP package/build config, three new MCP tests, three schemas, five created scripts, two modified Task15 scripts, nine created root tests plus modified workflow test, both Vitest configs, root package+lock, artifact manifest authority, change manifest, and closed-world authority files. Task7 ControlStatus sources/tests are consumed/rerun but not restaged. Generated outputs are absent from the staged tree; no directory/glob row is legal.
 
@@ -4944,7 +4962,7 @@ The MCP process test spawns the freshly built `dist/daemon-entry.mjs` with piped
 
 - [ ] **Step 4: Build and package the exact daemon executable surface**
 
-`service/packages/mcp/tsdown.config.ts` has exact entries `{index:'src/index.ts','daemon-entry':'src/daemon-entry.ts'}` and config/output tests require exactly `dist/index.mjs` plus `dist/daemon-entry.mjs`, never `dist/daemon.mjs`. `service/packages/mcp/src/daemon-entry.ts` begins with exact bytes `#!/usr/bin/env node\n`; tsdown preserves that shebang in `dist/daemon-entry.mjs`. `service/packages/mcp/package.json` preserves existing fields, requires `files` to include `dist`, adds export `"./daemon":"./dist/daemon-entry.mjs"`, and adds exact bin `"sfp-daemon":"dist/daemon-entry.mjs"`. The packed tar entry has mode `0755`. Package/artifact tests reject a source-path fallback, an extra daemon path, missing/duplicated shebang, wrong mode, or any disagreement among package.json, tsdown output, `artifact-manifest.v1.json`, and tar contents.
+With tsdown0.22.14/Rolldown, MCP uses two deterministic sequential single-entry builds into isolated temp dirs, then copies exactly `index.mjs` and `daemon-entry.mjs` to dist; shared chunks are forbidden. Source `daemon-entry.ts` solely owns the shebang and config banner is forbidden; duplicate/missing shebang fails. Package exports/bin and tar mode remain exact.
 
 The native shim runs `--help` and `--self-test` only. Exact help is `Usage: sfp-daemon (--state-root <absolute-path> --port <0|1024-65535> | --self-test)\n`; modes are mutually exclusive. Self-test uses an internal secure temp root, starts/pings/closes, exits0 bounded, and leaves no process/port.
 
@@ -4985,7 +5003,7 @@ Stage only the exact `task-16.json` union, compare staged names byte-for-byte wi
 
 - [ ] **Step 9: Review Task16 quality and scope**
 
-Reviewers defer real-Figma work until R19 READY and check native shim, packed child, binding proof, diagnostics and three-file validation.
+Reviewers defer real-Figma work until R20 READY.
 
 - [ ] **Step 10: Run the sole terminal source-complete command after the clean commit**
 
@@ -5612,12 +5630,29 @@ Commit `9ef08de5dbb835eb04bdaa14808718a1c517a4c6` and plan SHA `cab961a549971178
 | 1 CLI contracts | Build-time MCP registry generator emits sorted116 Zod JSON Schemas+hash manifest; runtime CLI uses direct Ajv with no MCP dependency and exact regeneration/parity tests. |
 | 2 audit transactions | 128-bit transaction IDs bind action/request/expected/desired hashes; one actor/config lock serializes pending/cas-intent/config CAS/terminal and recovery. |
 | 3 bounded stores | Admin audit and operation evidence have exact row/byte/compaction/reservation/retention caps with inclusive boundary tests. |
-| 4 reciprocal settlement | Receipt capacity reserves pre-runtime; artifact/egress/prepared-receipt/terminal fsync order cross-links terminalRecordHash and receiptHash; orphan/succeeded-without-receipt claims fail. |
+| 4 reciprocal settlement | Superseded by R20 noncircular receipt-first then terminal `operationEvidenceReceiptHash` ordering. |
 | 5 credential wording | Frozen facade may materialize credentials internally, but no bearer transmits before PID/port/product/role/generation proof; observed build is compared afterward so BUILD_MISMATCH remains reachable. |
 | 6 daemon/platform | Exact mutually exclusive help, native shim self-test, current-platform strict union and packed-dist long-lived child are final. |
 | 7 supplemental guard/phases | Guard exists before probe/spawn, pre-extraction precedes semantic tools, final follows reset, and every exit performs blocker-preserving cleanup. |
 | 8 Sites sequence | create_site/project_id precede final build; commit/push, safe package-site tar scan/provenance, save-version commit_sha, owner-only private deploy and polling are exact. |
-| 9 handoff | This R19 binding/checksum/supplemental commit is the sole READY target. |
+| 9 handoff | Superseded by R20. |
+
+### 2026-08-28 R20 noncircular evidence and deploy amendment
+
+Commit `c83a5d382221431e75ac3cf7603f7cf5ca7a412b` and plan SHA `1c71c8932f75a4f399e3c268a2f27bd5eb1c79a281858e1a67ba0e7903f84895` received NOT READY R19 reviews and is superseded for Task7 onward.
+
+| R20 item | Binding resolution |
+|---|---|
+| A | Receipt contains no terminal hash; terminal alone references prepared receipt, eliminating circular hashing. |
+| B/C | Boolean capture intent is replay identity; fixed server path, exact export/path/count/row bounds and closed name-kind matrix. |
+| D | AdminAudit is a transaction-correlated discriminated stage union under one config lock with strict bounded query. |
+| E | Executable TypeScript generator via root tsx emits draft2020 sorted116 contracts; CLI Ajv runtime has no MCP dependency. |
+| F | leader-endpoints remains existing serviceOwned with hash refresh, not serviceFork. |
+| G/H | Zero bearer transmission precedes proof; observed build is compared separately; native shim/platform rules remain. |
+| I/J | Guard precedes probe/spawn, egress state is pessimistic, listener blocks, pre-extraction precedes semantic tools, final follows durable reset. |
+| K/N | Receipt binds args/workspace/target/status and sorted multi-artifacts; validator binds daemon, receipt, audit and reset. |
+| L/M | Sites create/retry credential, clean build, commit/push, safe tar provenance, save-version/deploy/poll/open and all-exit dev cleanup are exact. |
+| P | This R20 three-document commit is the sole READY target. |
 
 Prior service findings remain incorporated. Prior external-ceremony findings are explicitly superseded by this scope correction and require separate future authorization.
 
@@ -5625,4 +5660,4 @@ Prior service findings remain incorporated. Prior external-ceremony findings are
 
 ## 11. Execution Handoff
 
-Commit this R19 binding plan/checksum plus the tracked supplemental validation plan docs-only as the sole review target. No Task7 or supplemental execution begins before READY. After R19 READY regenerate the quarantined brief with R19 SHA, frozen Task6.1 hash, and original 7A/B/C subjects.
+Commit this R20 binding/checksum/supplemental three-document change as the sole review target. No execution before READY; afterward regenerate the brief with R20 SHA and frozen evidence.
