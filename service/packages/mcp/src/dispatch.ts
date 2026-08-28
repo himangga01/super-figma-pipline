@@ -149,9 +149,9 @@ export const dispatchTool = async (
 
 /**
  * Resolve the plugin session routing would currently pick, so a multi-call tool can pin every
- * sub-call to one plugin (see DispatchOptions.sessionId). Leader resolves locally; follower asks
- * the leader over /ping. Returns undefined when no plugin is connected or the leader is unreachable
- * — in that case sub-calls run unpinned, i.e. the pre-existing most-active routing on each call.
+ * sub-call to one plugin (see DispatchOptions.sessionId). Leaders resolve locally. Followers use
+ * the transitional unpinned fallback because public /ping intentionally exposes no session oracle;
+ * Task 7 replaces this branch with authenticated selector resolution.
  */
 export const resolveRoutingSession = async (ctx: DispatchContext): Promise<string | undefined> => {
   // A conflicted node has no leader to ask (the port holder isn't answering as one) — resolve to
@@ -160,5 +160,5 @@ export const resolveRoutingSession = async (ctx: DispatchContext): Promise<strin
   if (ctx.node.isLeader()) {
     return ctx.node.getLeader()?.relay.pickActiveSessionId();
   }
-  return ctx.follower.resolveActiveSession();
+  return undefined;
 };

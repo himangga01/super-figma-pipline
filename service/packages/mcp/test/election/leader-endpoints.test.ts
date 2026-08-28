@@ -28,10 +28,10 @@ import {
 } from '../../src/election/leader-endpoints.js';
 import { Relay } from '../../src/relay/relay.js';
 import {
-  createFollowerAuth,
-  openFollowerResponse,
-  sealFollowerRequest,
-} from '../../src/security/follower-auth.js';
+  createFollowerAuthenticatedTransport,
+  createFollowerTransportRequestId,
+  type FollowerAuthenticatedTransport,
+} from '../../src/security/follower-transport.js';
 
 interface Bound {
   http: HttpServer;
@@ -39,42 +39,19 @@ interface Bound {
   port: number;
   detach: () => void;
   plugins: WebSocket[];
+  transport: FollowerAuthenticatedTransport;
 }
 
 const all: Bound[] = [];
 const TEST_GENERATION = Buffer.alloc(16, 1).toString('base64url');
 const TEST_FOLLOWER_TOKEN = Buffer.alloc(32, 2).toString('base64url');
 const TEST_CONTROL_TOKEN = Buffer.alloc(32, 3).toString('base64url');
-const TEST_AUTH = await createFollowerAuth({
-  memory: {
-    generation: TEST_GENERATION,
-    followerToken: TEST_FOLLOWER_TOKEN,
-    controlToken: TEST_CONTROL_TOKEN,
-    createdAt: 1,
-  },
-});
-const sealBody = async (path: string, body: Buffer, requestId = newId()) => {
-  const challenge = await TEST_AUTH.issueFollowerChallenge();
-  const sealed = sealFollowerRequest(TEST_FOLLOWER_TOKEN, challenge, 'POST', path, body, requestId);
-  return { challenge, requestId, sealed };
+const TEST_CREDENTIALS = {
+  generation: TEST_GENERATION,
+  followerToken: TEST_FOLLOWER_TOKEN,
+  controlToken: TEST_CONTROL_TOKEN,
+  createdAt: 1,
 };
-
-const openResponse = async (
-  path: string,
-  bound: Awaited<ReturnType<typeof sealBody>>,
-  response: Response,
-): Promise<Buffer> =>
-  openFollowerResponse(TEST_FOLLOWER_TOKEN, {
-    method: 'POST',
-    path,
-    generation: bound.challenge.generation,
-    nonce: bound.challenge.nonce,
-    requestDigest: bound.sealed.headers['x-sfp-request-digest']!,
-    status: response.status,
-    requestId: bound.requestId,
-    headers: Object.fromEntries(response.headers.entries()),
-    ciphertext: Buffer.from(await response.arrayBuffer()),
-  });
 const authenticatedHello = (clientVersion = MIN_PLUGIN_VERSION) => ({
   credential: { kind: 'ticket' as const, value: 'test-ticket' },
   nonce: Buffer.alloc(16, 4).toString('base64url'),
@@ -119,13 +96,18 @@ const startLeader = async (
       }),
     },
   });
+  const transport = await createFollowerAuthenticatedTransport({
+    leaderUrl: `http://127.0.0.1:${port}`,
+    mcpSession: `mcp1_${Buffer.alloc(16, 8).toString('base64url')}`,
+    memory: TEST_CREDENTIALS,
+  });
   const detach = attachLeaderEndpoints(http, {
     ...extraDeps,
     relay,
     serverVersion: '1.0.0',
     rpcTimeoutMs,
     leaderGeneration: extraDeps.leaderGeneration ?? TEST_GENERATION,
-    auth: extraDeps.auth ?? TEST_AUTH,
+    transport: extraDeps.transport ?? transport,
     pairing:
       extraDeps.pairing ??
       ({
@@ -141,9 +123,35 @@ const startLeader = async (
         }),
       } satisfies LeaderEndpointDeps['pairing']),
   });
-  const b: Bound = { http, relay, port, detach, plugins: [] };
+  const b: Bound = { http, relay, port, detach, plugins: [], transport };
   all.push(b);
   return b;
+};
+
+const openOne = async (
+  port: number,
+  path: '/rpc' | '/abdicate',
+  plaintext: Buffer,
+): Promise<Buffer> => {
+  const bound = all.find(item => item.port === port);
+  if (bound === undefined) throw new Error('leader fixture not found');
+  const records = await bound.transport.client.open(
+    {
+      path,
+      transportRequestId: createFollowerTransportRequestId(),
+      plaintext,
+    },
+    AbortSignal.timeout(5_000),
+  );
+  let result: Buffer | undefined;
+  for await (const record of records) {
+    if (record.sequence !== 0 || !record.final || result !== undefined) {
+      throw new Error('expected one final opaque record');
+    }
+    result = Buffer.from(record.plaintext);
+  }
+  if (result === undefined) throw new Error('missing final opaque record');
+  return result;
 };
 
 const postAbdicate = async (
@@ -151,15 +159,9 @@ const postAbdicate = async (
   body: unknown,
 ): Promise<{ status: number; body: { ok: boolean; reason?: string } }> => {
   const plaintext = Buffer.from(typeof body === 'string' ? body : JSON.stringify(body), 'utf8');
-  const bound = await sealBody(ABDICATE_PATH, plaintext);
-  const res = await fetch(`http://127.0.0.1:${port}${ABDICATE_PATH}`, {
-    method: 'POST',
-    headers: bound.sealed.headers,
-    body: bound.sealed.body,
-  });
   return {
-    status: res.status,
-    body: JSON.parse((await openResponse(ABDICATE_PATH, bound, res)).toString('utf8')) as {
+    status: 200,
+    body: JSON.parse((await openOne(port, ABDICATE_PATH, plaintext)).toString('utf8')) as {
       ok: boolean;
       reason?: string;
     },
@@ -210,43 +212,37 @@ const attachFakePlugin = async (
 };
 
 const callRpc = async (port: number, req: RpcRequest): Promise<RpcResponse> => {
-  const bound = await sealBody(RPC_PATH, Buffer.from(encode(req)), req.requestId);
-  const res = await fetch(`http://127.0.0.1:${port}${RPC_PATH}`, {
-    method: 'POST',
-    headers: bound.sealed.headers,
-    body: bound.sealed.body,
-  });
-  const buf = new Uint8Array(await openResponse(RPC_PATH, bound, res));
+  const buf = new Uint8Array(await openOne(port, RPC_PATH, Buffer.from(encode(req))));
   return RpcResponseSchema.parse(decode(buf));
 };
 
 describe('leader endpoints', () => {
-  it('GET /ping returns server info and plugin count', async () => {
+  it('GET /ping returns stable server identity without plugin-count oracle', async () => {
     const b = await startLeader();
     const res = await fetch(`http://127.0.0.1:${b.port}${PING_PATH}`);
     expect(res.status).toBe(200);
-    const body = (await res.json()) as { ok: boolean; serverVersion: string; plugins: number };
+    const body = (await res.json()) as Record<string, unknown>;
     expect(body.ok).toBe(true);
     expect(body.serverVersion).toBe('1.0.0');
-    expect(body.plugins).toBe(0);
+    expect(body.plugins).toBeUndefined();
 
     await attachFakePlugin(b, async () => ({ noop: true }));
     const res2 = await fetch(`http://127.0.0.1:${b.port}${PING_PATH}`);
-    const body2 = (await res2.json()) as { plugins: number };
-    expect(body2.plugins).toBe(1);
+    const body2 = (await res2.json()) as Record<string, unknown>;
+    expect(body2).toEqual(body);
   });
 
-  it('GET /ping exposes activeSessionId for follower-side pin resolution', async () => {
+  it('GET /ping never exposes the active relay session', async () => {
     const b = await startLeader();
     const res = await fetch(`http://127.0.0.1:${b.port}${PING_PATH}`);
-    const body = (await res.json()) as { activeSessionId: string | null };
-    expect(body.activeSessionId).toBeNull();
+    const body = (await res.json()) as Record<string, unknown>;
+    expect(body.activeSessionId).toBeUndefined();
 
     await attachFakePlugin(b, async () => ({ noop: true }));
     const res2 = await fetch(`http://127.0.0.1:${b.port}${PING_PATH}`);
-    const body2 = (await res2.json()) as { activeSessionId: string | null };
-    expect(body2.activeSessionId).toBe(b.relay.pickActiveSessionId());
-    expect(typeof body2.activeSessionId).toBe('string');
+    const body2 = (await res2.json()) as Record<string, unknown>;
+    expect(b.relay.pickActiveSessionId()).toBeDefined();
+    expect(body2.activeSessionId).toBeUndefined();
   });
 
   it('POST /rpc honors a sessionId pin and rejects an unknown one', async () => {
@@ -371,25 +367,18 @@ describe('leader endpoints', () => {
 
   it('POST /rpc rejects invalid msgpack body', async () => {
     const b = await startLeader();
-    const bound = await sealBody(RPC_PATH, Buffer.from([0xff, 0xff, 0xff]), 'invalid-msgpack');
-    const res = await fetch(`http://127.0.0.1:${b.port}${RPC_PATH}`, {
-      method: 'POST',
-      headers: bound.sealed.headers,
-      body: bound.sealed.body,
+    const plaintext = await openOne(b.port, RPC_PATH, Buffer.from([0xff, 0xff, 0xff]));
+    expect(RpcResponseSchema.parse(decode(plaintext))).toMatchObject({
+      kind: 'err',
+      code: ErrorCode.InvalidRequest,
     });
-    expect(res.status).toBe(400);
   });
 
   it('POST /rpc rejects schema-invalid request', async () => {
     const b = await startLeader();
-    const bound = await sealBody(RPC_PATH, Buffer.from(encode({ requestId: 'r-x' })), 'r-x');
-    const res = await fetch(`http://127.0.0.1:${b.port}${RPC_PATH}`, {
-      method: 'POST',
-      headers: bound.sealed.headers,
-      body: bound.sealed.body,
-    });
-    expect(res.status).toBe(400);
-    const buf = new Uint8Array(await openResponse(RPC_PATH, bound, res));
+    const buf = new Uint8Array(
+      await openOne(b.port, RPC_PATH, Buffer.from(encode({ requestId: 'r-x' }))),
+    );
     const parsed = RpcResponseSchema.parse(decode(buf));
     if (parsed.kind !== 'err') throw new Error(`expected err, got ${parsed.kind}`);
     expect(parsed.code).toBe(ErrorCode.InvalidParams);
@@ -475,9 +464,18 @@ describe('leader endpoints', () => {
 
   it('GET /ping advertises the buildId (0 when unset)', async () => {
     const bare = await startLeader();
-    const bareBody = (await (await fetch(`http://127.0.0.1:${bare.port}${PING_PATH}`)).json()) as {
-      buildId: number;
-    };
+    const bareBody = (await (
+      await fetch(`http://127.0.0.1:${bare.port}${PING_PATH}`)
+    ).json()) as Record<string, unknown>;
+    expect(Object.keys(bareBody).toSorted()).toEqual([
+      'buildId',
+      'leaderGeneration',
+      'ok',
+      'product',
+      'protocolVersion',
+      'role',
+      'serverVersion',
+    ]);
     expect(bareBody.buildId).toBe(0);
 
     const stamped = await startLeader(5_000, { buildId: 1234 });
@@ -579,8 +577,11 @@ describe('POST /abdicate', () => {
 
   it('rejects malformed bodies', async () => {
     const b = await startLeader(5_000, { buildId: 100, abdicateQuietWindowMs: 0 });
-    expect((await postAbdicate(b.port, 'not json{{')).status).toBe(400);
-    expect((await postAbdicate(b.port, {})).status).toBe(400);
-    expect((await postAbdicate(b.port, { buildId: 'newest' })).status).toBe(400);
+    for (const body of ['not json{{', {}, { buildId: 'newest' }]) {
+      expect(await postAbdicate(b.port, body)).toEqual({
+        status: 200,
+        body: { ok: false, reason: 'invalid' },
+      });
+    }
   });
 });

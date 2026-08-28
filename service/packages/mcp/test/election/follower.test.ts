@@ -1,12 +1,14 @@
 import { createServer, type Server as HttpServer } from 'node:http';
 import type { AddressInfo } from 'node:net';
 
+import { decode, encode } from '@msgpack/msgpack';
 import {
   createRequest,
   createResponse,
   decodeEnvelope,
   encodeEnvelope,
   ErrorCode,
+  FollowerTransportRequestIdSchema,
   MIN_PLUGIN_VERSION,
   newId,
   PROTOCOL_VERSION,
@@ -18,7 +20,7 @@ import { WebSocket } from 'ws';
 import { Follower } from '../../src/election/follower.js';
 import { attachLeaderEndpoints } from '../../src/election/leader-endpoints.js';
 import { Relay } from '../../src/relay/relay.js';
-import { createFollowerAuth } from '../../src/security/follower-auth.js';
+import { createFollowerAuthenticatedTransport } from '../../src/security/follower-transport.js';
 
 interface Bound {
   http: HttpServer;
@@ -32,17 +34,16 @@ const all: Bound[] = [];
 const TEST_GENERATION = Buffer.alloc(16, 1).toString('base64url');
 const TEST_FOLLOWER_TOKEN = Buffer.alloc(32, 2).toString('base64url');
 const TEST_CONTROL_TOKEN = Buffer.alloc(32, 3).toString('base64url');
-const TEST_AUTHORIZATION = {
+const TEST_CREDENTIALS = {
   generation: TEST_GENERATION,
-  value: `Bearer ${TEST_FOLLOWER_TOKEN}`,
+  followerToken: TEST_FOLLOWER_TOKEN,
+  controlToken: TEST_CONTROL_TOKEN,
+  createdAt: 1,
 };
-const TEST_AUTH = await createFollowerAuth({
-  memory: {
-    generation: TEST_GENERATION,
-    followerToken: TEST_FOLLOWER_TOKEN,
-    controlToken: TEST_CONTROL_TOKEN,
-    createdAt: 1,
-  },
+const TEST_SERVER_TRANSPORT = await createFollowerAuthenticatedTransport({
+  leaderUrl: 'http://127.0.0.1:1',
+  mcpSession: `mcp1_${Buffer.alloc(16, 9).toString('base64url')}`,
+  memory: TEST_CREDENTIALS,
 });
 const TEST_PAIRING = {
   createChallenge: async () => ({
@@ -60,8 +61,27 @@ const TEST_RELAY_AUTHENTICATOR = {
     resumeExpiresAt: Date.now() + 60_000,
   }),
 };
-const testFollower = (options: ConstructorParameters<typeof Follower>[0]): Follower =>
-  new Follower({ credentialProvider: async () => TEST_AUTHORIZATION, ...options });
+interface TestFollowerOptions {
+  leaderUrl: string;
+  rpcTimeoutMs?: number;
+  pingTimeoutMs?: number;
+  fetch?: typeof globalThis.fetch;
+}
+
+const testFollower = async (options: TestFollowerOptions): Promise<Follower> => {
+  const transport = await createFollowerAuthenticatedTransport({
+    leaderUrl: options.leaderUrl,
+    mcpSession: `mcp1_${Buffer.alloc(16, 10).toString('base64url')}`,
+    memory: TEST_CREDENTIALS,
+    ...(options.fetch === undefined ? {} : { fetch: options.fetch }),
+  });
+  return new Follower({
+    leaderUrl: options.leaderUrl,
+    transport: transport.client,
+    ...(options.rpcTimeoutMs === undefined ? {} : { rpcTimeoutMs: options.rpcTimeoutMs }),
+    ...(options.pingTimeoutMs === undefined ? {} : { pingTimeoutMs: options.pingTimeoutMs }),
+  });
+};
 
 afterEach(async () => {
   await Promise.all(
@@ -88,7 +108,7 @@ const startLeader = async (): Promise<Bound> => {
     relay,
     serverVersion: '1.0.0',
     leaderGeneration: TEST_GENERATION,
-    auth: TEST_AUTH,
+    transport: TEST_SERVER_TRANSPORT,
     pairing: TEST_PAIRING,
   });
   const b: Bound = { http, relay, port, detach, plugins: [] };
@@ -110,7 +130,7 @@ const startLeaderWithTimeout = async (rpcTimeoutMs: number): Promise<Bound> => {
     serverVersion: '1.0.0',
     rpcTimeoutMs,
     leaderGeneration: TEST_GENERATION,
-    auth: TEST_AUTH,
+    transport: TEST_SERVER_TRANSPORT,
     pairing: TEST_PAIRING,
   });
   const b: Bound = { http, relay, port, detach, plugins: [] };
@@ -176,12 +196,12 @@ const attachFakePlugin = async (
 describe('Follower HTTP client', () => {
   it('ping returns true when leader is up', async () => {
     const b = await startLeader();
-    const f = testFollower({ leaderUrl: `http://127.0.0.1:${b.port}` });
+    const f = await testFollower({ leaderUrl: `http://127.0.0.1:${b.port}` });
     expect(await f.ping()).toBe(true);
   });
 
   it('ping returns false for unreachable leader', async () => {
-    const f = testFollower({
+    const f = await testFollower({
       leaderUrl: 'http://127.0.0.1:1',
       pingTimeoutMs: 200,
     });
@@ -195,7 +215,7 @@ describe('Follower HTTP client', () => {
     });
     await new Promise<void>(resolve => http.listen(0, '127.0.0.1', () => resolve()));
     const port = (http.address() as AddressInfo).port;
-    const f = testFollower({ leaderUrl: `http://127.0.0.1:${port}` });
+    const f = await testFollower({ leaderUrl: `http://127.0.0.1:${port}` });
     try {
       expect(await f.ping()).toBe(false);
     } finally {
@@ -211,16 +231,89 @@ describe('Follower HTTP client', () => {
       return { name: 'My Doc', pages: 3 };
     });
 
-    const f = testFollower({ leaderUrl: `http://127.0.0.1:${b.port}` });
+    const f = await testFollower({ leaderUrl: `http://127.0.0.1:${b.port}` });
     const resp = await f.sendRpc('get_doc', { depth: 2 }, 'r-42');
     if (resp.kind !== 'ok') throw new Error(`expected ok, got ${resp.kind}`);
     expect(resp.requestId).toBe('r-42');
     expect(resp.result).toEqual({ name: 'My Doc', pages: 3 });
   });
 
+  it('keeps caller-visible RPC requestId separate from the canonical outer transport ID', async () => {
+    let observedOuter = '';
+    let observedInner = '';
+    const follower = new Follower({
+      leaderUrl: 'http://127.0.0.1:1',
+      transport: {
+        mcpSession: `mcp1_${Buffer.alloc(16, 90).toString('base64url')}`,
+        leaderInfo: async () => undefined,
+        open: async call => {
+          observedOuter = call.transportRequestId;
+          observedInner = (decode(call.plaintext) as { requestId: string }).requestId;
+          return {
+            async *[Symbol.asyncIterator]() {
+              yield {
+                sequence: 0,
+                final: true,
+                plaintext: Buffer.from(
+                  encode({ kind: 'ok', requestId: observedInner, result: { ok: true } }),
+                ),
+              };
+            },
+          };
+        },
+      },
+    });
+    await expect(follower.sendRpc('get_document', {}, 'r-42')).resolves.toMatchObject({
+      kind: 'ok',
+      requestId: 'r-42',
+    });
+    expect(observedInner).toBe('r-42');
+    expect(FollowerTransportRequestIdSchema.safeParse(observedOuter).success).toBe(true);
+    expect(observedOuter).not.toBe(observedInner);
+  });
+
+  it.each(['non-final', 'multiple', 'missing-final'] as const)(
+    'sendRpc rejects a %s legacy collector shape',
+    async shape => {
+      const follower = new Follower({
+        leaderUrl: 'http://127.0.0.1:1',
+        transport: {
+          mcpSession: `mcp1_${Buffer.alloc(16, 91).toString('base64url')}`,
+          leaderInfo: async () => undefined,
+          open: async () => ({
+            async *[Symbol.asyncIterator]() {
+              if (shape === 'missing-final') return;
+              yield {
+                sequence: 0,
+                final: shape !== 'non-final',
+                plaintext: Buffer.from(
+                  encode({ kind: 'ok', requestId: 'legacy-shape', result: {} }),
+                ),
+              };
+              if (shape === 'multiple') {
+                yield {
+                  sequence: 1,
+                  final: true,
+                  plaintext: Buffer.from(
+                    encode({ kind: 'ok', requestId: 'legacy-shape', result: {} }),
+                  ),
+                };
+              }
+            },
+          }),
+        },
+      });
+      await expect(follower.sendRpc('get_document', {}, 'legacy-shape')).resolves.toMatchObject({
+        kind: 'err',
+        requestId: 'legacy-shape',
+        code: ErrorCode.Internal,
+      });
+    },
+  );
+
   it('sendRpc surfaces leader-side err response', async () => {
     const b = await startLeaderWithTimeout(50);
-    const f = testFollower({ leaderUrl: `http://127.0.0.1:${b.port}` });
+    const f = await testFollower({ leaderUrl: `http://127.0.0.1:${b.port}` });
     const resp = await f.sendRpc('whatever', undefined, 'r-no-plugin');
     if (resp.kind !== 'err') throw new Error(`expected err, got ${resp.kind}`);
     expect(resp.code).toBe(ErrorCode.Timeout);
@@ -228,7 +321,7 @@ describe('Follower HTTP client', () => {
   });
 
   it('sendRpc returns NotLeader before forwarding when strict identity is unreachable', async () => {
-    const f = testFollower({
+    const f = await testFollower({
       leaderUrl: 'http://127.0.0.1:1',
       rpcTimeoutMs: 200,
     });
@@ -242,7 +335,7 @@ describe('Follower HTTP client', () => {
     // A leader that never answers — the shape of a wedged one. The budget here is 60s, so the only
     // thing that can end this call in test time is the abort actually reaching the request.
     const b = await startLeader();
-    const f = testFollower({ leaderUrl: `http://127.0.0.1:${b.port}` });
+    const f = await testFollower({ leaderUrl: `http://127.0.0.1:${b.port}` });
     const abort = new AbortController();
     const started = Date.now();
     const pending = f.sendRpc('get_doc', {}, 'r-abort', undefined, 60_000, abort.signal);
@@ -258,25 +351,26 @@ describe('Follower HTTP client', () => {
 
   it('sendRpc still honours its own budget when no abort signal is given', async () => {
     const b = await startLeader();
-    const f = testFollower({ leaderUrl: `http://127.0.0.1:${b.port}` });
+    const f = await testFollower({ leaderUrl: `http://127.0.0.1:${b.port}` });
     const started = Date.now();
     const resp = await f.sendRpc('get_doc', {}, 'r-budget', undefined, 300);
     if (resp.kind !== 'err') throw new Error(`expected err, got ${resp.kind}`);
     expect(Date.now() - started).toBeGreaterThanOrEqual(250);
   });
 
-  it('resolveActiveSession reads the leader-picked session id', async () => {
+  it('resolveActiveSession stays undefined instead of consulting the public ping oracle', async () => {
     const b = await startLeader();
-    const f = testFollower({ leaderUrl: `http://127.0.0.1:${b.port}` });
+    const f = await testFollower({ leaderUrl: `http://127.0.0.1:${b.port}` });
     // No plugin yet → undefined, caller falls back to unpinned routing.
     expect(await f.resolveActiveSession()).toBeUndefined();
 
     await attachFakePlugin(b, async () => ({ noop: true }));
-    expect(await f.resolveActiveSession()).toBe(b.relay.pickActiveSessionId());
+    expect(b.relay.pickActiveSessionId()).toBeDefined();
+    expect(await f.resolveActiveSession()).toBeUndefined();
   });
 
   it('resolveActiveSession returns undefined when the leader is unreachable', async () => {
-    const f = testFollower({ leaderUrl: 'http://127.0.0.1:1', pingTimeoutMs: 200 });
+    const f = await testFollower({ leaderUrl: 'http://127.0.0.1:1', pingTimeoutMs: 200 });
     expect(await f.resolveActiveSession()).toBeUndefined();
   });
 
@@ -294,12 +388,12 @@ describe('Follower HTTP client', () => {
       serverVersion: 'test-2.0.0',
       buildId: 777,
       leaderGeneration: TEST_GENERATION,
-      auth: TEST_AUTH,
+      transport: TEST_SERVER_TRANSPORT,
       pairing: TEST_PAIRING,
     });
     all.push({ http, relay, port, detach, plugins: [] });
 
-    const f = testFollower({ leaderUrl: `http://127.0.0.1:${port}` });
+    const f = await testFollower({ leaderUrl: `http://127.0.0.1:${port}` });
     expect(await f.leaderInfo()).toEqual({
       serverVersion: 'test-2.0.0',
       buildId: 777,
@@ -315,13 +409,13 @@ describe('Follower HTTP client', () => {
     await new Promise<void>(resolve => http.listen(0, '127.0.0.1', () => resolve()));
     const port = (http.address() as AddressInfo).port;
     try {
-      const f = testFollower({ leaderUrl: `http://127.0.0.1:${port}` });
+      const f = await testFollower({ leaderUrl: `http://127.0.0.1:${port}` });
       expect(await f.leaderInfo()).toBeUndefined();
     } finally {
       await new Promise<void>(resolve => http.close(() => resolve()));
     }
 
-    const dead = testFollower({ leaderUrl: 'http://127.0.0.1:1', pingTimeoutMs: 200 });
+    const dead = await testFollower({ leaderUrl: 'http://127.0.0.1:1', pingTimeoutMs: 200 });
     expect(await dead.leaderInfo()).toBeUndefined();
   });
 
@@ -333,7 +427,7 @@ describe('Follower HTTP client', () => {
     await new Promise<void>(resolve => http.listen(0, '127.0.0.1', () => resolve()));
     const port = (http.address() as AddressInfo).port;
     try {
-      const f = testFollower({ leaderUrl: `http://127.0.0.1:${port}` });
+      const f = await testFollower({ leaderUrl: `http://127.0.0.1:${port}` });
       expect(await f.requestAbdication(200)).toBe('error');
     } finally {
       await new Promise<void>(resolve => http.close(() => resolve()));
@@ -341,7 +435,7 @@ describe('Follower HTTP client', () => {
   });
 
   it('requestAbdication maps transport failure to error', async () => {
-    const f = testFollower({ leaderUrl: 'http://127.0.0.1:1', pingTimeoutMs: 200 });
+    const f = await testFollower({ leaderUrl: 'http://127.0.0.1:1', pingTimeoutMs: 200 });
     expect(await f.requestAbdication(200)).toBe('error');
   });
 
@@ -349,7 +443,7 @@ describe('Follower HTTP client', () => {
     const b = await startLeader();
     await attachFakePlugin(b, async () => ({ ok: true }));
     const sid = b.relay.pickActiveSessionId();
-    const f = testFollower({ leaderUrl: `http://127.0.0.1:${b.port}` });
+    const f = await testFollower({ leaderUrl: `http://127.0.0.1:${b.port}` });
 
     const ok = await f.sendRpc('get_design_context', {}, 'r-pin', sid);
     expect(ok.kind).toBe('ok');

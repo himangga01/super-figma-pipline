@@ -265,7 +265,10 @@ describe('leader-generation credentials', () => {
       serverVersion: '0.1.0',
       port: 0,
       generationAuth: {
-        rotate: async () => generations[rotations++]!,
+        rotate: async () => {
+          const value = generations[rotations++]!;
+          return { generation: value.generation, createdAt: value.createdAt };
+        },
       },
       relayAuthenticator: {
         authenticateHello: async (_input, context) => ({
@@ -277,10 +280,17 @@ describe('leader-generation credentials', () => {
     });
     try {
       const first = await node.becomeLeader();
-      expect(first.credentials).toEqual(generations[0]);
+      expect(first.generation).toEqual({
+        generation: generations[0]?.generation,
+        createdAt: generations[0]?.createdAt,
+      });
+      expect(JSON.stringify(first)).not.toMatch(/followerToken|controlToken/);
       node.becomeFollower();
       const second = await node.becomeLeader();
-      expect(second.credentials).toEqual(generations[1]);
+      expect(second.generation).toEqual({
+        generation: generations[1]?.generation,
+        createdAt: generations[1]?.createdAt,
+      });
       expect(rotations).toBe(2);
     } finally {
       await node.stop();

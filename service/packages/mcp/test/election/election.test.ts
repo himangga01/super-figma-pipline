@@ -15,7 +15,10 @@ import {
 } from '../../src/election/leader-lock.js';
 import { Node, NodeRole } from '../../src/election/node.js';
 import { Relay } from '../../src/relay/relay.js';
-import { createFollowerAuth } from '../../src/security/follower-auth.js';
+import {
+  createFollowerAuthenticatedTransport,
+  type FollowerTransportClient,
+} from '../../src/security/follower-transport.js';
 
 interface LeaderHarness {
   node: Node;
@@ -33,17 +36,16 @@ const lockedPorts: number[] = [];
 const TEST_GENERATION = Buffer.alloc(16, 1).toString('base64url');
 const TEST_FOLLOWER_TOKEN = Buffer.alloc(32, 2).toString('base64url');
 const TEST_CONTROL_TOKEN = Buffer.alloc(32, 3).toString('base64url');
-const TEST_AUTHORIZATION = {
+const TEST_CREDENTIALS = {
   generation: TEST_GENERATION,
-  value: `Bearer ${TEST_FOLLOWER_TOKEN}`,
+  followerToken: TEST_FOLLOWER_TOKEN,
+  controlToken: TEST_CONTROL_TOKEN,
+  createdAt: 1,
 };
-const TEST_AUTH = await createFollowerAuth({
-  memory: {
-    generation: TEST_GENERATION,
-    followerToken: TEST_FOLLOWER_TOKEN,
-    controlToken: TEST_CONTROL_TOKEN,
-    createdAt: 1,
-  },
+const TEST_SERVER_TRANSPORT = await createFollowerAuthenticatedTransport({
+  leaderUrl: 'http://127.0.0.1:1',
+  mcpSession: `mcp1_${Buffer.alloc(16, 8).toString('base64url')}`,
+  memory: TEST_CREDENTIALS,
 });
 const TEST_PAIRING = {
   createChallenge: async () => ({
@@ -54,8 +56,30 @@ const TEST_PAIRING = {
   }),
   exchange: async () => ({ wsTicket: 'AAAAAAAAAAAAAAAAAAAAAA', expiresAt: Date.now() + 30_000 }),
 };
-const testFollower = (options: ConstructorParameters<typeof Follower>[0]): Follower =>
-  new Follower({ credentialProvider: async () => TEST_AUTHORIZATION, ...options });
+interface TestFollowerOptions {
+  leaderUrl: string;
+  pingTimeoutMs?: number;
+  fetch?: typeof globalThis.fetch;
+}
+
+const testFollower = (options: TestFollowerOptions): Follower => {
+  const pending = createFollowerAuthenticatedTransport({
+    leaderUrl: options.leaderUrl,
+    mcpSession: `mcp1_${Buffer.alloc(16, 9).toString('base64url')}`,
+    memory: TEST_CREDENTIALS,
+    ...(options.fetch === undefined ? {} : { fetch: options.fetch }),
+  });
+  const client: FollowerTransportClient = {
+    mcpSession: `mcp1_${Buffer.alloc(16, 9).toString('base64url')}`,
+    leaderInfo: async signal => (await pending).client.leaderInfo(signal),
+    open: async (call, signal) => (await pending).client.open(call, signal),
+  };
+  return new Follower({
+    leaderUrl: options.leaderUrl,
+    transport: client,
+    ...(options.pingTimeoutMs === undefined ? {} : { pingTimeoutMs: options.pingTimeoutMs }),
+  });
+};
 
 afterEach(async () => {
   for (const e of extraElections) e.stop();
@@ -92,7 +116,7 @@ const startLeaderHarness = async (port: number): Promise<LeaderHarness> => {
     relay: res.relay,
     serverVersion: 'leader-1.0.0',
     leaderGeneration: TEST_GENERATION,
-    auth: TEST_AUTH,
+    transport: TEST_SERVER_TRANSPORT,
     pairing: TEST_PAIRING,
   });
   const h: LeaderHarness = {
@@ -157,7 +181,7 @@ const startLeaderWithElection = async (
     serverVersion: 'leader-1.0.0',
     buildId,
     leaderGeneration: TEST_GENERATION,
-    auth: TEST_AUTH,
+    transport: TEST_SERVER_TRANSPORT,
     pairing: TEST_PAIRING,
     onAbdicate: () => election.yieldLeadership(),
     abdicateQuietWindowMs: 0,
@@ -345,7 +369,7 @@ describe('Election: a leader that holds the port but stops answering', () => {
         relay: h.relay,
         serverVersion: 'leader-1.0.0',
         leaderGeneration: TEST_GENERATION,
-        auth: TEST_AUTH,
+        transport: TEST_SERVER_TRANSPORT,
         pairing: TEST_PAIRING,
       });
       // eslint-disable-next-line no-await-in-loop -- ticks are sequential by definition
@@ -435,7 +459,7 @@ describe('Election: a leader that holds the port but stops answering', () => {
       relay: h.relay,
       serverVersion: 'leader-1.0.0',
       leaderGeneration: TEST_GENERATION,
-      auth: TEST_AUTH,
+      transport: TEST_SERVER_TRANSPORT,
       pairing: TEST_PAIRING,
     });
     await election.tickOnce();

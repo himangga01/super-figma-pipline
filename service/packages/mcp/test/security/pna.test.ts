@@ -37,9 +37,16 @@ const start = async (): Promise<{
     buildId: 42,
     log: message => logs.push(message),
     leaderGeneration: 'leader-generation-a',
-    auth: {
-      authorizeFollower: async () => false,
-      authorizeControl: async () => false,
+    transport: {
+      control: { authorizeHttp: async () => false },
+      server: {
+        serveChallengeHttp: async () => {
+          throw new Error('not used');
+        },
+        serveHttp: async () => {
+          throw new Error('not used');
+        },
+      },
     },
     pairing: {
       createChallenge: async () => {

@@ -16,7 +16,7 @@ import {
   type PairExchangeResult,
 } from '@sfp/shared';
 
-import type { AuthStatePermissions } from './follower-auth.js';
+import type { AuthStatePermissions } from './state-permissions.js';
 
 export const PAIR_CHALLENGE_TTL_MS = 5 * 60 * 1000;
 export const PAIR_TICKET_TTL_MS = 30 * 1000;

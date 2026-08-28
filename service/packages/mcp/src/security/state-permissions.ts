@@ -85,6 +85,12 @@ export interface BoundStatePermissions extends StatePermissions {
   inspectSecure(path: string): Promise<SecurePathIdentity>;
 }
 
+export interface AuthStatePermissions {
+  readonly stateRoot: string;
+  ensureSecure(path: string): Promise<void>;
+  verifySecure(path: string): Promise<void>;
+}
+
 export interface SecurePathIdentity {
   canonicalPath: string;
   key: string;

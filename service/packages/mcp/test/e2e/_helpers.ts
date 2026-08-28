@@ -20,7 +20,7 @@ import { WebSocket } from 'ws';
 import { Follower } from '../../src/election/follower.js';
 import { attachLeaderEndpoints } from '../../src/election/leader-endpoints.js';
 import { Node } from '../../src/election/node.js';
-import { createFollowerAuth } from '../../src/security/follower-auth.js';
+import { createFollowerAuthenticatedTransport } from '../../src/security/follower-transport.js';
 
 export interface LeaderHarness {
   node: Node;
@@ -51,19 +51,26 @@ export const startLeader = async (serverVersion = 'e2e-1.0.0'): Promise<LeaderHa
     },
   });
   const res = await node.becomeLeader();
-  const auth = await createFollowerAuth({ memory: res.credentials });
+  const credentials = {
+    generation: Buffer.alloc(16, 11).toString('base64url'),
+    followerToken: Buffer.alloc(32, 12).toString('base64url'),
+    controlToken: Buffer.alloc(32, 13).toString('base64url'),
+    createdAt: 1,
+  };
+  const transport = await createFollowerAuthenticatedTransport({
+    leaderUrl: `http://127.0.0.1:${port}`,
+    mcpSession: `mcp1_${Buffer.alloc(16, 14).toString('base64url')}`,
+    memory: credentials,
+  });
   const follower = new Follower({
     leaderUrl: `http://127.0.0.1:${port}`,
-    credentialProvider: async () => ({
-      generation: res.credentials.generation,
-      value: `Bearer ${res.credentials.followerToken}`,
-    }),
+    transport: transport.client,
   });
   const detach = attachLeaderEndpoints(res.http, {
     relay: res.relay,
     serverVersion,
-    leaderGeneration: res.credentials.generation,
-    auth,
+    leaderGeneration: credentials.generation,
+    transport,
     pairing: {
       createChallenge: async () => ({
         challengeId: 'ABCDEFGHIJ',

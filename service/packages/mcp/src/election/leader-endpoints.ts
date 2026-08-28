@@ -7,12 +7,13 @@ import {
   PairExchangeRequestSchema,
   PRODUCT_MAGIC,
   PROTOCOL_VERSION,
+  type PublicPingV1,
   RpcRequestSchema,
   type RpcResponse,
 } from '@sfp/shared';
 
 import type { Relay } from '../relay/relay.js';
-import type { FollowerAuth, OpenedFollowerRequest } from '../security/follower-auth.js';
+import type { FollowerAuthenticatedTransport } from '../security/follower-transport.js';
 import {
   hasContentType,
   isAllowedHost,
@@ -25,7 +26,6 @@ import {
   PAIR_METADATA_MAX_BYTES,
   readBoundedBody,
   RequestLimitError,
-  RPC_REQUEST_MAX_BYTES,
 } from '../security/request-limits.js';
 
 export const PING_PATH = '/ping';
@@ -42,10 +42,7 @@ export interface LeaderEndpointDeps {
   serverVersion: string;
   buildId?: number;
   leaderGeneration: string;
-  auth: Pick<FollowerAuth, 'authorizeFollower' | 'authorizeControl'> &
-    Partial<
-      Pick<FollowerAuth, 'issueFollowerChallenge' | 'openFollowerRequest' | 'sealFollowerResponse'>
-    >;
+  transport: Pick<FollowerAuthenticatedTransport, 'server' | 'control'>;
   pairing: Pick<PairingManager, 'createChallenge' | 'exchange'>;
   controlActor?: string;
   onAbdicate?: () => void;
@@ -84,33 +81,6 @@ const writeJson = (
   }
   res.writeHead(safeStatus, {
     'content-type': 'application/json',
-    'content-length': bytes.byteLength.toString(),
-    ...headers,
-  });
-  res.end(bytes);
-};
-
-const writeMsgpack = (
-  res: ServerResponse,
-  status: number,
-  body: RpcResponse,
-  headers: Record<string, string> = {},
-): void => {
-  let bytes = Buffer.from(encode(body));
-  let safeStatus = status;
-  if (!fitsHttpResponse(bytes.byteLength)) {
-    safeStatus = 413;
-    bytes = Buffer.from(
-      encode({
-        kind: 'err',
-        requestId: body.requestId,
-        code: ErrorCode.PayloadTooLarge,
-        message: 'leader response exceeds the HTTP response limit',
-      } satisfies RpcResponse),
-    );
-  }
-  res.writeHead(safeStatus, {
-    'content-type': 'application/msgpack',
     'content-length': bytes.byteLength.toString(),
     ...headers,
   });
@@ -166,18 +136,6 @@ const unreadBodyHeaders = (
   headers: Record<string, string> = {},
 ): Record<string, string> => (hasUnreadBody(req) ? { ...headers, connection: 'close' } : headers);
 
-const authorize = async (
-  req: IncomingMessage,
-  kind: 'follower' | 'control',
-  deps: LeaderEndpointDeps,
-): Promise<boolean> => {
-  const authorization = header(req, 'authorization');
-  const generation = header(req, 'x-sfp-leader-generation');
-  return kind === 'follower'
-    ? deps.auth.authorizeFollower(authorization, generation)
-    : deps.auth.authorizeControl(authorization, generation);
-};
-
 const strictBuildId = (input: unknown): number | undefined => {
   if (typeof input !== 'object' || input === null || Array.isArray(input)) return undefined;
   const record = input as Record<string, unknown>;
@@ -227,88 +185,6 @@ export const attachLeaderEndpoints = (http: HttpServer, deps: LeaderEndpointDeps
       log('[leader] pair exchange failed (PAIR_INTERNAL)');
       writeAllowedPairJson(res, origin, 500, { code: 'PAIR_INTERNAL' });
     }
-  };
-
-  const openFollowerBody = async (
-    req: IncomingMessage,
-    res: ServerResponse,
-    path: string,
-    maxBytes: number,
-  ): Promise<OpenedFollowerRequest | undefined> => {
-    if (!hasContentType(header(req, 'content-type'), 'application/sfp-encrypted')) {
-      writeEmpty(res, 401, { connection: 'close' });
-      return undefined;
-    }
-    const ciphertext = await readBoundedBody(req, maxBytes);
-    try {
-      if (deps.auth.openFollowerRequest === undefined) throw new Error('follower auth unavailable');
-      return await deps.auth.openFollowerRequest({
-        method: 'POST',
-        path,
-        headers: {
-          'x-sfp-leader-generation': header(req, 'x-sfp-leader-generation'),
-          'x-sfp-follower-nonce': header(req, 'x-sfp-follower-nonce'),
-          'x-sfp-follower-proof': header(req, 'x-sfp-follower-proof'),
-          'x-sfp-follower-iv': header(req, 'x-sfp-follower-iv'),
-          'x-sfp-follower-tag': header(req, 'x-sfp-follower-tag'),
-          'x-sfp-request-digest': header(req, 'x-sfp-request-digest'),
-          'x-sfp-request-id': header(req, 'x-sfp-request-id'),
-        },
-        ciphertext,
-      });
-    } catch {
-      writeEmpty(res, 401, { connection: 'close' });
-      return undefined;
-    }
-  };
-
-  const writeFollowerBytes = (
-    res: ServerResponse,
-    status: number,
-    opened: OpenedFollowerRequest,
-    requestId: string,
-    plaintext: Buffer,
-  ): void => {
-    if (deps.auth.sealFollowerResponse === undefined) {
-      writeEmpty(res, 500, { connection: 'close' });
-      return;
-    }
-    const sealed = deps.auth.sealFollowerResponse(opened.context, status, requestId, plaintext);
-    res.writeHead(status, {
-      ...sealed.headers,
-      'content-length': sealed.body.byteLength.toString(),
-      'cache-control': 'no-store',
-    });
-    res.end(sealed.body);
-  };
-
-  const writeFollowerJson = (
-    res: ServerResponse,
-    status: number,
-    opened: OpenedFollowerRequest,
-    body: unknown,
-  ): void => writeFollowerBytes(res, status, opened, opened.context.requestId, jsonBytes(body));
-
-  const writeFollowerMsgpack = (
-    res: ServerResponse,
-    status: number,
-    opened: OpenedFollowerRequest,
-    body: RpcResponse,
-  ): void => {
-    let safeStatus = status;
-    let bytes = Buffer.from(encode(body));
-    if (!fitsHttpResponse(bytes.byteLength)) {
-      safeStatus = 413;
-      bytes = Buffer.from(
-        encode({
-          kind: 'err',
-          requestId: opened.context.requestId,
-          code: ErrorCode.PayloadTooLarge,
-          message: 'leader response exceeds the HTTP response limit',
-        } satisfies RpcResponse),
-      );
-    }
-    writeFollowerBytes(res, safeStatus, opened, opened.context.requestId, bytes);
   };
 
   const handler = (req: IncomingMessage, res: ServerResponse): void => {
@@ -361,7 +237,7 @@ export const attachLeaderEndpoints = (http: HttpServer, deps: LeaderEndpointDeps
       }
 
       if (req.method === 'GET' && req.url === PING_PATH) {
-        writeJson(res, 200, {
+        const ping: PublicPingV1 = {
           ok: true,
           product: PRODUCT_MAGIC,
           protocolVersion: PROTOCOL_VERSION,
@@ -369,28 +245,18 @@ export const attachLeaderEndpoints = (http: HttpServer, deps: LeaderEndpointDeps
           buildId: deps.buildId ?? 0,
           leaderGeneration: deps.leaderGeneration,
           role: 'leader',
-          plugins: deps.relay.sessions.connected().length,
-          activeSessionId: deps.relay.pickActiveSessionId() ?? null,
-        });
+        };
+        writeJson(res, 200, ping);
         return;
       }
 
       if (req.method === 'GET' && req.url === FOLLOWER_CHALLENGE_PATH) {
-        try {
-          if (deps.auth.issueFollowerChallenge === undefined) {
-            throw new Error('follower challenge unavailable');
-          }
-          writeJson(res, 200, await deps.auth.issueFollowerChallenge(), {
-            'cache-control': 'no-store',
-          });
-        } catch {
-          writeJson(res, 503, { code: 'FOLLOWER_AUTH_UNAVAILABLE' }, { connection: 'close' });
-        }
+        await deps.transport.server.serveChallengeHttp(req, res);
         return;
       }
 
       if (req.url === '/control' || req.url?.startsWith('/control/') === true) {
-        if (!(await authorize(req, 'control', deps))) {
+        if (!(await deps.transport.control.authorizeHttp(req))) {
           writeEmpty(res, 401, { connection: 'close' });
           return;
         }
@@ -426,143 +292,108 @@ export const attachLeaderEndpoints = (http: HttpServer, deps: LeaderEndpointDeps
       }
 
       if (req.method === 'POST' && req.url === ABDICATE_PATH) {
-        let opened: OpenedFollowerRequest | undefined;
-        let requesterBuildId: number | undefined;
-        try {
-          opened = await openFollowerBody(req, res, ABDICATE_PATH, PAIR_METADATA_MAX_BYTES);
-          if (opened === undefined) return;
-          requesterBuildId = strictBuildId(
-            JSON.parse(opened.plaintext.toString('utf8')) as unknown,
-          );
-        } catch (error) {
-          if (error instanceof RequestLimitError) {
-            writeJson(res, error.status, { code: error.code }, { connection: 'close' });
+        await deps.transport.server.serveHttp(req, res, ABDICATE_PATH, async (opened, response) => {
+          let requesterBuildId: number | undefined;
+          try {
+            requesterBuildId = strictBuildId(
+              JSON.parse(Buffer.from(opened.plaintext).toString('utf8')) as unknown,
+            );
+          } catch {
+            // Invalid JSON is the same authenticated invalid request as an invalid buildId.
+          }
+          if (requesterBuildId === undefined) {
+            await response.write(jsonBytes({ ok: false, reason: 'invalid' }), { final: true });
             return;
           }
-        }
-        if (opened === undefined) return;
-        if (requesterBuildId === undefined) {
-          writeFollowerJson(res, 400, opened, { ok: false, reason: 'invalid' });
-          return;
-        }
-        if (requesterBuildId <= (deps.buildId ?? 0)) {
-          writeFollowerJson(res, 200, opened, { ok: false, reason: 'stale' });
-          return;
-        }
-        if (deps.onAbdicate === undefined) {
-          writeFollowerJson(res, 200, opened, { ok: false, reason: 'unsupported' });
-          return;
-        }
-        const quietWindowMs = deps.abdicateQuietWindowMs ?? ABDICATE_QUIET_WINDOW_MS;
-        const lastRequestAt = deps.relay.lastRequestAt();
-        if (
-          deps.relay.pendingCount() > 0 ||
-          (lastRequestAt !== 0 && Date.now() - lastRequestAt < quietWindowMs)
-        ) {
-          writeFollowerJson(res, 200, opened, { ok: false, reason: 'busy' });
-          return;
-        }
-        log(`[leader] abdicating to a newer build (${requesterBuildId} > ${deps.buildId ?? 0})`);
-        res.once('finish', () => deps.onAbdicate?.());
-        writeFollowerJson(res, 200, opened, { ok: true });
+          if (requesterBuildId <= (deps.buildId ?? 0)) {
+            await response.write(jsonBytes({ ok: false, reason: 'stale' }), { final: true });
+            return;
+          }
+          if (deps.onAbdicate === undefined) {
+            await response.write(jsonBytes({ ok: false, reason: 'unsupported' }), { final: true });
+            return;
+          }
+          const quietWindowMs = deps.abdicateQuietWindowMs ?? ABDICATE_QUIET_WINDOW_MS;
+          const lastRequestAt = deps.relay.lastRequestAt();
+          if (
+            deps.relay.pendingCount() > 0 ||
+            (lastRequestAt !== 0 && Date.now() - lastRequestAt < quietWindowMs)
+          ) {
+            await response.write(jsonBytes({ ok: false, reason: 'busy' }), { final: true });
+            return;
+          }
+          log(`[leader] abdicating to a newer build (${requesterBuildId} > ${deps.buildId ?? 0})`);
+          res.once('finish', () => deps.onAbdicate?.());
+          await response.write(jsonBytes({ ok: true }), { final: true });
+        });
         return;
       }
 
       if (req.method === 'POST' && req.url === RPC_PATH) {
-        let opened: OpenedFollowerRequest | undefined;
-        let body: Buffer;
-        try {
-          opened = await openFollowerBody(req, res, RPC_PATH, RPC_REQUEST_MAX_BYTES);
-          if (opened === undefined) return;
-          body = opened.plaintext;
-        } catch (error) {
-          if (error instanceof RequestLimitError) {
-            writeMsgpack(
-              res,
-              error.status,
-              {
-                kind: 'err',
-                requestId: '',
-                code: ErrorCode.PayloadTooLarge,
-                message: 'RPC request exceeds the payload limit',
-              },
-              { connection: 'close' },
+        await deps.transport.server.serveHttp(req, res, RPC_PATH, async (opened, response) => {
+          let decoded: unknown;
+          try {
+            decoded = decode(opened.plaintext);
+          } catch {
+            await response.write(
+              Buffer.from(
+                encode({
+                  kind: 'err',
+                  requestId: '',
+                  code: ErrorCode.InvalidRequest,
+                  message: 'invalid msgpack body',
+                } satisfies RpcResponse),
+              ),
+              { final: true },
             );
-          } else {
-            writeMsgpack(res, 400, {
-              kind: 'err',
-              requestId: '',
-              code: ErrorCode.InvalidRequest,
-              message: 'request body failed',
-            });
+            return;
           }
-          return;
-        }
-        if (opened === undefined) return;
-        let decoded: unknown;
-        try {
-          decoded = decode(body);
-        } catch {
-          writeFollowerMsgpack(res, 400, opened, {
-            kind: 'err',
-            requestId: opened.context.requestId,
-            code: ErrorCode.InvalidRequest,
-            message: 'invalid msgpack body',
-          });
-          return;
-        }
-        const rpc = RpcRequestSchema.safeParse(decoded);
-        if (!rpc.success) {
-          writeFollowerMsgpack(res, 400, opened, {
-            kind: 'err',
-            requestId: opened.context.requestId,
-            code: ErrorCode.InvalidParams,
-            message: 'invalid rpc request',
-          });
-          return;
-        }
-        const { requestId, toolName, args, sessionId } = rpc.data;
-        if (requestId !== opened.context.requestId) {
-          writeFollowerMsgpack(res, 400, opened, {
-            kind: 'err',
-            requestId: opened.context.requestId,
-            code: ErrorCode.InvalidRequest,
-            message: 'transport requestId does not match RPC requestId',
-          });
-          return;
-        }
-        try {
-          let notice: string | null = null;
-          const result = await deps.relay.sendRequest(
-            toolName,
-            args,
-            deps.rpcTimeoutMs ?? getRelayBudget(toolName),
-            sessionId,
-            served => {
-              notice = deps.relay.skewNotice(served);
-            },
-          );
-          writeFollowerMsgpack(res, 200, opened, {
-            kind: 'ok',
-            requestId,
-            result,
-            ...(notice === null ? {} : { notice }),
-          });
-        } catch (error) {
-          const message = (error as Error).message;
-          const code =
-            message.startsWith('no plugin connected') || message.startsWith('pinned session')
-              ? ErrorCode.PluginDisconnected
-              : message.includes('timeout')
-                ? ErrorCode.Timeout
-                : ErrorCode.Internal;
-          writeFollowerMsgpack(res, 200, opened, {
-            kind: 'err',
-            requestId,
-            code,
-            message,
-          });
-        }
+          const rpc = RpcRequestSchema.safeParse(decoded);
+          if (!rpc.success) {
+            await response.write(
+              Buffer.from(
+                encode({
+                  kind: 'err',
+                  requestId: '',
+                  code: ErrorCode.InvalidParams,
+                  message: 'invalid rpc request',
+                } satisfies RpcResponse),
+              ),
+              { final: true },
+            );
+            return;
+          }
+          const { requestId, toolName, args, sessionId } = rpc.data;
+          let body: RpcResponse;
+          try {
+            let notice: string | null = null;
+            const result = await deps.relay.sendRequest(
+              toolName,
+              args,
+              deps.rpcTimeoutMs ?? getRelayBudget(toolName),
+              sessionId,
+              served => {
+                notice = deps.relay.skewNotice(served);
+              },
+            );
+            body = {
+              kind: 'ok',
+              requestId,
+              result,
+              ...(notice === null ? {} : { notice }),
+            };
+          } catch (error) {
+            const message = (error as Error).message;
+            const code =
+              message.startsWith('no plugin connected') || message.startsWith('pinned session')
+                ? ErrorCode.PluginDisconnected
+                : message.includes('timeout')
+                  ? ErrorCode.Timeout
+                  : ErrorCode.Internal;
+            body = { kind: 'err', requestId, code, message };
+          }
+          await response.write(Buffer.from(encode(body)), { final: true });
+        });
         return;
       }
 

@@ -5,7 +5,6 @@ import type { AddressInfo } from 'node:net';
 import { DEFAULT_PORT } from '@sfp/shared';
 
 import { Relay, type RelayAuthenticator } from '../relay/relay.js';
-import type { LeaderGenerationCredentials } from '../security/follower-auth.js';
 import { type PortHolder, portConflictMessage } from './leader-lock.js';
 
 export const NodeRole = {
@@ -27,15 +26,20 @@ export interface NodeOptions {
   port?: number;
   host?: string;
   log?: (msg: string) => void;
-  generationAuth?: { rotate(): Promise<LeaderGenerationCredentials> };
+  generationAuth?: { rotate(): Promise<LeaderGeneration> };
   relayAuthenticator?: RelayAuthenticator;
+}
+
+export interface LeaderGeneration {
+  generation: string;
+  createdAt: number;
 }
 
 export interface LeaderResources {
   http: HttpServer;
   relay: Relay;
   port: number;
-  credentials: LeaderGenerationCredentials;
+  generation: LeaderGeneration;
 }
 
 export const isAddressInUse = (err: unknown): boolean =>
@@ -49,7 +53,7 @@ export class Node {
   private leader: LeaderResources | null = null;
   private conflict: string | null = null;
   private readonly opts: Required<Omit<NodeOptions, 'generationAuth' | 'relayAuthenticator'>> & {
-    generationAuth: { rotate(): Promise<LeaderGenerationCredentials> };
+    generationAuth: { rotate(): Promise<LeaderGeneration> };
     relayAuthenticator: RelayAuthenticator;
   };
   private readonly listeners = new Set<(role: NodeRole) => void>();
@@ -63,8 +67,6 @@ export class Node {
       generationAuth: opts.generationAuth ?? {
         rotate: async () => ({
           generation: randomBytes(16).toString('base64url'),
-          followerToken: randomBytes(32).toString('base64url'),
-          controlToken: randomBytes(32).toString('base64url'),
           createdAt: Date.now(),
         }),
       },
@@ -125,9 +127,9 @@ export class Node {
       throw err;
     }
 
-    let credentials: LeaderGenerationCredentials;
+    let generation: LeaderGeneration;
     try {
-      credentials = await this.opts.generationAuth.rotate();
+      generation = await this.opts.generationAuth.rotate();
     } catch (error) {
       await new Promise<void>(resolvePromise => http.close(() => resolvePromise()));
       throw error;
@@ -139,7 +141,7 @@ export class Node {
       authenticator: this.opts.relayAuthenticator,
     });
     const port = (http.address() as AddressInfo).port;
-    this.leader = { http, relay, port, credentials };
+    this.leader = { http, relay, port, generation };
     this.setRole(NodeRole.Leader);
     this.opts.log(`[node] became LEADER on :${port}`);
     return this.leader;

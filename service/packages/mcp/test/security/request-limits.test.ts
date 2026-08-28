@@ -19,6 +19,11 @@ import {
   BASE64_IMAGE_MAX_BYTES,
   DECODED_IMAGE_MAX_BYTES,
   EXPERIMENTAL_VIDEO_MAX_BYTES,
+  FOLLOWER_RESPONSE_BODY_MAX_BYTES,
+  FOLLOWER_RESPONSE_FRAME_MAX_BYTES,
+  FOLLOWER_RESPONSE_RECORD_MAX_BYTES,
+  FOLLOWER_RESPONSE_RECORD_MAX_COUNT,
+  FOLLOWER_RESPONSE_TOTAL_MAX_BYTES,
   HTTP_RESPONSE_MAX_BYTES,
   PAIR_METADATA_MAX_BYTES,
   RPC_REQUEST_MAX_BYTES,
@@ -85,6 +90,11 @@ describe('streaming request limits', () => {
       decodedImage: DECODED_IMAGE_MAX_BYTES,
       base64Image: BASE64_IMAGE_MAX_BYTES,
       video: EXPERIMENTAL_VIDEO_MAX_BYTES,
+      followerRecord: FOLLOWER_RESPONSE_RECORD_MAX_BYTES,
+      followerTotal: FOLLOWER_RESPONSE_TOTAL_MAX_BYTES,
+      followerCount: FOLLOWER_RESPONSE_RECORD_MAX_COUNT,
+      followerFrame: FOLLOWER_RESPONSE_FRAME_MAX_BYTES,
+      followerBody: FOLLOWER_RESPONSE_BODY_MAX_BYTES,
     }).toEqual({
       pair: 16 * 1024,
       rpc: 9 * 1024 * 1024,
@@ -93,6 +103,11 @@ describe('streaming request limits', () => {
       decodedImage: 6 * 1024 * 1024,
       base64Image: 8 * 1024 * 1024,
       video: 48 * 1024 * 1024,
+      followerRecord: 67_108_864,
+      followerTotal: 67_108_864,
+      followerCount: 4_096,
+      followerFrame: 67_108_896,
+      followerBody: 67_239_936,
     });
   });
 

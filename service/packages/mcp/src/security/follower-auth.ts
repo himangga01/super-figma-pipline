@@ -10,17 +10,13 @@ import { dirname, join, resolve } from 'node:path';
 
 import { PRODUCT_MAGIC } from '@sfp/shared';
 
+import type { AuthStatePermissions } from './state-permissions.js';
+
 export interface LeaderGenerationCredentials {
   generation: string;
   followerToken: string;
   controlToken: string;
   createdAt: number;
-}
-
-export interface AuthStatePermissions {
-  readonly stateRoot: string;
-  ensureSecure(path: string): Promise<void>;
-  verifySecure(path: string): Promise<void>;
 }
 
 export interface AuthorizationValue {
@@ -35,6 +31,7 @@ export interface FollowerAuth {
   authorizeFollower(header: string | undefined, generation: string | undefined): Promise<boolean>;
   authorizeControl(header: string | undefined, generation: string | undefined): Promise<boolean>;
   issueFollowerChallenge(): Promise<FollowerChallenge>;
+  consumeFollowerChallenge(input: ConsumeFollowerChallenge): Promise<FollowerChallengeSecret>;
   openFollowerRequest(input: OpenFollowerRequest): Promise<OpenedFollowerRequest>;
   sealFollowerResponse(
     context: FollowerResponseContext,
@@ -47,10 +44,24 @@ export interface FollowerAuth {
 
 export interface FollowerChallenge {
   product: typeof PRODUCT_MAGIC;
+  followerTransportVersion: 1;
   generation: string;
   nonce: string;
   expiresAt: number;
   proof: string;
+}
+
+export interface ConsumeFollowerChallenge {
+  followerTransportVersion: number | undefined;
+  generation: string | undefined;
+  nonce: string | undefined;
+  proof: string | undefined;
+}
+
+export interface FollowerChallengeSecret {
+  generation: string;
+  nonce: string;
+  followerToken: string;
 }
 
 export interface SealedFollowerRequest {
@@ -188,7 +199,10 @@ const tokenBytes = (token: string): Buffer => {
 
 const challengeProof = (
   token: string,
-  challenge: Pick<FollowerChallenge, 'generation' | 'nonce' | 'expiresAt'>,
+  challenge: Pick<
+    FollowerChallenge,
+    'followerTransportVersion' | 'generation' | 'nonce' | 'expiresAt'
+  >,
 ): string =>
   createHmac('sha256', tokenBytes(token))
     .update('sfp-follower-challenge')
@@ -198,6 +212,8 @@ const challengeProof = (
     .update(challenge.nonce)
     .update('\0')
     .update(String(challenge.expiresAt))
+    .update('\0')
+    .update(String(challenge.followerTransportVersion))
     .digest('base64url');
 
 const followerRequestKey = (token: string, generation: string, nonce: string): Buffer =>
@@ -256,6 +272,7 @@ export const verifyFollowerChallenge = (
 ): boolean => {
   if (
     challenge.product !== PRODUCT_MAGIC ||
+    challenge.followerTransportVersion !== 1 ||
     !/^[A-Za-z0-9_-]{22}$/.test(challenge.generation) ||
     !/^[A-Za-z0-9_-]{22}$/.test(challenge.nonce) ||
     !Number.isSafeInteger(challenge.expiresAt) ||
@@ -501,6 +518,7 @@ export const createFollowerAuth = async (options: FollowerAuthOptions): Promise<
     if (nonce === '') throw new FollowerAuthError();
     const challenge: FollowerChallenge = {
       product: PRODUCT_MAGIC,
+      followerTransportVersion: 1,
       generation: current.generation,
       nonce,
       expiresAt: at + FOLLOWER_CHALLENGE_TTL_MS,
@@ -512,6 +530,48 @@ export const createFollowerAuth = async (options: FollowerAuthOptions): Promise<
       expiresAt: challenge.expiresAt,
     });
     return challenge;
+  };
+
+  const consumeFollowerChallenge = async (
+    input: ConsumeFollowerChallenge,
+  ): Promise<FollowerChallengeSecret> => {
+    if (
+      input.followerTransportVersion !== 1 ||
+      input.generation === undefined ||
+      input.nonce === undefined ||
+      input.proof === undefined ||
+      !/^[A-Za-z0-9_-]{22}$/.test(input.generation) ||
+      !/^[A-Za-z0-9_-]{22}$/.test(input.nonce) ||
+      !/^[A-Za-z0-9_-]{43}$/.test(input.proof)
+    ) {
+      throw new FollowerAuthError();
+    }
+    const issued = followerChallenges.get(input.nonce);
+    if (issued === undefined) throw new FollowerAuthError();
+    followerChallenges.delete(input.nonce);
+    const current = await readCurrent();
+    if (
+      current === undefined ||
+      now() >= issued.expiresAt ||
+      !secureStringEqual(input.generation, issued.generation) ||
+      !secureStringEqual(input.generation, current.generation) ||
+      !secureStringEqual(
+        input.proof,
+        challengeProof(current.followerToken, {
+          followerTransportVersion: 1,
+          generation: input.generation,
+          nonce: input.nonce,
+          expiresAt: issued.expiresAt,
+        }),
+      )
+    ) {
+      throw new FollowerAuthError();
+    }
+    return {
+      generation: input.generation,
+      nonce: input.nonce,
+      followerToken: current.followerToken,
+    };
   };
 
   const openFollowerRequest = async (
@@ -540,26 +600,12 @@ export const createFollowerAuth = async (options: FollowerAuthOptions): Promise<
     ) {
       throw new FollowerAuthError();
     }
-    const issued = followerChallenges.get(nonce);
-    if (issued === undefined) throw new FollowerAuthError();
-    followerChallenges.delete(nonce);
-    const current = await readCurrent();
-    if (
-      current === undefined ||
-      now() >= issued.expiresAt ||
-      !secureStringEqual(generation, issued.generation) ||
-      !secureStringEqual(generation, current.generation) ||
-      !secureStringEqual(
-        proof,
-        challengeProof(current.followerToken, {
-          generation,
-          nonce,
-          expiresAt: issued.expiresAt,
-        }),
-      )
-    ) {
-      throw new FollowerAuthError();
-    }
+    const current = await consumeFollowerChallenge({
+      followerTransportVersion: 1,
+      generation,
+      nonce,
+      proof,
+    });
     try {
       const iv = Buffer.from(ivValue, 'base64url');
       const tag = Buffer.from(tagValue, 'base64url');
@@ -651,6 +697,7 @@ export const createFollowerAuth = async (options: FollowerAuthOptions): Promise<
     authorizeControl: (header: string | undefined, generation: string | undefined) =>
       authorize('control', header, generation),
     issueFollowerChallenge,
+    consumeFollowerChallenge,
     openFollowerRequest,
     sealFollowerResponse,
   });

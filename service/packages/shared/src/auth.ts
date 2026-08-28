@@ -3,6 +3,28 @@ import { z } from 'zod';
 /** Stable unauthenticated identity returned by the local leader's strict /ping endpoint. */
 export const PRODUCT_MAGIC = 'super-figma-pipeline' as const;
 
+/** Canonical unpadded base64url encoding of exactly 16 bytes. */
+export const Base64Url128Schema = z.string().regex(/^[A-Za-z0-9_-]{21}[AQgw]$/);
+export const McpSessionIdSchema = z.string().regex(/^mcp1_[A-Za-z0-9_-]{21}[AQgw]$/);
+export type McpSessionId = z.infer<typeof McpSessionIdSchema>;
+export const FollowerTransportRequestIdSchema = z
+  .string()
+  .regex(/^sfp_req1_[A-Za-z0-9_-]{21}[AQgw]$/);
+export type FollowerTransportRequestId = z.infer<typeof FollowerTransportRequestIdSchema>;
+
+export const PublicPingV1Schema = z
+  .object({
+    ok: z.literal(true),
+    product: z.literal(PRODUCT_MAGIC),
+    protocolVersion: z.string().min(1).max(128),
+    serverVersion: z.string().min(1).max(128),
+    buildId: z.number().int().nonnegative().safe(),
+    leaderGeneration: Base64Url128Schema,
+    role: z.enum(['leader', 'follower', 'unknown', 'conflicted']),
+  })
+  .strict();
+export type PublicPingV1 = z.infer<typeof PublicPingV1Schema>;
+
 export interface PairChallenge {
   challengeId: string;
   codeHash: string;

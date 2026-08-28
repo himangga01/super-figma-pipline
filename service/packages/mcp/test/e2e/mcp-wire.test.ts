@@ -133,6 +133,12 @@ class WireClient {
     return exchange.wsTicket;
   }
 
+  async publicPing(): Promise<Record<string, unknown>> {
+    const response = await fetch(`http://127.0.0.1:${this.port}/ping`);
+    if (!response.ok) throw new Error(`public ping failed (${response.status})`);
+    return (await response.json()) as Record<string, unknown>;
+  }
+
   private cleanupState(): void {
     if (this.stateBase === '') return;
     const temporaryRoot = resolvePath(tmpdir());
@@ -275,6 +281,18 @@ describe.skipIf(!existsSync(DIST_ENTRY))('MCP wire contract (built dist)', () =>
     const res = await client.send('ping');
     expect(res.error).toBeUndefined();
     expect(res.result).toEqual({});
+  });
+
+  it('exposes exactly the seven public daemon identity fields over HTTP', async () => {
+    expect(Object.keys(await client.publicPing()).toSorted()).toEqual([
+      'buildId',
+      'leaderGeneration',
+      'ok',
+      'product',
+      'protocolVersion',
+      'role',
+      'serverVersion',
+    ]);
   });
 
   it('sends instructions a client can fold into the model prompt', () => {

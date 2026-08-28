@@ -16,7 +16,10 @@ import { wireShutdown } from './lifecycle.js';
 import { normalizeIdArgs } from './node-id.js';
 import { PROMPTS } from './prompts/registry.js';
 import { resolveDefaultStateRoot } from './runtime-paths.js';
-import { createFollowerAuth } from './security/follower-auth.js';
+import {
+  createFollowerAuthenticatedTransport,
+  createMcpSessionId,
+} from './security/follower-transport.js';
 import { createPairingManager } from './security/pairing-manager.js';
 import { createStatePermissions } from './security/state-permissions.js';
 import { ANALYZE_PROJECT_TOOL_NAME, handleAnalyzeProject } from './tools/analyze-project.js';
@@ -56,7 +59,13 @@ const stateRoot = resolveDefaultStateRoot();
 const statePermissions = createStatePermissions(stateRoot);
 await statePermissions.ensureSecure(stateRoot);
 await statePermissions.verifySecure(stateRoot);
-const followerAuth = await createFollowerAuth({ stateRoot, permissions: statePermissions });
+const mcpSession = createMcpSessionId();
+const followerTransport = await createFollowerAuthenticatedTransport({
+  stateRoot,
+  permissions: statePermissions,
+  leaderUrl: `http://127.0.0.1:${PORT}`,
+  mcpSession,
+});
 const pairing = await createPairingManager({
   stateRoot,
   permissions: statePermissions,
@@ -67,13 +76,13 @@ const node = new Node({
   serverVersion: SERVER_VERSION,
   port: PORT,
   log,
-  generationAuth: followerAuth,
+  generationAuth: followerTransport.generation,
   relayAuthenticator: pairing,
 });
 const follower = new Follower({
   leaderUrl: node.leaderUrl,
   log,
-  credentialProvider: () => followerAuth.authorization('follower'),
+  transport: followerTransport.client,
 });
 const election = new Election({ node, follower, buildId: BUILD_ID, log });
 
@@ -94,14 +103,14 @@ node.onRoleChange(role => {
         port: res.port,
         buildId: BUILD_ID,
         serverVersion: SERVER_VERSION,
-        leaderGeneration: res.credentials.generation,
+        leaderGeneration: res.generation.generation,
       });
       currentDetach = attachLeaderEndpoints(res.http, {
         relay: res.relay,
         serverVersion: SERVER_VERSION,
         buildId: BUILD_ID,
-        leaderGeneration: res.credentials.generation,
-        auth: followerAuth,
+        leaderGeneration: res.generation.generation,
+        transport: followerTransport,
         pairing,
         // Newest build wins: a follower on a newer build asks us to step down; the port frees for
         // it within ms and the plugin reconnects to the new leader on its next retry (~250ms).

@@ -394,24 +394,40 @@ describe('protected service authorities', () => {
         contents.replace('PAIR_KEY_TEMP_SCAN_CAP = 256', 'PAIR_KEY_TEMP_SCAN_CAP = 256000'),
     },
     {
-      name: 'Task 6 fresh follower identity authority',
-      path: 'packages/mcp/src/election/follower.ts',
-      mutate: contents => contents.replace('await this.verifyFreshLeader()', 'undefined'),
+      name: 'Task 6.1 strict follower ping identity authority',
+      path: 'packages/mcp/src/security/follower-transport.ts',
+      mutate: contents =>
+        contents.replace('PublicPingV1Schema.safeParse(raw)', '{ success: true, data: raw }'),
     },
     {
-      name: 'Task 6 encrypted follower channel authority',
-      path: 'packages/mcp/src/election/follower.ts',
-      mutate: contents => contents.replace('body: sealed.body', 'body'),
+      name: 'Task 6.1 encrypted follower channel authority',
+      path: 'packages/mcp/src/security/follower-transport.ts',
+      mutate: contents => contents.replace('sfp-follower-channel-v2', 'sfp-follower-channel-v1'),
     },
     {
-      name: 'Task 6 authenticated follower response authority',
-      path: 'packages/mcp/src/election/follower.ts',
-      mutate: contents => contents.replace('openFollowerResponse(', 'Buffer.from('),
+      name: 'Task 6.1 authenticated record response authority',
+      path: 'packages/mcp/src/security/follower-transport.ts',
+      mutate: contents =>
+        contents.replace('application/sfp-record-stream;v=1', 'application/sfp-encrypted'),
     },
     {
-      name: 'Task 6 follower response key separation authority',
-      path: 'packages/mcp/src/security/follower-auth.ts',
-      mutate: contents => contents.replace('sfp-follower-response-key', 'sfp-follower-request-key'),
+      name: 'Task 6.1 follower response key separation authority',
+      path: 'packages/mcp/src/security/follower-transport.ts',
+      mutate: contents => contents.replace("'response-aead'", "'request-aead'"),
+    },
+    {
+      name: 'Task 6.1 process-stable MCP session authority',
+      path: 'packages/mcp/src/index.ts',
+      mutate: contents => contents.replace('const mcpSession = createMcpSessionId();', ''),
+    },
+    {
+      name: 'Task 6.1 bounded record count authority',
+      path: 'packages/mcp/src/security/request-limits.ts',
+      mutate: contents =>
+        contents.replace(
+          'FOLLOWER_RESPONSE_RECORD_MAX_COUNT = 4_096',
+          'FOLLOWER_RESPONSE_RECORD_MAX_COUNT = 4_096_000',
+        ),
     },
     {
       name: 'Task 6 one-use follower challenge authority',

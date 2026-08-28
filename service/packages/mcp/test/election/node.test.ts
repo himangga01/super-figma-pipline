@@ -72,6 +72,9 @@ describe('Node role state machine', () => {
     expect(res.port).toBe(port);
     expect(n.getLeader()).toBe(res);
     expect(n.leaderUrl).toBe(`http://127.0.0.1:${port}`);
+    expect(Object.keys(res).toSorted()).toEqual(['generation', 'http', 'port', 'relay']);
+    expect(Object.keys(res.generation).toSorted()).toEqual(['createdAt', 'generation']);
+    expect(JSON.stringify(res)).not.toMatch(/followerToken|controlToken|responseKey/);
   });
 
   it('becomeLeader is idempotent', async () => {

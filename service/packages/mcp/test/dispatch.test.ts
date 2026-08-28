@@ -478,9 +478,16 @@ describe('resolveRoutingSession', () => {
     expect(await resolveRoutingSession({ node, follower: makeFollower({}) })).toBe('leader-sess');
   });
 
-  it('asks the leader over the follower when not leader', async () => {
+  it('returns the transitional unpinned fallback without consulting a public follower oracle', async () => {
     const node = makeNode({ isLeader: () => false, getLeader: () => null });
-    const follower = makeFollower({ resolveActiveSession: async () => 'remote-sess' });
-    expect(await resolveRoutingSession({ node, follower })).toBe('remote-sess');
+    let calls = 0;
+    const follower = makeFollower({
+      resolveActiveSession: async () => {
+        calls += 1;
+        return 'remote-sess';
+      },
+    });
+    expect(await resolveRoutingSession({ node, follower })).toBeUndefined();
+    expect(calls).toBe(0);
   });
 });
