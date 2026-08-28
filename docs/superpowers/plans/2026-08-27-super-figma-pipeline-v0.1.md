@@ -724,7 +724,7 @@ export type OperationOriginV1 =
   | {
       kind: 'internal-system'; entryPath: 'internal-system'; authSessionId: `auth1_${string}`;
       systemName: 'identity.bootstrap'; initiatingPairedSessionHash: `sha256:${string}`;
-      pluginGeneration: string; leaderGeneration: string;
+      pluginGeneration: string; leaderGeneration: string; targetBindingHash: `sha256:${string}`;
     };
 
 export interface OperationRecord {
@@ -840,7 +840,9 @@ One `ExecutionPlane` singleton is constructed only while the node owns one leade
 
 Only daemon derives internal-system principal after authenticated paired session: same owner actor; authSessionId=`auth1_`+base64url HMAC(ownerKey, `sfp-auth-session-v1\0system\0identity.bootstrap\0<pairedSession>\0<leaderGeneration>`). Plugin cannot submit ActorContext/entryPath. Journal records internal origin, paired session hash and generation; reconnect derives new generation-bound auth, cannot cancel/replay old; foreign stateRoot fails.
 
-Shared operations/journal schemas strict-parse OperationOriginV1. System row persists only pairedSession SHA-256, generations, system name and derived auth ID—no raw session/principal. Tombstone/resolution/replay/audit copy origin exactly. Task9C modifies shared operations, operation-journal/resolution codecs and tests `internal-system-principal.test.ts` plus `operation-journal.test.ts`; plugin body identity fields reject before journal.
+Shared operations/journal schemas strict-parse `OperationOriginV1` and apply cross-field refinements before append: top-level `originAuthSessionId === origin.authSessionId`; `operationKind==='system'` iff `origin.kind==='internal-system'` and `operationName==='identity.bootstrap'`; entry origins reject the system name; internal `initiatingPairedSessionHash` equals the domain-separated SHA-256 of the authenticated paired session; origin leader/plugin generations equal the admitted plane/Relay generations; `targetBindingHash` equals SHA-256 of the immutable canonical target binding while the system journal stores `fileExecutionKey:null`. No raw paired session, file key, target, principal, prompt, UUID, or args enter origin/journal bytes.
+
+`identity.bootstrap` is non-replayable: an exact concurrent duplicate with the full canonical origin fingerprint may share only the in-flight promise; after dispatched or settled, every same-ID call returns sanitized status/`OPERATION_ALREADY_SETTLED` and never a cached result or second runtime call. Any auth/session hash, generation, target hash, kind, name, args, actor, or workspace mismatch is `OPERATION_ID_CONFLICT`. Tombstone, resolution, reconnect, status, and audit copy the full strict origin unchanged. Task9C exact schema surface is `service/packages/shared/src/operations.ts`, `service/packages/mcp/src/execution/operation-journal.ts`, `service/packages/mcp/src/execution/operation-resolution-intent.ts`, `service/packages/mcp/test/execution/operation-journal.test.ts`, `service/packages/mcp/test/e2e/internal-system-principal.test.ts`, and `service/packages/mcp/test/e2e/identity-bootstrap.test.ts`; tests cover equality refinements, raw-field rejection, first settlement, reconnect, tombstone/resolution, foreign root, and every mismatch. Plugin body identity fields reject before journal.
 
 Cancellation requires both the stable actor and exact `originAuthSessionId`; another MCP connection or rotated control session cannot cancel it. Authenticated control is owner-admin for list/status and manual resolution of any same-actor operation regardless of origin session, and the audit records both `originAuthSessionId` and `resolverAuthSessionId`. Role transition, control rotation, cross-session cancel denial, cross-domain admin resolution, and foreign-stateRoot denial are binding tests. Task6.1 public `/ping` remains exactly `{ok,product,protocolVersion,serverVersion,buildId,leaderGeneration,role}` and exposes no plugin/session/file oracle.
 
@@ -1571,6 +1573,18 @@ Counts reserve before retaining raw args and release only after terminal durabil
 export type EvidenceOs = 'windows' | 'macos';
 export type Sha256Hex = string; // JSON Schema pattern ^[0-9a-f]{64}$
 
+export interface TrustedSignerPolicyV1 {
+  schemaVersion: 1;
+  releaseVersion: '0.1.0-rc.1';
+  protectedEnvironment: 'sfp-v0.1-release';
+  operators: {
+    windows: { operatorId: 'sfp-windows-acceptance-owner-v1'; publicKeyFingerprint: `ed25519:${string}` };
+    macos: { operatorId: 'sfp-macos-acceptance-owner-v1'; publicKeyFingerprint: `ed25519:${string}` };
+    closure: { operatorId: 'sfp-release-closure-owner-v1'; publicKeyFingerprint: `ed25519:${string}` };
+  };
+  policyHash: `sha256:${string}`;
+}
+
 export const REQUIRED_BLOCKING_CHECK_IDS = {
   windows: [
     'windows.artifact-integrity', 'windows.daemon-health', 'windows.state-permissions',
@@ -1596,6 +1610,7 @@ export interface AcceptanceEvidenceV1 {
   os: EvidenceOs;
   releaseVersion: string;
   releaseCandidateSha256: Sha256Hex;
+  trustedSignerPolicyHash: `sha256:${string}`;
   sourceCommit: string;
   createdAt: string;
   status: 'pass';
@@ -1644,6 +1659,7 @@ export interface ReleaseCandidateV1 {
   sourceDateEpoch: number;
   manifestSha256: Sha256Hex;
   harnessManifestHash: Sha256Hex;
+  trustedSignerPolicyHash: `sha256:${string}`;
   artifacts: { mcpSha256: Sha256Hex; cliSha256: Sha256Hex; pluginSha256: Sha256Hex };
 }
 
@@ -1653,6 +1669,7 @@ export interface SourceCompletePreviewV1 {
   releaseStatus: 'blocked-external-evidence';
   releaseCandidateSha256: Sha256Hex;
   harnessManifestHash: Sha256Hex;
+  trustedSignerPolicyHash: `sha256:${string}`;
   artifacts: {
     manifestSha256: Sha256Hex;
     mcpSha256: Sha256Hex;
@@ -1667,6 +1684,7 @@ export interface EvidenceClosureV1 {
   schemaVersion: 1;
   releaseCandidateSha256: Sha256Hex;
   harnessManifestHash: Sha256Hex;
+  trustedSignerPolicyHash: `sha256:${string}`;
   commandHash: Sha256Hex;
   sourceCommit: string;
   manifestSha256: Sha256Hex;
@@ -1690,6 +1708,12 @@ export interface EvidenceClosureAttestationV1 {
 }
 ~~~
 
+`TrustedSignerPolicyV1` is an external protected-release-environment input, never an archive member, tracked source file, generated default, or body assertion. It is strict/canonical JSON; `policyHash` is `sha256:` plus SHA-256 of `sfp-trusted-signer-policy-v1\0` and canonical bytes with `policyHash` omitted. The three fixed operator IDs are pairwise distinct, fingerprints match `^ed25519:[0-9a-f]{64}$`, and the three fingerprints are pairwise distinct. Before the immutable RC is written, the protected release job validates this policy and passes `--trusted-signer-policy <protected-path>` to `write-release-candidate.mjs`; the RC pins the exact hash. Evidence and closure copy that hash. Every signer/verifier/final-check command receives the same protected path, validates its hash against the RC, selects the OS/closure slot by role, and requires exact operator ID plus fingerprint from policy. Archive-contained IDs/public keys are untrusted evidence, not authorization. A test creates three valid attacker Ed25519 keypairs and self-consistent evidence/archives/closure; final verification fails `SIGNER_NOT_TRUSTED` before publish because none match protected policy.
+
+`EvidenceKeyStore` is implemented by `service/scripts/lib/evidence-key-store.mjs` and the Windows ACL helper `service/scripts/windows-evidence-key-acl.ps1`. `init-evidence-key.mjs --role windows|macos|closure --operator-id <fixed-id> --state-root <dedicated-root> --trusted-signer-policy <protected-path> --public-key <output>` creates or opens exactly `keys/evidence-ed25519-v1.pk8`, derives the SPKI public key and `ed25519:` SHA-256 fingerprint, verifies the matching policy slot, and prints only strict `{operatorId,publicKeyFingerprint,publicKeyPath}` JSON. Enrollment before RC may use `--enroll` to create the key and emit an unsigned public enrollment record; acceptance uses `--require-existing` and fails if the protected policy does not already pin that fingerprint. Private-key bytes never leave the state root, enter a bundle, stdout/stderr, evidence, command hash, diagnostic, or log.
+
+Key creation is exclusive and crash-safe: reject any symlink/junction/reparse component; create the dedicated root and `keys/` without following links; create a same-directory random temp with exclusive `wx`, write PKCS#8, fsync, apply permissions, atomically no-replace publish, fsync the directory, reread, and verify public derivation. Existing keys must parse as Ed25519 and pass permissions/policy or fail; concurrent creators produce one winner and no replacement. POSIX requires root/keys mode `0700` and key `0600`, owned by effective uid. Windows disables inheritance and permits exactly current-user SID and SYSTEM full control on directories/key, rejects Everyone/Users/Administrators/foreign ACEs and any reparse point, using the tracked PowerShell helper through argv/stdin with no localized-output parsing. `init-evidence-key` atomically writes the public PEM once; `sign-evidence` requires those exact existing PEM bytes/fingerprint and writes only a new attestation via temp+rename—it may not rewrite evidence or public key. Exact POSIX and Windows tests cover below/exact/wider modes/ACLs, concurrent creation, crash temp, substitution after evidence, post-run evidence mutation, junction/symlink escape, and prove no private key in archives/logs.
+
 `ReleaseCandidateV1.harnessManifestHash` is the lowercase SHA-256 of a UTF-8 manifest assembled from these exact sorted repo-relative paths at `sourceCommit` (never from worktree bytes):
 
 ~~~text
@@ -1703,29 +1727,112 @@ service/schemas/evidence-closure-attestation-v1.schema.json
 service/schemas/evidence-closure-v1.schema.json
 service/schemas/release-candidate-v1.schema.json
 service/schemas/source-complete-preview-v1.schema.json
+service/schemas/trusted-signer-policy-v1.schema.json
 service/scripts/acceptance-evidence-validator.mjs
+service/scripts/cleanup-live-fixtures.mjs
 service/scripts/desktop-acceptance.mjs
+service/scripts/init-evidence-key.mjs
 service/scripts/install-release-artifacts.mjs
+service/scripts/lib/evidence-key-store.mjs
 service/scripts/materialize-evidence-archive.mjs
 service/scripts/package-evidence-assets.mjs
+service/scripts/provision-live-fixtures.mjs
 service/scripts/release-evidence-check.mjs
 service/scripts/sign-evidence.mjs
+service/scripts/start-release-daemon.mjs
+service/scripts/stop-release-daemon.mjs
 service/scripts/verify-evidence-signature.mjs
+service/scripts/windows-evidence-key-acl.ps1
+service/scripts/windows-release-evidence.ps1
 service/scripts/write-evidence-closure.mjs
 service/scripts/write-release-candidate.mjs
 service/scripts/write-source-complete-preview.mjs
+service/test/acceptance-harness.test.ts
+service/test/acceptance-live-diagnostic.test.ts
+service/test/blocking-check-fixture-map.test.ts
+service/test/evidence-archive-materializer.test.ts
+service/test/evidence-asset-archives.test.ts
+service/test/evidence-key-store-posix.test.ts
+service/test/evidence-key-store-windows.test.ts
+service/test/evidence-key-store.test.ts
+service/test/evidence-schema-draft.test.ts
+service/test/evidence-signing-immutability.test.ts
+service/test/evidence-validator-importers.test.ts
+service/test/external-harness-binding.test.ts
+service/test/live-fixture-provisioning.test.ts
+service/test/native-command-fail-closed.test.ts
+service/test/release-candidate.test.ts
+service/test/release-daemon-lifecycle.test.ts
+service/test/trusted-signer-policy.test.ts
 service/test/workflow-hygiene.test.ts
 ~~~
 
 For each path, read bytes with `git show <sourceCommit>:<path>`, compute lowercase SHA-256 of those bytes, append `<path>\0<sha256>\n`, and hash the concatenated manifest bytes. A missing/extra/reordered path, dirty substitute, Node pin, package/lock change, packager/materializer substitution, or Git-blob/worktree mismatch fails before any evidence output. `AcceptanceEvidenceV1.harness.commandHash` and `EvidenceClosureV1.commandHash` hash domain `sfp-evidence-command-v1\0`, the RC SHA-256, this harness hash, operation kind, and strict canonical argv (fixed flag order; input file arguments represented by role, exact basename, and verified content SHA-256; output/local state-root paths omitted). Thus path relocation is portable but RC/asset/flag/operator substitution fails before evidence.
 
-One Ajv module exports six assertions. Evidence and closure domains differ; closureHash omits itself. Release check order remains exact.
+One Ajv module exports seven schema assertions. Evidence, policy and closure domains differ; policyHash/closureHash each omit themselves. Release check order remains exact.
 
 `AcceptanceEvidenceV1.evidenceId` is server-generated Base64Url128 and its JSON Schema pattern is exactly `^sfp_ev1_[A-Za-z0-9_-]{21}[AQgw]$`; tests cover `_`, each legal trailing quantum, wrong 22nd character, slash, padding, short, and long forms.
 
 Verification order is binding and observable: validate evidence+attestation schemas → recompute/compare evidence and artifact hashes → recompute/compare public-key fingerprint → verify Ed25519 signature → compare required blocking IDs. Tests mutate a valid hash to a different valid 64-hex value such as `f`.repeat(64) to reach hash/signature failure, while a separate malformed-hash fixture reaches schema failure. Wrong algorithm, fingerprint, signature order, duplicate/missing ID, `waived:true`, unknown property, and cross-OS evidence all fail.
 
-External upload names are uniquely exact: `sfp-v0.1-windows-evidence.zip`, `sfp-v0.1-macos-evidence.zip`, `sfp-v0.1-release-closure.zip`. Deterministic ZIPs use RC epoch/sorted paths/modes. Windows archive contains only `windows/{evidence.v1.json,attestation.v1.json,operator.pub.pem}`; macOS analogous; closure archive only `closure/{evidence-closure.v1.json,evidence-closure.v1.sig,release-owner.pub.pem}`. Materializer rejects extras/symlinks and recomputes internal/ZIP hashes. Loose staging remains ignored/local and is never uploaded.
+External upload names are uniquely exact: `sfp-v0.1-windows-evidence.zip`, `sfp-v0.1-macos-evidence.zip`, `sfp-v0.1-release-closure.zip`. Each archive has exactly three regular files under one preserved top-level ASCII kind directory and no explicit directory entries: `windows/{evidence.v1.json,attestation.v1.json,operator.pub.pem}`, `macos/{evidence.v1.json,attestation.v1.json,operator.pub.pem}`, or `closure/{evidence-closure.v1.json,evidence-closure.v1.sig,release-owner.pub.pem}`. Packaging uses direct Task16 devDependency `yazl:"3.3.1"` and only `addBuffer` for the three sorted validated files, with RC epoch, mode `0100644`, `forceDosTimestamp:true`, fixed compression level, no directory entries and no forced ZIP64. It rejects any source name/content outside the exact set, writes to an exclusive same-directory temp, fsyncs, no-replace renames only after reread verification by the materializer, and removes temp on failure so no partial final archive exists.
+
+Materialization uses direct Task16 devDependency `yauzl:"3.4.0"` with `lazyEntries:true`, raw filename bytes retained for independent validation, and streaming reads. Before opening/allocating it requires regular archive file, compressed archive bytes `<=1,048,576`, EOCD in the bounded tail, single-disk non-ZIP64 records, exactly three entries, and no encryption/data-descriptor ambiguity. Each raw name must be nonempty ASCII, forward-slash only, exact expected top-level/name, unique byte-for-byte, relative, and contain no absolute/drive/UNC/backslash/NUL/empty/dot/dot-dot segment. Reject directory/symlink/special external attributes, duplicate central/local names, extra fields signaling ZIP64/encryption, central/local size/name/method mismatch, unsupported method, compressed or expanded entry `>524,288`, cumulative compressed or expanded bytes `>1,048,576`, stream overrun/underrun, CRC mismatch, trailing central data, or extra entry before writing. Node24 `zlib.crc32()` is computed while streaming to exclusive temp files; only after all three pass are files fsynced and atomically published beneath caller `--dest <evidence-root>`, preserving `windows/`, `macos/`, or `closure/`. The destination is the evidence root, never a pre-appended kind path. Boundary tests cover below/exact/above every byte/count limit and every rejection. Loose staging remains ignored/local and is never uploaded.
+
+~~~ts
+export interface ReleaseDaemonStateV1 {
+  version: 1;
+  pid: number;
+  processStartToken: `sha256:${string}`;
+  port: 38456;
+  stateRoot: string;
+  releaseInstallSha256: `sha256:${string}`;
+  releaseCandidateSha256: `sha256:${string}`;
+  sourceCommit: string;
+  buildId: number;
+  product: string;
+  startedAt: string;
+}
+
+export interface LiveFixtureManifestV1 {
+  version: 1;
+  os: EvidenceOs;
+  workspace: { root: string; workspaceId: string; filesSha256: `sha256:${string}` };
+  figma: { draftLabel: string; pageId: string; frameId: string; capabilityNodeIds: readonly string[] };
+  network: {
+    allowedExactFqdn: string; allowedUrl: string; expectedContentSha256: `sha256:${string}`;
+    deniedExactFqdn: string; deniedUrl: string;
+  };
+  cleanupToken: `sfp_cleanup1_${string}`;
+}
+~~~
+
+`acceptance-evidence-v1.schema.json` owns strict non-evidence `$defs.ReleaseDaemonStateV1` and `$defs.LiveFixtureManifestV1`; the shared validator exports dedicated assertions for them, but neither object may appear inside `AcceptanceEvidenceV1`. `trusted-signer-policy-v1.schema.json` similarly owns the strict public key-init/enrollment result `$defs`. Unknown fields and cross-kind reuse reject.
+
+`start-release-daemon.mjs` and `stop-release-daemon.mjs` are the sole live-harness process owners. Start accepts exact `--release-candidate`, `--release-install`, `--state-root`, `--port 38456`, and `--state-file`; validates installed MCP/manifest hashes, rejects an existing state file or any pre-existing TCP listener, then spawns checksum-verified `mcp/package/dist/index.mjs` with explicit stateRoot/port. It uses `windowsHide:true` on Windows, a dedicated process group on POSIX, redacted local logs, and an exclusive state file. Readiness polls only loopback `/ping`, strict-parses frozen `PublicPingV1`, requires exact product/buildId from ping, and separately requires sourceCommit/RC hashes from the already verified release-install metadata before returning state—public ping is not expanded. The daemon remains alive across expected pre-pair failure, installed CLI pair, fixture provisioning, and all 16 live checks. Stop validates state schema, PID start token, ping/build, and stateRoot before signaling only that process group; waits up to 5,000 ms, force-terminates only the same verified PID/group, waits for exit/port close, removes the state file and redacted log, and is idempotent only after confirmed exit. Every failure path invokes stop in `finally`/trap; tests inject listener collision, spawn/readiness/build/ping/pair/test/sign/archive/upload failures and prove no orphan, PID-reuse kill, stale state, archive, or upload.
+
+`provision-live-fixtures.mjs` and `cleanup-live-fixtures.mjs` consume the installed CLI/daemon and strict local `LiveFixtureManifestV1`. Provisioning creates a new disposable workspace root with deterministic synthetic source/token/asset files, registers it through authenticated control, and—after the operator opens a new editable Figma Design draft and pairs the built plugin—creates a dedicated page/frame/component/text/token/capability fixture through normal approved operations. Protected environment supplies exact `SFP_LIVE_IMAGE_ALLOWED_URL`, `SFP_LIVE_IMAGE_ALLOWED_SHA256`, and `SFP_LIVE_IMAGE_DENIED_URL`; allowed URL must be HTTPS on a configured exact three-or-more-label FQDN and match the content hash, while denied URL must use a different exact FQDN. Values are input-only, never evidence secrets. Cleanup validates cleanupToken/realpaths/IDs, deletes only created Figma nodes/page through the paired plugin, removes the exact domain rule, waits for operation settlement, unregisters workspace, removes only the validated disposable root, removes the local fixture manifest after successful reread, and instructs the operator to trash the disposable draft; it is retriable and fails closed on identity mismatch.
+
+| Blocking check suffix (both OS prefixes) | Provisioned input and positive assertion | Required negative assertion | Cleanup ownership |
+|---|---|---|---|
+| `artifact-integrity` | RC/install manifest and all artifact hashes match | one valid-format wrong hash rejects | installer temp |
+| `daemon-health` | managed daemon strict ping/build/RC matches | pre-existing listener or wrong build rejects | stop daemon |
+| `state-permissions` | daemon and evidence-key roots pass OS policy | wider mode/foreign ACE/reparse rejects | state-root owner |
+| `pair-resume` | built plugin pairs and rotates resume | old ticket/token replay rejects | plugin disconnect |
+| `design-context-recursive` | provisioned page/frame tree returns complete sections | forged/missing node fails typed | Figma page/frame |
+| `grounding-maps` | synthetic code/design/component/token/icon joins verify | wrong workspace/file hash rejects | snapshot files |
+| `snapshot-graph` | capture+graph locator/checksum loads | stale checksum/CAS rejects | snapshot/graph files |
+| `token-pdf-export` | synthetic tokens and ordered frames export | existing outPath/corrupt input rejects | export files |
+| `idempotency-journal` | exact same operation settles once | same ID/different fingerprint conflicts | journal settlement |
+| `write-fifo` | two writes observe exact FIFO and final value | stale generation cannot overtake | created nodes |
+| `approval-undo` | reject gives runtime0; approve mutates with one undo | duplicate/late/wrong binding rejects | created mutation |
+| `generation-reconnect` | reconnect/rehello resumes stable identity | old generation reply/cancel rejects | paired session |
+| `workspace-policy` | registered disposable root reads/writes inside | symlink/reparse/outside path rejects | workspace registration/root |
+| `network-policy` | allowed exact FQDN image hash imports | protected denied FQDN never connects | domain rule/image node |
+| `capability-matrix` | provisioned supported capabilities match manifest | unavailable capability returns typed negative | capability nodes |
+| `diagnostic-redaction` | strict evidence/check details contain only hashes/codes | sentinel text/path/URL/raw content absent | diagnostic temp |
+
+`blocking-check-fixture-map.test.ts` requires exactly these 16 suffixes, one positive input/assertion, one negative assertion, and one cleanup owner each; Windows/macOS differ only in OS prefix and permission implementation. Both runners consume the same semantic fixture manifest/schema and test vectors. Fixture paths, URLs, draft/node IDs, source text, image bytes, secrets, tokens, and raw content never enter evidence or archives.
 
 ---
 
@@ -1765,6 +1872,7 @@ service/
   capabilities/change-manifests/
   capabilities/task-8a-direct-fs-importers.json
   capabilities/task-9b-mutation-handlers.json
+  capabilities/cli-command-modules.v1.json
   capabilities/task-7a-authority-classes.json
   capabilities/task-14-skill-base.json
   docs/architecture.md
@@ -1782,6 +1890,7 @@ service/
   schemas/evidence-closure-v1.schema.json
   schemas/evidence-closure-attestation-v1.schema.json
   schemas/source-complete-preview-v1.schema.json
+  schemas/trusted-signer-policy-v1.schema.json
   licenses/figwright-LICENSE
   licenses/figma-mcp-rust-LICENSE
   licenses/figmosha2-LICENSE
@@ -1807,7 +1916,16 @@ service/
   scripts/write-evidence-closure.mjs
   scripts/package-evidence-assets.mjs
   scripts/materialize-evidence-archive.mjs
+  scripts/init-evidence-key.mjs
+  scripts/lib/evidence-key-store.mjs
+  scripts/windows-evidence-key-acl.ps1
+  scripts/windows-release-evidence.ps1
+  scripts/start-release-daemon.mjs
+  scripts/stop-release-daemon.mjs
+  scripts/provision-live-fixtures.mjs
+  scripts/cleanup-live-fixtures.mjs
   scripts/generate-task9b-handler-ledger.mjs
+  scripts/generate-cli-command-module-ledger.mjs
   scripts/update-service-forks.mjs
   packages/shared/src/auth.ts
   packages/shared/src/action-nonce.ts
@@ -1831,6 +1949,13 @@ service/
   packages/ir/src/snapshot-v1.ts
   packages/ir/src/snapshot-storage.ts
   packages/ir/src/store.ts
+  packages/ir/src/index.ts
+  packages/ir/test/canonical-json.test.ts
+  packages/ir/test/fidelity.test.ts
+  packages/ir/test/grounding-graph-v1.test.ts
+  packages/ir/test/snapshot-v1.test.ts
+  packages/ir/test/snapshot-storage.test.ts
+  packages/ir/test/store.test.ts
   packages/ir/test/grounding-graph-memory.test.ts
   packages/ir/test/fixtures/grounding-graph-memory.mjs
   packages/mcp/src/runtime-paths.ts
@@ -1899,6 +2024,15 @@ service/
   packages/mcp/src/snapshot/refresh-grounding-graph.ts
   packages/mcp/src/snapshot/workspace-snapshot-storage.ts
   packages/mcp/src/snapshot/workspace-graph-storage.ts
+  packages/mcp/test/snapshot/snapshot-schema.test.ts
+  packages/mcp/test/snapshot/snapshot-capture.test.ts
+  packages/mcp/test/snapshot/snapshot-locator.test.ts
+  packages/mcp/test/snapshot/snapshot-storage.test.ts
+  packages/mcp/test/snapshot/grounding-graph.test.ts
+  packages/mcp/test/snapshot/grounding-refresh.test.ts
+  packages/mcp/test/snapshot/grounding-storage.test.ts
+  packages/mcp/test/snapshot/snapshot-progress.test.ts
+  packages/mcp/test/snapshot/service-operation-routing.test.ts
   packages/mcp/src/tools/doctor.ts
   packages/mcp/src/tools/export-tokens.ts
   packages/mcp/src/tools/export-frames-to-pdf.ts
@@ -1960,6 +2094,7 @@ service/
   packages/cli/src/commands/network.ts
   packages/cli/src/commands/operations.ts
   packages/cli/src/compat/rust-tool-map.ts
+  packages/cli/test/command-module-ledger.test.ts
   test/bootstrap.test.ts
   test/upstream-parity.test.ts
   test/tool-contract.test.ts
@@ -1985,6 +2120,15 @@ service/
   test/evidence-asset-archives.test.ts
   test/evidence-archive-materializer.test.ts
   test/acceptance-live-diagnostic.test.ts
+  test/trusted-signer-policy.test.ts
+  test/evidence-key-store.test.ts
+  test/evidence-key-store-posix.test.ts
+  test/evidence-key-store-windows.test.ts
+  test/release-daemon-lifecycle.test.ts
+  test/live-fixture-provisioning.test.ts
+  test/blocking-check-fixture-map.test.ts
+  test/evidence-signing-immutability.test.ts
+  test/native-command-fail-closed.test.ts
 ~~~
 
 Workspace-root class4 paths are `.gitignore` (exact `.release-assets/` entry) and `.github/workflows/service-ci.yml`/`service-release.yml`; workflow build commands use `working-directory: service`, while final release-evidence-check receives repo-root release-asset paths explicitly.
@@ -2001,7 +2145,7 @@ Workspace-root class4 paths are `.gitignore` (exact `.release-assets/` entry) an
 | plugin | Vue 3.5.41, VueUse 14.4.0, Lucide Vue 1.34.0, Zod 4.4.3, Vite 8.2.2 toolchain |
 | cli | shared workspace and Node stdlib; `node:util.parseArgs`; direct build devDependencies `tsdown` `^0.22.14` and `publint` `^0.3.24` |
 
-Task16 adds root direct devDependency `ajv` exactly `8.17.1` for draft2020 evidence validation; signer/verifier/release import one validator module. It is not an undeclared transitive dependency.
+Task16 adds root direct devDependencies `ajv` exactly `8.17.1` for draft2020 evidence validation, `yazl` exactly `3.3.1` for deterministic three-buffer ZIP creation, and `yauzl` exactly `3.4.0` for bounded lazy ZIP central-directory parsing; signer/verifier/release/harness scripts import one validator module, and archive materialization adds stricter name/type/ZIP64/CRC/cap checks around yauzl. None is an undeclared transitive dependency.
 
 Task15 adds root direct devDependency `happy-dom` exactly `20.11.11` because the root `plugin-built-consumer.test.ts` imports it. Task15 packaging/workflow scripts use Node/JSON and do not import a YAML library, so no direct `yaml` dependency is added. Task11 adds exact IR runtime dependencies `@sfp/shared:"workspace:*"` and `zod:"4.4.3"`; Task12 adds MCP `pdf-lib:"1.17.1"`; Task13 adds CLI `@sfp/shared:"workspace:*"` plus direct CLI devDependencies `tsdown:"^0.22.14"` and `publint:"^0.3.24"`. Each owning task updates its exact package manifest and `service/pnpm-lock.yaml`, runs lockfile-only then frozen install, and stages both.
 
@@ -2038,6 +2182,8 @@ export const ARTIFACT_DEPENDENT_TESTS = [
 ~~~
 
 `service/vitest.config.ts` exports exact artifact tuple and ordinary excludes; artifact config includes exactly tuple. Package scripts have no POSIX quote. Windows test spawns exact `cmd.exe /d /s /c "pnpm run test -- --help"` and `cmd.exe /d /s /c "pnpm run test:artifacts -- --help"`, requiring exit0/no quote token; all OSes assert strings/config. Release order remains.
+
+Task16 changes both RC-writer invocations in `verify:release:validation`/`verify:release` to append exact `--trusted-signer-policy-env SFP_TRUSTED_SIGNER_POLICY`. The Node writer resolves that environment variable itself on Windows/POSIX, validates the protected policy with the shared Ajv authority, and pins its hash; missing/unreadable/mismatched policy fails before artifact/RC output. Package scripts remain shell-neutral.
 
 ---
 
@@ -2102,15 +2248,26 @@ Exact slice IDs are `8A`,`8B`,`9A`,`9B`,`9C`,`10`,`11`,`12A`,`12B`,`13`,`14`,`15
 `node service/scripts/verify-staged-change-manifest.mjs --write --slice 8A` (or exact listed ID) generates the manifest from a semantic-only index; without `--write` it verifies the complete staged union and never edits files.
 
 ~~~ts
-export interface ServiceForkLineageV1 {
+export interface ServiceForkLineageCommonV1 {
   originRepo: 'figwright' | 'figma-mcp-rust' | 'figmosha2';
   originPath: string;
   previousMode: 'copy' | 'mergeDependencyManifest' | 'referenceOnly';
   originCommit: string; // ^[0-9a-f]{40}$
-  baseSha256: string;
+  baseSha256: string; // ^[0-9a-f]{64}$
   transitionTask: '7A' | '7B' | '7C' | '8A' | '8B' | '9A' | '9B' | '9C' | '10' | '11' | '12A' | '12B' | '13' | '14' | '15' | '16';
   reason: string;
 }
+
+export type ServiceForkLineageV1 =
+  | (ServiceForkLineageCommonV1 & {
+      transition: 'edit'; destination: string; stagedSha256: string;
+    })
+  | (ServiceForkLineageCommonV1 & {
+      transition: 'move'; oldDestination: string; newDestination: string; newSha256: string;
+    })
+  | (ServiceForkLineageCommonV1 & {
+      transition: 'delete'; destination: string; stagedSha256: null;
+    });
 
 export type ServiceAuthorityRefreshV1 =
   | { class: 'serviceFiles'; path: string; stagedSha256: string; refreshSubtype: 'service-owned-source' }
@@ -2120,7 +2277,13 @@ export type ServiceAuthorityRefreshV1 =
     };
 ~~~
 
-Class-aware model exact. Protected lineage lives only in strict `service/upstream-lock.json.serviceForks[]`; the matching destination is added to `service/vendor-rules.json.exclude[]` and `serviceOwned[]`, and its old `service/vendor-map.json` row is removed. Fork transition stores originRepo/path/originCommit/previousMode/base from that prior row before removal. Verifier matches all lineage fields to the prior row, requires old row gone plus excluded+serviceOwned current staged hash, and proves generator skip/no overwrite. Unchanged upstream preserves mode; every changed `serviceFiles`/`packageAuthorities` row carries exactly the matching `ServiceAuthorityRefreshV1.refreshSubtype` and staged hash.
+Class-aware model exact. Protected lineage lives only in strict `service/upstream-lock.json.serviceForks[]`. The schema rejects unknown keys, duplicate transition identity, `oldDestination===newDestination`, and any destination appearing in more than one edit/delete destination or move old/new position. Every path is normalized repo-relative slash form with no absolute, dot, dot-dot, backslash, empty, or NUL segment.
+
+- `edit`: remove the prior `service/vendor-map.json` row, add `destination` to both sorted-unique `service/vendor-rules.json.exclude[]` and `serviceOwned[]`, require the staged A/M blob SHA-256 to equal `stagedSha256`, and make copy-only skip it.
+- `move`: require cached name-status exactly `D oldDestination` plus `A newDestination`; remove the old vendor-map row; keep `oldDestination` in `exclude[]` as a no-materialize tombstone but absent from `serviceOwned[]`; add `newDestination` to both `exclude[]` and `serviceOwned[]`; require its staged blob SHA-256 to equal `newSha256`; copy-only skips both destinations.
+- `delete`: require cached `D destination`, remove the old vendor-map row, keep `destination` in `exclude[]`, remove it from `serviceOwned[]`, require `stagedSha256:null` and no index/worktree blob, and make copy-only skip recreation.
+
+All variants store originRepo/path/originCommit/previousMode/base from the exact prior row before removal. The updater performs one compare-and-swap rewrite of vendor rules/map/upstream lock and refuses partial or ambiguous transitions. The verifier re-derives the prior row from the parent tree, validates lineage and cached A/M/D bytes, exact exclude/serviceOwned membership, generator skip, no current blob for delete, and no copy-only overwrite. Table tests cover edit, move, delete, duplicate destinations, wrong hashes, incomplete D+A, the Task8 repo-walk source+test moves, the Task9B 77 handler edits, and a deleted upstream fixture. Unchanged upstream alone preserves mode; every changed `serviceFiles`/`packageAuthorities` row carries exactly the matching `ServiceAuthorityRefreshV1.refreshSubtype` and staged hash.
 
 1. Finish semantic edits, then stage only the slice's exact semantic A/M/D paths with explicit `git add -- <files>` and `git rm -- <deletions>`; no directory/glob.
 2. Generate manifest, transition every edited upstream row to semantic service fork using `update-service-forks.mjs`, refresh serviceFiles/packageAuthorities, then copy-only.
@@ -3380,6 +3543,8 @@ Run diff/log/full GREEN. Expected original subjects/order/reviewed trees, clean 
 
 8A generator scope explicitly includes `packages/mcp/src/scan/scan.ts`; task-8a manifest must contain it and `packages/mcp/test/scan/scan.test.ts` plus declared moves/adapters/tests. Direct-fs ledger includes scoped tool/icon/profile/token/scan importers; no undisclosed scanner.
 
+The repo-walk source and test relocation are exact `ServiceForkLineageV1 transition:'move'` rows: cached index must contain D+A for each old/new pair, both old destinations remain copy-only excluded with no blob/serviceOwned entry, both new destinations are excluded+serviceOwned with exact `newSha256`, and the 8A verifier runs the move/incomplete-pair/no-recreation fixtures before commit.
+
 - [ ] **Step 1: Write filesystem-read/write boundary RED**
 
 ~~~ts
@@ -3497,7 +3662,7 @@ For 8A, use only `task-8a.json` union and commit `feat(io): sandbox workspace fi
 - Modify for 9A integration: `ui/composables/useRelaySession.ts`, `ui/components/PanelTabs.vue`, `ui/lib/tabs.ts`; create `TabPairing.vue`, `usePairing.ts`. Create 9C `TabApproval.vue`, `useApprovalQueue.ts`.
 - Create/modify exact 9A tests `components/pairing-flow.test.ts`, `composables/use-relay-session.test.ts`, `relay/client.test.ts`, auth/protocol/progress-cancel/file-identity; add 9B `idempotency-concurrency.test.ts`; add 9C `approval/approval-control.test.ts`, `approval-reconnect.test.ts`, `approval-ui.test.ts`; plus mutation fixture ledger named below.
 - 9C modifies exact daemon integration `service/packages/mcp/src/policy/approval-broker.ts`, `service/packages/mcp/src/relay/relay.ts`, `service/packages/mcp/src/index.ts`; creates `service/packages/mcp/test/e2e/built-plugin-approval-roundtrip.test.ts`.
-- 9C creates identity-bootstrap coordinator plus `identity-bootstrap.test.ts` and `internal-system-principal.test.ts`; 9A/9B add hello/dispatcher tests.
+- 9C creates exact coordinator `service/packages/mcp/src/execution/identity-bootstrap.ts` plus `service/packages/mcp/test/e2e/identity-bootstrap.test.ts` and `internal-system-principal.test.ts`; 9A/9B add hello/dispatcher tests.
 
 **Interfaces**
 
@@ -3506,7 +3671,7 @@ For 8A, use only `task-8a.json` union and commit `feat(io): sandbox workspace fi
 
 **Commit protocol:** Section 6.2 applies independently to 9A, 9B, and 9C; each exact staged tree includes the authority trio and gets its own two reviews.
 
-9B ledger remains78/77. All77 paths and exact `service/packages/plugin/src/handlers/registry.ts` transition to serviceFork when upstream-managed; task-9b stages them+lineage, generator skips, verifier proves no overwrite.
+9B ledger remains78/77. All77 paths and exact `service/packages/plugin/src/handlers/registry.ts` use `ServiceForkLineageV1 transition:'edit'` when upstream-managed; task-9b stages their exact `stagedSha256` lineage, generator skips, and verifier proves no overwrite.
 
 **Binding subtask/commit boundaries**
 
@@ -3531,14 +3696,20 @@ pnpm -C service install --lockfile-only
 pnpm -C service install --frozen-lockfile
 pnpm -C service --filter @sfp/plugin typecheck
 pnpm -C service --filter @sfp/plugin build
+pnpm -C service --filter @sfp/mcp typecheck
+pnpm -C service --filter @sfp/mcp build
+pnpm -C service typecheck
 pnpm -C service exec vitest run packages/plugin/test/approval packages/plugin/test/protocol packages/plugin/test/handlers/import-image-policy.test.ts packages/mcp/test/e2e/built-plugin-approval-roundtrip.test.ts packages/mcp/test/e2e/identity-bootstrap.test.ts packages/mcp/test/e2e/internal-system-principal.test.ts packages/mcp/test/execution/operation-journal.test.ts test/tool-registry.test.ts
 node service/scripts/update-service-forks.mjs --slice 9C --index service/capabilities/change-manifests/task-9c.json
 node service/scripts/vendor-upstreams.mjs --copy-only
+pnpm -C service exec vitest run packages/mcp/test/security packages/mcp/test/election packages/mcp/test/dispatch.test.ts packages/mcp/test/e2e
+pnpm -C service typecheck
 node service/scripts/verify-upstream-lock.mjs --offline
-pnpm -C service exec vitest run test/vendor-upstreams.test.ts test/authority-class-transition.test.ts test/service-fork-lineage.test.ts
+pnpm -C service exec vitest run test/vendor-upstreams.test.ts
+pnpm -C service exec vitest run test/authority-class-transition.test.ts test/service-fork-lineage.test.ts
 node service/scripts/verify-staged-change-manifest.mjs --slice 9C
 ~~~
-- [ ] **9C review and commit:** task-9c exact union adds `service/packages/shared/src/operations.ts`, `service/packages/mcp/src/execution/operation-journal.ts`, `operation-resolution-intent.ts`, `identity-bootstrap.ts`, journal/system E2Es, daemon/plugin paths and authority. Counts unchanged; exact subject.
+- [ ] **9C review and commit:** task-9c exact union adds `service/packages/shared/src/operations.ts`, `service/packages/mcp/src/execution/operation-journal.ts`, `service/packages/mcp/src/execution/operation-resolution-intent.ts`, `service/packages/mcp/src/execution/identity-bootstrap.ts`, `service/packages/mcp/test/execution/operation-journal.test.ts`, `service/packages/mcp/test/e2e/identity-bootstrap.test.ts`, `service/packages/mcp/test/e2e/internal-system-principal.test.ts`, daemon/plugin paths and authority. Counts unchanged; exact subject.
 
 - [ ] **Step 1: Write plugin auth, URL, and undo RED**
 
@@ -3730,18 +3901,18 @@ Stage only `task-10.json` union, byte-verify, review/rerun exact GREEN, then com
 **Files**
 
 - Modify: `service/packages/ir/package.json` with exact runtime dependencies `@sfp/shared:"workspace:*"` and `zod:"4.4.3"`; modify `service/packages/mcp/package.json` to consume `@sfp/ir:"workspace:*"`; modify `service/pnpm-lock.yaml`.
-- Create: `service/packages/ir/src/canonical-json.ts`, `fidelity.ts`, `snapshot-v1.ts`, `snapshot-storage.ts`, `grounding-graph-v1.ts`, `store.ts`, `index.ts` and matching pure tests; IR owns `SnapshotV1` and `SnapshotStoragePort` together and imports no filesystem module.
-- Create snapshot `workspace-snapshot-storage.ts`, `workspace-graph-storage.ts`, `capture-snapshot.ts`, `build-grounding-graph.ts`, `refresh-grounding-graph.ts`; control `snapshot-endpoints.ts`, `grounding-endpoints.ts`.
+- Create exact IR sources `service/packages/ir/src/canonical-json.ts`, `fidelity.ts`, `snapshot-v1.ts`, `snapshot-storage.ts`, `grounding-graph-v1.ts`, `store.ts`, and `index.ts`; create exact pure tests `service/packages/ir/test/canonical-json.test.ts`, `fidelity.test.ts`, `snapshot-v1.test.ts`, `snapshot-storage.test.ts`, `grounding-graph-v1.test.ts`, and `store.test.ts`. IR owns `SnapshotV1` and `SnapshotStoragePort` together and imports no filesystem module.
+- Create exact MCP snapshot sources `service/packages/mcp/src/snapshot/workspace-snapshot-storage.ts`, `workspace-graph-storage.ts`, `capture-snapshot.ts`, `build-grounding-graph.ts`, and `refresh-grounding-graph.ts`; create exact control sources `service/packages/mcp/src/control/snapshot-endpoints.ts` and `grounding-endpoints.ts`.
 - Modify service-operation registry/shared schemas/control route-registry for two reachable routes; the Task7 consumer adapter installs them through Task6.1 facade, with no producer edit.
-- Create strict schema, locator/Windows-path, section, both loadByLocator storage, complete graph/evidence/ref/refresh/CAS, progress, service kind/name and router-reachability tests.
-- Create `service/packages/ir/test/grounding-graph-memory.test.ts` and `service/packages/ir/test/fixtures/grounding-graph-memory.mjs`.
+- Create exact MCP tests `service/packages/mcp/test/snapshot/snapshot-schema.test.ts`, `snapshot-capture.test.ts`, `snapshot-locator.test.ts`, `snapshot-storage.test.ts`, `grounding-graph.test.ts`, `grounding-refresh.test.ts`, `grounding-storage.test.ts`, `snapshot-progress.test.ts`, and `service-operation-routing.test.ts`.
+- Create exact memory test/harness `service/packages/ir/test/grounding-graph-memory.test.ts` and `service/packages/ir/test/fixtures/grounding-graph-memory.mjs`.
 
 **Interfaces**
 
 - Consumes: Task 7 empty service-operation seam, immutable policy/path/target-resolved scope, one executor and shared progress/cancel/terminal transport; Task 8 workspace store; Task 10 stable pin. No snapshot type lives in shared.
 - Produces: strict snapshot/graph schemas and storage ports, service2, reachable authenticated routes, kind/name journal, and exact refs/results consumed by Task13; MCP remains112.
 
-**Commit protocol:** `task-11.json` lists exact IR+MCP package manifests, pnpm lock, every IR source/test, snapshot/control/registry/index/test path plus manifest/authority; no directory staging. Both package manifests and the lock are mandatory staged rows.
+**Commit protocol:** `task-11.json` enumerates every repo-relative path named in this Task: both package manifests and pnpm lock; all seven IR sources; all six ordinary IR tests plus memory test+fixture; five MCP snapshot sources; two control endpoint sources; all nine MCP snapshot tests; exact shared service-operation schema, MCP service registry, control route-registry/index modifications; package authority, change manifest, and authority trio. No directory/glob row is legal, and the staged-name byte comparison rejects an unlisted IR/snapshot file. Both package manifests and the lock are mandatory staged rows.
 
 - [ ] **Step 1: Write canonical hash and section assembly RED**
 
@@ -3843,7 +4014,7 @@ it('keeps the storage dependency direction IR -> shared and MCP adapter -> IR', 
 
 - [ ] **Step 2: Run snapshot RED**
 
-Run: `pnpm -C service exec vitest run packages/ir/test packages/mcp/test/snapshot`.
+Run: `pnpm -C service exec vitest run packages/ir/test/canonical-json.test.ts packages/ir/test/fidelity.test.ts packages/ir/test/snapshot-v1.test.ts packages/ir/test/snapshot-storage.test.ts packages/ir/test/grounding-graph-v1.test.ts packages/ir/test/store.test.ts packages/ir/test/grounding-graph-memory.test.ts packages/mcp/test/snapshot/snapshot-schema.test.ts packages/mcp/test/snapshot/snapshot-capture.test.ts packages/mcp/test/snapshot/snapshot-locator.test.ts packages/mcp/test/snapshot/snapshot-storage.test.ts packages/mcp/test/snapshot/grounding-graph.test.ts packages/mcp/test/snapshot/grounding-refresh.test.ts packages/mcp/test/snapshot/grounding-storage.test.ts packages/mcp/test/snapshot/snapshot-progress.test.ts packages/mcp/test/snapshot/service-operation-routing.test.ts`.
 
 Expected: IR modules and section reader are absent.
 
@@ -3870,7 +4041,7 @@ Run this complete copy/paste block against the staged `task-11.json` tree:
 ~~~powershell
 pnpm -C service install --lockfile-only
 pnpm -C service install --frozen-lockfile
-pnpm -C service exec vitest run packages/ir/test packages/ir/test/grounding-graph-memory.test.ts packages/mcp/test/snapshot packages/mcp/test/execution/service-operation-name.test.ts packages/mcp/test/execution/service-operation-registry.test.ts packages/mcp/test/control/control-router.test.ts test/tool-contract.test.ts
+pnpm -C service exec vitest run packages/ir/test/canonical-json.test.ts packages/ir/test/fidelity.test.ts packages/ir/test/snapshot-v1.test.ts packages/ir/test/snapshot-storage.test.ts packages/ir/test/grounding-graph-v1.test.ts packages/ir/test/store.test.ts packages/ir/test/grounding-graph-memory.test.ts packages/mcp/test/snapshot/snapshot-schema.test.ts packages/mcp/test/snapshot/snapshot-capture.test.ts packages/mcp/test/snapshot/snapshot-locator.test.ts packages/mcp/test/snapshot/snapshot-storage.test.ts packages/mcp/test/snapshot/grounding-graph.test.ts packages/mcp/test/snapshot/grounding-refresh.test.ts packages/mcp/test/snapshot/grounding-storage.test.ts packages/mcp/test/snapshot/snapshot-progress.test.ts packages/mcp/test/snapshot/service-operation-routing.test.ts packages/mcp/test/execution/service-operation-name.test.ts packages/mcp/test/execution/service-operation-registry.test.ts packages/mcp/test/control/control-router.test.ts test/tool-contract.test.ts
 pnpm -C service typecheck
 pnpm -C service build
 node service/scripts/update-service-forks.mjs --slice 11 --index service/capabilities/change-manifests/task-11.json
@@ -4039,14 +4210,30 @@ Run: `git diff --check`, `git log -2 --format="%H %s"`, full Task 12 GREEN/build
 - Create: `service/packages/cli/src/commands/grounding.ts` and matching strict command test for `grounding refresh`.
 - Create: `service/packages/cli/src/compat/rust-tool-map.ts`.
 - Create: `service/packages/cli/test/client.test.ts`, `commands/*.test.ts`, `compat-mapping.test.ts`, `fixtures/fake-control-server.ts`.
+- Create exact command authority `service/capabilities/cli-command-modules.v1.json`, generator `service/scripts/generate-cli-command-module-ledger.mjs`, and `service/packages/cli/test/command-module-ledger.test.ts`.
 - Modify: root/package bin/files/export maps so `sfp` points to `packages/cli/dist/index.mjs`.
 
 **Interfaces**
 
 - Consumes: final Task6.1 facade, Task7 tool/service/admin/status, Task8 domains, Task11 snapshot.capture+grounding.refresh, Task12 final authorities. CLI never sends identity/context or redefines wire.
-- Produces: authenticated `ControlClient`; workspace and remote-domain config commands; CLI exit codes 0 healthy, 1 degraded/rejected operation, 2 unavailable/config; command mappings below. CLI is a companion to an active MCP/daemon and never starts a hidden leader.
+- Produces: authenticated `ControlClient`; workspace and remote-domain config commands; CLI exit codes 0 healthy, 1 degraded/rejected operation, 2 unavailable/config; command mappings below. CLI is a companion to an active MCP/daemon and never starts a hidden leader. For the Task16 installed harness only, ControlClient accepts process environment `SFP_DAEMON_PORT` (decimal 1024–65535) and `SFP_DAEMON_STATE_ROOT` (owner-only canonical directory); it validates both locally and never sends them in a request/body/log. Normal defaults remain unchanged.
 
-**Commit protocol:** `task-13.json` lists CLI index/client/output, one exact command module+test per command-table row (including status, workspace set-default, and grounding), compat map/test, fake server, CLI/root package and pnpm lock, manifest/authority. CLI package+lock are mandatory staged rows after lockfile-only/frozen install. A bijection test rejects a command without exactly one module/test or extra file.
+**Commit protocol:** `task-13.json` lists CLI index/client/output, every declared command module/test (including status, workspace set-default, and grounding), command ledger generator+authority+test, compat map/test, fake server, CLI/root package and pnpm lock, manifest/authority. CLI package+lock are mandatory staged rows after lockfile-only/frozen install. Modules/tests are not required to be one-to-one with command spellings.
+
+~~~ts
+export interface CommandModuleLedgerRowV1 {
+  command: string; // canonical token sequence after `sfp`, lowercase kebab words separated by one U+0020
+  module: `packages/cli/src/commands/${string}.ts`;
+  test: `packages/cli/test/commands/${string}.test.ts`;
+}
+export interface CommandModuleLedgerV1 {
+  version: 1;
+  rows: readonly CommandModuleLedgerRowV1[];
+  contentSha256: `sha256:${string}`;
+}
+~~~
+
+The generator strict-parses every command and alias from the command contract, emits one row per unique spelling sorted by UTF-8 command bytes, and hashes canonical rows without `contentSha256` under `sfp-cli-command-module-ledger-v1\0`. Aliases such as `import-component`/`icomp` are separate command rows and may reference the same module/test; one module may own multiple related commands. The verifier requires every command spelling exactly once, every declared `commands/*.ts` module and `commands/*.test.ts` test referenced at least once, every referenced path present, no unreferenced/extra declared module or test, no duplicate command, no path outside the two strict roots, and the regenerated hash/file byte-identical.
 
 **Command contract**
 
@@ -4091,6 +4278,13 @@ it('requires an active authenticated daemon for mutation commands', async () => 
   await expect(runCli(['rm', '1:2'])).resolves.toMatchObject({ exitCode: 2, code: 'DAEMON_UNAVAILABLE' });
 });
 
+it('uses only a complete secure installed-harness daemon override', async () => {
+  const client = await createControlClient({ SFP_DAEMON_PORT: '38456', SFP_DAEMON_STATE_ROOT: secureDaemonRoot });
+  expect(client.endpoint).toBe('http://127.0.0.1:38456');
+  await expect(createControlClient({ SFP_DAEMON_PORT: '38456' })).rejects.toMatchObject({ code: 'DAEMON_CONFIG_INVALID' });
+  expect(lastRequestBody()).not.toMatchObject({ stateRoot: expect.anything(), port: expect.anything() });
+});
+
 it('maps workspace and network-domain commands to authenticated control routes', async () => {
   await runCli(['workspace', 'add', workspacePath], fakeControl);
   await runCli(['workspaces', 'set-default', workspaceId], fakeControl);
@@ -4132,6 +4326,15 @@ it('resolves an unknown operation without reusing its ID', async () => {
     decision: 'resolved-applied', reasonHash, evidenceHash, confirm: `${operationId}/unknown`,
   });
 });
+
+it('covers commands and aliases without assuming module bijection', async () => {
+  const ledger = await loadCommandModuleLedger();
+  expect(ledger.rows.filter(row => row.module.endsWith('/import-component.ts')).map(row => row.command))
+    .toEqual(['icomp', 'import-component']);
+  expect(new Set(ledger.rows.map(row => row.command)).size).toBe(ledger.rows.length);
+  expect(await unreferencedDeclaredCommandFiles(ledger)).toEqual({ modules: [], tests: [] });
+  expect(ledger.contentSha256).toBe(await regenerateCommandModuleLedgerHash());
+});
 ~~~
 
 - [ ] **Step 2: Run CLI RED**
@@ -4142,7 +4345,7 @@ Expected: CLI package source is absent while the workspace harness remains runna
 
 - [ ] **Step 3: Implement ControlClient and output contract**
 
-Read control token from stateRoot; use final Task6.1 public facade only for health, then authenticated `/control/status` for oracles. Tool/service/admin requests stay separate; parse bounded frames and enforce origin-session cancel.
+Read control token from stateRoot; use final Task6.1 public facade only for health, then authenticated `/control/status` for oracles. Strict-parse the optional installed-harness port/state-root environment before connecting, reject partial/out-of-range/insecure values, and keep it out of request bodies/output. Tool/service/admin requests stay separate; parse bounded frames and enforce origin-session cancel.
 
 - [ ] **Step 4: Implement workspace, pairing, and approval commands**
 
@@ -4163,7 +4366,9 @@ Run this complete copy/paste block against the staged `task-13.json` tree:
 ~~~powershell
 pnpm -C service install --lockfile-only
 pnpm -C service install --frozen-lockfile
+node service/scripts/generate-cli-command-module-ledger.mjs --write service/capabilities/cli-command-modules.v1.json
 pnpm -C service exec vitest run packages/cli/test
+pnpm -C service exec vitest run packages/cli/test/command-module-ledger.test.ts
 pnpm -C service --filter @sfp/cli typecheck
 pnpm -C service --filter @sfp/cli build
 pnpm -C service --filter @sfp/cli exec publint
@@ -4318,7 +4523,7 @@ Set MCP `alwaysBundle=['@sfp/shared','@sfp/ir']`, CLI `alwaysBundle=['@sfp/share
 
 Plugin staging root is exactly `service/artifacts/.staging/plugin-package/` and contains only `manifest.json`, `dist/code.js`, `dist/index.html`, `README.md`, `LICENSE`, `THIRD_PARTY_NOTICES.md`, `PROVENANCE.md`, `SBOM.spdx.json`, three `licenses/*-LICENSE`, and all three capability ledgers (`union-manifest.json`, `rust-tool-compat.json`, `figmosha-feature-map.json`) under `capabilities/`. Manifest main/ui targets must exist. Copy built bytes only; no source/map/temp. Normalize repo path order, modes and `SOURCE_DATE_EPOCH` from release commit; fixed author/committer; create isolated one-commit repo and `git archive` so two clean builds have identical file list/timestamps/ZIP SHA.
 
-`plugin-built-consumer.test.ts` unpacks actual ZIP, executes built main/UI, and drives it against the real daemon approval broker adapter. Besides pair/reconnect/progress/cancel cleanup it repeats core approval approve→one runtime, reject→runtime0, duplicate ignored, reconnect redelivery without TTL extension, and asserts built plugin receives no control token. Source tests cannot satisfy.
+`plugin-built-consumer.test.ts` unpacks actual ZIP, executes built main/UI, and drives it against the real daemon approval broker adapter. Besides pair/reconnect/progress/cancel cleanup it repeats core approval approve→one runtime, reject→runtime0, duplicate ignored, reconnect redelivery without TTL extension, and asserts built plugin receives no control token. Its packed identity-bootstrap sequence is binding: initial authenticated no-fileKey/no-shared-UUID hello reports unstable-readonly; rejected `identity.bootstrap` leaves shared plugin data absent, runtime0 and undo0; approved bootstrap reaches the packaged dispatcher once, writes only `sfp/file-identity:v1`, reports `mutated:true`, and creates exactly one undo; operation result forces rehello and does not remap Relay; the next authenticated hello reads the UUID and yields stable identity. A crash after dispatched is outcome-unknown/no retry; packaged-plugin reconnect reads the existing UUID, rehello exposes the same stable identity, and status/resolution—not another bootstrap—settles it. Wrong generation/target and any plugin control-token access reject. Source tests cannot satisfy. Task15 `task-15.json` explicitly includes the built consumer test plus packaged daemon/bridge capability hashes it asserts, while Task9 remains the only owner of implementation paths.
 
 Artifact verifier asserts tools116, handler106/10, execution99/17, service2 exact names, final Task6.1 ping facade fields, no public session oracle, and unpacked plugin consumer parity.
 
@@ -4352,20 +4557,21 @@ Stage only `task-15.json` union, byte-verify, review/rerun exact GREEN, then com
 
 **Files**
 
-- Create exact schemas `service/schemas/acceptance-evidence-v1.schema.json`, `acceptance-attestation-v1.schema.json`, `evidence-closure-v1.schema.json`, `evidence-closure-attestation-v1.schema.json`, and `source-complete-preview-v1.schema.json`; modify Task15 `release-candidate-v1.schema.json` only for the final Ajv/harness-hash contract.
-- Create exact shared validator/runner/install/signature/closure scripts `service/scripts/acceptance-evidence-validator.mjs`, `install-release-artifacts.mjs`, `desktop-acceptance.mjs`, `write-source-complete-preview.mjs`, `sign-evidence.mjs`, `verify-evidence-signature.mjs`, `write-evidence-closure.mjs`, and `release-evidence-check.mjs`; modify `write-release-candidate.mjs`. The structural importer set is exactly `write-release-candidate`, `install-release-artifacts`, `desktop-acceptance`, `write-source-complete-preview`, `sign-evidence`, `verify-evidence-signature`, `write-evidence-closure`, and `release-evidence-check`; the validator imports none of them.
-- Create exact archive scripts `service/scripts/package-evidence-assets.mjs` and `service/scripts/materialize-evidence-archive.mjs`.
-- Create exact tests `service/test/acceptance-harness.test.ts`, `evidence-schema-draft.test.ts`, `evidence-validator-importers.test.ts`, `external-harness-binding.test.ts`, `evidence-asset-archives.test.ts`, `evidence-archive-materializer.test.ts`, and `acceptance-live-diagnostic.test.ts`; modify exact `service/test/workflow-hygiene.test.ts`.
+- Create exact schemas `service/schemas/acceptance-evidence-v1.schema.json`, `acceptance-attestation-v1.schema.json`, `evidence-closure-v1.schema.json`, `evidence-closure-attestation-v1.schema.json`, `source-complete-preview-v1.schema.json`, and `trusted-signer-policy-v1.schema.json`; modify Task15 `release-candidate-v1.schema.json` for final Ajv/harness/policy-hash binding.
+- Create exact validator/runner/install/signature/closure scripts `service/scripts/acceptance-evidence-validator.mjs`, `install-release-artifacts.mjs`, `desktop-acceptance.mjs`, `write-source-complete-preview.mjs`, `sign-evidence.mjs`, `verify-evidence-signature.mjs`, `write-evidence-closure.mjs`, and `release-evidence-check.mjs`; modify `write-release-candidate.mjs`.
+- Create exact archive/key/process/fixture scripts `service/scripts/package-evidence-assets.mjs`, `materialize-evidence-archive.mjs`, `init-evidence-key.mjs`, `lib/evidence-key-store.mjs`, `windows-evidence-key-acl.ps1`, `windows-release-evidence.ps1`, `start-release-daemon.mjs`, `stop-release-daemon.mjs`, `provision-live-fixtures.mjs`, and `cleanup-live-fixtures.mjs`.
+- The structural validator-importer set is exactly the prior eight plus `service/scripts/init-evidence-key.mjs`, `service/scripts/start-release-daemon.mjs`, `service/scripts/stop-release-daemon.mjs`, `service/scripts/provision-live-fixtures.mjs`, and `service/scripts/cleanup-live-fixtures.mjs`; the validator, key-store library, ACL helper, packager, and materializer are not importers and define no local schema predicate.
+- Create exact tests `service/test/acceptance-harness.test.ts`, `acceptance-live-diagnostic.test.ts`, `evidence-schema-draft.test.ts`, `evidence-validator-importers.test.ts`, `external-harness-binding.test.ts`, `evidence-asset-archives.test.ts`, `evidence-archive-materializer.test.ts`, `trusted-signer-policy.test.ts`, `evidence-key-store.test.ts`, `evidence-key-store-posix.test.ts`, `evidence-key-store-windows.test.ts`, `release-daemon-lifecycle.test.ts`, `live-fixture-provisioning.test.ts`, `blocking-check-fixture-map.test.ts`, `evidence-signing-immutability.test.ts`, and `native-command-fail-closed.test.ts`; modify exact `service/test/release-candidate.test.ts` and `workflow-hygiene.test.ts`.
 - Modify `service/docs/desktop-acceptance.md`. Source-preview output is ignored `service/artifacts/source-complete-preview.v1.json`, never tracked.
 - Modify `.github/workflows/service-release.yml` to replace Task15 fail-closed placeholder with the shared validator gate.
-- Modify `service/package.json`, `service/pnpm-lock.yaml`; add exact direct root devDependency `ajv:"8.17.1"`.
+- Modify `service/package.json`, `service/pnpm-lock.yaml`; add exact direct root devDependencies `ajv:"8.17.1"`, `yazl:"3.3.1"`, and `yauzl:"3.4.0"`.
 
 **Interfaces**
 
 - Consumes: Task 13 CLI/control API and Task 15 build/artifact hashes.
-- Produces exact evidence/attestation/closure validation, installed-RC runner, fake/diagnostic harness, ignored atomically-written source-preview marker, final cross-OS release check and workflow gate. Raw runner remains nonzero on blocking live failure.
+- Produces exact policy-bound evidence/attestation/closure validation, secure key store, managed installed-daemon lifecycle, live fixture provision/cleanup, bounded archive materialization, installed-RC runner, fake/diagnostic harness, ignored atomically-written source-preview marker, final cross-OS release check and workflow gate. Raw runner remains nonzero on blocking live failure.
 
-**Commit protocol:** `service/capabilities/change-manifests/task-16.json` names the workflow, six schema files, the exact 11 scripts listed above, eight tests including workflow hygiene, desktop acceptance doc, package+lock, authority trio, service-fork lineage authority, and its own manifest. Generated artifacts, preview, evidence, detached archives, keys, and `.release-assets/**` are absent from the staged-name set.
+**Commit protocol:** `service/capabilities/change-manifests/task-16.json` names the workflow, all seven schema files, all exact 19 script/helper paths above, all 18 test paths including modified release-candidate/workflow tests, desktop acceptance doc, package+lock, authority trio, service-fork lineage authority, and its own manifest. Generated artifacts, fixture state, daemon state/log/PID, protected policy, enrollment records, preview, evidence, detached archives, keys, and `.release-assets/**` are absent from the staged-name set.
 
 - [ ] **Step 1: Write evidence-schema and fake-runner RED**
 
@@ -4392,6 +4598,20 @@ it('rejects malformed hash at schema validation before signature work', async ()
   expect(signatureVerifier).not.toHaveBeenCalled();
 });
 
+it('rejects a self-consistent three-key attacker closure outside protected policy', async () => {
+  const forged = await forgeCompleteReleaseWithThreeFreshKeys(validRcAndArchives);
+  await expect(releaseEvidenceCheck(forged, protectedTrustedSignerPolicy))
+    .rejects.toMatchObject({ code: 'SIGNER_NOT_TRUSTED' });
+});
+
+it('signs byte-identical validated evidence without mutation', async () => {
+  const before = await readFile(evidencePath);
+  await signEvidence({ evidencePath, keyStore: initializedTrustedKeyStore });
+  expect(await readFile(evidencePath)).toEqual(before);
+  await mutateEvidenceAfterSigning(evidencePath);
+  await expect(verifyEvidenceSignature(evidencePath)).rejects.toMatchObject({ code: 'EVIDENCE_HASH_MISMATCH' });
+});
+
 it('uses one strict Ajv 2020 validator in runner, signer, verifier and release path', async () => {
   expect(schema.$schema).toBe('https://json-schema.org/draft/2020-12/schema');
   expect(validator.ajvOptions).toMatchObject({ strict: true, allErrors: true, validateFormats: false });
@@ -4404,6 +4624,11 @@ it('uses one strict Ajv 2020 validator in runner, signer, verifier and release p
     'service/scripts/verify-evidence-signature.mjs',
     'service/scripts/write-evidence-closure.mjs',
     'service/scripts/release-evidence-check.mjs',
+    'service/scripts/init-evidence-key.mjs',
+    'service/scripts/start-release-daemon.mjs',
+    'service/scripts/stop-release-daemon.mjs',
+    'service/scripts/provision-live-fixtures.mjs',
+    'service/scripts/cleanup-live-fixtures.mjs',
   ]);
   expect(await localValidatorDefinitions()).toEqual([]);
   expect(() => compileFixture({ ...schema, unknownKeyword: true })).toThrow();
@@ -4432,17 +4657,19 @@ Expected: evidence schema and runner modules are absent.
 
 - [ ] **Step 3: Implement AcceptanceEvidenceV1**
 
-Task16 replaces Task15 dependency-free RC placeholder validation. One Ajv module compiles six schemas. Exact eight producer/consumer scripts above import only it; structural AST test requires importer set exact, no local/manual schema predicate, and validator imports none of them.
+Task16 replaces Task15 dependency-free RC placeholder validation. One Ajv module compiles seven schemas. The exact 13 producer/consumer importers above import only it; structural AST test requires that set exact, rejects local/manual schema predicates, and proves the validator imports none of them.
 
 - [ ] **Step 4: Implement fake-control acceptance flow**
 
-Exercise both service kind/names including graph refresh/result, status, actor/auth/idempotency/journal/finalizer/demotion/limits/plugin consumer/writes/policy/redaction and prior capabilities. Assert no raw data.
+Exercise both service kind/names including graph refresh/result, status, actor/auth/idempotency/journal/finalizer/demotion/limits/plugin consumer/writes/policy/redaction and prior capabilities. Implement the exact 16-row fixture/check/negative/cleanup authority shared by fake and both live OS runners; assert no raw data.
 
 - [ ] **Step 5: Implement packed-artifact install, launch, and evidence signing**
 
-Workflow canonical command is exactly `pnpm -C service release:evidence-check -- --release-candidate "${{ runner.temp }}/sfp-release-assets/release-candidate.v1.json" --artifact-root "${{ runner.temp }}/sfp-release-assets/artifacts" --windows-archive "${{ runner.temp }}/sfp-release-assets/sfp-v0.1-windows-evidence.zip" --macos-archive "${{ runner.temp }}/sfp-release-assets/sfp-v0.1-macos-evidence.zip" --closure-archive "${{ runner.temp }}/sfp-release-assets/sfp-v0.1-release-closure.zip"`. workflow-hygiene requires it and rejects asset-root alias/per-OS verify/repackage/source commit/GITHUB_SHA mismatch.
+Workflow canonical command is exactly `pnpm -C service release:evidence-check -- --release-candidate "${{ runner.temp }}/sfp-release-assets/release-candidate.v1.json" --artifact-root "${{ runner.temp }}/sfp-release-assets/artifacts" --trusted-signer-policy "${{ runner.temp }}/sfp-protected/trusted-signer-policy.v1.json" --windows-archive "${{ runner.temp }}/sfp-release-assets/sfp-v0.1-windows-evidence.zip" --macos-archive "${{ runner.temp }}/sfp-release-assets/sfp-v0.1-macos-evidence.zip" --closure-archive "${{ runner.temp }}/sfp-release-assets/sfp-v0.1-release-closure.zip"`. workflow-hygiene requires it and rejects missing/different policy, asset-root alias, per-OS verify, repackage, source commit, or GITHUB_SHA mismatch.
 
 `install-release-artifacts.mjs` validates the RC and all four downloaded assets before writing a destination. Its only installed layout is `mcp/package/**`, `cli/package/**`, `plugin/{manifest.json,dist/**,legal/capability files}`, and `release-install.json`; the checksum-verified Figma import path is therefore exactly `<dest>/plugin/manifest.json`, never the ZIP. The strict RC preflight CLI used by both OS operators is `node service/scripts/acceptance-evidence-validator.mjs --kind release-candidate --input <rc> --source-root <detached-root> --require-clean-detached-head <sourceCommit> --recompute-harness --print-sha256`. It requires detached `HEAD === sourceCommit`, no symbolic ref, empty `git status --porcelain=v1 --untracked-files=all`, exact harness path set, every harness worktree byte equal to its `git show sourceCommit:path` blob, and the recomputed manifest hash equal to the RC before any output.
+
+Before any acceptance evidence, `init-evidence-key.mjs --require-existing` validates the dedicated key store and protected policy, then `start-release-daemon.mjs` owns the installed daemon through pre-pair RED, installed CLI pair, provisioned live fixtures, matrix, signing and cleanup. `desktop-acceptance.mjs` receives exact `--operator-id`, `--operator-key-fingerprint`, `--trusted-signer-policy`, `--daemon-state`, and `--fixtures`; it writes already-Ajv-valid evidence atomically. `sign-evidence.mjs` validates the byte stream and policy again, signs those exact bytes through EvidenceKeyStore, and never rewrites evidence. Archive scripts enforce section3.13 caps and final checker re-materializes every archive beneath one evidence root.
 
 - [ ] **Step 6: Run staged source GREEN**
 
@@ -4451,7 +4678,7 @@ Run this complete copy/paste block against the staged `task-16.json` tree:
 ~~~powershell
 pnpm -C service install --lockfile-only
 pnpm -C service install --frozen-lockfile
-pnpm -C service exec vitest run test/acceptance-harness.test.ts test/evidence-schema-draft.test.ts test/evidence-validator-importers.test.ts test/external-harness-binding.test.ts test/evidence-asset-archives.test.ts test/evidence-archive-materializer.test.ts test/acceptance-live-diagnostic.test.ts test/workflow-hygiene.test.ts
+pnpm -C service exec vitest run test/release-candidate.test.ts test/acceptance-harness.test.ts test/acceptance-live-diagnostic.test.ts test/evidence-schema-draft.test.ts test/evidence-validator-importers.test.ts test/external-harness-binding.test.ts test/evidence-asset-archives.test.ts test/evidence-archive-materializer.test.ts test/trusted-signer-policy.test.ts test/evidence-key-store.test.ts test/evidence-key-store-posix.test.ts test/evidence-key-store-windows.test.ts test/release-daemon-lifecycle.test.ts test/live-fixture-provisioning.test.ts test/blocking-check-fixture-map.test.ts test/evidence-signing-immutability.test.ts test/native-command-fail-closed.test.ts test/workflow-hygiene.test.ts
 pnpm -C service typecheck
 pnpm -C service build
 node service/scripts/update-service-forks.mjs --slice 16 --index service/capabilities/change-manifests/task-16.json
@@ -4473,43 +4700,81 @@ Reviewer checks redaction, schema validation, exit propagation, partial evidence
 
 - [ ] **Step 9: Commit, then run clean post-commit GREEN and marker writer**
 
-Stage exact task16 union (no generated marker/evidence), review same tree, commit. Require clean worktree, then run `pnpm -C service verify:release`; `pnpm -C service exec vitest run test/acceptance-harness.test.ts test/evidence-schema-draft.test.ts test/acceptance-live-diagnostic.test.ts test/workflow-hygiene.test.ts`; `node service/scripts/desktop-acceptance.mjs --fake-control --release-candidate service/artifacts/release-candidate.v1.json --output service/artifacts/acceptance-harness-result.v1.json`; `node service/scripts/write-source-complete-preview.mjs --release-candidate service/artifacts/release-candidate.v1.json --harness-result service/artifacts/acceptance-harness-result.v1.json --output service/artifacts/source-complete-preview.v1.json`; `node service/scripts/acceptance-evidence-validator.mjs --kind source-complete-preview --input service/artifacts/source-complete-preview.v1.json --print-sha256`. Writer validates before atomic write, rereads, validates again, prints lowercase hash. All outputs remain ignored; final RC sourceCommit equals Task16 commit and release tag must point there.
+Stage exact task16 union (no generated marker/evidence), review same tree, commit. The protected release job first validates its external policy and exports `SFP_TRUSTED_SIGNER_POLICY`; then, from a clean Task16 commit, run `pnpm -C service verify:release` with the RC writer requiring that path/hash; `pnpm -C service exec vitest run test/release-candidate.test.ts test/acceptance-harness.test.ts test/evidence-schema-draft.test.ts test/acceptance-live-diagnostic.test.ts test/trusted-signer-policy.test.ts test/workflow-hygiene.test.ts`; `node service/scripts/desktop-acceptance.mjs --fake-control --release-candidate service/artifacts/release-candidate.v1.json --trusted-signer-policy "$env:SFP_TRUSTED_SIGNER_POLICY" --output service/artifacts/acceptance-harness-result.v1.json`; `node service/scripts/write-source-complete-preview.mjs --release-candidate service/artifacts/release-candidate.v1.json --harness-result service/artifacts/acceptance-harness-result.v1.json --output service/artifacts/source-complete-preview.v1.json`; `node service/scripts/acceptance-evidence-validator.mjs --kind source-complete-preview --input service/artifacts/source-complete-preview.v1.json --print-sha256`. On POSIX substitute `"$SFP_TRUSTED_SIGNER_POLICY"` only in the shell-specific invocation. Writer validates before atomic write, rereads, validates again, prints lowercase hash. All outputs remain ignored; final RC pins policy hash, sourceCommit equals Task16 commit, and release tag must point there.
 
 ### Task 17 — Produce detached Windows evidence for the immutable RC
 
-**Files:** No source/tracked files. The ignored external RC root contains copied `release-candidate.v1.json`, `artifacts/{manifest.json,mcp.tgz,cli.tgz,plugin.zip}`, generated `evidence/windows/{evidence.v1.json,attestation.v1.json,operator.pub.pem}`, and `sfp-v0.1-windows-evidence.zip`; detached source/install/archive-review directories and the explicit operator state root live under OS temp/user state. Raw Figma data/secrets are forbidden.
+**Files:** No source/tracked files. The ignored external RC root contains copied `release-candidate.v1.json`, `artifacts/{manifest.json,mcp.tgz,cli.tgz,plugin.zip}`, generated `evidence/windows/{evidence.v1.json,attestation.v1.json,operator.pub.pem}`, and `sfp-v0.1-windows-evidence.zip`; transient daemon/fixture state is removed before archive. Detached source/install/archive-review directories and distinct evidence-key/daemon roots live under OS temp/user state. Protected signer policy is external and never copied into the RC root. Raw Figma data/secrets are forbidden.
 
 **Interfaces:** Consume the release-draft `ReleaseCandidateV1` and its exact four assets; produce one signed Windows bundle. No repackage, verify:release, authority update, source commit or tag move.
 
 - [ ] **Step 1: Prepare exact ignored asset root and independent owner**
 
-Run this exact PowerShell block from the repository containing the immutable RC source:
+Task16 stores the reviewed orchestration as `service/scripts/windows-release-evidence.ps1`; `native-command-fail-closed.test.ts` parses that file and requires every native invocation to flow through the two wrappers below. From the repository containing the immutable RC source, invoke exactly `powershell.exe -NoProfile -ExecutionPolicy Bypass -File service/scripts/windows-release-evidence.ps1 -DownloadRoot C:\release-download -TrustedSignerPolicy $env:SFP_TRUSTED_SIGNER_POLICY_PATH`. The following four PowerShell blocks are the binding expanded phases of that script, not alternate ad-hoc commands:
 
 ~~~powershell
+param(
+  [Parameter(Mandatory)][string]$DownloadRoot,
+  [Parameter(Mandatory)][string]$TrustedSignerPolicy
+)
 $ErrorActionPreference = 'Stop'
-$download = 'C:\release-download'
+function Invoke-NativeChecked {
+  param([Parameter(Mandatory)][string]$FilePath, [Parameter(Mandatory)][string[]]$Arguments)
+  $output = @(& $FilePath @Arguments 2>&1)
+  $exitCode = $LASTEXITCODE
+  if ($exitCode -ne 0) { throw "$FilePath exited $exitCode`n$($output -join [Environment]::NewLine)" }
+  return $output
+}
+function Invoke-NativeExpectedExit {
+  param([string]$FilePath, [string[]]$Arguments, [int]$ExpectedExit)
+  $output = @(& $FilePath @Arguments 2>&1)
+  $exitCode = $LASTEXITCODE
+  if ($exitCode -ne $ExpectedExit) { throw "$FilePath exited $exitCode, expected $ExpectedExit`n$($output -join [Environment]::NewLine)" }
+  return $output
+}
+function Remove-StaleEvidenceFile {
+  param([string]$Root, [string]$RelativePath)
+  $rootFull = [IO.Path]::GetFullPath($Root).TrimEnd('\') + '\'
+  $target = [IO.Path]::GetFullPath((Join-Path $Root $RelativePath))
+  if (-not $target.StartsWith($rootFull, [StringComparison]::OrdinalIgnoreCase)) { throw 'stale-output path escaped asset root' }
+  if (Test-Path -LiteralPath $target -PathType Container) { throw "unexpected directory at file output: $target" }
+  if (Test-Path -LiteralPath $target) { Remove-Item -LiteralPath $target -Force }
+}
+$download = (Resolve-Path -LiteralPath $DownloadRoot).Path
 $rcInput = Join-Path $download 'release-candidate.v1.json'
 $rcObject = Get-Content -Raw -LiteralPath $rcInput | ConvertFrom-Json
 $sourceCommit = [string]$rcObject.sourceCommit
 if ($sourceCommit -notmatch '^[0-9a-f]{40}$') { throw 'invalid RC sourceCommit' }
 $rcHash = (Get-FileHash -Algorithm SHA256 -LiteralPath $rcInput).Hash.ToLowerInvariant()
-$repoRoot = (git rev-parse --show-toplevel).Trim()
+$repoRoot = ((Invoke-NativeChecked 'git' @('rev-parse','--show-toplevel'))[-1]).Trim()
+$policyPath = (Resolve-Path -LiteralPath $TrustedSignerPolicy).Path
 $env:SFP_RELEASE_ASSET_DIR = Join-Path $repoRoot ".release-assets\sfp-v0.1\$rcHash"
 $env:SFP_WINDOWS_OPERATOR_ID = 'sfp-windows-acceptance-owner-v1'
-$env:SFP_WINDOWS_STATE_ROOT = Join-Path ([Environment]::GetFolderPath('LocalApplicationData')) 'SFP\release-acceptance\windows-v0.1'
+$env:SFP_WINDOWS_EVIDENCE_KEY_ROOT = Join-Path ([Environment]::GetFolderPath('LocalApplicationData')) 'SFP\release-acceptance\windows-v0.1-key'
+$env:SFP_WINDOWS_DAEMON_ROOT = Join-Path ([Environment]::GetFolderPath('LocalApplicationData')) 'SFP\release-acceptance\windows-v0.1-daemon'
 $sourceRoot = Join-Path $env:TEMP "sfp-v0.1-$rcHash-windows-source"
 if (Test-Path -LiteralPath $sourceRoot) { throw "detached source already exists: $sourceRoot" }
-git worktree add --detach -- $sourceRoot $sourceCommit
-if ((git -C $sourceRoot rev-parse HEAD).Trim() -cne $sourceCommit) { throw 'detached HEAD mismatch' }
-git -C $sourceRoot symbolic-ref -q HEAD 2>$null
-if ($LASTEXITCODE -eq 0) { throw 'detached source has a symbolic ref' }
-if ((git -C $sourceRoot status --porcelain=v1 --untracked-files=all) -ne '') { throw 'detached source is dirty' }
-New-Item -ItemType Directory -Force -Path (Join-Path $env:SFP_RELEASE_ASSET_DIR 'artifacts'), (Join-Path $env:SFP_RELEASE_ASSET_DIR 'evidence\windows'), $env:SFP_WINDOWS_STATE_ROOT | Out-Null
+$null = Invoke-NativeChecked 'git' @('worktree','add','--detach','--',$sourceRoot,$sourceCommit)
+if (((Invoke-NativeChecked 'git' @('-C',$sourceRoot,'rev-parse','HEAD'))[-1]).Trim() -cne $sourceCommit) { throw 'detached HEAD mismatch' }
+$null = Invoke-NativeExpectedExit 'git' @('-C',$sourceRoot,'symbolic-ref','-q','HEAD') 1
+if (@(Invoke-NativeChecked 'git' @('-C',$sourceRoot,'status','--porcelain=v1','--untracked-files=all')).Count -ne 0) { throw 'detached source is dirty' }
+New-Item -ItemType Directory -Force -Path (Join-Path $env:SFP_RELEASE_ASSET_DIR 'artifacts'), (Join-Path $env:SFP_RELEASE_ASSET_DIR 'evidence\windows'), $env:SFP_WINDOWS_EVIDENCE_KEY_ROOT, $env:SFP_WINDOWS_DAEMON_ROOT | Out-Null
+foreach ($relative in @('evidence\windows\evidence.v1.json','evidence\windows\attestation.v1.json','evidence\windows\operator.pub.pem','evidence\windows\pre-pair-must-not-exist.json','windows-daemon-state.v1.json','windows-live-fixtures.v1.json','sfp-v0.1-windows-evidence.zip')) {
+  Remove-StaleEvidenceFile $env:SFP_RELEASE_ASSET_DIR $relative
+}
 Copy-Item -LiteralPath $rcInput -Destination (Join-Path $env:SFP_RELEASE_ASSET_DIR 'release-candidate.v1.json')
 foreach ($name in 'manifest.json','mcp.tgz','cli.tgz','plugin.zip') {
   Copy-Item -LiteralPath (Join-Path $download "artifacts\$name") -Destination (Join-Path $env:SFP_RELEASE_ASSET_DIR "artifacts\$name")
 }
 Push-Location $sourceRoot
+$nodeVersion = ((Invoke-NativeChecked 'node' @('--version'))[-1]).Trim()
+if ($nodeVersion -notmatch '^v24\.[0-9]+\.[0-9]+$') { throw "Node 24 required, got $nodeVersion" }
+$pnpmVersion = ((Invoke-NativeChecked 'corepack' @('pnpm','--version'))[-1]).Trim()
+if ($pnpmVersion -cne '11.24.0') { throw "pnpm 11.24.0 required, got $pnpmVersion" }
+$null = Invoke-NativeChecked 'corepack' @('pnpm','-C','service','install','--frozen-lockfile')
+if (((Invoke-NativeChecked 'git' @('rev-parse','HEAD'))[-1]).Trim() -cne $sourceCommit) { throw 'HEAD changed after install' }
+$null = Invoke-NativeExpectedExit 'git' @('symbolic-ref','-q','HEAD') 1
+if (@(Invoke-NativeChecked 'git' @('status','--porcelain=v1','--untracked-files=all')).Count -ne 0) { throw 'tracked source changed after install' }
 ~~~
 
 - [ ] **Step 2: Install exact RC and prove pre-pair RED**
@@ -4517,33 +4782,55 @@ Push-Location $sourceRoot
 Continue in the same PowerShell session:
 
 ~~~powershell
-node service/scripts/acceptance-evidence-validator.mjs --kind release-candidate --input "$env:SFP_RELEASE_ASSET_DIR/release-candidate.v1.json" --source-root $sourceRoot --require-clean-detached-head $sourceCommit --recompute-harness --print-sha256
-if ($LASTEXITCODE -ne 0) { throw 'RC/harness preflight failed' }
+$null = Invoke-NativeChecked 'node' @('service/scripts/acceptance-evidence-validator.mjs','--kind','release-candidate','--input',"$env:SFP_RELEASE_ASSET_DIR/release-candidate.v1.json",'--source-root',$sourceRoot,'--require-clean-detached-head',$sourceCommit,'--recompute-harness','--trusted-signer-policy',$policyPath,'--print-sha256')
 $installRoot = Join-Path $env:TEMP "sfp-v0.1-$rcHash-windows-install"
 if (Test-Path -LiteralPath $installRoot) { throw "install destination already exists: $installRoot" }
-node service/scripts/install-release-artifacts.mjs --release-candidate "$env:SFP_RELEASE_ASSET_DIR/release-candidate.v1.json" --artifact-root "$env:SFP_RELEASE_ASSET_DIR/artifacts" --dest $installRoot
-if ($LASTEXITCODE -ne 0) { throw 'artifact install failed' }
+$null = Invoke-NativeChecked 'node' @('service/scripts/install-release-artifacts.mjs','--release-candidate',"$env:SFP_RELEASE_ASSET_DIR/release-candidate.v1.json",'--artifact-root',"$env:SFP_RELEASE_ASSET_DIR/artifacts",'--dest',$installRoot)
 $pluginManifest = Join-Path $installRoot 'plugin\manifest.json'
 if (-not (Test-Path -LiteralPath $pluginManifest -PathType Leaf)) { throw 'verified plugin manifest missing' }
+$keyInit = ((Invoke-NativeChecked 'node' @('service/scripts/init-evidence-key.mjs','--require-existing','--role','windows','--operator-id',$env:SFP_WINDOWS_OPERATOR_ID,'--state-root',$env:SFP_WINDOWS_EVIDENCE_KEY_ROOT,'--trusted-signer-policy',$policyPath,'--public-key',"$env:SFP_RELEASE_ASSET_DIR/evidence/windows/operator.pub.pem")) -join "`n") | ConvertFrom-Json
+$daemonStateFile = Join-Path $env:SFP_RELEASE_ASSET_DIR 'windows-daemon-state.v1.json'
+$null = Invoke-NativeChecked 'node' @('service/scripts/start-release-daemon.mjs','--release-candidate',"$env:SFP_RELEASE_ASSET_DIR/release-candidate.v1.json",'--release-install',"$installRoot/release-install.json",'--state-root',$env:SFP_WINDOWS_DAEMON_ROOT,'--port','38456','--state-file',$daemonStateFile)
+$env:SFP_DAEMON_PORT = '38456'
+$env:SFP_DAEMON_STATE_ROOT = $env:SFP_WINDOWS_DAEMON_ROOT
 $prePairEvidence = Join-Path $env:SFP_RELEASE_ASSET_DIR 'evidence\windows\pre-pair-must-not-exist.json'
-$prePairText = (& node service/scripts/desktop-acceptance.mjs --release-candidate "$env:SFP_RELEASE_ASSET_DIR/release-candidate.v1.json" --release-install "$installRoot/release-install.json" --require-live --os windows --operator-id $env:SFP_WINDOWS_OPERATOR_ID --output $prePairEvidence 2>&1 | Out-String)
-if ($LASTEXITCODE -eq 0) { throw 'pre-pair acceptance unexpectedly succeeded' }
-$prePair = $prePairText | ConvertFrom-Json
-if ($prePair.code -cne 'PLUGIN_NOT_CONNECTED') { throw "unexpected pre-pair code: $($prePair.code)" }
-if (Test-Path -LiteralPath $prePairEvidence) { throw 'failed pre-pair run wrote evidence' }
+try {
+  $prePairText = (Invoke-NativeExpectedExit 'node' @('service/scripts/desktop-acceptance.mjs','--json','--release-candidate',"$env:SFP_RELEASE_ASSET_DIR/release-candidate.v1.json",'--release-install',"$installRoot/release-install.json",'--daemon-state',$daemonStateFile,'--require-live','--os','windows','--operator-id',$env:SFP_WINDOWS_OPERATOR_ID,'--operator-key-fingerprint',[string]$keyInit.publicKeyFingerprint,'--trusted-signer-policy',$policyPath,'--output',$prePairEvidence) 1) -join "`n"
+  $prePair = $prePairText | ConvertFrom-Json
+  if ($prePair.code -cne 'PLUGIN_NOT_CONNECTED') { throw "unexpected pre-pair code: $($prePair.code)" }
+  if (Test-Path -LiteralPath $prePairEvidence) { throw 'failed pre-pair run wrote evidence' }
+} catch {
+  $null = Invoke-NativeChecked 'node' @('service/scripts/stop-release-daemon.mjs','--state-file',$daemonStateFile)
+  throw
+}
 ~~~
 
 Any dirty/head/harness/artifact mismatch or expected pre-pair failure writes no evidence. Keep `$sourceRoot`, `$installRoot`, `$pluginManifest`, and the environment values for the next steps.
 
 - [ ] **Step 3: Pair the checksum-verified extracted plugin, run 16-ID matrix, sign and verify**
 
-In Figma Desktop, choose **Plugins → Development → Import plugin from manifest…** and select the exact checksum-verified path printed by `$pluginManifest`; do not import `plugin.zip`. Complete the plugin pairing UI using the output of `node "$installRoot/cli/package/dist/index.mjs" pair`. Then run:
+In Figma Desktop, create a new disposable editable Design draft, choose **Plugins → Development → Import plugin from manifest…**, and select the exact checksum-verified `$pluginManifest`; do not import `plugin.zip`. Continue in the same managed-daemon session:
 
 ~~~powershell
-node service/scripts/desktop-acceptance.mjs --release-candidate "$env:SFP_RELEASE_ASSET_DIR/release-candidate.v1.json" --release-install "$installRoot/release-install.json" --require-live --os windows --operator-id $env:SFP_WINDOWS_OPERATOR_ID --output "$env:SFP_RELEASE_ASSET_DIR/evidence/windows/evidence.v1.json"
-if ($LASTEXITCODE -ne 0) { throw 'Windows acceptance failed' }
-node service/scripts/sign-evidence.mjs --kind acceptance --release-candidate "$env:SFP_RELEASE_ASSET_DIR/release-candidate.v1.json" --evidence "$env:SFP_RELEASE_ASSET_DIR/evidence/windows/evidence.v1.json" --operator-id $env:SFP_WINDOWS_OPERATOR_ID --state-root $env:SFP_WINDOWS_STATE_ROOT --attestation "$env:SFP_RELEASE_ASSET_DIR/evidence/windows/attestation.v1.json" --public-key "$env:SFP_RELEASE_ASSET_DIR/evidence/windows/operator.pub.pem"
-node service/scripts/verify-evidence-signature.mjs --kind acceptance --release-candidate "$env:SFP_RELEASE_ASSET_DIR/release-candidate.v1.json" --evidence "$env:SFP_RELEASE_ASSET_DIR/evidence/windows/evidence.v1.json" --attestation "$env:SFP_RELEASE_ASSET_DIR/evidence/windows/attestation.v1.json" --public-key "$env:SFP_RELEASE_ASSET_DIR/evidence/windows/operator.pub.pem"
+$fixtureFile = Join-Path $env:SFP_RELEASE_ASSET_DIR 'windows-live-fixtures.v1.json'
+try {
+  $pairJson = (Invoke-NativeChecked 'node' @("$installRoot/cli/package/dist/index.mjs",'pair','--json')) -join "`n"
+  $pair = $pairJson | ConvertFrom-Json
+  Write-Host "Enter Pair ID $($pair.challengeId) and the one-time code in the imported plugin UI."
+  $null = Read-Host 'Press Enter only after the plugin reports authenticated'
+  $null = Invoke-NativeChecked 'node' @('service/scripts/provision-live-fixtures.mjs','--os','windows','--release-candidate',"$env:SFP_RELEASE_ASSET_DIR/release-candidate.v1.json",'--release-install',"$installRoot/release-install.json",'--daemon-state',$daemonStateFile,'--workspace-root',"$env:TEMP/sfp-v0.1-$rcHash-windows-fixture",'--output',$fixtureFile)
+  $null = Invoke-NativeChecked 'node' @('service/scripts/desktop-acceptance.mjs','--json','--release-candidate',"$env:SFP_RELEASE_ASSET_DIR/release-candidate.v1.json",'--release-install',"$installRoot/release-install.json",'--daemon-state',$daemonStateFile,'--fixtures',$fixtureFile,'--require-live','--os','windows','--operator-id',$env:SFP_WINDOWS_OPERATOR_ID,'--operator-key-fingerprint',[string]$keyInit.publicKeyFingerprint,'--trusted-signer-policy',$policyPath,'--output',"$env:SFP_RELEASE_ASSET_DIR/evidence/windows/evidence.v1.json")
+  $null = Invoke-NativeChecked 'node' @('service/scripts/cleanup-live-fixtures.mjs','--release-install',"$installRoot/release-install.json",'--daemon-state',$daemonStateFile,'--fixtures',$fixtureFile)
+  $null = Invoke-NativeChecked 'node' @('service/scripts/sign-evidence.mjs','--kind','acceptance','--release-candidate',"$env:SFP_RELEASE_ASSET_DIR/release-candidate.v1.json",'--trusted-signer-policy',$policyPath,'--evidence',"$env:SFP_RELEASE_ASSET_DIR/evidence/windows/evidence.v1.json",'--operator-id',$env:SFP_WINDOWS_OPERATOR_ID,'--operator-key-fingerprint',[string]$keyInit.publicKeyFingerprint,'--state-root',$env:SFP_WINDOWS_EVIDENCE_KEY_ROOT,'--attestation',"$env:SFP_RELEASE_ASSET_DIR/evidence/windows/attestation.v1.json",'--public-key',"$env:SFP_RELEASE_ASSET_DIR/evidence/windows/operator.pub.pem")
+  $null = Invoke-NativeChecked 'node' @('service/scripts/verify-evidence-signature.mjs','--kind','acceptance','--release-candidate',"$env:SFP_RELEASE_ASSET_DIR/release-candidate.v1.json",'--trusted-signer-policy',$policyPath,'--evidence',"$env:SFP_RELEASE_ASSET_DIR/evidence/windows/evidence.v1.json",'--attestation',"$env:SFP_RELEASE_ASSET_DIR/evidence/windows/attestation.v1.json",'--public-key',"$env:SFP_RELEASE_ASSET_DIR/evidence/windows/operator.pub.pem")
+} catch {
+  if (Test-Path -LiteralPath $fixtureFile) {
+    try { $null = Invoke-NativeChecked 'node' @('service/scripts/cleanup-live-fixtures.mjs','--release-install',"$installRoot/release-install.json",'--daemon-state',$daemonStateFile,'--fixtures',$fixtureFile) } catch { Write-Error $_ }
+  }
+  throw
+} finally {
+  $null = Invoke-NativeChecked 'node' @('service/scripts/stop-release-daemon.mjs','--state-file',$daemonStateFile)
+}
 ~~~
 
 The evidence must contain exactly the Windows 16-ID set, the exact RC/harness/artifact hashes, the explicit operator ID/key fingerprint, and no raw design data.
@@ -4553,18 +4840,20 @@ The evidence must contain exactly the Windows 16-ID set, the exact RC/harness/ar
 Continue from the detached source and upload only the uniquely named archive:
 
 ~~~powershell
-node service/scripts/package-evidence-assets.mjs --kind windows --asset-root $env:SFP_RELEASE_ASSET_DIR --release-candidate "$env:SFP_RELEASE_ASSET_DIR/release-candidate.v1.json" --output "$env:SFP_RELEASE_ASSET_DIR/sfp-v0.1-windows-evidence.zip"
+$null = Invoke-NativeChecked 'node' @('service/scripts/package-evidence-assets.mjs','--kind','windows','--asset-root',$env:SFP_RELEASE_ASSET_DIR,'--release-candidate',"$env:SFP_RELEASE_ASSET_DIR/release-candidate.v1.json",'--output',"$env:SFP_RELEASE_ASSET_DIR/sfp-v0.1-windows-evidence.zip")
 $reviewRoot = Join-Path $env:TEMP "sfp-v0.1-$rcHash-windows-archive-review"
 if (Test-Path -LiteralPath $reviewRoot) { throw "archive review destination already exists: $reviewRoot" }
-node service/scripts/materialize-evidence-archive.mjs --kind windows --archive "$env:SFP_RELEASE_ASSET_DIR/sfp-v0.1-windows-evidence.zip" --dest $reviewRoot --release-candidate "$env:SFP_RELEASE_ASSET_DIR/release-candidate.v1.json"
-if ((git -C $sourceRoot status --porcelain=v1 --untracked-files=all) -ne '') { throw 'detached source changed during evidence run' }
-gh release upload v0.1.0-rc.1 "$env:SFP_RELEASE_ASSET_DIR/sfp-v0.1-windows-evidence.zip"
+$null = Invoke-NativeChecked 'node' @('service/scripts/materialize-evidence-archive.mjs','--kind','windows','--archive',"$env:SFP_RELEASE_ASSET_DIR/sfp-v0.1-windows-evidence.zip",'--dest',$reviewRoot,'--release-candidate',"$env:SFP_RELEASE_ASSET_DIR/release-candidate.v1.json")
+if (@(Invoke-NativeChecked 'git' @('-C',$sourceRoot,'status','--porcelain=v1','--untracked-files=all')).Count -ne 0) { throw 'detached source changed during evidence run' }
+$null = Invoke-NativeChecked 'gh' @('release','upload','v0.1.0-rc.1',"$env:SFP_RELEASE_ASSET_DIR/sfp-v0.1-windows-evidence.zip")
 Pop-Location
 ~~~
 
+`native-command-fail-closed.test.ts` imports this exact PS5/PS7-compatible helper contract and injects nonzero exit at every validator/install/key/start/pre-pair/pair/provision/matrix/cleanup/sign/verify/package/materialize/status/upload boundary. It asserts `LASTEXITCODE` is checked, stale outputs were removed before start, daemon cleanup ran, and neither archive creation nor `gh release upload` occurs after an earlier failure.
+
 ### Task 18 — Produce macOS evidence and close the immutable RC
 
-**Files:** No source/tracked files. Under the same ignored RC root, the materialized Windows input is `evidence/windows/**`; generated macOS outputs are `evidence/macos/{evidence.v1.json,attestation.v1.json,operator.pub.pem}`; closure outputs are `evidence/closure/{evidence-closure.v1.json,evidence-closure.v1.sig,release-owner.pub.pem}`; unique uploads are `sfp-v0.1-macos-evidence.zip` and `sfp-v0.1-release-closure.zip`.
+**Files:** No source/tracked files. Under the same ignored RC root, the materialized Windows input is `evidence/windows/**`; generated macOS outputs are `evidence/macos/{evidence.v1.json,attestation.v1.json,operator.pub.pem}`; closure outputs are `evidence/closure/{evidence-closure.v1.json,evidence-closure.v1.sig,release-owner.pub.pem}`; transient daemon/fixture state is removed before archive; unique uploads are `sfp-v0.1-macos-evidence.zip` and `sfp-v0.1-release-closure.zip`. Protected policy and three private-key roots stay external.
 
 **Interfaces:** Consume the identical RC/artifacts and downloaded Windows bundle; produce independent macOS bundle, signed closure and final publish authorization. Release tag/source remains `ReleaseCandidateV1.sourceCommit`.
 
@@ -4579,26 +4868,38 @@ RC_INPUT="${DOWNLOAD}/release-candidate.v1.json"
 SOURCE_COMMIT="$(node -e 'const fs=require("node:fs");const x=JSON.parse(fs.readFileSync(process.argv[1],"utf8"));if(!/^[0-9a-f]{40}$/.test(x.sourceCommit))process.exit(2);process.stdout.write(x.sourceCommit)' "$RC_INPUT")"
 RC_HASH="$(shasum -a 256 "$RC_INPUT" | awk '{print $1}')"
 REPO_ROOT="$(git rev-parse --show-toplevel)"
+POLICY="${SFP_TRUSTED_SIGNER_POLICY_PATH:?protected signer policy path required}"
+test -f "$POLICY"
 export SFP_RELEASE_ASSET_DIR="${REPO_ROOT}/.release-assets/sfp-v0.1/${RC_HASH}"
 export SFP_MACOS_OPERATOR_ID='sfp-macos-acceptance-owner-v1'
-export SFP_MACOS_STATE_ROOT="${HOME}/Library/Application Support/SFP/release-acceptance/macos-v0.1"
+export SFP_MACOS_EVIDENCE_KEY_ROOT="${HOME}/Library/Application Support/SFP/release-acceptance/macos-v0.1-key"
+export SFP_MACOS_DAEMON_ROOT="${HOME}/Library/Application Support/SFP/release-acceptance/macos-v0.1-daemon"
 export SFP_RELEASE_OWNER_ID='sfp-release-closure-owner-v1'
 export SFP_RELEASE_OWNER_STATE_ROOT="${HOME}/Library/Application Support/SFP/release-acceptance/closure-v0.1"
 test "$SFP_MACOS_OPERATOR_ID" != 'sfp-windows-acceptance-owner-v1'
 test "$SFP_RELEASE_OWNER_ID" != "$SFP_MACOS_OPERATOR_ID"
 test "$SFP_RELEASE_OWNER_ID" != 'sfp-windows-acceptance-owner-v1'
-test "$SFP_RELEASE_OWNER_STATE_ROOT" != "$SFP_MACOS_STATE_ROOT"
+test "$SFP_RELEASE_OWNER_STATE_ROOT" != "$SFP_MACOS_EVIDENCE_KEY_ROOT"
+test "$SFP_MACOS_DAEMON_ROOT" != "$SFP_MACOS_EVIDENCE_KEY_ROOT"
 SOURCE_ROOT="${TMPDIR:-/tmp}/sfp-v0.1-${RC_HASH}-macos-source"
 test ! -e "$SOURCE_ROOT"
 git worktree add --detach -- "$SOURCE_ROOT" "$SOURCE_COMMIT"
 test "$(git -C "$SOURCE_ROOT" rev-parse HEAD)" = "$SOURCE_COMMIT"
 if git -C "$SOURCE_ROOT" symbolic-ref -q HEAD; then echo 'symbolic HEAD is forbidden' >&2; exit 1; fi
 test -z "$(git -C "$SOURCE_ROOT" status --porcelain=v1 --untracked-files=all)"
-mkdir -p "$SFP_RELEASE_ASSET_DIR/artifacts" "$SFP_RELEASE_ASSET_DIR/evidence/macos" "$SFP_RELEASE_ASSET_DIR/evidence/closure" "$SFP_MACOS_STATE_ROOT" "$SFP_RELEASE_OWNER_STATE_ROOT"
+mkdir -p "$SFP_RELEASE_ASSET_DIR/artifacts" "$SFP_RELEASE_ASSET_DIR/evidence/macos" "$SFP_RELEASE_ASSET_DIR/evidence/closure" "$SFP_MACOS_EVIDENCE_KEY_ROOT" "$SFP_MACOS_DAEMON_ROOT" "$SFP_RELEASE_OWNER_STATE_ROOT"
+rm -f -- "$SFP_RELEASE_ASSET_DIR/evidence/macos/evidence.v1.json" "$SFP_RELEASE_ASSET_DIR/evidence/macos/attestation.v1.json" "$SFP_RELEASE_ASSET_DIR/evidence/macos/operator.pub.pem" "$SFP_RELEASE_ASSET_DIR/evidence/macos/pre-pair-must-not-exist.json" "$SFP_RELEASE_ASSET_DIR/evidence/closure/evidence-closure.v1.json" "$SFP_RELEASE_ASSET_DIR/evidence/closure/evidence-closure.v1.sig" "$SFP_RELEASE_ASSET_DIR/evidence/closure/release-owner.pub.pem" "$SFP_RELEASE_ASSET_DIR/macos-daemon-state.v1.json" "$SFP_RELEASE_ASSET_DIR/macos-live-fixtures.v1.json" "$SFP_RELEASE_ASSET_DIR/sfp-v0.1-macos-evidence.zip" "$SFP_RELEASE_ASSET_DIR/sfp-v0.1-release-closure.zip"
 cp "$RC_INPUT" "$SFP_RELEASE_ASSET_DIR/release-candidate.v1.json"
 for name in manifest.json mcp.tgz cli.tgz plugin.zip; do cp "$DOWNLOAD/artifacts/$name" "$SFP_RELEASE_ASSET_DIR/artifacts/$name"; done
 cp "$DOWNLOAD/sfp-v0.1-windows-evidence.zip" "$SFP_RELEASE_ASSET_DIR/sfp-v0.1-windows-evidence.zip"
 cd "$SOURCE_ROOT"
+NODE_VERSION="$(node --version)"
+case "$NODE_VERSION" in v24.*.*) ;; *) echo "Node 24 required: $NODE_VERSION" >&2; exit 1;; esac
+test "$(corepack pnpm --version)" = '11.24.0'
+corepack pnpm -C service install --frozen-lockfile
+test "$(git rev-parse HEAD)" = "$SOURCE_COMMIT"
+if git symbolic-ref -q HEAD; then echo 'symbolic HEAD is forbidden' >&2; exit 1; fi
+test -z "$(git status --porcelain=v1 --untracked-files=all)"
 ~~~
 
 - [ ] **Step 2: Install, pre-pair RED, pair, run and sign macOS**
@@ -4606,16 +4907,32 @@ cd "$SOURCE_ROOT"
 Run the complete preflight/install block from that detached source:
 
 ~~~bash
-node service/scripts/acceptance-evidence-validator.mjs --kind release-candidate --input "$SFP_RELEASE_ASSET_DIR/release-candidate.v1.json" --source-root "$SOURCE_ROOT" --require-clean-detached-head "$SOURCE_COMMIT" --recompute-harness --print-sha256
-node service/scripts/materialize-evidence-archive.mjs --kind windows --archive "$SFP_RELEASE_ASSET_DIR/sfp-v0.1-windows-evidence.zip" --dest "$SFP_RELEASE_ASSET_DIR/evidence/windows" --release-candidate "$SFP_RELEASE_ASSET_DIR/release-candidate.v1.json"
+node service/scripts/acceptance-evidence-validator.mjs --kind release-candidate --input "$SFP_RELEASE_ASSET_DIR/release-candidate.v1.json" --source-root "$SOURCE_ROOT" --require-clean-detached-head "$SOURCE_COMMIT" --recompute-harness --trusted-signer-policy "$POLICY" --print-sha256
+node service/scripts/materialize-evidence-archive.mjs --kind windows --archive "$SFP_RELEASE_ASSET_DIR/sfp-v0.1-windows-evidence.zip" --dest "$SFP_RELEASE_ASSET_DIR/evidence" --release-candidate "$SFP_RELEASE_ASSET_DIR/release-candidate.v1.json"
 INSTALL_ROOT="${TMPDIR:-/tmp}/sfp-v0.1-${RC_HASH}-macos-install"
 test ! -e "$INSTALL_ROOT"
 node service/scripts/install-release-artifacts.mjs --release-candidate "$SFP_RELEASE_ASSET_DIR/release-candidate.v1.json" --artifact-root "$SFP_RELEASE_ASSET_DIR/artifacts" --dest "$INSTALL_ROOT"
 PLUGIN_MANIFEST="$INSTALL_ROOT/plugin/manifest.json"
 test -f "$PLUGIN_MANIFEST"
+KEY_INIT_JSON="$(node service/scripts/init-evidence-key.mjs --require-existing --role macos --operator-id "$SFP_MACOS_OPERATOR_ID" --state-root "$SFP_MACOS_EVIDENCE_KEY_ROOT" --trusted-signer-policy "$POLICY" --public-key "$SFP_RELEASE_ASSET_DIR/evidence/macos/operator.pub.pem")"
+KEY_FINGERPRINT="$(node -e 'const x=JSON.parse(process.argv[1]);if(!/^ed25519:[0-9a-f]{64}$/.test(x.publicKeyFingerprint))process.exit(2);process.stdout.write(x.publicKeyFingerprint)' "$KEY_INIT_JSON")"
+DAEMON_STATE="$SFP_RELEASE_ASSET_DIR/macos-daemon-state.v1.json"
+FIXTURE_FILE="$SFP_RELEASE_ASSET_DIR/macos-live-fixtures.v1.json"
+node service/scripts/start-release-daemon.mjs --release-candidate "$SFP_RELEASE_ASSET_DIR/release-candidate.v1.json" --release-install "$INSTALL_ROOT/release-install.json" --state-root "$SFP_MACOS_DAEMON_ROOT" --port 38456 --state-file "$DAEMON_STATE"
+export SFP_DAEMON_PORT=38456
+export SFP_DAEMON_STATE_ROOT="$SFP_MACOS_DAEMON_ROOT"
+cleanup_on_exit() {
+  status=$?
+  set +e
+  if test -f "$FIXTURE_FILE"; then node service/scripts/cleanup-live-fixtures.mjs --release-install "$INSTALL_ROOT/release-install.json" --daemon-state "$DAEMON_STATE" --fixtures "$FIXTURE_FILE"; fi
+  if test -f "$DAEMON_STATE"; then node service/scripts/stop-release-daemon.mjs --state-file "$DAEMON_STATE"; fi
+  trap - EXIT INT TERM
+  exit "$status"
+}
+trap cleanup_on_exit EXIT INT TERM
 PREPAIR_EVIDENCE="$SFP_RELEASE_ASSET_DIR/evidence/macos/pre-pair-must-not-exist.json"
 set +e
-PREPAIR_TEXT="$(node service/scripts/desktop-acceptance.mjs --release-candidate "$SFP_RELEASE_ASSET_DIR/release-candidate.v1.json" --release-install "$INSTALL_ROOT/release-install.json" --require-live --os macos --operator-id "$SFP_MACOS_OPERATOR_ID" --output "$PREPAIR_EVIDENCE" 2>&1)"
+PREPAIR_TEXT="$(node service/scripts/desktop-acceptance.mjs --json --release-candidate "$SFP_RELEASE_ASSET_DIR/release-candidate.v1.json" --release-install "$INSTALL_ROOT/release-install.json" --daemon-state "$DAEMON_STATE" --require-live --os macos --operator-id "$SFP_MACOS_OPERATOR_ID" --operator-key-fingerprint "$KEY_FINGERPRINT" --trusted-signer-policy "$POLICY" --output "$PREPAIR_EVIDENCE" 2>&1)"
 PREPAIR_STATUS=$?
 set -e
 test "$PREPAIR_STATUS" -ne 0
@@ -4623,12 +4940,16 @@ node -e 'const x=JSON.parse(process.argv[1]);if(x.code!=="PLUGIN_NOT_CONNECTED")
 test ! -e "$PREPAIR_EVIDENCE"
 ~~~
 
-In Figma Desktop import exactly `$PLUGIN_MANIFEST`, never the ZIP, and complete the plugin pairing UI with `node "$INSTALL_ROOT/cli/package/dist/index.mjs" pair`. Then run:
+In Figma Desktop create a new disposable editable Design draft and import exactly `$PLUGIN_MANIFEST`, never the ZIP. Run `PAIR_JSON="$(node "$INSTALL_ROOT/cli/package/dist/index.mjs" pair --json)"`, enter its Pair ID/one-time code in the plugin UI, and continue only after authenticated. Then run:
 
 ~~~bash
-node service/scripts/desktop-acceptance.mjs --release-candidate "$SFP_RELEASE_ASSET_DIR/release-candidate.v1.json" --release-install "$INSTALL_ROOT/release-install.json" --require-live --os macos --operator-id "$SFP_MACOS_OPERATOR_ID" --output "$SFP_RELEASE_ASSET_DIR/evidence/macos/evidence.v1.json"
-node service/scripts/sign-evidence.mjs --kind acceptance --release-candidate "$SFP_RELEASE_ASSET_DIR/release-candidate.v1.json" --evidence "$SFP_RELEASE_ASSET_DIR/evidence/macos/evidence.v1.json" --operator-id "$SFP_MACOS_OPERATOR_ID" --state-root "$SFP_MACOS_STATE_ROOT" --attestation "$SFP_RELEASE_ASSET_DIR/evidence/macos/attestation.v1.json" --public-key "$SFP_RELEASE_ASSET_DIR/evidence/macos/operator.pub.pem"
-node service/scripts/verify-evidence-signature.mjs --kind acceptance --release-candidate "$SFP_RELEASE_ASSET_DIR/release-candidate.v1.json" --evidence "$SFP_RELEASE_ASSET_DIR/evidence/macos/evidence.v1.json" --attestation "$SFP_RELEASE_ASSET_DIR/evidence/macos/attestation.v1.json" --public-key "$SFP_RELEASE_ASSET_DIR/evidence/macos/operator.pub.pem"
+node service/scripts/provision-live-fixtures.mjs --os macos --release-candidate "$SFP_RELEASE_ASSET_DIR/release-candidate.v1.json" --release-install "$INSTALL_ROOT/release-install.json" --daemon-state "$DAEMON_STATE" --workspace-root "${TMPDIR:-/tmp}/sfp-v0.1-${RC_HASH}-macos-fixture" --output "$FIXTURE_FILE"
+node service/scripts/desktop-acceptance.mjs --json --release-candidate "$SFP_RELEASE_ASSET_DIR/release-candidate.v1.json" --release-install "$INSTALL_ROOT/release-install.json" --daemon-state "$DAEMON_STATE" --fixtures "$FIXTURE_FILE" --require-live --os macos --operator-id "$SFP_MACOS_OPERATOR_ID" --operator-key-fingerprint "$KEY_FINGERPRINT" --trusted-signer-policy "$POLICY" --output "$SFP_RELEASE_ASSET_DIR/evidence/macos/evidence.v1.json"
+node service/scripts/cleanup-live-fixtures.mjs --release-install "$INSTALL_ROOT/release-install.json" --daemon-state "$DAEMON_STATE" --fixtures "$FIXTURE_FILE"
+node service/scripts/sign-evidence.mjs --kind acceptance --release-candidate "$SFP_RELEASE_ASSET_DIR/release-candidate.v1.json" --trusted-signer-policy "$POLICY" --evidence "$SFP_RELEASE_ASSET_DIR/evidence/macos/evidence.v1.json" --operator-id "$SFP_MACOS_OPERATOR_ID" --operator-key-fingerprint "$KEY_FINGERPRINT" --state-root "$SFP_MACOS_EVIDENCE_KEY_ROOT" --attestation "$SFP_RELEASE_ASSET_DIR/evidence/macos/attestation.v1.json" --public-key "$SFP_RELEASE_ASSET_DIR/evidence/macos/operator.pub.pem"
+node service/scripts/verify-evidence-signature.mjs --kind acceptance --release-candidate "$SFP_RELEASE_ASSET_DIR/release-candidate.v1.json" --trusted-signer-policy "$POLICY" --evidence "$SFP_RELEASE_ASSET_DIR/evidence/macos/evidence.v1.json" --attestation "$SFP_RELEASE_ASSET_DIR/evidence/macos/attestation.v1.json" --public-key "$SFP_RELEASE_ASSET_DIR/evidence/macos/operator.pub.pem"
+node service/scripts/stop-release-daemon.mjs --state-file "$DAEMON_STATE"
+trap - EXIT INT TERM
 ~~~
 
 Any dirty/head/harness/archive/artifact mismatch or expected pre-pair failure emits no evidence.
@@ -4639,11 +4960,13 @@ Run this exact block. The closure signer has its own explicit state root and mus
 
 ~~~bash
 node service/scripts/package-evidence-assets.mjs --kind macos --asset-root "$SFP_RELEASE_ASSET_DIR" --release-candidate "$SFP_RELEASE_ASSET_DIR/release-candidate.v1.json" --output "$SFP_RELEASE_ASSET_DIR/sfp-v0.1-macos-evidence.zip"
-node service/scripts/write-evidence-closure.mjs --release-candidate "$SFP_RELEASE_ASSET_DIR/release-candidate.v1.json" --artifact-root "$SFP_RELEASE_ASSET_DIR/artifacts" --windows-archive "$SFP_RELEASE_ASSET_DIR/sfp-v0.1-windows-evidence.zip" --macos-archive "$SFP_RELEASE_ASSET_DIR/sfp-v0.1-macos-evidence.zip" --operator-id "$SFP_RELEASE_OWNER_ID" --output "$SFP_RELEASE_ASSET_DIR/evidence/closure/evidence-closure.v1.json"
-node service/scripts/sign-evidence.mjs --kind closure --release-candidate "$SFP_RELEASE_ASSET_DIR/release-candidate.v1.json" --evidence "$SFP_RELEASE_ASSET_DIR/evidence/closure/evidence-closure.v1.json" --operator-id "$SFP_RELEASE_OWNER_ID" --state-root "$SFP_RELEASE_OWNER_STATE_ROOT" --attestation "$SFP_RELEASE_ASSET_DIR/evidence/closure/evidence-closure.v1.sig" --public-key "$SFP_RELEASE_ASSET_DIR/evidence/closure/release-owner.pub.pem"
-node service/scripts/verify-evidence-signature.mjs --kind closure --release-candidate "$SFP_RELEASE_ASSET_DIR/release-candidate.v1.json" --evidence "$SFP_RELEASE_ASSET_DIR/evidence/closure/evidence-closure.v1.json" --attestation "$SFP_RELEASE_ASSET_DIR/evidence/closure/evidence-closure.v1.sig" --public-key "$SFP_RELEASE_ASSET_DIR/evidence/closure/release-owner.pub.pem"
+CLOSURE_KEY_JSON="$(node service/scripts/init-evidence-key.mjs --require-existing --role closure --operator-id "$SFP_RELEASE_OWNER_ID" --state-root "$SFP_RELEASE_OWNER_STATE_ROOT" --trusted-signer-policy "$POLICY" --public-key "$SFP_RELEASE_ASSET_DIR/evidence/closure/release-owner.pub.pem")"
+CLOSURE_FINGERPRINT="$(node -e 'const x=JSON.parse(process.argv[1]);if(!/^ed25519:[0-9a-f]{64}$/.test(x.publicKeyFingerprint))process.exit(2);process.stdout.write(x.publicKeyFingerprint)' "$CLOSURE_KEY_JSON")"
+node service/scripts/write-evidence-closure.mjs --release-candidate "$SFP_RELEASE_ASSET_DIR/release-candidate.v1.json" --artifact-root "$SFP_RELEASE_ASSET_DIR/artifacts" --trusted-signer-policy "$POLICY" --evidence-root "$SFP_RELEASE_ASSET_DIR/evidence" --windows-archive "$SFP_RELEASE_ASSET_DIR/sfp-v0.1-windows-evidence.zip" --macos-archive "$SFP_RELEASE_ASSET_DIR/sfp-v0.1-macos-evidence.zip" --operator-id "$SFP_RELEASE_OWNER_ID" --operator-key-fingerprint "$CLOSURE_FINGERPRINT" --output "$SFP_RELEASE_ASSET_DIR/evidence/closure/evidence-closure.v1.json"
+node service/scripts/sign-evidence.mjs --kind closure --release-candidate "$SFP_RELEASE_ASSET_DIR/release-candidate.v1.json" --trusted-signer-policy "$POLICY" --evidence "$SFP_RELEASE_ASSET_DIR/evidence/closure/evidence-closure.v1.json" --operator-id "$SFP_RELEASE_OWNER_ID" --operator-key-fingerprint "$CLOSURE_FINGERPRINT" --state-root "$SFP_RELEASE_OWNER_STATE_ROOT" --attestation "$SFP_RELEASE_ASSET_DIR/evidence/closure/evidence-closure.v1.sig" --public-key "$SFP_RELEASE_ASSET_DIR/evidence/closure/release-owner.pub.pem"
+node service/scripts/verify-evidence-signature.mjs --kind closure --release-candidate "$SFP_RELEASE_ASSET_DIR/release-candidate.v1.json" --trusted-signer-policy "$POLICY" --evidence "$SFP_RELEASE_ASSET_DIR/evidence/closure/evidence-closure.v1.json" --attestation "$SFP_RELEASE_ASSET_DIR/evidence/closure/evidence-closure.v1.sig" --public-key "$SFP_RELEASE_ASSET_DIR/evidence/closure/release-owner.pub.pem"
 node service/scripts/package-evidence-assets.mjs --kind closure --asset-root "$SFP_RELEASE_ASSET_DIR" --release-candidate "$SFP_RELEASE_ASSET_DIR/release-candidate.v1.json" --output "$SFP_RELEASE_ASSET_DIR/sfp-v0.1-release-closure.zip"
-pnpm -C service release:evidence-check -- --release-candidate "$SFP_RELEASE_ASSET_DIR/release-candidate.v1.json" --artifact-root "$SFP_RELEASE_ASSET_DIR/artifacts" --windows-archive "$SFP_RELEASE_ASSET_DIR/sfp-v0.1-windows-evidence.zip" --macos-archive "$SFP_RELEASE_ASSET_DIR/sfp-v0.1-macos-evidence.zip" --closure-archive "$SFP_RELEASE_ASSET_DIR/sfp-v0.1-release-closure.zip"
+pnpm -C service release:evidence-check -- --release-candidate "$SFP_RELEASE_ASSET_DIR/release-candidate.v1.json" --artifact-root "$SFP_RELEASE_ASSET_DIR/artifacts" --trusted-signer-policy "$POLICY" --windows-archive "$SFP_RELEASE_ASSET_DIR/sfp-v0.1-windows-evidence.zip" --macos-archive "$SFP_RELEASE_ASSET_DIR/sfp-v0.1-macos-evidence.zip" --closure-archive "$SFP_RELEASE_ASSET_DIR/sfp-v0.1-release-closure.zip"
 test -z "$(git -C "$SOURCE_ROOT" status --porcelain=v1 --untracked-files=all)"
 gh release upload v0.1.0-rc.1 "$SFP_RELEASE_ASSET_DIR/sfp-v0.1-macos-evidence.zip" "$SFP_RELEASE_ASSET_DIR/sfp-v0.1-release-closure.zip"
 ~~~
@@ -4652,23 +4975,30 @@ The final checker materializes all three archives itself, validates exact intern
 
 - [ ] **Step 4: Publish same RC and prove source unchanged**
 
-The protected workflow downloads the exact four RC assets and three uniquely named evidence ZIPs under `${{ runner.temp }}/sfp-release-assets`, checks out `ReleaseCandidateV1.sourceCommit` detached, and runs this preflight before the final checker:
+The protected workflow downloads the exact four RC assets and three uniquely named evidence ZIPs under `${{ runner.temp }}/sfp-release-assets`, materializes `trusted-signer-policy.v1.json` only from the protected release environment into `${{ runner.temp }}/sfp-protected` with no artifact fallback, checks out `ReleaseCandidateV1.sourceCommit` detached, and runs this preflight before the final checker:
 
 ~~~bash
 set -euo pipefail
 RC="${{ runner.temp }}/sfp-release-assets/release-candidate.v1.json"
+POLICY="${{ runner.temp }}/sfp-protected/trusted-signer-policy.v1.json"
 SOURCE_COMMIT="$(node -e 'const fs=require("node:fs");const x=JSON.parse(fs.readFileSync(process.argv[1],"utf8"));if(!/^[0-9a-f]{40}$/.test(x.sourceCommit))process.exit(2);process.stdout.write(x.sourceCommit)' "$RC")"
 test "$GITHUB_SHA" = "$SOURCE_COMMIT"
 test "$(git rev-parse HEAD)" = "$SOURCE_COMMIT"
 if git symbolic-ref -q HEAD; then echo 'symbolic HEAD is forbidden' >&2; exit 1; fi
 test -z "$(git status --porcelain=v1 --untracked-files=all)"
-node service/scripts/acceptance-evidence-validator.mjs --kind release-candidate --input "$RC" --source-root "$(git rev-parse --show-toplevel)" --require-clean-detached-head "$SOURCE_COMMIT" --recompute-harness --print-sha256
+case "$(node --version)" in v24.*.*) ;; *) exit 1;; esac
+test "$(corepack pnpm --version)" = '11.24.0'
+corepack pnpm -C service install --frozen-lockfile
+test "$(git rev-parse HEAD)" = "$SOURCE_COMMIT"
+if git symbolic-ref -q HEAD; then exit 1; fi
+test -z "$(git status --porcelain=v1 --untracked-files=all)"
+node service/scripts/acceptance-evidence-validator.mjs --kind release-candidate --input "$RC" --source-root "$(git rev-parse --show-toplevel)" --require-clean-detached-head "$SOURCE_COMMIT" --recompute-harness --trusted-signer-policy "$POLICY" --print-sha256
 ~~~
 
 It then invokes exactly:
 
 ~~~bash
-pnpm -C service release:evidence-check -- --release-candidate "${{ runner.temp }}/sfp-release-assets/release-candidate.v1.json" --artifact-root "${{ runner.temp }}/sfp-release-assets/artifacts" --windows-archive "${{ runner.temp }}/sfp-release-assets/sfp-v0.1-windows-evidence.zip" --macos-archive "${{ runner.temp }}/sfp-release-assets/sfp-v0.1-macos-evidence.zip" --closure-archive "${{ runner.temp }}/sfp-release-assets/sfp-v0.1-release-closure.zip"
+pnpm -C service release:evidence-check -- --release-candidate "${{ runner.temp }}/sfp-release-assets/release-candidate.v1.json" --artifact-root "${{ runner.temp }}/sfp-release-assets/artifacts" --trusted-signer-policy "${{ runner.temp }}/sfp-protected/trusted-signer-policy.v1.json" --windows-archive "${{ runner.temp }}/sfp-release-assets/sfp-v0.1-windows-evidence.zip" --macos-archive "${{ runner.temp }}/sfp-release-assets/sfp-v0.1-macos-evidence.zip" --closure-archive "${{ runner.temp }}/sfp-release-assets/sfp-v0.1-release-closure.zip"
 ~~~
 
 Only then may it publish `v0.1.0` at the same source commit. It does not repackage, move the tag source, mutate the worktree, or write managed evidence paths.
@@ -4697,9 +5027,9 @@ Only then may it publish `v0.1.0` at the same source commit. It does not repacka
 - All tools and Task11 service2 enter one plane; followers consume only final Task6.1 plaintext stream facade; route classes cannot cross-call.
 - Strict lower-snake tool and exact dotted service-name parsers feed one kind/name registry+journal; both service literals and invalid dot/slash/case/length/cross-kind fixtures pass. Requests produce native pre-admission rejection or accepted/progress/exactly-one-terminal with no Relay/runtime bypass.
 - Task9A real plugin and Task15 packed plugin consume Task7 progress/cancel schemas; Task9C consumes strict bound approval prompt/decision with duplicate/reconnect/late cleanup and no control token. Task7 fakes alone are insufficient.
-- Built daemon↔plugin approval E2E and packed consumer cover both branches/core cases. Internal identity.bootstrap is system kind only, initial no-fileKey hello remains unstable/read-only, approved dispatcher mutation has one undo and Relay remaps only on authenticated re-hello; tool/service counts unchanged.
+- Built daemon↔plugin approval E2E and packed ZIP consumer cover both branches/core cases. The packed identity.bootstrap flow proves initial no-fileKey unstable/read-only, reject runtime/undo0, approve one shared-data UUID write/one undo, forced authenticated rehello before Relay remap, and crash-unknown reconnect discovery with no rerun/control token; tool/service counts remain unchanged.
 - Internal-system auth1 is daemon HMAC-bound to paired session+leader generation, owner actor unchanged; plugin/body cannot forge it and foreign/reconnect audit tests pass.
-- Strict OperationOriginV1 persists only derived auth, paired-session hash, generations and system name through journal/tombstone/resolution/audit.
+- Strict OperationOriginV1 enforces top-level/origin auth equality and system iff identity.bootstrap, hashes paired session/target, matches admitted generations, stores no raw target/session, persists through journal/tombstone/resolution/audit, and makes settled system operations non-replayable.
 - SnapshotV1/GroundingGraphV1 use strict locator/full-identity/node/edge/evidence schemas, separate injected ports/refs/checksums/content hashes and atomic loadByLocator/CAS refresh; service2 remains exact and grounding refresh is selector-none locator-only.
 - 10k graph isolated three-run memory gate is max heap delta128MiB and serialized32MiB.
 - Snapshot/graph validate wire hash then digest path; design-diff additionally domain-hashes exact raw nodeId, embeds/reverifies raw ID+digest, rejects collision/traversal. Valid wire hashes succeed on Windows.
@@ -4714,6 +5044,7 @@ Only then may it publish `v0.1.0` at the same source commit. It does not repacka
 - Task6.1 outer response records independently authenticate seq/final/truncated+ciphertext with exact 16+16 overhead, 4096 records, 64MiB plaintext/cipher and 67,239,936 complete cap; Task7 never parses them.
 - One owner key derives one stable actor for MCP leader/follower/control. A 128-bit MCP session exists before role choice and its auth1 HMAC survives role transitions; control auth1 changes on rotation; no raw credential is an ID. Cancel requires origin auth session; owner-admin control may list/status/resolve across same-owner domains and records origin/resolver; foreign stateRoot fails.
 - Unix owner modes and Windows current-user DACL are verified; insecure stateRoot startup fails closed.
+- EvidenceKeyStore independently enforces POSIX 0700/0600 or Windows current-user+SYSTEM-only protected ACLs, rejects links/reparse points/concurrent replacement, and never exports private key bytes.
 - Workspace addResolved queues identity validation→nonce CAS→exact record atomically; every await swap leaves nonce/config/effects untouched, and later access revalidates root identity. Default/binding rules remain.
 - Nonce caps/lifecycle remain; registration never reinterprets caller path after CAS.
 - Null Origin alone never authenticates a plugin. Foreign product/2xx never becomes leader. Unknown role never forwards args.
@@ -4741,15 +5072,16 @@ Only then may it publish `v0.1.0` at the same source commit. It does not repacka
 ### Quality and Release
 
 - Frozen install, typecheck, lint, format check, knip, build, unit, integration, process E2E, artifact, and docs-sync tests pass on Ubuntu and Windows CI.
-- Edited upstream paths become protected semantic service forks before copy-only with lineage/no-overwrite verification; only byte-unchanged rows retain vendor mode. serviceFiles/packageAuthorities refresh by subtype.
-- Fork lineage originCommit/base/mode matches prior row; election.ts/77 handlers cannot be overwritten by generator.
+- Edited upstream paths become protected strict edit/move/delete service-fork lineages before copy-only; exact exclude/serviceOwned/A-M/D/D+A/hash/no-blob rules and no-overwrite verification pass, while only byte-unchanged rows retain vendor mode. serviceFiles/packageAuthorities refresh by subtype.
+- Fork lineage originCommit/base/mode matches the prior row; election.ts/77 handlers, repo-walk moves and deleted paths cannot be overwritten/recreated by generator.
 - Built-dist E2E cannot silently skip in CI/release.
 - Ordinary artifact exclusions live in Vitest config; separate artifact config runs exact two post-package tests; Windows cmd script process test passes with no POSIX quotes.
 - verify:release uses Vitest-config exclusions, packages once, writes immutable RC pin from clean commit/epoch/hashes, then artifact tests/verifier. Evidence never repackages.
 - MCP bundle contains shared+IR and CLI bundle contains shared; packed manifests have no workspace/private runtime dependency, and each tarball installs alone in an empty prefix/cache and runs its installed bin/tool smoke.
 - Plugin ZIP has exact isolated manifest/dist/legal/capability paths, deterministic hash/timestamps and unpacked VM+happy-dom consumer execution; source tests cannot substitute.
-- RC/evidence/attestation/closure/preview schemas share strict Ajv; preview output ignored; closure verifies distinct OS operators/keys and same RC.
-- GA evidence launches checksum-verified installed tarball bins plus the exact plugin ZIP, binds `/ping` build identity to artifact hashes, and verifies detached owner Ed25519 signatures.
+- RC/evidence/attestation/closure/preview/trusted-policy schemas share strict Ajv; preview output ignored; RC pins protected signer-policy hash and closure requires exact authorized pairwise-distinct OS/closure IDs+fingerprints, not archive self-assertion.
+- GA evidence initializes policy-matched dedicated Ed25519 key stores, launches a managed checksum-verified installed daemon plus exact plugin ZIP, binds frozen `/ping` product/build to verified RC install metadata, provisions/cleans semantic live fixtures, and signs byte-identical validated evidence.
+- Detached Windows/macOS/final jobs require Node24, corepack pnpm11.24.0, frozen install, and unchanged detached RC Git/harness bytes before Ajv; daemon stop/cleanup runs on every failure.
 - Three upstream MIT notices, service license, pdf-lib notice, THIRD_PARTY_NOTICES, PROVENANCE, SBOM, and capability ledgers are present in every applicable artifact.
 - Solar CC BY assets and raw exec symbols are absent.
 - Offline upstream verification passes without original checkouts; parent-workspace verification confirms all three original repos remain clean at pinned commits.
@@ -4764,8 +5096,9 @@ Only then may it publish `v0.1.0` at the same source commit. It does not repacka
 
 ### GA Release Evidence
 
-- External evidence is three uniquely named deterministic ZIPs with exact internal paths; closure uses distinct third owner. Final check binds both16, RC source/artifacts/manifest/harness hash, archive hashes and signatures; no source evidence commit.
-- Final workflow and Task18 use the same explicit five-flag evidence-check CLI from clean detached RC source; harness Git-blob hash/GITHUB_SHA mismatch fails before evidence.
+- External evidence is three uniquely named deterministic ZIPs with exactly three ASCII regular entries each. Bounded yauzl materialization rejects ZIP64/encryption/duplicates/links/traversal/name-size-CRC mismatch and preserves one top-level kind under the evidence root; closure uses a distinct protected third owner. Final check binds both16, RC source/artifacts/manifest/harness/policy hashes, archive hashes and signatures; no source evidence commit.
+- Final workflow and Task18 use the same explicit six-flag evidence-check CLI (RC, artifact root, protected policy, three archives) from clean detached RC source; policy/harness Git-blob/GITHUB_SHA mismatch fails before evidence.
+- The shared live-fixture authority maps every Windows/macOS 16-ID check to a synthetic input, positive assertion, required negative and cleanup owner; exact-FQDN HTTPS image hash input is protected and no raw fixture content enters evidence.
 - Missing external evidence blocks release; source preview remains truthful.
 
 ---
@@ -5061,7 +5394,7 @@ Commit `0a668859709bcd9ae79705f5919d4fb73c48c08a` and plan SHA `494b0de2ba76c49d
 | 2 TREE_7A | Complete base+missing11+fork schema/updater/verifier/tests union is explicit and closed. |
 | 3 CLI | Task13 adds direct tsdown devDependency/package/lock/build authority. |
 | 4 approval | Frozen entry×target matrix and wrong-channel tests bind plugin vs owner-control branches. |
-| 5 Ajv | Task16 replaces Task15 placeholder; exact importer set uses one six-schema validator with AST test. |
+| 5 Ajv | Superseded/extended by R11: Task16 uses one seven-schema validator and exact 13-importer AST authority. |
 | 6 harness | RC harnessManifestHash uses sourceCommit Git blobs/node/lock; clean detached head and canonical argv bind evidence. |
 | 7 assets | Three uniquely named deterministic evidence archives replace loose colliding outputs; workflow materializer verifies contents/hashes. |
 | 8 closure owner | Third explicit operator/state/key and closure attestation are pairwise distinct and enforced. |
@@ -5081,13 +5414,13 @@ Commit `eec92771062e9ddef87a3bb9431dc2b13169d40f` and plan SHA `88facdc2b97b9111
 | 1 | election.ts edited copy now serviceFork before copy-only; stale copy claim removed. |
 | 2 | updater-before-copy/lineage tests apply to every 7A–16 slice with slice manifest. |
 | 3 | strict raw-free OperationOriginV1 persists internal system auth/session-hash/generations/name through journal/replay/audit. |
-| 4 | Ajv structural authority expects exact eight importers and rejects local validators. |
-| 5 | One canonical final evidence CLI uses explicit RC/artifact/three archive flags; no asset-root alias. |
-| 6 | deterministic packager+materializer paths/tests join harness manifest and reject unsafe archives. |
+| 4 | Superseded/extended by R11: Ajv structural authority expects exact 13 importers and rejects local validators. |
+| 5 | Superseded/extended by R11: canonical final evidence CLI adds the protected signer-policy flag to RC/artifact/three archives. |
+| 6 | Superseded/extended by R11: deterministic packager+bounded materializer plus all harness scripts/tests join harness manifest. |
 | 7 | Windows runs all scripts in clean detached RC worktree, exact operator/state, plugin manifest, sign/archive/upload. |
-| 8 | macOS materializes exact Windows ZIP, uses distinct operator; third closure owner signs unique archive. |
+| 8 | Extended by R11: macOS materializes exact Windows ZIP and all three distinct operators must match protected policy before signing/publish. |
 | 9 | Workflow detached RC checkout rejects GITHUB_SHA mismatch and invokes canonical check. |
-| 10 | Handoff targets R10 committed SHA; brief post READY only. |
+| 10 | Superseded by the R11 exact commit/SHA handoff; brief remains post-READY only. |
 | 11 | Fork lineage includes exact originCommit and prior-row match. |
 | 12 | CLI direct tsdown+publint dependencies/build gates exact. |
 | 13 | Task9C/11 GREEN blocks include full tests/build/type/authority/updater/verifier surfaces. |
@@ -5095,10 +5428,35 @@ Commit `eec92771062e9ddef87a3bb9431dc2b13169d40f` and plan SHA `88facdc2b97b9111
 | 15 | Task16 workflow/materializer/packager exact paths included in harness hash. |
 | 16 | R10 ledger/DoD supersedes stale R9 wording. |
 
+### 2026-08-28 R11 signer, daemon, fixture, and fork-lifecycle amendment
+
+Commit `46b15a1395073500da5dd58a9d50e0290ed4f64d` and plan SHA `5d6fad0f96b743bd43d8489741e7135b5a01558ac94242b8b2860aac37deaa44` received NOT READY R10 rereviews and are superseded for Task7 onward. The frozen Task6.1 base/contract and all prior non-conflicting rulings remain unchanged.
+
+| R11 item | Binding resolution |
+|---|---|
+| 1 service-fork lifecycle | `ServiceForkLineageV1` is a strict edit/move/delete union with unique destination identities, exact A/M/D/D+A hashes, exclude/serviceOwned rules, deleted no-blob and generator no-recreation tests including repo-walk and 77 handlers. |
+| 2 trusted signer policy | External protected `TrustedSignerPolicyV1` pins exact three IDs/fingerprints; RC/evidence/closure bind policyHash and final checker rejects a self-consistent attacker three-key closure. |
+| 3 key initialization | `init-evidence-key.mjs` enroll/require-existing flow precedes acceptance; evidence receives trusted fingerprint before generation and signing cannot mutate its validated bytes. |
+| 4 key permissions | Dedicated EvidenceKeyStore enforces POSIX 0700/0600 or Windows current-user+SYSTEM ACL, link/reparse/concurrency/atomic rules and private-key non-export. |
+| 5 detached dependencies | Both OS and final workflow require Node24, corepack pnpm11.24.0, frozen install, then repeat detached HEAD/status/Git-blob harness validation before Ajv. |
+| 6 managed daemon | Exact start/stop scripts own verified installed MCP, port38456, hidden Windows/process group, state/PID/readiness/build, pre-pair through matrix, and unconditional bounded cleanup. |
+| 7 system origin | Cross-field auth/kind/name/session/generation/target hashes are strict/raw-free; identity.bootstrap is non-replayable after dispatch/settlement and full origin mismatch conflicts. |
+| 8 9C gate | Literal 9C GREEN adds MCP/plugin builds+typechecks, root typecheck and full frozen Task6.1 security suite. |
+| 9 Task11 paths | File map/Task11 manifest/GREEN enumerate seven IR sources, six pure tests, memory pair, five snapshot sources, two endpoints and nine snapshot tests with no directory rows. |
+| 10 CLI ledger | Strict hash-bound CommandModuleLedger maps every command/alias once while allowing shared module/tests and rejects unreferenced/extraneous files. |
+| 11 Windows fail-closed | PS5/PS7 native wrappers check every exit, stale final outputs are removed exactly, injected failures always stop daemon and block archive/upload. |
+| 12 archive safety | Each unique archive has exact three ASCII kind paths; bounded yauzl streaming rejects ZIP64/encryption/duplicates/links/traversal/size/CRC and materializes beneath one evidence root. |
+| 13 Task16 GREEN | Release-candidate, archive, policy, key, daemon, fixture, signing and native-failure tests plus all exact scripts/tests are staged and harness-hashed. |
+| 14 packed bootstrap | Task15 built consumer proves no-fileKey reject/approve UUID, one undo, forced rehello, crash-unknown reconnect and no control token. |
+| 15 live fixtures | Protected URL/hash inputs and disposable workspace/Figma draft fixtures map every 16-ID check to positive/negative/cleanup with cross-OS semantic parity and raw-free evidence. |
+| 16 final commands | R10 unique ZIPs remain; every signer/final command adds protected policy and dedicated secure key roots. |
+| 17 retained paths | Task8 scan, Task9 registry, Task10 read-tools, Task13 dependencies and all earlier exact path/authority rulings remain. |
+| 18 ledger/handoff | This R11 ledger, companion checksum and resulting docs commit become the sole fresh READY rereview target; no Task7 brief is regenerated beforehand. |
+
 No prior Critical/Important finding is rejected. The only alternative scope resolution remains the explicit exact-FQDN/no-suffix v0.1 policy; no unsupported remote bypass or new rate scope was added.
 
 ---
 
 ## 11. Execution Handoff
 
-Commit this R10 plan/checksum docs-only and record the resulting exact commit+plan SHA as the sole review target. No Task7/brief until READY. Post-READY brief records R10 SHA, frozen Task6.1 hash and original 7A/B/C subjects. Tasks17/18 remain external/no-source.
+Commit this R11 plan/checksum docs-only and record the resulting exact commit+plan SHA as the sole review target. No Task7/brief until READY. Post-READY brief records R11 plan/commit SHA, frozen Task6.1 hash and original 7A/B/C subjects. Tasks17/18 remain external/no-source.
