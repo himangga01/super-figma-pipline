@@ -1,6 +1,6 @@
 # eCommerce Figma Service Validation Implementation Plan
 
-> **For agentic workers:** REQUIRED SUB-SKILLS: `figma-design-to-code`, `chrome:control-chrome`, `sites-building`, `sites-hosting`, conditionally `computer-use`; exactly one image-only subagent if social art is missing. Run only after R22 READY and Tasks1-16 source-complete; main remains sole Site editor and never invokes ImageGen directly.
+> **For agentic workers:** REQUIRED SUB-SKILLS: `figma-design-to-code`, `chrome:control-chrome`, `sites-building`, `sites-hosting`, conditionally `computer-use`; exactly one image-only subagent only if needed. Run after R23 READY and Tasks1-16 source-complete; main remains sole Site editor.
 
 **Goal:** Use the completed Super Figma Pipeline service, not direct browser imitation, to understand the supplied Figma Community file, implement a faithful page in `validation/ecommerce-figma-site/`, and prove the service-to-code-to-browser loop.
 
@@ -32,7 +32,7 @@
 
 ## Source-complete Service Gate - Execute inside V1 after the clean scaffold commit
 
-- Tasks1-16 are implemented/reviewed at the source-complete commit and R21 is READY. Only after V1 clean commit run one source-complete command; never mix runs.
+- Tasks1-16 are implemented/reviewed at the source-complete commit and R23 is READY. Only after V1 clean commit run one source-complete command; never mix runs.
 - Immediately strict-validate the same run's exact three documents with `node service/scripts/source-complete-validator.mjs --candidate service/artifacts/preview-candidate.v1.json --evidence service/artifacts/source-complete-evidence.v1.json --marker service/artifacts/source-complete-preview.v1.json`. Require exactly those candidate/evidence/marker files, their three content-hash domains, marker file-byte hashes, and all sourceCommit/harness/artifact cross-field equalities.
 - Hash the same run's `service/artifacts/artifact-manifest.v1.json` and `service/artifacts/SHA256SUMS`. Require those byte hashes to equal `PreviewCandidateV1.artifactManifestSha256`/`artifactChecksumsSha256`; require `service/artifacts/mcp.tgz`, `service/artifacts/cli.tgz`, and `service/artifacts/plugin.zip` byte hashes to agree across both metadata files, the candidate artifact tuple, and `SourceCompleteEvidenceV1.artifacts`. Any mismatch invalidates the whole run.
 - Install only those same-run final artifacts during this gate: install `service/artifacts/mcp.tgz` and `service/artifacts/cli.tgz` into fresh ignored prefixes/caches under `.sfp/validation-runtime/`, and checksum-verify/extract `service/artifacts/plugin.zip`. Do not start a daemon, invoke CLI control, import the plugin, or bind port3055 until V3.
@@ -46,15 +46,19 @@ Create `validation/ecommerce-figma-site/service-evidence.schema.json`, `service-
 - `WireSha256`: exact `^sha256:[0-9a-f]{64}$`, used only for service/journal `resultHash`, configHash, and other wire-domain hashes.
 - `RelativeArtifactPath`: normalized `/`-separated path beneath an explicit root, with no empty/dot/dot-dot segment, backslash, drive/UNC prefix, leading slash, NUL, or symlink escape.
 
-Top-level phase discriminates pre/final. Both bind strict `daemonRun {pid,startedAt,generationHash,buildId,packedMcpDigest}`. Operations require completedAt>=startedAt, same generation/build/current packed client and exact status/receipt/finalizer. Egress records audit transaction/records/hashes; no secret.
+Top-level phase discriminates pre/final. Both bind strict `daemonRun {pid,startedAt,generationHash,buildId,buildIdentityHash,packedMcpDigest}`. Operations require completedAt>=startedAt, same generation/build/current packed client and exact status/receipt/finalizer. Egress records audit transaction/records/hashes; no secret.
+
+`generationHash=sha256('sfp-daemon-generation-v1\0'+exact UTF-8 /ping leaderGeneration)` with fixed vector tests; every receipt must match it.
+
+Final top-level also strictly requires chromeActions, sections, assets, inferences, license `{creator,listingUrl,termsUrl,checkedAt,notes}`, builds and tests with exact command/status/digest fields; unknown keys reject.
 
 `serviceOperations` is strict and binds unique operationId, kind/name, argsHash, workspaceId, fileExecutionKeyHash/targetBindingHash, succeeded, result/finalizer/receipt/generation, completedAt and packedClientDigest. Every field must match live status+receipt and current daemonRun; unrelated targets/old operations fail.
 
-Each operation separately records nullable `resultArtifact` (capture only) and `nativeEvidence`. Sections reference resultArtifact; assets reference members of native export arrays. Capture may coexist with export. No overlapping read-result/export-asset discriminator exists.
+Only `terminalStatus:'succeeded' && captureResult:true` permits nonnull resultArtifact; failed capture is null. Native evidence remains orthogonal and may coexist on succeeded export.
 
-Strict `negativeChecks` covers pre-runtime rejected/expired/duplicate attempts with runtime0 and null receipt. Finalized failed operations belong serviceOperations with a receipt and native no-artifact reason.
+`negativeChecks` is a strict union: fresh pre-runtime rejection/expiry records current client/time, opId, rejected status/error, dispatch0/runtime0/receipt null; same-ID conflict/replay records no new runtime/receipt and unchanged existing receiptHash; approval duplicate and nonce duplicate are distinct variants. Finalized failed operations instead live serviceOperations with failed receipt/no-artifact.
 
-- `resultArtifact`: nonnull only for capture=true, regardless actual tool kind; section references require strict canonical schema/node/frame proof.
+- `resultArtifact`: nonnull iff terminal succeeded and capture=true; failed/rejected/unknown are null. Section references require strict canonical schema/node/frame proof.
 - `snapshot`: snapshot.capture exact locator/id/ref/checksum/fidelity/path/digest.
 - `grounding-graph`: grounding.refresh exact graph locator/path/digest/checksum/fidelity.
 - Native `export`: save_screenshots/save_image_fills/export_pdf/export_video/export_frames_to_pdf and export_tokens only with outPath; nonempty sorted artifact array. Other operations use native no-artifact.
@@ -117,7 +121,7 @@ After V7 reset, final validates each AdminAudit transaction order `pending -> ca
 - [ ] Capture context/SnapshotV1 recursively. Every section-referenced read requires `--capture-result` and nonnull receipt artifact.
 - [ ] Require complete-leaf evidence for every section to implement. Partial fidelity is allowed only for named out-of-scope UI-kit nodes; omitted in-scope content blocks implementation.
 - [ ] Build GroundingGraphV1 and record its exact repo-relative artifact path/hash. If the source-complete service lacks a production graph interface, stop with a capability-negative blocker.
-- [ ] Use exact generic calls for screenshot/save/map/token/icon/export. Reads use `--capture-result`; exports use validated tool output args and sorted multi-artifact receipts. Verify target/args/result/finalizer/generation and bytes/digests.
+- [ ] Every accepted export call also sets `--capture-result`; captured strict result source-node/path mapping must equal native export artifact members. Verify target/args/result/finalizer/generation and every digest.
 
 ### Task V4: Build the first service-grounded slice and preview
 
@@ -165,13 +169,14 @@ After V7 reset, final validates each AdminAudit transaction order `pending -> ca
 
 **Interfaces:** validates the recorded service trace while the one retained daemon is alive, resets and verifies fail-closed egress state, stops that exact child, and produces reproducible service acceptance evidence plus private deployment.
 
-- [ ] If project_id absent call create_site and persist; otherwise reuse it and call `create_source_repository_write_credential`. Keep credential memory-only. Complete final edits/tests/build/scan.
-- [ ] Compute `validatedSiteSourceManifestHash` from UTF-8-sorted `git ls-files` limited to package manifests/lock, src, public, app/config and `.openai/hosting.json`/migrations, excluding VALIDATION/service-evidence/validator/provenance. Hash `<path>\0<sha256>\n`; finalize evidence, commit, require clean HEAD. Any product change returns to V6/V7.
-- [ ] Reset egress with durable audit+unknown status, set reset-verified and `validationPhase:'final'`, then run final validator against clean HEAD/product manifest while daemon remains alive.
+- [ ] If project_id absent call create_site and persist; retry only temporary/slug conflict, while quota/permission/access is terminal. Reuse a valid credential; call `create_source_repository_write_credential` only when absent/expired. Keep memory-only. Complete final edits/tests/build/scan.
+- [ ] Stage all final product inputs and compute `validatedSiteSourceManifestHash` from staged Git blob bytes over all tracked build inputs except exact evidence-only exclusions.
+- [ ] Reset egress/audit/unknown, set reset-verified and `validationPhase:'final'`, write evidence, run tests and final validator while daemon alive.
+- [ ] Stage/commit final tracked tree, require clean HEAD and recompute the same manifest from HEAD blobs. Rerun identical final validator; assert no tracked bytes changed before/after. Any change returns to V6/V7.
 - [ ] Close clients/plugin/daemon and null handles; guard keeps Sites dev child until deploy.
 - [ ] Push exact validated HEAD using per-command header; require remote branch head equals HEAD.
-- [ ] Write ignored site-build provenance, package-site tar.gz, safely compare extracted dist/hosting/migrations to current validated inputs and scan bytes.
-- [ ] Save one version with commit_sha/archive. `get_site` must show role owner, `access_policy.access_mode:'custom'`, exactly one `allowed_account_user_ids` equal current account, external_visitor_count0, and no workspace/tenant group IDs. Then private deploy/poll/open. Ambiguous/shared uses request_user_input approval then deploy_site_version; `site_not_owner_only` never retries private deployment.
+- [ ] Run exact root-level current plugin `scripts/package-site.sh <project> <archive>`. Before extract reject absolute, `..`, backslash, symlink, hardlink and device members; compare extracted bytes to current dist/hosting/migrations. Ignored provenance binds HEAD/productManifest/dist/hosting/migrations/archive/member hashes.
+- [ ] Save one version. Require `current_user_role=owner`, `access_policy.access_mode:'custom'`, exactly one current-user ID, external0 and no group IDs. Ambiguous/shared uses request_user_input including `Not now`; `site_not_owner_only` never retries private deploy.
 
 ## Verification Checklist
 
