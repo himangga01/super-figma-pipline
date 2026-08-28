@@ -1059,15 +1059,26 @@ describe('opaque authenticated follower stream', () => {
     await expect(iterator.next()).rejects.toMatchObject({ code: 'FOLLOWER_RESPONSE_TRUNCATED' });
   });
 
-  it.each([false, true])(
-    'never accepts an in-flight final when an overlapping %s write breaches the sink',
-    async secondFinal => {
+  it.each(['non-final', 'final', 'truncate', 'oversize', 'empty', 'multiple'] as const)(
+    'aborts an in-flight final before a concurrent %s operation can validate or defer',
+    async operation => {
       let responseRef: ServerResponse | undefined;
       let firstWrite = true;
+      let destroyCalls = 0;
+      let operationOutcomes: PromiseSettledResult<void>[] = [];
+      let operationsStarted!: () => void;
+      let operationsSettled!: () => void;
+      const started = new Promise<void>(resolve => {
+        operationsStarted = resolve;
+      });
+      const settled = new Promise<void>(resolve => {
+        operationsSettled = resolve;
+      });
       const { transport } = await startHarness({
         configureResponse: response => {
           responseRef = response;
           const write = response.write.bind(response);
+          const destroy = response.destroy.bind(response);
           response.write = ((chunk: Uint8Array) => {
             const result = write(chunk);
             if (firstWrite) {
@@ -1076,12 +1087,34 @@ describe('opaque authenticated follower stream', () => {
             }
             return result;
           }) as typeof response.write;
+          response.destroy = ((error?: Error) => {
+            destroyCalls += 1;
+            return destroy(error);
+          }) as typeof response.destroy;
         },
         handler: async (_request, response) => {
-          await Promise.all([
-            response.write(Buffer.from('must-not-be-accepted'), { final: true }),
-            response.write(Buffer.from('overlap'), { final: secondFinal }),
-          ]);
+          const first = response.write(Buffer.from('must-not-be-accepted'), { final: true });
+          const offenders: Promise<void>[] = [];
+          if (operation === 'non-final') {
+            offenders.push(response.write(Buffer.from('overlap'), { final: false }));
+          } else if (operation === 'final') {
+            offenders.push(response.write(Buffer.from('overlap'), { final: true }));
+          } else if (operation === 'truncate') {
+            offenders.push(response.truncate());
+          } else if (operation === 'oversize') {
+            offenders.push(
+              response.write({ byteLength: FOLLOWER_RESPONSE_RECORD_MAX_BYTES + 1 } as Uint8Array, {
+                final: true,
+              }),
+            );
+          } else if (operation === 'empty') {
+            offenders.push(response.write(Buffer.alloc(0), { final: false }));
+          } else {
+            offenders.push(response.truncate(), response.write(Buffer.alloc(0), { final: false }));
+          }
+          operationsStarted();
+          operationOutcomes = await Promise.allSettled([first, ...offenders]);
+          operationsSettled();
         },
       });
       const yielded: unknown[] = [];
@@ -1099,12 +1132,46 @@ describe('opaque authenticated follower stream', () => {
         () => ({ ok: true as const }),
         error => ({ ok: false as const, error }),
       );
-      await new Promise(resolve => setTimeout(resolve, 10));
+      await started;
+      const settledPromptly = await Promise.race([
+        settled.then(() => true),
+        new Promise<boolean>(resolve => setTimeout(() => resolve(false), 250)),
+      ]);
       responseRef?.emit('drain');
+      await settled;
+      expect(settledPromptly).toBe(true);
+      expect(operationOutcomes.every(outcome => outcome.status === 'rejected')).toBe(true);
       await expect(reading).resolves.toMatchObject({ ok: false, error: expect.any(Error) });
       expect(yielded).toEqual([]);
+      expect(destroyCalls).toBe(1);
     },
   );
+
+  it('does not destroy a clean terminal for post-resolution sink calls', async () => {
+    let destroyCalls = 0;
+    let lateOutcomes: PromiseSettledResult<void>[] = [];
+    const { transport } = await startHarness({
+      configureResponse: response => {
+        const destroy = response.destroy.bind(response);
+        response.destroy = ((error?: Error) => {
+          destroyCalls += 1;
+          return destroy(error);
+        }) as typeof response.destroy;
+      },
+      handler: async (_request, response) => {
+        await response.write(Buffer.from('terminal'), { final: true });
+        lateOutcomes = await Promise.allSettled([
+          response.write(Buffer.from('late'), { final: true }),
+          response.truncate(),
+        ]);
+      },
+    });
+    await expect(collect(await openEcho(transport))).resolves.toEqual([
+      { sequence: 0, final: true, plaintext: Buffer.from('terminal') },
+    ]);
+    expect(lateOutcomes.map(outcome => outcome.status)).toEqual(['rejected', 'fulfilled']);
+    expect(destroyCalls).toBe(0);
+  });
 
   it.each(['final', 'truncate'] as const)(
     'settles a late %s promptly after the client cancels the subscription',

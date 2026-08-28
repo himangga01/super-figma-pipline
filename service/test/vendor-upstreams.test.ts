@@ -465,6 +465,16 @@ describe('protected service authorities', () => {
         ),
     },
     {
+      name: 'Task 6.1 literal control root authority',
+      path: 'packages/mcp/src/election/control-route-registry.ts',
+      mutate: contents => contents.replace("prefix === '/control'", "prefix === '/control/task7'"),
+    },
+    {
+      name: 'Task 6.1 final entry breach authority',
+      path: 'packages/mcp/src/security/follower-transport.ts',
+      mutate: contents => contents.replace('if (!writing || !inFlightFinal) return;', 'return;'),
+    },
+    {
       name: 'Task 6 one-use follower challenge authority',
       path: 'packages/mcp/src/security/follower-auth.ts',
       mutate: contents => contents.replace('followerChallenges.delete(nonce)', '// replay allowed'),

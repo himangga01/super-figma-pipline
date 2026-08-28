@@ -24,8 +24,7 @@ interface RegisteredControlRoute {
   handler: ControlRouteHandler;
 }
 
-const validPrefix = (prefix: string): boolean =>
-  /^\/control\/[A-Za-z0-9][A-Za-z0-9_-]*(?:\/[A-Za-z0-9][A-Za-z0-9_-]*)*$/.test(prefix);
+const validPrefix = (prefix: string): boolean => prefix === '/control';
 
 const matchesPrefix = (url: string | undefined, prefix: string): boolean =>
   url === prefix || url?.startsWith(`${prefix}/`) === true;

@@ -65,8 +65,8 @@ const start = async (routes: ControlRouteRegistry): Promise<number> => {
 };
 
 describe('ControlRouteRegistry', () => {
-  it('rejects invalid, duplicate, overlapping, and post-freeze registration', () => {
-    for (const prefix of ['/rpc', '/control', '/control/', '/control/x?query=1', '/control/x/']) {
+  it('accepts only one literal /control registration and rejects duplicates after freeze', () => {
+    for (const prefix of ['/rpc', '/control/', '/control/task7', '/control?query=1', '/controlx']) {
       const registry = new ControlRouteRegistry();
       expect(() => registry.register(prefix, async () => true)).toThrowError(
         expect.objectContaining<Partial<ControlRouteRegistryError>>({
@@ -76,48 +76,67 @@ describe('ControlRouteRegistry', () => {
     }
 
     const registry = new ControlRouteRegistry();
-    registry.register('/control/task7', async () => true);
-    for (const prefix of ['/control/task7', '/control/task7/child', '/control/other']) {
-      expect(() => registry.register(prefix, async () => true)).toThrowError(
-        expect.objectContaining<Partial<ControlRouteRegistryError>>({
-          code: 'CONTROL_ROUTE_DUPLICATE',
-        }),
-      );
-    }
+    expect(() => registry.register('/control', async () => true)).not.toThrow();
+    expect(() => registry.register('/control', async () => true)).toThrowError(
+      expect.objectContaining<Partial<ControlRouteRegistryError>>({
+        code: 'CONTROL_ROUTE_DUPLICATE',
+      }),
+    );
     registry.freeze();
-    expect(() => registry.register('/control/late', async () => true)).toThrowError(
+    expect(() => registry.register('/control', async () => true)).toThrowError(
       expect.objectContaining<Partial<ControlRouteRegistryError>>({ code: 'CONTROL_ROUTE_FROZEN' }),
     );
   });
 
-  it('freezes before listener attach and invokes the matching async handler exactly once', async () => {
+  it('routes the /control root and every sibling through one frozen handler exactly once', async () => {
     const routes = new ControlRouteRegistry();
     let calls = 0;
-    routes.register('/control/task7', async (_req, res) => {
+    routes.register('/control', async (req, res) => {
       calls += 1;
       await new Promise(resolve => setImmediate(resolve));
+      if (req.url === '/control/unknown') return false;
       res.writeHead(200, { 'content-type': 'application/json' });
-      res.end(JSON.stringify({ ok: true }));
+      res.end(JSON.stringify({ route: req.url }));
       return true;
     });
     const port = await start(routes);
-    expect(() => routes.register('/control/late', async () => true)).toThrowError(
+    expect(() => routes.register('/control', async () => true)).toThrowError(
       expect.objectContaining({ code: 'CONTROL_ROUTE_FROZEN' }),
     );
 
-    const response = await fetch(`http://127.0.0.1:${port}/control/task7/status`);
-    expect(response.status).toBe(200);
-    expect(await response.json()).toEqual({ ok: true });
-    expect(response.headers.get('access-control-allow-origin')).toBeNull();
-    expect(calls).toBe(1);
+    const siblingUrls = [
+      '/control',
+      '/control/status',
+      '/control/tools/call',
+      '/control/workspaces',
+      '/control/operations/op-1',
+      '/control/network/fetch',
+      '/control/snapshots',
+    ];
+    for (const url of siblingUrls) {
+      // eslint-disable-next-line no-await-in-loop -- each route response proves exact-once ownership
+      const response = await fetch(`http://127.0.0.1:${port}${url}`);
+      expect(response.status).toBe(200);
+      // eslint-disable-next-line no-await-in-loop -- consume each response before the next request
+      expect(await response.json()).toEqual({ route: url });
+      expect(response.headers.get('access-control-allow-origin')).toBeNull();
+    }
+    expect(calls).toBe(siblingUrls.length);
 
-    const unknown = await fetch(`http://127.0.0.1:${port}/control/other`, {
+    const unknown = await fetch(`http://127.0.0.1:${port}/control/unknown`, {
       method: 'POST',
       body: 'unread',
     });
     expect(unknown.status).toBe(404);
     expect(unknown.headers.get('connection')).toBe('close');
-    expect(calls).toBe(1);
+    expect(calls).toBe(siblingUrls.length + 1);
+
+    for (const url of ['/control?query=1', '/controlx']) {
+      // eslint-disable-next-line no-await-in-loop -- negative path checks are independent requests
+      const response = await fetch(`http://127.0.0.1:${port}${url}`);
+      expect(response.status).toBe(404);
+    }
+    expect(calls).toBe(siblingUrls.length + 1);
   });
 
   it.each([
@@ -125,7 +144,7 @@ describe('ControlRouteRegistry', () => {
     ['returns true without sending headers', false, true],
   ] as const)('fails closed when a handler %s', async (_case, sendHeaders, result) => {
     const routes = new ControlRouteRegistry();
-    routes.register('/control/task7', async (_req, res) => {
+    routes.register('/control', async (_req, res) => {
       if (sendHeaders) {
         res.writeHead(200, { 'content-type': 'text/plain' });
         res.write('partial');

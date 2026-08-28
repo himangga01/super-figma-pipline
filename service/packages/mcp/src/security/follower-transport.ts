@@ -617,6 +617,15 @@ const createResponseSink = (
   let inFlightFinal = false;
   let truncateRequested = false;
 
+  const rejectFinalOverlap = (): void => {
+    if (!writing || !inFlightFinal) return;
+    if (!terminal) {
+      terminal = true;
+      res.destroy();
+    }
+    throw new FollowerTransportError('FOLLOWER_RESPONSE_INVALID');
+  };
+
   const emit = async (plaintext: Buffer, final: boolean, truncated: boolean): Promise<void> => {
     if (terminal) throw new FollowerTransportError('FOLLOWER_RESPONSE_INVALID');
     if (writing) {
@@ -652,6 +661,7 @@ const createResponseSink = (
   };
 
   const truncate = async (): Promise<void> => {
+    rejectFinalOverlap();
     if (terminal) return;
     if (writing) {
       truncateRequested = true;
@@ -662,6 +672,7 @@ const createResponseSink = (
 
   const sink: FollowerResponseSink = Object.freeze({
     write: async (value: Uint8Array, options: { final: boolean }) => {
+      rejectFinalOverlap();
       const byteLength = value.byteLength;
       if (
         byteLength > FOLLOWER_RESPONSE_RECORD_MAX_BYTES ||
