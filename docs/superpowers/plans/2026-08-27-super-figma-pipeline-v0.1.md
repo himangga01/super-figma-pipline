@@ -41,8 +41,8 @@
 - Every service-mutating subcommit from 7A through 16 regenerates and stages `vendor-rules.json`, `vendor-map.json`, and `upstream-lock.json`, passes offline closed-world verification, and receives spec/quality review of the same `git write-tree` before its exact commit.
 - URL import keeps the public typed `url` argument but fetches only in the daemon. The plugin receives validated bytes and has no external wildcard domain or `createImageAsync(url)` path. Owner-managed allowed domains live under stateRoot and change only through authenticated control/CLI; one-call approval never expands them.
 - Three upstream MIT notices, service license, `pdf-lib` notice, dependency SBOM, provenance, and checksums are present in actual npm/plugin artifacts. figmosha Solar CC BY assets are not copied.
-- Tasks 1–16 are the complete authorized objective: a source-complete local service, deterministic local artifacts, automated fake acceptance, and typed non-destructive current-Windows co-presence diagnostic. Their truthful terminal status is `implementationStatus:'source-complete-preview'`, `releaseStatus:'blocked-external-evidence'`.
-- This source plan creates no release, upload, signer enrollment, signed evidence, two-OS evidence bundle, closure, publish authorization, or GA claim. Tasks 17–18 are non-dispatchable external placeholders only; a separately approved future GA runbook must define and execute that ceremony. Their absence does not block Task7–16 implementation, plan READY, or source-complete status.
+- Tasks 1–16 are the complete authorized objective: a source-complete local service, deterministic local artifacts, automated typed-fake checks, and a non-destructive current-Windows co-presence diagnostic. Their truthful terminal status is `implementationStatus:'source-complete-preview'`, `externalValidationStatus:'not-run'`.
+- This source plan creates no upload, signer enrollment, signed attestation, cross-OS bundle, publication authority, or public-availability claim. Tasks 17–18 are non-dispatchable external-validation placeholders only; a separately approved future supplemental plan must define any such validation. Their absence does not block Task7–16 implementation, plan READY, or source-complete status.
 - Official MCP/REST limits are documentation-time external facts. No specific call-rate number is compiled into source, tests, config, or docs.
 
 ---
@@ -69,7 +69,7 @@ The full product later adds source AST patching, deterministic code→Figma adap
 - Section-assembled `SnapshotV1`, `GroundingGraphV1`, control-only capture endpoint.
 - CLI doctor/pair/status/compat/workspace/approval/snapshot/export and typed figmosha wrappers.
 - Updated skills, official build-vs-buy document, source CI, SBOM/checksum artifact gates.
-- Automated fake acceptance harness plus typed non-destructive current-Windows daemon/plugin co-presence diagnostic; unsigned source-complete marker only.
+- Automated typed-fake source checks plus a non-destructive current-Windows daemon/plugin co-presence diagnostic; unsigned source-complete marker only.
 
 ### 1.3 Explicitly Deferred
 
@@ -80,7 +80,7 @@ The full product later adds source AST patching, deterministic code→Figma adap
 - Dev Mode write and view-only bypass.
 - Raw Plugin API script execution.
 - SQLite; v0.1 stores versioned JSON/JSONL with checksum and atomic replacement.
-- Destructive or mutating final real-Figma validation; it requires a separate supplemental acceptance plan, dedicated validation folder and explicit user scope.
+- Destructive or mutating final real-Figma validation; it requires a separate supplemental validation plan, dedicated validation folder, and explicit user scope.
 
 Existing typed writes still permit agent-orchestrated code/spec→Figma work, but v0.1 is not marketed as a deterministic reverse compiler.
 
@@ -91,10 +91,10 @@ Existing typed writes still permit agent-orchestrated code/spec→Figma work, bu
 | A — reproducible baseline | 1–3 | runnable workspace, 112/105/7 parity, two-layer capability authority |
 | B — secure execution plane | 4–9 | state/workspace roots, policy, pairing, executor, safe fs/network, paired plugin |
 | C — grounding and safe union | 10–12 | corrected grounding, section snapshot, atomic 116/106/10 union |
-| D — UX and source-complete preview | 13–16 | CLI, docs, local artifacts, fake acceptance and current-Windows diagnostic |
-| E — external GA placeholder | 17–18 | no dispatched work; future separately approved GA runbook required |
+| D — UX and source-complete preview | 13–16 | CLI, docs, local artifacts, typed-fake source checks, and current-Windows diagnostic |
+| E — external validation placeholder | 17–18 | no dispatched work; a separately approved supplemental plan is required |
 
-The initial estimate remains 8–12 weeks for two experienced TypeScript/plugin engineers, recalibrated after Task 2 parity and Task 6 live pairing spike. Each milestone is a review checkpoint; no later milestone compensates for a failed earlier hard gate.
+The initial estimate remains 8–12 weeks for two experienced TypeScript/plugin engineers, recalibrated after Task2 parity and the Task6 authenticated-pairing spike. Each milestone is a review checkpoint; no later milestone compensates for a failed earlier hard gate.
 
 ---
 
@@ -133,11 +133,11 @@ Use a standalone Figwright vendor fork under `service/`. Do not run the three or
 }
 ~~~
 
-The vendoring script expands this into `service/vendor-map.json`, one row per copied/merged/reference file with mode, origin commit, source path, destination or null, base SHA-256, current SHA-256 where applicable, and license ID. Copy mode materializes only source/test/protocol/UI/skill trees. Every root/package/lock/build/test config and plugin manifest is Task 1 service authority; upstream equivalents are reference-only hashes and are never copied over it. Manifest merge preserves Task 1 names, five-package workspace, scripts, bin/files/exports, Node/pnpm pins, and `ir`/CLI packages; it merges dependency/devDependency keys deterministically after rewriting package dependency names. Upstream `postinstall` and release scripts are explicitly dropped because skills are copied directly and no `.claude` mirror is produced. The service lock is regenerated with `pnpm install --lockfile-only`, then frozen install is tested.
+The vendoring script expands this into `service/vendor-map.json`, one row per copied/merged/reference file with mode, origin commit, source path, destination or null, base SHA-256, current SHA-256 where applicable, and license ID. Copy mode materializes only source/test/protocol/UI/skill trees. Every root/package/lock/build/test config and plugin manifest is Task 1 service authority; upstream equivalents are reference-only hashes and are never copied over it. Manifest merge preserves Task 1 names, five-package workspace, scripts, bin/files/exports, Node/pnpm pins, and `ir`/CLI packages; it merges dependency/devDependency keys deterministically after rewriting package dependency names. Upstream `postinstall` and distribution scripts are explicitly dropped because skills are copied directly and no `.claude` mirror is produced. The service lock is regenerated with `pnpm install --lockfile-only`, then frozen install is tested.
 
 Runtime module specifier rewriting and verification are AST-based. `verify-runtime-specifiers.mjs` visits TypeScript/JavaScript import/export declarations, import types, dynamic `import()`, and `require()` literals plus package dependency fields; only specifiers beginning `@figwright/` fail. Protocol tags `@figwright/bridge` and `@figwright/panel`, comments, user guidance, and provenance are permitted and tracked in `vendor-allowed-figwright-strings.json`; they are not runtime package imports and are not blindly rewritten.
 
-`verify-upstream-lock.mjs --offline` checks only service-contained hashes/schema/licenses. `--with-upstreams ../code-kb` additionally checks pinned commits, source hashes, and clean original worktrees. Release artifacts use offline mode and never require `code-kb`.
+`verify-upstream-lock.mjs --offline` checks only service-contained hashes/schema/licenses. `--with-upstreams ../code-kb` additionally checks pinned commits, source hashes, and clean original worktrees. Local packed artifacts use offline mode and never require `code-kb`.
 
 ### 2.3 Source Attribution
 
@@ -844,9 +844,11 @@ One `ExecutionPlane` singleton is constructed only while the node owns one leade
 
 Only daemon derives internal-system principal after authenticated paired session: same owner actor; authSessionId=`auth1_`+base64url HMAC(ownerKey, `sfp-auth-session-v1\0system\0identity.bootstrap\0<pairedSession>\0<leaderGeneration>`). Plugin cannot submit ActorContext/entryPath. Journal records internal origin, paired session hash and generation; reconnect derives new generation-bound auth, cannot cancel/replay old; foreign stateRoot fails.
 
-Shared operations/journal schemas strict-parse `OperationOriginV1` before append and after every load. `pairedSessionHash` is `sha256:` plus SHA-256 of `sfp-paired-session-v1\0` and exact UTF-8 paired session ID. `targetSessionIdHash` uses `sfp-target-session-v1\0` plus exact UTF-8 session ID. `fileIdentityHash` is exactly Task7 shared `canonicalFileIdentityHash(FileIdentity)`. `fileExecutionKeyHash` uses `sfp-file-execution-key-v1\0` plus exact UTF-8 key. The canonical target object has fields in exact order `{targetSessionIdHash,fileIdentityHash,fileExecutionKeyHash,pluginGeneration,leaderGeneration}`; `targetBindingHash` is SHA-256 of `sfp-target-binding-v1\0` plus its canonical JSON bytes. At append, current admitted leader/plugin generations must equal stored nonsecret generations. At restart load, validation checks only stored discriminator equality, component formulas and target hash—never equality to the new current generation. Top-level `originAuthSessionId===origin.authSessionId`; entry origins require `pluginGeneration:null`; internal records require top-level `pluginGeneration===origin.pluginGeneration`, system kind iff identity.bootstrap, and `fileExecutionKey:null`. No raw paired session, file key, target, principal, prompt, UUID or args enter journal bytes.
+Shared operations/journal schemas strict-parse `OperationOriginV1` before append and after every load. The internal-system admission builder receives the authenticated source values and, before append, derives and verifies `pairedSessionHash` as `sha256:` plus SHA-256 of `sfp-paired-session-v1\0` and exact UTF-8 paired session ID, `targetSessionIdHash` under `sfp-target-session-v1\0`, `fileIdentityHash` via Task7 shared `canonicalFileIdentityHash(FileIdentity)`, and `fileExecutionKeyHash` under `sfp-file-execution-key-v1\0`. The persisted canonical target object has fields in exact order `{targetSessionIdHash,fileIdentityHash,fileExecutionKeyHash,pluginGeneration,leaderGeneration}`; `targetBindingHash` is SHA-256 of `sfp-target-binding-v1\0` plus its canonical JSON bytes. Append requires the admitted current leader/plugin generations to equal the stored nonsecret generations and rejects any source-to-component mismatch before journal bytes are written.
 
-`identity.bootstrap` is non-replayable: an exact concurrent duplicate with the full canonical origin fingerprint may share only the in-flight promise; after dispatched or settled, every same-ID call returns sanitized status/`OPERATION_ALREADY_SETTLED` and never a cached result or second runtime call. Any auth/session hash, generation, target hash, kind, name, args, actor, or workspace mismatch is `OPERATION_ID_CONFLICT`. Tombstone, resolution, reconnect, status, and audit copy the full strict origin unchanged. Task9C exact schema surface is `service/packages/shared/src/operations.ts`, `service/packages/mcp/src/execution/operation-journal.ts`, `service/packages/mcp/src/execution/operation-resolution-intent.ts`, `service/packages/mcp/test/execution/operation-journal.test.ts`, `service/packages/mcp/test/e2e/internal-system-principal.test.ts`, and `service/packages/mcp/test/e2e/identity-bootstrap.test.ts`; append/load/tombstone/resolution tests cover exact formula vectors, key order/domain separation, equality/iff refinements, raw-field rejection, first settlement, reconnect, foreign root, and every mismatch. Plugin body identity fields reject before journal.
+Restart/load has no raw component source values and therefore never pretends to recompute the four component hashes. It strict-validates their `^sha256:[0-9a-f]{64}$` syntax, discriminator/cross-record equalities and stored generation syntax, then recomputes only `targetBindingHash` from the stored component hashes plus stored generations; it never compares those stored generations with the new process generation. Top-level `originAuthSessionId===origin.authSessionId`; entry origins require `pluginGeneration:null`; internal records require top-level `pluginGeneration===origin.pluginGeneration`, system kind iff `identity.bootstrap`, and top-level `fileExecutionKey:null`. The raw-free guarantee is scoped to `internal-system` origin: no raw paired session ID, target session ID, FileIdentity, file execution key, principal, prompt, UUID, or args enters that origin or its audit copy. Ordinary entry `OperationRecord`, `OperationTombstone`, and `OperationResolutionRecord` may retain their nonsecret `workspaceId` and immutable `fileExecutionKey` exactly as required by the replay/conflict contract; they still never retain raw args/results/credentials.
+
+`identity.bootstrap` is non-replayable: an exact concurrent duplicate with the full canonical origin fingerprint may share only the in-flight promise; after dispatched or settled, every same-ID call returns sanitized status/`OPERATION_ALREADY_SETTLED` and never a cached result or second runtime call. Any auth/session hash, generation, target hash, kind, name, args, actor, or workspace mismatch is `OPERATION_ID_CONFLICT`. Tombstone, resolution, reconnect, status, and audit copy the full strict origin unchanged. Task9C exact schema surface is `service/packages/shared/src/operations.ts`, `service/packages/mcp/src/execution/operation-journal.ts`, `service/packages/mcp/src/execution/operation-resolution-intent.ts`, `service/packages/mcp/test/execution/operation-journal.test.ts`, `service/packages/mcp/test/e2e/internal-system-principal.test.ts`, and `service/packages/mcp/test/e2e/identity-bootstrap.test.ts`; append tests derive every component from exact source vectors and reject one-field source/hash or admitted-generation mismatches before write. Restart tests load the valid old generation without source values, reject malformed component-hash syntax or a recomputed target-binding mismatch, and never require current-generation equality. Tombstone/resolution tests distinguish the raw-free internal origin from permitted nonsecret entry workspace/file keys and cover key order/domain separation, discriminator/equality/iff refinements, first settlement, reconnect, foreign root, and every mismatch. Plugin body identity fields reject before journal.
 
 Cancellation requires both the stable actor and exact `originAuthSessionId`; another MCP connection or rotated control session cannot cancel it. Authenticated control is owner-admin for list/status and manual resolution of any same-actor operation regardless of origin session, and the audit records both `originAuthSessionId` and `resolverAuthSessionId`. Role transition, control rotation, cross-session cancel denial, cross-domain admin resolution, and foreign-stateRoot denial are binding tests. Task6.1 public `/ping` remains exactly `{ok,product,protocolVersion,serverVersion,buildId,leaderGeneration,role}` and exposes no plugin/session/file oracle.
 
@@ -1502,7 +1504,7 @@ Acceptance timing is deterministic: an approval-required operation emits accepte
 
 Task6.1 facade authenticates/reassembles outer records and yields ordered plaintext Buffers. Task7 parses inner four-byte length+strict MessagePack tool/service/cancel; inner total max9,437,184, payload9,437,180. Follower response inner cumulative plaintext67,108,864. Control/direct bounds remain exact. Task7 never parses outer seq/final/truncated/ciphertext.
 
-Task 7 owns shared frame/progress/cancel schemas, daemon adapters, and a fake plugin-port consumer only. It may define the plugin-facing `$progress`/`$cancel` schema and enforce a 67,108,864-byte plugin frame cap in daemon/fake tests, but it does not modify or claim the real plugin consumer. Exact plugin UI/main/dispatcher consumption, listener cleanup, cancel forwarding, and parity tests are Task 9A; release-artifact parity is Task 15. Direct MCP maps progress/cancel to the standard progress token/cancellation notification. A transport disconnect does not implicitly cancel, retry, or issue a new operation ID.
+Task 7 owns shared frame/progress/cancel schemas, daemon adapters, and a fake plugin-port consumer only. It may define the plugin-facing `$progress`/`$cancel` schema and enforce a 67,108,864-byte plugin frame cap in daemon/fake tests, but it does not modify or claim the real plugin consumer. Exact plugin UI/main/dispatcher consumption, listener cleanup, cancel forwarding, and parity tests are Task 9A; packed-artifact parity is Task 15. Direct MCP maps progress/cancel to the standard progress token/cancellation notification. A transport disconnect does not implicitly cancel, retry, or issue a new operation ID.
 
 Progress extends only the idle deadline; it never extends the absolute deadline. Absolute deadline, exact-origin-session `InvocationCancelV1`, plane demotion, and runtime AbortSignal are authoritative. Cancellation is idempotent and requires stable actor plus exact `originAuthSessionId`, requestId, and operationId; owner-admin control may resolve but cannot cross-session cancel. Snapshot, ordered PDF, and video export emit through the same reporter. Pre-execution/final egress manifests contain only classes/counts/hash/reason metadata.
 
@@ -1574,10 +1576,11 @@ Counts reserve before retaining raw args and release only after terminal durabil
 
 `packages/mcp/test/execution/boundary-limits.test.ts` is the single table authority and imports the production constants. It covers below/exact/above, declared/chunked, pre-decode/runtime-zero, active operation/subscriber/raw-args admission, malformed/missing requestId native rejection, and exact-one-terminal races among result/cancel/deadline/demotion.
 
-### 3.13 Unsigned Source-complete Evidence and Local Diagnostic
+### 3.13 Unsigned Source-complete Preview and Local Diagnostics
 
 ~~~ts
 export type Sha256Hex = string; // JSON Schema pattern ^[0-9a-f]{64}$
+export type PrefixedSha256 = `sha256:${string}`; // suffix pattern ^[0-9a-f]{64}$
 
 export const REQUIRED_BLOCKING_CHECK_IDS = {
   fake: [
@@ -1590,60 +1593,60 @@ export const REQUIRED_BLOCKING_CHECK_IDS = {
   ],
 } as const;
 
+export interface PreviewCandidateV1 {
+  schemaVersion: 1;
+  previewVersion: '0.1.0';
+  implementationStatus: 'source-complete-preview';
+  externalValidationStatus: 'not-run';
+  sourceCommit: string; // ^[0-9a-f]{40}$
+  sourceDateEpoch: number;
+  artifactManifestSha256: Sha256Hex;
+  artifactChecksumsSha256: Sha256Hex;
+  harnessManifestHash: Sha256Hex;
+  artifacts: { mcpSha256: Sha256Hex; cliSha256: Sha256Hex; pluginSha256: Sha256Hex };
+  contentHash: PrefixedSha256;
+}
+
 export interface SourceCompleteEvidenceV1 {
   schemaVersion: 1;
-  evidenceId: `sfp_preview_ev1_${string}`;
+  evidenceId: `sfp_preview_ev1_${string}`; // ^sfp_preview_ev1_[A-Za-z0-9_-]{22}$
   evidenceKind: 'unsigned-local-preview';
-  sourceCommit: string;
+  sourceCommit: string; // ^[0-9a-f]{40}$
   createdAt: string;
   status: 'pass';
+  previewCandidateContentHash: PrefixedSha256;
   artifacts: {
     manifestSha256: Sha256Hex;
+    checksumsSha256: Sha256Hex;
     mcpSha256: Sha256Hex;
     cliSha256: Sha256Hex;
     pluginSha256: Sha256Hex;
     buildId: number;
     task61ContractSha256: 'bd296dabe872f08adca793d93a2cd6a2c7efca60c58127b07924b2f18840b27b';
   };
-  harness: { version: 1; manifestHash: Sha256Hex; fakeResultHash: Sha256Hex; currentWindowsDiagnosticHash: Sha256Hex | null };
+  harness: { version: 1; manifestHash: Sha256Hex; fakeResultHash: Sha256Hex };
   checks: readonly {
-    id: string;
+    id: typeof REQUIRED_BLOCKING_CHECK_IDS.fake[number];
     status: 'pass';
     durationMs: number;
     resultHash: Sha256Hex;
     detailCode: string;
   }[];
-  contentHash: `sha256:${string}`;
-}
-
-export interface PreviewCandidateV1 {
-  schemaVersion: 1;
-  releaseVersion: '0.1.0-preview';
-  releaseStatus: 'blocked-external-evidence';
-  sourceCommit: string; // ^[0-9a-f]{40}$
-  sourceDateEpoch: number;
-  manifestSha256: Sha256Hex;
-  harnessManifestHash: Sha256Hex;
-  artifacts: { mcpSha256: Sha256Hex; cliSha256: Sha256Hex; pluginSha256: Sha256Hex };
-  contentHash: `sha256:${string}`;
+  contentHash: PrefixedSha256;
 }
 
 export interface SourceCompletePreviewV1 {
   schemaVersion: 1;
   implementationStatus: 'source-complete-preview';
-  releaseStatus: 'blocked-external-evidence';
-  previewCandidateSha256: Sha256Hex;
+  externalValidationStatus: 'not-run';
+  sourceCommit: string;
   harnessManifestHash: Sha256Hex;
-  artifacts: {
-    manifestSha256: Sha256Hex;
-    mcpSha256: Sha256Hex;
-    cliSha256: Sha256Hex;
-    pluginSha256: Sha256Hex;
-  };
-  sourceCompleteEvidenceSha256: Sha256Hex;
-  harnessResultSha256: Sha256Hex;
+  candidateFileSha256: Sha256Hex;
+  candidateContentHash: PrefixedSha256;
+  evidenceFileSha256: Sha256Hex;
+  evidenceContentHash: PrefixedSha256;
   generatedAt: string;
-  contentHash: `sha256:${string}`;
+  contentHash: PrefixedSha256;
 }
 ~~~
 
@@ -1664,52 +1667,55 @@ service/pnpm-lock.yaml
 service/schemas/preview-candidate-v1.schema.json
 service/schemas/source-complete-evidence-v1.schema.json
 service/schemas/source-complete-preview-v1.schema.json
-service/scripts/acceptance-evidence-validator.mjs
-service/scripts/desktop-acceptance.mjs
+service/scripts/current-windows-diagnostic.mjs
 service/scripts/package-artifacts.mjs
+service/scripts/run-fake-source-checks.mjs
+service/scripts/source-complete-validator.mjs
 service/scripts/verify-artifacts.mjs
 service/scripts/write-preview-candidate.mjs
 service/scripts/write-source-complete-preview.mjs
-service/test/acceptance-harness.test.ts
-service/test/acceptance-live-diagnostic.test.ts
 service/test/blocking-check-fixture-map.test.ts
+service/test/current-windows-diagnostic.test.ts
+service/test/daemon-artifact-surface.test.ts
 service/test/evidence-schema-draft.test.ts
-service/test/local-harness-binding.test.ts
 service/test/preview-candidate.test.ts
+service/test/source-complete-evidence.test.ts
+service/test/source-harness-binding.test.ts
 service/test/workflow-hygiene.test.ts
+service/vitest.artifacts.config.ts
+service/vitest.config.ts
 ~~~
 
-For each harness path, read bytes with `git show <sourceCommit>:<path>`, compute lowercase SHA-256, append UTF-8 `<path>\0<sha256>\n`, and hash the ordered manifest. Missing/extra/reordered path, dirty substitute, Node pin, package/lock or installed-byte mismatch fails local validation.
+For each path, read bytes with `git show <sourceCommit>:<path>`, compute lowercase SHA-256, append UTF-8 `<path>\0<sha256>\n`, and hash the ordered manifest. Missing/extra/reordered paths, dirty substitutes, a Node/package/lock mismatch, or any checked Git-blob mismatch fails local validation.
 
-One Ajv module exports exactly three strict assertions: unsigned `PreviewCandidateV1`, `SourceCompleteEvidenceV1`, and `SourceCompletePreviewV1`, plus local fake/co-presence diagnostic helpers. Each content hash uses canonical bytes with itself omitted under `sfp-preview-candidate-v1\0`, `sfp-source-complete-evidence-v1\0`, or `sfp-source-complete-preview-v1\0`. SourceCompleteEvidence is unsigned/local-only; its exact fake 16-check set, artifact tuple, harness hash and optional current-Windows diagnostic hash are revalidated before the ignored marker is written.
+One Ajv module exports exactly three strict assertions for unsigned `PreviewCandidateV1`, `SourceCompleteEvidenceV1`, and `SourceCompletePreviewV1`; local typed-fake and co-presence parsers are not additional persisted schemas. Canonical JSON omits only the object's own `contentHash` and uses, respectively, `sfp-preview-candidate-v1\0`, `sfp-source-complete-evidence-v1\0`, and `sfp-source-complete-preview-v1\0`. Evidence embeds the complete sorted fake16 check array; there is no intermediate result document.
 
-Task15 publishes no candidate, content-addressed directory or pointer. After the clean Task16 commit, `verify:source-complete` writes fixed ignored files directly under `service/artifacts/`: `preview-candidate.v1.json`, `source-complete-evidence.v1.json`, `acceptance-harness-result.v1.json`, and `source-complete-preview.v1.json`. Each writer uses an exclusive same-directory temp, fsync, atomic file replacement, reread/schema/content-hash verification and parent fsync where supported. No content hash becomes a path segment.
+After the clean Task16 commit, `verify:source-complete` creates exactly three ignored files under `service/artifacts/`: `preview-candidate.v1.json`, `source-complete-evidence.v1.json`, and `source-complete-preview.v1.json`. Each writer uses an exclusive same-directory temporary file, fsync, atomic file replacement, reread/schema/content-hash verification, and parent fsync where supported. The marker rereads candidate and evidence bytes, verifies `candidateFileSha256`/`evidenceFileSha256`, requires `candidateContentHash===candidate.contentHash` and `evidenceContentHash===evidence.contentHash`, and requires identical source commit, harness manifest, artifact manifest/checksum, and artifact tuple across candidate/evidence before hashing itself. No content hash becomes a path segment.
 
-Task16 refactors composition from packages/mcp/src/index.ts into packages/mcp/src/application.ts with createMcpApplication(options): Promise<{startHttp,attachStdio,close}>. Existing index.ts remains only the stdio adapter. New daemon-entry.ts strict-parses --state-root and --port, calls only startHttp, owns no stdio protocol, ignores stdin/EOF, and stays alive until one awaited SIGINT/SIGTERM close. Application/index/daemon parity tests reject a second composition root.
+Task16 refactors composition from `packages/mcp/src/index.ts` into `packages/mcp/src/application.ts` with `createMcpApplication(options): Promise<{startHttp,attachStdio,close}>`. Existing `index.ts` remains only the stdio adapter. New `daemon-entry.ts` strict-parses `--state-root` and `--port`, calls only `startHttp`, owns no stdio protocol, ignores stdin/EOF, and stays alive until an awaited signal close. Application/index/daemon parity tests reject a second composition root.
 
-Task16 process tests spawn daemon-entry as a normal child and retain the ChildProcess handle inside Vitest/source runner. They wait for strict public ping, execute the test, signal and await that same handle in afterEach; no detached/background lifecycle machinery exists.
+Task16 process tests spawn the daemon entry as a normal child and retain the exact `ChildProcess` handle inside Vitest. They wait for strict public ping, execute the test, terminate and await that same handle in `afterEach`; no detached/background controller exists. The current-Windows diagnostic is non-destructive and supplemental: it may check only concurrent Figma Desktop/source-daemon/plugin connection presence and may return typed `PLUGIN_NOT_CONNECTED`. It cannot pair, create/register/import/mutate/delete, cannot contribute a blocking result, and is never written into the three source-complete documents. Any real-Figma validation requires a separate user-scoped supplemental plan and dedicated validation folder.
 
-The current-Windows diagnostic is non-destructive and supplemental. It may check that Figma Desktop and the source daemon are concurrently present and may return typed PLUGIN_NOT_CONNECTED; it cannot pair automatically, create/register workspace/domain/Figma resources, delete anything, or contribute a blocking marker result. Final real-Figma validation belongs to a separate supplemental acceptance plan with a dedicated validation folder and explicit user scope; this implementation plan does not create or execute that plan.
 | Fake blocking check suffix | Typed fake input and positive assertion | Required negative assertion | Fake teardown |
 |---|---|---|---|
-| `artifact-integrity` | RC/install manifest and all artifact hashes match | one valid-format wrong hash rejects | installer temp |
-| `daemon-health` | source child strict ping/build matches | occupied port or wrong build rejects | terminate retained child |
-| `state-permissions` | daemon and evidence-key roots pass OS policy | wider mode/foreign ACE/reparse rejects | state-root owner |
-| `pair-resume` | built plugin pairs and rotates resume | old ticket/token replay rejects | plugin disconnect |
-| `design-context-recursive` | provisioned page/frame tree returns complete sections | forged/missing node fails typed | Figma page/frame |
-| `grounding-maps` | synthetic code/design/component/token/icon joins verify | wrong workspace/file hash rejects | snapshot files |
-| `snapshot-graph` | capture+graph locator/checksum loads | stale checksum/CAS rejects | snapshot/graph files |
-| `token-pdf-export` | synthetic tokens and ordered frames export | existing outPath/corrupt input rejects | export files |
-| `idempotency-journal` | exact same operation settles once | same ID/different fingerprint conflicts | journal settlement |
-| `write-fifo` | two writes observe exact FIFO and final value | stale generation cannot overtake | created nodes |
-| `approval-undo` | reject gives runtime0; approve mutates with one undo | duplicate/late/wrong binding rejects | created mutation |
-| `generation-reconnect` | reconnect/rehello resumes stable identity | old generation reply/cancel rejects | paired session |
-| `workspace-policy` | registered disposable root reads/writes inside | symlink/reparse/outside path rejects | workspace registration/root |
-| `network-policy` | allowed exact FQDN image hash imports | protected denied FQDN never connects | domain rule/image node |
-| `capability-matrix` | provisioned supported capabilities match manifest | unavailable capability returns typed negative | capability nodes |
-| `diagnostic-redaction` | strict evidence/check details contain only hashes/codes | sentinel text/path/URL/raw content absent | diagnostic temp |
+| `artifact-integrity` | strict PreviewCandidate plus Task15 artifact manifest/checksum file and three artifact hashes match bytes in a test-owned staging temp; daemon stateRoot is owner-secure | one valid-format candidate/manifest/checksum/artifact mismatch rejects | remove only test-owned staging temp and daemon stateRoot |
+| `daemon-health` | retained source child strict ping/build matches | occupied port or wrong build rejects | terminate the retained child |
+| `state-permissions` | test-owned daemon stateRoot passes OS policy | wider mode/foreign ACE/reparse rejects | remove only that stateRoot |
+| `pair-resume` | typed fake pairing broker exchanges and rotates resume state without a TTY | old fake ticket/token replay rejects | close fake paired transport |
+| `design-context-recursive` | in-memory fake page/frame tree returns complete sections | forged/missing fake node fails typed | clear fake document model |
+| `grounding-maps` | synthetic code/design/component/token/icon joins verify | wrong workspace/file hash rejects | remove test-owned snapshot temp |
+| `snapshot-graph` | fake capture+graph locator/checksum loads | stale checksum/CAS rejects | remove test-owned graph temp |
+| `token-pdf-export` | synthetic tokens and ordered fake frames export | existing outPath/corrupt input rejects | remove test-owned export temp |
+| `idempotency-journal` | exact same fake operation settles once | same ID/different fingerprint conflicts | close test journal |
+| `write-fifo` | two writes against a fake plugin document observe FIFO/final value | stale generation cannot overtake | reset fake document |
+| `approval-undo` | fake reject gives runtime0; fake approve mutates with one undo | duplicate/late/wrong binding rejects | reset fake mutation port |
+| `generation-reconnect` | fake reconnect/rehello resumes stable identity | old generation reply/cancel rejects | close fake paired transport |
+| `workspace-policy` | test-owned root through injected fake store reads/writes inside | symlink/reparse/outside path rejects | remove only the test root |
+| `network-policy` | injected fake resolver/fetcher accepts exact allowed FQDN/hash | denied FQDN reaches neither resolver nor transport | reset fake network ports |
+| `capability-matrix` | fake runtime capabilities match manifest | unavailable capability returns typed negative | reset fake capability port |
+| `diagnostic-redaction` | strict evidence/check details contain only hashes/codes | sentinel text/path/URL/raw content absent | remove diagnostic temp |
 
-`blocking-check-fixture-map.test.ts` requires exactly these 16 typed-fake checks, one positive input/assertion, one negative assertion and one fake teardown each. Rows execute only in-memory or test-owned temporary fixtures and never invoke real Figma/workspace/domain creation or deletion. The optional current-Windows co-presence diagnostic is not a blocking marker input. Fixture paths, URLs, IDs, source text, image bytes, secrets, tokens and raw content never enter SourceCompleteEvidence.
+`blocking-check-fixture-map.test.ts` requires exactly these 16 typed-fake checks, one positive input/assertion, one negative assertion, and one bounded fake teardown each. Rows execute only in memory or in explicitly test-owned temporary directories. They never invoke a real plugin pair, real Figma/workspace/domain creation, external network, or user-data deletion. Fixture paths, URLs, IDs, source text, image bytes, secrets, tokens, and raw content never enter `SourceCompleteEvidenceV1`.
 
 ---
 
@@ -1756,7 +1762,7 @@ service/
   docs/build-vs-buy.md
   docs/capability-matrix.md
   docs/compatibility.md
-  docs/desktop-acceptance.md
+  docs/desktop-diagnostics.md
   docs/operation-policy.md
   docs/pairing.md
   docs/snapshot-format.md
@@ -1777,9 +1783,10 @@ service/
   scripts/generate-checksums.mjs
   scripts/verify-artifacts.mjs
   scripts/verify-staged-change-manifest.mjs
-  scripts/smoke-installed-mcp.mjs
-  scripts/desktop-acceptance.mjs
-  scripts/acceptance-evidence-validator.mjs
+  scripts/smoke-packed-mcp.mjs
+  scripts/current-windows-diagnostic.mjs
+  scripts/run-fake-source-checks.mjs
+  scripts/source-complete-validator.mjs
   scripts/write-preview-candidate.mjs
   scripts/write-source-complete-preview.mjs
   scripts/generate-task9b-handler-ledger.mjs
@@ -1976,11 +1983,11 @@ service/
   packages/plugin/test/identity-bootstrap-dispatch.test.ts
   test/workflow-hygiene.test.ts
   test/fixtures/assemble-baseline-artifacts.mjs
-  test/acceptance-harness.test.ts
+  test/source-complete-evidence.test.ts
   test/evidence-schema-draft.test.ts
-  test/local-harness-binding.test.ts
-  test/acceptance-live-diagnostic.test.ts
-  test/release-daemon-lifecycle.test.ts
+  test/source-harness-binding.test.ts
+  test/current-windows-diagnostic.test.ts
+  test/daemon-artifact-surface.test.ts
   test/blocking-check-fixture-map.test.ts
 ~~~
 
@@ -2002,7 +2009,7 @@ Task16 adds root direct devDependency `ajv` exactly `8.17.1` for the three unsig
 
 Task15 adds root direct devDependency `happy-dom` exactly `20.11.11` because the root `plugin-built-consumer.test.ts` imports it. Task15 packaging/workflow scripts use Node/JSON and do not import a YAML library, so no direct `yaml` dependency is added. Task11 adds exact IR runtime dependencies `@sfp/shared:"workspace:*"` and `zod:"4.4.3"`; Task12 adds MCP `pdf-lib:"1.17.1"`; Task13 adds CLI `@sfp/shared:"workspace:*"` plus direct CLI devDependencies `tsdown:"^0.22.14"` and `publint:"^0.3.24"`. Each owning task updates its exact package manifest and `service/pnpm-lock.yaml`, runs lockfile-only then frozen install, and stages both.
 
-Published bundle closure is binding: MCP tsdown `alwaysBundle` contains `@sfp/shared` and `@sfp/ir`; CLI tsdown `alwaysBundle` contains `@sfp/shared`. Packed MCP/CLI manifests contain no `workspace:*` and no runtime dependency on private `@sfp/shared`/`@sfp/ir`; external public dependencies remain ordinary pinned/lock-resolved dependencies. Artifact tests install only `mcp.tgz` or `cli.tgz` into separate empty prefixes with fresh npm caches, run `npm ls --all`, MCP tool-list smoke, and CLI help/status smoke, and reject any resolved workspace path.
+Packed bundle closure is binding: MCP tsdown `alwaysBundle` contains `@sfp/shared` and `@sfp/ir`; CLI tsdown `alwaysBundle` contains `@sfp/shared`. Packed MCP/CLI manifests contain no `workspace:*` and no runtime dependency on private `@sfp/shared`/`@sfp/ir`; external public dependencies remain ordinary pinned/lock-resolved dependencies. Artifact tests check only `mcp.tgz` or `cli.tgz` in separate empty prefixes with fresh npm caches, run `npm ls --all`, MCP tool-list smoke, and CLI help/status smoke, and reject any resolved workspace path.
 
 Root scripts:
 
@@ -2020,9 +2027,8 @@ Root scripts:
   "test:artifacts": "vitest run --config vitest.artifacts.config.ts",
   "verify": "pnpm typecheck && pnpm lint && pnpm format:check && pnpm knip && pnpm build && pnpm test",
   "verify:artifacts": "node scripts/package-artifacts.mjs --clean-only && pnpm verify && node scripts/generate-sbom.mjs && node scripts/generate-notices.mjs && node scripts/package-artifacts.mjs && node scripts/generate-checksums.mjs && pnpm test:artifacts && node scripts/verify-artifacts.mjs",
-  "verify:source-complete": "pnpm install --frozen-lockfile && pnpm verify:artifacts && node scripts/write-preview-candidate.mjs --require-clean --source-commit HEAD --source-date-epoch git --artifacts artifacts --output artifacts/preview-candidate.v1.json && node scripts/desktop-acceptance.mjs --fake-control --output artifacts/acceptance-harness-result.v1.json && node scripts/acceptance-evidence-validator.mjs --write-source-complete artifacts/source-complete-evidence.v1.json --marker artifacts/source-complete-preview.v1.json",
-  "desktop:diagnostic": "node scripts/desktop-acceptance.mjs --current-windows",
-  "preview:evidence": "node scripts/desktop-acceptance.mjs --fake-control"
+  "verify:source-complete": "pnpm install --frozen-lockfile && pnpm verify:artifacts && node scripts/write-preview-candidate.mjs --require-clean --source-commit HEAD --source-date-epoch git --artifact-manifest artifacts/artifact-manifest.v1.json --checksums artifacts/SHA256SUMS --output artifacts/preview-candidate.v1.json && node scripts/run-fake-source-checks.mjs --candidate artifacts/preview-candidate.v1.json --artifact-manifest artifacts/artifact-manifest.v1.json --checksums artifacts/SHA256SUMS --output artifacts/source-complete-evidence.v1.json && node scripts/write-source-complete-preview.mjs --candidate artifacts/preview-candidate.v1.json --evidence artifacts/source-complete-evidence.v1.json --output artifacts/source-complete-preview.v1.json",
+  "diagnostic:current-windows": "node scripts/current-windows-diagnostic.mjs --json"
 }
 ~~~
 
@@ -2034,7 +2040,7 @@ export const ARTIFACT_DEPENDENT_TESTS = [
 ] as const;
 ~~~
 
-`service/vitest.config.ts` exports exact artifact tuple and ordinary excludes; artifact config includes exactly tuple. Package scripts have no POSIX quote. Windows test spawns exact `cmd.exe /d /s /c "pnpm run test -- --help"` and `cmd.exe /d /s /c "pnpm run test:artifacts -- --help"`, requiring exit0/no quote token; all OSes assert strings/config. Release order remains.
+Task15 owns the exact two-row tuple above. Task16 atomically appends `test/daemon-artifact-surface.test.ts`, making the final tuple exactly three rows. `service/vitest.config.ts` excludes the current tuple from ordinary tests and `vitest.artifacts.config.ts` includes exactly it. Package scripts have no POSIX quote. Windows tests spawn exact `cmd.exe /d /s /c "pnpm run test -- --help"` and `cmd.exe /d /s /c "pnpm run test:artifacts -- --help"`, requiring exit0/no quote token; all OSes assert strings/config. Artifact assembly and verification order remains fixed.
 
 Task15 owns `verify:artifacts`, which creates and verifies only the three local artifacts. Task16 owns the terminal `verify:source-complete`, which runs from a clean Task16 commit and alone creates the ignored candidate/evidence/marker after artifact verification. Package scripts remain shell-neutral and perform no external side effect.
 
@@ -2059,8 +2065,8 @@ T1 bootstrap harness
                         → T14 skills/docs/build-vs-buy
                           → T15 hygiene/CI/SBOM/local artifacts
                             → T16 local daemon + unsigned source-complete preview
-                              ├→ T17 external Windows GA placeholder (not dispatched)
-                              └→ T18 external macOS/closure placeholder (not dispatched)
+                              ├→ T17 external Windows validation placeholder (not dispatched)
+                              └→ T18 external macOS validation placeholder (not dispatched)
 ~~~
 
 T11→T12 is sequential: Task11 establishes service registry2 and both mutate closed-world authorities.
@@ -2086,7 +2092,7 @@ One parent plan is retained, but no reviewer is asked to approve an unbounded su
 | 13 | control client and command mappings only; no daemon mutation implementation |
 | 14 | skills and operator/build-vs-buy docs only |
 | 15 | package/workflow/SBOM/checksum assembly only |
-| 16 | fake/live acceptance harness and evidence schema only |
+| 16 | application/daemon entry, typed fake16, non-destructive co-presence diagnostic, and three unsigned schemas only |
 | 17 | external placeholder only; no source review surface or dispatch |
 | 18 | external placeholder only; no source review surface or dispatch |
 
@@ -2292,7 +2298,7 @@ Expected: FAIL with module resolution for `packages/mcp/src/tools/registry.js`; 
 
 - [ ] **Step 3: Implement deterministic vendoring**
 
-`vendor-upstreams.mjs --copy-only` runs `git -C code-kb/figwright ls-files`, applies copy/referenceOnly modes, copies only source/test/skill/build files, computes SHA-256, writes sorted `vendor-map.json`, and performs AST package-specifier rewrites only for `@figwright/shared`, `@figwright/mcp`, and `@figwright/plugin`. A separate `--merge-manifests` mode applies only mergeDependencyManifests after 2A is frozen. Root/package/lock/config files created by Task 1 are hash-checked before and after and must not be replaced. Deterministic manifest merge preserves service authority, drops upstream postinstall/release scripts, and rewrites workspace dependency names.
+`vendor-upstreams.mjs --copy-only` runs `git -C code-kb/figwright ls-files`, applies copy/referenceOnly modes, copies only source/test/skill/build files, computes SHA-256, writes sorted `vendor-map.json`, and performs AST package-specifier rewrites only for `@figwright/shared`, `@figwright/mcp`, and `@figwright/plugin`. A separate `--merge-manifests` mode applies only mergeDependencyManifests after 2A is frozen. Root/package/lock/config files created by Task 1 are hash-checked before and after and must not be replaced. Deterministic manifest merge preserves service authority, drops upstream postinstall/distribution scripts, and rewrites workspace dependency names.
 
 - [ ] **Step 4: Materialize license and provenance inputs**
 
@@ -2711,7 +2717,7 @@ Each subtask receives RED→GREEN, closed-world authority regeneration, and two 
 
 For every slice, `git status --short -- service` must show only first-column staged entries from that slice's exact allowlist: no unstaged or untracked service path. `git diff --cached --name-only` must equal the allowlist subset actually changed by the slice, and the offline closed-world verifier must account for every managed path. Test output and ignored build artifacts are never staged.
 
-7A defines the plane with injected `ApprovalDecisionPort`, `EgressManifestPort`, and `PinnedPluginRuntimePort` contracts and explicit fakes; it freezes policy/target/runtime/service seams but does not claim production entry convergence while 7B/7C are absent. 7B binds the daemon approval broker/fake paired port plus admin/action-nonce/workspace ports. 7C binds durable egress and daemon frame sinks, then atomically switches all tool invocation entries and the empty service seam to the plane. Real plugin progress/cancel consumption is Task9A and real approval-control consumption is Task9C. Only 7C requires zero legacy Relay/runtime bypass and zero import from Task6.1 auth/key/encryption internals. Intermediate slices are review checkpoints, not releases.
+7A defines the plane with injected `ApprovalDecisionPort`, `EgressManifestPort`, and `PinnedPluginRuntimePort` contracts and explicit fakes; it freezes policy/target/runtime/service seams but does not claim production entry convergence while 7B/7C are absent. 7B binds the daemon approval broker/fake paired port plus admin/action-nonce/workspace ports. 7C binds durable egress and daemon frame sinks, then atomically switches all tool invocation entries and the empty service seam to the plane. Real plugin progress/cancel consumption is Task9A and real approval-control consumption is Task9C. Only 7C requires zero legacy Relay/runtime bypass and zero import from Task6.1 auth/key/encryption internals. Intermediate slices are review checkpoints, not delivery boundaries.
 
 7A prelude adds schema/updater/verifier tests before copy-only. Every edited upstream row—including election.ts and any other 7A copy—transitions to serviceFork; raw-string scanner also scans forks/serviceOwned so Relay allowance stays15. Generator skips forks. Tests mutate a fixture row, assert lineage/old-row removal/no overwrite/current hash.
 
@@ -4072,7 +4078,7 @@ Run: `git diff --check`, `git log -2 --format="%H %s"`, full Task 12 GREEN/build
 **Interfaces**
 
 - Consumes: final Task6.1 facade, Task7 tool/service/admin/status, Task8 domains, Task11 snapshot.capture+grounding.refresh, Task12 final authorities. CLI never sends identity/context or redefines wire.
-- Produces: authenticated `ControlClient`; workspace and remote-domain config commands; CLI exit codes 0 healthy, 1 degraded/rejected operation, 2 unavailable/config; command mappings below. CLI is a companion to an active MCP/daemon and never starts a hidden leader. For the Task16 installed harness only, ControlClient accepts process environment `SFP_DAEMON_PORT` (decimal 1024–65535) and `SFP_DAEMON_STATE_ROOT` (owner-only canonical directory); it validates both locally and never sends them in a request/body/log. Normal defaults remain unchanged.
+- Produces: authenticated `ControlClient`; workspace and remote-domain config commands; CLI exit codes 0 healthy, 1 degraded/rejected operation, 2 unavailable/config; command mappings below. CLI is a companion to an active MCP/daemon and never starts a hidden leader. Its library-only `ControlledSourceEndpoint {baseUrl,stateRoot}` option exists solely for an in-process source test runner, requires loopback HTTP plus an owner-only canonical stateRoot, and is not reachable from CLI argv, process environment, request bodies, output, or logs. Normal discovery remains unchanged.
 
 **Commit protocol:** `task-13.json` lists CLI index/client/output, every declared command module/test (including status, workspace set-default, and grounding), command ledger generator+authority+test, compat map/test, fake server, CLI/root package and pnpm lock, manifest/authority. CLI package+lock are mandatory staged rows after lockfile-only/frozen install. Modules/tests are not required to be one-to-one with command spellings.
 
@@ -4134,10 +4140,16 @@ it('requires an active authenticated daemon for mutation commands', async () => 
   await expect(runCli(['rm', '1:2'])).resolves.toMatchObject({ exitCode: 2, code: 'DAEMON_UNAVAILABLE' });
 });
 
-it('uses only a complete secure installed-harness daemon override', async () => {
-  const client = await createControlClient({ SFP_DAEMON_PORT: '38456', SFP_DAEMON_STATE_ROOT: secureDaemonRoot });
+it('uses only an explicit in-process controlled-source endpoint', async () => {
+  const client = await createControlClient({}, {
+    controlledSource: { baseUrl: 'http://127.0.0.1:38456', stateRoot: secureDaemonRoot },
+  });
   expect(client.endpoint).toBe('http://127.0.0.1:38456');
-  await expect(createControlClient({ SFP_DAEMON_PORT: '38456' })).rejects.toMatchObject({ code: 'DAEMON_CONFIG_INVALID' });
+  await expect(createControlClient({}, {
+    controlledSource: { baseUrl: 'http://example.com:38456', stateRoot: secureDaemonRoot },
+  })).rejects.toMatchObject({ code: 'DAEMON_CONFIG_INVALID' });
+  expect(sourceText('packages/cli/src/index.ts')).not.toMatch(/controlledSource/);
+  expect(environmentKeysReadByCli()).toEqual([]);
   expect(lastRequestBody()).not.toMatchObject({ stateRoot: expect.anything(), port: expect.anything() });
 });
 
@@ -4201,13 +4213,13 @@ Expected: CLI package source is absent while the workspace harness remains runna
 
 - [ ] **Step 3: Implement ControlClient and output contract**
 
-Read control token from stateRoot; use final Task6.1 public facade only for health, then authenticated `/control/status` for oracles. Strict-parse the optional installed-harness port/state-root environment before connecting, reject partial/out-of-range/insecure values, and keep it out of request bodies/output. Tool/service/admin requests stay separate; parse bounded frames and enforce origin-session cancel.
+Read the control token from stateRoot; use final Task6.1 public facade only for health, then authenticated `/control/status` for oracles. Strict-parse the library-only controlled-source option before connecting, reject non-loopback/insecure/partial values, and keep it unavailable to the CLI entry, environment, request bodies, output, and logs. Tool/service/admin requests stay separate; parse bounded frames and enforce origin-session cancel.
 
 - [ ] **Step 4: Implement workspace, pairing, and approval commands**
 
 Implement all table rows, terminal-only public Pair ID+code/paste-form display, pending approval list, exact approve/reject, operation issue/list/status/resolve, workspace realpath/default lifecycle, and exact-host allowlist lifecycle. Before each nonce-protected route, canonicalize the exact semantic request, call `POST /control/action-nonces`, and use the returned nonce once; do not generate/cache/reuse nonces locally. Workspace add computes `{realPath}`, but sends strict `{action:'workspace.add',requestHash,registrationPath}` so the server independently binds/revalidates identity. Workspace set-default hashes `{workspaceId}` and calls the exact route. Mutation wrappers request a server-issued operation ID before dispatch and surface it in accepted/progress/error/output. Operation resolve is an owner-local administrative call that requires exact `--confirm <operationId/resultHash-or-unknown>`, hashes reason/evidence locally, requests a bound nonce, and never resubmits the original tool. JSON pair output includes challengeId/expiry but redacts code after exchange; control token supplies actor identity and bodies cannot override it.
 
-`sfp pair --wait-for-authenticated` is explicitly interactive: it requires a TTY, writes Pair ID/code/paste form directly without buffering, never offers JSON/redirection mode, polls authenticated status without reprinting the code, and exits only on paired success, typed expiry/rejection, or interrupt. Task16 uses this mode; process tests prove stdout capture is rejected and the code is absent from logs after exchange.
+`sfp pair --wait-for-authenticated` is explicitly interactive: it requires a TTY, writes Pair ID/code/paste form directly without buffering, never offers JSON/redirection mode, polls authenticated status without reprinting the code, and exits only on paired success, typed expiry/rejection, or interrupt. Its Task13 process tests prove stdout capture is rejected and the code is absent from logs after exchange. Task16 does not invoke this command or a TTY; its `fake.pair-resume` row drives the typed pairing/resume ports directly in process.
 
 - [ ] **Step 5: Implement snapshot/export/read/write wrappers**
 
@@ -4258,7 +4270,7 @@ Stage only `task-13.json` union, byte-verify, review/rerun exact GREEN, commit e
 
 - Modify: `service/skills/figma-codegen/**`, `service/skills/figma-build/**`.
 - Create: `service/skills/compat-rust-recipes/` with only schema-validated recipes.
-- Create/modify: `service/README.md`, `SECURITY.md`, `docs/architecture.md`, `build-vs-buy.md`, `capability-matrix.md`, `compatibility.md`, `operation-policy.md`, `pairing.md`, `snapshot-format.md`, `desktop-acceptance.md`.
+- Create/modify: `service/README.md`, `SECURITY.md`, `docs/architecture.md`, `build-vs-buy.md`, `capability-matrix.md`, `compatibility.md`, `operation-policy.md`, `pairing.md`, `snapshot-format.md`, `desktop-diagnostics.md`.
 - Create: `service/test/docs-sync.test.ts`.
 
 **Interfaces**
@@ -4328,9 +4340,9 @@ Stage only `task-14.json` union, byte-verify, review/rerun GREEN, commit exact s
 - Modify: `service/packages/mcp/tsdown.config.ts` and `service/packages/cli/tsdown.config.ts` to bundle internal workspaces; generate packed manifests without private workspace runtime dependencies.
 - Create: `.github/workflows/service-ci.yml` only; it verifies source and local preview artifacts and has no publish permission.
 - Modify service ignore policy for generated `service/artifacts/**`; Task15 creates no preview candidate/schema/writer/test.
-- Create: `service/scripts/generate-sbom.mjs`, `generate-notices.mjs`, `package-artifacts.mjs`, `generate-checksums.mjs`, `verify-artifacts.mjs`, `smoke-installed-mcp.mjs`.
+- Create: `service/scripts/generate-sbom.mjs`, `generate-notices.mjs`, `package-artifacts.mjs`, `generate-checksums.mjs`, `verify-artifacts.mjs`, `smoke-packed-mcp.mjs`.
 - Create/modify: `service/THIRD_PARTY_NOTICES.md`, `PROVENANCE.md`, `SBOM.spdx.json`.
-- Create: `service/test/artifact-contents.test.ts`, `service/test/plugin-built-consumer.test.ts`, `service/test/workflow-hygiene.test.ts`, `service/test/package-scripts-windows.test.ts`, and RED-only fixture; modify `service/test/bootstrap.test.ts` to assert Vitest-config exclusions, quote-safe scripts, exact artifact config, and release order.
+- Create: `service/test/artifact-contents.test.ts`, `service/test/plugin-built-consumer.test.ts`, `service/test/workflow-hygiene.test.ts`, `service/test/package-scripts-windows.test.ts`, and RED-only fixture; modify `service/test/bootstrap.test.ts` to assert Vitest-config exclusions, quote-safe scripts, exact artifact config, and assembly/verification order.
 
 **Interfaces**
 
@@ -4352,9 +4364,9 @@ it.each(['mcp.tgz', 'cli.tgz', 'plugin.zip'])('%s carries legal and capability a
 });
 
 it.each([
-  ['mcp.tgz', 'node scripts/smoke-installed-mcp.mjs'],
+  ['mcp.tgz', 'node scripts/smoke-packed-mcp.mjs'],
   ['cli.tgz', 'sfp --help'],
-])('installs %s alone in an empty prefix and runs %s', async (artifact, smoke) => {
+])('checks %s alone in an empty prefix and runs %s', async (artifact, smoke) => {
   const install = await installInEmptyPrefix({ artifact, freshCache: true });
   expect(install.packageJson).not.toMatchObject({
     dependencies: expect.objectContaining({ '@sfp/shared': expect.anything(), '@sfp/ir': expect.anything() }),
@@ -4371,23 +4383,23 @@ Create `test/fixtures/assemble-baseline-artifacts.mjs` with the RED harness: it 
 
 Run: `pnpm -C service build`; `node service/test/fixtures/assemble-baseline-artifacts.mjs`; `pnpm -C service exec vitest run test/artifact-contents.test.ts test/plugin-built-consumer.test.ts test/workflow-hygiene.test.ts test/package-scripts-windows.test.ts test/bootstrap.test.ts`.
 
-Expected behavioral RED: the runnable harness creates all three baseline artifacts; legal/SBOM/capability and isolated-install assertions fail; ordinary/artifact Vitest ordering and Windows cmd quoting fail; workflow permits disallowed or non-frozen behavior; the unpacked built consumer lacks full pair/progress/approval and no-fileKey bootstrap reject/approve/one-undo/rehello/crash/no-control-token parity. Failures come from legacy behavior, not missing tests or future scripts.
+Expected behavioral RED: the runnable harness creates all three baseline artifacts; legal/SBOM/capability and isolated-package assertions fail; ordinary/artifact Vitest ordering and Windows cmd quoting fail; workflow permits disallowed or non-frozen behavior; the unpacked built consumer lacks full pair/progress/approval and no-fileKey bootstrap reject/approve/one-undo/rehello/crash/no-control-token parity. Failures come from legacy behavior, not missing tests or future scripts.
 
 - [ ] **Step 3: Implement actual artifact assembly**
 
-Set MCP `alwaysBundle=['@sfp/shared','@sfp/ir']`, CLI `alwaysBundle=['@sfp/shared']`; packed manifests contain no private/workspace runtime dependency. `package-artifacts.mjs --clean-only` resolves and verifies exact fixed artifact targets under `service/artifacts/`, removes only owned staging/temp outputs and exits before build/pack; it never accepts a caller path. Normal mode creates clean `.staging/mcp-package` and `cli-package` with dist, sanitized package.json, README, LICENSE, notices, provenance, SBOM, three licenses and three capability ledgers with exact files arrays. `npm pack` each by argv, normalize names, independently install with fresh cache, run npm-ls/installed-bin smokes and reject workspace paths. Each final artifact/manifest/checksum is written as its own atomic file and reread verified; Task15 creates no content directory or pointer. Record final Task6.1 public facade build identity; preserve legal/provenance/Solar/raw-exec/code-kb absence gates.
+Set MCP `alwaysBundle=['@sfp/shared','@sfp/ir']`, CLI `alwaysBundle=['@sfp/shared']`; packed manifests contain no private/workspace runtime dependency. `package-artifacts.mjs --clean-only` resolves and verifies exact fixed artifact targets under `service/artifacts/`, removes only owned staging/temp outputs and exits before build/pack; it never accepts a caller path. Normal mode creates clean `.staging/mcp-package` and `cli-package` with dist, sanitized package.json, README, LICENSE, notices, provenance, SBOM, three licenses and three capability ledgers with exact files arrays. `npm pack` each by argv, normalizes names, checks each package in a fresh empty prefix/cache, runs `npm ls` plus packed-bin smokes, and rejects workspace paths. It emits exact metadata files `artifact-manifest.v1.json` and `SHA256SUMS`; each final artifact/metadata file is written atomically and reread verified. Task15 creates no content directory or pointer. Record final Task6.1 public facade build identity; preserve legal/provenance/Solar/raw-exec/code-kb absence gates.
 
 Plugin staging root is exactly `service/artifacts/.staging/plugin-package/` and contains only `manifest.json`, `dist/code.js`, `dist/index.html`, `README.md`, `LICENSE`, `THIRD_PARTY_NOTICES.md`, `PROVENANCE.md`, `SBOM.spdx.json`, three `licenses/*-LICENSE`, and all three capability ledgers (`union-manifest.json`, `rust-tool-compat.json`, `figmosha-feature-map.json`) under `capabilities/`. Manifest main/ui targets must exist. Copy built bytes only; no source/map/temp. Normalize repo path order, modes and `SOURCE_DATE_EPOCH` from the source commit; fixed author/committer; create isolated one-commit repo and `git archive` so two clean builds have identical file list/timestamps/ZIP SHA.
 
 `plugin-built-consumer.test.ts` unpacks actual ZIP, executes built main/UI, and drives it against the real daemon approval broker adapter. Besides pair/reconnect/progress/cancel cleanup it repeats core approval approve→one runtime, reject→runtime0, duplicate ignored, reconnect redelivery without TTL extension, and asserts built plugin receives no control token. Its packed identity-bootstrap sequence is binding: initial authenticated no-fileKey/no-shared-UUID hello reports unstable-readonly; rejected `identity.bootstrap` leaves shared plugin data absent, runtime0 and undo0; approved bootstrap reaches the packaged dispatcher once, writes only `sfp/file-identity:v1`, reports `mutated:true`, and creates exactly one undo; operation result forces rehello and does not remap Relay; the next authenticated hello reads the UUID and yields stable identity. A crash after dispatched is outcome-unknown/no retry; packaged-plugin reconnect reads the existing UUID, rehello exposes the same stable identity, and status/resolution—not another bootstrap—settles it. Wrong generation/target and any plugin control-token access reject. Source tests cannot satisfy. Task15 `task-15.json` explicitly includes the built consumer test plus packaged daemon/bridge capability hashes it asserts, while Task9 remains the only owner of implementation paths.
 
-Task15 packaging derives the executable surface only from named `packages/mcp/package.json` files/exports/bin fields plus the packed artifact manifest; there is no anonymous authority. At Task15 those named fields contain the existing MCP entry. Task16 atomically adds `dist/daemon-entry.mjs` to the same named fields and installed smoke/hash.
+Task15 packaging derives the executable surface only from named `packages/mcp/package.json` files/exports/bin fields plus the packed artifact manifest; there is no anonymous authority. At Task15 those named fields contain the existing MCP entry and the packed MCP artifact intentionally has no daemon export/bin. Task16 adds `dist/daemon-entry.mjs` to those same named fields and packed smoke/hash authority.
 
 Artifact verifier asserts tools116, handler106/10, execution99/17, service2 exact names, final Task6.1 ping facade fields, no public session oracle, and unpacked plugin consumer parity.
 
 - [ ] **Step 4: Implement source and local-artifact CI**
 
-Create immutable-digest CI with least read/test permissions. It runs frozen install and local artifact verification only. There is no release workflow, environment, tag, upload or publish job in this plan.
+Create immutable-digest CI with least read/test permissions. It runs frozen dependency restoration and local artifact verification only. There is no distribution, upload, tag, or publish job in this plan.
 
 - [ ] **Step 5: Verify upstream and package contents offline**
 
@@ -4397,7 +4409,7 @@ Expected: canonical/source ledgers, handler106/10, execution99/17, service2, plu
 
 - [ ] **Step 6: Run workflow hygiene checks**
 
-Run exact `pnpm -C service exec vitest run test/workflow-hygiene.test.ts`. The dependency-free restricted workflow parser rejects unsupported YAML, floating actions, excess permissions, non-frozen install, any release/upload/publish trigger or command, and wrong working-directory. Optional actionlint/zizmor may add diagnostics but cannot replace this gate.
+Run exact `pnpm -C service exec vitest run test/workflow-hygiene.test.ts`. The dependency-free restricted workflow parser rejects unsupported YAML, floating actions, excess permissions, non-frozen dependency restoration, any tag/upload/publish trigger or command, and wrong working-directory. Optional actionlint/zizmor may add diagnostics but cannot replace this gate.
 
 - [ ] **Step 7: Request independent spec review**
 
@@ -4411,27 +4423,27 @@ Reviewer checks reproducibility, package surface, workflow permissions, provenan
 
 Stage only `task-15.json` union, byte-verify, review/rerun exact GREEN, then commit exact subject.
 
-### Task 16 — Build the source daemon and unsigned source-complete harness
+### Task 16 — Build the source daemon and unsigned source-complete checks
 
 **Files**
 
-- Create service/packages/mcp/src/application.ts and daemon-entry.ts; modify index.ts, package.json and tsdown.config.ts; create packages/mcp/test/application.test.ts and test/e2e/daemon-entry.test.ts.
-- Create/modify service/schemas/preview-candidate-v1.schema.json, source-complete-evidence-v1.schema.json and source-complete-preview-v1.schema.json.
-- Create/modify service/scripts/acceptance-evidence-validator.mjs, desktop-acceptance.mjs, write-preview-candidate.mjs and write-source-complete-preview.mjs.
-- Create exact tests service/test/preview-candidate.test.ts, acceptance-harness.test.ts, acceptance-live-diagnostic.test.ts, evidence-schema-draft.test.ts, local-harness-binding.test.ts, blocking-check-fixture-map.test.ts and workflow-hygiene.test.ts.
-- Modify Task15 package-artifacts.mjs, verify-artifacts.mjs, the named MCP package files/exports/bin fields and packed artifact manifest to include dist/daemon-entry.mjs. There is no anonymous executable authority.
-- Modify service/package.json and pnpm-lock.yaml only for Ajv 8.17.1 and the final verify:source-complete script. Generated fixed-name outputs under service/artifacts remain ignored.
-- No background or destructive orchestration, real workspace/domain/Figma mutation, or external execution workflow is in Task16.
+- Create `service/packages/mcp/src/application.ts` and `service/packages/mcp/src/daemon-entry.ts`; modify `service/packages/mcp/src/index.ts`, `service/packages/mcp/package.json`, and `service/packages/mcp/tsdown.config.ts`; create `service/packages/mcp/test/application.test.ts` and `service/packages/mcp/test/e2e/daemon-entry.test.ts`.
+- Create `service/schemas/preview-candidate-v1.schema.json`, `service/schemas/source-complete-evidence-v1.schema.json`, and `service/schemas/source-complete-preview-v1.schema.json`.
+- Create `service/scripts/current-windows-diagnostic.mjs`, `run-fake-source-checks.mjs`, `source-complete-validator.mjs`, `write-preview-candidate.mjs`, and `write-source-complete-preview.mjs`.
+- Create exact root tests `service/test/preview-candidate.test.ts`, `source-complete-evidence.test.ts`, `current-windows-diagnostic.test.ts`, `evidence-schema-draft.test.ts`, `source-harness-binding.test.ts`, `blocking-check-fixture-map.test.ts`, and `daemon-artifact-surface.test.ts`; modify `service/test/workflow-hygiene.test.ts`, `service/vitest.config.ts`, and `service/vitest.artifacts.config.ts` so the final artifact-dependent tuple is exactly three rows.
+- Modify Task15 `service/scripts/package-artifacts.mjs`, `verify-artifacts.mjs`, the named MCP `files`/`exports`/`bin` fields, and packed artifact manifest to include `dist/daemon-entry.mjs`. There is no anonymous executable authority.
+- Modify `service/package.json` and `service/pnpm-lock.yaml` only for direct Ajv `8.17.1`, exact source-complete scripts, and lock authority. Fixed generated files under `service/artifacts/` remain ignored.
+- No detached controller, process-state file, automatic pairing, destructive fixture setup/cleanup, real workspace/domain/Figma mutation, external network, or publication workflow belongs to Task16.
 
 **Interfaces**
 
 - Consumes: Task15 verified local artifacts plus all Task1–15 source authorities and frozen Task6.1.
-- Produces: createMcpApplication, stdio/daemon parity, foreground source daemon entry, fake16 result, typed non-destructive current-Windows PLUGIN_NOT_CONNECTED/co-presence diagnostic, PreviewCandidateV1, SourceCompleteEvidenceV1 and SourceCompletePreviewV1.
-- Real Figma validation is a separate supplemental acceptance plan using a dedicated validation folder and explicit user scope; this plan neither creates nor executes it.
+- Produces: `createMcpApplication`, stdio/daemon parity, foreground source daemon entry, the exact fake16 evidence checks, typed non-destructive current-Windows `PLUGIN_NOT_CONNECTED`/co-presence diagnostic, `PreviewCandidateV1`, `SourceCompleteEvidenceV1`, and `SourceCompletePreviewV1`.
+- Any real-Figma validation is a separate supplemental plan using a dedicated validation folder and explicit user scope; this plan neither creates nor executes it.
 
-**Commit protocol:** task-16.json enumerates application/index/daemon/package/build, three schemas, four scripts, seven root tests, two MCP tests, package+lock, Task15 artifact-manifest modifications, change manifest and closed-world authority. Generated outputs are absent; no directory/glob row is legal.
+**Commit protocol:** `task-16.json` enumerates the exact two MCP sources plus index, MCP package/build config, two MCP tests, three schemas, five created scripts, two modified Task15 scripts, seven created root tests plus modified workflow test, both Vitest configs, root package+lock, artifact manifest authority, change manifest, and closed-world authority files. Generated outputs are absent from the staged tree; no directory/glob row is legal.
 
-- [ ] **Step 1: Write complete retained RED**
+- [ ] **Step 1: Write complete Task16 RED**
 
 ~~~ts
 it('uses one application composition for stdio and daemon entries', async () => {
@@ -4442,28 +4454,50 @@ it('uses one application composition for stdio and daemon entries', async () => 
   });
 });
 
-it('keeps daemon-entry alive after stdin EOF and closes the retained child handle', async () => {
-  const child = await spawnSourceDaemon({ stdio: 'ignore' });
-  child.stdin?.end();
-  await expect(strictPing(child.port)).resolves.toMatchObject({ product, buildId });
-  child.kill('SIGTERM');
-  await expect(waitForSameChild(child)).resolves.toBe(0);
+it('closes the in-process application gracefully and idempotently', async () => {
+  const app = await createMcpApplication({ stateRoot: secureTestRoot });
+  const server = await app.startHttp({ host: '127.0.0.1', port: 0 });
+  await Promise.all([app.close(), app.close()]);
+  await app.close();
+  await expect(waitForPortClosed(server.port, 2000)).resolves.toBe(true);
 });
 
-it('keeps current-Windows diagnostic non-destructive and supplemental', async () => {
+it('keeps the child alive after piped stdin EOF and closes the same child cross-platform', async () => {
+  const child = await spawnBuiltDaemon({ stdin: 'pipe', stdout: 'pipe', stderr: 'pipe' });
+  child.stdin.end();
+  await delay(250);
+  await expect(strictPing(child.readyPort)).resolves.toMatchObject({ product, buildId });
+  const exit = await terminateSameChild(child);
+  if (process.platform === 'win32') expect(exit.pid).toBe(child.pid);
+  else expect(exit).toMatchObject({ pid: child.pid, code: 0, signal: null });
+  await expect(waitForPortClosed(child.readyPort, 2000)).resolves.toBe(true);
+});
+
+it('records the Task15 daemon-surface RED before requiring the final packed surface', async () => {
+  const before = await inspectPackedMcp('artifacts/mcp.tgz');
+  expect(before).toMatchObject({ daemonFile: false, daemonExport: false, daemonBin: false });
+  expect(before).toMatchObject({ daemonFile: true, daemonExport: true, daemonBin: true }); // behavioral RED
+});
+
+it('keeps the current-Windows diagnostic non-destructive and supplemental', async () => {
   await expect(runCurrentWindowsDiagnostic({ pluginConnected: false }))
     .rejects.toMatchObject({ code: 'PLUGIN_NOT_CONNECTED' });
+  expect(pairCalls()).toBe(0);
   expect(workspaceMutations()).toEqual([]);
   expect(figmaMutations()).toEqual([]);
 });
 
-it('writes three unsigned fixed-name source-complete files', async () => {
-  const evidence = await runFake16();
-  expect(evidence).toMatchObject({ evidenceKind: 'unsigned-local-preview', status: 'pass' });
-  const marker = await writeSourceCompletePreview(evidence);
-  expect(marker.releaseStatus).toBe('blocked-external-evidence');
-  expect(await generatedArtifactNames()).toEqual([
-    'acceptance-harness-result.v1.json',
+it('writes exactly three cross-validated unsigned files', async () => {
+  const candidate = await writePreviewCandidate();
+  const evidence = await runFake16({ candidate });
+  const marker = await writeSourceCompletePreview({ candidate, evidence });
+  expect(evidence.checks.map(x => x.id)).toEqual(REQUIRED_BLOCKING_CHECK_IDS.fake);
+  expect(marker).toMatchObject({
+    externalValidationStatus: 'not-run',
+    candidateContentHash: candidate.contentHash,
+    evidenceContentHash: evidence.contentHash,
+  });
+  expect(await sourceCompleteOutputNames()).toEqual([
     'preview-candidate.v1.json',
     'source-complete-evidence.v1.json',
     'source-complete-preview.v1.json',
@@ -4471,34 +4505,48 @@ it('writes three unsigned fixed-name source-complete files', async () => {
 });
 ~~~
 
+The first packed-surface assertion is a RED-only baseline guard: it must observe the Task15 artifact with no daemon file/export/bin, then the desired assertion fails. Step4 replaces the baseline branch with one final positive assertion; it is not retained as contradictory GREEN code. Source-complete tests also mutate one valid-format file hash, internal content hash, source commit, harness hash, and artifact/checksum tuple in turn and require cross-field rejection after reread.
+
 - [ ] **Step 2: Run literal RED**
 
-Run: pnpm -C service exec vitest run packages/mcp/test/application.test.ts packages/mcp/test/e2e/daemon-entry.test.ts test/preview-candidate.test.ts test/acceptance-harness.test.ts test/acceptance-live-diagnostic.test.ts test/evidence-schema-draft.test.ts test/local-harness-binding.test.ts test/blocking-check-fixture-map.test.ts test/workflow-hygiene.test.ts
+~~~powershell
+pnpm -C service build
+node service/test/fixtures/assemble-baseline-artifacts.mjs
+pnpm -C service exec vitest run --config vitest.artifacts.config.ts test/daemon-artifact-surface.test.ts
+pnpm -C service exec vitest run packages/mcp/test/application.test.ts packages/mcp/test/e2e/daemon-entry.test.ts test/preview-candidate.test.ts test/source-complete-evidence.test.ts test/current-windows-diagnostic.test.ts test/evidence-schema-draft.test.ts test/source-harness-binding.test.ts test/blocking-check-fixture-map.test.ts test/workflow-hygiene.test.ts
+~~~
 
-Expected behavioral RED: index still owns composition; daemon entry/factory are absent; stdin EOF ends the process; retained child-handle shutdown is untested; diagnostic attempts more than co-presence or lacks typed PLUGIN_NOT_CONNECTED; candidate/evidence/marker schemas, hashes and fixed ignored filenames fail. All named tests exist and execute legacy behavior; missing tests/modules are not acceptable RED.
+Expected behavioral RED: baseline inspection positively proves current `mcp.tgz` lacks `dist/daemon-entry.mjs`, `./daemon`, and `sfp-daemon`, then the desired surface assertion fails. Existing index still owns composition; daemon entry/factory and idempotent close contract are absent; stdin-EOF and cross-platform same-child semantics are unmet; typed fake pair/resume, candidate/evidence/marker cross-fields, exact three filenames, and non-destructive diagnostic gates fail through explicit assertions. Every named test exists and runs; a missing test or an accidental module-resolution exception is not an acceptable RED.
 
-- [ ] **Step 3: Extract application factory and add daemon entry**
+- [ ] **Step 3: Extract the application factory and implement foreground lifecycle**
 
-Move all composition into createMcpApplication(options): Promise<{startHttp,attachStdio,close}>. index.ts stays the stdio adapter. daemon-entry strict-parses state-root and port, calls only startHttp, has no stdio protocol, ignores stdin/EOF, and awaits one idempotent close on SIGINT/SIGTERM. Parity tests compare registry, policy, runtime and shutdown wiring.
+Move all composition into `createMcpApplication(options): Promise<{startHttp,attachStdio,close}>`; `index.ts` remains only the stdio adapter. `close()` is concurrency-safe, idempotent, gracefully stops admission/HTTP/stdio/application resources, and resolves only after owned ports close. `daemon-entry.ts` strict-parses an owner-secure absolute `--state-root` and decimal `--port` (`0` for OS assignment or `1024..65535`), calls only `startHttp`, never attaches stdio, ignores stdin/EOF, and awaits one idempotent close path for signals. A normal process never detaches itself or writes process-state metadata.
 
-- [ ] **Step 4: Build/package exact daemon executable**
+The MCP process test spawns the freshly built `dist/daemon-entry.mjs` with piped stdin/stdout/stderr, closes stdin, waits 250 ms, and proves strict ping still works; the artifact-dependent root test separately repeats the core lifecycle against the unpacked tarball. POSIX sends `SIGTERM` and may assert `{code:0,signal:null}` within 5,000 ms because the handler closes cleanly. Windows calls `child.kill()` on the retained handle and asserts only that the same PID exits within 5,000 ms and the port closes; it makes no exit-code/signal claim. `afterEach` always terminates and awaits that exact handle.
 
-Update named packages/mcp/package.json files/exports/bin entries and the packed artifact manifest for dist/daemon-entry.mjs; tsdown builds it. Artifact tests unpack the Task15 MCP tarball and execute its help/startup smoke. No separate executable authority file or source-path fallback exists.
+- [ ] **Step 4: Build and package the exact daemon executable surface**
 
-- [ ] **Step 5: Implement fake16 and non-destructive local diagnostic**
+`service/packages/mcp/tsdown.config.ts` has exact entries `{index:'src/index.ts',daemon:'src/daemon-entry.ts'}` and asserts outputs `dist/index.mjs` and `dist/daemon-entry.mjs`. `service/packages/mcp/package.json` preserves existing fields, requires `files` to include `dist`, adds export `"./daemon":"./dist/daemon-entry.mjs"`, and adds exact bin `"sfp-daemon":"dist/daemon-entry.mjs"`. Package/artifact tests reject a source-path fallback, an extra daemon path, or any disagreement among package.json, tsdown output, `artifact-manifest.v1.json`, and tar contents.
 
-Fake16 runs only typed fakes/test-owned temporary files and remains the blocking SourceCompleteEvidence input. The current-Windows diagnostic starts the source daemon in the runner's controlled exec session, retains and terminates that same child handle, checks Figma/plugin co-presence, returns typed PLUGIN_NOT_CONNECTED when absent, and cannot pair, create, register, import, mutate or delete. A future real-Figma supplemental acceptance plan must use its own dedicated validation folder, explicit user scope and controlled source-daemon handle; it is outside this plan.
+The unpacked help smoke runs `node package/dist/daemon-entry.mjs --help`, requires exit0 within 2,000 ms, empty stderr, and exact stdout `Usage: sfp-daemon --state-root <absolute-path> --port <0|1024-65535>\n` (UTF-8, at most 512 bytes). Startup runs `node package/dist/daemon-entry.mjs --state-root <verifiedTestTemp> --port 0`; within 5,000 ms stdout must contain exactly one LF-terminated JSON line with key order `{"type":"sfp-daemon-ready-v1","port":<actualPort>}`, actualPort in `1024..65535`, no extra stdout, and empty stderr. The test strict-parses public ping within 2,000 ms, verifies build identity, terminates the retained child under the platform rules above, and proves connect fails/port closes within 2,000 ms. Step1's contradictory baseline assertion is replaced by the final positive file/export/bin assertion.
 
-- [ ] **Step 6: Implement unsigned candidate/evidence/marker writers**
+- [ ] **Step 5: Implement fake16 and the non-destructive diagnostic**
 
-After the clean Task16 commit, writers emit only the four fixed ignored filenames under service/artifacts using same-directory temp, fsync, atomic file replacement, schema/content-hash reread and parent fsync where supported. PreviewCandidate content hashes are never path segments. SourceCompleteEvidence binds Task15 artifact hashes, final Task16 harness manifest and fake16 hash; current-Windows diagnostic hash is optional/nonblocking. Marker stays blocked-external-evidence.
+`run-fake-source-checks.mjs` executes exactly the section3.13 rows using typed fakes and test-owned temporary roots. `fake.pair-resume` invokes the pairing/resume broker interfaces directly with deterministic fake transport; it never launches `sfp pair`, allocates a TTY, shows a code, or reads interactive input. The current-Windows diagnostic uses the source runner's retained daemon child, checks only Figma Desktop/plugin co-presence, emits strict JSON to stdout, returns typed `PLUGIN_NOT_CONNECTED` when absent, writes no source-complete file, and cannot pair, create, register, import, mutate, delete, or access external network.
 
-- [ ] **Step 7: Run complete GREEN**
+- [ ] **Step 6: Implement the three schemas and three-file pipeline**
+
+Implement the three exact section3.13 schemas and domains through the single Ajv module. `write-preview-candidate.mjs` consumes only the clean source commit, Task15 `artifact-manifest.v1.json`/`SHA256SUMS`, artifact bytes, and exact Git-blob harness manifest. `run-fake-source-checks.mjs` writes the complete fake16 array directly into `source-complete-evidence.v1.json`; there is no intermediate result file. `write-source-complete-preview.mjs` rereads both prior files, enforces all file/content/cross-field equalities, and writes the marker. The only new fixed ignored outputs are the three filenames in section3.13.
+
+- [ ] **Step 7: Run complete precommit GREEN, including the full artifact gate**
 
 ~~~powershell
 pnpm -C service install --lockfile-only
 pnpm -C service install --frozen-lockfile
-pnpm -C service exec vitest run packages/mcp/test/application.test.ts packages/mcp/test/e2e/daemon-entry.test.ts test/preview-candidate.test.ts test/acceptance-harness.test.ts test/acceptance-live-diagnostic.test.ts test/evidence-schema-draft.test.ts test/local-harness-binding.test.ts test/blocking-check-fixture-map.test.ts test/workflow-hygiene.test.ts
+pnpm -C service verify:artifacts
+pnpm -C service test:artifacts
+pnpm -C service exec vitest run --config vitest.artifacts.config.ts test/daemon-artifact-surface.test.ts
+pnpm -C service exec vitest run packages/mcp/test/application.test.ts packages/mcp/test/e2e/daemon-entry.test.ts test/preview-candidate.test.ts test/source-complete-evidence.test.ts test/current-windows-diagnostic.test.ts test/evidence-schema-draft.test.ts test/source-harness-binding.test.ts test/blocking-check-fixture-map.test.ts test/workflow-hygiene.test.ts
 pnpm -C service --filter @sfp/mcp build
 pnpm -C service typecheck
 node service/scripts/update-service-forks.mjs --slice 16 --index service/capabilities/change-manifests/task-16.json
@@ -4506,45 +4554,48 @@ node service/scripts/vendor-upstreams.mjs --copy-only
 node service/scripts/verify-upstream-lock.mjs --offline
 pnpm -C service exec vitest run test/vendor-upstreams.test.ts test/authority-class-transition.test.ts test/service-fork-lineage.test.ts
 node service/scripts/verify-staged-change-manifest.mjs --slice 16
+node -e "const f=require('node:fs');for(const p of ['service/artifacts/preview-candidate.v1.json','service/artifacts/source-complete-evidence.v1.json','service/artifacts/source-complete-preview.v1.json'])if(f.existsSync(p))process.exit(1)"
 ~~~
 
-Expected: application/stdio/daemon parity, foreground child lifecycle, package executable, fake16, co-presence diagnostic, three unsigned schemas and no-destructive-capability structural gates pass. Every removed orchestration path is structurally absent.
+Expected: application/stdio/daemon parity, idempotent application close, EOF survival, platform-specific retained-child teardown, exact package metadata/help/readiness/ping/port-close surface, fake16, supplemental diagnostic, three strict schemas, and full Task15 artifact suites pass. The precommit gate creates no candidate/evidence/marker.
 
-- [ ] **Step 8: Request independent spec review**
+- [ ] **Step 8: Stage the closed world and obtain same-tree reviews**
 
-Reviewer verifies the exact Task16 source boundary and that real-Figma validation remains a separate user-scoped supplemental plan.
+Stage only the exact `task-16.json` union, compare staged names byte-for-byte with the manifest, run `git diff --cached --check`, record `git write-tree`, and obtain independent specification and quality reviews of that exact tree. Rerun the literal Step7 commands without changing the index, assert the same `git write-tree`, and commit the already-reviewed tree with the exact Task16 subject.
 
-- [ ] **Step 9: Request independent quality review**
+- [ ] **Step 9: Review Task16 quality and scope**
 
-Reviewer checks one composition root, signal/EOF behavior, same-child teardown, package executable metadata, fake16 determinism, diagnostic non-mutation and atomic fixed-file writers.
+The spec reviewer verifies the source-only boundary and separate user-scoped real-Figma work. The quality reviewer checks one composition root, idempotent close, signal/EOF/platform behavior, bounded output/timeouts, exact package authority, fake determinism, diagnostic non-mutation, and three-file cross-validation. Any staged change restarts both reviews.
 
-- [ ] **Step 10: Commit, then run the one terminal source-complete command**
+- [ ] **Step 10: Run the sole terminal source-complete command after the clean commit**
 
-Stage only task-16.json union, review/rerun the same tree and commit exact Task16 subject. From that clean commit run exactly pnpm -C service verify:source-complete. Its order is frozen install, full source tests, build, Task15 artifact assembly+verification, PreviewCandidate writer with final Task16 harness hash, fake16 result/evidence validation, marker write/reread validation. Only this command can support source-complete status; Task15 verify:artifacts cannot.
-### Task 17 — External Windows GA evidence placeholder
+From the clean Task16 commit run exactly `pnpm -C service verify:source-complete`. Its frozen order is dependency restoration, full source/build checks through `verify:artifacts`, final Task16 artifact assembly/verification, PreviewCandidate creation, direct fake16 evidence creation, and marker reread/cross-validation. Assert the source-complete output-name set is exactly the three section3.13 filenames and rerun `source-complete-validator.mjs` against all three. Only this command supports source-complete status; Task15 `verify:artifacts` does not.
 
-**Files:** none.
-
-**Status:** blocked-external-evidence; excluded from source implementation dispatch and plan READY criteria.
-
-This plan contains no Windows GA files, commands or completion checkbox. Execution requires a separately scoped, reviewed and explicitly approved future GA runbook. Until then this Task remains unstarted and makes no completion claim.
-
-### Task 18 — External macOS GA placeholder
+### Task 17 — External Windows validation placeholder
 
 **Files:** none.
 
-**Status:** blocked-external-evidence; excluded from source implementation dispatch and plan READY criteria.
+**Status:** `external-validation-not-in-scope`; excluded from source implementation dispatch and plan READY criteria.
 
-This plan contains no macOS GA files, commands or completion checkbox and cannot authorize external execution. A separately scoped, reviewed and explicitly approved future GA runbook is required. Until then this Task remains unstarted and makes no completion claim.
+This plan contains no Windows external-validation files, commands, or completion checkbox. Execution requires a separately scoped, reviewed, and explicitly approved supplemental plan. Until then this Task remains unstarted and makes no completion claim.
+
+### Task 18 — External macOS validation placeholder
+
+**Files:** none.
+
+**Status:** `external-validation-not-in-scope`; excluded from source implementation dispatch and plan READY criteria.
+
+This plan contains no macOS external-validation files, commands, or completion checkbox and cannot authorize external execution. A separately scoped, reviewed, and explicitly approved supplemental plan is required. Until then this Task remains unstarted and makes no completion claim.
+
 ---
 
 ## 8. v0.1 Definition of Done
 
 ### Source-complete Preview Boundary
 
-- Tasks 1–16 complete the authorized implementation objective when all source/artifact/harness gates below pass.
-- The truthful status is always `implementationStatus:'source-complete-preview'` and `releaseStatus:'blocked-external-evidence'` within this plan.
-- This status may be reported as implementation complete; it may not be described as GA, released, or Desktop-live-accepted on both OSes.
+- Tasks 1–16 complete the authorized implementation objective when all source, artifact, and typed-fake gates below pass.
+- The truthful status is always `implementationStatus:'source-complete-preview'` and `externalValidationStatus:'not-run'` within this plan.
+- This status may be reported as source implementation complete; it is not a public-availability or cross-OS real-Figma validation claim.
 
 ### Functional
 
@@ -4554,16 +4605,16 @@ This plan contains no macOS GA files, commands or completion checkbox and cannot
 - Result/runtime/policy/egress/TargetRequirement maps cover116 with no fallback; handler parity and execution routing are independently asserted.
 - Canonical manifest has 116 implemented rows; source ledgers have lexical114/helper20/parser12 with 11 unique parser behaviors and no unclassified row.
 - Motion7 and video1 are present as experimental-native in registry, runtime, policies, docs, and artifacts.
-- Selection/context/screenshot/component-token-icon grounding and typed writes pass unit/process/fake-control acceptance; optional current-Windows diagnostic returns only typed non-destructive co-presence/connection results.
+- Selection/context/screenshot/component-token-icon grounding and typed writes pass unit/process/typed-fake checks; optional current-Windows diagnostic returns only typed non-destructive co-presence/connection results.
 - Mutating final real-Figma validation is not a DoD gate here; it requires a separately approved supplemental plan with a dedicated validation folder and explicit user scope.
-- `export_tokens`, ordered `export_frames_to_pdf`, `doctor`, and `import_library_variable` pass focused/process/fake-harness capability tests.
+- `export_tokens`, ordered `export_frames_to_pdf`, `doctor`, and `import_library_variable` pass focused/process/source-fake capability tests.
 - CLI includes strict authenticated status, workspace set-default, and locator-based grounding refresh plus prior wrappers.
 - All tools and Task11 service2 enter one plane; followers consume only final Task6.1 plaintext stream facade; route classes cannot cross-call.
 - Strict lower-snake tool and exact dotted service-name parsers feed one kind/name registry+journal; both service literals and invalid dot/slash/case/length/cross-kind fixtures pass. Requests produce native pre-admission rejection or accepted/progress/exactly-one-terminal with no Relay/runtime bypass.
 - Task9A real plugin and Task15 packed plugin consume Task7 progress/cancel schemas; Task9C consumes strict bound approval prompt/decision with duplicate/reconnect/late cleanup and no control token. Task7 fakes alone are insufficient.
 - Built daemon↔plugin approval E2E and packed ZIP consumer cover both branches/core cases. The packed identity.bootstrap flow proves initial no-fileKey unstable/read-only, reject runtime/undo0, approve one shared-data UUID write/one undo, forced authenticated rehello before Relay remap, and crash-unknown reconnect discovery with no rerun/control token; tool/service counts remain unchanged.
 - Internal-system auth1 is daemon HMAC-bound to paired session+leader generation, owner actor unchanged; plugin/body cannot forge it and foreign/reconnect audit tests pass.
-- Strict OperationOriginV1 enforces top-level/origin auth equality and system iff identity.bootstrap, hashes paired session/target, matches admitted generations, stores no raw target/session, persists through journal/tombstone/resolution/audit, and makes settled system operations non-replayable.
+- Strict `OperationOriginV1` enforces top-level/origin auth equality and system iff `identity.bootstrap`. Append derives component hashes from admitted source values and matches admitted generations; restart validates component syntax/equalities and recomputes only the target-binding hash from stored hashes/generations. The raw-free guarantee applies to internal-system origin, while ordinary replay records may retain nonsecret workspace/file keys. Settled system operations remain non-replayable.
 - SnapshotV1/GroundingGraphV1 use strict locator/full-identity/node/edge/evidence schemas, separate injected ports/refs/checksums/content hashes and atomic loadByLocator/CAS refresh; service2 remains exact and grounding refresh is selector-none locator-only.
 - 10k graph isolated three-run memory gate is max heap delta128MiB and serialized32MiB.
 - Snapshot/graph validate wire hash then digest path; design-diff additionally domain-hashes exact raw nodeId, embeds/reverifies raw ID+digest, rejects collision/traversal. Valid wire hashes succeed on Windows.
@@ -4608,16 +4659,16 @@ This plan contains no macOS GA files, commands or completion checkbox and cannot
 - Edited upstream paths become protected strict edit/move/delete service-fork lineages before copy-only; exact exclude/serviceOwned/A-M/D/D+A/hash/no-blob rules and no-overwrite verification pass, while only byte-unchanged rows retain vendor mode. serviceFiles/packageAuthorities refresh by subtype.
 - Fork lineage originCommit/base/mode matches the prior row; election.ts/77 handlers, repo-walk moves and deleted paths cannot be overwritten/recreated by generator.
 - Built-dist E2E cannot silently skip in CI or preview verification.
-- Ordinary artifact exclusions live in Vitest config; separate artifact config runs exact two post-package tests; Windows cmd script process test passes with no POSIX quotes.
-- Task15 `verify:artifacts` packages and verifies artifacts only and cannot support source-complete status. After the clean Task16 commit, the one terminal `verify:source-complete` runs frozen install/full tests/build/artifacts, writes the unsigned candidate/fake evidence/marker, and reread validates all fixed ignored files.
-- MCP bundle contains shared+IR and CLI bundle contains shared; packed manifests have no workspace/private runtime dependency, and each tarball installs alone in an empty prefix/cache and runs its installed bin/tool smoke.
+- Ordinary artifact exclusions live in Vitest config; Task15's separate artifact config starts with exact two post-package tests and Task16 atomically extends it to the exact three-row final tuple including daemon surface. Windows cmd script process test passes with no POSIX quotes.
+- Task15 `verify:artifacts` packages and verifies artifacts only and cannot support source-complete status. After the clean Task16 commit, the one terminal `verify:source-complete` runs frozen dependency restoration/full tests/build/artifacts, writes exactly candidate/evidence/marker, and reread validates the three fixed ignored files and every cross-field hash.
+- MCP bundle contains shared+IR and CLI bundle contains shared; packed manifests have no workspace/private runtime dependency, and each tarball is checked alone in an empty prefix/cache and runs its packed bin/tool smoke.
 - Plugin ZIP has exact isolated manifest/dist/legal/capability paths, deterministic hash/timestamps and unpacked VM+happy-dom consumer execution; source tests cannot substitute.
 - Three unsigned local schemas cover PreviewCandidate, SourceCompleteEvidence and SourceCompletePreview; all outputs are fixed-name, ignored and hash-validated.
-- Persistent packed `daemon-entry.mjs` shares the application factory, ignores stdin EOF, and passes retained-child signal teardown tests. Current-Windows co-presence/PLUGIN_NOT_CONNECTED output is supplemental and nonbinding.
+- Packed `daemon-entry.mjs` shares the application factory; named package/tsdown/artifact authorities agree on `dist/daemon-entry.mjs`, `./daemon`, and `sfp-daemon`. Help/readiness output and timeouts are exact, stdin EOF is ignored, application close is idempotent, POSIX signal and Windows retained-child teardown rules pass, and the port closes. Current-Windows co-presence/`PLUGIN_NOT_CONNECTED` output is supplemental and nonbinding.
 - Three upstream MIT notices, service license, pdf-lib notice, THIRD_PARTY_NOTICES, PROVENANCE, SBOM, and capability ledgers are present in every applicable artifact.
 - Solar CC BY assets and raw exec symbols are absent.
 - Offline upstream verification passes without original checkouts; parent-workspace verification confirms all three original repos remain clean at pinned commits.
-- Service CI uses frozen install, least permissions and immutable action digests; no release/publish workflow exists.
+- Service CI uses frozen dependency restoration, least permissions, and immutable action digests; no upload/publish workflow exists.
 
 ### Documentation and Policy
 
@@ -4626,10 +4677,10 @@ This plan contains no macOS GA files, commands or completion checkbox and cannot
 - Docs say REST/official MCP endpoints are not used by the local path while Figma account/edit/plugin/policy and model-provider costs remain.
 - Docs cover final Task6.1 outer/inner facade, authenticated control status/router, actor/auth/policy/target/runtime, service2 graph refresh, journal/finalizer/demotion/limits, real plugin consumer, legacy recapture and prior boundaries.
 
-### External GA Status
+### External Validation Status
 
-- `releaseStatus:'blocked-external-evidence'` is expected and truthful.
-- Tasks17–18 are excluded placeholders. This plan contains no future-runbook authority to sign, bundle, upload, publish or claim release completion.
+- `externalValidationStatus:'not-run'` is expected and truthful.
+- Tasks17–18 are excluded placeholders. This plan contains no authority to sign, bundle, upload, publish, or claim external validation completion.
 
 ---
 
@@ -4676,7 +4727,7 @@ Decision vocabulary: **accepted** means the plan now contains the requested cont
 | A-IP-I09 | accepted | Shared egress taxonomy/config and progress contract are wired through executor, snapshot, PDF/video, relay/MCP/CLI, cancel, and absolute deadline. |
 | A-IP-I10 | accepted | Task 13 implements approvals list/approve/reject; Task 9 defines commitUndo once per top-level write/batch and zero for other outcomes. |
 | A-IP-I11 | accepted | Manifest separates disposition/registration/availability/investment; Motion7+video are experimental-native advertised/implemented. |
-| A-IP-I12 | superseded by R13 | Task16 truthfully marks unsigned source-complete/release-blocked; Tasks17/18 are non-dispatchable placeholders. |
+| A-IP-I12 | superseded by R15 | Task16 truthfully marks unsigned source-complete with external validation not run; Tasks17/18 are non-dispatchable placeholders. |
 | A-IP-I13 | accepted | Every Task contains independent spec review and independent quality review before an exact commit step. |
 
 ### Agent B
@@ -4684,12 +4735,12 @@ Decision vocabulary: **accepted** means the plan now contains the requested cont
 | Finding | Decision | Resolution |
 |---|---|---|
 | B-C-01 | partially accepted | The parent requested one directly executable plan, so five separate documents were not created. The same concern is addressed by 18 smaller Tasks, five milestone checkpoints, exact Interfaces, code/test snippets, commands, two reviews, and commits. |
-| B-C-02 | accepted | Task 1 bootstraps the runner before domain RED; each later RED names the concrete missing module or current buggy behavior; acceptance skeleton precedes live absence RED. |
+| B-C-02 | accepted | Task1 bootstraps the runner before domain RED; each later RED names the concrete missing module or current buggy behavior; the test skeleton precedes the unavailable-system RED. |
 | B-C-03 | accepted | Section 3.2 and Task 5 use `effectsFor(args,context)`, dynamic idempotency/approval, and conservative static annotations. |
 | B-C-04 | accepted | Explicit pdf-lib dependency and Task 12 ordered merge implementation remove the impossible GREEN. |
 | B-C-05 | accepted | Section 3.4 and Task 4 separate owner-only stateRoot from workspaceRoots; Figma-only/no-workspace and filesystem-required rules are explicit. |
 | B-I-01 | accepted | DAG orders RuntimePaths→policy→auth→executor→fs/network→plugin and places control tool call with executor. |
-| B-I-02 | superseded by R14 | Task1 hygiene and Task15 source CI/package maps/frozen install/artifacts remain; no release template exists. |
+| B-I-02 | superseded by R14 | Task1 hygiene and Task15 source CI/package maps/frozen dependency restoration/artifacts remain; no distribution template exists. |
 | B-I-03 | accepted | Section 3.5 defines challenge/exchange/hello/resume, PNA, owner storage, rotation, and eight-digit→128-bit sequence. |
 | B-I-04 | accepted | Task 8 routes each descendant read and write through adapters and structurally rejects direct fs imports outside explicit authorities. |
 | B-I-05 | accepted | Task 11 specifies full section capture/merge, partial fidelity, same-session pin, memory/progress/cancel tests. |
@@ -4741,7 +4792,7 @@ Decision vocabulary: **accepted** means the plan now contains the requested cont
 | B-I-03 | accepted | challengeId is a public ten-character Pair ID shown with code/paste form; literal PNA OPTIONS request/response/Vary and negative matrix plus exact Windows SID/icacls argv are specified. |
 | B-I-04 | accepted | IR defines a storage port only and imports no fs; MCP workspace snapshot store uses Task 8 adapters and structural tests enforce it. |
 | B-I-05 | accepted | Nested section plans use bounded stable DFS, `(pluginGeneration,nodeId)` visited keys, depth8/section256 caps, recursion fidelity, cycle tests, and concurrency2. |
-| B-I-07 | superseded by R13 | Undo and installed artifact checks remain; external proof generation is outside this plan. |
+| B-I-07 | superseded by R13 | Undo and packed-artifact checks remain; external proof generation is outside this plan. |
 | B-I-08 | accepted/strengthened | Source/target hashes, handler106/10, execution99/17, maps116, service2 separate. |
 | B-I-10 | superseded by R13 | One parent source plan remains; Tasks17/18 numbering is retained only as external placeholders. |
 | N-C-01 | accepted | Vendor rules copy only source/test/skills/build files; root/package/lock/config are merge/reference authorities, Task 1 files are hash-protected, upstream postinstall is dropped, and service lock is regenerated/frozen. |
@@ -4749,7 +4800,7 @@ Decision vocabulary: **accepted** means the plan now contains the requested cont
 | N-C-03 | accepted | Succeeded old-generation records never execute; queued/pending fail, dispatched becomes unknown, in-memory exact replay is bounded, persisted exact success returns settled status, mismatch remains conflict. |
 | N-I-01 | accepted | JournalLimits fixes 8k/24MiB compaction, 10k rows or 31MiB normal hard cap plus a dedicated 1MiB resolution reserve, horizon tombstones, signed-ID expiry, unresolved retention, manual resolution, and exact fail-closed/unblock behavior. |
 | N-I-02 | accepted/strengthened | Task7 owns daemon schemas/fake transport, Task9A real plugin consumer, Task11 snapshot service producer, Task12 PDF/video producer, Task13 client. |
-| N-I-03 | superseded by R13 | Installed local artifact validation remains in Task16; external execution moved outside this plan. |
+| N-I-03 | superseded by R15 | Packed local artifact validation remains in Tasks15–16; external execution stays outside this plan. |
 
 ### Round 3 resolutions — Agent A rereview 2
 
@@ -4769,7 +4820,7 @@ Decision vocabulary: **accepted** means the plan now contains the requested cont
 | B-I-10 | superseded by R13 | Source-task slices remain; Tasks17/18 numbering remains as non-dispatchable placeholders. |
 | N-C-03 | accepted | Server-issued HMAC operation IDs carry issuedAt/keyId/nonce/actor; terminal rows compact to 30-day tombstones and expired signed IDs always return OPERATION_ID_EXPIRED/runtime0 after purge. |
 | N-I-01 | accepted | Unknown-resolution states/API/CLI/audit are implemented in the plan; hard-cap keeps resolution available, resolved rows unblock workspace/cap, and same ID remains settled. |
-| N-I-03 | accepted | MCP always-bundles shared+IR and CLI shared; packed manifests have no private/workspace runtime dependency; Task 15 installs each tarball alone in empty prefixes/caches and runs installed tools. |
+| N-I-03 | accepted | MCP always-bundles shared+IR and CLI shared; packed manifests have no private/workspace runtime dependency; Task15 checks each tarball alone in empty prefixes/caches and runs packed tools. |
 | R2-C-01 | accepted | Exact POST pair CORS matrix and process/UI tests make success/wrong/expired/used/rate/internal responses readable only to validated Figma/null Origins. |
 | R2-C-02 | accepted/strengthened by R7 | Task9 mutation authority covers 78 non-batch tool rows over 77 unique paths plus batch, changed/no-op fixtures for all79, internal metadata stripping, final library row80, and sole dispatcher commit site. |
 | R2-C-03 | accepted | Exactly-once is explicitly 30 days; signed issuedAt rejects older IDs forever, in-horizon terminal tombstones prevent reexecution, and generation transitions remain deterministic. |
@@ -4882,10 +4933,10 @@ Commit `bb433f3a84557e34331691c8dde01901e95dd2ca` and plan SHA `9326a80b4f3bfc37
 | I14 vendor allowed generator | 7A prelude scans copy+serviceOwned destinations so the Relay raw import remains in exactly15 sorted rows; generator/test/output/authority share TREE_7A. |
 | I15 authority classes | Superseded by R9 semantic service-fork lineage for any edited upstream-managed path. |
 | I16 dependencies | Task11 shared+zod, Task12 pdf-lib, Task13 CLI shared, Task15 root happy-dom and Task16 Ajv are direct exact dependencies with package+lock, lockfile-only/frozen/staging gates; no YAML import/dependency. |
-| I17 live diagnostic | Task16 GREEN runs a Vitest child-wrapper that proves raw nonzero PLUGIN_NOT_CONNECTED while the wrapper exits zero; raw failure is not a GREEN command. |
-| I18 former external ceremony | Superseded/pruned by R13: Tasks1–16 now retain only unsigned local source-complete evidence; external ceremony requires a future runbook. |
+| I17 current-Windows diagnostic | Task16 GREEN runs a Vitest child-wrapper that proves raw nonzero `PLUGIN_NOT_CONNECTED` while the wrapper exits zero; raw failure is not a GREEN command. |
+| I18 former external ceremony | Superseded/pruned by R13: Tasks1–16 retain only unsigned local source-complete evidence; external work requires a separately approved supplemental plan. |
 | I19 plugin artifact | Prior exact isolated plugin staging root, built dist/legal/capability contents, deterministic order/timestamps/hash and unpacked execution remain unchanged. |
-| I20 service count | Task11 registers exact service2 and Task12–release preserve it outside tool counts. |
+| I20 service count | Task11 registers exact service2 and Tasks12–16 preserve it outside tool counts. |
 | I21 resolution fixture | Reserved record assertion uses `.decision`; fake hash is replaced by a valid `sha256:`+64hex constant. |
 | I22 concurrent plugin ID | Task9B idempotency-concurrency test requires one shared Promise, handler and undo for concurrent identical ID and conflict on different args. |
 | I23 source marker | Superseded by R8: schema/writer stay tracked, generated marker moves to ignored artifacts and is never authority/staged. |
@@ -4902,7 +4953,7 @@ Commit `95fcfe8faec102015523be62d328f35aa957d9ac` and plan SHA `b666df08051c77cd
 | 4 replay bytes | Cache stores canonical redacted strict-result bytes and kind/name-aware consent fingerprint; adapters reframe after current authorization. |
 | 5 Windows/node paths | Valid wire hash succeeds to digest-only path; design-diff node uses domain SHA-256, embeds/reverifies raw ID, rejects mismatch/collision/traversal. |
 | 6 artifact test defaults | Vitest config owns exact ordinary exclusions; artifact config owns exact includes; JSON scripts are cmd-safe and Windows process-tested. |
-| 7 immutable RC | Task15 RC pins source epoch/hashes; evidence never repackages or moves source tag; final release check validates same RC. |
+| 7 former candidate ceremony | Superseded by R13–R15: Task15 owns artifacts only; Task16 creates an unsigned local preview after its clean commit. |
 | 8 former external design | Superseded/pruned by R13; external execution is not part of this plan. |
 | 9 7A authority | Superseded by R9: edited election.ts transitions to semantic service fork; only unchanged upstream preserves copy mode. |
 | 10 Task8 scan | scan/scan.ts and scan.test are exact 8A migration/manifest/GREEN rows. |
@@ -4914,7 +4965,7 @@ Commit `95fcfe8faec102015523be62d328f35aa957d9ac` and plan SHA `b666df08051c77cd
 | 16 former external commands | Superseded/pruned by R13; Tasks17/18 contain no commands. |
 | 17 paths/ledger | Every new source/test/script/schema/config is assigned to exact slice/file map/command; this ledger supersedes stale R7 wording. |
 
-### 2026-08-28 R9 authority and release amendment
+### 2026-08-28 R9 authority and external-scope amendment
 
 Commit `0a668859709bcd9ae79705f5919d4fb73c48c08a` and plan SHA `494b0de2ba76c49d004547d4110c4f3828046399259c04ab25d7e61717649dfe` are superseded for Task7 onward; Task6.1 remains frozen.
 
@@ -4925,15 +4976,15 @@ Commit `0a668859709bcd9ae79705f5919d4fb73c48c08a` and plan SHA `494b0de2ba76c49d
 | 3 CLI | Task13 adds direct tsdown devDependency/package/lock/build authority. |
 | 4 approval | Frozen entry×target matrix and wrong-channel tests bind plugin vs owner-control branches. |
 | 5 Ajv | Superseded by R14: Task16 validates exactly three unsigned schemas. |
-| 6 harness | RC harnessManifestHash uses sourceCommit Git blobs/node/lock; clean detached head and canonical argv bind evidence. |
+| 6 source binding | Superseded by R15: PreviewCandidate harness hash uses exact sourceCommit Git blobs, Node pin, package, and lock inputs. |
 | 7 former external assets | Superseded/pruned by R13; only local preview artifacts remain. |
 | 8 former external ownership | Superseded/pruned by R13 and moved outside this implementation plan. |
 | 9 system principal | internal-system auth HMAC derives only daemon-side from paired session/generation; audit/reconnect/foreign-root tests exact. |
 | 10 R8 paths | scan.ts, plugin registry and read-tools E2E remain exact manifests/commands. |
-| 11 R8 safety | Workspace atomicity, approval union, replay bytes, path digests and RC rules retained. |
-| 12 external status | Superseded by R13 placeholders and a future separately approved runbook requirement. |
+| 11 R8 safety | Workspace atomicity, approval union, replay bytes, and path digests remain retained; later preview scope supersedes the former external-candidate rules. |
+| 12 external status | Superseded by R13 placeholders and a separately approved supplemental-plan requirement. |
 | 13 memory | Isolated --expose-gc three-run max heap<=128MiB and serialized<=32MiB replaces vague 10k claim. |
-| 14 ledger/DoD | R9 paths, commands and release/authority DoD supersede stale R8 claims. |
+| 14 ledger/DoD | R9 paths, commands, scope, and authority DoD supersede stale R8 claims. |
 
 ### 2026-08-28 R10 final authority/evidence amendment
 
@@ -4943,13 +4994,13 @@ Commit `eec92771062e9ddef87a3bb9431dc2b13169d40f` and plan SHA `88facdc2b97b9111
 |---|---|
 | 1 | election.ts edited copy now serviceFork before copy-only; stale copy claim removed. |
 | 2 | updater-before-copy/lineage tests apply to every 7A–16 slice with slice manifest. |
-| 3 | strict raw-free OperationOriginV1 persists internal system auth/session-hash/generations/name through journal/replay/audit. |
+| 3 | Strict internal-system `OperationOriginV1` persists only raw-free auth/session hashes, generations, and name through journal/status/audit; R15 clarifies ordinary replay keys separately. |
 | 4 | Superseded by R14 three-schema local validator scope. |
 | 5 | Superseded/pruned by R13; no external final CLI remains. |
 | 6 | Superseded/pruned by R13; local preview harness paths remain hash-bound. |
 | 7 | Superseded/pruned by R13; only the local current-Windows diagnostic remains. |
 | 8 | Superseded/pruned by R13 external placeholders. |
-| 9 | Workflow detached RC checkout rejects GITHUB_SHA mismatch and invokes canonical check. |
+| 9 | Superseded by R13–R15 local source-complete scope; no detached external workflow is authorized. |
 | 10 | Superseded by the R11 exact commit/SHA handoff; brief remains post-READY only. |
 | 11 | Fork lineage includes exact originCommit and prior-row match. |
 | 12 | CLI direct tsdown+publint dependencies/build gates exact. |
@@ -4970,15 +5021,15 @@ Commit `46b15a1395073500da5dd58a9d50e0290ed4f64d` and plan SHA `5d6fad0f96b743bd
 | 4 former external key design | Superseded/pruned by R13; no key lifecycle is in source scope. |
 | 5 former detached external runs | Superseded/pruned by R13; local frozen install remains. |
 | 6 former background orchestration | Superseded/pruned by R14; retained foreground child lifecycle remains. |
-| 7 system origin | Cross-field auth/kind/name/session/generation/target hashes are strict/raw-free; identity.bootstrap is non-replayable after dispatch/settlement and full origin mismatch conflicts. |
+| 7 system origin | Internal cross-field auth/kind/name/session/generation/target hashes are strict/raw-free; `identity.bootstrap` is non-replayable after dispatch/settlement and full origin mismatch conflicts. |
 | 8 9C gate | Literal 9C GREEN adds MCP/plugin builds+typechecks, root typecheck and full frozen Task6.1 security suite. |
 | 9 Task11 paths | File map/Task11 manifest/GREEN enumerate seven IR sources, six pure tests, memory pair, five snapshot sources, two endpoints and nine snapshot tests with no directory rows. |
 | 10 CLI ledger | Strict hash-bound CommandModuleLedger maps every command/alias once while allowing shared module/tests and rejects unreferenced/extraneous files. |
 | 11 former external orchestration | Superseded/pruned by R13; local daemon scripts retain process tests. |
 | 12 former external bundle design | Superseded/pruned by R13; no external bundle code or dependency remains. |
-| 13 Task16 GREEN | Superseded by R13 exact local daemon/install/receipt/fake/diagnostic/unsigned-preview test surface. |
+| 13 Task16 GREEN | Superseded by R14–R15 exact local daemon/fake/diagnostic/three-schema test surface. |
 | 14 packed bootstrap | Task15 built consumer proves no-fileKey reject/approve UUID, one undo, forced rehello, crash-unknown reconnect and no control token. |
-| 15 former live fixture automation | Superseded/pruned by R14; only typed fakes and non-destructive co-presence remain. |
+| 15 former automatic fixture orchestration | Superseded/pruned by R14; only typed fakes and non-destructive co-presence remain. |
 | 16 former external commands | Superseded/pruned by R13. |
 | 17 retained paths | Task8 scan, Task9 registry, Task10 read-tools, Task13 dependencies and all earlier exact path/authority rulings remain. |
 | 18 ledger/handoff | This R11 ledger, companion checksum and resulting docs commit become the sole fresh READY rereview target; no Task7 brief is regenerated beforehand. |
@@ -4992,7 +5043,7 @@ Commit `be49d274445ba1400dd054a64d074dda62f769a4` and plan SHA `a3ddcdfd0e281f7d
 | 1 former automatic cleanup | Superseded/pruned by R14; Task16 has no resource mutation or cleanup authority. |
 | 2 former external shell orchestration | Superseded/pruned by R13. |
 | 3 former external preflight | Superseded/pruned by R13. |
-| 4 persistent daemon entry | Task16 adds non-frozen MCP daemon-entry build/export/pack/test with strict args, no stdio/EOF lifecycle and awaited signals; installed artifact smoke is mandatory. |
+| 4 persistent daemon entry | Task16 adds MCP daemon-entry build/export/pack/test with strict args, no stdio/EOF lifecycle and awaited signals; packed artifact smoke is mandatory. |
 | 5 former background lifecycle | Superseded/pruned by R14; source tests retain and terminate the foreground child handle directly. |
 | 6 former lifecycle machinery | Superseded/pruned by R14; retained child handle teardown is test-local. |
 | 7 former external enrollment | Superseded/pruned by R13. |
@@ -5019,19 +5070,19 @@ Commit `59feb6936efaef0395b758c274e8ee2290cad77f` and plan SHA `f66afc86e51e906b
 
 | R13 item | Binding resolution |
 |---|---|
-| A source boundary | Tasks1–16 end at local service/artifacts/fake+typed current-Windows diagnostics with unsigned marker and blocked-external status; no external side effect is authorized. |
+| A source boundary | Tasks1–16 end at local service/artifacts/fake+typed current-Windows diagnostics with unsigned marker and external validation not run; no external side effect is authorized. |
 | B1 application factory | Task16 creates one application composition factory consumed by existing stdio index and persistent daemon entry with exact package/build/tests. |
 | B2 former background lifecycle | Superseded/pruned by R14; daemon tests retain the child process handle directly. |
 | B3 former install schema | Superseded/pruned by R14. |
 | B4 former cleanup recovery | Superseded/pruned by R14. |
-| B5 OperationOrigin | Raw-free component hashes/exact nonsecret generations permit target-binding recomputation with discriminator-scoped equality and status-only system operations. |
+| B5 OperationOrigin | Internal raw-free component hashes and exact nonsecret generations permit target-binding recomputation with discriminator-scoped equality and status-only system operations; R15 defines append versus restart validation. |
 | B6 former local publication | Superseded by R14 fixed ignored atomic files after Task16. |
 | B7 local diagnostics | R14 retains fake16 and non-destructive current-Windows co-presence only. |
 | B8 packed bootstrap | Task9/15 built identity.bootstrap approval/undo/rehello/crash tests remain unchanged. |
 | B9 Task16 exactness | Superseded by R14 three-schema source-only scope and `verify:source-complete`. |
-| B10 external placeholders | Tasks17–18 have no files, commands, dispatch or completion claim and require a future separately approved runbook. |
+| B10 external placeholders | Tasks17–18 have no files, commands, dispatch, or completion claim and require a separately approved supplemental plan. |
 | retained prior fixes | ServiceFork, TREE7A, Tasks8–15 IO/plugin/grounding/union/CLI/docs/artifact fixes and original Task7 commit subjects remain binding. |
-| DoD | Plan READY and source-complete criteria exclude Tasks17–18; release status remains blocked-external-evidence. |
+| DoD | Plan READY and source-complete criteria exclude Tasks17–18; `externalValidationStatus:'not-run'` remains truthful. |
 | stale-prune | External-only schemas, dependencies, scripts, tests, workflows, paths, commands and active ledger claims are removed. |
 | R13 handoff | The resulting docs commit/checksum is the sole rereview target; no Task7 brief or implementation proceeds before READY. |
 
@@ -5044,15 +5095,33 @@ Commit `ff9cd3de6417bad369895fbaa74ec7bbadc72ea8` and plan SHA `47d3ac72ce778083
 | A Task16 scope | Task16 contains only application factory/daemon entry, fake16, non-destructive co-presence diagnostic and three unsigned source-complete schemas. |
 | B child lifetime | Vitest/source runner retains and terminates the exact foreground child handle; no detached background design remains. |
 | C ownership | Task15 stops at `verify:artifacts`; Task16 owns PreviewCandidate and the sole terminal `verify:source-complete`. |
-| D removed orchestration | Install, fixture mutation/cleanup, external harness naming and related schemas/scripts/tests/dependencies are removed. |
+| D removed orchestration | Background setup, fixture mutation/deletion, external ceremony naming, and related schemas/scripts/tests/dependencies are removed. |
 | E OperationOrigin | Exact session/file-key domains, canonical file identity, target order and append-vs-restart generation validation are binding. |
-| F fixed outputs | Candidate/evidence/result/marker use fixed ignored filenames; content hashes never form path segments and no pointer exists. |
+| F fixed outputs | Superseded by R15: candidate/evidence/marker are the only three fixed ignored outputs; no intermediate result file or pointer exists. |
 | G RED coverage | New literal 9B RED, expanded Task10 RED, full Task15 artifact/workflow/Windows/packed RED and retained Task16 RED precede GREEN. |
 | H executable authority | Named MCP package files/exports/bin plus packed manifest are the only daemon executable authority. |
 | I terminal command | Only clean Task16 `verify:source-complete` can support source-complete status. |
 | J stale prune | Removed terms/paths/deps/DoD/ledger claims are absent from active Tasks1–16. |
 | K diagnostic | Current-Windows result is typed co-presence only; real Figma validation requires a separate user-scoped supplemental plan. |
-| L handoff | This R14 docs commit/checksum is the sole rereview target; Tasks17–18 remain excluded placeholders. |
+| L handoff | Superseded by the R15 docs/checksum rereview target; Tasks17–18 remain excluded placeholders. |
+
+### 2026-08-28 R15 source-daemon and three-file amendment
+
+Commit `2046b805a9679881ac786bd8a98c472969011d67` and plan SHA `43d1b27729f3adab0d0eda38264f87bdba9402c11cca13b12e3b9188c0a34dce` received NOT READY R14 rereviews and are superseded for Task7 onward. Frozen Task6.1 and Tasks1–15 product scope remain unchanged.
+
+| R15 item | Binding resolution |
+|---|---|
+| 1 OperationOrigin | Append derives/verifies internal component hashes from authenticated source values and current admitted generations. Restart has no source values, validates strict stored syntax/equalities, and recomputes only targetBindingHash from stored hashes/generations. Raw-free applies to internal origin; ordinary replay records may retain nonsecret workspace/file keys. |
+| 2 stale source-harness scope | Task13 exposes only an in-process controlled-source endpoint seam; Task16 drives typed fake pair/resume without TTY and keeps current-Windows co-presence supplemental/non-destructive. Obsolete background/external ceremony paths are absent. |
+| 3 exact outputs | Source completion creates exactly preview-candidate, source-complete-evidence with embedded fake16 checks, and source-complete-preview. Three hash domains plus file/content/cross-field reread checks are binding; no intermediate result file exists. |
+| 4 Task15/16 ownership | Task15 remains artifact-only. Task16 RED records the Task15 MCP artifact's missing daemon surface, then GREEN runs the full artifact gate on the exact staged tree before review/commit. Only the post-commit terminal command creates the three outputs. |
+| 5 package authority | MCP tsdown entries, `dist/index.mjs`, `dist/daemon-entry.mjs`, package files, `./daemon`, `sfp-daemon`, artifact manifest, bounded help/readiness stdout, ping, teardown, and closed-port smokes are exact. |
+| 6 lifecycle | In-process application close is graceful/idempotent; piped stdin EOF does not stop the child; POSIX signal and Windows retained-handle assertions are platform-correct and bounded. |
+| 7 exact Task16 tree | Deleted orchestration test names are absent; exact application/daemon/artifact/schema/fake/diagnostic paths, literal RED/GREEN, full artifact suite, and closed-world same-tree reviews are binding. |
+| 8 retained TDD | Exact 9B, Task10, and Task15 behavioral RED additions remain binding. |
+| 9 executable authority | MCP package.json, tsdown config, and artifact manifest are the only executable authorities; no anonymous/source fallback exists. |
+| 10 diagnostic | Current-Windows checks only co-presence/connection and never pair or mutate. |
+| 11 handoff | The resulting R15 docs commit/checksum is the sole rereview target. No Task7 brief or implementation starts before READY. |
 
 Prior service findings remain incorporated. Prior external-ceremony findings are explicitly superseded by this scope correction and require separate future authorization.
 
@@ -5060,4 +5129,4 @@ Prior service findings remain incorporated. Prior external-ceremony findings are
 
 ## 11. Execution Handoff
 
-Commit this R14 plan/checksum docs-only and record the resulting exact commit+plan SHA as the sole review target. No Task7/brief until READY. Post-READY brief records R14 plan/commit SHA, frozen Task6.1 hash and original 7A/B/C subjects. Tasks17/18 remain non-dispatchable external placeholders.
+Commit this R15 plan/checksum docs-only and record the resulting exact commit+plan SHA as the sole review target. No Task7/brief until READY. The post-READY brief records the R15 plan/commit SHA, frozen Task6.1 hash, and original 7A/B/C subjects. Tasks17/18 remain non-dispatchable external placeholders.
