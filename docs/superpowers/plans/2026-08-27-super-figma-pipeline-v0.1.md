@@ -480,8 +480,9 @@ export interface EgressManifestPort {
 
 export type RawDigest64 = string; // strict ^[0-9a-f]{64}$, file bytes only
 
-export type OperationEvidenceV1 =
-  | { kind: 'read-result'; artifactRelativePath: string; artifactDigest64: RawDigest64; resultSchemaHash: `sha256:${string}` }
+export interface ResultArtifactV1 { artifactRelativePath:string; artifactDigest64:RawDigest64; resultSchemaHash:`sha256:${string}` }
+export type NativeEvidenceV1 =
+  | { kind:'no-artifact'; reasonCode:string }
   | {
       kind: 'snapshot'; workspaceId: string; fileIdentityHash: `sha256:${string}`;
       snapshotId: `sfp_snap1_${string}`; refRelativePath: string; checksum: `sha256:${string}`;
@@ -489,7 +490,7 @@ export type OperationEvidenceV1 =
     }
   | { kind:'grounding-graph'; locator:string; artifactRelativePath:string; artifactDigest64:RawDigest64; checksum:`sha256:${string}`; fidelity:'complete-leaf'|'partial' }
   | { kind: 'export'; artifacts: readonly { artifactRelativePath: string; artifactDigest64: RawDigest64 }[] }
-  | { kind: 'no-artifact'; reasonCode: string };
+;
 
 export interface OperationEvidenceReceiptV1 {
   schemaVersion: 1;
@@ -503,13 +504,14 @@ export interface OperationEvidenceReceiptV1 {
   fileExecutionKeyHash: `sha256:${string}` | null;
   targetBindingHash: `sha256:${string}` | null;
   captureIntentHash: `sha256:${string}`;
-  terminalStatus: 'succeeded' | 'failed' | 'rejected' | 'outcome-unknown';
+  terminalStatus: 'succeeded' | 'failed';
   resultHash: `sha256:${string}` | null;
   resultBytes: number;
   finalizerHash: `sha256:${string}`;
   daemonGenerationHash: `sha256:${string}`;
   completedAt: string;
-  evidence: OperationEvidenceV1;
+  resultArtifact: ResultArtifactV1 | null;
+  nativeEvidence: NativeEvidenceV1;
   previousReceiptHash: `sha256:${string}` | null;
   contentHash: `sha256:${string}`;
   receiptHash: `sha256:${string}`;
@@ -542,7 +544,7 @@ export interface AdminAuditCommonV1 {
   actorId: `actor1_${string}`;
   authSessionId: `auth1_${string}`;
   action: 'egress.configure' | 'egress.reset';
-  actionHash: `sha256:${string}`;
+  actionNonceClaimHash: `sha256:${string}`;
   requestHash: `sha256:${string}`;
   expectedConfigHash: `sha256:${string}`;
   allowedClasses: readonly ExternalModelDataClass[];
@@ -559,6 +561,14 @@ export type AdminAuditRecordV1 = AdminAuditCommonV1 & (
   | { stage:'committed'|'recovered'; desiredConfigHash:`sha256:${string}`; configHash:`sha256:${string}` }
   | { stage:'aborted'; desiredConfigHash:`sha256:${string}`|null; configHash:`sha256:${string}`; abortReason:string }
 );
+
+export interface AdminAuditPublicRecordV1 {
+  auditId:string; auditTransactionId:string; stage:AdminAuditStage; action:'egress.configure'|'egress.reset';
+  requestHash:`sha256:${string}`; actionNonceClaimHash:`sha256:${string}`;
+  expectedConfigHash:`sha256:${string}`; desiredConfigHash:`sha256:${string}`|null;
+  configHash:`sha256:${string}`|null; allowedClasses:readonly ExternalModelDataClass[];
+  expiresAt:string|null; createdAt:string; recordHash:`sha256:${string}`;
+}
 
 export interface AdminAuditLimits {
   maxRowBytes: 32768;
@@ -650,6 +660,12 @@ export interface ToolCallControlEnvelopeV1 {
 export type CaptureIntentV1 =
   | { captureResult:false; relativePath:null }
   | { captureResult:true; relativePath:`.sfp/operation-evidence/${string}/result.v1.json` };
+export const NO_CAPTURE_INTENT: CaptureIntentV1 = { captureResult:false, relativePath:null };
+export interface ToolInvocationOptionsV1 { captureIntent: Readonly<CaptureIntentV1> }
+export const NO_CAPTURE_OPTIONS: Readonly<ToolInvocationOptionsV1> = { captureIntent:NO_CAPTURE_INTENT };
+export type CaptureFilesystemWriteEffectV1 = Extract<Effect,{type:'filesystem-write'}> & {
+  source:'server-capture'; relativePath:string; destructive:false;
+};
 
 export interface ServiceOperationRequestV1 {
   version: 1;
@@ -734,7 +750,7 @@ export interface RuntimeExecutionScope extends ResolvedInvocationScope {
 
 export interface ExecutionPlane {
   readonly leaderGeneration: string;
-  invokeTool(principal: Readonly<ActorContext>, request: InvocationRequestV1): AsyncIterable<InvocationFrameV1>;
+  invokeTool(principal: Readonly<ActorContext>, request: InvocationRequestV1, options?: Readonly<ToolInvocationOptionsV1>): AsyncIterable<InvocationFrameV1>;
   invokeService(principal: Readonly<ActorContext>, request: ServiceOperationRequestV1): AsyncIterable<InvocationFrameV1>;
   cancel(principal: Readonly<ActorContext>, request: InvocationCancelV1): Promise<void>;
   prepareDemotion(reason: 'abdicated' | 'lease-lost' | 'shutdown'): Promise<DemotionTicket>;
@@ -964,6 +980,8 @@ export interface OperationTombstone {
   workspaceId: string | null;
   fileExecutionKey: FileExecutionKey | null;
   resultHash: string | null;
+  operationEvidenceReceiptHash: `sha256:${string}` | null;
+  finalEgressManifestHash: `sha256:${string}` | null;
   status: 'succeeded' | 'failed' | 'rejected' | 'resolved-applied' | 'resolved-not-applied' | 'abandoned';
 }
 
@@ -1002,7 +1020,7 @@ export interface JournalLimits {
 }
 
 export interface OperationInvocationService {
-  invokeTool(scope: RuntimeExecutionScope, toolName: ToolName, rawArgs: unknown, operationId?: string): Promise<unknown>;
+  invokeTool(scope: RuntimeExecutionScope, toolName: ToolName, rawArgs: unknown, operationId?: string, options?: Readonly<ToolInvocationOptionsV1>): Promise<unknown>;
   invokeService(scope: RuntimeExecutionScope, operationName: ServiceOperationName, rawArgs: unknown, operationId?: string): Promise<unknown>;
   status(actorId: `actor1_${string}`, operationId: string): OperationRecord | undefined;
 }
@@ -1020,15 +1038,28 @@ Task7 7B owns bounded AdminAudit. Under actor/config lock it generates hidden co
 
 Strict stage parser enforces pending desired/config null; cas-intent desired nonnull/config null; committed/recovered configHash equals desiredConfigHash; aborted configHash equals expected and carries bounded reason. Transaction fields cannot vary across stages.
 
+`actionNonceClaimHash=sha256('sfp-action-nonce-claim-v1\0'+canonicalJSON({nonceIdHash,actorId,authSessionId,leaderGeneration,action,requestHash,expiresAt}))`; raw nonce absent and hash invariant across stages. `hashActionRequest` vectors are configure `{mode:'external-model',allowedClasses:utf8SortedUnique,expiresInSeconds}` and reset `{}`.
+
 Literal `GET /control/admin-audit?kind=egress&since=<canonicalUTC>&cursor=<opaque>&limit=<1..1000>` accepts no body; since/cursor optional only as whole query keys, limit defaults1000. It verifies full chain and returns newest matching rows ascending under1048576 bytes; malformed/foreign fails closed.
+Cursor is `sfp_ac1_` plus bounded base64url HMAC envelope binding actor, kind, since, next sequence and expiry; max512 bytes. Response uses only `AdminAuditPublicRecordV1`, excluding actor/auth/consent/raw config.
 
-Exact files are `stateRoot/journal/{actor-hash}.admin-audit.v1.jsonl` and `{actor-hash}.operation-evidence.v1.jsonl`; compaction writes sibling `.checkpoint.v1.json` and `.anchor.v1.json` for each basename. Canonical JSON+LF, separate content/record domains, previous hash, fsynced checkpoint/anchor, tail-only truncation and middle corruption fail-closed are mandatory. Live transactions and matching-finalizer receipts survive retention/compaction.
+Durable authorities are exact `stateRoot/journal/{actor-hash}.admin-audit.v1.jsonl` with siblings `{actor-hash}.admin-audit.v1.checkpoint.json`/`.anchor.json`, and `{actor-hash}.operation-evidence.v1.jsonl` with matching `.checkpoint.json`/`.anchor.json`. Strict checkpoint/anchor schemas store version, sequence, row/byte counts, retained/previous hash, checkpoint hash and contentHash; unknown keys reject.
 
-Under operation lock reserve before runtime. Settlement is artifact fsync -> prepared receipt fsync with precomputed finalizerHash -> matching finalizer fsync -> terminal(receiptHash) fsync -> frame. Prepared receipt alone is not authoritative: recovery retains it, and without matching finalizer writes outcome-unknown with null receipt, never succeeded. Matching finalizer permits verification and terminal link; such receipt is never compacted. Only succeeded/failed finalized terminals require receipt; pre-runtime rejected and outcome-unknown allow null. Crash tests cover every arrow.
+Admin content/record domains are literal `sfp-admin-audit-content-v1\0` and `sfp-admin-audit-record-v1\0`; evidence domains are `sfp-operation-evidence-content-v1\0` and `sfp-operation-evidence-record-v1\0`. Content projection omits contentHash/recordHash/previous hash; record projection hashes domain+contentHash+previous chain hash. Terminal `operationEvidenceReceiptHash` equals compaction-stable receipt contentHash; receiptHash is chain-only.
 
-Receipt matrix is closed: get_screenshot/read tools and actual local-kind component_map/token_map/icon_map use read-result; snapshot.capture uses snapshot; grounding.refresh uses grounding-graph locator/path/hash/fidelity; exports are save_screenshots/save_image_fills/export_pdf/export_video/export_frames_to_pdf and export_tokens only when outPath nonnull (null is read-result); import_image is never export. Export arrays max256, path1024 UTF-8, unique sorted, row<=65536, all pre/post checked.
+Exact files/checkpoints/anchors and hash rules remain. Active transactions survive; completed linked receipts follow terminal/tombstone exact30-day retention then synchronous removal. Prepared-only receipts are protected only until recovery resolves them.
+
+`actor-hash` is lowercase SHA-256 of `sfp-journal-actor-filename-v1\0` plus exact actorId. Content hash omits contentHash/recordHash/previous hash; record hash is domain+contentHash+previous hash; row bytes include LF. Strict checkpoint stores version, compactedThroughSequence, lastRetainedRecordHash, row/byte counts and contentHash; anchor stores prior chain hash/checkpoint hash and recordHash. Query/compaction/recovery verifies every link.
+
+Under operation lock settlement is artifact -> prepared receipt -> matching finalizer -> terminal(receipt contentHash) -> frame. Prepared-only is protected until recovery, then outcome-unknown/null receipt if unmatched. Linked receipts follow terminal/tombstone30-day retention. Only finalized succeeded/failed require receipt; pre-rejected/outcome-unknown allow null.
+
+Receipt `finalizerHash` equals compaction-stable `OutputEgressManifest.manifestHash`, never chain recordHash. Match requires same operation/status/result/target plus that equality. Tombstone conversion copies receipt+final egress hashes; evidence GET validates active terminal or tombstone. Linked completed receipt/checkpoint remains exactly through the signed30-day horizon then is synchronously removable; unresolved prepared receipt is protected only through recovery, not forever.
+
+Capture and native evidence are orthogonal. `capture=true` alone yields nonnull resultArtifact; false yields null, including exports. Native predicate priority: snapshot.capture; grounding.refresh; export only save_screenshots/save_image_fills/export_pdf/export_video/export_frames_to_pdf and export_tokens with nonnull outPath; null/empty native paths and all other operations use no-artifact. Finalized failure always bounded no-artifact reason. Export arrays max256/path1024/sorted/row cap. Matrix tests cover true/false × ordinary read/write/local/export × success/failure and actual operation kind independently.
 
 External control envelope accepts only boolean captureResult; any caller relativePath is unknown-key rejected. Server alone derives internal CaptureIntentV1 from issued opId+workspace; MCP/follower derive false/null. Its domain hash persists in operation/tombstone/resolution/receipt/replay. True capture adds synthetic filesystem-write effect and createNew fixed path; invalid workspace/path/symlink/race/policy is runtime/write0.
+
+7A owns options signatures; omitted options normalize once to frozen `NO_CAPTURE_OPTIONS`, while direct/follower explicitly pass it in parity tests. 7B derives explicit options; 7C consumes. Task8A injects the production artifact port through exact index/manifest rows.
 
 Exact settled replay resolves durable fingerprint/receipt/cache before createNew, so its existing capture file is not an error. If same op has orphan file/receipt but no terminal, never overwrite or rerun: recovery links terminal only with matching finalizer; otherwise outcome-unknown/manual resolution, and only a new opId may retry. Foreign existing path/symlink is runtime/write0.
 
@@ -1070,7 +1101,7 @@ Operation IDs remain server-issued/HMAC/timestamp/owner-bound with exact horizon
 
 The completed-result cache stores only canonical deterministic UTF-8 JSON bytes of the already-redacted value after its strict result schema succeeds, plus resultSchemaHash and consent fingerprint. It never stores MCP content blocks, follower/control envelopes, progress/terminal framing, unknown objects, raw runtime output or pre-redaction values. Fingerprint input is exactly `{operationKind,operationName,mode,consentId,allowedClasses:sortedUnique,policyVersion:'egress-policy-v1'}` under domain `sfp-consent-fingerprint-v1`. Replay first reauthenticates current entry principal/consent, recomputes exact fingerprint, then parses cached bytes through the named strict result schema. Only exact valid match returns the semantic value; each entry adapter independently reframes it for MCP, follower MessagePack, or control NDJSON. Any kind/name/mode/ID/class/policy/auth/expiry/schema mismatch returns payload-free settled and raw-free old/new fingerprint audit, never runtime. Cross-entry tests assert semantic equality but distinct framing and prove no previous entry wire bytes leak.
 
-After admission/approval/pre-egress/dispatched fsync, the sole post-result order is artifact -> prepared receipt -> matching finalizer -> terminal(receiptHash) -> frame. No other finalizer-terminal shortcut remains.
+After admission the sole post-result order is artifact -> prepared receipt -> matching finalizer -> terminal(receipt contentHash) -> frame.
 
 The full-reserve payload is exactly `{ code:'RESOLUTION_RESERVE_FULL', manualExportCommand:'sfp operations unresolved --json' }`; it contains no raw operation data.
 
@@ -1078,7 +1109,7 @@ Every reserved resolution record copies `originAuthSessionId`, `issuedAt`, `oper
 
 Authenticated `POST /control/action-nonces` accepts strict `ActionNonceIssueRequestV1`, where requestHash matches `^sha256:[0-9a-f]{64}$`. Every action except `workspace.add` has exactly `{action,requestHash}`; workspace add has exactly `{action:'workspace.add',requestHash,registrationPath}` so the server can resolve and bind the registration identity at issue time. The endpoint issues exactly `sfp_an1_` followed by random 256-bit base64url (43 characters), bound to authenticated actor, current leader generation, action, canonical semantic request hash, and—only for workspace add—the resolver's realPath/identity tuple. TTL is exactly 120,000 ms. The owner-state store permits at most 1,024 rows or 512 KiB per actor; it never evicts an unexpired issued or consumed row to admit another. Semantic request validation occurs first, then revalidation and `consumeCas` run immediately before the protected side effect. A mismatch, filesystem identity change, reuse, concurrent loser, expiry, daemon restart, or generation change fails before the side effect. Consumed rows remain until expiry so replay is distinguishable. Restart and generation recovery invalidate every outstanding row rather than restoring bearer capability.
 
-`hashActionRequest(action,payload)` is owned by `shared/action-nonce.ts`: strict-parse the action-specific semantic payload, omit auth, `actionNonce`, and the nonsemantic spelling `registrationPath`, sort object keys recursively, preserve array order, encode every already-canonical string as its exact UTF-8 bytes with no Unicode normalization/case folding, encode canonical JSON, and hash `sfp-action-request-v1\0<action>\0<canonical-json>` with SHA-256. Exact semantic fields are `{realPath}` for `workspace.add` after `WorkspaceRegistrationResolver.resolveForNonce`, `{workspaceId}` for `workspace.remove`, `{workspaceId:string|null}` for `workspace.set-default`, `{operationId,decision,reasonHash,evidenceHash,confirm}` for `operation.resolve`, and normalized exact `{fqdnAscii}` for both network-domain actions. CLI resolves the same local realPath before requesting a nonce and also sends the original registrationPath; the server independently resolves and compares hash+identity, then repeats that resolution immediately before CAS. The client-supplied hash is never accepted as side-effect authority by itself, and canonically distinct filesystem names never alias through NFC.
+`hashActionRequest` keeps all prior exact vectors and adds `egress.configure {mode:'external-model',allowedClasses:utf8-byte-sorted-unique,expiresInSeconds}` and `egress.reset {}` under the same domain. Vector tests cover order, duplicates, TTL and reset.
 
 The durable egress authority is `stateRoot/journal/{actor-hash}.egress-manifests.v1.jsonl`. Rows use one explicit canonical serializer: recursively sorted object keys, preserved array order, UTF-8 strings without normalization, finite JSON numbers in canonical decimal form, and no undefined values. A manifest's `manifestHash` is SHA-256 over that manifest with `manifestHash` omitted; a record's `recordHash` is SHA-256 over the complete record with `recordHash` omitted and includes `previousRecordHash`. Row byte accounting includes canonical UTF-8 JSON plus its one trailing LF; maximum is 65,536. Compact at 160,000 rows or 201,326,592 bytes, refuse new reservations at 200,000 rows or 268,435,456 bytes, retain 2,592,000,000 ms.
 
@@ -1740,6 +1771,8 @@ export interface CapacityCounterPort {
 | egress row (canonical JSON + LF) | `< 65,536` bytes valid | `65,536` valid | `65,537` rejected before runtime |
 | egress compaction | below `160,000`/`201,326,592` does not compact | either exact threshold triggers | above must compact before reserve |
 | egress hard cap | enough room for pre row + one 65,536-byte finalizer admits | exact `200,000`/`268,435,456` held valid; a reservation that would cross either cap fails | above recovery fails closed; no capacity release without finalizer fsync |
+| admin audit store | row32768; reserve4/131072; compact50000/67108864 | hard65536/100663296, active1024, query1000/1048576, retention30d exact | above/recovery fails closed; live reservation retained |
+| operation evidence store | row/reservation65536; export256×path1024; compact100000/134217728 | hard131072/201326592, retention30d exact | above/recovery fails closed; orphan cleanup and linked release tested |
 | progress phase | 63 ASCII chars valid | 64 valid | 65 invalid |
 | progress message | 1,023 UTF-8 bytes valid | 1,024 valid | 1,025 invalid |
 | inner progress frame | total prefix+payload `16,383` valid | `16,384` valid (`payload <= 16,380`) | `16,385` invalid |
@@ -1975,7 +2008,7 @@ After the clean Task16 commit, `verify:source-complete` creates exactly three ig
 
 Task16 extracts one application factory. Daemon args are exactly normal `--state-root ... --port ...` or standalone `--self-test`; self-test creates its own secure temp root and exits after internal start/ping/close.
 
-Task16 process tests retain exact children; real-Figma validation requires R21 READY.
+Task16 process tests retain exact children; real-Figma validation requires R22 READY.
 
 | Fake blocking check suffix | Typed fake input and positive assertion | Required negative assertion | Fake teardown |
 |---|---|---|---|
@@ -2073,6 +2106,7 @@ service/
   scripts/generate-task9b-handler-ledger.mjs
   scripts/generate-cli-command-module-ledger.mjs
   scripts/generate-cli-tool-contracts.ts
+  scripts/copy-cli-generated-contracts.mjs
   scripts/update-service-forks.mjs
   packages/shared/src/auth.ts
   packages/shared/src/action-nonce.ts
@@ -2188,6 +2222,7 @@ service/
   packages/mcp/src/snapshot/workspace-graph-storage.ts
   packages/mcp/test/snapshot/snapshot-schema.test.ts
   packages/mcp/test/snapshot/snapshot-capture.test.ts
+  packages/mcp/test/snapshot/snapshot-operation-evidence.test.ts
   packages/mcp/test/snapshot/snapshot-locator.test.ts
   packages/mcp/test/snapshot/snapshot-storage.test.ts
   packages/mcp/test/snapshot/grounding-graph.test.ts
@@ -3036,7 +3071,7 @@ Closed-world order uses class-aware service fork model; edited upstream paths tr
 
 Before/after each 7A/7B/7C staged review, run the exact `TASK6_1_FROZEN_GREEN` block in section 3.5 plus the slice's Task7 focused tests. Reports record base `39a29373b91445e9242e82611f0a8a04fca525ea`, contract `bd296dabe872f08adca793d93a2cd6a2c7efca60c58127b07924b2f18840b27b`, manifest bytes 925, and the exact path list. Task7 execution remains gated only by a fresh READY rereview of this newly checksummed binding plan.
 
-The ignored Task7 brief remains quarantined until R21 READY.
+The ignored Task7 brief remains quarantined until R22 READY.
 
 **Exact staged path allowlists**
 
@@ -3693,17 +3728,17 @@ Records carry `operationKind`/`operationName` and `originAuthSessionId`. Pending
 
 The manual-export guidance in that error is the literal command `sfp operations unresolved --json`; operators choose the output destination in their shell, so the daemon never writes an emergency export outside configured policy.
 
-Before fsync, resolution-intent construction copies the active record’s signed issuedAt and complete tool/args/workspace/file/result fingerprint. Compaction may remove the active row only after that durable fingerprint exists, so reserved resolutions preserve settled-versus-conflict behavior without the normal tombstone index.
+Resolution intent copies issuedAt, tool/args/workspace/file/captureIntentHash/result and evidence/finalizer hashes before fsync, preserving conflict semantics after compaction.
 
 - [ ] **Step 5: Implement approvals and central control call**
 
-`/control/tools/call` is routeClass tool and accepts only `InvocationRequestV1`; `/control/tools/cancel` accepts only `InvocationCancelV1` and enforces exact originAuthSession. MCP direct/follower and control tools use the same `invokeTool` plane path. The service-operation registry is exact empty in Task 7; no MCP registration/count changes. Task 11's snapshot/grounding endpoints later construct `ServiceOperationRequestV1` with the distinct dotted schema and call `invokeService`. Pair/workspace/network/approval/operation-resolution endpoints are routeClass admin and cannot pass a tool/service name or runtime. Approval endpoints append+fsync pending before wait, list redacted pending summaries, and route only strict `ApprovalPromptV1`/`ApprovalDecisionV1` through the broker/fake paired port. Runtime remains forbidden until one bound decision CAS; plugin control frames are not runtime and never carry a control token.
+`/control/tools/call` accepts only strict `ToolCallControlEnvelopeV1`, derives internal options, then invokes the same plane. Cancel remains strict. MCP/follower synthesize NO_CAPTURE_INTENT. Other route-class separation remains unchanged.
 
 Mount authenticated `POST /control/action-nonces` with strict `ActionNonceIssueRequestV1`. Workspace add resolves at issue, then invokes only atomic queued `WorkspaceConfigStore.addResolved(actor,expected,consumeNonceCas)`; `WorkspacePolicy` remains exclusively the registered-workspace access boundary and revalidates root identity on use. Every other nonce route validates its semantic object, recomputes hash, then consumes immediately before effect. Workspace add/remove/default uses JournalWorkspaceUsageGuard and v2 store. Mount POST/DELETE `/control/workspaces/default` with `workspace.set-default` nonce; current default removal is guarded. Mount exact GET/POST/DELETE `/control/egress` over Task5 `EgressConfigStore`; configure/reset use `egress.configure`/`egress.reset` nonce hashes and emit only redacted status/audit. Operation issue/list/status use stable owner actor. Single-ID resolve records origin+resolver auth, requires nonce/evidence/confirmation, fsyncs reserve, never authorizes replay; foreign root and cross-session cancel fail. Tests cover every awaited directory-swap point with nonce unconsumed/config rows0/effects0, subsequent root replacement, default/restart, actor/generation/action/hash, Unicode, egress reuse/wrong nonce/class/TTL/consent redaction/expiry/reset/runtime0, concurrency, reserve, and same-ID replay. Without valid paired approval or authenticated control waiter, explicit approval is `APPROVAL_CHANNEL_UNAVAILABLE`.
 
 - [ ] **Step 6: Implement result validation, egress ordering, and progress transport**
 
-Execute section3.3 with capture/evidence reservation before runtime and the sole R21 post-result order artifact -> prepared receipt -> matching finalizer -> terminal(receiptHash) -> frame. Crash recovery follows section3.3 only.
+Execute section3.3 with pre-runtime reservation and R22 artifact -> receipt -> finalizer -> terminal(contentHash) -> frame only.
 
 Use sections 3.11/3.12 exactly. Consume only Task6.1-authenticated decrypted follower plaintext, parse inner prefix before allocation, and keep Task6.1 outer transport opaque. Control uses bounded JSON/NDJSON; direct MCP uses the same logical cap and standard progress/cancel. Task 7 tests `$progress`/`$cancel` against a fake `PinnedPluginRuntimePort` only; Task 9A owns actual plugin listeners/wiring. Enforce inclusive phase/message/frame/rate/subscriber/active/raw-args caps, bounded drain, origin-auth-session cancel, and exact-one terminal CAS. Disconnect is never implicit retry/cancel.
 
@@ -3730,6 +3765,7 @@ Run diff/log/full GREEN. Expected original subjects/order/reviewed trees, clean 
 **Files**
 
 - Create: `service/packages/mcp/src/fs/atomic-file.ts`, `service/packages/mcp/src/fs/operation-evidence-artifact-store.ts`, `service/packages/mcp/src/network/remote-image-fetcher.ts`, `remote-domain-config-store.ts`.
+- Modify exact `service/packages/mcp/src/index.ts` composition root to inject the artifact port; create `service/packages/mcp/test/e2e/packed-operation-evidence.test.ts`. Both are exact 8A manifest/allowlist rows.
 - Create network-domain endpoints and modify Task7 route-registry; Task7's consumer adapter installs the frozen router through the final Task6.1 facade hook, so Task8 edits no Task6.1 producer.
 - Delete/move repo-walk source/test to `fs/`; modify every import including exact `service/packages/mcp/src/scan/scan.ts` and its `service/packages/mcp/test/scan/scan.test.ts`.
 - Modify: local tool modules `analyze-project.ts`, `scan-components.ts`, `component-map.ts`, `token-map.ts`, `icon-map.ts`, `design-diff.ts`, `save-screenshots.ts`, `save-image-fills.ts`, `export-pdf.ts`, `export-video.ts`.
@@ -3838,7 +3874,7 @@ Persist normalized exact FQDN rules under stateRoot with empty default. Mount `G
 
 - [ ] **Step 8: Run exact slice GREEN commands**
 
-8A GREEN: `pnpm -C service exec vitest run packages/mcp/test/fs/local-tool-boundary.test.ts packages/mcp/test/fs/atomic-file.test.ts packages/mcp/test/fs/operation-evidence-artifact-store.test.ts packages/mcp/test/fs/repo-walk.test.ts packages/mcp/test/fs/workspace-policy.test.ts packages/mcp/test/scan/scan.test.ts`; `pnpm -C service typecheck`; `node service/scripts/update-service-forks.mjs --slice 8A --index service/capabilities/change-manifests/task-8a.json`; `AUTHORITY_GREEN`; `node service/scripts/verify-staged-change-manifest.mjs --slice 8A`.
+8A GREEN: run fs/store tests plus `packages/mcp/test/e2e/packed-operation-evidence.test.ts`, typecheck, exact task-8a manifest/authority; index/store/packed test are mandatory rows.
 
 8B GREEN: `pnpm -C service exec vitest run packages/mcp/test/network packages/mcp/test/control/control-router.test.ts packages/mcp/test/execution/action-nonce.test.ts packages/mcp/test/execution/boundary-limits.test.ts`; `TASK6_1_FROZEN_GREEN`; `pnpm -C service typecheck`; `node service/scripts/update-service-forks.mjs --slice 8B --index service/capabilities/change-manifests/task-8b.json`; `AUTHORITY_GREEN`; `node service/scripts/verify-staged-change-manifest.mjs --slice 8B`.
 
@@ -4223,7 +4259,7 @@ it('keeps the storage dependency direction IR -> shared and MCP adapter -> IR', 
 
 - [ ] **Step 2: Run snapshot RED**
 
-Run: `pnpm -C service exec vitest run packages/ir/test/canonical-json.test.ts packages/ir/test/fidelity.test.ts packages/ir/test/snapshot-v1.test.ts packages/ir/test/snapshot-storage.test.ts packages/ir/test/grounding-graph-v1.test.ts packages/ir/test/store.test.ts packages/ir/test/grounding-graph-memory.test.ts packages/mcp/test/snapshot/snapshot-schema.test.ts packages/mcp/test/snapshot/snapshot-capture.test.ts packages/mcp/test/snapshot/snapshot-locator.test.ts packages/mcp/test/snapshot/snapshot-storage.test.ts packages/mcp/test/snapshot/grounding-graph.test.ts packages/mcp/test/snapshot/grounding-refresh.test.ts packages/mcp/test/snapshot/grounding-storage.test.ts packages/mcp/test/snapshot/snapshot-progress.test.ts packages/mcp/test/snapshot/service-operation-routing.test.ts`.
+Run the exact IR/snapshot list including `packages/mcp/test/snapshot/snapshot-operation-evidence.test.ts`; omission is RED failure.
 
 Expected: IR modules and section reader are absent.
 
@@ -4250,7 +4286,7 @@ Run this complete copy/paste block against the staged `task-11.json` tree:
 ~~~powershell
 pnpm -C service install --lockfile-only
 pnpm -C service install --frozen-lockfile
-pnpm -C service exec vitest run packages/ir/test/canonical-json.test.ts packages/ir/test/fidelity.test.ts packages/ir/test/snapshot-v1.test.ts packages/ir/test/snapshot-storage.test.ts packages/ir/test/grounding-graph-v1.test.ts packages/ir/test/store.test.ts packages/ir/test/grounding-graph-memory.test.ts packages/mcp/test/snapshot/snapshot-schema.test.ts packages/mcp/test/snapshot/snapshot-capture.test.ts packages/mcp/test/snapshot/snapshot-locator.test.ts packages/mcp/test/snapshot/snapshot-storage.test.ts packages/mcp/test/snapshot/grounding-graph.test.ts packages/mcp/test/snapshot/grounding-refresh.test.ts packages/mcp/test/snapshot/grounding-storage.test.ts packages/mcp/test/snapshot/snapshot-progress.test.ts packages/mcp/test/snapshot/service-operation-routing.test.ts packages/mcp/test/execution/service-operation-name.test.ts packages/mcp/test/execution/service-operation-registry.test.ts packages/mcp/test/control/control-router.test.ts test/tool-contract.test.ts
+pnpm -C service exec vitest run packages/ir/test packages/mcp/test/snapshot packages/mcp/test/snapshot/snapshot-operation-evidence.test.ts packages/mcp/test/execution/service-operation-name.test.ts packages/mcp/test/execution/service-operation-registry.test.ts packages/mcp/test/control/control-router.test.ts test/tool-contract.test.ts
 pnpm -C service typecheck
 pnpm -C service build
 node service/scripts/update-service-forks.mjs --slice 11 --index service/capabilities/change-manifests/task-11.json
@@ -4420,7 +4456,9 @@ Run: `git diff --check`, `git log -2 --format="%H %s"`, full Task 12 GREEN/build
 - Create: `service/packages/cli/src/commands/egress.ts` and `service/packages/cli/test/commands/egress.test.ts` for status/configure/reset.
 - Create: `service/packages/cli/src/commands/tools.ts`, `service/packages/cli/test/commands/tools.test.ts`, and `service/packages/cli/test/e2e/packed-tools-call.test.ts` for the generic 116-tool path.
 - Create build-time `service/scripts/generate-cli-tool-contracts.ts`, sorted116 generated contracts+manifest+tests. Root direct devDependency `tsx:"^4.8.1"`; generator runs only through `pnpm -C service exec tsx`, imports canonical TS registry, uses Zod4 draft2020 `$schema`, and clean regeneration is byte-identical.
+- Create exact `service/scripts/copy-cli-generated-contracts.mjs`; after CLI build it byte-copies contracts/manifest/projection to `dist/generated` and verifies digests. Task13 manifest stages script/source files, never dist.
 - Create checked-in `service/packages/cli/src/generated/tool-schema-projections.v1.json`. Exact non-JSON-Schema semantics are five source occurrences only: `batch.ts:79 superRefine`, `import-image.ts:9 trim`, `import-image.ts:23 superRefine`, `create-instance.ts:17 trim`, `swap-component.ts:15 trim`. Declarative projections preserve batch refinement, import_image XOR+trim, and component-key trims. Source scan fails on any added/missing unsupported refinement/transform and names tool+location.
+- Projection schema is strict version1 rows `{toolName,sourcePath,line,effect:'trim'|'superRefine',strategy:'trim-string'|'import-image-xor'|'batch-recursive'}` in exact source order. Runtime order is Ajv structural, declarative trim/XOR/batch recursive child validation, then canonical normalized args. 116 parity compares accept/reject and normalized output to Zod.
 - Generated manifest is strict `{version:1,draft:'2020-12',contractsDigest,projectionDigest,tools:[{toolName,schemaHash}]}` with tools UTF-8 sorted and hashes over canonical bytes; packed tests rehash every contract/projection/manifest field.
 - Runtime imports `Ajv2020` from `ajv/dist/2020.js` with `{strict:true,allErrors:false,validateFormats:false}`. Generator parity fixtures cover Zod refinements, unions, bounds and unknown-key rejection; unsupported refinements fail generation rather than weaken validation.
 - A checked-in accept/reject corpus covers every one of116 tools and compares canonical Zod parse outcome with Ajv2020 outcome byte-for-byte; any disagreement fails RED/GREEN and regeneration.
@@ -4560,6 +4598,8 @@ it('calls any registered tool and materializes a canonical result artifact witho
   const result = await runCli(['tools','call','get_design_context','--args-json','{"nodeId":"0:1"}',
     '--workspace', workspaceId, '--target','active','--capture-result'], fakeControl);
   expect(result.status).toBe('succeeded');
+  expect(fakeControl.lastCall.body).toMatchObject({ version:1, invocation:{operationId:result.operationId}, captureResult:true });
+  expect(fakeControl.lastCall.body).not.toHaveProperty('captureIntent');
   expect(fakeControl.lastCall.body).not.toEqual(expect.objectContaining({ actorId: expect.anything(), workspaceRoot: expect.anything() }));
   expect(await storedCanonicalResultFor(result.operationId)).toMatchObject({ schemaValid: true });
 });
@@ -4611,7 +4651,7 @@ it('covers commands and aliases without assuming module bijection', async () => 
 
 - [ ] **Step 2: Run CLI RED**
 
-Run: `pnpm -C service exec vitest run packages/cli/test`.
+Run: `pnpm -C service --filter @sfp/cli build`, then unit RED, then packed E2E; packed test always runs after a build in RED and GREEN.
 
 Expected behavioral RED: the existing empty CLI index/package/config are present but expose no commands, `sfp` bin, generic tool path, evidence, or egress audit; tests fail on those missing behaviors rather than module resolution.
 
@@ -4645,10 +4685,12 @@ pnpm -C service install --frozen-lockfile
 pnpm -C service exec tsx scripts/generate-cli-tool-contracts.ts --write
 pnpm -C service exec tsx scripts/generate-cli-tool-contracts.ts --check
 node service/scripts/generate-cli-command-module-ledger.mjs --write service/capabilities/cli-command-modules.v1.json
-pnpm -C service exec vitest run packages/cli/test packages/cli/test/tool-input-contracts.test.ts packages/cli/test/e2e/packed-tools-call.test.ts
+pnpm -C service exec vitest run packages/cli/test packages/cli/test/tool-input-contracts.test.ts --exclude packages/cli/test/e2e/packed-tools-call.test.ts
 pnpm -C service exec vitest run packages/cli/test/command-module-ledger.test.ts
 pnpm -C service --filter @sfp/cli typecheck
 pnpm -C service --filter @sfp/cli build
+node service/scripts/copy-cli-generated-contracts.mjs --check
+pnpm -C service exec vitest run packages/cli/test/e2e/packed-tools-call.test.ts
 pnpm -C service --filter @sfp/cli exec publint
 node service/packages/cli/dist/index.mjs --help
 node service/scripts/update-service-forks.mjs --slice 13 --index service/capabilities/change-manifests/task-13.json
@@ -4809,7 +4851,7 @@ Plugin staging root is exactly `service/artifacts/.staging/plugin-package/` and 
 
 `plugin-built-consumer.test.ts` unpacks actual ZIP, executes built main/UI, and drives it against the real daemon approval broker adapter. Besides pair/reconnect/progress/cancel cleanup it repeats core approval approve→one runtime, reject→runtime0, duplicate ignored, reconnect redelivery without TTL extension, and asserts built plugin receives no control token. Its packed identity-bootstrap sequence is binding: initial authenticated no-fileKey/no-shared-UUID hello reports unstable-readonly; rejected `identity.bootstrap` leaves shared plugin data absent, runtime0 and undo0; approved bootstrap reaches the packaged dispatcher once, writes only `sfp/file-identity:v1`, reports `mutated:true`, and creates exactly one undo; operation result forces rehello and does not remap Relay; the next authenticated hello reads the UUID and yields stable identity. A crash after dispatched is outcome-unknown/no retry; packaged-plugin reconnect reads the existing UUID, rehello exposes the same stable identity, and status/resolution—not another bootstrap—settles it. Wrong generation/target and any plugin control-token access reject. Source tests cannot satisfy. Task15 `task-15.json` explicitly includes the built consumer test plus packaged daemon/bridge capability hashes it asserts, while Task9 remains the only owner of implementation paths.
 
-Task15 packaging derives the executable surface only from named `packages/mcp/package.json` files/exports/bin fields plus the packed artifact manifest; there is no anonymous authority. At Task15 those named fields contain the existing MCP entry and the packed MCP artifact intentionally has no daemon export/bin. Task16 adds `dist/daemon-entry.mjs` to those same named fields and packed smoke/hash authority.
+Task15 MCP package literals are `files:['dist']`, `exports:{'.':'./dist/index.mjs'}`, and no bin. Task16 keeps files, sets exports `{'.':'./dist/index.mjs','./daemon':'./dist/daemon-entry.mjs'}`, and bin `{'sfp-daemon':'dist/daemon-entry.mjs'}`. Index has no shebang; daemon source owns exactly one; tar daemon mode0755.
 
 Artifact verifier also unpacks CLI and requires generated sorted116 contracts+manifest hashes, Ajv runtime, generic call smoke, and zero MCP dependency/import.
 
@@ -4855,7 +4897,7 @@ Stage only `task-15.json` union, byte-verify, review/rerun exact GREEN, then com
 
 - Consumes: Task15 verified local artifacts plus all Task1–15 source authorities and frozen Task6.1.
 - Produces: `createMcpApplication`, stdio/daemon parity, foreground source daemon entry, the exact fake16 evidence checks, strict redacted `CurrentWindowsDiagnosticV1`, `PreviewCandidateV1`, `SourceCompleteEvidenceV1`, and `SourceCompletePreviewV1`.
-- Real-Figma validation is governed only after R21 READY.
+- Real-Figma validation is governed only after R22 READY.
 
 **Commit protocol:** `task-16.json` includes the one build driver, application/daemon/local-binding sources, package/tsdown, tests/schemas/scripts/config/lock/authority; generated dist is never staged. ControlStatus is rerun, not restaged.
 
@@ -4985,7 +5027,7 @@ The MCP process test spawns the freshly built `dist/daemon-entry.mjs` with piped
 
 - [ ] **Step 4: Build and package the exact daemon executable surface**
 
-With tsdown0.22.14/Rolldown, MCP uses two deterministic sequential single-entry builds into isolated temp dirs, then copies exactly `index.mjs` and `daemon-entry.mjs` to dist; shared chunks are forbidden. Source `daemon-entry.ts` solely owns the shebang and config banner is forbidden; duplicate/missing shebang fails. Package exports/bin and tar mode remain exact.
+`build-entries.mjs` requires sourceCommit40 and SOURCE_DATE_EPOCH, derives one buildId from `sha256('sfp-build-id-v1\0'+commit+'\0'+epoch)` (no clock), passes it to two isolated single-entry tsdown factory calls, then atomically publishes exact index.mjs+daemon-entry.mjs with no chunks. Two runs same seed are byte-identical; both bundles execute/probe and expose identical BUILD_ID. Source owns one daemon shebang, index none.
 
 The native shim runs `--help` and `--self-test` only. Exact help is `Usage: sfp-daemon (--state-root <absolute-path> --port <0|1024-65535> | --self-test)\n`; modes are mutually exclusive. Self-test uses an internal secure temp root, starts/pings/closes, exits0 bounded, and leaves no process/port.
 
@@ -5026,7 +5068,7 @@ Stage only the exact `task-16.json` union, compare staged names byte-for-byte wi
 
 - [ ] **Step 9: Review Task16 quality and scope**
 
-Reviewers defer real-Figma work until R21 READY.
+Reviewers defer real-Figma work until R22 READY.
 
 - [ ] **Step 10: Run the sole terminal source-complete command after the clean commit**
 
@@ -5100,8 +5142,9 @@ This plan contains no macOS external-validation files, commands, or completion c
 - Destructive, filesystem-write/overwrite, network, library-import, and broad-write actions receive the required explicit approval. Inside-root filesystem reads follow workspace/sensitivity policy without being mislabeled as writes.
 - Per-file queue serializes same file across sessions; different file identities can progress independently within read/heavy limits.
 - Same `(actorId,operationId,kind,name,args,workspace,file)` applies once; mismatch conflicts. Cache holds canonical redacted semantic bytes, never entry framing; current auth and kind/name/mode/ID/class/policy fingerprint must match before each adapter reframes. Otherwise payload-free settled+audit; no reruntime.
+- Capture intent is part of the exact identity everywhere; true capture adds server-derived non-destructive filesystem-write policy and fixed createNew artifact, while MCP/follower use false/null. Replays resolve durable state before filesystem preflight.
 - Operation IDs are server-issued/HMAC-bound to owner actor and issuedAt; age `>=2,592,000,000 ms` is expired, future skew `<=300,000 ms` allowed and above invalid, all runtime zero at rejection.
-- Admission order plus R21 artifact→receipt→finalizer→terminal(receiptHash)→frame and every crash boundary pass; post-dispatch uncertainty never reruns.
+- R22 artifact→receipt→finalizer→terminal(contentHash)→frame and crash boundaries pass; uncertainty never reruns.
 - Journal compacts active transitions at 8,000 rows/24 MiB, stops normal operation appends at 10,000 rows or 31 MiB, reserves the final exact 1 MiB of its 32 MiB active allocation for fsynced resolution intents, moves ordinary terminal records to a separate 1,000,000-entry/256 MiB tombstone index through each signed 30-day horizon, rejects older IDs from signed issuedAt after purge, and keeps status/resolution/purge routes available to unblock capacity/workspaces.
 - Authenticated owner-local operation issue/list/status/resolve and CLI commands record actor/auth/confirmation/reason/evidence hashes without normal approval. A confirmed resolution is an authoritative reserved no-replay tombstone even when the ordinary tombstone index is full; resolved-applied/resolved-not-applied/abandoned release unresolved workspace/cap accounting, while reserve-full fails typed and leaves state unchanged.
 - Approval binding strict union enforces plugin-session WS/non-null file key or owner-control auth session/null-capable target; wrong branch fields fail. grounding/CLI use control; plugin/bootstrap use WS. TTL/CAS/reconnect semantics and runtime0 predecision hold.
@@ -5691,7 +5734,23 @@ Commit `7e92dd05b423f6fc7f1916c19b118626c5f985c2` and plan SHA `bc1395dc4a4542aa
 | Lifecycle | One V1-V7 idempotent guard, exact V3 order/approval/TTL transactions and reset-verified cleanup. |
 | Sites | Retry-safe project/credential, clean HEAD push, provenance-bound safe tar, single version and exact owner-only private deploy. |
 | Task16 | One build driver, one buildId, isolated entries, exact outputs, single shebang ownership and native platform evidence. |
-| Handoff | This R21 three-document commit is the sole READY target. |
+| Handoff | Superseded by R22. |
+
+### 2026-08-28 R22 total-receipt and validated-site amendment
+
+Commit `a1883fa2d65d2385a21a77998da5f29c7d493bb0` and plan SHA `c8b6da4a3e296371792422cf2aaf6de57f8f796e5788b0267dcddc758dc25124` received NOT READY R21 reviews and is superseded.
+
+| R22 | Binding resolution |
+|---|---|
+| Capture E2E | Boolean outer envelope, server-derived internal intent/options, synthetic effect, fixed createNew path, persistent conflict identity and Task8 injection. |
+| Total receipt | Capture resultArtifact is orthogonal to closed native evidence; finalized success/failure receipt rules and target/name matrix are exact. |
+| Durability | finalizerHash equals stable manifestHash; tombstones cross-link receipts/finalizers for30d and orphan recovery is bounded. |
+| Durable formulas | Filename/content/record/checkpoint/anchor formulas and both stores' limits/recovery tables are exact. |
+| Audit | Nonsecret consumed-claim hash, strict stage invariants, redacted DTO and actor-bound bounded cursor query. |
+| CLI | Versioned five-row projections, 116 normalized parity, generated dist copy, literal package authority and packed tests. |
+| Task11/16 | Snapshot evidence tests are in maps/commands; one build driver yields exact two bundles/package literals/shebang/platform evidence. |
+| Supplemental | Negative checks, validated source manifest, final reset validator, clean HEAD package/provenance and exact owner-only deploy sequence are binding. |
+| Handoff | This R22 three-document commit is the sole READY target. |
 
 Prior service findings remain incorporated. Prior external-ceremony findings are explicitly superseded by this scope correction and require separate future authorization.
 
@@ -5699,4 +5758,4 @@ Prior service findings remain incorporated. Prior external-ceremony findings are
 
 ## 11. Execution Handoff
 
-Commit this R21 three-document change as sole review target. No execution before READY; regenerate brief afterward with R21 SHA and frozen evidence.
+Commit this R22 three-document change as sole review target. No execution before READY; regenerate brief afterward with R22 SHA and frozen evidence.

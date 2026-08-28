@@ -1,6 +1,6 @@
 # eCommerce Figma Service Validation Implementation Plan
 
-> **For agentic workers:** REQUIRED SUB-SKILLS: `figma-design-to-code`, `chrome:control-chrome`, `sites-building`, `sites-hosting`, and conditionally `computer-use`. If social art is missing, dispatch exactly one image-only subagent; main never invokes ImageGen and remains sole editor. Run only after R21 READY and Tasks1-16 implemented/reviewed at the source-complete commit.
+> **For agentic workers:** REQUIRED SUB-SKILLS: `figma-design-to-code`, `chrome:control-chrome`, `sites-building`, `sites-hosting`, conditionally `computer-use`; exactly one image-only subagent if social art is missing. Run only after R22 READY and Tasks1-16 source-complete; main remains sole Site editor and never invokes ImageGen directly.
 
 **Goal:** Use the completed Super Figma Pipeline service, not direct browser imitation, to understand the supplied Figma Community file, implement a faithful page in `validation/ecommerce-figma-site/`, and prove the service-to-code-to-browser loop.
 
@@ -50,12 +50,16 @@ Top-level phase discriminates pre/final. Both bind strict `daemonRun {pid,starte
 
 `serviceOperations` is strict and binds unique operationId, kind/name, argsHash, workspaceId, fileExecutionKeyHash/targetBindingHash, succeeded, result/finalizer/receipt/generation, completedAt and packedClientDigest. Every field must match live status+receipt and current daemonRun; unrelated targets/old operations fail.
 
-- `read-result`: get_screenshot and read tools plus actual local-kind component_map/token_map/icon_map; section references require captured canonical artifact and strict node/frame proof. export_tokens with null outPath is read-result.
+Each operation separately records nullable `resultArtifact` (capture only) and `nativeEvidence`. Sections reference resultArtifact; assets reference members of native export arrays. Capture may coexist with export. No overlapping read-result/export-asset discriminator exists.
+
+Strict `negativeChecks` covers pre-runtime rejected/expired/duplicate attempts with runtime0 and null receipt. Finalized failed operations belong serviceOperations with a receipt and native no-artifact reason.
+
+- `resultArtifact`: nonnull only for capture=true, regardless actual tool kind; section references require strict canonical schema/node/frame proof.
 - `snapshot`: snapshot.capture exact locator/id/ref/checksum/fidelity/path/digest.
 - `grounding-graph`: grounding.refresh exact graph locator/path/digest/checksum/fidelity.
-- `export`: save_screenshots/save_image_fills/export_pdf/export_video/export_frames_to_pdf and export_tokens only with outPath; nonempty sorted artifact array. import_image is excluded.
+- Native `export`: save_screenshots/save_image_fills/export_pdf/export_video/export_frames_to_pdf and export_tokens only with outPath; nonempty sorted artifact array. Other operations use native no-artifact.
 
-Other top-level arrays remain strict: `chromeActions` records only public URL/action/timestamp; `sections` requires complete-leaf canonical node, operation references, implementation files/selectors and explicit inferences; `assets` requires source node, an `export-asset` operation reference, exact path/digest and license note; `inferences` requires item/evidence/reason/tested viewports. Every section/asset operation reference must resolve exactly once and no operationId may duplicate.
+Sections reference captured resultArtifact; assets reference an exact member of nativeEvidence export array with source node/path/digest/license. Every reference resolves exactly once.
 
 The validator has two strict, mutually exclusive phases. V3 runs exactly `node scripts/validate-service-evidence.mjs --phase pre-extraction --service-root ../../service --packed-runtime .sfp/validation-runtime --asset-root public --evidence service-evidence.json --schema service-evidence.schema.json`. Pre-extraction runs schema/unit-negative fixtures, rehashes the three source-complete documents plus artifact-manifest/SHA256SUMS/final MCP/CLI/plugin, verifies the retained daemonRun binding, and requires current external-model egress config hash/classes/expiry. It explicitly rejects final reset fields and performs no final trace, operation, asset, section, or unresolved-empty requirement.
 
@@ -161,14 +165,13 @@ After V7 reset, final validates each AdminAudit transaction order `pending -> ca
 
 **Interfaces:** validates the recorded service trace while the one retained daemon is alive, resets and verifies fail-closed egress state, stops that exact child, and produces reproducible service acceptance evidence plus private deployment.
 
-- [ ] Assemble public source/creator/license metadata, the same-run candidate/evidence/marker and artifact-manifest/SHA256SUMS/final-artifact hashes, `daemonLaunch:'packed-dist-node'`, stable file identity kind, canonical frame, snapshot/graph fidelity, discriminated operation/section/asset trace, egress before/configured hashes/classes/expiry, tested viewports, build/test results, and unresolved limitations. Record no consentId, nonce, credential, raw generation, absolute stateRoot, or private Draft URL.
-- [ ] Reset through packed CLI, fsync/query reset audit and verify unknown status, then set `egressState:'reset-verified'` and evidence phase final. Do not stop daemon before final validation.
-- [ ] Run `node scripts/validate-service-evidence.test.mjs`, then, while the exact V3 daemon child is alive, run exactly `node scripts/validate-service-evidence.mjs --phase final --service-root ../../service --packed-runtime .sfp/validation-runtime --asset-root public --evidence service-evidence.json --schema service-evidence.schema.json`. Require all Ajv/file/hash/candidate/receipt/audit/operation/snapshot/asset/reference checks, final unknown-fail-closed egress status/hash, and packed-CLI evidence/status plus unresolved queries to pass before continuing.
-- [ ] On normal V7 close/await clients/plugin/daemon, verify port closed and atomically null handles. Guard later sees reset-verified/nulls and never double-resets/stops; Sites child remains until deploy completes.
-- [ ] Reload current Sites skills before final build. Call `create_site` only if hosting.json lacks project_id; persist it immediately. On retry reuse project_id and call `create_source_repository_write_credential` for a replacement. Keep credential memory-only/owner-private and never log/store it.
-- [ ] Run final build and source+dist scan from clean tracked source, commit, then push with per-command HTTP Authorization header. Never alter URL/config. Require remote branch-head commit_sha equals local HEAD.
-- [ ] Write ignored `.sfp/site-build-provenance.v1.json` binding HEAD+tracked-source hashes to current dist, `.openai/hosting.json`, and migrations hashes. Run `package-site.sh`; safely list/extract/reject unsafe entries, compare extracted member bytes to those current inputs, scan content, then write ignored hosting provenance. Never claim provider-internal archive scan.
-- [ ] Save one version and retain version_id. `get_site` must show `current_user_role=owner`, `access_mode=custom`, exactly current account user, external0, group0. Then deploy_private_site_version, retain/poll deployment_id and open URL in retained V4 tab. Ambiguous/shared blocks for approval.
+- [ ] If project_id absent call create_site and persist; otherwise reuse it and call `create_source_repository_write_credential`. Keep credential memory-only. Complete final edits/tests/build/scan.
+- [ ] Compute `validatedSiteSourceManifestHash` from UTF-8-sorted `git ls-files` limited to package manifests/lock, src, public, app/config and `.openai/hosting.json`/migrations, excluding VALIDATION/service-evidence/validator/provenance. Hash `<path>\0<sha256>\n`; finalize evidence, commit, require clean HEAD. Any product change returns to V6/V7.
+- [ ] Reset egress with durable audit+unknown status, set reset-verified and `validationPhase:'final'`, then run final validator against clean HEAD/product manifest while daemon remains alive.
+- [ ] Close clients/plugin/daemon and null handles; guard keeps Sites dev child until deploy.
+- [ ] Push exact validated HEAD using per-command header; require remote branch head equals HEAD.
+- [ ] Write ignored site-build provenance, package-site tar.gz, safely compare extracted dist/hosting/migrations to current validated inputs and scan bytes.
+- [ ] Save one version with commit_sha/archive. `get_site` must show role owner, `access_policy.access_mode:'custom'`, exactly one `allowed_account_user_ids` equal current account, external_visitor_count0, and no workspace/tenant group IDs. Then private deploy/poll/open. Ambiguous/shared uses request_user_input approval then deploy_site_version; `site_not_owner_only` never retries private deployment.
 
 ## Verification Checklist
 
