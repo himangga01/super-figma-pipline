@@ -6,7 +6,7 @@
 
 **Architecture:** Figwright TypeScript monorepo를 standalone service baseline으로 vendor하고, MCP·CLI·follower의 모든 tool 실행을 하나의 typed policy/execution pipeline으로 통과시킨다. Rust와 figmosha2에서는 중복 server를 가져오지 않고 deterministic token/PDF export, progress, doctor/error-hint/target UX를 source attribution과 함께 흡수한다. Auth·operation journal은 owner-only service state에, source scan·snapshot·export는 user-approved workspace에 분리한다.
 
-**Tech Stack:** Node 24, pnpm 11.24, TypeScript 6 strict, MCP server v2, Zod 4, MessagePack, ws, Vue 3/Vite, Vitest, `pdf-lib` 1.17.1, oxlint/oxfmt/knip.
+**Tech Stack:** Node 24, pnpm 11.24, TypeScript 6 strict, MCP server v2, Zod 4.4.3, MessagePack, ws, Vue 3/Vite, Vitest, `happy-dom` 20.11.11, `pdf-lib` 1.17.1, Ajv 8.17.1, oxlint/oxfmt/knip.
 
 **Spec:** `docs/code-kb-analysis/05-unified-service-proposal.md` (binding), `docs/code-kb-analysis/04-detailed-comparison.md`, `docs/code-kb-analysis/reviews/agent-a-capability-union-input.md`, and the three implementation-plan reviews.
 
@@ -26,14 +26,15 @@
 - Every call strict-parses args, resolves every declared filesystem path/overwrite into Task 5 `PolicyInvocationContext.resolvedPaths` without reading content or touching network/runtime, and only then evaluates `effectsFor(args, policyContext)`. It resolves and freezes the operation's declared `TargetRequirement` before approval. Destructive, filesystem-write/overwrite, network, library import, and broad mutation effects require the policy-selected approval. Egress input/result-class preflight runs after effects/approval but before queue dispatch or any Figma/filesystem/network runtime; disallowed or unknown classes produce runtime call count zero.
 - Figma writes are serialized by stable file identity, not by socket session. Reads are bounded and cannot overlap a write on the same `FileExecutionKey`.
 - Exactly one `ExecutionPlane` exists for one elected leader generation. Followers construct only `FollowerInvocationClient`; `unknown` and `conflicted` election roles reject locally and forward neither tool arguments nor invocation context. Demotion closes admission before abort/drain/durable recovery and destroys the old plane.
-- MCP, follower, and control requests carry only strict `InvocationRequestV1` selectors. Actor, auth session, consent, workspace root, plugin target, file identity/execution key, generation, editor, and capabilities are always server-derived; request-body copies are rejected as unknown fields.
+- Direct MCP strict-parses args then server-synthesizes selector/workspace; follower carries that exact synthesized `InvocationRequestV1`; authenticated control alone supplies an explicit strict selector/workspace lookup key. Actor, auth session, consent, workspace root, plugin target, file identity/execution key, generation, editor, and capabilities are always server-derived; args/body/`_meta` copies are rejected.
 - A 256-bit owner-principal key under secured `stateRoot` derives one stable OS-owner `actor1_…` for direct MCP, follower MCP, and control. Each MCP connection creates one 128-bit session before role choice; `auth1_…` session identities are domain-separated HMACs, survive leader↔follower role changes for that MCP connection, and change on control credential rotation. Raw credentials are never actor/auth-session IDs. Target resolution is a leader-side lookup against authenticated Relay sessions; the resulting target and `FileExecutionKey` are deeply immutable for the invocation.
-- Idempotency key is `(actorId, operationId)`, where operationId is a server-issued timestamped/HMAC token with a 30-day exactly-once horizon. A forged/future/expired ID fails before runtime. Reuse with different tool, argsHash, workspace, or file target fails `OPERATION_ID_CONFLICT`. Terminal records compact to horizon tombstones; persisted success is never re-executed and returns `OPERATION_ALREADY_SETTLED` when its bounded in-memory result is unavailable.
+- Idempotency key is `(actorId, operationId)`, where operationId is a server-issued timestamped/HMAC token with a 30-day exactly-once horizon. A forged/future/expired ID fails before runtime. Reuse with different kind/name, argsHash, workspace, or file target fails `OPERATION_ID_CONFLICT`. Terminal records compact to horizon tombstones; persisted success is never re-executed. Bounded cache replay can return only redacted wire bytes after exact current consent-fingerprint reauthorization; otherwise it is payload-free `OPERATION_ALREADY_SETTLED` plus audit.
 - A dispatched write whose result is lost becomes `outcome-unknown` and is never blindly replayed. Daemon recovery converts persisted dispatched records to that state.
 - Persisted snapshots are loss-aware observed records. Section assembly records partial/omitted/failed sections; no “Figma API 전체 lossless IR” claim is made.
 - Model egress mode is explicit configuration, never inferred from `source:'mcp'`. Unknown mode fails closed. Audit records hashes/classes/byte counts, not raw design text, image bytes, source code, or secrets.
 - Pre-execution and final egress manifests are durable, canonical, hash-chained, fsynced owner-state records. Every reservation is finalized exactly once as output, no-output, or outcome-unknown before capacity release; a missing durable post-runtime finalizer makes the real outcome unknown rather than retryable.
 - One-use action nonces are server-issued 256-bit capabilities bound to actor, leader generation, exact action, and request hash for 120 seconds. Semantic validation precedes an atomic consume immediately before the side effect; restart/generation invalidates all outstanding nonces.
+- Paired approval-control uses strict versioned redacted prompt/decision frames bound server-side to actor, authenticated session/generations, immutable target, prompt hash, and 120-second TTL. Those control frames may flow while the runtime tool port remains forbidden; the plugin never receives a control token.
 - Progress/cancel/result/error semantics are one shared protocol projected to MCP progress tokens, framed follower RPC, control NDJSON, and plugin `$progress`/`$cancel`; transport disconnect alone is neither cancel nor retry.
 - Public `/ping` identity is exactly `{ok,product,protocolVersion,serverVersion,buildId,leaderGeneration,role}`. It retains `leaderGeneration` for authenticated-transport binding and exposes no plugin, MCP, Relay session, file, or `activeSessionId` oracle.
 - Task7 service registry starts0; Task11 registers `snapshot.capture` and `grounding.refresh` service2 outside canonical tool/handler counts; admin routes remain separate.
@@ -205,7 +206,7 @@ Motion 7 and `export_video` use `experimental-native`, remain advertised/impleme
 
 ~~~ts
 export interface ToolSpec<I, O> {
-  name: string;
+  name: ToolName;
   description: string;
   inputSchema: z.ZodType<I>;
   resultSchema: z.ZodType<O>;
@@ -220,7 +221,7 @@ export interface ToolSpec<I, O> {
 }
 
 export interface RawToolSpec<I> {
-  name: string;
+  name: ToolName;
   description: string;
   inputSchema: z.ZodType<I>;
   kind: 'read' | 'write' | 'local';
@@ -251,7 +252,7 @@ export interface PolicyInvocationContext {
 export type TargetRequirement = 'forbidden' | 'optional' | 'required';
 
 export interface OperationPolicy<I> {
-  toolName: string;
+  toolName: ToolName;
   possibleEffects: readonly Effect[];
   effectsFor(args: Readonly<I>, context: PolicyInvocationContext): readonly Effect[];
   idempotencyFor(args: Readonly<I>): 'safe-retry' | 'operation-id' | 'never-auto-retry';
@@ -264,7 +265,7 @@ export interface ToolRuntime<I, O> {
 }
 
 export interface PinnedPluginRuntimePort {
-  execute(scope: RuntimeExecutionScope, toolName: string, args: unknown, signal: AbortSignal): Promise<unknown>;
+  execute(scope: RuntimeExecutionScope, toolName: ToolName, args: unknown, signal: AbortSignal): Promise<unknown>;
 }
 
 export interface RuntimeBinding<I, O> {
@@ -291,12 +292,12 @@ export type SandboxMutationHandler<I, O> = (args: I) => Promise<PluginHandlerOut
 export type SandboxReadHandler<I, O> = (args: I) => Promise<O>;
 
 export interface UndoBoundaryPolicy {
-  toolName: string;
+  toolName: ToolName;
   commitOnChangedSuccess: boolean;
 }
 
 export interface MutationHandlerContract {
-  toolName: string;
+  toolName: ToolName;
   noOpSemantics: 'supported' | 'never-on-success';
   changedFixtureId: string;
   noOpFixtureId: string | null;
@@ -419,9 +420,14 @@ export interface EgressManifestPort {
 export type ActionNonceAction =
   | 'workspace.add'
   | 'workspace.remove'
+  | 'workspace.set-default'
   | 'operation.resolve'
   | 'network-domain.add'
   | 'network-domain.remove';
+
+export type ActionNonceIssueRequestV1 =
+  | { action: 'workspace.add'; requestHash: `sha256:${string}`; registrationPath: string }
+  | { action: Exclude<ActionNonceAction, 'workspace.add'>; requestHash: `sha256:${string}` };
 
 export interface ActionNonceClaims {
   value: `sfp_an1_${string}`;
@@ -439,16 +445,25 @@ export interface ActionNonceStore {
   consumeCas(actor: Readonly<ActorContext>, value: string, action: ActionNonceAction, requestHash: `sha256:${string}`): Promise<void>;
 }
 
+export const ToolNameSchema = z.string().min(1).max(128).regex(/^[a-z][a-z0-9_]{0,127}$/);
+export type ToolName = z.infer<typeof ToolNameSchema>;
+
+export const ServiceOperationNameSchema = z
+  .string().min(1).max(128)
+  .regex(/^[a-z][a-z0-9_]*(?:\.[a-z][a-z0-9_]*)+$/)
+  .pipe(z.enum(['snapshot.capture', 'grounding.refresh']));
+export type ServiceOperationName = z.infer<typeof ServiceOperationNameSchema>;
+
 export type InvocationTargetSelector =
   | { kind: 'active' }
-  | { kind: 'session'; sessionId: string }
+  | { kind: 'session'; sessionId: z.infer<typeof Base64Url128Schema> }
   | { kind: 'stable-file'; fileIdentityHash: `sha256:${string}` }
   | { kind: 'none' };
 
 export interface InvocationRequestV1 {
   version: 1;
   requestId: `sfp_req1_${string}`;
-  toolName: string;
+  toolName: ToolName;
   rawArgs?: unknown;
   operationId?: string;
   workspaceId?: string | null;
@@ -458,7 +473,7 @@ export interface InvocationRequestV1 {
 export interface ServiceOperationRequestV1 {
   version: 1;
   requestId: `sfp_req1_${string}`;
-  serviceOperationName: string;
+  serviceOperationName: ServiceOperationName;
   rawArgs?: unknown;
   operationId?: string;
   workspaceId?: string | null;
@@ -466,7 +481,7 @@ export interface ServiceOperationRequestV1 {
 }
 
 export interface ServiceOperationSpec<I, O> {
-  name: string;
+  name: ServiceOperationName;
   inputSchema: z.ZodType<I>;
   resultSchema: z.ZodType<O>;
   policyId: string;
@@ -496,6 +511,23 @@ export interface ConsentContext {
   mode: EgressMode;
   consentId: string | null;
   allowedClasses: readonly DataClass[];
+}
+
+export interface ConsentFingerprintV1 {
+  schemaVersion: 1;
+  mode: EgressMode;
+  consentId: string | null;
+  allowedClasses: readonly DataClass[];
+  policyVersion: 'egress-policy-v1';
+  fingerprintHash: `sha256:${string}`;
+}
+
+export interface CompletedWireResultCacheEntry {
+  readonly operationId: string;
+  readonly redactedWirePayload: unknown;
+  readonly redactedWirePayloadBytes: number;
+  readonly consentFingerprint: Readonly<ConsentFingerprintV1>;
+  readonly expiresAt: number;
 }
 
 export interface PluginTarget {
@@ -533,15 +565,52 @@ export interface DemotionTicket {
 }
 
 export interface ApprovalRecord {
-  approvalId: string;
+  approvalId: `sfp_ap1_${string}`;
   actorId: `actor1_${string}`;
   operationId: string;
   decision: 'approved' | 'rejected' | 'expired';
   decidedAt: string;
 }
 
+export interface ApprovalPromptV1 {
+  version: 1;
+  type: 'approval.prompt';
+  approvalId: `sfp_ap1_${string}`;
+  operationId: string;
+  operationKind: 'tool' | 'service';
+  operationName: ToolName | ServiceOperationName;
+  promptHash: `sha256:${string}`;
+  effectSummary: readonly string[];
+  target: { fileIdentityHash: `sha256:${string}` | null; label: string; targetCount: number | null };
+  issuedAt: number;
+  expiresAt: number;
+}
+
+export interface ApprovalDecisionV1 {
+  version: 1;
+  type: 'approval.decision';
+  approvalId: `sfp_ap1_${string}`;
+  operationId: string;
+  promptHash: `sha256:${string}`;
+  decision: 'approved' | 'rejected';
+}
+
+export interface ApprovalBindingV1 {
+  approvalId: `sfp_ap1_${string}`;
+  operationId: string;
+  promptHash: `sha256:${string}`;
+  actorId: `actor1_${string}`;
+  pairedSessionId: z.infer<typeof Base64Url128Schema>;
+  leaderGeneration: string;
+  pluginGeneration: string;
+  fileExecutionKey: FileExecutionKey | null;
+  issuedAt: number;
+  expiresAt: number;
+  state: 'pending' | 'approved' | 'rejected' | 'expired';
+}
+
 export interface ApprovalDecisionPort {
-  decide(scope: ResolvedInvocationScope, operationName: string, effects: readonly Effect[], operationId: string): Promise<ApprovalRecord | null>;
+  decide(scope: ResolvedInvocationScope, operationName: ToolName | ServiceOperationName, effects: readonly Effect[], operationId: string): Promise<ApprovalRecord | null>;
 }
 
 export type OperationStatus =
@@ -631,7 +700,7 @@ export interface OperationRecord {
   operationId: string;
   issuedAt: number;
   operationKind: 'tool' | 'service';
-  operationName: string;
+  operationName: ToolName | ServiceOperationName;
   argsHash: string;
   resultHash: string | null;
   resultBytes: number | null;
@@ -668,7 +737,7 @@ export interface OperationTombstone {
   issuedAt: number;
   expiresAt: number;
   operationKind: 'tool' | 'service';
-  operationName: string;
+  operationName: ToolName | ServiceOperationName;
   argsHash: string;
   workspaceId: string | null;
   fileExecutionKey: FileExecutionKey | null;
@@ -683,7 +752,7 @@ export interface OperationResolutionRecord {
   operationId: string;
   issuedAt: number;
   operationKind: 'tool' | 'service';
-  operationName: string;
+  operationName: ToolName | ServiceOperationName;
   argsHash: string;
   workspaceId: string | null;
   fileExecutionKey: FileExecutionKey | null;
@@ -709,29 +778,35 @@ export interface JournalLimits {
 }
 
 export interface OperationInvocationService {
-  invokeTool(scope: RuntimeExecutionScope, toolName: string, rawArgs: unknown, operationId?: string): Promise<unknown>;
-  invokeService(scope: RuntimeExecutionScope, operationName: string, rawArgs: unknown, operationId?: string): Promise<unknown>;
+  invokeTool(scope: RuntimeExecutionScope, toolName: ToolName, rawArgs: unknown, operationId?: string): Promise<unknown>;
+  invokeService(scope: RuntimeExecutionScope, operationName: ServiceOperationName, rawArgs: unknown, operationId?: string): Promise<unknown>;
   status(actorId: `actor1_${string}`, operationId: string): OperationRecord | undefined;
 }
 
-export const SERVICE_OPERATION_SPECS: Readonly<Record<string, ServiceOperationSpec<unknown, unknown>>> = Object.freeze({});
+export const SERVICE_OPERATION_SPECS: Readonly<Partial<Record<ServiceOperationName, ServiceOperationSpec<unknown, unknown>>>> = Object.freeze({});
 ~~~
 
 Task7 registers its one typed router at the frozen Task6.1 seam's exact `/control` prefix before listen; all sibling paths dispatch internally. Task7 router rejects duplicate method/path/decoder/post-freeze; Task6.1 seam rejects any second/descendant prefix. Task8/11 modify only route-registry; structural tests prove sibling reachability, single response, authenticated default404/body/CORS on decline, no standalone mount/producer edit.
 
 Authenticated `GET /control/status` is a Task7 admin route with empty strict input and exact `ControlStatusV1` output. Its `ControlStatusSource` combines final Task6.1 facade server/role/generation facts with a read-only Relay registry snapshot; it never calls public ping over HTTP. Session/file/plugin/capability oracles exist only here behind control auth. Tests cover unauthorized/foreign stateRoot, exact keys, redaction, zero/multiple plugins, active-session rotation, and absence of credentials/raw file identity values.
 
-`InvocationRequestV1` is the strict tool wire schema; its only keys are `version`, `requestId`, `toolName`, optional `rawArgs`, optional `operationId`, optional `workspaceId`, and `targetSelector`. `ServiceOperationRequestV1` substitutes `serviceOperationName` and is accepted only by the service-operation seam. Cancellation accepts only `version`, `requestId`, and `operationId`. Request IDs match `^sfp_req1_[A-Za-z0-9_-]{22}$`. Every entry point rejects unknown keys, including body-supplied `actor`, `actorId`, `authSessionId`, `principal`, `consent`, `mode`, `allowedClasses`, `workspaceRoot`, `target`, `FileIdentity`, `fileExecutionKey`, `pluginGeneration`, `editorType`, and `capabilities`. `workspaceId` is only an approved-store lookup key, never a root path. `stable-file.fileIdentityHash` matches `^sha256:[0-9a-f]{64}$`, carries no body `FileIdentity`, and is only an authenticated-session-index lookup.
+`InvocationRequestV1` is the strict tool wire schema; its only keys are `version`, `requestId`, `toolName`, optional `rawArgs`, optional `operationId`, optional `workspaceId`, and `targetSelector`. `ToolNameSchema` remains lower-snake only. `ServiceOperationRequestV1` substitutes `serviceOperationName`, whose separate parser accepts only the exact dotted literals `snapshot.capture` and `grounding.refresh`; it is accepted only by the service-operation seam. The registry, idempotency fingerprint, journal/tombstone/resolution codecs, audit, and status parser all dispatch on `(operationKind, ToolName|ServiceOperationName)` and never run a dotted service name through `ToolNameSchema`. Positive tests cover both literals; negative tables cover snake substitution, slash, extra/missing dot, uppercase, empty, 128/129-character dotted strings, and cross-kind name use.
 
-Tool/service operation names match `^[a-z][a-z0-9_]{0,127}$`; workspaceId is null or canonical lowercase UUIDv4 (36 chars); session selector IDs are 1–128 ASCII `[A-Za-z0-9-]`; stable-file hash is fixed 71 ASCII chars; canonical selector JSON is at most 256 UTF-8 bytes. These string limits are checked before map lookup/allocation and have exact boundary rows in section3.12.
+Cancellation accepts only `version`, `requestId`, and `operationId`. Request IDs match `^sfp_req1_[A-Za-z0-9_-]{22}$`. Every entry point rejects unknown keys, including body-supplied `actor`, `actorId`, `authSessionId`, `principal`, `consent`, `mode`, `allowedClasses`, `workspaceRoot`, `target`, `targetSelector` inside tool args or MCP `_meta`, `workspaceId` inside tool args or MCP `_meta`, `FileIdentity`, `fileExecutionKey`, `pluginGeneration`, `editorType`, and `capabilities`. Wire-level `workspaceId` is only a server/control-selected approved-store lookup key, never a root path. `stable-file.fileIdentityHash` matches `^sha256:[0-9a-f]{64}$`, carries no body `FileIdentity`, and is only an authenticated-session-index lookup.
 
-Admission order before approval is exact: strict outer/inner/request parse → registry/strict args → workspace lookup → resolve declared paths metadata-only into PolicyInvocationContext → effects/idempotency/approval requirement → TargetRequirement and deep-frozen target/key → `ResolvedInvocationScope`. Capacity/pending approval and decision then run. Only after approval does egress authorization produce ConsentContext and freeze final `RuntimeExecutionScope`. No content/DNS/network/plugin/runtime occurs earlier. Target rules are section3.2; unstable key includes registered session+generation; no filename fallback/reroute.
+Tool names match `^[a-z][a-z0-9_]{0,127}$`; service names use the exact dotted enum above; workspaceId is null or canonical lowercase UUIDv4 (36 chars). Session selectors parse with the frozen Task6.1 `Base64Url128Schema`, exactly 22 unpadded base64url characters and including `_`/`-`; a generated 16-byte fixture whose encoding contains `_` is a required positive case. Stable-file hash is fixed 71 ASCII chars; canonical selector JSON is at most 256 UTF-8 bytes. These limits are checked before map lookup/allocation and have exact boundary rows in section3.12.
 
-Each MCP connection creates one random 128-bit `mcpSession` before election role choice and synthesizes one random 128-bit `sfp_req1_…` request ID per call. The leader adapter uses selector `active`; the same connection in follower role forwards selector `active` through Task6.1's opaque authenticated transport without changing its MCP/auth session. Only authenticated control/CLI may choose `session`, `stable-file`, or `none` explicitly in v0.1. Tool-specific node/page/component IDs remain parsed ToolSpec args; they never become session/file identity.
+Admission order before approval is exact: strict outer/inner/request parse → kind-specific name parser/registry/strict args → server-side MCP workspace binding or authenticated control workspace lookup → resolve declared paths metadata-only into PolicyInvocationContext → effects/idempotency/approval requirement → `targetRequirementFor(parsedArgs)` → server-side selector synthesis for MCP or strict control selector parse → deep-frozen target/key → `ResolvedInvocationScope`. Capacity/pending approval and decision then run. Only after approval does egress authorization produce ConsentContext and freeze final `RuntimeExecutionScope`. No content/DNS/network/plugin runtime tool call occurs earlier; only the paired approval-control broker may exchange the strict prompt/decision frames while waiting. Target rules are section3.2; unstable key includes registered session+generation; no filename fallback/reroute.
+
+Each MCP connection creates one random 128-bit `mcpSession` before election role choice and synthesizes one random 128-bit `sfp_req1_…` request ID per call. After strict tool-args parsing, the MCP adapter calls the registered `targetRequirementFor(parsedArgs)` and synthesizes exactly `forbidden→{kind:'none'}`, `required→{kind:'active'}`, and `optional→{kind:'none'}`. Therefore `ping`, `doctor({roundTrip:false})`, and `doctor({})` use none, while `doctor({roundTrip:true})` and every required plugin tool use active. The same synthesized request and server-resolved MCP workspace binding travel through leader and follower paths; plugin connected/disconnected parity tests prove optional/forbidden calls work without a plugin and required calls fail typed without silently changing selector. Tool args and MCP `_meta` cannot override selector/workspace. Only authenticated control/CLI may choose `session`, `stable-file`, or `none` explicitly in v0.1. Tool-specific node/page/component IDs remain parsed ToolSpec args; they never become session/file identity.
 
 One `ExecutionPlane` singleton is constructed only while the node owns one leader generation. A persisted owner-principal key is exactly 32 random bytes created once at `stateRoot/auth/owner-principal-key.v1`, protected by Task 4 `StatePermissions`, read only by the leader, and never logged/exported. Every valid entry path in that stateRoot receives the same actor ID: `actor1_` plus base64url HMAC-SHA-256 of `sfp-actor-v2\0os-owner`. MCP auth session is `auth1_` plus base64url HMAC-SHA-256 of `sfp-auth-v1\0mcp\0<mcpSession>`; it remains identical when that MCP connection changes leader↔follower role. Control auth session is `auth1_` plus base64url HMAC-SHA-256 of `sfp-auth-v1\0control\0<leaderGeneration>\0<credential-fingerprint>` and changes on credential rotation. The credential fingerprint is itself a domain-separated SHA-256 value; no raw token, ticket, resume value, follower credential, or control credential is ever stored as actor/authSessionId. A different stateRoot has a different owner key, cannot derive the actor/auth sessions, cannot verify operation IDs, and has no authority over the records.
 
 Cancellation requires both the stable actor and exact `originAuthSessionId`; another MCP connection or rotated control session cannot cancel it. Authenticated control is owner-admin for list/status and manual resolution of any same-actor operation regardless of origin session, and the audit records both `originAuthSessionId` and `resolverAuthSessionId`. Role transition, control rotation, cross-session cancel denial, cross-domain admin resolution, and foreign-stateRoot denial are binding tests. Task6.1 public `/ping` remains exactly `{ok,product,protocolVersion,serverVersion,buildId,leaderGeneration,role}` and exposes no plugin/session/file oracle.
+
+`ApprovalPromptV1Schema` and `ApprovalDecisionV1Schema` are strict/versioned authorities in `shared/src/approval.ts`; neither accepts identity, target, generation, credential, or control-token fields from the plugin. Approval IDs are server-issued `sfp_ap1_`+exact 22-character Base64Url128; effectSummary has at most 32 server codes of 1–128 ASCII characters, target label at most 128 UTF-8 bytes, targetCount is null or nonnegative safe integer, and timestamps are nonnegative safe integers. The daemon creates a raw-free prompt, canonical-hashes it with `promptHash` omitted, and persists one `ApprovalBindingV1` tying approvalId+operationId+promptHash to the server-derived owner actor, authenticated paired Relay session, leader generation, plugin generation, immutable `fileExecutionKey`, and exact 120,000 ms TTL. Prompt target data is limited to a stable hash, sanitized label, and count; effect summaries omit design text, bytes/base64, absolute paths, URL query, tokens, and credentials. The paired plugin receives no control token.
+
+While pending approval, the runtime tool-call port remains uncallable, but the authenticated approval-control broker may send `approval.prompt` and receive `approval.decision` frames. A decision succeeds only from the bound authenticated paired session/generation/target with exact approvalId+operationId+promptHash and one pending CAS. Duplicate, conflicting, wrong-session, wrong-generation, wrong-target, and decisions at `now >= expiresAt` are rejected and audited without runtime. A resumed connection may receive the prompt again only when Task6.1 resume authentication proves the same paired session, plugin generation, and pinned file key; retransmission does not create a second binding or extend TTL. Task7 owns the daemon producer/broker and fake paired port; Task9C owns the real plugin bridge/UI consumer and cleanup.
 
 Followers construct only `FollowerInvocationClient` over the final Task6.1 stream facade; no executor/queue/journal/Relay/auth primitive. Unknown/conflicted forward no args. Task7 consumes only authenticated ordered plaintext Buffers and structurally cannot import Task6.1 private auth/record code.
 
@@ -739,15 +814,17 @@ Demotion is single-flight/two-phase and awaited by election; overlapping ticks c
 
 Operation IDs are server-issued base64url envelopes with version/keyId/issuedAt/random128-bit nonce/owner-actor hash plus HMAC-SHA-256 under a dedicated stateRoot-lifetime key independent of transport credentials. Verify strict envelope, key/MAC/owner actor before lookup; age `>=2,592,000,000 ms` is `OPERATION_ID_EXPIRED`, future skew `>300,000 ms` or bad key/MAC/actor is `OPERATION_ID_INVALID`, all runtime zero. Exact replay key includes actor, operationId, kind, name, argsHash, workspaceId, and fileExecutionKey; mismatch conflicts. No raw result persists. In-memory result cache follows section3.12; persisted settled without cache returns nonretryable `OPERATION_ALREADY_SETTLED`. Tombstones last through horizon and signed age rejects after purge. Generation change uses bounded demotion. Manual same-owner control resolution is separate admin action with nonce/evidence/exact `${operationId}/${resultHash ?? 'unknown'}`, fsynced 1,048,576-byte reserve, origin/resolver auth audit, no replay authority, and typed reserve-full guidance.
 
+The completed-result cache stores only the already-redacted final wire payload plus `ConsentFingerprintV1`; raw runtime output, unredacted classified output, and pre-redaction objects are never cache values. The fingerprint canonicalizes exactly `{mode,consentId,allowedClasses:sortedUnique,policyVersion:'egress-policy-v1'}` and hashes those bytes with domain `sfp-consent-fingerprint-v1`. On every same-fingerprint replay, including cross-entry direct/follower/control replay, the executor resolves and validates current consent again before reading the cached payload. It returns cached bytes only when the current fingerprint is byte-identical and unexpired. Mode change, consent expiry/rotation, class narrowing/expansion, policy-version change, or missing cache returns payload-free `OPERATION_ALREADY_SETTLED` and appends a raw-free replay audit containing old/new fingerprint hashes and reason; it never re-executes or leaks the prior payload. Tests include local-trusted→external-model, external consent rotation/expiry/narrowing, and cross-entry replay.
+
 The exact fingerprint includes `(operationKind,operationName)`, so tool/service names cannot collide. State/side-effect order is: capacity → durable pending approval if required → approval → raw-free pre-egress fsync/finalizer reservation → queue → dispatched append → dispatched fsync → first plugin/filesystem/network side effect → validation/classification → exactly-one finalizer fsync → terminal status fsync → one terminal frame. No runtime port is callable before dispatched fsync. Generation-fenced terminal CAS makes result/cancel/deadline/demotion races one-winner; crash tests stop after every arrow and never rerun maybe-applied effects.
 
 The full-reserve payload is exactly `{ code:'RESOLUTION_RESERVE_FULL', manualExportCommand:'sfp operations unresolved --json' }`; it contains no raw operation data.
 
 Every reserved resolution record copies `originAuthSessionId`, `issuedAt`, `operationKind`, `operationName`, `argsHash`, `workspaceId`, `fileExecutionKey`, and `resultHash` from the active unknown row and adds the authenticated control `resolverAuthSessionId` before fsync. That complete fingerprint preserves the normal rule after active-row compaction: an exact same-ID call is settled, while any different kind/name/args/workspace/file target is `OPERATION_ID_CONFLICT`.
 
-Authenticated `POST /control/action-nonces` accepts strict `{action,requestHash}`, where requestHash matches `^sha256:[0-9a-f]{64}$`, and issues exactly `sfp_an1_` followed by random 256-bit base64url (43 characters), bound to authenticated actor, current leader generation, action, and canonical semantic request hash. TTL is exactly 120,000 ms. The owner-state store permits at most 1,024 rows or 512 KiB per actor; it never evicts an unexpired issued or consumed row to admit another. Semantic request validation occurs first, then `consumeCas` runs atomically immediately before the protected side effect. A mismatch, reuse, concurrent loser, expiry, daemon restart, or generation change fails before the side effect. Consumed rows remain until expiry so replay is distinguishable. Restart and generation recovery invalidate every outstanding row rather than restoring bearer capability.
+Authenticated `POST /control/action-nonces` accepts strict `ActionNonceIssueRequestV1`, where requestHash matches `^sha256:[0-9a-f]{64}$`. Every action except `workspace.add` has exactly `{action,requestHash}`; workspace add has exactly `{action:'workspace.add',requestHash,registrationPath}` so the server can resolve and bind the registration identity at issue time. The endpoint issues exactly `sfp_an1_` followed by random 256-bit base64url (43 characters), bound to authenticated actor, current leader generation, action, canonical semantic request hash, and—only for workspace add—the resolver's realPath/identity tuple. TTL is exactly 120,000 ms. The owner-state store permits at most 1,024 rows or 512 KiB per actor; it never evicts an unexpired issued or consumed row to admit another. Semantic request validation occurs first, then revalidation and `consumeCas` run immediately before the protected side effect. A mismatch, filesystem identity change, reuse, concurrent loser, expiry, daemon restart, or generation change fails before the side effect. Consumed rows remain until expiry so replay is distinguishable. Restart and generation recovery invalidate every outstanding row rather than restoring bearer capability.
 
-`hashActionRequest(action,payload)` is owned by `shared/action-nonce.ts`: strict-parse the action-specific semantic payload, omit auth and `actionNonce`, sort object keys recursively, preserve array order, encode every already-canonical string as its exact UTF-8 bytes with no Unicode normalization/case folding, encode canonical JSON, and hash `sfp-action-request-v1\0<action>\0<canonical-json>` with SHA-256. Exact semantic fields are `{realPath}` for `workspace.add` after Task 4 canonical realpath resolution, `{workspaceId}` for `workspace.remove`, `{operationId,decision,reasonHash,evidenceHash,confirm}` for `operation.resolve`, and normalized exact `{fqdnAscii}` for both network-domain actions. CLI resolves the same local realPath before requesting a nonce; the server re-resolves and requires byte equality before CAS. The client-supplied hash is never accepted as side-effect authority by itself, and canonically distinct filesystem names never alias through NFC.
+`hashActionRequest(action,payload)` is owned by `shared/action-nonce.ts`: strict-parse the action-specific semantic payload, omit auth, `actionNonce`, and the nonsemantic spelling `registrationPath`, sort object keys recursively, preserve array order, encode every already-canonical string as its exact UTF-8 bytes with no Unicode normalization/case folding, encode canonical JSON, and hash `sfp-action-request-v1\0<action>\0<canonical-json>` with SHA-256. Exact semantic fields are `{realPath}` for `workspace.add` after `WorkspaceRegistrationResolver.resolveForNonce`, `{workspaceId}` for `workspace.remove`, `{workspaceId:string|null}` for `workspace.set-default`, `{operationId,decision,reasonHash,evidenceHash,confirm}` for `operation.resolve`, and normalized exact `{fqdnAscii}` for both network-domain actions. CLI resolves the same local realPath before requesting a nonce and also sends the original registrationPath; the server independently resolves and compares hash+identity, then repeats that resolution immediately before CAS. The client-supplied hash is never accepted as side-effect authority by itself, and canonically distinct filesystem names never alias through NFC.
 
 The durable egress authority is `stateRoot/journal/{actor-hash}.egress-manifests.v1.jsonl`. Rows use one explicit canonical serializer: recursively sorted object keys, preserved array order, UTF-8 strings without normalization, finite JSON numbers in canonical decimal form, and no undefined values. A manifest's `manifestHash` is SHA-256 over that manifest with `manifestHash` omitted; a record's `recordHash` is SHA-256 over the complete record with `recordHash` omitted and includes `previousRecordHash`. Row byte accounting includes canonical UTF-8 JSON plus its one trailing LF; maximum is 65,536. Compact at 160,000 rows or 201,326,592 bytes, refuse new reservations at 200,000 rows or 268,435,456 bytes, retain 2,592,000,000 ms.
 
@@ -778,6 +855,23 @@ export interface WorkspaceConfigStore {
   add(actorId: string, path: string): Promise<WorkspaceRoot>;
   list(): Promise<readonly WorkspaceRoot[]>;
   remove(actorId: string, workspaceId: string): Promise<void>;
+  setDefault(actorId: string, workspaceId: string | null): Promise<void>;
+  getDefault(): Promise<string | null>;
+}
+
+export interface ResolvedWorkspaceRegistration {
+  requestedPath: string;
+  realPath: string;
+  identityKey: string;
+}
+
+export interface WorkspaceRegistrationResolver {
+  resolveForNonce(path: string): Promise<Readonly<ResolvedWorkspaceRegistration>>;
+  revalidateImmediatelyBeforeCommit(expected: Readonly<ResolvedWorkspaceRegistration>): Promise<void>;
+}
+
+export interface McpWorkspaceBinding {
+  resolveRequiredForMcpSession(mcpSession: McpSessionId): Promise<string>;
 }
 
 export interface WorkspaceUsageGuard {
@@ -792,7 +886,11 @@ export interface StatePermissions {
 
 Default state locations are `%LOCALAPPDATA%/SuperFigmaPipeline` on Windows, `~/Library/Application Support/SuperFigmaPipeline` on macOS, and `$XDG_STATE_HOME/super-figma-pipeline` on Linux with the documented platform fallback. Unix creates directory/file modes 0700/0600. On Windows, `state-permissions.ts` calls `whoami.exe /user /fo csv /nh` with `execFile` to parse the current SID, then invokes `icacls.exe` with separate argv operations to remove inheritance and grant the current SID plus SYSTEM (`S-1-5-18`) full control; it never uses a shell. Verification parses the `icacls.exe` listing for the resolved stateRoot path and permits only the current SID and SYSTEM allow ACEs; Administrators, Everyone, Users, Authenticated Users, or any unknown allow ACE fails startup.
 
-WorkspaceConfigStore receives a `WorkspaceUsageGuard` constructor dependency. Task 4 tests it with an in-memory fake and never imports the later journal; Task 7 supplies `JournalWorkspaceUsageGuard`. Workspace registration takes an existing directory, resolves realpath, requires authenticated explicit user action, and writes only the normalized record to stateRoot. Removal calls the guard and returns `WORKSPACE_IN_USE` for unsettled references. Raw `rootDir`/`outPath` arguments cannot add roots. Existing paths are realpath checked per file; new outputs validate the nearest existing parent and reject symlink/junction/reparse traversal.
+WorkspaceConfigStore receives a `WorkspaceUsageGuard` constructor dependency. Task 4 tests its checked-in `add/list/remove` v1 base with an in-memory fake and never imports the later journal; Task7 7B reads v1 as `defaultWorkspaceId:null` and on the next mutation atomically/checksummed-writes v2 `{version:2,workspaces,defaultWorkspaceId,checksum}` with `setDefault`/`getDefault`, while supplying `JournalWorkspaceUsageGuard`. Setting a default requires an existing registration; removing the current default fails `WORKSPACE_DEFAULT_IN_USE` until the operator selects another or explicitly clears it with `setDefault(actorId,null)`. Restart preserves the selected ID and a corrupt/stale default fails closed.
+
+`McpWorkspaceBinding` reads only this owner state when parsed args/effects require project filesystem access. An explicit valid default wins; with no default, exactly one configured workspace is selected; zero yields `MCP_WORKSPACE_REQUIRED`, and multiple yields `MCP_WORKSPACE_AMBIGUOUS`. It never selects the first sorted/root row. Figma-only/no-filesystem MCP calls retain workspaceId null. The local MCP adapter resolves a required binding once after tool args parse and before leader/follower choice, then carries the same server-resolved workspaceId through either path. Tool args, request body extensions, and MCP `_meta` cannot override it. Authenticated control/CLI retains explicit workspace selection. Tests cover null Figma-only, required zero/one/multiple, explicit default, cleared/removed/stale default, restart, leader↔follower parity, and forged body/_meta fields.
+
+Workspace registration takes an existing directory, resolves realpath, requires authenticated explicit user action, and writes only the normalized record to stateRoot. `WorkspaceRegistrationResolver` is owned by `mcp/src/fs/workspace-registration-resolver.ts`, not `WorkspacePolicy`: at workspace-add nonce issue it performs `stat`/directory verification, realpath, and stable filesystem identity capture, recomputes `hashActionRequest('workspace.add',{realPath})`, and binds `{realPath,identityKey}` to the nonce. Immediately before `consumeCas` and `WorkspaceConfigStore.add`, it repeats stat+directory+realpath and requires the same bytes/identity; mismatch is `WORKSPACE_REGISTRATION_CHANGED` with no nonce consumption or side effect. Removal calls the guard and returns `WORKSPACE_IN_USE` for unsettled references. Raw `rootDir`/`outPath` arguments cannot add roots. Existing paths are realpath checked per file; new outputs validate the nearest existing parent and reject symlink/junction/reparse traversal.
 
 ### 3.5 Pairing, Resume, Follower, and Control Auth
 
@@ -948,13 +1046,28 @@ export type FileExecutionKey = `figma:${string}` | `plugin-uuid:${string}` | `un
 
 Use `figma.fileKey` when non-null. Otherwise, an explicitly approved editable Design session creates one UUID in document root pluginData key `sfp:file-uuid` through an audited top-level system mutation. The plugin dispatcher—the sole undo owner—commits that changed system operation once; `file-identity.ts` never calls `commitUndo()` directly. The UUID is reused across plugin/daemon restarts. Dev/read-only contexts that cannot persist it get `unstable-readonly`; persistent snapshot/design-diff returns `FILE_IDENTITY_UNSTABLE` instead of guessing from fileName. Queue key derives only from FileIdentity, so two sessions on the same file serialize.
 
-Selector resolution never trusts a caller-supplied identity/key. `active` chooses the leader's current authenticated Relay session at admission and pins it; `session` looks up that exact authenticated session; `stable-file` looks up the hash in the leader's authenticated-session index and selects the healthy same-identity session with highest server-assigned monotonic `connectedSequence` (lexicographically smallest sessionId breaks a tie), while zero matches fail and a hash collision across different identities fails `TARGET_SELECTOR_AMBIGUOUS`; `none` resolves no plugin target. The resolved session's registered `FileIdentity` alone produces `figma:<fileKey>`, `plugin-uuid:<uuid>`, or `unstable:<registered-sessionId>:<registered-pluginGeneration>`. `fileName` is display-only. The frozen target/key remain unchanged through approval, queueing, runtime, progress, and result settlement; disappearance yields `PINNED_SESSION_LOST`.
+Selector resolution never trusts a caller-supplied identity/key. `active` chooses the leader's current authenticated Relay session at admission and pins it; `session` first parses the exact 22-character ID with frozen `Base64Url128Schema`—including valid `_` and `-`—then looks up that authenticated session; `stable-file` looks up the hash in the leader's authenticated-session index and selects the healthy same-identity session with highest server-assigned monotonic `connectedSequence` (lexicographically smallest sessionId breaks a tie), while zero matches fail and a hash collision across different identities fails `TARGET_SELECTOR_AMBIGUOUS`; `none` resolves no plugin target. The resolved session's registered `FileIdentity` alone produces `figma:<fileKey>`, `plugin-uuid:<uuid>`, or `unstable:<registered-sessionId>:<registered-pluginGeneration>`. `fileName` is display-only. The frozen target/key remain unchanged through approval, queueing, runtime, progress, and result settlement; disappearance yields `PINNED_SESSION_LOST`.
 
 Only a `server-adapter` whose `TargetRequirement` resolves to `forbidden` or `optional` may receive a null target. `plugin-direct` always requires a pinned target. `analyze_project`/`scan_components` reject non-none selectors, `ping` can return daemon health with none or use a pin for its typed round trip, and `doctor(roundTrip:false)` may use none while `doctor(roundTrip:true)` must pin. Target resolution never silently upgrades optional none to active.
 
 ### 3.7 Snapshot and Grounding
 
 ~~~ts
+export const Sha256WireSchema = z.string().regex(/^sha256:[0-9a-f]{64}$/);
+export const Sha256DigestSchema = z.string().regex(/^[0-9a-f]{64}$/);
+export const SnapshotIdSchema = z.string().regex(/^sfp_snap1_[A-Za-z0-9_-]{21}[AQgw]$/);
+export const RepoRelativePathSchema = z.string().min(1).max(4096).refine(value =>
+  !value.startsWith('/') && !/^[A-Za-z]:/.test(value) && !value.includes('\\') &&
+  !value.includes(':') && value.split('/').every(segment => segment !== '' && segment !== '.' && segment !== '..'),
+);
+
+export const SnapshotLocatorSchema = z.object({
+  workspaceId: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/),
+  fileIdentityHash: Sha256WireSchema,
+  snapshotId: SnapshotIdSchema,
+}).strict();
+export type SnapshotLocator = z.infer<typeof SnapshotLocatorSchema>;
+
 export interface SnapshotFidelity {
   detail: 'full';
   truncated: boolean;
@@ -985,7 +1098,7 @@ export interface SectionIssue {
 
 export interface SnapshotV1 {
   schemaVersion: 1;
-  snapshotId: string;
+  locator: SnapshotLocator;
   connector: {
     protocolVersion: string;
     productVersion: string;
@@ -1010,11 +1123,11 @@ export interface SnapshotReader {
 export interface SnapshotStorageKey {
   workspaceId: string;
   fileIdentity: FileIdentity;
-  fileIdentityHash: string;
-  snapshotId: string;
+  fileIdentityHash: `sha256:${string}`;
+  snapshotId: `sfp_snap1_${string}`;
 }
 
-export interface StoredSnapshotRef extends SnapshotStorageKey {
+export interface StoredSnapshotRef extends SnapshotLocator {
   relativePath: string;
   checksum: string;
   bytes: number;
@@ -1023,9 +1136,9 @@ export interface StoredSnapshotRef extends SnapshotStorageKey {
 
 export interface SnapshotStoragePort {
   save(key: SnapshotStorageKey, snapshot: SnapshotV1): Promise<StoredSnapshotRef>;
-  load(key: SnapshotStorageKey): Promise<{ ref: StoredSnapshotRef; snapshot: SnapshotV1 } | null>;
-  list(workspaceId: string, fileIdentity: FileIdentity, fileIdentityHash: string): Promise<readonly StoredSnapshotRef[]>;
-  delete(key: SnapshotStorageKey, actorId: string, approvalId: string): Promise<void>;
+  loadByLocator(locator: SnapshotLocator): Promise<{ ref: StoredSnapshotRef; snapshot: SnapshotV1 } | null>;
+  list(workspaceId: string, fileIdentityHash: `sha256:${string}`): Promise<readonly StoredSnapshotRef[]>;
+  delete(locator: SnapshotLocator, actorId: string, approvalId: string): Promise<void>;
 }
 
 export interface SnapshotCaptureArgs { nodeIds: [string, ...string[]] }
@@ -1035,14 +1148,105 @@ export interface SnapshotCaptureResult {
   graphIssue: null | { code: string; messageHash: `sha256:${string}` };
 }
 
-export interface GroundingGraphStorageKey {
-  workspaceId: string;
-  fileIdentity: FileIdentity;
-  fileIdentityHash: string;
-  snapshotId: string;
-}
+export type GroundingNodeKind = 'design-node' | 'component' | 'token' | 'code-file' | 'code-symbol';
+export type GroundingEdgeKind = 'implements' | 'maps-token' | 'uses-component' | 'derived-from';
+export type GroundingEdgeState = 'candidate' | 'verified' | 'stale';
 
-export interface StoredGroundingGraphRef extends GroundingGraphStorageKey {
+export const GroundingNodeLocatorV1Schema = z.discriminatedUnion('kind', [
+  z.object({ kind: z.literal('figma-node'), nodeId: z.string().min(1).max(256) }).strict(),
+  z.object({ kind: z.literal('repo-path'), path: RepoRelativePathSchema }).strict(),
+  z.object({ kind: z.literal('repo-symbol'), path: RepoRelativePathSchema, symbol: z.string().min(1).max(512) }).strict(),
+]);
+
+export const GroundingNodeV1Schema = z.object({
+  nodeId: z.string().regex(/^sfp_gn1_[0-9a-f]{64}$/),
+  kind: z.enum(['design-node', 'component', 'token', 'code-file', 'code-symbol']),
+  locator: GroundingNodeLocatorV1Schema,
+  contentHash: Sha256WireSchema,
+}).strict();
+
+export const GroundingEvidenceRefV1Schema = z.discriminatedUnion('kind', [
+  z.object({ kind: z.literal('snapshot-node'), nodeId: z.string().min(1).max(256), contentHash: Sha256WireSchema }).strict(),
+  z.object({
+    kind: z.literal('repo-range'), path: RepoRelativePathSchema,
+    startLine: z.number().int().min(1).max(10000000),
+    endLine: z.number().int().min(1).max(10000000),
+    contentHash: Sha256WireSchema,
+  }).strict().refine(value => value.endLine >= value.startLine),
+]);
+
+export const GroundingEvidenceV1Schema = z.object({
+  source: z.enum(['automatic', 'human']),
+  refs: z.array(GroundingEvidenceRefV1Schema).min(1).max(32),
+  evidenceHash: Sha256WireSchema,
+  verifiedBy: z.union([z.literal('system'), z.string().regex(/^actor1_[A-Za-z0-9_-]{43}$/)]),
+  verifiedAt: z.iso.datetime({ offset: true }),
+  baseVersion: z.number().int().min(1),
+}).strict().superRefine((value, ctx) => {
+  if ((value.source === 'automatic') !== (value.verifiedBy === 'system')) {
+    ctx.addIssue({ code: 'custom', message: 'evidence source/verifier mismatch' });
+  }
+});
+
+export const GroundingEdgeV1Schema = z.object({
+  edgeId: z.string().regex(/^sfp_ge1_[0-9a-f]{64}$/),
+  fromNodeId: z.string().regex(/^sfp_gn1_[0-9a-f]{64}$/),
+  toNodeId: z.string().regex(/^sfp_gn1_[0-9a-f]{64}$/),
+  kind: z.enum(['implements', 'maps-token', 'uses-component', 'derived-from']),
+  state: z.enum(['candidate', 'verified', 'stale']),
+  confidence: z.number().finite().min(0).max(1),
+  evidence: z.array(GroundingEvidenceV1Schema).min(1).max(16),
+}).strict();
+
+const isStrictlySortedUnique = <T>(values: readonly T[], key: (value: T) => string): boolean =>
+  values.every((value, index) => index === 0 || key(values[index - 1] as T) < key(value));
+
+declare const canonicalJson: (value: unknown) => string;
+declare const canonicalFileIdentityHash: (value: FileIdentity) => `sha256:${string}`;
+declare const groundingGraphContentHash: (value: unknown) => `sha256:${string}`;
+
+export const GroundingGraphV1Schema = z.object({
+  schemaVersion: z.literal(1),
+  graphVersion: z.number().int().min(1),
+  graphId: z.string().regex(/^grounding:sfp_snap1_[A-Za-z0-9_-]{21}[AQgw]$/),
+  locator: SnapshotLocatorSchema,
+  fileIdentity: FileIdentitySchema,
+  snapshotContentHash: Sha256WireSchema,
+  baseGraphContentHash: Sha256WireSchema.nullable(),
+  nodes: z.array(GroundingNodeV1Schema).max(100000),
+  edges: z.array(GroundingEdgeV1Schema).max(200000),
+  refreshedAt: z.iso.datetime({ offset: true }),
+  contentHash: Sha256WireSchema,
+}).strict().superRefine((graph, ctx) => {
+  const nodeIds = new Set(graph.nodes.map(node => node.nodeId));
+  const edgeIds = new Set(graph.edges.map(edge => edge.edgeId));
+  if (graph.graphId !== `grounding:${graph.locator.snapshotId}`)
+    ctx.addIssue({ code: 'custom', path: ['graphId'], message: 'graph/locator mismatch' });
+  if (canonicalFileIdentityHash(graph.fileIdentity) !== graph.locator.fileIdentityHash)
+    ctx.addIssue({ code: 'custom', path: ['fileIdentity'], message: 'file identity hash mismatch' });
+  if (nodeIds.size !== graph.nodes.length || !isStrictlySortedUnique(graph.nodes, node => node.nodeId))
+    ctx.addIssue({ code: 'custom', path: ['nodes'], message: 'node IDs must be unique and sorted' });
+  if (edgeIds.size !== graph.edges.length || !isStrictlySortedUnique(
+    graph.edges, edge => `${edge.fromNodeId}\0${edge.toNodeId}\0${edge.kind}\0${edge.edgeId}`,
+  )) ctx.addIssue({ code: 'custom', path: ['edges'], message: 'edge keys must be unique and sorted' });
+  for (const [edgeIndex, edge] of graph.edges.entries()) {
+    if (!nodeIds.has(edge.fromNodeId) || !nodeIds.has(edge.toNodeId))
+      ctx.addIssue({ code: 'custom', path: ['edges', edgeIndex], message: 'edge endpoint missing' });
+    if (!isStrictlySortedUnique(edge.evidence, evidence => `${evidence.source}\0${evidence.evidenceHash}\0${evidence.verifiedAt}`))
+      ctx.addIssue({ code: 'custom', path: ['edges', edgeIndex, 'evidence'], message: 'evidence must be unique and sorted' });
+    for (const [evidenceIndex, evidence] of edge.evidence.entries()) {
+      if (evidence.baseVersion > graph.graphVersion)
+        ctx.addIssue({ code: 'custom', path: ['edges', edgeIndex, 'evidence', evidenceIndex, 'baseVersion'], message: 'future evidence version' });
+      if (!isStrictlySortedUnique(evidence.refs, ref => canonicalJson(ref)))
+        ctx.addIssue({ code: 'custom', path: ['edges', edgeIndex, 'evidence', evidenceIndex, 'refs'], message: 'evidence refs must be unique and sorted' });
+    }
+  }
+  if (groundingGraphContentHash(graph) !== graph.contentHash)
+    ctx.addIssue({ code: 'custom', path: ['contentHash'], message: 'content hash mismatch' });
+});
+export type GroundingGraphV1 = z.infer<typeof GroundingGraphV1Schema>;
+
+export interface StoredGroundingGraphRef extends SnapshotLocator {
   graphId: `grounding:${string}`;
   relativePath: string;
   checksum: string;
@@ -1054,15 +1258,14 @@ export interface StoredGroundingGraphRef extends GroundingGraphStorageKey {
 }
 
 export interface GraphStoragePort {
-  create(key: GroundingGraphStorageKey, graph: GroundingGraphV1): Promise<StoredGroundingGraphRef>;
-  load(key: GroundingGraphStorageKey): Promise<{ ref: StoredGroundingGraphRef; graph: GroundingGraphV1 } | null>;
-  replace(key: GroundingGraphStorageKey, graph: GroundingGraphV1, expectedChecksum: string | null, actorId: string, approvalId: string): Promise<StoredGroundingGraphRef>;
-  list(workspaceId: string, fileIdentityHash: string): Promise<readonly StoredGroundingGraphRef[]>;
+  create(key: SnapshotStorageKey, graph: GroundingGraphV1): Promise<StoredGroundingGraphRef>;
+  loadByLocator(locator: SnapshotLocator): Promise<{ ref: StoredGroundingGraphRef; graph: GroundingGraphV1 } | null>;
+  replaceByLocator(locator: SnapshotLocator, graph: GroundingGraphV1, expectedChecksum: `sha256:${string}`, actorId: string, approvalId: string): Promise<StoredGroundingGraphRef>;
+  list(workspaceId: string, fileIdentityHash: `sha256:${string}`): Promise<readonly StoredGroundingGraphRef[]>;
 }
 
 export interface GroundingRefreshArgs {
-  snapshotId: string;
-  fileIdentityHash: `sha256:${string}`;
+  locator: SnapshotLocator;
   expectedGraphChecksum: `sha256:${string}` | null;
 }
 export interface GroundingRefreshResult {
@@ -1073,11 +1276,17 @@ export interface GroundingRefreshResult {
 }
 ~~~
 
-`SnapshotCaptureArgsSchema` is strict, requires 1–256 unique normalized node IDs, and rejects unknown keys; workspace/selector/operationId remain in `ServiceOperationRequestV1`. `SnapshotCaptureResultSchema`, `GroundingRefreshArgsSchema`, `StoredGroundingGraphRefSchema`, and `GroundingRefreshResultSchema` are strict Zod authorities with lowercase SHA-256 and normalized repo-relative path patterns.
+`SnapshotCaptureArgsSchema` is strict, requires 1–256 unique normalized node IDs, and rejects unknown keys; workspace/selector/operationId remain in `ServiceOperationRequestV1`. `SnapshotCaptureResultSchema`, `GroundingRefreshArgsSchema`, `StoredGroundingGraphRefSchema`, and `GroundingRefreshResultSchema` are strict Zod authorities. `snapshot.capture` requires a pinned target and server-issues `sfp_snap1_` plus 128 random bits encoded as exact 22-character base64url. `grounding.refresh` requires selector `none`, receives a strict locator, and requires request workspaceId to equal `locator.workspaceId`; it never resolves an active plugin.
 
-`@sfp/ir` owns `SnapshotV1`, its fidelity types, `SnapshotStoragePort`, and the Zod/canonical codecs together in Task 11; shared and Task 4 contain no snapshot-storage type and never import future IR. Task 11 also creates the MCP adapter that implements the IR port by consuming Task 8 `WorkspacePolicy` and `AtomicFileStore`. Its namespace is exactly `.sfp/snapshots/v1/{fileIdentityHash}/{snapshotId}.json`; `workspaceId` selects the approved root and never appears as an untrusted path segment, while `fileIdentityHash` must match the canonical hash of `fileIdentity`. Design-diff baselines use the separate `.sfp/design-diff-baselines/v1/{fileIdentityHash}/{sanitizedNodeId}.json` namespace. Capture resolves one session, requests full context, and processes nested section plans with a bounded work queue: stable depth-first pre-order, concurrency two, visited key `(pluginGeneration,nodeId)`, maximum depth 8, maximum 256 fetched sections across the capture. A section that returns another plan is recursively expanded; cycle/depth/count omissions and failed descendants are recorded with their plan path in fidelity. Merge uses stable plan order and node IDs while preserving child order. It never relabels a degraded payload as complete. Content hash excludes snapshotId/capturedAt and includes file identity, target, observed, and fidelity. Snapshot capture is authenticated control-only and does not add another MCP tool.
+`@sfp/ir` owns `SnapshotV1`, `GroundingGraphV1Schema`, fidelity/storage types, and Zod/canonical codecs together in Task 11; shared and Task 4 contain no snapshot-storage type and never import future IR. Task 11's MCP adapters consume only Task 8 `WorkspacePolicy`, `AtomicFileStore`, and `RepoReader`. A verified wire hash stays `sha256:<64hex>` in JSON/API, but storage extracts the strict 64-hex digest only after `Sha256WireSchema` validation. Namespaces are `.sfp/snapshots/v1/{fileIdentityDigest}/{snapshotId}.json`, `.sfp/grounding-graphs/v1/{fileIdentityDigest}/{snapshotId}.json`, and `.sfp/design-diff-baselines/v1/{fileIdentityDigest}/{sanitizedNodeId}.json`; no colon, slash, backslash, drive prefix, `..`, or unverified segment reaches `join`. Windows tests cover colon rejection, drive/UNC/ADS spelling, traversal, and valid digest paths.
 
-Graphs persist only at `.sfp/grounding-graphs/v1/{fileIdentityHash}/{snapshotId}.json`; graphId `grounding:<snapshotId>`. ContentHash excludes refreshedAt and includes snapshot hash plus sorted edge state; checksum covers stored JSON. Capture commits snapshot first, then graph; failure returns graph:null+hashed issue. Refresh verifies snapshot/current graph, scans RepoReader, preserves human evidence and marks stale. Expected checksum null is create-only; nonnull is exact CAS replace. Both need approval and never call Figma.
+`loadByLocator` first resolves only the approved workspace plus digest/snapshotId path, strict-parses the stored object, then reads its embedded full `fileIdentity` and recomputes the canonical wire hash. It requires stored locator workspace/hash/id, recomputed identity hash, graphId, and snapshot locator all equal the request before returning. `replaceByLocator` repeats those checks and exact checksum CAS immediately before atomic replace. Wrong workspace/hash/id, embedded identity mismatch, traversal, stale checksum, and concurrent CAS loser never overwrite.
+
+Capture resolves one session, requests full context, and processes nested section plans with a bounded work queue: stable depth-first pre-order, concurrency two, visited key `(pluginGeneration,nodeId)`, maximum depth 8, maximum 256 fetched sections across the capture. A section that returns another plan is recursively expanded; cycle/depth/count omissions and failed descendants are recorded with their plan path in fidelity. Merge uses stable plan order and node IDs while preserving child order. It never relabels a degraded payload as complete. Snapshot contentHash excludes locator.snapshotId/capturedAt and includes full file identity, target, observed, and fidelity. Snapshot capture is authenticated control-only and does not add another MCP tool.
+
+The declarations used by the schema are concrete pure Task11 exports: `canonicalJson` in `ir/src/canonical-json.ts`, and `canonicalFileIdentityHash`/`groundingGraphContentHash` in `ir/src/grounding-graph-v1.ts`; tests import those same functions rather than shadow helpers. Graph validation rejects duplicate node/edge IDs, missing edge endpoints, duplicate evidence refs, evidence whose `baseVersion` exceeds graphVersion, invalid source/verifier pairing, unsorted/duplicate semantic keys, confidence outside `[0,1]`, and every declared count/string boundary. Builders sort nodes by nodeId; edges by `(fromNodeId,toNodeId,kind,edgeId)`; evidence by `(source,evidenceHash,verifiedAt)`; refs by canonical JSON before strict parse. contentHash is domain `sfp-grounding-graph-v1` over schemaVersion, graphVersion, locator, canonical full identity, snapshotContentHash, baseGraphContentHash, and sorted nodes/edges with `refreshedAt`/`contentHash` omitted. Checksum covers complete stored canonical JSON.
+
+Capture commits snapshot first, then graph; graph failure returns `graph:null` plus a hashed issue. Refresh loads snapshot/current graph by locator, scans RepoReader, and performs exact checksum CAS. It may add or update automatic evidence, mark automatic edges stale, and increment graphVersion/baseVersion; it may not delete, reorder semantically, alter, or downgrade any human evidence byte. A human edge can change only through a separately approved future human-evidence command, absent in v0.1. `expectedGraphChecksum:null` is create-only; nonnull is replace-only. Boundaries cover zero/max/above nodes (100,000), edges (200,000), 16 evidence entries/edge, 32 refs/evidence, path/symbol/node-ID lengths, line range, graph/base versions, and hash formats. Refresh needs approval and never calls Figma.
 
 Binding amendment: Task11 registers service operations `snapshot.capture` and `grounding.refresh`; neither adds an MCP tool.
 
@@ -1179,7 +1388,7 @@ export interface ProgressReporter {
 }
 
 export type InvocationFrameV1 =
-  | { version: 1; type: 'accepted'; requestId: `sfp_req1_${string}`; operationId: string; operationKind: 'tool' | 'service'; operationName: string }
+  | { version: 1; type: 'accepted'; requestId: `sfp_req1_${string}`; operationId: string; operationKind: 'tool' | 'service'; operationName: ToolName | ServiceOperationName }
   | { version: 1; type: 'progress'; requestId: `sfp_req1_${string}`; operationId: string; progress: ProgressEvent }
   | { version: 1; type: 'result'; requestId: `sfp_req1_${string}`; operationId: string; result: unknown }
   | { version: 1; type: 'error'; requestId: `sfp_req1_${string}`; operationId: string; error: { code: string; message: string; retryable: boolean } };
@@ -1206,9 +1415,9 @@ export interface InvocationAdmissionLimits {
   maxRawArgsBytesPerOperation: 8388608;
   maxRawArgsBytesPerOwner: 67108864;
   requestIdCharacters: 31;
-  maxOperationNameCharacters: 128;
+  maxToolNameCharacters: 128;
   workspaceIdCharacters: 36;
-  maxSessionSelectorCharacters: 128;
+  sessionSelectorCharacters: 22;
   maxSelectorSerializedBytes: 256;
 }
 ~~~
@@ -1242,6 +1451,7 @@ export interface CapacityCounterPort {
 | operation ID horizon | `< 2,592,000,000 ms` valid | `2,592,000,000 ms` expired, runtime zero | expired, runtime zero |
 | operation ID future skew | `< 300,000 ms` valid | `300,000 ms` valid | invalid, runtime zero |
 | action nonce TTL | `< 120,000 ms` valid | `120,000 ms` expired | expired |
+| approval prompt TTL | `< 120,000 ms` pending decision valid | `120,000 ms` expired | late/duplicate decision rejected, runtime zero |
 | action nonce rows/bytes per actor | below `1,024` and `524,288` admits | exact held valid; next issue fails | recovery with above fails closed |
 | journal compaction | below `8,000` rows/`25,165,824` bytes does not compact | either exact threshold triggers | above must compact before admission |
 | journal normal cap | below `10,000` rows and `32,505,856` bytes admits | exact held valid; next ordinary append fails | above recovery fails closed |
@@ -1276,13 +1486,110 @@ export interface CapacityCounterPort {
 | canonical serialized rawArgs per operation | 8,388,607 bytes admitted | 8,388,608 admitted | 8,388,609 rejected; leaves 1,048,572 inner-payload bytes for envelope fields |
 | aggregate retained rawArgs per owner | 67,108,863 bytes admitted | 67,108,864 admitted | next byte rejected before retention |
 | requestId | 30/32 or wrong pattern invalid | exact 31 chars `sfp_req1_`+22 base64url valid | any non-exact length/pattern invalid before map lookup |
-| tool/service operation name | 127 chars valid | 128 valid | 129 or non-lower-snake invalid |
+| tool name | 127 lower-snake chars valid | 128 valid | 129, dotted, slash, uppercase, or bad first char invalid |
+| service operation name | exact `snapshot.capture` and `grounding.refresh` valid | the two literals remain valid under 128-char syntax cap | empty, 128/129-char non-enum dotted values, snake/slash/case/extra-dot variants invalid |
 | workspaceId | 35/37 or non-UUID invalid | canonical lowercase UUIDv4 exactly36 valid | invalid before workspace lookup |
-| session selector / selector JSON | 127 ASCII chars / 255 bytes valid | 128 chars / 256 bytes valid | 129 chars or 257 bytes invalid before session lookup |
+| session selector / selector JSON | 21/23 selector chars invalid; 255-byte canonical selector valid | exact 22-character `Base64Url128Schema`, including generated `_`, and 256-byte selector JSON valid | invalid base64url/trailing padding or 257-byte JSON rejected before lookup |
+| snapshot ID / file hash path segment | 21/23 base64url suffix invalid; verified 63-hex digest invalid | `sfp_snap1_`+22 base64url and extracted 64-lowerhex digest valid | `sha256:`/colon, slash, backslash, drive/UNC/ADS, dot segment rejected before filesystem |
+| grounding nodes/edges | below 100,000/200,000 valid | exact counts valid | next node/edge rejected before canonicalization/storage |
+| grounding evidence/refs | below 16 evidence/edge and 32 refs/evidence valid | exact counts valid | next entry rejected; human evidence remains immutable |
 
 Counts reserve before retaining raw args and release only after terminal durability; duplicate active requestId is native `REQUEST_ID_CONFLICT`. Million-row/256-MiB journal/egress/tombstone boundaries use production `CapacityCounterPort` plus sparse metadata stores so tests do not allocate a million objects or hundreds of MiB. Transport/payload boundaries use real declared and chunked byte streams at below/exact/above—never mocked counters—before MessagePack/JSON/base64 decode.
 
 `packages/mcp/test/execution/boundary-limits.test.ts` is the single table authority and imports the production constants. It covers below/exact/above, declared/chunked, pre-decode/runtime-zero, active operation/subscriber/raw-args admission, malformed/missing requestId native rejection, and exact-one-terminal races among result/cancel/deadline/demotion.
+
+### 3.13 Acceptance Evidence, Attestation, and Source-complete Marker
+
+~~~ts
+export type EvidenceOs = 'windows' | 'macos';
+export type Sha256Hex = string; // JSON Schema pattern ^[0-9a-f]{64}$
+
+export const REQUIRED_BLOCKING_CHECK_IDS = {
+  windows: [
+    'windows.artifact-integrity', 'windows.daemon-health', 'windows.state-permissions',
+    'windows.pair-resume', 'windows.design-context-recursive', 'windows.grounding-maps',
+    'windows.snapshot-graph', 'windows.token-pdf-export', 'windows.idempotency-journal',
+    'windows.write-fifo', 'windows.approval-undo', 'windows.generation-reconnect',
+    'windows.workspace-policy', 'windows.network-policy', 'windows.capability-matrix',
+    'windows.diagnostic-redaction',
+  ],
+  macos: [
+    'macos.artifact-integrity', 'macos.daemon-health', 'macos.state-permissions',
+    'macos.pair-resume', 'macos.design-context-recursive', 'macos.grounding-maps',
+    'macos.snapshot-graph', 'macos.token-pdf-export', 'macos.idempotency-journal',
+    'macos.write-fifo', 'macos.approval-undo', 'macos.generation-reconnect',
+    'macos.workspace-policy', 'macos.network-policy', 'macos.capability-matrix',
+    'macos.diagnostic-redaction',
+  ],
+} as const;
+
+export interface AcceptanceEvidenceV1 {
+  schemaVersion: 1;
+  evidenceId: `sfp_ev1_${string}`;
+  os: EvidenceOs;
+  releaseVersion: string;
+  createdAt: string;
+  status: 'pass';
+  waived: false;
+  operator: {
+    id: string;
+    role: 'release-acceptance-owner';
+    keyFingerprint: `ed25519:${string}`;
+  };
+  artifacts: {
+    manifestSha256: Sha256Hex;
+    mcpSha256: Sha256Hex;
+    cliSha256: Sha256Hex;
+    pluginSha256: Sha256Hex;
+    buildId: number;
+    task61ContractSha256: 'bd296dabe872f08adca793d93a2cd6a2c7efca60c58127b07924b2f18840b27b';
+  };
+  environment: {
+    architecture: 'x64' | 'arm64';
+    nodeVersion: string;
+    figmaDesktopVersion: string;
+  };
+  harness: { version: 1; commandHash: Sha256Hex; resultHash: Sha256Hex };
+  checks: readonly {
+    id: string;
+    status: 'pass';
+    durationMs: number;
+    resultHash: Sha256Hex;
+    detailCode: string;
+  }[];
+}
+
+export interface AcceptanceAttestationV1 {
+  schemaVersion: 1;
+  algorithm: 'Ed25519';
+  evidenceSha256: Sha256Hex;
+  publicKeyFingerprint: `ed25519:${string}`;
+  signedAt: string;
+  signature: string;
+}
+
+export interface SourceCompletePreviewV1 {
+  schemaVersion: 1;
+  implementationStatus: 'source-complete-preview';
+  releaseStatus: 'blocked-external-evidence';
+  artifacts: {
+    manifestSha256: Sha256Hex;
+    mcpSha256: Sha256Hex;
+    cliSha256: Sha256Hex;
+    pluginSha256: Sha256Hex;
+  };
+  harnessResultSha256: Sha256Hex;
+  generatedAt: string;
+}
+~~~
+
+`service/schemas/acceptance-evidence-v1.schema.json`, `acceptance-attestation-v1.schema.json`, and `source-complete-preview-v1.schema.json` are draft 2020-12 JSON Schemas with exact `required` arrays and `additionalProperties:false` at every object. The evidence/attestation schemas enforce lowercase 64-hex hashes, frozen Task6.1 contract hash as an exact `const`, `evidenceId` pattern `^sfp_ev1_[A-Za-z0-9_-]{22}$`, RFC3339 UTC/offset timestamps through an explicit regex pattern (not an ignored `format` keyword), nonnegative safe integer build/duration fields, operator ID length 1–128, detail code pattern `^[A-Z][A-Z0-9_]{0,127}$`, Ed25519 fingerprint pattern `^ed25519:[0-9a-f]{64}$`, and signature pattern `^[A-Za-z0-9_-]{85}[AQgw]$`. Evidence schema uses OS `if/then` branches plus 16 `prefixItems` whose IDs are exact `const` values and `items:false`, so checks equal the OS-specific array with no missing, duplicate, reordered, extra, or cross-OS ID. All checks and document status are literal pass; `waived` is literal false. The marker schema enforces its two literal statuses, exact four artifact hash keys, harness hash, and timestamp.
+
+One `Ajv2020` 8.17.1 module exports `assertAcceptanceEvidence(value)`, `assertAcceptanceAttestation(value)`, and `assertSourceCompletePreview(value)` assertion APIs; runner, signer, verifier, release check, marker writer, and tests use them—never Zod `safeParse`. Canonical JSON recursively sorts object keys by UTF-8 bytes, preserves the required check-array order, emits no insignificant whitespace/BOM, and rejects undefined/nonfinite values. `evidenceSha256` hashes those exact evidence bytes. The unsigned attestation is the attestation object with `signature` omitted. Signing bytes are `UTF8('sfp-acceptance-attestation-v1\0') || canonicalJson({evidence,attestation:unsignedAttestation})`; algorithm is exactly Ed25519. Key fingerprint is lowercase SHA-256 of the DER SubjectPublicKeyInfo bytes prefixed `ed25519:`.
+
+Verification order is binding and observable: validate evidence+attestation schemas → recompute/compare evidence and artifact hashes → recompute/compare public-key fingerprint → verify Ed25519 signature → compare required blocking IDs. Tests mutate a valid hash to a different valid 64-hex value such as `f`.repeat(64) to reach hash/signature failure, while a separate malformed-hash fixture reaches schema failure. Wrong algorithm, fingerprint, signature order, duplicate/missing ID, `waived:true`, unknown property, and cross-OS evidence all fail.
+
+Task16 tracks exactly `service/docs/evidence/source-complete-preview.v1.json` as `SourceCompletePreviewV1`; `generatedAt` is the Task15 artifact manifest's release-commit/SOURCE_DATE_EPOCH timestamp, never the current wall clock, so identical source/artifact/harness inputs reproduce bytes. It is a new managed service file, appears in `task-16.json`, vendor exclusion/serviceOwned authority, and the Task16 commit. Temporary `service/.acceptance-tmp/**`, private keys, and generated `service/artifacts/**` remain ignored and absent from change manifests. Tasks17/18 later track only their exact evidence JSON, attestation `.sig` JSON, and public PEM paths. The release workflow under repo-root `.github/**` is outside `service/**` and therefore belongs only to its slice change manifest, never vendor authority.
 
 ---
 
@@ -1330,7 +1637,10 @@ service/
   docs/operation-policy.md
   docs/pairing.md
   docs/snapshot-format.md
-  docs/evidence-schema.json
+  docs/evidence/source-complete-preview.v1.json
+  schemas/acceptance-evidence-v1.schema.json
+  schemas/acceptance-attestation-v1.schema.json
+  schemas/source-complete-preview-v1.schema.json
   licenses/figwright-LICENSE
   licenses/figma-mcp-rust-LICENSE
   licenses/figmosha2-LICENSE
@@ -1349,10 +1659,11 @@ service/
   scripts/install-release-artifacts.mjs
   scripts/sign-evidence.mjs
   scripts/verify-evidence-signature.mjs
-  scripts/evidence-validator.mjs
+  scripts/acceptance-evidence-validator.mjs
   scripts/release-evidence-check.mjs
   packages/shared/src/auth.ts
   packages/shared/src/action-nonce.ts
+  packages/shared/src/approval.ts
   packages/shared/src/capability-manifest.ts
   packages/shared/src/config.ts
   packages/shared/src/egress.ts
@@ -1391,12 +1702,18 @@ service/
   packages/mcp/src/security/request-limits.ts
   packages/mcp/src/security/principal-derivation.ts
   packages/mcp/src/policy/approval-gate.ts
+  packages/mcp/src/policy/approval-broker.ts
+  packages/mcp/src/policy/approval-prompt.ts
   packages/mcp/src/policy/egress-policy.ts
   packages/mcp/src/policy/operation-policy.ts
   packages/mcp/src/policy/policy-engine.ts
   packages/mcp/src/policy/result-egress-policy.ts
   packages/mcp/src/execution/file-queue.ts
   packages/mcp/src/execution/execution-plane.ts
+  packages/mcp/src/execution/mcp-invocation-adapter.ts
+  packages/mcp/src/execution/mcp-workspace-binding.ts
+  packages/mcp/src/execution/follower-invocation-client.ts
+  packages/mcp/src/execution/follower-invocation-endpoint.ts
   packages/mcp/src/execution/target-resolver.ts
   packages/mcp/src/execution/grounding-router.ts
   packages/mcp/src/execution/service-operation-registry.ts
@@ -1410,6 +1727,7 @@ service/
   packages/mcp/src/fs/atomic-file.ts
   packages/mcp/src/fs/repo-walk.ts
   packages/mcp/src/fs/workspace-config-store.ts
+  packages/mcp/src/fs/workspace-registration-resolver.ts
   packages/mcp/src/fs/workspace-policy.ts
   packages/mcp/src/network/remote-image-fetcher.ts
   packages/mcp/src/network/remote-domain-config-store.ts
@@ -1435,16 +1753,24 @@ service/
   packages/mcp/src/tools/export-frames-to-pdf.ts
   packages/mcp/src/tools/import-library-variable.ts
   packages/mcp/test/execution/action-nonce.test.ts
+  packages/mcp/test/execution/approval-broker.test.ts
+  packages/mcp/test/execution/approval-plugin-port.test.ts
   packages/mcp/test/execution/boundary-limits.test.ts
+  packages/mcp/test/execution/completed-result-replay.test.ts
   packages/mcp/test/execution/egress-manifest-store.test.ts
   packages/mcp/test/execution/execution-plane-lifecycle.test.ts
   packages/mcp/test/execution/follower-stream.test.ts
   packages/mcp/test/execution/invocation-boundary.test.ts
+  packages/mcp/test/execution/mcp-selector-synthesis.test.ts
+  packages/mcp/test/execution/mcp-workspace-binding.test.ts
   packages/mcp/test/execution/no-direct-relay.test.ts
   packages/mcp/test/execution/progress-framing.test.ts
   packages/mcp/test/execution/plugin-progress-adapter.test.ts
   packages/mcp/test/execution/target-resolution.test.ts
   packages/mcp/test/execution/service-operation-registry.test.ts
+  packages/mcp/test/execution/service-operation-name.test.ts
+  packages/mcp/test/fs/workspace-registration-resolver.test.ts
+  packages/mcp/test/tools/skew-notice.test.ts
   packages/mcp/test/security/follower-transport.test.ts
   packages/mcp/test/election/control-route-registry.test.ts
   packages/plugin/src/file-identity.ts
@@ -1476,6 +1802,7 @@ service/
   packages/cli/src/commands/import-component.ts
   packages/cli/src/commands/import-variable.ts
   packages/cli/src/commands/workspace.ts
+  packages/cli/src/commands/workspace-set-default.ts
   packages/cli/src/commands/network.ts
   packages/cli/src/commands/operations.ts
   packages/cli/src/compat/rust-tool-map.ts
@@ -1490,6 +1817,7 @@ service/
   test/fixtures/assemble-baseline-artifacts.mjs
   test/acceptance-harness.test.ts
   test/evidence-schema-draft.test.ts
+  test/acceptance-live-diagnostic.test.ts
 ~~~
 
 Workspace-root workflows are `.github/workflows/service-ci.yml` and `.github/workflows/service-release.yml`; their commands always use `working-directory: service`.
@@ -1508,6 +1836,8 @@ Workspace-root workflows are `.github/workflows/service-ci.yml` and `.github/wor
 
 Task16 adds root direct devDependency `ajv` exactly `8.17.1` for draft2020 evidence validation; signer/verifier/release import one validator module. It is not an undeclared transitive dependency.
 
+Task15 adds root direct devDependency `happy-dom` exactly `20.11.11` because the root `plugin-built-consumer.test.ts` imports it. Task15 packaging/workflow scripts use Node/JSON and do not import a YAML library, so no direct `yaml` dependency is added. Task11 adds exact IR runtime dependencies `@sfp/shared:"workspace:*"` and `zod:"4.4.3"`; Task12 adds MCP `pdf-lib:"1.17.1"`; Task13 adds CLI `@sfp/shared:"workspace:*"`. Each owning task updates its exact package manifest and `service/pnpm-lock.yaml`, runs lockfile-only then frozen install, and stages both.
+
 Published bundle closure is binding: MCP tsdown `alwaysBundle` contains `@sfp/shared` and `@sfp/ir`; CLI tsdown `alwaysBundle` contains `@sfp/shared`. Packed MCP/CLI manifests contain no `workspace:*` and no runtime dependency on private `@sfp/shared`/`@sfp/ir`; external public dependencies remain ordinary pinned/lock-resolved dependencies. Artifact tests install only `mcp.tgz` or `cli.tgz` into separate empty prefixes with fresh npm caches, run `npm ls --all`, MCP tool-list smoke, and CLI help/status smoke, and reject any resolved workspace path.
 
 Root scripts:
@@ -1519,17 +1849,18 @@ Root scripts:
   "lint": "oxlint --deny-warnings .",
   "format:check": "oxfmt --check .",
   "knip": "knip",
-  "test": "vitest run --exclude 'test/artifact-contents.test.ts'",
-  "test:unit": "vitest run --exclude '**/test/e2e/**' --exclude 'test/artifact-contents.test.ts'",
+  "test": "vitest run --exclude 'test/artifact-contents.test.ts' --exclude 'test/plugin-built-consumer.test.ts'",
+  "test:unit": "vitest run --exclude '**/test/e2e/**' --exclude 'test/artifact-contents.test.ts' --exclude 'test/plugin-built-consumer.test.ts'",
+  "test:coverage": "vitest run --coverage --exclude 'test/artifact-contents.test.ts' --exclude 'test/plugin-built-consumer.test.ts'",
   "test:e2e": "vitest run packages/mcp/test/e2e",
-  "test:artifacts": "vitest run test/artifact-contents.test.ts",
+  "test:artifacts": "vitest run test/artifact-contents.test.ts test/plugin-built-consumer.test.ts",
   "verify": "pnpm typecheck && pnpm lint && pnpm format:check && pnpm knip && pnpm build && pnpm test",
-  "verify:release": "pnpm verify && node scripts/generate-sbom.mjs && node scripts/generate-notices.mjs && node scripts/package-artifacts.mjs && node scripts/generate-checksums.mjs && pnpm test:artifacts && node scripts/verify-artifacts.mjs",
+  "verify:release": "node scripts/package-artifacts.mjs --clean-only && pnpm verify && node scripts/generate-sbom.mjs && node scripts/generate-notices.mjs && node scripts/package-artifacts.mjs && node scripts/generate-checksums.mjs && pnpm test:artifacts && node scripts/verify-artifacts.mjs",
   "desktop:acceptance": "node scripts/desktop-acceptance.mjs"
 }
 ~~~
 
-The general `test`/`verify` phase deliberately excludes `test/artifact-contents.test.ts`; `verify:release` invokes that suite only after `package-artifacts.mjs` has created all three artifacts. After Task 1 creates the lock, CI/release use only `pnpm install --frozen-lockfile`. `service/.gitattributes` fixes text LF, `.gitignore` excludes node_modules/dist/coverage/`.sfp`/temporary package artifacts, and `.editorconfig` fixes UTF-8/final newline.
+The ordinary `test`, `test:unit`, `test:coverage`, and therefore `verify` phases deliberately exclude both artifact-dependent suites: `test/artifact-contents.test.ts` and `test/plugin-built-consumer.test.ts`. There is no other artifact-dependent Vitest verifier. `test:artifacts` is exactly those two files. `verify:release` first uses `package-artifacts.mjs --clean-only` to remove only generated artifact outputs and `artifacts/.staging`, then runs ordinary source verification, generates SBOM/notices, builds all three artifacts, generates checksums, runs `test:artifacts`, and finally runs `verify-artifacts.mjs`; no artifact reader runs before production. After a task changes dependencies it runs lockfile-only once and frozen install; CI/release otherwise use only `pnpm install --frozen-lockfile`. `service/.gitattributes` fixes text LF, `.gitignore` excludes node_modules/dist/coverage/`.sfp`/temporary package artifacts, and `.editorconfig` fixes UTF-8/final newline.
 
 ---
 
@@ -1593,14 +1924,23 @@ Exact slice IDs are `8A`,`8B`,`9A`,`9B`,`9C`,`10`,`11`,`12A`,`12B`,`13`,`14`,`15
 
 `node service/scripts/verify-staged-change-manifest.mjs --write --slice 8A` (or exact listed ID) generates the manifest from a semantic-only index; without `--write` it verifies the complete staged union and never edits files.
 
+Before staging, classify every changed path into exactly one closed-world class:
+
+1. **new managed path under `service/**`** → add its exact path to `vendor-rules.json.exclude` and `upstream-lock.json.destinationClosure.serviceOwnedFiles` with current hash;
+2. **existing serviceOwned path** → retain its existing class/exclusion and refresh only its current hash;
+3. **existing upstream copy/mergeDependencyManifest/referenceOnly path** → preserve its mode, origin/base metadata, destination semantics, and refreshed current hash; never reclassify it merely because the slice edits related code;
+4. **repo-root or `.github/**` path outside `service/**`** → include only in the slice change manifest/staged tree; never add it to service vendor rules, vendor map, or destinationClosure.
+
+Generated slice manifests and the authority trio themselves follow those same classes. Never register all semantic paths blindly.
+
 1. Finish semantic edits, then stage only the slice's exact semantic A/M/D paths with explicit `git add -- <files>` and `git rm -- <deletions>`; no directory/glob.
-2. Generate the slice manifest from that index state, register all semantic+manifest paths in vendor-rules/upstream-lock, and update hashes without weakening prior authority.
+2. Generate the slice manifest from that index state, apply the four-class authority update above, and refresh hashes without weakening prior authority.
 3. Run vendor copy-only, update vendor-map hash/counts and final service-owned hashes, then stage manifest+authority trio.
 4. Run `AUTHORITY_GREEN`, staged-manifest verifier, `git diff --cached --check`; require status only first-column union paths and no unstaged/untracked service file.
 5. Record `git write-tree`; independent spec+quality review it. Any fix regenerates manifest/authority/tree and both reviews.
 6. Rerun exact GREEN, `TASK6_1_FROZEN_GREEN` when entry/transport changes, `AUTHORITY_GREEN`, verifier; require same tree, commit exact subject and verify `HEAD^{tree}`.
 
-No Task8–16 commit may defer authority, use a broad `git add` directory/glob, or reclassify service authority. Task-specific blocks below give exact logical paths and exact GREEN commands; generated manifests freeze the final byte-exact set.
+No Task8–16 commit may defer authority, use a broad `git add` directory/glob, blindly register every semantic path, or reclassify an upstream/service/root authority class. Task-specific blocks below give exact logical paths and exact GREEN commands; generated manifests freeze the final byte-exact set.
 
 `AUTHORITY_GREEN` means this exact copy/paste block, in order:
 
@@ -2132,20 +2472,21 @@ Run: `git diff --check`, then `git add service/packages/shared/src/auth.ts servi
 
 **Files**
 
-- Create/modify shared wire/policy authority: `service/packages/shared/src/invocation.ts`, `action-nonce.ts`, `progress.ts`, `rpc.ts`, `envelope.ts`, `protocol.ts`, `operations.ts`, `service-operations.ts`, `index.ts`.
-- Create operation/identity/target core: `service/packages/mcp/src/execution/execution-plane.ts`, `target-resolver.ts`, `service-operation-registry.ts`, `file-queue.ts`, `operation-id.ts`, `operation-journal.ts`, `operation-resolution-intent.ts`, `operation-executor.ts`, `follower-invocation-client.ts`; create `service/packages/mcp/src/security/principal-derivation.ts` and `service/packages/mcp/src/tool-invocation-service.ts`.
-- Create approval/control authority: `service/packages/mcp/src/policy/approval-gate.ts`; `service/packages/mcp/src/control/router.ts`, `route-registry.ts`, `status-endpoint.ts`, `action-nonce-store.ts`, `action-nonce-endpoints.ts`, `approval-endpoints.ts`, `tool-call-endpoint.ts`, `workspace-endpoints.ts`, `operation-endpoints.ts`.
+- Create/modify shared wire/policy authority: `service/packages/shared/src/invocation.ts`, `action-nonce.ts`, `approval.ts`, `progress.ts`, `rpc.ts`, `envelope.ts`, `protocol.ts`, `operations.ts`, `service-operations.ts`, `config.ts`, `index.ts`.
+- Create operation/identity/target core: `service/packages/mcp/src/execution/execution-plane.ts`, `mcp-invocation-adapter.ts`, `mcp-workspace-binding.ts`, `target-resolver.ts`, `service-operation-registry.ts`, `file-queue.ts`, `operation-id.ts`, `operation-journal.ts`, `operation-resolution-intent.ts`, `operation-executor.ts`, `follower-invocation-client.ts`; create `service/packages/mcp/src/security/principal-derivation.ts` and `service/packages/mcp/src/tool-invocation-service.ts`.
+- Create approval/control authority: `service/packages/mcp/src/policy/approval-gate.ts`, `approval-broker.ts`, `approval-prompt.ts`; `service/packages/mcp/src/control/router.ts`, `route-registry.ts`, `status-endpoint.ts`, `action-nonce-store.ts`, `action-nonce-endpoints.ts`, `approval-endpoints.ts`, `tool-call-endpoint.ts`, `workspace-endpoints.ts`, `operation-endpoints.ts`.
+- Modify/create workspace ownership: `service/packages/mcp/src/fs/workspace-config-store.ts`, `workspace-registration-resolver.ts`; retain `workspace-policy.ts` unchanged for registration resolution.
 - Create durable egress/progress authority: `service/packages/mcp/src/policy/egress-policy.ts`, `service/packages/mcp/src/execution/egress-manifest-store.ts`, `follower-invocation-endpoint.ts`.
 - Modify Task7-owned policy/spec/runtime, execution plane/target/service registry, Relay target/session consumers and control router. Create the new follower client over the public facade; keep legacy `follower.ts` unchanged. 7C may modify only the allowlisted semantic adapter `leader-endpoints.ts` to inject the inner streaming handler; Task7 never modifies a byte-frozen Task6.1 core/private producer.
-- Create/modify tests: `service/packages/mcp/test/execution/{operation-id,file-queue,operation-journal,operation-executor,execution-plane-lifecycle,invocation-boundary,target-resolution,target-requirement,runtime-authority,policy-context,service-operation-registry,follower-invocation-client,no-direct-relay,action-nonce,operation-resolution,egress-policy,egress-manifest-store,egress-finalizer,boundary-limits,progress-transport,progress-framing,plugin-progress-adapter,follower-stream,control-tool-call,workspace-endpoints}.test.ts`; modify matching policy, dispatch, election, relay, security, and E2E process/wire suites.
-- Modify legacy migration proof: `service/packages/mcp/test/tools/result-validation.test.ts`.
+- Create/modify tests: `service/packages/mcp/test/execution/{operation-id,file-queue,operation-journal,operation-executor,execution-plane-lifecycle,invocation-boundary,mcp-selector-synthesis,mcp-workspace-binding,target-resolution,target-requirement,runtime-authority,policy-context,service-operation-name,service-operation-registry,follower-invocation-client,no-direct-relay,action-nonce,approval-broker,approval-plugin-port,operation-resolution,completed-result-replay,egress-policy,egress-manifest-store,egress-finalizer,boundary-limits,progress-transport,progress-framing,plugin-progress-adapter,follower-stream,control-tool-call,workspace-endpoints}.test.ts`; create `service/packages/mcp/test/fs/workspace-registration-resolver.test.ts`; modify `workspace-config-store.test.ts` and matching policy, dispatch, election, relay, security, and E2E process/wire suites.
+- Modify legacy migration proofs: `service/packages/mcp/test/tools/result-validation.test.ts`, `service/packages/mcp/test/tools/skew-notice.test.ts`.
 - Create: `service/packages/mcp/test/control/control-router.test.ts`, `control-status.test.ts`; `service/scripts/verify-staged-change-manifest.mjs`, `service/test/change-manifest.test.ts`.
-- Modify closed-world authorities in every slice: `service/vendor-rules.json`, `service/vendor-map.json`, `service/upstream-lock.json`. Task 7 uses the existing Task 2 authority schema/verifier and does not weaken or redesign it.
+- 7A first fixes the authority generator: modify `service/scripts/vendor-upstreams.mjs`, `service/test/vendor-upstreams.test.ts`, generated `service/vendor-allowed-figwright-strings.json`, then the existing `service/vendor-rules.json`, `service/vendor-map.json`, `service/upstream-lock.json`. Later slices apply the four closed-world classes in section 6.2.
 
 **Interfaces**
 
 - Consumes: Task3/Task5 current authorities, Task4 state/workspace/path, the existing Task6 Relay interfaces where this plan names them, and only the Task6.1 public-ping/follower/control facades frozen at `39a29373b91445e9242e82611f0a8a04fca525ea` under contract `bd296dabe872f08adca793d93a2cd6a2c7efca60c58127b07924b2f18840b27b`; the exact eight export/producer paths and hashes are the section 3.5 manifest.
-- Produces: leader-generation singleton `ExecutionPlane`; follower-only `FollowerInvocationClient`; strict tool/service/cancel/frame schemas; one stable owner actor plus domain-separated MCP/control auth sessions; immutable `RuntimeExecutionScope extends PolicyInvocationContext`; `OperationInvocationService`; exact handler vs execution authorities (105/7 and 98/14); empty service-operation registry; `OperationIdIssuer`; kind/name-aware journal/tombstone/resolution; durable exactly-once egress finalizer; bounded active admission; `FileExecutionKey` queue; approval/action-nonce/progress/fake-plugin adapters; `JournalWorkspaceUsageGuard`; authenticated tool/cancel/approval/workspace/operation admin routes. It does not wire the real plugin progress/cancel consumer.
+- Produces: leader-generation singleton `ExecutionPlane`; follower-only `FollowerInvocationClient`; strict distinct tool/service/cancel/frame schemas; MCP selector/workspace synthesis; one stable owner actor plus domain-separated MCP/control auth sessions; immutable `RuntimeExecutionScope extends PolicyInvocationContext`; `OperationInvocationService`; exact handler vs execution authorities (105/7 and 98/14); empty service-operation registry; `OperationIdIssuer`; kind/name-aware journal/tombstone/resolution; consent-fingerprinted redacted replay cache; durable exactly-once egress finalizer; bounded active admission; `FileExecutionKey` queue; strict approval prompt/decision broker with fake paired plugin; action-nonce/progress adapters; `JournalWorkspaceUsageGuard`; workspace default/registration resolver; authenticated tool/cancel/approval/workspace/operation admin routes. It does not wire the real plugin progress/cancel/approval consumer.
 
 **Binding subtask/commit boundaries**
 
@@ -2159,9 +2500,11 @@ Each subtask receives RED→GREEN, closed-world authority regeneration, and two 
 
 For every slice, `git status --short -- service` must show only first-column staged entries from that slice's exact allowlist: no unstaged or untracked service path. `git diff --cached --name-only` must equal the allowlist subset actually changed by the slice, and the offline closed-world verifier must account for every managed path. Test output and ignored build artifacts are never staged.
 
-7A defines the plane with injected `ApprovalDecisionPort`, `EgressManifestPort`, and `PinnedPluginRuntimePort` contracts and explicit fakes; it freezes policy/target/runtime/service seams but does not claim production entry convergence while 7B/7C are absent. 7B binds real approval/admin/action-nonce ports. 7C binds durable egress and daemon frame sinks, then atomically switches all tool invocation entries and the empty service seam to the plane. Task 7's plugin sink remains a fake; real plugin consumption is Task 9A. Only 7C requires zero legacy Relay/runtime bypass and zero import from Task6.1 auth/key/encryption internals. Intermediate slices are review checkpoints, not releases.
+7A defines the plane with injected `ApprovalDecisionPort`, `EgressManifestPort`, and `PinnedPluginRuntimePort` contracts and explicit fakes; it freezes policy/target/runtime/service seams but does not claim production entry convergence while 7B/7C are absent. 7B binds the daemon approval broker/fake paired port plus admin/action-nonce/workspace ports. 7C binds durable egress and daemon frame sinks, then atomically switches all tool invocation entries and the empty service seam to the plane. Real plugin progress/cancel consumption is Task9A and real approval-control consumption is Task9C. Only 7C requires zero legacy Relay/runtime bypass and zero import from Task6.1 auth/key/encryption internals. Intermediate slices are review checkpoints, not releases.
 
-Closed-world regeneration order is binding in every slice: add every new service-owned managed path to `vendor-rules.json.exclude` and `upstream-lock.json.destinationClosure.serviceOwnedFiles`; update hashes for already-owned modified paths; run `node service/scripts/vendor-upstreams.mjs --copy-only`; then update the resulting `vendorMap.sha256`/counts and final current SHA-256 values in `upstream-lock.json`; finally run the offline verifier and exact vendor test command. Do not weaken managed roots, delete another service-owned row, or reclassify Task 1–6 service authority as upstream copy to make verification pass.
+7A authority prelude is mandatory before its first copy-only. Change `rawFigwrightEntries` in `service/scripts/vendor-upstreams.mjs` to scan the deduplicated sorted union of materialized copy destinations and existing registered serviceOwned destinations under `packages/` or `skills/`; use the same text/NUL/path/line/column/value rules for both. This preserves the `packages/mcp/src/relay/relay.ts` raw `@figwright/mcp` allowance after Relay becomes serviceOwned. `service/test/vendor-upstreams.test.ts` creates that transition and requires the generated `vendor-allowed-figwright-strings.json` to remain exactly 15 sorted unique rows, with exactly one Relay row and no stale/deleted path. Edit generator/test first, run the first copy-only only with that updated generator, then stage generator, test, regenerated allowed file, vendor map/rules/upstream lock, and semantic files together in TREE_7A.
+
+Closed-world regeneration order is binding in every slice and uses section6.2's four classes: add only a new managed service path to exclusion+serviceOwned; refresh an existing serviceOwned hash in place; preserve copy/merge/reference mode and metadata; keep repo-root/`.github` paths in the change manifest only. Run copy-only, update resulting vendor-map hash/counts and current registered hashes, then run the offline verifier and exact vendor test. Do not weaken roots, delete another row, blindly register all semantic paths, or reclassify Task1–6 authority to make verification pass.
 
 Before/after each 7A/7B/7C staged review, run the exact `TASK6_1_FROZEN_GREEN` block in section 3.5 plus the slice's Task7 focused tests. Reports record base `39a29373b91445e9242e82611f0a8a04fca525ea`, contract `bd296dabe872f08adca793d93a2cd6a2c7efca60c58127b07924b2f18840b27b`, manifest bytes 925, and the exact path list. Task7 execution remains gated only by a fresh READY rereview of this newly checksummed binding plan.
 
@@ -2171,28 +2514,39 @@ Before/after each 7A/7B/7C staged review, run the exact `TASK6_1_FROZEN_GREEN` b
 - 7B: `service/packages/shared/src/action-nonce.ts`, `service/packages/shared/src/index.ts`, `service/packages/mcp/src/policy/approval-gate.ts`, `service/packages/mcp/src/control/action-nonce-store.ts`, `service/packages/mcp/src/control/action-nonce-endpoints.ts`, `service/packages/mcp/src/control/approval-endpoints.ts`, `service/packages/mcp/src/control/tool-call-endpoint.ts`, `service/packages/mcp/src/control/workspace-endpoints.ts`, `service/packages/mcp/src/control/operation-endpoints.ts`, `service/packages/mcp/src/index.ts`, `service/packages/mcp/test/execution/action-nonce.test.ts`, `service/packages/mcp/test/execution/control-tool-call.test.ts`, `service/packages/mcp/test/execution/operation-resolution.test.ts`, `service/packages/mcp/test/execution/workspace-endpoints.test.ts`, `service/packages/mcp/test/election/leader-endpoints.test.ts`, `service/packages/mcp/test/security/control-auth.test.ts`, `service/vendor-rules.json`, `service/vendor-map.json`, `service/upstream-lock.json`. No other path may be staged in 7B.
 - 7C: `service/packages/shared/src/progress.ts`, `service/packages/shared/src/rpc.ts`, `service/packages/shared/src/envelope.ts`, `service/packages/shared/src/protocol.ts`, `service/packages/shared/src/operations.ts`, `service/packages/shared/src/service-operations.ts`, `service/packages/shared/src/index.ts`, `service/packages/mcp/src/policy/egress-policy.ts`, `service/packages/mcp/src/execution/egress-manifest-store.ts`, `service/packages/mcp/src/execution/follower-invocation-endpoint.ts`, `service/packages/mcp/src/execution/execution-plane.ts`, `service/packages/mcp/src/tool-invocation-service.ts`, `service/packages/mcp/src/tools/runtime-registry.ts`, `service/packages/mcp/src/relay/relay.ts`, `service/packages/mcp/src/relay/session.ts`, `service/packages/mcp/src/dispatch.ts`, `service/packages/mcp/src/index.ts`, `service/packages/mcp/src/election/election.ts`, `service/packages/mcp/src/election/leader-endpoints.ts`, `service/packages/mcp/src/election/node.ts`, `service/packages/mcp/test/execution/egress-policy.test.ts`, `service/packages/mcp/test/execution/egress-manifest-store.test.ts`, `service/packages/mcp/test/execution/egress-finalizer.test.ts`, `service/packages/mcp/test/execution/boundary-limits.test.ts`, `service/packages/mcp/test/execution/progress-transport.test.ts`, `service/packages/mcp/test/execution/progress-framing.test.ts`, `service/packages/mcp/test/execution/plugin-progress-adapter.test.ts`, `service/packages/mcp/test/execution/follower-stream.test.ts`, `service/packages/mcp/test/execution/no-direct-relay.test.ts`, `service/packages/mcp/test/execution/execution-plane-lifecycle.test.ts`, `service/packages/mcp/test/execution/service-operation-registry.test.ts`, `service/packages/mcp/test/dispatch.test.ts`, `service/packages/mcp/test/election/election.test.ts`, `service/packages/mcp/test/election/follower.test.ts`, `service/packages/mcp/test/election/leader-endpoints.test.ts`, `service/packages/mcp/test/election/leader-lock.test.ts`, `service/packages/mcp/test/election/node.test.ts`, `service/packages/mcp/test/relay/relay.test.ts`, `service/packages/mcp/test/relay/session.test.ts`, `service/packages/mcp/test/e2e/mcp-wire.test.ts`, `service/packages/mcp/test/e2e/process-lifecycle.test.ts`, `service/test/tool-contract.test.ts`, `service/vendor-rules.json`, `service/vendor-map.json`, `service/upstream-lock.json`. No other path may be staged in 7C.
 
-Binding 7A allowlist extension: add exactly `service/packages/mcp/src/tools/spec.ts`, `service/packages/mcp/src/tools/registry.ts`, and `service/packages/mcp/test/tools/result-validation.test.ts` to the 7A line above; “No other path” applies to the union.
+Binding 7A allowlist extension: add exactly `service/packages/mcp/src/tools/spec.ts`, `service/packages/mcp/src/tools/registry.ts`, `service/packages/mcp/src/execution/mcp-invocation-adapter.ts`, `service/packages/mcp/test/execution/mcp-selector-synthesis.test.ts`, `service/packages/mcp/test/execution/service-operation-name.test.ts`, `service/packages/mcp/test/execution/completed-result-replay.test.ts`, `service/packages/mcp/test/tools/result-validation.test.ts`, `service/packages/mcp/test/tools/skew-notice.test.ts`, `service/scripts/vendor-upstreams.mjs`, `service/test/vendor-upstreams.test.ts`, and `service/vendor-allowed-figwright-strings.json` to the 7A line above; “No other path” applies to the union. The generator/test are edited before first copy-only; the regenerated allowed file and all three are staged afterward in TREE_7A.
 
-Binding 7B allowlist extension: add exactly `service/packages/mcp/src/control/router.ts`, `route-registry.ts`, `status-endpoint.ts`, `service/packages/mcp/test/control/control-router.test.ts`, and `control-status.test.ts`. Binding 7C extension: add `service/scripts/verify-staged-change-manifest.mjs` and `service/test/change-manifest.test.ts`. “No other path” applies after these unions.
+Binding 7B allowlist extension: add exactly `service/packages/shared/src/approval.ts`, `service/packages/shared/src/config.ts`, `service/packages/mcp/src/policy/approval-broker.ts`, `service/packages/mcp/src/policy/approval-prompt.ts`, `service/packages/mcp/src/execution/mcp-workspace-binding.ts`, `service/packages/mcp/src/fs/workspace-config-store.ts`, `service/packages/mcp/src/fs/workspace-registration-resolver.ts`, `service/packages/mcp/src/control/router.ts`, `service/packages/mcp/src/control/route-registry.ts`, `service/packages/mcp/src/control/status-endpoint.ts`, `service/packages/mcp/test/execution/approval-broker.test.ts`, `service/packages/mcp/test/execution/approval-plugin-port.test.ts`, `service/packages/mcp/test/execution/mcp-workspace-binding.test.ts`, `service/packages/mcp/test/fs/workspace-config-store.test.ts`, `service/packages/mcp/test/fs/workspace-registration-resolver.test.ts`, `service/packages/mcp/test/control/control-router.test.ts`, and `service/packages/mcp/test/control/control-status.test.ts`. Binding 7C extension: add exactly `service/scripts/verify-staged-change-manifest.mjs` and `service/test/change-manifest.test.ts`. “No other path” applies after these unions.
 
 Task6.1 ownership rule: remove all six byte-frozen core paths and legacy `follower.ts` from every 7A/B/C staged allowlist. The sole manifest-path exception is `leader-endpoints.ts` in 7C, limited to inner-handler injection. The 7C staged report records both adapter baseline/staged hashes, proves `follower.ts` unchanged, and gives both reviewers the adapter diff plus `TASK6_1_FROZEN_GREEN` output. Any other manifest path or semantic change is out of scope and returns to Task6.1 review.
 
 **Binding subtask execution**
 
-- [ ] **7A RED:** First assert the checked-in legacy `InvocationContext`, `RuntimeExecutionContext`, and `RuntimeBinding.authority`, then add migration tests and run `pnpm -C service exec vitest run packages/mcp/test/execution/invocation-boundary.test.ts packages/mcp/test/execution/policy-context.test.ts packages/mcp/test/execution/target-resolution.test.ts packages/mcp/test/execution/target-requirement.test.ts packages/mcp/test/execution/runtime-authority.test.ts packages/mcp/test/execution/service-operation-registry.test.ts packages/mcp/test/execution/follower-invocation-client.test.ts packages/mcp/test/execution/execution-plane-lifecycle.test.ts packages/mcp/test/execution/operation-id.test.ts packages/mcp/test/execution/file-queue.test.ts packages/mcp/test/execution/operation-journal.test.ts packages/mcp/test/execution/operation-executor.test.ts packages/mcp/test/tools/result-validation.test.ts`; expect migration/new-plane assertions RED while the legacy-shape fixture is GREEN.
-- [ ] **7A GREEN:** Migrate the real legacy types in one tree and rerun the exact RED path list including `result-validation.test.ts`, policy/election/relay/ping/tool-contract, `TASK6_1_FROZEN_GREEN`, and typecheck. Expect no `RuntimeExecutionContext`/`RuntimeBinding.authority`/policy `InvocationContext` residual, handler105/7 vs execution98/14, exact result error identities, target/service/journal/demotion gates. Final entry cutover remains 7C.
+- [ ] **7A RED:** First assert the checked-in legacy `InvocationContext`, `RuntimeExecutionContext`, and `RuntimeBinding.authority`, then add migration tests and run the first Vitest line of `7A_GREEN_COMMANDS`; expect migration/name/selector/new-plane assertions RED while the legacy-shape fixture is GREEN.
+- [ ] **7A GREEN:** Migrate the real legacy types and authority generator in one tree, then run `7A_GREEN_COMMANDS` below verbatim. Expect no `RuntimeExecutionContext`/`RuntimeBinding.authority`/policy `InvocationContext` residual; handler105/7 vs execution98/14; exact distinct name schemas; MCP selector parity; skew/result identities; target/service/journal/demotion gates; frozen Task6.1; and allowed-string count15. Final entry cutover remains 7C.
 - [ ] **7A authority, staged review, and exact commit:** Register every added/changed managed file in `vendor-rules.json` exclusion authority and sorted `upstream-lock.json.destinationClosure.serviceOwnedFiles`, run `node service/scripts/vendor-upstreams.mjs --copy-only` to regenerate `vendor-map.json`, and run `node service/scripts/verify-upstream-lock.mjs --offline` plus `pnpm -C service exec vitest run test/vendor-upstreams.test.ts`. Stage only the exact 7A shared invocation/operations/index, execution/security/principal/target/new-follower-client/lifecycle files and tests, and the three authority files; reject any staged path outside that reviewed allowlist with `git diff --cached --name-only`. Run `git diff --cached --check`; run `git write-tree` and record its stdout as `TREE_7A`; obtain independent spec and quality PASS decisions naming `TREE_7A`; rerun the exact 7A GREEN and authority commands; require `git diff --name-only` empty and a second `git write-tree` equal to `TREE_7A`; then run `git commit -m "feat(execution): add issued idempotent journaled file queue"`. Require `git rev-parse "HEAD^{tree}"` equals `TREE_7A` and record tree+commit hashes.
-- [ ] **7B RED:** Run action/tool/resolution/workspace/invocation plus `packages/mcp/test/control/control-router.test.ts packages/mcp/test/control/control-status.test.ts`; expect missing extensible frozen router, authenticated status, durable pending approval, admin/nonce/resolution/cancel gates.
-- [ ] **7B GREEN:** Implement approval/tool/workspace/operation admin/action-nonce endpoints, update the exact 7B authority trio, then run the `7B_GREEN_COMMANDS` block below verbatim. Expect `sfp_an1_`+256-bit format; exact realPath/FQDN request hashing without Unicode alias; 120,000 ms TTL; 1,024/524,288 caps; durable pending approval before wait; one CAS winner; consumed retention/restart/generation invalidation; stable control actor with rotating auth session; same-owner MCP/follower operation list/status/resolve; resolver audit; foreign stateRoot/cross-session cancel denial; reserve and workspace unblock.
+- [ ] **7B RED:** Run action/approval/tool/resolution/workspace/binding/invocation plus control router/status tests; expect missing strict paired approval broker, workspace registration resolver/default binding, extensible frozen router, authenticated status, durable pending approval, admin/nonce/resolution/cancel gates.
+- [ ] **7B GREEN:** Implement strict approval prompt/decision broker and fake paired port, tool/workspace/default/operation admin/action-nonce endpoints, registration resolver, and production MCP workspace binding; update exact 7B authority classes, then run `7B_GREEN_COMMANDS` verbatim. Expect `sfp_an1_`+256-bit format; stat+directory+realpath issue binding and pre-effect revalidation; zero/one/multiple/default/restart workspace behavior; 120,000 ms nonce and approval TTLs; approval session/generation/target/hash CAS; durable pending before wait; same-owner admin resolution; cross-session cancel denial; and reserve/workspace unblock.
 - [ ] **7B authority, staged review, and exact commit:** Stage only the exact 7B allowlist, check staged names/diff, record `TREE_7B`, and obtain independent spec+quality PASS. Rerun the entire `7B_GREEN_COMMANDS` block **verbatim**; require no unstaged service path and identical tree; commit exact `feat(control): add approved workspace and operation control`; verify `HEAD^{tree}=TREE_7B`.
 - [ ] **7C RED:** Run egress/finalizer/boundary/progress/follower/no-bypass plus `test/change-manifest.test.ts`; expect missing finalizers, exact admission/inner stream, fake-plugin, terminal CAS, staged-byte verifier and convergence.
 - [ ] **7C GREEN:** Run `pnpm -C service exec vitest run packages/mcp/test/execution packages/mcp/test/policy packages/mcp/test/election packages/mcp/test/relay packages/mcp/test/dispatch.test.ts packages/mcp/test/e2e/mcp-wire.test.ts packages/mcp/test/e2e/process-lifecycle.test.ts test/tool-contract.test.ts test/change-manifest.test.ts`, `TASK6_1_FROZEN_GREEN`, `pnpm -C service typecheck`, and `AUTHORITY_GREEN`. Expect limits/finalizers/stream/router/fake-plugin/one-terminal/verifier parity; real plugin waits for9A.
 - [ ] **7C authority, staged review, and exact commit:** Update closed-world authorities, run `node service/scripts/vendor-upstreams.mjs --copy-only`, then run `node service/scripts/verify-upstream-lock.mjs --offline` plus `pnpm -C service exec vitest run test/vendor-upstreams.test.ts`. Stage only the exact 7C allowlist above; check `git diff --cached --name-only` and `git diff --cached --check`. Record baseline/staged blob hashes for both adapter paths, require `follower.ts` to remain `0afa7a038644fc2e88d03cd9d4388d90b39f7829422a18ce2028588bd2fa2ad7`, and give both reviewers the complete `leader-endpoints.ts` adapter diff. Run `git write-tree` and record stdout as `TREE_7C`; obtain independent spec+quality PASS on that tree, including preserved Task6.1 semantics; rerun the exact 7C GREEN, `TASK6_1_FROZEN_GREEN`, and authority commands; require `git diff --name-only` empty and a second `git write-tree` equal to `TREE_7C`; then run `git commit -m "feat(egress): gate runtime and stream bounded progress"`. Require `git rev-parse "HEAD^{tree}"` equals `TREE_7C` and record tree+commit hashes.
 
+**`7A_GREEN_COMMANDS` — copy/paste literally before staged review and again before exact 7A commit:**
+
+~~~powershell
+pnpm -C service exec vitest run packages/mcp/test/execution/invocation-boundary.test.ts packages/mcp/test/execution/policy-context.test.ts packages/mcp/test/execution/mcp-selector-synthesis.test.ts packages/mcp/test/execution/target-resolution.test.ts packages/mcp/test/execution/target-requirement.test.ts packages/mcp/test/execution/runtime-authority.test.ts packages/mcp/test/execution/service-operation-name.test.ts packages/mcp/test/execution/service-operation-registry.test.ts packages/mcp/test/execution/completed-result-replay.test.ts packages/mcp/test/execution/follower-invocation-client.test.ts packages/mcp/test/execution/execution-plane-lifecycle.test.ts packages/mcp/test/execution/operation-id.test.ts packages/mcp/test/execution/file-queue.test.ts packages/mcp/test/execution/operation-journal.test.ts packages/mcp/test/execution/operation-executor.test.ts packages/mcp/test/tools/result-validation.test.ts packages/mcp/test/tools/skew-notice.test.ts packages/mcp/test/policy/operation-policy.test.ts packages/mcp/test/policy/result-egress-policy.test.ts packages/mcp/test/relay/session.test.ts packages/mcp/test/tools/ping.test.ts test/tool-contract.test.ts
+pnpm -C service exec vitest run packages/mcp/test/security packages/mcp/test/election packages/mcp/test/dispatch.test.ts packages/mcp/test/e2e
+pnpm -C service typecheck
+node service/scripts/vendor-upstreams.mjs --copy-only
+node service/scripts/verify-upstream-lock.mjs --offline
+pnpm -C service exec vitest run test/vendor-upstreams.test.ts
+~~~
+
 **`7B_GREEN_COMMANDS` — copy/paste without path substitution before staging review and again before commit:**
 
 ~~~powershell
-pnpm -C service exec vitest run packages/mcp/test/execution/action-nonce.test.ts packages/mcp/test/execution/control-tool-call.test.ts packages/mcp/test/execution/operation-resolution.test.ts packages/mcp/test/execution/workspace-endpoints.test.ts packages/mcp/test/execution/invocation-boundary.test.ts packages/mcp/test/execution/policy-context.test.ts packages/mcp/test/execution/target-resolution.test.ts packages/mcp/test/execution/target-requirement.test.ts packages/mcp/test/execution/runtime-authority.test.ts packages/mcp/test/execution/service-operation-registry.test.ts packages/mcp/test/execution/follower-invocation-client.test.ts packages/mcp/test/execution/execution-plane-lifecycle.test.ts packages/mcp/test/execution/operation-id.test.ts packages/mcp/test/execution/file-queue.test.ts packages/mcp/test/execution/operation-journal.test.ts packages/mcp/test/execution/operation-executor.test.ts packages/mcp/test/control/control-router.test.ts packages/mcp/test/control/control-status.test.ts
+pnpm -C service exec vitest run packages/mcp/test/execution/action-nonce.test.ts packages/mcp/test/execution/approval-broker.test.ts packages/mcp/test/execution/approval-plugin-port.test.ts packages/mcp/test/execution/control-tool-call.test.ts packages/mcp/test/execution/operation-resolution.test.ts packages/mcp/test/execution/workspace-endpoints.test.ts packages/mcp/test/execution/mcp-workspace-binding.test.ts packages/mcp/test/execution/invocation-boundary.test.ts packages/mcp/test/execution/policy-context.test.ts packages/mcp/test/execution/target-resolution.test.ts packages/mcp/test/execution/target-requirement.test.ts packages/mcp/test/execution/runtime-authority.test.ts packages/mcp/test/execution/service-operation-name.test.ts packages/mcp/test/execution/service-operation-registry.test.ts packages/mcp/test/execution/follower-invocation-client.test.ts packages/mcp/test/execution/execution-plane-lifecycle.test.ts packages/mcp/test/execution/operation-id.test.ts packages/mcp/test/execution/file-queue.test.ts packages/mcp/test/execution/operation-journal.test.ts packages/mcp/test/execution/operation-executor.test.ts packages/mcp/test/fs/workspace-config-store.test.ts packages/mcp/test/fs/workspace-registration-resolver.test.ts packages/mcp/test/control/control-router.test.ts packages/mcp/test/control/control-status.test.ts
 pnpm -C service exec vitest run packages/mcp/test/security packages/mcp/test/election packages/mcp/test/relay
 pnpm -C service exec vitest run packages/mcp/test/policy packages/mcp/test/tools/ping.test.ts test/tool-contract.test.ts
 pnpm -C service typecheck
@@ -2237,6 +2591,43 @@ it('separates handler parity, execution routing, target rules, and service regis
   expect(targetRequirement('ping', {})).toBe('optional');
   expect(targetRequirement('get_selection', {})).toBe('required');
   expect(Object.keys(SERVICE_OPERATION_SPECS)).toEqual([]);
+});
+
+it.each(['snapshot.capture', 'grounding.refresh'])('parses service name %s outside ToolNameSchema', name => {
+  expect(ServiceOperationNameSchema.parse(name)).toBe(name);
+  expect(ToolNameSchema.safeParse(name).success).toBe(false);
+});
+
+it.each([
+  '', 'snapshot_capture', 'snapshot/capture', 'Snapshot.capture', 'snapshot..capture',
+  '.snapshot', 'snapshot.', `${'a'.repeat(126)}.b`, `${'a'.repeat(127)}.b`,
+])('rejects invalid/non-enum service name %s', name => {
+  expect(ServiceOperationNameSchema.safeParse(name).success).toBe(false);
+});
+
+it.each([
+  ['ping', {}, 'none'], ['get_selection', {}, 'active'],
+  ['analyze_project', { rootDir: '.' }, 'none'],
+])('synthesizes MCP selector after args for %s', async (toolName, rawArgs, kind) => {
+  for (const role of ['leader', 'follower'] as const) {
+    const request = await mcpAdapter(role).fromToolCall(toolName, rawArgs, forgedMeta);
+    expect(request.targetSelector).toEqual({ kind });
+    expect(request.workspaceId).toBe(toolName === 'analyze_project' ? serverResolvedWorkspaceId : null);
+  }
+});
+
+it('accepts a generated Base64Url128 session selector containing underscore', async () => {
+  const sessionId = generateBase64Url128Fixture({ mustContain: '_' });
+  expect(Base64Url128Schema.parse(sessionId)).toBe(sessionId);
+  await expect(targetResolver.resolve({ kind: 'session', sessionId })).resolves.toBeDefined();
+});
+
+it.each(['leader', 'follower'] as const)('%s keeps optional/required behavior with plugin disconnected', async role => {
+  relay.disconnectAll();
+  await expect(callMcp(role, 'ping', {})).resolves.toMatchObject({ overall: 'healthy' });
+  await expect(callMcp(role, 'get_selection', {})).rejects.toMatchObject({ code: 'PLUGIN_NOT_CONNECTED' });
+  relay.register(authenticatedSessionWithFile());
+  await expect(callMcp(role, 'get_selection', {})).resolves.toBeDefined();
 });
 
 it('constructs one execution plane only for the current leader generation', async () => {
@@ -2336,12 +2727,36 @@ it.each([
 
 it('never re-executes a persisted succeeded operation after restart or generation change', async () => {
   const opId = issuer.issue(ownerActor1, fixedNow);
-  journal.seed(succeededRecord({ actorId: ownerActor1, operationId: opId, issuedAt: fixedNow, resultHash: 'sha256:r' }));
+  const resultHash = 'sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa';
+  journal.seed(succeededRecord({ actorId: ownerActor1, operationId: opId, issuedAt: fixedNow, resultHash }));
   await expect(restarted.invokeTool(ctxWithGeneration('g2'), 'create_text', args, opId))
-    .rejects.toMatchObject({ code: 'OPERATION_ALREADY_SETTLED', resultHash: 'sha256:r' });
+    .rejects.toMatchObject({ code: 'OPERATION_ALREADY_SETTLED', resultHash });
   await expect(restarted.invokeTool(ctxWithGeneration('g2'), 'create_text', { text: 'different' }, opId))
     .rejects.toMatchObject({ code: 'OPERATION_ID_CONFLICT' });
   expect(runtime).not.toHaveBeenCalled();
+});
+
+it('replays only redacted wire bytes under an exact current consent fingerprint', async () => {
+  const opId = issuer.issue(ownerActor1, fixedNow);
+  const first = await invokeExternal({ operationId: opId, consentId: 'consent-1', allowedClasses: ['public', 'design-text'] });
+  expect(first).not.toHaveProperty('secretInternalField');
+  expect(cache.peek(opId)).toMatchObject({ redactedWirePayload: first });
+  expect(cache.peek(opId)).not.toHaveProperty('rawResult');
+  await expect(invokeFollowerWithCurrentConsent(opId, 'consent-1', ['design-text', 'public'])).resolves.toEqual(first);
+  expect(runtime).toHaveBeenCalledTimes(1);
+});
+
+it.each([
+  ['local-to-external', externalConsent('consent-2', ['public'])],
+  ['expired', expiredConsent('consent-1')],
+  ['rotated', externalConsent('consent-rotated', ['public', 'design-text'])],
+  ['narrower', externalConsent('consent-1', ['public'])],
+])('returns payload-free settled on %s replay consent mismatch', async (_case, currentConsent) => {
+  const opId = await seedRedactedLocalOrExternalSuccess();
+  await expect(replayFromControl(opId, currentConsent)).rejects.toMatchObject({ code: 'OPERATION_ALREADY_SETTLED' });
+  expect(lastError()).not.toHaveProperty('result');
+  expect(lastReplayAudit()).toMatchObject({ operationId: opId, oldFingerprintHash: expect.any(String), newFingerprintHash: expect.any(String) });
+  expect(runtime).toHaveBeenCalledTimes(1);
 });
 
 it('fails new operations closed when unresolved rows hold the hard journal cap', async () => {
@@ -2384,11 +2799,32 @@ it('mounts authenticated workspace lifecycle routes with journal-backed removal 
     .rejects.toMatchObject({ code: 'WORKSPACE_IN_USE' });
 });
 
+it('binds MCP workspace without first-root or body/meta override', async () => {
+  await expect(binding.resolveRequiredForMcpSession(mcpSession)).rejects.toMatchObject({ code: 'MCP_WORKSPACE_REQUIRED' });
+  await store.add(actorId, workspaceA);
+  await expect(binding.resolveRequiredForMcpSession(mcpSession)).resolves.toBe(workspaceAId);
+  await store.add(actorId, workspaceB);
+  await expect(binding.resolveRequiredForMcpSession(mcpSession)).rejects.toMatchObject({ code: 'MCP_WORKSPACE_AMBIGUOUS' });
+  await store.setDefault(actorId, workspaceBId);
+  await expect(mcpAdapter('leader').fromToolCall('scan_components', { rootDir: '.', workspaceId: workspaceAId }, {}))
+    .rejects.toMatchObject({ code: 'INVOCATION_ARGS_INVALID' });
+  await expect(mcpAdapter('follower').fromToolCall('scan_components', { rootDir: '.' }, { workspaceId: workspaceAId }))
+    .rejects.toMatchObject({ code: 'MCP_META_CONTEXT_FORBIDDEN' });
+  const direct = await mcpAdapter('leader').fromToolCall('scan_components', { rootDir: '.' }, {});
+  const forwarded = await mcpAdapter('follower').fromToolCall('scan_components', { rootDir: '.' }, {});
+  expect([direct.workspaceId, forwarded.workspaceId]).toEqual([workspaceBId, workspaceBId]);
+  await expect(store.remove(actorId, workspaceBId)).rejects.toMatchObject({ code: 'WORKSPACE_DEFAULT_IN_USE' });
+  expect((await restartedStore.getDefault())).toBe(workspaceBId);
+  await restartedStore.setDefault(actorId, null);
+  await restartedStore.remove(actorId, workspaceBId);
+  await expect(restartedBinding.resolveRequiredForMcpSession(mcpSession)).resolves.toBe(workspaceAId);
+});
+
 it('issues and atomically consumes one action-bound 256-bit nonce', async () => {
-  const realPath = await workspacePolicy.resolveRegistration(workspacePath);
-  const requestHash = hashActionRequest('workspace.add', { realPath });
+  const registration = await registrationResolver.resolveForNonce(workspacePath);
+  const requestHash = hashActionRequest('workspace.add', { realPath: registration.realPath });
   const claims = await control.post('/control/action-nonces', {
-    action: 'workspace.add', requestHash,
+    action: 'workspace.add', requestHash, registrationPath: workspacePath,
   }, actor1ControlToken);
   expect(claims.value).toMatch(/^sfp_an1_[A-Za-z0-9_-]{43}$/);
   clock.advance(119999);
@@ -2405,11 +2841,43 @@ it.each([
   ['wrong realpath', (_realPath: string) => hashActionRequest('workspace.add', { realPath: otherRealPath })],
   ['wrong action', (_realPath: string) => hashActionRequest('workspace.remove', { workspaceId })],
 ])('rejects %s before workspace side effect', async (_label, makeWrongHash) => {
-  const realPath = await workspacePolicy.resolveRegistration(workspacePath);
-  const wrongHash = makeWrongHash(realPath);
-  const nonce = await issueNonce(ownerActor1, 'workspace.add', wrongHash);
-  await expect(addWorkspace(nonce, workspacePath)).rejects.toMatchObject({ code: 'ACTION_NONCE_INVALID' });
+  const registration = await registrationResolver.resolveForNonce(workspacePath);
+  const wrongHash = makeWrongHash(registration.realPath);
+  await expect(issueWorkspaceAddNonce({ actorId: ownerActor1, registrationPath: workspacePath, requestHash: wrongHash }))
+    .rejects.toMatchObject({ code: 'ACTION_NONCE_REQUEST_HASH_MISMATCH' });
   expect(sideEffect).not.toHaveBeenCalled();
+});
+
+it('revalidates directory realpath and identity immediately before workspace-add CAS', async () => {
+  const registration = await registrationResolver.resolveForNonce(workspacePath);
+  const requestHash = hashActionRequest('workspace.add', { realPath: registration.realPath });
+  const nonce = await issueWorkspaceAddNonce({ registrationPath: workspacePath, requestHash });
+  replaceDirectoryAtSameSpelling(workspacePath);
+  await expect(addWorkspace(nonce, workspacePath)).rejects.toMatchObject({ code: 'WORKSPACE_REGISTRATION_CHANGED' });
+  expect(await nonceStore.get(nonce)).toMatchObject({ state: 'issued' });
+  expect(sideEffect).not.toHaveBeenCalled();
+});
+
+it('binds a redacted approval decision to paired session/generation/target and settles once', async () => {
+  const prompt = await broker.prompt(resolvedScope, effects, operationId);
+  expect(ApprovalPromptV1Schema.parse(prompt)).toEqual(prompt);
+  expect(JSON.stringify(prompt)).not.toMatch(/Secret layer|base64|https?:|controlToken|workspacePath/);
+  fakePairedPort.reconnectWithResume({ sameSession: true, samePluginGeneration: true });
+  expect(await fakePairedPort.nextPrompt()).toMatchObject({ approvalId: prompt.approvalId, promptHash: prompt.promptHash });
+  const decision = { version: 1, type: 'approval.decision', approvalId: prompt.approvalId,
+    operationId, promptHash: prompt.promptHash, decision: 'approved' } as const;
+  await expect(broker.settle(authenticatedBoundSession, decision)).resolves.toMatchObject({ decision: 'approved' });
+  await expect(broker.settle(authenticatedBoundSession, decision)).rejects.toMatchObject({ code: 'APPROVAL_ALREADY_SETTLED' });
+  expect(runtime).toHaveBeenCalledTimes(1);
+  expect(fakePairedPort.receivedControlToken).toBe(false);
+});
+
+it.each(['wrong-session', 'wrong-generation', 'wrong-target', 'wrong-hash', 'expired'] as const)
+('rejects approval decision bound to %s before runtime', async fault => {
+  const { prompt, decision, principal } = approvalFaultFixture(fault);
+  if (fault === 'expired') clock.set(prompt.expiresAt);
+  await expect(broker.settle(principal, decision)).rejects.toMatchObject({ code: expect.stringMatching(/^APPROVAL_/) });
+  expect(runtime).not.toHaveBeenCalled();
 });
 
 it.each([
@@ -2424,8 +2892,9 @@ it.each([
 
 it('invalidates outstanding action nonces on restart or generation change and never evicts live rows', async () => {
   await nonceStore.fill({ actorId, rows: 1024, bytes: 524288, unexpired: true });
-  await expect(issueNonce(actor, 'workspace.add', requestHash)).rejects.toMatchObject({ code: 'ACTION_NONCE_CAPACITY_EXCEEDED' });
-  await expect(restarted.consumeCas(actor, nonce, 'workspace.add', requestHash)).rejects.toMatchObject({ code: 'ACTION_NONCE_INVALID' });
+  const removeHash = hashActionRequest('workspace.remove', { workspaceId });
+  await expect(issueNonce(actor, 'workspace.remove', removeHash)).rejects.toMatchObject({ code: 'ACTION_NONCE_CAPACITY_EXCEEDED' });
+  await expect(restarted.consumeCas(actor, nonce, 'workspace.remove', removeHash)).rejects.toMatchObject({ code: 'ACTION_NONCE_INVALID' });
 });
 
 it('rejects forged and expired server-issued operation IDs before runtime', async () => {
@@ -2499,7 +2968,7 @@ it('keeps resolution authoritative when the normal tombstone index is full', asy
     decision: 'resolved-not-applied', reasonHash, evidenceHash,
     confirm: `${unknownId}/unknown`, actionNonce,
   }, actorToken);
-  expect(journal.resolutionIntents.get(unknownId)?.status).toBe('resolved-not-applied');
+  expect(journal.resolutionIntents.get(unknownId)?.decision).toBe('resolved-not-applied');
   await expect(service.invokeTool(ctx, 'create_text', args, unknownId))
     .rejects.toMatchObject({ code: 'OPERATION_ALREADY_SETTLED' });
   await expect(service.invokeTool(ctx, 'create_text', { ...args, text: 'different' }, unknownId))
@@ -2594,7 +3063,7 @@ Expected: FAIL because strict invocation/principal/target/leader-plane and execu
 
 Construct one plane with stable actor/auth, policy/target/runtime/journal. Inject the frozen Task6.1 mcpSession/stream/public facade; followers consume AsyncIterable plaintext and unknown/conflicted reject. Public resolver remains undefined until Task7 installs authenticated target resolution; `/control/status` owns oracles.
 
-Issue and verify operation IDs exactly as sections 3.3/3.12 before idempotency lookup. A first call without an ID receives a newly issued ID only after its initial operation row is durable, then `accepted`; control/CLI requests an ID before mutations. Exact `(actorId,operationId,operationKind,operationName,argsHash,workspaceId,fileExecutionKey)` shares one in-flight Promise; mismatch conflicts. The completed-result cache is exact 128 entries/8,388,608 bytes/60,000 ms with section 3.12 boundaries; eviction/restart leaves durable settled behavior. Stable actor permits exact replay across MCP role/control rotation, while cancellation remains origin-auth-session bound. Generation change uses the bounded prepare/finalize demotion protocol and terminal CAS. Allow four reads only when no same-file write is active, writes exclusive, exclusive-heavy alone. Before-dispatch flap may resume only same generation; after durable dispatched, flap appends+fsyncs unknown and never auto-replays. Structural tests reject literal IDs outside invalid fixtures and any production Relay/runtime bypass; valid fixtures use `OperationIdIssuer.issue`.
+Issue and verify operation IDs exactly as sections 3.3/3.12 before idempotency lookup. A first call without an ID receives a newly issued ID only after its initial operation row is durable, then `accepted`; control/CLI requests an ID before mutations. Exact `(actorId,operationId,operationKind,operationName,argsHash,workspaceId,fileExecutionKey)` shares one in-flight Promise; mismatch conflicts. The completed-result cache is exact 128 entries/8,388,608 bytes/60,000 ms and contains only redacted wire bytes plus the section3.3 consent fingerprint. Every replay reauthorizes current consent; exact current fingerprint returns those bytes, while expiry/rotation/mode/class/policy mismatch returns payload-free settled plus replay audit. Eviction/restart leaves durable settled behavior. Stable actor permits exact replay across MCP role/control rotation, while cancellation remains origin-auth-session bound. Generation change uses the bounded prepare/finalize demotion protocol and terminal CAS. Allow four reads only when no same-file write is active, writes exclusive, exclusive-heavy alone. Before-dispatch flap may resume only same generation; after durable dispatched, flap appends+fsyncs unknown and never auto-replays. Structural tests reject literal IDs outside invalid fixtures and any production Relay/runtime bypass; valid fixtures use `OperationIdIssuer.issue`.
 
 - [ ] **Step 4: Implement owner-state operation journal and recovery**
 
@@ -2608,9 +3077,9 @@ Before fsync, resolution-intent construction copies the active record’s signed
 
 - [ ] **Step 5: Implement approvals and central control call**
 
-`/control/tools/call` is routeClass tool and accepts only `InvocationRequestV1`; `/control/tools/cancel` accepts only `InvocationCancelV1` and enforces exact originAuthSession. MCP direct/follower and control tools use the same `invokeTool` plane path. The service-operation registry is exact empty in Task 7; no MCP registration/count changes. Task 11's snapshot endpoint later constructs `ServiceOperationRequestV1` and calls `invokeService`. Pair/workspace/network/approval/operation-resolution endpoints are routeClass admin and cannot pass a tool/service name or runtime. Approval endpoints append+fsync pending before wait, list redacted pending summaries, and settle exact approvalId once.
+`/control/tools/call` is routeClass tool and accepts only `InvocationRequestV1`; `/control/tools/cancel` accepts only `InvocationCancelV1` and enforces exact originAuthSession. MCP direct/follower and control tools use the same `invokeTool` plane path. The service-operation registry is exact empty in Task 7; no MCP registration/count changes. Task 11's snapshot/grounding endpoints later construct `ServiceOperationRequestV1` with the distinct dotted schema and call `invokeService`. Pair/workspace/network/approval/operation-resolution endpoints are routeClass admin and cannot pass a tool/service name or runtime. Approval endpoints append+fsync pending before wait, list redacted pending summaries, and route only strict `ApprovalPromptV1`/`ApprovalDecisionV1` through the broker/fake paired port. Runtime remains forbidden until one bound decision CAS; plugin control frames are not runtime and never carry a control token.
 
-Mount authenticated `POST /control/action-nonces` with strict `{action,requestHash}` and section 3.3/3.12 rules. Every nonce-protected admin route semantically validates and resolves canonical realPath/FQDN first, recomputes exact byte hash, then atomically consumes immediately before side effect. Workspace add/remove uses JournalWorkspaceUsageGuard. Operation issue/list/status query the one stable owner actor, not the current auth session. Single-ID resolve accepts same-owner MCP/follower/control origins, records origin+resolver auth sessions, requires bound nonce/evidence/exact confirmation, fsyncs reserve, and never authorizes replay; foreign stateRoot fails. There is no bulk resolution. Cross-session cancel remains denied. Tests cover rotation, cross-domain resolution, wrong actor/generation/action/hash, Unicode-distinct path hashes, reuse/concurrency/expiry/restart, confirmation/evidence/reserve, and same-ID replay. Without paired UI/authenticated CLI waiter ordinary explicit approval is `APPROVAL_CHANNEL_UNAVAILABLE`.
+Mount authenticated `POST /control/action-nonces` with strict `ActionNonceIssueRequestV1` and section 3.3/3.12 rules. Workspace add uses only `WorkspaceRegistrationResolver` at nonce issue and again immediately before CAS+add; `WorkspacePolicy` remains exclusively the registered-workspace read/write boundary. Every nonce-protected admin route semantically validates canonical realPath/FQDN/workspace default first, recomputes exact byte hash, then atomically consumes immediately before side effect. Workspace add/remove/default uses `JournalWorkspaceUsageGuard` and the versioned config store. Mount `POST /control/workspaces/default` with strict `{workspaceId,actionNonce}` and `DELETE /control/workspaces/default` with one `workspace.set-default` nonce for null; removal of the selected workspace is guarded. Operation issue/list/status query the one stable owner actor, not the current auth session. Single-ID resolve accepts same-owner MCP/follower/control origins, records origin+resolver auth sessions, requires bound nonce/evidence/exact confirmation, fsyncs reserve, and never authorizes replay; foreign stateRoot fails. There is no bulk resolution. Cross-session cancel remains denied. Tests cover rotation, cross-domain resolution, registration replacement race, zero/one/multiple/default/restart binding, wrong actor/generation/action/hash, Unicode-distinct path hashes, reuse/concurrency/expiry/restart, confirmation/evidence/reserve, and same-ID replay. Without a valid paired approval session or authenticated CLI waiter, ordinary explicit approval is `APPROVAL_CHANNEL_UNAVAILABLE`.
 
 - [ ] **Step 6: Implement result validation, egress ordering, and progress transport**
 
@@ -2620,9 +3089,9 @@ Use sections 3.11/3.12 exactly. Consume only Task6.1-authenticated decrypted fol
 
 - [ ] **Step 7: Run execution GREEN and cross-entry parity**
 
-Run: `pnpm -C service exec vitest run packages/mcp/test/execution packages/mcp/test/policy packages/mcp/test/election packages/mcp/test/relay packages/mcp/test/security packages/mcp/test/dispatch.test.ts packages/mcp/test/e2e/mcp-wire.test.ts packages/mcp/test/e2e/process-lifecycle.test.ts test/tool-contract.test.ts`, then `node service/scripts/verify-upstream-lock.mjs --offline`, `pnpm -C service exec vitest run test/vendor-upstreams.test.ts`, and `pnpm -C service typecheck`.
+Run: `pnpm -C service exec vitest run packages/mcp/test/execution packages/mcp/test/fs/workspace-config-store.test.ts packages/mcp/test/fs/workspace-registration-resolver.test.ts packages/mcp/test/policy packages/mcp/test/election packages/mcp/test/relay packages/mcp/test/security packages/mcp/test/tools/result-validation.test.ts packages/mcp/test/tools/skew-notice.test.ts packages/mcp/test/dispatch.test.ts packages/mcp/test/e2e/mcp-wire.test.ts packages/mcp/test/e2e/process-lifecycle.test.ts test/tool-contract.test.ts`, then `node service/scripts/verify-upstream-lock.mjs --offline`, `pnpm -C service exec vitest run test/vendor-upstreams.test.ts`, and `pnpm -C service typecheck`.
 
-Expected: `TASK6_1_FROZEN_GREEN` plus owner/auth/policy/target/handler-execution/service0, journal/demotion/ID/admin/queue/nonce/finalizer/limits/one-terminal gates; fake plugin only and no private outer imports.
+Expected: `TASK6_1_FROZEN_GREEN` plus distinct name parsers, selector/workspace synthesis, owner/auth/policy/target/handler-execution/service0, approval broker, consent-safe replay, journal/demotion/ID/admin/queue/nonce/finalizer/limits/one-terminal gates; fake plugin only and no private outer imports.
 
 - [ ] **Step 8: Request independent spec review**
 
@@ -2747,9 +3216,9 @@ Persist normalized exact FQDN rules under stateRoot with empty default. Mount `G
 
 - [ ] **Step 8: Run exact slice GREEN commands**
 
-8A GREEN: exact Vitest command shown, `pnpm -C service typecheck`, `AUTHORITY_GREEN` verbatim, `node service/scripts/verify-staged-change-manifest.mjs --slice 8A`.
+8A GREEN: `pnpm -C service exec vitest run packages/mcp/test/fs/local-tool-boundary.test.ts packages/mcp/test/fs/atomic-file.test.ts packages/mcp/test/fs/repo-walk.test.ts packages/mcp/test/fs/workspace-policy.test.ts`; `pnpm -C service typecheck`; `AUTHORITY_GREEN`; `node service/scripts/verify-staged-change-manifest.mjs --slice 8A`.
 
-8B GREEN: exact Vitest command shown, `TASK6_1_FROZEN_GREEN`, `pnpm -C service typecheck`, `AUTHORITY_GREEN`, `node service/scripts/verify-staged-change-manifest.mjs --slice 8B`.
+8B GREEN: `pnpm -C service exec vitest run packages/mcp/test/network packages/mcp/test/control/control-router.test.ts packages/mcp/test/execution/action-nonce.test.ts packages/mcp/test/execution/boundary-limits.test.ts`; `TASK6_1_FROZEN_GREEN`; `pnpm -C service typecheck`; `AUTHORITY_GREEN`; `node service/scripts/verify-staged-change-manifest.mjs --slice 8B`.
 
 Expected: inside-root local tools pass; path escapes, direct fs imports, redirect-to-private, DNS change, MIME mismatch, chunked oversize, and unapproved fetch fail.
 
@@ -2771,41 +3240,41 @@ For 8A, use only `task-8a.json` union and commit `feat(io): sandbox workspace fi
 
 - Modify: `service/packages/plugin/manifest.json`, `protocol/bridge.ts`, `src/code.ts`, `src/dispatcher.ts`, `src/idempotency.ts`, `src/panel.ts`.
 - Create: `service/packages/plugin/src/file-identity.ts`.
-- Modify glob: every `service/packages/plugin/src/handlers/*.ts` module whose registry key is in baseline `WRITE_TOOL_NAMES` (78 non-batch modules), plus `batch.ts`, `import-image.ts`, and `registry.ts`; the generated exact set is stored in `service/packages/plugin/src/mutation-handler-contract.ts` and must equal all 79 baseline write-kind names.
+- Modify the generated exact handler set for 78 non-batch `WRITE_TOOL_NAMES` rows across exactly 77 unique production modules, plus `batch.ts`, `import-image.ts`, and `registry.ts`; only `lock_nodes` and `unlock_nodes` share `service/packages/plugin/src/handlers/lock-nodes.ts`. The exact tool/path mapping is stored in the Task9B ledger and the contracts still cover all 79 baseline write-kind names including batch.
 - Modify: `service/packages/plugin/ui/relay/client.ts`, `ui/App.vue`, `ui/main.ts`, `ui/style.css`.
 - Modify for 9A integration: `ui/composables/useRelaySession.ts`, `ui/components/PanelTabs.vue`, `ui/lib/tabs.ts`; create `TabPairing.vue`, `usePairing.ts`. Create 9C `TabApproval.vue`, `useApprovalQueue.ts`.
-- Create/modify exact 9A tests `components/pairing-flow.test.ts`, `composables/use-relay-session.test.ts`, `relay/client.test.ts`, auth/protocol/progress-cancel/file-identity; plus 9B/9C tests and mutation fixture ledger named below.
+- Create/modify exact 9A tests `components/pairing-flow.test.ts`, `composables/use-relay-session.test.ts`, `relay/client.test.ts`, auth/protocol/progress-cancel/file-identity; add 9B `idempotency-concurrency.test.ts`; add 9C `approval/approval-control.test.ts`, `approval-reconnect.test.ts`, `approval-ui.test.ts`; plus mutation fixture ledger named below.
 
 **Interfaces**
 
-- Consumes: Task6.1 pairing/resume outer wire; Task 7 shared `$progress`/`$cancel` schemas, approval events, accepted/terminal envelopes, operation IDs, 67,108,864-byte frame cap, and immutable resolved target; Task 8 byte-only image dispatch. Task 9A is the first real plugin consumer/wiring and does not redefine daemon semantics.
+- Consumes: Task6.1 pairing/resume outer wire; Task7 shared `$progress`/`$cancel`, strict `ApprovalPromptV1`/`ApprovalDecisionV1`, accepted/terminal envelopes, operation IDs, 67,108,864-byte frame cap, and immutable resolved target; Task8 byte-only image dispatch. Task9A is the first real progress/cancel consumer; Task9C is the first real approval-control consumer. Neither redefines daemon semantics or receives a control token.
 - Produces: paired plugin hello/capability/file identity, 105-handler baseline parity, approval UI, in-flight Promise dedupe, `PluginHandlerOutcome<T>{value,mutated}` and `MUTATION_HANDLER_CONTRACTS` for exact 79 baseline write-kind handlers including batch/navigation, `UNDO_BOUNDARY_POLICIES` exact 79 rows, plugin top-level dispatcher as the sole `figma.commitUndo()` owner, and wire responses containing only `outcome.value`.
 
 **Commit protocol:** Section 6.2 applies independently to 9A, 9B, and 9C; each exact staged tree includes the authority trio and gets its own two reviews.
 
-9B freezes `service/capabilities/task-9b-mutation-handlers.json`. At the reviewed 9A head, derive `BASELINE_WRITE_TOOL_NAMES` minus `batch`, resolve each registry key to one production handler module, require exactly78 unique rows, then record sorted `{toolName,path,baseSha256,finalSha256}`. `baseSha256` is the 9A-head Git blob; `finalSha256` is the staged 9B blob. `handlerSetHash` is SHA-256 of UTF-8 rows `<toolName><NUL><path><NUL><finalSha256><LF>`. The 9B reviewer independently regenerates all rows/hash; the general `task-9b.json` manifest includes the 78 handlers, `batch.ts`, this ledger, dispatcher/idempotency/contracts/fixtures/tests and authority files.
+9B freezes `service/capabilities/task-9b-mutation-handlers.json`. At the reviewed 9A head, derive `BASELINE_WRITE_TOOL_NAMES` minus `batch`, resolve each registry key to one production handler module, and record exactly 78 sorted `{toolName,path,baseSha256,finalSha256}` rows spanning exactly 77 unique paths. The sole duplicate path is `handlers/lock-nodes.ts` for `lock_nodes` and `unlock_nodes`; every other path appears once, and a test rejects any second shared path or either lock tool mapping elsewhere. `baseSha256` is the 9A-head Git blob; `finalSha256` is the staged 9B blob, so the two lock rows carry identical hashes. `handlerSetHash` is SHA-256 of all 78 UTF-8 rows `<toolName><NUL><path><NUL><finalSha256><LF>`. The reviewer independently regenerates rows/counts/hash; `task-9b.json` contains the 77 unique handler paths, `batch.ts`, ledger, dispatcher/idempotency/contracts/fixtures/tests and authority files.
 
 **Binding subtask/commit boundaries**
 
 | Subtask | Review surface | RED/GREEN gate | Commit and handoff |
 |---|---|---|---|
 | 9A — pair/resume/file identity/progress consumer | bridge/code/panel/dispatcher, relay client, useRelaySession/usePairing, App/main/style, PanelTabs/tabs, TabPairing, UUID, real progress/cancel | mounted App end-to-end pairing/reconnect/progress/cancel plus auth/protocol/file/frame/listener tests | `feat(plugin): pair sessions and persist stable file identity` |
-| 9B — mutation outcome and undo | 78 non-batch write modules, batch, mutation contract/fixtures, dispatcher/idempotency | exact79 outcome rows, changed/no-op fixtures, wire-value-only, sole commit call | `refactor(plugin): report mutation outcomes and centralize undo`; produces handler contract for Task 12 |
-| 9C — approvals, URL removal, capability UI | approval UI/control bridge, import-image data-only, manifest domains, editor capability display | approval/protocol/URL/manifest/Motion-video preservation suites | `feat(plugin): approve capability-gated byte-only operations`; final 112/105/7 handoff |
+| 9B — mutation outcome and undo | 78 tool rows/77 unique non-batch paths, batch, mutation contract/fixtures, dispatcher/idempotency | exact79 outcome rows, sole lock/unlock shared path, concurrent same-ID one Promise/handler/undo, changed/no-op fixtures, wire-value-only, sole commit call | `refactor(plugin): report mutation outcomes and centralize undo`; produces handler contract for Task 12 |
+| 9C — approvals, URL removal, capability UI | strict approval prompt/decision bridge+UI, import-image data-only, manifest domains, editor capability display | bound session/generation/target/hash/TTL, duplicate/reconnect/late, no-control-token, protocol/URL/manifest/Motion-video suites | `feat(plugin): approve capability-gated byte-only operations`; final 112/105/7 handoff |
 
 9B’s generated handler-name set and fixture ledger are reviewed independently from UI work. Task 10 starts only after all three subtask commits pass baseline parity.
 
 **Binding subtask execution**
 
 - [ ] **9A RED:** Run `pnpm -C service exec vitest run packages/plugin/test/auth packages/plugin/test/protocol packages/plugin/test/file-identity.test.ts packages/plugin/test/components/pairing-flow.test.ts packages/plugin/test/composables/use-relay-session.test.ts packages/plugin/test/relay/client.test.ts`; expect pairing/progress consumer RED.
-- [ ] **9A GREEN:** Rerun that exact command, plugin typecheck/build, `AUTHORITY_GREEN`, `node service/scripts/verify-staged-change-manifest.mjs --slice 9A`; mounted lifecycle and legacy gate pass.
+- [ ] **9A GREEN:** Run `pnpm -C service exec vitest run packages/plugin/test/auth packages/plugin/test/protocol packages/plugin/test/file-identity.test.ts packages/plugin/test/components/pairing-flow.test.ts packages/plugin/test/composables/use-relay-session.test.ts packages/plugin/test/relay/client.test.ts`; `pnpm -C service --filter @sfp/plugin typecheck`; `pnpm -C service --filter @sfp/plugin build`; `AUTHORITY_GREEN`; `node service/scripts/verify-staged-change-manifest.mjs --slice 9A`; mounted lifecycle and legacy gate pass.
 - [ ] **9A review and commit:** `task-9a.json` semantic rows are exactly protocol/bridge, src code/panel/dispatcher/file-identity, ui relay/client, App.vue/main.ts/style.css, useRelaySession/usePairing, PanelTabs/TabPairing/lib/tabs, and the exact 9A tests named above. Add manifest+authority trio, byte-verify staged names, review/rerun, commit exact subject.
-- [ ] **9B RED:** Run `pnpm -C service exec vitest run packages/plugin/test/mutation-handler-contract.test.ts packages/plugin/test/wire-result.test.ts packages/plugin/test/undo-boundary.test.ts`; expect raw handler results, missing exact79 contracts, and no dispatcher-owned boundary.
-- [ ] **9B GREEN:** Run `pnpm -C service exec vitest run packages/plugin/test/mutation-handler-contract.test.ts packages/plugin/test/wire-result.test.ts packages/plugin/test/undo-boundary.test.ts packages/plugin/test/dispatcher.test.ts test/tool-registry.test.ts`, plugin typecheck/build, regenerate78 ledger, `AUTHORITY_GREEN`, `node service/scripts/verify-staged-change-manifest.mjs --slice 9B`.
-- [ ] **9B review and commit:** Stage only the regenerated78 handler paths, `handlers/batch.ts`, `dispatcher.ts`, `idempotency.ts`, `mutation-handler-contract.ts`, `task-9b-mutation-handlers.json`, mutation fixture/contract/wire/undo/dispatcher tests, `task-9b.json`, and authority trio. Byte-verify, review/rerun, then exact commit subject.
-- [ ] **9C RED:** Run `pnpm -C service exec vitest run packages/plugin/test/approval packages/plugin/test/handlers/import-image-policy.test.ts packages/plugin/test/protocol`; expect missing approval UI and remaining direct URL/wildcard behavior while 9A/9B stay green.
-- [ ] **9C GREEN:** Run `pnpm -C service exec vitest run packages/plugin/test/approval packages/plugin/test/handlers/import-image-policy.test.ts packages/plugin/test/protocol packages/plugin/test/components/tab-panels.test.ts test/tool-registry.test.ts`, plugin typecheck/build, `AUTHORITY_GREEN`, `node service/scripts/verify-staged-change-manifest.mjs --slice 9C`.
-- [ ] **9C review and commit:** `task-9c.json` names exactly plugin manifest, TabApproval/useApprovalQueue, App.vue/main.ts/style.css, import-image handler, panel, approval/import-image/protocol/tab-panel tests, its manifest and authority trio. Byte-verify, review/rerun, commit exact subject.
+- [ ] **9B RED:** Run `pnpm -C service exec vitest run packages/plugin/test/mutation-handler-contract.test.ts packages/plugin/test/idempotency-concurrency.test.ts packages/plugin/test/wire-result.test.ts packages/plugin/test/undo-boundary.test.ts`; expect raw handler results, wrong path-cardinality ledger, concurrent same-ID double execution, missing exact79 contracts, and no dispatcher-owned boundary.
+- [ ] **9B GREEN:** Run `pnpm -C service exec vitest run packages/plugin/test/mutation-handler-contract.test.ts packages/plugin/test/idempotency-concurrency.test.ts packages/plugin/test/wire-result.test.ts packages/plugin/test/undo-boundary.test.ts packages/plugin/test/dispatcher.test.ts test/tool-registry.test.ts`; `pnpm -C service --filter @sfp/plugin typecheck`; `pnpm -C service --filter @sfp/plugin build`; regenerate the 78-row/77-path ledger; `AUTHORITY_GREEN`; `node service/scripts/verify-staged-change-manifest.mjs --slice 9B`.
+- [ ] **9B review and commit:** Stage only the 77 regenerated unique handler paths, `service/packages/plugin/src/handlers/batch.ts`, `service/packages/plugin/src/dispatcher.ts`, `service/packages/plugin/src/idempotency.ts`, `service/packages/plugin/src/mutation-handler-contract.ts`, `service/capabilities/task-9b-mutation-handlers.json`, mutation fixture/contract/wire/undo/dispatcher tests including exact `service/packages/plugin/test/idempotency-concurrency.test.ts`, `service/capabilities/change-manifests/task-9b.json`, and authority trio. Byte-verify exact counts/sole shared path, review/rerun, then exact commit subject.
+- [ ] **9C RED:** Run `pnpm -C service exec vitest run packages/plugin/test/approval/approval-control.test.ts packages/plugin/test/approval/approval-reconnect.test.ts packages/plugin/test/approval/approval-ui.test.ts packages/plugin/test/handlers/import-image-policy.test.ts packages/plugin/test/protocol`; expect missing strict approval consumer/UI, session/hash/TTL/reconnect cleanup, and remaining direct URL/wildcard behavior while 9A/9B stay green.
+- [ ] **9C GREEN:** Run `pnpm -C service exec vitest run packages/plugin/test/approval/approval-control.test.ts packages/plugin/test/approval/approval-reconnect.test.ts packages/plugin/test/approval/approval-ui.test.ts packages/plugin/test/handlers/import-image-policy.test.ts packages/plugin/test/protocol packages/plugin/test/components/tab-panels.test.ts test/tool-registry.test.ts`; `pnpm -C service --filter @sfp/plugin typecheck`; `pnpm -C service --filter @sfp/plugin build`; `AUTHORITY_GREEN`; `node service/scripts/verify-staged-change-manifest.mjs --slice 9C`.
+- [ ] **9C review and commit:** `task-9c.json` names exactly plugin manifest, `protocol/bridge.ts`, `src/code.ts`, `src/panel.ts`, TabApproval/useApprovalQueue, App.vue/main.ts/style.css, import-image handler, the three exact approval tests, import-image/protocol/tab-panel tests, its manifest and authority trio. Byte-verify, review/rerun, commit exact subject.
 
 - [ ] **Step 1: Write plugin auth, URL, and undo RED**
 
@@ -2852,6 +3321,18 @@ it('sends only handler outcome.value on the plugin wire', async () => {
   expect(wire.result).toEqual(renameChangedResult);
   expect(JSON.stringify(wire)).not.toContain('mutated');
 });
+
+it('shares one in-flight Promise for concurrent identical operation ID', async () => {
+  const [left, right] = await Promise.all([
+    dispatcher.run('create_text', args, { operationId }),
+    dispatcher.run('create_text', args, { operationId }),
+  ]);
+  expect(left).toEqual(right);
+  expect(handler).toHaveBeenCalledTimes(1);
+  expect(figma.commitUndo).toHaveBeenCalledTimes(1);
+  await expect(dispatcher.run('create_text', { ...args, text: 'different' }, { operationId }))
+    .rejects.toMatchObject({ code: 'OPERATION_ID_CONFLICT' });
+});
 ~~~
 
 - [ ] **Step 2: Run plugin RED**
@@ -2864,9 +3345,9 @@ Expected: plugin connects without credential, has no pairing/approval UI, URL br
 
 Render unpaired/pairing/wrong/expired/connected/reconnecting states. Exchange the eight-digit code, hold ticket/resume only in redacted state, send first-message credentials, rotate resume on every successful reconnect, and remove all secrets from diagnostics. Once paired, `protocol/bridge.ts` and the real code/panel/UI relay install exactly one Task7-schema `$progress`/`$cancel` listener per session, route by requestId+operationId, reject oversize before decode, remove listeners on terminal/reconnect/unmount, and prevent late progress after terminal. No plugin/UI field can supply daemon identity/context.
 
-- [ ] **Step 4: Implement approval UI and exactly-once settlement**
+- [ ] **Step 4: Implement strict paired approval-control UI and exactly-once settlement**
 
-Show tool, dynamic effect summary, stable file label, target count, overwrite/destructive/network flags; redact text/base64/URL query. Approve/reject exact approvalId once; late duplicate events are ignored and audited.
+`protocol/bridge.ts`, `src/code.ts`, `src/panel.ts`, `ui/composables/useApprovalQueue.ts`, and `ui/components/TabApproval.vue` parse only shared `ApprovalPromptV1Schema`/`ApprovalDecisionV1Schema`. Show operation name, dynamic effect summary, stable file label/hash, target count, overwrite/destructive/network flags; never render/store design text, bytes/base64, absolute path, URL query, actor credentials, or control token. Decision sends only version/type/approvalId/operationId/promptHash/decision over the authenticated paired WS. Reconnect may re-render the same unexpired prompt without extending TTL; terminal/unmount/generation change cleans listeners. Approve/reject exact binding once; duplicate, conflicting, wrong prompt hash, wrong generation/target, and late events show typed degraded state and are audited. The plugin never calls `/control` directly and never receives its credential.
 
 - [ ] **Step 5: Implement editor capabilities and stable file UUID**
 
@@ -2904,17 +3385,18 @@ Run: `git diff --check`, `git log -3 --format="%H %s"`, full Task 9 GREEN, then 
 
 - Create: `service/packages/mcp/src/execution/grounding-router.ts`; do not modify final Task6.1 index/dispatch/relay producers.
 - Modify: `service/packages/mcp/src/tools/token-map.ts`, `component-map.ts`, `icon-map.ts`, `design-diff.ts`, `get-local-components.ts`.
+- Modify exact result authority: `service/packages/shared/src/components.ts`, `service/packages/shared/src/result-schemas.ts`, `service/packages/plugin/src/handlers/get-local-components.ts`, `service/packages/plugin/test/handlers/get-local-components.test.ts`, `service/capabilities/union-manifest.json`, `service/test/tool-contract.test.ts`, `service/packages/mcp/test/tools/result-validation.test.ts`.
 - Create: `service/packages/mcp/test/tools/grounding-session.test.ts`, `design-diff-file-identity.test.ts`, `component-discovery-capability.test.ts`.
 - Create: `service/packages/mcp/test/relay/write-flap-outcome.test.ts`.
 
 **Interfaces**
 
 - Consumes: Task 7 immutable `RuntimeExecutionScope`, operation outcome API, server-resolved target/per-file key, and no-session-oracle `/ping`; Task 9 authenticated Relay session/FileIdentity.
-- Produces: plane-consumer grounding router, stable diff namespace and honest discovery scope; Task7 already owns flap→unknown. No Task6.1 producer edit.
+- Produces: plane-consumer grounding router, stable digest-only diff namespace, honest discovery scope, and updated shared/plugin/MCP result contracts with refreshed union schema hashes; tool/handler/execution/service counts remain exactly 112/105/7, 98/14, service0. Task7 already owns flap→unknown. No Task6.1 producer edit.
 
 **Commit protocol:** Section 6.2 applies; stage Task 10 semantic files plus the authority trio and review the same tree.
 
-`task-10.json` semantic paths are exactly `mcp/src/execution/grounding-router.ts`; tools token-map/component-map/icon-map/design-diff/get-local-components; tests grounding-session/design-diff-file-identity/component-discovery-capability/write-flap-outcome. Final Task6.1 manifest paths are forbidden.
+`task-10.json` semantic paths are exactly `mcp/src/execution/grounding-router.ts`; MCP tools token-map/component-map/icon-map/design-diff/get-local-components; shared components/result-schemas; plugin get-local-components handler/test; `capabilities/union-manifest.json`; `test/tool-contract.test.ts`; MCP result-validation; tests grounding-session/design-diff-file-identity/component-discovery-capability/write-flap-outcome; manifest and authority trio. Final Task6.1 manifest paths are forbidden. No other result/manifest/registry file may change.
 
 - [ ] **Step 1: Write genuine cross-session/collision/flap RED**
 
@@ -2942,7 +3424,7 @@ Consume the Task 7 immutable target/session/file identity once; pass the same ro
 
 - [ ] **Step 4: Namespace and migrate design baselines**
 
-Store under `.sfp/design-diff-baselines/v1/{fileIdentityHash}/{sanitizedNodeId}.json` through AtomicFileStore and reject unstable identity. v0.1 explicitly removes the unimplemented legacy-migration promise: node-only legacy baselines are never read/migrated and return typed `LEGACY_BASELINE_UNSUPPORTED` with manual delete/re-capture guidance. Task13 exposes no legacy migration command; docs/tests assert this scope boundary.
+Strict-verify `fileIdentityHash` as `sha256:<64hex>`, extract only its 64-hex digest, then store under `.sfp/design-diff-baselines/v1/{fileIdentityDigest}/{sanitizedNodeId}.json` through AtomicFileStore and reject unstable identity, colon/backslash/drive/UNC/ADS/traversal segments. v0.1 explicitly removes the unimplemented legacy-migration promise: node-only legacy baselines are never read/migrated and return typed `LEGACY_BASELINE_UNSUPPORTED` with manual delete/re-capture guidance. Task13 exposes no legacy migration command; docs/tests assert this scope boundary.
 
 - [ ] **Step 5: Connect relay flap to OperationExecutor**
 
@@ -2950,13 +3432,13 @@ Consume Task7's existing flap/outcome port; Task10 adds no Relay hook. Tests pro
 
 - [ ] **Step 6: Make component discovery scope explicit**
 
-Return `scope:'selection-or-subtree'` and `remoteLibraryDiscovery:false`; prompts later use page traversal or known component keys instead of claiming team-library search.
+Return `scope:'selection-or-subtree'` and `remoteLibraryDiscovery:false` from the shared `GetLocalComponentsResultSchema`, plugin handler, MCP wrapper, component/map results, and union-manifest schema hash. Prompts later use page traversal or known component keys instead of claiming team-library search. Contract tests require the same strict result schema on every layer and prove registry/counts unchanged.
 
 - [ ] **Step 7: Run grounding GREEN**
 
-Run exact Vitest command, `pnpm -C service typecheck`, `AUTHORITY_GREEN`, `node service/scripts/verify-staged-change-manifest.mjs --slice 10`.
+Run `pnpm -C service exec vitest run packages/mcp/test/tools/grounding-session.test.ts packages/mcp/test/tools/design-diff-file-identity.test.ts packages/mcp/test/tools/component-discovery-capability.test.ts packages/mcp/test/relay/write-flap-outcome.test.ts packages/mcp/test/tools/result-validation.test.ts packages/plugin/test/handlers/get-local-components.test.ts test/tool-contract.test.ts test/tool-registry.test.ts`, `pnpm -C service typecheck`, `AUTHORITY_GREEN`, and `node service/scripts/verify-staged-change-manifest.mjs --slice 10`.
 
-Expected: no cross-file mix/collision/reroute, flap unknown is immediate, and component discovery is honest.
+Expected: no cross-file mix/collision/reroute, Windows-safe digest paths, flap unknown immediate, component discovery honest across shared/plugin/MCP, union hashes refreshed, and all counts unchanged.
 
 - [ ] **Step 8: Request independent spec review**
 
@@ -2974,18 +3456,18 @@ Stage only `task-10.json` union, byte-verify, review/rerun exact GREEN, then com
 
 **Files**
 
-- Modify: `service/packages/ir/package.json` to depend on `@sfp/shared`; modify `service/pnpm-lock.yaml`.
+- Modify: `service/packages/ir/package.json` with exact runtime dependencies `@sfp/shared:"workspace:*"` and `zod:"4.4.3"`; modify `service/packages/mcp/package.json` to consume `@sfp/ir:"workspace:*"`; modify `service/pnpm-lock.yaml`.
 - Create: `service/packages/ir/src/canonical-json.ts`, `fidelity.ts`, `snapshot-v1.ts`, `snapshot-storage.ts`, `grounding-graph-v1.ts`, `store.ts`, `index.ts` and matching pure tests; IR owns `SnapshotV1` and `SnapshotStoragePort` together and imports no filesystem module.
 - Create snapshot `workspace-snapshot-storage.ts`, `workspace-graph-storage.ts`, `capture-snapshot.ts`, `build-grounding-graph.ts`, `refresh-grounding-graph.ts`; control `snapshot-endpoints.ts`, `grounding-endpoints.ts`.
 - Modify service-operation registry/shared schemas/control route-registry for two reachable routes; the Task7 consumer adapter installs them through Task6.1 facade, with no producer edit.
-- Create strict schema, section, both storage, graph/ref/refresh, progress, service kind/name and router-reachability tests.
+- Create strict schema, locator/Windows-path, section, both loadByLocator storage, complete graph/evidence/ref/refresh/CAS, progress, service kind/name and router-reachability tests.
 
 **Interfaces**
 
 - Consumes: Task 7 empty service-operation seam, immutable policy/path/target-resolved scope, one executor and shared progress/cancel/terminal transport; Task 8 workspace store; Task 10 stable pin. No snapshot type lives in shared.
 - Produces: strict snapshot/graph schemas and storage ports, service2, reachable authenticated routes, kind/name journal, and exact refs/results consumed by Task13; MCP remains112.
 
-**Commit protocol:** `task-11.json` lists every exact IR/package/lock/snapshot/control/registry/index/test path plus manifest/authority; no directory staging.
+**Commit protocol:** `task-11.json` lists exact IR+MCP package manifests, pnpm lock, every IR source/test, snapshot/control/registry/index/test path plus manifest/authority; no directory staging. Both package manifests and the lock are mandatory staged rows.
 
 - [ ] **Step 1: Write canonical hash and section assembly RED**
 
@@ -3030,19 +3512,49 @@ it('records depth and total-section caps with exact plan paths', async () => {
 
 it('returns the SnapshotV1 namespace and checksum from the injected storage port', async () => {
   const result = await captureEndpoint({ workspaceId, nodeIds: ['root'] });
-  expect(result.snapshot.relativePath).toBe(`.sfp/snapshots/v1/${fileIdentityHash}/${result.snapshot.snapshotId}.json`);
+  const fileIdentityDigest = fileIdentityHash.slice('sha256:'.length);
+  expect(result.snapshot.snapshotId).toMatch(/^sfp_snap1_[A-Za-z0-9_-]{22}$/);
+  expect(result.snapshot.relativePath).toBe(`.sfp/snapshots/v1/${fileIdentityDigest}/${result.snapshot.snapshotId}.json`);
   expect(result.snapshot.checksum).toMatch(/^sha256:[0-9a-f]{64}$/);
-  expect(result.graph?.relativePath).toBe(`.sfp/grounding-graphs/v1/${fileIdentityHash}/${result.snapshot.snapshotId}.json`);
+  expect(result.graph?.relativePath).toBe(`.sfp/grounding-graphs/v1/${fileIdentityDigest}/${result.snapshot.snapshotId}.json`);
   expect(result.graphIssue).toBeNull();
   expect(storage.save).toHaveBeenCalledTimes(1);
 });
 
 it('strictly rejects extras and CAS-refreshes one graph ref', async () => {
   expect(SnapshotCaptureArgsSchema.safeParse({ nodeIds: ['root'], extra: true }).success).toBe(false);
-  const result = await groundingRefresh({ snapshotId, fileIdentityHash, expectedGraphChecksum });
+  const result = await invokeService('grounding.refresh', {
+    locator: { workspaceId, snapshotId, fileIdentityHash }, expectedGraphChecksum,
+  }, { workspaceId, targetSelector: { kind: 'none' } });
   expect(result.graph).toMatchObject({ graphId: `grounding:${snapshotId}`, relativePath: graphPath });
   expect(result.staleEdges).toBe(1);
-  expect(graphStore.replace).toHaveBeenCalledWith(expect.anything(), expect.anything(), expectedGraphChecksum, expect.anything(), expect.anything());
+  expect(graphStore.replaceByLocator).toHaveBeenCalledWith(
+    { workspaceId, snapshotId, fileIdentityHash }, expect.anything(), expectedGraphChecksum,
+    expect.anything(), expect.anything(),
+  );
+});
+
+it.each(['wrong-workspace', 'wrong-hash', 'wrong-snapshot-id', 'embedded-identity-mismatch', 'stale-cas'])
+('fails closed on locator/storage mismatch %s', async fault => {
+  await seedLocatorFault(fault);
+  await expect(graphStore.loadByLocator(locatorFor(fault))).rejects.toMatchObject({ code: expect.stringMatching(/LOCATOR|CHECKSUM/) });
+  expect(atomicReplace).not.toHaveBeenCalled();
+});
+
+it.runIf(process.platform === 'win32')('never uses sha256 colon or traversal as a storage segment', async () => {
+  for (const segment of [fileIdentityHash, 'C:evil', '..', '..\\evil', '\\\\server\\share', 'name:stream']) {
+    await expect(snapshotStore.loadByLocator(locatorWithHashSegment(segment))).rejects.toMatchObject({ code: 'SNAPSHOT_LOCATOR_INVALID' });
+  }
+  expect(pathsOpened.every(path => !path.includes('sha256:') && !path.includes('..'))).toBe(true);
+});
+
+it('preserves human evidence byte-for-byte while refreshing automatic evidence', async () => {
+  const before = GroundingGraphV1Schema.parse(graphWithHumanAndAutomaticEvidence());
+  const after = await refreshGraph(before, repoChanges);
+  expect(canonicalHumanEvidence(after)).toEqual(canonicalHumanEvidence(before));
+  expect(after.edges).toEqual(expect.arrayContaining([expect.objectContaining({ state: 'stale' })]));
+  expect(after.graphVersion).toBe(before.graphVersion + 1);
+  expect(() => GroundingGraphV1Schema.parse(graphAboveDeclaredBoundaries())).toThrow();
 });
 
 it('keeps the storage dependency direction IR -> shared and MCP adapter -> IR', async () => {
@@ -3060,7 +3572,7 @@ Expected: IR modules and section reader are absent.
 
 - [ ] **Step 3: Implement canonical schemas/store**
 
-Implement every strict section3.7 schema/type, canonical hashes, SnapshotStoragePort and GraphStoragePort in IR with no fs. MCP adapters use only Task8 WorkspacePolicy/AtomicFileStore/RepoReader, exact namespaces, checksum/CAS atomic create/replace and import-direction gates.
+Implement every strict section3.7 schema/type, SnapshotId/Locator, canonical hashes, SnapshotStoragePort and GraphStoragePort in IR with no fs. MCP adapters use only Task8 WorkspacePolicy/AtomicFileStore/RepoReader, verified digest-only namespaces, embedded identity/workspace/hash/id checks, checksum/CAS atomic create/replace and import-direction gates.
 
 - [ ] **Step 4: Implement bounded section capture**
 
@@ -3068,17 +3580,17 @@ Fetch initial full context through the same immutable `RuntimeExecutionScope`. P
 
 - [ ] **Step 5: Implement grounding graph and stale checks**
 
-Create/persist component/token/icon edges and exact graph ref. Initial capture create-writes snapshot+graph. Refresh verifies snapshot/current graph, checks code refs through RepoReader, preserves human evidence, marks stale, CAS-replaces and returns checked/verified/stale counts without Figma.
+Create/persist strict component/token/icon/design/code nodes and exact edge/evidence/ref contracts. Initial capture create-writes snapshot+graph. Refresh with selector none loads by locator, verifies snapshot/current graph, checks code refs through RepoReader, preserves human evidence byte-for-byte, changes only automatic evidence/state, increments version, CAS-replaces and returns checked/verified/stale counts without Figma.
 
 - [ ] **Step 6: Expose control-only capture**
 
-Register service0→2 with exact policies. Register both routes through Task7 route-registry and final facade install hook; no index/private producer edit or standalone mount. Test schemas/reachability/kind-name/no collision/counts.
+Register service0→2 with `snapshot.capture` required-target and `grounding.refresh` forbidden-target/locator-only policies. Register both routes through Task7 route-registry and final facade install hook; no index/private producer edit or standalone mount. Test both strict dotted names, schemas/reachability/kind-name/no collision/counts; MCP remains112.
 
 - [ ] **Step 7: Run snapshot GREEN**
 
-Run exact lockfile-only/frozen-install/Vitest/typecheck commands shown, `AUTHORITY_GREEN`, `node service/scripts/verify-staged-change-manifest.mjs --slice 11`.
+Run `pnpm -C service install --lockfile-only`; `pnpm -C service install --frozen-lockfile`; `pnpm -C service exec vitest run packages/ir/test packages/mcp/test/snapshot packages/mcp/test/execution/service-operation-name.test.ts packages/mcp/test/execution/service-operation-registry.test.ts packages/mcp/test/control/control-router.test.ts test/tool-contract.test.ts`; `pnpm -C service typecheck`; `AUTHORITY_GREEN`; `node service/scripts/verify-staged-change-manifest.mjs --slice 11`.
 
-Expected: snapshot/graph storage and refresh, strict schemas, progress/cancel/corruption/staleness, router reachability, service registry exact2 kind/name journal/direct-bypass pass; MCP remains112.
+Expected: exact package+lock closure, locator/digest/Windows safety, embedded identity verification, full graph/evidence boundaries, human immutability, CAS/corruption/staleness, progress/cancel, router reachability, service registry exact2 kind/name journal/direct-bypass pass; MCP remains112.
 
 - [ ] **Step 8: Request independent spec review**
 
@@ -3090,13 +3602,13 @@ Reviewer checks recursive work-queue bounds/order/cycles, deterministic merge/ha
 
 - [ ] **Step 10: Commit snapshots**
 
-Stage only `task-11.json` union including IR package+lock/source/tests, shared schemas, snapshot/graph modules, both endpoints, route-registry, service registry/tests and authority; no Task6.1 producer path. Byte-verify, review/rerun GREEN, then commit subject.
+Stage only `task-11.json` union including IR+MCP package manifests, pnpm lock, IR source/tests, shared service-name schema only if its hash changes, snapshot/graph modules, both endpoints, route-registry, service registry/tests and authority; no Task6.1 producer path. Byte-verify, review/rerun GREEN, then commit subject.
 
 ### Task 12 — Atomically add four safe-union tools and reach 116/106/10
 
 **Files**
 
-- Modify: `service/packages/mcp/package.json`, `service/pnpm-lock.yaml` to add `pdf-lib` 1.17.1.
+- Modify: `service/packages/mcp/package.json`, `service/pnpm-lock.yaml` to add exact direct runtime dependency `pdf-lib:"1.17.1"`.
 - Create: `service/packages/mcp/src/execution/pdf-merge.ts`, `export-pool.ts`.
 - Create: `service/packages/mcp/src/tools/export-tokens.ts`, `export-frames-to-pdf.ts`, `doctor.ts`, `import-library-variable.ts`.
 - Create: `service/packages/plugin/src/handlers/import-library-variable.ts`.
@@ -3108,7 +3620,7 @@ Stage only `task-11.json` union including IR package+lock/source/tests, shared s
 - Consumes: Task3/5/7/8/9/10 plus Task11 service registry2. New runtimes cannot alter `snapshot.capture` or `grounding.refresh`.
 - Produces: tools116, handler106/10, execution99/17, kinds23/13/80, maps116, mutation/undo80; service registry remains exact2.
 
-**Commit protocol:** `task-12a.json` lists MCP package+pnpm lock, pdf merge/export pool, four hidden tool modules, PDF fixtures/tests, hidden library handler/test. `task-12b.json` lists exact registry/spec/runtime/policy/result files, plugin registry/contract/fixture/manifest, capability rows and exact tests. Each adds manifest/authority; no directory/glob staging.
+**Commit protocol:** `task-12a.json` lists MCP package+pnpm lock, pdf merge/export pool, four hidden tool modules, PDF fixtures/tests, hidden library handler/test; package+lock are mandatory staged rows after lockfile-only/frozen install. `task-12b.json` lists exact registry/spec/runtime/policy/result files, plugin registry/contract/fixture/manifest, capability rows and exact tests. Each adds manifest/authority; no directory/glob staging.
 
 **Binding subtask/commit boundaries**
 
@@ -3122,10 +3634,10 @@ Stage only `task-11.json` union including IR package+lock/source/tests, shared s
 **Binding subtask execution**
 
 - [ ] **12A RED:** Run `pnpm -C service exec vitest run packages/mcp/test/tools/export-tokens.test.ts packages/mcp/test/tools/export-frames-to-pdf.test.ts packages/mcp/test/tools/doctor.test.ts packages/plugin/test/handlers/import-library-variable.test.ts test/upstream-parity.test.ts`; expect missing adapter modules/fixtures while parity remains112/105/7 and four manifest rows remain planned.
-- [ ] **12A GREEN:** Run exact Vitest command, `pnpm -C service --filter @sfp/mcp build`, `pnpm -C service --filter @sfp/plugin build`, `pnpm -C service typecheck`, `AUTHORITY_GREEN`, `node service/scripts/verify-staged-change-manifest.mjs --slice 12A`; expect hidden surface.
+- [ ] **12A GREEN:** Run `pnpm -C service install --lockfile-only`; `pnpm -C service install --frozen-lockfile`; `pnpm -C service exec vitest run packages/mcp/test/tools/export-tokens.test.ts packages/mcp/test/tools/export-frames-to-pdf.test.ts packages/mcp/test/tools/doctor.test.ts packages/plugin/test/handlers/import-library-variable.test.ts test/upstream-parity.test.ts`; `pnpm -C service --filter @sfp/mcp build`; `pnpm -C service --filter @sfp/plugin build`; `pnpm -C service typecheck`; `AUTHORITY_GREEN`; `node service/scripts/verify-staged-change-manifest.mjs --slice 12A`; expect hidden surface and exact pdf-lib lock closure.
 - [ ] **12A review and commit:** Stage only `task-12a.json` union, byte-verify, review/rerun exact GREEN, commit exact subject.
 - [ ] **12B RED:** Run `pnpm -C service exec vitest run packages/mcp/test/tools/safe-union.test.ts test/tool-contract.test.ts` before registration; expect exact112/105/7 and four planned rows, proving the switch has not partially happened.
-- [ ] **12B GREEN:** Run exact Vitest command, `pnpm -C service build`, `pnpm -C service typecheck`, `AUTHORITY_GREEN`, `node service/scripts/verify-staged-change-manifest.mjs --slice 12B`; expect final counts.
+- [ ] **12B GREEN:** Run `pnpm -C service exec vitest run packages/mcp/test/tools/safe-union.test.ts packages/mcp/test/tools/export-tokens.test.ts packages/mcp/test/tools/export-frames-to-pdf.test.ts packages/mcp/test/tools/doctor.test.ts packages/mcp/test/policy packages/plugin/test/handlers/import-library-variable.test.ts packages/plugin/test/mutation-handler-contract.test.ts test/tool-contract.test.ts test/tool-registry.test.ts`; `pnpm -C service build`; `pnpm -C service typecheck`; `AUTHORITY_GREEN`; `node service/scripts/verify-staged-change-manifest.mjs --slice 12B`; expect final counts and service2 unchanged.
 - [ ] **12B review and commit:** Stage only `task-12b.json` union, byte-verify, review/rerun exact GREEN, commit exact subject.
 
 - [ ] **Step 1: Write atomic-count and new-tool RED**
@@ -3157,6 +3669,9 @@ it('reaches the exact safe-union invariant in one change', () => {
     .toEqual(['figma-read', 'filesystem-write']);
   expect(targetRequirement('doctor', { roundTrip: false })).toBe('optional');
   expect(targetRequirement('doctor', { roundTrip: true })).toBe('required');
+  expect(synthesizeMcpSelector('doctor', {})).toEqual({ kind: 'none' });
+  expect(synthesizeMcpSelector('doctor', { roundTrip: false })).toEqual({ kind: 'none' });
+  expect(synthesizeMcpSelector('doctor', { roundTrip: true })).toEqual({ kind: 'active' });
   expect(targetRequirement('export_tokens', { format: 'json' })).toBe('required');
 });
 ~~~
@@ -3197,7 +3712,7 @@ Use section 3.9 algorithm, pinned session, concurrency two, original index resto
 
 - [ ] **Step 6: Implement doctor and library-variable import**
 
-Doctor checks product magic, role, owner-state security, workspace config, pairing, plugin/session/file identity, editor/capability, version skew, and optional typed round trip without exposing secrets. Library handler validates key, Design/teamlibrary capability, invokes `figma.variables.importVariableByKeyAsync`, returns `PluginHandlerOutcome<ImportLibraryVariableResult>` with explicit `mutated`, and uses operation-ID idempotency. It never calls `commitUndo`; the Task 9 top-level dispatcher commits exactly once only when `mutated:true`.
+Doctor checks product magic, role, owner-state security, workspace config, pairing, plugin/session/file identity, editor/capability, version skew, and optional typed round trip without exposing secrets. `doctor.test.ts` runs leader and follower with plugin connected/disconnected and proves undefined/false synthesizes none and succeeds daemon-only, while true synthesizes active and fails typed when disconnected. Library handler validates key, Design/teamlibrary capability, invokes `figma.variables.importVariableByKeyAsync`, returns `PluginHandlerOutcome<ImportLibraryVariableResult>` with explicit `mutated`, and uses operation-ID idempotency. It never calls `commitUndo`; the Task 9 top-level dispatcher commits exactly once only when `mutated:true`.
 
 - [ ] **Step 7: Atomically register contracts and permission**
 
@@ -3226,7 +3741,9 @@ Run: `git diff --check`, `git log -2 --format="%H %s"`, full Task 12 GREEN/build
 **Files**
 
 - Create: `service/packages/cli/src/index.ts`, `client.ts`, `output.ts`.
+- Modify: `service/packages/cli/package.json` with exact direct dependency `@sfp/shared:"workspace:*"`; modify `service/pnpm-lock.yaml`.
 - Create: command files listed in section 4, including `approve.ts` and `workspace.ts`.
+- Create exact default command `service/packages/cli/src/commands/workspace-set-default.ts` and `service/packages/cli/test/commands/workspace-set-default.test.ts` for `sfp workspaces set-default`.
 - Create: `service/packages/cli/src/commands/grounding.ts` and matching strict command test for `grounding refresh`.
 - Create: `service/packages/cli/src/compat/rust-tool-map.ts`.
 - Create: `service/packages/cli/test/client.test.ts`, `commands/*.test.ts`, `compat-mapping.test.ts`, `fixtures/fake-control-server.ts`.
@@ -3237,7 +3754,7 @@ Run: `git diff --check`, `git log -2 --format="%H %s"`, full Task 12 GREEN/build
 - Consumes: final Task6.1 facade, Task7 tool/service/admin/status, Task8 domains, Task11 snapshot.capture+grounding.refresh, Task12 final authorities. CLI never sends identity/context or redefines wire.
 - Produces: authenticated `ControlClient`; workspace and remote-domain config commands; CLI exit codes 0 healthy, 1 degraded/rejected operation, 2 unavailable/config; command mappings below. CLI is a companion to an active MCP/daemon and never starts a hidden leader.
 
-**Commit protocol:** `task-13.json` lists cli index/client/output, one exact command module+test per command-table row (including status and grounding), compat map/test, fake server, CLI/root package and pnpm lock, manifest/authority. A bijection test rejects a command without exactly one module/test or extra file.
+**Commit protocol:** `task-13.json` lists CLI index/client/output, one exact command module+test per command-table row (including status, workspace set-default, and grounding), compat map/test, fake server, CLI/root package and pnpm lock, manifest/authority. CLI package+lock are mandatory staged rows after lockfile-only/frozen install. A bijection test rejects a command without exactly one module/test or extra file.
 
 **Command contract**
 
@@ -3248,6 +3765,7 @@ Run: `git diff --check`, `git log -2 --format="%H %s"`, full Task 12 GREEN/build
 | `sfp pair` | `POST /control/pair/challenge` | none | prints public Pair ID, eight-digit code, and `SFP-id-code` paste form only to terminal |
 | `sfp workspace add` | `POST /control/workspaces` | path, one-use action nonce | explicit local action; prints workspaceId |
 | `sfp workspace list/remove` | `GET /control/workspaces`, `DELETE /control/workspaces/:id` | remove workspaceId+nonce | removal rejects unsettled references |
+| `sfp workspaces set-default` | `POST /control/workspaces/default` | workspaceId, `workspace.set-default` nonce | selected ID must exist; direct/follower MCP binding persists across restart |
 | `sfp network domains add` | `POST /control/network/domains` | exact three-or-more-label FQDN, nonce | exact equality only; changes owner allowlist, never implicit approval |
 | `sfp network domains list/remove` | `GET /control/network/domains`, `DELETE /control/network/domains/:domain` | remove domain+nonce | empty default; wildcard/IP/public suffix rejected |
 | `sfp approvals list` | pending approvals API | `--json` | redacted summaries |
@@ -3257,7 +3775,7 @@ Run: `git diff --check`, `git log -2 --format="%H %s"`, full Task 12 GREEN/build
 | `sfp operations resolve` | `POST /control/operations/:id/resolve` | ID, `--decision` set to applied, not-applied, or abandoned; reason/evidence file hash; `--confirm <operationId/resultHash-or-unknown>`; nonce | owner-local administrative terminal resolution; no normal approval/OperationRecord and never replay permission |
 | `sfp compat` | manifest/status | `--json` | Rust 73 same/adapter/incompatible/unique-adapter plus helper20/parser12 |
 | `sfp snapshot` | control snapshot capture | `--workspace`, target | ID/path/hash/fidelity |
-| `sfp grounding refresh` | service `grounding.refresh` | workspace/snapshot/file hash; optional expected checksum, null only for create-if-missing | graph ref/hash/time and checked/verified/stale counts |
+| `sfp grounding refresh` | service `grounding.refresh` with selector none | `--workspace`, `--snapshot-id sfp_snap1_…`, `--file-hash sha256:…`; optional expected checksum, null only for create-if-missing | strict `SnapshotLocator`, graph ref/hash/time and checked/verified/stale counts |
 | `sfp tokens export` | `export_tokens` | format, mode, optional outPath | content or approved sandbox path |
 | `sfp pdf export` | `export_frames_to_pdf` | ordered node IDs, outPath | approved create-new PDF and progress |
 | `sfp sel/tree/find` | get_selection/get_design_context/search_nodes | target/query/detail | typed reads only |
@@ -3283,13 +3801,17 @@ it('requires an active authenticated daemon for mutation commands', async () => 
 
 it('maps workspace and network-domain commands to authenticated control routes', async () => {
   await runCli(['workspace', 'add', workspacePath], fakeControl);
+  await runCli(['workspaces', 'set-default', workspaceId], fakeControl);
   await runCli(['network', 'domains', 'add', 'assets.example.com'], fakeControl);
   expect(fakeControl.calls.map(x => [x.method, x.path])).toEqual([
     ['POST', '/control/action-nonces'],
     ['POST', '/control/workspaces'],
     ['POST', '/control/action-nonces'],
+    ['POST', '/control/workspaces/default'],
+    ['POST', '/control/action-nonces'],
     ['POST', '/control/network/domains'],
   ]);
+  expect(fakeControl.calls[0]?.body).toMatchObject({ action: 'workspace.add', registrationPath: workspacePath });
 });
 
 it('reads public health then owner-only control status without public session oracle', async () => {
@@ -3332,11 +3854,11 @@ Read control token from stateRoot; use final Task6.1 public facade only for heal
 
 - [ ] **Step 4: Implement workspace, pairing, and approval commands**
 
-Implement all table rows, terminal-only public Pair ID+code/paste-form display, pending approval list, exact approve/reject, operation issue/list/status/resolve, workspace realpath lifecycle, and exact-host allowlist lifecycle. Before each nonce-protected route, canonicalize the exact semantic request, call `POST /control/action-nonces` with action+requestHash, and use the returned nonce once; do not generate/cache/reuse nonces locally. Mutation wrappers request a server-issued operation ID before dispatch and surface it in accepted/progress/error/output. Operation resolve is an owner-local administrative call that requires the operator to type/paste exact `--confirm <operationId/resultHash-or-unknown>`, hashes the user-provided reason/evidence files locally, requests a bound `operation.resolve` nonce, and never requests ordinary approval or resubmits the original tool. JSON pair output includes challengeId/expiry but redacts code after exchange; control token supplies actor identity and bodies cannot override it.
+Implement all table rows, terminal-only public Pair ID+code/paste-form display, pending approval list, exact approve/reject, operation issue/list/status/resolve, workspace realpath/default lifecycle, and exact-host allowlist lifecycle. Before each nonce-protected route, canonicalize the exact semantic request, call `POST /control/action-nonces`, and use the returned nonce once; do not generate/cache/reuse nonces locally. Workspace add computes `{realPath}`, but sends strict `{action:'workspace.add',requestHash,registrationPath}` so the server independently binds/revalidates identity. Workspace set-default hashes `{workspaceId}` and calls the exact route. Mutation wrappers request a server-issued operation ID before dispatch and surface it in accepted/progress/error/output. Operation resolve is an owner-local administrative call that requires exact `--confirm <operationId/resultHash-or-unknown>`, hashes reason/evidence locally, requests a bound nonce, and never resubmits the original tool. JSON pair output includes challengeId/expiry but redacts code after exchange; control token supplies actor identity and bodies cannot override it.
 
 - [ ] **Step 5: Implement snapshot/export/read/write wrappers**
 
-Use typed tool/service endpoints. Snapshot obtains operationId and calls snapshot.capture; grounding refresh hashes/validates the expected graph ref and calls grounding.refresh with selector none; wrappers print strict result fields. No wrapper owns mutation/progress/cancel state machines.
+Use typed tool/service endpoints. Snapshot obtains operationId and calls `snapshot.capture`; grounding refresh strict-parses `SnapshotLocator {workspaceId,fileIdentityHash,snapshotId}`, validates the expected graph checksum, and calls `grounding.refresh` with matching request workspaceId and selector none. Wrappers print strict result fields. No wrapper owns mutation/progress/cancel state machines.
 
 - [ ] **Step 6: Implement compatibility output**
 
@@ -3344,7 +3866,7 @@ Report canonical116/source114/helper20/parser12, source/target schema hashes, Mo
 
 - [ ] **Step 7: Run CLI GREEN**
 
-Run `pnpm -C service exec vitest run packages/cli/test`, `pnpm -C service --filter @sfp/cli build`, `node service/packages/cli/dist/index.mjs --help`, `pnpm -C service install --frozen-lockfile`, `AUTHORITY_GREEN`, `node service/scripts/verify-staged-change-manifest.mjs --slice 13`.
+Run `pnpm -C service install --lockfile-only`, `pnpm -C service install --frozen-lockfile`, `pnpm -C service exec vitest run packages/cli/test`, `pnpm -C service --filter @sfp/cli build`, `node service/packages/cli/dist/index.mjs --help`, `AUTHORITY_GREEN`, `node service/scripts/verify-staged-change-manifest.mjs --slice 13`.
 
 Expected: command table, approval/workspace/auth/progress/CJK/emoji/Windows path tests pass and help lists no exec.
 
@@ -3432,19 +3954,19 @@ Stage only `task-14.json` union, byte-verify, review/rerun GREEN, commit exact s
 
 **Files**
 
-- Modify: `service/package.json`, package manifests/files/bin/export maps, lockfile, hygiene files from Task 1.
+- Modify: `service/package.json`, package manifests/files/bin/export maps, `service/pnpm-lock.yaml`, hygiene files from Task1; add exact root devDependency `happy-dom:"20.11.11"` for the root built-consumer test and no YAML dependency.
 - Modify: `service/packages/mcp/tsdown.config.ts` and `service/packages/cli/tsdown.config.ts` to bundle internal workspaces; generate packed manifests without private workspace runtime dependencies.
 - Create: `.github/workflows/service-ci.yml`, `.github/workflows/service-release.yml`.
 - Create: `service/scripts/generate-sbom.mjs`, `generate-notices.mjs`, `package-artifacts.mjs`, `generate-checksums.mjs`, `verify-artifacts.mjs`, `smoke-installed-mcp.mjs`.
 - Create/modify: `service/THIRD_PARTY_NOTICES.md`, `PROVENANCE.md`, `SBOM.spdx.json`.
-- Create: `service/test/artifact-contents.test.ts`, `plugin-built-consumer.test.ts`, `workflow-hygiene.test.ts`, and RED-only fixture.
+- Create: `service/test/artifact-contents.test.ts`, `service/test/plugin-built-consumer.test.ts`, `service/test/workflow-hygiene.test.ts`, and RED-only fixture; modify `service/test/bootstrap.test.ts` to assert both ordinary exclusions, exact `test:artifacts`, and verify:release order.
 
 **Interfaces**
 
 - Consumes: Task 2 offline provenance, Task 12 final manifest and pdf-lib dependency, Task 14 docs/skills.
 - Produces: one umbrella `package-artifacts.mjs` producer for deterministic `service/artifacts/mcp.tgz`, `cli.tgz`, and `plugin.zip`; `service/artifacts/manifest.json` with relative paths/build identities/SHA-256 values; SPDX SBOM/notices; checksums; CI/release workflows; one-command `verify:release` hard gate.
 
-**Commit protocol:** `task-15.json` enumerates both workflows; root plus shared/ir/mcp/plugin/cli package.json; pnpm lock; any changed `.editorconfig`, `.gitattributes`, `.gitignore`, `.node-version`, `.npmrc`, `knip.json`, `.oxlintrc.json`, `.oxfmtrc.json`, root tsconfig/vitest/pnpm-workspace; MCP+CLI tsdown configs; six packaging scripts; licenses/LICENSE/notices/provenance/SBOM; artifact/plugin/workflow tests and RED fixture; manifest/authority. Generated artifacts remain ignored.
+**Commit protocol:** `task-15.json` enumerates both workflows (repo-root class4); root plus shared/ir/mcp/plugin/cli package.json; pnpm lock; any changed hygiene/config; MCP+CLI tsdown configs; the same six packaging scripts; licenses/LICENSE/notices/provenance/SBOM; bootstrap+artifact/plugin/workflow tests and RED fixture; manifest/authority. Root package+lock are mandatory staged rows after lockfile-only/frozen install. Generated artifacts remain ignored. The isolated plugin staging root/order/content from the prior ruling is unchanged.
 
 - [ ] **Step 1: Write artifact-content RED**
 
@@ -3482,7 +4004,7 @@ Expected: the runnable RED harness creates all three baseline archives, then con
 
 - [ ] **Step 3: Implement actual artifact assembly**
 
-Set MCP `alwaysBundle=['@sfp/shared','@sfp/ir']`, CLI `alwaysBundle=['@sfp/shared']`; packed manifests contain no private/workspace runtime dependency. Clean `.staging/mcp-package` and `cli-package` contain dist, sanitized package.json, README, LICENSE, notices, provenance, SBOM, three licenses and three capability ledgers with exact files arrays. `npm pack` each by argv, normalize names, independently install with fresh cache, run npm-ls/installed-bin smokes and reject workspace paths. Record final Task6.1 public facade build identity; preserve legal/provenance/Solar/raw-exec/code-kb absence gates.
+Set MCP `alwaysBundle=['@sfp/shared','@sfp/ir']`, CLI `alwaysBundle=['@sfp/shared']`; packed manifests contain no private/workspace runtime dependency. `package-artifacts.mjs --clean-only` resolves and verifies exact targets under `service/artifacts/`, removes only prior mcp.tgz/cli.tgz/plugin.zip/manifest/checksum outputs plus `artifacts/.staging`, and exits before build/pack; it never accepts a caller path. Normal mode creates clean `.staging/mcp-package` and `cli-package` with dist, sanitized package.json, README, LICENSE, notices, provenance, SBOM, three licenses and three capability ledgers with exact files arrays. `npm pack` each by argv, normalize names, independently install with fresh cache, run npm-ls/installed-bin smokes and reject workspace paths. Record final Task6.1 public facade build identity; preserve legal/provenance/Solar/raw-exec/code-kb absence gates.
 
 Plugin staging root is exactly `service/artifacts/.staging/plugin-package/` and contains only `manifest.json`, `dist/code.js`, `dist/index.html`, `README.md`, `LICENSE`, `THIRD_PARTY_NOTICES.md`, `PROVENANCE.md`, `SBOM.spdx.json`, three `licenses/*-LICENSE`, and all three capability ledgers (`union-manifest.json`, `rust-tool-compat.json`, `figmosha-feature-map.json`) under `capabilities/`. Manifest main/ui targets must exist. Copy built bytes only; no source/map/temp. Normalize repo path order, modes and `SOURCE_DATE_EPOCH` from release commit; fixed author/committer; create isolated one-commit repo and `git archive` so two clean builds have identical file list/timestamps/ZIP SHA.
 
@@ -3496,13 +4018,13 @@ Create immutable-digest CI and release-candidate draft jobs. Task15 GA protected
 
 - [ ] **Step 5: Verify upstream and package contents offline**
 
-Run exact GREEN: clear only generated artifacts; `pnpm -C service verify:release`; `pnpm -C service exec vitest run test/artifact-contents.test.ts test/plugin-built-consumer.test.ts test/workflow-hygiene.test.ts`; `AUTHORITY_GREEN`; `node service/scripts/verify-staged-change-manifest.mjs --slice 15`. Verify internal order and isolated installs.
+Run exact GREEN: `pnpm -C service install --lockfile-only`; `pnpm -C service install --frozen-lockfile`; `pnpm -C service verify:release`; `pnpm -C service exec vitest run test/workflow-hygiene.test.ts`; `AUTHORITY_GREEN`; `node service/scripts/verify-staged-change-manifest.mjs --slice 15`. `verify:release` itself executes clean-only → ordinary verify with both artifact suites excluded → SBOM/notices → production package-artifacts → checksums → exact `test:artifacts` containing artifact-contents+plugin-built-consumer → verify-artifacts. No artifact test is invoked before production.
 
 Expected: canonical/source ledgers, handler106/10, execution99/17, service2, plugin parity, Motion/video, legal/SBOM/provenance/checksums and isolated installs.
 
 - [ ] **Step 6: Run workflow hygiene checks**
 
-Run exact `pnpm -C service exec vitest run test/workflow-hygiene.test.ts`; it parses both workflow YAML files and rejects floating refs, excess permissions, non-frozen installs, missing protected GA environment or wrong working-directory. Optional actionlint/zizmor may add evidence but cannot replace this gate.
+Run exact `pnpm -C service exec vitest run test/workflow-hygiene.test.ts`. The test uses a dependency-free local indentation/scalar reader over the project's deliberately restricted workflow subset: UTF-8 LF, spaces in multiples of two, plain/single/double scalar keys, sequences, and mappings only. It rejects anchors/aliases/tags, flow collections, merge keys, directives, block scalars, duplicate keys, tabs, or any unparsed noncomment line; then checks exact `uses`, permissions, install commands, environment, and working-directory nodes. Thus it imports no YAML package while still rejecting floating refs, excess permissions, non-frozen installs, missing protected GA environment or wrong working-directory. Optional actionlint/zizmor may add evidence but cannot replace this gate.
 
 - [ ] **Step 7: Request independent spec review**
 
@@ -3520,21 +4042,23 @@ Stage only `task-15.json` union, byte-verify, review/rerun exact GREEN, then com
 
 **Files**
 
-- Create evidence schema/validator/release check/acceptance/install/sign/verify scripts and tests; modify `.github/workflows/service-release.yml` to replace Task15 fail-closed placeholder with shared validator gate.
-- Modify: desktop acceptance doc, `service/package.json`, `service/pnpm-lock.yaml`; add direct root devDependency exact `ajv:8.17.1`.
+- Create: `service/schemas/acceptance-evidence-v1.schema.json`, `acceptance-attestation-v1.schema.json`, `source-complete-preview-v1.schema.json`; `service/scripts/acceptance-evidence-validator.mjs`, `desktop-acceptance.mjs`, `install-release-artifacts.mjs`, `sign-evidence.mjs`, `verify-evidence-signature.mjs`, `release-evidence-check.mjs`; `service/test/acceptance-harness.test.ts`, `evidence-schema-draft.test.ts`, `acceptance-live-diagnostic.test.ts`.
+- Create tracked marker `service/docs/evidence/source-complete-preview.v1.json`; modify exact desktop acceptance doc `service/docs/desktop-acceptance.md`.
+- Modify `.github/workflows/service-release.yml` to replace Task15 fail-closed placeholder with the shared validator gate.
+- Modify `service/package.json`, `service/pnpm-lock.yaml`; add exact direct root devDependency `ajv:"8.17.1"`.
 
 **Interfaces**
 
 - Consumes: Task 13 CLI/control API and Task 15 build/artifact hashes.
-- Produces: `AcceptanceEvidenceV1` and `AcceptanceAttestationV1`, checksum-verified temporary packed-artifact installer/launcher, fake-control harness tests, live runner that returns typed `PLUGIN_NOT_CONNECTED`, detached Ed25519 evidence signatures, source-complete preview marker `releaseStatus:'blocked-external-evidence'`, and nonzero exit on any GA-blocking live check.
+- Produces: section3.13 `AcceptanceEvidenceV1`/`AcceptanceAttestationV1`, OS-exact blocking IDs, schema→hash→fingerprint→Ed25519 verification, checksum-verified temporary packed-artifact installer/launcher, fake-control harness tests, diagnostic child wrapper for typed nonzero `PLUGIN_NOT_CONNECTED`, tracked source-complete marker, and nonzero raw runner exit on any GA-blocking live check.
 
-**Commit protocol:** `task-16.json` names release workflow, schema/validator/release-check/harness/sign/install/docs/package/lock/tests plus manifest/authority.
+**Commit protocol:** `task-16.json` names the repo-root release workflow as class4; all three schemas, validator, release-check, harness/install/sign/verify scripts, exact three tests, desktop doc, tracked marker, root package+lock, manifest and service authority by their section6.2 classes. Marker is class1 serviceOwned; temporary acceptance/artifact/private-key paths are ignored and absent. Package+lock are mandatory staged rows after lockfile-only/frozen install.
 
 - [ ] **Step 1: Write evidence-schema and fake-runner RED**
 
 ~~~ts
 it('rejects PASS evidence without build hashes or operator', () => {
-  expect(EvidenceSchema.safeParse({ schemaVersion: 1, status: 'pass' }).success).toBe(false);
+  expect(() => assertAcceptanceEvidence({ schemaVersion: 1, status: 'pass' })).toThrow();
 });
 
 it('redacts file names, text, URLs and node contents from evidence', async () => {
@@ -3544,8 +4068,15 @@ it('redacts file names, text, URLs and node contents from evidence', async () =>
 
 it('rejects evidence whose detached signature or packed artifact hash does not verify', async () => {
   const signed = await signFixture(validEvidence, localTestKey);
-  signed.evidence.artifacts.mcpSha256 = 'tampered';
-  await expect(verifyEvidence(signed)).rejects.toMatchObject({ code: 'EVIDENCE_SIGNATURE_INVALID' });
+  signed.evidence.artifacts.mcpSha256 = 'f'.repeat(64);
+  await expect(verifyEvidence(signed)).rejects.toMatchObject({ code: 'EVIDENCE_HASH_MISMATCH' });
+});
+
+it('rejects malformed hash at schema validation before signature work', async () => {
+  const malformed = structuredClone(validEvidence);
+  malformed.artifacts.mcpSha256 = 'tampered';
+  expect(() => assertAcceptanceEvidence(malformed)).toThrow();
+  expect(signatureVerifier).not.toHaveBeenCalled();
 });
 
 it('uses one strict Ajv 2020 validator in runner, signer, verifier and release path', async () => {
@@ -3554,17 +4085,31 @@ it('uses one strict Ajv 2020 validator in runner, signer, verifier and release p
   expect(await importedValidatorModules()).toEqual(['desktop-acceptance', 'sign-evidence', 'verify-evidence-signature', 'release-evidence-check']);
   expect(() => compileFixture({ ...schema, unknownKeyword: true })).toThrow();
 });
+
+it.each(['windows', 'macos'] as const)('requires exact unique blocking IDs for %s', os => {
+  const evidence = validEvidenceFor(os);
+  expect(evidence.checks.map(check => check.id)).toEqual(REQUIRED_BLOCKING_CHECK_IDS[os]);
+  expect(new Set(evidence.checks.map(check => check.id)).size).toBe(16);
+  expect(() => assertAcceptanceEvidence(withDuplicateOrMissingCheck(evidence))).toThrow();
+  expect(() => assertAcceptanceEvidence({ ...evidence, waived: true })).toThrow();
+});
+
+it('diagnostic wrapper treats expected raw live failure as a passing test', async () => {
+  const child = await spawnAcceptanceChild(['--require-live', '--json'], { pluginConnected: false });
+  expect(child.exitCode).not.toBe(0);
+  expect(JSON.parse(child.stderr)).toMatchObject({ code: 'PLUGIN_NOT_CONNECTED' });
+});
 ~~~
 
 - [ ] **Step 2: Run harness RED**
 
-Run: `pnpm -C service exec vitest run test/acceptance-harness.test.ts test/evidence-schema-draft.test.ts`.
+Run: `pnpm -C service exec vitest run test/acceptance-harness.test.ts test/evidence-schema-draft.test.ts test/acceptance-live-diagnostic.test.ts`.
 
 Expected: evidence schema and runner modules are absent.
 
 - [ ] **Step 3: Implement AcceptanceEvidenceV1**
 
-Set root devDependency exact `"ajv":"8.17.1"`; validator imports `Ajv2020` from `ajv/dist/2020.js`, compiles draft2020-12 once with strict/allErrors and explicit format policy, freezes `validateEvidence`. Every object schema has `additionalProperties:false`; unknown keywords/fields and wrong draft fail tests. Runner/signer/verifier/release-check import only it.
+Set root devDependency exact `"ajv":"8.17.1"`; validator imports `Ajv2020` from `ajv/dist/2020.js`, compiles all three section3.13 draft2020-12 schemas once with strict/allErrors and explicit format policy, and freezes `assertAcceptanceEvidence`/`assertAcceptanceAttestation`/`assertSourceCompletePreview`. Every object schema has `additionalProperties:false`; unknown keywords/fields and wrong draft fail tests. Runner/signer/verifier/release-check/marker writer import only this module; there is no `safeParse` API.
 
 - [ ] **Step 4: Implement fake-control acceptance flow**
 
@@ -3572,13 +4117,13 @@ Exercise both service kind/names including graph refresh/result, status, actor/a
 
 - [ ] **Step 5: Implement packed-artifact install, launch, and evidence signing**
 
-Keep isolated verified install/launch/signing flow. Every evidence read validates with the shared Ajv module before hash/signature checks; signer refuses invalid input, verifier validates before and after canonical decode, and release job calls the same module.
+Keep isolated verified install/launch/signing flow. Implement exact section3.13 canonical bytes, OS ID sets, artifact/operator/key fingerprint fields, Ed25519 algorithm, and schema→hash→fingerprint→signature→blocking-ID order. Every evidence/attestation read validates with the shared Ajv module; signer refuses invalid input, verifier validates before canonical hashing, and release job calls the same module.
 
 - [ ] **Step 6: Run harness GREEN and mark source-complete preview**
 
-Run `pnpm -C service install --lockfile-only`; `pnpm -C service install --frozen-lockfile`; `pnpm -C service exec vitest run test/acceptance-harness.test.ts test/evidence-schema-draft.test.ts`; `pnpm -C service desktop:acceptance -- --require-live`; `AUTHORITY_GREEN`; `node service/scripts/verify-staged-change-manifest.mjs --slice 16`.
+Run `pnpm -C service install --lockfile-only`; `pnpm -C service install --frozen-lockfile`; `pnpm -C service exec vitest run test/acceptance-harness.test.ts test/evidence-schema-draft.test.ts test/acceptance-live-diagnostic.test.ts`; `AUTHORITY_GREEN`; `node service/scripts/verify-staged-change-manifest.mjs --slice 16`.
 
-Expected: fake/signature/artifact-tamper tests PASS; live command reaches the domain and exits nonzero with `PLUGIN_NOT_CONNECTED` plus pairing instructions—not script/module missing. Generate `source-complete-preview.json` with implementation/release statuses, Task 15 artifact hashes, harness result hash, and timestamp. Tasks 1–16 may now report implementation status `source-complete-preview` and release status `blocked-external-evidence`; they do not claim GA.
+Expected: fake/schema/signature/valid-hex-tamper/malformed-hash/ID-set tests pass. The diagnostic wrapper spawns the raw `--require-live` child, asserts its nonzero exit and typed `PLUGIN_NOT_CONNECTED`, then the Vitest wrapper exits zero; the raw command is never a GREEN command. Generate and schema-check tracked `service/docs/evidence/source-complete-preview.v1.json` with implementation/release statuses, all four Task15 artifact/manifest hashes, harness result hash, and timestamp. Tasks1–16 may report source-complete/release-blocked, never GA.
 
 - [ ] **Step 7: Request independent spec review**
 
@@ -3590,13 +4135,13 @@ Reviewer checks redaction, schema validation, exit propagation, partial evidence
 
 - [ ] **Step 9: Commit acceptance harness**
 
-Stage only `task-16.json` union including package+pnpm lock and validator/schema tests; byte-verify, review/rerun exact GREEN, commit subject.
+Stage only the exact `task-16.json` union including schemas, all named scripts/tests/doc/marker, package+pnpm lock, repo-root workflow, manifest and correctly classified authority; byte-verify, review/rerun exact GREEN, commit subject.
 
 ### Task 17 — Record blocking Windows Figma Design evidence
 
 **Files**
 
-- Create: `service/docs/evidence/windows-desktop-v0.1.json`, `.sig`, and `windows-owner.pub.pem` after a successful run.
+- Create: `service/docs/evidence/windows-desktop-v0.1.json`, `windows-desktop-v0.1.sig` containing strict `AcceptanceAttestationV1` JSON, and `windows-owner.pub.pem` after a successful run.
 - Do not create: Figma file exports, screenshots, tokens, pairing codes, URLs, or design text in the repository.
 
 **Interfaces**
@@ -3628,7 +4173,7 @@ Import the exact release ZIP from `release-install.json`, enter Pair ID+eight-di
 
 Run: `node service/scripts/sign-evidence.mjs --evidence service/docs/evidence/windows-desktop-v0.1.json --state-root auto --signature service/docs/evidence/windows-desktop-v0.1.sig --public-key service/docs/evidence/windows-owner.pub.pem`, then `node service/scripts/verify-evidence-signature.mjs --evidence service/docs/evidence/windows-desktop-v0.1.json --signature service/docs/evidence/windows-desktop-v0.1.sig --public-key service/docs/evidence/windows-owner.pub.pem`, `pnpm -C service exec vitest run test/acceptance-harness.test.ts`, and `pnpm -C service verify:release`.
 
-Expected: all blocking Windows check IDs PASS, `waived:false`, artifact hashes match, full release gate remains green.
+Expected: checks equal `REQUIRED_BLOCKING_CHECK_IDS.windows` in exact order with 16 unique PASS rows, `waived:false`, artifact/operator/key fingerprints match, attestation verifies, full release gate remains green.
 
 - [ ] **Step 6: Request independent spec review**
 
@@ -3646,7 +4191,7 @@ Run: `git diff --check`, then `git add service/docs/evidence/windows-desktop-v0.
 
 **Files**
 
-- Create: `service/docs/evidence/macos-desktop-v0.1.json`, `.sig`, and `macos-owner.pub.pem` after a successful run.
+- Create: `service/docs/evidence/macos-desktop-v0.1.json`, `macos-desktop-v0.1.sig` containing strict `AcceptanceAttestationV1` JSON, and `macos-owner.pub.pem` after a successful run.
 - Do not create: Figma file exports, screenshots, tokens, pairing codes, URLs, or design text in the repository.
 
 **Interfaces**
@@ -3678,7 +4223,7 @@ Repeat every Task 17 check using the exact release checksums. Verify macOS Appli
 
 Run: `node service/scripts/sign-evidence.mjs --evidence service/docs/evidence/macos-desktop-v0.1.json --state-root auto --signature service/docs/evidence/macos-desktop-v0.1.sig --public-key service/docs/evidence/macos-owner.pub.pem`, then `node service/scripts/verify-evidence-signature.mjs --evidence service/docs/evidence/macos-desktop-v0.1.json --signature service/docs/evidence/macos-desktop-v0.1.sig --public-key service/docs/evidence/macos-owner.pub.pem`, `pnpm -C service exec vitest run test/acceptance-harness.test.ts`, and `pnpm -C service verify:release`.
 
-Expected: all blocking macOS IDs PASS, `waived:false`, hashes match, and both OS evidence files identify the same service artifact checksums.
+Expected: checks equal `REQUIRED_BLOCKING_CHECK_IDS.macos` in exact order with 16 unique PASS rows, `waived:false`, attestation verifies, and both OS evidence files identify the same service artifact checksums.
 
 - [ ] **Step 6: Request independent spec review**
 
@@ -3712,12 +4257,12 @@ Run: `git diff --check`, then `git add service/docs/evidence/macos-desktop-v0.1.
 - Motion7 and video1 are present as experimental-native in registry, runtime, policies, docs, and artifacts.
 - Selection/context/screenshot/component-token-icon grounding and typed writes pass unit/process/fake-control acceptance; Tasks 17/18 separately prove live editable Design.
 - `export_tokens`, ordered `export_frames_to_pdf`, `doctor`, and `import_library_variable` pass focused/process/harness capability tests; GA evidence records live positive or typed capability-negative outcomes.
-- CLI includes strict authenticated status and grounding refresh plus prior wrappers.
+- CLI includes strict authenticated status, workspace set-default, and locator-based grounding refresh plus prior wrappers.
 - All tools and Task11 service2 enter one plane; followers consume only final Task6.1 plaintext stream facade; route classes cannot cross-call.
-- Strict tool/service/cancel requests produce native pre-admission rejection or accepted/progress/exactly-one-terminal; no Relay/runtime bypass. Snapshot journal rows are kind service/name snapshot.capture outside116.
-- Task9 real plugin and Task15 packed plugin consume Task7 progress/cancel schemas with listener cleanup, exact frame cap, and parity; Task7 fake alone is insufficient.
-- SnapshotV1/GroundingGraphV1 use strict schemas, separate exact namespaces/ports/refs/checksums/content hashes and atomic capture/refresh; grounding refresh is code-only CAS service with exact CLI result.
-- Snapshot storage uses only the injected port and `.sfp/snapshots/v1/{fileIdentityHash}/{snapshotId}.json`; recursive fidelity distinguishes expanded plans, complete leaves, failed/cycle/depth/cap issues with stable path/order.
+- Strict lower-snake tool and exact dotted service-name parsers feed one kind/name registry+journal; both service literals and invalid dot/slash/case/length/cross-kind fixtures pass. Requests produce native pre-admission rejection or accepted/progress/exactly-one-terminal with no Relay/runtime bypass.
+- Task9A real plugin and Task15 packed plugin consume Task7 progress/cancel schemas; Task9C consumes strict bound approval prompt/decision with duplicate/reconnect/late cleanup and no control token. Task7 fakes alone are insufficient.
+- SnapshotV1/GroundingGraphV1 use strict locator/full-identity/node/edge/evidence schemas, separate injected ports/refs/checksums/content hashes and atomic loadByLocator/CAS refresh; service2 remains exact and grounding refresh is selector-none locator-only.
+- Snapshot/graph/design-diff storage validates wire `sha256:` then uses only extracted 64-hex digest segments, including on Windows. Recursive fidelity and full graph boundaries/human-evidence immutability pass.
 - Skills distinguish code AST scan from Figma component discovery and do not claim deterministic reverse compilation.
 
 ### Security and Reliability
@@ -3729,22 +4274,22 @@ Run: `git diff --check`, then `git add service/docs/evidence/macos-desktop-v0.1.
 - Task6.1 outer response records independently authenticate seq/final/truncated+ciphertext with exact 16+16 overhead, 4096 records, 64MiB plaintext/cipher and 67,239,936 complete cap; Task7 never parses them.
 - One owner key derives one stable actor for MCP leader/follower/control. A 128-bit MCP session exists before role choice and its auth1 HMAC survives role transitions; control auth1 changes on rotation; no raw credential is an ID. Cancel requires origin auth session; owner-admin control may list/status/resolve across same-owner domains and records origin/resolver; foreign stateRoot fails.
 - Unix owner modes and Windows current-user DACL are verified; insecure stateRoot startup fails closed.
-- `stateRoot` and `workspaceRoots` are distinct; workspace add/list/remove is authenticated and every project read/write is sandboxed per path.
-- Nonce routes use server-issued 256-bit values bound actor/generation/action/exact semantic hash for 120,000 ms; caps1024/524288, no live eviction, CAS after validation, restart/generation invalidation. Path hash uses exact resolved canonical UTF-8 bytes without Unicode normalization; FQDN uses exact ASCII. CLI issues, never invents; approvals keep exact-once IDs.
+- `stateRoot` and `workspaceRoots` are distinct; workspace add/list/remove/default is authenticated. Filesystem-requiring direct/follower MCP uses explicit default, sole-root fallback, or typed zero/multiple failure—never first root or body/_meta override; Figma-only calls remain workspace null.
+- Nonce routes use server-issued 256-bit values bound actor/generation/action/exact semantic hash for 120,000 ms; workspace-add additionally stat/directory/realpath/identity-binds at issue and revalidates immediately before CAS. Caps1024/524288, no live eviction, restart/generation invalidation pass. CLI issues, never invents.
 - Null Origin alone never authenticates a plugin. Foreign product/2xx never becomes leader. Unknown role never forwards args.
-- Body identity/context is rejected. Path args resolve metadata/realpath into PolicyInvocationContext before effects with no content/network/runtime. TargetRequirement exact forbidden/optional/required rules pass; target/key derive from authenticated Relay, deep-freeze, no filename fallback/reroute.
+- Body identity/context is rejected. Path args resolve metadata/realpath into PolicyInvocationContext before effects with no content/network/runtime. MCP synthesizes forbidden→none, required→active, optional→none only after strict args/TargetRequirement; ping and doctor false/undefined are none, doctor true active, with leader/follower connected/disconnected parity. Target/key derive from authenticated Relay, deep-freeze, no filename fallback/reroute.
 - Dynamic effects distinguish data/URL, content/outPath, overwrite/create-new, read/write, library import, and experimental heavy operations.
 - Destructive, filesystem-write/overwrite, network, library-import, and broad-write actions receive the required explicit approval. Inside-root filesystem reads follow workspace/sensitivity policy without being mislabeled as writes.
 - Per-file queue serializes same file across sessions; different file identities can progress independently within read/heavy limits.
-- Same `(actorId,operationId,kind,name,args,workspace,file)` applies once across role/control rotation; mismatch conflicts. Persisted success settles runtime-zero; cancel remains origin-session bound.
+- Same `(actorId,operationId,kind,name,args,workspace,file)` applies once across role/control rotation; mismatch conflicts. Cache replay returns only previously redacted wire bytes after current consent fingerprint reauthorization; mode/ID/class/policy expiry/change is payload-free settled with audit. Persisted success settles runtime-zero; cancel remains origin-session bound.
 - Operation IDs are server-issued/HMAC-bound to owner actor and issuedAt; age `>=2,592,000,000 ms` is expired, future skew `<=300,000 ms` allowed and above invalid, all runtime zero at rejection.
 - Capacity→durable pending→approval→pre-egress reserve fsync→queue→dispatched fsync→first side effect→classification→egress finalizer fsync→terminal fsync→frame ordering and every crash boundary pass. Post-dispatch loss is unknown, never replay.
 - Journal compacts active transitions at 8,000 rows/24 MiB, stops normal operation appends at 10,000 rows or 31 MiB, reserves the final exact 1 MiB of its 32 MiB active allocation for fsynced resolution intents, moves ordinary terminal records to a separate 1,000,000-entry/256 MiB tombstone index through each signed 30-day horizon, rejects older IDs from signed issuedAt after purge, and keeps status/resolution/purge routes available to unblock capacity/workspaces.
 - Authenticated owner-local operation issue/list/status/resolve and CLI commands record actor/auth/confirmation/reason/evidence hashes without normal approval. A confirmed resolution is an authoritative reserved no-replay tombstone even when the ordinary tombstone index is full; resolved-applied/resolved-not-applied/abandoned release unresolved workspace/cap accounting, while reserve-full fails typed and leaves state unchanged.
-- Effects/approval and exact `classifyInput`/possible-result preflight occur before queue/runtime; disallowed external/unknown classes yield runtime zero. Strict result validation and `classifyResult` occur afterward, actual classes must fit the preflight upper bound, and audit contains no raw code/design/image/secret payload.
+- Effects/approval and exact `classifyInput`/possible-result preflight occur before queue/runtime; disallowed external/unknown classes yield runtime zero. Paired approval-control frames are allowed while runtime is forbidden and bind actor/session/generation/target/hash/120s TTL with one CAS. Strict result validation and `classifyResult` occur afterward; audit/cache contains no raw code/design/image/secret payload.
 - Egress canonical hash excludes its own hash field. Every durable reservation finalizes once as output/no-output/unknown; capacity releases only after finalizer fsync. Restart/double/conflict/crash, truncated-tail/mid-corruption, raw-free tests pass.
 - All section3.12 below/exact/above fixtures pass for horizons/skew/nonces/journal/egress/progress/pair/follower/control/MCP/WS/images/video/cache plus declared/chunked predecode runtime-zero and active operation/subscriber/raw-args admission.
-- Owner256/session64/subscriber8+256/rawArgs8MiB+64MiB and request/name/workspace/selector string rows are explicit; large logical capacity uses sparse counter seams while transport tests use real bytes.
+- Owner256/session64/subscriber8+256/rawArgs8MiB+64MiB and request/tool/service/workspace/22-char Base64Url128 selector rows are explicit; generated underscore, approval TTL, snapshot/graph/path boundaries pass. Large logical capacity uses sparse counters while transport uses real bytes.
 - Bounded demotion is single-flight/awaited: 5,000 ms absolute, 1,000 ms drain, generation fence and durable unknown/finalizers before destroy/port release; durability failure retains port.
 - URL import validates approval, HTTPS, every DNS/redirect hop, address ranges, domain, MIME/signature, and streamed size in the daemon. Plugin external URL fetch and wildcard permission are absent.
 - URL connections are pinned to the vetted IP with original Host/SNI/certificate verification and secureConnect remoteAddress check; every redirect re-resolves. The default allowlist is empty and v0.1 accepts exact three-or-more-label ASCII FQDN equality only—no wildcard, suffix/subdomain rule, apex two-label host, or PSL dependency.
@@ -3756,12 +4301,12 @@ Run: `git diff --check`, then `git add service/docs/evidence/macos-desktop-v0.1.
 ### Quality and Release
 
 - Frozen install, typecheck, lint, format check, knip, build, unit, integration, process E2E, artifact, and docs-sync tests pass on Ubuntu and Windows CI.
-- Every Tasks8–16 subcommit has an exact staged-byte change manifest, authority trio, GREEN and same-tree reviews; 9B separately freezes regenerated78 handler path/hash rows.
+- Every Tasks8–16 subcommit has an exact staged-byte change manifest, four-class authority handling, GREEN and same-tree reviews; 9B separately freezes 78 tool rows over 77 unique paths with only lock/unlock sharing one path.
 - Built-dist E2E cannot silently skip in CI/release.
-- `verify:release` runs verify/build → SBOM → notices → umbrella `package-artifacts.mjs` → checksums → artifact tests/verifier, producing and inspecting MCP/CLI tarballs and plugin ZIP from a clean artifact directory.
+- `verify:release` runs clean-only → ordinary verify with both artifact suites excluded → SBOM → notices → umbrella `package-artifacts.mjs` → checksums → exact two-file artifact tests → verifier, producing and inspecting MCP/CLI tarballs and plugin ZIP only after production.
 - MCP bundle contains shared+IR and CLI bundle contains shared; packed manifests have no workspace/private runtime dependency, and each tarball installs alone in an empty prefix/cache and runs its installed bin/tool smoke.
 - Plugin ZIP has exact isolated manifest/dist/legal/capability paths, deterministic hash/timestamps and unpacked VM+happy-dom consumer execution; source tests cannot substitute.
-- Evidence schema uses direct Ajv8.17.1 strict draft2020 validator shared by runner/signer/verifier/release; package/lock/schema tests pass.
+- Evidence/attestation schemas use direct Ajv8.17.1 strict draft2020 assertions shared by runner/signer/verifier/release; exact OS ID sets, schema→hash→fingerprint→Ed25519 order, valid/malformed hash tamper tests, tracked source marker, package/lock/schema tests pass.
 - GA evidence launches checksum-verified installed tarball bins plus the exact plugin ZIP, binds `/ping` build identity to artifact hashes, and verifies detached owner Ed25519 signatures.
 - Three upstream MIT notices, service license, pdf-lib notice, THIRD_PARTY_NOTICES, PROVENANCE, SBOM, and capability ledgers are present in every applicable artifact.
 - Solar CC BY assets and raw exec symbols are absent.
@@ -3777,8 +4322,8 @@ Run: `git diff --check`, then `git add service/docs/evidence/macos-desktop-v0.1.
 
 ### GA Release Evidence
 
-- `windows-desktop-v0.1.json` and `macos-desktop-v0.1.json` both validate against AcceptanceEvidenceV1.
-- Both name an acceptance owner/operator, contain matching release artifact hashes, set every blocking check to pass with `waived:false`, and contain no Figma content or secret.
+- `windows-desktop-v0.1.json` and `macos-desktop-v0.1.json` validate against exact AcceptanceEvidenceV1; their `.sig` JSON validates as AcceptanceAttestationV1.
+- Both name an operator/key fingerprint, contain matching artifact hashes, exactly equal their 16 unique OS-specific blocking IDs with pass/`waived:false`, verify Ed25519 signing bytes, and contain no Figma content or secret.
 - If either environment/owner/fixture is unavailable, GA/release remains blocked; automated tests do not substitute for the missing live gate, while the Task 16 source-complete preview status remains valid.
 
 ---
@@ -3921,10 +4466,10 @@ Decision vocabulary: **accepted** means the plan now contains the requested cont
 | N-I-01 | accepted | Unknown-resolution states/API/CLI/audit are implemented in the plan; hard-cap keeps resolution available, resolved rows unblock workspace/cap, and same ID remains settled. |
 | N-I-03 | accepted | MCP always-bundles shared+IR and CLI shared; packed manifests have no private/workspace runtime dependency; Task 15 installs each tarball alone in empty prefixes/caches and runs installed tools. |
 | R2-C-01 | accepted | Exact POST pair CORS matrix and process/UI tests make success/wrong/expired/used/rate/internal responses readable only to validated Figma/null Origins. |
-| R2-C-02 | accepted | Task 9 Files glob and mutation-handler authority cover 78 non-batch modules+batch, changed/no-op fixtures for all79, internal metadata stripping, final library row80, and sole dispatcher commit site. |
+| R2-C-02 | accepted/strengthened by R7 | Task9 mutation authority covers 78 non-batch tool rows over 77 unique paths plus batch, changed/no-op fixtures for all79, internal metadata stripping, final library row80, and sole dispatcher commit site. |
 | R2-C-03 | accepted | Exactly-once is explicitly 30 days; signed issuedAt rejects older IDs forever, in-horizon terminal tombstones prevent reexecution, and generation transitions remain deterministic. |
 | R2-C-04 | accepted | tsdown internal bundle closure, packed-manifest checks, fresh-cache one-tarball installs, npm ls, MCP116 list-tools, CLI bin smoke, and workspace-path zero gate are Task 15 requirements. |
-| R2-I-01 | accepted | IR-owned SnapshotStoragePort save/load/list/delete signatures and `.sfp/snapshots/v1/{fileIdentityHash}/{snapshotId}.json` are exact; design diff uses a separate namespace and shared has no future IR reference. |
+| R2-I-01 | accepted/strengthened by R7 | IR still owns SnapshotStoragePort with no reverse dependency; R7 replaces the unsafe wire-hash path segment with verified digest-only locator namespaces and loadByLocator. |
 | R2-I-02 | accepted | Recursive fidelity schema/fixtures now distinguish expanded plan nodes, complete leaves, and failed/cycle/depth/cap issues with stable planPath/order/depth. |
 | R2-I-03 | accepted | Authenticated operation issue/list/status and owner-local confirm-string resolution/CLI commands use reason/evidence hashes plus the reserved resolution intent, never require normal approval or authorize replay, and recover hard-cap/workspace availability. |
 | R2-I-04 | accepted via v0.1 scope reduction | includeSubdomains/suffix matching is deleted. Strict exact-host syntax deliberately excludes apex one/two-label and wildcard/dotted suffix forms; exact equality never grants subdomains, so no semantic PSL authority is needed or claimed. |
@@ -3998,7 +4543,7 @@ Commit `bc0cb93c0d8aa84167cea718c0b429a22d3c271d` and plan SHA `fc57e5a896aa8687
 | R6 current-type migration | 7A starts from checked-in Task5 InvocationContext and Task3 RuntimeExecutionContext/RuntimeBinding.authority; result-validation is in files/allowlist/GREEN. |
 | R6 fixture correctness | design_diff uses real rootDir; export_pdf tests outPath overwrite; nonce hashes Task4 realPath with actor1 and raw/Unicode/action/realpath negatives. |
 | R6 admission boundaries | Explicit rows cover owner/session/subscriber/raw/string caps; per-op raw is reachable8MiB; sparse capacity seams vs real transport streams are separated. |
-| R6 exact subcommit trees | Staged change-manifest schema/verifier byte-compares every Tasks8–16 slice; Task8 is true8A/8B with repo-walk deletions/moves; 9B freezes exact78 path/hash. |
+| R6 exact subcommit trees | Staged change-manifest schema/verifier byte-compares every Tasks8–16 slice; Task8 is true8A/8B with repo-walk deletions/moves; R7 strengthens 9B to exact78 rows/77 unique paths. |
 | R6 router/status | Task7 owns strict frozen control router and authenticated status; Task8/11 register reachable routes through exact registry/index paths; CLI maps status. |
 | R6 plugin integration | 9A names App/main/style/useRelaySession/PanelTabs/tabs plus mounted lifecycle test and legacy-client gate. |
 | R6 snapshot/grounding | Strict snapshot/refresh schemas, GraphStoragePort/path/hash/CAS refresh, service2, CLI result and IR dependency lock/frozen-install gates. |
@@ -4008,10 +4553,42 @@ Commit `bc0cb93c0d8aa84167cea718c0b429a22d3c271d` and plan SHA `fc57e5a896aa8687
 | R6 brief lifecycle | Exact task-7 brief path regenerates only after this plan's final checksum and fresh READY rereviews. |
 | R6 Task6.1 freeze | Base `39a29373b91445e9242e82611f0a8a04fca525ea`, contract `bd296dabe872f08adca793d93a2cd6a2c7efca60c58127b07924b2f18840b27b`, six byte-frozen core paths plus two semantic adapter baselines, per-blob hashes, 925 manifest bytes, derivation algorithm, literal `/control` seam, adapter before/after review rule, and exact frozen GREEN block are final; `bc0cb93` remains superseded. |
 
-No Round 1–4 Critical/Important finding is rejected. The only alternative scope resolution remains the explicit exact-FQDN/no-suffix v0.1 policy; no new rate or feature scope was added.
+### 2026-08-28 R7 final-review amendment
+
+Commit `bb433f3a84557e34331691c8dde01901e95dd2ca` and plan SHA `9326a80b4f3bfc37de2db6d37caedc004d41ec7abc8685934c16eab5fd6ac238` received final NOT READY reviews and are superseded for Task7 onward. Completed Tasks1–5 and the reviewer-approved Task6.1 base/contract remain valid and byte-identical; R7 changes only the binding plan for Task7 onward.
+
+| R7 finding | Resolution |
+|---|---|
+| C1 operation names | Separate strict lower-snake ToolNameSchema and exact dotted ServiceOperationNameSchema feed the same kind-aware registry/idempotency/journal; both positives and dot/slash/case/length/cross-kind negatives are exact. |
+| C2 MCP selector | Post-args TargetRequirement synthesis is forbidden→none, required→active, optional→none; ping/doctor matrix, leader/follower, connected/disconnected and anti-override tests are owned by 7A/12. |
+| I1 session selector | Frozen Base64Url128Schema replaces 1–128 ASCII; exact22 and generated underscore fixture are binding. |
+| I2 paired approval | Shared versioned prompt/decision, redacted daemon broker, server binding+120s CAS, reconnect/duplicate/late rules, no plugin control token, Task7 fake and Task9C real consumer are exact. |
+| I3 grounding locator | Server-issued path-safe snapshot ID and SnapshotLocator drive loadByLocator identity/workspace/hash/id checks and selector-none refresh. |
+| I4 replay egress | Cache contains only redacted wire payload plus consent fingerprint; every replay reauthorizes and mismatch is payload-free settled+audit. |
+| I5 MCP workspace | Versioned defaultWorkspaceId/store APIs and McpWorkspaceBinding implement explicit default/sole-root/typed zero-or-multiple behavior for filesystem-required leader/follower calls while Figma-only remains null; CLI set-default is exact. |
+| I6 Windows hashes | API hashes retain `sha256:`; storage extracts verified 64hex digest for snapshot/graph/design-diff paths and rejects colon/drive/UNC/ADS/traversal. |
+| I7 release order | Ordinary tests exclude both artifact suites; exact test:artifacts runs only after production packaging in clean verify:release order. |
+| I8 skew migration | `packages/mcp/test/tools/skew-notice.test.ts` is in Task7 Files, 7A allowlist, literal GREEN, migration and review. |
+| I9 literal 7A GREEN | Full copy/paste 7A_GREEN_COMMANDS names focused/frozen/security/election/e2e/typecheck/copy/authority tests and is rerun on the same tree. |
+| I10 registration resolver | Fs-owned WorkspaceRegistrationResolver stat+directory+realpath/identity-binds nonce issue and revalidates immediately before CAS; no nonexistent WorkspacePolicy API. |
+| I11 Task9 ledger | Exact78 tool rows span77 unique paths; only lock_nodes/unlock_nodes share lock-nodes.ts, with identical hashes and cardinality tests. |
+| I12 Task10 results | Exact shared component/result, MCP map tools, plugin handler/test, union manifest and contract/hash tests change together; counts stay baseline. |
+| I13 graph schema | Full strict graph/node/locator/edge/evidence schemas, canonical sort/hash inputs, human immutability, automatic refresh semantics and boundaries are section3.7/Task11 authorities. |
+| I14 vendor allowed generator | 7A prelude scans copy+serviceOwned destinations so the Relay raw import remains in exactly15 sorted rows; generator/test/output/authority share TREE_7A. |
+| I15 four authority classes | New service, existing serviceOwned, upstream copy/merge/reference, and repo-root/.github changes have mutually exclusive exact handling; blind registration is forbidden. |
+| I16 dependencies | Task11 shared+zod, Task12 pdf-lib, Task13 CLI shared, Task15 root happy-dom and Task16 Ajv are direct exact dependencies with package+lock, lockfile-only/frozen/staging gates; no YAML import/dependency. |
+| I17 live diagnostic | Task16 GREEN runs a Vitest child-wrapper that proves raw nonzero PLUGIN_NOT_CONNECTED while the wrapper exits zero; raw failure is not a GREEN command. |
+| I18 evidence contract | Exact evidence/attestation schemas, OS ID arrays, operator/artifact/key fields, canonical Ed25519 bytes/order, valid/malformed tamper tests and strict Ajv assertions are binding. |
+| I19 plugin artifact | Prior exact isolated plugin staging root, built dist/legal/capability contents, deterministic order/timestamps/hash and unpacked execution remain unchanged. |
+| I20 service count | Task11 registers exact service2 and Task12–release preserve it outside tool counts. |
+| I21 resolution fixture | Reserved record assertion uses `.decision`; fake hash is replaced by a valid `sha256:`+64hex constant. |
+| I22 concurrent plugin ID | Task9B idempotency-concurrency test requires one shared Promise, handler and undo for concurrent identical ID and conflict on different args. |
+| I23 source marker | Exact tracked `service/docs/evidence/source-complete-preview.v1.json` schema/path/class/change-manifest disposition and ignored temporary/private/generated paths are explicit. |
+
+No prior Critical/Important finding is rejected. The only alternative scope resolution remains the explicit exact-FQDN/no-suffix v0.1 policy; no unsupported remote bypass or new rate scope was added.
 
 ---
 
 ## 11. Execution Handoff
 
-Do not stage/commit/checksum or regenerate Task7 brief while any Task6.1 marker remains. After insertion and three fresh READY rereviews, delete only stale `.superpowers/sdd/2026-08-27-super-figma-pipeline-v0.1/task-7-brief.md`, rerun `superpowers/.../subagent-driven-development/scripts/task-brief docs/superpowers/plans/2026-08-27-super-figma-pipeline-v0.1.md 7`, and require the regenerated exact path to record final plan SHA, Task6.1 base/contract hash and original 7A/B/C subjects. Then docs checksum/commit and Task7 dispatch may proceed. Tasks1–16 remain source-complete/release-blocked; Tasks17/18/release remain external.
+Commit this R7 binding plan and matching checksum as docs-only, then obtain three fresh READY rereviews of that exact committed plan SHA. Do not dispatch Task7 or regenerate its brief while any review is NOT READY. After all three are READY, delete only stale `.superpowers/sdd/2026-08-27-super-figma-pipeline-v0.1/task-7-brief.md`, rerun `superpowers/.../subagent-driven-development/scripts/task-brief docs/superpowers/plans/2026-08-27-super-figma-pipeline-v0.1.md 7`, and require the regenerated exact path to record the new plan SHA, frozen Task6.1 base/contract hash, and original 7A/B/C subjects. Tasks1–16 remain source-complete/release-blocked; Tasks17/18/release remain external.
