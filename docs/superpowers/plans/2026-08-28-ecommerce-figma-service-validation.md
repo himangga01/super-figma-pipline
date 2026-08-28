@@ -1,6 +1,6 @@
 # eCommerce Figma Service Validation Implementation Plan
 
-> **For agentic workers:** REQUIRED SUB-SKILLS: `figma-design-to-code`, `chrome:control-chrome`, `sites-building`, `sites-hosting`, and conditionally `computer-use` for Figma Desktop. The main agent is the sole Site owner. Run only after Super Figma Pipeline Tasks 1–16 are source-complete and independently reviewed.
+> **For agentic workers:** REQUIRED SUB-SKILLS: `figma-design-to-code`, `chrome:control-chrome`, `sites-building`, `sites-hosting`, and conditionally `computer-use` for Figma Desktop. The main agent is the sole Site owner. Run only after the R16 binding plan is READY and Super Figma Pipeline Tasks1–16 are source-complete and independently reviewed.
 
 **Goal:** Use the completed Super Figma Pipeline service—not direct browser imitation—to understand the supplied Figma Community file, implement a faithful page in `validation/ecommerce-figma-site/`, and prove the service→code→browser loop.
 
@@ -30,14 +30,16 @@
 
 ## Source-complete Service Preconditions
 
-- Tasks 1–16 passed independent reviews and `pnpm -C service verify:release`.
-- Launch the packed MCP/CLI/plugin artifacts being tested, not source from a different build.
-- Compute SHA-256 for the exact packed MCP tarball, CLI tarball, and plugin ZIP and compare them with Task 15's release checksum manifest before launch. Verify `/ping` product/build identity separately. Use `sfp status --json` only for its supported product/role/version fields; do not expect it to report artifact hashes.
+- Tasks1–16 and the R16 binding plan have fresh independent READY reviews. Start from the exact clean Task16 commit and run one complete `pnpm -C service verify:source-complete`; do not substitute a narrower gate, reuse a prior package run, or combine outputs from multiple runs. If it fails, discard that run's generated outputs, fix the source under the binding workflow, and restart this precondition from a clean reviewed commit.
+- Immediately strict-validate the same run's exact three documents with `node service/scripts/source-complete-validator.mjs --candidate service/artifacts/preview-candidate.v1.json --evidence service/artifacts/source-complete-evidence.v1.json --marker service/artifacts/source-complete-preview.v1.json`. Require exactly those candidate/evidence/marker files, their three content-hash domains, marker file-byte hashes, and all sourceCommit/harness/artifact cross-field equalities.
+- Hash the same run's `service/artifacts/artifact-manifest.v1.json` and `service/artifacts/SHA256SUMS`. Require those byte hashes to equal `PreviewCandidateV1.artifactManifestSha256`/`artifactChecksumsSha256`; require `service/artifacts/mcp.tgz`, `service/artifacts/cli.tgz`, and `service/artifacts/plugin.zip` byte hashes to agree across both metadata files, the candidate artifact tuple, and `SourceCompleteEvidenceV1.artifacts`. Any mismatch invalidates the whole run.
+- Launch only those same-run final MCP/CLI/plugin artifacts. Install `service/artifacts/mcp.tgz` and `service/artifacts/cli.tgz` into fresh ignored prefixes/caches under `.sfp/validation-runtime/`; invoke the CLI through `node_modules/.bin/sfp` on POSIX or `node_modules/.bin/sfp.cmd` on Windows, and import the checksum-verified extracted plugin manifest from `service/artifacts/plugin.zip`. Start the daemon through `node_modules/.bin/sfp-daemon` on POSIX or `node_modules/.bin/sfp-daemon.cmd` on Windows and retain that exact child through extraction. Direct `node dist/daemon-entry.mjs` execution cannot satisfy this gate.
+- Verify the retained daemon's `/ping` product/build identity separately and compare `buildId` with `SourceCompleteEvidenceV1.artifacts.buildId` while the candidate/evidence artifact tuples remain identical. Use only the final packed CLI shim for `sfp status --json`; its supported product/role/version output is not an artifact-hash oracle.
 - Final registry is 116 tools/106 handlers/10 server-only and includes service snapshot/grounding/export functions required below.
 
 ## Evidence Schema
 
-Create both `validation/ecommerce-figma-site/service-evidence.schema.json` and `service-evidence.json`. The JSON Schema is draft 2020-12, sets `additionalProperties:false` at every object level, requires every field below, defines status/tool/action enums, requires 64-character lowercase SHA-256 patterns, permits only normalized relative paths without `..`, drive letters, or leading slash, and rejects credential/private-URL field names. `service-evidence.json` contains these top-level arrays:
+Create both `validation/ecommerce-figma-site/service-evidence.schema.json` and `service-evidence.json`. The JSON Schema is draft 2020-12, sets `additionalProperties:false` at every object level, requires every field below, defines status/tool/action enums, requires 64-character lowercase SHA-256 patterns, permits only normalized relative paths without `..`, drive letters, or leading slash, and rejects credential/private-URL field names. It first requires `sourceCompleteRun` with sourceCommit, the three candidate/evidence/marker file and content hashes, artifact-manifest/SHA256SUMS hashes, final MCP/CLI/plugin hashes, buildId, and `daemonLaunch:'packed-npm-shim'`; all values must match the precondition run. `service-evidence.json` also contains these top-level arrays:
 
 - `serviceOperations`: operationId, tool, status, resultHash, artifactHash, snapshotId, timestamp.
 - `chromeActions`: public URL, action category, timestamp; no private Draft URL or page content.
@@ -71,7 +73,7 @@ Hard gates: every recorded operation is settled, the authenticated `sfp operatio
 - [ ] Open the exact public URL in the persistent Chrome Figma tab and verify the free account can view it.
 - [ ] Collect only non-design metadata: creator, public listing/license/terms URL, checked date, known font/image restrictions.
 - [ ] Duplicate the Community file to Drafts through visible UI. If sign-in blocks it, ask the user to sign in in Chrome and continue after confirmation.
-- [ ] Open the editable duplicate in Figma Desktop. Import/run the exact built plugin via computer-use or explicit user handoff.
+- [ ] Open the editable duplicate in Figma Desktop. Import/run the checksum-verified extracted manifest from the same-run final `plugin.zip` via computer-use or explicit user handoff; never import the ZIP itself or a prior build.
 
 ### Task V3: Pair and extract exclusively through the service
 
@@ -79,8 +81,9 @@ Hard gates: every recorded operation is settled, the authenticated `sfp operatio
 
 **Interfaces:** produces stable file identity, canonical landing-frame ID, complete-leaf SnapshotV1 evidence, GroundingGraphV1, token/assets/screenshots, and service operation trace.
 
-- [ ] Run `sfp status --json`, register the now-existing exact Site directory with `sfp workspace add`, issue the pairing challenge, enter it in the plugin, then run `sfp doctor --round-trip --json`.
-- [ ] Verify packed artifact hashes against Task 15 checksums, `/ping` product/build identity, supported `sfp status` fields, file identity, editor capability, and empty `sfp operations unresolved --json` result.
+- [ ] Start the same-run final packed MCP daemon through its platform npm shim and retain that child. Invoke the same-run final packed CLI shim for `sfp status --json`, register the now-existing exact Site directory with `sfp workspace add`, issue the pairing challenge, enter it in the checksum-verified plugin, then run `sfp doctor --round-trip --json`.
+- [ ] Run `node service/scripts/current-windows-diagnostic.mjs --daemon-url <retained-loopback-url> --state-root <owner-secure-stateRoot> --retained-daemon-pid <pid> --expected-build-id <evidence-buildId> --json`. Require strict `CurrentWindowsDiagnosticV1` connected/exit0, generation hashes, `coPresence:true`, and zero pairing/mutation/external-network attempts; this observes the already-paired session and cannot perform pairing.
+- [ ] Revalidate the exact three source-complete documents, same-run artifact manifest/SHA256SUMS, candidate/evidence artifact tuple, `/ping` product/build identity, supported `sfp status` fields, file identity, editor capability, and empty `sfp operations unresolved --json` result before semantic extraction.
 - [ ] Use service-only `tree/find/context` operations from public `node-id=0-1` to discover and record the canonical landing-page frame ID. Do not derive it from Chrome layer inspection.
 - [ ] Capture full context/SnapshotV1 for that frame. Recursively follow nested section plans. Depth/cycle/count failures require smaller service recaptures.
 - [ ] Require complete-leaf evidence for every section to implement. Partial fidelity is allowed only for named out-of-scope UI-kit nodes; omitted in-scope content blocks implementation.
@@ -133,7 +136,7 @@ Hard gates: every recorded operation is settled, the authenticated `sfp operatio
 
 **Interfaces:** produces reproducible service acceptance evidence and private deployment.
 
-- [ ] Write public source/creator/license metadata, service/artifact hashes, stable file identity kind, canonical frame, snapshot/graph fidelity, section trace, asset hashes, tested viewports, build/test results, and unresolved limitations.
+- [ ] Write public source/creator/license metadata, the same-run candidate/evidence/marker and artifact-manifest/SHA256SUMS/final-artifact hashes, packed-daemon-shim launch fact, stable file identity kind, canonical frame, snapshot/graph fidelity, section trace, asset hashes, tested viewports, build/test results, and unresolved limitations.
 - [ ] Run `node scripts/validate-service-evidence.mjs service-evidence.schema.json service-evidence.json`, then scan staged files plus built/hosting archives for credentials, private URLs, absolute paths, raw snapshots/journals, and user identifiers.
 - [ ] Run final build while the retained dev server stays alive; fix and rerun failures.
 - [ ] Read and use `sites-hosting`; deploy privately from the Site-root Git repository. Public/shared access requires prior license clearance and explicit user approval.
@@ -141,7 +144,8 @@ Hard gates: every recorded operation is settled, the authenticated `sfp operatio
 
 ## Verification Checklist
 
-- [ ] Service Tasks 1–16 and matching packed artifact hashes passed before capture.
+- [ ] One clean `pnpm -C service verify:source-complete` run passed before capture; its exact three documents revalidated and its same-run manifest/SHA256SUMS/candidate/evidence MCP/CLI/plugin hashes all matched.
+- [ ] The final MCP daemon ran through the platform npm shim, the CLI came from the same final tarball run, and the Desktop plugin came from the checksum-verified extracted final ZIP.
 - [ ] Every implemented Figma fact is traceable to a service operation/artifact.
 - [ ] Chrome was not used as a semantic extraction substitute.
 - [ ] All in-scope sections have complete-leaf evidence; partial out-of-scope nodes are named.
