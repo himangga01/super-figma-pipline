@@ -492,7 +492,7 @@ export type RawDigest64 = string; // strict ^[0-9a-f]{64}$, file bytes only
 export interface ResultArtifactV1 { artifactRelativePath:string; artifactDigest64:RawDigest64; resultSchemaHash:PrefixedSha256 }
 export type NoArtifactReasonCode = 'not-native-evidence'|'native-output-path-null'|'operation-failed';
 export interface NativeArtifactManifestMemberV1 {
-  artifactRelativePath:string; // 1..1024 UTF-8 bytes, normalized workspace-relative, no symlink/escape
+  artifactRelativePath:string; // PortableRelativeArtifactPath, 1..1024 UTF-8 bytes
   artifactDigest64:RawDigest64;
   artifactBytes:number;
 }
@@ -508,12 +508,14 @@ export interface NativeEvidenceSourceRefV1 {
   resultPointer:string; // strict JSON Pointer, <=256 UTF-8 bytes
   sourceNodeId:string|null;
 }
+export type NativeEvidenceContextHash=PrefixedSha256&{readonly __nativeEvidenceContextHash:unique symbol};
 export interface NativeEvidenceProjectionContextV1 {operationId:string;workspaceId:string}
-export type NativeEvidenceProjectionV1 =
+export type NativeEvidenceProjectionV1 = {contextHash:NativeEvidenceContextHash}&(
   | {kind:'no-artifact';reasonCode:'not-native-evidence'|'native-output-path-null'}
   | {kind:'export-candidates';candidates:readonly {candidateRelativePath:string|null;sourceRef:NativeEvidenceSourceRefV1}[]}
   | {kind:'snapshot-candidate';artifactRelativePath:string;sourceRef:NativeEvidenceSourceRefV1;metadata:{workspaceId:string;fileIdentityHash:PrefixedSha256;snapshotId:`sfp_snap1_${string}`;refRelativePath:string;checksum:PrefixedSha256;fidelity:'complete-leaf'|'partial'}}
-  | {kind:'grounding-graph-candidate';artifactRelativePath:string;sourceRef:NativeEvidenceSourceRefV1;metadata:{locator:string;checksum:PrefixedSha256;fidelity:'complete-leaf'|'partial'}};
+  | {kind:'grounding-graph-candidate';artifactRelativePath:string;sourceRef:NativeEvidenceSourceRefV1;metadata:{locator:string;checksum:PrefixedSha256;fidelity:'complete-leaf'|'partial'}}
+);
 export type NativeEvidenceV1 =
   | { kind:'no-artifact'; reasonCode:NoArtifactReasonCode }
   | {
@@ -534,9 +536,12 @@ export interface OperationEvidenceProjector {
   project(context:Readonly<NativeEvidenceProjectionContextV1>,operationKind:OperationKind,operationName:OperationName,parsedArgs:unknown,strictRedactedResult:unknown):Readonly<NativeEvidenceProjectionV1>;
 }
 
-export type VerifiedNativeEvidenceContextV1=Readonly<NativeEvidenceProjectionContextV1>&{readonly __verifiedNativeEvidenceContext:unique symbol};
+export type VerifiedNativeEvidenceContextV1=Readonly<NativeEvidenceProjectionContextV1>&{readonly contextHash:NativeEvidenceContextHash;readonly __verifiedNativeEvidenceContext:unique symbol};
 export interface NativeEvidenceArtifactPort {
   createNativeManifest(input:{context:VerifiedNativeEvidenceContextV1;projection:Readonly<Extract<NativeEvidenceProjectionV1,{kind:'export-candidates'}>>}):Promise<Readonly<Extract<NativeEvidenceV1,{kind:'export'}>>>;
+}
+export interface NativeEvidenceMaterializerPort {
+  materialize(input:{context:VerifiedNativeEvidenceContextV1;projection:Readonly<Extract<NativeEvidenceProjectionV1,{kind:'snapshot-candidate'|'grounding-graph-candidate'}>>}):Promise<Readonly<Extract<NativeEvidenceV1,{kind:'snapshot'|'grounding-graph'}>>>;
 }
 
 export interface OperationEvidenceReceiptCommonV1 {
@@ -569,7 +574,7 @@ export interface OperationEvidenceLimits {
   maxRowBytes: 65536;
   maxNativeArtifacts: 256;
   maxNativeArtifactPathBytes: 1024;
-  maxNativeArtifactManifestBytes: 299956;
+  maxNativeArtifactManifestBytes: 300277;
   compactAtRows: 100000;
   compactAtBytes: 134217728;
   maxRowsPerActor: 131072;
@@ -593,9 +598,10 @@ export interface OperationEvidenceStatusProjectionV1 {
   resultHash:PrefixedSha256|null;preExecutionConsentManifestHash:PrefixedSha256|null;
   operationEvidenceReceiptHash:PrefixedSha256|null;finalEgressManifestHash:PrefixedSha256|null;
 }
+export type OperationEvidenceReceiptProjectionV1=DistributiveOmit<OperationEvidenceReceiptV1,'state'|'actorId'|'previousReceiptHash'|'receiptHash'>;
 export interface OperationEvidenceViewV1 {
   schemaVersion:1;serverVerified:true;statusProjection:OperationEvidenceStatusProjectionV1;
-  receipt:Readonly<OperationEvidenceReceiptV1>|null;
+  receipt:Readonly<OperationEvidenceReceiptProjectionV1>|null;
   finalizerProjection:Readonly<EgressFinalizerProjectionV1>|null;
 }
 
@@ -1173,13 +1179,13 @@ Durable authorities are exact `stateRoot/journal/{actor-hash}.admin-audit.v1.jso
 In every SHA-256 or HMAC formula in this plan, textual notation `\0` denotes exactly one binary separator byte `0x00`; it never means the two UTF-8 bytes backslash and zero. Fixed-vector tests build the input with `Uint8Array([0])` and independently reject the ASCII `\\0` variant.
 
 Admin domains are literal `sfp-admin-audit-content-v1\0` and `sfp-admin-audit-record-v1\0`: `contentHash` hashes canonical `AdminAuditRecordV1` with `contentHash,recordHash,previousRecordHash` omitted; `recordHash` hashes record-domain + exact ASCII contentHash + null-framed previousRecordHash. Evidence domains are literal `sfp-operation-evidence-content-v1\0` and `sfp-operation-evidence-record-v1\0`: receipt `contentHash` hashes canonical `OperationEvidenceReceiptV1` with `contentHash,receiptHash,previousReceiptHash` omitted; chain-only `receiptHash` hashes record-domain + exact ASCII contentHash + null-framed previousReceiptHash. Terminal `operationEvidenceReceiptHash` equals the compaction-stable receipt contentHash, never receiptHash.
-The four literal checkpoint/anchor domains are `sfp-admin-audit-checkpoint-v1\0`, `sfp-admin-audit-anchor-v1\0`, `sfp-operation-evidence-checkpoint-v1\0`, and `sfp-operation-evidence-anchor-v1\0`. For each strict `JournalCheckpointV1`, `contentHash=sha256(domain+canonicalJSON(record omitting contentHash and checkpointHash))` and `checkpointHash===contentHash`; for each `JournalAnchorV1`, `contentHash=sha256(domain+canonicalJSON(record omitting contentHash and anchorHash))` and `anchorHash===contentHash`. Checkpoint/anchor `previousRecordHash`/`firstRetainedRecordHash` mean AdminAudit recordHash for store admin-audit and receiptHash for store operation-evidence. Nullable hash fields encode byte `0x00` for null or `0x01 || exact ASCII PrefixedSha256` for a value. Canonical JSONL accounting is exact canonical UTF-8 JSON bytes plus one LF per row. Generation names are `<base>.compact-<compactionId>.jsonl`, `.checkpoint.json`, and `.anchor.json`; owner-secure `<base>.current` contains only strict compactionId and content hashes. Promotion order is one authority: write generation log/checkpoint/anchor temps, fsync all three, atomically no-replace rename each to its unique generation name, fsync the directory, atomically replace `.current` as the sole commit point, then fsync the directory again. Unsupported no-replace primitives fail closed. Recovery follows only the pointer-selected fully linked generation, removes only unreferenced valid temps/generations, and fails on ambiguous names, partial pointer-selected generation, or middle corruption. Evidence lookup resolves `finalEgressManifestHash` through egress checkpoint/anchor retention even after compaction.
+The four literal checkpoint/anchor domains are `sfp-admin-audit-checkpoint-v1\0`, `sfp-admin-audit-anchor-v1\0`, `sfp-operation-evidence-checkpoint-v1\0`, and `sfp-operation-evidence-anchor-v1\0`. For each strict checkpoint/anchor, content/hash fields follow the defined projection. Generation publication reuses the same cross-platform exclusive hard-link primitive as artifact create: write+fsync log/checkpoint/anchor temps, hard-link each temp no-replace to its immutable generation name, fsync directory, atomically replace `.current` as sole commit point, fsync directory, then unlink temps. No generation rename fallback exists; unsupported link semantics fail closed. Recovery follows only the pointer-selected linked generation. Egress finalizer lookup remains available through retained checkpoint/anchor hashes after compaction.
 
 Exact files/checkpoints/anchors and hash rules remain. Active transactions survive; completed linked receipts and their result/native-manifest artifacts follow terminal/tombstone exact30-day retention then synchronous path-identity-checked removal. Prepared-only receipts are protected only until recovery resolves them. An artifact or native manifest fsynced before receipt is an orphan: recovery never exposes it as evidence, never reruns/overwrites the operation, and deletes it only after proving its fixed digest directory, workspace registration and absence of a linked receipt/finalizer; symlink/identity mismatch fails closed for manual cleanup.
 
 `actor-hash` is lowercase SHA-256 of `sfp-journal-actor-filename-v1\0` plus exact actorId. Store-row content hash omits contentHash/recordHash/previousRecordHash; record hash is the store's literal record domain plus exact ASCII contentHash plus null-framed previousRecordHash. Row bytes include LF. `JournalCheckpointV1` fields are exactly schemaVersion, store, actorHash, compactionId, sequence, rows, bytes, previousRecordHash, firstRetainedRecordHash, checkpointHash, createdAt, contentHash; `JournalAnchorV1` fields are exactly schemaVersion, store, actorHash, compactionId, checkpointHash, previousRecordHash, anchorHash, createdAt, contentHash. Query/compaction/recovery verifies every field and link.
 
-`JournalCheckpointV1`/`JournalAnchorV1` and the preceding promotion order are the only compaction contract; no alternate anchor-last commit rule exists. Crash tests cover after each temp fsync, each exclusive generation rename, first directory fsync, pointer replace, and final directory fsync.
+`JournalCheckpointV1`/`JournalAnchorV1` and the preceding promotion order are the only compaction contract. Crash tests cover each temp fsync, each exclusive generation hard link, first directory fsync, pointer replace, final directory fsync and temp cleanup.
 
 Under operation lock settlement is artifact -> prepared receipt -> matching finalizer -> terminal(receipt contentHash) -> frame. Prepared-only is protected until recovery, then outcome-unknown/null receipt if unmatched. Linked receipts follow terminal/tombstone30-day retention. Only finalized succeeded/failed require receipt; pre-rejected/outcome-unknown allow null.
 
@@ -1189,8 +1195,8 @@ OperationRecord/Tombstone/Resolution all persist nullable fileExecutionKeyHash, 
 
 `argsHash=sha256('sfp-parsed-args-v1\0'+canonicalJSON(parsedArgs))`; `fileExecutionKeyHash=sha256('sfp-file-execution-key-v1\0'+exact UTF-8 key)`; selected ordinary-entry targets derive `targetSessionIdHash=sha256('sfp-target-session-v1\0'+exact UTF-8 authenticated sessionId)` and `fileIdentityHash=canonicalFileIdentityHash(fileIdentity)`, then `targetBindingHash=sha256('sfp-entry-target-binding-v1\0'+canonicalJSON({targetSessionIdHash,fileIdentityHash,fileExecutionKeyHash,pluginGeneration,leaderGeneration}))` in that exact field order. Target-none has raw `fileExecutionKey:null`, all three target component hashes null, and targetBindingHash null; every selected target has all nonnull. `daemonGenerationHash=sha256('sfp-daemon-generation-v1\0'+exact UTF-8 leaderGeneration)`; leaderGeneration `gen-1` yields `sha256:85e8e0c326906bb652a64f9cbb10d28ab52c46047877211a84b23bd7906a6c97`. Append derives every component from admitted values; load recomputes args/capture/target binding where source components persist and validates strict hash/equality syntax otherwise. Record->Tombstone->Resolution copies permitted raw fileExecutionKey plus every component/link unchanged. Fixed vectors, restart, target-none/selected and one-field mismatch tests cover all.
 
-Capture and native evidence are orthogonal. Succeeded&&capture=true iff resultArtifact nonnull; all failed/rejected/unknown and capture=false are null. `OperationEvidenceProjector` is pure: it receives frozen `{operationId,workspaceId}`, parsed args and strict redacted result, and emits only candidate relative paths plus bounded source refs—never filesystem IO, bytes, digests or a final evidence claim. Empty/all-null exporter candidates become `no-artifact/native-output-path-null`.
-Native exports preserve the product maximum of 256 artifacts without inflating the 65,536-byte receipt row. Task7 7C's `NativeEvidenceArtifactPort` receives the server-branded context and pure candidate projection, resolves/revalidates every nonnull path against the registered workspace, rereads actual files, computes byte counts/digests, and normalizes a unique UTF-8-byte-sorted member set before writing fixed `.sfp/operation-evidence/<operationIdDigest64>/artifact-manifest.v1.json`. Duplicate result references to one image-fill file are allowed many-to-one: every nonnull source ref maps to exactly one member and every member has at least one source ref. The final manifest stores only unique `{artifactRelativePath,artifactDigest64,artifactBytes}` members. Its content hash omits `contentHash` and uses `sfp-native-artifact-manifest-v1` + byte0x00 + canonical JSON. For 256 paths of exactly1024 UTF-8 bytes and maximum safe integer byte counts, the production serializer's exact structural maximum is 299,956 bytes; a real valid fixture reaches that number, while an injected 299,957-byte serializer result is rejected by the independent guard. Count257, path1025, all-null, digest/byte mismatch, symlink/escape, or create-new race never overwrites/reruns.
+Capture and native evidence are orthogonal. `OperationEvidenceProjector` is pure: it receives frozen `{operationId,workspaceId}`, parsed args and strict redacted result, computes branded `contextHash=sha256('sfp-native-evidence-context-v1'+byte0x00+canonicalJSON({operationId,workspaceId}))`, and emits that hash plus candidate paths/source refs—never IO/digests/final evidence. Artifact/materializer ports recompute and compare against `VerifiedNativeEvidenceContextV1` before IO.
+Native exports preserve the product maximum of 256 artifacts without inflating the 65,536-byte receipt row. Task7 7C's `NativeEvidenceArtifactPort` resolves/revalidates every nonnull path against the registered workspace, rereads actual files, computes bytes/digests, and normalizes a unique sorted member set before writing fixed manifest. `NativeEvidenceMaterializerPort` separately rereads snapshot/graph candidate bytes and verifies embedded workspace/locator/checksum/fidelity before creating final snapshot/grounding NativeEvidenceV1; projector output alone is never final evidence. Duplicate result references to one image-fill file are allowed many-to-one. Portable artifact paths allow arbitrary Unicode but reject U+0022 quote, backslash, every C0 U+0000..U+001F, leading slash, empty/dot/dot-dot segments, drive/UNC and symlink escape; UTF-8 length remains1..1024. The final manifest stores unique `{artifactRelativePath,artifactDigest64,artifactBytes}`. Production canonical serializer fixture uses 256 unique portable 1024-byte paths, exact304-byte OperationId, max-safe integer counts, persisted contentHash and one LF and measures exactly300,277 bytes; injected300,278 rejects. Tests derive the literal from production serializer rather than padding.
 
 Task7 baseline projector covers exactly four native exporters `save_screenshots|save_image_fills|export_pdf|export_video`, other108 tools as no-artifact, and internal `identity.bootstrap` as no-artifact outside the canonical counts. Task11 registers the exact two service projectors `snapshot.capture -> snapshot` and `grounding.refresh -> grounding-graph` through the same central source/test. Task12B adds `export_tokens|export_frames_to_pdf`, yielding final six native exporters, other110 tools as no-artifact, service2 specialized, and internal system1 no-artifact. Structural coverage enumerates every literal name once; fallback/default cannot hide an unregistered canonical tool or service.
 
@@ -1210,7 +1216,7 @@ ArtifactPort accepts only canonical post-redaction bytes and verified workspace/
 
 `AtomicFileStore.createNew` is exactly same-directory temp write+file fsync -> platform `link(temp,target)` exclusive publication -> directory fsync -> unlink temp. It never uses an overwriting rename or check-then-rename fallback; unsupported hard-link/no-replace or reparse semantics fail closed. A target appearing before runtime preflight is runtime0; a target race after runtime and before exclusive link is durably outcome-unknown, leaves both files unmodified and forbids same-ID rerun.
 
-Authenticated operation evidence returns only `OperationEvidenceViewV1`. The endpoint loads active record, tombstone or resolution, calls `EgressManifestPort.readVerifiedFinalizer`, verifies the closed status/link matrix and receipt content hash/finalizer equality, and emits `serverVerified:true` plus redacted status/receipt/finalizer projections. `pre-egress-rejected` returns both null; succeeded/failed require receipt+finalizer; post-pre-manifest rejected and outcome-unknown require their exact null-receipt finalizer. CLI and supplemental validators consume this view rather than independently joining journals.
+Authenticated operation evidence returns only `OperationEvidenceViewV1`. Its strict `OperationEvidenceReceiptProjectionV1` excludes actorId, state, previousReceiptHash, receiptHash and all private chain fields while retaining contentHash plus operation/status/target/capture/result/native/finalizer/generation fields. The endpoint loads active record, tombstone or resolution, calls `EgressManifestPort.readVerifiedFinalizer`, verifies links, and emits `serverVerified:true` plus redacted projections. `pre-egress-rejected` returns both null; succeeded/failed require projection+finalizer; post-pre-manifest rejected/outcome-unknown require null receipt and finalizer. Every resolved-applied/resolved-not-applied/abandoned record inherits the original OutcomeUnknown finalEgressManifestHash, keeps operationEvidenceReceiptHash null, and returns that verified outcome-unknown finalizer projection beside its resolution status. Supplemental evidence commits only public projections, never internal receipt/store rows.
 
 Authenticated `GET /control/status` is a Task7 admin route with empty strict input and exact `ControlStatusV1` output. Its `ControlStatusSource` combines final Task6.1 facade server/role/generation facts with a read-only Relay registry snapshot; it never calls public ping over HTTP. For `activePlugin`, `editorType` is copied only from the authenticated registered Relay session and `pluginGenerationHash` is `sha256:` plus SHA-256 of `sfp-control-status-plugin-generation-v1\0` and exact UTF-8 plugin generation; raw generation is absent. Session/file/plugin/capability oracles exist only here behind control auth. Tests cover unauthorized/foreign stateRoot, exact keys, hash vectors, editor type, redaction, zero/multiple plugins, active-session rotation, and absence of credentials/raw file identity values.
 
@@ -1944,7 +1950,7 @@ export interface CapacityCounterPort {
 | evidence hard bytes | 201,326,591 admits if rows permit | 201,326,592 held valid | next reserve and above-cap recovery fail closed |
 | native artifact manifest members | 255 valid | 256 valid | 257 rejects without receipt/overwrite/rerun |
 | native artifact relative path UTF-8 | 1,023 valid | 1,024 valid | 1,025 rejects |
-| native artifact manifest bytes | structurally valid serializers stay <=299,955 except max fixture | exact 299,956 valid for 256x1024/max-safe-int fixture | injected 299,957-byte serializer output rejects before receipt |
+| native artifact manifest bytes incl LF | structurally valid serializers stay <=300,276 except max fixture | exact300,277 valid for 256x1024/exact304-byte opId/max-safe-int/contentHash fixture | injected300,278-byte serializer output rejects before receipt |
 | evidence retention | linked age<30d retained | linked age=30d synchronously removable with terminal/tombstone | older linked removable; prepared protected only through recovery |
 | progress phase | 63 ASCII chars valid | 64 valid | 65 invalid |
 | progress message | 1,023 UTF-8 bytes valid | 1,024 valid | 1,025 invalid |
@@ -2045,7 +2051,7 @@ export interface SourceCompleteEvidenceV1 {
     durationMs: number;
     resultHash: Sha256Hex;
     detailCode: string;
-    claims:readonly {id:string;resultHash:Sha256Hex}[];
+    claims:readonly {id:string;resultHash:Sha256Hex;dispatchDelta:number;runtimeDelta:number;receiptDelta:number;stateBefore:string;stateAfter:string}[];
   }[];
   contentHash: PrefixedSha256;
 }
@@ -2068,7 +2074,7 @@ export interface SourceCompletePreviewV1 {
 
 The three unsigned-file hash authorities are literal and non-interchangeable: `PreviewCandidateV1.contentHash=sha256('sfp-preview-candidate-content-v1\0'+canonicalJSON(candidate omitting contentHash))`; `SourceCompleteEvidenceV1.contentHash=sha256('sfp-source-complete-evidence-content-v1\0'+canonicalJSON(evidence omitting contentHash))`; `SourceCompletePreviewV1.contentHash=sha256('sfp-source-complete-preview-content-v1\0'+canonicalJSON(preview omitting contentHash))`. Canonical JSON is strict UTF-8, recursively key-sorted, no insignificant whitespace and no non-JSON values. With an actual byte0x00 separator, primitive projection `{"schemaVersion":1}` yields respectively `sha256:749a6d5f6ef786b77a655a6e996849e6b60d0269a039f223b2cb1875c591f245`, `sha256:6caf8eab98a2bb72b419b7434ae161867a9a8428c558484dcf1d37461397fd18`, and `sha256:b7604882bde2affc97aa4d63bfd5473d392e101213e4293e5e3a0012c95865f4`. Byte-level tests reject ASCII `\\0`, domain substitution, self-inclusion, key-order drift and malformed prefixed hashes.
 
-`SourceCompleteEvidenceV1.checks[].claims` is strict, UTF-8 sorted and unique. Exact negative-proof claims are: `fake.workspace-policy -> policy.pre-egress-rejected,nonce.reuse-runtime0`; `fake.network-policy -> policy.network-pre-egress-rejected`; `fake.approval-undo -> approval.rejected,approval.expired,approval.duplicate`; `fake.idempotency-journal -> idempotency.conflict,idempotency.settled-replay,idempotency.outcome-unknown-no-rerun`. Each claim resultHash binds canonical raw-free counters/status; all other fake checks use an empty claims array. Schema and fixture-map tests reject missing/extra/duplicate claims or copied parent hashes.
+`SourceCompleteEvidenceV1.checks[].claims` is strict, sorted and derived by executing the real fake ports/stores—not author-authored IDs. Each resultHash is SHA-256 of domain `sfp-source-complete-negative-claim-v1`, byte0x00 and canonical claim omitting resultHash. Workspace/network policy rejection records admitted -> pre-egress-rejected and dispatch/runtime/receipt deltas0; consumed nonce reuse records consumed -> consumed and all deltas0; approval rejected/expired/duplicate records the exact pending/terminal-or-unchanged state with all deltas0; settled conflict/replay records settled -> same settled with new runtime/receipt0; outcome-unknown retry records unknown -> unknown with new runtime/receipt0. Exact claim IDs remain the R25 mapping; all other checks have empty claims. Fixture tests execute each fault, independently inspect counters/state, recompute hashes, and fail on any ID/counter/state/hash tamper or a copied parent hash.
 
 ~~~ts
 export interface CurrentWindowsDiagnosticContext {
@@ -2197,7 +2203,7 @@ After the clean Task16 commit, `verify:source-complete` creates exactly three ig
 
 Task16 extracts one application factory. Daemon args are exactly normal `--state-root ... --port ...` or standalone `--self-test`; self-test creates its own secure temp root and exits after internal start/ping/close.
 
-Task16 process tests retain exact children; real-Figma validation requires R25 READY.
+Task16 process tests retain exact children; real-Figma validation requires R26 READY.
 
 | Fake blocking check suffix | Typed fake input and positive assertion | Required negative assertion | Fake teardown |
 |---|---|---|---|
@@ -3289,7 +3295,7 @@ Closed-world order uses class-aware service fork model; edited upstream paths tr
 
 Before/after each 7A/7B/7C staged review, run the exact `TASK6_1_FROZEN_GREEN` block in section 3.5 plus the slice's Task7 focused tests. Reports record base `39a29373b91445e9242e82611f0a8a04fca525ea`, contract `bd296dabe872f08adca793d93a2cd6a2c7efca60c58127b07924b2f18840b27b`, manifest bytes 925, and the exact path list. Task7 execution remains gated only by a fresh READY rereview of this newly checksummed binding plan.
 
-The ignored Task7 brief remains quarantined until R25 READY.
+The ignored Task7 brief remains quarantined until R26 READY.
 
 **Exact staged path allowlists**
 
@@ -3924,13 +3930,14 @@ it.each([
   if (terminalStatus === 'pre-egress-rejected') expect(observed.statusProjection).toMatchObject({preExecutionConsentManifestHash:null,finalEgressManifestHash:null,operationEvidenceReceiptHash:null});
 });
 
-it.each(['pre-egress-rejected','rejected','succeeded','failed','outcome-unknown','resolved-not-applied'])
+it.each(['pre-egress-rejected','rejected','succeeded','failed','outcome-unknown','resolved-applied','resolved-not-applied','abandoned'])
 ('returns one server-verified evidence view for %s',async status=>{
   await seedClosedMatrixState(status);
   const view=await control.get(`/control/operations/${operationId}/evidence`,actorToken);
   expect(view).toMatchObject({schemaVersion:1,serverVerified:true,statusProjection:{operationId,status}});
   expect(egressStore.readVerifiedFinalizer).toHaveBeenCalledWith(principal.actorId,operationId,view.statusProjection.finalEgressManifestHash);
   expect(viewLinksMatchClosedMatrix(view)).toBe(true);
+  if(['resolved-applied','resolved-not-applied','abandoned'].includes(status)) expect(view).toMatchObject({receipt:null,finalizerProjection:{finalStatus:'outcome-unknown',manifestHash:originalOutcomeUnknownManifestHash}});
 });
 it('allows outcome-unknown finalizer with null receipt', async () => {
   await settleUnknown();
@@ -4100,7 +4107,7 @@ it('fsyncs a 256-member native artifact manifest and keeps the receipt row bound
   const projection = projector.project(Object.freeze({operationId,workspaceId}),'tool','save_screenshots',args,strictResult);
   const nativeEvidence = await evidenceArtifacts.createNativeManifest({context:verifiedNativeContext,projection});
   expect(nativeEvidence).toMatchObject({kind:'export',artifactCount:256,totalArtifactBytes:sumActualBytes(strictResult)});
-  expect(await canonicalFileBytes(nativeEvidence.manifestRelativePath)).toHaveLength(299956);
+  expect(await canonicalFileBytes(nativeEvidence.manifestRelativePath)).toHaveLength(300277);
   expect(canonicalReceiptBytes(receiptWith(nativeEvidence)).length).toBeLessThanOrEqual(65536);
   expect(events).toContainOrdered(['native-members-reread','native-manifest-fsync','native-manifest-directory-fsync','prepared-evidence-receipt-fsync']);
 });
@@ -4115,7 +4122,7 @@ it('deduplicates repeated image-fill refs many-to-one and rejects all-null outpu
     .toEqual({kind:'no-artifact',reasonCode:'native-output-path-null'});
 });
 
-it.each(['count257','path1025','injected-manifest299957','duplicate','unsorted','digest-mismatch','symlink','escape'])
+it.each(['count257','path1025','quote','backslash','c0-control','injected-manifest300278','duplicate','unsorted','digest-mismatch','symlink','escape'])
 ('rejects invalid native artifact manifest %s without overwrite or rerun', async fault => {
   await expect(projectNativeExport(fault)).rejects.toMatchObject({code:expect.stringMatching(/ARTIFACT|PATH|EVIDENCE/)});
   expect(overwriteCalls).toBe(0);
@@ -4492,7 +4499,7 @@ Stage only `task-10.json` union, byte-verify, review/rerun exact GREEN, then com
 
 - Modify: `service/packages/ir/package.json` with exact runtime dependencies `@sfp/shared:"workspace:*"` and `zod:"4.4.3"`; modify `service/packages/mcp/package.json` to consume `@sfp/ir:"workspace:*"`; modify `service/pnpm-lock.yaml`.
 - Create exact IR sources `service/packages/ir/src/canonical-json.ts`, `fidelity.ts`, `snapshot-v1.ts`, `snapshot-storage.ts`, `grounding-graph-v1.ts`, `store.ts`, and `index.ts`; create exact pure tests `service/packages/ir/test/canonical-json.test.ts`, `fidelity.test.ts`, `snapshot-v1.test.ts`, `snapshot-storage.test.ts`, `grounding-graph-v1.test.ts`, and `store.test.ts`. IR owns `SnapshotV1` and `SnapshotStoragePort` together and imports no filesystem module.
-- Create exact MCP snapshot sources `service/packages/mcp/src/snapshot/workspace-snapshot-storage.ts`, `workspace-graph-storage.ts`, `capture-snapshot.ts`, `snapshot-operation-evidence.ts`, `build-grounding-graph.ts`, and `refresh-grounding-graph.ts`; create exact control sources `service/packages/mcp/src/control/snapshot-endpoints.ts` and `grounding-endpoints.ts`; modify the central `service/packages/mcp/src/execution/operation-evidence-projector.ts` and `service/packages/mcp/test/execution/operation-evidence-projector.test.ts` to register only the two service projectors.
+- Create exact MCP snapshot sources `service/packages/mcp/src/snapshot/workspace-snapshot-storage.ts`, `workspace-graph-storage.ts`, `capture-snapshot.ts`, `snapshot-operation-evidence.ts`, `build-grounding-graph.ts`, and `refresh-grounding-graph.ts`; create exact control sources `service/packages/mcp/src/control/snapshot-endpoints.ts` and `grounding-endpoints.ts`; modify exact central `service/packages/mcp/src/execution/operation-executor.ts`, `native-evidence-artifact-port.ts`, `operation-evidence-projector.ts` and matching `service/packages/mcp/test/execution/operation-executor.test.ts`, `native-evidence-artifact-port.test.ts`, `operation-evidence-projector.test.ts` to materialize the two service projections.
 - Modify service-operation registry/shared schemas/control route-registry for two reachable routes; the Task7 consumer adapter installs them through Task6.1 facade, with no producer edit.
 - Create exact MCP tests `service/packages/mcp/test/snapshot/snapshot-schema.test.ts`, `snapshot-capture.test.ts`, `snapshot-operation-evidence.test.ts`, `snapshot-evidence-effects.test.ts`, `snapshot-locator.test.ts`, `snapshot-storage.test.ts`, `grounding-graph.test.ts`, `grounding-refresh.test.ts`, `grounding-storage.test.ts`, `snapshot-progress.test.ts`, and `service-operation-routing.test.ts`.
 - Create exact memory test/harness `service/packages/ir/test/grounding-graph-memory.test.ts` and `service/packages/ir/test/fixtures/grounding-graph-memory.mjs`.
@@ -4502,7 +4509,7 @@ Stage only `task-10.json` union, byte-verify, review/rerun exact GREEN, then com
 - Consumes: Task 7 empty service-operation seam, immutable policy/path/target-resolved scope, one executor and shared progress/cancel/terminal transport; Task 8 workspace store; Task 10 stable pin. No snapshot type lives in shared.
 - Produces: strict snapshot/graph schemas and storage ports, service2, reachable authenticated routes, kind/name journal, and Task7 receipt integration that binds exact locator/id/ref/checksum/fidelity/artifact digest; consumed by Task13; MCP remains112.
 
-**Commit protocol:** `task-11.json` enumerates every repo-relative path named in this Task: both package manifests and pnpm lock; all seven IR sources; all six ordinary IR tests plus memory test+fixture; six MCP snapshot sources including receipt integration; two control endpoint sources; central operation-evidence projector source/test; all eleven MCP snapshot tests including effects; exact shared service-operation schema, MCP service registry, control route-registry/index modifications; package authority, change manifest, and authority trio. No directory/glob row is legal, and the staged-name byte comparison rejects an unlisted IR/snapshot file. Both package manifests and the lock are mandatory staged rows.
+**Commit protocol:** `task-11.json` enumerates every repo-relative path named in this Task: both package manifests and pnpm lock; all seven IR sources; all six ordinary IR tests plus memory test+fixture; six MCP snapshot sources; two endpoints; executor/materializer/projector source+tests; all eleven MCP snapshot tests including effects; exact shared service-operation schema, MCP service registry, control route-registry/index modifications; package authority, change manifest, and authority trio. No directory/glob row is legal.
 
 - [ ] **Step 1: Write canonical hash and section assembly RED**
 
@@ -4604,13 +4611,13 @@ it('keeps the storage dependency direction IR -> shared and MCP adapter -> IR', 
 
 - [ ] **Step 2: Run snapshot RED**
 
-Run exactly `pnpm -C service exec vitest run packages/ir/test/canonical-json.test.ts packages/ir/test/fidelity.test.ts packages/ir/test/snapshot-v1.test.ts packages/ir/test/snapshot-storage.test.ts packages/ir/test/grounding-graph-v1.test.ts packages/ir/test/store.test.ts packages/ir/test/grounding-graph-memory.test.ts packages/mcp/test/snapshot/snapshot-schema.test.ts packages/mcp/test/snapshot/snapshot-capture.test.ts packages/mcp/test/snapshot/snapshot-operation-evidence.test.ts packages/mcp/test/snapshot/snapshot-evidence-effects.test.ts packages/mcp/test/snapshot/snapshot-locator.test.ts packages/mcp/test/snapshot/snapshot-storage.test.ts packages/mcp/test/snapshot/grounding-graph.test.ts packages/mcp/test/snapshot/grounding-refresh.test.ts packages/mcp/test/snapshot/grounding-storage.test.ts packages/mcp/test/snapshot/snapshot-progress.test.ts packages/mcp/test/snapshot/service-operation-routing.test.ts packages/mcp/test/execution/operation-evidence-projector.test.ts packages/mcp/test/execution/service-operation-name.test.ts packages/mcp/test/execution/service-operation-registry.test.ts packages/mcp/test/control/control-router.test.ts test/tool-contract.test.ts`; omission is RED failure.
+Run exactly `pnpm -C service exec vitest run packages/ir/test/canonical-json.test.ts packages/ir/test/fidelity.test.ts packages/ir/test/snapshot-v1.test.ts packages/ir/test/snapshot-storage.test.ts packages/ir/test/grounding-graph-v1.test.ts packages/ir/test/store.test.ts packages/ir/test/grounding-graph-memory.test.ts packages/mcp/test/snapshot/snapshot-schema.test.ts packages/mcp/test/snapshot/snapshot-capture.test.ts packages/mcp/test/snapshot/snapshot-operation-evidence.test.ts packages/mcp/test/snapshot/snapshot-evidence-effects.test.ts packages/mcp/test/snapshot/snapshot-locator.test.ts packages/mcp/test/snapshot/snapshot-storage.test.ts packages/mcp/test/snapshot/grounding-graph.test.ts packages/mcp/test/snapshot/grounding-refresh.test.ts packages/mcp/test/snapshot/grounding-storage.test.ts packages/mcp/test/snapshot/snapshot-progress.test.ts packages/mcp/test/snapshot/service-operation-routing.test.ts packages/mcp/test/execution/operation-evidence-projector.test.ts packages/mcp/test/execution/native-evidence-artifact-port.test.ts packages/mcp/test/execution/operation-executor.test.ts packages/mcp/test/execution/service-operation-name.test.ts packages/mcp/test/execution/service-operation-registry.test.ts packages/mcp/test/control/control-router.test.ts test/tool-contract.test.ts`; omission is RED failure.
 
 Expected: IR modules and section reader are absent.
 
 - [ ] **Step 3: Implement canonical schemas/store**
 
-Implement every strict section3.7 schema/type, SnapshotId/Locator, canonical hashes, SnapshotStoragePort and GraphStoragePort in IR with no fs. MCP adapters use Task7's atomic evidence primitive as generalized by Task8, verified digest-only namespaces, embedded identity/workspace/hash/id checks, checksum/CAS atomic create/replace and import-direction gates. `snapshot.capture` declares `ServerEvidenceWriteEffectV1{evidenceKind:'snapshot',writeMode:'create-new',destructive:false,expectedContentHash:null}`; graph creation is create-new, while `grounding.refresh` declares graph `cas-replace`, destructive true and exact expected checksum. Effects enter policy/approval/concurrency before IO.
+Implement every strict section3.7 schema/type, SnapshotId/Locator, canonical hashes, SnapshotStoragePort and GraphStoragePort in IR with no fs. MCP `NativeEvidenceMaterializerPort` rereads stored bytes, validates embedded workspace/locator/checksum/fidelity and only then emits final evidence. `snapshot.capture` declares exactly two `ServerEvidenceWriteEffectV1` rows before approval: snapshot create-new and initial grounding-graph create-new, both non-destructive/null-CAS. `grounding.refresh` declares exactly one grounding-graph cas-replace/destructive effect with expected checksum. Effect count/kind/path/mode/CAS tests plus materializer tamper tests are exact.
 
 - [ ] **Step 4: Implement bounded section capture**
 
@@ -4631,7 +4638,7 @@ Run this complete copy/paste block against the staged `task-11.json` tree:
 ~~~powershell
 pnpm -C service install --lockfile-only
 pnpm -C service install --frozen-lockfile
-pnpm -C service exec vitest run packages/ir/test/canonical-json.test.ts packages/ir/test/fidelity.test.ts packages/ir/test/snapshot-v1.test.ts packages/ir/test/snapshot-storage.test.ts packages/ir/test/grounding-graph-v1.test.ts packages/ir/test/store.test.ts packages/ir/test/grounding-graph-memory.test.ts packages/mcp/test/snapshot/snapshot-schema.test.ts packages/mcp/test/snapshot/snapshot-capture.test.ts packages/mcp/test/snapshot/snapshot-operation-evidence.test.ts packages/mcp/test/snapshot/snapshot-evidence-effects.test.ts packages/mcp/test/snapshot/snapshot-locator.test.ts packages/mcp/test/snapshot/snapshot-storage.test.ts packages/mcp/test/snapshot/grounding-graph.test.ts packages/mcp/test/snapshot/grounding-refresh.test.ts packages/mcp/test/snapshot/grounding-storage.test.ts packages/mcp/test/snapshot/snapshot-progress.test.ts packages/mcp/test/snapshot/service-operation-routing.test.ts packages/mcp/test/execution/operation-evidence-projector.test.ts packages/mcp/test/execution/service-operation-name.test.ts packages/mcp/test/execution/service-operation-registry.test.ts packages/mcp/test/control/control-router.test.ts test/tool-contract.test.ts
+pnpm -C service exec vitest run packages/ir/test/canonical-json.test.ts packages/ir/test/fidelity.test.ts packages/ir/test/snapshot-v1.test.ts packages/ir/test/snapshot-storage.test.ts packages/ir/test/grounding-graph-v1.test.ts packages/ir/test/store.test.ts packages/ir/test/grounding-graph-memory.test.ts packages/mcp/test/snapshot/snapshot-schema.test.ts packages/mcp/test/snapshot/snapshot-capture.test.ts packages/mcp/test/snapshot/snapshot-operation-evidence.test.ts packages/mcp/test/snapshot/snapshot-evidence-effects.test.ts packages/mcp/test/snapshot/snapshot-locator.test.ts packages/mcp/test/snapshot/snapshot-storage.test.ts packages/mcp/test/snapshot/grounding-graph.test.ts packages/mcp/test/snapshot/grounding-refresh.test.ts packages/mcp/test/snapshot/grounding-storage.test.ts packages/mcp/test/snapshot/snapshot-progress.test.ts packages/mcp/test/snapshot/service-operation-routing.test.ts packages/mcp/test/execution/operation-evidence-projector.test.ts packages/mcp/test/execution/native-evidence-artifact-port.test.ts packages/mcp/test/execution/operation-executor.test.ts packages/mcp/test/execution/service-operation-name.test.ts packages/mcp/test/execution/service-operation-registry.test.ts packages/mcp/test/control/control-router.test.ts test/tool-contract.test.ts
 pnpm -C service typecheck
 pnpm -C service build
 node service/scripts/update-service-forks.mjs --slice 11 --index service/capabilities/change-manifests/task-11.json
@@ -4837,7 +4844,7 @@ export interface LocalDaemonDiscoveryV1 {stateRoot:string;baseUrl:'http://127.0.
 export declare function discoverLocalDaemon(platform:NodeJS.Platform,env:Readonly<Record<string,string|undefined>>):Readonly<LocalDaemonDiscoveryV1>;
 ~~~
 
-Discovery is one shared authority. win32 requires canonical absolute `LOCALAPPDATA` then appends `SuperFigmaPipeline`; darwin requires `HOME` then appends `Library/Application Support/SuperFigmaPipeline`; linux uses absolute `XDG_STATE_HOME/super-figma-pipeline`, otherwise `HOME/.local/state/super-figma-pipeline`. Port is always3055. Only standard `LOCALAPPDATA`, `XDG_STATE_HOME`, and `HOME` are discovery inputs. CLI flags, config keys or custom environment variables that override endpoint/stateRoot/port are unknown-key errors. Before reading any local credential the CLI verifies owner security through shared StatePermissions; missing/relative/insecure roots fail before network. Platform/path/owner/foreign-ACL/missing-env tests are exact.
+Discovery is one shared authority. win32 requires canonical absolute `LOCALAPPDATA` then appends `SuperFigmaPipeline`; darwin requires `HOME` then appends `Library/Application Support/SuperFigmaPipeline`; linux uses absolute `XDG_STATE_HOME/super-figma-pipeline`, otherwise `HOME/.local/state/super-figma-pipeline`. Port is always3055. Only standard `LOCALAPPDATA`, `XDG_STATE_HOME`, and `HOME` are discovery inputs. CLI flags, config keys or custom environment variables that override endpoint/stateRoot/port are unknown-key errors. Before reading a credential the CLI calls existing shared `StatePermissions.verifySecure(stateRoot)`. Missing/relative/insecure roots fail before network. Platform/path/ACL/missing-env tests are exact.
 
 **Interfaces**
 
@@ -4927,7 +4934,7 @@ it.each(['--state-root','--endpoint','--port','SFP_STATE_ROOT','SFP_DAEMON_URL']
 });
 
 it('fails before network on an insecure owner state root',async()=>{
-  statePermissions.verifyOwner.mockRejectedValueOnce(Object.assign(new Error(),{code:'STATE_PERMISSIONS_INSECURE'}));
+  statePermissions.verifySecure.mockRejectedValueOnce(Object.assign(new Error(),{code:'STATE_PERMISSIONS_INSECURE'}));
   await expect(createControlClient({platform:process.platform,env:validDiscoveryEnv})).rejects.toMatchObject({code:'STATE_PERMISSIONS_INSECURE'});
   expect(controlRequests).toHaveLength(0);
 });
@@ -4991,6 +4998,7 @@ it('sends the strict nested envelope with false capture for no flag and every wr
   for (const call of fakeControl.calls.filter(x => x.path === '/control/tools/call')) {
     expect(call.body).toEqual(expect.objectContaining({version:1,captureResult:false,invocation:expect.objectContaining({targetSelector:expect.any(Object)})}));
     expect(call.body).not.toHaveProperty('toolName');
+    expect(call.body).not.toHaveProperty('targetSelector');
     expect(call.body).not.toHaveProperty('captureIntent');
   }
 });
@@ -5285,16 +5293,16 @@ Stage only `task-15.json` union, byte-verify, review/rerun exact GREEN, then com
 - Create `service/scripts/current-windows-diagnostic.mjs`, `run-fake-source-checks.mjs`, `source-complete-validator.mjs`, `write-preview-candidate.mjs`, and `write-source-complete-preview.mjs`.
 - Create exact root tests `service/test/preview-candidate.test.ts`, `source-complete-evidence.test.ts`, `current-windows-diagnostic-success.test.ts`, `current-windows-diagnostic-errors.test.ts`, `evidence-schema-draft.test.ts`, `source-harness-binding.test.ts`, `blocking-check-fixture-map.test.ts`, `daemon-artifact-surface.test.ts`, and `packed-daemon-bin.test.ts`; modify `service/test/workflow-hygiene.test.ts`, `service/vitest.config.ts`, and `service/vitest.artifacts.config.ts` so the final artifact-dependent tuple is exactly four rows.
 - Modify Task15 `service/scripts/package-artifacts.mjs`, `verify-artifacts.mjs`, the named MCP `files`/`exports`/`bin` fields, and packed artifact manifest to include `dist/daemon-entry.mjs`. There is no anonymous executable authority.
-- Modify `service/package.json` and `service/pnpm-lock.yaml` only for direct Ajv `8.17.1`, exact source-complete scripts, and lock authority. Fixed generated files under `service/artifacts/` remain ignored.
+- Modify root `service/package.json` and `service/pnpm-lock.yaml` for direct Ajv `8.17.1`, source-complete scripts, and exact `"dev:mcp":"pnpm --filter @sfp/mcp dev"`; `task-16.json` must list root package explicitly and `service/test/mcp-dev-script.test.ts` executes that literal. Fixed artifacts remain ignored.
 - No detached controller, process-state file, automatic pairing, destructive fixture setup/cleanup, real workspace/domain/Figma mutation, external network, or publication workflow belongs to Task16.
 
 **Interfaces**
 
 - Consumes: Task15 verified local artifacts plus all Task1–15 source authorities and frozen Task6.1.
 - Produces: `createMcpApplication`, stdio/daemon parity, foreground source daemon entry, the exact fake16 evidence checks, strict redacted `CurrentWindowsDiagnosticV1`, `PreviewCandidateV1`, `SourceCompleteEvidenceV1`, and `SourceCompletePreviewV1`.
-- Real-Figma validation is governed only after R25 READY.
+- Real-Figma validation is governed only after R26 READY.
 
-**Commit protocol:** `task-16.json` includes the exact existing build-id serviceFork, sole build driver, application/daemon/index/local-binding sources, package/tsdown, root dev-script test, the four ControlStatus source/test paths, tests/schemas/scripts/config/lock/authority; generated dist is never staged. The `build-id.ts` edit is transitioned to serviceFork before copy-only and the final ControlStatus nonnull migration is explicitly restaged and reviewed in the same tree.
+**Commit protocol:** `task-16.json` includes exact root `service/package.json`, existing build-id serviceFork, sole build driver, MCP package/tsdown, application/daemon/index/local-binding sources, root dev-script test, four ControlStatus paths, schemas/scripts/config/lock/authority; generated dist is never staged.
 
 - [ ] **Step 1: Write complete Task16 RED**
 
@@ -5402,6 +5410,12 @@ it('writes exactly three cross-validated unsigned files', async () => {
   expect(claimIds(evidence,'fake.network-policy')).toEqual(['policy.network-pre-egress-rejected']);
   expect(claimIds(evidence,'fake.approval-undo')).toEqual(['approval.duplicate','approval.expired','approval.rejected']);
   expect(claimIds(evidence,'fake.idempotency-journal')).toEqual(['idempotency.conflict','idempotency.outcome-unknown-no-rerun','idempotency.settled-replay']);
+  for(const claim of negativeClaims(evidence)){
+    expect(claim).toMatchObject({dispatchDelta:0,runtimeDelta:0,receiptDelta:0});
+    expect(claim.resultHash).toBe(hashNegativeClaim(claim));
+  }
+  expect(()=>SourceCompleteEvidenceV1Schema.parse(tamperClaimCounter(evidence))).toThrow();
+  expect(()=>SourceCompleteEvidenceV1Schema.parse(tamperClaimStateOrHash(evidence))).toThrow();
   expect(marker).toMatchObject({
     externalValidationStatus: 'not-run',
     candidateContentHash: candidate.contentHash,
@@ -5479,7 +5493,7 @@ Stage only the exact `task-16.json` union, compare staged names byte-for-byte wi
 
 - [ ] **Step 9: Review Task16 quality and scope**
 
-Reviewers defer real-Figma work until R25 READY.
+Reviewers defer real-Figma work until R26 READY.
 
 - [ ] **Step 10: Run the sole terminal source-complete command after the clean commit**
 
@@ -5525,7 +5539,7 @@ This plan contains no macOS external-validation files, commands, or completion c
 - CLI includes shared platform-default owner-secure stateRoot/port3055 discovery with no override, strict authenticated status, egress status/configure/reset, workspace set-default, and locator-based grounding refresh plus prior wrappers.
 - CLI generic `tools call` covers all116 through canonical schemas/the same plane and optional result artifacts; every wrapper uses the nested selector envelope, operation evidence returns server-verified status/receipt/finalizer view, and egress audit returns a strict redacted chain proof.
 - Canonical redacted result bytes are identical across cache/adapters/hash/capture; total receipts separate optional resultArtifact from native projector evidence with exact tool116+service2 coverage.
-- Native export evidence preserves up to256 artifacts through one fixed canonical manifest reference (member path1024/exact structural max299956) while every receipt row remains <=65536; Task7 7C fsync/reread and supplemental member verification pass.
+- Native export evidence preserves up to256 artifacts through one fixed canonical manifest reference (portable member path1024/exact serialized max300277 incl LF) while every receipt row remains <=65536; Task7 7C fsync/reread and supplemental member verification pass.
 - Task8's exact six icons/profile/tokens direct-fs importers and ledger migrate to RepoReader/WorkspacePolicy; production project readers have zero unlisted node:fs imports.
 - All tools and Task11 service2 enter one plane; followers consume only final Task6.1 plaintext stream facade; route classes cannot cross-call.
 - Strict lower-snake tool and exact dotted service-name parsers feed one kind/name registry+journal; both service literals and invalid dot/slash/case/length/cross-kind fixtures pass. Requests produce native pre-admission rejection or accepted/progress/exactly-one-terminal with no Relay/runtime bypass.
@@ -5558,7 +5572,7 @@ This plan contains no macOS external-validation files, commands, or completion c
 - One canonical fingerprint `{actorId,operationId,kind,name,argsHash,workspaceId,fileExecutionKeyHash,targetBindingHash,captureIntentHash}` applies once and is copied through record/tombstone/resolution; any mismatch conflicts. Cache holds canonical redacted semantic bytes, never entry framing; current auth/consent fingerprint must match before reframing. Otherwise payload-free settled+audit; no reruntime.
 - Every result/native/snapshot/graph write is an exact `ServerEvidenceWriteEffectV1`; create-new uses exclusive hard-link publication, graph refresh uses destructive CAS. Replays resolve durable state before filesystem preflight and post-runtime target races settle unknown.
 - Operation IDs use the exact max384 `sfp_op1_<canonical-payload>.<HMAC>` grammar, owner-secure stable32-byte key, byte0x00 domain separator and fixed vector; age `>=2,592,000,000 ms` is expired, future skew `<=300,000 ms` allowed and above invalid.
-- R25 pre-egress/null-link matrix and artifact -> prepared receipt -> matching finalizer -> terminal(receipt contentHash) -> frame crash boundaries pass; uncertainty and outcome-unknown never rerun.
+- R26 public-projection/pre-egress/null-link matrix and artifact -> receipt -> finalizer -> terminal crash boundaries pass; uncertainty and outcome-unknown never rerun.
 - Journal compacts active transitions at 8,000 rows/24 MiB, stops normal operation appends at 10,000 rows or 31 MiB, reserves the final exact 1 MiB of its 32 MiB active allocation for fsynced resolution intents, moves ordinary terminal records to a separate 1,000,000-entry/256 MiB tombstone index through each signed 30-day horizon, rejects older IDs from signed issuedAt after purge, and keeps status/resolution/purge routes available to unblock capacity/workspaces.
 - Authenticated owner-local operation issue/list/status/resolve and CLI commands record actor/auth/confirmation/reason/evidence hashes without normal approval. A confirmed resolution is an authoritative reserved no-replay tombstone even when the ordinary tombstone index is full; resolved-applied/resolved-not-applied/abandoned release unresolved workspace/cap accounting, while reserve-full fails typed and leaves state unchanged.
 - Approval binding strict union enforces plugin-session WS/non-null file key or owner-control auth session/null-capable target; wrong branch fields fail. grounding/CLI use control; plugin/bootstrap use WS. TTL/CAS/reconnect semantics and runtime0 predecision hold.
@@ -6211,10 +6225,23 @@ Commit `97c17e86216dc28948f6524515ea8e899cfa1569` and plan SHA `0bb430ee61ab2f69
 | 7C/8A ownership | 7C owns exclusive-link atomic/evidence production cutover; 8A consumes it and closes the exact six icons/profile/tokens direct-fs importers with a strict ledger. |
 | Evidence view | Egress read verification and `OperationEvidenceViewV1.serverVerified` replace client-side journal joining across active/tombstone/resolution states. |
 | IDs/replay | Exact max384 operation token/HMAC and one nine-field fingerprint have literal byte0x00 domains, fixed vectors, stable-file generation/session and capture-toggle conflicts; unknown is settled. |
-| Hashes/stores | Correct byte0x00 generation/source-complete vectors, one checkpoint generation promotion order, compaction-stable finalizer lookup and real native manifest max299956 are binding. |
+| Hashes/stores | Correct byte0x00 generation/source-complete vectors, one checkpoint generation promotion order, compaction-stable finalizer lookup and real native manifest max300277 are binding. |
 | CLI/build/package | Platform-default owner-secure CLI discovery has no overrides; every wrapper nests selector; Task15 legal staging remains exact; Task16 finalizes status and two-entry build/watch scripts. |
 | Supplemental | Trusted SourceComplete claims replace live negative probes; pre-bearer packed/numeric identity then first-status identity, raw-NUL Git manifest parsing, dist-only package layout and access re-resolution are exact. |
-| Handoff | This R25 three-document commit/checksum is the sole fresh READY target; no Task7 brief or execution occurs beforehand. |
+| Handoff | Superseded by R26. |
+
+### 2026-08-28 R26 surgical closure
+
+Commit `7ed0ba5386940f70d73da88f8bd491fd2e5f7beb` and plan SHA `537ff6d1338828e8ec9fe3f7e168bac7c382a7b82e25d71b2ee5e06a59ecdff0` received scoped R25 findings and is superseded for Task7 onward.
+
+| R26 scope | Binding resolution |
+|---|---|
+| Public evidence | Strict receipt projection removes actor/private chain fields; view and supplemental expose projections only. |
+| Materialization/path | Branded context binds projector to verified ports; export/snapshot/graph materialization and exact effects close IO. Portable paths avoid JSON escaping; production max is300277 incl LF. |
+| CLI/resolution | Selector remains nested, discovery uses verifySecure, and all resolution statuses inherit verified OutcomeUnknown finalizer with null receipt. |
+| Fake proofs/Sites | SourceComplete claims execute real fake counters/state; Sites maps dist/hosting/drizzle exactly and closes defer/failure/success branches. |
+| Durability/build | Compaction publishes immutable generation files by exclusive hard link; root dev:mcp is an exact Task16 package authority. |
+| Handoff | This R26 three-document commit/checksum is the sole fresh READY target. |
 
 Prior service findings remain incorporated. Prior external-ceremony findings are explicitly superseded by this scope correction and require separate future authorization.
 
@@ -6222,4 +6249,4 @@ Prior service findings remain incorporated. Prior external-ceremony findings are
 
 ## 11. Execution Handoff
 
-Commit this R25 three-document change as sole review target. No execution before READY; regenerate the quarantined brief only afterward with the R25 commit/plan SHA and frozen Task6.1 evidence.
+Commit this R26 three-document change as sole review target. No execution before READY; regenerate the quarantined brief only afterward with the R26 commit/plan SHA and frozen Task6.1 evidence.
