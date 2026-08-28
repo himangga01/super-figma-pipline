@@ -1,4 +1,3 @@
-import { createHash } from 'node:crypto';
 import { chmod, lstat, mkdtemp, readFile, readdir, rm, stat, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
@@ -6,12 +5,8 @@ import { join } from 'node:path';
 import { afterEach, describe, expect, it } from 'vitest';
 
 import { Node } from '../../src/election/node.js';
-import {
-  createFollowerAuth,
-  openFollowerResponse,
-  sealFollowerRequest,
-  verifyFollowerChallenge,
-} from '../../src/security/follower-auth.js';
+import * as followerAuthSurface from '../../src/security/follower-auth.js';
+import { createFollowerAuth, verifyFollowerChallenge } from '../../src/security/follower-auth.js';
 
 const roots: string[] = [];
 
@@ -42,7 +37,23 @@ afterEach(async () => {
 });
 
 describe('leader-generation credentials', () => {
-  it('binds encrypted follower requests to one challenge, method, path, body, and generation', async () => {
+  it('keeps legacy unary follower crypto outside the production API', async () => {
+    expect('sealFollowerRequest' in followerAuthSurface).toBe(false);
+    expect('openFollowerResponse' in followerAuthSurface).toBe(false);
+
+    const auth = await createFollowerAuth({
+      memory: {
+        generation: Buffer.alloc(16, 88).toString('base64url'),
+        followerToken: Buffer.alloc(32, 89).toString('base64url'),
+        controlToken: Buffer.alloc(32, 90).toString('base64url'),
+        createdAt: 1,
+      },
+    });
+    expect('openFollowerRequest' in auth).toBe(false);
+    expect('sealFollowerResponse' in auth).toBe(false);
+  });
+
+  it('issues one-shot versioned follower challenges with exact expiry', async () => {
     let now = 1_000;
     const generation = {
       generation: Buffer.alloc(16, 91).toString('base64url'),
@@ -53,169 +64,46 @@ describe('leader-generation credentials', () => {
     const auth = await createFollowerAuth({ memory: generation, now: () => now });
     const challenge = await auth.issueFollowerChallenge();
     expect(verifyFollowerChallenge(generation.followerToken, challenge, now)).toBe(true);
-    const plaintext = Buffer.from('sensitive rpc args');
-    const sealed = sealFollowerRequest(
-      generation.followerToken,
-      challenge,
-      'POST',
-      '/rpc',
-      plaintext,
-      'unit-request',
-      size => Buffer.alloc(size, 94),
-      now,
-    );
-    expect(sealed.headers.authorization).toBeUndefined();
-    expect(sealed.headers['x-sfp-body-sha256']).toBeUndefined();
-    expect(sealed.headers['x-sfp-request-digest']).not.toBe(
-      createHash('sha256').update(plaintext).digest('base64url'),
-    );
-    expect(sealed.body.equals(plaintext)).toBe(false);
     await expect(
-      auth.openFollowerRequest({
-        method: 'POST',
-        path: '/rpc',
-        headers: sealed.headers,
-        ciphertext: sealed.body,
-      }),
-    ).resolves.toMatchObject({ plaintext });
-    await expect(
-      auth.openFollowerRequest({
-        method: 'POST',
-        path: '/rpc',
-        headers: sealed.headers,
-        ciphertext: sealed.body,
+      auth.consumeFollowerChallenge({
+        followerTransportVersion: 0,
+        generation: challenge.generation,
+        nonce: challenge.nonce,
+        proof: challenge.proof,
       }),
     ).rejects.toMatchObject({ code: 'FOLLOWER_AUTH_INVALID' });
-
-    const wrongPathChallenge = await auth.issueFollowerChallenge();
-    const wrongPath = sealFollowerRequest(
-      generation.followerToken,
-      wrongPathChallenge,
-      'POST',
-      '/rpc',
-      plaintext,
-      'wrong-path-request',
-      size => Buffer.alloc(size, 95),
-      now,
-    );
     await expect(
-      auth.openFollowerRequest({
-        method: 'POST',
-        path: '/abdicate',
-        headers: wrongPath.headers,
-        ciphertext: wrongPath.body,
+      auth.consumeFollowerChallenge({
+        followerTransportVersion: challenge.followerTransportVersion,
+        generation: challenge.generation,
+        nonce: challenge.nonce,
+        proof: challenge.proof,
       }),
-    ).rejects.toMatchObject({ code: 'FOLLOWER_AUTH_INVALID' });
-
-    const tamperChallenge = await auth.issueFollowerChallenge();
-    const tampered = sealFollowerRequest(
-      generation.followerToken,
-      tamperChallenge,
-      'POST',
-      '/rpc',
-      plaintext,
-      'tampered-request',
-      size => Buffer.alloc(size, 96),
-      now,
-    );
-    tampered.body[0] = (tampered.body[0] ?? 0) ^ 1;
+    ).resolves.toEqual({
+      generation: generation.generation,
+      nonce: challenge.nonce,
+      followerToken: generation.followerToken,
+    });
     await expect(
-      auth.openFollowerRequest({
-        method: 'POST',
-        path: '/rpc',
-        headers: tampered.headers,
-        ciphertext: tampered.body,
-      }),
-    ).rejects.toMatchObject({ code: 'FOLLOWER_AUTH_INVALID' });
-
-    const wrongGenerationChallenge = await auth.issueFollowerChallenge();
-    const wrongGeneration = sealFollowerRequest(
-      generation.followerToken,
-      wrongGenerationChallenge,
-      'POST',
-      '/rpc',
-      plaintext,
-      'wrong-generation-request',
-      size => Buffer.alloc(size, 97),
-      now,
-    );
-    wrongGeneration.headers['x-sfp-leader-generation'] = Buffer.alloc(16, 98).toString('base64url');
-    await expect(
-      auth.openFollowerRequest({
-        method: 'POST',
-        path: '/rpc',
-        headers: wrongGeneration.headers,
-        ciphertext: wrongGeneration.body,
+      auth.consumeFollowerChallenge({
+        followerTransportVersion: challenge.followerTransportVersion,
+        generation: challenge.generation,
+        nonce: challenge.nonce,
+        proof: challenge.proof,
       }),
     ).rejects.toMatchObject({ code: 'FOLLOWER_AUTH_INVALID' });
 
     const expired = await auth.issueFollowerChallenge();
     now = expired.expiresAt;
     expect(verifyFollowerChallenge(generation.followerToken, expired, now)).toBe(false);
-  });
-
-  it('authenticates follower responses with a distinct key and exact status/path/nonce/generation/requestId', async () => {
-    const generation = {
-      generation: Buffer.alloc(16, 101).toString('base64url'),
-      followerToken: Buffer.alloc(32, 102).toString('base64url'),
-      controlToken: Buffer.alloc(32, 103).toString('base64url'),
-      createdAt: 1,
-    };
-    const auth = await createFollowerAuth({ memory: generation });
-    const challenge = await auth.issueFollowerChallenge();
-    const requestId = 'response-bound-request';
-    const request = sealFollowerRequest(
-      generation.followerToken,
-      challenge,
-      'POST',
-      '/rpc',
-      Buffer.from('request bytes'),
-      requestId,
-      size => Buffer.alloc(size, 104),
-    );
-    const opened = await auth.openFollowerRequest({
-      method: 'POST',
-      path: '/rpc',
-      headers: request.headers,
-      ciphertext: request.body,
-    });
-    const response = auth.sealFollowerResponse(
-      opened.context,
-      200,
-      requestId,
-      Buffer.from('response bytes'),
-      size => Buffer.alloc(size, 105),
-    );
-    expect(response.headers.authorization).toBeUndefined();
-    expect(response.headers['x-sfp-body-sha256']).toBeUndefined();
-    expect(response.body.equals(Buffer.from('response bytes'))).toBe(false);
-    const open = (overrides: Partial<Parameters<typeof openFollowerResponse>[1]> = {}) =>
-      openFollowerResponse(generation.followerToken, {
-        method: 'POST',
-        path: '/rpc',
-        generation: challenge.generation,
-        nonce: challenge.nonce,
-        requestDigest: request.headers['x-sfp-request-digest']!,
-        status: 200,
-        requestId,
-        headers: response.headers,
-        ciphertext: response.body,
-        ...overrides,
-      });
-    expect(open()).toEqual(Buffer.from('response bytes'));
-    for (const overrides of [
-      { status: 201 },
-      { path: '/abdicate' },
-      { nonce: Buffer.alloc(16, 106).toString('base64url') },
-      { generation: Buffer.alloc(16, 107).toString('base64url') },
-      { requestId: 'different-request' },
-    ]) {
-      expect(() => open(overrides)).toThrowError(
-        expect.objectContaining({ code: 'FOLLOWER_AUTH_INVALID' }),
-      );
-    }
-    response.body[0] = (response.body[0] ?? 0) ^ 1;
-    expect(() => open()).toThrowError(expect.objectContaining({ code: 'FOLLOWER_AUTH_INVALID' }));
+    await expect(
+      auth.consumeFollowerChallenge({
+        followerTransportVersion: expired.followerTransportVersion,
+        generation: expired.generation,
+        nonce: expired.nonce,
+        proof: expired.proof,
+      }),
+    ).rejects.toMatchObject({ code: 'FOLLOWER_AUTH_INVALID' });
   });
 
   it('reports no current credential before first rotation without verifying a missing file', async () => {

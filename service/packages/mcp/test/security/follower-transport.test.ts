@@ -341,26 +341,80 @@ describe('opaque authenticated follower stream', () => {
     await expect(iterator.next()).resolves.toEqual({ done: true, value: undefined });
   });
 
-  it.each(['extra', 'missing', 'foreign'] as const)(
-    'strict leaderInfo rejects %s public ping identity',
-    async mutation => {
-      const { transport } = await startHarness({
-        wrapFetch: base => async (input, init) => {
-          const response = await base(input, init);
-          if (!String(input).endsWith('/ping')) return response;
+  it.each([
+    'extra',
+    'missing',
+    'foreign',
+    'protocol',
+    'bad-proof',
+    'challenge-generation',
+  ] as const)('strict leaderInfo rejects %s public ping identity', async mutation => {
+    const { transport } = await startHarness({
+      wrapFetch: base => async (input, init) => {
+        const response = await base(input, init);
+        if (String(input).endsWith('/ping')) {
           const body = (await response.json()) as Record<string, unknown>;
           if (mutation === 'extra') body.plugins = 1;
           if (mutation === 'missing') delete body.role;
           if (mutation === 'foreign') body.product = 'foreign-product';
+          if (mutation === 'protocol') body.protocolVersion = 'foreign-protocol';
           return new Response(JSON.stringify(body), {
             status: 200,
             headers: { 'content-type': 'application/json' },
           });
-        },
-      });
-      await expect(transport.client.leaderInfo()).resolves.toBeUndefined();
-    },
-  );
+        }
+        if (String(input).endsWith('/follower/challenge')) {
+          const body = (await response.json()) as Record<string, unknown>;
+          if (mutation === 'bad-proof') body.proof = Buffer.alloc(32, 88).toString('base64url');
+          if (mutation === 'challenge-generation') {
+            body.generation = Buffer.alloc(16, 89).toString('base64url');
+          }
+          return new Response(JSON.stringify(body), {
+            status: 200,
+            headers: { 'content-type': 'application/json' },
+          });
+        }
+        return response;
+      },
+    });
+    await expect(transport.client.leaderInfo()).resolves.toBeUndefined();
+  });
+
+  it('authenticates leaderInfo with one current versioned challenge and sends no POST', async () => {
+    let challengeGets = 0;
+    let posts = 0;
+    const { transport } = await startHarness({
+      wrapFetch: base => async (input, init) => {
+        if (String(input).endsWith('/follower/challenge')) challengeGets += 1;
+        if (init?.method === 'POST') posts += 1;
+        return base(input, init);
+      },
+    });
+    await expect(transport.client.leaderInfo()).resolves.toMatchObject({
+      leaderGeneration: generation,
+    });
+    expect(challengeGets).toBe(1);
+    expect(posts).toBe(0);
+  });
+
+  it('sends no sensitive POST when ping-to-challenge proof authentication fails', async () => {
+    let posts = 0;
+    const { transport } = await startHarness({
+      wrapFetch: base => async (input, init) => {
+        const response = await base(input, init);
+        if (init?.method === 'POST') posts += 1;
+        if (!String(input).endsWith('/follower/challenge')) return response;
+        const body = (await response.json()) as Record<string, unknown>;
+        body.proof = Buffer.alloc(32, 90).toString('base64url');
+        return new Response(JSON.stringify(body), {
+          status: 200,
+          headers: { 'content-type': 'application/json' },
+        });
+      },
+    });
+    await expect(openEcho(transport, Buffer.from('must-not-send'))).rejects.toBeInstanceOf(Error);
+    expect(posts).toBe(0);
+  });
 
   it.each([
     [
@@ -771,6 +825,36 @@ describe('opaque authenticated follower stream', () => {
     30_000,
   );
 
+  it('rejects an oversized request before Buffer.from can inspect or copy it', async () => {
+    let copyReads = 0;
+    let handled = 0;
+    const oversized = {
+      byteLength: RPC_REQUEST_MAX_BYTES + 1,
+      get length() {
+        copyReads += 1;
+        throw new Error('request copy attempted');
+      },
+    } as unknown as Uint8Array;
+    const { transport } = await startHarness({
+      handler: async (_request, response) => {
+        handled += 1;
+        await response.write(Buffer.from('unexpected'), { final: true });
+      },
+    });
+    await expect(
+      transport.client.open(
+        {
+          path: '/rpc',
+          transportRequestId: createFollowerTransportRequestId(),
+          plaintext: oversized,
+        },
+        AbortSignal.timeout(5_000),
+      ),
+    ).rejects.toMatchObject({ code: 'PAYLOAD_TOO_LARGE' });
+    expect(copyReads).toBe(0);
+    expect(handled).toBe(0);
+  });
+
   it.each([
     [FOLLOWER_RESPONSE_RECORD_MAX_BYTES - 1, true],
     [FOLLOWER_RESPONSE_RECORD_MAX_BYTES, true],
@@ -800,6 +884,26 @@ describe('opaque authenticated follower stream', () => {
     },
     30_000,
   );
+
+  it('authenticates truncation without copying an oversized response value', async () => {
+    let copyReads = 0;
+    const oversized = {
+      byteLength: FOLLOWER_RESPONSE_RECORD_MAX_BYTES + 1,
+      get length() {
+        copyReads += 1;
+        throw new Error('response copy attempted');
+      },
+    } as unknown as Uint8Array;
+    const { transport } = await startHarness({
+      handler: async (_request, response) => {
+        await response.write(oversized, { final: true });
+      },
+    });
+    await expect(collect(await openEcho(transport))).rejects.toMatchObject({
+      code: 'FOLLOWER_RESPONSE_TRUNCATED',
+    });
+    expect(copyReads).toBe(0);
+  });
 
   it.each([
     [FOLLOWER_RESPONSE_TOTAL_MAX_BYTES, true],
@@ -954,6 +1058,95 @@ describe('opaque authenticated follower stream', () => {
     responseRef?.emit('drain');
     await expect(iterator.next()).rejects.toMatchObject({ code: 'FOLLOWER_RESPONSE_TRUNCATED' });
   });
+
+  it.each([false, true])(
+    'never accepts an in-flight final when an overlapping %s write breaches the sink',
+    async secondFinal => {
+      let responseRef: ServerResponse | undefined;
+      let firstWrite = true;
+      const { transport } = await startHarness({
+        configureResponse: response => {
+          responseRef = response;
+          const write = response.write.bind(response);
+          response.write = ((chunk: Uint8Array) => {
+            const result = write(chunk);
+            if (firstWrite) {
+              firstWrite = false;
+              return false;
+            }
+            return result;
+          }) as typeof response.write;
+        },
+        handler: async (_request, response) => {
+          await Promise.all([
+            response.write(Buffer.from('must-not-be-accepted'), { final: true }),
+            response.write(Buffer.from('overlap'), { final: secondFinal }),
+          ]);
+        },
+      });
+      const yielded: unknown[] = [];
+      const reading = (async () => {
+        const stream = await transport.client.open(
+          {
+            path: '/rpc',
+            transportRequestId: createFollowerTransportRequestId(),
+            plaintext: Buffer.from('final-first-race'),
+          },
+          AbortSignal.timeout(1_000),
+        );
+        for await (const record of stream) yielded.push(record);
+      })().then(
+        () => ({ ok: true as const }),
+        error => ({ ok: false as const, error }),
+      );
+      await new Promise(resolve => setTimeout(resolve, 10));
+      responseRef?.emit('drain');
+      await expect(reading).resolves.toMatchObject({ ok: false, error: expect.any(Error) });
+      expect(yielded).toEqual([]);
+    },
+  );
+
+  it.each(['final', 'truncate'] as const)(
+    'settles a late %s promptly after the client cancels the subscription',
+    async operation => {
+      let lateOutcome!: PromiseSettledResult<void>;
+      let lateSettled!: () => void;
+      const lateFinished = new Promise<void>(resolve => {
+        lateSettled = resolve;
+      });
+      let responseRef: ServerResponse | undefined;
+      const { transport } = await startHarness({
+        configureResponse: response => {
+          responseRef = response;
+        },
+        handler: async (_request, response, subscriberSignal) => {
+          await response.write(Buffer.from('progress'), { final: false });
+          await new Promise<void>(resolve => {
+            subscriberSignal.addEventListener('abort', () => resolve(), { once: true });
+          });
+          const outcome = await Promise.allSettled([
+            operation === 'final'
+              ? response.write(Buffer.from('late'), { final: true })
+              : response.truncate(),
+          ]);
+          lateOutcome = outcome[0]!;
+          lateSettled();
+        },
+      });
+      const iterator = (await openEcho(transport))[Symbol.asyncIterator]();
+      await expect(iterator.next()).resolves.toMatchObject({ value: { sequence: 0 } });
+      await iterator.return?.();
+
+      const settled = await Promise.race([
+        lateFinished.then(() => true),
+        new Promise<boolean>(resolve => setTimeout(() => resolve(false), 250)),
+      ]);
+      expect(settled).toBe(true);
+      expect(lateOutcome?.status).toBe('rejected');
+      expect(responseRef?.listenerCount('drain')).toBe(0);
+      expect(responseRef?.listenerCount('error')).toBe(0);
+    },
+  );
 
   it('releases the response reader after a verified final and EOF', async () => {
     let body: ReadableStream<Uint8Array> | null = null;

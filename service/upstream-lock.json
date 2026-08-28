@@ -45,12 +45,16 @@
         "sha256": "4e0d22648e733bec29489cadb6a2575cdd96442a2b84e9c69bd8a8cc580a68c1"
       },
       {
+        "path": "packages/mcp/src/election/control-route-registry.ts",
+        "sha256": "4526b795ba941e19774d1b4f5ac323ead6cde0c85efb1cff84b2fb81aeaa1477"
+      },
+      {
         "path": "packages/mcp/src/election/follower.ts",
         "sha256": "0afa7a038644fc2e88d03cd9d4388d90b39f7829422a18ce2028588bd2fa2ad7"
       },
       {
         "path": "packages/mcp/src/election/leader-endpoints.ts",
-        "sha256": "8a0e8b8347270ddc8a4b1ff4c4b060768ee869b2ecf9f595ed82a2560ca9d823"
+        "sha256": "987525a5da9db2d2d3a852cdb4b9cb802d02181c36d17fbecce74d12bb8068f2"
       },
       {
         "path": "packages/mcp/src/election/leader-lock.ts",
@@ -98,11 +102,11 @@
       },
       {
         "path": "packages/mcp/src/security/follower-auth.ts",
-        "sha256": "c4bd4b7e1d8aed28a41a96af138d07553429722f2011d9942aa5aeda7295d369"
+        "sha256": "ead64222bed9dbdb9c0022a12b11a91307f29fcec8848984a9922f0f2acdb61e"
       },
       {
         "path": "packages/mcp/src/security/follower-transport.ts",
-        "sha256": "23ec783ffc8f7a4279411645020a121e18633b24d376a165dc15be283fc8d774"
+        "sha256": "a87793eb9b3b7e0f8ad8eac931acb11cd90522f64197bb3b4f164bd1e73fc8fc"
       },
       {
         "path": "packages/mcp/src/security/local-access.ts",
@@ -605,6 +609,10 @@
         "sha256": "ccd29e97f2b70d8078ad7b4dcc3ae2e8f06843107f704aa43c6d997a8983930e"
       },
       {
+        "path": "packages/mcp/test/election/control-route-registry.test.ts",
+        "sha256": "f588e03abbdca92ac72dc93cfd9c6c75437233c2cbe1f73a52eef556eceb413d"
+      },
+      {
         "path": "packages/mcp/test/election/election.test.ts",
         "sha256": "8da62f314cb19976b796ef89d878865a6a166af2cfe68524583dbfdf3c5f04a6"
       },
@@ -674,7 +682,7 @@
       },
       {
         "path": "packages/mcp/test/security/follower-transport.test.ts",
-        "sha256": "072289bf4d9f120c23b2bb4e42e316dd1a9a5adc85fa9192ed9296bcf2cca232"
+        "sha256": "d6f55202ec19c165a834be8a460739c5d06394bf6c0bc2efe04b9d7a4a26cf2e"
       },
       {
         "path": "packages/mcp/test/security/pairing.test.ts",
@@ -690,7 +698,7 @@
       },
       {
         "path": "packages/mcp/test/security/token-rotation.test.ts",
-        "sha256": "493890d289966290fd72f9be40810dca2e9153f81edaa2c92dc6218d331a8f2a"
+        "sha256": "95d50a8adb5085dd6bd1996af9db9e79e0d1b1369c3681063d01644897aee884"
       },
       {
         "path": "packages/mcp/test/tool-schema.ts",
@@ -802,7 +810,7 @@
       },
       {
         "path": "test/vendor-upstreams.test.ts",
-        "sha256": "c88ca8d1c546bd042d31c0fab6d84be811fcd517257215fb68e520b115561dce"
+        "sha256": "143d5410c0aabbab000427e231c3b92ea63805210177455b0d4bc3b588eb1935"
       }
     ]
   },
@@ -904,12 +912,16 @@
       "sha256": "4e0d22648e733bec29489cadb6a2575cdd96442a2b84e9c69bd8a8cc580a68c1"
     },
     {
+      "path": "packages/mcp/src/election/control-route-registry.ts",
+      "sha256": "4526b795ba941e19774d1b4f5ac323ead6cde0c85efb1cff84b2fb81aeaa1477"
+    },
+    {
       "path": "packages/mcp/src/election/follower.ts",
       "sha256": "0afa7a038644fc2e88d03cd9d4388d90b39f7829422a18ce2028588bd2fa2ad7"
     },
     {
       "path": "packages/mcp/src/election/leader-endpoints.ts",
-      "sha256": "8a0e8b8347270ddc8a4b1ff4c4b060768ee869b2ecf9f595ed82a2560ca9d823"
+      "sha256": "987525a5da9db2d2d3a852cdb4b9cb802d02181c36d17fbecce74d12bb8068f2"
     },
     {
       "path": "packages/mcp/src/election/leader-lock.ts",
@@ -957,11 +969,11 @@
     },
     {
       "path": "packages/mcp/src/security/follower-auth.ts",
-      "sha256": "c4bd4b7e1d8aed28a41a96af138d07553429722f2011d9942aa5aeda7295d369"
+      "sha256": "ead64222bed9dbdb9c0022a12b11a91307f29fcec8848984a9922f0f2acdb61e"
     },
     {
       "path": "packages/mcp/src/security/follower-transport.ts",
-      "sha256": "23ec783ffc8f7a4279411645020a121e18633b24d376a165dc15be283fc8d774"
+      "sha256": "a87793eb9b3b7e0f8ad8eac931acb11cd90522f64197bb3b4f164bd1e73fc8fc"
     },
     {
       "path": "packages/mcp/src/security/local-access.ts",
@@ -1464,6 +1476,10 @@
       "sha256": "ccd29e97f2b70d8078ad7b4dcc3ae2e8f06843107f704aa43c6d997a8983930e"
     },
     {
+      "path": "packages/mcp/test/election/control-route-registry.test.ts",
+      "sha256": "f588e03abbdca92ac72dc93cfd9c6c75437233c2cbe1f73a52eef556eceb413d"
+    },
+    {
       "path": "packages/mcp/test/election/election.test.ts",
       "sha256": "8da62f314cb19976b796ef89d878865a6a166af2cfe68524583dbfdf3c5f04a6"
     },
@@ -1533,7 +1549,7 @@
     },
     {
       "path": "packages/mcp/test/security/follower-transport.test.ts",
-      "sha256": "072289bf4d9f120c23b2bb4e42e316dd1a9a5adc85fa9192ed9296bcf2cca232"
+      "sha256": "d6f55202ec19c165a834be8a460739c5d06394bf6c0bc2efe04b9d7a4a26cf2e"
     },
     {
       "path": "packages/mcp/test/security/pairing.test.ts",
@@ -1549,7 +1565,7 @@
     },
     {
       "path": "packages/mcp/test/security/token-rotation.test.ts",
-      "sha256": "493890d289966290fd72f9be40810dca2e9153f81edaa2c92dc6218d331a8f2a"
+      "sha256": "95d50a8adb5085dd6bd1996af9db9e79e0d1b1369c3681063d01644897aee884"
     },
     {
       "path": "packages/mcp/test/tool-schema.ts",
@@ -1721,7 +1737,7 @@
     },
     {
       "path": "test/vendor-upstreams.test.ts",
-      "sha256": "c88ca8d1c546bd042d31c0fab6d84be811fcd517257215fb68e520b115561dce"
+      "sha256": "143d5410c0aabbab000427e231c3b92ea63805210177455b0d4bc3b588eb1935"
     },
     {
       "path": "tsconfig.base.json",

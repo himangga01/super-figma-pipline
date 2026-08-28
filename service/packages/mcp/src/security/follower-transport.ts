@@ -12,6 +12,7 @@ import {
   type McpSessionId,
   McpSessionIdSchema,
   PRODUCT_MAGIC,
+  PROTOCOL_VERSION,
   PublicPingV1Schema,
 } from '@sfp/shared';
 
@@ -338,10 +339,10 @@ const sealRequest = (
   mcpSession: McpSessionId,
   randomBytes: RandomBytes,
 ): { body: Buffer; headers: Record<string, string>; context: RequestCryptoContext } => {
-  const plaintext = Buffer.from(call.plaintext);
-  if (plaintext.byteLength > pathCap(call.path)) {
+  if (call.plaintext.byteLength > pathCap(call.path)) {
     throw new FollowerTransportError('PAYLOAD_TOO_LARGE');
   }
+  const plaintext = Buffer.from(call.plaintext);
   const transportRequestId = FollowerTransportRequestIdSchema.parse(
     call.transportRequestId,
   ) as FollowerTransportRequestId;
@@ -553,37 +554,56 @@ const writeWithBackpressure = (
   res: ServerResponse,
   bytes: Buffer,
   signal: AbortSignal,
-): Promise<void> => {
-  if (res.write(bytes)) return Promise.resolve();
-  return new Promise<void>((resolve, reject) => {
+): Promise<void> =>
+  new Promise<void>((resolve, reject) => {
+    let settled = false;
     const cleanup = (): void => {
       res.removeListener('drain', onDrain);
       res.removeListener('close', onClose);
       res.removeListener('error', onError);
       signal.removeEventListener('abort', onAbort);
     };
-    const onDrain = (): void => {
+    const settle = (error?: Error): void => {
+      if (settled) return;
+      settled = true;
       cleanup();
-      resolve();
+      if (error === undefined) resolve();
+      else reject(error);
+    };
+    const onDrain = (): void => {
+      settle();
     };
     const onClose = (): void => {
-      cleanup();
-      reject(new FollowerTransportError('FOLLOWER_RESPONSE_TRUNCATED'));
+      settle(new FollowerTransportError('FOLLOWER_RESPONSE_TRUNCATED'));
     };
     const onError = (error: Error): void => {
-      cleanup();
-      reject(error);
+      settle(error);
     };
     const onAbort = (): void => {
-      cleanup();
-      reject(new FollowerTransportError('FOLLOWER_RESPONSE_TRUNCATED'));
+      settle(new FollowerTransportError('FOLLOWER_RESPONSE_TRUNCATED'));
     };
     res.once('drain', onDrain);
     res.once('close', onClose);
     res.once('error', onError);
     signal.addEventListener('abort', onAbort, { once: true });
+    if (signal.aborted || res.destroyed || res.writableEnded) {
+      onAbort();
+      return;
+    }
+    let writable: boolean;
+    try {
+      writable = res.write(bytes);
+    } catch (error) {
+      onError(error as Error);
+      return;
+    }
+    if (settled) return;
+    if (signal.aborted || res.destroyed || res.writableEnded) {
+      onAbort();
+      return;
+    }
+    if (writable) settle();
   });
-};
 
 const createResponseSink = (
   res: ServerResponse,
@@ -594,15 +614,22 @@ const createResponseSink = (
   let cumulative = 0;
   let terminal = false;
   let writing = false;
+  let inFlightFinal = false;
   let truncateRequested = false;
 
   const emit = async (plaintext: Buffer, final: boolean, truncated: boolean): Promise<void> => {
     if (terminal) throw new FollowerTransportError('FOLLOWER_RESPONSE_INVALID');
     if (writing) {
-      truncateRequested = true;
+      if (inFlightFinal) {
+        terminal = true;
+        res.destroy();
+      } else {
+        truncateRequested = true;
+      }
       throw new FollowerTransportError('FOLLOWER_RESPONSE_INVALID');
     }
     writing = true;
+    inFlightFinal = final;
     try {
       const frame = sealRecord(context, sequence, plaintext, { final, truncated });
       if (frame.byteLength > FOLLOWER_RESPONSE_FRAME_MAX_BYTES) {
@@ -616,6 +643,7 @@ const createResponseSink = (
       }
     } finally {
       writing = false;
+      inFlightFinal = false;
     }
     if (truncateRequested && !terminal) {
       truncateRequested = false;
@@ -634,22 +662,23 @@ const createResponseSink = (
 
   const sink: FollowerResponseSink = Object.freeze({
     write: async (value: Uint8Array, options: { final: boolean }) => {
+      const byteLength = value.byteLength;
+      if (
+        byteLength > FOLLOWER_RESPONSE_RECORD_MAX_BYTES ||
+        byteLength > FOLLOWER_RESPONSE_TOTAL_MAX_BYTES - cumulative
+      ) {
+        await truncate();
+        throw new FollowerTransportError('FOLLOWER_RESPONSE_TRUNCATED');
+      }
       const plaintext = Buffer.from(value);
-      if (!options.final && plaintext.byteLength === 0) {
+      if (!options.final && byteLength === 0) {
         throw new FollowerTransportError('FOLLOWER_RESPONSE_INVALID');
       }
       if (sequence >= FOLLOWER_RESPONSE_RECORD_MAX_COUNT - 1 && !options.final) {
         await truncate();
         throw new FollowerTransportError('FOLLOWER_RESPONSE_TRUNCATED');
       }
-      if (
-        plaintext.byteLength > FOLLOWER_RESPONSE_RECORD_MAX_BYTES ||
-        plaintext.byteLength > FOLLOWER_RESPONSE_TOTAL_MAX_BYTES - cumulative
-      ) {
-        await truncate();
-        throw new FollowerTransportError('FOLLOWER_RESPONSE_TRUNCATED');
-      }
-      cumulative += plaintext.byteLength;
+      cumulative += byteLength;
       await emit(plaintext, options.final, false);
     },
     truncate,
@@ -817,8 +846,15 @@ export const createFollowerAuthenticatedTransport = async (
   const fetch = options.fetch ?? globalThis.fetch.bind(globalThis);
   const randomBytes = options.randomBytes ?? systemRandomBytes;
 
-  const leaderInfo = async (signal?: AbortSignal): Promise<LeaderInfo | undefined> => {
+  const verifyLeader = async (
+    signal?: AbortSignal,
+  ): Promise<
+    { info: LeaderInfo; challenge: FollowerChallenge; followerToken: string } | undefined
+  > => {
     try {
+      const authorization = await auth.authorization('follower');
+      const followerToken = /^Bearer ([A-Za-z0-9_-]{43})$/.exec(authorization?.value ?? '')?.[1];
+      if (authorization === undefined || followerToken === undefined) return undefined;
       const response = await fetch(
         `${options.leaderUrl}/ping`,
         signal === undefined ? {} : { signal },
@@ -831,40 +867,24 @@ export const createFollowerAuthenticatedTransport = async (
         (await readBoundedFetchBody(response, PAIR_METADATA_MAX_BYTES)).toString('utf8'),
       ) as unknown;
       const parsed = PublicPingV1Schema.safeParse(raw);
-      if (!parsed.success || parsed.data.role !== 'leader') return undefined;
-      return {
-        serverVersion: parsed.data.serverVersion,
-        buildId: parsed.data.buildId,
-        leaderGeneration: parsed.data.leaderGeneration,
-      };
-    } catch {
-      return undefined;
-    }
-  };
-
-  const client: FollowerTransportClient = Object.freeze({
-    mcpSession,
-    leaderInfo,
-    open: async (call: FollowerTransportCall, signal: AbortSignal) => {
-      if (signal.aborted) throw new FollowerTransportError('FOLLOWER_AUTH_INVALID');
-      const info = await leaderInfo(signal);
-      const authorization = await auth.authorization('follower');
-      const token = /^Bearer ([A-Za-z0-9_-]{43})$/.exec(authorization?.value ?? '')?.[1];
       if (
-        info === undefined ||
-        authorization === undefined ||
-        token === undefined ||
-        info.leaderGeneration !== authorization.generation
+        !parsed.success ||
+        parsed.data.role !== 'leader' ||
+        parsed.data.protocolVersion !== PROTOCOL_VERSION ||
+        parsed.data.leaderGeneration !== authorization.generation
       ) {
-        throw new FollowerTransportError('FOLLOWER_AUTH_INVALID');
+        return undefined;
       }
-      const challengeResponse = await fetch(`${options.leaderUrl}/follower/challenge`, { signal });
+      const challengeResponse = await fetch(
+        `${options.leaderUrl}/follower/challenge`,
+        signal === undefined ? {} : { signal },
+      );
       if (
         challengeResponse.status !== 200 ||
         challengeResponse.headers.get('content-type') !== 'application/json'
       ) {
         await challengeResponse.body?.cancel().catch(() => {});
-        throw new FollowerTransportError('FOLLOWER_AUTH_INVALID');
+        return undefined;
       }
       const challenge = strictChallenge(
         JSON.parse(
@@ -873,12 +893,42 @@ export const createFollowerAuthenticatedTransport = async (
       );
       if (
         challenge === undefined ||
-        challenge.generation !== info.leaderGeneration ||
-        !verifyFollowerChallenge(token, challenge)
+        challenge.generation !== parsed.data.leaderGeneration ||
+        challenge.generation !== authorization.generation ||
+        !verifyFollowerChallenge(followerToken, challenge)
       ) {
+        return undefined;
+      }
+      const info = {
+        serverVersion: parsed.data.serverVersion,
+        buildId: parsed.data.buildId,
+        leaderGeneration: parsed.data.leaderGeneration,
+      };
+      return { info, challenge, followerToken };
+    } catch {
+      return undefined;
+    }
+  };
+
+  const leaderInfo = async (signal?: AbortSignal): Promise<LeaderInfo | undefined> =>
+    (await verifyLeader(signal))?.info;
+
+  const client: FollowerTransportClient = Object.freeze({
+    mcpSession,
+    leaderInfo,
+    open: async (call: FollowerTransportCall, signal: AbortSignal) => {
+      if (signal.aborted) throw new FollowerTransportError('FOLLOWER_AUTH_INVALID');
+      const verified = await verifyLeader(signal);
+      if (verified === undefined) {
         throw new FollowerTransportError('FOLLOWER_AUTH_INVALID');
       }
-      const sealed = sealRequest(token, challenge, call, mcpSession, randomBytes);
+      const sealed = sealRequest(
+        verified.followerToken,
+        verified.challenge,
+        call,
+        mcpSession,
+        randomBytes,
+      );
       const response = await fetch(`${options.leaderUrl}${call.path}`, {
         method: 'POST',
         headers: sealed.headers,

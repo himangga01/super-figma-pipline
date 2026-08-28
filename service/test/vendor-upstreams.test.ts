@@ -430,6 +430,41 @@ describe('protected service authorities', () => {
         ),
     },
     {
+      name: 'Task 6.1 final-first overlap authority',
+      path: 'packages/mcp/src/security/follower-transport.ts',
+      mutate: contents => contents.replace('if (inFlightFinal) {', 'if (false) {'),
+    },
+    {
+      name: 'Task 6.1 aborted backpressure authority',
+      path: 'packages/mcp/src/security/follower-transport.ts',
+      mutate: contents =>
+        contents.replace(
+          'if (signal.aborted || res.destroyed || res.writableEnded) {',
+          'if (false) {',
+        ),
+    },
+    {
+      name: 'Task 6.1 authenticated leader protocol authority',
+      path: 'packages/mcp/src/security/follower-transport.ts',
+      mutate: contents =>
+        contents.replace('parsed.data.protocolVersion !== PROTOCOL_VERSION', 'false'),
+    },
+    {
+      name: 'Task 6.1 request cap-before-copy authority',
+      path: 'packages/mcp/src/security/follower-transport.ts',
+      mutate: contents =>
+        contents.replace('if (call.plaintext.byteLength > pathCap(call.path)) {', 'if (false) {'),
+    },
+    {
+      name: 'Task 6.1 frozen control route authority',
+      path: 'packages/mcp/src/election/control-route-registry.ts',
+      mutate: contents =>
+        contents.replace(
+          'if (this.frozen !== undefined) throw new ControlRouteRegistryError',
+          'if (false) throw new ControlRouteRegistryError',
+        ),
+    },
+    {
       name: 'Task 6 one-use follower challenge authority',
       path: 'packages/mcp/src/security/follower-auth.ts',
       mutate: contents => contents.replace('followerChallenges.delete(nonce)', '// replay allowed'),

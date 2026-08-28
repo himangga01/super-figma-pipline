@@ -1,10 +1,4 @@
-import {
-  createCipheriv,
-  createDecipheriv,
-  createHmac,
-  randomBytes as systemRandomBytes,
-  timingSafeEqual,
-} from 'node:crypto';
+import { createHmac, randomBytes as systemRandomBytes, timingSafeEqual } from 'node:crypto';
 import { lstat, open, readFile, rename, rm } from 'node:fs/promises';
 import { dirname, join, resolve } from 'node:path';
 
@@ -32,14 +26,6 @@ export interface FollowerAuth {
   authorizeControl(header: string | undefined, generation: string | undefined): Promise<boolean>;
   issueFollowerChallenge(): Promise<FollowerChallenge>;
   consumeFollowerChallenge(input: ConsumeFollowerChallenge): Promise<FollowerChallengeSecret>;
-  openFollowerRequest(input: OpenFollowerRequest): Promise<OpenedFollowerRequest>;
-  sealFollowerResponse(
-    context: FollowerResponseContext,
-    status: number,
-    requestId: string,
-    plaintext: Buffer,
-    randomBytes?: (size: number) => Buffer,
-  ): SealedFollowerRequest;
 }
 
 export interface FollowerChallenge {
@@ -62,45 +48,6 @@ export interface FollowerChallengeSecret {
   generation: string;
   nonce: string;
   followerToken: string;
-}
-
-export interface SealedFollowerRequest {
-  headers: Record<string, string>;
-  body: Buffer;
-}
-
-export interface OpenFollowerRequest {
-  method: 'POST';
-  path: string;
-  headers: Readonly<Record<string, string | undefined>>;
-  ciphertext: Buffer;
-}
-
-export interface FollowerResponseContext {
-  method: 'POST';
-  path: string;
-  generation: string;
-  nonce: string;
-  requestDigest: string;
-  requestId: string;
-  responseKey: Buffer;
-}
-
-export interface OpenedFollowerRequest {
-  plaintext: Buffer;
-  context: FollowerResponseContext;
-}
-
-export interface OpenFollowerResponse {
-  method: 'POST';
-  path: string;
-  generation: string;
-  nonce: string;
-  requestDigest: string;
-  status: number;
-  requestId: string;
-  headers: Readonly<Record<string, string | undefined>>;
-  ciphertext: Buffer;
 }
 
 export class FollowerAuthError extends Error {
@@ -216,55 +163,6 @@ const challengeProof = (
     .update(String(challenge.followerTransportVersion))
     .digest('base64url');
 
-const followerRequestKey = (token: string, generation: string, nonce: string): Buffer =>
-  createHmac('sha256', tokenBytes(token))
-    .update('sfp-follower-request-key')
-    .update('\0')
-    .update(generation)
-    .update('\0')
-    .update(nonce)
-    .digest();
-
-const followerResponseKey = (token: string, generation: string, nonce: string): Buffer =>
-  createHmac('sha256', tokenBytes(token))
-    .update('sfp-follower-response-key')
-    .update('\0')
-    .update(generation)
-    .update('\0')
-    .update(nonce)
-    .digest();
-
-const followerRequestDigest = (token: string, generation: string, nonce: string, body: Buffer) =>
-  createHmac('sha256', followerRequestKey(token, generation, nonce))
-    .update('sfp-follower-request-digest')
-    .update('\0')
-    .update(body)
-    .digest('base64url');
-
-const requestAad = (
-  method: string,
-  path: string,
-  generation: string,
-  nonce: string,
-  requestDigest: string,
-  requestId: string,
-): Buffer =>
-  Buffer.from(JSON.stringify([method, path, generation, nonce, requestDigest, requestId]), 'utf8');
-
-const responseAad = (
-  method: string,
-  path: string,
-  generation: string,
-  nonce: string,
-  requestDigest: string,
-  status: number,
-  requestId: string,
-): Buffer =>
-  Buffer.from(
-    JSON.stringify([method, path, generation, nonce, requestDigest, status, requestId]),
-    'utf8',
-  );
-
 export const verifyFollowerChallenge = (
   token: string,
   challenge: FollowerChallenge,
@@ -285,101 +183,6 @@ export const verifyFollowerChallenge = (
     return secureStringEqual(challenge.proof, challengeProof(token, challenge));
   } catch {
     return false;
-  }
-};
-
-export const sealFollowerRequest = (
-  token: string,
-  challenge: FollowerChallenge,
-  method: 'POST',
-  path: string,
-  plaintext: Buffer,
-  requestId: string,
-  randomBytes: (size: number) => Buffer = systemRandomBytes,
-  now = Date.now(),
-): SealedFollowerRequest => {
-  if (!verifyFollowerChallenge(token, challenge, now)) throw new FollowerAuthError();
-  if (!/^[A-Za-z0-9._:-]{1,128}$/.test(requestId)) throw new FollowerAuthError();
-  const iv = randomBytes(12);
-  if (iv.byteLength !== 12) throw new FollowerAuthError();
-  const requestDigest = followerRequestDigest(
-    token,
-    challenge.generation,
-    challenge.nonce,
-    plaintext,
-  );
-  const cipher = createCipheriv(
-    'aes-256-gcm',
-    followerRequestKey(token, challenge.generation, challenge.nonce),
-    iv,
-  );
-  cipher.setAAD(
-    requestAad(method, path, challenge.generation, challenge.nonce, requestDigest, requestId),
-  );
-  const body = Buffer.concat([cipher.update(plaintext), cipher.final()]);
-  const tag = cipher.getAuthTag();
-  return {
-    headers: {
-      'content-type': 'application/sfp-encrypted',
-      'x-sfp-leader-generation': challenge.generation,
-      'x-sfp-follower-nonce': challenge.nonce,
-      'x-sfp-follower-proof': challenge.proof,
-      'x-sfp-follower-iv': iv.toString('base64url'),
-      'x-sfp-follower-tag': tag.toString('base64url'),
-      'x-sfp-request-digest': requestDigest,
-      'x-sfp-request-id': requestId,
-    },
-    body,
-  };
-};
-
-export const openFollowerResponse = (token: string, input: OpenFollowerResponse): Buffer => {
-  const generation = input.headers['x-sfp-leader-generation'];
-  const nonce = input.headers['x-sfp-follower-nonce'];
-  const requestDigest = input.headers['x-sfp-request-digest'];
-  const requestId = input.headers['x-sfp-request-id'];
-  const ivValue = input.headers['x-sfp-response-iv'];
-  const tagValue = input.headers['x-sfp-response-tag'];
-  if (
-    generation === undefined ||
-    nonce === undefined ||
-    requestDigest === undefined ||
-    requestId === undefined ||
-    ivValue === undefined ||
-    tagValue === undefined ||
-    !secureStringEqual(generation, input.generation) ||
-    !secureStringEqual(nonce, input.nonce) ||
-    !secureStringEqual(requestDigest, input.requestDigest) ||
-    !secureStringEqual(requestId, input.requestId) ||
-    !/^[A-Za-z0-9_-]{16}$/.test(ivValue) ||
-    !/^[A-Za-z0-9_-]{22}$/.test(tagValue)
-  ) {
-    throw new FollowerAuthError();
-  }
-  try {
-    const iv = Buffer.from(ivValue, 'base64url');
-    const tag = Buffer.from(tagValue, 'base64url');
-    if (iv.byteLength !== 12 || tag.byteLength !== 16) throw new FollowerAuthError();
-    const decipher = createDecipheriv(
-      'aes-256-gcm',
-      followerResponseKey(token, input.generation, input.nonce),
-      iv,
-    );
-    decipher.setAAD(
-      responseAad(
-        input.method,
-        input.path,
-        input.generation,
-        input.nonce,
-        input.requestDigest,
-        input.status,
-        input.requestId,
-      ),
-    );
-    decipher.setAuthTag(tag);
-    return Buffer.concat([decipher.update(input.ciphertext), decipher.final()]);
-  } catch {
-    throw new FollowerAuthError();
   }
 };
 
@@ -574,120 +377,6 @@ export const createFollowerAuth = async (options: FollowerAuthOptions): Promise<
     };
   };
 
-  const openFollowerRequest = async (
-    input: OpenFollowerRequest,
-  ): Promise<OpenedFollowerRequest> => {
-    const generation = input.headers['x-sfp-leader-generation'];
-    const nonce = input.headers['x-sfp-follower-nonce'];
-    const proof = input.headers['x-sfp-follower-proof'];
-    const ivValue = input.headers['x-sfp-follower-iv'];
-    const tagValue = input.headers['x-sfp-follower-tag'];
-    const requestDigest = input.headers['x-sfp-request-digest'];
-    const requestId = input.headers['x-sfp-request-id'];
-    if (
-      generation === undefined ||
-      nonce === undefined ||
-      proof === undefined ||
-      ivValue === undefined ||
-      tagValue === undefined ||
-      requestDigest === undefined ||
-      requestId === undefined ||
-      !/^[A-Za-z0-9_-]{22}$/.test(nonce) ||
-      !/^[A-Za-z0-9_-]{16}$/.test(ivValue) ||
-      !/^[A-Za-z0-9_-]{22}$/.test(tagValue) ||
-      !/^[A-Za-z0-9_-]{43}$/.test(requestDigest) ||
-      !/^[A-Za-z0-9._:-]{1,128}$/.test(requestId)
-    ) {
-      throw new FollowerAuthError();
-    }
-    const current = await consumeFollowerChallenge({
-      followerTransportVersion: 1,
-      generation,
-      nonce,
-      proof,
-    });
-    try {
-      const iv = Buffer.from(ivValue, 'base64url');
-      const tag = Buffer.from(tagValue, 'base64url');
-      if (iv.byteLength !== 12 || tag.byteLength !== 16) throw new FollowerAuthError();
-      const decipher = createDecipheriv(
-        'aes-256-gcm',
-        followerRequestKey(current.followerToken, generation, nonce),
-        iv,
-      );
-      decipher.setAAD(
-        requestAad(input.method, input.path, generation, nonce, requestDigest, requestId),
-      );
-      decipher.setAuthTag(tag);
-      const plaintext = Buffer.concat([decipher.update(input.ciphertext), decipher.final()]);
-      const observedDigest = followerRequestDigest(
-        current.followerToken,
-        generation,
-        nonce,
-        plaintext,
-      );
-      if (!secureStringEqual(observedDigest, requestDigest)) throw new FollowerAuthError();
-      return {
-        plaintext,
-        context: {
-          method: input.method,
-          path: input.path,
-          generation,
-          nonce,
-          requestDigest,
-          requestId,
-          responseKey: followerResponseKey(current.followerToken, generation, nonce),
-        },
-      };
-    } catch {
-      throw new FollowerAuthError();
-    }
-  };
-
-  const sealFollowerResponse = (
-    context: FollowerResponseContext,
-    status: number,
-    requestId: string,
-    plaintext: Buffer,
-    responseRandomBytes: (size: number) => Buffer = systemRandomBytes,
-  ): SealedFollowerRequest => {
-    if (
-      !Number.isSafeInteger(status) ||
-      status < 100 ||
-      status > 599 ||
-      !secureStringEqual(requestId, context.requestId)
-    ) {
-      throw new FollowerAuthError();
-    }
-    const iv = responseRandomBytes(12);
-    if (iv.byteLength !== 12) throw new FollowerAuthError();
-    const cipher = createCipheriv('aes-256-gcm', context.responseKey, iv);
-    cipher.setAAD(
-      responseAad(
-        context.method,
-        context.path,
-        context.generation,
-        context.nonce,
-        context.requestDigest,
-        status,
-        requestId,
-      ),
-    );
-    const body = Buffer.concat([cipher.update(plaintext), cipher.final()]);
-    return {
-      headers: {
-        'content-type': 'application/sfp-encrypted',
-        'x-sfp-leader-generation': context.generation,
-        'x-sfp-follower-nonce': context.nonce,
-        'x-sfp-request-digest': context.requestDigest,
-        'x-sfp-request-id': requestId,
-        'x-sfp-response-iv': iv.toString('base64url'),
-        'x-sfp-response-tag': cipher.getAuthTag().toString('base64url'),
-      },
-      body,
-    };
-  };
-
   return Object.freeze({
     permissions: options.permissions,
     rotate,
@@ -698,7 +387,5 @@ export const createFollowerAuth = async (options: FollowerAuthOptions): Promise<
       authorize('control', header, generation),
     issueFollowerChallenge,
     consumeFollowerChallenge,
-    openFollowerRequest,
-    sealFollowerResponse,
   });
 };

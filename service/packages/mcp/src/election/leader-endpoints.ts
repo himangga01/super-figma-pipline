@@ -27,6 +27,7 @@ import {
   readBoundedBody,
   RequestLimitError,
 } from '../security/request-limits.js';
+import { ControlRouteRegistry } from './control-route-registry.js';
 
 export const PING_PATH = '/ping';
 export const RPC_PATH = '/rpc';
@@ -44,6 +45,7 @@ export interface LeaderEndpointDeps {
   leaderGeneration: string;
   transport: Pick<FollowerAuthenticatedTransport, 'server' | 'control'>;
   pairing: Pick<PairingManager, 'createChallenge' | 'exchange'>;
+  controlRoutes?: ControlRouteRegistry;
   controlActor?: string;
   onAbdicate?: () => void;
   log?: (msg: string) => void;
@@ -145,6 +147,7 @@ const strictBuildId = (input: unknown): number | undefined => {
 
 export const attachLeaderEndpoints = (http: HttpServer, deps: LeaderEndpointDeps): (() => void) => {
   const log = deps.log ?? ((): void => {});
+  const controlRoutes = (deps.controlRoutes ?? new ControlRouteRegistry()).freeze();
 
   const routePairExchange = async (
     req: IncomingMessage,
@@ -287,6 +290,7 @@ export const attachLeaderEndpoints = (http: HttpServer, deps: LeaderEndpointDeps
           }
           return;
         }
+        if (await controlRoutes.handle(req, res)) return;
         writeJson(res, 404, { error: 'not found' }, unreadBodyHeaders(req));
         return;
       }
