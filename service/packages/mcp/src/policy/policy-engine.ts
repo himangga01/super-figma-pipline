@@ -18,7 +18,7 @@ import {
   type EgressConfigStore,
   type EgressSource,
   type IdempotencyRequirement,
-  type InvocationContext,
+  type PolicyInvocationContext,
   type OperationPolicy,
 } from '@sfp/shared';
 
@@ -49,7 +49,7 @@ export interface EvaluatedOperationPolicy {
 export const evaluateOperationPolicy = (
   toolName: string,
   parsedArgs: Readonly<Record<string, unknown>>,
-  context: InvocationContext,
+  context: PolicyInvocationContext,
 ): EvaluatedOperationPolicy => {
   const operationPolicy = operationPolicyFor(toolName);
   const effects = operationPolicy.effectsFor(parsedArgs, context);

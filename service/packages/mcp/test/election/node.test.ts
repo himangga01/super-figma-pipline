@@ -4,6 +4,7 @@ import { type AddressInfo, connect as netConnect, type Socket } from 'node:net';
 import { afterEach, describe, expect, it } from 'vitest';
 
 import { isAddressInUse, Node, NodeRole } from '../../src/election/node.js';
+import { LeaderGenerationExecutionPlane } from '../../src/execution/execution-plane.js';
 
 const blockers: HttpServer[] = [];
 const nodes: Node[] = [];
@@ -83,6 +84,107 @@ describe('Node role state machine', () => {
     const a = await n.becomeLeader();
     const b = await n.becomeLeader();
     expect(b).toBe(a);
+  });
+
+  it('constructs one execution plane only for the current leader generation and durably demotes it', async () => {
+    const port = await freePort();
+    const generations: string[] = [];
+    const events: string[] = [];
+    const n = new Node({
+      serverVersion: 'test-1.0.0',
+      port,
+      executionPlaneFactory: ({ leaderGeneration, releasePort }) => {
+        generations.push(leaderGeneration);
+        return new LeaderGenerationExecutionPlane(leaderGeneration, {
+          closeAdmission: async () => {
+            events.push('closed');
+          },
+          installGenerationFence: async () => {
+            events.push('fenced');
+          },
+          abortPending: async () => {},
+          abortQueued: async () => {},
+          markDispatchedOutcomeUnknown: async () => {
+            events.push('unknown-fsynced');
+          },
+          finalizeAndFlushEgress: async () => {
+            events.push('egress-fsynced');
+          },
+          drainTransport: async () => true,
+          forceCloseTransport: async () => {},
+          destroy: async () => {
+            events.push('destroyed');
+          },
+          releasePort,
+        });
+      },
+    });
+    nodes.push(n);
+    const resources = await n.becomeLeader();
+
+    expect(resources.executionPlane?.leaderGeneration).toBe(resources.generation.generation);
+    expect(generations).toEqual([resources.generation.generation]);
+    await n.demoteToFollower('lease-lost');
+    expect(n.role).toBe(NodeRole.Follower);
+    expect(n.getLeader()).toBeNull();
+    expect(events).toEqual(['closed', 'fenced', 'unknown-fsynced', 'egress-fsynced', 'destroyed']);
+  });
+
+  it('retains tracked listening ownership when the release commit fails', async () => {
+    const port = await freePort();
+    const n = new Node({
+      serverVersion: 'test-1.0.0',
+      port,
+      executionPlaneFactory: ({ leaderGeneration }) =>
+        new LeaderGenerationExecutionPlane(leaderGeneration, {
+          closeAdmission: async () => {},
+          installGenerationFence: async () => {},
+          abortPending: async () => {},
+          abortQueued: async () => {},
+          markDispatchedOutcomeUnknown: async () => {},
+          finalizeAndFlushEgress: async () => {},
+          drainTransport: async () => true,
+          forceCloseTransport: async () => {},
+          destroy: async () => {},
+          releasePort: async () => {
+            throw new Error('release commit failed');
+          },
+        }),
+    });
+    const resources = await n.becomeLeader();
+    try {
+      await expect(n.demoteToFollower('lease-lost')).rejects.toMatchObject({
+        code: 'DEMOTION_DURABILITY_FAILED',
+      });
+      expect(n.role).toBe(NodeRole.Leader);
+      expect(n.getLeader()).toBe(resources);
+      expect(resources.http.listening).toBe(true);
+    } finally {
+      await resources.relay.stop();
+      await new Promise<void>(resolve => {
+        resources.http.close(() => resolve());
+        resources.http.closeAllConnections();
+      });
+    }
+  });
+
+  it('releases every leader resource when execution-plane construction fails', async () => {
+    const port = await freePort();
+    const failed = new Node({
+      serverVersion: 'test-1.0.0',
+      port,
+      executionPlaneFactory: () => {
+        throw Object.assign(new Error('factory failed'), { code: 'FACTORY_FAILED' });
+      },
+    });
+    nodes.push(failed);
+
+    await expect(failed.becomeLeader()).rejects.toMatchObject({ code: 'FACTORY_FAILED' });
+    expect(failed.role).toBe(NodeRole.Unknown);
+    expect(failed.getLeader()).toBeNull();
+
+    const replacement = makeNode(port);
+    await expect(replacement.becomeLeader()).resolves.toMatchObject({ port });
   });
 
   it('becomeLeader throws EADDRINUSE when port is taken', async () => {

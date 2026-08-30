@@ -1,3 +1,4 @@
+import type { RuntimeExecutionScope } from '@sfp/shared';
 import { describe, expect, it } from 'vitest';
 import { z } from 'zod';
 
@@ -7,7 +8,7 @@ import {
   createRuntimeRegistry,
   executeToolRuntime,
   type RuntimeBinding,
-  type RuntimeExecutionContext,
+  type RuntimeRegistry,
 } from '../../src/tools/runtime-registry.js';
 import type { RawToolSpec, ToolSpec } from '../../src/tools/spec.js';
 
@@ -15,14 +16,24 @@ import type { RawToolSpec, ToolSpec } from '../../src/tools/spec.js';
 export type BareToolSpecMustNotCompile = ToolSpec;
 
 const signal = new AbortController().signal;
-const contextReturning = (value: unknown): RuntimeExecutionContext => ({
-  execute: async () => value,
-});
+const scope = Object.freeze({}) as RuntimeExecutionScope;
+const registryReturning = (
+  toolName: string,
+  value: unknown,
+  execution: RuntimeBinding['execution'],
+): RuntimeRegistry =>
+  createRuntimeRegistry([[toolName, { execution, runtime: { execute: async () => value } }]]);
 
 describe('canonical result validation', () => {
   it('rejects a skewed get_selection plugin result with PLUGIN_RESULT_INVALID', async () => {
     await expect(
-      executeToolRuntime('get_selection', contextReturning({ unexpected: true }), {}, signal),
+      executeToolRuntime(
+        'get_selection',
+        scope,
+        {},
+        signal,
+        registryReturning('get_selection', { unexpected: true }, 'plugin-direct'),
+      ),
     ).rejects.toMatchObject({
       code: 'PLUGIN_RESULT_INVALID',
       toolName: 'get_selection',
@@ -45,7 +56,13 @@ describe('canonical result validation', () => {
     };
 
     await expect(
-      executeToolRuntime('get_screenshot', contextReturning(fixture), {}, signal),
+      executeToolRuntime(
+        'get_screenshot',
+        scope,
+        {},
+        signal,
+        registryReturning('get_screenshot', fixture, 'server-adapter'),
+      ),
     ).resolves.toEqual(fixture);
   });
 
@@ -55,14 +72,21 @@ describe('canonical result validation', () => {
     };
 
     await expect(
-      executeToolRuntime('save_screenshots', contextReturning(fixture), {}, signal),
+      executeToolRuntime(
+        'save_screenshots',
+        scope,
+        {},
+        signal,
+        registryReturning('save_screenshots', fixture, 'server-adapter'),
+      ),
     ).resolves.toEqual(fixture);
     await expect(
       executeToolRuntime(
         'save_screenshots',
-        contextReturning({ ...fixture, unexpected: true }),
+        scope,
         {},
         signal,
+        registryReturning('save_screenshots', { ...fixture, unexpected: true }, 'server-adapter'),
       ),
     ).rejects.toMatchObject({ code: 'SERVER_RESULT_INVALID', toolName: 'save_screenshots' });
   });
@@ -79,7 +103,13 @@ describe('canonical result validation', () => {
     };
 
     await expect(
-      executeToolRuntime('analyze_project', contextReturning(fixture), {}, signal),
+      executeToolRuntime(
+        'analyze_project',
+        scope,
+        {},
+        signal,
+        registryReturning('analyze_project', fixture, 'server-adapter'),
+      ),
     ).resolves.toEqual(fixture);
   });
 });
@@ -93,7 +123,7 @@ describe('authority initialization failures', () => {
   };
   const resultSchema = z.object({ ok: z.literal(true) }).strict();
   const binding: RuntimeBinding = {
-    authority: 'plugin',
+    execution: 'plugin-direct',
     runtime: { execute: async () => ({ ok: true }) },
   };
 

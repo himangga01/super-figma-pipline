@@ -14,6 +14,8 @@ export interface Session {
   fileIdentity: FileIdentity;
   capabilities: readonly string[];
   connectedAt: number;
+  /** Monotonic server assignment used to choose among healthy sessions for one stable file. */
+  connectedSequence: number;
   reconnectedAt: number | null;
   /** Updated on every `$activity` event from this session; multi-plugin routing picks the max. */
   lastActivityAt: number;
@@ -35,6 +37,7 @@ export const DEFAULT_DISCONNECT_GRACE_MS = 30_000;
 
 export class SessionManager {
   private readonly sessions = new Map<string, Session>();
+  private nextConnectedSequence = 1;
 
   register(input: {
     id: string;
@@ -77,6 +80,7 @@ export class SessionManager {
       fileIdentity: input.fileIdentity,
       capabilities: Object.freeze([...input.capabilities]),
       connectedAt: existing?.connectedAt ?? now,
+      connectedSequence: existing?.connectedSequence ?? this.nextConnectedSequence++,
       reconnectedAt: existing !== undefined ? now : null,
       // A *fresh* session (new sessionId = a plugin opened in a newly-focused file) counts as the most
       // recent activity and should immediately win routing against an idle older session. But a

@@ -4,6 +4,10 @@ import type { AddressInfo } from 'node:net';
 
 import { DEFAULT_PORT } from '@sfp/shared';
 
+import type {
+  DemotionTicket,
+  LeaderGenerationExecutionPlane,
+} from '../execution/execution-plane.js';
 import { Relay, type RelayAuthenticator } from '../relay/relay.js';
 import { type PortHolder, portConflictMessage } from './leader-lock.js';
 
@@ -28,6 +32,10 @@ export interface NodeOptions {
   log?: (msg: string) => void;
   generationAuth?: { rotate(): Promise<LeaderGeneration> };
   relayAuthenticator?: RelayAuthenticator;
+  executionPlaneFactory?: (input: {
+    leaderGeneration: string;
+    releasePort(signal: AbortSignal): Promise<void>;
+  }) => LeaderGenerationExecutionPlane;
 }
 
 export interface LeaderGeneration {
@@ -40,6 +48,7 @@ export interface LeaderResources {
   relay: Relay;
   port: number;
   generation: LeaderGeneration;
+  executionPlane?: LeaderGenerationExecutionPlane;
 }
 
 export const isAddressInUse = (err: unknown): boolean =>
@@ -52,9 +61,12 @@ export class Node {
   private currentRole: NodeRole = NodeRole.Unknown;
   private leader: LeaderResources | null = null;
   private conflict: string | null = null;
-  private readonly opts: Required<Omit<NodeOptions, 'generationAuth' | 'relayAuthenticator'>> & {
+  private readonly opts: Required<
+    Omit<NodeOptions, 'generationAuth' | 'relayAuthenticator' | 'executionPlaneFactory'>
+  > & {
     generationAuth: { rotate(): Promise<LeaderGeneration> };
     relayAuthenticator: RelayAuthenticator;
+    executionPlaneFactory?: NodeOptions['executionPlaneFactory'];
   };
   private readonly listeners = new Set<(role: NodeRole) => void>();
 
@@ -77,6 +89,9 @@ export class Node {
           });
         },
       },
+      ...(opts.executionPlaneFactory === undefined
+        ? {}
+        : { executionPlaneFactory: opts.executionPlaneFactory }),
     };
   }
 
@@ -141,7 +156,23 @@ export class Node {
       authenticator: this.opts.relayAuthenticator,
     });
     const port = (http.address() as AddressInfo).port;
-    this.leader = { http, relay, port, generation };
+    const resources: LeaderResources = { http, relay, port, generation };
+    try {
+      if (this.opts.executionPlaneFactory !== undefined) {
+        resources.executionPlane = this.opts.executionPlaneFactory({
+          leaderGeneration: generation.generation,
+          releasePort: signal => this.releaseLeaderResources(resources, signal),
+        });
+      }
+    } catch (error) {
+      await relay.stop().catch(() => {});
+      await new Promise<void>(resolvePromise => {
+        http.close(() => resolvePromise());
+        http.closeAllConnections();
+      });
+      throw error;
+    }
+    this.leader = resources;
     this.setRole(NodeRole.Leader);
     this.opts.log(`[node] became LEADER on :${port}`);
     return this.leader;
@@ -149,7 +180,28 @@ export class Node {
 
   becomeFollower(): void {
     if (this.currentRole === NodeRole.Follower) return;
+    if (this.leader?.executionPlane !== undefined) {
+      throw new Error('leader with an execution plane must use demoteToFollower');
+    }
     this.releaseLeader();
+    this.setRole(NodeRole.Follower);
+    this.opts.log(`[node] became FOLLOWER (leader @ ${this.leaderUrl})`);
+  }
+
+  async demoteToFollower(reason: 'abdicated' | 'lease-lost' | 'shutdown'): Promise<void> {
+    if (this.currentRole === NodeRole.Follower) return;
+    const resources = this.leader;
+    if (resources?.executionPlane === undefined) {
+      this.becomeFollower();
+      return;
+    }
+    const ticket: DemotionTicket = await resources.executionPlane.prepareDemotion(reason);
+    const outcome = await resources.executionPlane.finalizeDemotion(ticket);
+    if (outcome !== 'port-released') {
+      throw Object.assign(new Error('demotion durability failed; leader port retained'), {
+        code: 'DEMOTION_DURABILITY_FAILED',
+      });
+    }
     this.setRole(NodeRole.Follower);
     this.opts.log(`[node] became FOLLOWER (leader @ ${this.leaderUrl})`);
   }
@@ -197,6 +249,9 @@ export class Node {
   }
 
   async stop(): Promise<void> {
+    if (this.leader?.executionPlane !== undefined) {
+      await this.demoteToFollower('shutdown');
+    }
     if (this.leader !== null) {
       const { http, relay } = this.leader;
       this.leader = null;
@@ -231,6 +286,18 @@ export class Node {
     });
     http.close();
     http.closeAllConnections();
+  }
+
+  private async releaseLeaderResources(
+    resources: LeaderResources,
+    signal: AbortSignal,
+  ): Promise<void> {
+    if (signal.aborted || this.leader !== resources) return;
+    resources.http.close();
+    resources.http.closeAllConnections();
+    if (signal.aborted || this.leader !== resources) return;
+    this.leader = null;
+    void resources.relay.stop().catch(() => {});
   }
 
   private setRole(role: NodeRole): void {

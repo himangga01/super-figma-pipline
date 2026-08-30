@@ -152,10 +152,10 @@ export class Election {
    * Demotes to follower and opens the yield window so this node's own tick doesn't immediately
    * re-take the port it just released. Safe to call in any state (no-op unless leading).
    */
-  yieldLeadership(): void {
+  async yieldLeadership(): Promise<void> {
     if (!this.node.isLeader()) return;
     this.yieldUntil = Date.now() + YIELD_GRACE_MS;
-    this.node.becomeFollower();
+    await this.node.demoteToFollower('abdicated');
     this.log('[election] abdicated — a newer build is taking over');
   }
 

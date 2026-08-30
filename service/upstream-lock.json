@@ -1,13 +1,13 @@
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "vendorMap": {
     "path": "vendor-map.json",
-    "sha256": "52b0e46e5fd359c9f5e91ab754cbde9c8028f12433fc9c1e5718836dfeeca7ff",
+    "sha256": "64e6f4c6de64edac2c11b17619dd25c27e64512479d9866c7485e793fb7a9029",
     "counts": {
-      "copy": 393,
+      "copy": 392,
       "mergeDependencyManifest": 4,
       "referenceOnly": 19,
-      "total": 416
+      "total": 415
     }
   },
   "destinationClosure": {
@@ -29,12 +29,20 @@
     ],
     "serviceOwnedFiles": [
       {
+        "path": "capabilities/change-manifests/task-7a.json",
+        "sha256": "ad89c98a69da9f7dd1cfbecb634b0ad600de1ec8cceab36a38b94b0b3e664431"
+      },
+      {
         "path": "capabilities/figmosha-feature-map.json",
         "sha256": "8b84a17e372975e6590ced2315cbdcfb99f0def6259980e88eaf6c4294ca8956"
       },
       {
         "path": "capabilities/rust-tool-compat.json",
         "sha256": "a13fc9633b0406946b78f800135d1420d00de0da77cd27f4f62a4334dd70615a"
+      },
+      {
+        "path": "capabilities/task-7a-authority-classes.json",
+        "sha256": "1b5665167c84145401af2589a214783d772d54a8ee388161ea9d079b050ec031"
       },
       {
         "path": "capabilities/union-manifest.json",
@@ -47,6 +55,10 @@
       {
         "path": "packages/mcp/src/election/control-route-registry.ts",
         "sha256": "d06800476ef4222b76ad3506dfab81c9c1bde145f591daad4d5d93ae34fda6f7"
+      },
+      {
+        "path": "packages/mcp/src/election/election.ts",
+        "sha256": "8429f6a06b2abe5888e32a80b05c21a2d564fffc782bf79fb0bd8254246228e1"
       },
       {
         "path": "packages/mcp/src/election/follower.ts",
@@ -62,7 +74,47 @@
       },
       {
         "path": "packages/mcp/src/election/node.ts",
-        "sha256": "c4b4c5e63861232806ba2bc4513334afd9e48bfde2597db33d0b88cc8f2b5cfd"
+        "sha256": "06b491923369affdd8f542b28f41b8127378860291a21dd1f0d36ddb773ed0de"
+      },
+      {
+        "path": "packages/mcp/src/execution/execution-plane.ts",
+        "sha256": "02c338f8e1a798eb8c734bbf6252e71e7193b52d246bb0d510d77fa6ae653867"
+      },
+      {
+        "path": "packages/mcp/src/execution/file-queue.ts",
+        "sha256": "6bacd95f745888fc29063656fa021d141c298f8195e06b8bf1cf831015783efb"
+      },
+      {
+        "path": "packages/mcp/src/execution/follower-invocation-client.ts",
+        "sha256": "39bd67d5469caba6431ed7eecfff66ba6e40690a40a85aed327d7c6465efb4f9"
+      },
+      {
+        "path": "packages/mcp/src/execution/mcp-invocation-adapter.ts",
+        "sha256": "cde61dbdfcf1d5afe7361b3643e03d564312b5d611692cc53be643ba3e9146a1"
+      },
+      {
+        "path": "packages/mcp/src/execution/operation-executor.ts",
+        "sha256": "230bf24a4d72d6456f96990c70531fe8143d8237720e9973e36508b27e1a1c34"
+      },
+      {
+        "path": "packages/mcp/src/execution/operation-id.ts",
+        "sha256": "d405deafb1332661ec075661577269d657a7a3685be3c9b32a4a7d4c1c59c7e3"
+      },
+      {
+        "path": "packages/mcp/src/execution/operation-journal.ts",
+        "sha256": "e6b3c7d36f2408065efcecfe18726c3439576bc32fa2299a0a6185023b96d796"
+      },
+      {
+        "path": "packages/mcp/src/execution/operation-resolution-intent.ts",
+        "sha256": "0eacd7243e42f1cf301d5557db293a933f11a71e6094e1c1759a08d04d7ac7a1"
+      },
+      {
+        "path": "packages/mcp/src/execution/service-operation-registry.ts",
+        "sha256": "6e1bd916a959145badbd4df52ed74cfe7a9f63af57923bd84ad2343cdaeb2ec7"
+      },
+      {
+        "path": "packages/mcp/src/execution/target-resolver.ts",
+        "sha256": "1792deccf25235f59bf3b6fe7419328f82591ce7537c33b9780f5d2ee3088536"
       },
       {
         "path": "packages/mcp/src/fs/workspace-config-store.ts",
@@ -74,15 +126,15 @@
       },
       {
         "path": "packages/mcp/src/index.ts",
-        "sha256": "3daf012f4644aecbdae0e2541b4a5eaf77a02c49ade7d95951ebfc52030b5d7a"
+        "sha256": "fe8605fcbd0de44ac090fff4d771b3a848d5a3bdf391934a54778f2f804d1f08"
       },
       {
         "path": "packages/mcp/src/policy/operation-policy.ts",
-        "sha256": "8097c4700a00b7cfce148138b7741a4c2271c7179d6b83ec7d6098e8cdf85c2e"
+        "sha256": "a2db27a4ec16202e2c05fc173e73685b18a891997998d5e6ae494e8cce8417bf"
       },
       {
         "path": "packages/mcp/src/policy/policy-engine.ts",
-        "sha256": "3d9d3534f49364f3635eb57c3e6dfaf7c1d603a4932b6549dcd3e08f22b6d3e7"
+        "sha256": "8388bbe33a8f26f0b39c32e386342fa0253d00d07776fabad785e7ab5bc2de27"
       },
       {
         "path": "packages/mcp/src/policy/result-egress-policy.ts",
@@ -94,7 +146,7 @@
       },
       {
         "path": "packages/mcp/src/relay/session.ts",
-        "sha256": "2dff76706bc3305ce2efa69f2eb034fb74167e7d45afc3adaf256096b54fb7f6"
+        "sha256": "f2fc235f4785460f3526cc3e5760bf6d179b0e961138ee76299657e27d5d3bd7"
       },
       {
         "path": "packages/mcp/src/runtime-paths.ts",
@@ -117,12 +169,20 @@
         "sha256": "4762e292834092e0fdf86a7edf76edab4a05647584a031e4d89b862408b5134f"
       },
       {
+        "path": "packages/mcp/src/security/principal-derivation.ts",
+        "sha256": "850f5ec5de1bd9af0534286051f9b9875ec2d7c34e1b0e80d9593b1bd2880290"
+      },
+      {
         "path": "packages/mcp/src/security/request-limits.ts",
         "sha256": "8f3acd27dcb1c145eea703833c100d63133113d0844e6c5031c219fd1c3a7686"
       },
       {
         "path": "packages/mcp/src/security/state-permissions.ts",
         "sha256": "e4dde1554bef8dd8f5e2c526b1f2a98956aae62eb5d55fabdc6d4223a2385e44"
+      },
+      {
+        "path": "packages/mcp/src/tool-invocation-service.ts",
+        "sha256": "09511b7557498429fdf2befb398494edca165218ad04376cae6eeafd2b0658bd"
       },
       {
         "path": "packages/mcp/src/tools/add-component-property.ts",
@@ -402,7 +462,7 @@
       },
       {
         "path": "packages/mcp/src/tools/registry.ts",
-        "sha256": "2ff379e0cbdbe6c99d79aa8fd5a8c863fbd70271c153efbed8d090e21e631f03"
+        "sha256": "3ec4f38b5ed4340896b67e5b217022f9393f3df0f67eb1e34a6d2b7d4d382750"
       },
       {
         "path": "packages/mcp/src/tools/remove-animation-style.ts",
@@ -446,7 +506,7 @@
       },
       {
         "path": "packages/mcp/src/tools/runtime-registry.ts",
-        "sha256": "7064d044c7cd000276836db7fbea30d657deddccda732090ad4575be9366ac23"
+        "sha256": "2dc16bd5e4385e60e0b090f5620302c936e3dd02de74768b851efe575c44fdf0"
       },
       {
         "path": "packages/mcp/src/tools/save-image-fills.ts",
@@ -566,7 +626,7 @@
       },
       {
         "path": "packages/mcp/src/tools/spec.ts",
-        "sha256": "7d8fbdc2ac40f10d18a43a3bd7610d5837466a0fe5260514b5716289eb71a7d7"
+        "sha256": "89ba45fda19a5ca7e49f229812c1b1a4079b9af1c63a95ad9efc6be44e1fd791"
       },
       {
         "path": "packages/mcp/src/tools/swap-component.ts",
@@ -614,7 +674,7 @@
       },
       {
         "path": "packages/mcp/test/election/election.test.ts",
-        "sha256": "8da62f314cb19976b796ef89d878865a6a166af2cfe68524583dbfdf3c5f04a6"
+        "sha256": "2caba67cf8572be7c15a8505b50577d9eb736fe7a30b831f7de0075e40155bdb"
       },
       {
         "path": "packages/mcp/test/election/follower.test.ts",
@@ -630,7 +690,67 @@
       },
       {
         "path": "packages/mcp/test/election/node.test.ts",
-        "sha256": "ccbde6472df19b03e24cedd738d477bb2906fc705d0e101eaee862c531670edb"
+        "sha256": "6a53a40cd311b67e855b228be38057fda77b67e0e7c7f627427280c2c69ea382"
+      },
+      {
+        "path": "packages/mcp/test/execution/completed-result-replay.test.ts",
+        "sha256": "b21d6d08881b5daf9ffd663e62d2aed57593d0a4c628625e80ddf719bcb7d860"
+      },
+      {
+        "path": "packages/mcp/test/execution/execution-plane-lifecycle.test.ts",
+        "sha256": "cbb53a38c094c6601eec9af6bcb0c77d78b733606c741b4b62d58594c138a929"
+      },
+      {
+        "path": "packages/mcp/test/execution/file-queue.test.ts",
+        "sha256": "e563122675b6d94d2d775186d258d8674d498df59591bfdb00b6562fa8e591c8"
+      },
+      {
+        "path": "packages/mcp/test/execution/follower-invocation-client.test.ts",
+        "sha256": "e4e9add61b441480095e53ed9269a45b354fb1b59b485a9db6ffa9d5d5a228c9"
+      },
+      {
+        "path": "packages/mcp/test/execution/invocation-boundary.test.ts",
+        "sha256": "d50f63c8497df6e5eb295d5364b9a59c2d9a884c0d1ba0bd3b12b30553d865a2"
+      },
+      {
+        "path": "packages/mcp/test/execution/mcp-selector-synthesis.test.ts",
+        "sha256": "274502c0b019682c0e15c343f9db1204b6ec787be64b76e5392ae17b2f75f5c8"
+      },
+      {
+        "path": "packages/mcp/test/execution/operation-executor.test.ts",
+        "sha256": "903ce4714f988f74b108e44525b9fa6491dabee4f4b1ec58e8bdbef932fa1013"
+      },
+      {
+        "path": "packages/mcp/test/execution/operation-id.test.ts",
+        "sha256": "2b9916d3f8f4458729573f81f4b9084d3cc3fb00d6aa0bc6df2dc0ceee522fe2"
+      },
+      {
+        "path": "packages/mcp/test/execution/operation-journal.test.ts",
+        "sha256": "8a4171b2ee6db48af9ab03ab66d752c921ae984c44a7175ac2f3eb5ab3646f34"
+      },
+      {
+        "path": "packages/mcp/test/execution/policy-context.test.ts",
+        "sha256": "8a71f23d2c54a801240a9bfcb4cdb793a8892ca30f5e9520ba80705c37e32513"
+      },
+      {
+        "path": "packages/mcp/test/execution/runtime-authority.test.ts",
+        "sha256": "83cb689fe00db6c439976aa30783a8e2e0e5610ff2eb46e8203a6fad3fc186f0"
+      },
+      {
+        "path": "packages/mcp/test/execution/service-operation-name.test.ts",
+        "sha256": "9e7c2802b455aa95f0c3c3dacd633ff6c682ff2eac385825780cdebcc0a0d8e5"
+      },
+      {
+        "path": "packages/mcp/test/execution/service-operation-registry.test.ts",
+        "sha256": "7ccf1cca10cb66fb1b270dbb896f68aa2134086a9b5d72378f0041e43e0f8a6b"
+      },
+      {
+        "path": "packages/mcp/test/execution/target-requirement.test.ts",
+        "sha256": "cc24f3b48e1f8fc64ada983e464cc16d1152b361ac6ca56968cac299e886b9b6"
+      },
+      {
+        "path": "packages/mcp/test/execution/target-resolution.test.ts",
+        "sha256": "5f9dfb0669eed527fd6e018ad399975551b0eb69aedec42143f19363b164cbf7"
       },
       {
         "path": "packages/mcp/test/fs/runtime-paths.test.ts",
@@ -662,7 +782,7 @@
       },
       {
         "path": "packages/mcp/test/policy/operation-policy.test.ts",
-        "sha256": "3741371621773eb47639c4d9c7d9603ed1bda820bac2e30cb218f3fe067755ed"
+        "sha256": "96e96a3260aac482e884f5395c6cf954564a8eadf65dfde2ca06b407d5d309bd"
       },
       {
         "path": "packages/mcp/test/policy/result-egress-policy.test.ts",
@@ -674,7 +794,7 @@
       },
       {
         "path": "packages/mcp/test/relay/session.test.ts",
-        "sha256": "cce3d97a2c9e4f42118582c815c12ef61405196eb5fefa75a2f2605d8fd45b0d"
+        "sha256": "72a9133ddc56e00b9a761979d000caa94a82e16c39ad94cecfcae67fea31bcd0"
       },
       {
         "path": "packages/mcp/test/security/control-auth.test.ts",
@@ -722,11 +842,11 @@
       },
       {
         "path": "packages/mcp/test/tools/result-validation.test.ts",
-        "sha256": "7be208c6eb86b51113ad124944798e747cc5d7a3d3654f7a4fcc8b2ece7897c4"
+        "sha256": "d6f719a80032e901e035d5961aacd2c2f6afd984f7e4b9ded3bf14002f074277"
       },
       {
         "path": "packages/mcp/test/tools/skew-notice.test.ts",
-        "sha256": "6abcc53599fe95a537a29e2cd272e5127924d50b0fba3131f19e7623d354befc"
+        "sha256": "863d239cd51af55618fa4cc0d016060ce7e9ffdf6e0b74293f5859fec0eb18b5"
       },
       {
         "path": "packages/plugin/src/handlers/batch.ts",
@@ -778,11 +898,15 @@
       },
       {
         "path": "packages/shared/src/index.ts",
-        "sha256": "d285ce7e1cf66388860ee0cd91827c05cdcc13b010c21323769bd14df5574710"
+        "sha256": "32892ac4b4836be81a73eaf57ddb52e2f3c8fbee1a547c2f743936ff7e155dd0"
+      },
+      {
+        "path": "packages/shared/src/invocation.ts",
+        "sha256": "102f7adf0ff72ebfd915fb8cbe7ef29643ec127aed4574a5bdf9949fe00e1ef3"
       },
       {
         "path": "packages/shared/src/operations.ts",
-        "sha256": "d694d9692877c87b8dfb9ed6fedd0e1bbf92caedffd03e35546ba00ae74d4c9c"
+        "sha256": "37b0ed1317f7529c562a98f4b6c0516bb9987594ce2c24378bd4f46571e8cd6c"
       },
       {
         "path": "packages/shared/src/protocol.ts",
@@ -793,12 +917,32 @@
         "sha256": "30f49e189da85e5e898b96ee4b725f9bb139daeb318e4b438ab422a3c162d473"
       },
       {
+        "path": "packages/shared/src/service-operations.ts",
+        "sha256": "43940e1e6efc43ecfe2b1c94287243d5dab17e4d8d06b708ddb1486154d6f75e"
+      },
+      {
+        "path": "packages/shared/test/file-identity-hash.test.ts",
+        "sha256": "48b203372256e350a8400dceb152f99a0f3a0fc001ae37ceb250cc320b356c23"
+      },
+      {
+        "path": "test/authority-class-transition.test.ts",
+        "sha256": "b72409c7b8f1adbe4d1347ca17af9e536fdf017d82996848cdeb225c3a6e9746"
+      },
+      {
         "path": "test/bootstrap.test.ts",
         "sha256": "61f083ae0e39f897240d1da6234585fe920cc304c8c09cde097b82cf48aa190f"
       },
       {
+        "path": "test/change-manifest.test.ts",
+        "sha256": "feda5678b4b402684f3b301e22a2d87f47b198abed8c6cb2e112349ba3c5709c"
+      },
+      {
+        "path": "test/service-fork-lineage.test.ts",
+        "sha256": "a2a80791963fcb2d502082d5b553cc0c6bbc779ae51acf833a35efd224f28a20"
+      },
+      {
         "path": "test/tool-contract.test.ts",
-        "sha256": "815597c3efb5dba950a9811293ebc2f5b41fca1644838a524fd3f859e2305db9"
+        "sha256": "995433df2312cf06dff1cdca2763b196bb82701f682f1b63d9b57e4b844e2f53"
       },
       {
         "path": "test/tool-registry.test.ts",
@@ -810,7 +954,7 @@
       },
       {
         "path": "test/vendor-upstreams.test.ts",
-        "sha256": "e29dc82f0537bf2e138ccbea378fa366f8ca34e5688584283bb5fd396f4ab982"
+        "sha256": "e74675ebe27127f2b4213472ed93368e035649356a3018ca3c22c85e8a36797d"
       }
     ]
   },
@@ -852,12 +996,20 @@
       "sha256": "a7b79696822dfc9871908b5a47f9b7d24754b42705dd2b7d05f24b7673fc2b64"
     },
     {
+      "path": "capabilities/change-manifests/task-7a.json",
+      "sha256": "ad89c98a69da9f7dd1cfbecb634b0ad600de1ec8cceab36a38b94b0b3e664431"
+    },
+    {
       "path": "capabilities/figmosha-feature-map.json",
       "sha256": "8b84a17e372975e6590ced2315cbdcfb99f0def6259980e88eaf6c4294ca8956"
     },
     {
       "path": "capabilities/rust-tool-compat.json",
       "sha256": "a13fc9633b0406946b78f800135d1420d00de0da77cd27f4f62a4334dd70615a"
+    },
+    {
+      "path": "capabilities/task-7a-authority-classes.json",
+      "sha256": "1b5665167c84145401af2589a214783d772d54a8ee388161ea9d079b050ec031"
     },
     {
       "path": "capabilities/union-manifest.json",
@@ -916,6 +1068,10 @@
       "sha256": "d06800476ef4222b76ad3506dfab81c9c1bde145f591daad4d5d93ae34fda6f7"
     },
     {
+      "path": "packages/mcp/src/election/election.ts",
+      "sha256": "8429f6a06b2abe5888e32a80b05c21a2d564fffc782bf79fb0bd8254246228e1"
+    },
+    {
       "path": "packages/mcp/src/election/follower.ts",
       "sha256": "0afa7a038644fc2e88d03cd9d4388d90b39f7829422a18ce2028588bd2fa2ad7"
     },
@@ -929,7 +1085,47 @@
     },
     {
       "path": "packages/mcp/src/election/node.ts",
-      "sha256": "c4b4c5e63861232806ba2bc4513334afd9e48bfde2597db33d0b88cc8f2b5cfd"
+      "sha256": "06b491923369affdd8f542b28f41b8127378860291a21dd1f0d36ddb773ed0de"
+    },
+    {
+      "path": "packages/mcp/src/execution/execution-plane.ts",
+      "sha256": "02c338f8e1a798eb8c734bbf6252e71e7193b52d246bb0d510d77fa6ae653867"
+    },
+    {
+      "path": "packages/mcp/src/execution/file-queue.ts",
+      "sha256": "6bacd95f745888fc29063656fa021d141c298f8195e06b8bf1cf831015783efb"
+    },
+    {
+      "path": "packages/mcp/src/execution/follower-invocation-client.ts",
+      "sha256": "39bd67d5469caba6431ed7eecfff66ba6e40690a40a85aed327d7c6465efb4f9"
+    },
+    {
+      "path": "packages/mcp/src/execution/mcp-invocation-adapter.ts",
+      "sha256": "cde61dbdfcf1d5afe7361b3643e03d564312b5d611692cc53be643ba3e9146a1"
+    },
+    {
+      "path": "packages/mcp/src/execution/operation-executor.ts",
+      "sha256": "230bf24a4d72d6456f96990c70531fe8143d8237720e9973e36508b27e1a1c34"
+    },
+    {
+      "path": "packages/mcp/src/execution/operation-id.ts",
+      "sha256": "d405deafb1332661ec075661577269d657a7a3685be3c9b32a4a7d4c1c59c7e3"
+    },
+    {
+      "path": "packages/mcp/src/execution/operation-journal.ts",
+      "sha256": "e6b3c7d36f2408065efcecfe18726c3439576bc32fa2299a0a6185023b96d796"
+    },
+    {
+      "path": "packages/mcp/src/execution/operation-resolution-intent.ts",
+      "sha256": "0eacd7243e42f1cf301d5557db293a933f11a71e6094e1c1759a08d04d7ac7a1"
+    },
+    {
+      "path": "packages/mcp/src/execution/service-operation-registry.ts",
+      "sha256": "6e1bd916a959145badbd4df52ed74cfe7a9f63af57923bd84ad2343cdaeb2ec7"
+    },
+    {
+      "path": "packages/mcp/src/execution/target-resolver.ts",
+      "sha256": "1792deccf25235f59bf3b6fe7419328f82591ce7537c33b9780f5d2ee3088536"
     },
     {
       "path": "packages/mcp/src/fs/workspace-config-store.ts",
@@ -941,15 +1137,15 @@
     },
     {
       "path": "packages/mcp/src/index.ts",
-      "sha256": "3daf012f4644aecbdae0e2541b4a5eaf77a02c49ade7d95951ebfc52030b5d7a"
+      "sha256": "fe8605fcbd0de44ac090fff4d771b3a848d5a3bdf391934a54778f2f804d1f08"
     },
     {
       "path": "packages/mcp/src/policy/operation-policy.ts",
-      "sha256": "8097c4700a00b7cfce148138b7741a4c2271c7179d6b83ec7d6098e8cdf85c2e"
+      "sha256": "a2db27a4ec16202e2c05fc173e73685b18a891997998d5e6ae494e8cce8417bf"
     },
     {
       "path": "packages/mcp/src/policy/policy-engine.ts",
-      "sha256": "3d9d3534f49364f3635eb57c3e6dfaf7c1d603a4932b6549dcd3e08f22b6d3e7"
+      "sha256": "8388bbe33a8f26f0b39c32e386342fa0253d00d07776fabad785e7ab5bc2de27"
     },
     {
       "path": "packages/mcp/src/policy/result-egress-policy.ts",
@@ -961,7 +1157,7 @@
     },
     {
       "path": "packages/mcp/src/relay/session.ts",
-      "sha256": "2dff76706bc3305ce2efa69f2eb034fb74167e7d45afc3adaf256096b54fb7f6"
+      "sha256": "f2fc235f4785460f3526cc3e5760bf6d179b0e961138ee76299657e27d5d3bd7"
     },
     {
       "path": "packages/mcp/src/runtime-paths.ts",
@@ -984,12 +1180,20 @@
       "sha256": "4762e292834092e0fdf86a7edf76edab4a05647584a031e4d89b862408b5134f"
     },
     {
+      "path": "packages/mcp/src/security/principal-derivation.ts",
+      "sha256": "850f5ec5de1bd9af0534286051f9b9875ec2d7c34e1b0e80d9593b1bd2880290"
+    },
+    {
       "path": "packages/mcp/src/security/request-limits.ts",
       "sha256": "8f3acd27dcb1c145eea703833c100d63133113d0844e6c5031c219fd1c3a7686"
     },
     {
       "path": "packages/mcp/src/security/state-permissions.ts",
       "sha256": "e4dde1554bef8dd8f5e2c526b1f2a98956aae62eb5d55fabdc6d4223a2385e44"
+    },
+    {
+      "path": "packages/mcp/src/tool-invocation-service.ts",
+      "sha256": "09511b7557498429fdf2befb398494edca165218ad04376cae6eeafd2b0658bd"
     },
     {
       "path": "packages/mcp/src/tools/add-component-property.ts",
@@ -1269,7 +1473,7 @@
     },
     {
       "path": "packages/mcp/src/tools/registry.ts",
-      "sha256": "2ff379e0cbdbe6c99d79aa8fd5a8c863fbd70271c153efbed8d090e21e631f03"
+      "sha256": "3ec4f38b5ed4340896b67e5b217022f9393f3df0f67eb1e34a6d2b7d4d382750"
     },
     {
       "path": "packages/mcp/src/tools/remove-animation-style.ts",
@@ -1313,7 +1517,7 @@
     },
     {
       "path": "packages/mcp/src/tools/runtime-registry.ts",
-      "sha256": "7064d044c7cd000276836db7fbea30d657deddccda732090ad4575be9366ac23"
+      "sha256": "2dc16bd5e4385e60e0b090f5620302c936e3dd02de74768b851efe575c44fdf0"
     },
     {
       "path": "packages/mcp/src/tools/save-image-fills.ts",
@@ -1433,7 +1637,7 @@
     },
     {
       "path": "packages/mcp/src/tools/spec.ts",
-      "sha256": "7d8fbdc2ac40f10d18a43a3bd7610d5837466a0fe5260514b5716289eb71a7d7"
+      "sha256": "89ba45fda19a5ca7e49f229812c1b1a4079b9af1c63a95ad9efc6be44e1fd791"
     },
     {
       "path": "packages/mcp/src/tools/swap-component.ts",
@@ -1481,7 +1685,7 @@
     },
     {
       "path": "packages/mcp/test/election/election.test.ts",
-      "sha256": "8da62f314cb19976b796ef89d878865a6a166af2cfe68524583dbfdf3c5f04a6"
+      "sha256": "2caba67cf8572be7c15a8505b50577d9eb736fe7a30b831f7de0075e40155bdb"
     },
     {
       "path": "packages/mcp/test/election/follower.test.ts",
@@ -1497,7 +1701,67 @@
     },
     {
       "path": "packages/mcp/test/election/node.test.ts",
-      "sha256": "ccbde6472df19b03e24cedd738d477bb2906fc705d0e101eaee862c531670edb"
+      "sha256": "6a53a40cd311b67e855b228be38057fda77b67e0e7c7f627427280c2c69ea382"
+    },
+    {
+      "path": "packages/mcp/test/execution/completed-result-replay.test.ts",
+      "sha256": "b21d6d08881b5daf9ffd663e62d2aed57593d0a4c628625e80ddf719bcb7d860"
+    },
+    {
+      "path": "packages/mcp/test/execution/execution-plane-lifecycle.test.ts",
+      "sha256": "cbb53a38c094c6601eec9af6bcb0c77d78b733606c741b4b62d58594c138a929"
+    },
+    {
+      "path": "packages/mcp/test/execution/file-queue.test.ts",
+      "sha256": "e563122675b6d94d2d775186d258d8674d498df59591bfdb00b6562fa8e591c8"
+    },
+    {
+      "path": "packages/mcp/test/execution/follower-invocation-client.test.ts",
+      "sha256": "e4e9add61b441480095e53ed9269a45b354fb1b59b485a9db6ffa9d5d5a228c9"
+    },
+    {
+      "path": "packages/mcp/test/execution/invocation-boundary.test.ts",
+      "sha256": "d50f63c8497df6e5eb295d5364b9a59c2d9a884c0d1ba0bd3b12b30553d865a2"
+    },
+    {
+      "path": "packages/mcp/test/execution/mcp-selector-synthesis.test.ts",
+      "sha256": "274502c0b019682c0e15c343f9db1204b6ec787be64b76e5392ae17b2f75f5c8"
+    },
+    {
+      "path": "packages/mcp/test/execution/operation-executor.test.ts",
+      "sha256": "903ce4714f988f74b108e44525b9fa6491dabee4f4b1ec58e8bdbef932fa1013"
+    },
+    {
+      "path": "packages/mcp/test/execution/operation-id.test.ts",
+      "sha256": "2b9916d3f8f4458729573f81f4b9084d3cc3fb00d6aa0bc6df2dc0ceee522fe2"
+    },
+    {
+      "path": "packages/mcp/test/execution/operation-journal.test.ts",
+      "sha256": "8a4171b2ee6db48af9ab03ab66d752c921ae984c44a7175ac2f3eb5ab3646f34"
+    },
+    {
+      "path": "packages/mcp/test/execution/policy-context.test.ts",
+      "sha256": "8a71f23d2c54a801240a9bfcb4cdb793a8892ca30f5e9520ba80705c37e32513"
+    },
+    {
+      "path": "packages/mcp/test/execution/runtime-authority.test.ts",
+      "sha256": "83cb689fe00db6c439976aa30783a8e2e0e5610ff2eb46e8203a6fad3fc186f0"
+    },
+    {
+      "path": "packages/mcp/test/execution/service-operation-name.test.ts",
+      "sha256": "9e7c2802b455aa95f0c3c3dacd633ff6c682ff2eac385825780cdebcc0a0d8e5"
+    },
+    {
+      "path": "packages/mcp/test/execution/service-operation-registry.test.ts",
+      "sha256": "7ccf1cca10cb66fb1b270dbb896f68aa2134086a9b5d72378f0041e43e0f8a6b"
+    },
+    {
+      "path": "packages/mcp/test/execution/target-requirement.test.ts",
+      "sha256": "cc24f3b48e1f8fc64ada983e464cc16d1152b361ac6ca56968cac299e886b9b6"
+    },
+    {
+      "path": "packages/mcp/test/execution/target-resolution.test.ts",
+      "sha256": "5f9dfb0669eed527fd6e018ad399975551b0eb69aedec42143f19363b164cbf7"
     },
     {
       "path": "packages/mcp/test/fs/runtime-paths.test.ts",
@@ -1529,7 +1793,7 @@
     },
     {
       "path": "packages/mcp/test/policy/operation-policy.test.ts",
-      "sha256": "3741371621773eb47639c4d9c7d9603ed1bda820bac2e30cb218f3fe067755ed"
+      "sha256": "96e96a3260aac482e884f5395c6cf954564a8eadf65dfde2ca06b407d5d309bd"
     },
     {
       "path": "packages/mcp/test/policy/result-egress-policy.test.ts",
@@ -1541,7 +1805,7 @@
     },
     {
       "path": "packages/mcp/test/relay/session.test.ts",
-      "sha256": "cce3d97a2c9e4f42118582c815c12ef61405196eb5fefa75a2f2605d8fd45b0d"
+      "sha256": "72a9133ddc56e00b9a761979d000caa94a82e16c39ad94cecfcae67fea31bcd0"
     },
     {
       "path": "packages/mcp/test/security/control-auth.test.ts",
@@ -1589,11 +1853,11 @@
     },
     {
       "path": "packages/mcp/test/tools/result-validation.test.ts",
-      "sha256": "7be208c6eb86b51113ad124944798e747cc5d7a3d3654f7a4fcc8b2ece7897c4"
+      "sha256": "d6f719a80032e901e035d5961aacd2c2f6afd984f7e4b9ded3bf14002f074277"
     },
     {
       "path": "packages/mcp/test/tools/skew-notice.test.ts",
-      "sha256": "6abcc53599fe95a537a29e2cd272e5127924d50b0fba3131f19e7623d354befc"
+      "sha256": "863d239cd51af55618fa4cc0d016060ce7e9ffdf6e0b74293f5859fec0eb18b5"
     },
     {
       "path": "packages/mcp/tsconfig.json",
@@ -1677,11 +1941,15 @@
     },
     {
       "path": "packages/shared/src/index.ts",
-      "sha256": "d285ce7e1cf66388860ee0cd91827c05cdcc13b010c21323769bd14df5574710"
+      "sha256": "32892ac4b4836be81a73eaf57ddb52e2f3c8fbee1a547c2f743936ff7e155dd0"
+    },
+    {
+      "path": "packages/shared/src/invocation.ts",
+      "sha256": "102f7adf0ff72ebfd915fb8cbe7ef29643ec127aed4574a5bdf9949fe00e1ef3"
     },
     {
       "path": "packages/shared/src/operations.ts",
-      "sha256": "d694d9692877c87b8dfb9ed6fedd0e1bbf92caedffd03e35546ba00ae74d4c9c"
+      "sha256": "37b0ed1317f7529c562a98f4b6c0516bb9987594ce2c24378bd4f46571e8cd6c"
     },
     {
       "path": "packages/shared/src/protocol.ts",
@@ -1690,6 +1958,14 @@
     {
       "path": "packages/shared/src/result-schemas.ts",
       "sha256": "30f49e189da85e5e898b96ee4b725f9bb139daeb318e4b438ab422a3c162d473"
+    },
+    {
+      "path": "packages/shared/src/service-operations.ts",
+      "sha256": "43940e1e6efc43ecfe2b1c94287243d5dab17e4d8d06b708ddb1486154d6f75e"
+    },
+    {
+      "path": "packages/shared/test/file-identity-hash.test.ts",
+      "sha256": "48b203372256e350a8400dceb152f99a0f3a0fc001ae37ceb250cc320b356c23"
     },
     {
       "path": "packages/shared/tsconfig.json",
@@ -1708,24 +1984,48 @@
       "sha256": "9f9a122cd9b4b53847df3cc9600def649b134729b235b37ef8e570e43df9a277"
     },
     {
+      "path": "schemas/upstream-lock-v2.schema.json",
+      "sha256": "e8d5ead71f336782f058631f7c97fdcce473b1c8ca0355c68795252a090345c4"
+    },
+    {
+      "path": "scripts/update-service-forks.mjs",
+      "sha256": "25f42a7cc012bc7d91f3b129155ff34db9bceed57ad118801859f6ea913ece2f"
+    },
+    {
       "path": "scripts/vendor-upstreams.mjs",
-      "sha256": "4dc4ce1ffb5105efd1077efea96a760ab3f250476891f9e1afcb032e3c8d08fe"
+      "sha256": "aaf1ed55fc8e592fe4c057bd300a9446866ef4f8f522cddc57c9f7c75604328b"
     },
     {
       "path": "scripts/verify-runtime-specifiers.mjs",
       "sha256": "56b5bc33ef7884c513b961a12b9285cf18c9ed037aeae1797427e008ba19046a"
     },
     {
+      "path": "scripts/verify-staged-change-manifest.mjs",
+      "sha256": "2588a6c5d0cfc453d3abf3479ef680b18a05abdfa3c871d1cfafad8e6ea7ce73"
+    },
+    {
       "path": "scripts/verify-upstream-lock.mjs",
-      "sha256": "48a8ffc343808b439a154b3a567cc526b05565724bbd8de305062221eac059f0"
+      "sha256": "c9211e5cdd3a8b1d5bcaf64da18c0273c9e6d9a2467f5fb5d39df371bf3ebe97"
+    },
+    {
+      "path": "test/authority-class-transition.test.ts",
+      "sha256": "b72409c7b8f1adbe4d1347ca17af9e536fdf017d82996848cdeb225c3a6e9746"
     },
     {
       "path": "test/bootstrap.test.ts",
       "sha256": "61f083ae0e39f897240d1da6234585fe920cc304c8c09cde097b82cf48aa190f"
     },
     {
+      "path": "test/change-manifest.test.ts",
+      "sha256": "feda5678b4b402684f3b301e22a2d87f47b198abed8c6cb2e112349ba3c5709c"
+    },
+    {
+      "path": "test/service-fork-lineage.test.ts",
+      "sha256": "a2a80791963fcb2d502082d5b553cc0c6bbc779ae51acf833a35efd224f28a20"
+    },
+    {
       "path": "test/tool-contract.test.ts",
-      "sha256": "815597c3efb5dba950a9811293ebc2f5b41fca1644838a524fd3f859e2305db9"
+      "sha256": "995433df2312cf06dff1cdca2763b196bb82701f682f1b63d9b57e4b844e2f53"
     },
     {
       "path": "test/tool-registry.test.ts",
@@ -1737,7 +2037,7 @@
     },
     {
       "path": "test/vendor-upstreams.test.ts",
-      "sha256": "e29dc82f0537bf2e138ccbea378fa366f8ca34e5688584283bb5fd396f4ab982"
+      "sha256": "e74675ebe27127f2b4213472ed93368e035649356a3018ca3c22c85e8a36797d"
     },
     {
       "path": "tsconfig.base.json",
@@ -1753,7 +2053,7 @@
     },
     {
       "path": "vendor-rules.json",
-      "sha256": "abd331d79307d0eae5aa09fff774ce5ce1e3e67741926e2a0d1433326429c02f"
+      "sha256": "e9abf33efaa524f86773fe2d07111433ecbd1d673da18d64bf46d87ea42fbbe4"
     },
     {
       "path": "vitest.config.ts",
@@ -2139,6 +2439,20 @@
         "sha256": "596f04ba93da8a848340599a9fafbbda8859d45a4087fd19c220bf16640c4d8f"
       },
       "attributionSources": []
+    }
+  ],
+  "serviceForks": [
+    {
+      "originRepo": "figwright",
+      "originPath": "packages/mcp/src/election/election.ts",
+      "previousMode": "copy",
+      "originCommit": "a835e81b575eab2c9265a67f9353c89b848f81ca",
+      "baseSha256": "ff326fed0ae88b8a8df31791716aa17a0f56f31c8bc4c2611b025a36540a46dd",
+      "transitionTask": "7A",
+      "reason": "service-owned behavior introduced by Task 7A",
+      "transition": "edit",
+      "destination": "packages/mcp/src/election/election.ts",
+      "stagedSha256": "8429f6a06b2abe5888e32a80b05c21a2d564fffc782bf79fb0bd8254246228e1"
     }
   ]
 }

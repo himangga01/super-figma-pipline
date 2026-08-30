@@ -28,6 +28,23 @@ const BASELINE_SERVER_ONLY = [
   'token_map',
 ] as const;
 
+const BASELINE_SERVER_ADAPTER_NAMES = [
+  'ping',
+  'get_screenshot',
+  'get_design_context',
+  'save_screenshots',
+  'save_image_fills',
+  'export_pdf',
+  'export_video',
+  'analyze_project',
+  'scan_components',
+  'component_map',
+  'token_map',
+  'icon_map',
+  'import_image',
+  'design_diff',
+] as const;
+
 const PLANNED_SAFE_UNION = [
   'doctor',
   'export_frames_to_pdf',
@@ -60,8 +77,8 @@ describe('tool contract authorities', () => {
     expect(Object.keys(RESULT_SCHEMAS).toSorted()).toEqual(names);
     expect(Object.keys(TOOL_RUNTIMES).toSorted()).toEqual(names);
     expect(
-      Object.values(TOOL_RUNTIMES).filter(binding => binding.authority === 'server'),
-    ).toHaveLength(7);
+      Object.values(TOOL_RUNTIMES).filter(binding => binding.execution === 'server-adapter'),
+    ).toHaveLength(14);
 
     for (const [name, schema] of Object.entries(RESULT_SCHEMAS)) {
       const jsonSchema = schema.toJSONSchema({ unrepresentable: 'any' });
@@ -78,12 +95,48 @@ describe('tool contract authorities', () => {
       expect(spec.resultSchema).toBe(RESULT_SCHEMAS[spec.name]);
       expect(spec.runtimeId).toBe(`runtime:${spec.name}`);
       expect(spec.policyId).toBe(`tool:${spec.name}:v1`);
+      expect(spec.handlerAuthority).toBe(
+        SERVER_ONLY_TOOLS.has(spec.name) ? 'server-only' : 'plugin-handler',
+      );
     }
   });
 
   it('derives the literal seven server-only tools while retaining 105 plugin handlers', () => {
     expect([...SERVER_ONLY_TOOLS].toSorted()).toEqual([...BASELINE_SERVER_ONLY]);
     expect(Object.keys(createSandboxHandlers({} as never))).toHaveLength(105);
+  });
+
+  it('keeps handler parity independent from the exact baseline execution adapters', () => {
+    const grouped = Object.values(TOOL_RUNTIMES).reduce<Record<string, number>>(
+      (counts, binding) => {
+        counts[binding.execution] = (counts[binding.execution] ?? 0) + 1;
+        return counts;
+      },
+      {},
+    );
+
+    expect(grouped).toEqual({ 'plugin-direct': 98, 'server-adapter': 14 });
+    expect(
+      Object.entries(TOOL_RUNTIMES)
+        .filter(([, binding]) => binding.execution === 'server-adapter')
+        .map(([name]) => name)
+        .toSorted(),
+    ).toEqual([...BASELINE_SERVER_ADAPTER_NAMES].toSorted());
+  });
+
+  it('binds exact baseline target requirements after strict args parsing', () => {
+    const byName = Object.fromEntries(ALL_TOOL_SPECS.map(spec => [spec.name, spec]));
+    const requirement = (name: string, args: unknown): unknown =>
+      (
+        byName[name] as unknown as {
+          targetRequirementFor?: (parsed: unknown) => unknown;
+        }
+      )?.targetRequirementFor?.(args);
+
+    expect(requirement('analyze_project', { rootDir: '.' })).toBe('forbidden');
+    expect(requirement('scan_components', { rootDir: '.' })).toBe('forbidden');
+    expect(requirement('ping', {})).toBe('optional');
+    expect(requirement('get_selection', {})).toBe('required');
   });
 });
 

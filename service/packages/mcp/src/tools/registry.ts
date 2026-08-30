@@ -84,7 +84,7 @@ import { reorderNodesTool } from './reorder-nodes.js';
 import { reparentNodesTool } from './reparent-nodes.js';
 import { resizeNodesTool } from './resize-nodes.js';
 import { rotateNodesTool } from './rotate-nodes.js';
-import { TOOL_RUNTIMES, type RuntimeRegistry } from './runtime-registry.js';
+import { SERVER_ONLY_TOOLS, TOOL_RUNTIMES, type RuntimeRegistry } from './runtime-registry.js';
 import { saveImageFillsTool } from './save-image-fills.js';
 import { saveScreenshotsTool } from './save-screenshots.js';
 import { scanComponentsTool } from './scan-components.js';
@@ -275,6 +275,13 @@ export const finalizeToolSpecs = (
         resultSchema: resultSchemas[spec.name]!,
         runtimeId: `runtime:${spec.name}`,
         policyId: `tool:${spec.name}:v1`,
+        handlerAuthority: SERVER_ONLY_TOOLS.has(spec.name) ? 'server-only' : 'plugin-handler',
+        targetRequirementFor:
+          spec.name === 'analyze_project' || spec.name === 'scan_components'
+            ? () => 'forbidden' as const
+            : spec.name === 'ping'
+              ? () => 'optional' as const
+              : () => 'required' as const,
       }),
     ),
   );

@@ -106,16 +106,6 @@
     {
       "mode": "copy",
       "originCommit": "a835e81b575eab2c9265a67f9353c89b848f81ca",
-      "sourcePath": "packages/mcp/src/election/election.ts",
-      "destination": "packages/mcp/src/election/election.ts",
-      "baseSha256": "ff326fed0ae88b8a8df31791716aa17a0f56f31c8bc4c2611b025a36540a46dd",
-      "currentSha256": "ff326fed0ae88b8a8df31791716aa17a0f56f31c8bc4c2611b025a36540a46dd",
-      "transformations": [],
-      "licenseId": "MIT"
-    },
-    {
-      "mode": "copy",
-      "originCommit": "a835e81b575eab2c9265a67f9353c89b848f81ca",
       "sourcePath": "packages/mcp/src/icons/repo-icons.ts",
       "destination": "packages/mcp/src/icons/repo-icons.ts",
       "baseSha256": "d63f2f8cda2f1b3b547805af23807ccc8f62036426f26c18f0099c8d96bca5d9",

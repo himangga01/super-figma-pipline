@@ -79,6 +79,30 @@ afterEach(async () => {
 });
 
 describe('vendor upstream reconciliation', () => {
+  it('regenerates raw Figwright allowances from copy and service-owned destinations', async () => {
+    const fixture = await copyServiceFixture();
+    const serviceOwned = join(fixture.serviceRoot, 'packages', 'mcp', 'src', 'relay', 'session.ts');
+    await writeFile(
+      serviceOwned,
+      `${await readFile(serviceOwned, 'utf8')}\n// @figwright/custom-fixture\n`,
+      'utf8',
+    );
+
+    const result = runCopyOnly(fixture.serviceRoot);
+
+    expect(result.status).toBe(0);
+    const allowed = JSON.parse(
+      await readFile(join(fixture.serviceRoot, 'vendor-allowed-figwright-strings.json'), 'utf8'),
+    ) as { entries: Array<{ path: string; value: string }> };
+    expect(allowed.entries).toContainEqual(
+      expect.objectContaining({
+        path: 'packages/mcp/src/relay/session.ts',
+        value: '@figwright/custom-fixture',
+      }),
+    );
+    expect(await readFile(serviceOwned, 'utf8')).toContain('@figwright/custom-fixture');
+  }, 30_000);
+
   it('removes a previous managed destination when its mapped bytes are unchanged', async () => {
     const fixture = await copyServiceFixture();
     await removeRootReadmeRule(fixture.serviceRoot);
@@ -160,6 +184,81 @@ describe('managed destination closure', () => {
     },
     30_000,
   );
+});
+
+describe('offline upstream-lock v2 schema and fork origins', () => {
+  it('rejects an unknown top-level lock key from the checked-in v2 schema', async () => {
+    const fixture = await copyServiceFixture();
+    const lockPath = join(fixture.serviceRoot, 'upstream-lock.json');
+    const lock = JSON.parse(await readFile(lockPath, 'utf8')) as Record<string, unknown>;
+    lock.untrustedExtension = true;
+    await writeFile(lockPath, `${JSON.stringify(lock, null, 2)}\n`, 'utf8');
+
+    const result = runVerifier(fixture, '--offline');
+
+    expect(result.status).toBe(1);
+    expect(result.stderr).toContain('upstream-lock.json has unknown or missing keys');
+  }, 30_000);
+
+  it('rejects a service-fork origin commit that differs from its pinned upstream offline', async () => {
+    const fixture = await copyServiceFixture();
+    const lockPath = join(fixture.serviceRoot, 'upstream-lock.json');
+    const lock = JSON.parse(await readFile(lockPath, 'utf8')) as {
+      serviceForks: Array<{ originCommit: string; originPath: string }>;
+    };
+    expect(lock.serviceForks.length).toBeGreaterThan(0);
+    lock.serviceForks[0]!.originCommit = 'f'.repeat(40);
+    await writeFile(lockPath, `${JSON.stringify(lock, null, 2)}\n`, 'utf8');
+
+    const result = runVerifier(fixture, '--offline');
+
+    expect(result.status).toBe(1);
+    expect(result.stderr).toContain('service-fork origin commit mismatch');
+  }, 30_000);
+
+  it('rejects unsafe nested authority paths and unknown row keys offline', async () => {
+    const fixture = await copyServiceFixture();
+    const lockPath = join(fixture.serviceRoot, 'upstream-lock.json');
+    const lock = JSON.parse(await readFile(lockPath, 'utf8')) as {
+      serviceFiles: Array<Record<string, unknown>>;
+    };
+    lock.serviceFiles[0] = { ...lock.serviceFiles[0], path: '../escape', extra: true };
+    await writeFile(lockPath, `${JSON.stringify(lock, null, 2)}\n`, 'utf8');
+
+    const result = runVerifier(fixture, '--offline');
+
+    expect(result.status).toBe(1);
+    expect(result.stderr).toMatch(/serviceFiles\[0\].*(unknown|unsafe|policy)/i);
+  }, 30_000);
+
+  it('rederives fork origin fields from the parent HEAD authorities offline', async () => {
+    const fixture = await copyServiceFixture();
+    spawnSync('git', ['-C', fixture.repositoryRoot, 'init'], { encoding: 'utf8' });
+    spawnSync('git', ['-C', fixture.repositoryRoot, 'config', 'user.email', 'test@example.com'], {
+      encoding: 'utf8',
+    });
+    spawnSync('git', ['-C', fixture.repositoryRoot, 'config', 'user.name', 'Test'], {
+      encoding: 'utf8',
+    });
+    spawnSync('git', ['-C', fixture.repositoryRoot, 'add', 'service'], { encoding: 'utf8' });
+    expect(
+      spawnSync('git', ['-C', fixture.repositoryRoot, 'commit', '-m', 'parent'], {
+        encoding: 'utf8',
+      }).status,
+    ).toBe(0);
+    const lockPath = join(fixture.serviceRoot, 'upstream-lock.json');
+    const lock = JSON.parse(await readFile(lockPath, 'utf8')) as {
+      serviceForks: Array<{ originPath: string }>;
+    };
+    expect(lock.serviceForks.length).toBeGreaterThan(0);
+    lock.serviceForks[0]!.originPath = 'packages/mcp/src/election/foreign.ts';
+    await writeFile(lockPath, `${JSON.stringify(lock, null, 2)}\n`, 'utf8');
+
+    const result = runVerifier(fixture, '--offline');
+
+    expect(result.status).toBe(1);
+    expect(result.stderr).toContain('parent provenance mismatch');
+  }, 30_000);
 });
 
 describe('protected service authorities', () => {

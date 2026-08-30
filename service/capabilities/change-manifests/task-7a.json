@@ -1,0 +1,302 @@
+{
+  "schemaVersion": 1,
+  "slice": "7A",
+  "authorityPaths": [
+    "service/capabilities/change-manifests/task-7a.json",
+    "service/upstream-lock.json",
+    "service/vendor-map.json",
+    "service/vendor-rules.json"
+  ],
+  "changes": [
+    {
+      "status": "A",
+      "path": "service/capabilities/task-7a-authority-classes.json",
+      "sha256": "1b5665167c84145401af2589a214783d772d54a8ee388161ea9d079b050ec031"
+    },
+    {
+      "status": "M",
+      "path": "service/packages/mcp/src/election/election.ts",
+      "sha256": "8429f6a06b2abe5888e32a80b05c21a2d564fffc782bf79fb0bd8254246228e1"
+    },
+    {
+      "status": "M",
+      "path": "service/packages/mcp/src/election/node.ts",
+      "sha256": "06b491923369affdd8f542b28f41b8127378860291a21dd1f0d36ddb773ed0de"
+    },
+    {
+      "status": "A",
+      "path": "service/packages/mcp/src/execution/execution-plane.ts",
+      "sha256": "02c338f8e1a798eb8c734bbf6252e71e7193b52d246bb0d510d77fa6ae653867"
+    },
+    {
+      "status": "A",
+      "path": "service/packages/mcp/src/execution/file-queue.ts",
+      "sha256": "6bacd95f745888fc29063656fa021d141c298f8195e06b8bf1cf831015783efb"
+    },
+    {
+      "status": "A",
+      "path": "service/packages/mcp/src/execution/follower-invocation-client.ts",
+      "sha256": "39bd67d5469caba6431ed7eecfff66ba6e40690a40a85aed327d7c6465efb4f9"
+    },
+    {
+      "status": "A",
+      "path": "service/packages/mcp/src/execution/mcp-invocation-adapter.ts",
+      "sha256": "cde61dbdfcf1d5afe7361b3643e03d564312b5d611692cc53be643ba3e9146a1"
+    },
+    {
+      "status": "A",
+      "path": "service/packages/mcp/src/execution/operation-executor.ts",
+      "sha256": "230bf24a4d72d6456f96990c70531fe8143d8237720e9973e36508b27e1a1c34"
+    },
+    {
+      "status": "A",
+      "path": "service/packages/mcp/src/execution/operation-id.ts",
+      "sha256": "d405deafb1332661ec075661577269d657a7a3685be3c9b32a4a7d4c1c59c7e3"
+    },
+    {
+      "status": "A",
+      "path": "service/packages/mcp/src/execution/operation-journal.ts",
+      "sha256": "e6b3c7d36f2408065efcecfe18726c3439576bc32fa2299a0a6185023b96d796"
+    },
+    {
+      "status": "A",
+      "path": "service/packages/mcp/src/execution/operation-resolution-intent.ts",
+      "sha256": "0eacd7243e42f1cf301d5557db293a933f11a71e6094e1c1759a08d04d7ac7a1"
+    },
+    {
+      "status": "A",
+      "path": "service/packages/mcp/src/execution/service-operation-registry.ts",
+      "sha256": "6e1bd916a959145badbd4df52ed74cfe7a9f63af57923bd84ad2343cdaeb2ec7"
+    },
+    {
+      "status": "A",
+      "path": "service/packages/mcp/src/execution/target-resolver.ts",
+      "sha256": "1792deccf25235f59bf3b6fe7419328f82591ce7537c33b9780f5d2ee3088536"
+    },
+    {
+      "status": "M",
+      "path": "service/packages/mcp/src/index.ts",
+      "sha256": "fe8605fcbd0de44ac090fff4d771b3a848d5a3bdf391934a54778f2f804d1f08"
+    },
+    {
+      "status": "M",
+      "path": "service/packages/mcp/src/policy/operation-policy.ts",
+      "sha256": "a2db27a4ec16202e2c05fc173e73685b18a891997998d5e6ae494e8cce8417bf"
+    },
+    {
+      "status": "M",
+      "path": "service/packages/mcp/src/policy/policy-engine.ts",
+      "sha256": "8388bbe33a8f26f0b39c32e386342fa0253d00d07776fabad785e7ab5bc2de27"
+    },
+    {
+      "status": "M",
+      "path": "service/packages/mcp/src/relay/session.ts",
+      "sha256": "f2fc235f4785460f3526cc3e5760bf6d179b0e961138ee76299657e27d5d3bd7"
+    },
+    {
+      "status": "A",
+      "path": "service/packages/mcp/src/security/principal-derivation.ts",
+      "sha256": "850f5ec5de1bd9af0534286051f9b9875ec2d7c34e1b0e80d9593b1bd2880290"
+    },
+    {
+      "status": "A",
+      "path": "service/packages/mcp/src/tool-invocation-service.ts",
+      "sha256": "09511b7557498429fdf2befb398494edca165218ad04376cae6eeafd2b0658bd"
+    },
+    {
+      "status": "M",
+      "path": "service/packages/mcp/src/tools/registry.ts",
+      "sha256": "3ec4f38b5ed4340896b67e5b217022f9393f3df0f67eb1e34a6d2b7d4d382750"
+    },
+    {
+      "status": "M",
+      "path": "service/packages/mcp/src/tools/runtime-registry.ts",
+      "sha256": "2dc16bd5e4385e60e0b090f5620302c936e3dd02de74768b851efe575c44fdf0"
+    },
+    {
+      "status": "M",
+      "path": "service/packages/mcp/src/tools/spec.ts",
+      "sha256": "89ba45fda19a5ca7e49f229812c1b1a4079b9af1c63a95ad9efc6be44e1fd791"
+    },
+    {
+      "status": "M",
+      "path": "service/packages/mcp/test/election/election.test.ts",
+      "sha256": "2caba67cf8572be7c15a8505b50577d9eb736fe7a30b831f7de0075e40155bdb"
+    },
+    {
+      "status": "M",
+      "path": "service/packages/mcp/test/election/node.test.ts",
+      "sha256": "6a53a40cd311b67e855b228be38057fda77b67e0e7c7f627427280c2c69ea382"
+    },
+    {
+      "status": "A",
+      "path": "service/packages/mcp/test/execution/completed-result-replay.test.ts",
+      "sha256": "b21d6d08881b5daf9ffd663e62d2aed57593d0a4c628625e80ddf719bcb7d860"
+    },
+    {
+      "status": "A",
+      "path": "service/packages/mcp/test/execution/execution-plane-lifecycle.test.ts",
+      "sha256": "cbb53a38c094c6601eec9af6bcb0c77d78b733606c741b4b62d58594c138a929"
+    },
+    {
+      "status": "A",
+      "path": "service/packages/mcp/test/execution/file-queue.test.ts",
+      "sha256": "e563122675b6d94d2d775186d258d8674d498df59591bfdb00b6562fa8e591c8"
+    },
+    {
+      "status": "A",
+      "path": "service/packages/mcp/test/execution/follower-invocation-client.test.ts",
+      "sha256": "e4e9add61b441480095e53ed9269a45b354fb1b59b485a9db6ffa9d5d5a228c9"
+    },
+    {
+      "status": "A",
+      "path": "service/packages/mcp/test/execution/invocation-boundary.test.ts",
+      "sha256": "d50f63c8497df6e5eb295d5364b9a59c2d9a884c0d1ba0bd3b12b30553d865a2"
+    },
+    {
+      "status": "A",
+      "path": "service/packages/mcp/test/execution/mcp-selector-synthesis.test.ts",
+      "sha256": "274502c0b019682c0e15c343f9db1204b6ec787be64b76e5392ae17b2f75f5c8"
+    },
+    {
+      "status": "A",
+      "path": "service/packages/mcp/test/execution/operation-executor.test.ts",
+      "sha256": "903ce4714f988f74b108e44525b9fa6491dabee4f4b1ec58e8bdbef932fa1013"
+    },
+    {
+      "status": "A",
+      "path": "service/packages/mcp/test/execution/operation-id.test.ts",
+      "sha256": "2b9916d3f8f4458729573f81f4b9084d3cc3fb00d6aa0bc6df2dc0ceee522fe2"
+    },
+    {
+      "status": "A",
+      "path": "service/packages/mcp/test/execution/operation-journal.test.ts",
+      "sha256": "8a4171b2ee6db48af9ab03ab66d752c921ae984c44a7175ac2f3eb5ab3646f34"
+    },
+    {
+      "status": "A",
+      "path": "service/packages/mcp/test/execution/policy-context.test.ts",
+      "sha256": "8a71f23d2c54a801240a9bfcb4cdb793a8892ca30f5e9520ba80705c37e32513"
+    },
+    {
+      "status": "A",
+      "path": "service/packages/mcp/test/execution/runtime-authority.test.ts",
+      "sha256": "83cb689fe00db6c439976aa30783a8e2e0e5610ff2eb46e8203a6fad3fc186f0"
+    },
+    {
+      "status": "A",
+      "path": "service/packages/mcp/test/execution/service-operation-name.test.ts",
+      "sha256": "9e7c2802b455aa95f0c3c3dacd633ff6c682ff2eac385825780cdebcc0a0d8e5"
+    },
+    {
+      "status": "A",
+      "path": "service/packages/mcp/test/execution/service-operation-registry.test.ts",
+      "sha256": "7ccf1cca10cb66fb1b270dbb896f68aa2134086a9b5d72378f0041e43e0f8a6b"
+    },
+    {
+      "status": "A",
+      "path": "service/packages/mcp/test/execution/target-requirement.test.ts",
+      "sha256": "cc24f3b48e1f8fc64ada983e464cc16d1152b361ac6ca56968cac299e886b9b6"
+    },
+    {
+      "status": "A",
+      "path": "service/packages/mcp/test/execution/target-resolution.test.ts",
+      "sha256": "5f9dfb0669eed527fd6e018ad399975551b0eb69aedec42143f19363b164cbf7"
+    },
+    {
+      "status": "M",
+      "path": "service/packages/mcp/test/policy/operation-policy.test.ts",
+      "sha256": "96e96a3260aac482e884f5395c6cf954564a8eadf65dfde2ca06b407d5d309bd"
+    },
+    {
+      "status": "M",
+      "path": "service/packages/mcp/test/relay/session.test.ts",
+      "sha256": "72a9133ddc56e00b9a761979d000caa94a82e16c39ad94cecfcae67fea31bcd0"
+    },
+    {
+      "status": "M",
+      "path": "service/packages/mcp/test/tools/result-validation.test.ts",
+      "sha256": "d6f719a80032e901e035d5961aacd2c2f6afd984f7e4b9ded3bf14002f074277"
+    },
+    {
+      "status": "M",
+      "path": "service/packages/mcp/test/tools/skew-notice.test.ts",
+      "sha256": "863d239cd51af55618fa4cc0d016060ce7e9ffdf6e0b74293f5859fec0eb18b5"
+    },
+    {
+      "status": "M",
+      "path": "service/packages/shared/src/index.ts",
+      "sha256": "32892ac4b4836be81a73eaf57ddb52e2f3c8fbee1a547c2f743936ff7e155dd0"
+    },
+    {
+      "status": "A",
+      "path": "service/packages/shared/src/invocation.ts",
+      "sha256": "102f7adf0ff72ebfd915fb8cbe7ef29643ec127aed4574a5bdf9949fe00e1ef3"
+    },
+    {
+      "status": "M",
+      "path": "service/packages/shared/src/operations.ts",
+      "sha256": "37b0ed1317f7529c562a98f4b6c0516bb9987594ce2c24378bd4f46571e8cd6c"
+    },
+    {
+      "status": "A",
+      "path": "service/packages/shared/src/service-operations.ts",
+      "sha256": "43940e1e6efc43ecfe2b1c94287243d5dab17e4d8d06b708ddb1486154d6f75e"
+    },
+    {
+      "status": "A",
+      "path": "service/packages/shared/test/file-identity-hash.test.ts",
+      "sha256": "48b203372256e350a8400dceb152f99a0f3a0fc001ae37ceb250cc320b356c23"
+    },
+    {
+      "status": "A",
+      "path": "service/schemas/upstream-lock-v2.schema.json",
+      "sha256": "e8d5ead71f336782f058631f7c97fdcce473b1c8ca0355c68795252a090345c4"
+    },
+    {
+      "status": "A",
+      "path": "service/scripts/update-service-forks.mjs",
+      "sha256": "25f42a7cc012bc7d91f3b129155ff34db9bceed57ad118801859f6ea913ece2f"
+    },
+    {
+      "status": "M",
+      "path": "service/scripts/vendor-upstreams.mjs",
+      "sha256": "aaf1ed55fc8e592fe4c057bd300a9446866ef4f8f522cddc57c9f7c75604328b"
+    },
+    {
+      "status": "A",
+      "path": "service/scripts/verify-staged-change-manifest.mjs",
+      "sha256": "2588a6c5d0cfc453d3abf3479ef680b18a05abdfa3c871d1cfafad8e6ea7ce73"
+    },
+    {
+      "status": "M",
+      "path": "service/scripts/verify-upstream-lock.mjs",
+      "sha256": "c9211e5cdd3a8b1d5bcaf64da18c0273c9e6d9a2467f5fb5d39df371bf3ebe97"
+    },
+    {
+      "status": "A",
+      "path": "service/test/authority-class-transition.test.ts",
+      "sha256": "b72409c7b8f1adbe4d1347ca17af9e536fdf017d82996848cdeb225c3a6e9746"
+    },
+    {
+      "status": "A",
+      "path": "service/test/change-manifest.test.ts",
+      "sha256": "feda5678b4b402684f3b301e22a2d87f47b198abed8c6cb2e112349ba3c5709c"
+    },
+    {
+      "status": "A",
+      "path": "service/test/service-fork-lineage.test.ts",
+      "sha256": "a2a80791963fcb2d502082d5b553cc0c6bbc779ae51acf833a35efd224f28a20"
+    },
+    {
+      "status": "M",
+      "path": "service/test/tool-contract.test.ts",
+      "sha256": "995433df2312cf06dff1cdca2763b196bb82701f682f1b63d9b57e4b844e2f53"
+    },
+    {
+      "status": "M",
+      "path": "service/test/vendor-upstreams.test.ts",
+      "sha256": "e74675ebe27127f2b4213472ed93368e035649356a3018ca3c22c85e8a36797d"
+    }
+  ]
+}

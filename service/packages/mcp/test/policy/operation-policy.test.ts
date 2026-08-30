@@ -1,4 +1,4 @@
-import type { Effect, InvocationContext } from '@sfp/shared';
+import type { Effect, PolicyInvocationContext } from '@sfp/shared';
 import { describe, expect, it } from 'vitest';
 
 import { OPERATION_POLICIES, operationPolicyFor } from '../../src/policy/operation-policy.js';
@@ -136,12 +136,12 @@ const DESTRUCTIVE_TOOL_NAMES = [
   'ungroup_nodes',
 ] as const;
 
-const context: InvocationContext = {
+const context: PolicyInvocationContext = {
   workspace: { workspaceId: null, workspaceRoot: null },
   resolvedPaths: {},
 };
 
-const workspaceContext: InvocationContext = {
+const workspaceContext: PolicyInvocationContext = {
   workspace: { workspaceId: 'workspace-1', workspaceRoot: 'C:/approved/project' },
   resolvedPaths: {
     outDir: { path: 'C:/approved/project/artifacts', overwrites: false },
@@ -375,7 +375,7 @@ describe('baseline operation policy authority', () => {
       destructive: true,
     });
 
-    const overwriteContext: InvocationContext = {
+    const overwriteContext: PolicyInvocationContext = {
       ...workspaceContext,
       resolvedPaths: {
         ...workspaceContext.resolvedPaths,
@@ -394,7 +394,7 @@ describe('baseline operation policy authority', () => {
   it('classifies a new output conservatively when overwrite resolution is not present yet', () => {
     const unresolvedContext = {
       workspace: { workspaceId: 'workspace-1', workspaceRoot: 'C:/approved/project' },
-    } as InvocationContext;
+    } as PolicyInvocationContext;
 
     expect(effects('export_pdf', { outPath: 'new.pdf' }, unresolvedContext)).toContainEqual({
       type: 'filesystem-write',

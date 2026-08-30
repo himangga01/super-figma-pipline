@@ -5,7 +5,9 @@ import { dirname, join, posix, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const serviceRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..');
+const repositoryRoot = resolve(serviceRoot, '..');
 const lockPath = join(serviceRoot, 'upstream-lock.json');
+const lockSchemaPath = join(serviceRoot, 'schemas', 'upstream-lock-v2.schema.json');
 const dependencyFields = [
   'dependencies',
   'devDependencies',
@@ -35,6 +37,152 @@ const assert = (condition, message) => {
 
 const assertSha = (value, label) =>
   assert(typeof value === 'string' && shaPattern.test(value), `${label} is not SHA-256`);
+
+const assertExactKeys = (value, expected, label) => {
+  assert(
+    value !== null && typeof value === 'object' && !Array.isArray(value),
+    `${label} is not an object`,
+  );
+  const actual = Object.keys(value).toSorted(compareStrings);
+  const wanted = [...expected].toSorted(compareStrings);
+  assert(JSON.stringify(actual) === JSON.stringify(wanted), `${label} has unknown or missing keys`);
+};
+
+const verifyLockV2Schema = async lock => {
+  const schema = await readJson(lockSchemaPath);
+  const expectedTopLevel = [
+    'schemaVersion',
+    'vendorMap',
+    'destinationClosure',
+    'serviceForks',
+    'serviceFiles',
+    'packageAuthorities',
+    'rootAuthority',
+    'excludedUpstreamScriptInputs',
+    'manifestRequirements',
+    'upstreams',
+  ];
+  assert(
+    schema?.$schema === 'https://json-schema.org/draft/2020-12/schema' &&
+      schema?.$id === 'https://super-figma-pipeline.local/schemas/upstream-lock-v2.schema.json' &&
+      schema?.type === 'object' &&
+      schema?.additionalProperties === false &&
+      Array.isArray(schema.required) &&
+      schema.properties !== null &&
+      typeof schema.properties === 'object' &&
+      !Array.isArray(schema.properties),
+    'upstream-lock-v2.schema.json authority is invalid',
+  );
+  assert(
+    JSON.stringify([...schema.required].toSorted(compareStrings)) ===
+      JSON.stringify([...expectedTopLevel].toSorted(compareStrings)) &&
+      JSON.stringify(Object.keys(schema.properties).toSorted(compareStrings)) ===
+        JSON.stringify([...expectedTopLevel].toSorted(compareStrings)) &&
+      schema.properties.schemaVersion?.const === 2 &&
+      schema.properties.serviceForks?.items?.$ref === '#/$defs/serviceFork',
+    'upstream-lock-v2.schema.json contract is incomplete',
+  );
+  assertExactKeys(lock, expectedTopLevel, 'upstream-lock.json');
+  assertExactKeys(lock.vendorMap, ['path', 'sha256', 'counts'], 'upstream-lock.json.vendorMap');
+  assertExactKeys(
+    lock.vendorMap.counts,
+    ['copy', 'mergeDependencyManifest', 'referenceOnly', 'total'],
+    'upstream-lock.json.vendorMap.counts',
+  );
+  assertSafeDestinationPath(lock.vendorMap.path, 'upstream-lock.json.vendorMap.path');
+  assertSha(lock.vendorMap.sha256, 'upstream-lock.json.vendorMap.sha256');
+  for (const [name, value] of Object.entries(lock.vendorMap.counts)) {
+    assert(Number.isSafeInteger(value) && value >= 0, `vendorMap.counts.${name} is invalid`);
+  }
+  assertExactKeys(
+    lock.destinationClosure,
+    ['managedRoots', 'serviceOwnedFiles'],
+    'upstream-lock.json.destinationClosure',
+  );
+  for (const [index, entry] of lock.serviceFiles.entries()) {
+    assertExactKeys(entry, ['path', 'sha256'], `serviceFiles[${index}]`);
+    assertSafeDestinationPath(entry.path, `serviceFiles[${index}].path`);
+    assertSha(entry.sha256, `serviceFiles[${index}].sha256`);
+  }
+  for (const [index, entry] of lock.destinationClosure.serviceOwnedFiles.entries()) {
+    assertExactKeys(entry, ['path', 'sha256'], `serviceOwnedFiles[${index}]`);
+    assertSafeDestinationPath(entry.path, `serviceOwnedFiles[${index}].path`);
+    assertSha(entry.sha256, `serviceOwnedFiles[${index}].sha256`);
+  }
+  for (const [index, entry] of lock.packageAuthorities.entries()) {
+    assertExactKeys(entry, ['path', 'projection'], `packageAuthorities[${index}]`);
+    assertSafeDestinationPath(entry.path, `packageAuthorities[${index}].path`);
+    assert(
+      entry.projection !== null &&
+        typeof entry.projection === 'object' &&
+        !Array.isArray(entry.projection),
+      `packageAuthorities[${index}].projection is invalid`,
+    );
+  }
+  assertExactKeys(
+    lock.rootAuthority,
+    ['packageManager', 'nodeEngine', 'scripts', 'workspacePackageNames', 'knipWorkspaces'],
+    'upstream-lock.json.rootAuthority',
+  );
+  assert(
+    Array.isArray(lock.excludedUpstreamScriptInputs) &&
+      lock.excludedUpstreamScriptInputs.every(value => typeof value === 'string'),
+    'upstream-lock.json excludedUpstreamScriptInputs is invalid',
+  );
+  for (const [index, requirement] of lock.manifestRequirements.entries()) {
+    const allowedKeys = new Set(['path', 'topLevel', 'scripts', ...dependencyFields]);
+    assert(
+      Object.keys(requirement).every(key => allowedKeys.has(key)) &&
+        Object.hasOwn(requirement, 'path'),
+      `manifestRequirements[${index}] has unknown or missing keys`,
+    );
+    assertSafeDestinationPath(requirement.path, `manifestRequirements[${index}].path`);
+  }
+  for (const [index, upstream] of lock.upstreams.entries()) {
+    assertExactKeys(
+      upstream,
+      ['id', 'directory', 'commit', 'license', 'attributionSources'],
+      `upstreams[${index}]`,
+    );
+    assert(
+      ['figwright', 'figma-mcp-rust', 'figmosha2'].includes(upstream.id),
+      'upstream id invalid',
+    );
+    assertSafeDestinationPath(upstream.directory, `upstreams[${index}].directory`);
+    assert(/^[0-9a-f]{40}$/.test(upstream.commit), `upstreams[${index}].commit is invalid`);
+    assertExactKeys(
+      upstream.license,
+      ['sourcePath', 'servicePath', 'sha256'],
+      `upstreams[${index}].license`,
+    );
+    assertSafeDestinationPath(
+      upstream.license.sourcePath,
+      `upstreams[${index}].license.sourcePath`,
+    );
+    assertSafeDestinationPath(
+      upstream.license.servicePath,
+      `upstreams[${index}].license.servicePath`,
+    );
+    assertSha(upstream.license.sha256, `upstreams[${index}].license.sha256`);
+    assert(
+      Array.isArray(upstream.attributionSources),
+      `upstreams[${index}].attributionSources invalid`,
+    );
+    for (const [sourceIndex, source] of upstream.attributionSources.entries()) {
+      assertExactKeys(
+        source,
+        ['path', 'ranges', 'sha256'],
+        `upstreams[${index}].sources[${sourceIndex}]`,
+      );
+      assertSafeDestinationPath(source.path, `upstreams[${index}].sources[${sourceIndex}].path`);
+      assert(
+        Array.isArray(source.ranges),
+        `upstreams[${index}].sources[${sourceIndex}].ranges invalid`,
+      );
+      assertSha(source.sha256, `upstreams[${index}].sources[${sourceIndex}].sha256`);
+    }
+  }
+};
 
 const gitText = (root, ...args) =>
   execFileSync('git', ['-C', root, ...args], {
@@ -249,14 +397,190 @@ const verifyVendorMap = async lock => {
   return vendorMap;
 };
 
+const verifyServiceForks = async (lock, vendorMap) => {
+  assert(Array.isArray(lock.serviceForks), 'upstream-lock.json serviceForks must be an array');
+  const rules = await readJson(servicePath('vendor-rules.json'));
+  assert(Array.isArray(rules.serviceOwned), 'vendor-rules.json serviceOwned must be an array');
+  const exclusion = new Set(rules.exclude);
+  const serviceOwned = new Set(rules.serviceOwned);
+  assert(
+    serviceOwned.size === rules.serviceOwned.length,
+    'vendor-rules serviceOwned is not unique',
+  );
+  assert(
+    JSON.stringify([...serviceOwned].toSorted(compareStrings)) ===
+      JSON.stringify(rules.serviceOwned),
+    'vendor-rules serviceOwned is not sorted',
+  );
+  const identities = new Set();
+  /* eslint-disable no-await-in-loop -- canonical lineage order produces deterministic failures */
+  for (const [index, row] of lock.serviceForks.entries()) {
+    const common = [
+      'originRepo',
+      'originPath',
+      'previousMode',
+      'originCommit',
+      'baseSha256',
+      'transitionTask',
+      'reason',
+      'transition',
+    ];
+    const variant =
+      row.transition === 'edit'
+        ? ['destination', 'stagedSha256']
+        : row.transition === 'move'
+          ? ['oldDestination', 'newDestination', 'newSha256']
+          : row.transition === 'delete'
+            ? ['destination', 'stagedSha256']
+            : [];
+    assert(variant.length > 0, `serviceForks[${index}] transition is invalid`);
+    assertExactKeys(row, [...common, ...variant], `serviceForks[${index}]`);
+    assert(
+      ['figwright', 'figma-mcp-rust', 'figmosha2'].includes(row.originRepo),
+      `serviceForks[${index}] originRepo is invalid`,
+    );
+    assertSafeDestinationPath(row.originPath, `serviceForks[${index}].originPath`);
+    assert(allowedModes.has(row.previousMode), `serviceForks[${index}] previousMode is invalid`);
+    assert(
+      /^[0-9a-f]{40}$/.test(row.originCommit),
+      `serviceForks[${index}] originCommit is invalid`,
+    );
+    const pinnedOrigin = lock.upstreams.find(upstream => upstream.id === row.originRepo);
+    assert(pinnedOrigin !== undefined, `service-fork origin repo is not pinned: ${row.originRepo}`);
+    assert(
+      row.originCommit === pinnedOrigin.commit,
+      `service-fork origin commit mismatch: ${row.originPath}`,
+    );
+    assertSha(row.baseSha256, `serviceForks[${index}].baseSha256`);
+    assert(
+      /^(?:7[ABC]|8[AB]|9[ABC]|10|11|12[AB]|13|14|15|16)$/.test(row.transitionTask),
+      `serviceForks[${index}] transitionTask is invalid`,
+    );
+    assert(
+      typeof row.reason === 'string' && row.reason.length > 0 && row.reason.length <= 512,
+      `serviceForks[${index}] reason is invalid`,
+    );
+    const destinations =
+      row.transition === 'move' ? [row.oldDestination, row.newDestination] : [row.destination];
+    for (const destination of destinations) {
+      assertSafeDestinationPath(destination, `serviceForks[${index}] destination`);
+      assert(!identities.has(destination), `duplicate service-fork destination: ${destination}`);
+      identities.add(destination);
+      assert(
+        !vendorMap.files.some(candidate => candidate.destination === destination),
+        `service-fork remains in vendor-map: ${destination}`,
+      );
+    }
+    if (row.transition === 'edit') {
+      assertSha(row.stagedSha256, `serviceForks[${index}].stagedSha256`);
+      assert(
+        exclusion.has(row.destination),
+        `service-fork is absent from exclude: ${row.destination}`,
+      );
+      assert(
+        serviceOwned.has(row.destination),
+        `service-fork is absent from serviceOwned: ${row.destination}`,
+      );
+      assert(
+        sha256(await readFile(servicePath(row.destination))) === row.stagedSha256,
+        `service-fork current hash mismatch: ${row.destination}`,
+      );
+    } else if (row.transition === 'move') {
+      assert(row.oldDestination !== row.newDestination, `service-fork move is a no-op`);
+      assertSha(row.newSha256, `serviceForks[${index}].newSha256`);
+      assert(exclusion.has(row.oldDestination), `moved fork old path is absent from exclude`);
+      assert(!serviceOwned.has(row.oldDestination), `moved fork old path remains serviceOwned`);
+      assert(
+        exclusion.has(row.newDestination) && serviceOwned.has(row.newDestination),
+        `moved fork new path is not serviceOwned`,
+      );
+      await readFile(servicePath(row.oldDestination)).then(
+        () => assert(false, `moved fork old path still exists: ${row.oldDestination}`),
+        error => assert(error?.code === 'ENOENT', `moved fork old path read failed unexpectedly`),
+      );
+      assert(
+        sha256(await readFile(servicePath(row.newDestination))) === row.newSha256,
+        `moved fork current hash mismatch: ${row.newDestination}`,
+      );
+    } else {
+      assert(row.stagedSha256 === null, `deleted fork stagedSha256 must be null`);
+      assert(exclusion.has(row.destination), `deleted fork tombstone is absent from exclude`);
+      assert(!serviceOwned.has(row.destination), `deleted fork remains serviceOwned`);
+      await readFile(servicePath(row.destination)).then(
+        () => assert(false, `deleted fork still exists: ${row.destination}`),
+        error => assert(error?.code === 'ENOENT', `deleted fork read failed unexpectedly`),
+      );
+    }
+  }
+  /* eslint-enable no-await-in-loop */
+};
+
+const verifyParentForkProvenance = async lock => {
+  const gitMetadata = await stat(join(repositoryRoot, '.git')).catch(() => null);
+  if (gitMetadata === null) return;
+  let parentVendorMap;
+  let parentLock;
+  try {
+    parentVendorMap = JSON.parse(
+      gitBytes(repositoryRoot, 'show', 'HEAD:service/vendor-map.json').toString('utf8'),
+    );
+    parentLock = JSON.parse(
+      gitBytes(repositoryRoot, 'show', 'HEAD:service/upstream-lock.json').toString('utf8'),
+    );
+  } catch (error) {
+    throw new VerificationError(
+      'SERVICE_FORK_PARENT_INVALID',
+      `cannot read parent provenance authorities: ${String(error)}`,
+    );
+  }
+  for (const row of lock.serviceForks) {
+    const priorDestination = row.transition === 'move' ? row.oldDestination : row.destination;
+    const priorVendor = parentVendorMap.files?.find(
+      candidate => candidate.destination === priorDestination,
+    );
+    if (priorVendor !== undefined) {
+      assert(
+        row.originRepo === parentVendorMap.upstream &&
+          row.originPath === priorVendor.sourcePath &&
+          row.previousMode === priorVendor.mode &&
+          row.originCommit === priorVendor.originCommit &&
+          row.baseSha256 === priorVendor.baseSha256,
+        `service-fork parent vendor provenance mismatch: ${priorDestination}`,
+      );
+      continue;
+    }
+    const priorFork = (parentLock.serviceForks ?? []).find(candidate => {
+      if (candidate.transition === 'move') {
+        return (
+          candidate.oldDestination === priorDestination ||
+          candidate.newDestination === priorDestination
+        );
+      }
+      return candidate.destination === priorDestination;
+    });
+    assert(priorFork !== undefined, `service-fork parent lineage is missing: ${priorDestination}`);
+    assert(
+      row.originRepo === priorFork.originRepo &&
+        row.originPath === priorFork.originPath &&
+        row.previousMode === priorFork.previousMode &&
+        row.originCommit === priorFork.originCommit &&
+        row.baseSha256 === priorFork.baseSha256,
+      `service-fork inherited parent provenance mismatch: ${priorDestination}`,
+    );
+  }
+};
+
 const assertSafeDestinationPath = (path, label) => {
   const segments = typeof path === 'string' ? path.split('/') : [];
   if (
+    typeof path !== 'string' ||
     segments.length === 0 ||
     segments.some(
       segment => segment === '' || segment === '.' || segment === '..' || segment.includes(':'),
     ) ||
     path.includes('\\') ||
+    path.includes('\0') ||
+    [...path].some(character => character.charCodeAt(0) <= 0x1f) ||
     posix.isAbsolute(path) ||
     posix.normalize(path) !== path
   ) {
@@ -477,6 +801,23 @@ const verifyWithUpstreams = async (lock, vendorMap, upstreamsRoot) => {
     const contents = gitBytes(figwrightRoot, 'show', `${figwright.commit}:${row.sourcePath}`);
     assert(sha256(contents) === row.baseSha256, `upstream source hash mismatch: ${row.sourcePath}`);
   }
+  for (const row of lock.serviceForks) {
+    const upstream = lock.upstreams.find(candidate => candidate.id === row.originRepo);
+    assert(upstream !== undefined, `service-fork origin repo is not pinned: ${row.originRepo}`);
+    assert(
+      row.originCommit === upstream.commit,
+      `service-fork origin commit mismatch: ${row.originPath}`,
+    );
+    const contents = gitBytes(
+      join(upstreamsRoot, upstream.directory),
+      'show',
+      `${row.originCommit}:${row.originPath}`,
+    );
+    assert(
+      sha256(contents) === row.baseSha256,
+      `service-fork base hash mismatch: ${row.originPath}`,
+    );
+  }
 };
 
 const main = async () => {
@@ -492,7 +833,8 @@ const main = async () => {
   );
 
   const lock = await readJson(lockPath);
-  assert(lock.schemaVersion === 1, 'upstream-lock.json schemaVersion must be 1');
+  await verifyLockV2Schema(lock);
+  assert(lock.schemaVersion === 2, 'upstream-lock.json schemaVersion must be 2');
   assert(
     Array.isArray(lock.upstreams) && lock.upstreams.length === 3,
     'upstream-lock.json must pin three upstreams',
@@ -503,6 +845,8 @@ const main = async () => {
   );
   await verifyServiceFiles(lock);
   const vendorMap = await verifyVendorMap(lock);
+  await verifyServiceForks(lock, vendorMap);
+  await verifyParentForkProvenance(lock);
   await verifyDestinationClosure(lock, vendorMap);
   await verifyPackageAuthorities(lock);
   await verifyManifestContracts(lock);

@@ -1,3 +1,5 @@
+import { writeSync } from 'node:fs';
+
 import { McpServer } from '@modelcontextprotocol/server';
 import type { CallToolResult } from '@modelcontextprotocol/server';
 import { serveStdio, StdioServerTransport } from '@modelcontextprotocol/server/stdio';
@@ -35,7 +37,7 @@ import { handleIconMap, ICON_MAP_TOOL_NAME } from './tools/icon-map.js';
 import { handleImportImage, IMPORT_IMAGE_TOOL_NAME } from './tools/import-image.js';
 import { formatPingResult, handlePing, pingTool, type PingResult } from './tools/ping.js';
 import { ALL_TOOL_SPECS } from './tools/registry.js';
-import { executeToolRuntime, type RuntimeExecutionContext } from './tools/runtime-registry.js';
+import { TOOL_RUNTIMES, validateToolRuntimeResult } from './tools/runtime-registry.js';
 import { handleSaveImageFills, SAVE_IMAGE_FILLS_TOOL_NAME } from './tools/save-image-fills.js';
 import { handleSaveScreenshots, SAVE_SCREENSHOTS_TOOL_NAME } from './tools/save-screenshots.js';
 import { handleScanComponents, SCAN_COMPONENTS_TOOL_NAME } from './tools/scan-components.js';
@@ -47,6 +49,10 @@ const SERVER_VERSION = pkg.version;
 
 const log = (msg: string): void => {
   process.stderr.write(`${msg}\n`);
+};
+
+const writeReadyLog = (message: string): void => {
+  writeSync(2, Buffer.from(`${message}\n`, 'utf8'));
 };
 
 // FIGWRIGHT_PORT is a test/debug seam (the process-lifecycle e2e spawns real servers on a random
@@ -114,7 +120,11 @@ node.onRoleChange(role => {
         pairing,
         // Newest build wins: a follower on a newer build asks us to step down; the port frees for
         // it within ms and the plugin reconnects to the new leader on its next retry (~250ms).
-        onAbdicate: () => election.yieldLeadership(),
+        onAbdicate: () => {
+          void election.yieldLeadership().catch(error => {
+            log(`[election] durable abdication failed: ${String(error)}`);
+          });
+        },
         log,
       });
     }
@@ -178,13 +188,11 @@ const RAW_SPECIAL_HANDLERS: Record<string, RawToolHandler> = {
   [GET_DESIGN_CONTEXT_TOOL_NAME]: args => handleDesignContext(dispatch, args),
 };
 
-const runtimeContext: RuntimeExecutionContext = {
-  execute: (toolName, args) => {
-    const special = RAW_SPECIAL_HANDLERS[toolName];
-    return special === undefined
-      ? dispatch(toolName, args)
-      : special(args as Record<string, unknown>);
-  },
+const executeLegacyRuntime = (toolName: string, args: unknown): Promise<unknown> => {
+  const special = RAW_SPECIAL_HANDLERS[toolName];
+  return special === undefined
+    ? dispatch(toolName, args)
+    : special(args as Record<string, unknown>);
 };
 
 const presentResult = (toolName: string, result: unknown): CallToolResult => {
@@ -214,11 +222,12 @@ const createMcpServer = (): McpServer => {
     const run: ToolHandler = async args => {
       // Inject a stable idempotency key for writes before the (possibly retrying) dispatch.
       const dispatchArgs = spec.kind === 'write' ? { ...args, requestId: newId() } : args;
-      const result = await executeToolRuntime(
+      const binding = TOOL_RUNTIMES[spec.name];
+      if (binding === undefined) throw new Error(`missing runtime: ${spec.name}`);
+      const result = validateToolRuntimeResult(
         spec.name,
-        runtimeContext,
-        dispatchArgs,
-        new AbortController().signal,
+        binding.execution,
+        await executeLegacyRuntime(spec.name, dispatchArgs),
       );
       return presentResult(spec.name, result);
     };
@@ -288,16 +297,8 @@ class SelfReportingStdioTransport extends StdioServerTransport {
 
 // Deferred because the trigger only exists once wireShutdown has run, and that needs the transport.
 let triggerShutdown = (): void => {};
-const stdio = serveStdio(createMcpServer, {
-  // serveStdio would otherwise construct its own transport, and we need one that reports its death.
-  transport: new SelfReportingStdioTransport(() => {
-    triggerShutdown();
-  }),
-  // Unset, serveStdio discards transport errors outright, so the one message naming the cause
-  // (e.g. "ReadBuffer exceeded maximum size of 10485760 bytes") never reaches the user's stderr.
-  onerror: (error: Error): void => {
-    log(`[figwright] stdio transport error: ${error.message}`);
-  },
+const stdioTransport = new SelfReportingStdioTransport(() => {
+  triggerShutdown();
 });
 
 const roleDetail = node.isLeader()
@@ -305,9 +306,19 @@ const roleDetail = node.isLeader()
   : node.isConflicted()
     ? `:${PORT} held by an unresponsive owner — contending for it`
     : `follower → ${node.leaderUrl}`;
-log(
+writeReadyLog(
   `[figwright] server ${SERVER_VERSION} (protocol ${PROTOCOL_VERSION}) ready as ${node.role}, ${roleDetail}`,
 );
+
+const stdio = serveStdio(createMcpServer, {
+  // serveStdio would otherwise construct its own transport, and we need one that reports its death.
+  transport: stdioTransport,
+  // Unset, serveStdio discards transport errors outright, so the one message naming the cause
+  // (e.g. "ReadBuffer exceeded maximum size of 10485760 bytes") never reaches the user's stderr.
+  onerror: (error: Error): void => {
+    log(`[figwright] stdio transport error: ${error.message}`);
+  },
+});
 
 const shutdown = async (): Promise<void> => {
   // serveStdio owns the transport it started, so it has to be the one to close it — closing the

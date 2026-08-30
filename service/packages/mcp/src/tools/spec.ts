@@ -1,3 +1,4 @@
+import type { TargetRequirement, ToolName } from '@sfp/shared';
 import type { z } from 'zod';
 
 // A tool's input schema as a single source of truth: a Zod object, which is what the MCP SDK takes
@@ -13,7 +14,7 @@ export type ToolKind = 'read' | 'write' | 'local';
 
 /** The unchanged vendored declaration shape, before Task 3 attaches executable authorities. */
 export interface RawToolSpec<I = unknown> {
-  name: string;
+  name: ToolName;
   description: string;
   /**
    * Arguments as a Zod object (e.g. `z.object({ nodeId: z.string() })`); `z.object({})` when the
@@ -66,4 +67,6 @@ export interface ToolSpec<I, O> extends RawToolSpec<I> {
   /** Exact key/version for the separately closed operation and result-egress policy authorities. */
   policyId: `tool:${string}:v1`;
   runtimeId: string;
+  handlerAuthority: 'plugin-handler' | 'server-only';
+  targetRequirementFor(args: Readonly<I>): TargetRequirement;
 }

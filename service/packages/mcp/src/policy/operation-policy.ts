@@ -3,7 +3,7 @@ import type {
   ConcurrencyRequirement,
   Effect,
   IdempotencyRequirement,
-  InvocationContext,
+  PolicyInvocationContext,
   OperationPolicy,
   OperationPolicyRegistry,
 } from '@sfp/shared';
@@ -31,8 +31,10 @@ const filesystemWrite = (destructive: boolean, ...pathArgs: string[]): Effect =>
     destructive,
   });
 
-const hasResolvedOverwrite = (context: InvocationContext, pathArgs: readonly string[]): boolean =>
-  pathArgs.some(pathArg => context.resolvedPaths?.[pathArg]?.overwrites === true);
+const hasResolvedOverwrite = (
+  context: PolicyInvocationContext,
+  pathArgs: readonly string[],
+): boolean => pathArgs.some(pathArg => context.resolvedPaths?.[pathArg]?.overwrites === true);
 
 const approvalForEffects = (effects: readonly Effect[]): ApprovalRequirement => {
   if (

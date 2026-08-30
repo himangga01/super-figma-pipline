@@ -1,0 +1,135 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://super-figma-pipeline.local/schemas/upstream-lock-v2.schema.json",
+  "title": "Super Figma Pipeline upstream lock v2",
+  "type": "object",
+  "required": [
+    "schemaVersion",
+    "vendorMap",
+    "destinationClosure",
+    "serviceForks",
+    "serviceFiles",
+    "packageAuthorities",
+    "rootAuthority",
+    "excludedUpstreamScriptInputs",
+    "manifestRequirements",
+    "upstreams"
+  ],
+  "properties": {
+    "schemaVersion": { "const": 2 },
+    "vendorMap": { "type": "object" },
+    "destinationClosure": { "type": "object" },
+    "serviceFiles": { "type": "array" },
+    "packageAuthorities": { "type": "array" },
+    "rootAuthority": { "type": "object" },
+    "excludedUpstreamScriptInputs": { "type": "array" },
+    "manifestRequirements": { "type": "array" },
+    "upstreams": { "type": "array", "minItems": 3, "maxItems": 3 },
+    "serviceForks": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": { "$ref": "#/$defs/serviceFork" }
+    }
+  },
+  "additionalProperties": false,
+  "$defs": {
+    "sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+    "safePath": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^(?!service/)(?!/)(?!.*//)(?!.*(?:^|/)\\.{1,2}(?:/|$))(?!.*\\\\)(?!.*:)[^\\u0000]+$"
+    },
+    "common": {
+      "type": "object",
+      "required": [
+        "originRepo",
+        "originPath",
+        "previousMode",
+        "originCommit",
+        "baseSha256",
+        "transitionTask",
+        "reason",
+        "transition"
+      ],
+      "properties": {
+        "originRepo": { "enum": ["figwright", "figma-mcp-rust", "figmosha2"] },
+        "originPath": { "$ref": "#/$defs/safePath" },
+        "previousMode": { "enum": ["copy", "mergeDependencyManifest", "referenceOnly"] },
+        "originCommit": { "type": "string", "pattern": "^[0-9a-f]{40}$" },
+        "baseSha256": { "$ref": "#/$defs/sha256" },
+        "transitionTask": {
+          "enum": [
+            "7A",
+            "7B",
+            "7C",
+            "8A",
+            "8B",
+            "9A",
+            "9B",
+            "9C",
+            "10",
+            "11",
+            "12A",
+            "12B",
+            "13",
+            "14",
+            "15",
+            "16"
+          ]
+        },
+        "reason": { "type": "string", "minLength": 1, "maxLength": 512 },
+        "transition": { "enum": ["edit", "move", "delete"] }
+      }
+    },
+    "serviceFork": {
+      "oneOf": [
+        {
+          "allOf": [
+            { "$ref": "#/$defs/common" },
+            {
+              "type": "object",
+              "required": ["destination", "stagedSha256"],
+              "properties": {
+                "transition": { "const": "edit" },
+                "destination": { "$ref": "#/$defs/safePath" },
+                "stagedSha256": { "$ref": "#/$defs/sha256" }
+              }
+            }
+          ],
+          "unevaluatedProperties": false
+        },
+        {
+          "allOf": [
+            { "$ref": "#/$defs/common" },
+            {
+              "type": "object",
+              "required": ["oldDestination", "newDestination", "newSha256"],
+              "properties": {
+                "transition": { "const": "move" },
+                "oldDestination": { "$ref": "#/$defs/safePath" },
+                "newDestination": { "$ref": "#/$defs/safePath" },
+                "newSha256": { "$ref": "#/$defs/sha256" }
+              }
+            }
+          ],
+          "unevaluatedProperties": false
+        },
+        {
+          "allOf": [
+            { "$ref": "#/$defs/common" },
+            {
+              "type": "object",
+              "required": ["destination", "stagedSha256"],
+              "properties": {
+                "transition": { "const": "delete" },
+                "destination": { "$ref": "#/$defs/safePath" },
+                "stagedSha256": { "type": "null" }
+              }
+            }
+          ],
+          "unevaluatedProperties": false
+        }
+      ]
+    }
+  }
+}

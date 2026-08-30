@@ -460,20 +460,26 @@ const planPreviousCopyReconciliation = async (selected, serviceOwnedDestinations
   return planned.filter(path => path !== null);
 };
 
-const rawFigwrightEntries = async copyRows => {
+const rawFigwrightEntries = async (copyRows, serviceOwnedDestinations) => {
   const matcher = /@figwright\/[A-Za-z0-9._~@/-]+/g;
+  const destinations = [
+    ...copyRows.map(row => row.destination).filter(Boolean),
+    ...serviceOwnedDestinations,
+  ]
+    .filter((path, index, rows) => rows.indexOf(path) === index)
+    .toSorted(compareStrings);
   const entries = (
     await Promise.all(
-      copyRows.map(async row => {
-        if (!row.destination?.match(/^(packages|skills)\//)) return [];
-        const contents = await readFile(destinationPath(row.destination), 'utf8').catch(() => null);
+      destinations.map(async destination => {
+        if (!destination.match(/^(packages|skills)\//)) return [];
+        const contents = await readFile(destinationPath(destination), 'utf8').catch(() => null);
         if (contents === null || contents.includes('\0')) return [];
         const rowEntries = [];
         const lines = contents.split('\n');
         for (let lineIndex = 0; lineIndex < lines.length; lineIndex += 1) {
           for (const match of lines[lineIndex].matchAll(matcher)) {
             rowEntries.push({
-              path: row.destination,
+              path: destination,
               line: lineIndex + 1,
               column: (match.index ?? 0) + 1,
               value: match[0],
@@ -492,6 +498,42 @@ const rawFigwrightEntries = async copyRows => {
       left.column - right.column ||
       compareStrings(left.value, right.value),
   );
+};
+
+const refreshGeneratedLock = async (vendorMap, formatterOptions) => {
+  const lock = await readJson(upstreamLockPath);
+  if (lock.schemaVersion !== 2 || !Array.isArray(lock.serviceForks)) {
+    throw new VendorError(
+      'UPSTREAM_LOCK_V2_REQUIRED',
+      'copy-only requires the class-aware upstream-lock v2 authority',
+    );
+  }
+  const mapBytes = await readFile(vendorMapPath);
+  lock.vendorMap = {
+    ...lock.vendorMap,
+    path: 'vendor-map.json',
+    sha256: sha256(mapBytes),
+    counts: {
+      copy: vendorMap.files.filter(row => row.mode === 'copy').length,
+      mergeDependencyManifest: vendorMap.files.filter(row => row.mode === 'mergeDependencyManifest')
+        .length,
+      referenceOnly: vendorMap.files.filter(row => row.mode === 'referenceOnly').length,
+      total: vendorMap.files.length,
+    },
+  };
+  const generatedServiceFiles = new Map(lock.serviceFiles.map(entry => [entry.path, entry]));
+  /* eslint-disable no-await-in-loop -- generated authority paths refresh in fixed order */
+  for (const path of ['vendor-allowed-figwright-strings.json']) {
+    generatedServiceFiles.set(path, {
+      path,
+      sha256: sha256(await readFile(destinationPath(path))),
+    });
+  }
+  /* eslint-enable no-await-in-loop */
+  lock.serviceFiles = [...generatedServiceFiles.values()].toSorted((left, right) =>
+    compareStrings(left.path, right.path),
+  );
+  await writeFormattedJson(upstreamLockPath, lock, formatterOptions);
 };
 
 const copyOnly = async (rules, commit, selected) => {
@@ -566,10 +608,14 @@ const copyOnly = async (rules, commit, selected) => {
     allowedStringsPath,
     {
       schemaVersion: 1,
-      entries: await rawFigwrightEntries(rows.filter(row => row.mode === 'copy')),
+      entries: await rawFigwrightEntries(
+        rows.filter(row => row.mode === 'copy'),
+        serviceOwnedDestinations,
+      ),
     },
     formatterOptions,
   );
+  await refreshGeneratedLock(vendorMap, formatterOptions);
 
   const counts = Object.fromEntries(
     ['copy', 'mergeDependencyManifest', 'referenceOnly'].map(mode => [

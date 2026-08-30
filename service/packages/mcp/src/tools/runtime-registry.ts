@@ -1,26 +1,69 @@
+import type { RuntimeExecutionScope, ToolName } from '@sfp/shared';
+
 import { RESULT_SCHEMAS } from '../../../shared/src/result-schemas.js';
 
-export type RuntimeAuthority = 'plugin' | 'server';
+export type ExecutionAuthority = 'plugin-direct' | 'server-adapter';
 
-export interface RuntimeExecutionContext {
+export interface PinnedPluginRuntimePort {
   execute(
-    toolName: string,
+    scope: RuntimeExecutionScope,
+    toolName: ToolName,
     args: unknown,
     signal: AbortSignal,
-    authority: RuntimeAuthority,
+  ): Promise<unknown>;
+}
+
+export interface ServerAdapterRuntimePort {
+  execute(
+    scope: RuntimeExecutionScope,
+    toolName: ToolName,
+    args: unknown,
+    signal: AbortSignal,
+    plugin: PinnedPluginRuntimePort,
   ): Promise<unknown>;
 }
 
 export interface ToolRuntime<I = unknown, O = unknown> {
-  execute(context: RuntimeExecutionContext, args: I, signal: AbortSignal): Promise<O>;
+  execute(scope: RuntimeExecutionScope, args: I, signal: AbortSignal): Promise<O>;
 }
 
 export interface RuntimeBinding<I = unknown, O = unknown> {
-  authority: RuntimeAuthority;
+  execution: ExecutionAuthority;
   runtime: ToolRuntime<I, O>;
 }
 
 export type RuntimeRegistry = Readonly<Record<string, RuntimeBinding>>;
+
+export const BASELINE_SERVER_ADAPTER_NAMES = Object.freeze([
+  'ping',
+  'get_screenshot',
+  'get_design_context',
+  'save_screenshots',
+  'save_image_fills',
+  'export_pdf',
+  'export_video',
+  'analyze_project',
+  'scan_components',
+  'component_map',
+  'token_map',
+  'icon_map',
+  'import_image',
+  'design_diff',
+] as const satisfies readonly ToolName[]);
+
+const SERVER_ADAPTER_NAMES = new Set<ToolName>(BASELINE_SERVER_ADAPTER_NAMES);
+
+// Handler parity is deliberately independent from execution routing. These seven tools have no
+// same-name sandbox handler, while seven additional tools are daemon adapters around a handler.
+const SERVER_HANDLER_NAMES = new Set<ToolName>([
+  'save_screenshots',
+  'analyze_project',
+  'scan_components',
+  'component_map',
+  'token_map',
+  'icon_map',
+  'design_diff',
+]);
 
 export const createRuntimeRegistry = (
   entries: readonly (readonly [name: string, binding: RuntimeBinding])[],
@@ -31,51 +74,10 @@ export const createRuntimeRegistry = (
   >;
   for (const [name, binding] of entries) {
     if (registry[name] !== undefined) throw new Error(`duplicate runtime: ${name}`);
-    registry[name] = binding;
+    registry[name] = Object.freeze(binding);
   }
   return Object.freeze(registry);
 };
-
-// These are the baseline tools with no same-name sandbox handler. The exported exception set below
-// is derived from the finished runtime authority rather than repeating this classification.
-const SERVER_AUTHORITY_NAMES = new Set([
-  'save_screenshots',
-  'analyze_project',
-  'scan_components',
-  'component_map',
-  'token_map',
-  'icon_map',
-  'design_diff',
-]);
-
-const runtimeBinding = (toolName: string): RuntimeBinding => {
-  const authority: RuntimeAuthority = SERVER_AUTHORITY_NAMES.has(toolName) ? 'server' : 'plugin';
-  return Object.freeze({
-    authority,
-    runtime: Object.freeze({
-      execute: (context: RuntimeExecutionContext, args: unknown, signal: AbortSignal) =>
-        context.execute(toolName, args, signal, authority),
-    }),
-  });
-};
-
-for (const name of SERVER_AUTHORITY_NAMES) {
-  if (RESULT_SCHEMAS[name] === undefined)
-    throw new Error(`server runtime without result schema: ${name}`);
-}
-
-export const TOOL_RUNTIMES = createRuntimeRegistry(
-  Object.keys(RESULT_SCHEMAS)
-    .toSorted()
-    .map(name => [name, runtimeBinding(name)] as const),
-);
-
-/** The canonical server-only exception set, projected from runtime authority. */
-export const SERVER_ONLY_TOOLS: ReadonlySet<string> = new Set(
-  Object.entries(TOOL_RUNTIMES)
-    .filter(([, binding]) => binding.authority === 'server')
-    .map(([name]) => name),
-);
 
 export type ToolResultInvalidCode = 'PLUGIN_RESULT_INVALID' | 'SERVER_RESULT_INVALID';
 
@@ -99,23 +101,97 @@ export class ToolResultInvalidError extends Error {
   }
 }
 
-/** Execute one bound runtime and validate its raw value before any presentation or egress adapter. */
-export const executeToolRuntime = async (
-  toolName: string,
-  context: RuntimeExecutionContext,
-  args: unknown,
-  signal: AbortSignal,
-): Promise<unknown> => {
-  const binding = TOOL_RUNTIMES[toolName];
-  if (binding === undefined) throw new Error(`missing runtime: ${toolName}`);
+const validateResult = (toolName: string, raw: unknown, code: ToolResultInvalidCode): unknown => {
   const schema = RESULT_SCHEMAS[toolName];
   if (schema === undefined) throw new Error(`missing result schema: ${toolName}`);
-
-  const raw = await binding.runtime.execute(context, args, signal);
   const parsed = schema.safeParse(raw);
-  if (!parsed.success) {
-    const code = binding.authority === 'plugin' ? 'PLUGIN_RESULT_INVALID' : 'SERVER_RESULT_INVALID';
-    throw new ToolResultInvalidError(code, toolName, parsed.error.issues);
-  }
+  if (!parsed.success) throw new ToolResultInvalidError(code, toolName, parsed.error.issues);
   return parsed.data;
+};
+
+/** Validate a raw plugin subcall before any server adapter is allowed to inspect it. */
+export const createValidatedPinnedPluginRuntimePort = (
+  raw: PinnedPluginRuntimePort,
+): PinnedPluginRuntimePort =>
+  Object.freeze({
+    execute: async (
+      scope: RuntimeExecutionScope,
+      toolName: ToolName,
+      args: unknown,
+      signal: AbortSignal,
+    ) =>
+      validateResult(
+        toolName,
+        await raw.execute(scope, toolName, args, signal),
+        'PLUGIN_RESULT_INVALID',
+      ),
+  });
+
+/** Bind the closed execution authority to injected ports without putting Relay/session lookup here. */
+export const createBoundRuntimeRegistry = (
+  pinnedPlugin: PinnedPluginRuntimePort,
+  serverAdapter: ServerAdapterRuntimePort,
+): RuntimeRegistry => {
+  const validatedPlugin = createValidatedPinnedPluginRuntimePort(pinnedPlugin);
+  return createRuntimeRegistry(
+    Object.keys(RESULT_SCHEMAS)
+      .toSorted()
+      .map(name => {
+        const toolName = name as ToolName;
+        const execution: ExecutionAuthority = SERVER_ADAPTER_NAMES.has(toolName)
+          ? 'server-adapter'
+          : 'plugin-direct';
+        const runtime: ToolRuntime = Object.freeze({
+          execute: (scope: RuntimeExecutionScope, args: unknown, signal: AbortSignal) =>
+            execution === 'plugin-direct'
+              ? validatedPlugin.execute(scope, toolName, args, signal)
+              : serverAdapter.execute(scope, toolName, args, signal, validatedPlugin),
+        });
+        return [name, Object.freeze({ execution, runtime })] as const;
+      }),
+  );
+};
+
+const unboundPlugin: PinnedPluginRuntimePort = Object.freeze({
+  execute: async () => {
+    throw new Error('pinned plugin runtime port is not bound');
+  },
+});
+
+const unboundServerAdapter: ServerAdapterRuntimePort = Object.freeze({
+  execute: async () => {
+    throw new Error('server adapter runtime port is not bound');
+  },
+});
+
+/** Static closed-world authority. Production planes use createBoundRuntimeRegistry. */
+export const TOOL_RUNTIMES = createBoundRuntimeRegistry(unboundPlugin, unboundServerAdapter);
+
+/** The canonical server-only handler exception set, independent from execution routing. */
+export const SERVER_ONLY_TOOLS: ReadonlySet<string> = new Set(SERVER_HANDLER_NAMES);
+
+/** Validate one already-produced legacy-path result during the staged 7A migration. */
+export const validateToolRuntimeResult = (
+  toolName: string,
+  execution: ExecutionAuthority,
+  raw: unknown,
+): unknown =>
+  validateResult(
+    toolName,
+    raw,
+    execution === 'plugin-direct' ? 'PLUGIN_RESULT_INVALID' : 'SERVER_RESULT_INVALID',
+  );
+
+/** Execute one bound runtime and validate the adapter's final semantic result. */
+export const executeToolRuntime = async (
+  toolName: string,
+  scope: RuntimeExecutionScope,
+  args: unknown,
+  signal: AbortSignal,
+  registry: RuntimeRegistry = TOOL_RUNTIMES,
+): Promise<unknown> => {
+  const binding = registry[toolName];
+  if (binding === undefined) throw new Error(`missing runtime: ${toolName}`);
+  const raw = await binding.runtime.execute(scope, args, signal);
+  return validateToolRuntimeResult(toolName, binding.execution, raw);
 };

@@ -2,7 +2,7 @@ import { rmSync } from 'node:fs';
 import { createServer, type Server as HttpServer } from 'node:http';
 import type { AddressInfo } from 'node:net';
 
-import { afterEach, describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import { Election, WEDGED_UNRESPONSIVE_TICKS } from '../../src/election/election.js';
 import { Follower } from '../../src/election/follower.js';
@@ -552,7 +552,7 @@ describe('Election: newest build wins (abdication)', () => {
   it('yieldLeadership opens a window where the ex-leader will not re-take the free port', async () => {
     const port = await freePort();
     const old = await startLeaderWithElection(port, 100);
-    old.election.yieldLeadership();
+    await old.election.yieldLeadership();
     expect(old.node.role).toBe(NodeRole.Follower);
 
     // The port is now free and the leader ping fails, but the yield window holds takeover back.
@@ -563,7 +563,7 @@ describe('Election: newest build wins (abdication)', () => {
   it('yieldLeadership is a no-op unless leading', async () => {
     const port = await freePort();
     const { node, election } = buildElection(port, 200, 100);
-    election.yieldLeadership();
+    await election.yieldLeadership();
     expect(node.role).toBe(NodeRole.Unknown);
   });
 
@@ -595,5 +595,33 @@ describe('Election: newest build wins (abdication)', () => {
     await Promise.all([election.tickOnce(), election.tickOnce()]);
     expect(pings).toBe(1);
     expect(node.role).toBe(NodeRole.Leader);
+  });
+
+  it('awaits the execution-plane demotion path instead of bypassing it', async () => {
+    let release!: () => void;
+    const gate = new Promise<void>(resolve => {
+      release = resolve;
+    });
+    const demoteToFollower = vi.fn<Node['demoteToFollower']>(async () => gate);
+    const node = {
+      isLeader: () => true,
+      demoteToFollower,
+      becomeFollower: () => {
+        throw new Error('bypassed demotion');
+      },
+    } as unknown as Node;
+    const election = new Election({ node, follower: {} as Follower });
+
+    let settled = false;
+    const demotion = election.yieldLeadership().then(() => {
+      settled = true;
+      return undefined;
+    });
+    await Promise.resolve();
+    expect(demoteToFollower).toHaveBeenCalledWith('abdicated');
+    expect(settled).toBe(false);
+    release();
+    await demotion;
+    expect(settled).toBe(true);
   });
 });

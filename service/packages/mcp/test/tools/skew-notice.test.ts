@@ -1,10 +1,11 @@
 import type { CallToolResult } from '@modelcontextprotocol/server';
+import type { RuntimeExecutionScope } from '@sfp/shared';
 import { describe, expect, it } from 'vitest';
 
 import {
+  createRuntimeRegistry,
   executeToolRuntime,
   ToolResultInvalidError,
-  type RuntimeExecutionContext,
 } from '../../src/tools/runtime-registry.js';
 import { captureSkew, reportSkew, withSkewNotice } from '../../src/tools/skew-notice.js';
 
@@ -107,7 +108,13 @@ describe('captureSkew', () => {
   });
 
   it('preserves a typed result error and its authority fields while attaching the warning', async () => {
-    const context: RuntimeExecutionContext = { execute: async () => ({ unexpected: true }) };
+    const scope = Object.freeze({}) as RuntimeExecutionScope;
+    const runtimes = createRuntimeRegistry([
+      [
+        'get_selection',
+        { execution: 'plugin-direct', runtime: { execute: async () => ({ unexpected: true }) } },
+      ],
+    ]);
     let original: unknown;
     let raised: unknown;
 
@@ -116,7 +123,13 @@ describe('captureSkew', () => {
         async () => {
           reportSkew(NOTICE);
           try {
-            await executeToolRuntime('get_selection', context, {}, new AbortController().signal);
+            await executeToolRuntime(
+              'get_selection',
+              scope,
+              {},
+              new AbortController().signal,
+              runtimes,
+            );
           } catch (error) {
             original = error;
             throw error;

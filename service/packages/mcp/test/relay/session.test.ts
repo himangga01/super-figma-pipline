@@ -45,3 +45,46 @@ describe('SessionManager.clear', () => {
     }
   });
 });
+
+describe('SessionManager target sequencing', () => {
+  it('assigns monotonic connected sequences and preserves one across resume', () => {
+    const manager = new SessionManager();
+    const first = manager.register({
+      id: 's1',
+      socket: fakeSocket(),
+      clientVersion: '0.0.0',
+      pluginGeneration: 'generation-1',
+      editorType: 'figma',
+      mode: 'default',
+      fileIdentity: { kind: 'figma-file-key', value: 'file-a' },
+      fileName: 'A',
+      capabilities: [],
+    }).session;
+    const second = manager.register({
+      id: 's2',
+      socket: fakeSocket(),
+      clientVersion: '0.0.0',
+      pluginGeneration: 'generation-2',
+      editorType: 'figma',
+      mode: 'default',
+      fileIdentity: { kind: 'figma-file-key', value: 'file-a' },
+      fileName: 'A',
+      capabilities: [],
+    }).session;
+    const resumed = manager.register({
+      id: 's1',
+      socket: fakeSocket(),
+      clientVersion: '0.0.1',
+      pluginGeneration: 'generation-1',
+      editorType: 'figma',
+      mode: 'default',
+      fileIdentity: { kind: 'figma-file-key', value: 'file-a' },
+      fileName: 'A',
+      capabilities: [],
+    }).session;
+
+    expect(first.connectedSequence).toBe(1);
+    expect(second.connectedSequence).toBe(2);
+    expect(resumed.connectedSequence).toBe(1);
+  });
+});
