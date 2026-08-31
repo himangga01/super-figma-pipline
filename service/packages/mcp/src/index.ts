@@ -1,13 +1,14 @@
 import { writeSync } from 'node:fs';
 
 import { McpServer } from '@modelcontextprotocol/server';
-import type { CallToolResult } from '@modelcontextprotocol/server';
+import type { CallToolResult, ServerContext } from '@modelcontextprotocol/server';
 import { serveStdio, StdioServerTransport } from '@modelcontextprotocol/server/stdio';
 import {
   DEFAULT_PORT,
   NO_CAPTURE_OPTIONS,
   OperationEvidenceViewV1Schema,
   PROTOCOL_VERSION,
+  canonicalFileIdentityHash,
   encodeFollowerInnerMessage,
   decodeFollowerInnerMessage,
   getRelayBudget,
@@ -54,6 +55,7 @@ import type { LeaderResources } from './election/node.js';
 import { EgressManifestStore } from './execution/egress-manifest-store.js';
 import {
   createDurableExecutionPlaneLifecyclePorts,
+  GenerationRetentionCoordinator,
   GenerationRuntimeLifecycleRegistry,
   LeaderGenerationExecutionPlane,
 } from './execution/execution-plane.js';
@@ -252,6 +254,24 @@ const followerMcpAdapter = new McpInvocationAdapter({
   resolveWorkspaceId: () => followerWorkspaceBinding.resolveRequiredForMcpSession(mcpSession),
   createRequestId: createFollowerTransportRequestId,
 });
+let followerInvocationAuthority: Promise<
+  Readonly<{
+    actorId: ActorContext['actorId'];
+    issuer: Awaited<ReturnType<typeof loadOrCreateOperationIdIssuer>>;
+  }>
+> | null = null;
+const getFollowerInvocationAuthority = () => {
+  followerInvocationAuthority ??= Promise.all([
+    loadOrCreateOwnerPrincipalKey({ stateRoot, permissions: statePermissions }),
+    loadOrCreateOperationIdIssuer({ stateRoot, permissions: statePermissions }),
+  ]).then(([ownerPrincipalKey, issuer]) =>
+    Object.freeze({
+      actorId: deriveOwnerActor(ownerPrincipalKey, 'mcp-follower'),
+      issuer,
+    }),
+  );
+  return followerInvocationAuthority;
+};
 
 const createPinnedPluginPort = (resources: LeaderResources): PinnedPluginRuntimePort =>
   Object.freeze({
@@ -268,6 +288,17 @@ const createPinnedPluginPort = (resources: LeaderResources): PinnedPluginRuntime
           code: 'PINNED_SESSION_LOST',
         });
       }
+      if (
+        scope.target.fileIdentity === null ||
+        scope.target.fileExecutionKey === null ||
+        scope.target.pluginGeneration === null ||
+        scope.target.editorType == null ||
+        scope.target.capabilities == null
+      ) {
+        throw Object.assign(new Error('pinned plugin target binding is incomplete'), {
+          code: 'INVOCATION_TARGET_INVALID',
+        });
+      }
       signal.throwIfAborted();
       return resources.relay.sendRequest(
         toolName,
@@ -282,6 +313,15 @@ const createPinnedPluginPort = (resources: LeaderResources): PinnedPluginRuntime
               operationId: action.operationId,
               actionNonce: action.actionNonce,
             },
+        {
+          sessionId: scope.target.sessionId,
+          pluginGeneration: scope.target.pluginGeneration,
+          fileIdentity: scope.target.fileIdentity,
+          fileIdentityHash: canonicalFileIdentityHash(scope.target.fileIdentity),
+          fileExecutionKey: scope.target.fileExecutionKey,
+          editorType: scope.target.editorType,
+          capabilities: scope.target.capabilities,
+        },
       );
     },
   });
@@ -456,6 +496,8 @@ const initializeLeaderRuntime = async (resources: LeaderResources): Promise<Lead
               sessionId: session.id,
               pluginGeneration: session.pluginGeneration,
               fileIdentity: session.fileIdentity,
+              editorType: session.editorType,
+              capabilities: session.capabilities,
               connectedSequence: session.connectedSequence,
               healthy: session.state === 'connected' && session.socket !== null,
             };
@@ -465,6 +507,8 @@ const initializeLeaderRuntime = async (resources: LeaderResources): Promise<Lead
           sessionId: session.id,
           pluginGeneration: session.pluginGeneration,
           fileIdentity: session.fileIdentity,
+          editorType: session.editorType,
+          capabilities: session.capabilities,
           connectedSequence: session.connectedSequence,
           healthy: session.state === 'connected' && session.socket !== null,
         })),
@@ -506,52 +550,44 @@ const initializeLeaderRuntime = async (resources: LeaderResources): Promise<Lead
         });
       }
     };
-    let retentionFlight: Promise<void> | null = null;
-    const sweepRetention = (): Promise<void> => {
-      if (retentionFlight !== null) return retentionFlight;
-      const flight = (async () => {
-        const now = Date.now();
-        const linkedAt = (operationId: string): number | null =>
-          operationJournal.settledAt(operationId);
-        await evidenceReceipts.compact({ now, linkedAt });
-        await egressManifests.compact({ now, linkedAt });
-        await evidenceReceipts.drainPendingArtifactCleanup(removeRetainedArtifacts);
-        const hasLinkedEvidence = async (operationId: string): Promise<boolean> => {
-          const operation = operationJournal.get(operationId);
-          return (
-            (operation !== undefined &&
-              ['pending-approval', 'queued', 'dispatched', 'outcome-unknown'].includes(
-                operation.status,
-              )) ||
-            (operation !== undefined &&
-              'preExecutionConsentManifestHash' in operation &&
-              operation.preExecutionConsentManifestHash !== null) ||
-            (operation?.operationEvidenceReceiptHash ?? null) !== null ||
-            (operation?.finalEgressManifestHash ?? null) !== null ||
-            (await evidenceReceipts.get(ownerActorId, operationId)) !== null ||
-            (await egressManifests.hasFinalizer(ownerActorId, operationId))
-          );
-        };
-        /* eslint-disable no-await-in-loop -- each workspace orphan set is identity-verified */
-        for (const workspace of await workspaceStore.list()) {
-          await artifacts.discoverAndCleanupOrphans({
-            workspaceId: workspace.workspaceId,
-            hasLinkedEvidence,
-          });
-          await nativeArtifacts.discoverAndCleanupOrphans({
-            workspaceId: workspace.workspaceId,
-            hasLinkedEvidence,
-          });
-        }
-        /* eslint-enable no-await-in-loop */
-        await operationJournal.purgeExpiredTombstones();
-      })();
-      retentionFlight = flight.finally(() => {
-        retentionFlight = null;
-      });
-      return retentionFlight;
-    };
-    await sweepRetention();
+    const retention = new GenerationRetentionCoordinator(async () => {
+      const now = Date.now();
+      const linkedAt = (operationId: string): number | null =>
+        operationJournal.settledAt(operationId);
+      await evidenceReceipts.compact({ now, linkedAt });
+      await egressManifests.compact({ now, linkedAt });
+      await evidenceReceipts.drainPendingArtifactCleanup(removeRetainedArtifacts);
+      const hasLinkedEvidence = async (operationId: string): Promise<boolean> => {
+        const operation = operationJournal.get(operationId);
+        return (
+          (operation !== undefined &&
+            ['pending-approval', 'queued', 'dispatched', 'outcome-unknown'].includes(
+              operation.status,
+            )) ||
+          (operation !== undefined &&
+            'preExecutionConsentManifestHash' in operation &&
+            operation.preExecutionConsentManifestHash !== null) ||
+          (operation?.operationEvidenceReceiptHash ?? null) !== null ||
+          (operation?.finalEgressManifestHash ?? null) !== null ||
+          (await evidenceReceipts.get(ownerActorId, operationId)) !== null ||
+          (await egressManifests.hasFinalizer(ownerActorId, operationId))
+        );
+      };
+      /* eslint-disable no-await-in-loop -- each workspace orphan set is identity-verified */
+      for (const workspace of await workspaceStore.list()) {
+        await artifacts.discoverAndCleanupOrphans({
+          workspaceId: workspace.workspaceId,
+          hasLinkedEvidence,
+        });
+        await nativeArtifacts.discoverAndCleanupOrphans({
+          workspaceId: workspace.workspaceId,
+          hasLinkedEvidence,
+        });
+      }
+      /* eslint-enable no-await-in-loop */
+      await operationJournal.purgeExpiredTombstones();
+    });
+    await retention.sweep();
     const runtimes = createBoundRuntimeRegistry(
       createPinnedPluginPort(resources),
       createServerAdapterPort(),
@@ -754,7 +790,7 @@ const initializeLeaderRuntime = async (resources: LeaderResources): Promise<Lead
       });
     }
     const retentionTimer = setInterval(() => {
-      void sweepRetention().catch(error => {
+      void retention.sweep().catch(error => {
         const errorType = error instanceof Error ? error.name : 'NonError';
         log(`[retention] evidence cleanup failed closed (${errorType})`);
       });
@@ -777,6 +813,7 @@ const initializeLeaderRuntime = async (resources: LeaderResources): Promise<Lead
       executor,
       close: async () => {
         clearInterval(retentionTimer);
+        await retention.close();
         await Promise.allSettled([
           operationJournal.flush(),
           egressManifests.flush(),
@@ -847,20 +884,7 @@ node.onRoleChange(role => {
 
 await election.start();
 
-interface ToolHandlerContext {
-  mcpReq: {
-    _meta?: Record<string, unknown>;
-    notify(notification: {
-      method: 'notifications/progress';
-      params: {
-        progressToken: string | number;
-        progress: number;
-        total?: number;
-        message?: string;
-      };
-    }): Promise<void>;
-  };
-}
+type ToolHandlerContext = ServerContext;
 type ToolHandler = (
   args: Record<string, unknown>,
   context: ToolHandlerContext,
@@ -883,6 +907,7 @@ const invokeProductionTool = async (
   toolName: string,
   args: unknown,
   onProgress: (progress: Readonly<ProgressEvent>) => Promise<void>,
+  requestSignal: AbortSignal,
 ): Promise<unknown> => {
   if (node.isLeader()) {
     const resources = node.getLeader();
@@ -892,25 +917,59 @@ const invokeProductionTool = async (
       });
     }
     const runtime = await initializeLeaderRuntime(resources);
-    const request = await runtime.mcpAdapter.fromToolCall(toolName, args, {});
-    for await (const frame of runtime.plane.invokeToolFrames(
-      runtime.mcpPrincipal,
-      request,
-      NO_CAPTURE_OPTIONS,
-    )) {
-      if (frame.type === 'progress') await onProgress(frame.progress);
-      if (frame.type === 'result') return frame.result;
-      if (frame.type === 'error') {
-        throw Object.assign(new Error(frame.error.message), frame.error);
+    const adapted = await runtime.mcpAdapter.fromToolCall(toolName, args, {});
+    const operationId = runtime.operationIdIssuer.issue(runtime.mcpPrincipal.actorId);
+    const request = Object.freeze({ ...adapted, operationId });
+    const cancelRequest = Object.freeze({
+      version: 1 as const,
+      requestId: request.requestId,
+      operationId,
+    });
+    let admitted = false;
+    let abortRequested = requestSignal.aborted;
+    let cancelFlight: Promise<void> | null = null;
+    const cancel = (): void => {
+      abortRequested = true;
+      if (!admitted || cancelFlight !== null) return;
+      cancelFlight = runtime.plane.cancel(runtime.mcpPrincipal, cancelRequest);
+    };
+    requestSignal.addEventListener('abort', cancel, { once: true });
+    try {
+      for await (const frame of runtime.plane.invokeToolFrames(
+        runtime.mcpPrincipal,
+        request,
+        NO_CAPTURE_OPTIONS,
+      )) {
+        if (frame.type === 'accepted') {
+          admitted = true;
+          if (abortRequested) cancel();
+        }
+        if (frame.type === 'progress') await onProgress(frame.progress);
+        if (frame.type === 'result') return frame.result;
+        if (frame.type === 'error') {
+          throw Object.assign(new Error(frame.error.message), frame.error);
+        }
       }
+    } finally {
+      requestSignal.removeEventListener('abort', cancel);
+      await (cancelFlight as Promise<void> | null)?.catch(() => undefined);
     }
     throw Object.assign(new Error('MCP operation ended without terminal state'), {
       code: 'MCP_TERMINAL_MISSING',
     });
   }
-  const request = await followerMcpAdapter.fromToolCall(toolName, args, {});
+  const authority = await getFollowerInvocationAuthority();
+  const adapted = await followerMcpAdapter.fromToolCall(toolName, args, {});
+  const operationId = authority.issuer.issue(authority.actorId);
+  const request = Object.freeze({ ...adapted, operationId });
   const plaintext = encodeFollowerInnerMessage({ version: 1, type: 'tool', request });
-  const chunks = await followerInvocationClient.open(plaintext, new AbortController().signal);
+  const cancelPlaintext = encodeFollowerInnerMessage({
+    version: 1,
+    type: 'cancel',
+    requestId: request.requestId,
+    operationId,
+  });
+  const chunks = await followerInvocationClient.open(plaintext, requestSignal, cancelPlaintext);
   for await (const chunk of chunks) {
     const frame = decodeFollowerInnerMessage(chunk);
     if (frame.type === 'progress') await onProgress(frame.progress);
@@ -952,20 +1011,25 @@ const createMcpServer = (): McpServer => {
 
   for (const spec of ALL_TOOL_SPECS) {
     const run: ToolHandler = async (args, context) => {
-      const result = await invokeProductionTool(spec.name, args, async progress => {
-        // eslint-disable-next-line no-underscore-dangle -- MCP names this field `_meta`.
-        const progressToken = context.mcpReq._meta?.progressToken;
-        if (typeof progressToken !== 'string' && typeof progressToken !== 'number') return;
-        await context.mcpReq.notify({
-          method: 'notifications/progress',
-          params: {
-            progressToken,
-            progress: progress.completed,
-            ...(progress.total === null ? {} : { total: progress.total }),
-            ...(progress.message.length === 0 ? {} : { message: progress.message }),
-          },
-        });
-      });
+      const result = await invokeProductionTool(
+        spec.name,
+        args,
+        async progress => {
+          // eslint-disable-next-line no-underscore-dangle -- MCP names this field `_meta`.
+          const progressToken = context.mcpReq._meta?.progressToken;
+          if (typeof progressToken !== 'string' && typeof progressToken !== 'number') return;
+          await context.mcpReq.notify({
+            method: 'notifications/progress',
+            params: {
+              progressToken,
+              progress: progress.completed,
+              ...(progress.total === null ? {} : { total: progress.total }),
+              ...(progress.message.length === 0 ? {} : { message: progress.message }),
+            },
+          });
+        },
+        context.mcpReq.signal,
+      );
       return presentResult(spec.name, result);
     };
     // Normalize id args (a pasted Figma URL or dash-form node id → canonical colon id) once here, so

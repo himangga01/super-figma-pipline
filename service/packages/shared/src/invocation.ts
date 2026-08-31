@@ -281,6 +281,8 @@ export interface PluginTarget {
   readonly pluginGeneration: string | null;
   readonly fileIdentity: Readonly<FileIdentity> | null;
   readonly fileExecutionKey: FileExecutionKey | null;
+  readonly editorType?: 'figma' | 'figjam' | 'dev' | null;
+  readonly capabilities?: readonly string[] | null;
 }
 
 export interface ResolvedInvocationScope extends PolicyInvocationContext {

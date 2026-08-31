@@ -57,7 +57,7 @@ export interface OperationJournalPort {
   appendInitial(
     record: NewOperationRecord,
     status: OperationRecord['status'],
-    options?: { leaderGeneration?: string },
+    options?: { leaderGeneration?: string; errorCode?: string },
   ): Promise<OperationRecord>;
   transition(
     operationId: string,
@@ -528,10 +528,29 @@ const createPreRuntimeCrashSettlement = (
 ): PreRuntimeReservationClassification['settlement'] => {
   const authority = reservation.operationAuthority;
   if (authority === undefined || egressState.kind === 'absent') return undefined;
+  if (
+    egressState.kind === 'final' &&
+    (egressState.finalizer.finalStatus !== 'no-output' ||
+      (egressState.finalizer.reasonCode !== 'admission-rejected' &&
+        egressState.finalizer.reasonCode !== 'cancelled') ||
+      egressState.finalizer.resultHash !== null)
+  ) {
+    return undefined;
+  }
+  const reasonCode =
+    egressState.kind === 'final' && egressState.finalizer.reasonCode === 'cancelled'
+      ? 'cancelled'
+      : 'admission-rejected';
   const noOutput = createNoOutputEgressManifest({
     preExecutionManifestHash: egressState.preExecutionManifestHash,
-    reasonCode: 'admission-rejected',
+    reasonCode,
   });
+  if (
+    egressState.kind === 'final' &&
+    egressState.finalizer.manifestHash !== noOutput.manifestHash
+  ) {
+    return undefined;
+  }
   const intent = Object.freeze({
     kind: 'pre-runtime-no-output' as const,
     operationFingerprintHash: authority.operationFingerprintHash,
@@ -596,7 +615,10 @@ const createPreRuntimeCrashSettlement = (
         });
       }
       await input.journal.transition(reservation.operationId, 'rejected', {
-        errorCode: 'OPERATION_PRE_RUNTIME_CRASH_RECOVERED',
+        errorCode:
+          reasonCode === 'cancelled'
+            ? 'OPERATION_CANCELLED'
+            : 'OPERATION_PRE_RUNTIME_CRASH_RECOVERED',
         resultHash: null,
         resultBytes: null,
         preExecutionConsentManifestHash: intent.preExecutionManifestHash,
@@ -980,6 +1002,43 @@ export class OperationExecutor {
     const handle = Object.freeze({}) as ToolApprovalHandle;
     this.approvals.set(handle, { prepared });
     return handle;
+  }
+
+  async rejectToolBeforeEgress(
+    scope: ResolvedInvocationScope,
+    toolName: ToolName,
+    rawArgs: unknown,
+    operationId: string,
+    errorCode: string,
+    options: Readonly<ToolInvocationOptionsV1> = NO_CAPTURE_OPTIONS,
+  ): Promise<OperationRecord> {
+    if (errorCode.length === 0 || errorCode.length > 256) {
+      throw Object.assign(new Error('pre-egress terminal code is invalid'), {
+        code: 'PRE_EGRESS_TERMINAL_INVALID',
+      });
+    }
+    const prepared = this.prepare(scope, toolName, rawArgs, operationId, options);
+    const existing = this.options.journal.get(operationId);
+    if (existing !== undefined) {
+      if (
+        existing.actorId !== prepared.scope.actor.actorId ||
+        existing.operationFingerprintHash !== prepared.operationFingerprintHash
+      ) {
+        throw new OperationIdConflictError();
+      }
+      if (terminalStatus(existing.status)) throw settledError(existing);
+      throw Object.assign(new Error('operation is still in progress'), {
+        code: 'OPERATION_IN_PROGRESS',
+        status: existing.status,
+        operationId,
+      });
+    }
+    const policy = evaluateOperationPolicy(toolName, prepared.parsedArgs, prepared.scope);
+    return this.options.journal.appendInitial(
+      this.initialRecord(prepared, policy, null),
+      'pre-egress-rejected',
+      { leaderGeneration: prepared.scope.leaderGeneration, errorCode },
+    );
   }
 
   async resumeApprovedTool(
@@ -1702,9 +1761,6 @@ export class OperationExecutor {
         noOutput,
       );
       finalEgressManifestHash = finalized.finalManifestHash;
-      await this.options.durability.receipts.releaseWithoutReceipt(
-        state.durability.evidenceReservationId,
-      );
     }
     const status =
       currentStatus === 'pending-approval'
@@ -1717,6 +1773,11 @@ export class OperationExecutor {
       operationEvidenceReceiptHash: null,
       finalEgressManifestHash,
     });
+    if (state.durability !== null && this.options.durability !== undefined) {
+      await this.options.durability.receipts.releaseWithoutReceipt(
+        state.durability.evidenceReservationId,
+      );
+    }
   }
 
   private demotionTransition(
@@ -1764,13 +1825,13 @@ export class OperationExecutor {
       observedOutputBytes: null,
     });
     const finalized = await ports.egress.finalize(durability.egressReservation, manifest);
-    await ports.receipts.abortAfterDurableUnknown(durability.evidenceReservationId);
     await this.demotionTransition(capability, prepared, 'outcome-unknown', {
       errorCode,
       preExecutionConsentManifestHash: durability.preManifest.manifestHash,
       operationEvidenceReceiptHash: null,
       finalEgressManifestHash: finalized.finalManifestHash,
     });
+    await ports.receipts.abortAfterDurableUnknown(durability.evidenceReservationId);
   }
 
   private async reconcileFencedDispatched(
@@ -1781,6 +1842,15 @@ export class OperationExecutor {
     const ports = this.options.durability;
     if (ports === undefined || this.durableFinalizer === null) return;
     const receipt = await ports.receipts.get(record.actorId, record.operationId);
+    if (receipt === null && state.durability !== null) {
+      await this.finalizeUnknown(
+        state.prepared,
+        state.durability,
+        'EVIDENCE_FINALIZER_MISSING',
+        capability,
+      );
+      return;
+    }
     let finalizer: Readonly<import('@sfp/shared').EgressFinalizerProjectionV1> | null = null;
     if (receipt !== null) {
       try {

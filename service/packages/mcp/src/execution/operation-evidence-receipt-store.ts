@@ -147,6 +147,7 @@ interface StoreOptions {
   limits?: EvidenceLimits;
   now?: () => number;
   compactionHook?: (step: ImmutableGenerationStep) => Promise<void>;
+  afterPreRuntimeRecoveryIntentFsync?: () => Promise<void>;
   afterReservationReleaseFsync?: () => Promise<void>;
 }
 
@@ -638,10 +639,27 @@ export class OperationEvidenceReceiptStore implements OperationEvidenceReceiptSt
       }
       let intent = reservation.recoveryIntent;
       if (intent === undefined) {
+        const matchingPreRuntimeJournal =
+          classification.journal.kind === 'absent' ||
+          (classification.journal.recordKind === 'active' &&
+            classification.journal.status === 'queued' &&
+            classification.journal.operationFingerprintHash ===
+              authority.operationFingerprintHash &&
+            classification.journal.preExecutionManifestHash ===
+              authority.preExecutionConsentManifestHash &&
+            classification.journal.finalEgressManifestHash === null &&
+            classification.journal.operationEvidenceReceiptHash === null);
+        const matchingPreRuntimeEgress =
+          (classification.egress.kind === 'pre-only' &&
+            classification.finalizer.kind === 'absent') ||
+          (classification.egress.kind === 'final' &&
+            classification.finalizer.kind === 'present' &&
+            classification.egress.finalStatus === 'no-output' &&
+            (classification.egress.reasonCode === 'admission-rejected' ||
+              classification.egress.reasonCode === 'cancelled'));
         const exactlyPreRuntime =
-          classification.journal.kind === 'absent' &&
-          classification.egress.kind === 'pre-only' &&
-          classification.finalizer.kind === 'absent' &&
+          matchingPreRuntimeJournal &&
+          matchingPreRuntimeEgress &&
           settlement.intent.kind === 'pre-runtime-no-output' &&
           settlement.intent.operationFingerprintHash === authority.operationFingerprintHash &&
           settlement.intent.preExecutionManifestHash ===
@@ -655,6 +673,7 @@ export class OperationEvidenceReceiptStore implements OperationEvidenceReceiptSt
           reservationId,
           recoveryIntent: intent,
         });
+        await this.options.afterPreRuntimeRecoveryIntentFsync?.();
         this.reservations.set(
           reservationId,
           Object.freeze({ ...reservation, recoveryIntent: intent }),
@@ -673,7 +692,8 @@ export class OperationEvidenceReceiptStore implements OperationEvidenceReceiptSt
             classification.egress.preExecutionManifestHash === intent.preExecutionManifestHash &&
             classification.egress.finalEgressManifestHash === intent.finalEgressManifestHash &&
             classification.egress.finalStatus === 'no-output' &&
-            classification.egress.reasonCode === 'admission-rejected');
+            (classification.egress.reasonCode === 'admission-rejected' ||
+              classification.egress.reasonCode === 'cancelled'));
         const matchingJournal =
           classification.journal.kind === 'absent' ||
           (classification.journal.operationFingerprintHash === intent.operationFingerprintHash &&

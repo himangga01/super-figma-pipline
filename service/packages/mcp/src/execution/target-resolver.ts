@@ -10,6 +10,8 @@ export interface AuthenticatedTargetSession {
   sessionId: string;
   pluginGeneration: string;
   fileIdentity: Readonly<FileIdentity>;
+  editorType: 'figma' | 'figjam' | 'dev';
+  capabilities: readonly string[];
   connectedSequence: number;
   healthy: boolean;
 }
@@ -54,6 +56,8 @@ const freezeTarget = (session?: AuthenticatedTargetSession): Readonly<PluginTarg
       pluginGeneration: null,
       fileIdentity: null,
       fileExecutionKey: null,
+      editorType: null,
+      capabilities: null,
     });
   }
   const fileIdentity = Object.freeze({ ...session.fileIdentity });
@@ -62,6 +66,8 @@ const freezeTarget = (session?: AuthenticatedTargetSession): Readonly<PluginTarg
     pluginGeneration: session.pluginGeneration,
     fileIdentity,
     fileExecutionKey: fileExecutionKeyFor(session),
+    editorType: session.editorType,
+    capabilities: Object.freeze([...session.capabilities]),
   });
 };
 

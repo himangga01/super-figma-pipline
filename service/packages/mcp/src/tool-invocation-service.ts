@@ -18,6 +18,24 @@ import type { OperationExecutor } from './execution/operation-executor.js';
 export class ToolInvocationService implements OperationInvocationService {
   constructor(private readonly executor: OperationExecutor) {}
 
+  rejectToolBeforeEgress(
+    scope: ResolvedInvocationScope,
+    toolName: ToolName,
+    rawArgs: unknown,
+    operationId: string,
+    errorCode: string,
+    options?: Readonly<ToolInvocationOptionsV1>,
+  ): Promise<OperationRecord> {
+    return this.executor.rejectToolBeforeEgress(
+      scope,
+      toolName,
+      rawArgs,
+      operationId,
+      errorCode,
+      options,
+    );
+  }
+
   beginToolApproval(
     scope: ResolvedInvocationScope,
     toolName: ToolName,

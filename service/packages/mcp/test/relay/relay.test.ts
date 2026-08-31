@@ -2,6 +2,7 @@ import { createServer, type Server as HttpServer } from 'node:http';
 import type { AddressInfo } from 'node:net';
 
 import {
+  canonicalFileIdentityHash,
   createEvent,
   createRequest,
   createResponse,
@@ -9,6 +10,7 @@ import {
   encodeEnvelope,
   type Envelope,
   ErrorCode,
+  type FileIdentity,
   type ErrorEnvelope,
   type HelloParams,
   type HelloResult,
@@ -827,14 +829,23 @@ describe('Relay hello loop', () => {
 describe('Relay session pinning', () => {
   const delay = (ms: number): Promise<void> => new Promise(r => setTimeout(r, ms));
 
-  const hello = async (ws: WebSocket, sid: string): Promise<void> => {
+  const hello = async (
+    ws: WebSocket,
+    sid: string,
+    overrides: Readonly<{
+      pluginGeneration?: string;
+      editorType?: 'figma' | 'figjam' | 'dev';
+      fileIdentity?: FileIdentity;
+      capabilities?: readonly string[];
+    }> = {},
+  ): Promise<void> => {
     ws.send(
       encodeEnvelope(
         createRequest({
           id: newId(),
           sessionId: sid,
           method: SystemMethod.Hello,
-          params: helloParams(),
+          params: { ...helloParams(), ...overrides },
         }),
       ),
     );
@@ -905,6 +916,100 @@ describe('Relay session pinning', () => {
       params: { operationId: 'operation-cancel', actionNonce: 'cancel-nonce-1' },
     });
     ws.close();
+  });
+
+  it.each([
+    [
+      'file identity',
+      { fileIdentity: { kind: 'figma-file-key' as const, value: 'file-key-other' } },
+      'TARGET_CHANGED',
+    ],
+    ['plugin generation', { pluginGeneration: 'plugin-generation-other' }, 'PINNED_SESSION_LOST'],
+    ['editor type', { editorType: 'figjam' as const }, 'TARGET_CHANGED'],
+    ['capabilities', { capabilities: ['changed-capability'] }, 'TARGET_CHANGED'],
+  ] as const)(
+    'revalidates the frozen %s binding after same-session resume before plugin send',
+    async (_label, resumedOverride, expectedCode) => {
+      const { relay, port } = await startRelay({ disconnectGraceMs: 1_000 });
+      const sessionId = newId();
+      const first = await connect(port);
+      await hello(first, sessionId);
+      first.close();
+      await new Promise<void>(resolve => first.once('close', () => resolve()));
+      await vi.waitFor(() => expect(relay.sessions.get(sessionId)?.state).toBe('disconnected'));
+
+      const fileIdentity = { kind: 'figma-file-key' as const, value: 'file-key-test' };
+      const pending = relay.sendRequest(
+        'create_text',
+        { characters: 'must-not-cross-files' },
+        500,
+        sessionId,
+        undefined,
+        undefined,
+        {
+          sessionId,
+          pluginGeneration: 'plugin-generation-test',
+          fileIdentity,
+          fileIdentityHash: canonicalFileIdentityHash(fileIdentity),
+          fileExecutionKey: 'figma:file-key-test',
+          editorType: 'figma',
+          capabilities: [],
+        },
+      );
+      const rejection = pending.then(
+        () => null,
+        error => error,
+      );
+      const resumed = await connect(port);
+      const received = collectRequests(resumed);
+      await hello(resumed, sessionId, resumedOverride);
+
+      await expect(rejection).resolves.toMatchObject({ code: expectedCode });
+      expect(received).toHaveLength(0);
+      resumed.close();
+    },
+  );
+
+  it('does not reroute an already dispatched old-connection request onto a resumed socket', async () => {
+    const { relay, port } = await startRelay({ disconnectGraceMs: 1_000 });
+    const sessionId = newId();
+    const first = await connect(port);
+    await hello(first, sessionId);
+    const firstRequests = collectRequests(first);
+    const controller = new AbortController();
+    const fileIdentity = { kind: 'figma-file-key' as const, value: 'file-key-test' };
+    const pending = relay.sendRequest(
+      'create_text',
+      { characters: 'once' },
+      1_000,
+      sessionId,
+      undefined,
+      {
+        signal: controller.signal,
+        operationId: 'operation-old-connection',
+        actionNonce: 'nonce-old-connection',
+      },
+      {
+        sessionId,
+        pluginGeneration: 'plugin-generation-test',
+        fileIdentity,
+        fileIdentityHash: canonicalFileIdentityHash(fileIdentity),
+        fileExecutionKey: 'figma:file-key-test',
+        editorType: 'figma',
+        capabilities: [],
+      },
+    );
+    await vi.waitFor(() => expect(firstRequests).toHaveLength(1));
+    first.close();
+    await new Promise<void>(resolve => first.once('close', () => resolve()));
+    const resumed = await connect(port);
+    const resumedRequests = collectRequests(resumed);
+    await hello(resumed, sessionId);
+    await delay(20);
+    expect(resumedRequests).toHaveLength(0);
+    controller.abort(Object.assign(new Error('stop'), { code: 'OPERATION_CANCELLED' }));
+    await expect(pending).rejects.toMatchObject({ code: 'OPERATION_CANCELLED' });
+    resumed.close();
   });
 
   // Set up two connected sessions A and B, with B most-recently-active so unpinned routing prefers

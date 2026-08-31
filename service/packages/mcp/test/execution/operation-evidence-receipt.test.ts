@@ -370,7 +370,8 @@ describe('operation evidence receipt store', () => {
                 recordKind: 'active',
                 status: 'queued',
                 operationFingerprintHash,
-                preExecutionManifestHash,
+                preExecutionManifestHash:
+                  'sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd',
                 finalEgressManifestHash: null,
                 operationEvidenceReceiptHash: null,
               }
@@ -381,8 +382,8 @@ describe('operation evidence receipt store', () => {
                 kind: 'final',
                 preExecutionManifestHash,
                 finalEgressManifestHash,
-                finalStatus: 'no-output',
-                reasonCode: 'admission-rejected',
+                finalStatus: 'output',
+                reasonCode: null,
               }
             : { kind: 'pre-only', preExecutionManifestHash },
         receipt: { kind: retainedField === 'receipt' ? 'present' : 'absent' },

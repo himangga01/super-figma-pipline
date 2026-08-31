@@ -450,11 +450,15 @@ export class OperationJournal {
   async appendInitial(
     record: NewOperationRecord,
     status: OperationStatus,
-    options: { leaderGeneration?: string } = {},
+    options: { leaderGeneration?: string; errorCode?: string } = {},
   ): Promise<OperationRecord> {
     return this.exclusive(async () => {
       await this.purgeExpiredTombstonesUnlocked();
-      if (status !== 'pending-approval' && status !== 'queued') {
+      if (
+        status !== 'pending-approval' &&
+        status !== 'queued' &&
+        status !== 'pre-egress-rejected'
+      ) {
         throw new OperationJournalError(
           'JOURNAL_TRANSITION_INVALID',
           'initial operation status is invalid',
@@ -497,7 +501,7 @@ export class OperationJournal {
         status,
         createdAt,
         settledAt: terminalStatuses.has(status) ? createdAt : null,
-        errorCode: null,
+        errorCode: options.errorCode ?? null,
       });
       const validated = this.validateRecord(next);
       this.activeReservations.add(record.operationId);
@@ -512,6 +516,11 @@ export class OperationJournal {
       try {
         await this.appendRecordUnlocked(validated);
         if (validated.status === 'queued') await this.options.afterQueuedFsync?.();
+        if (validated.status === 'pre-egress-rejected') {
+          await this.publishTombstoneUnlocked(validated);
+          this.activeReservations.delete(record.operationId);
+          this.tombstoneReservations.delete(record.operationId);
+        }
       } catch (error) {
         this.activeReservations.delete(record.operationId);
         this.tombstoneReservations.delete(record.operationId);

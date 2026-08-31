@@ -465,6 +465,14 @@ export interface ToolApprovalHandle {
 }
 
 export interface OperationInvocationService {
+  rejectToolBeforeEgress(
+    scope: ResolvedInvocationScope,
+    toolName: ToolName,
+    rawArgs: unknown,
+    operationId: string,
+    errorCode: string,
+    options?: Readonly<ToolInvocationOptionsV1>,
+  ): Promise<OperationRecord>;
   beginToolApproval(
     scope: ResolvedInvocationScope,
     toolName: ToolName,

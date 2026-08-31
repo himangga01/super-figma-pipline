@@ -7,6 +7,8 @@ const connected = {
   sessionId: SESSION_ID_A,
   pluginGeneration: 'plugin-g1',
   fileIdentity: { kind: 'figma-file-key' as const, value: 'file-a' },
+  editorType: 'figma' as const,
+  capabilities: [],
   connectedSequence: 1,
   healthy: true,
 };
@@ -29,12 +31,16 @@ describe('target requirements', () => {
       pluginGeneration: null,
       fileIdentity: null,
       fileExecutionKey: null,
+      editorType: null,
+      capabilities: null,
     });
     expect(resolver.resolve({ kind: 'none' }, 'forbidden')).toEqual({
       sessionId: null,
       pluginGeneration: null,
       fileIdentity: null,
       fileExecutionKey: null,
+      editorType: null,
+      capabilities: null,
     });
   });
 

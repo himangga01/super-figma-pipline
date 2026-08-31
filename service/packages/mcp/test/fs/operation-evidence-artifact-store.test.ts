@@ -2,6 +2,7 @@ import { createHash } from 'node:crypto';
 import {
   link,
   lstat,
+  mkdir,
   mkdtemp,
   readFile,
   rename,
@@ -89,7 +90,10 @@ describe('operation evidence result artifact store', () => {
     const workspaceId = '123e4567-e89b-42d3-a456-426614174000';
     const policy: WorkspacePolicy = {
       resolveWrite: async () => ({ path: target, overwrites: false }),
-      resolveRead: async () => target,
+      resolveRead: async (_workspace, relative) =>
+        relative.endsWith('/cleanup-intent.v1.json')
+          ? join(dirname(target), 'cleanup-intent.v1.json')
+          : target,
       assertWithinRoot: async () => undefined,
     };
     const store = new OperationEvidenceArtifactStore({
@@ -119,7 +123,10 @@ describe('operation evidence result artifact store', () => {
     const workspaceId = '123e4567-e89b-42d3-a456-426614174000';
     const policy: WorkspacePolicy = {
       resolveWrite: async () => ({ path: target, overwrites: false }),
-      resolveRead: async () => target,
+      resolveRead: async (_workspace, relative) =>
+        relative.endsWith('/cleanup-intent.v1.json')
+          ? join(dirname(target), 'cleanup-intent.v1.json')
+          : target,
       assertWithinRoot: async () => undefined,
     };
     const store = new OperationEvidenceArtifactStore({
@@ -159,7 +166,10 @@ describe('operation evidence result artifact store', () => {
     const store = new OperationEvidenceArtifactStore({
       workspacePolicy: {
         resolveWrite: async () => ({ path: target, overwrites: false }),
-        resolveRead: async () => target,
+        resolveRead: async (_workspace: string, relative: string) =>
+          relative.endsWith('/cleanup-intent.v1.json')
+            ? join(dirname(target), 'cleanup-intent.v1.json')
+            : target,
         assertWithinRoot: async () => undefined,
       },
       atomicFiles: new AtomicFileStore(),
@@ -195,7 +205,10 @@ describe('operation evidence result artifact store', () => {
     const store = new OperationEvidenceArtifactStore({
       workspacePolicy: {
         resolveWrite: async () => ({ path: target, overwrites: false }),
-        resolveRead: async () => target,
+        resolveRead: async (_workspace: string, relative: string) =>
+          relative.endsWith('/cleanup-intent.v1.json')
+            ? join(dirname(target), 'cleanup-intent.v1.json')
+            : target,
         assertWithinRoot: async () => undefined,
       },
       atomicFiles: new AtomicFileStore(),
@@ -221,6 +234,86 @@ describe('operation evidence result artifact store', () => {
     await expect(readFile(target)).resolves.toEqual(foreign);
     await expect(readFile(displaced)).resolves.toEqual(bytes);
   });
+
+  it.each(['foreign-bytes', 'hardlink', 'path-replacement', 'parent-replacement'] as const)(
+    'verifies and quarantines the linked cleanup marker for %s before unlinking it',
+    async fault => {
+      const root = await mkdtemp(join(tmpdir(), 'sfp-linked-marker-identity-'));
+      roots.push(root);
+      const workspaceId = '123e4567-e89b-42d3-a456-426614174000';
+      const operationId = `operation-linked-marker-${fault}`;
+      const options = createToolInvocationOptions(true, operationId, workspaceId);
+      const target = join(root, options.captureIntent.relativePath as string);
+      const marker = join(dirname(target), 'cleanup-intent.v1.json');
+      const displacedMarker = join(dirname(target), 'verified-marker.json');
+      const displacedParent = join(root, `verified-parent-${fault}`);
+      const alias = join(dirname(target), 'foreign-hardlink.json');
+      const foreign = Buffer.from(`foreign-${fault}\n`, 'utf8');
+      let parentReplaced = false;
+      const policy: WorkspacePolicy = {
+        resolveWrite: async (_workspace, relative) => ({
+          path: join(root, relative),
+          overwrites: false,
+        }),
+        resolveRead: async (_workspace, relative) => join(root, relative),
+        assertWithinRoot: async () => undefined,
+      };
+      const store = new OperationEvidenceArtifactStore({
+        workspacePolicy: policy,
+        atomicFiles: new AtomicFileStore(),
+        beforeMarkerCleanupCommit: async (path: string) => {
+          if (fault === 'path-replacement') {
+            await rename(path, displacedMarker);
+            await writeFile(path, foreign);
+          }
+          if (fault === 'parent-replacement') {
+            await rename(dirname(path), displacedParent);
+            await mkdir(dirname(path), { recursive: true });
+            await writeFile(path, foreign);
+            parentReplaced = true;
+          }
+        },
+      } as never);
+      const bytes = Buffer.from('{"ok":true}', 'utf8');
+      const artifact = await store.createNew({
+        workspaceId,
+        operationId,
+        intent: options.captureIntent,
+        canonicalRedactedBytes: bytes,
+        resultSchemaHash: `sha256:${'a'.repeat(64)}`,
+        resultHash: `sha256:${createHash('sha256').update(bytes).digest('hex')}`,
+      });
+      const verifiedMarker = await readFile(marker);
+      if (fault === 'foreign-bytes') await writeFile(marker, foreign);
+      if (fault === 'hardlink') await link(marker, alias);
+
+      await expect(
+        store.removeLinked({ workspaceId, operationId, artifact }),
+      ).rejects.toMatchObject({ code: 'EVIDENCE_ARTIFACT_IDENTITY_MISMATCH' });
+      const readMaybe = (path: string): Promise<Buffer | null> =>
+        readFile(path).catch((error: NodeJS.ErrnoException) => {
+          if (error.code === 'ENOENT') return null;
+          throw error;
+        });
+      expect({
+        marker: await readMaybe(marker),
+        alias: await readMaybe(alias),
+        displacedMarker: await readMaybe(displacedMarker),
+        displacedParentMarker: await readMaybe(join(displacedParent, 'cleanup-intent.v1.json')),
+      }).toEqual({
+        marker:
+          fault === 'foreign-bytes' ||
+          fault === 'path-replacement' ||
+          (fault === 'parent-replacement' && parentReplaced)
+            ? foreign
+            : verifiedMarker,
+        alias: fault === 'hardlink' ? verifiedMarker : null,
+        displacedMarker: fault === 'path-replacement' ? verifiedMarker : null,
+        displacedParentMarker:
+          fault === 'parent-replacement' && parentReplaced ? verifiedMarker : null,
+      });
+    },
+  );
 
   it('discovers and removes a crash orphan only after proving no receipt or finalizer link', async () => {
     const root = await mkdtemp(join(tmpdir(), 'sfp-artifact-discovery-'));

@@ -14,6 +14,8 @@ const session = (
   sessionId,
   pluginGeneration: `plugin-${connectedSequence}`,
   fileIdentity: { kind: 'figma-file-key', value: fileKey },
+  editorType: 'figma',
+  capabilities: [],
   connectedSequence,
   healthy: true,
 });
@@ -55,6 +57,8 @@ describe('authenticated target resolution', () => {
         sessionId: SESSION_ID_A,
         pluginGeneration: 'plugin-g1',
       },
+      editorType: 'figma',
+      capabilities: [],
       connectedSequence: 1,
       healthy: true,
     };

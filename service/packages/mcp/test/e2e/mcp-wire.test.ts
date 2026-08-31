@@ -14,8 +14,23 @@ import type { AddressInfo } from 'node:net';
 import { tmpdir } from 'node:os';
 import { join, relative, resolve as resolvePath } from 'node:path';
 
-import { ALL_DATA_CLASSES, hashEgressConfig, type EgressConfigV1 } from '@sfp/shared';
-import { afterAll, beforeAll, describe, expect, it } from 'vitest';
+import {
+  ALL_DATA_CLASSES,
+  createRequest,
+  createResponse,
+  decodeEnvelope,
+  encodeEnvelope,
+  hashEgressConfig,
+  MIN_PLUGIN_VERSION,
+  newId,
+  PROTOCOL_VERSION,
+  SystemMethod,
+  type EgressConfigV1,
+  type Envelope,
+  type ResponseEnvelope,
+} from '@sfp/shared';
+import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
+import { WebSocket } from 'ws';
 
 import { leaderLockPath } from '../../src/election/leader-lock.js';
 import { createEgressConfigStore } from '../../src/policy/policy-engine.js';
@@ -89,6 +104,7 @@ class WireClient {
       .filter(
         name =>
           name.endsWith('.operations.v1.jsonl') ||
+          name.endsWith('.operation-tombstones.v1.jsonl') ||
           name.endsWith('.egress-manifests.v1.jsonl') ||
           name.endsWith('.operation-evidence.v1.jsonl'),
       )
@@ -233,7 +249,10 @@ class WireClient {
     this.stateRoot = '';
   }
 
-  send(method: string, params: Record<string, unknown> = {}): Promise<JsonRpcResponse> {
+  begin(
+    method: string,
+    params: Record<string, unknown> = {},
+  ): { id: number; response: Promise<JsonRpcResponse> } {
     const id = this.nextId++;
     const wait = new Promise<JsonRpcResponse>((resolve, reject) => {
       const timer = setTimeout(() => {
@@ -247,11 +266,29 @@ class WireClient {
       });
     });
     this.child.stdin?.write(`${JSON.stringify({ jsonrpc: '2.0', id, method, params })}\n`);
-    return wait;
+    return { id, response: wait };
   }
 
-  notify(method: string): void {
-    this.child.stdin?.write(`${JSON.stringify({ jsonrpc: '2.0', method })}\n`);
+  send(method: string, params: Record<string, unknown> = {}): Promise<JsonRpcResponse> {
+    return this.begin(method, params).response;
+  }
+
+  notify(method: string, params?: Record<string, unknown>): void {
+    this.child.stdin?.write(
+      `${JSON.stringify({ jsonrpc: '2.0', method, ...(params === undefined ? {} : { params }) })}\n`,
+    );
+  }
+
+  operationAuthorityLines(operationId: string): string[] {
+    const journal = join(this.stateRoot, 'journal');
+    if (!existsSync(journal)) return [];
+    return readdirSync(journal)
+      .filter(
+        name =>
+          name.endsWith('.operations.v1.jsonl') || name.endsWith('.operation-tombstones.v1.jsonl'),
+      )
+      .flatMap(name => readFileSync(join(journal, name), 'utf8').split('\n').filter(Boolean))
+      .filter(line => line.includes(operationId));
   }
 
   /** The opening exchange, returning the server's `initialize` result. */
@@ -507,7 +544,7 @@ describe.skipIf(!existsSync(DIST_ENTRY))('MCP wire contract (built dist)', () =>
     expect(client.egressMode()).toBe('local-trusted');
   });
 
-  it('keeps a missing default fail-closed with runtime and durable invocation rows at zero', async () => {
+  it('keeps a missing default fail-closed with a durable pre-egress row and no runtime', async () => {
     expect(failClosedClient.egressMode()).toBe('missing');
     const response = await failClosedClient.send('tools/call', {
       name: 'ping',
@@ -516,7 +553,7 @@ describe.skipIf(!existsSync(DIST_ENTRY))('MCP wire contract (built dist)', () =>
     expect(response.result?.isError).toBe(true);
     const content = response.result?.content as { text: string }[];
     expect(content.map(row => row.text).join('')).toMatch(/egress is not explicitly configured/i);
-    expect(failClosedClient.durableInvocationBytes()).toBe(0);
+    expect(failClosedClient.durableInvocationBytes()).toBeGreaterThan(0);
   });
 
   it('warns on a real tools/call when the connected plugin is out of date', async () => {
@@ -600,6 +637,157 @@ describe.skipIf(!existsSync(DIST_ENTRY))('MCP wire contract (built dist)', () =>
       closeSocket(plugin);
       await server.stop();
     }
+  }, 30_000);
+
+  it('turns a real MCP request abort into one Relay cancel and one durable unknown terminal', async () => {
+    const server = new WireClient();
+    await server.start();
+    await server.handshake(LATEST_CLIENT_PROTOCOL);
+    const ticket = await server.pairTicket();
+    const sessionId = newId();
+    const plugin = new WebSocket(`ws://127.0.0.1:${server.port}/ws`, { origin: 'null' });
+    await new Promise<void>((resolve, reject) => {
+      plugin.once('open', () => resolve());
+      plugin.once('error', reject);
+    });
+    let resolveHello!: (value: ResponseEnvelope) => void;
+    let resolveInvocation!: (value: Envelope) => void;
+    let resolveCancel!: (value: Envelope) => void;
+    const hello = new Promise<ResponseEnvelope>(resolve => {
+      resolveHello = resolve;
+    });
+    const invocation = new Promise<Envelope>(resolve => {
+      resolveInvocation = resolve;
+    });
+    const cancellation = new Promise<Envelope>(resolve => {
+      resolveCancel = resolve;
+    });
+    plugin.on('message', raw => {
+      const envelope = decodeEnvelope(raw as Uint8Array);
+      if (envelope.kind === 'res' && envelope.id === 'mcp-cancel-hello') {
+        resolveHello(envelope);
+        return;
+      }
+      if (envelope.kind === 'req' && envelope.method === SystemMethod.Ping) {
+        plugin.send(
+          encodeEnvelope(
+            createResponse({
+              id: envelope.id,
+              sessionId: envelope.sessionId,
+              result: { ok: true },
+            }),
+          ),
+        );
+        return;
+      }
+      if (envelope.kind === 'req' && envelope.method === 'get_selection') {
+        resolveInvocation(envelope);
+        return;
+      }
+      if (envelope.kind === 'evt' && envelope.method === SystemMethod.Cancel) {
+        resolveCancel(envelope);
+      }
+    });
+    plugin.send(
+      encodeEnvelope(
+        createRequest({
+          id: 'mcp-cancel-hello',
+          sessionId,
+          method: SystemMethod.Hello,
+          params: {
+            credential: { kind: 'ticket', value: ticket },
+            nonce: Buffer.alloc(16, 2).toString('base64url'),
+            protocolVersion: PROTOCOL_VERSION,
+            productVersion: '0.1.0',
+            pluginVersion: MIN_PLUGIN_VERSION,
+            pluginGeneration: 'plugin-generation-mcp-cancel',
+            editorType: 'figma',
+            mode: 'default',
+            fileIdentity: { kind: 'figma-file-key', value: 'file-key-mcp-cancel' },
+            fileName: 'MCP Cancel',
+            capabilities: [],
+          },
+        }),
+      ),
+    );
+    await hello;
+
+    let call: { id: number; response: Promise<JsonRpcResponse> } | undefined;
+    let pluginRequest: Envelope | undefined;
+    let failure: unknown;
+    try {
+      call = server.begin('tools/call', { name: 'get_selection', arguments: {} });
+      pluginRequest = await invocation;
+      if (pluginRequest.kind !== 'req')
+        throw new Error('plugin request was not a request envelope');
+      server.notify('notifications/cancelled', {
+        requestId: call.id,
+        reason: 'test request abort',
+      });
+      const cancel = await Promise.race([
+        cancellation,
+        new Promise<never>((_resolve, reject) => {
+          const timer = setTimeout(
+            () => reject(new Error('actual MCP abort did not reach Relay cancel')),
+            1_000,
+          );
+          timer.unref();
+        }),
+      ]);
+      expect(pluginRequest).toMatchObject({
+        operationId: expect.any(String),
+        actionNonce: expect.any(String),
+      });
+      expect(cancel).toMatchObject({
+        kind: 'evt',
+        method: SystemMethod.Cancel,
+        params: {
+          operationId: pluginRequest.operationId,
+          actionNonce: pluginRequest.actionNonce,
+        },
+      });
+
+      plugin.send(
+        encodeEnvelope(
+          createResponse({
+            id: pluginRequest.id,
+            sessionId: pluginRequest.sessionId,
+            result: { pageId: '1:1', pageName: 'late', nodes: [] },
+          }),
+        ),
+      );
+      void call.response.catch(() => undefined);
+      const operationId = String(pluginRequest.operationId);
+      await vi.waitFor(() => {
+        const authorities = server.operationAuthorityLines(operationId);
+        const terminals = authorities.filter(line =>
+          /"status":"(?:pre-egress-rejected|rejected|succeeded|failed|outcome-unknown|resolved-applied|resolved-not-applied|abandoned)"/u.test(
+            line,
+          ),
+        );
+        expect(terminals).toHaveLength(1);
+        expect(terminals[0]).toContain('"status":"outcome-unknown"');
+      });
+    } catch (error) {
+      failure = error;
+    } finally {
+      if (pluginRequest?.kind === 'req') {
+        plugin.send(
+          encodeEnvelope(
+            createResponse({
+              id: pluginRequest.id,
+              sessionId: pluginRequest.sessionId,
+              result: { pageId: '1:1', pageName: 'cleanup', nodes: [] },
+            }),
+          ),
+        );
+      }
+      void call?.response.catch(() => undefined);
+      await new Promise(resolve => setTimeout(resolve, 25));
+      closeSocket(plugin);
+      await server.stop();
+    }
+    if (failure !== undefined) throw failure;
   }, 30_000);
 
   it('surfaces a bad-argument call as a tool error the model can read, not a transport failure', async () => {

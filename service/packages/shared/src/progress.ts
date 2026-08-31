@@ -120,6 +120,9 @@ const SAFE_INVOCATION_ERRORS: Readonly<Record<string, string>> = Object.freeze({
   OPERATION_ALREADY_SETTLED: 'operation is already settled',
   APPROVAL_REJECTED: 'operation approval was rejected',
   APPROVAL_EXPIRED: 'operation approval expired',
+  APPROVAL_CHANNEL_UNAVAILABLE: 'operation approval channel is unavailable',
+  EGRESS_CONFIG_REQUIRED: 'egress is not explicitly configured',
+  EGRESS_CONSENT_REQUIRED: 'egress consent does not allow this operation',
   LEADER_GENERATION_CLOSED: 'leader generation is closed',
   INTERNAL_ERROR: 'operation failed internally',
 });

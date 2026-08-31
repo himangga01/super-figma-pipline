@@ -42,6 +42,16 @@ export const createFollowerInvocationEndpoint =
     const principal = dependencies.principalForMcpSession(opened.mcpSession);
     if (inner.type === 'cancel') {
       await dependencies.plane.cancel(principal, inner);
+      await response.write(
+        encodeFollowerInnerMessage({
+          version: 1,
+          type: 'result',
+          requestId: inner.requestId,
+          operationId: inner.operationId,
+          result: { cancelled: true },
+        }),
+        { final: true },
+      );
       return;
     }
     if (inner.type !== 'tool' && inner.type !== 'service') {

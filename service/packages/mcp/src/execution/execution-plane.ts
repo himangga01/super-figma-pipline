@@ -188,6 +188,36 @@ export interface LazyLeaderRuntimeBoundary<T> {
   peek(): T | undefined;
 }
 
+export class GenerationRetentionCoordinator {
+  private flight: Promise<void> | null = null;
+  private closed = false;
+
+  constructor(private readonly runSweep: () => Promise<void>) {}
+
+  sweep(): Promise<void> {
+    if (this.closed) {
+      return Promise.reject(
+        Object.assign(new Error('leader generation retention is closed'), {
+          code: 'LEADER_GENERATION_CLOSED',
+        }),
+      );
+    }
+    if (this.flight !== null) return this.flight;
+    const settled = Promise.resolve()
+      .then(this.runSweep)
+      .finally(() => {
+        if (this.flight === settled) this.flight = null;
+      });
+    this.flight = settled;
+    return settled;
+  }
+
+  async close(): Promise<void> {
+    this.closed = true;
+    await this.flight;
+  }
+}
+
 export class GenerationRuntimeLifecycleRegistry<T extends { close(): Promise<void> }> {
   private readonly states = new Map<
     string,
@@ -431,6 +461,8 @@ const freezeVerifiedTarget = (target: Readonly<PluginTarget>): Readonly<PluginTa
       pluginGeneration: null,
       fileIdentity: null,
       fileExecutionKey: null,
+      editorType: null,
+      capabilities: null,
     });
   }
   if (
@@ -443,7 +475,16 @@ const freezeVerifiedTarget = (target: Readonly<PluginTarget>): Readonly<PluginTa
     });
   }
   const identity = FileIdentitySchema.safeParse(target.fileIdentity);
-  if (!identity.success) {
+  if (
+    !identity.success ||
+    !['figma', 'figjam', 'dev'].includes(target.editorType ?? '') ||
+    !Array.isArray(target.capabilities) ||
+    target.capabilities.length > 1_024 ||
+    target.capabilities.some(
+      capability =>
+        typeof capability !== 'string' || capability.length < 1 || capability.length > 256,
+    )
+  ) {
     throw Object.assign(new Error('resolved plugin file identity is invalid'), {
       code: 'INVOCATION_TARGET_INVALID',
       cause: identity.error,
@@ -469,6 +510,8 @@ const freezeVerifiedTarget = (target: Readonly<PluginTarget>): Readonly<PluginTa
     pluginGeneration: target.pluginGeneration,
     fileIdentity,
     fileExecutionKey: expectedKey,
+    editorType: target.editorType as 'figma' | 'figjam' | 'dev',
+    capabilities: Object.freeze([...(target.capabilities as readonly string[])]),
   });
 };
 
@@ -653,16 +696,33 @@ export class LeaderGenerationExecutionPlane {
         ReturnType<OperationInvocationService['beginToolApproval']>
       > | null = null;
       if (policy.approval !== 'none') {
-        const pending = await this.admissionAuthority.approval.request(
-          resolvedScope,
-          request.toolName,
-          policy.effects,
-          operationId,
-        );
-        if (pending === null) {
-          throw Object.assign(new Error('approval channel is unavailable'), {
-            code: 'APPROVAL_CHANNEL_UNAVAILABLE',
-          });
+        let pending: Awaited<ReturnType<ApprovalDecisionPort['request']>>;
+        try {
+          pending = await this.admissionAuthority.approval.request(
+            resolvedScope,
+            request.toolName,
+            policy.effects,
+            operationId,
+          );
+          if (pending === null) {
+            throw Object.assign(new Error('approval channel is unavailable'), {
+              code: 'APPROVAL_CHANNEL_UNAVAILABLE',
+            });
+          }
+        } catch (error) {
+          const code =
+            typeof error === 'object' && error !== null && 'code' in error
+              ? String(error.code)
+              : 'APPROVAL_CHANNEL_UNAVAILABLE';
+          await this.invocationService.rejectToolBeforeEgress(
+            resolvedScope,
+            request.toolName,
+            parsedArgs,
+            operationId,
+            code,
+            verifiedOptions,
+          );
+          throw error;
         }
         approvalHandle = await this.invocationService.beginToolApproval(
           resolvedScope,
@@ -711,6 +771,19 @@ export class LeaderGenerationExecutionPlane {
               ? String(error.code)
               : 'EGRESS_AUTHORIZATION_FAILED';
           await this.invocationService.rejectToolApproval(approvalHandle, code);
+        } else {
+          const code =
+            typeof error === 'object' && error !== null && 'code' in error
+              ? String(error.code)
+              : 'EGRESS_AUTHORIZATION_FAILED';
+          await this.invocationService.rejectToolBeforeEgress(
+            resolvedScope,
+            request.toolName,
+            parsedArgs,
+            operationId,
+            code,
+            verifiedOptions,
+          );
         }
         throw error;
       }

@@ -573,6 +573,205 @@ describe('idempotent journaled operation executor', () => {
     expect(runtime).toHaveBeenCalledOnce();
   });
 
+  it('durably finalizes and terminals a queued cancel before releasing its reservation', async () => {
+    const root = await createRoot();
+    const issuer = operationIdIssuerFromKey(Buffer.alloc(32, 34));
+    const operationId = issuer.issue(actorId, fixedNow, {
+      nonce: 'EgAAAAAAAAAAAAAAAAAAAA',
+    });
+    const events: string[] = [];
+    const journal = new OperationJournal({
+      stateRoot: root,
+      actorId,
+      now: () => fixedNow,
+      afterTombstoneFsync: async () => {
+        events.push('terminal-fsync');
+      },
+    });
+    await journal.recover();
+    let releaseQueue!: () => void;
+    const queueGate = new Promise<void>(resolve => {
+      releaseQueue = resolve;
+    });
+    const queue = new FileExecutionQueue();
+    const blocker = queue.run('figma:file-a', 'file-write', () => queueGate);
+    const executor = new OperationExecutor({
+      issuer,
+      journal,
+      queue,
+      runtimes: createBoundRuntimeRegistry(
+        { execute: vi.fn<() => never>() },
+        { execute: async () => ({}) },
+      ),
+      durability: {
+        egress: {
+          reservePre: async (boundActorId, requestId, boundOperationId, manifest) => ({
+            actorId: boundActorId,
+            requestId,
+            operationId: boundOperationId,
+            leaderGeneration: 'generation-1',
+            preManifestHash: manifest.manifestHash,
+            reservedOutputBytes: 65_536,
+          }),
+          finalize: async (_reservation, manifest) => {
+            events.push('finalizer-fsync');
+            return { finalManifestHash: manifest.manifestHash, finalized: true };
+          },
+          readVerifiedFinalizer: async () => null,
+          recover: async () => undefined,
+          flush: async () => undefined,
+        },
+        receipts: {
+          reserveBeforeRuntime: async () => ({
+            reservationId: 'reservation-queued-cancel',
+            reservedBytes: 65_536,
+          }),
+          prepareAndFsync: vi.fn<() => never>(),
+          get: async () => null,
+          recover: async () => undefined,
+          releaseWithoutReceipt: async () => {
+            events.push('reservation-release-fsync');
+          },
+          abortAfterDurableUnknown: vi.fn<() => never>(),
+        },
+        artifacts: { createNew: vi.fn<() => never>() },
+        projector: { project: vi.fn<() => never>() },
+        nativeArtifacts: { createNativeManifest: vi.fn<() => never>() },
+      },
+      now: () => fixedNow,
+    });
+    const invocation = executor.invokeTool(
+      scope(),
+      'create_text',
+      { characters: 'A' },
+      operationId,
+      NO_CAPTURE_OPTIONS,
+    );
+    await vi.waitFor(() => expect(journal.get(operationId)).toMatchObject({ status: 'queued' }));
+    await executor.cancel(scope().actor, {
+      version: 1,
+      requestId: scope().requestId,
+      operationId,
+    });
+
+    expect(events).toEqual(['finalizer-fsync', 'terminal-fsync', 'reservation-release-fsync']);
+    expect(journal.get(operationId)).toMatchObject({
+      status: 'rejected',
+      errorCode: 'OPERATION_CANCELLED',
+      finalEgressManifestHash: expect.stringMatching(/^sha256:/u),
+      operationEvidenceReceiptHash: null,
+    });
+    releaseQueue();
+    await blocker;
+    await invocation.catch(() => undefined);
+  });
+
+  it('closes a dispatched demotion as outcome-unknown before releasing a missing receipt reservation', async () => {
+    const root = await createRoot();
+    const issuer = operationIdIssuerFromKey(Buffer.alloc(32, 35));
+    const operationId = issuer.issue(actorId, fixedNow, {
+      nonce: 'EwAAAAAAAAAAAAAAAAAAAA',
+    });
+    const events: string[] = [];
+    const journal = new OperationJournal({
+      stateRoot: root,
+      actorId,
+      now: () => fixedNow,
+    });
+    await journal.recover();
+    const journalPort: OperationJournalPort = {
+      appendInitial: (...args) => journal.appendInitial(...args),
+      transition: (...args) => journal.transition(...args),
+      transitionDemotion: async (...args) => {
+        const record = await journal.transitionDemotion(...args);
+        events.push('terminal-fsync');
+        return record;
+      },
+      get: operation => journal.get(operation),
+    };
+    let releaseRuntime!: () => void;
+    const runtimeGate = new Promise<void>(resolve => {
+      releaseRuntime = resolve;
+    });
+    const runtime = vi.fn<PinnedPluginRuntimePort['execute']>(
+      async (_scope, _toolName, _args, _signal) => {
+        await runtimeGate;
+        return { ok: true, nodeId: '1:2', name: 'Text', type: 'TEXT' };
+      },
+    );
+    let finalManifestHash: string | null = null;
+    const executor = new OperationExecutor({
+      issuer,
+      journal: journalPort,
+      queue: new FileExecutionQueue(),
+      runtimes: createBoundRuntimeRegistry({ execute: runtime }, { execute: async () => ({}) }),
+      durability: {
+        egress: {
+          reservePre: async (boundActorId, requestId, boundOperationId, manifest) => ({
+            actorId: boundActorId,
+            requestId,
+            operationId: boundOperationId,
+            leaderGeneration: 'generation-1',
+            preManifestHash: manifest.manifestHash,
+            reservedOutputBytes: 65_536,
+          }),
+          finalize: async (_reservation, manifest) => {
+            events.push('outcome-unknown-finalizer-fsync');
+            finalManifestHash = manifest.manifestHash;
+            return { finalManifestHash: manifest.manifestHash, finalized: true };
+          },
+          readVerifiedFinalizer: async () => null,
+          recover: async () => undefined,
+          flush: async () => undefined,
+        },
+        receipts: {
+          reserveBeforeRuntime: async () => ({
+            reservationId: 'reservation-dispatched-demotion',
+            reservedBytes: 65_536,
+          }),
+          prepareAndFsync: vi.fn<() => never>(),
+          get: async () => null,
+          recover: async () => undefined,
+          releaseWithoutReceipt: vi.fn<() => never>(),
+          abortAfterDurableUnknown: async () => {
+            events.push('reservation-release-fsync');
+          },
+        },
+        artifacts: { createNew: vi.fn<() => never>() },
+        projector: { project: vi.fn<() => never>() },
+        nativeArtifacts: { createNativeManifest: vi.fn<() => never>() },
+      },
+      now: () => fixedNow,
+    });
+    const invocation = executor.invokeTool(
+      scope(),
+      'create_text',
+      { characters: 'A' },
+      operationId,
+      NO_CAPTURE_OPTIONS,
+    );
+    await vi.waitFor(() =>
+      expect(journal.get(operationId)).toMatchObject({ status: 'dispatched' }),
+    );
+    const capability = await journal.fenceLeaderGeneration('generation-1');
+    const demotion = executor.demoteGeneration('generation-1', capability);
+    await vi.waitFor(() =>
+      expect(events).toEqual([
+        'outcome-unknown-finalizer-fsync',
+        'terminal-fsync',
+        'reservation-release-fsync',
+      ]),
+    );
+    releaseRuntime();
+    await demotion;
+    await invocation.catch(() => undefined);
+    expect(journal.get(operationId)).toMatchObject({
+      status: 'outcome-unknown',
+      finalEgressManifestHash: finalManifestHash,
+      operationEvidenceReceiptHash: null,
+    });
+  });
+
   it('reserves pre/output/evidence before queued fsync and emits terminal only after receipt/finalizer/terminal fsync', async () => {
     const root = await createRoot();
     const issuer = operationIdIssuerFromKey(Buffer.alloc(32, 23));
@@ -856,6 +1055,202 @@ describe('idempotent journaled operation executor', () => {
       finalEgressManifestHash: recovered.journal.get(operationIds[0]!)?.finalEgressManifestHash,
     });
     expect(runtime).not.toHaveBeenCalled();
+  });
+
+  it('settles an ordinary durable queued reservation before generic restart failure and releases capacity', async () => {
+    const root = await createRoot();
+    const issuer = operationIdIssuerFromKey(Buffer.alloc(32, 33));
+    const operationId = issuer.issue(actorId, fixedNow, {
+      nonce: 'EQAAAAAAAAAAAAAAAAAAAA',
+    });
+    const limits = {
+      ...OPERATION_EVIDENCE_LIMITS,
+      maxRowsPerActor: 1,
+      maxBytesPerActor: OPERATION_EVIDENCE_LIMITS.reservationBytesPerOperation,
+    };
+    const journal = new OperationJournal({ stateRoot: root, actorId, now: () => fixedNow });
+    const egress = new EgressManifestStore({ stateRoot: root, actorId, now: () => fixedNow });
+    const receipts = new OperationEvidenceReceiptStore({ stateRoot: root, actorId, limits });
+    await Promise.all([journal.recover(), egress.recover(fixedNow), receipts.recover()]);
+
+    let holdQueue!: () => void;
+    const queueGate = new Promise<void>(resolve => {
+      holdQueue = resolve;
+    });
+    const queue = new FileExecutionQueue();
+    const blocker = queue.run('figma:file-a', 'file-write', () => queueGate);
+    void blocker.catch(() => undefined);
+    const runtime = vi.fn<PinnedPluginRuntimePort['execute']>(async () => ({
+      ok: true,
+      nodeId: '1:2',
+      name: 'Text',
+      type: 'TEXT',
+    }));
+    const executor = new OperationExecutor({
+      issuer,
+      journal,
+      queue,
+      runtimes: createBoundRuntimeRegistry({ execute: runtime }, { execute: async () => ({}) }),
+      durability: {
+        egress,
+        receipts,
+        artifacts: { createNew: vi.fn<() => never>() },
+        projector: { project: vi.fn<() => never>() },
+        nativeArtifacts: { createNativeManifest: vi.fn<() => never>() },
+      },
+      now: () => fixedNow,
+    });
+    const abandonedInvocation = executor.invokeTool(
+      scope(),
+      'create_text',
+      { characters: 'A' },
+      operationId,
+      NO_CAPTURE_OPTIONS,
+    );
+    void abandonedInvocation.catch(() => undefined);
+    await vi.waitFor(() => expect(journal.get(operationId)).toMatchObject({ status: 'queued' }));
+    expect(runtime).not.toHaveBeenCalled();
+
+    const restart = async (
+      hooks: Readonly<{
+        afterRecoveryIntentFsync?: () => Promise<void>;
+        afterFinalizerFsync?: () => Promise<void>;
+        afterTerminalFsync?: () => Promise<void>;
+        afterReleaseFsync?: () => Promise<void>;
+      }> = {},
+    ) => {
+      const restartedJournal = new OperationJournal({
+        stateRoot: root,
+        actorId,
+        now: () => fixedNow + 1,
+        ...(hooks.afterTerminalFsync === undefined
+          ? {}
+          : { afterTombstoneFsync: hooks.afterTerminalFsync }),
+      });
+      const restartedEgress = new EgressManifestStore({
+        stateRoot: root,
+        actorId,
+        now: () => fixedNow + 1,
+      });
+      const restartedReceipts = new OperationEvidenceReceiptStore({
+        stateRoot: root,
+        actorId,
+        limits,
+        ...(hooks.afterRecoveryIntentFsync === undefined
+          ? {}
+          : { afterPreRuntimeRecoveryIntentFsync: hooks.afterRecoveryIntentFsync }),
+        ...(hooks.afterReleaseFsync === undefined
+          ? {}
+          : { afterReservationReleaseFsync: hooks.afterReleaseFsync }),
+      } as never);
+      const finalizer = new DurableOperationFinalizer({
+        artifacts: { createNew: vi.fn<() => never>() },
+        receipts: restartedReceipts,
+        egress: restartedEgress,
+        journal: restartedJournal,
+        emitTerminal: vi.fn<() => never>(),
+      });
+      await recoverDurableOperationState({
+        actorId,
+        now: fixedNow + 1,
+        egress: restartedEgress,
+        receipts: restartedReceipts,
+        journal: restartedJournal,
+        finalizer,
+        preRuntimeReservationRecovery: {
+          hasResultArtifactSideEffect: async () => false,
+          hasNativeArtifactSideEffect: async () => false,
+          ...(hooks.afterFinalizerFsync === undefined
+            ? {}
+            : { afterPreRuntimeFinalizerFsync: hooks.afterFinalizerFsync }),
+        },
+      });
+      return {
+        journal: restartedJournal,
+        egress: restartedEgress,
+        receipts: restartedReceipts,
+      };
+    };
+
+    for (const [hook, crash] of [
+      ['afterRecoveryIntentFsync', new Error('crash after ordinary recovery intent fsync')],
+      ['afterFinalizerFsync', new Error('crash after ordinary no-output finalizer fsync')],
+      ['afterTerminalFsync', new Error('crash after ordinary rejected terminal fsync')],
+      ['afterReleaseFsync', new Error('crash after ordinary reservation release fsync')],
+    ] as const) {
+      await expect(restart({ [hook]: async () => Promise.reject(crash) })).rejects.toBe(crash);
+      expect(runtime).not.toHaveBeenCalled();
+    }
+    const recovered = await restart();
+    const record = recovered.journal.get(operationId);
+    expect(record).toMatchObject({
+      status: 'rejected',
+      errorCode: 'OPERATION_PRE_RUNTIME_CRASH_RECOVERED',
+      finalEgressManifestHash: expect.stringMatching(/^sha256:/u),
+      operationEvidenceReceiptHash: null,
+    });
+    if (record === undefined || !('finalEgressManifestHash' in record)) {
+      throw new Error('recovered queued reservation must have reciprocal terminal authority');
+    }
+    const egressState = await recovered.egress.classifyOperationState(actorId, operationId);
+    if (egressState.kind === 'absent') throw new Error('recovered pre-manifest expected');
+    const finalizer = await recovered.egress.readVerifiedFinalizer(
+      actorId,
+      operationId,
+      record.finalEgressManifestHash,
+    );
+    expect(finalizer).toMatchObject({
+      finalStatus: 'no-output',
+      reasonCode: 'admission-rejected',
+      preExecutionManifestHash: egressState.preExecutionManifestHash,
+      manifestHash: record.finalEgressManifestHash,
+      resultHash: null,
+    });
+    const capacityProbe = await recovered.receipts.reserveBeforeRuntime(
+      actorId,
+      issuer.issue(actorId, fixedNow + 2),
+      1,
+    );
+    await recovered.receipts.releaseWithoutReceipt(capacityProbe.reservationId);
+
+    const replayRuntime = vi.fn<PinnedPluginRuntimePort['execute']>(async () => ({ ok: true }));
+    const replay = new OperationExecutor({
+      issuer,
+      journal: recovered.journal,
+      queue: new FileExecutionQueue(),
+      runtimes: createBoundRuntimeRegistry(
+        { execute: replayRuntime },
+        { execute: async () => ({}) },
+      ),
+      now: () => fixedNow + 2,
+    });
+    await expect(
+      replay.invokeTool(
+        scope(),
+        'create_text',
+        { characters: 'A' },
+        operationId,
+        NO_CAPTURE_OPTIONS,
+      ),
+    ).rejects.toMatchObject({ code: 'OPERATION_ALREADY_SETTLED', status: 'rejected' });
+    await expect(
+      replay.invokeTool(
+        scope(),
+        'create_text',
+        { characters: 'different' },
+        operationId,
+        NO_CAPTURE_OPTIONS,
+      ),
+    ).rejects.toMatchObject({ code: 'OPERATION_ID_CONFLICT' });
+    expect(replayRuntime).not.toHaveBeenCalled();
+    const secondRestart = await restart();
+    expect(secondRestart.journal.get(operationId)).toMatchObject({
+      status: 'rejected',
+      finalEgressManifestHash: record.finalEgressManifestHash,
+    });
+    holdQueue();
+    await blocker;
+    await abandonedInvocation.catch(() => undefined);
   });
 
   it('preserves reservation-owned queued recovery across every pre-runtime fsync boundary', async () => {

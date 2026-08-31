@@ -10,6 +10,7 @@ import {
 } from '@sfp/shared';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
+import { createOperationEvidenceEndpoint } from '../../src/control/operation-evidence-endpoint.js';
 import {
   createDurableExecutionPlaneLifecyclePorts,
   GenerationRuntimeLifecycleRegistry,
@@ -18,11 +19,19 @@ import {
   type ApprovalDecisionPort,
   type ExecutionPlaneAdmissionAuthority,
 } from '../../src/execution/execution-plane.js';
+import { FileExecutionQueue } from '../../src/execution/file-queue.js';
+import { OperationExecutor } from '../../src/execution/operation-executor.js';
+import { operationIdIssuerFromKey } from '../../src/execution/operation-id.js';
 import {
   OperationJournal,
   hashOperationFingerprint,
   type NewOperationRecord,
 } from '../../src/execution/operation-journal.js';
+import { ToolInvocationService } from '../../src/tool-invocation-service.js';
+import {
+  createBoundRuntimeRegistry,
+  type PinnedPluginRuntimePort,
+} from '../../src/tools/runtime-registry.js';
 
 const lifecycleRoots: string[] = [];
 afterEach(async () => {
@@ -98,6 +107,47 @@ const harness = (options: { failUnknownFsync?: boolean; drain?: boolean } = {}) 
 };
 
 describe('leader-generation execution plane lifecycle', () => {
+  it('awaits the active retention flight and fences stale timer work before generation handoff', async () => {
+    const executionPlane = (await import('../../src/execution/execution-plane.js')) as unknown as {
+      GenerationRetentionCoordinator?: new (sweep: () => Promise<void>) => {
+        sweep(): Promise<void>;
+        close(): Promise<void>;
+      };
+    };
+    expect(executionPlane.GenerationRetentionCoordinator).toBeTypeOf('function');
+    const events: string[] = [];
+    let releaseSweep!: () => void;
+    const blocked = new Promise<void>(resolve => {
+      releaseSweep = resolve;
+    });
+    const coordinator = new executionPlane.GenerationRetentionCoordinator!(async () => {
+      events.push('old-sweep-start');
+      await blocked;
+      events.push('old-sweep-finish');
+    });
+    const flight = coordinator.sweep();
+    await vi.waitFor(() => expect(events).toEqual(['old-sweep-start']));
+    const closing = coordinator.close().then(() => {
+      events.push('old-store-flush-and-port-release');
+      return undefined;
+    });
+    await Promise.resolve();
+    expect(events).toEqual(['old-sweep-start']);
+
+    releaseSweep();
+    await Promise.all([flight, closing]);
+    await expect(coordinator.sweep()).rejects.toMatchObject({
+      code: 'LEADER_GENERATION_CLOSED',
+    });
+    events.push('successor-sweep-start');
+    expect(events).toEqual([
+      'old-sweep-start',
+      'old-sweep-finish',
+      'old-store-flush-and-port-release',
+      'successor-sweep-start',
+    ]);
+  });
+
   it('aborts and closes an initializing runtime so no retention timer survives demotion', async () => {
     vi.useFakeTimers();
     const registry = new GenerationRuntimeLifecycleRegistry<{
@@ -480,6 +530,8 @@ describe('leader-generation execution plane lifecycle', () => {
             pluginGeneration: 'plugin-g1',
             fileIdentity: { kind: 'figma-file-key', value: 'file-a' },
             fileExecutionKey: 'figma:file-a',
+            editorType: 'figma',
+            capabilities: [],
           };
         },
       },
@@ -519,6 +571,9 @@ describe('leader-generation execution plane lifecycle', () => {
       },
     });
     plane.bindInvocationService({
+      rejectToolBeforeEgress: async () => {
+        throw new Error('unexpected pre-egress rejection');
+      },
       beginToolApproval: async () => {
         events.push('pending-fsynced');
         return {} as never;
@@ -623,6 +678,8 @@ describe('leader-generation execution plane lifecycle', () => {
           pluginGeneration: 'plugin-g1',
           fileIdentity: { kind: 'figma-file-key', value: 'file-a' },
           fileExecutionKey: 'figma:file-a',
+          editorType: 'figma',
+          capabilities: [],
         }),
       },
       approval: { request: approval },
@@ -633,6 +690,9 @@ describe('leader-generation execution plane lifecycle', () => {
       verifyOperationId: () => {},
     });
     plane.bindInvocationService({
+      rejectToolBeforeEgress: async () => {
+        throw new Error('unexpected pre-egress rejection');
+      },
       beginToolApproval: beginApproval,
       resumeApprovedTool: async () => ({}),
       rejectToolApproval: rejectApproval,
@@ -673,6 +733,165 @@ describe('leader-generation execution plane lifecycle', () => {
     expect(invocation).not.toHaveBeenCalled();
   });
 
+  it('persists approval-free and unavailable-channel pre-egress failures before returning them', async () => {
+    const root = await mkdtemp(join(tmpdir(), 'sfp-pre-egress-admission-'));
+    lifecycleRoots.push(root);
+    const now = 1_724_803_200_000;
+    const issuer = operationIdIssuerFromKey(Buffer.alloc(32, 41));
+    const journal = new OperationJournal({
+      stateRoot: root,
+      actorId: lifecycleActorId,
+      now: () => now,
+    });
+    await journal.recover();
+    const runtime = vi.fn<PinnedPluginRuntimePort['execute']>(async () => ({
+      id: '1:2',
+      name: 'Node',
+      type: 'FRAME',
+    }));
+    const executor = new OperationExecutor({
+      issuer,
+      journal,
+      queue: new FileExecutionQueue(),
+      runtimes: createBoundRuntimeRegistry({ execute: runtime }, { execute: async () => ({}) }),
+      now: () => now,
+    });
+    const { plane } = harness({ drain: true });
+    const principal = Object.freeze({
+      actorId: lifecycleActorId,
+      authSessionId: lifecycleAuthId,
+      entryPath: 'mcp-direct' as const,
+    });
+    let egressFailure = Object.assign(new Error('egress is not explicitly configured'), {
+      code: 'EGRESS_CONFIG_REQUIRED',
+    });
+    plane.bindAdmissionAuthority({
+      resolveWorkspaceContext: async () => ({ workspaceId: null, workspaceRoot: null }),
+      workspacePolicy: {
+        resolveRead: async () => '',
+        resolveWrite: async () => ({ path: '', overwrites: false }),
+        assertWithinRoot: async () => undefined,
+      },
+      targetResolver: {
+        resolve: () => ({
+          sessionId: 'AQAAAAAAAAAAAAAAAAAAAA',
+          pluginGeneration: 'plugin-g1',
+          fileIdentity: { kind: 'figma-file-key', value: 'file-a' },
+          fileExecutionKey: 'figma:file-a',
+          editorType: 'figma',
+          capabilities: [],
+        }),
+      },
+      approval: {
+        request: async () => null,
+      },
+      authorizeEgress: async () => {
+        throw egressFailure;
+      },
+      issueOperationId: actor => issuer.issue(actor, now),
+      verifyOperationId: (actor, operationId) => {
+        issuer.verify(actor, operationId, now);
+      },
+    });
+    plane.bindInvocationService(new ToolInvocationService(executor));
+    const evidence = createOperationEvidenceEndpoint({
+      operations: journal,
+      receipts: { get: async () => null },
+      egress: { readVerifiedFinalizer: async () => null },
+    });
+    const scenarios = [
+      ['missing', 'EGRESS_CONFIG_REQUIRED'],
+      ['expired', 'EGRESS_CONFIG_REQUIRED'],
+      ['corrupt', 'EGRESS_CONFIG_REQUIRED'],
+      ['insufficient', 'EGRESS_CONSENT_REQUIRED'],
+    ] as const;
+    let missingReplay: Readonly<{
+      same(): Promise<unknown>;
+      conflicting(): Promise<unknown>;
+    }> | null = null;
+
+    for (const [index, [label, errorCode]] of scenarios.entries()) {
+      const operationId = issuer.issue(lifecycleActorId, now + index);
+      egressFailure = Object.assign(new Error(`${label} egress authority rejected`), {
+        code: errorCode,
+      });
+      const request = {
+        version: 1,
+        requestId: 'sfp_req1_AAAAAAAAAAAAAAAAAAAAAA',
+        toolName: 'get_node',
+        rawArgs: { nodeId: '1:2' },
+        operationId,
+        workspaceId: null,
+        targetSelector: { kind: 'active' },
+      } as const;
+      await expect(plane.invokeTool(principal, request, NO_CAPTURE_OPTIONS)).rejects.toMatchObject({
+        code: errorCode,
+      });
+      expect(journal.get(operationId)).toMatchObject({
+        status: 'pre-egress-rejected',
+        errorCode,
+        finalEgressManifestHash: null,
+        operationEvidenceReceiptHash: null,
+      });
+      await expect(
+        evidence({ ...principal, entryPath: 'control' }, operationId),
+      ).resolves.toMatchObject({
+        serverVerified: true,
+        statusProjection: {
+          operationId,
+          status: 'pre-egress-rejected',
+          preExecutionConsentManifestHash: null,
+          finalEgressManifestHash: null,
+          operationEvidenceReceiptHash: null,
+        },
+        receipt: null,
+        finalizerProjection: null,
+      });
+      if (label === 'missing') {
+        missingReplay = Object.freeze({
+          same: () => plane.invokeTool(principal, request, NO_CAPTURE_OPTIONS),
+          conflicting: () =>
+            plane.invokeTool(
+              principal,
+              { ...request, rawArgs: { nodeId: '9:9' } },
+              NO_CAPTURE_OPTIONS,
+            ),
+        });
+      }
+    }
+    if (missingReplay === null) throw new Error('missing-config replay fixture was not captured');
+    await expect(missingReplay.same()).rejects.toMatchObject({
+      code: 'OPERATION_ALREADY_SETTLED',
+    });
+    await expect(missingReplay.conflicting()).rejects.toMatchObject({
+      code: 'OPERATION_ID_CONFLICT',
+    });
+
+    const approvalOperationId = issuer.issue(lifecycleActorId, now + 10);
+    await expect(
+      plane.invokeTool(
+        principal,
+        {
+          version: 1,
+          requestId: 'sfp_req1_AAAAAAAAAAAAAAAAAAAAAA',
+          toolName: 'create_text',
+          rawArgs: { characters: 'A' },
+          operationId: approvalOperationId,
+          workspaceId: null,
+          targetSelector: { kind: 'active' },
+        },
+        NO_CAPTURE_OPTIONS,
+      ),
+    ).rejects.toMatchObject({ code: 'APPROVAL_CHANNEL_UNAVAILABLE' });
+    expect(journal.get(approvalOperationId)).toMatchObject({
+      status: 'pre-egress-rejected',
+      errorCode: 'APPROVAL_CHANNEL_UNAVAILABLE',
+      finalEgressManifestHash: null,
+      operationEvidenceReceiptHash: null,
+    });
+    expect(runtime).not.toHaveBeenCalled();
+  });
+
   it.each(['mcp-direct', 'control'] as const)(
     'rejects unknown %s raw argument keys before any admission authority runs',
     async entryPath => {
@@ -709,6 +928,8 @@ describe('leader-generation execution plane lifecycle', () => {
             pluginGeneration: 'plugin-g1',
             fileIdentity: { kind: 'figma-file-key', value: 'file-a' },
             fileExecutionKey: 'figma:file-a',
+            editorType: 'figma',
+            capabilities: [],
           }),
         },
         approval: { request: approval },
@@ -717,6 +938,9 @@ describe('leader-generation execution plane lifecycle', () => {
         verifyOperationId: () => {},
       });
       plane.bindInvocationService({
+        rejectToolBeforeEgress: async () => {
+          throw new Error('unexpected pre-egress rejection');
+        },
         beginToolApproval: async () => ({}) as never,
         resumeApprovedTool: async () => ({}),
         rejectToolApproval: async () => ({}) as never,
@@ -769,6 +993,8 @@ describe('leader-generation execution plane lifecycle', () => {
           pluginGeneration: 'plugin-g1',
           fileIdentity: { kind: 'figma-file-key', value: 'file-a' },
           fileExecutionKey: 'figma:file-a',
+          editorType: 'figma',
+          capabilities: [],
         }),
       },
       approval: { request: async () => null },
@@ -791,6 +1017,9 @@ describe('leader-generation execution plane lifecycle', () => {
       errorCode: null,
     } as never;
     plane.bindInvocationService({
+      rejectToolBeforeEgress: async () => {
+        throw new Error('unexpected pre-egress rejection');
+      },
       beginToolApproval: async () => ({}) as never,
       resumeApprovedTool: async () => ({}),
       rejectToolApproval: async () => ({}) as never,
@@ -869,6 +1098,8 @@ describe('leader-generation execution plane lifecycle', () => {
           pluginGeneration: 'plugin-g1',
           fileIdentity: { kind: 'figma-file-key', value: 'file-a' },
           fileExecutionKey: 'figma:file-a',
+          editorType: 'figma',
+          capabilities: [],
         }),
       },
       approval: { request: async () => null },
@@ -881,6 +1112,9 @@ describe('leader-generation execution plane lifecycle', () => {
       verifyOperationId: () => undefined,
     });
     plane.bindInvocationService({
+      rejectToolBeforeEgress: async () => {
+        throw new Error('unexpected pre-egress rejection');
+      },
       beginToolApproval: async () => ({}) as never,
       resumeApprovedTool: async () => ({}),
       rejectToolApproval: async () => ({}) as never,

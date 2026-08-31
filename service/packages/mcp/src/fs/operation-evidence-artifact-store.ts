@@ -133,95 +133,242 @@ export class OperationEvidenceArtifactStore implements OperationEvidenceArtifact
       input.workspaceId,
       input.artifact.artifactRelativePath,
     );
-    const before = await lstat(path);
-    if (!before.isFile() || before.isSymbolicLink() || before.nlink !== 1) {
+    const marker = await this.openVerifiedCleanupMarker(input);
+    try {
+      const before = await lstat(path);
+      if (!before.isFile() || before.isSymbolicLink() || before.nlink !== 1) {
+        throw evidenceError(
+          'EVIDENCE_ARTIFACT_IDENTITY_MISMATCH',
+          'artifact is not one unaliased regular file',
+        );
+      }
+      const handle = await open(path, constants.O_RDONLY | constants.O_NOFOLLOW);
+      let bytes: Buffer;
+      try {
+        const opened = await handle.stat();
+        if (!opened.isFile() || opened.nlink !== 1 || !sameFile(before, opened)) {
+          throw evidenceError(
+            'EVIDENCE_ARTIFACT_IDENTITY_MISMATCH',
+            'artifact identity changed before retention cleanup',
+          );
+        }
+        const chunks: Buffer[] = [];
+        let total = 0;
+        /* eslint-disable no-await-in-loop -- one descriptor is read sequentially to its hard cap */
+        for (;;) {
+          const chunk = Buffer.allocUnsafe(Math.min(65_536, 8_388_609 - total));
+          const { bytesRead } = await handle.read(chunk, 0, chunk.byteLength, null);
+          if (bytesRead === 0) break;
+          total += bytesRead;
+          if (total > 8_388_608) {
+            throw evidenceError('EVIDENCE_ARTIFACT_IDENTITY_MISMATCH', 'artifact exceeds its cap');
+          }
+          chunks.push(chunk.subarray(0, bytesRead));
+        }
+        /* eslint-enable no-await-in-loop */
+        bytes = Buffer.concat(chunks, total);
+        const afterRead = await lstat(path);
+        if (
+          !afterRead.isFile() ||
+          afterRead.isSymbolicLink() ||
+          afterRead.nlink !== 1 ||
+          !sameFile(opened, afterRead)
+        ) {
+          throw evidenceError(
+            'EVIDENCE_ARTIFACT_IDENTITY_MISMATCH',
+            'artifact identity changed during retention cleanup',
+          );
+        }
+        if (digest(bytes) !== input.artifact.artifactDigest64) {
+          throw evidenceError(
+            'EVIDENCE_ARTIFACT_IDENTITY_MISMATCH',
+            'artifact digest changed before retention cleanup',
+          );
+        }
+        await this.dependencies.beforeCleanupCommit?.(path);
+        const immediatelyBeforeRename = await lstat(path);
+        if (
+          !immediatelyBeforeRename.isFile() ||
+          immediatelyBeforeRename.isSymbolicLink() ||
+          immediatelyBeforeRename.nlink !== 1 ||
+          !sameFile(opened, immediatelyBeforeRename)
+        ) {
+          throw evidenceError(
+            'EVIDENCE_ARTIFACT_IDENTITY_MISMATCH',
+            'artifact identity changed before cleanup commit',
+          );
+        }
+        const quarantine = join(
+          dirname(path),
+          `.${basename(path)}.${randomBytes(16).toString('hex')}.cleanup`,
+        );
+        await rename(path, quarantine);
+        const moved = await lstat(quarantine);
+        if (!moved.isFile() || moved.isSymbolicLink() || !sameFile(opened, moved)) {
+          await link(quarantine, path).catch(() => undefined);
+          throw evidenceError(
+            'EVIDENCE_ARTIFACT_IDENTITY_MISMATCH',
+            'pathname replacement won the cleanup commit',
+          );
+        }
+        await unlink(quarantine);
+      } finally {
+        await handle.close();
+      }
+      await this.syncDirectory(dirname(path));
+      await this.commitVerifiedCleanupMarker(marker);
+    } finally {
+      await marker.handle.close();
+    }
+  }
+
+  private async openVerifiedCleanupMarker(input: {
+    workspaceId: string;
+    operationId: string;
+    artifact: Readonly<ResultArtifactV1>;
+  }): Promise<{
+    path: string;
+    handle: Awaited<ReturnType<typeof open>>;
+    identity: Awaited<ReturnType<Awaited<ReturnType<typeof open>>['stat']>>;
+  }> {
+    const relativePath = cleanupIntentRelativePath(input.operationId);
+    const path = await this.dependencies.workspacePolicy.resolveRead(
+      input.workspaceId,
+      relativePath,
+    );
+    await this.dependencies.workspacePolicy.assertWithinRoot(input.workspaceId, relativePath);
+    const cleanupBase = {
+      schemaVersion: 1 as const,
+      workspaceId: input.workspaceId,
+      operationId: input.operationId,
+      artifact: input.artifact,
+    };
+    const expected = Buffer.from(
+      `${JSON.stringify({
+        ...cleanupBase,
+        contentHash: digest(Buffer.from(JSON.stringify(cleanupBase), 'utf8')),
+      })}\n`,
+      'utf8',
+    );
+    let before: Awaited<ReturnType<typeof lstat>>;
+    try {
+      before = await lstat(path);
+    } catch {
       throw evidenceError(
         'EVIDENCE_ARTIFACT_IDENTITY_MISMATCH',
-        'artifact is not one unaliased regular file',
+        'cleanup marker pathname is unavailable',
       );
     }
-    const handle = await open(path, constants.O_RDONLY | constants.O_NOFOLLOW);
-    let bytes: Buffer;
+    if (
+      !before.isFile() ||
+      before.isSymbolicLink() ||
+      before.nlink !== 1 ||
+      before.size !== expected.byteLength
+    ) {
+      throw evidenceError(
+        'EVIDENCE_ARTIFACT_IDENTITY_MISMATCH',
+        'cleanup marker is not the expected unaliased regular file',
+      );
+    }
+    let handle: Awaited<ReturnType<typeof open>>;
     try {
-      const opened = await handle.stat();
-      if (!opened.isFile() || opened.nlink !== 1 || !sameFile(before, opened)) {
-        throw evidenceError(
-          'EVIDENCE_ARTIFACT_IDENTITY_MISMATCH',
-          'artifact identity changed before retention cleanup',
-        );
-      }
-      const chunks: Buffer[] = [];
-      let total = 0;
-      /* eslint-disable no-await-in-loop -- one descriptor is read sequentially to its hard cap */
-      for (;;) {
-        const chunk = Buffer.allocUnsafe(Math.min(65_536, 8_388_609 - total));
-        const { bytesRead } = await handle.read(chunk, 0, chunk.byteLength, null);
-        if (bytesRead === 0) break;
-        total += bytesRead;
-        if (total > 8_388_608) {
-          throw evidenceError('EVIDENCE_ARTIFACT_IDENTITY_MISMATCH', 'artifact exceeds its cap');
-        }
-        chunks.push(chunk.subarray(0, bytesRead));
-      }
-      /* eslint-enable no-await-in-loop */
-      bytes = Buffer.concat(chunks, total);
-      const afterRead = await lstat(path);
-      if (
-        !afterRead.isFile() ||
-        afterRead.isSymbolicLink() ||
-        afterRead.nlink !== 1 ||
-        !sameFile(opened, afterRead)
-      ) {
-        throw evidenceError(
-          'EVIDENCE_ARTIFACT_IDENTITY_MISMATCH',
-          'artifact identity changed during retention cleanup',
-        );
-      }
-      if (digest(bytes) !== input.artifact.artifactDigest64) {
-        throw evidenceError(
-          'EVIDENCE_ARTIFACT_IDENTITY_MISMATCH',
-          'artifact digest changed before retention cleanup',
-        );
-      }
-      await this.dependencies.beforeCleanupCommit?.(path);
-      const immediatelyBeforeRename = await lstat(path);
-      if (
-        !immediatelyBeforeRename.isFile() ||
-        immediatelyBeforeRename.isSymbolicLink() ||
-        immediatelyBeforeRename.nlink !== 1 ||
-        !sameFile(opened, immediatelyBeforeRename)
-      ) {
-        throw evidenceError(
-          'EVIDENCE_ARTIFACT_IDENTITY_MISMATCH',
-          'artifact identity changed before cleanup commit',
-        );
-      }
-      const quarantine = join(
-        dirname(path),
-        `.${basename(path)}.${randomBytes(16).toString('hex')}.cleanup`,
+      handle = await open(path, constants.O_RDONLY | constants.O_NOFOLLOW);
+    } catch {
+      throw evidenceError(
+        'EVIDENCE_ARTIFACT_IDENTITY_MISMATCH',
+        'cleanup marker cannot be opened without following links',
       );
-      await rename(path, quarantine);
-      const moved = await lstat(quarantine);
-      if (!moved.isFile() || moved.isSymbolicLink() || !sameFile(opened, moved)) {
-        await link(quarantine, path).catch(() => undefined);
+    }
+    try {
+      const identity = await handle.stat();
+      if (
+        !identity.isFile() ||
+        identity.nlink !== 1 ||
+        identity.size !== expected.byteLength ||
+        !sameFile(before, identity)
+      ) {
         throw evidenceError(
           'EVIDENCE_ARTIFACT_IDENTITY_MISMATCH',
-          'pathname replacement won the cleanup commit',
+          'cleanup marker identity changed before verification',
         );
       }
-      await unlink(quarantine);
-    } finally {
+      const observed = Buffer.alloc(expected.byteLength);
+      const read = await handle.read(observed, 0, observed.byteLength, 0);
+      const pathnameIdentity = await lstat(path).catch(() => null);
+      if (
+        read.bytesRead !== observed.byteLength ||
+        !observed.equals(expected) ||
+        pathnameIdentity === null ||
+        !pathnameIdentity.isFile() ||
+        pathnameIdentity.isSymbolicLink() ||
+        pathnameIdentity.nlink !== 1 ||
+        !sameFile(identity, pathnameIdentity)
+      ) {
+        throw evidenceError(
+          'EVIDENCE_ARTIFACT_IDENTITY_MISMATCH',
+          'cleanup marker bytes or identity do not match',
+        );
+      }
+      return { path, handle, identity };
+    } catch (error) {
       await handle.close();
+      throw error;
     }
-    const cleanupIntentPath = await this.dependencies.workspacePolicy
-      .resolveRead(input.workspaceId, cleanupIntentRelativePath(input.operationId))
-      .catch(() => null);
-    if (cleanupIntentPath !== null) {
-      await unlink(cleanupIntentPath).catch(error => {
-        if ((error as NodeJS.ErrnoException).code !== 'ENOENT') throw error;
-      });
+  }
+
+  private async commitVerifiedCleanupMarker(marker: {
+    path: string;
+    handle: Awaited<ReturnType<typeof open>>;
+    identity: Awaited<ReturnType<Awaited<ReturnType<typeof open>>['stat']>>;
+  }): Promise<void> {
+    try {
+      await this.dependencies.beforeMarkerCleanupCommit?.(marker.path);
+    } catch {
+      throw evidenceError(
+        'EVIDENCE_ARTIFACT_IDENTITY_MISMATCH',
+        'cleanup marker parent or pathname replacement was refused',
+      );
     }
-    const directory = await open(dirname(path), 'r');
+    const immediatelyBeforeRename = await lstat(marker.path).catch(() => null);
+    if (
+      immediatelyBeforeRename === null ||
+      !immediatelyBeforeRename.isFile() ||
+      immediatelyBeforeRename.isSymbolicLink() ||
+      immediatelyBeforeRename.nlink !== 1 ||
+      !sameFile(marker.identity, immediatelyBeforeRename)
+    ) {
+      throw evidenceError(
+        'EVIDENCE_ARTIFACT_IDENTITY_MISMATCH',
+        'cleanup marker pathname changed before cleanup commit',
+      );
+    }
+    const quarantine = join(
+      dirname(marker.path),
+      `.${basename(marker.path)}.${randomBytes(16).toString('hex')}.cleanup`,
+    );
+    await rename(marker.path, quarantine);
+    const moved = await lstat(quarantine).catch(() => null);
+    if (
+      moved === null ||
+      !moved.isFile() ||
+      moved.isSymbolicLink() ||
+      moved.nlink !== 1 ||
+      !sameFile(marker.identity, moved)
+    ) {
+      await link(quarantine, marker.path)
+        .then(() => unlink(quarantine))
+        .catch(() => undefined);
+      throw evidenceError(
+        'EVIDENCE_ARTIFACT_IDENTITY_MISMATCH',
+        'replacement cleanup marker won the cleanup commit',
+      );
+    }
+    await unlink(quarantine);
+    await this.syncDirectory(dirname(marker.path));
+  }
+
+  private async syncDirectory(path: string): Promise<void> {
+    const directory = await open(path, 'r');
     try {
       await directory.sync().catch((error: NodeJS.ErrnoException) => {
         if (process.platform !== 'win32' || error.code !== 'EPERM') throw error;

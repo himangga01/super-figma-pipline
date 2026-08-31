@@ -3,6 +3,7 @@ import type { Server as HttpServer } from 'node:http';
 import {
   ActivityParamsSchema,
   AuthenticatedHelloSchema,
+  canonicalFileIdentityHash,
   type AuthenticatedHelloResult,
   createError,
   createRequest,
@@ -16,6 +17,9 @@ import {
   HEARTBEAT_MAX_MISSES,
   HeartbeatMonitor,
   type HelloResult,
+  type FileExecutionKey,
+  type FileIdentity,
+  type PrefixedSha256,
   newId,
   pluginSkewNotice,
   pluginSkewSummary,
@@ -72,6 +76,17 @@ interface Pending {
   // Filled with that session as the response lands, and read by the awaiting caller — per request,
   // so concurrent calls cannot observe each other's. See sendRequest's `onServed`.
   served: { sessionId: string | undefined };
+  expectedTarget: Readonly<RelayPinnedTarget> | undefined;
+}
+
+export interface RelayPinnedTarget {
+  sessionId: string;
+  pluginGeneration: string;
+  fileIdentity: Readonly<FileIdentity>;
+  fileIdentityHash: PrefixedSha256;
+  fileExecutionKey: FileExecutionKey;
+  editorType: 'figma' | 'figjam' | 'dev';
+  capabilities: readonly string[];
 }
 
 export const DEFAULT_PLUGIN_REQUEST_TIMEOUT_MS = 30_000;
@@ -167,6 +182,7 @@ export class Relay {
     // A transport subscriber disconnect remains independent from operation cancellation.
     // Plugins that finish after cancellation are reconciled as outcome-unknown by the executor.
     cancellation?: RelayCancellation,
+    expectedTarget?: Readonly<RelayPinnedTarget>,
   ): Promise<unknown> {
     const id = newId();
     this.lastRequestAtMs = Date.now();
@@ -194,6 +210,7 @@ export class Relay {
           pinnedSessionId: sessionId,
           dispatchedToSessionId: undefined,
           served,
+          expectedTarget,
         };
         this.pending.set(id, entry);
         this.bindCancellation(id, entry, cancellation);
@@ -207,7 +224,12 @@ export class Relay {
           if (target === undefined) {
             this.takePending(id);
             reject(
-              new Error(`pinned session not connected (sessionId=${sessionId}, method=${method})`),
+              Object.assign(
+                new Error(
+                  `pinned session not connected (sessionId=${sessionId}, method=${method})`,
+                ),
+                { code: 'PINNED_SESSION_LOST' },
+              ),
             );
             return;
           }
@@ -326,9 +348,47 @@ export class Relay {
 
   private dispatchPending(id: string, entry: Pending, session: Session): void {
     if (session.socket === null) return;
+    const targetError = this.revalidatePinnedTarget(entry, session);
+    if (targetError !== null) {
+      this.takePending(id);
+      entry.reject(targetError);
+      return;
+    }
     entry.dispatched = true;
     entry.dispatchedToSessionId = session.id;
     session.socket.send(encodeEnvelope(this.createPluginRequest(id, entry, session.id)));
+  }
+
+  private revalidatePinnedTarget(entry: Pending, session: Session): Error | null {
+    const expected = entry.expectedTarget;
+    if (expected === undefined) return null;
+    if (
+      entry.pinnedSessionId !== expected.sessionId ||
+      session.id !== expected.sessionId ||
+      session.pluginGeneration !== expected.pluginGeneration
+    ) {
+      return Object.assign(new Error('pinned authenticated plugin session was lost'), {
+        code: 'PINNED_SESSION_LOST',
+      });
+    }
+    const actualFileExecutionKey: FileExecutionKey =
+      session.fileIdentity.kind === 'figma-file-key'
+        ? `figma:${session.fileIdentity.value}`
+        : session.fileIdentity.kind === 'document-plugin-uuid'
+          ? `plugin-uuid:${session.fileIdentity.value}`
+          : `unstable:${session.id}:${session.pluginGeneration}`;
+    if (
+      canonicalFileIdentityHash(session.fileIdentity) !== expected.fileIdentityHash ||
+      canonicalFileIdentityHash(expected.fileIdentity) !== expected.fileIdentityHash ||
+      actualFileExecutionKey !== expected.fileExecutionKey ||
+      session.editorType !== expected.editorType ||
+      JSON.stringify(session.capabilities) !== JSON.stringify(expected.capabilities)
+    ) {
+      return Object.assign(new Error('pinned authenticated plugin target changed'), {
+        code: 'TARGET_CHANGED',
+      });
+    }
+    return null;
   }
 
   private flushQueue(session: Session): void {
