@@ -1,13 +1,13 @@
-import { constants as fsConstants } from 'node:fs';
-import { lstat, mkdtemp, open, readFile, realpath, rm } from 'node:fs/promises';
+import { lstat, mkdtemp, open, readFile, realpath, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 
 import {
   ALL_DATA_CLASSES,
-  DEFAULT_EGRESS_CONFIGURATION,
-  parseEgressConfiguration,
-  type EgressConfiguration,
+  DEFAULT_EGRESS_CONFIG_V1,
+  hashEgressConfig,
+  parseEgressConfigV1,
+  type EgressConfigV1,
 } from '@sfp/shared';
 import { afterEach, describe, expect, it } from 'vitest';
 
@@ -24,7 +24,7 @@ import type {
 const temporaryRoots: string[] = [];
 
 const temporaryStateRoot = async (): Promise<string> => {
-  const root = await mkdtemp(join(tmpdir(), 'sfp-task5-egress-'));
+  const root = await mkdtemp(join(tmpdir(), 'sfp-egress-v2-'));
   temporaryRoots.push(root);
   return root;
 };
@@ -41,149 +41,175 @@ const identityFor = async (path: string): Promise<SecurePathIdentity> => {
 
 const permissionsFor = (stateRoot: string): BoundStatePermissions => ({
   stateRoot: resolve(stateRoot),
+  inspectSecure: identityFor,
   ensureSecure: async path => {
-    const handle = await open(path, fsConstants.O_RDONLY);
-    await handle.close();
+    await lstat(path);
   },
   verifySecure: async path => {
-    await identityFor(path);
+    await lstat(path);
   },
-  inspectSecure: identityFor,
 });
+
+const externalConfig = (): EgressConfigV1 => {
+  const withoutHash = {
+    schemaVersion: 1 as const,
+    mode: 'external-model' as const,
+    allowedClasses: ['public', 'project-code'] as const,
+    consentId: 'sfp_consent1_AQAAAAAAAAAAAAAAAAAAAA' as const,
+    configuredAt: '2026-08-31T00:00:00.000Z',
+    expiresAt: '2026-08-31T02:00:00.000Z',
+  };
+  return { ...withoutHash, configHash: hashEgressConfig(withoutHash) };
+};
 
 afterEach(async () => {
   await Promise.all(
-    temporaryRoots.splice(0).map(path => rm(path, { recursive: true, force: true })),
+    temporaryRoots.splice(0).map(root => rm(root, { recursive: true, force: true })),
   );
 });
 
-describe('explicit persisted egress configuration', () => {
-  it('keeps the fail-closed default and canonical class authority immutable at runtime', () => {
-    expect(Object.isFrozen(DEFAULT_EGRESS_CONFIGURATION)).toBe(true);
-    expect(Object.isFrozen(ALL_DATA_CLASSES)).toBe(true);
+describe('CAS persisted egress configuration', () => {
+  it('keeps the fail-closed default and canonical class authority immutable', () => {
+    expect(Object.isFrozen(DEFAULT_EGRESS_CONFIG_V1)).toBe(true);
+    expect(DEFAULT_EGRESS_CONFIG_V1).toMatchObject({
+      schemaVersion: 1,
+      mode: 'unknown-fail-closed',
+      allowedClasses: [],
+      consentId: null,
+      configuredAt: null,
+      expiresAt: null,
+      configHash: expect.stringMatching(/^sha256:[0-9a-f]{64}$/),
+    });
+    expect(ALL_DATA_CLASSES).toEqual([
+      'public',
+      'project-code',
+      'design-text',
+      'design-image',
+      'secret',
+    ]);
   });
 
-  it('defaults a missing config to unknown-fail-closed and never infers local trust from MCP', async () => {
+  it('defaults the existing owner-state path and never creates a second policy path', async () => {
     const stateRoot = await temporaryStateRoot();
     const store = createEgressConfigStore(stateRoot, permissionsFor(stateRoot));
-
-    await expect(store.load()).resolves.toEqual(DEFAULT_EGRESS_CONFIGURATION);
-    expect(() =>
-      authorizeEgress(undefined, {
-        source: 'mcp',
-        inputClasses: ['public'],
-        possibleResultClasses: ['design-text'],
-        now: 1_700_000_000_000,
-      }),
-    ).toThrowError(expect.objectContaining({ code: 'EGRESS_MODE_UNKNOWN' }));
+    await expect(store.load()).resolves.toEqual({
+      config: DEFAULT_EGRESS_CONFIG_V1,
+      expired: false,
+      storageState: 'missing',
+    });
+    expect(egressConfigPath(stateRoot)).toBe(join(stateRoot, 'egress.v1.json'));
+    await expect(lstat(join(stateRoot, 'policy', 'egress.v1.json'))).rejects.toMatchObject({
+      code: 'ENOENT',
+    });
   });
 
-  it('persists an explicit local-trusted choice with a null consent id', async () => {
+  it('uses config-hash CAS for save and reset and preserves the same path across restart', async () => {
     const stateRoot = await temporaryStateRoot();
     const permissions = permissionsFor(stateRoot);
-    const config: EgressConfiguration = {
-      version: 1,
-      mode: 'local-trusted',
-      consent: null,
-    };
-
-    await createEgressConfigStore(stateRoot, permissions).save(config);
-    await expect(createEgressConfigStore(stateRoot, permissions).load()).resolves.toEqual(config);
-    expect(await readFile(egressConfigPath(stateRoot), 'utf8')).toContain('"mode":"local-trusted"');
-    expect(
-      authorizeEgress(config, {
-        source: 'mcp',
-        inputClasses: ['design-text'],
-        possibleResultClasses: ['design-image', 'project-code'],
-        now: 1_700_000_000_000,
-      }),
-    ).toEqual({
-      mode: 'local-trusted',
-      consentId: null,
-      allowedClasses: ['public', 'project-code', 'design-text', 'design-image', 'secret'],
-    });
-  });
-
-  it('requires external-model consent to be non-null, unexpired, and class-complete', () => {
-    expect(() =>
-      parseEgressConfiguration({ version: 1, mode: 'external-model', consent: null }),
-    ).toThrowError(expect.objectContaining({ code: 'EGRESS_CONFIG_INVALID' }));
-
-    const config: EgressConfiguration = {
-      version: 1,
-      mode: 'external-model',
-      consent: {
-        consentId: 'consent-fixture',
-        allowedClasses: ['design-text'],
-        expiresAt: 1_700_000_010_000,
+    const first = createEgressConfigStore(stateRoot, permissions);
+    const configured = externalConfig();
+    await first.save(configured, DEFAULT_EGRESS_CONFIG_V1.configHash);
+    await expect(first.save(configured, DEFAULT_EGRESS_CONFIG_V1.configHash)).rejects.toMatchObject(
+      {
+        code: 'EGRESS_CONFIG_CAS_MISMATCH',
       },
-    };
-    expect(() =>
-      authorizeEgress(config, {
-        source: 'mcp',
-        inputClasses: ['design-text'],
-        possibleResultClasses: ['design-image'],
-        now: 1_700_000_000_000,
-      }),
-    ).toThrowError(
-      expect.objectContaining({ code: 'EGRESS_CLASS_NOT_ALLOWED', deniedClass: 'design-image' }),
     );
-    expect(() =>
-      authorizeEgress(config, {
-        source: 'mcp',
-        inputClasses: ['design-text'],
-        possibleResultClasses: [],
-        now: 1_700_000_010_000,
-      }),
-    ).toThrowError(expect.objectContaining({ code: 'EGRESS_CONSENT_EXPIRED' }));
-
-    const complete: EgressConfiguration = {
-      ...config,
-      consent: {
-        ...config.consent!,
-        allowedClasses: ['design-text', 'design-image'],
-      },
-    };
-    expect(
-      authorizeEgress(complete, {
-        source: 'mcp',
-        inputClasses: ['design-text'],
-        possibleResultClasses: ['design-image'],
-        now: 1_700_000_000_000,
-      }),
-    ).toEqual({
-      mode: 'external-model',
-      consentId: 'consent-fixture',
-      allowedClasses: ['design-text', 'design-image'],
+    const restarted = createEgressConfigStore(stateRoot, permissions);
+    await expect(restarted.load(Date.parse('2026-08-31T01:59:59.999Z'))).resolves.toEqual({
+      config: configured,
+      expired: false,
+      storageState: 'valid',
+    });
+    await expect(restarted.load(Date.parse(configured.expiresAt!))).resolves.toEqual({
+      config: configured,
+      expired: true,
+      storageState: 'valid',
+    });
+    await expect(restarted.reset(configured.configHash)).resolves.toEqual(DEFAULT_EGRESS_CONFIG_V1);
+    await expect(restarted.load()).resolves.toEqual({
+      config: DEFAULT_EGRESS_CONFIG_V1,
+      expired: false,
+      storageState: 'valid',
     });
   });
 
-  it('treats an explicit empty external class grant as deny-all rather than malformed', () => {
-    const denyAll = parseEgressConfiguration({
-      version: 1,
+  it('rejects unsorted, duplicate, empty, secret, and unknown external grants', () => {
+    const base = {
+      schemaVersion: 1,
       mode: 'external-model',
-      consent: {
-        consentId: 'consent-deny-all',
-        allowedClasses: [],
-        expiresAt: 1_700_000_010_000,
-      },
-    });
+      consentId: 'sfp_consent1_AQAAAAAAAAAAAAAAAAAAAA',
+      configuredAt: '2026-08-31T00:00:00.000Z',
+      expiresAt: '2026-08-31T02:00:00.000Z',
+      configHash: `sha256:${'a'.repeat(64)}`,
+    };
+    for (const allowedClasses of [
+      [],
+      ['project-code', 'public'],
+      ['public', 'public'],
+      ['secret'],
+      ['connector-data'],
+    ]) {
+      expect(parseEgressConfigV1({ ...base, allowedClasses }).success).toBe(false);
+    }
+  });
 
+  it('fails missing, expired, and insufficient consent before a runtime caller can proceed', () => {
     expect(() =>
-      authorizeEgress(denyAll, {
+      authorizeEgress(DEFAULT_EGRESS_CONFIG_V1, {
         source: 'mcp',
         inputClasses: ['public'],
-        possibleResultClasses: [],
-        now: 1_700_000_000_000,
+        possibleResultClasses: ['public'],
+      }),
+    ).toThrowError(expect.objectContaining({ code: 'EGRESS_CONFIG_REQUIRED' }));
+    const configured = externalConfig();
+    expect(() =>
+      authorizeEgress(configured, {
+        source: 'cli-control',
+        inputClasses: ['design-image'],
+        possibleResultClasses: ['public'],
+        now: Date.parse('2026-08-31T01:00:00.000Z'),
       }),
     ).toThrowError(
-      expect.objectContaining({ code: 'EGRESS_CLASS_NOT_ALLOWED', deniedClass: 'public' }),
+      expect.objectContaining({ code: 'EGRESS_CONSENT_REQUIRED', deniedClass: 'design-image' }),
     );
+    expect(() =>
+      authorizeEgress(configured, {
+        source: 'follower',
+        inputClasses: ['public'],
+        possibleResultClasses: ['public'],
+        now: Date.parse(configured.expiresAt!),
+      }),
+    ).toThrowError(expect.objectContaining({ code: 'EGRESS_CONFIG_REQUIRED' }));
   });
 
-  it('rejects unknown persisted modes instead of silently selecting a connector', () => {
-    expect(() =>
-      parseEgressConfiguration({ version: 1, mode: 'automatic', consent: null }),
-    ).toThrowError(expect.objectContaining({ code: 'EGRESS_CONFIG_INVALID' }));
+  it('treats checksum or schema corruption as fail-closed without rewriting consent', async () => {
+    const stateRoot = await temporaryStateRoot();
+    const permissions = permissionsFor(stateRoot);
+    const store = createEgressConfigStore(stateRoot, permissions);
+    const configured = externalConfig();
+    await store.save(configured, DEFAULT_EGRESS_CONFIG_V1.configHash);
+    const configPath = egressConfigPath(stateRoot);
+    const original = await readFile(configPath, 'utf8');
+    const opened = await open(configPath, 'w');
+    try {
+      await opened.writeFile(original.replace(configured.configHash, `sha256:${'f'.repeat(64)}`));
+      await opened.sync();
+    } finally {
+      await opened.close();
+    }
+    await expect(store.load()).resolves.toEqual({
+      config: DEFAULT_EGRESS_CONFIG_V1,
+      expired: false,
+      storageState: 'corrupt',
+    });
+    expect(await readFile(configPath, 'utf8')).toBe(
+      original.replace(configured.configHash, `sha256:${'f'.repeat(64)}`),
+    );
+    await writeFile(configPath, '{"schemaVersion":2}\n');
+    await expect(store.load()).resolves.toEqual({
+      config: DEFAULT_EGRESS_CONFIG_V1,
+      expired: false,
+      storageState: 'corrupt',
+    });
   });
 });

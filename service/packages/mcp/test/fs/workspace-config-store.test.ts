@@ -24,6 +24,7 @@ import {
   type WorkspaceConfigDurability,
   workspaceConfigPath,
 } from '../../src/fs/workspace-config-store.js';
+import { createWorkspaceRegistrationResolver } from '../../src/fs/workspace-registration-resolver.js';
 import {
   type BoundStatePermissions,
   createStatePermissions,
@@ -401,11 +402,17 @@ describe('checksummed atomic config', () => {
       checksum: string;
       version: number;
       workspaces: unknown[];
+      defaultWorkspaceId: string | null;
     };
-    const payload = JSON.stringify({ version: envelope.version, workspaces: envelope.workspaces });
+    const payload = JSON.stringify({
+      version: envelope.version,
+      workspaces: envelope.workspaces,
+      defaultWorkspaceId: envelope.defaultWorkspaceId,
+    });
 
-    expect(envelope.version).toBe(1);
+    expect(envelope.version).toBe(2);
     expect(envelope.workspaces).toEqual([workspace]);
+    expect(envelope.defaultWorkspaceId).toBeNull();
     expect(envelope.checksum).toBe(createHash('sha256').update(payload).digest('hex'));
     expect(raw).not.toContain('actor-secret');
   });
@@ -449,6 +456,50 @@ describe('checksummed atomic config', () => {
 });
 
 describe('workspace removal', () => {
+  it('validates default and usage guards before authorized nonce consumption', async () => {
+    let consumed = 0;
+    const defaultStore = createWorkspaceConfigStore(stateRoot, idleGuard);
+    const defaultWorkspace = await defaultStore.add('actor', workspaceRoot);
+    await defaultStore.setDefault('actor', defaultWorkspace.workspaceId);
+    await expect(
+      defaultStore.removeAuthorized('actor', defaultWorkspace.workspaceId, async () => {
+        consumed += 1;
+      }),
+    ).rejects.toMatchObject({ code: 'WORKSPACE_DEFAULT_IN_USE' });
+    await expect(
+      defaultStore.removeAuthorized('actor', '123e4567-e89b-42d3-a456-426614174099', async () => {
+        consumed += 1;
+      }),
+    ).rejects.toMatchObject({ code: 'WORKSPACE_NOT_CONFIGURED' });
+
+    const inUseRoot = await temporaryRoot('sfp-task7b-in-use-');
+    const inUseState = join(inUseRoot, 'state');
+    const inUseWorkspace = join(inUseRoot, 'workspace');
+    await Promise.all([mkdir(inUseState), mkdir(inUseWorkspace)]);
+    const inUseStore = createWorkspaceConfigStore(inUseState, {
+      hasUnsettled: async () => true,
+    });
+    const configured = await inUseStore.add('actor', inUseWorkspace);
+    await expect(
+      inUseStore.removeAuthorized('actor', configured.workspaceId, async () => {
+        consumed += 1;
+      }),
+    ).rejects.toMatchObject({ code: 'WORKSPACE_IN_USE' });
+    expect(consumed).toBe(0);
+  });
+
+  it('validates an authorized default target before nonce consumption', async () => {
+    let consumed = 0;
+    const store = createWorkspaceConfigStore(stateRoot, idleGuard);
+
+    await expect(
+      store.setDefaultAuthorized('actor', '123e4567-e89b-42d3-a456-426614174000', async () => {
+        consumed += 1;
+      }),
+    ).rejects.toMatchObject({ code: 'WORKSPACE_DEFAULT_INVALID' });
+    expect(consumed).toBe(0);
+  });
+
   it('requires an authenticated explicit action', async () => {
     const store = createWorkspaceConfigStore(stateRoot, idleGuard);
     const workspace = await store.add('actor', workspaceRoot);
@@ -474,5 +525,85 @@ describe('workspace removal', () => {
     await expect(store.remove('actor', 'missing-workspace')).rejects.toMatchObject({
       code: 'WORKSPACE_NOT_CONFIGURED',
     });
+  });
+});
+
+describe('v2 identity-bound registration and default selection', () => {
+  it('revalidates then consumes the nonce before committing the bound registration', async () => {
+    const resolver = createWorkspaceRegistrationResolver();
+    const expected = await resolver.resolveForNonce(workspaceRoot);
+    const events: string[] = [];
+    const store = createRawWorkspaceConfigStore(
+      stateRoot,
+      idleGuard,
+      verifiedTestPermissions(stateRoot),
+      {},
+      resolver,
+    );
+
+    const workspace = await store.addResolved('actor', expected, async () => {
+      events.push('nonce-consumed');
+    });
+
+    expect(events).toEqual(['nonce-consumed']);
+    expect(workspace).toMatchObject({
+      path: expected.requestedPath,
+      realPath: expected.realPath,
+      rootIdentityKey: expected.identityKey,
+    });
+    const persisted = JSON.parse(await readFile(workspaceConfigPath(stateRoot), 'utf8')) as {
+      version: number;
+      defaultWorkspaceId: string | null;
+      workspaces: Array<{ rootIdentityKey?: string }>;
+    };
+    expect(persisted).toMatchObject({ version: 2, defaultWorkspaceId: null });
+    expect(persisted.workspaces[0]?.rootIdentityKey).toBe(expected.identityKey);
+  });
+
+  it('preserves the default across restart and guards current-default removal', async () => {
+    const resolver = createWorkspaceRegistrationResolver();
+    const store = createRawWorkspaceConfigStore(
+      stateRoot,
+      idleGuard,
+      verifiedTestPermissions(stateRoot),
+      {},
+      resolver,
+    );
+    const expected = await resolver.resolveForNonce(workspaceRoot);
+    const workspace = await store.addResolved('actor', expected, async () => {});
+    await store.setDefault('actor', workspace.workspaceId);
+
+    const restarted = createRawWorkspaceConfigStore(
+      stateRoot,
+      idleGuard,
+      verifiedTestPermissions(stateRoot),
+      {},
+      resolver,
+    );
+    await expect(restarted.getDefault()).resolves.toBe(workspace.workspaceId);
+    await expect(restarted.remove('actor', workspace.workspaceId)).rejects.toMatchObject({
+      code: 'WORKSPACE_DEFAULT_IN_USE',
+    });
+    await restarted.setDefault('actor', null);
+    await restarted.remove('actor', workspace.workspaceId);
+    await expect(restarted.list()).resolves.toEqual([]);
+  });
+
+  it('fails later reads when a registered root is replaced at the same spelling', async () => {
+    const resolver = createWorkspaceRegistrationResolver();
+    const store = createRawWorkspaceConfigStore(
+      stateRoot,
+      idleGuard,
+      verifiedTestPermissions(stateRoot),
+      {},
+      resolver,
+    );
+    const expected = await resolver.resolveForNonce(workspaceRoot);
+    await store.addResolved('actor', expected, async () => {});
+    const moved = `${workspaceRoot}-old`;
+    await rename(workspaceRoot, moved);
+    await mkdir(workspaceRoot);
+
+    await expect(store.list()).rejects.toMatchObject({ code: 'WORKSPACE_ROOT_IDENTITY_CHANGED' });
   });
 });

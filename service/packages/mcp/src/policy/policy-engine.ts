@@ -6,20 +6,22 @@ import { join, parse, resolve } from 'node:path';
 
 import {
   ALL_DATA_CLASSES,
-  DEFAULT_EGRESS_CONFIGURATION,
+  DEFAULT_EGRESS_CONFIG_V1,
+  EgressConfigV1Schema,
   EgressPolicyError,
-  parseEgressConfiguration,
   type ApprovalRequirement,
   type ConcurrencyRequirement,
   type ConsentContext,
   type DataClass,
   type Effect,
-  type EgressConfiguration,
+  type EgressConfigLoadResult,
   type EgressConfigStore,
+  type EgressConfigV1,
   type EgressSource,
   type IdempotencyRequirement,
-  type PolicyInvocationContext,
   type OperationPolicy,
+  type PolicyInvocationContext,
+  type PrefixedSha256,
 } from '@sfp/shared';
 
 import type { BoundStatePermissions } from '../security/state-permissions.js';
@@ -28,12 +30,12 @@ import { operationPolicyFor } from './operation-policy.js';
 export type PolicyEvaluationErrorCode = 'POLICY_WORKSPACE_REQUIRED';
 
 export class PolicyEvaluationError extends Error {
-  readonly code: PolicyEvaluationErrorCode;
-
-  constructor(code: PolicyEvaluationErrorCode, message: string) {
+  constructor(
+    readonly code: PolicyEvaluationErrorCode,
+    message: string,
+  ) {
     super(message);
     this.name = 'PolicyEvaluationError';
-    this.code = code;
   }
 }
 
@@ -45,7 +47,7 @@ export interface EvaluatedOperationPolicy {
   concurrency: ConcurrencyRequirement;
 }
 
-/** Resolve pure policy metadata before any approval, queue, filesystem, network, or Figma runtime. */
+/** Resolve pure policy metadata before approval, egress, queue, content, network, or runtime IO. */
 export const evaluateOperationPolicy = (
   toolName: string,
   parsedArgs: Readonly<Record<string, unknown>>,
@@ -64,13 +66,14 @@ export const evaluateOperationPolicy = (
       'filesystem effects require an explicitly configured workspace',
     );
   }
-  return Object.freeze({
+  const evaluated: EvaluatedOperationPolicy = {
     policy: operationPolicy,
     effects,
     approval: operationPolicy.approvalFor(effects, context),
     idempotency: operationPolicy.idempotencyFor(parsedArgs),
     concurrency: operationPolicy.concurrency,
-  });
+  };
+  return Object.freeze(evaluated);
 };
 
 export interface EgressAuthorizationRequest {
@@ -83,21 +86,17 @@ export interface EgressAuthorizationRequest {
 const canonicalClasses = (classes: readonly DataClass[]): readonly DataClass[] =>
   Object.freeze(ALL_DATA_CLASSES.filter(dataClass => classes.includes(dataClass)));
 
-/**
- * Resolve only an explicitly persisted mode. `source:'mcp'` is deliberately not a mode signal.
- * External consent covers input plus the complete possible-result upper bound before runtime.
- */
+/** Authorize only an explicit, live persisted configuration; entry source never implies trust. */
 export const authorizeEgress = (
-  configured: EgressConfiguration | undefined,
+  configured: Readonly<EgressConfigV1> | undefined,
   request: EgressAuthorizationRequest,
 ): ConsentContext => {
   void request.source;
-  const configuration =
-    configured === undefined ? DEFAULT_EGRESS_CONFIGURATION : parseEgressConfiguration(configured);
+  const configuration = configured ?? DEFAULT_EGRESS_CONFIG_V1;
   if (configuration.mode === 'unknown-fail-closed') {
     throw new EgressPolicyError(
-      'EGRESS_MODE_UNKNOWN',
-      'model egress mode is not explicitly configured',
+      'EGRESS_CONFIG_REQUIRED',
+      'model egress is not explicitly configured',
     );
   }
   if (configuration.mode === 'local-trusted') {
@@ -107,32 +106,29 @@ export const authorizeEgress = (
       allowedClasses: ALL_DATA_CLASSES,
     });
   }
-  if (configuration.consent === null) {
+  const now = request.now ?? Date.now();
+  if (now >= Date.parse(configuration.expiresAt)) {
     throw new EgressPolicyError(
-      'EGRESS_CONSENT_REQUIRED',
-      'external-model mode requires explicit consent',
+      'EGRESS_CONFIG_REQUIRED',
+      'external-model egress configuration has expired',
     );
   }
-  const now = request.now ?? Date.now();
-  if (configuration.consent.expiresAt <= now) {
-    throw new EgressPolicyError('EGRESS_CONSENT_EXPIRED', 'external-model consent has expired');
-  }
   const required = canonicalClasses([...request.inputClasses, ...request.possibleResultClasses]);
-  const deniedClass = required.find(
-    dataClass => !configuration.consent!.allowedClasses.includes(dataClass),
-  );
+  const allowed = new Set<DataClass>(configuration.allowedClasses);
+  const deniedClass = required.find(dataClass => !allowed.has(dataClass));
   if (deniedClass !== undefined) {
     throw new EgressPolicyError(
-      'EGRESS_CLASS_NOT_ALLOWED',
+      'EGRESS_CONSENT_REQUIRED',
       `external-model consent does not allow ${deniedClass}`,
       { deniedClass },
     );
   }
-  return Object.freeze({
+  const consent: ConsentContext = {
     mode: 'external-model',
-    consentId: configuration.consent.consentId,
-    allowedClasses: configuration.consent.allowedClasses,
-  });
+    consentId: configuration.consentId,
+    allowedClasses: Object.freeze([...configuration.allowedClasses]),
+  };
+  return Object.freeze(consent);
 };
 
 const EGRESS_CONFIG_FILENAME = 'egress.v1.json';
@@ -141,17 +137,14 @@ const SHA256_PATTERN = /^[0-9a-f]{64}$/u;
 
 interface EgressConfigPayload {
   schemaVersion: 1;
-  configuration: EgressConfiguration;
+  config: EgressConfigV1;
 }
-
 interface EgressConfigEnvelope extends EgressConfigPayload {
   checksum: string;
 }
-
 interface ConfigMutationQueue {
   tail: Promise<void>;
 }
-
 const configMutationQueues = new Map<string, ConfigMutationQueue>();
 
 export const egressConfigPath = (stateRoot: string): string =>
@@ -159,34 +152,25 @@ export const egressConfigPath = (stateRoot: string): string =>
 
 const isPlainObject = (value: unknown): value is Record<string, unknown> =>
   typeof value === 'object' && value !== null && !Array.isArray(value);
-
 const exactKeys = (value: Record<string, unknown>, expected: readonly string[]): boolean =>
   JSON.stringify(Object.keys(value).toSorted()) === JSON.stringify([...expected].toSorted());
-
 const checksumFor = (payload: EgressConfigPayload): string =>
   createHash('sha256').update(JSON.stringify(payload)).digest('hex');
 
-const envelopeFromUnknown = (value: unknown): EgressConfigEnvelope => {
+const envelopeFromUnknown = (value: unknown): EgressConfigEnvelope | undefined => {
   if (
     !isPlainObject(value) ||
-    !exactKeys(value, ['schemaVersion', 'configuration', 'checksum']) ||
+    !exactKeys(value, ['schemaVersion', 'config', 'checksum']) ||
     value.schemaVersion !== ENVELOPE_VERSION ||
     typeof value.checksum !== 'string' ||
     !SHA256_PATTERN.test(value.checksum)
   ) {
-    throw new EgressPolicyError(
-      'EGRESS_CONFIG_INVALID',
-      'persisted egress config does not match its closed envelope',
-    );
+    return undefined;
   }
-  const configuration = parseEgressConfiguration(value.configuration);
-  const payload: EgressConfigPayload = { schemaVersion: ENVELOPE_VERSION, configuration };
-  if (checksumFor(payload) !== value.checksum) {
-    throw new EgressPolicyError(
-      'EGRESS_CONFIG_INVALID',
-      'persisted egress config checksum does not match its payload',
-    );
-  }
+  const parsed = EgressConfigV1Schema.safeParse(value.config);
+  if (!parsed.success) return undefined;
+  const payload: EgressConfigPayload = { schemaVersion: ENVELOPE_VERSION, config: parsed.data };
+  if (checksumFor(payload) !== value.checksum) return undefined;
   return { ...payload, checksum: value.checksum };
 };
 
@@ -203,14 +187,12 @@ const safeStateRoot = (input: string): string => {
   }
   return stateRoot;
 };
-
 const comparable = (path: string): string =>
   process.platform === 'win32' ? resolve(path).toLowerCase() : resolve(path);
-
 const identityKey = (metadata: BigIntStats): string =>
   `${metadata.dev}:${metadata.ino}:${metadata.birthtimeNs}`;
 
-/** Persist the explicit selection only under Task 4's bound owner-state authority. */
+/** Persist the explicit selection only at the existing Task5 owner-state path. */
 export const createEgressConfigStore = (
   stateRootInput: string,
   permissions: BoundStatePermissions,
@@ -228,11 +210,9 @@ export const createEgressConfigStore = (
   const ensureStateRoot = async (): Promise<string> => {
     const inspected = await permissions.inspectSecure(stateRoot);
     const requestedCanonical = await realpath(requestedStateRoot).catch(error => {
-      throw new EgressPolicyError(
-        'EGRESS_CONFIG_INVALID',
-        'egress config state root cannot be resolved',
-        { cause: error },
-      );
+      throw new EgressPolicyError('EGRESS_CONFIG_INVALID', 'egress state root cannot be resolved', {
+        cause: error,
+      });
     });
     const metadata = await lstat(stateRoot, { bigint: true }).catch(error => {
       throw new EgressPolicyError('EGRESS_CONFIG_INVALID', 'owner state root is unavailable', {
@@ -294,25 +274,45 @@ export const createEgressConfigStore = (
     }
   };
 
-  const load = async (): Promise<EgressConfiguration> => {
+  const loadUnlocked = async (now = Date.now()): Promise<Readonly<EgressConfigLoadResult>> => {
     await ensureStateRoot();
     const raw = await readSecureText();
-    if (raw === undefined) return DEFAULT_EGRESS_CONFIGURATION;
-    let value: unknown;
+    if (raw === undefined)
+      return Object.freeze({
+        config: DEFAULT_EGRESS_CONFIG_V1,
+        expired: false,
+        storageState: 'missing' as const,
+      });
+    let unknown: unknown;
     try {
-      value = JSON.parse(raw);
-    } catch (error) {
-      throw new EgressPolicyError('EGRESS_CONFIG_INVALID', 'egress config is not valid JSON', {
-        cause: error,
+      unknown = JSON.parse(raw);
+    } catch {
+      return Object.freeze({
+        config: DEFAULT_EGRESS_CONFIG_V1,
+        expired: false,
+        storageState: 'corrupt' as const,
       });
     }
-    return envelopeFromUnknown(value).configuration;
+    const envelope = envelopeFromUnknown(unknown);
+    if (envelope === undefined) {
+      return Object.freeze({
+        config: DEFAULT_EGRESS_CONFIG_V1,
+        expired: false,
+        storageState: 'corrupt' as const,
+      });
+    }
+    const config = Object.freeze({
+      ...envelope.config,
+      allowedClasses: Object.freeze([...envelope.config.allowedClasses]),
+    }) as Readonly<EgressConfigV1>;
+    const expired = config.mode === 'external-model' && now >= Date.parse(config.expiresAt);
+    return Object.freeze({ config, expired, storageState: 'valid' as const });
   };
 
-  const write = async (configurationInput: EgressConfiguration): Promise<void> => {
+  const writeUnlocked = async (configurationInput: Readonly<EgressConfigV1>): Promise<void> => {
     await ensureStateRoot();
-    const configuration = parseEgressConfiguration(configurationInput);
-    const payload: EgressConfigPayload = { schemaVersion: ENVELOPE_VERSION, configuration };
+    const configuration = EgressConfigV1Schema.parse(configurationInput);
+    const payload: EgressConfigPayload = { schemaVersion: ENVELOPE_VERSION, config: configuration };
     const envelope: EgressConfigEnvelope = { ...payload, checksum: checksumFor(payload) };
     const temporaryPath = join(stateRoot, `.egress.v1.${process.pid}.${randomUUID()}.tmp`);
     let handle: Awaited<ReturnType<typeof open>> | undefined;
@@ -339,19 +339,11 @@ export const createEgressConfigStore = (
       }
     } catch (error) {
       if (renamed) {
-        let committed = false;
-        try {
-          const observedRaw = await readSecureText();
-          const observed =
-            observedRaw === undefined ? undefined : envelopeFromUnknown(JSON.parse(observedRaw));
-          committed = observed?.checksum === envelope.checksum;
-        } catch {
-          committed = false;
-        }
+        const observed = await loadUnlocked().catch(() => undefined);
         throw new EgressPolicyError(
           'EGRESS_CONFIG_COMMIT_UNKNOWN',
           'egress config rename completed but durability could not be confirmed',
-          { cause: error, committed },
+          { cause: error, committed: observed?.config.configHash === configuration.configHash },
         );
       }
       throw new EgressPolicyError(
@@ -369,7 +361,7 @@ export const createEgressConfigStore = (
     }
   };
 
-  const mutate = async (operation: () => Promise<void>): Promise<void> => {
+  const queueForState = async (): Promise<ConfigMutationQueue> => {
     const identity = await ensureStateRoot();
     const key = `${identity}:${EGRESS_CONFIG_FILENAME}`;
     let queue = configMutationQueues.get(key);
@@ -377,6 +369,10 @@ export const createEgressConfigStore = (
       queue = { tail: Promise.resolve() };
       configMutationQueues.set(key, queue);
     }
+    return queue;
+  };
+  const mutate = async <T>(operation: () => Promise<T>): Promise<T> => {
+    const queue = await queueForState();
     const result = queue.tail.then(operation);
     queue.tail = result.then(
       () => undefined,
@@ -384,14 +380,33 @@ export const createEgressConfigStore = (
     );
     return result;
   };
+  const assertExpected = async (expected: PrefixedSha256): Promise<void> => {
+    const current = await loadUnlocked();
+    if (current.config.configHash !== expected) {
+      throw new EgressPolicyError(
+        'EGRESS_CONFIG_CAS_MISMATCH',
+        'egress config changed before the requested mutation',
+      );
+    }
+  };
 
-  return Object.freeze({
-    load: async () => {
-      const identity = await ensureStateRoot();
-      const queue = configMutationQueues.get(`${identity}:${EGRESS_CONFIG_FILENAME}`);
-      await queue?.tail;
-      return load();
+  const store: EgressConfigStore = {
+    load: async (now?: number) => {
+      const queue = await queueForState();
+      await queue.tail;
+      return loadUnlocked(now);
     },
-    save: (configuration: EgressConfiguration) => mutate(() => write(configuration)),
-  });
+    save: (next, expectedConfigHash) =>
+      mutate(async () => {
+        await assertExpected(expectedConfigHash);
+        await writeUnlocked(next);
+      }),
+    reset: expectedConfigHash =>
+      mutate(async () => {
+        await assertExpected(expectedConfigHash);
+        await writeUnlocked(DEFAULT_EGRESS_CONFIG_V1);
+        return DEFAULT_EGRESS_CONFIG_V1;
+      }),
+  };
+  return Object.freeze(store);
 };

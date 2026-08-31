@@ -1,0 +1,252 @@
+{
+  "schemaVersion": 1,
+  "slice": "7B",
+  "authorityPaths": [
+    "service/capabilities/change-manifests/task-7b.json",
+    "service/upstream-lock.json",
+    "service/vendor-map.json",
+    "service/vendor-rules.json"
+  ],
+  "changes": [
+    {
+      "status": "A",
+      "path": "service/capabilities/task-7b-authority-classes.json",
+      "sha256": "d3facd1e30ce88b8d735d571aee6379f3f28166b288b6149e93b77ba5b7aeff0"
+    },
+    {
+      "status": "A",
+      "path": "service/packages/mcp/src/control/action-nonce-endpoints.ts",
+      "sha256": "0d5b1a668d7bb687ac5b592f4f200c618246f84b4ef7f2ef6256980a8d5c629d"
+    },
+    {
+      "status": "A",
+      "path": "service/packages/mcp/src/control/action-nonce-store.ts",
+      "sha256": "9824ff34ac7dd0e4d3980ee72c233c171defd5ab3eabd1f5466e6c3a7545addd"
+    },
+    {
+      "status": "A",
+      "path": "service/packages/mcp/src/control/admin-audit-endpoints.ts",
+      "sha256": "a29c05ca72c084266d18a9c35282f4fa2725420fc5975132f10529fff34dc34f"
+    },
+    {
+      "status": "A",
+      "path": "service/packages/mcp/src/control/admin-audit-store.ts",
+      "sha256": "20521cd278d2626d4a5641066dad9d058ffaa555970bb0818144d3dd8b38ad61"
+    },
+    {
+      "status": "A",
+      "path": "service/packages/mcp/src/control/approval-endpoints.ts",
+      "sha256": "43bee2a79892e68b5929e94eab3895979db9bfa433832fc84a0d0ff65eecfb25"
+    },
+    {
+      "status": "A",
+      "path": "service/packages/mcp/src/control/egress-endpoints.ts",
+      "sha256": "062917031b4f6a5f48f633eb4626cbe06c4204a56020cd18cbd72c487be0080f"
+    },
+    {
+      "status": "A",
+      "path": "service/packages/mcp/src/control/operation-endpoints.ts",
+      "sha256": "b55ca00415fb4742e3f5efeb2d29e287cccbf11cd8564952de77c3f780c93417"
+    },
+    {
+      "status": "A",
+      "path": "service/packages/mcp/src/control/route-registry.ts",
+      "sha256": "9df5c5d922d0ce211bafe087587e273739bb12c62a4271d1955ecaf085158ca1"
+    },
+    {
+      "status": "A",
+      "path": "service/packages/mcp/src/control/router.ts",
+      "sha256": "837f93c69434814a6e74083a3fe3705b7a8d4388fdf5941f253bba98f4914d24"
+    },
+    {
+      "status": "A",
+      "path": "service/packages/mcp/src/control/status-endpoint.ts",
+      "sha256": "bb928cf1cfaf6a7f3e60b2dc9be5a468ddef409150884214520c6053dcf3e7be"
+    },
+    {
+      "status": "A",
+      "path": "service/packages/mcp/src/control/tool-call-endpoint.ts",
+      "sha256": "e5653007bad3d1d2ced4a81c9ad8ca435bb1935b7e34723a8e0477d8b071b306"
+    },
+    {
+      "status": "A",
+      "path": "service/packages/mcp/src/control/workspace-endpoints.ts",
+      "sha256": "f81aae34cc08f969339e11c28447f2e29f7025742e7d5678c8b1d7baafa06ac2"
+    },
+    {
+      "status": "A",
+      "path": "service/packages/mcp/src/execution/mcp-workspace-binding.ts",
+      "sha256": "f9070046ac2fed64d8d40209d747a86c7db4f1821099e01a9e69515dddc1acdd"
+    },
+    {
+      "status": "M",
+      "path": "service/packages/mcp/src/fs/workspace-config-store.ts",
+      "sha256": "be645d5da8cbab58af3b443456ac710a0b05a1cfb91e7c5d642a7535f2ed9636"
+    },
+    {
+      "status": "A",
+      "path": "service/packages/mcp/src/fs/workspace-registration-resolver.ts",
+      "sha256": "c3f013e234bcd63d821d47abcc498bb7127c49318df6ecf2fa59f9a883460018"
+    },
+    {
+      "status": "M",
+      "path": "service/packages/mcp/src/index.ts",
+      "sha256": "75b95c31444b5c81edc8a8eb32904c2de8b40b9549425cae8abbe8efd22746ca"
+    },
+    {
+      "status": "A",
+      "path": "service/packages/mcp/src/policy/approval-broker.ts",
+      "sha256": "87f8942e3e16f3fce9b444479e3dba891f71af87d425fa24118bc31ef4353e3c"
+    },
+    {
+      "status": "A",
+      "path": "service/packages/mcp/src/policy/approval-gate.ts",
+      "sha256": "228098d176d6be494ccf864477c943136060585a4b34eae2314c885c815cffa1"
+    },
+    {
+      "status": "A",
+      "path": "service/packages/mcp/src/policy/approval-prompt.ts",
+      "sha256": "eab1896fddeaf6333a35239ed2e3a09a518196d27b33a2041eb904bec9f15a56"
+    },
+    {
+      "status": "M",
+      "path": "service/packages/mcp/src/policy/policy-engine.ts",
+      "sha256": "c1525abd4d4c9c199f055741d269281ed0e4626760c1a48485756692cb0cb9ba"
+    },
+    {
+      "status": "A",
+      "path": "service/packages/mcp/test/control/admin-audit.test.ts",
+      "sha256": "53e7190e799448dd3def7ee847cc81a24d97ce9a7cf1a642206cc2ed2f04a966"
+    },
+    {
+      "status": "A",
+      "path": "service/packages/mcp/test/control/control-router.test.ts",
+      "sha256": "145081e8a1a501a3a8e6ed3d71be3155fccda2c7f6d0f1296acc183fc533b547"
+    },
+    {
+      "status": "A",
+      "path": "service/packages/mcp/test/control/control-status.test.ts",
+      "sha256": "4e2606421c83994d3cee6f5351bf42e3a689fcac0fbbebe16c3d959d9460cce5"
+    },
+    {
+      "status": "A",
+      "path": "service/packages/mcp/test/control/egress-control.test.ts",
+      "sha256": "118419f734c8961168fbdae936bd6f1c3c20c434a89496fe93b23eeeb5e439e5"
+    },
+    {
+      "status": "M",
+      "path": "service/packages/mcp/test/election/leader-endpoints.test.ts",
+      "sha256": "60af9880826c7d80b5aa17a3c492811f972efde10ae4c7eedd8989526756d9b4"
+    },
+    {
+      "status": "A",
+      "path": "service/packages/mcp/test/execution/action-nonce.test.ts",
+      "sha256": "d008c4eeea725c5f9ba138738e238d771411bd7c69c3417dd072e194b89486a7"
+    },
+    {
+      "status": "A",
+      "path": "service/packages/mcp/test/execution/approval-broker.test.ts",
+      "sha256": "79963f520253dd6dd04a5f27c9ac76b63c73109a4a31350b34e865145d554fa2"
+    },
+    {
+      "status": "A",
+      "path": "service/packages/mcp/test/execution/approval-plugin-port.test.ts",
+      "sha256": "bc9303ef33eace3aa01d53c649c1e687c4f35353657013f047ff84622b025030"
+    },
+    {
+      "status": "A",
+      "path": "service/packages/mcp/test/execution/approval-routing-matrix.test.ts",
+      "sha256": "2fddc3a941f2e22a71c30976fee3813fea232b80e5dee5a192648c0ee7403f7f"
+    },
+    {
+      "status": "A",
+      "path": "service/packages/mcp/test/execution/control-tool-call.test.ts",
+      "sha256": "3c4fd2481dc754b2339f3275c7a92179c64abcc43e5c425145a0fd382629bc31"
+    },
+    {
+      "status": "A",
+      "path": "service/packages/mcp/test/execution/mcp-workspace-binding.test.ts",
+      "sha256": "4b6c2678723f758f296bab7d16d655079a0970c9ba0e5ace9457458194393345"
+    },
+    {
+      "status": "A",
+      "path": "service/packages/mcp/test/execution/operation-resolution.test.ts",
+      "sha256": "130ce3a88454a158cc1627796408bb62c1b7c7a2f872776277d4d5d362307dc0"
+    },
+    {
+      "status": "A",
+      "path": "service/packages/mcp/test/execution/workspace-endpoints.test.ts",
+      "sha256": "cb77affdade76566b7e9b65d619f67287bfbd64d9dab74ee0233534a36b1c045"
+    },
+    {
+      "status": "M",
+      "path": "service/packages/mcp/test/fs/workspace-config-store.test.ts",
+      "sha256": "7f82a5cc74b198b084e8e569910d979735b8fba731cfe5b134454ae48ace048e"
+    },
+    {
+      "status": "A",
+      "path": "service/packages/mcp/test/fs/workspace-registration-atomicity.test.ts",
+      "sha256": "ce6ebb867341b7dc2375ae408abc0242a439ac53f8379d0c0cfbd00558a769c9"
+    },
+    {
+      "status": "A",
+      "path": "service/packages/mcp/test/fs/workspace-registration-resolver.test.ts",
+      "sha256": "4e3bb73a2f82a8c168c573277aebb6962029d21ecbc97a806bad3da3da0d2dd5"
+    },
+    {
+      "status": "M",
+      "path": "service/packages/mcp/test/policy/egress-config.test.ts",
+      "sha256": "cdd9eb5cdb0f5b5802700b2231cc7678d0fd8b4082171a19ba900f4a37937948"
+    },
+    {
+      "status": "M",
+      "path": "service/packages/mcp/test/security/control-auth.test.ts",
+      "sha256": "2ab1c73283cd1bef3cdf8e722e1c250e133bb379cd67d1e87c8fe9941dc365cf"
+    },
+    {
+      "status": "A",
+      "path": "service/packages/shared/src/action-nonce.ts",
+      "sha256": "25530abfc47ac8b94149d414806c2dbab12745cc9250b678b9b0f2598f169dd4"
+    },
+    {
+      "status": "A",
+      "path": "service/packages/shared/src/approval.ts",
+      "sha256": "c7ff83337f6983507210d717fa03694a0d13e878e9ba4e2df300775ff5cbf61f"
+    },
+    {
+      "status": "M",
+      "path": "service/packages/shared/src/config.ts",
+      "sha256": "fd1bec4ce2d3dc7914e2125f78b448b2a1ef680d52dfd1fcb75627bfa4618c1d"
+    },
+    {
+      "status": "A",
+      "path": "service/packages/shared/src/control.ts",
+      "sha256": "649cdf4784257dc78582369ea3294fb910a9fad54baf9ec1947c632e2b3703ca"
+    },
+    {
+      "status": "M",
+      "path": "service/packages/shared/src/egress.ts",
+      "sha256": "a2e1ebd792fcac211f2d7b2c274302179a06ddd9bc724684eb3bb050a4b4eb23"
+    },
+    {
+      "status": "M",
+      "path": "service/packages/shared/src/index.ts",
+      "sha256": "f17c4b2af5ce9e7f154b1766eed56bd86e265d52261cdaa2c30afcb99129d70f"
+    },
+    {
+      "status": "A",
+      "path": "service/packages/shared/test/control-schema.test.ts",
+      "sha256": "3d714e87cba3b197b7f69e3e7a7fe57f859d5ce49c3d5e0b081d822e317eaf70"
+    },
+    {
+      "status": "M",
+      "path": "service/scripts/verify-staged-change-manifest.mjs",
+      "sha256": "4e2c8b3f69e1cc7c6404e1ee0b4487a9dbdb8d87900c53490ebfe27ac75bf8c8"
+    },
+    {
+      "status": "M",
+      "path": "service/test/change-manifest.test.ts",
+      "sha256": "65ffb20153ac6c99f9bc7d653fa2afab6d1bdc9eaf2ea98f9b84f3469810cb58"
+    }
+  ]
+}

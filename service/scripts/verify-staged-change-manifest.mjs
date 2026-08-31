@@ -229,6 +229,20 @@ const assertNoUnstagedServiceChanges = () => {
   }
 };
 
+const indexMatchesHead = path => {
+  try {
+    const head = execFileSync('git', ['-C', repositoryRoot, 'rev-parse', `HEAD:${path}`], {
+      encoding: 'utf8',
+    }).trim();
+    const index = execFileSync('git', ['-C', repositoryRoot, 'rev-parse', `:${path}`], {
+      encoding: 'utf8',
+    }).trim();
+    return /^[0-9a-f]{40,64}$/.test(head) && head === index;
+  } catch {
+    return false;
+  }
+};
+
 const main = async () => {
   const args = process.argv.slice(2);
   const write = args[0] === '--write';
@@ -322,7 +336,13 @@ const main = async () => {
     fail('CHANGE_MANIFEST_MISMATCH', 'manifest rows do not equal cached index blobs');
   }
   const stagedPaths = new Set(all.map(row => row.path));
-  const missingAuthority = authorityPaths.filter(path => !stagedPaths.has(path));
+  const manifestMissing = !stagedPaths.has(manifestRelative);
+  const missingAuthority = authorityPaths.filter(
+    path => !stagedPaths.has(path) && (path === manifestRelative || !indexMatchesHead(path)),
+  );
+  if (manifestMissing && !missingAuthority.includes(manifestRelative)) {
+    missingAuthority.push(manifestRelative);
+  }
   if (missingAuthority.length > 0) {
     fail('CHANGE_MANIFEST_AUTHORITY_MISSING', missingAuthority.join(', '));
   }

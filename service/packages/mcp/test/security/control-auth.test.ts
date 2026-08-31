@@ -4,10 +4,16 @@ import type { AddressInfo } from 'node:net';
 import { decode, encode } from '@msgpack/msgpack';
 import { PRODUCT_MAGIC, PROTOCOL_VERSION, RpcResponseSchema } from '@sfp/shared';
 import { afterEach, describe, expect, it, vi } from 'vitest';
+import { z } from 'zod';
 
+import { AuthenticatedControlRouter, createControlHttpHandler } from '../../src/control/router.js';
 import { dispatchTool } from '../../src/dispatch.js';
+import { ControlRouteRegistry } from '../../src/election/control-route-registry.js';
 import { Follower } from '../../src/election/follower.js';
-import { attachLeaderEndpoints } from '../../src/election/leader-endpoints.js';
+import {
+  attachLeaderEndpoints,
+  type LeaderEndpointDeps,
+} from '../../src/election/leader-endpoints.js';
 import { NodeRole } from '../../src/election/node.js';
 import { createFollowerAuth } from '../../src/security/follower-auth.js';
 import {
@@ -54,7 +60,7 @@ const call = async (
     req.end();
   });
 
-const start = async () => {
+const start = async (extraDeps: Partial<LeaderEndpointDeps> = {}) => {
   const generation = {
     generation: Buffer.alloc(16, 1).toString('base64url'),
     followerToken: Buffer.alloc(32, 2).toString('base64url'),
@@ -76,6 +82,7 @@ const start = async () => {
     memory: generation,
   });
   attachLeaderEndpoints(http, {
+    ...extraDeps,
     relay: {
       sessions: { connected: () => [] },
       pickActiveSessionId: () => undefined,
@@ -284,6 +291,52 @@ describe('follower and control middleware', () => {
       'x-sfp-leader-generation': generation.generation,
     });
     expect(forbiddenFutureRoute.status).toBe(404);
+  });
+
+  it('authenticates before deriving a principal or dispatching the typed Task7 router', async () => {
+    let principalDerivations = 0;
+    let routeCalls = 0;
+    const typed = new AuthenticatedControlRouter();
+    typed.register({
+      id: 'status',
+      method: 'GET',
+      path: '/control/status',
+      routeClass: 'admin',
+      inputSchema: z.object({}).strict(),
+      outputSchema: z.object({ ok: z.literal(true) }).strict(),
+      handle: async () => {
+        routeCalls += 1;
+        return { ok: true as const };
+      },
+    });
+    typed.freeze();
+    const controlRoutes = new ControlRouteRegistry();
+    controlRoutes.register(
+      '/control',
+      createControlHttpHandler({
+        router: typed,
+        principalForRequest: async () => {
+          principalDerivations += 1;
+          return {
+            actorId: `actor1_${'A'.repeat(43)}`,
+            authSessionId: `auth1_${'B'.repeat(43)}`,
+            entryPath: 'control',
+          };
+        },
+      }),
+    );
+    const { port, generation } = await start({ controlRoutes });
+
+    expect((await call(port, 'GET', '/control/status')).status).toBe(401);
+    expect(principalDerivations).toBe(0);
+    expect(routeCalls).toBe(0);
+    const allowed = await call(port, 'GET', '/control/status', {
+      authorization: `Bearer ${generation.controlToken}`,
+      'x-sfp-leader-generation': generation.generation,
+    });
+    expect(allowed).toMatchObject({ status: 200, json: { ok: true } });
+    expect(principalDerivations).toBe(1);
+    expect(routeCalls).toBe(1);
   });
 
   it('rejects unread chunked bodies on pair-challenge and closes unknown control routes', async () => {

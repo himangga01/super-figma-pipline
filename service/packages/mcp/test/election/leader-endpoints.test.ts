@@ -18,7 +18,10 @@ import {
 } from '@sfp/shared';
 import { afterEach, describe, expect, it } from 'vitest';
 import { WebSocket } from 'ws';
+import { z } from 'zod';
 
+import { AuthenticatedControlRouter, createControlHttpHandler } from '../../src/control/router.js';
+import { ControlRouteRegistry } from '../../src/election/control-route-registry.js';
 import {
   ABDICATE_PATH,
   attachLeaderEndpoints,
@@ -583,5 +586,65 @@ describe('POST /abdicate', () => {
         body: { ok: false, reason: 'invalid' },
       });
     }
+  });
+});
+
+describe('typed authenticated control extension', () => {
+  it('reaches sibling Task7 routes through the single frozen /control seam', async () => {
+    const typed = new AuthenticatedControlRouter();
+    typed.register({
+      id: 'status',
+      method: 'GET',
+      path: '/control/status',
+      routeClass: 'admin',
+      inputSchema: z.object({}).strict(),
+      outputSchema: z.object({ schemaVersion: z.literal(1), ok: z.literal(true) }).strict(),
+      handle: async () => ({ schemaVersion: 1 as const, ok: true as const }),
+    });
+    typed.freeze();
+    const extension = new ControlRouteRegistry();
+    extension.register(
+      '/control',
+      createControlHttpHandler({
+        router: typed,
+        principalForRequest: async () => ({
+          actorId: `actor1_${'A'.repeat(43)}`,
+          authSessionId: `auth1_${'B'.repeat(43)}`,
+          entryPath: 'control',
+        }),
+      }),
+    );
+    const leader = await startLeader(5_000, { controlRoutes: extension });
+
+    const observed = await new Promise<{ status: number; body: string }>(
+      (resolvePromise, reject) => {
+        const req = httpRequest(
+          {
+            host: '127.0.0.1',
+            port: leader.port,
+            method: 'GET',
+            path: '/control/status',
+            headers: {
+              authorization: `Bearer ${TEST_CONTROL_TOKEN}`,
+              'x-sfp-leader-generation': TEST_GENERATION,
+            },
+          },
+          res => {
+            const chunks: Buffer[] = [];
+            res.on('data', chunk => chunks.push(Buffer.from(chunk)));
+            res.on('end', () =>
+              resolvePromise({
+                status: res.statusCode ?? 0,
+                body: Buffer.concat(chunks).toString('utf8'),
+              }),
+            );
+          },
+        );
+        req.on('error', reject);
+        req.end();
+      },
+    );
+
+    expect(observed).toEqual({ status: 200, body: '{"schemaVersion":1,"ok":true}' });
   });
 });

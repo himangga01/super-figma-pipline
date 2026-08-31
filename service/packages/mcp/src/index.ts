@@ -7,15 +7,42 @@ import { DEFAULT_PORT, type GetScreenshotResult, newId, PROTOCOL_VERSION } from 
 
 import pkg from '../package.json' with { type: 'json' };
 import { BUILD_ID } from './build-id.js';
+import { createActionNonceEndpoint } from './control/action-nonce-endpoints.js';
+import { createActionNonceStore } from './control/action-nonce-store.js';
+import { createAdminAuditEndpoint } from './control/admin-audit-endpoints.js';
+import { createAdminAuditStore } from './control/admin-audit-store.js';
+import { createApprovalEndpoints } from './control/approval-endpoints.js';
+import {
+  createEgressAdminAuditTransactions,
+  createEgressControl,
+} from './control/egress-endpoints.js';
+import { createOperationEndpoints } from './control/operation-endpoints.js';
+import { registerTask7ControlRoutes } from './control/route-registry.js';
+import {
+  AuthenticatedControlRouter,
+  createControlHttpHandler,
+  createLazyControlHttpHandler,
+} from './control/router.js';
+import { createControlStatusEndpoint } from './control/status-endpoint.js';
+import { createToolCallEndpoint } from './control/tool-call-endpoint.js';
+import { createWorkspaceEndpoints } from './control/workspace-endpoints.js';
 import { dispatchTool, resolveRoutingSession } from './dispatch.js';
+import { ControlRouteRegistry as LeaderControlRouteRegistry } from './election/control-route-registry.js';
 import { Election } from './election/election.js';
 import { Follower } from './election/follower.js';
 import { attachLeaderEndpoints } from './election/leader-endpoints.js';
 import { writeLeaderLock } from './election/leader-lock.js';
 import { Node, NodeRole } from './election/node.js';
+import { loadOrCreateOperationIdIssuer } from './execution/operation-id.js';
+import { JournalWorkspaceUsageGuard, OperationJournal } from './execution/operation-journal.js';
+import { OperationResolutionIntentStore } from './execution/operation-resolution-intent.js';
+import { createWorkspaceConfigStore } from './fs/workspace-config-store.js';
+import { createWorkspaceRegistrationResolver } from './fs/workspace-registration-resolver.js';
 import { SERVER_INSTRUCTIONS } from './instructions.js';
 import { wireShutdown } from './lifecycle.js';
 import { normalizeIdArgs } from './node-id.js';
+import { createApprovalBroker } from './policy/approval-broker.js';
+import { createEgressConfigStore } from './policy/policy-engine.js';
 import { PROMPTS } from './prompts/registry.js';
 import { resolveDefaultStateRoot } from './runtime-paths.js';
 import {
@@ -23,6 +50,11 @@ import {
   createMcpSessionId,
 } from './security/follower-transport.js';
 import { createPairingManager } from './security/pairing-manager.js';
+import {
+  deriveControlAuthSession,
+  deriveOwnerActor,
+  loadOrCreateOwnerPrincipalKey,
+} from './security/principal-derivation.js';
 import { createStatePermissions } from './security/state-permissions.js';
 import { ANALYZE_PROJECT_TOOL_NAME, handleAnalyzeProject } from './tools/analyze-project.js';
 import { annotationsFor } from './tools/annotations.js';
@@ -101,6 +133,142 @@ node.onRoleChange(role => {
   if (role === NodeRole.Leader) {
     const res = node.getLeader();
     if (res !== null) {
+      const controlRoutes = new LeaderControlRouteRegistry();
+      controlRoutes.register(
+        '/control',
+        createLazyControlHttpHandler(async () => {
+          const ownerPrincipalKey = await loadOrCreateOwnerPrincipalKey({
+            stateRoot,
+            permissions: statePermissions,
+          });
+          const ownerActorId = deriveOwnerActor(ownerPrincipalKey, 'control');
+          const operationIdIssuer = await loadOrCreateOperationIdIssuer({
+            stateRoot,
+            permissions: statePermissions,
+          });
+          const operationJournal = new OperationJournal({ stateRoot, actorId: ownerActorId });
+          await operationJournal.recover();
+          const operationResolutionIntents = new OperationResolutionIntentStore({
+            stateRoot,
+            actorId: ownerActorId,
+          });
+          await operationResolutionIntents.recover();
+          const workspaceRegistrationResolver = createWorkspaceRegistrationResolver();
+          const workspaceStore = createWorkspaceConfigStore(
+            stateRoot,
+            new JournalWorkspaceUsageGuard(operationJournal),
+            statePermissions,
+            {},
+            workspaceRegistrationResolver,
+          );
+          const egressConfigStore = createEgressConfigStore(stateRoot, statePermissions);
+          const adminAuditStore = createAdminAuditStore({ stateRoot });
+          await adminAuditStore.queryEgress(ownerActorId, { since: null, cursor: null, limit: 1 });
+          await adminAuditStore.recover(await egressConfigStore.load());
+          const actionNonces = createActionNonceStore({
+            leaderGeneration: res.generation.generation,
+          });
+          const approvalBroker = createApprovalBroker({
+            deliverPluginPrompt: async () => {
+              throw Object.assign(new Error('paired approval consumer is not installed'), {
+                code: 'APPROVAL_CHANNEL_UNAVAILABLE',
+              });
+            },
+            // Authenticated control clients observe the durable pending row through approval.list.
+            deliverControlPrompt: async () => {},
+          });
+          const workspaceEndpoints = createWorkspaceEndpoints({
+            store: workspaceStore,
+            nonceStore: actionNonces,
+          });
+          const egressControl = createEgressControl({
+            store: egressConfigStore,
+            nonceStore: actionNonces,
+            audit: createEgressAdminAuditTransactions({ store: adminAuditStore }),
+          });
+          const operationEndpoints = createOperationEndpoints({
+            issuer: operationIdIssuer,
+            journal: operationJournal,
+            resolutionIntents: operationResolutionIntents,
+            nonceStore: actionNonces,
+          });
+          const statusEndpoint = createControlStatusEndpoint({
+            serverVersion: SERVER_VERSION,
+            buildId: BUILD_ID,
+            buildIdentityHash: null,
+            leaderGeneration: () => res.generation.generation,
+            role: () => node.role,
+            sessions: () => {
+              const connected = res.relay.sessions.connected();
+              const active = res.relay.pickActiveSession();
+              return {
+                pairedPluginCount: connected.length,
+                active:
+                  active === undefined
+                    ? null
+                    : {
+                        sessionId: active.id,
+                        fileName: active.fileName,
+                        pageName: active.pageName,
+                        fileIdentityKind: active.fileIdentity.kind,
+                        pluginVersion: active.clientVersion,
+                        pluginGeneration: active.pluginGeneration,
+                        editorType: active.editorType,
+                        capabilities: active.capabilities,
+                      },
+              };
+            },
+          });
+          const typedControlRouter = new AuthenticatedControlRouter();
+          registerTask7ControlRoutes(typedControlRouter, {
+            status: statusEndpoint,
+            actionNonce: createActionNonceEndpoint({
+              store: actionNonces,
+              registrationResolver: workspaceRegistrationResolver,
+            }),
+            approvals: createApprovalEndpoints({
+              broker: approvalBroker,
+              leaderGeneration: () => res.generation.generation,
+            }),
+            toolCall: createToolCallEndpoint({
+              issueOperationId: actorId => operationIdIssuer.issue(actorId),
+              invokeTool: async (principal, request, options) => {
+                const plane = node.getLeader()?.executionPlane;
+                if (plane === undefined) {
+                  throw Object.assign(new Error('execution plane is not integrated until Task7C'), {
+                    code: 'EXECUTION_PLANE_UNAVAILABLE',
+                  });
+                }
+                return plane.invokeTool(principal, request, options);
+              },
+            }),
+            workspaces: workspaceEndpoints,
+            operations: operationEndpoints,
+            egress: egressControl,
+            adminAudit: createAdminAuditEndpoint(adminAuditStore),
+          });
+          typedControlRouter.freeze();
+          return createControlHttpHandler({
+            router: typedControlRouter,
+            principalForRequest: async request => {
+              const authorization = request.headers.authorization;
+              const credential =
+                typeof authorization === 'string' && authorization.startsWith('Bearer ')
+                  ? authorization.slice('Bearer '.length)
+                  : '';
+              return Object.freeze({
+                actorId: ownerActorId,
+                authSessionId: deriveControlAuthSession(
+                  ownerPrincipalKey,
+                  credential,
+                  res.generation.generation,
+                ),
+                entryPath: 'control' as const,
+              });
+            },
+          });
+        }),
+      );
       // Leave a note naming this process as the port's owner. It is read by exactly one caller: a
       // node that finds the port bound by something that won't answer /ping, which is the single
       // failure the election cannot resolve by waiting (see election/leader-lock.ts). Best-effort —
@@ -118,6 +286,7 @@ node.onRoleChange(role => {
         leaderGeneration: res.generation.generation,
         transport: followerTransport,
         pairing,
+        controlRoutes,
         // Newest build wins: a follower on a newer build asks us to step down; the port frees for
         // it within ms and the plugin reconnects to the new leader on its next retry (~250ms).
         onAbdicate: () => {

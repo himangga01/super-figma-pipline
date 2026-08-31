@@ -33,6 +33,10 @@
         "sha256": "ad89c98a69da9f7dd1cfbecb634b0ad600de1ec8cceab36a38b94b0b3e664431"
       },
       {
+        "path": "capabilities/change-manifests/task-7b.json",
+        "sha256": "5f10ee43c6d47c3f338d92ab9cc6c3f058c29f6599a7513be21e9b7a16a2c424"
+      },
+      {
         "path": "capabilities/figmosha-feature-map.json",
         "sha256": "8b84a17e372975e6590ced2315cbdcfb99f0def6259980e88eaf6c4294ca8956"
       },
@@ -45,8 +49,60 @@
         "sha256": "1b5665167c84145401af2589a214783d772d54a8ee388161ea9d079b050ec031"
       },
       {
+        "path": "capabilities/task-7b-authority-classes.json",
+        "sha256": "d3facd1e30ce88b8d735d571aee6379f3f28166b288b6149e93b77ba5b7aeff0"
+      },
+      {
         "path": "capabilities/union-manifest.json",
         "sha256": "761aa1c3f40d166be58e4da4df2cff3db41b23fc9b2e573dd46006238bd67beb"
+      },
+      {
+        "path": "packages/mcp/src/control/action-nonce-endpoints.ts",
+        "sha256": "0d5b1a668d7bb687ac5b592f4f200c618246f84b4ef7f2ef6256980a8d5c629d"
+      },
+      {
+        "path": "packages/mcp/src/control/action-nonce-store.ts",
+        "sha256": "9824ff34ac7dd0e4d3980ee72c233c171defd5ab3eabd1f5466e6c3a7545addd"
+      },
+      {
+        "path": "packages/mcp/src/control/admin-audit-endpoints.ts",
+        "sha256": "a29c05ca72c084266d18a9c35282f4fa2725420fc5975132f10529fff34dc34f"
+      },
+      {
+        "path": "packages/mcp/src/control/admin-audit-store.ts",
+        "sha256": "20521cd278d2626d4a5641066dad9d058ffaa555970bb0818144d3dd8b38ad61"
+      },
+      {
+        "path": "packages/mcp/src/control/approval-endpoints.ts",
+        "sha256": "43bee2a79892e68b5929e94eab3895979db9bfa433832fc84a0d0ff65eecfb25"
+      },
+      {
+        "path": "packages/mcp/src/control/egress-endpoints.ts",
+        "sha256": "062917031b4f6a5f48f633eb4626cbe06c4204a56020cd18cbd72c487be0080f"
+      },
+      {
+        "path": "packages/mcp/src/control/operation-endpoints.ts",
+        "sha256": "b55ca00415fb4742e3f5efeb2d29e287cccbf11cd8564952de77c3f780c93417"
+      },
+      {
+        "path": "packages/mcp/src/control/route-registry.ts",
+        "sha256": "9df5c5d922d0ce211bafe087587e273739bb12c62a4271d1955ecaf085158ca1"
+      },
+      {
+        "path": "packages/mcp/src/control/router.ts",
+        "sha256": "837f93c69434814a6e74083a3fe3705b7a8d4388fdf5941f253bba98f4914d24"
+      },
+      {
+        "path": "packages/mcp/src/control/status-endpoint.ts",
+        "sha256": "bb928cf1cfaf6a7f3e60b2dc9be5a468ddef409150884214520c6053dcf3e7be"
+      },
+      {
+        "path": "packages/mcp/src/control/tool-call-endpoint.ts",
+        "sha256": "e5653007bad3d1d2ced4a81c9ad8ca435bb1935b7e34723a8e0477d8b071b306"
+      },
+      {
+        "path": "packages/mcp/src/control/workspace-endpoints.ts",
+        "sha256": "f81aae34cc08f969339e11c28447f2e29f7025742e7d5678c8b1d7baafa06ac2"
       },
       {
         "path": "packages/mcp/src/dispatch.ts",
@@ -93,6 +149,10 @@
         "sha256": "cde61dbdfcf1d5afe7361b3643e03d564312b5d611692cc53be643ba3e9146a1"
       },
       {
+        "path": "packages/mcp/src/execution/mcp-workspace-binding.ts",
+        "sha256": "f9070046ac2fed64d8d40209d747a86c7db4f1821099e01a9e69515dddc1acdd"
+      },
+      {
         "path": "packages/mcp/src/execution/operation-executor.ts",
         "sha256": "230bf24a4d72d6456f96990c70531fe8143d8237720e9973e36508b27e1a1c34"
       },
@@ -118,15 +178,31 @@
       },
       {
         "path": "packages/mcp/src/fs/workspace-config-store.ts",
-        "sha256": "9e08bb8803395b0489fe06eb3470559d91927316b0862ab36781c63ba8eac5f5"
+        "sha256": "be645d5da8cbab58af3b443456ac710a0b05a1cfb91e7c5d642a7535f2ed9636"
       },
       {
         "path": "packages/mcp/src/fs/workspace-policy.ts",
         "sha256": "d9c57f7dbc02915ea4859572d70ed1aa6c5fd2b8ff1f952ec4a5ce3148af97ec"
       },
       {
+        "path": "packages/mcp/src/fs/workspace-registration-resolver.ts",
+        "sha256": "c3f013e234bcd63d821d47abcc498bb7127c49318df6ecf2fa59f9a883460018"
+      },
+      {
         "path": "packages/mcp/src/index.ts",
-        "sha256": "fe8605fcbd0de44ac090fff4d771b3a848d5a3bdf391934a54778f2f804d1f08"
+        "sha256": "75b95c31444b5c81edc8a8eb32904c2de8b40b9549425cae8abbe8efd22746ca"
+      },
+      {
+        "path": "packages/mcp/src/policy/approval-broker.ts",
+        "sha256": "87f8942e3e16f3fce9b444479e3dba891f71af87d425fa24118bc31ef4353e3c"
+      },
+      {
+        "path": "packages/mcp/src/policy/approval-gate.ts",
+        "sha256": "228098d176d6be494ccf864477c943136060585a4b34eae2314c885c815cffa1"
+      },
+      {
+        "path": "packages/mcp/src/policy/approval-prompt.ts",
+        "sha256": "eab1896fddeaf6333a35239ed2e3a09a518196d27b33a2041eb904bec9f15a56"
       },
       {
         "path": "packages/mcp/src/policy/operation-policy.ts",
@@ -134,7 +210,7 @@
       },
       {
         "path": "packages/mcp/src/policy/policy-engine.ts",
-        "sha256": "8388bbe33a8f26f0b39c32e386342fa0253d00d07776fabad785e7ab5bc2de27"
+        "sha256": "c1525abd4d4c9c199f055741d269281ed0e4626760c1a48485756692cb0cb9ba"
       },
       {
         "path": "packages/mcp/src/policy/result-egress-policy.ts",
@@ -657,6 +733,22 @@
         "sha256": "4b5397fa854d88577ca440c545c60a95114c2845d16a75cbae39db13dfb19de9"
       },
       {
+        "path": "packages/mcp/test/control/admin-audit.test.ts",
+        "sha256": "53e7190e799448dd3def7ee847cc81a24d97ce9a7cf1a642206cc2ed2f04a966"
+      },
+      {
+        "path": "packages/mcp/test/control/control-router.test.ts",
+        "sha256": "145081e8a1a501a3a8e6ed3d71be3155fccda2c7f6d0f1296acc183fc533b547"
+      },
+      {
+        "path": "packages/mcp/test/control/control-status.test.ts",
+        "sha256": "4e2606421c83994d3cee6f5351bf42e3a689fcac0fbbebe16c3d959d9460cce5"
+      },
+      {
+        "path": "packages/mcp/test/control/egress-control.test.ts",
+        "sha256": "118419f734c8961168fbdae936bd6f1c3c20c434a89496fe93b23eeeb5e439e5"
+      },
+      {
         "path": "packages/mcp/test/dispatch.test.ts",
         "sha256": "cc00ed99b2848b95e7ae48cab91c60c0df56e4a786aae26904865501d077aa5c"
       },
@@ -682,7 +774,7 @@
       },
       {
         "path": "packages/mcp/test/election/leader-endpoints.test.ts",
-        "sha256": "d8204af0cddc31640579c7d52dba97839e85460049abe2f020d6febb91983591"
+        "sha256": "60af9880826c7d80b5aa17a3c492811f972efde10ae4c7eedd8989526756d9b4"
       },
       {
         "path": "packages/mcp/test/election/leader-lock.test.ts",
@@ -693,8 +785,28 @@
         "sha256": "6a53a40cd311b67e855b228be38057fda77b67e0e7c7f627427280c2c69ea382"
       },
       {
+        "path": "packages/mcp/test/execution/action-nonce.test.ts",
+        "sha256": "d008c4eeea725c5f9ba138738e238d771411bd7c69c3417dd072e194b89486a7"
+      },
+      {
+        "path": "packages/mcp/test/execution/approval-broker.test.ts",
+        "sha256": "79963f520253dd6dd04a5f27c9ac76b63c73109a4a31350b34e865145d554fa2"
+      },
+      {
+        "path": "packages/mcp/test/execution/approval-plugin-port.test.ts",
+        "sha256": "bc9303ef33eace3aa01d53c649c1e687c4f35353657013f047ff84622b025030"
+      },
+      {
+        "path": "packages/mcp/test/execution/approval-routing-matrix.test.ts",
+        "sha256": "2fddc3a941f2e22a71c30976fee3813fea232b80e5dee5a192648c0ee7403f7f"
+      },
+      {
         "path": "packages/mcp/test/execution/completed-result-replay.test.ts",
         "sha256": "b21d6d08881b5daf9ffd663e62d2aed57593d0a4c628625e80ddf719bcb7d860"
+      },
+      {
+        "path": "packages/mcp/test/execution/control-tool-call.test.ts",
+        "sha256": "3c4fd2481dc754b2339f3275c7a92179c64abcc43e5c425145a0fd382629bc31"
       },
       {
         "path": "packages/mcp/test/execution/execution-plane-lifecycle.test.ts",
@@ -717,6 +829,10 @@
         "sha256": "274502c0b019682c0e15c343f9db1204b6ec787be64b76e5392ae17b2f75f5c8"
       },
       {
+        "path": "packages/mcp/test/execution/mcp-workspace-binding.test.ts",
+        "sha256": "4b6c2678723f758f296bab7d16d655079a0970c9ba0e5ace9457458194393345"
+      },
+      {
         "path": "packages/mcp/test/execution/operation-executor.test.ts",
         "sha256": "903ce4714f988f74b108e44525b9fa6491dabee4f4b1ec58e8bdbef932fa1013"
       },
@@ -727,6 +843,10 @@
       {
         "path": "packages/mcp/test/execution/operation-journal.test.ts",
         "sha256": "8a4171b2ee6db48af9ab03ab66d752c921ae984c44a7175ac2f3eb5ab3646f34"
+      },
+      {
+        "path": "packages/mcp/test/execution/operation-resolution.test.ts",
+        "sha256": "130ce3a88454a158cc1627796408bb62c1b7c7a2f872776277d4d5d362307dc0"
       },
       {
         "path": "packages/mcp/test/execution/policy-context.test.ts",
@@ -753,6 +873,10 @@
         "sha256": "5f9dfb0669eed527fd6e018ad399975551b0eb69aedec42143f19363b164cbf7"
       },
       {
+        "path": "packages/mcp/test/execution/workspace-endpoints.test.ts",
+        "sha256": "cb77affdade76566b7e9b65d619f67287bfbd64d9dab74ee0233534a36b1c045"
+      },
+      {
         "path": "packages/mcp/test/fs/runtime-paths.test.ts",
         "sha256": "f5faccbd5ec914f7728e5a9d11680396b0dba3006910137d8bb870247e4d8662"
       },
@@ -762,11 +886,19 @@
       },
       {
         "path": "packages/mcp/test/fs/workspace-config-store.test.ts",
-        "sha256": "1c168d0bd99c6d4fe5f8e9a9f81362fe857f5933383bc735fb8dd633dc1059c8"
+        "sha256": "7f82a5cc74b198b084e8e569910d979735b8fba731cfe5b134454ae48ace048e"
       },
       {
         "path": "packages/mcp/test/fs/workspace-policy.test.ts",
         "sha256": "bc9f8866a91eb4b04bf5054e36ca410b490d22bddfd5b3b24a97d170e6429f21"
+      },
+      {
+        "path": "packages/mcp/test/fs/workspace-registration-atomicity.test.ts",
+        "sha256": "ce6ebb867341b7dc2375ae408abc0242a439ac53f8379d0c0cfbd00558a769c9"
+      },
+      {
+        "path": "packages/mcp/test/fs/workspace-registration-resolver.test.ts",
+        "sha256": "4e3bb73a2f82a8c168c573277aebb6962029d21ecbc97a806bad3da3da0d2dd5"
       },
       {
         "path": "packages/mcp/test/fs/workspace-usage-guard.test.ts",
@@ -778,7 +910,7 @@
       },
       {
         "path": "packages/mcp/test/policy/egress-config.test.ts",
-        "sha256": "a29b0badbfb13b21f0df04792a9bd2230f3d1f11cd0c03dc199f00b69705451d"
+        "sha256": "cdd9eb5cdb0f5b5802700b2231cc7678d0fd8b4082171a19ba900f4a37937948"
       },
       {
         "path": "packages/mcp/test/policy/operation-policy.test.ts",
@@ -798,7 +930,7 @@
       },
       {
         "path": "packages/mcp/test/security/control-auth.test.ts",
-        "sha256": "9498a898c445cdbe010f80b3bb04afeeb28385cd147f3b169ac92242a55dc5bd"
+        "sha256": "2ab1c73283cd1bef3cdf8e722e1c250e133bb379cd67d1e87c8fe9941dc365cf"
       },
       {
         "path": "packages/mcp/test/security/follower-transport.test.ts",
@@ -877,6 +1009,14 @@
         "sha256": "3de3e1c14414593fcccc9a2df098580e390301f890818073e958ba606e38efc1"
       },
       {
+        "path": "packages/shared/src/action-nonce.ts",
+        "sha256": "25530abfc47ac8b94149d414806c2dbab12745cc9250b678b9b0f2598f169dd4"
+      },
+      {
+        "path": "packages/shared/src/approval.ts",
+        "sha256": "c7ff83337f6983507210d717fa03694a0d13e878e9ba4e2df300775ff5cbf61f"
+      },
+      {
         "path": "packages/shared/src/auth.ts",
         "sha256": "f3f458bfaf3b527638f46c974691304c011ac021192acb2bea1dd486f5013f51"
       },
@@ -886,11 +1026,15 @@
       },
       {
         "path": "packages/shared/src/config.ts",
-        "sha256": "50ef8eebbf498c3998878e6051995ddf03cce82123d43db0d19a21a1e975d482"
+        "sha256": "fd1bec4ce2d3dc7914e2125f78b448b2a1ef680d52dfd1fcb75627bfa4618c1d"
+      },
+      {
+        "path": "packages/shared/src/control.ts",
+        "sha256": "649cdf4784257dc78582369ea3294fb910a9fad54baf9ec1947c632e2b3703ca"
       },
       {
         "path": "packages/shared/src/egress.ts",
-        "sha256": "9e9391f56857cb8a5373cac7ebee131028e9e1ace355e88e6d9eec71df3a1c21"
+        "sha256": "a2e1ebd792fcac211f2d7b2c274302179a06ddd9bc724684eb3bb050a4b4eb23"
       },
       {
         "path": "packages/shared/src/envelope.ts",
@@ -898,7 +1042,7 @@
       },
       {
         "path": "packages/shared/src/index.ts",
-        "sha256": "32892ac4b4836be81a73eaf57ddb52e2f3c8fbee1a547c2f743936ff7e155dd0"
+        "sha256": "f17c4b2af5ce9e7f154b1766eed56bd86e265d52261cdaa2c30afcb99129d70f"
       },
       {
         "path": "packages/shared/src/invocation.ts",
@@ -921,6 +1065,10 @@
         "sha256": "43940e1e6efc43ecfe2b1c94287243d5dab17e4d8d06b708ddb1486154d6f75e"
       },
       {
+        "path": "packages/shared/test/control-schema.test.ts",
+        "sha256": "3d714e87cba3b197b7f69e3e7a7fe57f859d5ce49c3d5e0b081d822e317eaf70"
+      },
+      {
         "path": "packages/shared/test/file-identity-hash.test.ts",
         "sha256": "48b203372256e350a8400dceb152f99a0f3a0fc001ae37ceb250cc320b356c23"
       },
@@ -934,7 +1082,7 @@
       },
       {
         "path": "test/change-manifest.test.ts",
-        "sha256": "feda5678b4b402684f3b301e22a2d87f47b198abed8c6cb2e112349ba3c5709c"
+        "sha256": "65ffb20153ac6c99f9bc7d653fa2afab6d1bdc9eaf2ea98f9b84f3469810cb58"
       },
       {
         "path": "test/service-fork-lineage.test.ts",
@@ -1000,6 +1148,10 @@
       "sha256": "ad89c98a69da9f7dd1cfbecb634b0ad600de1ec8cceab36a38b94b0b3e664431"
     },
     {
+      "path": "capabilities/change-manifests/task-7b.json",
+      "sha256": "5f10ee43c6d47c3f338d92ab9cc6c3f058c29f6599a7513be21e9b7a16a2c424"
+    },
+    {
       "path": "capabilities/figmosha-feature-map.json",
       "sha256": "8b84a17e372975e6590ced2315cbdcfb99f0def6259980e88eaf6c4294ca8956"
     },
@@ -1010,6 +1162,10 @@
     {
       "path": "capabilities/task-7a-authority-classes.json",
       "sha256": "1b5665167c84145401af2589a214783d772d54a8ee388161ea9d079b050ec031"
+    },
+    {
+      "path": "capabilities/task-7b-authority-classes.json",
+      "sha256": "d3facd1e30ce88b8d735d571aee6379f3f28166b288b6149e93b77ba5b7aeff0"
     },
     {
       "path": "capabilities/union-manifest.json",
@@ -1060,6 +1216,54 @@
       "sha256": "899b41c980cc4cb39d0808c0c7e9bd8814afe8265344448e4ad0089e1a8cde3d"
     },
     {
+      "path": "packages/mcp/src/control/action-nonce-endpoints.ts",
+      "sha256": "0d5b1a668d7bb687ac5b592f4f200c618246f84b4ef7f2ef6256980a8d5c629d"
+    },
+    {
+      "path": "packages/mcp/src/control/action-nonce-store.ts",
+      "sha256": "9824ff34ac7dd0e4d3980ee72c233c171defd5ab3eabd1f5466e6c3a7545addd"
+    },
+    {
+      "path": "packages/mcp/src/control/admin-audit-endpoints.ts",
+      "sha256": "a29c05ca72c084266d18a9c35282f4fa2725420fc5975132f10529fff34dc34f"
+    },
+    {
+      "path": "packages/mcp/src/control/admin-audit-store.ts",
+      "sha256": "20521cd278d2626d4a5641066dad9d058ffaa555970bb0818144d3dd8b38ad61"
+    },
+    {
+      "path": "packages/mcp/src/control/approval-endpoints.ts",
+      "sha256": "43bee2a79892e68b5929e94eab3895979db9bfa433832fc84a0d0ff65eecfb25"
+    },
+    {
+      "path": "packages/mcp/src/control/egress-endpoints.ts",
+      "sha256": "062917031b4f6a5f48f633eb4626cbe06c4204a56020cd18cbd72c487be0080f"
+    },
+    {
+      "path": "packages/mcp/src/control/operation-endpoints.ts",
+      "sha256": "b55ca00415fb4742e3f5efeb2d29e287cccbf11cd8564952de77c3f780c93417"
+    },
+    {
+      "path": "packages/mcp/src/control/route-registry.ts",
+      "sha256": "9df5c5d922d0ce211bafe087587e273739bb12c62a4271d1955ecaf085158ca1"
+    },
+    {
+      "path": "packages/mcp/src/control/router.ts",
+      "sha256": "837f93c69434814a6e74083a3fe3705b7a8d4388fdf5941f253bba98f4914d24"
+    },
+    {
+      "path": "packages/mcp/src/control/status-endpoint.ts",
+      "sha256": "bb928cf1cfaf6a7f3e60b2dc9be5a468ddef409150884214520c6053dcf3e7be"
+    },
+    {
+      "path": "packages/mcp/src/control/tool-call-endpoint.ts",
+      "sha256": "e5653007bad3d1d2ced4a81c9ad8ca435bb1935b7e34723a8e0477d8b071b306"
+    },
+    {
+      "path": "packages/mcp/src/control/workspace-endpoints.ts",
+      "sha256": "f81aae34cc08f969339e11c28447f2e29f7025742e7d5678c8b1d7baafa06ac2"
+    },
+    {
       "path": "packages/mcp/src/dispatch.ts",
       "sha256": "4e0d22648e733bec29489cadb6a2575cdd96442a2b84e9c69bd8a8cc580a68c1"
     },
@@ -1104,6 +1308,10 @@
       "sha256": "cde61dbdfcf1d5afe7361b3643e03d564312b5d611692cc53be643ba3e9146a1"
     },
     {
+      "path": "packages/mcp/src/execution/mcp-workspace-binding.ts",
+      "sha256": "f9070046ac2fed64d8d40209d747a86c7db4f1821099e01a9e69515dddc1acdd"
+    },
+    {
       "path": "packages/mcp/src/execution/operation-executor.ts",
       "sha256": "230bf24a4d72d6456f96990c70531fe8143d8237720e9973e36508b27e1a1c34"
     },
@@ -1129,15 +1337,31 @@
     },
     {
       "path": "packages/mcp/src/fs/workspace-config-store.ts",
-      "sha256": "9e08bb8803395b0489fe06eb3470559d91927316b0862ab36781c63ba8eac5f5"
+      "sha256": "be645d5da8cbab58af3b443456ac710a0b05a1cfb91e7c5d642a7535f2ed9636"
     },
     {
       "path": "packages/mcp/src/fs/workspace-policy.ts",
       "sha256": "d9c57f7dbc02915ea4859572d70ed1aa6c5fd2b8ff1f952ec4a5ce3148af97ec"
     },
     {
+      "path": "packages/mcp/src/fs/workspace-registration-resolver.ts",
+      "sha256": "c3f013e234bcd63d821d47abcc498bb7127c49318df6ecf2fa59f9a883460018"
+    },
+    {
       "path": "packages/mcp/src/index.ts",
-      "sha256": "fe8605fcbd0de44ac090fff4d771b3a848d5a3bdf391934a54778f2f804d1f08"
+      "sha256": "75b95c31444b5c81edc8a8eb32904c2de8b40b9549425cae8abbe8efd22746ca"
+    },
+    {
+      "path": "packages/mcp/src/policy/approval-broker.ts",
+      "sha256": "87f8942e3e16f3fce9b444479e3dba891f71af87d425fa24118bc31ef4353e3c"
+    },
+    {
+      "path": "packages/mcp/src/policy/approval-gate.ts",
+      "sha256": "228098d176d6be494ccf864477c943136060585a4b34eae2314c885c815cffa1"
+    },
+    {
+      "path": "packages/mcp/src/policy/approval-prompt.ts",
+      "sha256": "eab1896fddeaf6333a35239ed2e3a09a518196d27b33a2041eb904bec9f15a56"
     },
     {
       "path": "packages/mcp/src/policy/operation-policy.ts",
@@ -1145,7 +1369,7 @@
     },
     {
       "path": "packages/mcp/src/policy/policy-engine.ts",
-      "sha256": "8388bbe33a8f26f0b39c32e386342fa0253d00d07776fabad785e7ab5bc2de27"
+      "sha256": "c1525abd4d4c9c199f055741d269281ed0e4626760c1a48485756692cb0cb9ba"
     },
     {
       "path": "packages/mcp/src/policy/result-egress-policy.ts",
@@ -1668,6 +1892,22 @@
       "sha256": "4b5397fa854d88577ca440c545c60a95114c2845d16a75cbae39db13dfb19de9"
     },
     {
+      "path": "packages/mcp/test/control/admin-audit.test.ts",
+      "sha256": "53e7190e799448dd3def7ee847cc81a24d97ce9a7cf1a642206cc2ed2f04a966"
+    },
+    {
+      "path": "packages/mcp/test/control/control-router.test.ts",
+      "sha256": "145081e8a1a501a3a8e6ed3d71be3155fccda2c7f6d0f1296acc183fc533b547"
+    },
+    {
+      "path": "packages/mcp/test/control/control-status.test.ts",
+      "sha256": "4e2606421c83994d3cee6f5351bf42e3a689fcac0fbbebe16c3d959d9460cce5"
+    },
+    {
+      "path": "packages/mcp/test/control/egress-control.test.ts",
+      "sha256": "118419f734c8961168fbdae936bd6f1c3c20c434a89496fe93b23eeeb5e439e5"
+    },
+    {
       "path": "packages/mcp/test/dispatch.test.ts",
       "sha256": "cc00ed99b2848b95e7ae48cab91c60c0df56e4a786aae26904865501d077aa5c"
     },
@@ -1693,7 +1933,7 @@
     },
     {
       "path": "packages/mcp/test/election/leader-endpoints.test.ts",
-      "sha256": "d8204af0cddc31640579c7d52dba97839e85460049abe2f020d6febb91983591"
+      "sha256": "60af9880826c7d80b5aa17a3c492811f972efde10ae4c7eedd8989526756d9b4"
     },
     {
       "path": "packages/mcp/test/election/leader-lock.test.ts",
@@ -1704,8 +1944,28 @@
       "sha256": "6a53a40cd311b67e855b228be38057fda77b67e0e7c7f627427280c2c69ea382"
     },
     {
+      "path": "packages/mcp/test/execution/action-nonce.test.ts",
+      "sha256": "d008c4eeea725c5f9ba138738e238d771411bd7c69c3417dd072e194b89486a7"
+    },
+    {
+      "path": "packages/mcp/test/execution/approval-broker.test.ts",
+      "sha256": "79963f520253dd6dd04a5f27c9ac76b63c73109a4a31350b34e865145d554fa2"
+    },
+    {
+      "path": "packages/mcp/test/execution/approval-plugin-port.test.ts",
+      "sha256": "bc9303ef33eace3aa01d53c649c1e687c4f35353657013f047ff84622b025030"
+    },
+    {
+      "path": "packages/mcp/test/execution/approval-routing-matrix.test.ts",
+      "sha256": "2fddc3a941f2e22a71c30976fee3813fea232b80e5dee5a192648c0ee7403f7f"
+    },
+    {
       "path": "packages/mcp/test/execution/completed-result-replay.test.ts",
       "sha256": "b21d6d08881b5daf9ffd663e62d2aed57593d0a4c628625e80ddf719bcb7d860"
+    },
+    {
+      "path": "packages/mcp/test/execution/control-tool-call.test.ts",
+      "sha256": "3c4fd2481dc754b2339f3275c7a92179c64abcc43e5c425145a0fd382629bc31"
     },
     {
       "path": "packages/mcp/test/execution/execution-plane-lifecycle.test.ts",
@@ -1728,6 +1988,10 @@
       "sha256": "274502c0b019682c0e15c343f9db1204b6ec787be64b76e5392ae17b2f75f5c8"
     },
     {
+      "path": "packages/mcp/test/execution/mcp-workspace-binding.test.ts",
+      "sha256": "4b6c2678723f758f296bab7d16d655079a0970c9ba0e5ace9457458194393345"
+    },
+    {
       "path": "packages/mcp/test/execution/operation-executor.test.ts",
       "sha256": "903ce4714f988f74b108e44525b9fa6491dabee4f4b1ec58e8bdbef932fa1013"
     },
@@ -1738,6 +2002,10 @@
     {
       "path": "packages/mcp/test/execution/operation-journal.test.ts",
       "sha256": "8a4171b2ee6db48af9ab03ab66d752c921ae984c44a7175ac2f3eb5ab3646f34"
+    },
+    {
+      "path": "packages/mcp/test/execution/operation-resolution.test.ts",
+      "sha256": "130ce3a88454a158cc1627796408bb62c1b7c7a2f872776277d4d5d362307dc0"
     },
     {
       "path": "packages/mcp/test/execution/policy-context.test.ts",
@@ -1764,6 +2032,10 @@
       "sha256": "5f9dfb0669eed527fd6e018ad399975551b0eb69aedec42143f19363b164cbf7"
     },
     {
+      "path": "packages/mcp/test/execution/workspace-endpoints.test.ts",
+      "sha256": "cb77affdade76566b7e9b65d619f67287bfbd64d9dab74ee0233534a36b1c045"
+    },
+    {
       "path": "packages/mcp/test/fs/runtime-paths.test.ts",
       "sha256": "f5faccbd5ec914f7728e5a9d11680396b0dba3006910137d8bb870247e4d8662"
     },
@@ -1773,11 +2045,19 @@
     },
     {
       "path": "packages/mcp/test/fs/workspace-config-store.test.ts",
-      "sha256": "1c168d0bd99c6d4fe5f8e9a9f81362fe857f5933383bc735fb8dd633dc1059c8"
+      "sha256": "7f82a5cc74b198b084e8e569910d979735b8fba731cfe5b134454ae48ace048e"
     },
     {
       "path": "packages/mcp/test/fs/workspace-policy.test.ts",
       "sha256": "bc9f8866a91eb4b04bf5054e36ca410b490d22bddfd5b3b24a97d170e6429f21"
+    },
+    {
+      "path": "packages/mcp/test/fs/workspace-registration-atomicity.test.ts",
+      "sha256": "ce6ebb867341b7dc2375ae408abc0242a439ac53f8379d0c0cfbd00558a769c9"
+    },
+    {
+      "path": "packages/mcp/test/fs/workspace-registration-resolver.test.ts",
+      "sha256": "4e3bb73a2f82a8c168c573277aebb6962029d21ecbc97a806bad3da3da0d2dd5"
     },
     {
       "path": "packages/mcp/test/fs/workspace-usage-guard.test.ts",
@@ -1789,7 +2069,7 @@
     },
     {
       "path": "packages/mcp/test/policy/egress-config.test.ts",
-      "sha256": "a29b0badbfb13b21f0df04792a9bd2230f3d1f11cd0c03dc199f00b69705451d"
+      "sha256": "cdd9eb5cdb0f5b5802700b2231cc7678d0fd8b4082171a19ba900f4a37937948"
     },
     {
       "path": "packages/mcp/test/policy/operation-policy.test.ts",
@@ -1809,7 +2089,7 @@
     },
     {
       "path": "packages/mcp/test/security/control-auth.test.ts",
-      "sha256": "9498a898c445cdbe010f80b3bb04afeeb28385cd147f3b169ac92242a55dc5bd"
+      "sha256": "2ab1c73283cd1bef3cdf8e722e1c250e133bb379cd67d1e87c8fe9941dc365cf"
     },
     {
       "path": "packages/mcp/test/security/follower-transport.test.ts",
@@ -1920,6 +2200,14 @@
       "sha256": "f564fe1a831cfdc75233614ec43951084f9ab77b18cb7d724fe914e6155ecbbb"
     },
     {
+      "path": "packages/shared/src/action-nonce.ts",
+      "sha256": "25530abfc47ac8b94149d414806c2dbab12745cc9250b678b9b0f2598f169dd4"
+    },
+    {
+      "path": "packages/shared/src/approval.ts",
+      "sha256": "c7ff83337f6983507210d717fa03694a0d13e878e9ba4e2df300775ff5cbf61f"
+    },
+    {
       "path": "packages/shared/src/auth.ts",
       "sha256": "f3f458bfaf3b527638f46c974691304c011ac021192acb2bea1dd486f5013f51"
     },
@@ -1929,11 +2217,15 @@
     },
     {
       "path": "packages/shared/src/config.ts",
-      "sha256": "50ef8eebbf498c3998878e6051995ddf03cce82123d43db0d19a21a1e975d482"
+      "sha256": "fd1bec4ce2d3dc7914e2125f78b448b2a1ef680d52dfd1fcb75627bfa4618c1d"
+    },
+    {
+      "path": "packages/shared/src/control.ts",
+      "sha256": "649cdf4784257dc78582369ea3294fb910a9fad54baf9ec1947c632e2b3703ca"
     },
     {
       "path": "packages/shared/src/egress.ts",
-      "sha256": "9e9391f56857cb8a5373cac7ebee131028e9e1ace355e88e6d9eec71df3a1c21"
+      "sha256": "a2e1ebd792fcac211f2d7b2c274302179a06ddd9bc724684eb3bb050a4b4eb23"
     },
     {
       "path": "packages/shared/src/envelope.ts",
@@ -1941,7 +2233,7 @@
     },
     {
       "path": "packages/shared/src/index.ts",
-      "sha256": "32892ac4b4836be81a73eaf57ddb52e2f3c8fbee1a547c2f743936ff7e155dd0"
+      "sha256": "f17c4b2af5ce9e7f154b1766eed56bd86e265d52261cdaa2c30afcb99129d70f"
     },
     {
       "path": "packages/shared/src/invocation.ts",
@@ -1962,6 +2254,10 @@
     {
       "path": "packages/shared/src/service-operations.ts",
       "sha256": "43940e1e6efc43ecfe2b1c94287243d5dab17e4d8d06b708ddb1486154d6f75e"
+    },
+    {
+      "path": "packages/shared/test/control-schema.test.ts",
+      "sha256": "3d714e87cba3b197b7f69e3e7a7fe57f859d5ce49c3d5e0b081d822e317eaf70"
     },
     {
       "path": "packages/shared/test/file-identity-hash.test.ts",
@@ -2001,7 +2297,7 @@
     },
     {
       "path": "scripts/verify-staged-change-manifest.mjs",
-      "sha256": "2588a6c5d0cfc453d3abf3479ef680b18a05abdfa3c871d1cfafad8e6ea7ce73"
+      "sha256": "4e2c8b3f69e1cc7c6404e1ee0b4487a9dbdb8d87900c53490ebfe27ac75bf8c8"
     },
     {
       "path": "scripts/verify-upstream-lock.mjs",
@@ -2017,7 +2313,7 @@
     },
     {
       "path": "test/change-manifest.test.ts",
-      "sha256": "feda5678b4b402684f3b301e22a2d87f47b198abed8c6cb2e112349ba3c5709c"
+      "sha256": "65ffb20153ac6c99f9bc7d653fa2afab6d1bdc9eaf2ea98f9b84f3469810cb58"
     },
     {
       "path": "test/service-fork-lineage.test.ts",
@@ -2053,7 +2349,7 @@
     },
     {
       "path": "vendor-rules.json",
-      "sha256": "e9abf33efaa524f86773fe2d07111433ecbd1d673da18d64bf46d87ea42fbbe4"
+      "sha256": "1404ab5507cd3ea47bbf1581f9ea785d3dcddf3fe5645c006d2a770d042f9d8a"
     },
     {
       "path": "vitest.config.ts",
