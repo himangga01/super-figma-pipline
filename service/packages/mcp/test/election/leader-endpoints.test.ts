@@ -8,6 +8,7 @@ import {
   decodeEnvelope,
   encodeEnvelope,
   ErrorCode,
+  getRelayBudget,
   MIN_PLUGIN_VERSION,
   newId,
   PROTOCOL_VERSION,
@@ -125,6 +126,72 @@ const startLeader = async (
           expiresAt: Date.now() + 30_000,
         }),
       } satisfies LeaderEndpointDeps['pairing']),
+    innerRpcHandler:
+      extraDeps.innerRpcHandler ??
+      (async (opened, response) => {
+        let decoded: unknown;
+        try {
+          decoded = decode(opened.plaintext);
+        } catch {
+          await response.write(
+            Buffer.from(
+              encode({
+                kind: 'err',
+                requestId: '',
+                code: ErrorCode.InvalidRequest,
+                message: 'invalid msgpack body',
+              } satisfies RpcResponse),
+            ),
+            { final: true },
+          );
+          return;
+        }
+        const rpc = (await import('@sfp/shared')).RpcRequestSchema.safeParse(decoded);
+        if (!rpc.success) {
+          await response.write(
+            Buffer.from(
+              encode({
+                kind: 'err',
+                requestId: '',
+                code: ErrorCode.InvalidParams,
+                message: 'invalid rpc request',
+              } satisfies RpcResponse),
+            ),
+            { final: true },
+          );
+          return;
+        }
+        const { requestId, toolName, args, sessionId } = rpc.data;
+        let body: RpcResponse;
+        try {
+          let notice: string | null = null;
+          const result = await relay.sendRequest(
+            toolName,
+            args,
+            rpcTimeoutMs ?? getRelayBudget(toolName),
+            sessionId,
+            served => {
+              notice = relay.skewNotice(served);
+            },
+          );
+          body = {
+            kind: 'ok',
+            requestId,
+            result,
+            ...(notice === null ? {} : { notice }),
+          };
+        } catch (error) {
+          const message = (error as Error).message;
+          const code =
+            message.startsWith('no plugin connected') || message.startsWith('pinned session')
+              ? ErrorCode.PluginDisconnected
+              : message.includes('timeout')
+                ? ErrorCode.Timeout
+                : ErrorCode.Internal;
+          body = { kind: 'err', requestId, code, message };
+        }
+        await response.write(Buffer.from(encode(body)), { final: true });
+      }),
   });
   const b: Bound = { http, relay, port, detach, plugins: [], transport };
   all.push(b);

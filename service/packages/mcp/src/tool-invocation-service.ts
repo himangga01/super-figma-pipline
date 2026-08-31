@@ -3,6 +3,8 @@ import type {
   OperationInvocationService,
   OperationRecord,
   OperationTombstone,
+  ProgressReporter,
+  InvocationCancelV1,
   ResolvedInvocationScope,
   RuntimeExecutionScope,
   ServiceOperationName,
@@ -34,8 +36,12 @@ export class ToolInvocationService implements OperationInvocationService {
     );
   }
 
-  resumeApprovedTool(handle: ToolApprovalHandle, scope: RuntimeExecutionScope): Promise<unknown> {
-    return this.executor.resumeApprovedTool(handle, scope);
+  resumeApprovedTool(
+    handle: ToolApprovalHandle,
+    scope: RuntimeExecutionScope,
+    reporter?: ProgressReporter,
+  ): Promise<unknown> {
+    return this.executor.resumeApprovedTool(handle, scope, reporter);
   }
 
   rejectToolApproval(handle: ToolApprovalHandle, errorCode: string): Promise<OperationRecord> {
@@ -48,8 +54,9 @@ export class ToolInvocationService implements OperationInvocationService {
     rawArgs: unknown,
     operationId?: string,
     options?: Readonly<ToolInvocationOptionsV1>,
+    reporter?: ProgressReporter,
   ): Promise<unknown> {
-    return this.executor.invokeTool(scope, toolName, rawArgs, operationId, options);
+    return this.executor.invokeTool(scope, toolName, rawArgs, operationId, options, reporter);
   }
 
   invokeService(
@@ -63,6 +70,10 @@ export class ToolInvocationService implements OperationInvocationService {
         code: 'SERVICE_OPERATION_NOT_FOUND',
       }),
     );
+  }
+
+  cancel(principal: Readonly<ActorContext>, request: Readonly<InvocationCancelV1>): Promise<void> {
+    return this.executor.cancel(principal, request);
   }
 
   status(

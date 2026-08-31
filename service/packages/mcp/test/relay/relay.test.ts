@@ -18,7 +18,7 @@ import {
   type ResponseEnvelope,
   SystemMethod,
 } from '@sfp/shared';
-import { afterEach, describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import { WebSocket } from 'ws';
 
 import { Relay } from '../../src/relay/relay.js';
@@ -859,6 +859,53 @@ describe('Relay session pinning', () => {
     });
     return reqs;
   };
+
+  it('propagates dispatched AbortSignal and action nonce as one plugin cancel without retry', async () => {
+    const { relay, port } = await startRelay();
+    const ws = await connect(port);
+    const sessionId = newId();
+    await hello(ws, sessionId);
+    const received: Envelope[] = [];
+    ws.on('message', data => {
+      const envelope = decodeEnvelope(data as ArrayBuffer);
+      if (envelope.kind === 'req' || envelope.kind === 'evt') received.push(envelope);
+    });
+    const controller = new AbortController();
+    const request = relay.sendRequest(
+      'create_text',
+      { characters: 'secret' },
+      200,
+      sessionId,
+      undefined,
+      {
+        signal: controller.signal,
+        operationId: 'operation-cancel',
+        actionNonce: 'cancel-nonce-1',
+      },
+    );
+    await vi.waitFor(() => {
+      expect(
+        received.some(envelope => envelope.kind === 'req' && envelope.method === 'create_text'),
+      ).toBe(true);
+    });
+    controller.abort(Object.assign(new Error('cancel'), { code: 'OPERATION_CANCELLED' }));
+
+    await expect(request).rejects.toMatchObject({ code: 'OPERATION_CANCELLED' });
+    await vi.waitFor(() => {
+      expect(
+        received.filter(
+          envelope => envelope.kind === 'evt' && envelope.method === SystemMethod.Cancel,
+        ),
+      ).toHaveLength(1);
+    });
+    const cancel = received.find(
+      envelope => envelope.kind === 'evt' && envelope.method === SystemMethod.Cancel,
+    );
+    expect(cancel).toMatchObject({
+      params: { operationId: 'operation-cancel', actionNonce: 'cancel-nonce-1' },
+    });
+    ws.close();
+  });
 
   // Set up two connected sessions A and B, with B most-recently-active so unpinned routing prefers
   // it. Returns sockets, ids, and per-socket request collectors.

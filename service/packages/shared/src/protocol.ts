@@ -29,6 +29,8 @@ export const SystemMethod = {
    * and tool replies are explicitly NOT activity, only this event is.
    */
   Activity: '$activity',
+  Progress: '$progress',
+  Cancel: '$cancel',
 } as const;
 export type SystemMethod = (typeof SystemMethod)[keyof typeof SystemMethod];
 

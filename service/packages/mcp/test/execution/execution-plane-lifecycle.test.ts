@@ -1,19 +1,69 @@
+import { mkdtemp, rm } from 'node:fs/promises';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
+
 import {
   NO_CAPTURE_OPTIONS,
   type ActorContext,
   type OperationInvocationService,
+  type OperationRecord,
 } from '@sfp/shared';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import {
+  createDurableExecutionPlaneLifecyclePorts,
+  GenerationRuntimeLifecycleRegistry,
+  createLazyLeaderRuntimeBoundary,
   LeaderGenerationExecutionPlane,
   type ApprovalDecisionPort,
   type ExecutionPlaneAdmissionAuthority,
 } from '../../src/execution/execution-plane.js';
+import {
+  OperationJournal,
+  hashOperationFingerprint,
+  type NewOperationRecord,
+} from '../../src/execution/operation-journal.js';
 
-afterEach(() => {
+const lifecycleRoots: string[] = [];
+afterEach(async () => {
   vi.useRealTimers();
+  await Promise.all(
+    lifecycleRoots.splice(0).map(root => rm(root, { recursive: true, force: true })),
+  );
 });
+
+const lifecycleActorId = 'actor1_AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA' as const;
+const lifecycleAuthId = 'auth1_AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA' as const;
+const lifecycleRecord = (operationId: string): NewOperationRecord => {
+  const fingerprint = {
+    actorId: lifecycleActorId,
+    operationId,
+    operationKind: 'tool' as const,
+    operationName: 'create_text' as const,
+    argsHash: `sha256:${'a'.repeat(64)}` as const,
+    workspaceId: null,
+    fileExecutionKeyHash: null,
+    targetBindingHash: null,
+    captureIntentHash: `sha256:${'b'.repeat(64)}` as const,
+  };
+  return {
+    ...fingerprint,
+    originAuthSessionId: lifecycleAuthId,
+    origin: { kind: 'entry', entryPath: 'mcp-direct', authSessionId: lifecycleAuthId },
+    issuedAt: 1_724_803_200_000,
+    operationFingerprintHash: hashOperationFingerprint(fingerprint),
+    resultHash: null,
+    resultBytes: null,
+    fileExecutionKey: null,
+    pluginGeneration: null,
+    policyId: 'tool:create_text:v1',
+    effectSummary: ['figma-write'],
+    approvalId: null,
+    preExecutionConsentManifestHash: null,
+    finalEgressManifestHash: null,
+    operationEvidenceReceiptHash: null,
+  };
+};
 
 const harness = (options: { failUnknownFsync?: boolean; drain?: boolean } = {}) => {
   const events: string[] = [];
@@ -48,6 +98,124 @@ const harness = (options: { failUnknownFsync?: boolean; drain?: boolean } = {}) 
 };
 
 describe('leader-generation execution plane lifecycle', () => {
+  it('aborts and closes an initializing runtime so no retention timer survives demotion', async () => {
+    vi.useFakeTimers();
+    const registry = new GenerationRuntimeLifecycleRegistry<{
+      close(): Promise<void>;
+    }>();
+    let release!: () => void;
+    const gate = new Promise<void>(resolve => {
+      release = resolve;
+    });
+    let initializationSignal: AbortSignal | undefined;
+    const close = vi.fn<() => Promise<void>>(async () => undefined);
+    const initializing = registry.initialize('generation-initializing', async signal => {
+      initializationSignal = signal;
+      await gate;
+      const timer = setInterval(() => undefined, 86_400_000);
+      return {
+        close: async () => {
+          clearInterval(timer);
+          await close();
+        },
+      };
+    });
+    const demotion = registry.close('generation-initializing');
+    expect(initializationSignal?.aborted).toBe(true);
+    release();
+
+    await expect(initializing).rejects.toMatchObject({ code: 'LEADER_GENERATION_CLOSED' });
+    await expect(demotion).resolves.toBeUndefined();
+    expect(close).toHaveBeenCalledOnce();
+    expect(vi.getTimerCount()).toBe(0);
+  });
+
+  it('uses real journal durability to fence and settle every generation state before port release', async () => {
+    const root = await mkdtemp(join(tmpdir(), 'sfp-durable-demotion-'));
+    lifecycleRoots.push(root);
+    const journal = new OperationJournal({ stateRoot: root, actorId: lifecycleActorId });
+    await journal.recover();
+    await journal.appendInitial(lifecycleRecord('pending-op'), 'pending-approval', {
+      leaderGeneration: 'generation-2',
+    });
+    await journal.appendInitial(lifecycleRecord('queued-op'), 'queued', {
+      leaderGeneration: 'generation-2',
+    });
+    await journal.appendInitial(lifecycleRecord('dispatched-op'), 'queued', {
+      leaderGeneration: 'generation-2',
+    });
+    await journal.transition(
+      'dispatched-op',
+      'dispatched',
+      {},
+      {
+        expectedLeaderGeneration: 'generation-2',
+      },
+    );
+    const events: string[] = [];
+    const ports = createDurableExecutionPlaneLifecyclePorts({
+      leaderGeneration: 'generation-2',
+      journal,
+      flushDurability: async () => events.push('flush'),
+      drainTransport: async () => false,
+      forceCloseTransport: async () => events.push('force-close'),
+      destroy: async () => events.push('destroy'),
+      releasePort: async () => events.push('release'),
+    });
+    const plane = new LeaderGenerationExecutionPlane('generation-2', ports);
+
+    const ticket = await plane.prepareDemotion('lease-lost');
+    await expect(plane.finalizeDemotion(ticket)).resolves.toBe('port-released');
+
+    expect(journal.get('pending-op')).toMatchObject({
+      status: 'pre-egress-rejected',
+      errorCode: 'LEADER_GENERATION_CLOSED',
+    });
+    expect(journal.get('queued-op')).toMatchObject({
+      status: 'failed',
+      errorCode: 'LEADER_GENERATION_CLOSED',
+    });
+    expect(journal.get('dispatched-op')).toMatchObject({
+      status: 'outcome-unknown',
+      errorCode: 'LEADER_GENERATION_CLOSED',
+    });
+    expect(events).toEqual(['flush', 'force-close', 'destroy', 'release']);
+  });
+  it('defers recovery until the first authenticated boundary and shares one fail-closed flight', async () => {
+    let recoveries = 0;
+    let release!: () => void;
+    const gate = new Promise<void>(resolve => {
+      release = resolve;
+    });
+    const boundary = createLazyLeaderRuntimeBoundary(async () => {
+      recoveries += 1;
+      await gate;
+      return Object.freeze({ ready: true });
+    });
+
+    expect(boundary.peek()).toBeUndefined();
+    expect(recoveries).toBe(0);
+    const first = boundary.get();
+    const concurrent = boundary.get();
+    expect(recoveries).toBe(1);
+    release();
+    await expect(Promise.all([first, concurrent])).resolves.toEqual([
+      { ready: true },
+      { ready: true },
+    ]);
+    expect(boundary.peek()).toEqual({ ready: true });
+
+    let failedRecoveries = 0;
+    const failure = Object.assign(new Error('recovery failed'), { code: 'RECOVERY_FAILED' });
+    const failed = createLazyLeaderRuntimeBoundary(async () => {
+      failedRecoveries += 1;
+      throw failure;
+    });
+    await expect(Promise.all([failed.get(), failed.get()])).rejects.toBe(failure);
+    await expect(failed.get()).rejects.toBe(failure);
+    expect(failedRecoveries).toBe(1);
+    expect(failed.peek()).toBeUndefined();
+  });
   it('closes, fences, durably drains, destroys, and only then releases the port', async () => {
     const { plane, events } = harness();
     const ticket = await plane.prepareDemotion('lease-lost');
@@ -269,7 +437,17 @@ describe('leader-generation execution plane lifecycle', () => {
   });
 
   it('owns tool invocation for one generation and closes admission before demotion work', async () => {
-    const invokeTool = vi.fn<OperationInvocationService['invokeTool']>(async () => ({ ok: true }));
+    const invokeTool = vi.fn<OperationInvocationService['invokeTool']>(async runtimeScope => {
+      if (runtimeScope.actor.entryPath === 'control') {
+        throw Object.assign(
+          new Error(
+            'C:\\Users\\owner\\secret.fig https://token.example/?key=abc data:image/png;base64,AAAA',
+          ),
+          { code: 'PLUGIN_RESULT_INVALID' },
+        );
+      }
+      return { ok: true };
+    });
     const { plane } = harness({ drain: true });
     const events: string[] = [];
     const principal: ActorContext = Object.freeze({
@@ -399,6 +577,17 @@ describe('leader-generation execution plane lifecycle', () => {
     expect(Object.isFrozen(admittedScope.target.fileIdentity)).toBe(true);
     expect(Object.isFrozen(admittedScope.consent)).toBe(true);
     expect(Object.isFrozen(admittedScope.consent.allowedClasses)).toBe(true);
+    const controlError = await plane
+      .invokeTool({ ...principal, entryPath: 'control' }, request, NO_CAPTURE_OPTIONS)
+      .then(
+        () => null,
+        error => error,
+      );
+    expect(controlError).toMatchObject({
+      code: 'PLUGIN_RESULT_INVALID',
+      message: 'plugin returned an invalid result',
+    });
+    expect(JSON.stringify(controlError)).not.toMatch(/secret\.fig|token\.example|base64/iu);
     await plane.prepareDemotion('shutdown');
     await expect(plane.invokeTool(principal, request, NO_CAPTURE_OPTIONS)).rejects.toMatchObject({
       code: 'LEADER_GENERATION_CLOSED',
@@ -558,4 +747,176 @@ describe('leader-generation execution plane lifecycle', () => {
       expect(invocation).not.toHaveBeenCalled();
     },
   );
+
+  it('does not emit a terminal frame while journal verification still reports dispatched', async () => {
+    const { plane } = harness({ drain: true });
+    const principal = Object.freeze({
+      actorId: lifecycleActorId,
+      authSessionId: lifecycleAuthId,
+      entryPath: 'mcp-direct' as const,
+    });
+    const operationId = 'operation-terminal-unverified';
+    plane.bindAdmissionAuthority({
+      resolveWorkspaceContext: async () => ({ workspaceId: null, workspaceRoot: null }),
+      workspacePolicy: {
+        resolveRead: async () => '',
+        resolveWrite: async () => ({ path: '', overwrites: false }),
+        assertWithinRoot: async () => undefined,
+      },
+      targetResolver: {
+        resolve: () => ({
+          sessionId: 'AQAAAAAAAAAAAAAAAAAAAA',
+          pluginGeneration: 'plugin-g1',
+          fileIdentity: { kind: 'figma-file-key', value: 'file-a' },
+          fileExecutionKey: 'figma:file-a',
+        }),
+      },
+      approval: { request: async () => null },
+      authorizeEgress: async () => ({
+        mode: 'local-trusted',
+        consentId: null,
+        allowedClasses: ['public', 'project-code', 'design-text', 'design-image', 'secret'],
+      }),
+      issueOperationId: () => operationId,
+      verifyOperationId: () => undefined,
+    });
+    const dispatched = {
+      ...lifecycleRecord(operationId),
+      leaderGeneration: 'generation-2',
+      sequence: 2,
+      previousStatus: 'queued',
+      status: 'dispatched',
+      createdAt: '2024-08-28T00:00:00.000Z',
+      settledAt: null,
+      errorCode: null,
+    } as never;
+    plane.bindInvocationService({
+      beginToolApproval: async () => ({}) as never,
+      resumeApprovedTool: async () => ({}),
+      rejectToolApproval: async () => ({}) as never,
+      invokeTool: async () => {
+        throw Object.assign(
+          new Error(
+            'C:\\Users\\owner\\secret.fig https://token.example data:image/png;base64,AAAA',
+          ),
+          {
+            code: 'OPERATION_TERMINAL_DURABILITY_FAILED',
+          },
+        );
+      },
+      invokeService: async () => ({}),
+      status: () => dispatched,
+    });
+    const observed: string[] = [];
+    const consume = async () => {
+      for await (const frame of plane.invokeToolFrames(principal, {
+        version: 1,
+        requestId: 'sfp_req1_AAAAAAAAAAAAAAAAAAAAAA',
+        operationId,
+        toolName: 'get_selection',
+        rawArgs: {},
+        targetSelector: { kind: 'active' },
+      })) {
+        observed.push(frame.type);
+      }
+    };
+
+    const terminalError = await consume().then(
+      () => null,
+      error => error,
+    );
+    expect(terminalError).toMatchObject({
+      code: 'OPERATION_TERMINAL_DURABILITY_FAILED',
+      message: 'operation terminal durability failed',
+    });
+    expect(JSON.stringify(terminalError)).not.toMatch(/secret\.fig|token\.example|base64/iu);
+    expect(observed).toEqual(['accepted']);
+  });
+
+  it('fails a waiting frame channel on subscriber abort without cancelling the producer', async () => {
+    const { plane } = harness({ drain: true });
+    const principal = Object.freeze({
+      actorId: lifecycleActorId,
+      authSessionId: lifecycleAuthId,
+      entryPath: 'mcp-follower' as const,
+    });
+    const operationId = 'operation-disconnected-subscriber';
+    let release!: () => void;
+    const gate = new Promise<void>(resolve => {
+      release = resolve;
+    });
+    let status: OperationRecord = {
+      ...lifecycleRecord(operationId),
+      sequence: 1,
+      previousStatus: null,
+      status: 'queued',
+      createdAt: '2024-08-28T00:00:00.000Z',
+      settledAt: null,
+      errorCode: null,
+      leaderGeneration: 'generation-2',
+    } as OperationRecord;
+    const cancel = vi.fn<NonNullable<OperationInvocationService['cancel']>>();
+    plane.bindAdmissionAuthority({
+      resolveWorkspaceContext: async () => ({ workspaceId: null, workspaceRoot: null }),
+      workspacePolicy: {
+        resolveRead: async () => '',
+        resolveWrite: async () => ({ path: '', overwrites: false }),
+        assertWithinRoot: async () => undefined,
+      },
+      targetResolver: {
+        resolve: () => ({
+          sessionId: 'AQAAAAAAAAAAAAAAAAAAAA',
+          pluginGeneration: 'plugin-g1',
+          fileIdentity: { kind: 'figma-file-key', value: 'file-a' },
+          fileExecutionKey: 'figma:file-a',
+        }),
+      },
+      approval: { request: async () => null },
+      authorizeEgress: async () => ({
+        mode: 'local-trusted',
+        consentId: null,
+        allowedClasses: ['public', 'project-code', 'design-text', 'design-image', 'secret'],
+      }),
+      issueOperationId: () => operationId,
+      verifyOperationId: () => undefined,
+    });
+    plane.bindInvocationService({
+      beginToolApproval: async () => ({}) as never,
+      resumeApprovedTool: async () => ({}),
+      rejectToolApproval: async () => ({}) as never,
+      invokeTool: async () => {
+        await gate;
+        status = { ...status, status: 'succeeded', settledAt: '2024-08-28T00:00:01.000Z' };
+        return { ok: true };
+      },
+      invokeService: async () => ({}),
+      status: () => status,
+      cancel,
+    });
+    const subscriber = new AbortController();
+    const frames = plane.invokeToolFrames(
+      principal,
+      {
+        version: 1,
+        requestId: 'sfp_req1_AAAAAAAAAAAAAAAAAAAAAA',
+        operationId,
+        toolName: 'get_selection',
+        rawArgs: {},
+        targetSelector: { kind: 'active' },
+      },
+      NO_CAPTURE_OPTIONS,
+      subscriber.signal,
+    );
+    const iterator = frames[Symbol.asyncIterator]();
+    await expect(iterator.next()).resolves.toMatchObject({
+      value: { type: 'accepted', operationId },
+    });
+    const waiting = iterator.next();
+    subscriber.abort(Object.assign(new Error('follower disconnected'), { code: 'DISCONNECTED' }));
+    await expect(waiting).rejects.toMatchObject({ code: 'DISCONNECTED' });
+    expect(cancel).not.toHaveBeenCalled();
+    await expect(plane.drainInvocationStreams(Date.now())).resolves.toBe(true);
+    release();
+    await vi.waitFor(() => expect(status).toMatchObject({ status: 'succeeded' }));
+  });
 });

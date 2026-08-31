@@ -1,15 +1,26 @@
 import { type ChildProcess, spawn } from 'node:child_process';
 import { once as onExit } from 'node:events';
-import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync } from 'node:fs';
+import {
+  existsSync,
+  mkdirSync,
+  mkdtempSync,
+  readFileSync,
+  readdirSync,
+  rmSync,
+  statSync,
+} from 'node:fs';
 import { createServer } from 'node:http';
 import type { AddressInfo } from 'node:net';
 import { tmpdir } from 'node:os';
 import { join, relative, resolve as resolvePath } from 'node:path';
 
+import { ALL_DATA_CLASSES, hashEgressConfig, type EgressConfigV1 } from '@sfp/shared';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 
 import { leaderLockPath } from '../../src/election/leader-lock.js';
+import { createEgressConfigStore } from '../../src/policy/policy-engine.js';
 import { PROMPT_DEFINITIONS } from '../../src/prompts/registry.js';
+import { createStatePermissions } from '../../src/security/state-permissions.js';
 import { annotationsFor } from '../../src/tools/annotations.js';
 import { ALL_TOOL_SPECS } from '../../src/tools/registry.js';
 import { toToolDefinition } from '../tool-schema.js';
@@ -60,6 +71,30 @@ class WireClient {
   private stateBase = '';
   private stateRoot = '';
 
+  constructor(readonly seedEgress = true) {}
+
+  egressMode(): string {
+    const path = join(this.stateRoot, 'egress.v1.json');
+    if (!existsSync(path)) return 'missing';
+    const envelope = JSON.parse(readFileSync(path, 'utf8')) as {
+      config?: { mode?: unknown };
+    };
+    return typeof envelope.config?.mode === 'string' ? envelope.config.mode : 'invalid';
+  }
+
+  durableInvocationBytes(): number {
+    const journal = join(this.stateRoot, 'journal');
+    if (!existsSync(journal)) return 0;
+    return readdirSync(journal)
+      .filter(
+        name =>
+          name.endsWith('.operations.v1.jsonl') ||
+          name.endsWith('.egress-manifests.v1.jsonl') ||
+          name.endsWith('.operation-evidence.v1.jsonl'),
+      )
+      .reduce((bytes, name) => bytes + statSync(join(journal, name)).size, 0);
+  }
+
   async start(): Promise<void> {
     const port = await freePort();
     this.port = port;
@@ -80,6 +115,8 @@ class WireClient {
       environment.XDG_STATE_HOME = this.stateBase;
       this.stateRoot = join(this.stateBase, 'super-figma-pipeline');
     }
+    mkdirSync(this.stateRoot, { recursive: true, mode: 0o700 });
+    if (this.seedEgress) await this.seedLocalTrustedEgress(environment);
     this.child = spawn(process.execPath, [DIST_ENTRY], {
       env: environment,
       stdio: ['pipe', 'pipe', 'pipe'],
@@ -103,6 +140,32 @@ class WireClient {
         }
       }
     });
+  }
+
+  private async seedLocalTrustedEgress(
+    environment: Readonly<Record<string, string | undefined>>,
+  ): Promise<void> {
+    const permissions = createStatePermissions(this.stateRoot, {
+      environment,
+      ...(process.platform === 'darwin' ? { homeDirectory: this.stateBase } : {}),
+    });
+    await permissions.ensureSecure(this.stateRoot);
+    await permissions.verifySecure(this.stateRoot);
+    const store = createEgressConfigStore(this.stateRoot, permissions);
+    const current = await store.load();
+    const withoutHash = {
+      schemaVersion: 1 as const,
+      mode: 'local-trusted' as const,
+      allowedClasses: ALL_DATA_CLASSES,
+      consentId: null,
+      configuredAt: '2026-08-31T00:00:00.000Z',
+      expiresAt: null,
+    };
+    const next: EgressConfigV1 = {
+      ...withoutHash,
+      configHash: hashEgressConfig(withoutHash),
+    };
+    await store.save(next, current.config.configHash);
   }
 
   async pairTicket(): Promise<string> {
@@ -136,6 +199,20 @@ class WireClient {
   async publicPing(): Promise<Record<string, unknown>> {
     const response = await fetch(`http://127.0.0.1:${this.port}/ping`);
     if (!response.ok) throw new Error(`public ping failed (${response.status})`);
+    return (await response.json()) as Record<string, unknown>;
+  }
+
+  async controlStatus(): Promise<Record<string, unknown>> {
+    const credentials = JSON.parse(
+      readFileSync(join(this.stateRoot, 'leader-auth.json'), 'utf8'),
+    ) as { generation: string; controlToken: string };
+    const response = await fetch(`http://127.0.0.1:${this.port}/control/status`, {
+      headers: {
+        authorization: `Bearer ${credentials.controlToken}`,
+        'x-sfp-leader-generation': credentials.generation,
+      },
+    });
+    if (!response.ok) throw new Error(`control status failed (${response.status})`);
     return (await response.json()) as Record<string, unknown>;
   }
 
@@ -249,19 +326,25 @@ const canonical = (value: unknown): string =>
 
 describe.skipIf(!existsSync(DIST_ENTRY))('MCP wire contract (built dist)', () => {
   let client: WireClient;
+  let failClosedClient: WireClient;
   let initResult: Record<string, unknown>;
   let tools: AdvertisedTool[];
 
   beforeAll(async () => {
     client = new WireClient();
-    await client.start();
-    initResult = await client.handshake(LATEST_CLIENT_PROTOCOL);
+    failClosedClient = new WireClient(false);
+    await Promise.all([client.start(), failClosedClient.start()]);
+    [initResult] = await Promise.all([
+      client.handshake(LATEST_CLIENT_PROTOCOL),
+      failClosedClient.handshake(LATEST_CLIENT_PROTOCOL),
+    ]);
     const res = await client.send('tools/list');
     tools = (res.result?.tools ?? []) as AdvertisedTool[];
+    await Promise.all([client.controlStatus(), failClosedClient.controlStatus()]);
   }, 30_000);
 
   afterAll(async () => {
-    await client?.stop();
+    await Promise.all([client?.stop(), failClosedClient?.stop()]);
   });
 
   it('negotiates the protocol version and advertises its capabilities', () => {
@@ -418,6 +501,22 @@ describe.skipIf(!existsSync(DIST_ENTRY))('MCP wire contract (built dist)', () =>
       plugin: null,
       server: { role: 'leader' },
     });
+  });
+
+  it('has explicit local-trusted owner state before successful tool calls', () => {
+    expect(client.egressMode()).toBe('local-trusted');
+  });
+
+  it('keeps a missing default fail-closed with runtime and durable invocation rows at zero', async () => {
+    expect(failClosedClient.egressMode()).toBe('missing');
+    const response = await failClosedClient.send('tools/call', {
+      name: 'ping',
+      arguments: {},
+    });
+    expect(response.result?.isError).toBe(true);
+    const content = response.result?.content as { text: string }[];
+    expect(content.map(row => row.text).join('')).toMatch(/egress is not explicitly configured/i);
+    expect(failClosedClient.durableInvocationBytes()).toBe(0);
   });
 
   it('warns on a real tools/call when the connected plugin is out of date', async () => {

@@ -13,6 +13,7 @@ export * from './heartbeat.js';
 export * from './invocation.js';
 export * from './operations.js';
 export * from './protocol.js';
+export * from './progress.js';
 export * from './queries.js';
 export * from './rpc.js';
 export * from './serialized-node.js';

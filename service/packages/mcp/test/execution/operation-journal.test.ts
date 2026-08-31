@@ -1,5 +1,5 @@
 import { createHash } from 'node:crypto';
-import { appendFile, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
+import { appendFile, mkdtemp, readFile, rm, truncate, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
@@ -220,6 +220,91 @@ describe('owner-state operation journal', () => {
       status: 'outcome-unknown',
       errorCode: 'PROCESS_RESTARTED_AFTER_DISPATCH',
     });
+  });
+
+  it('can defer only dispatched recovery until durable receipt/finalizer reconciliation', async () => {
+    const root = await createRoot();
+    const first = new OperationJournal({ stateRoot: root, actorId });
+    await first.recover();
+    await first.appendInitial(record('op-deferred'), 'queued');
+    await first.transition('op-deferred', 'dispatched', {
+      preExecutionConsentManifestHash: hash('e'),
+    });
+
+    const restarted = new OperationJournal({ stateRoot: root, actorId });
+    await restarted.recover({ deferDispatched: true });
+    expect(restarted.get('op-deferred')).toMatchObject({ status: 'dispatched' });
+    expect(restarted.listDispatched().map(row => row.operationId)).toEqual(['op-deferred']);
+  });
+
+  it('generation-fences every obsolete terminal transition with an expected-generation CAS', async () => {
+    const root = await createRoot();
+    const journal = new OperationJournal({ stateRoot: root, actorId });
+    await journal.recover();
+    await journal.appendInitial(record('op-generation-cas'), 'queued', {
+      leaderGeneration: 'generation-1',
+    });
+    await journal.transition(
+      'op-generation-cas',
+      'dispatched',
+      {},
+      {
+        expectedLeaderGeneration: 'generation-1',
+      },
+    );
+    await journal.fenceLeaderGeneration('generation-1');
+
+    await expect(
+      journal.transition(
+        'op-generation-cas',
+        'succeeded',
+        { resultHash: hash('f'), resultBytes: 2 },
+        { expectedLeaderGeneration: 'generation-1' },
+      ),
+    ).rejects.toMatchObject({ code: 'LEADER_GENERATION_FENCED' });
+    expect(journal.get('op-generation-cas')).toMatchObject({ status: 'dispatched' });
+  });
+
+  it('rejects every generation-bound phase that starts after its durable fence', async () => {
+    const root = await createRoot();
+    const journal = new OperationJournal({ stateRoot: root, actorId });
+    await journal.recover();
+    await journal.appendInitial(record('op-before-full-fence'), 'pending-approval', {
+      leaderGeneration: 'generation-full-fence',
+    });
+    await journal.fenceLeaderGeneration('generation-full-fence');
+
+    await expect(
+      journal.appendInitial(record('op-after-full-fence'), 'queued', {
+        leaderGeneration: 'generation-full-fence',
+      }),
+    ).rejects.toMatchObject({ code: 'LEADER_GENERATION_FENCED' });
+    await expect(
+      journal.transition(
+        'op-before-full-fence',
+        'queued',
+        {},
+        { expectedLeaderGeneration: 'generation-full-fence' },
+      ),
+    ).rejects.toMatchObject({ code: 'LEADER_GENERATION_FENCED' });
+    expect(journal.get('op-after-full-fence')).toBeUndefined();
+    expect(journal.get('op-before-full-fence')).toMatchObject({ status: 'pending-approval' });
+  });
+
+  it('rejects an oversized sparse generation-fence log before reading its body', async () => {
+    const root = await createRoot();
+    const first = new OperationJournal({ stateRoot: root, actorId });
+    await first.recover();
+    const fencePath = first.logPath.replace(
+      '.operations.v1.jsonl',
+      '.leader-generation-fences.v1.jsonl',
+    );
+    await writeFile(fencePath, '');
+    await truncate(fencePath, 1_048_577);
+
+    await expect(
+      new OperationJournal({ stateRoot: root, actorId }).recover(),
+    ).rejects.toMatchObject({ code: 'JOURNAL_CORRUPT', beforeRead: true });
   });
 
   it('deterministically settles every generation-bound state on restart and keeps unknown work blocking', async () => {

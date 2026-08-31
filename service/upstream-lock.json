@@ -2,12 +2,12 @@
   "schemaVersion": 2,
   "vendorMap": {
     "path": "vendor-map.json",
-    "sha256": "64e6f4c6de64edac2c11b17619dd25c27e64512479d9866c7485e793fb7a9029",
+    "sha256": "209ed573db3d2c24e6aee8e96ccb48b96188416c20ffd20085d8043806f2173a",
     "counts": {
-      "copy": 392,
+      "copy": 391,
       "mergeDependencyManifest": 4,
       "referenceOnly": 19,
-      "total": 415
+      "total": 414
     }
   },
   "destinationClosure": {
@@ -37,6 +37,10 @@
         "sha256": "5f10ee43c6d47c3f338d92ab9cc6c3f058c29f6599a7513be21e9b7a16a2c424"
       },
       {
+        "path": "capabilities/change-manifests/task-7c.json",
+        "sha256": "d2f5195ff4790e1663afb9ffd9ab6f1209a9b7aabe7da78b61c689e3e905c6fc"
+      },
+      {
         "path": "capabilities/figmosha-feature-map.json",
         "sha256": "8b84a17e372975e6590ced2315cbdcfb99f0def6259980e88eaf6c4294ca8956"
       },
@@ -51,6 +55,10 @@
       {
         "path": "capabilities/task-7b-authority-classes.json",
         "sha256": "d3facd1e30ce88b8d735d571aee6379f3f28166b288b6149e93b77ba5b7aeff0"
+      },
+      {
+        "path": "capabilities/task-7c-authority-classes.json",
+        "sha256": "fcb7fc04a232a887fac79328635f1cf26a19d541845083fac24164ea65ffe763"
       },
       {
         "path": "capabilities/union-manifest.json",
@@ -83,6 +91,10 @@
       {
         "path": "packages/mcp/src/control/operation-endpoints.ts",
         "sha256": "b55ca00415fb4742e3f5efeb2d29e287cccbf11cd8564952de77c3f780c93417"
+      },
+      {
+        "path": "packages/mcp/src/control/operation-evidence-endpoint.ts",
+        "sha256": "2cb6b2031e4b82a535218cb21943c8dcbf3c88876b859b0da85124c996ce11ac"
       },
       {
         "path": "packages/mcp/src/control/route-registry.ts",
@@ -122,7 +134,7 @@
       },
       {
         "path": "packages/mcp/src/election/leader-endpoints.ts",
-        "sha256": "987525a5da9db2d2d3a852cdb4b9cb802d02181c36d17fbecce74d12bb8068f2"
+        "sha256": "5f92231e28e965e0d126c393ab166d2cfe30c7d38119579d0e3c07817f32c004"
       },
       {
         "path": "packages/mcp/src/election/leader-lock.ts",
@@ -133,8 +145,12 @@
         "sha256": "06b491923369affdd8f542b28f41b8127378860291a21dd1f0d36ddb773ed0de"
       },
       {
+        "path": "packages/mcp/src/execution/egress-manifest-store.ts",
+        "sha256": "03880a8aa8ebf1a435ed987204d798b8ca7f1ddbf633636c3169bd20d0493f11"
+      },
+      {
         "path": "packages/mcp/src/execution/execution-plane.ts",
-        "sha256": "02c338f8e1a798eb8c734bbf6252e71e7193b52d246bb0d510d77fa6ae653867"
+        "sha256": "cf83b9e1066bfefde5de1f1480a7ab709af8cbef43411964d032d6b24596c188"
       },
       {
         "path": "packages/mcp/src/execution/file-queue.ts",
@@ -145,6 +161,10 @@
         "sha256": "39bd67d5469caba6431ed7eecfff66ba6e40690a40a85aed327d7c6465efb4f9"
       },
       {
+        "path": "packages/mcp/src/execution/follower-invocation-endpoint.ts",
+        "sha256": "dc21678747dd829d472769baad26872da71b0da7b00170168d773f5b6d0158d4"
+      },
+      {
         "path": "packages/mcp/src/execution/mcp-invocation-adapter.ts",
         "sha256": "cde61dbdfcf1d5afe7361b3643e03d564312b5d611692cc53be643ba3e9146a1"
       },
@@ -153,8 +173,24 @@
         "sha256": "f9070046ac2fed64d8d40209d747a86c7db4f1821099e01a9e69515dddc1acdd"
       },
       {
+        "path": "packages/mcp/src/execution/native-evidence-artifact-port.ts",
+        "sha256": "060573eedd56c495d4827dcf110cf937c7bb354bd5b3320fcabd9f92094b909c"
+      },
+      {
+        "path": "packages/mcp/src/execution/operation-evidence-artifact-port.ts",
+        "sha256": "9ff1db7b5b2bd9f072386fe4c8ee62ae8f1daedc38ee429b981d3ff658727699"
+      },
+      {
+        "path": "packages/mcp/src/execution/operation-evidence-projector.ts",
+        "sha256": "357cbccd47fcc9037a5b57ae50ec953d51258d4df9849b6714ff76f17c25c760"
+      },
+      {
+        "path": "packages/mcp/src/execution/operation-evidence-receipt-store.ts",
+        "sha256": "d423e051169e12cfeada1bf4f2f94a4780a9d5ec5829cefc4caeb8702c8ae335"
+      },
+      {
         "path": "packages/mcp/src/execution/operation-executor.ts",
-        "sha256": "230bf24a4d72d6456f96990c70531fe8143d8237720e9973e36508b27e1a1c34"
+        "sha256": "d67fab881cf85df9a2d85abdc13c42028310290606b11c5d82dd3725abe56f1b"
       },
       {
         "path": "packages/mcp/src/execution/operation-id.ts",
@@ -162,7 +198,7 @@
       },
       {
         "path": "packages/mcp/src/execution/operation-journal.ts",
-        "sha256": "e6b3c7d36f2408065efcecfe18726c3439576bc32fa2299a0a6185023b96d796"
+        "sha256": "e58c4dc27eda75da1bf15c8a96b553c5fe9f4551ead0aa7b4b059a846f592c9e"
       },
       {
         "path": "packages/mcp/src/execution/operation-resolution-intent.ts",
@@ -175,6 +211,14 @@
       {
         "path": "packages/mcp/src/execution/target-resolver.ts",
         "sha256": "1792deccf25235f59bf3b6fe7419328f82591ce7537c33b9780f5d2ee3088536"
+      },
+      {
+        "path": "packages/mcp/src/fs/atomic-file.ts",
+        "sha256": "387ae11323f2f6a5562790b965467d4999e6df06a77717fd1281735231bd544b"
+      },
+      {
+        "path": "packages/mcp/src/fs/operation-evidence-artifact-store.ts",
+        "sha256": "288f9595cb8a37025bc1b5c7587079aeb41d34eabf3ae1098981ca187660f3db"
       },
       {
         "path": "packages/mcp/src/fs/workspace-config-store.ts",
@@ -190,7 +234,7 @@
       },
       {
         "path": "packages/mcp/src/index.ts",
-        "sha256": "75b95c31444b5c81edc8a8eb32904c2de8b40b9549425cae8abbe8efd22746ca"
+        "sha256": "6dde4c4825221addfce2579dbc1044d5a14132bdd76d3c63b45c6ad49c30ab7a"
       },
       {
         "path": "packages/mcp/src/policy/approval-broker.ts",
@@ -203,6 +247,10 @@
       {
         "path": "packages/mcp/src/policy/approval-prompt.ts",
         "sha256": "eab1896fddeaf6333a35239ed2e3a09a518196d27b33a2041eb904bec9f15a56"
+      },
+      {
+        "path": "packages/mcp/src/policy/egress-policy.ts",
+        "sha256": "61e69fde8ab96ea4d747b432efb581cadcd575d5867116bbc7083f5a66abf807"
       },
       {
         "path": "packages/mcp/src/policy/operation-policy.ts",
@@ -218,7 +266,7 @@
       },
       {
         "path": "packages/mcp/src/relay/relay.ts",
-        "sha256": "fd893395b646221d24ffc1f3142ed4712d3f04d527e4d2855d31dda5857f3235"
+        "sha256": "84b0404ea940b237f76f48a983ca4f83c97bbfb6bec83d633ab99b924d0d4268"
       },
       {
         "path": "packages/mcp/src/relay/session.ts",
@@ -258,7 +306,7 @@
       },
       {
         "path": "packages/mcp/src/tool-invocation-service.ts",
-        "sha256": "09511b7557498429fdf2befb398494edca165218ad04376cae6eeafd2b0658bd"
+        "sha256": "18d4db46a9ce4c37633fbab86d690e9ca86a28f582da526376fae761a2e865b4"
       },
       {
         "path": "packages/mcp/src/tools/add-component-property.ts",
@@ -582,7 +630,7 @@
       },
       {
         "path": "packages/mcp/src/tools/runtime-registry.ts",
-        "sha256": "2dc16bd5e4385e60e0b090f5620302c936e3dd02de74768b851efe575c44fdf0"
+        "sha256": "9274e13378f7dc026fa2b38b2379db141c1440e56d7b144ef15596cdab4fad29"
       },
       {
         "path": "packages/mcp/src/tools/save-image-fills.ts",
@@ -749,6 +797,10 @@
         "sha256": "118419f734c8961168fbdae936bd6f1c3c20c434a89496fe93b23eeeb5e439e5"
       },
       {
+        "path": "packages/mcp/test/control/operation-evidence.test.ts",
+        "sha256": "7df410e608ff7e75ff430363702c583d6ab73f1a28c77794c0b4e7be13331bb0"
+      },
+      {
         "path": "packages/mcp/test/dispatch.test.ts",
         "sha256": "cc00ed99b2848b95e7ae48cab91c60c0df56e4a786aae26904865501d077aa5c"
       },
@@ -758,7 +810,11 @@
       },
       {
         "path": "packages/mcp/test/e2e/mcp-wire.test.ts",
-        "sha256": "ccd29e97f2b70d8078ad7b4dcc3ae2e8f06843107f704aa43c6d997a8983930e"
+        "sha256": "4135cd58ed54468ac60ea815409a6e5fc7532669a35816f481eadf71d8138603"
+      },
+      {
+        "path": "packages/mcp/test/e2e/packed-operation-evidence.test.ts",
+        "sha256": "051710a92eb845c855dc24cedfd74c0b9bab0bf17d700c683d03f2af5661b406"
       },
       {
         "path": "packages/mcp/test/election/control-route-registry.test.ts",
@@ -774,7 +830,7 @@
       },
       {
         "path": "packages/mcp/test/election/leader-endpoints.test.ts",
-        "sha256": "60af9880826c7d80b5aa17a3c492811f972efde10ae4c7eedd8989526756d9b4"
+        "sha256": "6380f908735d173948141097be14d14bac6b5d0e5595a657dedaa59d2590c257"
       },
       {
         "path": "packages/mcp/test/election/leader-lock.test.ts",
@@ -801,6 +857,10 @@
         "sha256": "2fddc3a941f2e22a71c30976fee3813fea232b80e5dee5a192648c0ee7403f7f"
       },
       {
+        "path": "packages/mcp/test/execution/boundary-limits.test.ts",
+        "sha256": "8d71b8a1ae4a339bb814feaee4cfc7cd8d5c69cc955fbc6e87ed97b13de7b242"
+      },
+      {
         "path": "packages/mcp/test/execution/completed-result-replay.test.ts",
         "sha256": "b21d6d08881b5daf9ffd663e62d2aed57593d0a4c628625e80ddf719bcb7d860"
       },
@@ -809,8 +869,20 @@
         "sha256": "3c4fd2481dc754b2339f3275c7a92179c64abcc43e5c425145a0fd382629bc31"
       },
       {
+        "path": "packages/mcp/test/execution/egress-finalizer.test.ts",
+        "sha256": "ca807004b0acbfe9fad7ff3e2507421e9d5a2b1e702f1d2f16aa9bde295625cf"
+      },
+      {
+        "path": "packages/mcp/test/execution/egress-manifest-store.test.ts",
+        "sha256": "9aed6ea0d18fc201302cec8f30a88b0a4b53686e6d89e10edd7c2b32678e3955"
+      },
+      {
+        "path": "packages/mcp/test/execution/egress-policy.test.ts",
+        "sha256": "737a32b869de71473bb538a9a68b58cf15c1f9595e6043be818f1fa17dce2a23"
+      },
+      {
         "path": "packages/mcp/test/execution/execution-plane-lifecycle.test.ts",
-        "sha256": "cbb53a38c094c6601eec9af6bcb0c77d78b733606c741b4b62d58594c138a929"
+        "sha256": "f94a0a5fe2fb321f11cb9cc042bc6454e2495df1a6a6a2da4b53f99549596214"
       },
       {
         "path": "packages/mcp/test/execution/file-queue.test.ts",
@@ -819,6 +891,10 @@
       {
         "path": "packages/mcp/test/execution/follower-invocation-client.test.ts",
         "sha256": "e4e9add61b441480095e53ed9269a45b354fb1b59b485a9db6ffa9d5d5a228c9"
+      },
+      {
+        "path": "packages/mcp/test/execution/follower-stream.test.ts",
+        "sha256": "af40c170fc2cb74cc2acda8fb6f73d7a843f80c3c51735931eae9dc9e69a598b"
       },
       {
         "path": "packages/mcp/test/execution/invocation-boundary.test.ts",
@@ -833,8 +909,24 @@
         "sha256": "4b6c2678723f758f296bab7d16d655079a0970c9ba0e5ace9457458194393345"
       },
       {
+        "path": "packages/mcp/test/execution/native-evidence-artifact-port.test.ts",
+        "sha256": "9aa36424699285325dfe62fc42de46d3b1d40734eff38419194e40f203f424f7"
+      },
+      {
+        "path": "packages/mcp/test/execution/no-direct-relay.test.ts",
+        "sha256": "f1f1fecf8b56110a65ce7f207cfa9de98c112985fd14093d70d4645f7f869e28"
+      },
+      {
+        "path": "packages/mcp/test/execution/operation-evidence-projector.test.ts",
+        "sha256": "7735a45d95d3e0ef2ab11d562862a8203977159eb3fa1eeda7b67bcd349a18dd"
+      },
+      {
+        "path": "packages/mcp/test/execution/operation-evidence-receipt.test.ts",
+        "sha256": "7f9c1484fc952e4fdb715a57ba0d9b557d179f7ca64a068b685dff9d169fed93"
+      },
+      {
         "path": "packages/mcp/test/execution/operation-executor.test.ts",
-        "sha256": "903ce4714f988f74b108e44525b9fa6491dabee4f4b1ec58e8bdbef932fa1013"
+        "sha256": "8d5253aeee4071f153757307ef61fd8623c96753b72e467f8cbd84733339e746"
       },
       {
         "path": "packages/mcp/test/execution/operation-id.test.ts",
@@ -842,15 +934,27 @@
       },
       {
         "path": "packages/mcp/test/execution/operation-journal.test.ts",
-        "sha256": "8a4171b2ee6db48af9ab03ab66d752c921ae984c44a7175ac2f3eb5ab3646f34"
+        "sha256": "a8086c988d5f41c94310f33805e97ae3d04938e71a50cb7f3b55d38ac2d0e161"
       },
       {
         "path": "packages/mcp/test/execution/operation-resolution.test.ts",
         "sha256": "130ce3a88454a158cc1627796408bb62c1b7c7a2f872776277d4d5d362307dc0"
       },
       {
+        "path": "packages/mcp/test/execution/plugin-progress-adapter.test.ts",
+        "sha256": "d85ca2300b006a1caa369ab1c71a1d39c66edcbf2eb9ff818d711aec9d79bb76"
+      },
+      {
         "path": "packages/mcp/test/execution/policy-context.test.ts",
         "sha256": "8a71f23d2c54a801240a9bfcb4cdb793a8892ca30f5e9520ba80705c37e32513"
+      },
+      {
+        "path": "packages/mcp/test/execution/progress-framing.test.ts",
+        "sha256": "282514e4a124064ff348a2f3af76adfc99bd0d4b29488640a49b7ffc231db9d4"
+      },
+      {
+        "path": "packages/mcp/test/execution/progress-transport.test.ts",
+        "sha256": "5c9b8075a068c5386d5c0c4b9f2143f04b49acb5a3e97b7b08459fac11844b29"
       },
       {
         "path": "packages/mcp/test/execution/runtime-authority.test.ts",
@@ -875,6 +979,14 @@
       {
         "path": "packages/mcp/test/execution/workspace-endpoints.test.ts",
         "sha256": "cb77affdade76566b7e9b65d619f67287bfbd64d9dab74ee0233534a36b1c045"
+      },
+      {
+        "path": "packages/mcp/test/fs/atomic-file.test.ts",
+        "sha256": "122589e0f620f7a67eafb8055e7fdbcf2e7bb6bc86d21b06f56f822cde311fe0"
+      },
+      {
+        "path": "packages/mcp/test/fs/operation-evidence-artifact-store.test.ts",
+        "sha256": "2f73454c1eeca051f1cd25ec462220256305899ae47628ad2be3efd8b4d7b07d"
       },
       {
         "path": "packages/mcp/test/fs/runtime-paths.test.ts",
@@ -922,7 +1034,7 @@
       },
       {
         "path": "packages/mcp/test/relay/relay.test.ts",
-        "sha256": "06fbe71aa4eadec005e8a871ebad279964b0b0063d8d599f675a96b0c27ffb03"
+        "sha256": "01f22b6673012aa48689952faade9e34f7a3fee9820b7c7751be534a62358b1d"
       },
       {
         "path": "packages/mcp/test/relay/session.test.ts",
@@ -1038,11 +1150,11 @@
       },
       {
         "path": "packages/shared/src/envelope.ts",
-        "sha256": "5d9ad64e40cf52ce820989db025b481c6b90a646ba492f0ef60047eedbb39352"
+        "sha256": "61f54a1b61008e90bd3574905c4897ef319c592ded10b1a4d0e4f178c14d1c29"
       },
       {
         "path": "packages/shared/src/index.ts",
-        "sha256": "f17c4b2af5ce9e7f154b1766eed56bd86e265d52261cdaa2c30afcb99129d70f"
+        "sha256": "69625f650ceafb5e71f7ce6bfabb0911f8d25bfa6dca5c87a249ed3a173e1d8d"
       },
       {
         "path": "packages/shared/src/invocation.ts",
@@ -1050,19 +1162,27 @@
       },
       {
         "path": "packages/shared/src/operations.ts",
-        "sha256": "37b0ed1317f7529c562a98f4b6c0516bb9987594ce2c24378bd4f46571e8cd6c"
+        "sha256": "731e2d1ff7e01f1bb0c615344e5b635a4f8814f4bb30b02744f96f8943d6d748"
+      },
+      {
+        "path": "packages/shared/src/progress.ts",
+        "sha256": "3eae48a5dca41c86ba6ab0350a4efa2401af14df5b1537f0b4e189bcf19d20a3"
       },
       {
         "path": "packages/shared/src/protocol.ts",
-        "sha256": "3a75bf832d56cdb09ea264d023040c4bea653363c841d6f56339c3e70c343dc1"
+        "sha256": "e9765d856e4f3542101dbcfd519c3bda6af1fd6dfdfb77e74650a3edef37c145"
       },
       {
         "path": "packages/shared/src/result-schemas.ts",
         "sha256": "30f49e189da85e5e898b96ee4b725f9bb139daeb318e4b438ab422a3c162d473"
       },
       {
+        "path": "packages/shared/src/rpc.ts",
+        "sha256": "eda7928f4e22bd8f6f07afb1f6f47e26e085f763ee43065d19b940fed94f4ee6"
+      },
+      {
         "path": "packages/shared/src/service-operations.ts",
-        "sha256": "43940e1e6efc43ecfe2b1c94287243d5dab17e4d8d06b708ddb1486154d6f75e"
+        "sha256": "09c411479206fc353aaadf4fe91fc1c54f93ccf0c322fcb2debd6da2b6a707b7"
       },
       {
         "path": "packages/shared/test/control-schema.test.ts",
@@ -1152,6 +1272,10 @@
       "sha256": "5f10ee43c6d47c3f338d92ab9cc6c3f058c29f6599a7513be21e9b7a16a2c424"
     },
     {
+      "path": "capabilities/change-manifests/task-7c.json",
+      "sha256": "d2f5195ff4790e1663afb9ffd9ab6f1209a9b7aabe7da78b61c689e3e905c6fc"
+    },
+    {
       "path": "capabilities/figmosha-feature-map.json",
       "sha256": "8b84a17e372975e6590ced2315cbdcfb99f0def6259980e88eaf6c4294ca8956"
     },
@@ -1166,6 +1290,10 @@
     {
       "path": "capabilities/task-7b-authority-classes.json",
       "sha256": "d3facd1e30ce88b8d735d571aee6379f3f28166b288b6149e93b77ba5b7aeff0"
+    },
+    {
+      "path": "capabilities/task-7c-authority-classes.json",
+      "sha256": "fcb7fc04a232a887fac79328635f1cf26a19d541845083fac24164ea65ffe763"
     },
     {
       "path": "capabilities/union-manifest.json",
@@ -1244,6 +1372,10 @@
       "sha256": "b55ca00415fb4742e3f5efeb2d29e287cccbf11cd8564952de77c3f780c93417"
     },
     {
+      "path": "packages/mcp/src/control/operation-evidence-endpoint.ts",
+      "sha256": "2cb6b2031e4b82a535218cb21943c8dcbf3c88876b859b0da85124c996ce11ac"
+    },
+    {
       "path": "packages/mcp/src/control/route-registry.ts",
       "sha256": "9df5c5d922d0ce211bafe087587e273739bb12c62a4271d1955ecaf085158ca1"
     },
@@ -1281,7 +1413,7 @@
     },
     {
       "path": "packages/mcp/src/election/leader-endpoints.ts",
-      "sha256": "987525a5da9db2d2d3a852cdb4b9cb802d02181c36d17fbecce74d12bb8068f2"
+      "sha256": "5f92231e28e965e0d126c393ab166d2cfe30c7d38119579d0e3c07817f32c004"
     },
     {
       "path": "packages/mcp/src/election/leader-lock.ts",
@@ -1292,8 +1424,12 @@
       "sha256": "06b491923369affdd8f542b28f41b8127378860291a21dd1f0d36ddb773ed0de"
     },
     {
+      "path": "packages/mcp/src/execution/egress-manifest-store.ts",
+      "sha256": "03880a8aa8ebf1a435ed987204d798b8ca7f1ddbf633636c3169bd20d0493f11"
+    },
+    {
       "path": "packages/mcp/src/execution/execution-plane.ts",
-      "sha256": "02c338f8e1a798eb8c734bbf6252e71e7193b52d246bb0d510d77fa6ae653867"
+      "sha256": "cf83b9e1066bfefde5de1f1480a7ab709af8cbef43411964d032d6b24596c188"
     },
     {
       "path": "packages/mcp/src/execution/file-queue.ts",
@@ -1304,6 +1440,10 @@
       "sha256": "39bd67d5469caba6431ed7eecfff66ba6e40690a40a85aed327d7c6465efb4f9"
     },
     {
+      "path": "packages/mcp/src/execution/follower-invocation-endpoint.ts",
+      "sha256": "dc21678747dd829d472769baad26872da71b0da7b00170168d773f5b6d0158d4"
+    },
+    {
       "path": "packages/mcp/src/execution/mcp-invocation-adapter.ts",
       "sha256": "cde61dbdfcf1d5afe7361b3643e03d564312b5d611692cc53be643ba3e9146a1"
     },
@@ -1312,8 +1452,24 @@
       "sha256": "f9070046ac2fed64d8d40209d747a86c7db4f1821099e01a9e69515dddc1acdd"
     },
     {
+      "path": "packages/mcp/src/execution/native-evidence-artifact-port.ts",
+      "sha256": "060573eedd56c495d4827dcf110cf937c7bb354bd5b3320fcabd9f92094b909c"
+    },
+    {
+      "path": "packages/mcp/src/execution/operation-evidence-artifact-port.ts",
+      "sha256": "9ff1db7b5b2bd9f072386fe4c8ee62ae8f1daedc38ee429b981d3ff658727699"
+    },
+    {
+      "path": "packages/mcp/src/execution/operation-evidence-projector.ts",
+      "sha256": "357cbccd47fcc9037a5b57ae50ec953d51258d4df9849b6714ff76f17c25c760"
+    },
+    {
+      "path": "packages/mcp/src/execution/operation-evidence-receipt-store.ts",
+      "sha256": "d423e051169e12cfeada1bf4f2f94a4780a9d5ec5829cefc4caeb8702c8ae335"
+    },
+    {
       "path": "packages/mcp/src/execution/operation-executor.ts",
-      "sha256": "230bf24a4d72d6456f96990c70531fe8143d8237720e9973e36508b27e1a1c34"
+      "sha256": "d67fab881cf85df9a2d85abdc13c42028310290606b11c5d82dd3725abe56f1b"
     },
     {
       "path": "packages/mcp/src/execution/operation-id.ts",
@@ -1321,7 +1477,7 @@
     },
     {
       "path": "packages/mcp/src/execution/operation-journal.ts",
-      "sha256": "e6b3c7d36f2408065efcecfe18726c3439576bc32fa2299a0a6185023b96d796"
+      "sha256": "e58c4dc27eda75da1bf15c8a96b553c5fe9f4551ead0aa7b4b059a846f592c9e"
     },
     {
       "path": "packages/mcp/src/execution/operation-resolution-intent.ts",
@@ -1334,6 +1490,14 @@
     {
       "path": "packages/mcp/src/execution/target-resolver.ts",
       "sha256": "1792deccf25235f59bf3b6fe7419328f82591ce7537c33b9780f5d2ee3088536"
+    },
+    {
+      "path": "packages/mcp/src/fs/atomic-file.ts",
+      "sha256": "387ae11323f2f6a5562790b965467d4999e6df06a77717fd1281735231bd544b"
+    },
+    {
+      "path": "packages/mcp/src/fs/operation-evidence-artifact-store.ts",
+      "sha256": "288f9595cb8a37025bc1b5c7587079aeb41d34eabf3ae1098981ca187660f3db"
     },
     {
       "path": "packages/mcp/src/fs/workspace-config-store.ts",
@@ -1349,7 +1513,7 @@
     },
     {
       "path": "packages/mcp/src/index.ts",
-      "sha256": "75b95c31444b5c81edc8a8eb32904c2de8b40b9549425cae8abbe8efd22746ca"
+      "sha256": "6dde4c4825221addfce2579dbc1044d5a14132bdd76d3c63b45c6ad49c30ab7a"
     },
     {
       "path": "packages/mcp/src/policy/approval-broker.ts",
@@ -1362,6 +1526,10 @@
     {
       "path": "packages/mcp/src/policy/approval-prompt.ts",
       "sha256": "eab1896fddeaf6333a35239ed2e3a09a518196d27b33a2041eb904bec9f15a56"
+    },
+    {
+      "path": "packages/mcp/src/policy/egress-policy.ts",
+      "sha256": "61e69fde8ab96ea4d747b432efb581cadcd575d5867116bbc7083f5a66abf807"
     },
     {
       "path": "packages/mcp/src/policy/operation-policy.ts",
@@ -1377,7 +1545,7 @@
     },
     {
       "path": "packages/mcp/src/relay/relay.ts",
-      "sha256": "fd893395b646221d24ffc1f3142ed4712d3f04d527e4d2855d31dda5857f3235"
+      "sha256": "84b0404ea940b237f76f48a983ca4f83c97bbfb6bec83d633ab99b924d0d4268"
     },
     {
       "path": "packages/mcp/src/relay/session.ts",
@@ -1417,7 +1585,7 @@
     },
     {
       "path": "packages/mcp/src/tool-invocation-service.ts",
-      "sha256": "09511b7557498429fdf2befb398494edca165218ad04376cae6eeafd2b0658bd"
+      "sha256": "18d4db46a9ce4c37633fbab86d690e9ca86a28f582da526376fae761a2e865b4"
     },
     {
       "path": "packages/mcp/src/tools/add-component-property.ts",
@@ -1741,7 +1909,7 @@
     },
     {
       "path": "packages/mcp/src/tools/runtime-registry.ts",
-      "sha256": "2dc16bd5e4385e60e0b090f5620302c936e3dd02de74768b851efe575c44fdf0"
+      "sha256": "9274e13378f7dc026fa2b38b2379db141c1440e56d7b144ef15596cdab4fad29"
     },
     {
       "path": "packages/mcp/src/tools/save-image-fills.ts",
@@ -1908,6 +2076,10 @@
       "sha256": "118419f734c8961168fbdae936bd6f1c3c20c434a89496fe93b23eeeb5e439e5"
     },
     {
+      "path": "packages/mcp/test/control/operation-evidence.test.ts",
+      "sha256": "7df410e608ff7e75ff430363702c583d6ab73f1a28c77794c0b4e7be13331bb0"
+    },
+    {
       "path": "packages/mcp/test/dispatch.test.ts",
       "sha256": "cc00ed99b2848b95e7ae48cab91c60c0df56e4a786aae26904865501d077aa5c"
     },
@@ -1917,7 +2089,11 @@
     },
     {
       "path": "packages/mcp/test/e2e/mcp-wire.test.ts",
-      "sha256": "ccd29e97f2b70d8078ad7b4dcc3ae2e8f06843107f704aa43c6d997a8983930e"
+      "sha256": "4135cd58ed54468ac60ea815409a6e5fc7532669a35816f481eadf71d8138603"
+    },
+    {
+      "path": "packages/mcp/test/e2e/packed-operation-evidence.test.ts",
+      "sha256": "051710a92eb845c855dc24cedfd74c0b9bab0bf17d700c683d03f2af5661b406"
     },
     {
       "path": "packages/mcp/test/election/control-route-registry.test.ts",
@@ -1933,7 +2109,7 @@
     },
     {
       "path": "packages/mcp/test/election/leader-endpoints.test.ts",
-      "sha256": "60af9880826c7d80b5aa17a3c492811f972efde10ae4c7eedd8989526756d9b4"
+      "sha256": "6380f908735d173948141097be14d14bac6b5d0e5595a657dedaa59d2590c257"
     },
     {
       "path": "packages/mcp/test/election/leader-lock.test.ts",
@@ -1960,6 +2136,10 @@
       "sha256": "2fddc3a941f2e22a71c30976fee3813fea232b80e5dee5a192648c0ee7403f7f"
     },
     {
+      "path": "packages/mcp/test/execution/boundary-limits.test.ts",
+      "sha256": "8d71b8a1ae4a339bb814feaee4cfc7cd8d5c69cc955fbc6e87ed97b13de7b242"
+    },
+    {
       "path": "packages/mcp/test/execution/completed-result-replay.test.ts",
       "sha256": "b21d6d08881b5daf9ffd663e62d2aed57593d0a4c628625e80ddf719bcb7d860"
     },
@@ -1968,8 +2148,20 @@
       "sha256": "3c4fd2481dc754b2339f3275c7a92179c64abcc43e5c425145a0fd382629bc31"
     },
     {
+      "path": "packages/mcp/test/execution/egress-finalizer.test.ts",
+      "sha256": "ca807004b0acbfe9fad7ff3e2507421e9d5a2b1e702f1d2f16aa9bde295625cf"
+    },
+    {
+      "path": "packages/mcp/test/execution/egress-manifest-store.test.ts",
+      "sha256": "9aed6ea0d18fc201302cec8f30a88b0a4b53686e6d89e10edd7c2b32678e3955"
+    },
+    {
+      "path": "packages/mcp/test/execution/egress-policy.test.ts",
+      "sha256": "737a32b869de71473bb538a9a68b58cf15c1f9595e6043be818f1fa17dce2a23"
+    },
+    {
       "path": "packages/mcp/test/execution/execution-plane-lifecycle.test.ts",
-      "sha256": "cbb53a38c094c6601eec9af6bcb0c77d78b733606c741b4b62d58594c138a929"
+      "sha256": "f94a0a5fe2fb321f11cb9cc042bc6454e2495df1a6a6a2da4b53f99549596214"
     },
     {
       "path": "packages/mcp/test/execution/file-queue.test.ts",
@@ -1978,6 +2170,10 @@
     {
       "path": "packages/mcp/test/execution/follower-invocation-client.test.ts",
       "sha256": "e4e9add61b441480095e53ed9269a45b354fb1b59b485a9db6ffa9d5d5a228c9"
+    },
+    {
+      "path": "packages/mcp/test/execution/follower-stream.test.ts",
+      "sha256": "af40c170fc2cb74cc2acda8fb6f73d7a843f80c3c51735931eae9dc9e69a598b"
     },
     {
       "path": "packages/mcp/test/execution/invocation-boundary.test.ts",
@@ -1992,8 +2188,24 @@
       "sha256": "4b6c2678723f758f296bab7d16d655079a0970c9ba0e5ace9457458194393345"
     },
     {
+      "path": "packages/mcp/test/execution/native-evidence-artifact-port.test.ts",
+      "sha256": "9aa36424699285325dfe62fc42de46d3b1d40734eff38419194e40f203f424f7"
+    },
+    {
+      "path": "packages/mcp/test/execution/no-direct-relay.test.ts",
+      "sha256": "f1f1fecf8b56110a65ce7f207cfa9de98c112985fd14093d70d4645f7f869e28"
+    },
+    {
+      "path": "packages/mcp/test/execution/operation-evidence-projector.test.ts",
+      "sha256": "7735a45d95d3e0ef2ab11d562862a8203977159eb3fa1eeda7b67bcd349a18dd"
+    },
+    {
+      "path": "packages/mcp/test/execution/operation-evidence-receipt.test.ts",
+      "sha256": "7f9c1484fc952e4fdb715a57ba0d9b557d179f7ca64a068b685dff9d169fed93"
+    },
+    {
       "path": "packages/mcp/test/execution/operation-executor.test.ts",
-      "sha256": "903ce4714f988f74b108e44525b9fa6491dabee4f4b1ec58e8bdbef932fa1013"
+      "sha256": "8d5253aeee4071f153757307ef61fd8623c96753b72e467f8cbd84733339e746"
     },
     {
       "path": "packages/mcp/test/execution/operation-id.test.ts",
@@ -2001,15 +2213,27 @@
     },
     {
       "path": "packages/mcp/test/execution/operation-journal.test.ts",
-      "sha256": "8a4171b2ee6db48af9ab03ab66d752c921ae984c44a7175ac2f3eb5ab3646f34"
+      "sha256": "a8086c988d5f41c94310f33805e97ae3d04938e71a50cb7f3b55d38ac2d0e161"
     },
     {
       "path": "packages/mcp/test/execution/operation-resolution.test.ts",
       "sha256": "130ce3a88454a158cc1627796408bb62c1b7c7a2f872776277d4d5d362307dc0"
     },
     {
+      "path": "packages/mcp/test/execution/plugin-progress-adapter.test.ts",
+      "sha256": "d85ca2300b006a1caa369ab1c71a1d39c66edcbf2eb9ff818d711aec9d79bb76"
+    },
+    {
       "path": "packages/mcp/test/execution/policy-context.test.ts",
       "sha256": "8a71f23d2c54a801240a9bfcb4cdb793a8892ca30f5e9520ba80705c37e32513"
+    },
+    {
+      "path": "packages/mcp/test/execution/progress-framing.test.ts",
+      "sha256": "282514e4a124064ff348a2f3af76adfc99bd0d4b29488640a49b7ffc231db9d4"
+    },
+    {
+      "path": "packages/mcp/test/execution/progress-transport.test.ts",
+      "sha256": "5c9b8075a068c5386d5c0c4b9f2143f04b49acb5a3e97b7b08459fac11844b29"
     },
     {
       "path": "packages/mcp/test/execution/runtime-authority.test.ts",
@@ -2034,6 +2258,14 @@
     {
       "path": "packages/mcp/test/execution/workspace-endpoints.test.ts",
       "sha256": "cb77affdade76566b7e9b65d619f67287bfbd64d9dab74ee0233534a36b1c045"
+    },
+    {
+      "path": "packages/mcp/test/fs/atomic-file.test.ts",
+      "sha256": "122589e0f620f7a67eafb8055e7fdbcf2e7bb6bc86d21b06f56f822cde311fe0"
+    },
+    {
+      "path": "packages/mcp/test/fs/operation-evidence-artifact-store.test.ts",
+      "sha256": "2f73454c1eeca051f1cd25ec462220256305899ae47628ad2be3efd8b4d7b07d"
     },
     {
       "path": "packages/mcp/test/fs/runtime-paths.test.ts",
@@ -2081,7 +2313,7 @@
     },
     {
       "path": "packages/mcp/test/relay/relay.test.ts",
-      "sha256": "06fbe71aa4eadec005e8a871ebad279964b0b0063d8d599f675a96b0c27ffb03"
+      "sha256": "01f22b6673012aa48689952faade9e34f7a3fee9820b7c7751be534a62358b1d"
     },
     {
       "path": "packages/mcp/test/relay/session.test.ts",
@@ -2229,11 +2461,11 @@
     },
     {
       "path": "packages/shared/src/envelope.ts",
-      "sha256": "5d9ad64e40cf52ce820989db025b481c6b90a646ba492f0ef60047eedbb39352"
+      "sha256": "61f54a1b61008e90bd3574905c4897ef319c592ded10b1a4d0e4f178c14d1c29"
     },
     {
       "path": "packages/shared/src/index.ts",
-      "sha256": "f17c4b2af5ce9e7f154b1766eed56bd86e265d52261cdaa2c30afcb99129d70f"
+      "sha256": "69625f650ceafb5e71f7ce6bfabb0911f8d25bfa6dca5c87a249ed3a173e1d8d"
     },
     {
       "path": "packages/shared/src/invocation.ts",
@@ -2241,19 +2473,27 @@
     },
     {
       "path": "packages/shared/src/operations.ts",
-      "sha256": "37b0ed1317f7529c562a98f4b6c0516bb9987594ce2c24378bd4f46571e8cd6c"
+      "sha256": "731e2d1ff7e01f1bb0c615344e5b635a4f8814f4bb30b02744f96f8943d6d748"
+    },
+    {
+      "path": "packages/shared/src/progress.ts",
+      "sha256": "3eae48a5dca41c86ba6ab0350a4efa2401af14df5b1537f0b4e189bcf19d20a3"
     },
     {
       "path": "packages/shared/src/protocol.ts",
-      "sha256": "3a75bf832d56cdb09ea264d023040c4bea653363c841d6f56339c3e70c343dc1"
+      "sha256": "e9765d856e4f3542101dbcfd519c3bda6af1fd6dfdfb77e74650a3edef37c145"
     },
     {
       "path": "packages/shared/src/result-schemas.ts",
       "sha256": "30f49e189da85e5e898b96ee4b725f9bb139daeb318e4b438ab422a3c162d473"
     },
     {
+      "path": "packages/shared/src/rpc.ts",
+      "sha256": "eda7928f4e22bd8f6f07afb1f6f47e26e085f763ee43065d19b940fed94f4ee6"
+    },
+    {
       "path": "packages/shared/src/service-operations.ts",
-      "sha256": "43940e1e6efc43ecfe2b1c94287243d5dab17e4d8d06b708ddb1486154d6f75e"
+      "sha256": "09c411479206fc353aaadf4fe91fc1c54f93ccf0c322fcb2debd6da2b6a707b7"
     },
     {
       "path": "packages/shared/test/control-schema.test.ts",
@@ -2349,7 +2589,7 @@
     },
     {
       "path": "vendor-rules.json",
-      "sha256": "1404ab5507cd3ea47bbf1581f9ea785d3dcddf3fe5645c006d2a770d042f9d8a"
+      "sha256": "ce7e263aae6dacd7d59c03dd15f8ea5ed8d17fdba22435657b78d083b65f7a77"
     },
     {
       "path": "vitest.config.ts",
@@ -2749,6 +2989,18 @@
       "transition": "edit",
       "destination": "packages/mcp/src/election/election.ts",
       "stagedSha256": "8429f6a06b2abe5888e32a80b05c21a2d564fffc782bf79fb0bd8254246228e1"
+    },
+    {
+      "originRepo": "figwright",
+      "originPath": "packages/shared/src/rpc.ts",
+      "previousMode": "copy",
+      "originCommit": "a835e81b575eab2c9265a67f9353c89b848f81ca",
+      "baseSha256": "27687773f1e07ce9d945cce7ec28cff8a59a10fefa1d5cb1969864a36b1b5ff9",
+      "transitionTask": "7C",
+      "reason": "service-owned behavior introduced by Task 7C",
+      "transition": "edit",
+      "destination": "packages/shared/src/rpc.ts",
+      "stagedSha256": "eda7928f4e22bd8f6f07afb1f6f47e26e085f763ee43065d19b940fed94f4ee6"
     }
   ]
 }

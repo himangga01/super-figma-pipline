@@ -1,7 +1,11 @@
 import { z } from 'zod';
 
 import type { ResultEgressPolicy } from './egress.js';
-import type { RuntimeExecutionScope, TargetRequirement } from './invocation.js';
+import {
+  InvocationTargetSelectorSchema,
+  type RuntimeExecutionScope,
+  type TargetRequirement,
+} from './invocation.js';
 import type {
   ApprovalRequirement,
   ConcurrencyRequirement,
@@ -21,6 +25,23 @@ export type ServiceOperationName = z.infer<typeof ServiceOperationNameSchema>;
 export const SystemOperationNameSchema = z.literal('identity.bootstrap');
 export type SystemOperationName = z.infer<typeof SystemOperationNameSchema>;
 export type OperationKind = 'tool' | 'service' | 'system';
+
+const ServiceRequestIdSchema = z.string().regex(/^sfp_req1_[A-Za-z0-9_-]{21}[AQgw]$/u);
+const ServiceWorkspaceIdSchema = z
+  .string()
+  .regex(/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/u);
+export const ServiceOperationRequestV1Schema = z
+  .object({
+    version: z.literal(1),
+    requestId: ServiceRequestIdSchema,
+    serviceOperationName: ServiceOperationNameSchema,
+    rawArgs: z.unknown().optional(),
+    operationId: z.string().min(1).max(384).optional(),
+    workspaceId: ServiceWorkspaceIdSchema.nullable().optional(),
+    targetSelector: InvocationTargetSelectorSchema,
+  })
+  .strict();
+export type ServiceOperationRequestV1 = z.infer<typeof ServiceOperationRequestV1Schema>;
 
 export interface AbortSignalLike {
   readonly aborted: boolean;

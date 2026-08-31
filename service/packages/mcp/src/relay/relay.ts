@@ -130,7 +130,7 @@ export class Relay {
 
   async stop(): Promise<void> {
     for (const [, p] of this.pending) {
-      clearTimeout(p.timer);
+      this.clearPending(p);
       p.reject(new Error(`relay stopping (pending ${p.method})`));
     }
     this.pending.clear();
@@ -163,21 +163,25 @@ export class Relay {
      *   reaches nobody, which is precisely what shipped until an end-to-end test caught it.
      */
     onServed?: (servingSessionId: string | undefined) => void,
+    // Dispatched cancellation is bound to one operation/action nonce and never retried.
+    // A transport subscriber disconnect remains independent from operation cancellation.
+    // Plugins that finish after cancellation are reconciled as outcome-unknown by the executor.
+    cancellation?: RelayCancellation,
   ): Promise<unknown> {
     const id = newId();
     this.lastRequestAtMs = Date.now();
     const served: { sessionId: string | undefined } = { sessionId: undefined };
     try {
       return await new Promise<unknown>((resolve, reject) => {
+        if (cancellation?.signal.aborted === true) return reject(cancellation.signal.reason);
         const timer = setTimeout(() => {
           // Attributed like any other outcome: the call reached a plugin, it just never answered.
           // An old plugin is a plausible cause rather than a bystander here — `get_design_context`
           // arms its pre-serialization bail with `budget`, one of the arguments such a plugin drops,
           // so a large tree it would have refused up front gets serialized in full instead. Without
           // this the agent reads a bare timeout and blames the size of the file.
-          const pending = this.pending.get(id);
+          const pending = this.takePending(id);
           if (pending !== undefined) served.sessionId = pending.dispatchedToSessionId;
-          this.pending.delete(id);
           reject(new Error(`plugin request timeout (method=${method})`));
         }, timeoutMs);
         const entry: Pending = {
@@ -192,6 +196,7 @@ export class Relay {
           served,
         };
         this.pending.set(id, entry);
+        this.bindCancellation(id, entry, cancellation);
 
         if (sessionId !== undefined) {
           // Pinned: route only to this session. If it's fully gone (not even within the disconnect
@@ -200,8 +205,7 @@ export class Relay {
           // when that same session reconnects (session ids survive resume).
           const target = this.sessions.get(sessionId);
           if (target === undefined) {
-            clearTimeout(timer);
-            this.pending.delete(id);
+            this.takePending(id);
             reject(
               new Error(`pinned session not connected (sessionId=${sessionId}, method=${method})`),
             );
@@ -324,11 +328,7 @@ export class Relay {
     if (session.socket === null) return;
     entry.dispatched = true;
     entry.dispatchedToSessionId = session.id;
-    session.socket.send(
-      encodeEnvelope(
-        createRequest({ id, sessionId: session.id, method: entry.method, params: entry.params }),
-      ),
-    );
+    session.socket.send(encodeEnvelope(this.createPluginRequest(id, entry, session.id)));
   }
 
   private flushQueue(session: Session): void {
@@ -615,10 +615,8 @@ export class Relay {
       return;
     }
     if (env.kind === 'res') {
-      const p = this.pending.get(env.id);
+      const p = this.takePending(env.id);
       if (p !== undefined) {
-        clearTimeout(p.timer);
-        this.pending.delete(env.id);
         // Recorded, not dispatched: this runs in the socket's async context, where anything the
         // caller scoped to its own tool call is out of reach. sendRequest reports it after the
         // await instead.
@@ -628,10 +626,8 @@ export class Relay {
       return;
     }
     if (env.kind === 'err') {
-      const p = this.pending.get(env.id);
+      const p = this.takePending(env.id);
       if (p !== undefined) {
-        clearTimeout(p.timer);
-        this.pending.delete(env.id);
         // Recorded on the error path too: a plugin that answers METHOD_NOT_FOUND for a tool it
         // predates is the most visible thing an out-of-date one does, and the least self-explaining.
         p.served.sessionId = p.dispatchedToSessionId;
@@ -642,6 +638,76 @@ export class Relay {
     this.opts.log(
       `[relay] session ${session.id} <- ${env.kind} ${'method' in env ? env.method : ''}`,
     );
+  }
+
+  private clearPending(entry: Pending): void {
+    clearTimeout(entry.timer);
+    const cancellation = pendingCancellations.get(entry);
+    if (cancellation !== undefined) {
+      cancellation.context.signal.removeEventListener('abort', cancellation.listener);
+      pendingCancellations.delete(entry);
+    }
+  }
+
+  private takePending(id: string): Pending | undefined {
+    const entry = this.pending.get(id);
+    if (entry === undefined) return undefined;
+    this.pending.delete(id);
+    this.clearPending(entry);
+    return entry;
+  }
+
+  private bindCancellation(
+    id: string,
+    entry: Pending,
+    context: RelayCancellation | undefined,
+  ): void {
+    if (context === undefined) return;
+    const listener = (): void => {
+      const pending = this.takePending(id);
+      if (pending === undefined) return;
+      const sessionId = pending.dispatchedToSessionId;
+      const session = sessionId === undefined ? undefined : this.sessions.get(sessionId);
+      if (session?.socket !== null && session?.socket !== undefined) {
+        session.socket.send(
+          encodeEnvelope({
+            v: PROTOCOL_VERSION,
+            kind: 'evt',
+            id: newId(),
+            sessionId: session.id,
+            ts: Date.now(),
+            method: SystemMethod.Cancel,
+            params: { operationId: context.operationId, actionNonce: context.actionNonce },
+          }),
+        );
+      }
+      const reason = context.signal.reason;
+      pending.reject(
+        reason instanceof Error
+          ? reason
+          : Object.assign(new Error('operation cancelled'), { code: 'OPERATION_CANCELLED' }),
+      );
+    };
+    pendingCancellations.set(entry, { context, listener });
+    context.signal.addEventListener('abort', listener, { once: true });
+    if (context.signal.aborted) listener();
+  }
+
+  private createPluginRequest(
+    id: string,
+    entry: Pending,
+    sessionId: string,
+  ): ReturnType<typeof createRequest> {
+    const cancellation = pendingCancellations.get(entry)?.context;
+    return createRequest({
+      id,
+      sessionId,
+      method: entry.method,
+      params: entry.params,
+      ...(cancellation === undefined
+        ? {}
+        : { operationId: cancellation.operationId, actionNonce: cancellation.actionNonce }),
+    });
   }
 
   private sendPing(session: Session): void {
@@ -704,3 +770,68 @@ export class Relay {
     );
   }
 }
+
+interface RelayCancellation {
+  signal: AbortSignal;
+  operationId: string;
+  actionNonce: string;
+}
+
+const pendingCancellations = new WeakMap<
+  Pending,
+  { context: RelayCancellation; listener: () => void }
+>();
+
+export const handleLegacyFollowerRpc = async (
+  relay: Pick<Relay, 'sendRequest' | 'skewNotice'>,
+  plaintext: Uint8Array,
+  timeoutMs?: number,
+): Promise<Uint8Array> => {
+  const { decode, encode } = await import('@msgpack/msgpack');
+  const { getRelayBudget, RpcRequestSchema } = await import('@sfp/shared');
+  let decoded: unknown;
+  try {
+    decoded = decode(plaintext);
+  } catch {
+    return encode({
+      kind: 'err',
+      requestId: '',
+      code: ErrorCode.InvalidRequest,
+      message: 'invalid msgpack body',
+    });
+  }
+  const rpc = RpcRequestSchema.safeParse(decoded);
+  if (!rpc.success) {
+    return encode({
+      kind: 'err',
+      requestId: '',
+      code: ErrorCode.InvalidParams,
+      message: 'invalid rpc request',
+    });
+  }
+  const { requestId, toolName, args, sessionId } = rpc.data;
+  let body: unknown;
+  try {
+    let notice: string | null = null;
+    const result = await relay.sendRequest(
+      toolName,
+      args,
+      timeoutMs ?? getRelayBudget(toolName),
+      sessionId,
+      served => {
+        notice = relay.skewNotice(served);
+      },
+    );
+    body = { kind: 'ok', requestId, result, ...(notice === null ? {} : { notice }) };
+  } catch (error) {
+    const message = (error as Error).message;
+    const code =
+      message.startsWith('no plugin connected') || message.startsWith('pinned session')
+        ? ErrorCode.PluginDisconnected
+        : message.includes('timeout')
+          ? ErrorCode.Timeout
+          : ErrorCode.Internal;
+    body = { kind: 'err', requestId, code, message };
+  }
+  return encode(body);
+};

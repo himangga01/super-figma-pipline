@@ -1,3 +1,4 @@
+import { createHash } from 'node:crypto';
 import { mkdtemp, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
@@ -5,17 +6,24 @@ import { join } from 'node:path';
 import {
   createToolInvocationOptions,
   NO_CAPTURE_OPTIONS,
+  OPERATION_EVIDENCE_LIMITS,
+  type EgressManifestPort,
   type RuntimeExecutionScope,
 } from '@sfp/shared';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
+import { EgressManifestStore } from '../../src/execution/egress-manifest-store.js';
 import { FileExecutionQueue } from '../../src/execution/file-queue.js';
+import { OperationEvidenceReceiptStore } from '../../src/execution/operation-evidence-receipt-store.js';
 import {
+  DurableOperationFinalizer,
   OperationExecutor,
+  recoverDurableOperationState,
   type OperationJournalPort,
 } from '../../src/execution/operation-executor.js';
 import { operationIdIssuerFromKey } from '../../src/execution/operation-id.js';
 import { OperationJournal } from '../../src/execution/operation-journal.js';
+import { createOutputEgressManifest } from '../../src/policy/egress-policy.js';
 import { ToolInvocationService } from '../../src/tool-invocation-service.js';
 import {
   createBoundRuntimeRegistry,
@@ -30,6 +38,12 @@ afterEach(async () => {
 const actorId = 'actor1_AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA' as const;
 const authSessionId = 'auth1_AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA' as const;
 const fixedNow = 1_724_803_200_000;
+const daemonGenerationHash = (generation: string) =>
+  `sha256:${createHash('sha256')
+    .update('sfp-daemon-generation-v1', 'utf8')
+    .update(Buffer.from([0]))
+    .update(generation, 'utf8')
+    .digest('hex')}` as const;
 const scope = (consentId: string | null = null): RuntimeExecutionScope =>
   Object.freeze({
     requestId: 'sfp_req1_AAAAAAAAAAAAAAAAAAAAAA',
@@ -465,6 +479,729 @@ describe('idempotent journaled operation executor', () => {
     expect(service.status(actorId, operationId)).toMatchObject({ status: 'succeeded' });
     await expect(service.invokeService(scope(), 'snapshot.capture', {})).rejects.toMatchObject({
       code: 'SERVICE_OPERATION_NOT_FOUND',
+    });
+  });
+
+  it('creates cancellation state before approval and durably cancels pending work without runtime', async () => {
+    const root = await createRoot();
+    const issuer = operationIdIssuerFromKey(Buffer.alloc(32, 21));
+    const operationId = issuer.issue(actorId, fixedNow, {
+      nonce: 'CQAAAAAAAAAAAAAAAAAAAA',
+    });
+    const journal = new OperationJournal({ stateRoot: root, actorId });
+    await journal.recover();
+    const runtime = vi.fn<PinnedPluginRuntimePort['execute']>(async () => ({ ok: true }));
+    const executor = new OperationExecutor({
+      issuer,
+      journal,
+      queue: new FileExecutionQueue(),
+      runtimes: createBoundRuntimeRegistry({ execute: runtime }, { execute: async () => ({}) }),
+      now: () => fixedNow,
+    });
+    await executor.beginToolApproval(
+      scope(),
+      'create_text',
+      { characters: 'A' },
+      operationId,
+      'sfp_ap1_AAAAAAAAAAAAAAAAAAAAAA',
+      NO_CAPTURE_OPTIONS,
+    );
+
+    await executor.cancel(scope().actor, {
+      version: 1,
+      requestId: scope().requestId,
+      operationId,
+    });
+
+    expect(journal.get(operationId)).toMatchObject({
+      status: 'pre-egress-rejected',
+      errorCode: 'OPERATION_CANCELLED',
+    });
+    expect(runtime).not.toHaveBeenCalled();
+  });
+
+  it('propagates dispatched cancel to runtime but settles unknown when a late plugin result may mutate', async () => {
+    const root = await createRoot();
+    const issuer = operationIdIssuerFromKey(Buffer.alloc(32, 22));
+    const operationId = issuer.issue(actorId, fixedNow, {
+      nonce: 'CgAAAAAAAAAAAAAAAAAAAA',
+    });
+    const journal = new OperationJournal({ stateRoot: root, actorId });
+    await journal.recover();
+    let observedSignal: AbortSignal | undefined;
+    let release!: () => void;
+    const gate = new Promise<void>(resolve => {
+      release = resolve;
+    });
+    const runtime = vi.fn<PinnedPluginRuntimePort['execute']>(
+      async (_scope, _tool, _args, signal) => {
+        observedSignal = signal;
+        await gate;
+        return { ok: true, nodeId: '1:2', name: 'Text', type: 'TEXT' };
+      },
+    );
+    const executor = new OperationExecutor({
+      issuer,
+      journal,
+      queue: new FileExecutionQueue(),
+      runtimes: createBoundRuntimeRegistry({ execute: runtime }, { execute: async () => ({}) }),
+      now: () => fixedNow,
+    });
+    const invocation = executor.invokeTool(
+      scope(),
+      'create_text',
+      { characters: 'A' },
+      operationId,
+      NO_CAPTURE_OPTIONS,
+    );
+    await vi.waitFor(() =>
+      expect(journal.get(operationId)).toMatchObject({ status: 'dispatched' }),
+    );
+    await executor.cancel(scope().actor, {
+      version: 1,
+      requestId: scope().requestId,
+      operationId,
+    });
+    expect(observedSignal?.aborted).toBe(true);
+    release();
+
+    await expect(invocation).rejects.toMatchObject({ code: 'OPERATION_OUTCOME_UNKNOWN' });
+    expect(journal.get(operationId)).toMatchObject({
+      status: 'outcome-unknown',
+      errorCode: 'OPERATION_CANCELLED_AFTER_DISPATCH',
+    });
+    expect(runtime).toHaveBeenCalledOnce();
+  });
+
+  it('reserves pre/output/evidence before queued fsync and emits terminal only after receipt/finalizer/terminal fsync', async () => {
+    const root = await createRoot();
+    const issuer = operationIdIssuerFromKey(Buffer.alloc(32, 23));
+    const operationId = issuer.issue(actorId, fixedNow, {
+      nonce: 'CwAAAAAAAAAAAAAAAAAAAA',
+    });
+    const durable = new OperationJournal({ stateRoot: root, actorId });
+    await durable.recover();
+    const events: string[] = [];
+    const journal: OperationJournalPort = {
+      appendInitial: async (...args) => {
+        const row = await durable.appendInitial(...args);
+        events.push('queued-fsync');
+        return row;
+      },
+      transition: async (id, status, patch, options) => {
+        const row = await durable.transition(id, status, patch, options);
+        events.push(status === 'dispatched' ? 'dispatched-fsync' : 'terminal-fsync');
+        return row;
+      },
+      get: id => durable.get(id),
+    };
+    const runtime = vi.fn<PinnedPluginRuntimePort['execute']>(async () => {
+      events.push('runtime');
+      return { ok: true, nodeId: '1:2', name: 'Text', type: 'TEXT' };
+    });
+    const executor = new OperationExecutor({
+      issuer,
+      journal,
+      queue: new FileExecutionQueue(),
+      runtimes: createBoundRuntimeRegistry({ execute: runtime }, { execute: async () => ({}) }),
+      durability: {
+        egress: {
+          reservePre: async (boundActorId, requestId, boundOperationId, manifest) => {
+            events.push('pre-manifest-fsync');
+            return {
+              actorId: boundActorId,
+              requestId,
+              operationId: boundOperationId,
+              leaderGeneration: 'generation-1',
+              preManifestHash: manifest.manifestHash,
+              reservedOutputBytes: 65_536,
+            };
+          },
+          finalize: async (_reservation, manifest) => {
+            events.push('finalizer-fsync');
+            return { finalManifestHash: manifest.manifestHash, finalized: true };
+          },
+          readVerifiedFinalizer: async () => null,
+          recover: async () => undefined,
+          flush: async () => undefined,
+        },
+        receipts: {
+          reserveBeforeRuntime: async () => {
+            events.push('evidence-reserve');
+            return { reservationId: 'reservation-1', reservedBytes: 65_536 };
+          },
+          prepareAndFsync: async (_reservationId, receipt) => {
+            events.push('receipt-fsync');
+            return {
+              ...receipt,
+              previousReceiptHash: null,
+              contentHash: `sha256:${'8'.repeat(64)}`,
+              receiptHash: `sha256:${'9'.repeat(64)}`,
+            } as never;
+          },
+          get: async () => null,
+          recover: async () => undefined,
+          releaseWithoutReceipt: async () => undefined,
+          abortAfterDurableUnknown: async () => undefined,
+        },
+        artifacts: { createNew: vi.fn<() => never>() },
+        projector: {
+          project: () => ({
+            contextHash: `sha256:${'7'.repeat(64)}` as never,
+            kind: 'no-artifact',
+            reasonCode: 'not-native-evidence',
+          }),
+        },
+        nativeArtifacts: { createNativeManifest: vi.fn<() => never>() },
+      },
+      now: () => fixedNow,
+    });
+
+    await executor.invokeTool(
+      scope(),
+      'create_text',
+      { characters: 'A' },
+      operationId,
+      NO_CAPTURE_OPTIONS,
+    );
+
+    expect(events).toEqual([
+      'pre-manifest-fsync',
+      'evidence-reserve',
+      'queued-fsync',
+      'dispatched-fsync',
+      'runtime',
+      'receipt-fsync',
+      'finalizer-fsync',
+      'terminal-fsync',
+    ]);
+  });
+
+  it('recovers repeated crashes after evidence reservation fsync without leaking capacity or rerunning', async () => {
+    const root = await createRoot();
+    const issuer = operationIdIssuerFromKey(Buffer.alloc(32, 31));
+    const crash = Object.assign(new Error('crash after evidence reservation fsync'), {
+      code: 'INJECTED_PROCESS_CRASH',
+    });
+    const limits = {
+      ...OPERATION_EVIDENCE_LIMITS,
+      maxRowsPerActor: 3,
+      maxBytesPerActor: OPERATION_EVIDENCE_LIMITS.reservationBytesPerOperation * 3,
+    };
+    const runtime = vi.fn<PinnedPluginRuntimePort['execute']>(async () => ({
+      ok: true,
+      nodeId: '1:2',
+      name: 'Text',
+      type: 'TEXT',
+    }));
+    const operationIds: string[] = [];
+
+    const restart = async (now: number, afterTombstoneFsync?: () => Promise<void>) => {
+      const journal = new OperationJournal({
+        stateRoot: root,
+        actorId,
+        now: () => now,
+        ...(afterTombstoneFsync === undefined ? {} : { afterTombstoneFsync }),
+      });
+      const egress = new EgressManifestStore({ stateRoot: root, actorId, now: () => now });
+      const receipts = new OperationEvidenceReceiptStore({
+        stateRoot: root,
+        actorId,
+        limits,
+      });
+      const finalizer = new DurableOperationFinalizer({
+        artifacts: { createNew: vi.fn<() => never>() },
+        receipts,
+        egress,
+        journal,
+        emitTerminal: vi.fn<() => never>(),
+      });
+      const recovery = {
+        actorId,
+        now,
+        egress,
+        receipts,
+        journal,
+        finalizer,
+        preRuntimeReservationRecovery: {
+          hasResultArtifactSideEffect: async () => false,
+          hasNativeArtifactSideEffect: async () => false,
+        },
+      } satisfies Parameters<typeof recoverDurableOperationState>[0] & {
+        preRuntimeReservationRecovery: {
+          hasResultArtifactSideEffect(workspaceId: string, operationId: string): Promise<boolean>;
+          hasNativeArtifactSideEffect(workspaceId: string, operationId: string): Promise<boolean>;
+        };
+      };
+      await recoverDurableOperationState(recovery);
+      return { journal, egress, receipts };
+    };
+    const assertRecoveryCrash = async () => {
+      const recoveryCrash = new Error('crash after recovered tombstone fsync');
+      await expect(
+        restart(fixedNow + 100, async () => {
+          throw recoveryCrash;
+        }),
+      ).rejects.toBe(recoveryCrash);
+    };
+
+    for (let crashIndex = 0; crashIndex < 4; crashIndex += 1) {
+      const authorities = await restart(fixedNow + crashIndex);
+      const operationId = issuer.issue(actorId, fixedNow + crashIndex);
+      operationIds.push(operationId);
+      const durability = {
+        egress: authorities.egress,
+        receipts: authorities.receipts,
+        artifacts: { createNew: vi.fn<() => never>() },
+        projector: { project: vi.fn<() => never>() },
+        nativeArtifacts: { createNativeManifest: vi.fn<() => never>() },
+        afterEvidenceReservationFsync: async () => {
+          throw crash;
+        },
+      };
+      const executor = new OperationExecutor({
+        issuer,
+        journal: authorities.journal,
+        queue: new FileExecutionQueue(),
+        runtimes: createBoundRuntimeRegistry({ execute: runtime }, { execute: async () => ({}) }),
+        durability,
+        now: () => fixedNow + crashIndex,
+      });
+
+      await expect(
+        executor.invokeTool(
+          scope(),
+          'create_text',
+          { characters: 'A' },
+          operationId,
+          NO_CAPTURE_OPTIONS,
+        ),
+      ).rejects.toBe(crash);
+      expect(authorities.journal.get(operationId)).toBeUndefined();
+      expect(runtime).not.toHaveBeenCalled();
+      if (crashIndex === 0) {
+        await assertRecoveryCrash();
+      }
+    }
+
+    const recovered = await restart(fixedNow + 10);
+    for (const operationId of operationIds) {
+      const record = recovered.journal.get(operationId);
+      expect(record).toMatchObject({
+        status: 'rejected',
+        errorCode: 'OPERATION_PRE_RUNTIME_CRASH_RECOVERED',
+        operationEvidenceReceiptHash: null,
+        finalEgressManifestHash: expect.stringMatching(/^sha256:/u),
+      });
+      if (record === undefined || !('finalEgressManifestHash' in record)) {
+        throw new Error('recovered terminal journal record expected');
+      }
+      const egressState = await recovered.egress.classifyOperationState(actorId, operationId);
+      expect(egressState.kind).toBe('final');
+      const finalizer = await recovered.egress.readVerifiedFinalizer(
+        actorId,
+        operationId,
+        record.finalEgressManifestHash,
+      );
+      expect(finalizer).toMatchObject({
+        finalStatus: 'no-output',
+        manifestHash: record.finalEgressManifestHash,
+        preExecutionManifestHash:
+          egressState.kind === 'absent' ? null : egressState.preExecutionManifestHash,
+        resultHash: null,
+      });
+    }
+
+    const capacityProbe = await recovered.receipts.reserveBeforeRuntime(
+      actorId,
+      issuer.issue(actorId, fixedNow + 20),
+      1,
+    );
+    await recovered.receipts.releaseWithoutReceipt(capacityProbe.reservationId);
+
+    const replayRuntime = vi.fn<PinnedPluginRuntimePort['execute']>(async () => ({ ok: true }));
+    const replayExecutor = new OperationExecutor({
+      issuer,
+      journal: recovered.journal,
+      queue: new FileExecutionQueue(),
+      runtimes: createBoundRuntimeRegistry(
+        { execute: replayRuntime },
+        { execute: async () => ({}) },
+      ),
+      now: () => fixedNow + 20,
+    });
+    await expect(
+      replayExecutor.invokeTool(
+        scope(),
+        'create_text',
+        { characters: 'A' },
+        operationIds[0]!,
+        NO_CAPTURE_OPTIONS,
+      ),
+    ).rejects.toMatchObject({ code: 'OPERATION_ALREADY_SETTLED', status: 'rejected' });
+    await expect(
+      replayExecutor.invokeTool(
+        scope(),
+        'create_text',
+        { characters: 'different' },
+        operationIds[0]!,
+        NO_CAPTURE_OPTIONS,
+      ),
+    ).rejects.toMatchObject({ code: 'OPERATION_ID_CONFLICT' });
+    expect(replayRuntime).not.toHaveBeenCalled();
+
+    const secondRestart = await restart(fixedNow + 30);
+    expect(secondRestart.journal.get(operationIds[0]!)).toMatchObject({
+      status: 'rejected',
+      finalEgressManifestHash: recovered.journal.get(operationIds[0]!)?.finalEgressManifestHash,
+    });
+    expect(runtime).not.toHaveBeenCalled();
+  });
+
+  it('passes one operation reporter into the real runtime execution path', async () => {
+    const root = await createRoot();
+    const issuer = operationIdIssuerFromKey(Buffer.alloc(32, 24));
+    const operationId = issuer.issue(actorId, fixedNow, {
+      nonce: 'DAAAAAAAAAAAAAAAAAAAAA',
+    });
+    const journal = new OperationJournal({ stateRoot: root, actorId });
+    await journal.recover();
+    const runtime = vi.fn<PinnedPluginRuntimePort['execute']>(
+      async (_scope, _tool, _args, _signal, reporter) => {
+        reporter?.report({ phase: 'plugin', completed: 1, total: 1, message: 'done' });
+        return { ok: true, nodeId: '1:2', name: 'Text', type: 'TEXT' };
+      },
+    );
+    const report = vi.fn<(event: unknown) => void>();
+    const executor = new OperationExecutor({
+      issuer,
+      journal,
+      queue: new FileExecutionQueue(),
+      runtimes: createBoundRuntimeRegistry({ execute: runtime }, { execute: async () => ({}) }),
+      now: () => fixedNow,
+    });
+
+    await executor.invokeTool(
+      scope(),
+      'create_text',
+      { characters: 'A' },
+      operationId,
+      NO_CAPTURE_OPTIONS,
+      { report, throwIfCancelled: () => undefined },
+    );
+
+    expect(report).toHaveBeenCalledWith({
+      phase: 'plugin',
+      completed: 1,
+      total: 1,
+      message: 'done',
+    });
+  });
+
+  it('closes a durable pre-manifest and rejects without runtime when evidence reservation fails', async () => {
+    const root = await createRoot();
+    const issuer = operationIdIssuerFromKey(Buffer.alloc(32, 25));
+    const operationId = issuer.issue(actorId, fixedNow, {
+      nonce: 'DQAAAAAAAAAAAAAAAAAAAA',
+    });
+    const journal = new OperationJournal({ stateRoot: root, actorId, now: () => fixedNow });
+    await journal.recover();
+    const runtime = vi.fn<PinnedPluginRuntimePort['execute']>(async () => ({ ok: true }));
+    const finalize = vi.fn<EgressManifestPort['finalize']>(async (_reservation, manifest) => ({
+      finalManifestHash: manifest.manifestHash,
+      finalized: true as const,
+    }));
+    const executor = new OperationExecutor({
+      issuer,
+      journal,
+      queue: new FileExecutionQueue(),
+      runtimes: createBoundRuntimeRegistry({ execute: runtime }, { execute: async () => ({}) }),
+      durability: {
+        egress: {
+          reservePre: async (boundActorId, requestId, boundOperationId, manifest) => ({
+            actorId: boundActorId,
+            requestId,
+            operationId: boundOperationId,
+            leaderGeneration: 'generation-1',
+            preManifestHash: manifest.manifestHash,
+            reservedOutputBytes: 65_536,
+          }),
+          finalize,
+          readVerifiedFinalizer: async () => null,
+          recover: async () => undefined,
+          flush: async () => undefined,
+        },
+        receipts: {
+          reserveBeforeRuntime: async () => {
+            throw Object.assign(new Error('receipt capacity'), {
+              code: 'EVIDENCE_CAPACITY_EXCEEDED',
+            });
+          },
+          prepareAndFsync: vi.fn<() => never>(),
+          get: async () => null,
+          recover: async () => undefined,
+          releaseWithoutReceipt: async () => undefined,
+          abortAfterDurableUnknown: async () => undefined,
+        },
+        artifacts: { createNew: vi.fn<() => never>() },
+        projector: { project: vi.fn<() => never>() },
+        nativeArtifacts: { createNativeManifest: vi.fn<() => never>() },
+      },
+      now: () => fixedNow,
+    });
+
+    await expect(
+      executor.invokeTool(
+        scope(),
+        'create_text',
+        { characters: 'A' },
+        operationId,
+        NO_CAPTURE_OPTIONS,
+      ),
+    ).rejects.toMatchObject({ code: 'EVIDENCE_CAPACITY_EXCEEDED' });
+    expect(finalize).toHaveBeenCalledWith(
+      expect.objectContaining({ operationId }),
+      expect.objectContaining({ finalStatus: 'no-output', reasonCode: 'admission-rejected' }),
+    );
+    expect(journal.get(operationId)).toMatchObject({
+      status: 'rejected',
+      errorCode: 'EVIDENCE_CAPACITY_EXCEEDED',
+      finalEgressManifestHash: expect.stringMatching(/^sha256:/),
+      operationEvidenceReceiptHash: null,
+    });
+    expect(runtime).not.toHaveBeenCalled();
+  });
+
+  it('keeps artifact preflight failure outside the journal with exact null-link pre-egress semantics', async () => {
+    const root = await createRoot();
+    const issuer = operationIdIssuerFromKey(Buffer.alloc(32, 26));
+    const operationId = issuer.issue(actorId, fixedNow, {
+      nonce: 'DgAAAAAAAAAAAAAAAAAAAA',
+    });
+    const journal = new OperationJournal({ stateRoot: root, actorId, now: () => fixedNow });
+    await journal.recover();
+    const runtime = vi.fn<PinnedPluginRuntimePort['execute']>(async () => ({ ok: true }));
+    const reservePre = vi.fn<EgressManifestPort['reservePre']>();
+    const executor = new OperationExecutor({
+      issuer,
+      journal,
+      queue: new FileExecutionQueue(),
+      runtimes: createBoundRuntimeRegistry({ execute: runtime }, { execute: async () => ({}) }),
+      durability: {
+        egress: {
+          reservePre,
+          finalize: vi.fn<EgressManifestPort['finalize']>(),
+          readVerifiedFinalizer: async () => null,
+          recover: async () => undefined,
+          flush: async () => undefined,
+        },
+        receipts: {
+          reserveBeforeRuntime: vi.fn<() => never>(),
+          prepareAndFsync: vi.fn<() => never>(),
+          get: async () => null,
+          recover: async () => undefined,
+          releaseWithoutReceipt: async () => undefined,
+          abortAfterDurableUnknown: async () => undefined,
+        },
+        artifacts: {
+          preflight: async () => {
+            throw Object.assign(new Error('capture path rejected'), {
+              code: 'EVIDENCE_ARTIFACT_PATH_INVALID',
+            });
+          },
+          createNew: vi.fn<() => never>(),
+        },
+        projector: { project: vi.fn<() => never>() },
+        nativeArtifacts: { createNativeManifest: vi.fn<() => never>() },
+      },
+      now: () => fixedNow,
+    });
+
+    await expect(
+      executor.invokeTool(
+        {
+          ...scope(),
+          workspace: { workspaceId: '123e4567-e89b-42d3-a456-426614174000', workspaceRoot: root },
+        },
+        'create_text',
+        { characters: 'A' },
+        operationId,
+        createToolInvocationOptions(true, operationId, '123e4567-e89b-42d3-a456-426614174000'),
+      ),
+    ).rejects.toMatchObject({ code: 'EVIDENCE_ARTIFACT_PATH_INVALID' });
+    expect(journal.get(operationId)).toBeUndefined();
+    expect(reservePre).not.toHaveBeenCalled();
+    expect(runtime).not.toHaveBeenCalled();
+  });
+
+  it('aborts a dispatched generation and waits for its unknown settlement before demotion returns', async () => {
+    const root = await createRoot();
+    const issuer = operationIdIssuerFromKey(Buffer.alloc(32, 27));
+    const operationId = issuer.issue(actorId, fixedNow, {
+      nonce: 'DwAAAAAAAAAAAAAAAAAAAA',
+    });
+    const journal = new OperationJournal({ stateRoot: root, actorId, now: () => fixedNow });
+    await journal.recover();
+    let release!: () => void;
+    const gate = new Promise<void>(resolve => {
+      release = resolve;
+    });
+    let observedSignal: AbortSignal | undefined;
+    const runtime = vi.fn<PinnedPluginRuntimePort['execute']>(
+      async (_scope, _tool, _args, signal) => {
+        observedSignal = signal;
+        await gate;
+        return { ok: true, nodeId: '1:2', name: 'Text', type: 'TEXT' };
+      },
+    );
+    const executor = new OperationExecutor({
+      issuer,
+      journal,
+      queue: new FileExecutionQueue(),
+      runtimes: createBoundRuntimeRegistry({ execute: runtime }, { execute: async () => ({}) }),
+      now: () => fixedNow,
+    });
+    const invocation = executor.invokeTool(
+      scope(),
+      'create_text',
+      { characters: 'A' },
+      operationId,
+      NO_CAPTURE_OPTIONS,
+    );
+    await vi.waitFor(() =>
+      expect(journal.get(operationId)).toMatchObject({ status: 'dispatched' }),
+    );
+
+    const capability = await journal.fenceLeaderGeneration('generation-1');
+    const demotion = executor.demoteGeneration('generation-1', capability);
+    await vi.waitFor(() => expect(observedSignal?.aborted).toBe(true));
+    release();
+    await expect(demotion).resolves.toBeUndefined();
+    await expect(invocation).rejects.toMatchObject({ code: 'OPERATION_OUTCOME_UNKNOWN' });
+    expect(journal.get(operationId)).toMatchObject({ status: 'outcome-unknown' });
+  });
+
+  it('links an already durable output finalizer during fencing instead of writing a conflicting unknown', async () => {
+    const root = await createRoot();
+    const issuer = operationIdIssuerFromKey(Buffer.alloc(32, 28));
+    const operationId = issuer.issue(actorId, fixedNow, {
+      nonce: 'EAAAAAAAAAAAAAAAAAAAAA',
+    });
+    const journal = new OperationJournal({ stateRoot: root, actorId, now: () => fixedNow });
+    const egressStore = new EgressManifestStore({ stateRoot: root, actorId });
+    const receiptStore = new OperationEvidenceReceiptStore({ stateRoot: root, actorId });
+    await Promise.all([journal.recover(), egressStore.recover(fixedNow), receiptStore.recover()]);
+    let egressReservation!: Awaited<ReturnType<EgressManifestPort['reservePre']>>;
+    let evidenceReservationId = '';
+    let release!: () => void;
+    const gate = new Promise<void>(resolve => {
+      release = resolve;
+    });
+    const runtime = vi.fn<PinnedPluginRuntimePort['execute']>(
+      async (_scope, _tool, _args, signal) => {
+        await gate;
+        signal.throwIfAborted();
+        return { ok: true, nodeId: '1:2', name: 'Text', type: 'TEXT' };
+      },
+    );
+    const executor = new OperationExecutor({
+      issuer,
+      journal,
+      queue: new FileExecutionQueue(),
+      runtimes: createBoundRuntimeRegistry({ execute: runtime }, { execute: async () => ({}) }),
+      durability: {
+        egress: {
+          reservePre: async (...args) => {
+            egressReservation = await egressStore.reservePre(...args);
+            return egressReservation;
+          },
+          finalize: (...args) => egressStore.finalize(...args),
+          readVerifiedFinalizer: (...args) => egressStore.readVerifiedFinalizer(...args),
+          recover: now => egressStore.recover(now),
+          flush: () => egressStore.flush(),
+        },
+        receipts: {
+          reserveBeforeRuntime: async (...args) => {
+            const reservation = await receiptStore.reserveBeforeRuntime(...args);
+            evidenceReservationId = reservation.reservationId;
+            return reservation;
+          },
+          prepareAndFsync: (...args) => receiptStore.prepareAndFsync(...args),
+          get: (...args) => receiptStore.get(...args),
+          recover: () => receiptStore.recover(),
+          releaseWithoutReceipt: id => receiptStore.releaseWithoutReceipt(id),
+          abortAfterDurableUnknown: id => receiptStore.abortAfterDurableUnknown(id),
+        },
+        artifacts: { createNew: vi.fn<() => never>() },
+        projector: {
+          project: () => ({
+            contextHash: `sha256:${'7'.repeat(64)}` as never,
+            kind: 'no-artifact',
+            reasonCode: 'not-native-evidence',
+          }),
+        },
+        nativeArtifacts: { createNativeManifest: vi.fn<() => never>() },
+      },
+      now: () => fixedNow,
+    });
+    const invocation = executor.invokeTool(
+      scope(),
+      'create_text',
+      { characters: 'A' },
+      operationId,
+      NO_CAPTURE_OPTIONS,
+    );
+    await vi.waitFor(() =>
+      expect(journal.get(operationId)).toMatchObject({ status: 'dispatched' }),
+    );
+    const record = journal.get(operationId)!;
+    if (!('sequence' in record)) throw new Error('active dispatched record expected');
+    const resultHash = `sha256:${'e'.repeat(64)}` as const;
+    const output = createOutputEgressManifest({
+      preExecutionManifestHash: egressReservation.preManifestHash,
+      resultClasses: ['design-text'],
+      outputBytes: 2,
+      outputTokens: 1,
+      redactedFieldCount: 0,
+      resultHash,
+      resultBytes: 2,
+      payloadHash: resultHash,
+    });
+    await receiptStore.prepareAndFsync(evidenceReservationId, {
+      schemaVersion: 1,
+      state: 'prepared',
+      actorId,
+      operationId,
+      operationKind: record.operationKind,
+      operationName: record.operationName,
+      argsHash: record.argsHash,
+      workspaceId: record.workspaceId,
+      fileExecutionKeyHash: record.fileExecutionKeyHash,
+      targetBindingHash: record.targetBindingHash,
+      captureIntentHash: record.captureIntentHash,
+      captureResult: false,
+      finalizerHash: output.manifestHash,
+      daemonGenerationHash: daemonGenerationHash('generation-1'),
+      completedAt: new Date(fixedNow).toISOString(),
+      terminalStatus: 'succeeded',
+      resultHash,
+      resultBytes: 2,
+      resultArtifact: null,
+      nativeEvidence: { kind: 'no-artifact', reasonCode: 'not-native-evidence' },
+    } as never);
+    await egressStore.finalize(egressReservation, output);
+    const capability = await journal.fenceLeaderGeneration('generation-1');
+    const demotion = executor.demoteGeneration('generation-1', capability);
+    await vi.waitFor(() => expect(journal.get(operationId)).toMatchObject({ status: 'succeeded' }));
+    release();
+
+    await expect(demotion).resolves.toBeUndefined();
+    await invocation.catch(() => undefined);
+    expect(journal.get(operationId)).toMatchObject({
+      status: 'succeeded',
+      resultHash,
+      finalEgressManifestHash: output.manifestHash,
+      operationEvidenceReceiptHash: expect.stringMatching(/^sha256:/u),
     });
   });
 });

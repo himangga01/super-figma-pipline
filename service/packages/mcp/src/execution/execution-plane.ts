@@ -6,11 +6,14 @@ import {
   parseActorContext,
   parseInvocationRequest,
   parseInvocationTargetSelector,
+  InvocationCancelV1Schema,
   validateToolInvocationOptions,
   type ActorContext,
   type ConsentContext,
   type Effect,
   type InvocationRequestV1,
+  type InvocationCancelV1,
+  type InvocationFrameV1,
   type InvocationTargetSelector,
   type OperationInvocationService,
   type PluginTarget,
@@ -22,6 +25,13 @@ import {
   type PolicyInvocationContext,
   type WorkspaceInvocationContext,
   type WorkspacePolicy,
+  INVOCATION_ADMISSION_LIMITS,
+  BoundedInvocationFrameChannel,
+  measureCanonicalJsonUtf8Bytes,
+  OperationProgressBroadcaster,
+  OperationProgressRegistry,
+  safeInvocationError,
+  type ProgressReporter,
 } from '@sfp/shared';
 
 import { operationPolicyFor } from '../policy/operation-policy.js';
@@ -29,6 +39,7 @@ import { evaluateOperationPolicy, type EvaluatedOperationPolicy } from '../polic
 import { resultEgressPolicyFor } from '../policy/result-egress-policy.js';
 import { ALL_TOOL_SPECS } from '../tools/registry.js';
 import type { ToolSpec } from '../tools/spec.js';
+import type { LeaderDemotionCapability, OperationJournal } from './operation-journal.js';
 
 export interface DemotionTicket {
   leaderGeneration: string;
@@ -49,6 +60,72 @@ export interface ExecutionPlaneLifecyclePorts {
   destroy(): Promise<void> | void;
   releasePort(signal: AbortSignal): Promise<void> | void;
 }
+
+export const createDurableExecutionPlaneLifecyclePorts = (input: {
+  leaderGeneration: string;
+  journal:
+    | Pick<OperationJournal, 'fenceLeaderGeneration' | 'settleLeaderGeneration' | 'flush'>
+    | (() =>
+        | Pick<OperationJournal, 'fenceLeaderGeneration' | 'settleLeaderGeneration' | 'flush'>
+        | undefined);
+  abortGeneration?(capability: LeaderDemotionCapability): Promise<void>;
+  flushDurability(): Promise<unknown>;
+  drainTransport(deadlineAt: number): Promise<boolean>;
+  forceCloseTransport(): Promise<unknown> | unknown;
+  destroy(): Promise<unknown> | unknown;
+  releasePort(signal: AbortSignal): Promise<unknown> | unknown;
+}): ExecutionPlaneLifecyclePorts => {
+  let demotionCapability: LeaderDemotionCapability | null = null;
+  const journal = () => (typeof input.journal === 'function' ? input.journal() : input.journal);
+  const settle = async (
+    from: 'pending-approval' | 'queued' | 'dispatched',
+    to: 'pre-egress-rejected' | 'failed' | 'outcome-unknown',
+  ): Promise<void> => {
+    const authority = journal();
+    if (authority === undefined) return;
+    if (demotionCapability === null) {
+      throw Object.assign(new Error('demotion fence capability is unavailable'), {
+        code: 'LEADER_GENERATION_MISMATCH',
+      });
+    }
+    await authority.settleLeaderGeneration(
+      demotionCapability,
+      input.leaderGeneration,
+      from,
+      to,
+      'LEADER_GENERATION_CLOSED',
+    );
+  };
+  return Object.freeze({
+    closeAdmission: () => undefined,
+    installGenerationFence: async () => {
+      const authority = journal();
+      if (authority !== undefined) {
+        demotionCapability = await authority.fenceLeaderGeneration(input.leaderGeneration);
+      }
+    },
+    abortPending: async () => {
+      if (demotionCapability !== null) await input.abortGeneration?.(demotionCapability);
+      await settle('pending-approval', 'pre-egress-rejected');
+    },
+    abortQueued: () => settle('queued', 'failed'),
+    markDispatchedOutcomeUnknown: () => settle('dispatched', 'outcome-unknown'),
+    finalizeAndFlushEgress: async () => {
+      await journal()?.flush();
+      await input.flushDurability();
+    },
+    drainTransport: input.drainTransport,
+    forceCloseTransport: async () => {
+      await input.forceCloseTransport();
+    },
+    destroy: async () => {
+      await input.destroy();
+    },
+    releasePort: async (signal: AbortSignal) => {
+      await input.releasePort(signal);
+    },
+  });
+};
 
 export interface ApprovalDecisionPort {
   request(
@@ -97,6 +174,220 @@ export interface ExecutionPlaneAdmissionAuthority {
   }): Promise<ConsentContext>;
   issueOperationId(actorId: ActorContext['actorId']): string;
   verifyOperationId(actorId: ActorContext['actorId'], operationId: string): void;
+}
+
+export interface InvocationAdmissionHandle {
+  readonly ownerId: string;
+  readonly authSessionId: string;
+  readonly requestId: string;
+  release(): void;
+}
+
+export interface LazyLeaderRuntimeBoundary<T> {
+  get(): Promise<T>;
+  peek(): T | undefined;
+}
+
+export class GenerationRuntimeLifecycleRegistry<T extends { close(): Promise<void> }> {
+  private readonly states = new Map<
+    string,
+    {
+      controller: AbortController;
+      promise: Promise<T>;
+      closing: boolean;
+      closed: boolean;
+    }
+  >();
+
+  initialize(generation: string, initialize: (signal: AbortSignal) => Promise<T>): Promise<T> {
+    if (this.states.has(generation)) {
+      return Promise.reject(
+        Object.assign(new Error('generation runtime already exists'), {
+          code: 'EXECUTION_PLANE_ALREADY_BOUND',
+        }),
+      );
+    }
+    const controller = new AbortController();
+    const state = {
+      controller,
+      promise: Promise.resolve(undefined as never) as Promise<T>,
+      closing: false,
+      closed: false,
+    };
+    let initialized: Promise<T>;
+    try {
+      initialized = Promise.resolve(initialize(controller.signal));
+    } catch (error) {
+      initialized = Promise.reject(error);
+    }
+    state.promise = initialized.then(async runtime => {
+      if (state.closing || controller.signal.aborted) {
+        if (!state.closed) {
+          state.closed = true;
+          await runtime.close();
+        }
+        throw Object.assign(new Error('leader generation closed during initialization'), {
+          code: 'LEADER_GENERATION_CLOSED',
+        });
+      }
+      return runtime;
+    });
+    this.states.set(generation, state);
+    return state.promise;
+  }
+
+  get(generation: string): Promise<T> | undefined {
+    return this.states.get(generation)?.promise;
+  }
+
+  async close(generation: string): Promise<void> {
+    const state = this.states.get(generation);
+    if (state === undefined) return;
+    state.closing = true;
+    state.controller.abort(
+      Object.assign(new Error('leader generation is closing'), {
+        code: 'LEADER_GENERATION_CLOSED',
+      }),
+    );
+    try {
+      const runtime = await state.promise;
+      if (!state.closed) {
+        state.closed = true;
+        await runtime.close();
+      }
+    } catch (error) {
+      if (
+        typeof error !== 'object' ||
+        error === null ||
+        !('code' in error) ||
+        error.code !== 'LEADER_GENERATION_CLOSED'
+      ) {
+        throw error;
+      }
+    } finally {
+      this.states.delete(generation);
+    }
+  }
+}
+
+export const createLazyLeaderRuntimeBoundary = <T>(
+  initialize: () => Promise<T>,
+): LazyLeaderRuntimeBoundary<T> => {
+  let flight: Promise<T> | null = null;
+  let resolved: T | undefined;
+  return Object.freeze({
+    get: (): Promise<T> => {
+      if (flight === null) {
+        try {
+          flight = initialize().then(value => {
+            resolved = value;
+            return value;
+          });
+        } catch (error) {
+          flight = Promise.reject(error);
+        }
+      }
+      return flight;
+    },
+    peek: (): T | undefined => resolved,
+  });
+};
+
+const nativeAdmissionError = (code: string, message: string) =>
+  Object.assign(new Error(message), { code, admitted: false });
+
+export class InvocationAdmissionController {
+  private readonly activeOwners = new Map<string, number>();
+  private readonly activeSessions = new Map<string, number>();
+  private readonly rawArgsOwners = new Map<string, number>();
+  private readonly activeRequestIds = new Set<string>();
+  private readonly operationSubscribers = new Map<string, number>();
+  private readonly ownerSubscribers = new Map<string, number>();
+
+  admit(input: {
+    ownerId: string;
+    authSessionId: string;
+    requestId: string;
+    rawArgsBytes: number;
+  }): InvocationAdmissionHandle {
+    if (!Number.isSafeInteger(input.rawArgsBytes) || input.rawArgsBytes < 0) {
+      throw nativeAdmissionError('INVOCATION_TOO_LARGE', 'raw argument byte count is invalid');
+    }
+    if (input.rawArgsBytes > INVOCATION_ADMISSION_LIMITS.maxRawArgsBytesPerOperation) {
+      throw nativeAdmissionError('INVOCATION_TOO_LARGE', 'raw arguments exceed the operation cap');
+    }
+    const requestKey = `${input.ownerId}\0${input.requestId}`;
+    if (this.activeRequestIds.has(requestKey)) {
+      throw nativeAdmissionError('REQUEST_ID_CONFLICT', 'request ID is already active');
+    }
+    const sessionKey = `${input.ownerId}\0${input.authSessionId}`;
+    const ownerActive = this.activeOwners.get(input.ownerId) ?? 0;
+    const sessionActive = this.activeSessions.get(sessionKey) ?? 0;
+    const ownerBytes = this.rawArgsOwners.get(input.ownerId) ?? 0;
+    if (
+      ownerActive >= INVOCATION_ADMISSION_LIMITS.maxActiveOperationsPerOwner ||
+      sessionActive >= INVOCATION_ADMISSION_LIMITS.maxActiveOperationsPerAuthSession
+    ) {
+      throw nativeAdmissionError('SERVER_BUSY', 'active operation capacity is full');
+    }
+    if (ownerBytes + input.rawArgsBytes > INVOCATION_ADMISSION_LIMITS.maxRawArgsBytesPerOwner) {
+      throw nativeAdmissionError('SERVER_BUSY', 'retained raw argument capacity is full');
+    }
+    this.activeRequestIds.add(requestKey);
+    this.activeOwners.set(input.ownerId, ownerActive + 1);
+    this.activeSessions.set(sessionKey, sessionActive + 1);
+    this.rawArgsOwners.set(input.ownerId, ownerBytes + input.rawArgsBytes);
+    let released = false;
+    return Object.freeze({
+      ownerId: input.ownerId,
+      authSessionId: input.authSessionId,
+      requestId: input.requestId,
+      release: () => {
+        if (released) return;
+        released = true;
+        this.activeRequestIds.delete(requestKey);
+        this.decrement(this.activeOwners, input.ownerId);
+        this.decrement(this.activeSessions, sessionKey);
+        this.rawArgsOwners.set(
+          input.ownerId,
+          Math.max(0, (this.rawArgsOwners.get(input.ownerId) ?? 0) - input.rawArgsBytes),
+        );
+      },
+    });
+  }
+
+  subscribe(input: { ownerId: string; operationId: string }): { release(): void } {
+    const operationKey = `${input.ownerId}\0${input.operationId}`;
+    const operationCount = this.operationSubscribers.get(operationKey) ?? 0;
+    const ownerCount = this.ownerSubscribers.get(input.ownerId) ?? 0;
+    if (
+      operationCount >= INVOCATION_ADMISSION_LIMITS.maxSubscribersPerOperation ||
+      ownerCount >= INVOCATION_ADMISSION_LIMITS.maxSubscribersPerOwner
+    ) {
+      throw nativeAdmissionError('SERVER_BUSY', 'subscriber capacity is full');
+    }
+    this.operationSubscribers.set(operationKey, operationCount + 1);
+    this.ownerSubscribers.set(input.ownerId, ownerCount + 1);
+    let released = false;
+    return Object.freeze({
+      release: () => {
+        if (released) return;
+        released = true;
+        this.decrement(this.operationSubscribers, operationKey);
+        this.decrement(this.ownerSubscribers, input.ownerId);
+      },
+    });
+  }
+
+  retainedRawArgsBytes(ownerId: string): number {
+    return this.rawArgsOwners.get(ownerId) ?? 0;
+  }
+
+  private decrement(map: Map<string, number>, key: string): void {
+    const next = (map.get(key) ?? 1) - 1;
+    if (next <= 0) map.delete(key);
+    else map.set(key, next);
+  }
 }
 
 const deepFreeze = <T>(value: T): Readonly<T> => {
@@ -215,6 +506,10 @@ export class LeaderGenerationExecutionPlane {
   private accepting = true;
   private invocationService: OperationInvocationService | null = null;
   private admissionAuthority: ExecutionPlaneAdmissionAuthority | null = null;
+  private readonly invocationAdmission = new InvocationAdmissionController();
+  private readonly progressRegistry = new OperationProgressRegistry();
+  private readonly activeBroadcasters = new Map<OperationProgressBroadcaster, number>();
+  private readonly streamDrainWaiters = new Set<() => void>();
 
   constructor(
     readonly leaderGeneration: string,
@@ -258,6 +553,7 @@ export class LeaderGenerationExecutionPlane {
     untrustedPrincipal: Readonly<ActorContext>,
     untrustedRequest: unknown,
     options: Readonly<ToolInvocationOptionsV1> = NO_CAPTURE_OPTIONS,
+    reporter?: ProgressReporter,
   ): Promise<unknown> {
     if (!this.accepting) {
       return Promise.reject(
@@ -272,144 +568,381 @@ export class LeaderGenerationExecutionPlane {
         code: 'INVOCATION_PRINCIPAL_INVALID',
       });
     }
+    const rawArgsCandidate =
+      typeof untrustedRequest === 'object' &&
+      untrustedRequest !== null &&
+      !Array.isArray(untrustedRequest) &&
+      'rawArgs' in untrustedRequest
+        ? untrustedRequest.rawArgs
+        : {};
+    const retainedArgsBytes = measureCanonicalJsonUtf8Bytes(
+      rawArgsCandidate ?? {},
+      INVOCATION_ADMISSION_LIMITS.maxRawArgsBytesPerOperation,
+    );
     const request = parseInvocationRequest(untrustedRequest);
-    if (this.invocationService === null || this.admissionAuthority === null) {
+    const admission = this.invocationAdmission.admit({
+      ownerId: principal.actorId,
+      authSessionId: principal.authSessionId,
+      requestId: request.requestId as `sfp_req1_${string}`,
+      rawArgsBytes: retainedArgsBytes,
+    });
+    try {
+      if (this.invocationService === null || this.admissionAuthority === null) {
+        throw Object.assign(new Error('execution plane authorities are not bound'), {
+          code: 'EXECUTION_PLANE_UNBOUND',
+        });
+      }
+      const spec = ALL_TOOL_SPECS.find(candidate => candidate.name === request.toolName);
+      if (spec === undefined) {
+        throw Object.assign(new Error('unknown tool'), { code: 'TOOL_NOT_FOUND' });
+      }
+      const rawArgs = request.rawArgs ?? {};
+      if (typeof rawArgs === 'object' && rawArgs !== null && !Array.isArray(rawArgs)) {
+        const declaredKeys = new Set(Object.keys(spec.inputSchema.shape));
+        if (Object.keys(rawArgs).some(key => !declaredKeys.has(key))) {
+          throw Object.assign(new Error('tool arguments contain unknown keys'), {
+            code: 'INVOCATION_ARGS_INVALID',
+          });
+        }
+      }
+      const parsed = spec.inputSchema.safeParse(rawArgs);
+      if (!parsed.success) {
+        throw Object.assign(new Error('tool arguments are invalid'), {
+          code: 'INVOCATION_ARGS_INVALID',
+          cause: parsed.error,
+        });
+      }
+      const parsedArgs = deepFreeze(parsed.data) as Readonly<Record<string, unknown>>;
+      const requestedWorkspaceId = request.workspaceId ?? null;
+      const workspace = freezeWorkspace(
+        requestedWorkspaceId,
+        await this.admissionAuthority.resolveWorkspaceContext(requestedWorkspaceId),
+      );
+      const policyContext = await resolvePolicyInvocationContext(
+        spec,
+        parsedArgs,
+        workspace,
+        this.admissionAuthority.workspacePolicy,
+      );
+      const policy = evaluateOperationPolicy(request.toolName, parsedArgs, policyContext);
+      const target = freezeVerifiedTarget(
+        this.admissionAuthority.targetResolver.resolve(
+          parseInvocationTargetSelector(request.targetSelector),
+          spec.targetRequirementFor(parsedArgs),
+        ),
+      );
+      const resolvedScope = deepFreeze({
+        requestId: request.requestId,
+        leaderGeneration: this.leaderGeneration,
+        actor: principal,
+        workspace: policyContext.workspace,
+        ...(policyContext.resolvedPaths === undefined
+          ? {}
+          : { resolvedPaths: policyContext.resolvedPaths }),
+        target,
+      }) as Readonly<ResolvedInvocationScope>;
+      const operationId =
+        request.operationId ?? this.admissionAuthority.issueOperationId(principal.actorId);
+      this.admissionAuthority.verifyOperationId(principal.actorId, operationId);
+      const verifiedOptions = validateToolInvocationOptions(
+        options,
+        operationId,
+        workspace.workspaceId,
+      );
+      let approvalHandle: Awaited<
+        ReturnType<OperationInvocationService['beginToolApproval']>
+      > | null = null;
+      if (policy.approval !== 'none') {
+        const pending = await this.admissionAuthority.approval.request(
+          resolvedScope,
+          request.toolName,
+          policy.effects,
+          operationId,
+        );
+        if (pending === null) {
+          throw Object.assign(new Error('approval channel is unavailable'), {
+            code: 'APPROVAL_CHANNEL_UNAVAILABLE',
+          });
+        }
+        approvalHandle = await this.invocationService.beginToolApproval(
+          resolvedScope,
+          request.toolName,
+          parsedArgs,
+          operationId,
+          pending.approvalId,
+          verifiedOptions,
+        );
+        let decision: Awaited<ReturnType<typeof pending.waitForDecision>>;
+        try {
+          decision = await pending.waitForDecision();
+        } catch (error) {
+          await this.invocationService.rejectToolApproval(
+            approvalHandle,
+            'APPROVAL_CHANNEL_UNAVAILABLE',
+          );
+          throw error;
+        }
+        if (decision.decision !== 'approved') {
+          const code = decision.decision === 'expired' ? 'APPROVAL_EXPIRED' : 'APPROVAL_REJECTED';
+          await this.invocationService.rejectToolApproval(approvalHandle, code);
+          throw Object.assign(new Error('operation approval was not granted'), {
+            code,
+          });
+        }
+      }
+      const resultPolicy = resultEgressPolicyFor(request.toolName);
+      let consent: Readonly<ConsentContext>;
+      try {
+        consent = freezeConsent(
+          await this.admissionAuthority.authorizeEgress({
+            principal,
+            request,
+            scope: resolvedScope,
+            policy,
+            parsedArgs,
+            inputClasses: resultPolicy.possibleInputClasses(parsedArgs),
+            possibleResultClasses: resultPolicy.possibleResultClasses,
+          }),
+        );
+      } catch (error) {
+        if (approvalHandle !== null) {
+          const code =
+            typeof error === 'object' && error !== null && 'code' in error
+              ? String(error.code)
+              : 'EGRESS_AUTHORIZATION_FAILED';
+          await this.invocationService.rejectToolApproval(approvalHandle, code);
+        }
+        throw error;
+      }
+      const runtimeScope = deepFreeze({ ...resolvedScope, consent }) as RuntimeExecutionScope;
+      return await (approvalHandle === null
+        ? this.invocationService.invokeTool(
+            runtimeScope,
+            request.toolName,
+            parsedArgs,
+            operationId,
+            verifiedOptions,
+            reporter,
+          )
+        : this.invocationService.resumeApprovedTool(approvalHandle, runtimeScope, reporter));
+    } catch (error) {
+      if (principal.entryPath === 'control') {
+        const safe = safeInvocationError(error);
+        throw Object.assign(new Error(safe.message), safe);
+      }
+      throw error;
+    } finally {
+      admission.release();
+    }
+  }
+
+  async *invokeToolFrames(
+    untrustedPrincipal: Readonly<ActorContext>,
+    untrustedRequest: unknown,
+    options: Readonly<ToolInvocationOptionsV1> = NO_CAPTURE_OPTIONS,
+    subscriberSignal?: AbortSignal,
+  ): AsyncIterable<InvocationFrameV1> {
+    const principal = parseActorContext(untrustedPrincipal);
+    const parsed = parseInvocationRequest(untrustedRequest);
+    if (this.admissionAuthority === null || this.invocationService === null) {
       throw Object.assign(new Error('execution plane authorities are not bound'), {
         code: 'EXECUTION_PLANE_UNBOUND',
       });
     }
-    const spec = ALL_TOOL_SPECS.find(candidate => candidate.name === request.toolName);
-    if (spec === undefined) {
-      throw Object.assign(new Error('unknown tool'), { code: 'TOOL_NOT_FOUND' });
-    }
-    const rawArgs = request.rawArgs ?? {};
-    if (typeof rawArgs === 'object' && rawArgs !== null && !Array.isArray(rawArgs)) {
-      const declaredKeys = new Set(Object.keys(spec.inputSchema.shape));
-      if (Object.keys(rawArgs).some(key => !declaredKeys.has(key))) {
-        throw Object.assign(new Error('tool arguments contain unknown keys'), {
-          code: 'INVOCATION_ARGS_INVALID',
-        });
-      }
-    }
-    const parsed = spec.inputSchema.safeParse(rawArgs);
-    if (!parsed.success) {
-      throw Object.assign(new Error('tool arguments are invalid'), {
-        code: 'INVOCATION_ARGS_INVALID',
-        cause: parsed.error,
-      });
-    }
-    const parsedArgs = deepFreeze(parsed.data) as Readonly<Record<string, unknown>>;
-    const requestedWorkspaceId = request.workspaceId ?? null;
-    const workspace = freezeWorkspace(
-      requestedWorkspaceId,
-      await this.admissionAuthority.resolveWorkspaceContext(requestedWorkspaceId),
-    );
-    const policyContext = await resolvePolicyInvocationContext(
-      spec,
-      parsedArgs,
-      workspace,
-      this.admissionAuthority.workspacePolicy,
-    );
-    const policy = evaluateOperationPolicy(request.toolName, parsedArgs, policyContext);
-    const target = freezeVerifiedTarget(
-      this.admissionAuthority.targetResolver.resolve(
-        parseInvocationTargetSelector(request.targetSelector),
-        spec.targetRequirementFor(parsedArgs),
-      ),
-    );
-    const resolvedScope = deepFreeze({
-      requestId: request.requestId,
-      leaderGeneration: this.leaderGeneration,
-      actor: principal,
-      workspace: policyContext.workspace,
-      ...(policyContext.resolvedPaths === undefined
-        ? {}
-        : { resolvedPaths: policyContext.resolvedPaths }),
-      target,
-    }) as Readonly<ResolvedInvocationScope>;
     const operationId =
-      request.operationId ?? this.admissionAuthority.issueOperationId(principal.actorId);
-    this.admissionAuthority.verifyOperationId(principal.actorId, operationId);
-    const verifiedOptions = validateToolInvocationOptions(
-      options,
+      parsed.operationId ?? this.admissionAuthority.issueOperationId(principal.actorId);
+    const request = Object.freeze({ ...parsed, operationId });
+    const progressHandle = this.progressRegistry.acquire({
+      ownerId: principal.actorId,
+      requestId: request.requestId as `sfp_req1_${string}`,
       operationId,
-      workspace.workspaceId,
+    });
+    const broadcaster = progressHandle.broadcaster;
+    const ownsProducer = progressHandle.isProducer;
+    let settled = false;
+    let earlyError: unknown;
+    const result = this.invokeTool(principal, request, options, broadcaster.reporter);
+    void result.then(
+      () => {
+        settled = true;
+        if (ownsProducer) progressHandle.producerSettled();
+        return undefined;
+      },
+      error => {
+        settled = true;
+        earlyError = error;
+        if (ownsProducer) progressHandle.producerSettled();
+        return undefined;
+      },
     );
-    let approvalHandle: Awaited<
-      ReturnType<OperationInvocationService['beginToolApproval']>
-    > | null = null;
-    if (policy.approval !== 'none') {
-      const pending = await this.admissionAuthority.approval.request(
-        resolvedScope,
-        request.toolName,
-        policy.effects,
-        operationId,
-      );
-      if (pending === null) {
-        throw Object.assign(new Error('approval channel is unavailable'), {
-          code: 'APPROVAL_CHANNEL_UNAVAILABLE',
-        });
+    const waitForDurableAdmission = async (): Promise<void> => {
+      if (this.invocationService?.status(principal.actorId, operationId) !== undefined || settled) {
+        return;
       }
-      approvalHandle = await this.invocationService.beginToolApproval(
-        resolvedScope,
-        request.toolName,
-        parsedArgs,
-        operationId,
-        pending.approvalId,
-        verifiedOptions,
-      );
-      let decision: Awaited<ReturnType<typeof pending.waitForDecision>>;
-      try {
-        decision = await pending.waitForDecision();
-      } catch (error) {
-        await this.invocationService.rejectToolApproval(
-          approvalHandle,
-          'APPROVAL_CHANNEL_UNAVAILABLE',
-        );
-        throw error;
-      }
-      if (decision.decision !== 'approved') {
-        const code = decision.decision === 'expired' ? 'APPROVAL_EXPIRED' : 'APPROVAL_REJECTED';
-        await this.invocationService.rejectToolApproval(approvalHandle, code);
-        throw Object.assign(new Error('operation approval was not granted'), {
-          code,
-        });
-      }
-    }
-    const resultPolicy = resultEgressPolicyFor(request.toolName);
-    let consent: Readonly<ConsentContext>;
+      await new Promise<void>(resolve => setImmediate(resolve));
+      await waitForDurableAdmission();
+    };
     try {
-      consent = freezeConsent(
-        await this.admissionAuthority.authorizeEgress({
-          principal,
-          request,
-          scope: resolvedScope,
-          policy,
-          parsedArgs,
-          inputClasses: resultPolicy.possibleInputClasses(parsedArgs),
-          possibleResultClasses: resultPolicy.possibleResultClasses,
-        }),
-      );
-    } catch (error) {
-      if (approvalHandle !== null) {
-        const code =
-          typeof error === 'object' && error !== null && 'code' in error
-            ? String(error.code)
-            : 'EGRESS_AUTHORIZATION_FAILED';
-        await this.invocationService.rejectToolApproval(approvalHandle, code);
+      await waitForDurableAdmission();
+      if (this.invocationService.status(principal.actorId, operationId) === undefined) {
+        if (earlyError !== undefined) throw earlyError;
+        await result;
+        throw Object.assign(new Error('operation completed without a durable admission row'), {
+          code: 'OPERATION_ADMISSION_DURABILITY_FAILED',
+        });
       }
+    } catch (error) {
+      progressHandle.release();
+      if (ownsProducer) progressHandle.terminalSettled();
       throw error;
     }
-    const runtimeScope = deepFreeze({ ...resolvedScope, consent }) as RuntimeExecutionScope;
-    return approvalHandle === null
-      ? this.invocationService.invokeTool(
-          runtimeScope,
-          request.toolName,
-          parsedArgs,
+    const channel = new BoundedInvocationFrameChannel();
+    const subscription = broadcaster.subscribe(
+      `entry:${principal.entryPath}:${request.requestId}`,
+      frame => channel.write(frame),
+      request.requestId as `sfp_req1_${string}`,
+    );
+    const disconnect = (): void => {
+      channel.fail(
+        subscriberSignal?.reason ??
+          Object.assign(new Error('subscriber disconnected'), { code: 'DISCONNECTED' }),
+      );
+    };
+    if (subscriberSignal?.aborted === true) disconnect();
+    else subscriberSignal?.addEventListener('abort', disconnect, { once: true });
+    this.activeBroadcasters.set(broadcaster, (this.activeBroadcasters.get(broadcaster) ?? 0) + 1);
+    if (ownsProducer) {
+      void broadcaster
+        .emit({
+          version: 1,
+          type: 'accepted',
+          requestId: request.requestId,
           operationId,
-          verifiedOptions,
+          operationKind: 'tool',
+          operationName: request.toolName,
+        })
+        .catch(error => channel.fail(error));
+    }
+    const verifiedTerminal = (): boolean => {
+      const record = this.invocationService?.status(principal.actorId, operationId);
+      return (
+        record !== undefined &&
+        !['pending-approval', 'queued', 'dispatched'].includes(record.status)
+      );
+    };
+    if (ownsProducer) {
+      void result
+        .then(
+          value => {
+            if (!verifiedTerminal()) {
+              const safe = safeInvocationError(
+                Object.assign(new Error('terminal journal state is not durable'), {
+                  code: 'OPERATION_TERMINAL_DURABILITY_FAILED',
+                }),
+              );
+              channel.fail(Object.assign(new Error(safe.message), safe));
+              return undefined;
+            }
+            return broadcaster.terminal({
+              version: 1,
+              type: 'result',
+              requestId: request.requestId,
+              operationId,
+              result: value,
+            });
+          },
+          error => {
+            if (!verifiedTerminal()) {
+              const safe = safeInvocationError(error);
+              channel.fail(Object.assign(new Error(safe.message), safe));
+              return undefined;
+            }
+            return broadcaster.terminal({
+              version: 1,
+              type: 'error',
+              requestId: request.requestId,
+              operationId,
+              error: safeInvocationError(error),
+            });
+          },
         )
-      : this.invocationService.resumeApprovedTool(approvalHandle, runtimeScope);
+        .catch(() => undefined)
+        .finally(() => progressHandle.terminalSettled());
+    }
+    try {
+      /* eslint-disable no-await-in-loop -- one subscriber consumes its ordered bounded stream */
+      for (;;) {
+        const frame = await channel.next();
+        yield frame;
+        if (frame.type === 'result' || frame.type === 'error') return;
+      }
+      /* eslint-enable no-await-in-loop */
+    } finally {
+      subscriberSignal?.removeEventListener('abort', disconnect);
+      channel.fail(Object.assign(new Error('subscriber disconnected'), { code: 'DISCONNECTED' }));
+      subscription.release();
+      progressHandle.release();
+      const references = (this.activeBroadcasters.get(broadcaster) ?? 1) - 1;
+      if (references === 0) this.activeBroadcasters.delete(broadcaster);
+      else this.activeBroadcasters.set(broadcaster, references);
+      if (this.activeBroadcasters.size === 0) {
+        for (const waiter of this.streamDrainWaiters) waiter();
+        this.streamDrainWaiters.clear();
+      }
+    }
+  }
+
+  async *invokeServiceFrames(): AsyncIterable<InvocationFrameV1> {
+    yield* [] as InvocationFrameV1[];
+    throw Object.assign(new Error('service operation missing'), {
+      code: 'SERVICE_OPERATION_NOT_FOUND',
+    });
+  }
+
+  async cancel(
+    untrustedPrincipal: Readonly<ActorContext>,
+    untrustedRequest: unknown,
+  ): Promise<void> {
+    const principal = parseActorContext(untrustedPrincipal);
+    const request = InvocationCancelV1Schema.parse(untrustedRequest) as InvocationCancelV1;
+    if (this.invocationService === null) {
+      throw Object.assign(new Error('execution plane invocation service is not bound'), {
+        code: 'EXECUTION_PLANE_UNBOUND',
+      });
+    }
+    if (this.invocationService.cancel === undefined) {
+      throw Object.assign(new Error('runtime cancellation is unavailable'), {
+        code: 'CANCEL_UNAVAILABLE',
+      });
+    }
+    await this.invocationService.cancel(principal, request);
+  }
+
+  async drainInvocationStreams(deadlineAt: number): Promise<boolean> {
+    if (this.activeBroadcasters.size === 0) return true;
+    const remaining = Math.max(0, deadlineAt - this.now());
+    return new Promise<boolean>(resolve => {
+      let settled = false;
+      const finish = (drained: boolean): void => {
+        if (settled) return;
+        settled = true;
+        clearTimeout(timer);
+        this.streamDrainWaiters.delete(onDrained);
+        resolve(drained);
+      };
+      const onDrained = (): void => finish(true);
+      const timer = setTimeout(() => finish(false), remaining);
+      this.streamDrainWaiters.add(onDrained);
+      if (this.activeBroadcasters.size === 0) finish(true);
+    });
+  }
+
+  async forceCloseInvocationStreams(): Promise<void> {
+    await Promise.all(
+      [...this.activeBroadcasters.keys()].map(broadcaster =>
+        broadcaster.forceClose('LEADER_GENERATION_CLOSED'),
+      ),
+    );
   }
 
   prepareDemotion(_reason: 'abdicated' | 'lease-lost' | 'shutdown'): Promise<DemotionTicket> {

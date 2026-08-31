@@ -3816,16 +3816,6 @@
     {
       "mode": "copy",
       "originCommit": "a835e81b575eab2c9265a67f9353c89b848f81ca",
-      "sourcePath": "packages/shared/src/rpc.ts",
-      "destination": "packages/shared/src/rpc.ts",
-      "baseSha256": "27687773f1e07ce9d945cce7ec28cff8a59a10fefa1d5cb1969864a36b1b5ff9",
-      "currentSha256": "27687773f1e07ce9d945cce7ec28cff8a59a10fefa1d5cb1969864a36b1b5ff9",
-      "transformations": [],
-      "licenseId": "MIT"
-    },
-    {
-      "mode": "copy",
-      "originCommit": "a835e81b575eab2c9265a67f9353c89b848f81ca",
       "sourcePath": "packages/shared/src/serialized-node.ts",
       "destination": "packages/shared/src/serialized-node.ts",
       "baseSha256": "8507dd1ae5ba67fe6eab03bb3d29d4eaf5cc33eb173f6dd6a5ed5107eb1b9fde",

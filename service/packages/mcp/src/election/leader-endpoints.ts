@@ -1,19 +1,18 @@
 import type { IncomingMessage, Server as HttpServer, ServerResponse } from 'node:http';
 
-import { decode, encode } from '@msgpack/msgpack';
 import {
-  ErrorCode,
-  getRelayBudget,
   PairExchangeRequestSchema,
   PRODUCT_MAGIC,
   PROTOCOL_VERSION,
   type PublicPingV1,
-  RpcRequestSchema,
-  type RpcResponse,
 } from '@sfp/shared';
 
-import type { Relay } from '../relay/relay.js';
-import type { FollowerAuthenticatedTransport } from '../security/follower-transport.js';
+import { handleLegacyFollowerRpc, type Relay } from '../relay/relay.js';
+import type {
+  AuthenticatedFollowerRequest,
+  FollowerAuthenticatedTransport,
+  FollowerResponseSink,
+} from '../security/follower-transport.js';
 import {
   hasContentType,
   isAllowedHost,
@@ -51,6 +50,11 @@ export interface LeaderEndpointDeps {
   log?: (msg: string) => void;
   rpcTimeoutMs?: number;
   abdicateQuietWindowMs?: number;
+  innerRpcHandler?: (
+    request: AuthenticatedFollowerRequest,
+    response: FollowerResponseSink,
+    subscriberSignal: AbortSignal,
+  ) => Promise<void>;
 }
 
 const header = (req: IncomingMessage, name: string): string | undefined => {
@@ -334,70 +338,20 @@ export const attachLeaderEndpoints = (http: HttpServer, deps: LeaderEndpointDeps
       }
 
       if (req.method === 'POST' && req.url === RPC_PATH) {
-        await deps.transport.server.serveHttp(req, res, RPC_PATH, async (opened, response) => {
-          let decoded: unknown;
-          try {
-            decoded = decode(opened.plaintext);
-          } catch {
-            await response.write(
-              Buffer.from(
-                encode({
-                  kind: 'err',
-                  requestId: '',
-                  code: ErrorCode.InvalidRequest,
-                  message: 'invalid msgpack body',
-                } satisfies RpcResponse),
-              ),
-              { final: true },
-            );
-            return;
-          }
-          const rpc = RpcRequestSchema.safeParse(decoded);
-          if (!rpc.success) {
-            await response.write(
-              Buffer.from(
-                encode({
-                  kind: 'err',
-                  requestId: '',
-                  code: ErrorCode.InvalidParams,
-                  message: 'invalid rpc request',
-                } satisfies RpcResponse),
-              ),
-              { final: true },
-            );
-            return;
-          }
-          const { requestId, toolName, args, sessionId } = rpc.data;
-          let body: RpcResponse;
-          try {
-            let notice: string | null = null;
-            const result = await deps.relay.sendRequest(
-              toolName,
-              args,
-              deps.rpcTimeoutMs ?? getRelayBudget(toolName),
-              sessionId,
-              served => {
-                notice = deps.relay.skewNotice(served);
-              },
-            );
-            body = {
-              kind: 'ok',
-              requestId,
-              result,
-              ...(notice === null ? {} : { notice }),
-            };
-          } catch (error) {
-            const message = (error as Error).message;
-            const code =
-              message.startsWith('no plugin connected') || message.startsWith('pinned session')
-                ? ErrorCode.PluginDisconnected
-                : message.includes('timeout')
-                  ? ErrorCode.Timeout
-                  : ErrorCode.Internal;
-            body = { kind: 'err', requestId, code, message };
-          }
-          await response.write(Buffer.from(encode(body)), { final: true });
-        });
+        await deps.transport.server.serveHttp(
+          req,
+          res,
+          RPC_PATH,
+          deps.innerRpcHandler ??
+            (async (opened, response) => {
+              const body = await handleLegacyFollowerRpc(
+                deps.relay,
+                opened.plaintext,
+                deps.rpcTimeoutMs,
+              );
+              await response.write(body, { final: true });
+            }),
+        );
         return;
       }
 

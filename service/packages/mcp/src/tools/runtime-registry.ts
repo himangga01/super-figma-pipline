@@ -1,8 +1,13 @@
-import type { RuntimeExecutionScope, ToolName } from '@sfp/shared';
+import type { ProgressReporter, RuntimeExecutionScope, ToolName } from '@sfp/shared';
 
 import { RESULT_SCHEMAS } from '../../../shared/src/result-schemas.js';
 
 export type ExecutionAuthority = 'plugin-direct' | 'server-adapter';
+
+export interface RuntimeActionContext {
+  operationId: string;
+  actionNonce: string;
+}
 
 export interface PinnedPluginRuntimePort {
   execute(
@@ -10,6 +15,8 @@ export interface PinnedPluginRuntimePort {
     toolName: ToolName,
     args: unknown,
     signal: AbortSignal,
+    reporter?: ProgressReporter,
+    action?: Readonly<RuntimeActionContext>,
   ): Promise<unknown>;
 }
 
@@ -20,11 +27,19 @@ export interface ServerAdapterRuntimePort {
     args: unknown,
     signal: AbortSignal,
     plugin: PinnedPluginRuntimePort,
+    reporter?: ProgressReporter,
+    action?: Readonly<RuntimeActionContext>,
   ): Promise<unknown>;
 }
 
 export interface ToolRuntime<I = unknown, O = unknown> {
-  execute(scope: RuntimeExecutionScope, args: I, signal: AbortSignal): Promise<O>;
+  execute(
+    scope: RuntimeExecutionScope,
+    args: I,
+    signal: AbortSignal,
+    reporter?: ProgressReporter,
+    action?: Readonly<RuntimeActionContext>,
+  ): Promise<O>;
 }
 
 export interface RuntimeBinding<I = unknown, O = unknown> {
@@ -119,10 +134,12 @@ export const createValidatedPinnedPluginRuntimePort = (
       toolName: ToolName,
       args: unknown,
       signal: AbortSignal,
+      reporter?: ProgressReporter,
+      action?: Readonly<RuntimeActionContext>,
     ) =>
       validateResult(
         toolName,
-        await raw.execute(scope, toolName, args, signal),
+        await raw.execute(scope, toolName, args, signal, reporter, action),
         'PLUGIN_RESULT_INVALID',
       ),
   });
@@ -142,10 +159,24 @@ export const createBoundRuntimeRegistry = (
           ? 'server-adapter'
           : 'plugin-direct';
         const runtime: ToolRuntime = Object.freeze({
-          execute: (scope: RuntimeExecutionScope, args: unknown, signal: AbortSignal) =>
+          execute: (
+            scope: RuntimeExecutionScope,
+            args: unknown,
+            signal: AbortSignal,
+            reporter?: ProgressReporter,
+            action?: Readonly<RuntimeActionContext>,
+          ) =>
             execution === 'plugin-direct'
-              ? validatedPlugin.execute(scope, toolName, args, signal)
-              : serverAdapter.execute(scope, toolName, args, signal, validatedPlugin),
+              ? validatedPlugin.execute(scope, toolName, args, signal, reporter, action)
+              : serverAdapter.execute(
+                  scope,
+                  toolName,
+                  args,
+                  signal,
+                  validatedPlugin,
+                  reporter,
+                  action,
+                ),
         });
         return [name, Object.freeze({ execution, runtime })] as const;
       }),
@@ -166,6 +197,41 @@ const unboundServerAdapter: ServerAdapterRuntimePort = Object.freeze({
 
 /** Static closed-world authority. Production planes use createBoundRuntimeRegistry. */
 export const TOOL_RUNTIMES = createBoundRuntimeRegistry(unboundPlugin, unboundServerAdapter);
+
+export type FakePinnedPluginHandler = (
+  scope: RuntimeExecutionScope,
+  toolName: ToolName,
+  args: unknown,
+  signal: AbortSignal,
+  reporter: ProgressReporter,
+) => Promise<unknown>;
+
+const unavailableReporter: ProgressReporter = Object.freeze({
+  report: () => undefined,
+  throwIfCancelled: () => undefined,
+});
+
+/** Task7C fake only; Task9A owns the real plugin consumer and listener lifecycle. */
+export const createFakePinnedPluginRuntimePort = (
+  handler?: FakePinnedPluginHandler,
+): PinnedPluginRuntimePort =>
+  Object.freeze({
+    execute: async (
+      scope: RuntimeExecutionScope,
+      toolName: ToolName,
+      args: unknown,
+      signal: AbortSignal,
+      reporter: ProgressReporter = unavailableReporter,
+    ) => {
+      if (handler === undefined) {
+        throw Object.assign(new Error('pinned plugin runtime is unavailable'), {
+          code: 'PINNED_PLUGIN_RUNTIME_UNAVAILABLE',
+        });
+      }
+      reporter.throwIfCancelled();
+      return handler(scope, toolName, args, signal, reporter);
+    },
+  });
 
 /** The canonical server-only handler exception set, independent from execution routing. */
 export const SERVER_ONLY_TOOLS: ReadonlySet<string> = new Set(SERVER_HANDLER_NAMES);
@@ -189,9 +255,11 @@ export const executeToolRuntime = async (
   args: unknown,
   signal: AbortSignal,
   registry: RuntimeRegistry = TOOL_RUNTIMES,
+  reporter?: ProgressReporter,
+  action?: Readonly<RuntimeActionContext>,
 ): Promise<unknown> => {
   const binding = registry[toolName];
   if (binding === undefined) throw new Error(`missing runtime: ${toolName}`);
-  const raw = await binding.runtime.execute(scope, args, signal);
+  const raw = await binding.runtime.execute(scope, args, signal, reporter, action);
   return validateToolRuntimeResult(toolName, binding.execution, raw);
 };

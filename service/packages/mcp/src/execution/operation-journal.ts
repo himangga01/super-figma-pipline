@@ -13,12 +13,17 @@ import {
   type PrefixedSha256,
 } from '@sfp/shared';
 
+import { readFileWithinLimit } from '../fs/atomic-file.js';
 import { ALL_TOOL_SPECS } from '../tools/registry.js';
 
 export type NewOperationRecord = Omit<
   OperationRecord,
   'sequence' | 'previousStatus' | 'status' | 'createdAt' | 'settledAt' | 'errorCode'
 >;
+
+export interface LeaderDemotionCapability {
+  readonly __leaderDemotionCapability: unique symbol;
+}
 
 export interface OperationJournalOptions {
   stateRoot: string;
@@ -184,7 +189,9 @@ export class OperationJournalError extends Error {
       | 'JOURNAL_CORRUPT'
       | 'JOURNAL_TRANSITION_INVALID'
       | 'OPERATION_NOT_FOUND'
-      | 'OPERATION_ID_CONFLICT',
+      | 'OPERATION_ID_CONFLICT'
+      | 'LEADER_GENERATION_FENCED'
+      | 'LEADER_GENERATION_MISMATCH',
     message: string,
   ) {
     super(message);
@@ -204,6 +211,7 @@ export class OperationJournal {
   };
   private readonly path: string;
   private readonly tombstonePath: string;
+  private readonly generationFencePath: string;
   private readonly tombstoneCapacity: { maxRows: number; maxBytes: number };
   private rows = 0;
   private bytes = 0;
@@ -220,6 +228,8 @@ export class OperationJournal {
   private cursorKey = randomBytes(32);
   private journalDirectoryInitialized = false;
   private mutation: Promise<void> = Promise.resolve();
+  private readonly fencedLeaderGenerations = new Set<string>();
+  private readonly demotionCapabilities = new WeakMap<object, string>();
 
   constructor(private readonly options: OperationJournalOptions) {
     this.now = options.now ?? Date.now;
@@ -240,6 +250,11 @@ export class OperationJournal {
       'journal',
       `${actorHash}.operation-tombstones.v1.jsonl`,
     );
+    this.generationFencePath = join(
+      options.stateRoot,
+      'journal',
+      `${actorHash}.leader-generation-fences.v1.jsonl`,
+    );
   }
 
   get logPath(): string {
@@ -250,14 +265,17 @@ export class OperationJournal {
     return this.tombstonePath;
   }
 
-  async recover(): Promise<void> {
+  async recover(
+    options: { deferDispatched?: boolean; deferTombstonePurge?: boolean } = {},
+  ): Promise<void> {
     await this.exclusive(async () => {
       await this.ensureJournalDirectoryUnlocked();
+      await this.refreshGenerationFencesUnlocked();
       this.operationOrder = [];
       this.nextOperationOrderSequence = 0;
       this.indexedOperationIds.clear();
       this.rotateCursorGeneration();
-      await this.recoverTombstonesUnlocked();
+      await this.recoverTombstonesUnlocked(options.deferTombstonePurge === true);
       const bytes = await readFile(this.path).catch((error: NodeJS.ErrnoException) => {
         if (error.code === 'ENOENT') return Buffer.alloc(0);
         throw error;
@@ -359,6 +377,7 @@ export class OperationJournal {
         );
       /* eslint-disable no-await-in-loop -- recovery rows extend one ordered durable hash chain */
       for (const record of generationBound) {
+        if (record.status === 'dispatched' && options.deferDispatched === true) continue;
         const recovery =
           record.status === 'pending-approval'
             ? {
@@ -394,6 +413,7 @@ export class OperationJournal {
   async appendInitial(
     record: NewOperationRecord,
     status: OperationStatus,
+    options: { leaderGeneration?: string } = {},
   ): Promise<OperationRecord> {
     return this.exclusive(async () => {
       await this.purgeExpiredTombstonesUnlocked();
@@ -421,9 +441,20 @@ export class OperationJournal {
           'operation fingerprint does not match its components',
         );
       }
+      const leaderGeneration = options.leaderGeneration ?? record.leaderGeneration ?? null;
+      if (leaderGeneration !== null) {
+        await this.refreshGenerationFencesUnlocked();
+        if (this.fencedLeaderGenerations.has(leaderGeneration)) {
+          throw new OperationJournalError(
+            'LEADER_GENERATION_FENCED',
+            'leader generation can no longer admit operation state',
+          );
+        }
+      }
       const createdAt = new Date(this.now()).toISOString();
       const next: OperationRecord = immutableRecord({
         ...record,
+        leaderGeneration,
         sequence: 1,
         previousStatus: null,
         status,
@@ -455,7 +486,18 @@ export class OperationJournal {
   async transition(
     operationId: string,
     status: OperationStatus,
-    patch: Partial<Pick<OperationRecord, 'resultHash' | 'resultBytes' | 'errorCode'>> = {},
+    patch: Partial<
+      Pick<
+        OperationRecord,
+        | 'resultHash'
+        | 'resultBytes'
+        | 'errorCode'
+        | 'preExecutionConsentManifestHash'
+        | 'finalEgressManifestHash'
+        | 'operationEvidenceReceiptHash'
+      >
+    > = {},
+    options: { expectedLeaderGeneration?: string; allowFenced?: boolean } = {},
   ): Promise<OperationRecord> {
     return this.exclusive(async () => {
       const current = this.records.get(operationId);
@@ -468,6 +510,27 @@ export class OperationJournal {
           `operation cannot transition from ${current.status} to ${status}`,
         );
       }
+      if (current.leaderGeneration !== null && current.leaderGeneration !== undefined) {
+        await this.refreshGenerationFencesUnlocked();
+        if (
+          options.expectedLeaderGeneration !== undefined &&
+          options.expectedLeaderGeneration !== current.leaderGeneration
+        ) {
+          throw new OperationJournalError(
+            'LEADER_GENERATION_MISMATCH',
+            'operation transition does not match its leader generation',
+          );
+        }
+        if (
+          options.allowFenced !== true &&
+          this.fencedLeaderGenerations.has(current.leaderGeneration)
+        ) {
+          throw new OperationJournalError(
+            'LEADER_GENERATION_FENCED',
+            'leader generation can no longer publish operation state',
+          );
+        }
+      }
       const next = this.nextRecord(current, status, patch);
       const validated = this.validateRecord(next);
       await this.appendRecordUnlocked(validated);
@@ -477,6 +540,154 @@ export class OperationJournal {
         this.tombstoneReservations.delete(operationId);
       }
       return validated;
+    });
+  }
+
+  async fenceLeaderGeneration(leaderGeneration: string): Promise<LeaderDemotionCapability> {
+    if (leaderGeneration.length < 1 || leaderGeneration.length > 256) {
+      throw new OperationJournalError('LEADER_GENERATION_MISMATCH', 'leader generation is invalid');
+    }
+    return this.exclusive(async () => {
+      await this.ensureJournalDirectoryUnlocked();
+      await this.refreshGenerationFencesUnlocked();
+      if (!this.fencedLeaderGenerations.has(leaderGeneration)) {
+        const serialized = `${canonicalJson({
+          schemaVersion: 1,
+          leaderGeneration,
+          fencedAt: new Date(this.now()).toISOString(),
+        })}\n`;
+        const handle = await open(this.generationFencePath, 'a', 0o600);
+        try {
+          await handle.writeFile(serialized, 'utf8');
+          await handle.sync();
+        } finally {
+          await handle.close();
+        }
+        await this.syncDirectory(dirname(this.generationFencePath));
+        this.fencedLeaderGenerations.add(leaderGeneration);
+      }
+      const capability = Object.freeze({}) as LeaderDemotionCapability;
+      this.demotionCapabilities.set(capability, leaderGeneration);
+      return capability;
+    });
+  }
+
+  async transitionDemotion(
+    capability: LeaderDemotionCapability,
+    operationId: string,
+    status: 'pre-egress-rejected' | 'succeeded' | 'failed' | 'outcome-unknown',
+    patch: Partial<
+      Pick<
+        OperationRecord,
+        | 'resultHash'
+        | 'resultBytes'
+        | 'errorCode'
+        | 'preExecutionConsentManifestHash'
+        | 'finalEgressManifestHash'
+        | 'operationEvidenceReceiptHash'
+      >
+    > = {},
+  ): Promise<OperationRecord> {
+    return this.exclusive(async () => {
+      const generation = this.demotionCapabilities.get(capability as object);
+      const current = this.records.get(operationId);
+      const allowed =
+        current?.status === 'pending-approval'
+          ? status === 'pre-egress-rejected'
+          : current?.status === 'queued'
+            ? status === 'failed'
+            : current?.status === 'dispatched'
+              ? status === 'succeeded' || status === 'failed' || status === 'outcome-unknown'
+              : false;
+      if (
+        generation === undefined ||
+        !this.fencedLeaderGenerations.has(generation) ||
+        current?.leaderGeneration !== generation ||
+        !allowed
+      ) {
+        throw new OperationJournalError(
+          'LEADER_GENERATION_MISMATCH',
+          'demotion capability cannot authorize this transition',
+        );
+      }
+      const next = this.validateRecord(this.nextRecord(current, status, patch));
+      await this.appendRecordUnlocked(next);
+      if (compactedTerminalStatuses.has(next.status)) {
+        await this.publishTombstoneUnlocked(next);
+        this.activeReservations.delete(operationId);
+        this.tombstoneReservations.delete(operationId);
+      }
+      return next;
+    });
+  }
+
+  async recoverLeaderDemotionCapability(
+    leaderGeneration: string,
+  ): Promise<LeaderDemotionCapability | null> {
+    return this.exclusive(async () => {
+      await this.refreshGenerationFencesUnlocked();
+      if (!this.fencedLeaderGenerations.has(leaderGeneration)) return null;
+      const hasRecoverableRow = [...this.records.values()].some(
+        record =>
+          record.leaderGeneration === leaderGeneration &&
+          ['pending-approval', 'queued', 'dispatched'].includes(record.status),
+      );
+      if (!hasRecoverableRow) return null;
+      const capability = Object.freeze({}) as LeaderDemotionCapability;
+      this.demotionCapabilities.set(capability, leaderGeneration);
+      return capability;
+    });
+  }
+
+  async settleLeaderGeneration(
+    capability: LeaderDemotionCapability,
+    leaderGeneration: string,
+    fromStatus: 'pending-approval' | 'queued' | 'dispatched',
+    status: 'pre-egress-rejected' | 'failed' | 'outcome-unknown',
+    errorCode = 'LEADER_GENERATION_CLOSED',
+  ): Promise<void> {
+    return this.exclusive(async () => {
+      if (this.demotionCapabilities.get(capability as object) !== leaderGeneration) {
+        throw new OperationJournalError(
+          'LEADER_GENERATION_MISMATCH',
+          'demotion settlement capability is invalid',
+        );
+      }
+      const matching = [...this.records.values()]
+        .filter(
+          record => record.leaderGeneration === leaderGeneration && record.status === fromStatus,
+        )
+        .toSorted((left, right) => left.operationId.localeCompare(right.operationId));
+      /* eslint-disable no-await-in-loop -- generation settlement extends one durable hash chain */
+      for (const current of matching) {
+        const next = this.validateRecord(
+          this.nextRecord(current, status, {
+            errorCode,
+            resultHash: null,
+            resultBytes: status === 'outcome-unknown' ? null : current.resultBytes,
+            operationEvidenceReceiptHash: null,
+          }),
+        );
+        await this.appendRecordUnlocked(next);
+        if (compactedTerminalStatuses.has(next.status)) {
+          await this.publishTombstoneUnlocked(next);
+          this.activeReservations.delete(next.operationId);
+          this.tombstoneReservations.delete(next.operationId);
+        }
+      }
+      /* eslint-enable no-await-in-loop */
+    });
+  }
+
+  async flush(): Promise<void> {
+    return this.exclusive(async () => {
+      await this.ensureJournalDirectoryUnlocked();
+      const handle = await open(this.path, 'a', 0o600);
+      try {
+        await handle.sync();
+      } finally {
+        await handle.close();
+      }
     });
   }
 
@@ -562,6 +773,25 @@ export class OperationJournal {
 
   get(operationId: string): OperationRecord | OperationTombstone | undefined {
     return this.records.get(operationId) ?? this.tombstones.get(operationId);
+  }
+
+  settledAt(operationId: string): number | null {
+    const row = this.records.get(operationId) ?? this.tombstones.get(operationId);
+    if (row === undefined || !terminalStatuses.has(row.status)) return null;
+    const settledAt = 'settledAt' in row ? row.settledAt : undefined;
+    if (typeof settledAt === 'string') {
+      const parsed = Date.parse(settledAt);
+      return Number.isFinite(parsed) ? parsed : null;
+    }
+    return null;
+  }
+
+  listDispatched(): readonly OperationRecord[] {
+    return [...this.records.values()]
+      .filter(record => record.status === 'dispatched')
+      .toSorted((left, right) =>
+        left.operationId < right.operationId ? -1 : left.operationId > right.operationId ? 1 : 0,
+      );
   }
 
   list(options: { cursor?: string; limit?: number; status?: OperationStatus } = {}): {
@@ -718,7 +948,17 @@ export class OperationJournal {
   private nextRecord(
     current: OperationRecord,
     status: OperationStatus,
-    patch: Partial<Pick<OperationRecord, 'resultHash' | 'resultBytes' | 'errorCode'>>,
+    patch: Partial<
+      Pick<
+        OperationRecord,
+        | 'resultHash'
+        | 'resultBytes'
+        | 'errorCode'
+        | 'preExecutionConsentManifestHash'
+        | 'finalEgressManifestHash'
+        | 'operationEvidenceReceiptHash'
+      >
+    >,
   ): OperationRecord {
     const timestamp = new Date(this.now()).toISOString();
     return immutableRecord({
@@ -1026,7 +1266,50 @@ export class OperationJournal {
     this.journalDirectoryInitialized = true;
   }
 
-  private async recoverTombstonesUnlocked(): Promise<void> {
+  private async refreshGenerationFencesUnlocked(): Promise<void> {
+    const bytes = await readFileWithinLimit(this.generationFencePath, 1_048_576).catch(
+      (error: NodeJS.ErrnoException & { beforeRead?: boolean }) => {
+        if (error.code === 'ENOENT') return Buffer.alloc(0);
+        throw Object.assign(
+          new OperationJournalError('JOURNAL_CORRUPT', 'generation fence log is invalid'),
+          { beforeRead: error.beforeRead === true },
+        );
+      },
+    );
+    const next = new Set<string>();
+    for (const line of bytes.toString('utf8').split('\n').filter(Boolean)) {
+      let value: unknown;
+      try {
+        value = JSON.parse(line) as unknown;
+      } catch {
+        throw new OperationJournalError('JOURNAL_CORRUPT', 'generation fence row is malformed');
+      }
+      if (
+        typeof value !== 'object' ||
+        value === null ||
+        Array.isArray(value) ||
+        !hasExactKeys(value, new Set(['schemaVersion', 'leaderGeneration', 'fencedAt']))
+      ) {
+        throw new OperationJournalError('JOURNAL_CORRUPT', 'generation fence row is invalid');
+      }
+      const row = value as { schemaVersion: unknown; leaderGeneration: unknown; fencedAt: unknown };
+      if (
+        row.schemaVersion !== 1 ||
+        typeof row.leaderGeneration !== 'string' ||
+        row.leaderGeneration.length < 1 ||
+        row.leaderGeneration.length > 256 ||
+        typeof row.fencedAt !== 'string' ||
+        !Number.isFinite(Date.parse(row.fencedAt))
+      ) {
+        throw new OperationJournalError('JOURNAL_CORRUPT', 'generation fence row is invalid');
+      }
+      next.add(row.leaderGeneration);
+    }
+    this.fencedLeaderGenerations.clear();
+    for (const generation of next) this.fencedLeaderGenerations.add(generation);
+  }
+
+  private async recoverTombstonesUnlocked(deferPurge = false): Promise<void> {
     const bytes = await readFile(this.tombstonePath).catch((error: NodeJS.ErrnoException) => {
       if (error.code === 'ENOENT') return Buffer.alloc(0);
       throw error;
@@ -1075,7 +1358,10 @@ export class OperationJournal {
     ) {
       throw new OperationJournalError('JOURNAL_CORRUPT', 'operation tombstone cap is exceeded');
     }
-    if ([...this.tombstones.values()].some(tombstone => this.now() >= tombstone.expiresAt)) {
+    if (
+      !deferPurge &&
+      [...this.tombstones.values()].some(tombstone => this.now() >= tombstone.expiresAt)
+    ) {
       await this.purgeExpiredTombstonesUnlocked();
     }
   }
@@ -1162,6 +1448,9 @@ export class OperationJournal {
       resultHash: record.resultHash,
       operationEvidenceReceiptHash: record.operationEvidenceReceiptHash,
       finalEgressManifestHash: record.finalEgressManifestHash,
+      leaderGeneration: record.leaderGeneration ?? null,
+      errorCode: record.errorCode,
+      settledAt: record.settledAt as string,
       status: record.status,
     });
   }

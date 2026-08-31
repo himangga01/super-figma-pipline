@@ -1,5 +1,6 @@
 import { z } from 'zod';
 
+import { ProgressEventSchema } from './progress.js';
 import { ErrorCode, PROTOCOL_VERSION } from './protocol.js';
 
 const baseFields = {
@@ -18,6 +19,8 @@ export const RequestEnvelopeSchema = z.object({
   kind: z.literal('req'),
   method: z.string(),
   params: z.unknown().optional(),
+  operationId: z.string().min(1).max(384).optional(),
+  actionNonce: z.string().min(1).max(256).optional(),
 });
 
 export const ResponseEnvelopeSchema = z.object({
@@ -91,6 +94,13 @@ export const ActivityParamsSchema = z.object({
 });
 export type ActivityParams = z.infer<typeof ActivityParamsSchema>;
 
+export const PluginProgressParamsSchema = ProgressEventSchema;
+export type PluginProgressParams = z.infer<typeof PluginProgressParamsSchema>;
+export const PluginCancelParamsSchema = z
+  .object({ operationId: z.string().min(1).max(384), actionNonce: z.string().min(1).max(256) })
+  .strict();
+export type PluginCancelParams = z.infer<typeof PluginCancelParamsSchema>;
+
 type CreateInput = {
   id: string;
   sessionId: string;
@@ -98,7 +108,12 @@ type CreateInput = {
 };
 
 export const createRequest = (
-  input: CreateInput & { method: string; params?: unknown },
+  input: CreateInput & {
+    method: string;
+    params?: unknown;
+    operationId?: string;
+    actionNonce?: string;
+  },
 ): RequestEnvelope => ({
   v: PROTOCOL_VERSION,
   kind: 'req',
@@ -107,6 +122,8 @@ export const createRequest = (
   ts: input.ts ?? Date.now(),
   method: input.method,
   ...(input.params === undefined ? {} : { params: input.params }),
+  ...(input.operationId === undefined ? {} : { operationId: input.operationId }),
+  ...(input.actionNonce === undefined ? {} : { actionNonce: input.actionNonce }),
 });
 
 export const createResponse = (input: CreateInput & { result?: unknown }): ResponseEnvelope => ({

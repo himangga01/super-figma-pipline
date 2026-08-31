@@ -1,5 +1,7 @@
 import { z } from 'zod';
 
+import type { InvocationCancelV1 } from './control.js';
+import type { DataClass, EgressMode } from './egress.js';
 import {
   ActorContextSchema,
   ToolNameSchema,
@@ -11,6 +13,7 @@ import {
   type ToolInvocationOptionsV1,
   type ToolName,
 } from './invocation.js';
+import type { ProgressReporter } from './progress.js';
 import {
   ServiceOperationNameSchema,
   SystemOperationNameSchema,
@@ -28,6 +31,17 @@ export type Effect =
   | { type: 'filesystem-read'; pathArgs: readonly string[] }
   | { type: 'filesystem-write'; pathArgs: readonly string[]; destructive: boolean }
   | { type: 'network'; urlArg: string };
+
+export interface ServerEvidenceWriteEffectV1 {
+  type: 'server-evidence-write';
+  evidenceKind: 'result-capture' | 'native-manifest' | 'snapshot' | 'grounding-graph';
+  workspaceId: string;
+  resolvedRelativePath: string;
+  writeMode: 'create-new' | 'cas-replace';
+  destructive: boolean;
+  expectedContentHash: PrefixedSha256 | null;
+}
+export type InvocationEffectV1 = Effect | ServerEvidenceWriteEffectV1;
 
 /** Task 4's canonical workspace resolution, carried into pure effect classification. */
 export interface ResolvedWorkspacePath {
@@ -128,6 +142,8 @@ export interface OperationRecord extends OperationFingerprintV1 {
   fileExecutionKeyHash: PrefixedSha256 | null;
   targetBindingHash: PrefixedSha256 | null;
   pluginGeneration: string | null;
+  /** Generation CAS binding for leader-owned entry work; absent only on pre-7C rows. */
+  leaderGeneration?: string | null;
   policyId: string;
   effectSummary: readonly string[];
   approvalId: string | null;
@@ -180,6 +196,9 @@ export interface OperationTombstone extends OperationFingerprintV1 {
   resultHash: PrefixedSha256 | null;
   operationEvidenceReceiptHash: PrefixedSha256 | null;
   finalEgressManifestHash: PrefixedSha256 | null;
+  leaderGeneration?: string | null;
+  errorCode?: string | null;
+  settledAt?: string;
   status: Exclude<OperationStatus, 'pending-approval' | 'queued' | 'dispatched'>;
 }
 
@@ -284,6 +303,7 @@ const OperationRecordObjectSchema = z
     fileExecutionKeyHash: PrefixedSha256Schema.nullable(),
     targetBindingHash: PrefixedSha256Schema.nullable(),
     pluginGeneration: z.string().min(1).max(256).nullable(),
+    leaderGeneration: z.string().min(1).max(256).nullable().optional(),
     policyId: z.string().min(1).max(256),
     effectSummary: z.array(z.string().min(1).max(128)).max(64).readonly(),
     approvalId: z.string().min(1).max(256).nullable(),
@@ -381,6 +401,9 @@ const OperationTombstoneObjectSchema = z
     resultHash: PrefixedSha256Schema.nullable(),
     operationEvidenceReceiptHash: PrefixedSha256Schema.nullable(),
     finalEgressManifestHash: PrefixedSha256Schema.nullable(),
+    leaderGeneration: z.string().min(1).max(256).nullable().optional(),
+    errorCode: z.string().min(1).max(256).nullable().optional(),
+    settledAt: IsoTimestampSchema.optional(),
     status: TerminalOperationStatusSchema,
   })
   .strict()
@@ -450,7 +473,11 @@ export interface OperationInvocationService {
     approvalId: string,
     options?: Readonly<ToolInvocationOptionsV1>,
   ): Promise<ToolApprovalHandle>;
-  resumeApprovedTool(handle: ToolApprovalHandle, scope: RuntimeExecutionScope): Promise<unknown>;
+  resumeApprovedTool(
+    handle: ToolApprovalHandle,
+    scope: RuntimeExecutionScope,
+    reporter?: ProgressReporter,
+  ): Promise<unknown>;
   rejectToolApproval(handle: ToolApprovalHandle, errorCode: string): Promise<OperationRecord>;
   invokeTool(
     scope: RuntimeExecutionScope,
@@ -458,6 +485,7 @@ export interface OperationInvocationService {
     rawArgs: unknown,
     operationId?: string,
     options?: Readonly<ToolInvocationOptionsV1>,
+    reporter?: ProgressReporter,
   ): Promise<unknown>;
   invokeService(
     scope: RuntimeExecutionScope,
@@ -465,8 +493,525 @@ export interface OperationInvocationService {
     rawArgs: unknown,
     operationId?: string,
   ): Promise<unknown>;
+  cancel?(principal: Readonly<ActorContext>, request: Readonly<InvocationCancelV1>): Promise<void>;
   status(
     actorId: ActorContext['actorId'],
     operationId: string,
   ): OperationRecord | OperationTombstone | undefined;
 }
+
+export interface PreExecutionConsentManifest {
+  consentId: string | null;
+  mode: EgressMode;
+  inputClasses: readonly DataClass[];
+  possibleResultClasses: readonly DataClass[];
+  allowedClasses: readonly DataClass[];
+  inputBytes: number;
+  inputTokens: number;
+  manifestHash: PrefixedSha256;
+}
+
+export interface OutputEgressManifest {
+  preExecutionManifestHash: PrefixedSha256;
+  finalStatus: 'output';
+  resultClasses: readonly DataClass[];
+  outputBytes: number;
+  outputTokens: number;
+  redactedFieldCount: number;
+  resultHash: PrefixedSha256;
+  resultBytes: number;
+  payloadHash: PrefixedSha256;
+  manifestHash: PrefixedSha256;
+}
+
+export interface NoOutputEgressManifest {
+  preExecutionManifestHash: PrefixedSha256;
+  finalStatus: 'no-output';
+  reasonCode: 'admission-rejected' | 'runtime-failed' | 'cancelled' | 'deadline' | 'no-result';
+  outputBytes: 0;
+  outputTokens: 0;
+  manifestHash: PrefixedSha256;
+}
+
+export interface OutcomeUnknownEgressManifest {
+  preExecutionManifestHash: PrefixedSha256;
+  finalStatus: 'outcome-unknown';
+  reasonCode: 'post-runtime-durability-failed' | 'transport-lost' | 'demotion' | 'unknown';
+  observedOutputBytes: number | null;
+  manifestHash: PrefixedSha256;
+}
+
+export type EgressFinalManifest =
+  | OutputEgressManifest
+  | NoOutputEgressManifest
+  | OutcomeUnknownEgressManifest;
+
+export const EGRESS_MANIFEST_LIMITS = Object.freeze({
+  maxRowBytes: 65_536,
+  compactAtRows: 160_000,
+  compactAtBytes: 201_326_592,
+  maxRowsPerActor: 200_000,
+  maxBytesPerActor: 268_435_456,
+  retentionDays: 30,
+} as const);
+
+export interface EgressManifestRecordV1 {
+  schemaVersion: 1;
+  requestId: `sfp_req1_${string}`;
+  operationId: string;
+  sequence: number;
+  kind: 'pre-execution' | 'output' | 'no-output' | 'outcome-unknown';
+  createdAt: string;
+  previousRecordHash: PrefixedSha256 | null;
+  manifestHash: PrefixedSha256;
+  recordHash: PrefixedSha256;
+  manifest: PreExecutionConsentManifest | EgressFinalManifest;
+}
+
+export interface EgressReservation {
+  actorId: ActorContext['actorId'];
+  requestId: `sfp_req1_${string}`;
+  operationId: string;
+  leaderGeneration: string;
+  preManifestHash: PrefixedSha256;
+  reservedOutputBytes: 65_536;
+}
+
+export interface EgressFinalizerProjectionV1 {
+  finalStatus: 'output' | 'no-output' | 'outcome-unknown';
+  manifestHash: PrefixedSha256;
+  preExecutionManifestHash: PrefixedSha256;
+  resultHash: PrefixedSha256 | null;
+  reasonCode:
+    | NoOutputEgressManifest['reasonCode']
+    | OutcomeUnknownEgressManifest['reasonCode']
+    | null;
+}
+
+export interface EgressManifestPort {
+  reservePre(
+    actorId: ActorContext['actorId'],
+    requestId: `sfp_req1_${string}`,
+    operationId: string,
+    manifest: PreExecutionConsentManifest,
+  ): Promise<EgressReservation>;
+  finalize(
+    reservation: EgressReservation,
+    manifest: EgressFinalManifest,
+  ): Promise<{ finalManifestHash: PrefixedSha256; finalized: true }>;
+  readVerifiedFinalizer(
+    actorId: ActorContext['actorId'],
+    operationId: string,
+    expectedHash: PrefixedSha256 | null,
+  ): Promise<Readonly<EgressFinalizerProjectionV1> | null>;
+  recover(now: number): Promise<void>;
+  flush(): Promise<void>;
+}
+
+export type RawDigest64 = string;
+export interface ResultArtifactV1 {
+  artifactRelativePath: string;
+  artifactDigest64: RawDigest64;
+  resultSchemaHash: PrefixedSha256;
+}
+export type NoArtifactReasonCode =
+  | 'not-native-evidence'
+  | 'native-output-path-null'
+  | 'operation-failed';
+export interface NativeArtifactManifestMemberV1 {
+  artifactRelativePath: string;
+  artifactDigest64: RawDigest64;
+  artifactBytes: number;
+}
+export interface NativeArtifactManifestV1 {
+  schemaVersion: 1;
+  operationId: string;
+  artifacts: readonly NativeArtifactManifestMemberV1[];
+  artifactCount: number;
+  totalArtifactBytes: number;
+  contentHash: PrefixedSha256;
+}
+export interface NativeEvidenceSourceRefV1 {
+  resultPointer: string;
+  sourceNodeId: string | null;
+}
+export type NativeEvidenceContextHash = PrefixedSha256 & {
+  readonly __nativeEvidenceContextHash: unique symbol;
+};
+export interface NativeEvidenceProjectionContextV1 {
+  operationId: string;
+  workspaceId: string;
+}
+export type NativeEvidenceProjectionV1 = { contextHash: NativeEvidenceContextHash } & (
+  | { kind: 'no-artifact'; reasonCode: 'not-native-evidence' | 'native-output-path-null' }
+  | {
+      kind: 'export-candidates';
+      candidates: readonly {
+        candidateRelativePath: string | null;
+        sourceRef: NativeEvidenceSourceRefV1;
+      }[];
+    }
+  | {
+      kind: 'snapshot-candidate';
+      artifactRelativePath: string;
+      sourceRef: NativeEvidenceSourceRefV1;
+      metadata: {
+        workspaceId: string;
+        fileIdentityHash: PrefixedSha256;
+        snapshotId: `sfp_snap1_${string}`;
+        refRelativePath: string;
+        checksum: PrefixedSha256;
+        fidelity: 'complete-leaf' | 'partial';
+      };
+    }
+  | {
+      kind: 'grounding-graph-candidate';
+      artifactRelativePath: string;
+      sourceRef: NativeEvidenceSourceRefV1;
+      metadata: {
+        locator: string;
+        checksum: PrefixedSha256;
+        fidelity: 'complete-leaf' | 'partial';
+      };
+    }
+);
+export type NativeEvidenceV1 =
+  | { kind: 'no-artifact'; reasonCode: NoArtifactReasonCode }
+  | {
+      kind: 'snapshot';
+      workspaceId: string;
+      fileIdentityHash: PrefixedSha256;
+      snapshotId: `sfp_snap1_${string}`;
+      refRelativePath: string;
+      checksum: PrefixedSha256;
+      fidelity: 'complete-leaf' | 'partial';
+      artifactRelativePath: string;
+      artifactDigest64: RawDigest64;
+    }
+  | {
+      kind: 'grounding-graph';
+      locator: string;
+      artifactRelativePath: string;
+      artifactDigest64: RawDigest64;
+      checksum: PrefixedSha256;
+      fidelity: 'complete-leaf' | 'partial';
+    }
+  | {
+      kind: 'export';
+      manifestRelativePath: string;
+      manifestDigest64: RawDigest64;
+      artifactCount: number;
+      totalArtifactBytes: number;
+    };
+
+export interface OperationEvidenceProjector {
+  project(
+    context: Readonly<NativeEvidenceProjectionContextV1>,
+    operationKind: OperationKind,
+    operationName: OperationName,
+    parsedArgs: unknown,
+    strictRedactedResult: unknown,
+  ): Readonly<NativeEvidenceProjectionV1>;
+}
+export type VerifiedNativeEvidenceContextV1 = Readonly<NativeEvidenceProjectionContextV1> & {
+  readonly contextHash: NativeEvidenceContextHash;
+  readonly __verifiedNativeEvidenceContext: unique symbol;
+};
+export interface NativeEvidenceArtifactPortContract {
+  createNativeManifest(input: {
+    context: VerifiedNativeEvidenceContextV1;
+    projection: Readonly<Extract<NativeEvidenceProjectionV1, { kind: 'export-candidates' }>>;
+  }): Promise<Readonly<Extract<NativeEvidenceV1, { kind: 'export' }>>>;
+}
+export interface OperationEvidenceArtifactPort {
+  createNew(input: {
+    workspaceId: string;
+    operationId: string;
+    intent: import('./invocation.js').VerifiedCaptureIntentV1;
+    canonicalRedactedBytes: Uint8Array;
+    resultSchemaHash: PrefixedSha256;
+    resultHash: PrefixedSha256;
+  }): Promise<Readonly<ResultArtifactV1>>;
+}
+
+export interface OperationEvidenceReceiptCommonV1 {
+  schemaVersion: 1;
+  state: 'prepared';
+  actorId: ActorContext['actorId'];
+  operationId: string;
+  operationKind: OperationKind;
+  operationName: OperationName;
+  argsHash: PrefixedSha256;
+  workspaceId: string | null;
+  fileExecutionKeyHash: PrefixedSha256 | null;
+  targetBindingHash: PrefixedSha256 | null;
+  captureIntentHash: PrefixedSha256;
+  captureResult: boolean;
+  finalizerHash: PrefixedSha256;
+  daemonGenerationHash: PrefixedSha256;
+  completedAt: string;
+  previousReceiptHash: PrefixedSha256 | null;
+  contentHash: PrefixedSha256;
+  receiptHash: PrefixedSha256;
+}
+export type OperationEvidenceReceiptV1 = OperationEvidenceReceiptCommonV1 &
+  (
+    | {
+        terminalStatus: 'succeeded';
+        captureResult: true;
+        resultHash: PrefixedSha256;
+        resultBytes: number;
+        resultArtifact: ResultArtifactV1;
+        nativeEvidence: NativeEvidenceV1;
+      }
+    | {
+        terminalStatus: 'succeeded';
+        captureResult: false;
+        resultHash: PrefixedSha256;
+        resultBytes: number;
+        resultArtifact: null;
+        nativeEvidence: NativeEvidenceV1;
+      }
+    | {
+        terminalStatus: 'failed';
+        resultHash: null;
+        resultBytes: 0;
+        resultArtifact: null;
+        nativeEvidence: { kind: 'no-artifact'; reasonCode: 'operation-failed' };
+      }
+  );
+export type OperationEvidenceReceiptAppendV1 = Omit<
+  OperationEvidenceReceiptV1,
+  'previousReceiptHash' | 'contentHash' | 'receiptHash'
+>;
+
+export const OPERATION_EVIDENCE_LIMITS = Object.freeze({
+  maxRowBytes: 65_536,
+  maxNativeArtifacts: 256,
+  maxNativeArtifactPathBytes: 1_024,
+  maxNativeArtifactManifestBytes: 299_836,
+  compactAtRows: 100_000,
+  compactAtBytes: 134_217_728,
+  maxRowsPerActor: 131_072,
+  maxBytesPerActor: 201_326_592,
+  reservationBytesPerOperation: 65_536,
+  retentionDays: 30,
+} as const);
+
+export type PreRuntimeOperationAuthorityV1 = Omit<
+  OperationRecord,
+  'sequence' | 'previousStatus' | 'status' | 'createdAt' | 'settledAt' | 'errorCode'
+>;
+
+export interface OperationEvidenceReceiptStorePort {
+  reserveBeforeRuntime(
+    actorId: ActorContext['actorId'],
+    operationId: string,
+    projectedBytes: number,
+    context?: Readonly<{
+      workspaceId: string | null;
+      operationAuthority?: Readonly<PreRuntimeOperationAuthorityV1>;
+    }>,
+  ): Promise<{ reservationId: string; reservedBytes: 65_536 }>;
+  prepareAndFsync(
+    reservationId: string,
+    receipt: OperationEvidenceReceiptAppendV1,
+  ): Promise<Readonly<OperationEvidenceReceiptV1>>;
+  get(
+    actorId: ActorContext['actorId'],
+    operationId: string,
+  ): Promise<Readonly<OperationEvidenceReceiptV1> | null>;
+  recover(): Promise<void>;
+  releaseWithoutReceipt(reservationId: string): Promise<void>;
+  abortAfterDurableUnknown(reservationId: string): Promise<void>;
+}
+
+export interface OperationEvidenceStatusProjectionV1 {
+  operationId: string;
+  status: OperationStatus;
+  operationKind: OperationKind;
+  operationName: OperationName;
+  operationFingerprintHash: PrefixedSha256;
+  resultHash: PrefixedSha256 | null;
+  preExecutionConsentManifestHash: PrefixedSha256 | null;
+  operationEvidenceReceiptHash: PrefixedSha256 | null;
+  finalEgressManifestHash: PrefixedSha256 | null;
+}
+export type OperationEvidenceReceiptProjectionV1 = Omit<
+  OperationEvidenceReceiptV1,
+  'state' | 'actorId' | 'previousReceiptHash' | 'receiptHash'
+>;
+export interface OperationEvidenceViewV1 {
+  schemaVersion: 1;
+  serverVerified: true;
+  statusProjection: OperationEvidenceStatusProjectionV1;
+  receipt: Readonly<OperationEvidenceReceiptProjectionV1> | null;
+  finalizerProjection: Readonly<EgressFinalizerProjectionV1> | null;
+}
+
+export const RawDigest64Schema = z.string().regex(/^[0-9a-f]{64}$/u);
+const portableUtf8Bytes = (value: string): number => {
+  let bytes = 0;
+  for (const character of value) {
+    const codePoint = character.codePointAt(0) as number;
+    bytes += codePoint <= 0x7f ? 1 : codePoint <= 0x7ff ? 2 : codePoint <= 0xffff ? 3 : 4;
+  }
+  return bytes;
+};
+export const PortableRelativeArtifactPathSchema = z.string().superRefine((value, context) => {
+  const bytes = portableUtf8Bytes(value);
+  const segments = value.split('/');
+  if (
+    bytes < 1 ||
+    bytes > OPERATION_EVIDENCE_LIMITS.maxNativeArtifactPathBytes ||
+    value.startsWith('/') ||
+    value.startsWith('//') ||
+    /^[A-Za-z]:/u.test(value) ||
+    /["\\]/u.test(value) ||
+    [...value].some(character => (character.codePointAt(0) as number) <= 0x1f) ||
+    segments.some(segment => segment === '' || segment === '.' || segment === '..')
+  ) {
+    context.addIssue({ code: 'custom', message: 'artifact path is not portable and relative' });
+  }
+});
+export const ResultArtifactV1Schema = z
+  .object({
+    artifactRelativePath: PortableRelativeArtifactPathSchema,
+    artifactDigest64: RawDigest64Schema,
+    resultSchemaHash: PrefixedSha256Schema,
+  })
+  .strict();
+const NativeEvidenceV1Schema = z.discriminatedUnion('kind', [
+  z
+    .object({
+      kind: z.literal('no-artifact'),
+      reasonCode: z.enum(['not-native-evidence', 'native-output-path-null', 'operation-failed']),
+    })
+    .strict(),
+  z
+    .object({
+      kind: z.literal('export'),
+      manifestRelativePath: PortableRelativeArtifactPathSchema,
+      manifestDigest64: RawDigest64Schema,
+      artifactCount: z.number().int().min(1).max(256),
+      totalArtifactBytes: z.number().int().nonnegative().safe(),
+    })
+    .strict(),
+  z
+    .object({
+      kind: z.literal('snapshot'),
+      workspaceId: WorkspaceIdSchema,
+      fileIdentityHash: PrefixedSha256Schema,
+      snapshotId: z.string().regex(/^sfp_snap1_[A-Za-z0-9_-]{22}$/u),
+      refRelativePath: PortableRelativeArtifactPathSchema,
+      checksum: PrefixedSha256Schema,
+      fidelity: z.enum(['complete-leaf', 'partial']),
+      artifactRelativePath: PortableRelativeArtifactPathSchema,
+      artifactDigest64: RawDigest64Schema,
+    })
+    .strict(),
+  z
+    .object({
+      kind: z.literal('grounding-graph'),
+      locator: z.string().min(1).max(4_096),
+      artifactRelativePath: PortableRelativeArtifactPathSchema,
+      artifactDigest64: RawDigest64Schema,
+      checksum: PrefixedSha256Schema,
+      fidelity: z.enum(['complete-leaf', 'partial']),
+    })
+    .strict(),
+]);
+const OperationEvidenceReceiptBaseSchema = z
+  .object({
+    schemaVersion: z.literal(1),
+    state: z.literal('prepared'),
+    actorId: ActorContextSchema.shape.actorId,
+    operationId: z.string().min(1).max(384),
+    operationKind: OperationKindSchema,
+    operationName: OperationNameSchema,
+    argsHash: PrefixedSha256Schema,
+    workspaceId: WorkspaceIdSchema.nullable(),
+    fileExecutionKeyHash: PrefixedSha256Schema.nullable(),
+    targetBindingHash: PrefixedSha256Schema.nullable(),
+    captureIntentHash: PrefixedSha256Schema,
+    captureResult: z.boolean(),
+    finalizerHash: PrefixedSha256Schema,
+    daemonGenerationHash: PrefixedSha256Schema,
+    completedAt: IsoTimestampSchema,
+    previousReceiptHash: PrefixedSha256Schema.nullable(),
+    contentHash: PrefixedSha256Schema,
+    receiptHash: PrefixedSha256Schema,
+    terminalStatus: z.enum(['succeeded', 'failed']),
+    resultHash: PrefixedSha256Schema.nullable(),
+    resultBytes: z.number().int().nonnegative().safe(),
+    resultArtifact: ResultArtifactV1Schema.nullable(),
+    nativeEvidence: NativeEvidenceV1Schema,
+  })
+  .strict();
+export const OperationEvidenceReceiptV1Schema = OperationEvidenceReceiptBaseSchema.superRefine(
+  (receipt, context) => {
+    const succeeded = receipt.terminalStatus === 'succeeded';
+    if (
+      (succeeded && (receipt.resultHash === null || receipt.resultBytes < 0)) ||
+      (!succeeded &&
+        (receipt.captureResult ||
+          receipt.resultHash !== null ||
+          receipt.resultBytes !== 0 ||
+          receipt.resultArtifact !== null ||
+          receipt.nativeEvidence.kind !== 'no-artifact' ||
+          receipt.nativeEvidence.reasonCode !== 'operation-failed')) ||
+      receipt.captureResult !== (receipt.resultArtifact !== null)
+    ) {
+      context.addIssue({ code: 'custom', message: 'evidence receipt status fields do not match' });
+    }
+  },
+);
+
+const OperationEvidenceReceiptProjectionSchema = OperationEvidenceReceiptBaseSchema.omit({
+  state: true,
+  actorId: true,
+  previousReceiptHash: true,
+  receiptHash: true,
+});
+const EgressFinalizerProjectionV1Schema = z
+  .object({
+    finalStatus: z.enum(['output', 'no-output', 'outcome-unknown']),
+    manifestHash: PrefixedSha256Schema,
+    preExecutionManifestHash: PrefixedSha256Schema,
+    resultHash: PrefixedSha256Schema.nullable(),
+    reasonCode: z
+      .enum([
+        'admission-rejected',
+        'runtime-failed',
+        'cancelled',
+        'deadline',
+        'no-result',
+        'post-runtime-durability-failed',
+        'transport-lost',
+        'demotion',
+        'unknown',
+      ])
+      .nullable(),
+  })
+  .strict();
+export const OperationEvidenceViewV1Schema = z
+  .object({
+    schemaVersion: z.literal(1),
+    serverVerified: z.literal(true),
+    statusProjection: z
+      .object({
+        operationId: z.string().min(1).max(384),
+        status: OperationStatusSchema,
+        operationKind: OperationKindSchema,
+        operationName: OperationNameSchema,
+        operationFingerprintHash: PrefixedSha256Schema,
+        resultHash: PrefixedSha256Schema.nullable(),
+        preExecutionConsentManifestHash: PrefixedSha256Schema.nullable(),
+        operationEvidenceReceiptHash: PrefixedSha256Schema.nullable(),
+        finalEgressManifestHash: PrefixedSha256Schema.nullable(),
+      })
+      .strict(),
+    receipt: OperationEvidenceReceiptProjectionSchema.nullable(),
+    finalizerProjection: EgressFinalizerProjectionV1Schema.nullable(),
+  })
+  .strict();
