@@ -1,8 +1,14 @@
+import { decodeFollowerInnerMessage } from '@sfp/shared';
+
 import type { NodeRole } from '../election/node.js';
 import {
   createFollowerTransportRequestId,
   type FollowerTransportClient,
 } from '../security/follower-transport.js';
+
+export const FOLLOWER_CANCEL_NOT_ADMITTED = 'FOLLOWER_CANCEL_NOT_ADMITTED';
+const FOLLOWER_CANCEL_TIMEOUT_MS = 5_000;
+const FOLLOWER_CANCEL_RETRY_DELAY_MS = 25;
 
 export class FollowerInvocationClient {
   constructor(
@@ -20,17 +26,48 @@ export class FollowerInvocationClient {
         code: 'FOLLOWER_ROLE_REQUIRED',
       });
     }
+    const cancelIdentity =
+      cancelPlaintext === undefined
+        ? null
+        : (() => {
+            const decoded = decodeFollowerInnerMessage(cancelPlaintext);
+            if (decoded.type !== 'cancel') {
+              throw Object.assign(new Error('follower cancel request is invalid'), {
+                code: 'FOLLOWER_STREAM_INVALID',
+              });
+            }
+            return Object.freeze({
+              requestId: decoded.requestId,
+              operationId: decoded.operationId,
+            });
+          })();
     const streamController = new AbortController();
     let cancelFlight: Promise<void> | null = null;
-    const abort = (): void => {
-      if (cancelPlaintext !== undefined && cancelFlight === null) {
-        cancelFlight = this.sendCancel(cancelPlaintext);
-      }
+    let abortRequested = signal.aborted;
+    let accepted = false;
+    const disconnect = (): void => {
       if (!streamController.signal.aborted) {
         streamController.abort(
           signal.reason ?? Object.assign(new Error('MCP request aborted'), { code: 'ABORT_ERR' }),
         );
       }
+    };
+    const startReconciliation = (disconnectAfterSettlement: boolean): Promise<void> | null => {
+      if (!abortRequested || cancelIdentity === null) return null;
+      if (cancelFlight === null) {
+        cancelFlight = this.reconcileCancel(cancelPlaintext as Uint8Array, cancelIdentity);
+      }
+      if (disconnectAfterSettlement) void cancelFlight.then(disconnect, disconnect);
+      return cancelFlight;
+    };
+    const startCancel = (): void => {
+      if (!abortRequested || !accepted || cancelIdentity === null || cancelFlight !== null) return;
+      startReconciliation(true);
+    };
+    const abort = (): void => {
+      abortRequested = true;
+      if (cancelIdentity === null) disconnect();
+      else startCancel();
     };
     signal.addEventListener('abort', abort, { once: true });
     if (signal.aborted) abort();
@@ -48,7 +85,6 @@ export class FollowerInvocationClient {
       );
     } catch (error) {
       signal.removeEventListener('abort', abort);
-      await (cancelFlight as Promise<void> | null)?.catch(() => undefined);
       throw error;
     }
     return (async function* () {
@@ -64,6 +100,23 @@ export class FollowerInvocationClient {
           }
           expectedSequence += 1;
           finalSeen = record.final;
+          if (cancelIdentity !== null) {
+            const frame = decodeFollowerInnerMessage(record.plaintext);
+            if (
+              'requestId' in frame &&
+              (frame.requestId !== cancelIdentity.requestId ||
+                ('operationId' in frame && frame.operationId !== cancelIdentity.operationId))
+            ) {
+              throw Object.assign(
+                new Error('authenticated follower response identity is invalid'),
+                { code: 'FOLLOWER_STREAM_INVALID' },
+              );
+            }
+            if (frame.type === 'accepted') {
+              accepted = true;
+              startCancel();
+            }
+          }
           yield Uint8Array.from(record.plaintext);
         }
         if (!finalSeen) {
@@ -74,14 +127,22 @@ export class FollowerInvocationClient {
             },
           );
         }
+      } catch (error) {
+        if (abortRequested && !accepted && cancelIdentity !== null) {
+          await startReconciliation(false);
+        }
+        throw error;
       } finally {
         signal.removeEventListener('abort', abort);
-        await (cancelFlight as Promise<void> | null)?.catch(() => undefined);
+        await (cancelFlight as Promise<void> | null);
       }
     })();
   }
 
-  private async sendCancel(plaintext: Uint8Array): Promise<void> {
+  private async reconcileCancel(
+    plaintext: Uint8Array,
+    identity: Readonly<{ requestId: string; operationId: string }>,
+  ): Promise<void> {
     const controller = new AbortController();
     const timer = setTimeout(() => {
       controller.abort(
@@ -89,33 +150,109 @@ export class FollowerInvocationClient {
           code: 'FOLLOWER_CANCEL_TIMEOUT',
         }),
       );
-    }, 5_000);
+    }, FOLLOWER_CANCEL_TIMEOUT_MS);
     timer.unref();
     try {
-      const response = await this.transport.open(
-        {
-          path: '/rpc',
-          transportRequestId: createFollowerTransportRequestId(),
-          plaintext,
-        },
-        controller.signal,
-      );
-      let finalSeen = false;
-      for await (const record of response) {
-        if (finalSeen || record.sequence !== 0 || !record.final) {
-          throw Object.assign(new Error('authenticated follower cancel response is invalid'), {
-            code: 'FOLLOWER_STREAM_INVALID',
-          });
+      for (;;) {
+        let outcome: 'acknowledged' | 'not-admitted';
+        try {
+          // eslint-disable-next-line no-await-in-loop -- authenticated retries are ordered and bounded
+          outcome = await this.sendCancelAttempt(plaintext, identity, controller.signal);
+        } catch (error) {
+          if (controller.signal.aborted) throw controller.signal.reason;
+          throw error;
         }
-        finalSeen = true;
-      }
-      if (!finalSeen) {
-        throw Object.assign(new Error('authenticated follower cancel response is missing'), {
-          code: 'FOLLOWER_STREAM_INVALID',
-        });
+        if (outcome === 'acknowledged') return;
+        try {
+          // eslint-disable-next-line no-await-in-loop -- each typed rejection gets one bounded delay
+          await this.waitForCancelRetry(controller.signal);
+        } catch (error) {
+          if (controller.signal.aborted) throw controller.signal.reason;
+          throw error;
+        }
       }
     } finally {
       clearTimeout(timer);
     }
+  }
+
+  private async sendCancelAttempt(
+    plaintext: Uint8Array,
+    identity: Readonly<{ requestId: string; operationId: string }>,
+    signal: AbortSignal,
+  ): Promise<'acknowledged' | 'not-admitted'> {
+    const response = await this.transport.open(
+      {
+        path: '/rpc',
+        transportRequestId: createFollowerTransportRequestId(),
+        plaintext,
+      },
+      signal,
+    );
+    let outcome: 'acknowledged' | 'not-admitted' | null = null;
+    for await (const record of response) {
+      if (outcome !== null || record.sequence !== 0 || !record.final) {
+        throw Object.assign(new Error('authenticated follower cancel response is missing'), {
+          code: 'FOLLOWER_STREAM_INVALID',
+        });
+      }
+      const acknowledgement = decodeFollowerInnerMessage(record.plaintext);
+      if (
+        !('requestId' in acknowledgement) ||
+        acknowledgement.requestId !== identity.requestId ||
+        !('operationId' in acknowledgement) ||
+        acknowledgement.operationId !== identity.operationId
+      ) {
+        throw Object.assign(new Error('authenticated follower cancel response is invalid'), {
+          code: 'FOLLOWER_STREAM_INVALID',
+        });
+      }
+      if (
+        acknowledgement.type === 'result' &&
+        typeof acknowledgement.result === 'object' &&
+        acknowledgement.result !== null &&
+        'cancelled' in acknowledgement.result &&
+        acknowledgement.result.cancelled === true
+      ) {
+        outcome = 'acknowledged';
+        continue;
+      }
+      if (
+        acknowledgement.type === 'error' &&
+        acknowledgement.error.code === FOLLOWER_CANCEL_NOT_ADMITTED &&
+        acknowledgement.error.retryable
+      ) {
+        outcome = 'not-admitted';
+        continue;
+      }
+      if (acknowledgement.type === 'error') {
+        throw Object.assign(new Error(acknowledgement.error.message), acknowledgement.error);
+      }
+      throw Object.assign(new Error('authenticated follower cancel response is invalid'), {
+        code: 'FOLLOWER_STREAM_INVALID',
+      });
+    }
+    if (outcome === null) {
+      throw Object.assign(new Error('authenticated follower cancel response is missing'), {
+        code: 'FOLLOWER_STREAM_INVALID',
+      });
+    }
+    return outcome;
+  }
+
+  private waitForCancelRetry(signal: AbortSignal): Promise<void> {
+    return new Promise<void>((resolve, reject) => {
+      const retry = setTimeout(() => settle(), FOLLOWER_CANCEL_RETRY_DELAY_MS);
+      retry.unref();
+      const abort = (): void => settle(signal.reason);
+      const settle = (error?: unknown): void => {
+        clearTimeout(retry);
+        signal.removeEventListener('abort', abort);
+        if (error === undefined) resolve();
+        else reject(error);
+      };
+      signal.addEventListener('abort', abort, { once: true });
+      if (signal.aborted) abort();
+    });
   }
 }

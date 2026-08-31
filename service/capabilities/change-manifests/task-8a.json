@@ -11,127 +11,42 @@
     {
       "status": "M",
       "path": "service/capabilities/task-8a-authority-classes.json",
-      "sha256": "418b1ad5b5df9d61715c1d7664a626ec3dcb70c797c17d409d1e988933511a64"
-    },
-    {
-      "status": "M",
-      "path": "service/packages/mcp/src/execution/execution-plane.ts",
-      "sha256": "c114a30d44bc2a9c763fca10004da734265d583b96028fb81c839e815c03fd44"
+      "sha256": "5f1aa43302f4351c613800978087e8a6e85e9c340dbd7f7994ac4f2e4bf5b7aa"
     },
     {
       "status": "M",
       "path": "service/packages/mcp/src/execution/follower-invocation-client.ts",
-      "sha256": "2fb901d99da46be88a947d134efefa85726f1cb72a9cfd01706a69a1d0c1a895"
+      "sha256": "3394458ebc5a0a6d6aef2cec4347883601801ebfb7e258da5bef6555f8198b85"
     },
     {
       "status": "M",
       "path": "service/packages/mcp/src/execution/follower-invocation-endpoint.ts",
-      "sha256": "69840d0953bdb6bc1724941d16f7da134d6a506576c08192f388c827ef0002fa"
-    },
-    {
-      "status": "M",
-      "path": "service/packages/mcp/src/execution/operation-evidence-receipt-store.ts",
-      "sha256": "847d199d183ac74bff134a199e413c74f451e47cb93740b53fa1da1ea2be5078"
-    },
-    {
-      "status": "M",
-      "path": "service/packages/mcp/src/execution/operation-executor.ts",
-      "sha256": "31e99a154bfceedf91a8d857c571379f73fb88785bc6e5fcf242742cc87721ce"
-    },
-    {
-      "status": "M",
-      "path": "service/packages/mcp/src/execution/operation-journal.ts",
-      "sha256": "2a41fd92a99865c492c68f4674bb0979095bd91dccfc2fe2cbd5ec76e1c3bbee"
-    },
-    {
-      "status": "M",
-      "path": "service/packages/mcp/src/execution/target-resolver.ts",
-      "sha256": "b0a6ede8a2b9a239f94cb9859c4fbe7acbcd4ad1d3e9bdc81bfb0c00ddb610f6"
+      "sha256": "1ebad2ef7a4e75283be5f203f85d160fe49fe898ab631aee9f795ea1ea98c2f3"
     },
     {
       "status": "M",
       "path": "service/packages/mcp/src/fs/operation-evidence-artifact-store.ts",
-      "sha256": "8be3e93871151317d34ed369b4c73dc01330a2ac61356efa155c8bfda0275a29"
-    },
-    {
-      "status": "M",
-      "path": "service/packages/mcp/src/index.ts",
-      "sha256": "b7dd6e639fe55e4bf0867c10e6dedde235cb89f94fa28f612dcf6c221d14270b"
-    },
-    {
-      "status": "M",
-      "path": "service/packages/mcp/src/relay/relay.ts",
-      "sha256": "d8d832278a9421abdba6c5792052144f94b596ebf5c1c21ec1af16f5eab645f2"
-    },
-    {
-      "status": "M",
-      "path": "service/packages/mcp/src/tool-invocation-service.ts",
-      "sha256": "3f78d1e2c14754b209c492077dec51dbfe3e8d337e04e4041c1fa30dfb1f121a"
+      "sha256": "f8d8387bcff8d8d9453a2b8dd3411da1fb413a406863f8cdf0980ff53b30d3ec"
     },
     {
       "status": "M",
       "path": "service/packages/mcp/test/e2e/mcp-wire.test.ts",
-      "sha256": "2b0054b71224ff7084b3a48a769f30004d26b1eab756e7a61b13a6ab387abe89"
-    },
-    {
-      "status": "M",
-      "path": "service/packages/mcp/test/execution/execution-plane-lifecycle.test.ts",
-      "sha256": "fea23ccaa4ca95fe8dad169120ca875f426684f10aac590855f61429254dafd9"
+      "sha256": "5f252769c11e31a322350a3797365c65e54091de8cb54177633c68ee9d0e252a"
     },
     {
       "status": "M",
       "path": "service/packages/mcp/test/execution/follower-invocation-client.test.ts",
-      "sha256": "c134719770e85c0648ef4c0d1f9e9617de637ff3663641a0821c35e884d716b6"
+      "sha256": "93ab8b2b2c043fa9fab74e2422bd77203daccf6adca674b8c6fa6ac11cc0d291"
     },
     {
       "status": "M",
-      "path": "service/packages/mcp/test/execution/operation-evidence-receipt.test.ts",
-      "sha256": "658ca09005b3ced6b3b9e8bfe05d2a6704bac281a33637980dd42734ea077b36"
-    },
-    {
-      "status": "M",
-      "path": "service/packages/mcp/test/execution/operation-executor.test.ts",
-      "sha256": "8009b4a64e4a499c12630011a6c9339cb7ff12684e922c7711ca3929272cdd4b"
-    },
-    {
-      "status": "M",
-      "path": "service/packages/mcp/test/execution/target-requirement.test.ts",
-      "sha256": "d2d15e2264ae8fb9c651e9df0426221a7774bb1b4d1ed1f5842098b890fe0750"
-    },
-    {
-      "status": "M",
-      "path": "service/packages/mcp/test/execution/target-resolution.test.ts",
-      "sha256": "eac1246a0197ada9b0ce3df952b03fce144f91aca5f85bcecfb8b5a3fe82e479"
+      "path": "service/packages/mcp/test/execution/follower-stream.test.ts",
+      "sha256": "a69bf781ded98eaab104f26344898da251207c073a9324d2d851e5a5544295da"
     },
     {
       "status": "M",
       "path": "service/packages/mcp/test/fs/operation-evidence-artifact-store.test.ts",
-      "sha256": "ede40fb58d5cad08ec18057271b9730801e316b88b2bae53fc31fdb8a661eaef"
-    },
-    {
-      "status": "M",
-      "path": "service/packages/mcp/test/relay/relay.test.ts",
-      "sha256": "f65c167c3f608a499d31223f84c200b09fbbbeaa84a26a826df48866eac16d0b"
-    },
-    {
-      "status": "M",
-      "path": "service/packages/shared/src/invocation.ts",
-      "sha256": "1598aae34fbaae9acf1cc39b73f27517ad8a006417aed6e4a94197c53b854c1a"
-    },
-    {
-      "status": "M",
-      "path": "service/packages/shared/src/operations.ts",
-      "sha256": "d97c8e9a57cc634a3b2bb775fac266da4e6ea4736659d18d123393bcf8301fb9"
-    },
-    {
-      "status": "M",
-      "path": "service/packages/shared/src/progress.ts",
-      "sha256": "99d405a9e39f8652c0d5827686993feb49e517bc33e186c7269351a8ff9b3446"
-    },
-    {
-      "status": "M",
-      "path": "service/vendor-allowed-figwright-strings.json",
-      "sha256": "e51a8f3bf5d1d2c214b210e6221d042195e25186f5b23721f088fff7d3c0c412"
+      "sha256": "e45985fd05b4c1d260567e1f364ec4b2865858bb2c17a0afe7ff43a57ed23255"
     }
   ]
 }

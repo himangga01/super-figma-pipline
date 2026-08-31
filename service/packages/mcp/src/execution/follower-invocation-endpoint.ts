@@ -8,6 +8,7 @@ import {
 } from '@sfp/shared';
 
 import type { FollowerResponseSink } from '../security/follower-transport.js';
+import { FOLLOWER_CANCEL_NOT_ADMITTED } from './follower-invocation-client.js';
 
 interface FollowerPlanePort {
   invokeTool(
@@ -41,7 +42,35 @@ export const createFollowerInvocationEndpoint =
     const inner = decodeFollowerInnerMessage(opened.plaintext);
     const principal = dependencies.principalForMcpSession(opened.mcpSession);
     if (inner.type === 'cancel') {
-      await dependencies.plane.cancel(principal, inner);
+      try {
+        await dependencies.plane.cancel(principal, {
+          version: inner.version,
+          requestId: inner.requestId,
+          operationId: inner.operationId,
+        });
+      } catch (error) {
+        const code =
+          typeof error === 'object' && error !== null && 'code' in error ? String(error.code) : '';
+        const safe =
+          code === 'OPERATION_NOT_FOUND'
+            ? {
+                code: FOLLOWER_CANCEL_NOT_ADMITTED,
+                message: 'operation admission is not yet visible',
+                retryable: true,
+              }
+            : safeInvocationError(error);
+        await response.write(
+          encodeFollowerInnerMessage({
+            version: 1,
+            type: 'error',
+            requestId: inner.requestId,
+            operationId: inner.operationId,
+            error: safe,
+          }),
+          { final: true },
+        );
+        return;
+      }
       await response.write(
         encodeFollowerInnerMessage({
           version: 1,

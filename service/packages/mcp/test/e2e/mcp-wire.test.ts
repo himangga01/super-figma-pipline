@@ -68,11 +68,39 @@ const freePort = async (): Promise<number> => {
   return port;
 };
 
+const within = <T>(promise: Promise<T>, timeoutMs: number, message: () => string): Promise<T> =>
+  Promise.race([
+    promise,
+    new Promise<never>((_resolve, reject) => {
+      const timer = setTimeout(() => reject(new Error(message())), timeoutMs);
+      timer.unref();
+    }),
+  ]);
+
 interface JsonRpcResponse {
   id: number;
   result?: Record<string, unknown>;
   error?: { code: number; message: string };
 }
+
+interface WireClientOptions {
+  port?: number;
+  stateBase?: string;
+}
+
+const removeTemporaryStateBase = (stateBase: string): void => {
+  const temporaryRoot = resolvePath(tmpdir());
+  const candidate = resolvePath(stateBase);
+  const fromTemporary = relative(temporaryRoot, candidate);
+  if (
+    fromTemporary === '' ||
+    fromTemporary === '..' ||
+    fromTemporary.startsWith(`..${process.platform === 'win32' ? '\\' : '/'}`)
+  ) {
+    throw new Error('refusing to remove a wire-test path outside the OS temporary directory');
+  }
+  rmSync(candidate, { recursive: true, force: true });
+};
 
 /** A live MCP server process plus the raw JSON-RPC channel to it. */
 class WireClient {
@@ -85,8 +113,12 @@ class WireClient {
   port = 0;
   private stateBase = '';
   private stateRoot = '';
+  private ownsStateBase = false;
 
-  constructor(readonly seedEgress = true) {}
+  constructor(
+    readonly seedEgress = true,
+    private readonly options: Readonly<WireClientOptions> = {},
+  ) {}
 
   egressMode(): string {
     const path = join(this.stateRoot, 'egress.v1.json');
@@ -112,9 +144,10 @@ class WireClient {
   }
 
   async start(): Promise<void> {
-    const port = await freePort();
+    const port = this.options.port ?? (await freePort());
     this.port = port;
-    this.stateBase = mkdtempSync(join(tmpdir(), 'sfp-wire-state-'));
+    this.stateBase = this.options.stateBase ?? mkdtempSync(join(tmpdir(), 'sfp-wire-state-'));
+    this.ownsStateBase = this.options.stateBase === undefined;
     const environment: Record<string, string | undefined> = {
       ...process.env,
       FIGWRIGHT_PORT: String(port),
@@ -234,19 +267,10 @@ class WireClient {
 
   private cleanupState(): void {
     if (this.stateBase === '') return;
-    const temporaryRoot = resolvePath(tmpdir());
-    const candidate = resolvePath(this.stateBase);
-    const fromTemporary = relative(temporaryRoot, candidate);
-    if (
-      fromTemporary === '' ||
-      fromTemporary === '..' ||
-      fromTemporary.startsWith(`..${process.platform === 'win32' ? '\\' : '/'}`)
-    ) {
-      throw new Error('refusing to remove a wire-test path outside the OS temporary directory');
-    }
-    rmSync(candidate, { recursive: true, force: true });
+    if (this.ownsStateBase) removeTemporaryStateBase(this.stateBase);
     this.stateBase = '';
     this.stateRoot = '';
+    this.ownsStateBase = false;
   }
 
   begin(
@@ -789,6 +813,201 @@ describe.skipIf(!existsSync(DIST_ENTRY))('MCP wire contract (built dist)', () =>
     }
     if (failure !== undefined) throw failure;
   }, 30_000);
+
+  it('cancels a real follower-role MCP call through the matching authenticated authority', async () => {
+    const sharedPort = await freePort();
+    const sharedStateBase = mkdtempSync(join(tmpdir(), 'sfp-wire-follower-state-'));
+    const leader = new WireClient(true, { port: sharedPort, stateBase: sharedStateBase });
+    const follower = new WireClient(false, { port: sharedPort, stateBase: sharedStateBase });
+    let leaderStarted = false;
+    let followerStarted = false;
+    let plugin: WebSocket | undefined;
+    let call: { id: number; response: Promise<JsonRpcResponse> } | undefined;
+    let pluginRequest: Envelope | undefined;
+    let failure: unknown;
+    try {
+      await leader.start();
+      leaderStarted = true;
+      await leader.handshake(LATEST_CLIENT_PROTOCOL);
+      await leader.controlStatus();
+
+      await follower.start();
+      followerStarted = true;
+      await follower.handshake(LATEST_CLIENT_PROTOCOL);
+      expect(follower.stderr).toContain('became FOLLOWER');
+
+      const ticket = await leader.pairTicket();
+      const sessionId = newId();
+      plugin = new WebSocket(`ws://127.0.0.1:${sharedPort}/ws`, { origin: 'null' });
+      await new Promise<void>((resolve, reject) => {
+        plugin?.once('open', () => resolve());
+        plugin?.once('error', reject);
+      });
+      let resolveHello!: (value: ResponseEnvelope) => void;
+      let resolveInvocation!: (value: Envelope) => void;
+      let resolveCancel!: (value: Envelope) => void;
+      const hello = new Promise<ResponseEnvelope>(resolve => {
+        resolveHello = resolve;
+      });
+      const invocation = new Promise<Envelope>(resolve => {
+        resolveInvocation = resolve;
+      });
+      const cancellation = new Promise<Envelope>(resolve => {
+        resolveCancel = resolve;
+      });
+      let cancellationCount = 0;
+      plugin.on('message', raw => {
+        const envelope = decodeEnvelope(raw as Uint8Array);
+        if (envelope.kind === 'res' && envelope.id === 'follower-mcp-cancel-hello') {
+          resolveHello(envelope);
+          return;
+        }
+        if (envelope.kind === 'req' && envelope.method === SystemMethod.Ping) {
+          plugin?.send(
+            encodeEnvelope(
+              createResponse({
+                id: envelope.id,
+                sessionId: envelope.sessionId,
+                result: { ok: true },
+              }),
+            ),
+          );
+          return;
+        }
+        if (envelope.kind === 'req' && envelope.method === 'get_selection') {
+          resolveInvocation(envelope);
+          return;
+        }
+        if (envelope.kind === 'evt' && envelope.method === SystemMethod.Cancel) {
+          cancellationCount += 1;
+          resolveCancel(envelope);
+        }
+      });
+      plugin.send(
+        encodeEnvelope(
+          createRequest({
+            id: 'follower-mcp-cancel-hello',
+            sessionId,
+            method: SystemMethod.Hello,
+            params: {
+              credential: { kind: 'ticket', value: ticket },
+              nonce: Buffer.alloc(16, 3).toString('base64url'),
+              protocolVersion: PROTOCOL_VERSION,
+              productVersion: '0.1.0',
+              pluginVersion: MIN_PLUGIN_VERSION,
+              pluginGeneration: 'plugin-generation-follower-mcp-cancel',
+              editorType: 'figma',
+              mode: 'default',
+              fileIdentity: { kind: 'figma-file-key', value: 'file-key-follower-mcp-cancel' },
+              fileName: 'Follower MCP Cancel',
+              capabilities: [],
+            },
+          }),
+        ),
+      );
+      await within(
+        hello,
+        5_000,
+        () =>
+          `follower cancel plugin hello timed out\nleader:\n${leader.stderr}\nfollower:\n${follower.stderr}`,
+      );
+
+      call = follower.begin('tools/call', { name: 'get_selection', arguments: {} });
+      pluginRequest = await within(
+        invocation,
+        10_000,
+        () =>
+          `follower cancel invocation timed out\nleader:\n${leader.stderr}\nfollower:\n${follower.stderr}`,
+      );
+      if (pluginRequest.kind !== 'req') {
+        throw new Error('follower plugin request was not a request envelope');
+      }
+      follower.notify('notifications/cancelled', {
+        requestId: call.id,
+        reason: 'test follower request abort',
+      });
+      const cancelEnvelope = await Promise.race([
+        cancellation,
+        call.response.then(response => {
+          throw new Error(
+            `follower MCP response settled before Relay cancel: ${JSON.stringify(response)}\n` +
+              `leader:\n${leader.stderr}\nfollower:\n${follower.stderr}`,
+          );
+        }),
+        new Promise<never>((_resolve, reject) => {
+          const timer = setTimeout(
+            () =>
+              reject(
+                new Error(
+                  `follower MCP abort did not reach Relay cancel\n` +
+                    `leader:\n${leader.stderr}\nfollower:\n${follower.stderr}`,
+                ),
+              ),
+            5_000,
+          );
+          timer.unref();
+        }),
+      ]);
+      expect(pluginRequest).toMatchObject({
+        operationId: expect.any(String),
+        actionNonce: expect.any(String),
+      });
+      expect(cancelEnvelope).toMatchObject({
+        kind: 'evt',
+        sessionId: pluginRequest.sessionId,
+        method: SystemMethod.Cancel,
+        params: {
+          operationId: pluginRequest.operationId,
+          actionNonce: pluginRequest.actionNonce,
+        },
+      });
+
+      plugin.send(
+        encodeEnvelope(
+          createResponse({
+            id: pluginRequest.id,
+            sessionId: pluginRequest.sessionId,
+            result: { pageId: '1:1', pageName: 'late follower result', nodes: [] },
+          }),
+        ),
+      );
+      void call.response.catch(() => undefined);
+      const operationId = String(pluginRequest.operationId);
+      await vi.waitFor(() => {
+        const authorities = leader.operationAuthorityLines(operationId);
+        const terminals = authorities.filter(line =>
+          /"status":"(?:pre-egress-rejected|rejected|succeeded|failed|outcome-unknown|resolved-applied|resolved-not-applied|abandoned)"/u.test(
+            line,
+          ),
+        );
+        expect(terminals).toHaveLength(1);
+        expect(terminals[0]).toContain('"status":"outcome-unknown"');
+      });
+      await new Promise(resolve => setTimeout(resolve, 25));
+      expect(cancellationCount).toBe(1);
+    } catch (error) {
+      failure = error;
+    } finally {
+      if (pluginRequest?.kind === 'req') {
+        plugin?.send(
+          encodeEnvelope(
+            createResponse({
+              id: pluginRequest.id,
+              sessionId: pluginRequest.sessionId,
+              result: { pageId: '1:1', pageName: 'cleanup', nodes: [] },
+            }),
+          ),
+        );
+      }
+      void call?.response.catch(() => undefined);
+      await new Promise(resolve => setTimeout(resolve, 25));
+      if (plugin !== undefined) closeSocket(plugin);
+      if (followerStarted) await follower.stop();
+      if (leaderStarted) await leader.stop();
+      removeTemporaryStateBase(sharedStateBase);
+    }
+    if (failure !== undefined) throw failure;
+  }, 60_000);
 
   it('surfaces a bad-argument call as a tool error the model can read, not a transport failure', async () => {
     const res = await client.send('tools/call', {

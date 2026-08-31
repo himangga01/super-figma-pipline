@@ -1,6 +1,7 @@
 import {
   decodeFollowerInnerMessage,
   encodeFollowerInnerMessage,
+  InvocationCancelV1Schema,
   type ActorContext,
   type InvocationFrameV1,
 } from '@sfp/shared';
@@ -110,6 +111,101 @@ describe('authenticated follower inner invocation stream', () => {
     );
     expect(cancel).not.toHaveBeenCalled();
     expect(invokeTool).toHaveBeenCalledOnce();
+  });
+
+  it('projects the authenticated cancel discriminator into the strict plane request', async () => {
+    let cancelled: unknown;
+    const written: Uint8Array[] = [];
+    const endpoint = createFollowerInvocationEndpoint({
+      principalForMcpSession: () => principal,
+      plane: {
+        invokeTool: vi.fn<() => never>(),
+        invokeService: vi.fn<() => never>(),
+        cancel: async (_observedPrincipal, request) => {
+          cancelled = InvocationCancelV1Schema.parse(request);
+        },
+      },
+    });
+
+    await endpoint(
+      {
+        mcpSession: 'mcp1_AQAAAAAAAAAAAAAAAAAAAA',
+        plaintext: encodeFollowerInnerMessage({
+          version: 1,
+          type: 'cancel',
+          requestId,
+          operationId: 'operation-cancel-strict-plane',
+        }),
+      },
+      {
+        write: async bytes => {
+          written.push(bytes);
+        },
+        truncate: async () => undefined,
+      },
+      new AbortController().signal,
+    );
+
+    expect(cancelled).toEqual({
+      version: 1,
+      requestId,
+      operationId: 'operation-cancel-strict-plane',
+    });
+    expect(decodeFollowerInnerMessage(written[0] as Uint8Array)).toMatchObject({
+      type: 'result',
+      requestId,
+      operationId: 'operation-cancel-strict-plane',
+      result: { cancelled: true },
+    });
+  });
+
+  it('returns one authenticated retryable cancel response while admission is not yet visible', async () => {
+    const written: { plaintext: Uint8Array; final: boolean }[] = [];
+    const endpoint = createFollowerInvocationEndpoint({
+      principalForMcpSession: () => principal,
+      plane: {
+        invokeTool: vi.fn<() => never>(),
+        invokeService: vi.fn<() => never>(),
+        cancel: async () => {
+          throw Object.assign(new Error('operation was not found'), {
+            code: 'OPERATION_NOT_FOUND',
+          });
+        },
+      },
+    });
+
+    await endpoint(
+      {
+        mcpSession: 'mcp1_AQAAAAAAAAAAAAAAAAAAAA',
+        plaintext: encodeFollowerInnerMessage({
+          version: 1,
+          type: 'cancel',
+          requestId,
+          operationId: 'operation-delayed-admission',
+        }),
+      },
+      {
+        write: async (bytes, options) => {
+          written.push({ plaintext: bytes, final: options.final });
+        },
+        truncate: async () => undefined,
+      },
+      new AbortController().signal,
+    );
+
+    expect(written).toHaveLength(1);
+    expect(written[0]?.final).toBe(true);
+    expect(decodeFollowerInnerMessage(written[0]?.plaintext as Uint8Array)).toEqual({
+      version: 1,
+      type: 'error',
+      requestId,
+      operationId: 'operation-delayed-admission',
+      error: {
+        code: 'FOLLOWER_CANCEL_NOT_ADMITTED',
+        message: 'operation admission is not yet visible',
+        retryable: true,
+      },
+    });
   });
 
   it('redacts plugin paths, URLs, base64, and secrets before follower error framing', async () => {
