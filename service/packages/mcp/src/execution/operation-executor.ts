@@ -524,6 +524,7 @@ const createPreRuntimeCrashSettlement = (
   },
   reservation: Readonly<PreRuntimeCrashReservation>,
   egressState: EgressOperationState,
+  afterPreRuntimeFinalizerFsync?: () => Promise<void>,
 ): PreRuntimeReservationClassification['settlement'] => {
   const authority = reservation.operationAuthority;
   if (authority === undefined || egressState.kind === 'absent') return undefined;
@@ -541,6 +542,7 @@ const createPreRuntimeCrashSettlement = (
     intent,
     settle: async () => {
       const finalized = await input.egress.finalize(egressState.reservation, noOutput);
+      await afterPreRuntimeFinalizerFsync?.();
       if (finalized.finalManifestHash !== intent.finalEgressManifestHash) {
         throw Object.assign(
           new Error('pre-runtime finalizer hash does not match recovery intent'),
@@ -616,6 +618,7 @@ export const recoverDurableOperationState = async (input: {
     hasFinalizer?(actorId: `actor1_${string}`, operationId: string): Promise<boolean>;
   };
   receipts: Pick<OperationEvidenceReceiptStorePort, 'recover' | 'get'> & {
+    listPreRuntimeReservationOperationIds?(): readonly string[];
     recoverPreRuntimeReservations?(classify: PreRuntimeReservationClassifier): Promise<void>;
   };
   journal: Pick<
@@ -626,12 +629,14 @@ export const recoverDurableOperationState = async (input: {
     | 'get'
     | 'appendInitial'
     | 'transition'
+    | 'recoverPreservedQueued'
   >;
   finalizer: Pick<DurableOperationFinalizer, 'recoverDispatched'>;
   deferTombstonePurge?: boolean;
   preRuntimeReservationRecovery?: {
     hasResultArtifactSideEffect(workspaceId: string, operationId: string): Promise<boolean>;
     hasNativeArtifactSideEffect(workspaceId: string, operationId: string): Promise<boolean>;
+    afterPreRuntimeFinalizerFsync?: () => Promise<void>;
   };
   onPhase?: (phase: 'egress' | 'receipts' | 'journal' | 'reconcile' | 'pre-runtime') => void;
 }): Promise<void> => {
@@ -639,11 +644,116 @@ export const recoverDurableOperationState = async (input: {
   await input.egress.recover(input.now);
   input.onPhase?.('receipts');
   await input.receipts.recover();
+  let preRuntime:
+    | Readonly<{
+        operationIds: ReadonlySet<string>;
+        classifyEgress: NonNullable<typeof input.egress.classifyOperationState>;
+        hasFinalizer: NonNullable<typeof input.egress.hasFinalizer>;
+        recoverReservations: NonNullable<typeof input.receipts.recoverPreRuntimeReservations>;
+        recovery: NonNullable<typeof input.preRuntimeReservationRecovery>;
+      }>
+    | undefined;
+  if (input.preRuntimeReservationRecovery !== undefined) {
+    const listOperationIds = input.receipts.listPreRuntimeReservationOperationIds;
+    const classifyEgress = input.egress.classifyOperationState;
+    const hasFinalizer = input.egress.hasFinalizer;
+    const recoverReservations = input.receipts.recoverPreRuntimeReservations;
+    if (
+      listOperationIds === undefined ||
+      classifyEgress === undefined ||
+      hasFinalizer === undefined ||
+      recoverReservations === undefined
+    ) {
+      throw Object.assign(new Error('pre-runtime reservation recovery authority is unavailable'), {
+        code: 'PRE_RUNTIME_RECOVERY_UNAVAILABLE',
+      });
+    }
+    preRuntime = Object.freeze({
+      operationIds: new Set(listOperationIds.call(input.receipts)),
+      classifyEgress,
+      hasFinalizer,
+      recoverReservations,
+      recovery: input.preRuntimeReservationRecovery,
+    });
+  }
   input.onPhase?.('journal');
   await input.journal.recover({
     deferDispatched: true,
     deferTombstonePurge: input.deferTombstonePurge === true,
+    ...(preRuntime === undefined ? {} : { preserveQueuedOperationIds: preRuntime.operationIds }),
   });
+  if (preRuntime !== undefined) {
+    input.onPhase?.('pre-runtime');
+    await preRuntime.recoverReservations.call(input.receipts, async reservation => {
+      const journalRecord = input.journal.get(reservation.operationId);
+      const egressState = await preRuntime.classifyEgress.call(
+        input.egress,
+        input.actorId,
+        reservation.operationId,
+      );
+      const finalizerPresent = await preRuntime.hasFinalizer.call(
+        input.egress,
+        input.actorId,
+        reservation.operationId,
+      );
+      const resultArtifact = await classifyArtifactSideEffect(
+        reservation.workspaceId,
+        reservation.operationId,
+        preRuntime.recovery.hasResultArtifactSideEffect,
+      );
+      const nativeArtifact = await classifyArtifactSideEffect(
+        reservation.workspaceId,
+        reservation.operationId,
+        preRuntime.recovery.hasNativeArtifactSideEffect,
+      );
+      const journal: PreRuntimeReservationClassification['journal'] =
+        journalRecord === undefined
+          ? Object.freeze({ kind: 'absent' })
+          : Object.freeze({
+              kind: 'present',
+              recordKind: 'sequence' in journalRecord ? 'active' : 'tombstone',
+              status: journalRecord.status,
+              operationFingerprintHash: journalRecord.operationFingerprintHash,
+              preExecutionManifestHash:
+                'preExecutionConsentManifestHash' in journalRecord
+                  ? journalRecord.preExecutionConsentManifestHash
+                  : null,
+              finalEgressManifestHash: journalRecord.finalEgressManifestHash,
+              operationEvidenceReceiptHash: journalRecord.operationEvidenceReceiptHash,
+            });
+      const egress: PreRuntimeReservationClassification['egress'] =
+        egressState.kind === 'absent'
+          ? Object.freeze({ kind: 'absent' })
+          : egressState.kind === 'pre-only'
+            ? Object.freeze({
+                kind: 'pre-only',
+                preExecutionManifestHash: egressState.preExecutionManifestHash,
+              })
+            : Object.freeze({
+                kind: 'final',
+                preExecutionManifestHash: egressState.preExecutionManifestHash,
+                finalEgressManifestHash: egressState.finalizer.manifestHash,
+                finalStatus: egressState.finalizer.finalStatus,
+                reasonCode: egressState.finalizer.reasonCode,
+              });
+      const settlement = createPreRuntimeCrashSettlement(
+        input,
+        reservation,
+        egressState,
+        preRuntime.recovery.afterPreRuntimeFinalizerFsync,
+      );
+      return Object.freeze({
+        journal,
+        egress,
+        receipt: Object.freeze({ kind: 'absent' }),
+        finalizer: Object.freeze({ kind: finalizerPresent ? 'present' : 'absent' }),
+        resultArtifact,
+        nativeArtifact,
+        settlement,
+      });
+    });
+    await input.journal.recoverPreservedQueued(preRuntime.operationIds);
+  }
   input.onPhase?.('reconcile');
   /* eslint-disable no-await-in-loop -- recovery terminal transitions extend one ordered journal */
   for (const record of input.journal.listDispatched()) {
@@ -680,84 +790,6 @@ export const recoverDurableOperationState = async (input: {
     });
   }
   /* eslint-enable no-await-in-loop */
-  if (input.preRuntimeReservationRecovery !== undefined) {
-    input.onPhase?.('pre-runtime');
-    const classifyEgress = input.egress.classifyOperationState;
-    const hasFinalizer = input.egress.hasFinalizer;
-    const recoverReservations = input.receipts.recoverPreRuntimeReservations;
-    if (
-      classifyEgress === undefined ||
-      hasFinalizer === undefined ||
-      recoverReservations === undefined
-    ) {
-      throw Object.assign(new Error('pre-runtime reservation recovery authority is unavailable'), {
-        code: 'PRE_RUNTIME_RECOVERY_UNAVAILABLE',
-      });
-    }
-    await recoverReservations.call(input.receipts, async reservation => {
-      const journalRecord = input.journal.get(reservation.operationId);
-      const egressState = await classifyEgress.call(
-        input.egress,
-        input.actorId,
-        reservation.operationId,
-      );
-      const finalizerPresent = await hasFinalizer.call(
-        input.egress,
-        input.actorId,
-        reservation.operationId,
-      );
-      const resultArtifact = await classifyArtifactSideEffect(
-        reservation.workspaceId,
-        reservation.operationId,
-        input.preRuntimeReservationRecovery!.hasResultArtifactSideEffect,
-      );
-      const nativeArtifact = await classifyArtifactSideEffect(
-        reservation.workspaceId,
-        reservation.operationId,
-        input.preRuntimeReservationRecovery!.hasNativeArtifactSideEffect,
-      );
-      const journal: PreRuntimeReservationClassification['journal'] =
-        journalRecord === undefined
-          ? Object.freeze({ kind: 'absent' })
-          : Object.freeze({
-              kind: 'present',
-              recordKind: 'sequence' in journalRecord ? 'active' : 'tombstone',
-              status: journalRecord.status,
-              operationFingerprintHash: journalRecord.operationFingerprintHash,
-              preExecutionManifestHash:
-                'preExecutionConsentManifestHash' in journalRecord
-                  ? journalRecord.preExecutionConsentManifestHash
-                  : null,
-              finalEgressManifestHash: journalRecord.finalEgressManifestHash,
-              operationEvidenceReceiptHash: journalRecord.operationEvidenceReceiptHash,
-            });
-      const egress: PreRuntimeReservationClassification['egress'] =
-        egressState.kind === 'absent'
-          ? Object.freeze({ kind: 'absent' })
-          : egressState.kind === 'pre-only'
-            ? Object.freeze({
-                kind: 'pre-only',
-                preExecutionManifestHash: egressState.preExecutionManifestHash,
-              })
-            : Object.freeze({
-                kind: 'final',
-                preExecutionManifestHash: egressState.preExecutionManifestHash,
-                finalEgressManifestHash: egressState.finalizer.manifestHash,
-                finalStatus: egressState.finalizer.finalStatus,
-                reasonCode: egressState.finalizer.reasonCode,
-              });
-      const settlement = createPreRuntimeCrashSettlement(input, reservation, egressState);
-      return Object.freeze({
-        journal,
-        egress,
-        receipt: Object.freeze({ kind: 'absent' }),
-        finalizer: Object.freeze({ kind: finalizerPresent ? 'present' : 'absent' }),
-        resultArtifact,
-        nativeArtifact,
-        settlement,
-      });
-    });
-  }
 };
 
 export class OperationExecutor {

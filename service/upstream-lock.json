@@ -41,6 +41,10 @@
         "sha256": "d2f5195ff4790e1663afb9ffd9ab6f1209a9b7aabe7da78b61c689e3e905c6fc"
       },
       {
+        "path": "capabilities/change-manifests/task-8a.json",
+        "sha256": "482a89d94bfc920b25b8842cb0b86853439a39c334729f0d65470a36f7425e3d"
+      },
+      {
         "path": "capabilities/figmosha-feature-map.json",
         "sha256": "8b84a17e372975e6590ced2315cbdcfb99f0def6259980e88eaf6c4294ca8956"
       },
@@ -59,6 +63,10 @@
       {
         "path": "capabilities/task-7c-authority-classes.json",
         "sha256": "fcb7fc04a232a887fac79328635f1cf26a19d541845083fac24164ea65ffe763"
+      },
+      {
+        "path": "capabilities/task-8a-authority-classes.json",
+        "sha256": "b528e195f40021111530a252ddbcc6ce6f034b6079edfd5ea1c33f63080133d5"
       },
       {
         "path": "capabilities/union-manifest.json",
@@ -186,11 +194,11 @@
       },
       {
         "path": "packages/mcp/src/execution/operation-evidence-receipt-store.ts",
-        "sha256": "d423e051169e12cfeada1bf4f2f94a4780a9d5ec5829cefc4caeb8702c8ae335"
+        "sha256": "e8620b4d31a7c77f210123c655a2d14e97c26e1c746d93a5d7059ed995b911a0"
       },
       {
         "path": "packages/mcp/src/execution/operation-executor.ts",
-        "sha256": "d67fab881cf85df9a2d85abdc13c42028310290606b11c5d82dd3725abe56f1b"
+        "sha256": "4f626ea487548754c0a75fe0e00a7bbed6fab795f06b98ad6c624f295cdc75ed"
       },
       {
         "path": "packages/mcp/src/execution/operation-id.ts",
@@ -198,7 +206,7 @@
       },
       {
         "path": "packages/mcp/src/execution/operation-journal.ts",
-        "sha256": "e58c4dc27eda75da1bf15c8a96b553c5fe9f4551ead0aa7b4b059a846f592c9e"
+        "sha256": "d1dbd5b9dae3ca36f82992dffdebc276f5e7a4081029f8a97b3fdc3ec84f4fb9"
       },
       {
         "path": "packages/mcp/src/execution/operation-resolution-intent.ts",
@@ -922,11 +930,11 @@
       },
       {
         "path": "packages/mcp/test/execution/operation-evidence-receipt.test.ts",
-        "sha256": "7f9c1484fc952e4fdb715a57ba0d9b557d179f7ca64a068b685dff9d169fed93"
+        "sha256": "5f0b34e3b7eb11d41fe3933f6656e94f9aea163719b7d1a927697c953223bdf3"
       },
       {
         "path": "packages/mcp/test/execution/operation-executor.test.ts",
-        "sha256": "8d5253aeee4071f153757307ef61fd8623c96753b72e467f8cbd84733339e746"
+        "sha256": "2195d16685e210dfce06ff3fe3ce73d6909e1bf6de11a1d2c8e082d3692900e2"
       },
       {
         "path": "packages/mcp/test/execution/operation-id.test.ts",
@@ -934,7 +942,7 @@
       },
       {
         "path": "packages/mcp/test/execution/operation-journal.test.ts",
-        "sha256": "a8086c988d5f41c94310f33805e97ae3d04938e71a50cb7f3b55d38ac2d0e161"
+        "sha256": "5f7240fb964adb25ff4ad8dee21ca4214172ce73be9c30b40d2f80ccfa114e6f"
       },
       {
         "path": "packages/mcp/test/execution/operation-resolution.test.ts",
@@ -1276,6 +1284,10 @@
       "sha256": "d2f5195ff4790e1663afb9ffd9ab6f1209a9b7aabe7da78b61c689e3e905c6fc"
     },
     {
+      "path": "capabilities/change-manifests/task-8a.json",
+      "sha256": "482a89d94bfc920b25b8842cb0b86853439a39c334729f0d65470a36f7425e3d"
+    },
+    {
       "path": "capabilities/figmosha-feature-map.json",
       "sha256": "8b84a17e372975e6590ced2315cbdcfb99f0def6259980e88eaf6c4294ca8956"
     },
@@ -1294,6 +1306,10 @@
     {
       "path": "capabilities/task-7c-authority-classes.json",
       "sha256": "fcb7fc04a232a887fac79328635f1cf26a19d541845083fac24164ea65ffe763"
+    },
+    {
+      "path": "capabilities/task-8a-authority-classes.json",
+      "sha256": "b528e195f40021111530a252ddbcc6ce6f034b6079edfd5ea1c33f63080133d5"
     },
     {
       "path": "capabilities/union-manifest.json",
@@ -1465,11 +1481,11 @@
     },
     {
       "path": "packages/mcp/src/execution/operation-evidence-receipt-store.ts",
-      "sha256": "d423e051169e12cfeada1bf4f2f94a4780a9d5ec5829cefc4caeb8702c8ae335"
+      "sha256": "e8620b4d31a7c77f210123c655a2d14e97c26e1c746d93a5d7059ed995b911a0"
     },
     {
       "path": "packages/mcp/src/execution/operation-executor.ts",
-      "sha256": "d67fab881cf85df9a2d85abdc13c42028310290606b11c5d82dd3725abe56f1b"
+      "sha256": "4f626ea487548754c0a75fe0e00a7bbed6fab795f06b98ad6c624f295cdc75ed"
     },
     {
       "path": "packages/mcp/src/execution/operation-id.ts",
@@ -1477,7 +1493,7 @@
     },
     {
       "path": "packages/mcp/src/execution/operation-journal.ts",
-      "sha256": "e58c4dc27eda75da1bf15c8a96b553c5fe9f4551ead0aa7b4b059a846f592c9e"
+      "sha256": "d1dbd5b9dae3ca36f82992dffdebc276f5e7a4081029f8a97b3fdc3ec84f4fb9"
     },
     {
       "path": "packages/mcp/src/execution/operation-resolution-intent.ts",
@@ -2201,11 +2217,11 @@
     },
     {
       "path": "packages/mcp/test/execution/operation-evidence-receipt.test.ts",
-      "sha256": "7f9c1484fc952e4fdb715a57ba0d9b557d179f7ca64a068b685dff9d169fed93"
+      "sha256": "5f0b34e3b7eb11d41fe3933f6656e94f9aea163719b7d1a927697c953223bdf3"
     },
     {
       "path": "packages/mcp/test/execution/operation-executor.test.ts",
-      "sha256": "8d5253aeee4071f153757307ef61fd8623c96753b72e467f8cbd84733339e746"
+      "sha256": "2195d16685e210dfce06ff3fe3ce73d6909e1bf6de11a1d2c8e082d3692900e2"
     },
     {
       "path": "packages/mcp/test/execution/operation-id.test.ts",
@@ -2213,7 +2229,7 @@
     },
     {
       "path": "packages/mcp/test/execution/operation-journal.test.ts",
-      "sha256": "a8086c988d5f41c94310f33805e97ae3d04938e71a50cb7f3b55d38ac2d0e161"
+      "sha256": "5f7240fb964adb25ff4ad8dee21ca4214172ce73be9c30b40d2f80ccfa114e6f"
     },
     {
       "path": "packages/mcp/test/execution/operation-resolution.test.ts",
@@ -2589,7 +2605,7 @@
     },
     {
       "path": "vendor-rules.json",
-      "sha256": "ce7e263aae6dacd7d59c03dd15f8ea5ed8d17fdba22435657b78d083b65f7a77"
+      "sha256": "bb5123a5b4203b37a3ad08dd598fd27b90ab7a7c666fdac5d707315b4bf2e6f5"
     },
     {
       "path": "vitest.config.ts",

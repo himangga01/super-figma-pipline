@@ -237,6 +237,33 @@ describe('owner-state operation journal', () => {
     expect(restarted.listDispatched().map(row => row.operationId)).toEqual(['op-deferred']);
   });
 
+  it('preserves only named queued rows until specialized recovery finishes', async () => {
+    const root = await createRoot();
+    const first = new OperationJournal({ stateRoot: root, actorId });
+    await first.recover();
+    await first.appendInitial(record('op-recovery-owned'), 'queued');
+    await first.appendInitial(record('op-ordinary-queued'), 'queued');
+
+    const restarted = new OperationJournal({ stateRoot: root, actorId });
+    const recoveryOptions = {
+      deferDispatched: true,
+      preserveQueuedOperationIds: new Set(['op-recovery-owned']),
+    } satisfies Parameters<OperationJournal['recover']>[0];
+    await restarted.recover(recoveryOptions);
+
+    expect(restarted.get('op-recovery-owned')).toMatchObject({ status: 'queued' });
+    expect(restarted.get('op-ordinary-queued')).toMatchObject({
+      status: 'failed',
+      errorCode: 'PROCESS_RESTARTED_BEFORE_DISPATCH',
+    });
+
+    await restarted.recoverPreservedQueued(new Set(['op-recovery-owned']));
+    expect(restarted.get('op-recovery-owned')).toMatchObject({
+      status: 'failed',
+      errorCode: 'PROCESS_RESTARTED_BEFORE_DISPATCH',
+    });
+  });
+
   it('generation-fences every obsolete terminal transition with an expected-generation CAS', async () => {
     const root = await createRoot();
     const journal = new OperationJournal({ stateRoot: root, actorId });

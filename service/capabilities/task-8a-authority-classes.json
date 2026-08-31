@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "slice": "8A",
+  "allowedPaths": [
+    "service/capabilities/change-manifests/task-8a.json",
+    "service/capabilities/task-8a-authority-classes.json",
+    "service/packages/mcp/src/execution/operation-evidence-receipt-store.ts",
+    "service/packages/mcp/src/execution/operation-executor.ts",
+    "service/packages/mcp/src/execution/operation-journal.ts",
+    "service/packages/mcp/test/execution/operation-evidence-receipt.test.ts",
+    "service/packages/mcp/test/execution/operation-executor.test.ts",
+    "service/packages/mcp/test/execution/operation-journal.test.ts",
+    "service/upstream-lock.json",
+    "service/vendor-map.json",
+    "service/vendor-rules.json"
+  ]
+}

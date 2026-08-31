@@ -147,6 +147,7 @@ interface StoreOptions {
   limits?: EvidenceLimits;
   now?: () => number;
   compactionHook?: (step: ImmutableGenerationStep) => Promise<void>;
+  afterReservationReleaseFsync?: () => Promise<void>;
 }
 
 export class OperationEvidenceReceiptStore implements OperationEvidenceReceiptStorePort {
@@ -183,6 +184,15 @@ export class OperationEvidenceReceiptStore implements OperationEvidenceReceiptSt
     return this.exclusive(async () => {
       await this.recoverUnlocked();
     }, false);
+  }
+
+  listPreRuntimeReservationOperationIds(): readonly string[] {
+    this.assertReady(this.options.actorId);
+    return Object.freeze(
+      [
+        ...new Set([...this.reservations.values()].map(reservation => reservation.operationId)),
+      ].toSorted(),
+    );
   }
 
   async recoverPreRuntimeReservations(classify: PreRuntimeReservationClassifier): Promise<void> {
@@ -711,6 +721,7 @@ export class OperationEvidenceReceiptStore implements OperationEvidenceReceiptSt
   private async releaseReservationUnlocked(reservationId: string): Promise<void> {
     if (!this.reservations.has(reservationId)) return;
     await this.appendReservationEventUnlocked({ kind: 'release', reservationId });
+    await this.options.afterReservationReleaseFsync?.();
     this.reservations.delete(reservationId);
     if (this.reservations.size === 0) {
       const handle = await open(this.reservationLogPath, 'w', 0o600);

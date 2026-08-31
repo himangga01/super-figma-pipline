@@ -195,6 +195,24 @@ describe('operation evidence receipt store', () => {
     });
   });
 
+  it('exposes exactly the active reservation operation IDs recovered from durable authority', async () => {
+    const stateRoot = await mkdtemp(join(tmpdir(), 'sfp-receipt-recovery-owned-'));
+    roots.push(stateRoot);
+    const first = new OperationEvidenceReceiptStore({ stateRoot, actorId });
+    await first.recover();
+    await first.reserveBeforeRuntime(actorId, 'operation-owned-b', 1);
+    const released = await first.reserveBeforeRuntime(actorId, 'operation-released', 1);
+    await first.reserveBeforeRuntime(actorId, 'operation-owned-a', 1);
+    await first.releaseWithoutReceipt(released.reservationId);
+
+    const restarted = new OperationEvidenceReceiptStore({ stateRoot, actorId });
+    await restarted.recover();
+    expect(restarted.listPreRuntimeReservationOperationIds()).toEqual([
+      'operation-owned-a',
+      'operation-owned-b',
+    ]);
+  });
+
   it('serializes concurrent sibling receipts into one restart-valid actor chain', async () => {
     const stateRoot = await mkdtemp(join(tmpdir(), 'sfp-receipt-concurrent-'));
     roots.push(stateRoot);

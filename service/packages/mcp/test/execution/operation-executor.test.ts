@@ -858,6 +858,218 @@ describe('idempotent journaled operation executor', () => {
     expect(runtime).not.toHaveBeenCalled();
   });
 
+  it('preserves reservation-owned queued recovery across every pre-runtime fsync boundary', async () => {
+    const root = await createRoot();
+    const issuer = operationIdIssuerFromKey(Buffer.alloc(32, 32));
+    const operationId = issuer.issue(actorId, fixedNow, {
+      nonce: 'EAAAAAAAAAAAAAAAAAAAAA',
+    });
+    const reservationCrash = new Error('crash after evidence reservation fsync');
+    const finalizerCrash = new Error('crash after recovered no-output finalizer fsync');
+    const queuedCrash = new Error('crash after recovered queued fsync');
+    const rejectedCrash = new Error('crash after recovered rejected fsync');
+    const releaseCrash = new Error('crash after recovered reservation release fsync');
+    const limits = {
+      ...OPERATION_EVIDENCE_LIMITS,
+      maxRowsPerActor: 1,
+      maxBytesPerActor: OPERATION_EVIDENCE_LIMITS.reservationBytesPerOperation,
+    };
+    const runtime = vi.fn<PinnedPluginRuntimePort['execute']>(async () => ({
+      ok: true,
+      nodeId: '1:2',
+      name: 'Text',
+      type: 'TEXT',
+    }));
+
+    const restart = async (
+      hooks: Readonly<{
+        afterPreRuntimeFinalizerFsync?: () => Promise<void>;
+        afterQueuedFsync?: () => Promise<void>;
+        afterRejectedFsync?: () => Promise<void>;
+        afterReservationReleaseFsync?: () => Promise<void>;
+      }> = {},
+    ) => {
+      const journalOptions = {
+        stateRoot: root,
+        actorId,
+        now: () => fixedNow,
+        ...(hooks.afterQueuedFsync === undefined
+          ? {}
+          : { afterQueuedFsync: hooks.afterQueuedFsync }),
+        ...(hooks.afterRejectedFsync === undefined
+          ? {}
+          : { afterTombstoneFsync: hooks.afterRejectedFsync }),
+      } satisfies ConstructorParameters<typeof OperationJournal>[0];
+      const journal = new OperationJournal(journalOptions);
+      const egress = new EgressManifestStore({ stateRoot: root, actorId, now: () => fixedNow });
+      const receiptOptions = {
+        stateRoot: root,
+        actorId,
+        limits,
+        ...(hooks.afterReservationReleaseFsync === undefined
+          ? {}
+          : { afterReservationReleaseFsync: hooks.afterReservationReleaseFsync }),
+      } satisfies ConstructorParameters<typeof OperationEvidenceReceiptStore>[0];
+      const receipts = new OperationEvidenceReceiptStore(receiptOptions);
+      const finalizer = new DurableOperationFinalizer({
+        artifacts: { createNew: vi.fn<() => never>() },
+        receipts,
+        egress,
+        journal,
+        emitTerminal: vi.fn<() => never>(),
+      });
+      await recoverDurableOperationState({
+        actorId,
+        now: fixedNow,
+        egress,
+        receipts,
+        journal,
+        finalizer,
+        preRuntimeReservationRecovery: {
+          hasResultArtifactSideEffect: async () => false,
+          hasNativeArtifactSideEffect: async () => false,
+          ...(hooks.afterPreRuntimeFinalizerFsync === undefined
+            ? {}
+            : { afterPreRuntimeFinalizerFsync: hooks.afterPreRuntimeFinalizerFsync }),
+        },
+      } satisfies Parameters<typeof recoverDurableOperationState>[0]);
+      return { journal, egress, receipts };
+    };
+
+    const authorities = await restart();
+    const executor = new OperationExecutor({
+      issuer,
+      journal: authorities.journal,
+      queue: new FileExecutionQueue(),
+      runtimes: createBoundRuntimeRegistry({ execute: runtime }, { execute: async () => ({}) }),
+      durability: {
+        egress: authorities.egress,
+        receipts: authorities.receipts,
+        artifacts: { createNew: vi.fn<() => never>() },
+        projector: { project: vi.fn<() => never>() },
+        nativeArtifacts: { createNativeManifest: vi.fn<() => never>() },
+        afterEvidenceReservationFsync: async () => {
+          throw reservationCrash;
+        },
+      },
+      now: () => fixedNow,
+    });
+
+    await expect(
+      executor.invokeTool(
+        scope(),
+        'create_text',
+        { characters: 'A' },
+        operationId,
+        NO_CAPTURE_OPTIONS,
+      ),
+    ).rejects.toBe(reservationCrash);
+    expect(runtime).not.toHaveBeenCalled();
+
+    await expect(
+      restart({
+        afterPreRuntimeFinalizerFsync: async () => {
+          throw finalizerCrash;
+        },
+      }),
+    ).rejects.toBe(finalizerCrash);
+    expect(runtime).not.toHaveBeenCalled();
+
+    await expect(
+      restart({
+        afterQueuedFsync: async () => {
+          throw queuedCrash;
+        },
+      }),
+    ).rejects.toBe(queuedCrash);
+    expect(runtime).not.toHaveBeenCalled();
+
+    await expect(
+      restart({
+        afterRejectedFsync: async () => {
+          throw rejectedCrash;
+        },
+      }),
+    ).rejects.toBe(rejectedCrash);
+    expect(runtime).not.toHaveBeenCalled();
+
+    await expect(
+      restart({
+        afterReservationReleaseFsync: async () => {
+          throw releaseCrash;
+        },
+      }),
+    ).rejects.toBe(releaseCrash);
+    expect(runtime).not.toHaveBeenCalled();
+
+    const recovered = await restart();
+    const record = recovered.journal.get(operationId);
+    expect(record).toMatchObject({
+      status: 'rejected',
+      errorCode: 'OPERATION_PRE_RUNTIME_CRASH_RECOVERED',
+      operationEvidenceReceiptHash: null,
+      finalEgressManifestHash: expect.stringMatching(/^sha256:/u),
+    });
+    if (record === undefined || !('finalEgressManifestHash' in record)) {
+      throw new Error('recovered terminal journal record expected');
+    }
+    const egressState = await recovered.egress.classifyOperationState(actorId, operationId);
+    expect(egressState.kind).toBe('final');
+    const finalizer = await recovered.egress.readVerifiedFinalizer(
+      actorId,
+      operationId,
+      record.finalEgressManifestHash,
+    );
+    expect(finalizer).toMatchObject({
+      finalStatus: 'no-output',
+      reasonCode: 'admission-rejected',
+      manifestHash: record.finalEgressManifestHash,
+      preExecutionManifestHash:
+        egressState.kind === 'absent' ? null : egressState.preExecutionManifestHash,
+      resultHash: null,
+    });
+
+    const capacityProbe = await recovered.receipts.reserveBeforeRuntime(
+      actorId,
+      issuer.issue(actorId, fixedNow + 1),
+      1,
+    );
+    await recovered.receipts.releaseWithoutReceipt(capacityProbe.reservationId);
+
+    const replayExecutor = new OperationExecutor({
+      issuer,
+      journal: recovered.journal,
+      queue: new FileExecutionQueue(),
+      runtimes: createBoundRuntimeRegistry({ execute: runtime }, { execute: async () => ({}) }),
+      now: () => fixedNow + 1,
+    });
+    await expect(
+      replayExecutor.invokeTool(
+        scope(),
+        'create_text',
+        { characters: 'A' },
+        operationId,
+        NO_CAPTURE_OPTIONS,
+      ),
+    ).rejects.toMatchObject({ code: 'OPERATION_ALREADY_SETTLED', status: 'rejected' });
+    await expect(
+      replayExecutor.invokeTool(
+        scope(),
+        'create_text',
+        { characters: 'different' },
+        operationId,
+        NO_CAPTURE_OPTIONS,
+      ),
+    ).rejects.toMatchObject({ code: 'OPERATION_ID_CONFLICT' });
+
+    const secondRestart = await restart();
+    expect(secondRestart.journal.get(operationId)).toMatchObject({
+      status: 'rejected',
+      finalEgressManifestHash: record.finalEgressManifestHash,
+    });
+    expect(runtime).not.toHaveBeenCalled();
+  });
+
   it('passes one operation reporter into the real runtime execution path', async () => {
     const root = await createRoot();
     const issuer = operationIdIssuerFromKey(Buffer.alloc(32, 24));

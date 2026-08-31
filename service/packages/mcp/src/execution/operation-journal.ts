@@ -31,6 +31,7 @@ export interface OperationJournalOptions {
   now?: () => number;
   capacity?: { maxRows: number; maxBytes: number; compactAtRows: number; compactAtBytes: number };
   tombstoneCapacity?: { maxRows: number; maxBytes: number };
+  afterQueuedFsync?: () => Promise<void>;
   afterTombstoneFsync?: () => Promise<void>;
   afterResolutionTombstoneFsync?: () => Promise<void>;
   syncDirectory?: (path: string) => Promise<void>;
@@ -266,7 +267,11 @@ export class OperationJournal {
   }
 
   async recover(
-    options: { deferDispatched?: boolean; deferTombstonePurge?: boolean } = {},
+    options: {
+      deferDispatched?: boolean;
+      deferTombstonePurge?: boolean;
+      preserveQueuedOperationIds?: ReadonlySet<string>;
+    } = {},
   ): Promise<void> {
     await this.exclusive(async () => {
       await this.ensureJournalDirectoryUnlocked();
@@ -378,6 +383,12 @@ export class OperationJournal {
       /* eslint-disable no-await-in-loop -- recovery rows extend one ordered durable hash chain */
       for (const record of generationBound) {
         if (record.status === 'dispatched' && options.deferDispatched === true) continue;
+        if (
+          record.status === 'queued' &&
+          options.preserveQueuedOperationIds?.has(record.operationId) === true
+        ) {
+          continue;
+        }
         const recovery =
           record.status === 'pending-approval'
             ? {
@@ -395,6 +406,32 @@ export class OperationJournal {
                 };
         await this.appendRecordUnlocked(
           this.nextRecord(record, recovery.status, { errorCode: recovery.errorCode }),
+        );
+      }
+      /* eslint-enable no-await-in-loop */
+      await this.compactKnownTerminalsUnlocked();
+      this.activeReservations.clear();
+      this.tombstoneReservations.clear();
+      for (const record of this.records.values()) {
+        if (terminalStatuses.has(record.status)) continue;
+        this.activeReservations.add(record.operationId);
+        this.tombstoneReservations.add(record.operationId);
+      }
+      this.assertReservationCapacity(true);
+    });
+  }
+
+  async recoverPreservedQueued(operationIds: ReadonlySet<string>): Promise<void> {
+    await this.exclusive(async () => {
+      const preserved = [...this.records.values()]
+        .filter(record => record.status === 'queued' && operationIds.has(record.operationId))
+        .toSorted((left, right) => left.operationId.localeCompare(right.operationId));
+      /* eslint-disable no-await-in-loop -- recovery rows extend one ordered durable hash chain */
+      for (const record of preserved) {
+        await this.appendRecordUnlocked(
+          this.nextRecord(record, 'failed', {
+            errorCode: 'PROCESS_RESTARTED_BEFORE_DISPATCH',
+          }),
         );
       }
       /* eslint-enable no-await-in-loop */
@@ -474,6 +511,7 @@ export class OperationJournal {
       }
       try {
         await this.appendRecordUnlocked(validated);
+        if (validated.status === 'queued') await this.options.afterQueuedFsync?.();
       } catch (error) {
         this.activeReservations.delete(record.operationId);
         this.tombstoneReservations.delete(record.operationId);

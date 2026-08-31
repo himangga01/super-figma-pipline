@@ -1,0 +1,47 @@
+{
+  "schemaVersion": 1,
+  "slice": "8A",
+  "authorityPaths": [
+    "service/capabilities/change-manifests/task-8a.json",
+    "service/upstream-lock.json",
+    "service/vendor-map.json",
+    "service/vendor-rules.json"
+  ],
+  "changes": [
+    {
+      "status": "A",
+      "path": "service/capabilities/task-8a-authority-classes.json",
+      "sha256": "b528e195f40021111530a252ddbcc6ce6f034b6079edfd5ea1c33f63080133d5"
+    },
+    {
+      "status": "M",
+      "path": "service/packages/mcp/src/execution/operation-evidence-receipt-store.ts",
+      "sha256": "e8620b4d31a7c77f210123c655a2d14e97c26e1c746d93a5d7059ed995b911a0"
+    },
+    {
+      "status": "M",
+      "path": "service/packages/mcp/src/execution/operation-executor.ts",
+      "sha256": "4f626ea487548754c0a75fe0e00a7bbed6fab795f06b98ad6c624f295cdc75ed"
+    },
+    {
+      "status": "M",
+      "path": "service/packages/mcp/src/execution/operation-journal.ts",
+      "sha256": "d1dbd5b9dae3ca36f82992dffdebc276f5e7a4081029f8a97b3fdc3ec84f4fb9"
+    },
+    {
+      "status": "M",
+      "path": "service/packages/mcp/test/execution/operation-evidence-receipt.test.ts",
+      "sha256": "5f0b34e3b7eb11d41fe3933f6656e94f9aea163719b7d1a927697c953223bdf3"
+    },
+    {
+      "status": "M",
+      "path": "service/packages/mcp/test/execution/operation-executor.test.ts",
+      "sha256": "2195d16685e210dfce06ff3fe3ce73d6909e1bf6de11a1d2c8e082d3692900e2"
+    },
+    {
+      "status": "M",
+      "path": "service/packages/mcp/test/execution/operation-journal.test.ts",
+      "sha256": "5f7240fb964adb25ff4ad8dee21ca4214172ce73be9c30b40d2f80ccfa114e6f"
+    }
+  ]
+}
