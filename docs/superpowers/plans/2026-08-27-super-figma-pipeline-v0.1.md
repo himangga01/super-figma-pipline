@@ -1196,7 +1196,7 @@ OperationRecord/Tombstone/Resolution all persist nullable fileExecutionKeyHash, 
 `argsHash=sha256('sfp-parsed-args-v1\0'+canonicalJSON(parsedArgs))`; `fileExecutionKeyHash=sha256('sfp-file-execution-key-v1\0'+exact UTF-8 key)`; selected ordinary-entry targets derive `targetSessionIdHash=sha256('sfp-target-session-v1\0'+exact UTF-8 authenticated sessionId)` and `fileIdentityHash=canonicalFileIdentityHash(fileIdentity)`, then `targetBindingHash=sha256('sfp-entry-target-binding-v1\0'+canonicalJSON({targetSessionIdHash,fileIdentityHash,fileExecutionKeyHash,pluginGeneration,leaderGeneration}))` in that exact field order. Target-none has raw `fileExecutionKey:null`, all three target component hashes null, and targetBindingHash null; every selected target has all nonnull. `daemonGenerationHash=sha256('sfp-daemon-generation-v1\0'+exact UTF-8 leaderGeneration)`; leaderGeneration `gen-1` yields `sha256:85e8e0c326906bb652a64f9cbb10d28ab52c46047877211a84b23bd7906a6c97`. Append derives every component from admitted values; load recomputes args/capture/target binding where source components persist and validates strict hash/equality syntax otherwise. Record->Tombstone->Resolution copies permitted raw fileExecutionKey plus every component/link unchanged. Fixed vectors, restart, target-none/selected and one-field mismatch tests cover all.
 
 Capture and native evidence are orthogonal. `OperationEvidenceProjector` is pure: it receives frozen `{operationId,workspaceId}`, parsed args and strict redacted result, computes branded `contextHash=sha256('sfp-native-evidence-context-v1'+byte0x00+canonicalJSON({operationId,workspaceId}))`, and emits that hash plus candidate paths/source refs—never IO/digests/final evidence. Artifact/materializer ports recompute and compare against `VerifiedNativeEvidenceContextV1` before IO.
-Native exports preserve the product maximum of 256 artifacts without inflating the 65,536-byte receipt row. Task7 7C's `NativeEvidenceArtifactPort` resolves/revalidates every nonnull path against the registered workspace, rereads actual files, computes bytes/digests, and normalizes a unique sorted member set before writing fixed manifest. `NativeEvidenceMaterializerPort` separately rereads snapshot/graph candidate bytes and verifies embedded workspace/locator/checksum/fidelity before creating final snapshot/grounding NativeEvidenceV1; projector output alone is never final evidence. Duplicate result references to one image-fill file are allowed many-to-one. Portable artifact paths allow arbitrary Unicode but reject U+0022 quote, backslash, every C0 U+0000..U+001F, leading slash, empty/dot/dot-dot segments, drive/UNC and symlink escape; UTF-8 length remains1..1024. The final manifest stores unique `{artifactRelativePath,artifactDigest64,artifactBytes}`. The reachable production-serializer maximum keeps `totalArtifactBytes` safe and equal to the member sum: 71 members use 15-digit byte counts and 185 use 14-digit counts, with 256 unique portable 1024-byte paths, the exact304-byte OperationId, persisted contentHash, and one LF. It measures exactly299,836 bytes; injected299,837 rejects. Tests derive the literal from the production serializer rather than padding.
+Native exports preserve the product maximum of 256 artifacts without inflating the 65,536-byte receipt row. Task7 7C's `NativeEvidenceArtifactPort` resolves/revalidates every nonnull path against the registered workspace, rereads actual files, computes bytes/digests, and normalizes a unique sorted member set before writing fixed manifest. `NativeEvidenceMaterializerPort` separately rereads snapshot/graph candidate bytes and verifies embedded workspace/locator/checksum/fidelity before creating final snapshot/grounding NativeEvidenceV1; projector output alone is never final evidence. Duplicate result references to one image-fill file are allowed many-to-one. Portable artifact paths allow valid Unicode scalar values but reject isolated UTF-16 high/low surrogates, U+0022 quote, backslash, every C0 U+0000..U+001F, leading slash, empty/dot/dot-dot segments, drive/UNC and symlink escape; a valid surrogate pair/non-BMP scalar remains accepted and UTF-8 length remains1..1024. The final manifest stores unique `{artifactRelativePath,artifactDigest64,artifactBytes}`. For the exact size formula, `Q(s)=Buffer.byteLength(JSON.stringify(s).slice(1,-1),'utf8')`, the escaped JSON-string payload bytes excluding the two quote delimiters. The persisted policy ceiling remains exactly299,836 bytes including LF and has a serializer-only safe-integer witness: a 304-byte issued-ID value, 256 escape-free portable 1024-byte paths, 71 member sizes of100,000,000,000,000 and185 of10,000,000,000,000, `totalArtifactBytes=8,950,000,000,000,000`, member digit sum3,655, persisted contentHash and one LF. This witness performs no artifact IO and makes no operation-ID authentication claim; it is a chosen persisted ceiling witness, not the maximum over every grammar-valid384-byte ID. Production keeps `totalArtifactBytes<=201,326,592`; at the fixed13-digit issuedAt vector1,724,803,200,000 the authenticated OperationId is304 bytes, the maximal production distribution is195x1,000,000 +1x326,592 +60x100,000 with member digit sum1,731, and the exact reachable manifest is297,905 bytes. An artificial Number.MAX_SAFE_INTEGER issuer clock yields a308-byte ID and297,909 only in the issuer API test; a grammar-shaped unauthenticated384-byte ASCII ID yields at most297,985 under the production artifact cap and fails issuer/executor admission before native-port/filesystem calls. Injected299,837 persisted bytes reject before overwrite. Tests derive all literals from the same serializer rather than padding.
 
 Task7 baseline projector covers exactly four native exporters `save_screenshots|save_image_fills|export_pdf|export_video`, other108 tools as no-artifact, and internal `identity.bootstrap` as no-artifact outside the canonical counts. Task11 registers the exact two service projectors `snapshot.capture -> snapshot` and `grounding.refresh -> grounding-graph` through the same central source/test. Task12B adds `export_tokens|export_frames_to_pdf`, yielding final six native exporters, other110 tools as no-artifact, service2 specialized, and internal system1 no-artifact. Structural coverage enumerates every literal name once; fallback/default cannot hide an unregistered canonical tool or service.
 
@@ -1950,7 +1950,8 @@ export interface CapacityCounterPort {
 | evidence hard bytes | 201,326,591 admits if rows permit | 201,326,592 held valid | next reserve and above-cap recovery fail closed |
 | native artifact manifest members | 255 valid | 256 valid | 257 rejects without receipt/overwrite/rerun |
 | native artifact relative path UTF-8 | 1,023 valid | 1,024 valid | 1,025 rejects |
-| native artifact manifest bytes incl LF | structurally valid serializers stay <=299,835 except max fixture | exact299,836 valid for the safe-sum 256x1024/exact304-byte opId/contentHash fixture | injected299,837-byte serializer output rejects before receipt |
+| native artifact production manifest bytes incl LF, fixed13-digit issuedAt vector | 297,904 and below valid | exact297,905 valid for the real256x1024/304-byte authenticated ID/201,326,592-byte distribution | a production fixture cannot exceed297,905; forged ID fails before native IO |
+| native artifact persisted policy bytes incl LF | accepted persisted serializer outputs of299,835 and below admit | exact299,836 valid for the explicitly non-IO 71x15-digit/185x14-digit metadata witness | every serialized result299,837 or larger rejects before parse/persistence/receipt/overwrite, including otherwise-safe metadata |
 | evidence retention | linked age<30d retained | linked age=30d synchronously removable with terminal/tombstone | older linked removable; prepared protected only through recovery |
 | progress phase | 63 ASCII chars valid | 64 valid | 65 invalid |
 | progress message | 1,023 UTF-8 bytes valid | 1,024 valid | 1,025 invalid |
@@ -2203,7 +2204,7 @@ After the clean Task16 commit, `verify:source-complete` creates exactly three ig
 
 Task16 extracts one application factory. Daemon args are exactly normal `--state-root ... --port ...` or standalone `--self-test`; self-test creates its own secure temp root and exits after internal start/ping/close.
 
-Task16 process tests retain exact children; real-Figma validation requires R27 READY.
+Task16 process tests retain exact children; real-Figma validation requires R27 as amended by R28 READY.
 
 | Fake blocking check suffix | Typed fake input and positive assertion | Required negative assertion | Fake teardown |
 |---|---|---|---|
@@ -3295,7 +3296,7 @@ Closed-world order uses class-aware service fork model; edited upstream paths tr
 
 Before/after each 7A/7B/7C staged review, run the exact `TASK6_1_FROZEN_GREEN` block in section 3.5 plus the slice's Task7 focused tests. Reports record base `39a29373b91445e9242e82611f0a8a04fca525ea`, contract `bd296dabe872f08adca793d93a2cd6a2c7efca60c58127b07924b2f18840b27b`, manifest bytes 925, and the exact path list. Task7 execution remains gated only by a fresh READY rereview of this newly checksummed binding plan.
 
-The ignored Task7 brief remains quarantined until R27 READY.
+The ignored Task7 brief remains quarantined until R27 as amended by R28 READY.
 
 **Exact staged path allowlists**
 
@@ -4102,14 +4103,78 @@ it('publishes create-new only through the exclusive link primitive', async () =>
   expect(linkCalls).toBe(1);
 });
 
-it('fsyncs a 256-member native artifact manifest and keeps the receipt row bounded', async () => {
-  const strictResult = await seedNativeArtifactsAndResult(256,{maxPathUtf8Bytes:1024});
-  const projection = projector.project(Object.freeze({operationId,workspaceId}),'tool','save_screenshots',args,strictResult);
-  const nativeEvidence = await evidenceArtifacts.createNativeManifest({context:verifiedNativeContext,projection});
-  expect(nativeEvidence).toMatchObject({kind:'export',artifactCount:256,totalArtifactBytes:sumActualBytes(strictResult)});
-  expect(await canonicalFileBytes(nativeEvidence.manifestRelativePath)).toHaveLength(299836);
-  expect(canonicalReceiptBytes(receiptWith(nativeEvidence)).length).toBeLessThanOrEqual(65536);
-  expect(events).toContainOrdered(['native-members-reread','native-manifest-fsync','native-manifest-directory-fsync','prepared-evidence-receipt-fsync']);
+it('rereads the production 256-member maximum and durably prepares its bounded receipt', async () => {
+  const issued = issuer.issue(actorId,1_724_803_200_000,{nonce:FIXED_NONCE});
+  expect(issued).toHaveLength(304);
+  issuer.verify(actorId,issued,1_724_803_200_000);
+  const fixture = await acquireFailureAtomicRegisteredWorkspaceMembers({
+    count:256, relativePathUtf8Bytes:1024, segmentUtf8BytesAtMost:240,
+    sizes:[...repeat(195,1_000_000),326_592,...repeat(60,100_000)],
+    uniqueNonzeroSentinel:true, logicallySizedSparseWhereSupported:true,
+    cleanupPartialAcquisitionOnThrow:true,
+  });
+  let bodyError:unknown=null;
+  try {
+    const receiptStoreOptions = {
+      stateRoot:fixture.stateRoot,actorId,now:()=>1_724_803_200_000,
+    };
+    const receiptStore = new OperationEvidenceReceiptStore(receiptStoreOptions);
+    await receiptStore.recover();
+    const nativeEvidence = await invokeThroughActualExecutorProjectorAndDefaultDescriptorReader(
+      fixture,{operationId:issued,receiptStore,timeoutMs:120_000,sequentialReads:true,peakMemberAllocationBytes:1_000_000},
+    );
+    expect(nativeEvidence).toMatchObject({kind:'export',artifactCount:256,totalArtifactBytes:201_326_592});
+    expect(await canonicalFileBytes(nativeEvidence.manifestRelativePath)).toHaveLength(297905);
+    expect(await independentlyStreamedMemberDigests(fixture)).toEqual(await manifestMemberDigests(nativeEvidence));
+    const persistedReceiptLine = await readPersistedReceiptLine(receiptStore.logPath,issued);
+    expect(persistedReceiptLine.byteLength).toBeLessThanOrEqual(65536);
+    const persistedReceipt = OperationEvidenceReceiptV1Schema.parse(
+      JSON.parse(stripRequiredLf(persistedReceiptLine).toString('utf8')),
+    );
+    expect(persistedReceipt).toMatchObject({
+      operationId:issued,
+      nativeEvidence:{
+        manifestRelativePath:nativeEvidence.manifestRelativePath,
+        manifestDigest64:nativeEvidence.manifestDigest64,
+        artifactCount:256,
+        totalArtifactBytes:201_326_592,
+      },
+    });
+    expect(recomputeReceiptContentAndChainHashes(persistedReceipt)).toEqual(persistedReceipt);
+    expect(Buffer.from(`${canonicalJson(persistedReceipt)}\n`)).toEqual(persistedReceiptLine);
+    const recoveredReceiptStore = new OperationEvidenceReceiptStore(receiptStoreOptions);
+    await recoveredReceiptStore.recover();
+    expect(await recoveredReceiptStore.get(actorId,issued)).toEqual(persistedReceipt);
+    expect(actualLowLevelDurabilityTrace()).toContainOrdered(['native-members-reread','native-manifest-file-sync','native-manifest-directory-sync-attempt','prepared-evidence-receipt-sync']);
+    expect(directorySyncOutcome()).toBe(process.platform==='win32'?'synced-or-documented-eperm':'synced');
+    expect(await fixture.hasCanonicalAliasesOrSharedInodes()).toBe(false);
+  } catch(error) { bodyError=error; }
+  let cleanupError:unknown=null;
+  try { expect(await fixture.cleanupAndAssertNoResidue()).toBe(true); }
+  catch(error) { cleanupError=error; }
+  if(bodyError!==null&&cleanupError!==null) throw new AggregateError([bodyError,cleanupError]);
+  if(bodyError!==null) throw bodyError;
+  if(cleanupError!==null) throw cleanupError;
+});
+
+it('keeps 299836 as the non-IO persisted policy ceiling', () => {
+  const bytes = serializeNativeManifest(structuralSafeIntegerWitness({
+    operationIdBytes:304, members15Digits:71, members14Digits:185,
+    totalArtifactBytes:8_950_000_000_000_000,
+  }));
+  expect(bytes).toHaveLength(299836);
+  const oversized = serializeNativeManifest(structuralSafeIntegerWitness({
+    operationIdBytes:308, members15Digits:71, members14Digits:185,
+    totalArtifactBytes:8_950_000_000_000_000,
+    totalEscapeFreePathPayloadBytes:256*1024-3,
+  }));
+  expect(oversized).toHaveLength(299837);
+  expect(() => validatePersistedManifestBytes(oversized)).toThrowError(
+    expect.objectContaining({code:'NATIVE_ARTIFACT_MANIFEST_SIZE_LIMIT_EXCEEDED'}),
+  );
+  expect({parserCalls,filesystemIoCalls,overwriteCalls,receiptCalls,runtimeCalls}).toEqual({
+    parserCalls:0,filesystemIoCalls:0,overwriteCalls:0,receiptCalls:0,runtimeCalls:0,
+  });
 });
 
 it('deduplicates repeated image-fill refs many-to-one and rejects all-null output', async () => {
@@ -4127,11 +4192,22 @@ it('deduplicates repeated image-fill refs many-to-one and rejects all-null outpu
   expect(filesystemIoCalls).toBe(0);
 });
 
-it.each(['count257','path1025','quote','backslash','c0-control','injected-manifest299837','duplicate','unsorted','digest-mismatch','symlink','escape'])
+it.each(['count257','path1025','quote','backslash','c0-control','lone-high-surrogate','lone-low-surrogate','injected-manifest299837','duplicate','unsorted','digest-mismatch','symlink','escape'])
 ('rejects invalid native artifact manifest %s without overwrite or rerun', async fault => {
   await expect(projectNativeExport(fault)).rejects.toMatchObject({code:expect.stringMatching(/ARTIFACT|PATH|EVIDENCE/)});
   expect(overwriteCalls).toBe(0);
   expect(runtimeCalls).toBeLessThanOrEqual(1);
+});
+
+it('keeps R28 layer and formula vectors distinct', async () => {
+  expect(serializeManifestBytes(production13DigitVector)).toBe(297905);
+  expect(serializeManifestBytes(artificialIssuerClockVector)).toBe(297909);
+  expect(serializeManifestBytes(grammarOnly384AsciiVector)).toBe(297985);
+  expect(PortableRelativeArtifactPathSchema.parse('assets/😀.png')).toBe('assets/😀.png');
+  await expect(invokeWithForged384AsciiId()).rejects.toMatchObject({code:'OPERATION_ID_INVALID'});
+  await expect(invokeWithC0Id()).rejects.toMatchObject({code:'OPERATION_ID_INVALID'});
+  expect(nativePortCalls).toBe(0);
+  expect(filesystemIoCalls).toBe(0);
 });
 
 it('settles a post-preflight capture createNew race as durable unknown', async () => {
@@ -5310,7 +5386,7 @@ Stage only `task-15.json` union, byte-verify, review/rerun exact GREEN, then com
 
 - Consumes: Task15 verified local artifacts plus all Task1–15 source authorities and frozen Task6.1.
 - Produces: `createMcpApplication`, stdio/daemon parity, foreground source daemon entry, the exact fake16 evidence checks, strict redacted `CurrentWindowsDiagnosticV1`, `PreviewCandidateV1`, `SourceCompleteEvidenceV1`, and `SourceCompletePreviewV1`.
-- Real-Figma validation is governed only after R27 READY.
+- Real-Figma validation is governed only after R27 as amended by R28 READY.
 
 **Commit protocol:** `task-16.json` includes exact root `service/package.json`, existing build-id serviceFork, sole build driver, MCP package/tsdown, application/daemon/index/local-binding sources, root dev-script test, four ControlStatus paths, schemas/scripts/config/lock/authority; generated dist is never staged.
 
@@ -5503,7 +5579,7 @@ Stage only the exact `task-16.json` union, compare staged names byte-for-byte wi
 
 - [ ] **Step 9: Review Task16 quality and scope**
 
-Reviewers defer real-Figma work until R27 READY.
+Reviewers defer real-Figma work until R27 as amended by R28 READY.
 
 - [ ] **Step 10: Run the sole terminal source-complete command after the clean commit**
 
@@ -5549,7 +5625,7 @@ This plan contains no macOS external-validation files, commands, or completion c
 - CLI includes shared platform-default owner-secure stateRoot/port3055 discovery with no override, strict authenticated status, egress status/configure/reset, workspace set-default, and locator-based grounding refresh plus prior wrappers.
 - CLI generic `tools call` covers all116 through canonical schemas/the same plane and optional result artifacts; every wrapper uses the nested selector envelope, operation evidence returns server-verified status/receipt/finalizer view, and egress audit returns a strict redacted chain proof.
 - Canonical redacted result bytes are identical across cache/adapters/hash/capture; total receipts separate optional resultArtifact from native projector evidence with exact tool116+service2 coverage.
-- Native export evidence preserves up to256 artifacts through one fixed canonical manifest reference (portable member path1024/reachable exact serialized max299836 incl LF) while every receipt row remains <=65536; Task7 7C fsync/reread and supplemental member verification pass.
+- Native export evidence preserves up to256 artifacts through one fixed canonical manifest reference while every actual persisted receipt row remains <=65536: the persisted policy ceiling is exact299836 including LF with a serializer-only safe-integer witness, and the fixed13-digit authenticated production/201326592-byte maximum is exact297905 through real issuer/executor/default-descriptor IO. Lone surrogates reject; actual file sync, ordered directory-sync attempt, documented Windows EPERM limitation without a false durability claim, actual receipt sync and supplemental member verification pass.
 - Task8's exact six icons/profile/tokens direct-fs importers and ledger migrate to RepoReader/WorkspacePolicy; production project readers have zero unlisted node:fs imports.
 - All tools and Task11 service2 enter one plane; followers consume only final Task6.1 plaintext stream facade; route classes cannot cross-call.
 - Strict lower-snake tool and exact dotted service-name parsers feed one kind/name registry+journal; both service literals and invalid dot/slash/case/length/cross-kind fixtures pass. Requests produce native pre-admission rejection or accepted/progress/exactly-one-terminal with no Relay/runtime bypass.
@@ -6266,10 +6342,27 @@ Commit `52ab106bf6a14a0f413c12edd7b7575db2cea7a4` and plan SHA `9b9c8da37e094fa0
 | Sites terminal | Exact helper source mappings remain; deployment polls only after an ID, deferral never polls, failure never opens, and success opens the returned URL. |
 | Handoff | This R27 three-document commit/checksum is the sole scoped READY target. |
 
+### 2026-09-01 R28 native manifest bound correction
+
+R27's `Native bound` row conflated a persisted serializer policy witness with the stricter production artifact-I/O path. R28 supersedes only that row and its derived Task8/DoD/validation wording; every other R27 resolution remains binding.
+
+| R28 scope | Binding resolution |
+|---|---|
+| Exact formula | `B=178+131n+digits(n)+Q(operationId)+digits(totalArtifactBytes)+sum(Q(path_i)+digits(artifactBytes_i))`, where `Q(s)=Buffer.byteLength(JSON.stringify(s).slice(1,-1),'utf8')` excludes the two JSON quote delimiters; B includes persisted contentHash and LF. |
+| Persisted policy ceiling | `maxNativeArtifactManifestBytes` remains exactly299,836 including LF. The explicit no-IO witness uses a304-byte ID value,256 escape-free1024-byte paths,71 sizes of100,000,000,000,000 and185 of10,000,000,000,000, total8,950,000,000,000,000 and member digit sum3,655. This is a chosen safe-integer persisted ceiling witness, not a production artifact-I/O or all-grammar-ID maximum;299,837 rejects before overwrite/receipt. |
+| Production reachable bound | At fixed13-digit issuedAt1,724,803,200,000, the real authenticated ID is304 bytes. Under total artifact bytes<=201,326,592, the maximal distribution is195x1,000,000 +1x326,592 +60x100,000, member digit sum1,731, and the exact manifest is297,905 bytes including LF. An artificial Number.MAX_SAFE_INTEGER issuer clock yields308-byte ID/297,909 only in issuer API tests; an unauthenticated384-byte ASCII grammar-shaped ID yields at most297,985 under the artifact cap and fails issuer/executor admission before native-port/filesystem calls. |
+| Portable path accounting | Isolated high/low UTF-16 surrogates reject; valid pairs/non-BMP scalars remain allowed. U+0022, backslash, C0, dot/absolute/drive/UNC aliases and symlink escapes remain rejected. Accepted paths have equal UTF-8 path bytes and canonical JSON payload bytes; normalization/case aliases remain governed by WorkspacePolicy rather than this byte invariant. |
+| Production proof | One mandatory heavy evidence gate uses the fixed-key issuer/verify and actual executor/projector/native port, a real registered WorkspacePolicy,256 unique actual multi-segment paths each exactly1024 UTF-8 bytes with every segment<=240, no canonical/inode aliases, logically sized files sparse where supported, unique nonzero sentinels, default sequential descriptor reads, independent streaming digests, exact297,905 persisted bytes, peak member allocation<=1,000,000, explicit120s timeout, preflight nonsparse free-space>=268,435,456 bytes, named `NATIVE_EVIDENCE_TEMP_SPACE_INSUFFICIENT` failure instead of skip, and residue-free cleanup. Platform inability to realize the path fixture is a named platform blocker, never a skip presented as cross-platform proof. |
+| Durability proof | Low-level production seams or crash/restart controls—not test-pushed labels—prove member reread, actual manifest file sync, directory-sync attempt, and actual prepared-receipt sync in order. POSIX requires a successful directory sync. Windows records either success or the exact documented `EPERM` limitation and makes no directory-durability claim in that branch; the test cannot relabel an `EPERM` attempt as a completed durability primitive. Removal or reordering of file-sync, directory-attempt, or receipt-sync calls makes the proof fail. |
+| Layered negatives | Forged384-byte/C0 IDs fail issuer/executor admission with native-port/filesystem call0; mismatched verified context fails the port before IO; the structural serializer makes no authentication claim. Lone high/low surrogate negatives retain a valid astral-pair positive control; persisted count/path/order/digest/size/canonical faults remain no-overwrite/no-rerun. |
+| Source authority | R28-specific source/test authority is exactly `service/packages/shared/src/operations.ts`, `service/packages/shared/test/operations.test.ts`, `service/packages/mcp/src/execution/native-evidence-artifact-port.ts`, `service/packages/mcp/src/execution/operation-evidence-projector.ts`, `service/packages/mcp/src/execution/operation-evidence-receipt-store.ts`, `service/packages/mcp/src/execution/operation-executor.ts`, `service/packages/mcp/src/fs/atomic-file.ts`, `service/packages/mcp/src/index.ts`, `service/packages/mcp/test/e2e/packed-operation-evidence.test.ts`, `service/packages/mcp/test/execution/native-evidence-artifact-port.test.ts`, `service/packages/mcp/test/execution/operation-evidence-projector.test.ts`, `service/packages/mcp/test/execution/operation-evidence-receipt.test.ts`, `service/packages/mcp/test/execution/operation-executor.test.ts`, `service/packages/mcp/test/execution/operation-id.test.ts`, `service/packages/mcp/test/fs/atomic-file.test.ts`, `service/capabilities/task-8a-authority-classes.json`, `service/capabilities/change-manifests/task-8a.json`, `service/vendor-rules.json`, `service/vendor-map.json`, `service/upstream-lock.json`, and the allowed-unchanged `service/test/authority-class-transition.test.ts`, `service/test/service-fork-lineage.test.ts`. These supplement but do not broaden Task8A's already named filesystem paths. Operation-ID issuer/schema,201,326,592 cap, manifest/receipt wire shape and Task8B remain frozen. A named297,905 value is a fixed13-digit test binding and never replaces the299,836 persisted rejection threshold. |
+| Docs authority and order | The docs-only parent contains exactly this plan, its regenerated `.sha256` sidecar, and the eCommerce validation plan, with subject `docs(plan): correct native manifest bounds`. After that reviewed parent commits, Task8A may change only R28-authorized source/test paths plus authority metadata derived from the new parent; all other service blobs remain byte-identical. The corrected full Task8A tree reruns exact/full gates and both independent reviews. |
+| Handoff | R28 READY means the exact three tracked docs have no other diff, the sidecar equals the plan bytes, and three independent reviews accept this amendment. The Task8 brief is then regenerated with separate production297,905, persisted299,836 and rejection299,837 proofs before the real Task8A commit. |
+
 Prior service findings remain incorporated. Prior external-ceremony findings are explicitly superseded by this scope correction and require separate future authorization.
 
 ---
 
 ## 11. Execution Handoff
 
-Commit this R27 three-document change as sole review target. No execution before READY; regenerate the quarantined brief only afterward with the R27 commit/plan SHA and frozen Task6.1 evidence.
+Commit this R28 three-document correction as the sole docs review target with subject `docs(plan): correct native manifest bounds`. No further Task8A commit before R28 READY; regenerate the quarantined Task8 brief only afterward with the R28 commit/plan SHA and frozen Task6.1 evidence.
