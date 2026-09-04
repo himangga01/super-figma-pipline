@@ -171,5 +171,39 @@ describe('action nonce store', () => {
     });
     expect(store.get(first.value)).toMatchObject({ state: 'issued' });
   });
+
+  it.each(['network-domain.add', 'network-domain.remove'] as const)(
+    'binds %s to actor, session, generation, action, canonical domain hash, and one use',
+    async action => {
+      const canonicalHash = hashActionRequest(action, { domain: 'assets.example.com' });
+      const otherHash = hashActionRequest(action, { domain: 'cdn.example.com' });
+      const store = createActionNonceStore({ leaderGeneration: 'generation-1' });
+      const claims = await store.issue(actor, action, canonicalHash);
+      const rotated = Object.freeze({
+        ...actor,
+        authSessionId: `auth1_${'C'.repeat(43)}` as const,
+      });
+
+      await expect(
+        store.consumeCas(rotated, claims.value, action, canonicalHash),
+      ).rejects.toMatchObject({ code: 'ACTION_NONCE_INVALID' });
+      await expect(store.consumeCas(actor, claims.value, action, otherHash)).rejects.toMatchObject({
+        code: 'ACTION_NONCE_INVALID',
+      });
+      const wrongAction =
+        action === 'network-domain.add' ? 'network-domain.remove' : 'network-domain.add';
+      await expect(
+        store.consumeCas(actor, claims.value, wrongAction, canonicalHash),
+      ).rejects.toMatchObject({ code: 'ACTION_NONCE_INVALID' });
+      expect(store.get(claims.value)).toMatchObject({ state: 'issued' });
+
+      await expect(store.consumeCas(actor, claims.value, action, canonicalHash)).resolves.toBe(
+        undefined,
+      );
+      await expect(
+        store.consumeCas(actor, claims.value, action, canonicalHash),
+      ).rejects.toMatchObject({ code: 'ACTION_NONCE_INVALID' });
+    },
+  );
 });
 import { createHash } from 'node:crypto';

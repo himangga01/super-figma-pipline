@@ -93,6 +93,18 @@ const batchOpSchema = z
         path: ['params'],
         message: `invalid ${operation.tool} parameters: ${parsed.error.message}`,
       });
+      return;
+    }
+    if (
+      operation.tool === importImageTool.name &&
+      typeof (parsed.data as Readonly<Record<string, unknown>>).url === 'string'
+    ) {
+      context.addIssue({
+        code: 'custom',
+        path: ['params', 'url'],
+        message:
+          'batch import_image accepts inline data only; URL fetching requires top-level admission',
+      });
     }
   });
 

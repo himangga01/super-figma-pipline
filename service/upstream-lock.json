@@ -45,6 +45,10 @@
         "sha256": "85f7160d4cdd3fa29bb51e2f9d66e0347f623aee41b9ff4b1af7f81e141357c6"
       },
       {
+        "path": "capabilities/change-manifests/task-8b.json",
+        "sha256": "af2ccb82fc1bb3fa19f21f7c812df648daba7e7e69ad5ae693925f049eecc834"
+      },
+      {
         "path": "capabilities/figmosha-feature-map.json",
         "sha256": "8b84a17e372975e6590ced2315cbdcfb99f0def6259980e88eaf6c4294ca8956"
       },
@@ -71,6 +75,10 @@
       {
         "path": "capabilities/task-8a-direct-fs-importers.json",
         "sha256": "054e9d2c7b4c3682bb029238c1c56a2db708f201e646c6e19eda22568478a38a"
+      },
+      {
+        "path": "capabilities/task-8b-authority-classes.json",
+        "sha256": "a969d72b64e004d79260d39ce5a06a0ce7aba0eb6b179f2fabc63a5878d509d1"
       },
       {
         "path": "capabilities/union-manifest.json",
@@ -101,6 +109,10 @@
         "sha256": "062917031b4f6a5f48f633eb4626cbe06c4204a56020cd18cbd72c487be0080f"
       },
       {
+        "path": "packages/mcp/src/control/network-domain-endpoints.ts",
+        "sha256": "8f47c5607fd522d15f64f3bec4788952ee9b0a301d3abe4c6704cb39382e1874"
+      },
+      {
         "path": "packages/mcp/src/control/operation-endpoints.ts",
         "sha256": "b55ca00415fb4742e3f5efeb2d29e287cccbf11cd8564952de77c3f780c93417"
       },
@@ -110,11 +122,11 @@
       },
       {
         "path": "packages/mcp/src/control/route-registry.ts",
-        "sha256": "9df5c5d922d0ce211bafe087587e273739bb12c62a4271d1955ecaf085158ca1"
+        "sha256": "86cfb704fa5d46984d953a6d75e45b52b23b8638e73befc8c1bbccf10182792a"
       },
       {
         "path": "packages/mcp/src/control/router.ts",
-        "sha256": "837f93c69434814a6e74083a3fe3705b7a8d4388fdf5941f253bba98f4914d24"
+        "sha256": "71ac2a7dbeec180e83aebbeb06210ea3e797e162b91a105281f45c353b1cc855"
       },
       {
         "path": "packages/mcp/src/control/status-endpoint.ts",
@@ -202,7 +214,7 @@
       },
       {
         "path": "packages/mcp/src/execution/operation-executor.ts",
-        "sha256": "a04fa470003689889f20898fdd2663d7b656efdea52234fd04b65d4d7371554c"
+        "sha256": "933987fd0739398d29e90b550b61cf7e6454025b052238fbe3a5d7394011fad3"
       },
       {
         "path": "packages/mcp/src/execution/operation-id.ts",
@@ -262,7 +274,15 @@
       },
       {
         "path": "packages/mcp/src/index.ts",
-        "sha256": "3694d1b6942876ee96d81de04ce5c0beb1e2e77ca81f245a1d9bbc3740686a8f"
+        "sha256": "ada2ecd177aee50d0b2a50f10c49b105ecae1e2e878c2e51469788934304c556"
+      },
+      {
+        "path": "packages/mcp/src/network/remote-domain-config-store.ts",
+        "sha256": "e966c34360ad4ced9625302a349252155d26714833f7f42b6423f319e26e0b99"
+      },
+      {
+        "path": "packages/mcp/src/network/remote-image-fetcher.ts",
+        "sha256": "e3e14f5c51ccc7e8d8b96dbf19f5ffd35a56cbaa5b1da5b0e65b0e735b20eac6"
       },
       {
         "path": "packages/mcp/src/policy/approval-broker.ts",
@@ -282,7 +302,7 @@
       },
       {
         "path": "packages/mcp/src/policy/operation-policy.ts",
-        "sha256": "95c7eb7889815d4a9b5e35c0e5f086f55315cbeec7aa156611c9f64dddc9ae3a"
+        "sha256": "11c76bfaa8edfc3eb030cdb146e5e9e36be3124c5d28ab084523611b2c1a49e6"
       },
       {
         "path": "packages/mcp/src/policy/policy-engine.ts",
@@ -402,7 +422,7 @@
       },
       {
         "path": "packages/mcp/src/tools/batch.ts",
-        "sha256": "f4ee38aac17d54d3431a06d0229dcfded295f51a0a92ca3a0f059d32b5fc084d"
+        "sha256": "c8ce28bcea3bbd9661607dd94a671a326af1434b39eac3034ccb2bf3e794b2b5"
       },
       {
         "path": "packages/mcp/src/tools/binary-payload.ts",
@@ -618,7 +638,7 @@
       },
       {
         "path": "packages/mcp/src/tools/import-image.ts",
-        "sha256": "0e8db6e0a7e2ccb12bf225bfd9ae015dc27aa85490c75d1699e4326d140b0b1e"
+        "sha256": "048e12d1b8101534e7ac6a241a59390fd140e4c9638dad01b90189f3797c33c6"
       },
       {
         "path": "packages/mcp/src/tools/import-svg.ts",
@@ -846,7 +866,7 @@
       },
       {
         "path": "packages/mcp/test/control/control-router.test.ts",
-        "sha256": "145081e8a1a501a3a8e6ed3d71be3155fccda2c7f6d0f1296acc183fc533b547"
+        "sha256": "014d998c13223e8a37386992944be58217d4d30750de5328c64c49e4c9abd91e"
       },
       {
         "path": "packages/mcp/test/control/control-status.test.ts",
@@ -902,7 +922,7 @@
       },
       {
         "path": "packages/mcp/test/execution/action-nonce.test.ts",
-        "sha256": "d008c4eeea725c5f9ba138738e238d771411bd7c69c3417dd072e194b89486a7"
+        "sha256": "d6483c78e8043cc3e11986bcb2b27ad05fd857aeaaaea254f9f7de20d3280f23"
       },
       {
         "path": "packages/mcp/test/execution/approval-broker.test.ts",
@@ -918,7 +938,7 @@
       },
       {
         "path": "packages/mcp/test/execution/boundary-limits.test.ts",
-        "sha256": "8d71b8a1ae4a339bb814feaee4cfc7cd8d5c69cc955fbc6e87ed97b13de7b242"
+        "sha256": "92f673ff1ba757ee9305c649c997b23203998ab79859bea3dfa39c7c0813dbad"
       },
       {
         "path": "packages/mcp/test/execution/completed-result-replay.test.ts",
@@ -1097,12 +1117,28 @@
         "sha256": "a0726e32a0c039b667417f17ccda463821437c9b794e386f16e21d56773d5b09"
       },
       {
+        "path": "packages/mcp/test/network/dns-pinning.test.ts",
+        "sha256": "dc8179e90c99ecf9a554262a857dab6635afb41289f62bd27bf97abecffc0620"
+      },
+      {
+        "path": "packages/mcp/test/network/import-image-runtime.test.ts",
+        "sha256": "a556c3138d10a4f49bc51a035c2ac5e6dc6345e92526361b0784f6244d1a15b1"
+      },
+      {
+        "path": "packages/mcp/test/network/remote-domain-config.test.ts",
+        "sha256": "b4e51e3fbe82a843adbc88768d296056b4d932faa9145e4a788e3f8af50654e7"
+      },
+      {
+        "path": "packages/mcp/test/network/remote-image-fetcher.test.ts",
+        "sha256": "fb13c9844703d88c27af1cf144cc0bbb1db4ebc3bb21d979ee8c4267433ce105"
+      },
+      {
         "path": "packages/mcp/test/policy/egress-config.test.ts",
         "sha256": "cdd9eb5cdb0f5b5802700b2231cc7678d0fd8b4082171a19ba900f4a37937948"
       },
       {
         "path": "packages/mcp/test/policy/operation-policy.test.ts",
-        "sha256": "d7e2eede976648327e46f56be509f641e040f95e893a6fcea4a937a7be429a18"
+        "sha256": "4c1731b7e7302ffa4d0b2b106e5915afb4962b69e4c65eb4c1d4686c929ec7c4"
       },
       {
         "path": "packages/mcp/test/policy/result-egress-policy.test.ts",
@@ -1190,7 +1226,7 @@
       },
       {
         "path": "packages/mcp/test/tools/import-image.test.ts",
-        "sha256": "acc894e3aa6377da6c153abb76da71f106ba067edc3048387c8f88a734ddb7a6"
+        "sha256": "7d6518ef065175713d4880cc4586c7560178e858942d1641ecef77d830a96195"
       },
       {
         "path": "packages/mcp/test/tools/ping.test.ts",
@@ -1404,6 +1440,10 @@
       "sha256": "85f7160d4cdd3fa29bb51e2f9d66e0347f623aee41b9ff4b1af7f81e141357c6"
     },
     {
+      "path": "capabilities/change-manifests/task-8b.json",
+      "sha256": "af2ccb82fc1bb3fa19f21f7c812df648daba7e7e69ad5ae693925f049eecc834"
+    },
+    {
       "path": "capabilities/figmosha-feature-map.json",
       "sha256": "8b84a17e372975e6590ced2315cbdcfb99f0def6259980e88eaf6c4294ca8956"
     },
@@ -1430,6 +1470,10 @@
     {
       "path": "capabilities/task-8a-direct-fs-importers.json",
       "sha256": "054e9d2c7b4c3682bb029238c1c56a2db708f201e646c6e19eda22568478a38a"
+    },
+    {
+      "path": "capabilities/task-8b-authority-classes.json",
+      "sha256": "a969d72b64e004d79260d39ce5a06a0ce7aba0eb6b179f2fabc63a5878d509d1"
     },
     {
       "path": "capabilities/union-manifest.json",
@@ -1504,6 +1548,10 @@
       "sha256": "062917031b4f6a5f48f633eb4626cbe06c4204a56020cd18cbd72c487be0080f"
     },
     {
+      "path": "packages/mcp/src/control/network-domain-endpoints.ts",
+      "sha256": "8f47c5607fd522d15f64f3bec4788952ee9b0a301d3abe4c6704cb39382e1874"
+    },
+    {
       "path": "packages/mcp/src/control/operation-endpoints.ts",
       "sha256": "b55ca00415fb4742e3f5efeb2d29e287cccbf11cd8564952de77c3f780c93417"
     },
@@ -1513,11 +1561,11 @@
     },
     {
       "path": "packages/mcp/src/control/route-registry.ts",
-      "sha256": "9df5c5d922d0ce211bafe087587e273739bb12c62a4271d1955ecaf085158ca1"
+      "sha256": "86cfb704fa5d46984d953a6d75e45b52b23b8638e73befc8c1bbccf10182792a"
     },
     {
       "path": "packages/mcp/src/control/router.ts",
-      "sha256": "837f93c69434814a6e74083a3fe3705b7a8d4388fdf5941f253bba98f4914d24"
+      "sha256": "71ac2a7dbeec180e83aebbeb06210ea3e797e162b91a105281f45c353b1cc855"
     },
     {
       "path": "packages/mcp/src/control/status-endpoint.ts",
@@ -1605,7 +1653,7 @@
     },
     {
       "path": "packages/mcp/src/execution/operation-executor.ts",
-      "sha256": "a04fa470003689889f20898fdd2663d7b656efdea52234fd04b65d4d7371554c"
+      "sha256": "933987fd0739398d29e90b550b61cf7e6454025b052238fbe3a5d7394011fad3"
     },
     {
       "path": "packages/mcp/src/execution/operation-id.ts",
@@ -1665,7 +1713,15 @@
     },
     {
       "path": "packages/mcp/src/index.ts",
-      "sha256": "3694d1b6942876ee96d81de04ce5c0beb1e2e77ca81f245a1d9bbc3740686a8f"
+      "sha256": "ada2ecd177aee50d0b2a50f10c49b105ecae1e2e878c2e51469788934304c556"
+    },
+    {
+      "path": "packages/mcp/src/network/remote-domain-config-store.ts",
+      "sha256": "e966c34360ad4ced9625302a349252155d26714833f7f42b6423f319e26e0b99"
+    },
+    {
+      "path": "packages/mcp/src/network/remote-image-fetcher.ts",
+      "sha256": "e3e14f5c51ccc7e8d8b96dbf19f5ffd35a56cbaa5b1da5b0e65b0e735b20eac6"
     },
     {
       "path": "packages/mcp/src/policy/approval-broker.ts",
@@ -1685,7 +1741,7 @@
     },
     {
       "path": "packages/mcp/src/policy/operation-policy.ts",
-      "sha256": "95c7eb7889815d4a9b5e35c0e5f086f55315cbeec7aa156611c9f64dddc9ae3a"
+      "sha256": "11c76bfaa8edfc3eb030cdb146e5e9e36be3124c5d28ab084523611b2c1a49e6"
     },
     {
       "path": "packages/mcp/src/policy/policy-engine.ts",
@@ -1805,7 +1861,7 @@
     },
     {
       "path": "packages/mcp/src/tools/batch.ts",
-      "sha256": "f4ee38aac17d54d3431a06d0229dcfded295f51a0a92ca3a0f059d32b5fc084d"
+      "sha256": "c8ce28bcea3bbd9661607dd94a671a326af1434b39eac3034ccb2bf3e794b2b5"
     },
     {
       "path": "packages/mcp/src/tools/binary-payload.ts",
@@ -2021,7 +2077,7 @@
     },
     {
       "path": "packages/mcp/src/tools/import-image.ts",
-      "sha256": "0e8db6e0a7e2ccb12bf225bfd9ae015dc27aa85490c75d1699e4326d140b0b1e"
+      "sha256": "048e12d1b8101534e7ac6a241a59390fd140e4c9638dad01b90189f3797c33c6"
     },
     {
       "path": "packages/mcp/src/tools/import-svg.ts",
@@ -2249,7 +2305,7 @@
     },
     {
       "path": "packages/mcp/test/control/control-router.test.ts",
-      "sha256": "145081e8a1a501a3a8e6ed3d71be3155fccda2c7f6d0f1296acc183fc533b547"
+      "sha256": "014d998c13223e8a37386992944be58217d4d30750de5328c64c49e4c9abd91e"
     },
     {
       "path": "packages/mcp/test/control/control-status.test.ts",
@@ -2305,7 +2361,7 @@
     },
     {
       "path": "packages/mcp/test/execution/action-nonce.test.ts",
-      "sha256": "d008c4eeea725c5f9ba138738e238d771411bd7c69c3417dd072e194b89486a7"
+      "sha256": "d6483c78e8043cc3e11986bcb2b27ad05fd857aeaaaea254f9f7de20d3280f23"
     },
     {
       "path": "packages/mcp/test/execution/approval-broker.test.ts",
@@ -2321,7 +2377,7 @@
     },
     {
       "path": "packages/mcp/test/execution/boundary-limits.test.ts",
-      "sha256": "8d71b8a1ae4a339bb814feaee4cfc7cd8d5c69cc955fbc6e87ed97b13de7b242"
+      "sha256": "92f673ff1ba757ee9305c649c997b23203998ab79859bea3dfa39c7c0813dbad"
     },
     {
       "path": "packages/mcp/test/execution/completed-result-replay.test.ts",
@@ -2500,12 +2556,28 @@
       "sha256": "a0726e32a0c039b667417f17ccda463821437c9b794e386f16e21d56773d5b09"
     },
     {
+      "path": "packages/mcp/test/network/dns-pinning.test.ts",
+      "sha256": "dc8179e90c99ecf9a554262a857dab6635afb41289f62bd27bf97abecffc0620"
+    },
+    {
+      "path": "packages/mcp/test/network/import-image-runtime.test.ts",
+      "sha256": "a556c3138d10a4f49bc51a035c2ac5e6dc6345e92526361b0784f6244d1a15b1"
+    },
+    {
+      "path": "packages/mcp/test/network/remote-domain-config.test.ts",
+      "sha256": "b4e51e3fbe82a843adbc88768d296056b4d932faa9145e4a788e3f8af50654e7"
+    },
+    {
+      "path": "packages/mcp/test/network/remote-image-fetcher.test.ts",
+      "sha256": "fb13c9844703d88c27af1cf144cc0bbb1db4ebc3bb21d979ee8c4267433ce105"
+    },
+    {
       "path": "packages/mcp/test/policy/egress-config.test.ts",
       "sha256": "cdd9eb5cdb0f5b5802700b2231cc7678d0fd8b4082171a19ba900f4a37937948"
     },
     {
       "path": "packages/mcp/test/policy/operation-policy.test.ts",
-      "sha256": "d7e2eede976648327e46f56be509f641e040f95e893a6fcea4a937a7be429a18"
+      "sha256": "4c1731b7e7302ffa4d0b2b106e5915afb4962b69e4c65eb4c1d4686c929ec7c4"
     },
     {
       "path": "packages/mcp/test/policy/result-egress-policy.test.ts",
@@ -2593,7 +2665,7 @@
     },
     {
       "path": "packages/mcp/test/tools/import-image.test.ts",
-      "sha256": "acc894e3aa6377da6c153abb76da71f106ba067edc3048387c8f88a734ddb7a6"
+      "sha256": "7d6518ef065175713d4880cc4586c7560178e858942d1641ecef77d830a96195"
     },
     {
       "path": "packages/mcp/test/tools/ping.test.ts",
@@ -2837,7 +2909,7 @@
     },
     {
       "path": "vendor-rules.json",
-      "sha256": "e9faa565317cf76c4859cd175a44ad09559300d738962ec87506735bce36ef63"
+      "sha256": "72da4a008dce439be9fceda0cc0461c47fdc2aa97e752c5fbc05ee0c03ab094d"
     },
     {
       "path": "vitest.config.ts",

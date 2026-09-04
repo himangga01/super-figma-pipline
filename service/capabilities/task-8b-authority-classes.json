@@ -1,0 +1,33 @@
+{
+  "schemaVersion": 1,
+  "slice": "8B",
+  "allowedPaths": [
+    "service/capabilities/change-manifests/task-8b.json",
+    "service/capabilities/task-8b-authority-classes.json",
+    "service/packages/mcp/src/control/network-domain-endpoints.ts",
+    "service/packages/mcp/src/control/route-registry.ts",
+    "service/packages/mcp/src/control/router.ts",
+    "service/packages/mcp/src/execution/operation-executor.ts",
+    "service/packages/mcp/src/index.ts",
+    "service/packages/mcp/src/network/remote-domain-config-store.ts",
+    "service/packages/mcp/src/network/remote-image-fetcher.ts",
+    "service/packages/mcp/src/policy/operation-policy.ts",
+    "service/packages/mcp/src/tools/batch.ts",
+    "service/packages/mcp/src/tools/import-image.ts",
+    "service/packages/mcp/src/tools/runtime-registry.ts",
+    "service/packages/mcp/test/control/control-router.test.ts",
+    "service/packages/mcp/test/execution/action-nonce.test.ts",
+    "service/packages/mcp/test/execution/boundary-limits.test.ts",
+    "service/packages/mcp/test/network/dns-pinning.test.ts",
+    "service/packages/mcp/test/network/import-image-runtime.test.ts",
+    "service/packages/mcp/test/network/remote-domain-config.test.ts",
+    "service/packages/mcp/test/network/remote-image-fetcher.test.ts",
+    "service/packages/mcp/test/policy/operation-policy.test.ts",
+    "service/packages/mcp/test/tools/import-image.test.ts",
+    "service/test/authority-class-transition.test.ts",
+    "service/test/service-fork-lineage.test.ts",
+    "service/upstream-lock.json",
+    "service/vendor-map.json",
+    "service/vendor-rules.json"
+  ]
+}

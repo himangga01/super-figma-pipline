@@ -36,9 +36,13 @@ import {
   createEgressAdminAuditTransactions,
   createEgressControl,
 } from './control/egress-endpoints.js';
+import { createNetworkDomainEndpoints } from './control/network-domain-endpoints.js';
 import { createOperationEndpoints } from './control/operation-endpoints.js';
 import { createOperationEvidenceEndpoint } from './control/operation-evidence-endpoint.js';
-import { registerTask7ControlRoutes } from './control/route-registry.js';
+import {
+  registerTask7ControlRoutes,
+  registerTask8BNetworkRoutes,
+} from './control/route-registry.js';
 import {
   AuthenticatedControlRouter,
   createControlHttpHandler,
@@ -93,6 +97,11 @@ import { createWorkspacePolicy } from './fs/workspace-policy.js';
 import { createWorkspaceRegistrationResolver } from './fs/workspace-registration-resolver.js';
 import { SERVER_INSTRUCTIONS } from './instructions.js';
 import { wireShutdown } from './lifecycle.js';
+import { RemoteDomainConfigStore } from './network/remote-domain-config-store.js';
+import {
+  createRemoteImageFetcher,
+  type RemoteImageFetcher,
+} from './network/remote-image-fetcher.js';
 import { normalizeIdArgs } from './node-id.js';
 import { createApprovalBroker } from './policy/approval-broker.js';
 import { authorizeEgress, createEgressConfigStore } from './policy/policy-engine.js';
@@ -337,7 +346,11 @@ const createPinnedPluginPort = (resources: LeaderResources): PinnedPluginRuntime
     },
   });
 
-const createServerAdapterPort = (workspacePolicy: WorkspacePolicy): ServerAdapterRuntimePort =>
+const createServerAdapterPort = (
+  workspacePolicy: WorkspacePolicy,
+  remoteImages: RemoteImageFetcher,
+  remoteDomains: RemoteDomainConfigStore,
+): ServerAdapterRuntimePort =>
   Object.freeze({
     execute: async (
       scope: RuntimeExecutionScope,
@@ -455,7 +468,11 @@ const createServerAdapterPort = (workspacePolicy: WorkspacePolicy): ServerAdapte
           return handleIconMap(await routedDispatch(), localReadArgs(reader), reader);
         }
         case IMPORT_IMAGE_TOOL_NAME:
-          return handleImportImage(dispatch, args);
+          return handleImportImage(dispatch, args, {
+            fetcher: remoteImages,
+            domains: remoteDomains,
+            signal,
+          });
         case DESIGN_DIFF_TOOL_NAME: {
           const reader = repoReader();
           const localArgs = localReadArgs(reader);
@@ -554,6 +571,10 @@ const initializeLeaderRuntime = async (resources: LeaderResources): Promise<Lead
       workspaceRegistrationResolver,
     );
     const workspacePolicy = createWorkspacePolicy(workspaceStore);
+    const remoteDomains = new RemoteDomainConfigStore({
+      stateRoot,
+      permissions: statePermissions,
+    });
     const artifacts = new OperationEvidenceArtifactStore({
       workspacePolicy,
       atomicFiles: new AtomicFileStore(),
@@ -599,6 +620,9 @@ const initializeLeaderRuntime = async (resources: LeaderResources): Promise<Lead
       }),
     ]);
     assertInitializationActive();
+    await remoteDomains.recover();
+    assertInitializationActive();
+    const remoteImages = createRemoteImageFetcher();
     const workspaceBinding = createMcpWorkspaceBinding(workspaceStore);
     const egressConfigStore = createEgressConfigStore(stateRoot, statePermissions);
     const adminAuditStore = createAdminAuditStore({ stateRoot });
@@ -728,7 +752,7 @@ const initializeLeaderRuntime = async (resources: LeaderResources): Promise<Lead
     assertInitializationActive();
     const runtimes = createBoundRuntimeRegistry(
       createPinnedPluginPort(resources),
-      createServerAdapterPort(workspacePolicy),
+      createServerAdapterPort(workspacePolicy, remoteImages, remoteDomains),
     );
     const executor = new OperationExecutor({
       issuer: operationIdIssuer,
@@ -867,6 +891,13 @@ const initializeLeaderRuntime = async (resources: LeaderResources): Promise<Lead
       }),
       adminAudit: createAdminAuditEndpoint(adminAuditStore),
     });
+    registerTask8BNetworkRoutes(
+      typedControlRouter,
+      createNetworkDomainEndpoints({
+        store: remoteDomains,
+        nonceStore: actionNonces,
+      }),
+    );
     typedControlRouter.register({
       id: 'operation.evidence',
       method: 'GET',

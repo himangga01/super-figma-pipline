@@ -7,6 +7,8 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import { InvocationAdmissionController } from '../../src/execution/execution-plane.js';
 import { readFileWithinLimit } from '../../src/fs/atomic-file.js';
+import { REMOTE_DOMAIN_LIMITS } from '../../src/network/remote-domain-config-store.js';
+import { REMOTE_IMAGE_LIMITS } from '../../src/network/remote-image-fetcher.js';
 
 const ownerId = 'actor1_AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA';
 const boundaryRoots: string[] = [];
@@ -128,5 +130,38 @@ describe('inclusive invocation admission limits', () => {
       beforeRead: true,
     });
     expect(bodyRead).toBe(true);
+  });
+
+  it('binds the inclusive remote-image decoded and canonical base64 boundaries', () => {
+    expect(REMOTE_IMAGE_LIMITS).toMatchObject({
+      maxDnsAnswers: 16,
+      maxRedirects: 3,
+      maxDecodedBytes: 6_291_456,
+      maxBase64Bytes: 8_388_608,
+      maxResponseHeaderBytes: 16_384,
+      maxLocationBytes: 4_096,
+      dnsMs: 5_000,
+      connectTlsMs: 10_000,
+      responseHeaderMs: 10_000,
+      bodyIdleMs: 5_000,
+      wholeFetchMs: 30_000,
+    });
+    expect(Buffer.alloc(REMOTE_IMAGE_LIMITS.maxDecodedBytes).toString('base64')).toHaveLength(
+      REMOTE_IMAGE_LIMITS.maxBase64Bytes,
+    );
+    expect(Buffer.alloc(REMOTE_IMAGE_LIMITS.maxDecodedBytes + 1).toString('base64')).toHaveLength(
+      REMOTE_IMAGE_LIMITS.maxBase64Bytes + 4,
+    );
+  });
+
+  it('binds the bounded remote-domain state, recovery, and audit capacities', () => {
+    expect(REMOTE_DOMAIN_LIMITS).toEqual({
+      maxRules: 256,
+      maxConfigBytes: 262_144,
+      maxTemporaryCandidates: 32,
+      maxScanEntries: 4_096,
+      maxAuditRows: 4_096,
+      maxAuditBytes: 2_097_152,
+    });
   });
 });

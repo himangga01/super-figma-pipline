@@ -17,6 +17,7 @@ import type { createActionNonceEndpoint } from './action-nonce-endpoints.js';
 import type { createAdminAuditEndpoint } from './admin-audit-endpoints.js';
 import type { createApprovalEndpoints } from './approval-endpoints.js';
 import type { createEgressControl } from './egress-endpoints.js';
+import type { createNetworkDomainEndpoints } from './network-domain-endpoints.js';
 import type { createOperationEndpoints } from './operation-endpoints.js';
 import { OperationListRequestSchema } from './operation-endpoints.js';
 import type { AuthenticatedControlRouter } from './router.js';
@@ -35,6 +36,59 @@ export interface Task7ControlRoutes {
   egress: ReturnType<typeof createEgressControl>;
   adminAudit: ReturnType<typeof createAdminAuditEndpoint>;
 }
+
+export type NetworkDomainEndpoints = ReturnType<typeof createNetworkDomainEndpoints>;
+
+const NetworkDomainRuleSchema = z
+  .object({
+    fqdnAscii: z.string().min(1).max(253),
+    addedBy: z.string().regex(/^actor1_[A-Za-z0-9_-]{43}$/u),
+    addedAt: z.string().datetime({ offset: true }),
+  })
+  .strict();
+
+export const registerTask8BNetworkRoutes = (
+  router: AuthenticatedControlRouter,
+  endpoints: NetworkDomainEndpoints,
+): void => {
+  router.register({
+    id: 'network-domain.list',
+    method: 'GET',
+    path: '/control/network/domains',
+    routeClass: 'admin',
+    inputSchema: z.object({}).strict(),
+    outputSchema: z.array(NetworkDomainRuleSchema).max(256).readonly(),
+    handle: async () => endpoints.list(),
+  });
+  router.register({
+    id: 'network-domain.add',
+    method: 'POST',
+    path: '/control/network/domains',
+    routeClass: 'admin',
+    inputSchema: z
+      .object({
+        fqdn: z.string().min(1).max(253),
+        actionNonce: z.string().regex(/^sfp_an1_[A-Za-z0-9_-]{43}$/u),
+      })
+      .strict(),
+    outputSchema: NetworkDomainRuleSchema,
+    handle: async (principal, input, signal) => endpoints.add(principal, input, signal),
+  });
+  router.register({
+    id: 'network-domain.remove',
+    method: 'DELETE',
+    path: '/control/network/domains/:fqdn',
+    routeClass: 'admin',
+    inputSchema: z
+      .object({
+        fqdn: z.string().min(1).max(253),
+        actionNonce: z.string().regex(/^sfp_an1_[A-Za-z0-9_-]{43}$/u),
+      })
+      .strict(),
+    outputSchema: z.undefined(),
+    handle: async (principal, input, signal) => endpoints.remove(principal, input, signal),
+  });
+};
 
 const EmptySchema = z.object({}).strict();
 const WorkspaceIdSchema = z

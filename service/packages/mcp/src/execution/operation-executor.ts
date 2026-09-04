@@ -879,7 +879,8 @@ export class OperationExecutor {
     if (current === undefined || !('originAuthSessionId' in current)) return;
     if (current.status === 'pending-approval' || current.status === 'queued') {
       await this.settlePreDispatchCancellation(active, current.status);
-      this.activeControllers.delete(request.operationId);
+      const inflightKey = `${principal.actorId}\0${request.operationId}`;
+      if (!this.inflight.has(inflightKey)) this.activeControllers.delete(request.operationId);
     }
   }
 

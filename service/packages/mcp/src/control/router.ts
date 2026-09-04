@@ -220,10 +220,15 @@ export class AuthenticatedControlRouter {
   }
 }
 
+interface ReadBodyResult {
+  value: unknown;
+  bytes: number;
+}
+
 const readBody = async (
   request: IncomingMessage,
   maximumBytes: number = CONTROL_LOGICAL_REQUEST_MAX_BYTES,
-): Promise<unknown> => {
+): Promise<ReadBodyResult> => {
   const chunks: Uint8Array[] = [];
   let bytes = 0;
   for await (const chunk of request) {
@@ -237,9 +242,9 @@ const readBody = async (
     }
     chunks.push(value);
   }
-  if (bytes === 0) return {};
+  if (bytes === 0) return { value: {}, bytes: 0 };
   try {
-    return JSON.parse(Buffer.concat(chunks).toString('utf8')) as unknown;
+    return { value: JSON.parse(Buffer.concat(chunks).toString('utf8')) as unknown, bytes };
   } catch (error) {
     throw new AuthenticatedControlRouterError(
       'CONTROL_ROUTE_INPUT_INVALID',
@@ -267,21 +272,100 @@ const publicError = (error: unknown): { status: number; code: string } => {
     typeof error === 'object' && error !== null && 'code' in error
       ? String(error.code)
       : 'CONTROL_INTERNAL';
-  if (code === 'CONTROL_ROUTE_NOT_FOUND') return { status: 404, code };
-  if (code === 'CONTROL_REQUEST_TOO_LARGE') return { status: 413, code };
-  if (code.includes('CAS_MISMATCH') || code.includes('ALREADY') || code.includes('IN_USE')) {
-    return { status: 409, code };
-  }
-  if (
-    code.includes('INVALID') ||
-    code.includes('MISMATCH') ||
-    code.includes('REQUIRED') ||
-    code.includes('EXPIRED')
-  ) {
-    return { status: 400, code };
+  if (Object.hasOwn(PUBLIC_ERROR_STATUS, code)) {
+    return { status: PUBLIC_ERROR_STATUS[code] as number, code };
   }
   return { status: 500, code };
 };
+
+const PUBLIC_ERROR_STATUS: Readonly<Record<string, number>> = Object.freeze({
+  CONTROL_ROUTE_NOT_FOUND: 404,
+  REMOTE_DOMAIN_NOT_FOUND: 404,
+  CONTROL_REQUEST_TOO_LARGE: 413,
+  APPROVAL_ALREADY_SETTLED: 409,
+  EGRESS_CONFIG_CAS_MISMATCH: 409,
+  OPERATION_ALREADY_SETTLED: 409,
+  OPERATION_CANCELLED: 409,
+  REMOTE_DOMAIN_ALREADY_EXISTS: 409,
+  REMOTE_DOMAIN_CAPACITY_EXCEEDED: 409,
+  REMOTE_DOMAIN_CAS_MISMATCH: 409,
+  REMOTE_DOMAIN_TEMP_LIMIT_EXCEEDED: 409,
+  TERMINAL_ALREADY_SETTLED: 409,
+  WORKSPACE_ALREADY_CONFIGURED: 409,
+  WORKSPACE_DEFAULT_IN_USE: 409,
+  WORKSPACE_IN_USE: 409,
+  ACTION_NONCE_INVALID: 400,
+  ACTION_NONCE_REQUEST_HASH_MISMATCH: 400,
+  ADMIN_AUDIT_CURSOR_INVALID: 400,
+  ADMIN_AUDIT_QUERY_INVALID: 400,
+  ADMIN_AUDIT_RESERVATION_INVALID: 400,
+  ADMIN_AUDIT_ROW_INVALID: 400,
+  APPROVAL_CONTROL_SESSION_MISMATCH: 400,
+  APPROVAL_EXPIRED: 400,
+  APPROVAL_GENERATION_MISMATCH: 400,
+  APPROVAL_HASH_MISMATCH: 400,
+  APPROVAL_ID_INVALID: 400,
+  APPROVAL_RESUME_INVALID: 400,
+  APPROVAL_SESSION_MISMATCH: 400,
+  APPROVAL_TARGET_MISMATCH: 400,
+  APPROVAL_TERMINAL_INVALID: 400,
+  CANCEL_AUTH_SESSION_MISMATCH: 400,
+  CONTROL_ROUTE_INPUT_INVALID: 400,
+  CONTROL_ROUTE_INVALID: 400,
+  CONTROL_ROUTE_OUTPUT_INVALID: 400,
+  DEMOTION_TICKET_INVALID: 400,
+  EGRESS_CONFIG_INVALID: 400,
+  EGRESS_CONFIG_REQUIRED: 400,
+  EGRESS_CONSENT_EXPIRED: 400,
+  EGRESS_CONSENT_REQUIRED: 400,
+  EGRESS_RESULT_INVALID: 400,
+  EVIDENCE_FINALIZER_MISMATCH: 400,
+  EXECUTION_PLANE_ALREADY_BOUND: 409,
+  INVOCATION_ARGS_INVALID: 400,
+  INVOCATION_CONSENT_INVALID: 400,
+  INVOCATION_ORIGIN_INVALID: 400,
+  INVOCATION_PRINCIPAL_INVALID: 400,
+  INVOCATION_TARGET_INVALID: 400,
+  INVOCATION_WORKSPACE_INVALID: 400,
+  JOURNAL_TRANSITION_INVALID: 400,
+  LEADER_GENERATION_CLOSE_TIMEOUT_INVALID: 400,
+  LEADER_GENERATION_MISMATCH: 400,
+  MCP_WORKSPACE_DEFAULT_INVALID: 400,
+  MCP_WORKSPACE_REQUIRED: 400,
+  OPERATION_EVIDENCE_INVALID: 400,
+  OPERATION_ID_EXPIRED: 400,
+  OPERATION_ID_INVALID: 400,
+  OPERATION_ID_REQUIRED: 400,
+  OPERATION_RESOLUTION_CONFIRMATION_INVALID: 400,
+  PLUGIN_RESULT_INVALID: 400,
+  POLICY_WORKSPACE_REQUIRED: 400,
+  PRE_EGRESS_TERMINAL_INVALID: 400,
+  REMOTE_CONTENT_LENGTH_INVALID: 400,
+  REMOTE_CONTENT_LENGTH_MISMATCH: 400,
+  REMOTE_DNS_ANSWER_INVALID: 400,
+  REMOTE_DOMAIN_CONFIG_INVALID: 400,
+  REMOTE_FQDN_INVALID: 400,
+  REMOTE_HEADERS_INVALID: 400,
+  REMOTE_MIME_INVALID: 400,
+  REMOTE_POLICY_INVALID: 400,
+  REMOTE_REDIRECT_INVALID: 400,
+  REMOTE_SIGNATURE_INVALID: 400,
+  REMOTE_STATUS_INVALID: 400,
+  REMOTE_TIMEOUTS_INVALID: 400,
+  REMOTE_URL_INVALID: 400,
+  RESOLUTION_INTENT_INVALID: 400,
+  SERVER_RESULT_INVALID: 400,
+  SNAPSHOT_AUTHORITY_MISMATCH: 400,
+  TARGET_ALREADY_EXISTS: 409,
+  TARGET_REQUIRED: 400,
+  TARGET_SESSION_INVALID: 400,
+  WORKSPACE_AUTH_REQUIRED: 400,
+  WORKSPACE_CONFIG_INVALID: 400,
+  WORKSPACE_DEFAULT_INVALID: 400,
+  WORKSPACE_DIRECTORY_REQUIRED: 400,
+  WORKSPACE_PATH_INVALID: 400,
+  WORKSPACE_REQUIRED: 400,
+});
 
 export const createControlHttpHandler =
   (dependencies: {
@@ -303,14 +387,34 @@ export const createControlHttpHandler =
           'control path and query exceed their logical byte limit',
         );
       }
-      let input =
+      const requestUrl = new URL(request.url ?? '/control', 'http://127.0.0.1');
+      const isNetworkDomainDelete =
+        method === 'DELETE' && /^\/control\/network\/domains\/[^/]+$/u.test(requestUrl.pathname);
+      const isNetworkDomainPost =
+        method === 'POST' && requestUrl.pathname === '/control/network/domains';
+      const body =
         method === 'GET'
-          ? {}
-          : strictPlainObject(
-              await readBody(request, CONTROL_LOGICAL_REQUEST_MAX_BYTES - pathBytes),
-            );
+          ? { value: {}, bytes: 0 }
+          : await readBody(request, CONTROL_LOGICAL_REQUEST_MAX_BYTES - pathBytes);
+      let input = strictPlainObject(body.value);
       const actionNonce = request.headers['x-sfp-action-nonce'];
-      if (method === 'DELETE' && typeof actionNonce === 'string') {
+      if (isNetworkDomainDelete) {
+        if (requestUrl.search.length !== 0 || body.bytes !== 0 || typeof actionNonce !== 'string') {
+          throw new AuthenticatedControlRouterError(
+            'CONTROL_ROUTE_INPUT_INVALID',
+            'network-domain deletion requires one header nonce and no body or query fields',
+          );
+        }
+        input = { actionNonce };
+      } else if (
+        isNetworkDomainPost &&
+        (requestUrl.search.length !== 0 || actionNonce !== undefined)
+      ) {
+        throw new AuthenticatedControlRouterError(
+          'CONTROL_ROUTE_INPUT_INVALID',
+          'network-domain addition requires one body nonce and no query or header aliases',
+        );
+      } else if (method === 'DELETE' && typeof actionNonce === 'string') {
         input = { ...input, actionNonce };
       }
       const principal = await dependencies.principalForRequest(request);

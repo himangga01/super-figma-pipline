@@ -301,7 +301,7 @@ const idempotencyRank: Readonly<Record<IdempotencyRequirement, number>> = Object
 
 const batchPolicy = policy(
   'batch',
-  [network('url'), FIGMA_LIBRARY_IMPORT, figmaWrite(false, true)],
+  [FIGMA_LIBRARY_IMPORT, figmaWrite(false, true)],
   (args: ParsedArgs, context) =>
     mergeBatchEffects(
       parseBatchOperations(args).flatMap(operation =>

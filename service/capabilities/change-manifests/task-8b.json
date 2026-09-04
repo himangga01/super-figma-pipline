@@ -1,0 +1,112 @@
+{
+  "schemaVersion": 1,
+  "slice": "8B",
+  "authorityPaths": [
+    "service/capabilities/change-manifests/task-8b.json",
+    "service/upstream-lock.json",
+    "service/vendor-map.json",
+    "service/vendor-rules.json"
+  ],
+  "changes": [
+    {
+      "status": "A",
+      "path": "service/capabilities/task-8b-authority-classes.json",
+      "sha256": "a969d72b64e004d79260d39ce5a06a0ce7aba0eb6b179f2fabc63a5878d509d1"
+    },
+    {
+      "status": "A",
+      "path": "service/packages/mcp/src/control/network-domain-endpoints.ts",
+      "sha256": "8f47c5607fd522d15f64f3bec4788952ee9b0a301d3abe4c6704cb39382e1874"
+    },
+    {
+      "status": "M",
+      "path": "service/packages/mcp/src/control/route-registry.ts",
+      "sha256": "86cfb704fa5d46984d953a6d75e45b52b23b8638e73befc8c1bbccf10182792a"
+    },
+    {
+      "status": "M",
+      "path": "service/packages/mcp/src/control/router.ts",
+      "sha256": "71ac2a7dbeec180e83aebbeb06210ea3e797e162b91a105281f45c353b1cc855"
+    },
+    {
+      "status": "M",
+      "path": "service/packages/mcp/src/execution/operation-executor.ts",
+      "sha256": "933987fd0739398d29e90b550b61cf7e6454025b052238fbe3a5d7394011fad3"
+    },
+    {
+      "status": "M",
+      "path": "service/packages/mcp/src/index.ts",
+      "sha256": "ada2ecd177aee50d0b2a50f10c49b105ecae1e2e878c2e51469788934304c556"
+    },
+    {
+      "status": "A",
+      "path": "service/packages/mcp/src/network/remote-domain-config-store.ts",
+      "sha256": "e966c34360ad4ced9625302a349252155d26714833f7f42b6423f319e26e0b99"
+    },
+    {
+      "status": "A",
+      "path": "service/packages/mcp/src/network/remote-image-fetcher.ts",
+      "sha256": "e3e14f5c51ccc7e8d8b96dbf19f5ffd35a56cbaa5b1da5b0e65b0e735b20eac6"
+    },
+    {
+      "status": "M",
+      "path": "service/packages/mcp/src/policy/operation-policy.ts",
+      "sha256": "11c76bfaa8edfc3eb030cdb146e5e9e36be3124c5d28ab084523611b2c1a49e6"
+    },
+    {
+      "status": "M",
+      "path": "service/packages/mcp/src/tools/batch.ts",
+      "sha256": "c8ce28bcea3bbd9661607dd94a671a326af1434b39eac3034ccb2bf3e794b2b5"
+    },
+    {
+      "status": "M",
+      "path": "service/packages/mcp/src/tools/import-image.ts",
+      "sha256": "048e12d1b8101534e7ac6a241a59390fd140e4c9638dad01b90189f3797c33c6"
+    },
+    {
+      "status": "M",
+      "path": "service/packages/mcp/test/control/control-router.test.ts",
+      "sha256": "014d998c13223e8a37386992944be58217d4d30750de5328c64c49e4c9abd91e"
+    },
+    {
+      "status": "M",
+      "path": "service/packages/mcp/test/execution/action-nonce.test.ts",
+      "sha256": "d6483c78e8043cc3e11986bcb2b27ad05fd857aeaaaea254f9f7de20d3280f23"
+    },
+    {
+      "status": "M",
+      "path": "service/packages/mcp/test/execution/boundary-limits.test.ts",
+      "sha256": "92f673ff1ba757ee9305c649c997b23203998ab79859bea3dfa39c7c0813dbad"
+    },
+    {
+      "status": "A",
+      "path": "service/packages/mcp/test/network/dns-pinning.test.ts",
+      "sha256": "dc8179e90c99ecf9a554262a857dab6635afb41289f62bd27bf97abecffc0620"
+    },
+    {
+      "status": "A",
+      "path": "service/packages/mcp/test/network/import-image-runtime.test.ts",
+      "sha256": "a556c3138d10a4f49bc51a035c2ac5e6dc6345e92526361b0784f6244d1a15b1"
+    },
+    {
+      "status": "A",
+      "path": "service/packages/mcp/test/network/remote-domain-config.test.ts",
+      "sha256": "b4e51e3fbe82a843adbc88768d296056b4d932faa9145e4a788e3f8af50654e7"
+    },
+    {
+      "status": "A",
+      "path": "service/packages/mcp/test/network/remote-image-fetcher.test.ts",
+      "sha256": "fb13c9844703d88c27af1cf144cc0bbb1db4ebc3bb21d979ee8c4267433ce105"
+    },
+    {
+      "status": "M",
+      "path": "service/packages/mcp/test/policy/operation-policy.test.ts",
+      "sha256": "4c1731b7e7302ffa4d0b2b106e5915afb4962b69e4c65eb4c1d4686c929ec7c4"
+    },
+    {
+      "status": "M",
+      "path": "service/packages/mcp/test/tools/import-image.test.ts",
+      "sha256": "7d6518ef065175713d4880cc4586c7560178e858942d1641ecef77d830a96195"
+    }
+  ]
+}

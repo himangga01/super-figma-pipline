@@ -202,9 +202,13 @@ describe('baseline operation policy authority', () => {
       url: '  https://assets.example.com/a.png  ',
     }) as Readonly<Record<string, unknown>>;
     expect(dataArgs).toMatchObject({ data: 'AA==' });
-    expect(urlArgs).toMatchObject({ url: 'https://assets.example.com/a.png' });
+    expect(urlArgs).toMatchObject({ url: '  https://assets.example.com/a.png  ' });
     expect(types(effects('import_image', dataArgs))).toEqual(['figma-write']);
     expect(types(effects('import_image', urlArgs))).toEqual(['network', 'figma-write']);
+    expect(
+      operationPolicyFor('import_image').approvalFor(effects('import_image', urlArgs), context),
+    ).toBe('explicit-user');
+    expect(operationPolicyFor('import_image').idempotencyFor(urlArgs)).toBe('never-auto-retry');
   });
 
   it('classifies published component keys as library imports', () => {
@@ -253,17 +257,25 @@ describe('baseline operation policy authority', () => {
     expect(operationPolicyFor('batch').idempotencyFor(libraryBatch)).toBe('never-auto-retry');
     expect(operationPolicyFor('batch').approvalFor(libraryEffects, context)).toBe('explicit-user');
 
-    const networkBatch = parsedBatch([
-      {
-        tool: 'import_image',
-        params: { url: 'https://assets.example.com/batch.png' },
-      },
-    ]);
-    expect(effects('batch', networkBatch)).toEqual([
-      { type: 'network', urlArg: 'url' },
+    expect(
+      spec('batch').inputSchema.safeParse({
+        ops: [
+          {
+            tool: 'import_image',
+            params: { url: 'https://assets.example.com/batch.png' },
+          },
+        ],
+      }).success,
+    ).toBe(false);
+    const inlineImageBatch = parsedBatch([{ tool: 'import_image', params: { data: 'AA==' } }]);
+    expect(effects('batch', inlineImageBatch)).toEqual([
       { type: 'figma-write', destructive: false, broad: true },
     ]);
-    expect(operationPolicyFor('batch').idempotencyFor(networkBatch)).toBe('never-auto-retry');
+    expect(operationPolicyFor('batch').idempotencyFor(inlineImageBatch)).toBe('operation-id');
+    expect(operationPolicyFor('batch').possibleEffects).not.toContainEqual({
+      type: 'network',
+      urlArg: 'url',
+    });
     expect(annotationsFor(spec('batch')).openWorldHint).toBe(true);
   });
 
