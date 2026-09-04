@@ -1,3 +1,4 @@
+import { spawn } from 'node:child_process';
 import { createHash } from 'node:crypto';
 import { renameSync, symlinkSync, writeFileSync } from 'node:fs';
 import {
@@ -66,6 +67,390 @@ const realWorkspaceAuthority = async (root: string) => {
 };
 
 describe('operation evidence result artifact store', () => {
+  it('creates no lock, directory, or result outside the workspace on first-use child replacement', async () => {
+    const sandbox = await mkdtemp(join(tmpdir(), 'sfp-result-first-mutex-authority-'));
+    roots.push(sandbox);
+    const { workspaceRoot, workspaceId, policy } = await realWorkspaceAuthority(sandbox);
+    const outside = join(sandbox, 'outside');
+    const displaced = join(sandbox, 'owned-evidence-root');
+    await mkdir(outside);
+    const operationId = 'operation-first-result-mutex-authority';
+    const options = createToolInvocationOptions(true, operationId, workspaceId);
+    const evidenceRoot = join(workspaceRoot, '.sfp', 'operation-evidence');
+    let replacementAttempted = false;
+    let outsideWhileLocked: readonly string[] = [];
+    const store = new OperationEvidenceArtifactStore({
+      workspacePolicy: policy,
+      atomicFiles: new AtomicFileStore(),
+      beforeEvidenceMutexAcquire: async () => {
+        replacementAttempted = true;
+        const script = String.raw`
+          const fs = require('node:fs');
+          try {
+            fs.renameSync(process.argv[1], process.argv[2]);
+            fs.symlinkSync(process.argv[3], process.argv[1], process.platform === 'win32' ? 'junction' : 'dir');
+          } catch { process.exitCode = 2; }
+        `;
+        const child = spawn(process.execPath, ['-e', script, evidenceRoot, displaced, outside], {
+          stdio: 'ignore',
+          windowsHide: true,
+        });
+        await new Promise<void>(resolveExit => child.once('exit', () => resolveExit()));
+      },
+      afterEvidenceMutexAcquire: async () => {
+        outsideWhileLocked = await readdir(outside);
+      },
+    } as never);
+    const bytes = Buffer.from('{"owned":true}');
+
+    await store
+      .createNew({
+        workspaceId,
+        operationId,
+        intent: options.captureIntent,
+        canonicalRedactedBytes: bytes,
+        resultSchemaHash: `sha256:${'a'.repeat(64)}`,
+        resultHash: `sha256:${createHash('sha256').update(bytes).digest('hex')}`,
+      })
+      .catch(() => undefined);
+
+    expect(replacementAttempted).toBe(true);
+    expect(outsideWhileLocked).toEqual([]);
+    expect(await readdir(outside)).toEqual([]);
+  });
+
+  it('keeps an external-process parent swap outside every marker and artifact create use', async () => {
+    const sandbox = await mkdtemp(join(tmpdir(), 'sfp-evidence-create-authority-'));
+    roots.push(sandbox);
+    const { workspaceRoot, workspaceId, policy } = await realWorkspaceAuthority(sandbox);
+    const outside = join(sandbox, 'outside');
+    const displaced = join(sandbox, 'owned-operation');
+    await mkdir(outside);
+    const options = createToolInvocationOptions(
+      true,
+      'operation-create-parent-authority',
+      workspaceId,
+    );
+    const operationDirectory = dirname(
+      join(workspaceRoot, options.captureIntent.relativePath as string),
+    );
+    let attempted = false;
+    const atomicFiles = new AtomicFileStore({
+      beforeLink: async path => {
+        if (attempted || !path.includes('cleanup-intent')) return;
+        attempted = true;
+        const script = String.raw`
+          const fs = require('node:fs');
+          const path = require('node:path');
+          try {
+            fs.renameSync(process.argv[1], process.argv[2]);
+            const temporary = fs.readdirSync(process.argv[2]).find(name => name.endsWith('.sfp-tmp'));
+            fs.copyFileSync(path.join(process.argv[2], temporary), path.join(process.argv[3], temporary));
+            fs.symlinkSync(process.argv[3], process.argv[1], process.platform === 'win32' ? 'junction' : 'dir');
+          } catch { process.exitCode = 2; }
+        `;
+        const child = spawn(
+          process.execPath,
+          ['-e', script, operationDirectory, displaced, outside],
+          { stdio: 'ignore', windowsHide: true },
+        );
+        await new Promise<void>(resolveExit => child.once('exit', () => resolveExit()));
+      },
+    });
+    const store = new OperationEvidenceArtifactStore({ workspacePolicy: policy, atomicFiles });
+    const bytes = Buffer.from('{"ok":true}');
+
+    await store.createNew({
+      workspaceId,
+      operationId: 'operation-create-parent-authority',
+      intent: options.captureIntent,
+      canonicalRedactedBytes: bytes,
+      resultSchemaHash: `sha256:${'a'.repeat(64)}`,
+      resultHash: `sha256:${createHash('sha256').update(bytes).digest('hex')}`,
+    });
+
+    expect(attempted).toBe(true);
+    expect(
+      (await readdir(outside)).filter(name =>
+        ['cleanup-intent.v1.json', 'result.v1.json'].includes(name),
+      ),
+    ).toEqual([]);
+  });
+
+  it('cleans only the retained result descendant when the evidence-root child is replaced', async () => {
+    const sandbox = await mkdtemp(join(tmpdir(), 'sfp-result-cleanup-root-chain-'));
+    roots.push(sandbox);
+    const { workspaceRoot, workspaceId, policy } = await realWorkspaceAuthority(sandbox);
+    const operationId = 'operation-result-cleanup-root-chain';
+    const options = createToolInvocationOptions(true, operationId, workspaceId);
+    const bytes = Buffer.from('{"owned":true}');
+    const writer = new OperationEvidenceArtifactStore({
+      workspacePolicy: policy,
+      atomicFiles: new AtomicFileStore(),
+    });
+    const artifact = await writer.createNew({
+      workspaceId,
+      operationId,
+      intent: options.captureIntent,
+      canonicalRedactedBytes: bytes,
+      resultSchemaHash: `sha256:${'a'.repeat(64)}`,
+      resultHash: `sha256:${createHash('sha256').update(bytes).digest('hex')}`,
+    });
+    const evidenceRoot = join(workspaceRoot, '.sfp', 'operation-evidence');
+    const operationName = basename(dirname(join(workspaceRoot, artifact.artifactRelativePath)));
+    const ownedOperation = join(evidenceRoot, operationName);
+    const displacedEvidenceRoot = join(sandbox, 'owned-evidence-root-cleanup');
+    const outside = join(sandbox, 'outside');
+    const outsideOperation = join(outside, operationName);
+    await mkdir(outsideOperation, { recursive: true });
+    await writeFile(
+      join(outsideOperation, 'cleanup-intent.v1.json'),
+      await readFile(join(ownedOperation, 'cleanup-intent.v1.json')),
+    );
+    await writeFile(join(outsideOperation, 'result.v1.json'), bytes);
+    let replacementAttempted = false;
+    const cleaner = new OperationEvidenceArtifactStore({
+      workspacePolicy: policy,
+      atomicFiles: new AtomicFileStore(),
+      beforeEvidenceMutexAcquire: async () => {
+        replacementAttempted = true;
+        const script = String.raw`
+          const fs = require('node:fs');
+          try {
+            fs.renameSync(process.argv[1], process.argv[2]);
+            fs.symlinkSync(process.argv[3], process.argv[1], process.platform === 'win32' ? 'junction' : 'dir');
+          } catch { process.exitCode = 2; }
+        `;
+        const child = spawn(
+          process.execPath,
+          ['-e', script, evidenceRoot, displacedEvidenceRoot, outside],
+          { stdio: 'ignore', windowsHide: true },
+        );
+        await new Promise<void>(resolveExit => child.once('exit', () => resolveExit()));
+      },
+    } as never);
+
+    await cleaner.removeLinked({ workspaceId, operationId, artifact }).catch(() => undefined);
+
+    expect(replacementAttempted).toBe(true);
+    await expect(readFile(join(outsideOperation, 'cleanup-intent.v1.json'))).resolves.toBeDefined();
+    await expect(readFile(join(outsideOperation, 'result.v1.json'))).resolves.toEqual(bytes);
+  });
+
+  it.skipIf(process.platform === 'win32')(
+    'reads the cleanup marker through the retained operation directory after a pathname replacement',
+    async () => {
+      const sandbox = await mkdtemp(join(tmpdir(), 'sfp-result-marker-retained-read-'));
+      roots.push(sandbox);
+      const { workspaceRoot, workspaceId, policy } = await realWorkspaceAuthority(sandbox);
+      const operationId = 'operation-result-marker-retained-read';
+      const options = createToolInvocationOptions(true, operationId, workspaceId);
+      const bytes = Buffer.from('{"owned":true}');
+      const writer = new OperationEvidenceArtifactStore({
+        workspacePolicy: policy,
+        atomicFiles: new AtomicFileStore(),
+      });
+      const artifact = await writer.createNew({
+        workspaceId,
+        operationId,
+        intent: options.captureIntent,
+        canonicalRedactedBytes: bytes,
+        resultSchemaHash: `sha256:${'a'.repeat(64)}`,
+        resultHash: `sha256:${createHash('sha256').update(bytes).digest('hex')}`,
+      });
+      const operationDirectory = dirname(join(workspaceRoot, artifact.artifactRelativePath));
+      const displacedOperation = join(sandbox, 'owned-operation-marker-read');
+      const outsideOperation = join(sandbox, 'outside-operation-marker-read');
+      await mkdir(outsideOperation);
+      const outsideMarker = join(outsideOperation, 'cleanup-intent.v1.json');
+      await writeFile(outsideMarker, Buffer.alloc(65_537, 0x78));
+      let replaced = false;
+      let reachedCommit = false;
+      const cleaner = new OperationEvidenceArtifactStore({
+        workspacePolicy: policy,
+        atomicFiles: new AtomicFileStore(),
+        afterCleanupDirectoryChainOpen: async () => {
+          await rename(operationDirectory, displacedOperation);
+          await symlink(outsideOperation, operationDirectory, 'dir');
+          replaced = true;
+        },
+        beforeMarkerCleanupCommit: async () => {
+          reachedCommit = true;
+        },
+      } as never);
+
+      await expect(
+        cleaner.removeLinked({ workspaceId, operationId, artifact }),
+      ).rejects.toMatchObject({ code: 'EVIDENCE_ARTIFACT_IDENTITY_MISMATCH' });
+
+      expect(replaced).toBe(true);
+      expect(reachedCommit).toBe(true);
+      await expect(readFile(outsideMarker)).resolves.toHaveLength(65_537);
+      await expect(
+        readFile(join(displacedOperation, 'cleanup-intent.v1.json')),
+      ).resolves.toBeDefined();
+      await expect(readFile(join(displacedOperation, 'result.v1.json'))).resolves.toEqual(bytes);
+    },
+  );
+
+  it('releases the cleanup directory chain when its post-open hook fails', async () => {
+    const sandbox = await mkdtemp(join(tmpdir(), 'sfp-result-marker-hook-release-'));
+    roots.push(sandbox);
+    const { workspaceRoot, workspaceId, policy } = await realWorkspaceAuthority(sandbox);
+    const operationId = 'operation-result-marker-hook-release';
+    const options = createToolInvocationOptions(true, operationId, workspaceId);
+    const bytes = Buffer.from('{"owned":true}');
+    const writer = new OperationEvidenceArtifactStore({
+      workspacePolicy: policy,
+      atomicFiles: new AtomicFileStore(),
+    });
+    const artifact = await writer.createNew({
+      workspaceId,
+      operationId,
+      intent: options.captureIntent,
+      canonicalRedactedBytes: bytes,
+      resultSchemaHash: `sha256:${'a'.repeat(64)}`,
+      resultHash: `sha256:${createHash('sha256').update(bytes).digest('hex')}`,
+    });
+    const operationDirectory = dirname(join(workspaceRoot, artifact.artifactRelativePath));
+    const movedOperation = join(sandbox, 'moved-after-hook-failure');
+    const cleaner = new OperationEvidenceArtifactStore({
+      workspacePolicy: policy,
+      atomicFiles: new AtomicFileStore(),
+      afterCleanupDirectoryChainOpen: async () => {
+        throw Object.assign(new Error('injected post-open failure'), {
+          code: 'TEST_POST_OPEN_FAILURE',
+        });
+      },
+    } as never);
+
+    await expect(
+      cleaner.removeLinked({ workspaceId, operationId, artifact }),
+    ).rejects.toMatchObject({ code: 'TEST_POST_OPEN_FAILURE' });
+    await expect(rename(operationDirectory, movedOperation)).resolves.toBeUndefined();
+    await expect(readFile(join(movedOperation, 'cleanup-intent.v1.json'))).resolves.toBeDefined();
+    await expect(readFile(join(movedOperation, 'result.v1.json'))).resolves.toEqual(bytes);
+  });
+
+  it('releases a Windows directory lease on every post-acquire validation failure', async () => {
+    if (process.platform !== 'win32') return;
+    const sandbox = await mkdtemp(join(tmpdir(), 'sfp-result-post-acquire-release-'));
+    roots.push(sandbox);
+    const { workspaceRoot, workspaceId, policy } = await realWorkspaceAuthority(sandbox);
+    const operationId = 'operation-result-post-acquire-release';
+    const options = createToolInvocationOptions(true, operationId, workspaceId);
+    const bytes = Buffer.from('{"owned":true}');
+    const writer = new OperationEvidenceArtifactStore({
+      workspacePolicy: policy,
+      atomicFiles: new AtomicFileStore(),
+    });
+    const artifact = await writer.createNew({
+      workspaceId,
+      operationId,
+      intent: options.captureIntent,
+      canonicalRedactedBytes: bytes,
+      resultSchemaHash: `sha256:${'a'.repeat(64)}`,
+      resultHash: `sha256:${createHash('sha256').update(bytes).digest('hex')}`,
+    });
+    const operationDirectory = dirname(join(workspaceRoot, artifact.artifactRelativePath));
+    let injected = false;
+    const cleaner = new OperationEvidenceArtifactStore({
+      workspacePolicy: policy,
+      atomicFiles: new AtomicFileStore(),
+      afterDirectoryLeaseAcquire: async (path: string) => {
+        if (path !== operationDirectory) return;
+        injected = true;
+        throw Object.assign(new Error('post-acquire validation failure'), {
+          code: 'TEST_POST_ACQUIRE_VALIDATION_FAILURE',
+        });
+      },
+    } as never);
+
+    await expect(
+      cleaner.removeLinked({ workspaceId, operationId, artifact }),
+    ).rejects.toBeDefined();
+    expect(injected).toBe(true);
+    const moved = join(sandbox, 'operation-moved-after-release');
+    const child = spawn(
+      process.execPath,
+      [
+        '-e',
+        "require('node:fs').renameSync(process.argv[1], process.argv[2])",
+        operationDirectory,
+        moved,
+      ],
+      { stdio: 'ignore', windowsHide: true },
+    );
+    const exitCode = await new Promise<number | null>(resolveExit =>
+      child.once('exit', code => resolveExit(code)),
+    );
+    expect(exitCode).toBe(0);
+  });
+
+  it.each(['cleanup', 'discovery'] as const)(
+    'creates nothing outside the retained evidence root during result %s replacement',
+    async action => {
+      const sandbox = await mkdtemp(join(tmpdir(), `sfp-result-${action}-mutex-authority-`));
+      roots.push(sandbox);
+      const { workspaceRoot, workspaceId, policy } = await realWorkspaceAuthority(sandbox);
+      const operationId = `operation-result-${action}-mutex-authority`;
+      const options = createToolInvocationOptions(true, operationId, workspaceId);
+      const bytes = Buffer.from('{"owned":true}');
+      const writer = new OperationEvidenceArtifactStore({
+        workspacePolicy: policy,
+        atomicFiles: new AtomicFileStore(),
+      });
+      const artifact = await writer.createNew({
+        workspaceId,
+        operationId,
+        intent: options.captureIntent,
+        canonicalRedactedBytes: bytes,
+        resultSchemaHash: `sha256:${'a'.repeat(64)}`,
+        resultHash: `sha256:${createHash('sha256').update(bytes).digest('hex')}`,
+      });
+      const evidenceRoot = join(workspaceRoot, '.sfp', 'operation-evidence');
+      const displaced = join(sandbox, `owned-evidence-root-${action}`);
+      const outside = join(sandbox, 'outside');
+      await mkdir(outside);
+      let replacementAttempted = false;
+      let outsideWhileLocked: readonly string[] = [];
+      const store = new OperationEvidenceArtifactStore({
+        workspacePolicy: policy,
+        atomicFiles: new AtomicFileStore(),
+        beforeEvidenceMutexAcquire: async () => {
+          replacementAttempted = true;
+          const script = String.raw`
+            const fs = require('node:fs');
+            try {
+              fs.renameSync(process.argv[1], process.argv[2]);
+              fs.symlinkSync(process.argv[3], process.argv[1], process.platform === 'win32' ? 'junction' : 'dir');
+            } catch { process.exitCode = 2; }
+          `;
+          const child = spawn(process.execPath, ['-e', script, evidenceRoot, displaced, outside], {
+            stdio: 'ignore',
+            windowsHide: true,
+          });
+          await new Promise<void>(resolveExit => child.once('exit', () => resolveExit()));
+        },
+        afterEvidenceMutexAcquire: async () => {
+          outsideWhileLocked = await readdir(outside);
+        },
+      } as never);
+
+      if (action === 'cleanup') {
+        await store.removeLinked({ workspaceId, operationId, artifact }).catch(() => undefined);
+      } else {
+        await store
+          .discoverAndCleanupOrphans({ workspaceId, hasLinkedEvidence: async () => true })
+          .catch(() => undefined);
+      }
+
+      expect(replacementAttempted).toBe(true);
+      expect(outsideWhileLocked).toEqual([]);
+      expect(await readdir(outside)).toEqual([]);
+    },
+  );
+
   it('writes canonical redacted bytes create-new and verifies the returned digest', async () => {
     const root = await mkdtemp(join(tmpdir(), 'sfp-artifact-'));
     roots.push(root);
@@ -125,6 +510,47 @@ describe('operation evidence result artifact store', () => {
     });
   });
 
+  it('classifies a post-preflight create-new winner as a capture race and preserves foreign bytes', async () => {
+    const root = await mkdtemp(join(tmpdir(), 'sfp-artifact-create-race-'));
+    roots.push(root);
+    const workspaceId = '123e4567-e89b-42d3-a456-426614174000';
+    const operationId = 'operation-capture-create-race';
+    const options = createToolInvocationOptions(true, operationId, workspaceId);
+    const target = join(root, options.captureIntent.relativePath as string);
+    const foreign = Buffer.from('{"foreign":true}', 'utf8');
+    let armed = true;
+    const store = new OperationEvidenceArtifactStore({
+      workspacePolicy: {
+        resolveWrite: async (_workspace, relative) => ({
+          path: join(root, relative),
+          overwrites: false,
+        }),
+        resolveRead: async (_workspace, relative) => join(root, relative),
+        assertWithinRoot: async () => undefined,
+      },
+      atomicFiles: new AtomicFileStore({
+        beforeLink: async path => {
+          if (!armed || path.endsWith('cleanup-intent.v1.json')) return;
+          armed = false;
+          await writeFile(path, foreign, { flag: 'wx' });
+        },
+      }),
+    });
+    const owned = Buffer.from('{"owned":true}', 'utf8');
+
+    await expect(
+      store.createNew({
+        workspaceId,
+        operationId,
+        intent: options.captureIntent,
+        canonicalRedactedBytes: owned,
+        resultSchemaHash: `sha256:${'a'.repeat(64)}`,
+        resultHash: `sha256:${createHash('sha256').update(owned).digest('hex')}`,
+      }),
+    ).rejects.toMatchObject({ code: 'CAPTURE_CREATE_RACE' });
+    await expect(readFile(target)).resolves.toEqual(foreign);
+  });
+
   it('synchronously removes an expired linked artifact only after fixed-path and digest verification', async () => {
     const root = await mkdtemp(join(tmpdir(), 'sfp-artifact-retention-'));
     roots.push(root);
@@ -158,7 +584,7 @@ describe('operation evidence result artifact store', () => {
     await expect(stat(target)).rejects.toMatchObject({ code: 'ENOENT' });
   });
 
-  it('retains one recognized verified marker quarantine under the default platform policy', async () => {
+  it('deletes the verified marker quarantine under the default platform policy', async () => {
     const root = await mkdtemp(join(tmpdir(), 'sfp-artifact-posix-retained-marker-'));
     roots.push(root);
     const workspaceId = '123e4567-e89b-42d3-a456-426614174000';
@@ -187,8 +613,6 @@ describe('operation evidence result artifact store', () => {
       resultSchemaHash: `sha256:${'a'.repeat(64)}`,
       resultHash: `sha256:${createHash('sha256').update(bytes).digest('hex')}`,
     });
-    const verifiedMarker = await readFile(marker);
-
     await store.removeLinked({ workspaceId, operationId, artifact });
     await expect(
       store.removeLinked({ workspaceId, operationId, artifact }),
@@ -199,10 +623,7 @@ describe('operation evidence result artifact store', () => {
     const retainedNames = (await readdir(dirname(marker))).filter(name =>
       /^\.cleanup-intent\.v1\.json\.[0-9a-f]{64}\.[0-9a-f]{32}\.retained$/u.test(name),
     );
-    expect(retainedNames).toHaveLength(1);
-    await expect(readFile(join(dirname(marker), retainedNames[0] as string))).resolves.toEqual(
-      verifiedMarker,
-    );
+    expect(retainedNames).toEqual([]);
 
     let absenceProofs = 0;
     await store.discoverAndCleanupOrphans({
@@ -213,9 +634,6 @@ describe('operation evidence result artifact store', () => {
       },
     });
     expect(absenceProofs).toBe(0);
-    await expect(readFile(join(dirname(marker), retainedNames[0] as string))).resolves.toEqual(
-      verifiedMarker,
-    );
   });
 
   it('recovers a receipt cleanup crash after removeLinked and durably completes the intent', async () => {
@@ -403,10 +821,187 @@ describe('operation evidence result artifact store', () => {
         atomicFiles: new AtomicFileStore(),
       });
       await restarted.removeLinked({ workspaceId, operationId, artifact });
-      await expect(stat(artifactQuarantine)).rejects.toMatchObject({ code: 'ENOENT' });
+      await expect(readFile(artifactQuarantine)).rejects.toMatchObject({ code: 'ENOENT' });
       await expect(
         readFile(join(dirname(target), retainedNames[0] as string)),
-      ).resolves.toBeDefined();
+      ).rejects.toMatchObject({ code: 'ENOENT' });
+      await expect(
+        restarted.removeLinked({ workspaceId, operationId, artifact }),
+      ).resolves.toBeUndefined();
+    },
+  );
+
+  it('preserves a replacement installed during the artifact-quarantine async window across restart', async () => {
+    const root = await mkdtemp(join(tmpdir(), 'sfp-artifact-quarantine-replacement-'));
+    roots.push(root);
+    const { workspaceRoot, workspaceId, policy } = await realWorkspaceAuthority(root);
+    const operationId = 'operation-artifact-quarantine-replacement';
+    const options = createToolInvocationOptions(true, operationId, workspaceId);
+    const target = join(workspaceRoot, options.captureIntent.relativePath as string);
+    const bytes = Buffer.from('{"owned":true}', 'utf8');
+    const foreign = Buffer.from('{"foreign":true}', 'utf8');
+    const artifactDigest64 = createHash('sha256').update(bytes).digest('hex');
+    const quarantine = join(
+      dirname(target),
+      `.result.v1.json.${artifactDigest64}.cleanup-artifact`,
+    );
+    const displaced = join(dirname(target), 'owned-artifact-displaced-by-racer.json');
+    let replaced = false;
+    const racing = new OperationEvidenceArtifactStore({
+      workspacePolicy: policy,
+      atomicFiles: new AtomicFileStore(),
+      afterArtifactQuarantineFsync: async () => {
+        await Promise.resolve();
+        await rename(quarantine, displaced);
+        await writeFile(quarantine, foreign);
+        replaced = true;
+      },
+    } as never);
+    const artifact = await racing.createNew({
+      workspaceId,
+      operationId,
+      intent: options.captureIntent,
+      canonicalRedactedBytes: bytes,
+      resultSchemaHash: `sha256:${'a'.repeat(64)}`,
+      resultHash: `sha256:${artifactDigest64}`,
+    });
+
+    await expect(racing.removeLinked({ workspaceId, operationId, artifact })).rejects.toMatchObject(
+      { code: 'EVIDENCE_ARTIFACT_IDENTITY_MISMATCH' },
+    );
+    expect(replaced).toBe(true);
+    await expect(Promise.all([readFile(displaced), readFile(quarantine)])).resolves.toEqual([
+      bytes,
+      foreign,
+    ]);
+
+    const restarted = new OperationEvidenceArtifactStore({
+      workspacePolicy: policy,
+      atomicFiles: new AtomicFileStore(),
+    });
+    await expect(
+      restarted.removeLinked({ workspaceId, operationId, artifact }),
+    ).rejects.toMatchObject({ code: 'EVIDENCE_ARTIFACT_IDENTITY_MISMATCH' });
+    await expect(Promise.all([readFile(displaced), readFile(quarantine)])).resolves.toEqual([
+      bytes,
+      foreign,
+    ]);
+  });
+
+  it('serializes orphan publication under the retained authority and never leaves cap plus one', async () => {
+    const root = await mkdtemp(join(tmpdir(), 'sfp-orphan-retained-authority-race-'));
+    roots.push(root);
+    const { workspaceRoot, workspaceId, policy } = await realWorkspaceAuthority(root);
+    const writer = new OperationEvidenceArtifactStore({
+      workspacePolicy: policy,
+      atomicFiles: new AtomicFileStore(),
+    });
+    const bytes = Buffer.from('{"ok":true}', 'utf8');
+    const fixtures = [] as Array<{
+      operationId: string;
+      target: string;
+    }>;
+    for (const suffix of ['left', 'right']) {
+      const operationId = `operation-orphan-authority-${suffix}`;
+      const options = createToolInvocationOptions(true, operationId, workspaceId);
+      const target = join(workspaceRoot, options.captureIntent.relativePath as string);
+      await writer.createNew({
+        workspaceId,
+        operationId,
+        intent: options.captureIntent,
+        canonicalRedactedBytes: bytes,
+        resultSchemaHash: `sha256:${'a'.repeat(64)}`,
+        resultHash: `sha256:${createHash('sha256').update(bytes).digest('hex')}`,
+      });
+      await unlink(target);
+      fixtures.push({ operationId, target });
+    }
+    const createCleaner = () =>
+      new OperationEvidenceArtifactStore({
+        workspacePolicy: policy,
+        atomicFiles: new AtomicFileStore(),
+        retainedMarkerLimits: { maxRows: 1, maxBytes: 1_000_000, maxScanEntries: 64 },
+      } as never);
+    const cleanOwned = async (ownedOperationId: string) =>
+      createCleaner().discoverAndCleanupOrphans({
+        workspaceId,
+        hasLinkedEvidence: async observedOperationId => {
+          await Promise.resolve();
+          return observedOperationId !== ownedOperationId;
+        },
+      });
+
+    const states = await Promise.all(fixtures.map(fixture => cleanOwned(fixture.operationId)));
+    expect(states).toContainEqual(
+      expect.objectContaining({
+        status: 'manual-cleanup',
+        errorCode: 'EVIDENCE_RETAINED_MARKER_CAPACITY_EXCEEDED',
+      }),
+    );
+    const operationNames = await readdir(join(workspaceRoot, '.sfp', 'operation-evidence'));
+    const childNames = await Promise.all(
+      operationNames.map(name => readdir(join(workspaceRoot, '.sfp', 'operation-evidence', name))),
+    );
+    expect(childNames.flat().filter(name => name.endsWith('.retained'))).toHaveLength(1);
+    expect(childNames.flat().filter(name => name === 'cleanup-intent.v1.json')).toHaveLength(1);
+  });
+
+  it.each(['root', 'child'] as const)(
+    'bounds sparse %s enumeration before materialization and stays ready across restart',
+    async level => {
+      const root = await mkdtemp(join(tmpdir(), `sfp-orphan-sparse-${level}-`));
+      roots.push(root);
+      const workspaceId = '123e4567-e89b-42d3-a456-426614174000';
+      const evidenceRoot = join(root, '.sfp', 'operation-evidence');
+      await mkdir(evidenceRoot, { recursive: true });
+      const sparseRoot = level === 'root' ? evidenceRoot : join(evidenceRoot, 'a'.repeat(64));
+      await mkdir(sparseRoot, { recursive: true });
+      for (let index = 0; index < 12; index += 1) {
+        await writeFile(join(sparseRoot, `sparse-${String(index).padStart(2, '0')}`), 'x');
+      }
+      const policy: WorkspacePolicy = {
+        resolveWrite: async (_workspace, relative) => ({
+          path: join(root, relative),
+          overwrites: false,
+        }),
+        resolveRead: async (_workspace, relative) => join(root, relative),
+        assertWithinRoot: async () => undefined,
+      };
+      const discover = () =>
+        new OperationEvidenceArtifactStore({
+          workspacePolicy: policy,
+          atomicFiles: new AtomicFileStore(),
+          retainedMarkerLimits: { maxRows: 2, maxBytes: 1_000_000, maxScanEntries: 4 },
+        } as never);
+      let linkedEvidenceChecks = 0;
+      const runDiscovery = () =>
+        discover().discoverAndCleanupOrphans({
+          workspaceId,
+          hasLinkedEvidence: async () => {
+            linkedEvidenceChecks += 1;
+            return false;
+          },
+        });
+
+      const first = await runDiscovery();
+      const restarted = await runDiscovery();
+      expect(first).toMatchObject({
+        status: 'manual-cleanup',
+        errorCode: 'EVIDENCE_RETAINED_MARKER_CAPACITY_EXCEEDED',
+        scannedEntries: 4,
+        retainedRows: 0,
+        retainedBytes: 0,
+      });
+      expect(restarted).toEqual(first);
+      expect(linkedEvidenceChecks).toBe(0);
+      const readinessOptions = createToolInvocationOptions(
+        true,
+        `operation-ready-after-${level}-bound`,
+        workspaceId,
+      );
+      await expect(discover().preflight(workspaceId, readinessOptions.captureIntent)).resolves.toBe(
+        join(root, readinessOptions.captureIntent.relativePath as string),
+      );
     },
   );
 
@@ -442,18 +1037,27 @@ describe('operation evidence result artifact store', () => {
       workspacePolicy: policy,
       atomicFiles: new AtomicFileStore(),
       retainedMarkerLimits: { maxRows: 2, maxBytes: 1_000_000, maxScanEntries: 64 },
+      afterRetainedMarkerFsync: async () => {
+        throw Object.assign(new Error('hold retained row for cap test'), {
+          code: 'TEST_RETAINED_ROW_HELD',
+        });
+      },
     } as never);
 
-    await capped.removeLinked({
-      workspaceId,
-      operationId: fixtures[0]?.operationId as string,
-      artifact: fixtures[0]?.artifact as Readonly<ResultArtifactV1>,
-    });
-    await capped.removeLinked({
-      workspaceId,
-      operationId: fixtures[1]?.operationId as string,
-      artifact: fixtures[1]?.artifact as Readonly<ResultArtifactV1>,
-    });
+    await expect(
+      capped.removeLinked({
+        workspaceId,
+        operationId: fixtures[0]?.operationId as string,
+        artifact: fixtures[0]?.artifact as Readonly<ResultArtifactV1>,
+      }),
+    ).rejects.toMatchObject({ code: 'TEST_RETAINED_ROW_HELD' });
+    await expect(
+      capped.removeLinked({
+        workspaceId,
+        operationId: fixtures[1]?.operationId as string,
+        artifact: fixtures[1]?.artifact as Readonly<ResultArtifactV1>,
+      }),
+    ).rejects.toMatchObject({ code: 'TEST_RETAINED_ROW_HELD' });
     await expect(
       capped.removeLinked({
         workspaceId,
@@ -508,16 +1112,23 @@ describe('operation evidence result artifact store', () => {
       atomicFiles: new AtomicFileStore(),
       retainedMarkerLimits: {
         maxRows: 10,
-        maxBytes: fixtures[0]?.markerBytes as number,
+        maxBytes: (fixtures[0]?.markerBytes as number) + bytes.byteLength,
         maxScanEntries: 64,
+      },
+      afterRetainedMarkerFsync: async () => {
+        throw Object.assign(new Error('hold retained bytes for cap test'), {
+          code: 'TEST_RETAINED_BYTES_HELD',
+        });
       },
     } as never);
 
-    await capped.removeLinked({
-      workspaceId,
-      operationId: fixtures[0]?.operationId as string,
-      artifact: fixtures[0]?.artifact as Readonly<ResultArtifactV1>,
-    });
+    await expect(
+      capped.removeLinked({
+        workspaceId,
+        operationId: fixtures[0]?.operationId as string,
+        artifact: fixtures[0]?.artifact as Readonly<ResultArtifactV1>,
+      }),
+    ).rejects.toMatchObject({ code: 'TEST_RETAINED_BYTES_HELD' });
     await expect(
       capped.removeLinked({
         workspaceId,
@@ -611,7 +1222,8 @@ describe('operation evidence result artifact store', () => {
 
     await store.removeLinked({ workspaceId, operationId, artifact });
 
-    expect(await readdir(dirname(target))).toEqual([]);
+    const retained = await readdir(dirname(target));
+    expect(retained).toEqual([]);
   });
 
   it('fails closed when discovery finds more than one recognized retained marker quarantine', async () => {
@@ -659,7 +1271,10 @@ describe('operation evidence result artifact store', () => {
         workspaceId,
         hasLinkedEvidence: async () => false,
       }),
-    ).rejects.toMatchObject({ code: 'EVIDENCE_ARTIFACT_IDENTITY_MISMATCH' });
+    ).resolves.toMatchObject({
+      status: 'manual-cleanup',
+      errorCode: 'EVIDENCE_ARTIFACT_IDENTITY_MISMATCH',
+    });
     await expect(
       Promise.all(retainedNames.map(name => readFile(join(dirname(marker), name)))),
     ).resolves.toEqual([verifiedMarker, verifiedMarker]);
@@ -1236,7 +1851,10 @@ describe('operation evidence result artifact store', () => {
         workspaceId,
         hasLinkedEvidence: async () => false,
       }),
-    ).rejects.toMatchObject({ code: 'EVIDENCE_ARTIFACT_IDENTITY_MISMATCH' });
+    ).resolves.toMatchObject({
+      status: 'manual-cleanup',
+      errorCode: 'EVIDENCE_ARTIFACT_IDENTITY_MISMATCH',
+    });
     await expect(readFile(marker)).resolves.toEqual(replacement);
     await expect(stat(displaced)).resolves.toBeDefined();
   });
@@ -1373,7 +1991,10 @@ describe('operation evidence result artifact store', () => {
           workspaceId,
           hasLinkedEvidence: async () => false,
         }),
-      ).rejects.toMatchObject({ code: 'EVIDENCE_ARTIFACT_IDENTITY_MISMATCH' });
+      ).resolves.toMatchObject({
+        status: 'manual-cleanup',
+        errorCode: 'EVIDENCE_ARTIFACT_IDENTITY_MISMATCH',
+      });
       await expect(readFile(alias)).resolves.toBeDefined();
       await expect(lstat(marker)).resolves.toBeDefined();
     },
@@ -1427,8 +2048,270 @@ describe('operation evidence result artifact store', () => {
         workspaceId,
         hasLinkedEvidence: async () => false,
       }),
-    ).resolves.toBeUndefined();
+    ).resolves.toMatchObject({ status: 'ready' });
     await expect(readFile(join(displaced, 'cleanup-intent.v1.json'))).resolves.toBeDefined();
     expect((await lstat(operationDirectory)).isSymbolicLink()).toBe(true);
+  });
+
+  it('deletes verified result marker and artifact quarantines and remains idempotent', async () => {
+    const root = await mkdtemp(join(tmpdir(), 'sfp-artifact-retained-result-'));
+    roots.push(root);
+    const workspaceId = '123e4567-e89b-42d3-a456-426614174000';
+    const operationId = 'operation-retained-result-quarantine';
+    const options = createToolInvocationOptions(true, operationId, workspaceId);
+    const policy: WorkspacePolicy = {
+      resolveWrite: async (_workspace, relative) => ({
+        path: join(root, relative),
+        overwrites: false,
+      }),
+      resolveRead: async (_workspace, relative) => join(root, relative),
+      assertWithinRoot: async () => undefined,
+    };
+    const store = new OperationEvidenceArtifactStore({
+      workspacePolicy: policy,
+      atomicFiles: new AtomicFileStore(),
+    });
+    const bytes = Buffer.from('{"owned":true}', 'utf8');
+    const artifact = await store.createNew({
+      workspaceId,
+      operationId,
+      intent: options.captureIntent,
+      canonicalRedactedBytes: bytes,
+      resultSchemaHash: `sha256:${'a'.repeat(64)}`,
+      resultHash: `sha256:${createHash('sha256').update(bytes).digest('hex')}`,
+    });
+    const quarantine = join(
+      dirname(join(root, options.captureIntent.relativePath as string)),
+      `.result.v1.json.${artifact.artifactDigest64}.cleanup-artifact`,
+    );
+
+    await store.removeLinked({ workspaceId, operationId, artifact });
+    await expect(readFile(quarantine)).rejects.toMatchObject({ code: 'ENOENT' });
+    expect((await readdir(dirname(quarantine))).filter(name => name.endsWith('.retained'))).toEqual(
+      [],
+    );
+    await expect(
+      store.removeLinked({ workspaceId, operationId, artifact }),
+    ).resolves.toBeUndefined();
+    await expect(readFile(quarantine)).rejects.toMatchObject({ code: 'ENOENT' });
+  });
+
+  it('returns a typed manual-cleanup state for a non-missing evidence-root policy failure', async () => {
+    const store = new OperationEvidenceArtifactStore({
+      workspacePolicy: {
+        resolveWrite: async () => ({ path: 'unused', overwrites: false }),
+        resolveRead: async () => {
+          throw Object.assign(new Error('root reparse'), { code: 'WORKSPACE_PATH_REPARSE' });
+        },
+        assertWithinRoot: async () => undefined,
+      },
+      atomicFiles: new AtomicFileStore(),
+    });
+    await expect(
+      store.discoverAndCleanupOrphans({
+        workspaceId: '123e4567-e89b-42d3-a456-426614174000',
+        hasLinkedEvidence: async () => false,
+      }),
+    ).resolves.toMatchObject({
+      status: 'manual-cleanup',
+      errorCode: 'EVIDENCE_ARTIFACT_IDENTITY_MISMATCH',
+      scannedEntries: 0,
+    });
+  });
+
+  it('returns bounded manual-cleanup for malformed fixed marker JSON and preserves it', async () => {
+    const root = await mkdtemp(join(tmpdir(), 'sfp-malformed-orphan-marker-'));
+    roots.push(root);
+    const workspaceId = '123e4567-e89b-42d3-a456-426614174000';
+    const operationId = 'operation-malformed-marker';
+    const options = createToolInvocationOptions(true, operationId, workspaceId);
+    const target = join(root, options.captureIntent.relativePath as string);
+    const marker = join(dirname(target), 'cleanup-intent.v1.json');
+    const policy: WorkspacePolicy = {
+      resolveWrite: async (_workspace, relative) => ({
+        path: join(root, relative),
+        overwrites: false,
+      }),
+      resolveRead: async (_workspace, relative) => join(root, relative),
+      assertWithinRoot: async () => undefined,
+    };
+    const store = new OperationEvidenceArtifactStore({
+      workspacePolicy: policy,
+      atomicFiles: new AtomicFileStore(),
+    });
+    const bytes = Buffer.from('{"owned":true}', 'utf8');
+    await store.createNew({
+      workspaceId,
+      operationId,
+      intent: options.captureIntent,
+      canonicalRedactedBytes: bytes,
+      resultSchemaHash: `sha256:${'a'.repeat(64)}`,
+      resultHash: `sha256:${createHash('sha256').update(bytes).digest('hex')}`,
+    });
+    await unlink(target);
+    const malformed = Buffer.from('{not-json\n', 'utf8');
+    await writeFile(marker, malformed);
+
+    await expect(
+      store.discoverAndCleanupOrphans({ workspaceId, hasLinkedEvidence: async () => false }),
+    ).resolves.toMatchObject({
+      status: 'manual-cleanup',
+      errorCode: 'EVIDENCE_ARTIFACT_IDENTITY_MISMATCH',
+    });
+    await expect(readFile(marker)).resolves.toEqual(malformed);
+  });
+
+  it.each(['null\n', '[]\n', '{}\n'])(
+    'turns valid JSON with the wrong marker shape into typed manual cleanup: %s',
+    async wrongShape => {
+      const root = await mkdtemp(join(tmpdir(), 'sfp-wrong-shape-orphan-marker-'));
+      roots.push(root);
+      const workspaceId = '123e4567-e89b-42d3-a456-426614174000';
+      const operationId = `operation-wrong-shape-${createHash('sha256').update(wrongShape).digest('hex').slice(0, 8)}`;
+      const options = createToolInvocationOptions(true, operationId, workspaceId);
+      const target = join(root, options.captureIntent.relativePath as string);
+      const marker = join(dirname(target), 'cleanup-intent.v1.json');
+      const policy: WorkspacePolicy = {
+        resolveWrite: async (_workspace, relative) => ({
+          path: join(root, relative),
+          overwrites: false,
+        }),
+        resolveRead: async (_workspace, relative) => join(root, relative),
+        assertWithinRoot: async () => undefined,
+      };
+      const store = new OperationEvidenceArtifactStore({
+        workspacePolicy: policy,
+        atomicFiles: new AtomicFileStore(),
+      });
+      const bytes = Buffer.from('{"owned":true}');
+      await store.createNew({
+        workspaceId,
+        operationId,
+        intent: options.captureIntent,
+        canonicalRedactedBytes: bytes,
+        resultSchemaHash: `sha256:${'a'.repeat(64)}`,
+        resultHash: `sha256:${createHash('sha256').update(bytes).digest('hex')}`,
+      });
+      await unlink(target);
+      await writeFile(marker, wrongShape);
+
+      await expect(
+        store.discoverAndCleanupOrphans({ workspaceId, hasLinkedEvidence: async () => false }),
+      ).resolves.toMatchObject({
+        status: 'manual-cleanup',
+        errorCode: 'EVIDENCE_ARTIFACT_IDENTITY_MISMATCH',
+      });
+      await expect(readFile(marker, 'utf8')).resolves.toBe(wrongShape);
+    },
+  );
+
+  it('charges retained result artifact bytes as well as marker bytes to the global cap', async () => {
+    const root = await mkdtemp(join(tmpdir(), 'sfp-result-retained-byte-cap-'));
+    roots.push(root);
+    const workspaceId = '123e4567-e89b-42d3-a456-426614174000';
+    const policy: WorkspacePolicy = {
+      resolveWrite: async (_workspace, relative) => ({
+        path: join(root, relative),
+        overwrites: false,
+      }),
+      resolveRead: async (_workspace, relative) => join(root, relative),
+      assertWithinRoot: async () => undefined,
+    };
+    const writer = new OperationEvidenceArtifactStore({
+      workspacePolicy: policy,
+      atomicFiles: new AtomicFileStore(),
+    });
+    const bytes = Buffer.alloc(128, 7);
+    const fixtures = [] as Array<{
+      operationId: string;
+      artifact: Awaited<ReturnType<OperationEvidenceArtifactStore['createNew']>>;
+      marker: string;
+      target: string;
+    }>;
+    for (const suffix of ['a', 'b']) {
+      const operationId = `operation-retained-byte-${suffix}`;
+      const options = createToolInvocationOptions(true, operationId, workspaceId);
+      const target = join(root, options.captureIntent.relativePath as string);
+      const artifact = await writer.createNew({
+        workspaceId,
+        operationId,
+        intent: options.captureIntent,
+        canonicalRedactedBytes: bytes,
+        resultSchemaHash: `sha256:${'a'.repeat(64)}`,
+        resultHash: `sha256:${createHash('sha256').update(bytes).digest('hex')}`,
+      });
+      fixtures.push({
+        operationId,
+        artifact,
+        target,
+        marker: join(dirname(target), 'cleanup-intent.v1.json'),
+      });
+    }
+    const markerBytes = (await stat(fixtures[0]!.marker)).size;
+    const cleaner = new OperationEvidenceArtifactStore({
+      workspacePolicy: policy,
+      atomicFiles: new AtomicFileStore(),
+      retainedMarkerLimits: { maxRows: 10, maxBytes: markerBytes * 2, maxScanEntries: 100 },
+      afterRetainedMarkerFsync: async () => {
+        throw Object.assign(new Error('hold retained artifact bytes for cap test'), {
+          code: 'TEST_RETAINED_ARTIFACT_HELD',
+        });
+      },
+    } as never);
+
+    await expect(
+      cleaner.removeLinked({
+        workspaceId,
+        operationId: fixtures[0]!.operationId,
+        artifact: fixtures[0]!.artifact,
+      }),
+    ).rejects.toMatchObject({ code: 'TEST_RETAINED_ARTIFACT_HELD' });
+    await expect(
+      cleaner.removeLinked({
+        workspaceId,
+        operationId: fixtures[1]!.operationId,
+        artifact: fixtures[1]!.artifact,
+      }),
+    ).rejects.toMatchObject({ code: 'EVIDENCE_RETAINED_MARKER_CAPACITY_EXCEEDED' });
+    await expect(readFile(fixtures[1]!.target)).resolves.toEqual(bytes);
+  });
+
+  it('uses one truthful scan counter across retained pre-scan and orphan processing', async () => {
+    const root = await mkdtemp(join(tmpdir(), 'sfp-shared-orphan-scan-budget-'));
+    roots.push(root);
+    const workspaceId = '123e4567-e89b-42d3-a456-426614174000';
+    const operationId = 'operation-shared-scan-counter';
+    const options = createToolInvocationOptions(true, operationId, workspaceId);
+    const policy: WorkspacePolicy = {
+      resolveWrite: async (_workspace, relative) => ({
+        path: join(root, relative),
+        overwrites: false,
+      }),
+      resolveRead: async (_workspace, relative) => join(root, relative),
+      assertWithinRoot: async () => undefined,
+    };
+    const store = new OperationEvidenceArtifactStore({
+      workspacePolicy: policy,
+      atomicFiles: new AtomicFileStore(),
+      retainedMarkerLimits: { maxRows: 4, maxBytes: 1_000_000, maxScanEntries: 4 },
+    } as never);
+    const bytes = Buffer.from('{"owned":true}');
+    await store.createNew({
+      workspaceId,
+      operationId,
+      intent: options.captureIntent,
+      canonicalRedactedBytes: bytes,
+      resultSchemaHash: `sha256:${'a'.repeat(64)}`,
+      resultHash: `sha256:${createHash('sha256').update(bytes).digest('hex')}`,
+    });
+
+    await expect(
+      store.discoverAndCleanupOrphans({ workspaceId, hasLinkedEvidence: async () => true }),
+    ).resolves.toEqual({
+      status: 'ready',
+      scannedEntries: 4,
+      retainedRows: 0,
+      retainedBytes: 0,
+    });
   });
 });

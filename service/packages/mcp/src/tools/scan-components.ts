@@ -1,5 +1,6 @@
 import { z } from 'zod';
 
+import { RepoReader } from '../fs/repo-walk.js';
 import { analyzeProject, type ProjectProfile } from '../profile/profile.js';
 import { scanComponents, type ScannedComponent } from '../scan/scan.js';
 import type { RawToolSpec } from './spec.js';
@@ -33,11 +34,15 @@ export interface ScanComponentsResult {
   profile: ProjectProfile;
 }
 
-export const handleScanComponents = async (rawArgs: unknown): Promise<ScanComponentsResult> => {
+export const handleScanComponents = async (
+  rawArgs: unknown,
+  reader?: RepoReader,
+): Promise<ScanComponentsResult> => {
   const args = inputSchema.parse(rawArgs);
-  const rootDir = args.rootDir ?? process.cwd();
-  const profile = await analyzeProject(rootDir);
+  const rootDir = reader?.rootDir ?? args.rootDir ?? process.cwd();
+  const repo = reader ?? new RepoReader({ rootDir });
+  const profile = await analyzeProject(rootDir, repo);
   const extensions = args.extensions ?? profile.componentExtensions;
-  const components = await scanComponents(rootDir, extensions);
+  const components = await scanComponents(rootDir, extensions, repo);
   return { components, profile };
 };

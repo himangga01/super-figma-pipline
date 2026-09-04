@@ -166,6 +166,9 @@ interface CancellationState {
   demoting: boolean;
   prepared: PreparedInvocation;
   demotionSettlement: Promise<void> | null;
+  terminalClaimed: boolean;
+  terminalSettlement: Promise<void>;
+  settleTerminal(): void;
 }
 
 const zero = Buffer.from([0]);
@@ -863,6 +866,10 @@ export class OperationExecutor {
         code: 'CANCEL_AUTH_SESSION_MISMATCH',
       });
     }
+    if (active.terminalClaimed) {
+      await active.terminalSettlement;
+      return;
+    }
     if (!active.controller.signal.aborted) {
       active.controller.abort(
         Object.assign(new Error('operation cancelled'), { code: 'OPERATION_CANCELLED' }),
@@ -884,6 +891,10 @@ export class OperationExecutor {
     /* eslint-disable no-await-in-loop -- demotion settlements extend one ordered durable chain */
     for (const state of this.activeControllers.values()) {
       if (state.leaderGeneration !== leaderGeneration) continue;
+      if (state.terminalClaimed) {
+        await state.terminalSettlement;
+        continue;
+      }
       state.demoting = true;
       operationIds.add(state.operationId);
       let settle!: () => void;
@@ -1457,6 +1468,8 @@ export class OperationExecutor {
           const canonicalRedactedResultBytes = Buffer.from(canonicalJson(redacted), 'utf8');
           const resultHash = hash(null, canonicalRedactedResultBytes);
           if (durability === null || this.durableFinalizer === null) {
+            controller.signal.throwIfAborted();
+            cancellation.terminalClaimed = true;
             await this.transition(prepared, 'succeeded', {
               resultHash,
               resultBytes: canonicalRedactedResultBytes.byteLength,
@@ -1475,7 +1488,13 @@ export class OperationExecutor {
               resultBytes: canonicalRedactedResultBytes.byteLength,
               payloadHash: resultHash,
             });
-            const nativeEvidence = await this.materializeNativeEvidence(prepared, redacted);
+            const nativeEvidence = await this.materializeNativeEvidence(
+              prepared,
+              redacted,
+              controller.signal,
+            );
+            controller.signal.throwIfAborted();
+            cancellation.terminalClaimed = true;
             await this.durableFinalizer.succeed({
               actorId: prepared.scope.actor.actorId,
               operationId: prepared.operationId,
@@ -1523,6 +1542,11 @@ export class OperationExecutor {
             typeof error === 'object' && error !== null && 'code' in error
               ? String((error as { code: unknown }).code)
               : 'RUNTIME_FAILED';
+          const postCommit =
+            typeof error === 'object' &&
+            error !== null &&
+            'committed' in error &&
+            error.committed === true;
           const current = this.options.journal.get(prepared.operationId);
           if (current?.status === 'dispatched') {
             if (controller.signal.aborted) {
@@ -1539,7 +1563,12 @@ export class OperationExecutor {
                 cause: error,
               });
             }
-            if (!runtimeCompleted && durability !== null && this.durableFinalizer !== null) {
+            if (
+              !runtimeCompleted &&
+              !postCommit &&
+              durability !== null &&
+              this.durableFinalizer !== null
+            ) {
               const noOutputManifest = createNoOutputEgressManifest({
                 preExecutionManifestHash: durability.preManifest.manifestHash,
                 reasonCode: controller.signal.aborted ? 'cancelled' : 'runtime-failed',
@@ -1565,16 +1594,25 @@ export class OperationExecutor {
                 completedAt: new Date(this.now()).toISOString(),
                 errorCode: code,
               });
-            } else if (runtimeCompleted && durability !== null) {
-              await this.finalizeUnknown(prepared, durability);
+            } else if ((runtimeCompleted || postCommit) && durability !== null) {
+              await this.finalizeUnknown(prepared, durability, postCommit ? code : undefined);
             } else {
-              await this.transition(prepared, runtimeCompleted ? 'outcome-unknown' : 'failed', {
-                errorCode: runtimeCompleted ? 'OPERATION_TERMINAL_DURABILITY_FAILED' : code,
-              });
+              await this.transition(
+                prepared,
+                runtimeCompleted || postCommit ? 'outcome-unknown' : 'failed',
+                {
+                  errorCode: postCommit
+                    ? code
+                    : runtimeCompleted
+                      ? 'OPERATION_TERMINAL_DURABILITY_FAILED'
+                      : code,
+                },
+              );
             }
           }
           throw error;
         } finally {
+          cancellation.settleTerminal();
           this.activeControllers.delete(prepared.operationId);
         }
       },
@@ -1696,7 +1734,9 @@ export class OperationExecutor {
   private async materializeNativeEvidence(
     prepared: PreparedRuntimeInvocation,
     redacted: unknown,
+    signal: AbortSignal,
   ): Promise<NativeEvidenceV1> {
+    signal.throwIfAborted();
     const durability = this.options.durability;
     const workspaceId = prepared.scope.workspace.workspaceId;
     if (durability === undefined || workspaceId === null) {
@@ -1710,6 +1750,7 @@ export class OperationExecutor {
       prepared.parsedArgs,
       redacted,
     );
+    signal.throwIfAborted();
     if (projection.kind === 'no-artifact') return projection;
     if (projection.kind !== 'export-candidates') {
       return { kind: 'no-artifact', reasonCode: 'not-native-evidence' };
@@ -1721,12 +1762,17 @@ export class OperationExecutor {
     return durability.nativeArtifacts.createNativeManifest({
       context: verifyNativeEvidenceContext(context, projection),
       projection,
+      signal,
     });
   }
 
   private ensureCancellationState(prepared: PreparedInvocation): CancellationState {
     const existing = this.activeControllers.get(prepared.operationId);
     if (existing !== undefined) return existing;
+    let settleTerminal!: () => void;
+    const terminalSettlement = new Promise<void>(resolve => {
+      settleTerminal = resolve;
+    });
     const state: CancellationState = {
       operationId: prepared.operationId,
       principal: prepared.scope.actor,
@@ -1739,6 +1785,9 @@ export class OperationExecutor {
       demoting: false,
       prepared,
       demotionSettlement: null,
+      terminalClaimed: false,
+      terminalSettlement,
+      settleTerminal,
     };
     this.activeControllers.set(prepared.operationId, state);
     return state;

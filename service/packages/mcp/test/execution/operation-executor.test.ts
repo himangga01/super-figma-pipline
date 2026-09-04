@@ -7,6 +7,7 @@ import {
   createToolInvocationOptions,
   NO_CAPTURE_OPTIONS,
   OPERATION_EVIDENCE_LIMITS,
+  type AbortSignalLike,
   type EgressManifestPort,
   type RuntimeExecutionScope,
 } from '@sfp/shared';
@@ -14,6 +15,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import { EgressManifestStore } from '../../src/execution/egress-manifest-store.js';
 import { FileExecutionQueue } from '../../src/execution/file-queue.js';
+import { createOperationEvidenceProjector } from '../../src/execution/operation-evidence-projector.js';
 import { OperationEvidenceReceiptStore } from '../../src/execution/operation-evidence-receipt-store.js';
 import {
   DurableOperationFinalizer,
@@ -84,6 +86,271 @@ const createRoot = async () => {
 };
 
 describe('idempotent journaled operation executor', () => {
+  it.each([`sfp_op1_${'A'.repeat(332)}.${'A'.repeat(43)}`, '\u0001'.repeat(384)])(
+    'rejects forged 384-byte operation authority through the executor before runtime or evidence IO',
+    async forgedOperationId => {
+      const root = await createRoot();
+      const issuer = operationIdIssuerFromKey(Buffer.alloc(32, 61));
+      const journal = new OperationJournal({ stateRoot: root, actorId, now: () => fixedNow });
+      const egress = new EgressManifestStore({ stateRoot: root, actorId, now: () => fixedNow });
+      const receipts = new OperationEvidenceReceiptStore({ stateRoot: root, actorId });
+      await Promise.all([journal.recover(), egress.recover(fixedNow), receipts.recover()]);
+      const runtime = vi.fn<PinnedPluginRuntimePort['execute']>(async () => ({
+        ok: true,
+        nodeId: '1:2',
+        name: 'Text',
+        type: 'TEXT',
+      }));
+      const artifactCreate = vi.fn<() => never>();
+      const artifactPreflight = vi.fn<() => never>();
+      const nativeCreate = vi.fn<() => never>();
+      const executor = new OperationExecutor({
+        issuer,
+        journal,
+        queue: new FileExecutionQueue(),
+        runtimes: createBoundRuntimeRegistry({ execute: runtime }, { execute: async () => ({}) }),
+        durability: {
+          egress,
+          receipts,
+          artifacts: { createNew: artifactCreate, preflight: artifactPreflight },
+          projector: createOperationEvidenceProjector(),
+          nativeArtifacts: { createNativeManifest: nativeCreate },
+        },
+        now: () => fixedNow,
+      });
+
+      await expect(
+        executor.invokeTool(
+          scope(),
+          'create_text',
+          { characters: 'A' },
+          forgedOperationId,
+          NO_CAPTURE_OPTIONS,
+        ),
+      ).rejects.toMatchObject({ code: expect.stringMatching(/OPERATION|TOKEN|ID/u) });
+      expect(runtime).not.toHaveBeenCalled();
+      expect(artifactPreflight).not.toHaveBeenCalled();
+      expect(artifactCreate).not.toHaveBeenCalled();
+      expect(nativeCreate).not.toHaveBeenCalled();
+      expect(journal.get(forgedOperationId)).toBeUndefined();
+    },
+  );
+
+  it('settles a typed post-commit runtime failure as outcome-unknown instead of no-output failed', async () => {
+    const root = await createRoot();
+    const issuer = operationIdIssuerFromKey(Buffer.alloc(32, 31));
+    const operationId = issuer.issue(actorId, fixedNow, {
+      nonce: 'HwAAAAAAAAAAAAAAAAAAAA',
+    });
+    const journal = new OperationJournal({ stateRoot: root, actorId, now: () => fixedNow });
+    await journal.recover();
+    const runtime = vi.fn<PinnedPluginRuntimePort['execute']>(async () => {
+      throw Object.assign(new Error('filesystem publication may be visible'), {
+        code: 'ATOMIC_COMMIT_OUTCOME_UNKNOWN',
+        committed: true,
+      });
+    });
+    const executor = new OperationExecutor({
+      issuer,
+      journal,
+      queue: new FileExecutionQueue(),
+      runtimes: createBoundRuntimeRegistry({ execute: runtime }, { execute: async () => ({}) }),
+      now: () => fixedNow,
+    });
+
+    await expect(
+      executor.invokeTool(
+        scope(),
+        'create_text',
+        { characters: 'A' },
+        operationId,
+        NO_CAPTURE_OPTIONS,
+      ),
+    ).rejects.toMatchObject({ code: 'ATOMIC_COMMIT_OUTCOME_UNKNOWN', committed: true });
+    expect(journal.get(operationId)).toMatchObject({
+      status: 'outcome-unknown',
+      errorCode: 'ATOMIC_COMMIT_OUTCOME_UNKNOWN',
+    });
+  });
+
+  it('writes an exact durable outcome-unknown finalizer with no success receipt for committed failure', async () => {
+    const root = await createRoot();
+    const issuer = operationIdIssuerFromKey(Buffer.alloc(32, 32));
+    const operationId = issuer.issue(actorId, fixedNow, {
+      nonce: 'IAAAAAAAAAAAAAAAAAAAAA',
+    });
+    const journal = new OperationJournal({ stateRoot: root, actorId, now: () => fixedNow });
+    const egress = new EgressManifestStore({ stateRoot: root, actorId, now: () => fixedNow });
+    const receipts = new OperationEvidenceReceiptStore({ stateRoot: root, actorId });
+    await Promise.all([journal.recover(), egress.recover(fixedNow), receipts.recover()]);
+    const runtime = vi.fn<PinnedPluginRuntimePort['execute']>(async () => {
+      throw Object.assign(new Error('filesystem publication may be visible'), {
+        code: 'ATOMIC_COMMIT_OUTCOME_UNKNOWN',
+        committed: true,
+      });
+    });
+    const executor = new OperationExecutor({
+      issuer,
+      journal,
+      queue: new FileExecutionQueue(),
+      runtimes: createBoundRuntimeRegistry({ execute: runtime }, { execute: async () => ({}) }),
+      durability: {
+        egress,
+        receipts,
+        artifacts: { createNew: vi.fn<() => never>() },
+        projector: {
+          project: () => ({
+            contextHash: `sha256:${'7'.repeat(64)}` as never,
+            kind: 'no-artifact',
+            reasonCode: 'not-native-evidence',
+          }),
+        },
+        nativeArtifacts: { createNativeManifest: vi.fn<() => never>() },
+      },
+      now: () => fixedNow,
+    });
+
+    await expect(
+      executor.invokeTool(
+        scope(),
+        'create_text',
+        { characters: 'A' },
+        operationId,
+        NO_CAPTURE_OPTIONS,
+      ),
+    ).rejects.toMatchObject({ code: 'ATOMIC_COMMIT_OUTCOME_UNKNOWN', committed: true });
+    const settled = journal.get(operationId);
+    expect(settled).toMatchObject({
+      status: 'outcome-unknown',
+      errorCode: 'ATOMIC_COMMIT_OUTCOME_UNKNOWN',
+      operationEvidenceReceiptHash: null,
+      finalEgressManifestHash: expect.stringMatching(/^sha256:/u),
+    });
+    const finalizer = await egress.readVerifiedFinalizer(
+      actorId,
+      operationId,
+      settled?.finalEgressManifestHash ?? null,
+    );
+    expect(finalizer).toMatchObject({
+      finalStatus: 'outcome-unknown',
+      reasonCode: 'post-runtime-durability-failed',
+    });
+    await expect(receipts.get(actorId, operationId)).resolves.toBeNull();
+
+    const restartedJournal = new OperationJournal({
+      stateRoot: root,
+      actorId,
+      now: () => fixedNow,
+    });
+    const restartedEgress = new EgressManifestStore({
+      stateRoot: root,
+      actorId,
+      now: () => fixedNow,
+    });
+    const restartedReceipts = new OperationEvidenceReceiptStore({ stateRoot: root, actorId });
+    await Promise.all([
+      restartedJournal.recover(),
+      restartedEgress.recover(fixedNow),
+      restartedReceipts.recover(),
+    ]);
+    expect(restartedJournal.get(operationId)).toEqual(settled);
+    await expect(restartedReceipts.get(actorId, operationId)).resolves.toBeNull();
+    await expect(
+      restartedEgress.readVerifiedFinalizer(
+        actorId,
+        operationId,
+        settled?.finalEgressManifestHash ?? null,
+      ),
+    ).resolves.toEqual(finalizer);
+  });
+
+  it('threads dispatched cancellation through native materialization and writes no success receipt', async () => {
+    const root = await createRoot();
+    const issuer = operationIdIssuerFromKey(Buffer.alloc(32, 33));
+    const operationId = issuer.issue(actorId, fixedNow, {
+      nonce: 'IQAAAAAAAAAAAAAAAAAAAA',
+    });
+    const workspaceId = '123e4567-e89b-42d3-a456-426614174000';
+    const journal = new OperationJournal({ stateRoot: root, actorId, now: () => fixedNow });
+    const egress = new EgressManifestStore({ stateRoot: root, actorId, now: () => fixedNow });
+    const receipts = new OperationEvidenceReceiptStore({ stateRoot: root, actorId });
+    await Promise.all([journal.recover(), egress.recover(fixedNow), receipts.recover()]);
+    let observedSignal: AbortSignalLike | undefined;
+    let materializerStarted!: () => void;
+    const started = new Promise<void>(resolve => {
+      materializerStarted = resolve;
+    });
+    const executor = new OperationExecutor({
+      issuer,
+      journal,
+      queue: new FileExecutionQueue(),
+      runtimes: createBoundRuntimeRegistry(
+        { execute: async () => ({}) },
+        {
+          execute: async () => ({
+            saved: [{ nodeId: '1:1', format: 'PNG', path: 'assets/a.png' }],
+          }),
+        },
+      ),
+      durability: {
+        egress,
+        receipts,
+        artifacts: { createNew: vi.fn<() => never>() },
+        projector: createOperationEvidenceProjector(),
+        nativeArtifacts: {
+          createNativeManifest: async ({ signal }) => {
+            if (signal === undefined) {
+              throw Object.assign(new Error('native signal missing'), {
+                code: 'TEST_NATIVE_SIGNAL_MISSING',
+              });
+            }
+            observedSignal = signal;
+            materializerStarted();
+            await new Promise<void>(resolve => signal.addEventListener('abort', () => resolve()));
+            signal.throwIfAborted();
+            throw new Error('unreachable native materializer');
+          },
+        },
+      },
+      now: () => fixedNow,
+    });
+    const invocationScope = Object.freeze({
+      ...scope(),
+      workspace: Object.freeze({ workspaceId, workspaceRoot: root }),
+      resolvedPaths: Object.freeze({
+        outDir: Object.freeze({ path: join(root, 'assets'), overwrites: false }),
+      }),
+    });
+    const invocation = executor.invokeTool(
+      invocationScope,
+      'save_screenshots',
+      { nodeIds: ['1:1'], outDir: 'assets' },
+      operationId,
+      NO_CAPTURE_OPTIONS,
+    );
+    await started;
+
+    await executor.cancel(invocationScope.actor, {
+      version: 1,
+      requestId: invocationScope.requestId,
+      operationId,
+    });
+
+    expect(observedSignal?.aborted).toBe(true);
+    await expect(invocation).rejects.toMatchObject({ code: 'OPERATION_OUTCOME_UNKNOWN' });
+    const settled = journal.get(operationId);
+    expect(settled).toMatchObject({
+      status: 'outcome-unknown',
+      errorCode: 'OPERATION_CANCELLED_AFTER_DISPATCH',
+      operationEvidenceReceiptHash: null,
+      finalEgressManifestHash: expect.stringMatching(/^sha256:/u),
+    });
+    await expect(receipts.get(actorId, operationId)).resolves.toBeNull();
+    await expect(
+      egress.readVerifiedFinalizer(actorId, operationId, settled?.finalEgressManifestHash ?? null),
+    ).resolves.toMatchObject({ finalStatus: 'outcome-unknown' });
+  });
+
   it('shares one in-flight promise, rejects mismatched args, and never replays after restart', async () => {
     const root = await createRoot();
     const issuer = operationIdIssuerFromKey(Buffer.alloc(32, 7));
@@ -571,6 +838,86 @@ describe('idempotent journaled operation executor', () => {
       errorCode: 'OPERATION_CANCELLED_AFTER_DISPATCH',
     });
     expect(runtime).toHaveBeenCalledOnce();
+  });
+
+  it('arbitrates cancellation before success receipt fsync so a claimed terminal cannot be aborted', async () => {
+    const root = await createRoot();
+    const issuer = operationIdIssuerFromKey(Buffer.alloc(32, 52));
+    const operationId = issuer.issue(actorId, fixedNow, {
+      nonce: 'NAAAAAAAAAAAAAAAAAAAAA',
+    });
+    const journal = new OperationJournal({ stateRoot: root, actorId, now: () => fixedNow });
+    const egress = new EgressManifestStore({ stateRoot: root, actorId, now: () => fixedNow });
+    const receipts = new OperationEvidenceReceiptStore({ stateRoot: root, actorId });
+    await Promise.all([journal.recover(), egress.recover(fixedNow), receipts.recover()]);
+    let observedSignal: AbortSignal | undefined;
+    const runtime = vi.fn<PinnedPluginRuntimePort['execute']>(
+      async (_scope, _tool, _args, signal) => {
+        observedSignal = signal;
+        return { ok: true, nodeId: '1:2', name: 'Text', type: 'TEXT' };
+      },
+    );
+    let receiptEntered!: () => void;
+    const receiptGate = new Promise<void>(resolve => {
+      receiptEntered = resolve;
+    });
+    let releaseReceipt!: () => void;
+    const receiptRelease = new Promise<void>(resolve => {
+      releaseReceipt = resolve;
+    });
+    const blockingReceipts = new Proxy(receipts, {
+      get(target, property, receiver) {
+        if (property === 'prepareAndFsync') {
+          return async (...args: Parameters<OperationEvidenceReceiptStore['prepareAndFsync']>) => {
+            receiptEntered();
+            await receiptRelease;
+            return target.prepareAndFsync(...args);
+          };
+        }
+        const value = Reflect.get(target, property, receiver) as unknown;
+        return typeof value === 'function' ? value.bind(target) : value;
+      },
+    });
+    const executor = new OperationExecutor({
+      issuer,
+      journal,
+      queue: new FileExecutionQueue(),
+      runtimes: createBoundRuntimeRegistry({ execute: runtime }, { execute: async () => ({}) }),
+      durability: {
+        egress,
+        receipts: blockingReceipts,
+        artifacts: { createNew: vi.fn<() => never>() },
+        projector: {
+          project: () => ({
+            contextHash: `sha256:${'7'.repeat(64)}` as never,
+            kind: 'no-artifact',
+            reasonCode: 'not-native-evidence',
+          }),
+        },
+        nativeArtifacts: { createNativeManifest: vi.fn<() => never>() },
+      },
+      now: () => fixedNow,
+    });
+    const invocation = executor.invokeTool(
+      scope(),
+      'create_text',
+      { characters: 'A' },
+      operationId,
+      NO_CAPTURE_OPTIONS,
+    );
+    await receiptGate;
+
+    const cancellation = executor.cancel(scope().actor, {
+      version: 1,
+      requestId: scope().requestId,
+      operationId,
+    });
+    await Promise.resolve();
+    expect(observedSignal?.aborted).toBe(false);
+    releaseReceipt();
+    await expect(invocation).resolves.toMatchObject({ nodeId: '1:2' });
+    await expect(cancellation).resolves.toBeUndefined();
+    expect(journal.get(operationId)).toMatchObject({ status: 'succeeded' });
   });
 
   it('durably finalizes and terminals a queued cancel before releasing its reservation', async () => {

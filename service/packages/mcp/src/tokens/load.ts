@@ -1,6 +1,4 @@
-import { readFile } from 'node:fs/promises';
-import { join } from 'node:path';
-
+import { RepoReader } from '../fs/repo-walk.js';
 import { type ProjectProfile, readProjectDeps, type StylingSystem } from '../profile/profile.js';
 import { detectTokenBuildTool, findGeneratedStylesheets } from './generated-tokens.js';
 import { parseTailwindConfig, parseUnoConfig } from './js-config.js';
@@ -159,9 +157,9 @@ const dedupeTokens = (tokens: readonly ProjectToken[]): ProjectToken[] => {
  * there is no marker for "the" variables file, and real layouts run from one 952-entry file to ~90
  * per-component ones.
  */
-const loadScssPool = async (rootDir: string): Promise<LoadedProjectTokens> => {
-  const scss = await aggregateRepoScssTokens(rootDir);
-  const css = await aggregateRepoCssTokens(rootDir);
+const loadScssPool = async (rootDir: string, reader: RepoReader): Promise<LoadedProjectTokens> => {
+  const scss = await aggregateRepoScssTokens(rootDir, reader);
+  const css = await aggregateRepoCssTokens(rootDir, reader);
   // Counted after collapsing, so the note describes the result rather than the raw walks.
   const tokens = dedupeTokens([...scss.tokens, ...css.tokens]);
   const parts = [
@@ -193,11 +191,12 @@ const withPrefixedNote = (
   reason === undefined ? loaded : { ...loaded, note: `${reason}; ${loaded.note ?? ''}`.trim() };
 
 /** Read one file, or null when it isn't readable — a missing token source is a note, not a throw. */
-const readOr = async (rootDir: string, rel: string): Promise<string | null> => {
+const readOr = async (reader: RepoReader, rel: string): Promise<string | null> => {
   try {
-    return await readFile(join(rootDir, rel), 'utf8');
-  } catch {
-    return null;
+    return await reader.readText(rel);
+  } catch (error) {
+    if ((error as { code?: unknown }).code === 'REPO_FILE_NOT_FOUND') return null;
+    throw error;
   }
 };
 
@@ -213,20 +212,26 @@ export const loadProjectTokens = async (
   rootDir: string,
   profile: ProjectProfile,
   tokenSourceOverride: string | undefined,
+  reader: RepoReader = new RepoReader({ rootDir }),
 ): Promise<LoadedProjectTokens> =>
-  withGeneratedTokensNote(rootDir, await readTokenSource(rootDir, profile, tokenSourceOverride));
+  withGeneratedTokensNote(
+    rootDir,
+    await readTokenSource(rootDir, profile, tokenSourceOverride, reader),
+    reader,
+  );
 
 const readTokenSource = async (
   rootDir: string,
   profile: ProjectProfile,
   tokenSourceOverride: string | undefined,
+  reader: RepoReader,
 ): Promise<LoadedProjectTokens> => {
   const { source, note, refusal } = resolveTokenSource(profile, tokenSourceOverride);
 
   if (source !== null && source.kind === 'scss') {
     // An explicit `tokenSource` pointing at one .scss file: read exactly that, so a caller can
     // narrow a large repo to its variables file.
-    const body = await readOr(rootDir, source.path);
+    const body = await readOr(reader, source.path);
     if (body === null) {
       return {
         tokens: [],
@@ -239,6 +244,7 @@ const readTokenSource = async (
     // a caller narrows tokenSource to the file that declares the tokens, which is exactly the file
     // most likely to carry the mirror layout.
     const own = parseScssFile(body, source.path);
+    reader.chargeParseResults(own.length);
     if (own.length > 0) {
       return { tokens: own, source: source.path, files: [source.path], note: SCSS_USE_NOTE };
     }
@@ -247,16 +253,16 @@ const readTokenSource = async (
     // pool under a note that never said so, leaving every Figma variable unmapped. Same fallback
     // the CSS branch below has for the same shape.
     return withPrefixedNote(
-      await loadScssPool(rootDir),
+      await loadScssPool(rootDir, reader),
       `${source.path} declares no tokens of its own — it looks like an entry that imports them`,
     );
   }
 
   if (source !== null && source.kind !== 'css')
-    return loadJsConfigTokens(rootDir, source, profile.styling);
+    return loadJsConfigTokens(rootDir, source, profile.styling, reader);
 
   if (source !== null) {
-    const body = await readOr(rootDir, source.path);
+    const body = await readOr(reader, source.path);
     if (body === null) {
       return {
         tokens: [],
@@ -266,6 +272,7 @@ const readTokenSource = async (
       };
     }
     const tokens = parseCssCustomProperties(body);
+    reader.chargeParseResults(tokens.length);
     if (tokens.length > 0) return { tokens, source: source.path, files: [source.path] };
     // The detected entry declares nothing, so it is not where the tokens live. Tailwind v4's
     // commonest real layout does exactly this — `app.css` holds `@import "tailwindcss"` and pulls
@@ -279,7 +286,7 @@ const readTokenSource = async (
     // never reaches this fallback. That is a narrower miss, and pooling unconditionally would put
     // incidental vars into a pool that is currently precise, which can cap a real match's
     // confidence.)
-    const pooled = await aggregateRepoCssTokens(rootDir);
+    const pooled = await aggregateRepoCssTokens(rootDir, reader);
     if (pooled.files.length > 0) {
       return {
         tokens: pooled.tokens,
@@ -296,14 +303,14 @@ const readTokenSource = async (
   // source. Checked before the .css pool because a SCSS project's tokens are in .scss files, which
   // that walk does not visit; without this the whole styling system read nothing.
   if (profile.styling.system === 'scss') {
-    const pooled = await loadScssPool(rootDir);
+    const pooled = await loadScssPool(rootDir, reader);
     if (pooled.files.length > 0) return withPrefixedNote(pooled, refusal);
   }
 
   // No single token config detected (a plain CSS-variables project, or Tailwind whose @theme entry
   // wasn't located). Aggregate custom properties across the repo's CSS and let the join filter
   // them — incidental vars stay unmatched, so this can only add real matches, never regress.
-  const { tokens, files } = await aggregateRepoCssTokens(rootDir);
+  const { tokens, files } = await aggregateRepoCssTokens(rootDir, reader);
   if (files.length > 0) {
     return withPrefixedNote(
       {
@@ -339,14 +346,15 @@ const readTokenSource = async (
 const withGeneratedTokensNote = async (
   rootDir: string,
   loaded: LoadedProjectTokens,
+  reader: RepoReader,
 ): Promise<LoadedProjectTokens> => {
-  const tool = detectTokenBuildTool(await readProjectDeps(rootDir));
+  const tool = detectTokenBuildTool(await readProjectDeps(rootDir, reader));
   if (tool === null) return loaded;
 
   // Nothing to say about files this result already read — including an explicit `tokenSource`
   // pointed straight at the generated stylesheet, which is exactly what the note asks for.
   const alreadyRead = new Set(loaded.files);
-  const candidates = (await findGeneratedStylesheets(rootDir)).filter(f => !alreadyRead.has(f));
+  const candidates = (await findGeneratedStylesheets(reader)).filter(f => !alreadyRead.has(f));
 
   const found = loaded.tokens.length > 0;
   if (candidates.length === 0) {
@@ -392,6 +400,7 @@ const loadJsConfigTokens = async (
   rootDir: string,
   source: TokenSource,
   styling: ProjectProfile['styling'],
+  reader: RepoReader,
 ): Promise<LoadedProjectTokens> => {
   // Does a `@theme` block in this repo's CSS actually compile? Only Tailwind v4 processes it. The
   // question is *not* "did the tokens come from a JS config": v4's documented upgrade path is
@@ -401,7 +410,7 @@ const loadJsConfigTokens = async (
   const themeBlockCompiles = styling.system === 'tailwind' && styling.tailwindVersion === 4;
 
   const configPath = source.path;
-  const body = await readOr(rootDir, configPath);
+  const body = await readOr(reader, configPath);
   if (body === null) {
     return {
       tokens: [],
@@ -412,7 +421,8 @@ const loadJsConfigTokens = async (
   }
   const parse = source.kind === 'unocss' ? parseUnoConfig : parseTailwindConfig;
   const config = parse(configPath, body);
-  const css = await aggregateRepoCssTokens(rootDir);
+  reader.chargeParseResults(config.tokens.length);
+  const css = await aggregateRepoCssTokens(rootDir, reader);
 
   const seen = new Set(config.tokens.map(t => `${t.name} ${t.value}`));
   const tokens = [...config.tokens];

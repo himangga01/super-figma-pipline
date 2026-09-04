@@ -356,19 +356,41 @@ export class EgressManifestStore implements EgressManifestPort {
       'utf8',
     );
     const baseTailBytes = await readFileWithinLimit(this.logPath, this.limits.maxBytesPerActor);
-    await publishImmutableGeneration({
-      basePath: this.logPath,
-      store: 'egress-manifests',
-      actorHash: actorHash(this.options.actorId),
-      logBytes,
-      rows: retained.length,
-      sequence: retained.at(-1)?.sequence ?? 0,
-      previousRecordHash: retained.at(-1)?.recordHash ?? null,
-      firstRetainedRecordHash: retained.at(0)?.recordHash ?? null,
-      baseTailBytes,
-      now: input.now,
-      ...(this.options.compactionHook === undefined ? {} : { hook: this.options.compactionHook }),
-    });
+    try {
+      await publishImmutableGeneration({
+        basePath: this.logPath,
+        store: 'egress-manifests',
+        actorHash: actorHash(this.options.actorId),
+        logBytes,
+        rows: retained.length,
+        sequence: retained.at(-1)?.sequence ?? 0,
+        previousRecordHash: retained.at(-1)?.recordHash ?? null,
+        firstRetainedRecordHash: retained.at(0)?.recordHash ?? null,
+        baseTailBytes,
+        now: input.now,
+        ...(this.options.compactionHook === undefined ? {} : { hook: this.options.compactionHook }),
+      });
+    } catch (error) {
+      if (
+        (error as { code?: unknown; committed?: unknown }).code ===
+          'IMMUTABLE_GENERATION_COMMIT_OUTCOME_UNKNOWN' &&
+        (error as { committed?: unknown }).committed === true
+      ) {
+        this.recovered = false;
+        try {
+          await this.recoverUnlocked(input.now);
+        } catch (recoveryError) {
+          throw Object.assign(
+            new AggregateError(
+              [error, recoveryError],
+              'committed egress compaction recovery failed',
+            ),
+            { code: 'IMMUTABLE_GENERATION_RECOVERY_FAILED', committed: true },
+          );
+        }
+      }
+      throw error;
+    }
     this.records.length = 0;
     this.records.push(...retained);
     this.rebuildIndexes();

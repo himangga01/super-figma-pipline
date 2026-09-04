@@ -1,9 +1,7 @@
-import { access, readFile } from 'node:fs/promises';
-import { join } from 'node:path';
-
 import type { GetDesignContextResult } from '@sfp/shared';
 import { z } from 'zod';
 
+import { RepoReader } from '../fs/repo-walk.js';
 import {
   collectFigmaComponents,
   type ComponentMapping,
@@ -66,12 +64,6 @@ export const componentMapTool: RawToolSpec = {
 };
 export type ToolDispatcher = (toolName: string, args: unknown) => Promise<unknown>;
 
-const fileExists = async (path: string): Promise<boolean> =>
-  access(path).then(
-    () => true,
-    () => false,
-  );
-
 /**
  * Read the map file and, for each override, whether its target file is present on disk. The join
  * trusts an override that either resolves in the scan or exists on disk; one that is neither is
@@ -79,12 +71,13 @@ const fileExists = async (path: string): Promise<boolean> =>
  * write-back loop makes stale rows a real possibility, so the read side degrades them safely.
  */
 const readOverrides = async (
-  rootDir: string,
+  reader: RepoReader,
 ): Promise<{ overrides: ReturnType<typeof parseMapFile>; overridesOnDisk: Set<string> }> => {
   let overrides: ReturnType<typeof parseMapFile>;
   try {
-    overrides = parseMapFile(await readFile(join(rootDir, MAP_FILE), 'utf8'));
-  } catch {
+    overrides = parseMapFile(await reader.readText(MAP_FILE));
+  } catch (error) {
+    if ((error as { code?: unknown }).code === 'PATH_OUTSIDE_WORKSPACE') throw error;
     return { overrides: new Map(), overridesOnDisk: new Set() };
   }
   // One fs check per distinct target path, then map the result back onto every key (raw + norm) that
@@ -93,7 +86,7 @@ const readOverrides = async (
   const present = new Set<string>();
   await Promise.all(
     uniquePaths.map(async p => {
-      if (await fileExists(join(rootDir, p))) present.add(p);
+      if (await reader.exists(p)) present.add(p);
     }),
   );
   const overridesOnDisk = new Set<string>();
@@ -109,9 +102,11 @@ const readOverrides = async (
 export const handleComponentMap = async (
   dispatch: ToolDispatcher,
   rawArgs: unknown,
+  reader?: RepoReader,
 ): Promise<ComponentMapResult> => {
   const args = inputSchema.parse(rawArgs);
-  const rootDir = args.rootDir ?? process.cwd();
+  const rootDir = reader?.rootDir ?? args.rootDir ?? process.cwd();
+  const repo = reader ?? new RepoReader({ rootDir });
   const threshold = args.threshold ?? DEFAULT_THRESHOLD;
 
   const contextArgs: Record<string, unknown> = { detail: 'full', dedupeComponents: true };
@@ -123,11 +118,11 @@ export const handleComponentMap = async (
   // 30s-timeout on large multi-page files) just to recover those set names.
   const [context, profile, { overrides, overridesOnDisk }] = await Promise.all([
     dispatch(GET_DESIGN_CONTEXT_TOOL_NAME, contextArgs) as Promise<GetDesignContextResult>,
-    analyzeProject(rootDir),
-    readOverrides(rootDir),
+    analyzeProject(rootDir, repo),
+    readOverrides(repo),
   ]);
 
-  const scanned = await scanComponents(rootDir, profile.componentExtensions);
+  const scanned = await scanComponents(rootDir, profile.componentExtensions, repo);
 
   const usages = collectFigmaComponents(context.nodes);
   const mappings = joinComponents(usages, scanned, {

@@ -1,3 +1,5 @@
+import { join } from 'node:path';
+
 import type { WorkspacePolicy } from '@sfp/shared';
 import { describe, expect, it, vi } from 'vitest';
 
@@ -46,26 +48,78 @@ describe('path-first policy context', () => {
     });
   });
 
-  it('deduplicates a path declared for read and write and never reads file content', async () => {
+  it('resolves design_diff root as a directory read and its derived snapshot as the write target', async () => {
     const policy = {
       resolveRead: vi.fn<WorkspacePolicy['resolveRead']>(async () => 'C:/workspace'),
-      resolveWrite: vi.fn<WorkspacePolicy['resolveWrite']>(async () => ({
-        path: 'C:/workspace',
-        overwrites: false,
+      resolveWrite: vi.fn<WorkspacePolicy['resolveWrite']>(async (_workspace, input) => ({
+        path: input,
+        overwrites: true,
       })),
       assertWithinRoot: vi.fn<WorkspacePolicy['assertWithinRoot']>(async () => {}),
     };
     const context = await resolvePolicyInvocationContext(
       spec('design_diff'),
-      { rootDir: '.', update: true },
+      { rootDir: '.', nodeId: '1:1', update: true },
       { workspaceId, workspaceRoot },
       policy,
     );
 
     expect(policy.resolveWrite).toHaveBeenCalledOnce();
-    expect(policy.resolveRead).not.toHaveBeenCalled();
+    expect(policy.resolveRead).toHaveBeenCalledOnce();
     expect(context.resolvedPaths).toEqual({
       rootDir: { path: 'C:/workspace', overwrites: false },
+      snapshotPath: {
+        path: join('C:/workspace', '.figwright', 'snapshots', '1-1.json'),
+        overwrites: true,
+      },
+    });
+  });
+
+  it('derives design_diff snapshot authority from the resolved subproject root', async () => {
+    const subproject = join('C:/workspace', 'packages', 'app');
+    const resolveWrite = vi.fn<WorkspacePolicy['resolveWrite']>(async (_workspace, input) => ({
+      path: input,
+      overwrites: false,
+    }));
+    const context = await resolvePolicyInvocationContext(
+      spec('design_diff'),
+      { rootDir: 'packages/app', nodeId: '1:1' },
+      { workspaceId, workspaceRoot },
+      {
+        resolveRead: async () => subproject,
+        resolveWrite,
+        assertWithinRoot: async () => undefined,
+      },
+    );
+
+    const snapshot = join(subproject, '.figwright', 'snapshots', '1-1.json');
+    expect(resolveWrite).toHaveBeenLastCalledWith(workspaceId, snapshot);
+    expect(context.resolvedPaths?.snapshotPath?.path).toBe(snapshot);
+  });
+
+  it('uses directory-specific resolution for an existing save_screenshots outDir', async () => {
+    const resolveWrite = vi.fn<WorkspacePolicy['resolveWrite']>(async () => {
+      throw new Error('file resolver must not classify outDir');
+    });
+    const resolveWriteDirectory = vi.fn<() => Promise<{ path: string; exists: boolean }>>(
+      async () => ({ path: 'C:/workspace/exports', exists: true }),
+    );
+    const context = await resolvePolicyInvocationContext(
+      spec('save_screenshots'),
+      { nodeIds: ['1:1'], outDir: 'exports' },
+      { workspaceId, workspaceRoot },
+      {
+        resolveRead: async () => 'unused',
+        resolveWrite,
+        resolveWriteDirectory,
+        assertWithinRoot: async () => undefined,
+      } as WorkspacePolicy,
+    );
+    expect(resolveWriteDirectory).toHaveBeenCalledOnce();
+    expect(resolveWrite).not.toHaveBeenCalled();
+    expect(context.resolvedPaths?.outDir).toEqual({
+      path: 'C:/workspace/exports',
+      overwrites: false,
     });
   });
 });

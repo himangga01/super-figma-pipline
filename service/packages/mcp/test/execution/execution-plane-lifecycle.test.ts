@@ -13,6 +13,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import { createOperationEvidenceEndpoint } from '../../src/control/operation-evidence-endpoint.js';
 import {
   createDurableExecutionPlaneLifecyclePorts,
+  followerPingTimeoutForPlatform,
   GenerationRuntimeLifecycleRegistry,
   createLazyLeaderRuntimeBoundary,
   LeaderGenerationExecutionPlane,
@@ -32,6 +33,12 @@ import {
   createBoundRuntimeRegistry,
   type PinnedPluginRuntimePort,
 } from '../../src/tools/runtime-registry.js';
+
+it('bounds authenticated follower liveness to 5s on Windows and 2s elsewhere', () => {
+  expect(followerPingTimeoutForPlatform('win32')).toBe(5_000);
+  expect(followerPingTimeoutForPlatform('linux')).toBe(2_000);
+  expect(followerPingTimeoutForPlatform('darwin')).toBe(2_000);
+});
 
 const lifecycleRoots: string[] = [];
 afterEach(async () => {
@@ -178,6 +185,46 @@ describe('leader-generation execution plane lifecycle', () => {
     await expect(demotion).resolves.toBeUndefined();
     expect(close).toHaveBeenCalledOnce();
     expect(vi.getTimerCount()).toBe(0);
+  });
+
+  it('removes a rejected generation initialization so the same generation can retry', async () => {
+    const registry = new GenerationRuntimeLifecycleRegistry<{ close(): Promise<void> }>();
+    let calls = 0;
+    const initialize = async () => {
+      calls += 1;
+      if (calls === 1)
+        throw Object.assign(new Error('first initialization failed'), { code: 'TEST_INIT_FAILED' });
+      return { close: async () => undefined };
+    };
+
+    const first = registry.initialize('generation-retry', initialize);
+    await expect(first).rejects.toMatchObject({ code: 'TEST_INIT_FAILED' });
+    await expect(registry.initialize('generation-retry', initialize)).resolves.toBeDefined();
+    expect(calls).toBe(2);
+  });
+
+  it('bounds close when initialization ignores abort and closes a runtime that resolves late', async () => {
+    const registry = new GenerationRuntimeLifecycleRegistry<{ close(): Promise<void> }>({
+      closeTimeoutMs: 25,
+    });
+    let release!: () => void;
+    const gate = new Promise<void>(resolve => {
+      release = resolve;
+    });
+    const runtimeClose = vi.fn<() => Promise<void>>(async () => undefined);
+    const initializing = registry.initialize('generation-late-close', async () => {
+      await gate;
+      return { close: runtimeClose };
+    });
+    const closing = registry.close('generation-late-close');
+
+    await expect(closing).rejects.toMatchObject({ code: 'LEADER_GENERATION_CLOSE_TIMEOUT' });
+    release();
+    await expect(initializing).rejects.toMatchObject({ code: 'LEADER_GENERATION_CLOSED' });
+    expect(runtimeClose).toHaveBeenCalledOnce();
+    await expect(
+      registry.initialize('generation-late-close', async () => ({ close: async () => undefined })),
+    ).resolves.toBeDefined();
   });
 
   it('uses real journal durability to fence and settle every generation state before port release', async () => {

@@ -1,7 +1,4 @@
-import { readFile } from 'node:fs/promises';
-import { join } from 'node:path';
-
-import { walkRepoFiles } from '../repo-walk.js';
+import { RepoReader } from '../fs/repo-walk.js';
 import { parseCssCustomProperties, type ProjectToken } from './tokens.js';
 
 // The token join's right-hand side when there's no single detected CSS config — i.e. a non-Tailwind
@@ -27,20 +24,26 @@ export interface AggregatedCss {
  * prefers an exact value-match, so a name collision across files resolves to the right-valued token
  * when the Figma side carries a hex.
  */
-export const aggregateRepoCssTokens = async (rootDir: string): Promise<AggregatedCss> => {
+export const aggregateRepoCssTokens = async (
+  rootDir: string,
+  reader: RepoReader = new RepoReader({ rootDir }),
+): Promise<AggregatedCss> => {
   const tokens: ProjectToken[] = [];
   const files: string[] = [];
 
-  for await (const rel of walkRepoFiles(rootDir, { extensions: ['.css'], cap: MAX_CSS_FILES })) {
+  const walked = await reader.walk({ extensions: ['.css'], cap: MAX_CSS_FILES });
+  for (const rel of walked.files) {
     let body: string;
     try {
       // eslint-disable-next-line no-await-in-loop -- sequential repo walk; clarity over batching
-      body = await readFile(join(rootDir, rel), 'utf8');
-    } catch {
-      continue;
+      body = await reader.readText(rel);
+    } catch (error) {
+      if ((error as { code?: unknown }).code === 'REPO_FILE_NOT_FOUND') continue;
+      throw error;
     }
     const parsed = parseCssCustomProperties(body);
     if (parsed.length > 0) {
+      reader.chargeParseResults(parsed.length);
       tokens.push(...parsed);
       files.push(rel);
     }

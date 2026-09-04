@@ -1,4 +1,4 @@
-import { fdir } from 'fdir';
+import { RepoReader } from '../fs/repo-walk.js';
 
 // Why this file exists: a design-token *build* tool emits perfectly readable CSS or SCSS, and then
 // writes it where every repo walk in this server refuses to look. `build/`, `dist/` and `out/` are
@@ -47,28 +47,28 @@ export const detectTokenBuildTool = (deps: Readonly<Record<string, unknown>>): s
  * Stylesheets sitting in the conventionally-pruned output directories, repo-relative and sorted so
  * the answer is stable. Never throws — a missing directory is simply no candidates.
  */
-export const findGeneratedStylesheets = async (rootDir: string): Promise<string[]> => {
+export const findGeneratedStylesheets = async (source: string | RepoReader): Promise<string[]> => {
+  const reader = typeof source === 'string' ? new RepoReader({ rootDir: source }) : source;
   const found: string[] = [];
+  /* eslint-disable no-await-in-loop -- three fixed bounded roots are probed in order */
   for (const dir of OUTPUT_DIRS) {
-    let files: string[] = [];
+    let files: readonly string[] = [];
     try {
-      // eslint-disable-next-line no-await-in-loop -- three fixed directories; clarity over batching
-      files = await new fdir()
-        .withRelativePaths()
-        .withPathSeparator('/')
-        .withMaxFiles(CRAWL_CAP)
-        .exclude(name => name.startsWith('.') || name === 'node_modules')
-        .filter(path => {
-          const base = path.slice(path.lastIndexOf('/') + 1);
-          return !base.startsWith('.') && STYLESHEET_EXTENSIONS.some(e => base.endsWith(e));
+      files = (
+        await reader.walk({
+          startDirectories: [dir],
+          extensions: STYLESHEET_EXTENSIONS,
+          cap: CRAWL_CAP,
+          maxScanEntries: CRAWL_CAP,
         })
-        .crawl(`${rootDir}/${dir}`)
-        .withPromise();
-    } catch {
+      ).files;
+    } catch (error) {
+      if ((error as { code?: unknown }).code !== 'REPO_FILE_NOT_FOUND') throw error;
       continue;
     }
-    found.push(...files.map(rel => `${dir}/${rel}`));
+    found.push(...files);
   }
+  /* eslint-enable no-await-in-loop */
   // A minified bundle is not a token file; the shortest paths are the likeliest entry points.
   return found.toSorted((a, b) => a.length - b.length || a.localeCompare(b)).slice(0, MAX_NAMED);
 };

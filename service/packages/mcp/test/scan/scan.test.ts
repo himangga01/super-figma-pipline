@@ -4,6 +4,7 @@ import { join } from 'node:path';
 
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 
+import { RepoReader } from '../../src/fs/repo-walk.js';
 import {
   extractAngularComponents,
   extractReactComponents,
@@ -693,6 +694,63 @@ describe('scanComponents (real fs)', () => {
       expect(comps[0]?.propNames).toEqual(['size']);
     } finally {
       await rm(ngDir, { recursive: true, force: true });
+    }
+  });
+
+  it('uses the injected RepoReader root instead of the caller-supplied raw root', async () => {
+    const declaredRoot = await mkdtemp(join(tmpdir(), 'scan-declared-root-'));
+    const authorityRoot = await mkdtemp(join(tmpdir(), 'scan-authority-root-'));
+    try {
+      await mkdir(join(authorityRoot, 'src'), { recursive: true });
+      await writeFile(
+        join(authorityRoot, 'src', 'Authority.tsx'),
+        'export function Authority({ label }: { label: string }) { return <div>{label}</div>; }',
+      );
+
+      const components = await scanComponents(
+        declaredRoot,
+        ['.tsx'],
+        new RepoReader({ rootDir: authorityRoot }),
+      );
+      expect(components.map(component => component.name)).toEqual(['Authority']);
+    } finally {
+      await Promise.all([
+        rm(declaredRoot, { recursive: true, force: true }),
+        rm(authorityRoot, { recursive: true, force: true }),
+      ]);
+    }
+  });
+
+  it('rejects component parse-result accumulation above the operation budget', async () => {
+    const root = await mkdtemp(join(tmpdir(), 'scan-result-budget-'));
+    try {
+      await writeFile(
+        join(root, 'components.tsx'),
+        'export const Alpha = () => <div/>; export const Beta = () => <div/>;',
+      );
+      await expect(
+        scanComponents(root, ['.tsx'], new RepoReader({ rootDir: root }), {
+          maxComponents: 1,
+        } as never),
+      ).rejects.toMatchObject({ code: 'REPO_PARSE_RESULT_LIMIT_EXCEEDED' });
+    } finally {
+      await rm(root, { recursive: true, force: true });
+    }
+  });
+
+  it('charges component results to the shared RepoReader parse-result budget', async () => {
+    const root = await mkdtemp(join(tmpdir(), 'scan-reader-result-budget-'));
+    try {
+      await writeFile(
+        join(root, 'components.tsx'),
+        'export const Alpha = () => <div/>; export const Beta = () => <div/>;',
+      );
+      const reader = new RepoReader({ rootDir: root, maxParseResults: 1 } as never);
+      await expect(scanComponents(root, ['.tsx'], reader)).rejects.toMatchObject({
+        code: 'REPO_PARSE_RESULT_LIMIT_EXCEEDED',
+      });
+    } finally {
+      await rm(root, { recursive: true, force: true });
     }
   });
 });

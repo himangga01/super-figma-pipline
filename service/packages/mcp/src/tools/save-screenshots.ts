@@ -1,5 +1,4 @@
-import { mkdir, writeFile } from 'node:fs/promises';
-import { join, resolve } from 'node:path';
+import { join } from 'node:path';
 
 import {
   type GetScreenshotResult,
@@ -10,6 +9,7 @@ import {
 } from '@sfp/shared';
 import { z } from 'zod';
 
+import { AtomicFileStore, type AtomicWritePort } from '../fs/atomic-file.js';
 import { binaryPayload } from './binary-payload.js';
 import { GET_SCREENSHOT_TOOL_NAME } from './get-screenshot.js';
 import type { RawToolSpec } from './spec.js';
@@ -52,25 +52,78 @@ const sanitize = (id: string): string => id.replace(/[^\w.-]/g, '-');
 export const writeScreenshots = async (
   outDir: string,
   images: readonly ScreenshotImage[],
+  files: AtomicWritePort = new AtomicFileStore(),
 ): Promise<SaveScreenshotsResult> => {
-  const dir = resolve(outDir);
-  await mkdir(dir, { recursive: true });
-
-  const saved: SavedScreenshot[] = await Promise.all(
-    images.map(async (img): Promise<SavedScreenshot> => {
-      const flags = {
-        ...(img.empty === true ? { empty: true as const } : {}),
-        ...(img.recovered === true ? { recovered: true as const } : {}),
-      };
-      const payload = binaryPayload(img);
-      if (payload === null) return { nodeId: img.nodeId, format: img.format, path: null, ...flags };
-      const ext = EXTENSIONS[img.format] ?? img.format.toLowerCase();
-      const path = join(dir, `${sanitize(img.nodeId)}.${ext}`);
-      await writeFile(path, payload);
-      return { nodeId: img.nodeId, format: img.format, path, ...flags };
-    }),
+  const dir = outDir;
+  const planned = images.map(img => {
+    const flags = {
+      ...(img.empty === true ? { empty: true as const } : {}),
+      ...(img.recovered === true ? { recovered: true as const } : {}),
+    };
+    const payload = binaryPayload(img);
+    if (payload === null) {
+      return { img, flags, payload: null, path: null } as const;
+    }
+    const ext = EXTENSIONS[img.format] ?? img.format.toLowerCase();
+    return { img, flags, payload, path: join(dir, `${sanitize(img.nodeId)}.${ext}`) } as const;
+  });
+  const seen = new Set<string>();
+  for (const plan of planned) {
+    if (plan.path === null) continue;
+    if (seen.has(plan.path)) {
+      throw Object.assign(new Error('sanitized screenshot outputs collide'), {
+        code: 'OUTPUT_PATH_CONFLICT',
+        committed: false,
+      });
+    }
+    seen.add(plan.path);
+  }
+  const writes = planned.filter(
+    (plan): plan is typeof plan & { path: string; payload: Buffer } =>
+      plan.path !== null && plan.payload !== null,
   );
-
+  const settlements = await Promise.allSettled(
+    writes.map(plan => files.createNew(plan.path, plan.payload)),
+  );
+  const failures = settlements.filter(
+    (result): result is PromiseRejectedResult => result.status === 'rejected',
+  );
+  if (failures.length > 0) {
+    const committed =
+      settlements.some(result => result.status === 'fulfilled') ||
+      failures.some(
+        failure =>
+          typeof failure.reason === 'object' &&
+          failure.reason !== null &&
+          (failure.reason as { committed?: unknown }).committed === true,
+      );
+    if (!committed) throw failures[0]!.reason;
+    throw Object.assign(
+      new Error('one or more screenshot outputs may have been published', {
+        cause: new AggregateError(
+          failures.map(failure => failure.reason),
+          'screenshot output settlements failed',
+        ),
+      }),
+      { code: 'MULTI_OUTPUT_PUBLICATION_FAILED', committed: true },
+    );
+  }
+  const published = new Map(
+    writes.map((plan, index) => [
+      plan.path,
+      (settlements[index] as PromiseFulfilledResult<Readonly<{ path: string }>>).value.path,
+    ]),
+  );
+  const saved: SavedScreenshot[] = planned.map(plan =>
+    Object.assign(
+      {
+        nodeId: plan.img.nodeId,
+        format: plan.img.format,
+        path: plan.path === null ? null : (published.get(plan.path) as string),
+      },
+      plan.flags,
+    ),
+  );
   return { saved };
 };
 
@@ -83,6 +136,7 @@ export type ToolDispatcher = (toolName: string, args: unknown) => Promise<unknow
 export const handleSaveScreenshots = async (
   dispatch: ToolDispatcher,
   rawArgs: unknown,
+  files?: AtomicWritePort,
 ): Promise<SaveScreenshotsResult> => {
   const args = inputSchema.parse(rawArgs);
 
@@ -98,5 +152,5 @@ export const handleSaveScreenshots = async (
     GET_SCREENSHOT_TOOL_NAME,
     screenshotArgs,
   )) as GetScreenshotResult;
-  return writeScreenshots(args.outDir, images);
+  return writeScreenshots(args.outDir, images, files);
 };

@@ -17,6 +17,7 @@ import type { ProgressReporter } from './progress.js';
 import {
   ServiceOperationNameSchema,
   SystemOperationNameSchema,
+  type AbortSignalLike,
   type OperationKind,
   type ServiceOperationName,
   type SystemOperationName,
@@ -729,6 +730,7 @@ export interface NativeEvidenceArtifactPortContract {
   createNativeManifest(input: {
     context: VerifiedNativeEvidenceContextV1;
     projection: Readonly<Extract<NativeEvidenceProjectionV1, { kind: 'export-candidates' }>>;
+    signal?: AbortSignalLike;
   }): Promise<Readonly<Extract<NativeEvidenceV1, { kind: 'export' }>>>;
 }
 export interface OperationEvidenceArtifactPort {
@@ -866,6 +868,17 @@ const portableUtf8Bytes = (value: string): number => {
   }
   return bytes;
 };
+const hasLoneUtf16Surrogate = (value: string): boolean => {
+  for (let index = 0; index < value.length; index += 1) {
+    const unit = value.charCodeAt(index);
+    if (unit >= 0xd800 && unit <= 0xdbff) {
+      const next = value.charCodeAt(index + 1);
+      if (next < 0xdc00 || next > 0xdfff) return true;
+      index += 1;
+    } else if (unit >= 0xdc00 && unit <= 0xdfff) return true;
+  }
+  return false;
+};
 export const PortableRelativeArtifactPathSchema = z.string().superRefine((value, context) => {
   const bytes = portableUtf8Bytes(value);
   const segments = value.split('/');
@@ -876,6 +889,7 @@ export const PortableRelativeArtifactPathSchema = z.string().superRefine((value,
     value.startsWith('//') ||
     /^[A-Za-z]:/u.test(value) ||
     /["\\]/u.test(value) ||
+    hasLoneUtf16Surrogate(value) ||
     [...value].some(character => (character.codePointAt(0) as number) <= 0x1f) ||
     segments.some(segment => segment === '' || segment === '.' || segment === '..')
   ) {

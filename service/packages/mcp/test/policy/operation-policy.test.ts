@@ -147,6 +147,10 @@ const workspaceContext: PolicyInvocationContext = {
     outDir: { path: 'C:/approved/project/artifacts', overwrites: false },
     outPath: { path: 'C:/approved/project/artifacts/export.pdf', overwrites: false },
     rootDir: { path: 'C:/approved/project', overwrites: false },
+    snapshotPath: {
+      path: 'C:/approved/project/.figwright/snapshots/1-1.json',
+      overwrites: false,
+    },
   },
 };
 
@@ -367,21 +371,51 @@ describe('baseline operation policy authority', () => {
     expect(missingDocumentWrite).toEqual([]);
   });
 
-  it('marks update and resolved overwrite targets as destructive filesystem writes', () => {
-    const update = effects('design_diff', { update: true }, workspaceContext);
-    expect(update).toContainEqual({
-      type: 'filesystem-write',
-      pathArgs: ['rootDir'],
-      destructive: true,
-    });
-
+  it('requires destructive design-diff approval only when update replaces an existing snapshot', () => {
     const overwriteContext: PolicyInvocationContext = {
       ...workspaceContext,
       resolvedPaths: {
         ...workspaceContext.resolvedPaths,
+        snapshotPath: {
+          path: 'C:/approved/project/.figwright/snapshots/1-1.json',
+          overwrites: true,
+        },
         outPath: { path: 'C:/approved/project/artifacts/export.pdf', overwrites: true },
       },
     };
+    const readOnlyExisting = effects('design_diff', { update: false }, overwriteContext);
+    expect(types(readOnlyExisting)).toEqual(['figma-read', 'filesystem-read']);
+    expect(operationPolicyFor('design_diff').approvalFor(readOnlyExisting, overwriteContext)).toBe(
+      'none',
+    );
+    const createBaseline = effects('design_diff', { update: false }, workspaceContext);
+    expect(createBaseline).toContainEqual({
+      type: 'filesystem-write',
+      pathArgs: ['snapshotPath'],
+      destructive: false,
+    });
+    expect(operationPolicyFor('design_diff').approvalFor(createBaseline, workspaceContext)).toBe(
+      'client',
+    );
+    const updateAbsent = effects('design_diff', { update: true }, workspaceContext);
+    expect(updateAbsent).toContainEqual({
+      type: 'filesystem-write',
+      pathArgs: ['snapshotPath'],
+      destructive: false,
+    });
+    expect(operationPolicyFor('design_diff').approvalFor(updateAbsent, workspaceContext)).toBe(
+      'client',
+    );
+    const updateExisting = effects('design_diff', { update: true }, overwriteContext);
+    expect(updateExisting).toContainEqual({
+      type: 'filesystem-write',
+      pathArgs: ['snapshotPath'],
+      destructive: true,
+    });
+    expect(operationPolicyFor('design_diff').approvalFor(updateExisting, overwriteContext)).toBe(
+      'explicit-user',
+    );
+
     expect(
       effects('export_pdf', { outPath: 'artifacts/export.pdf' }, overwriteContext),
     ).toContainEqual({

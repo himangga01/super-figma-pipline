@@ -3,12 +3,15 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
 import type { GetDesignContextResult } from '@sfp/shared';
-import { afterEach, beforeEach, describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
+import { AtomicFileStore, type AtomicWritePort } from '../../src/fs/atomic-file.js';
+import { RepoReader } from '../../src/fs/repo-walk.js';
 import { handleDesignDiff, type ToolDispatcher } from '../../src/tools/design-diff.js';
 import { GET_DESIGN_CONTEXT_TOOL_NAME } from '../../src/tools/get-design-context.js';
 
 const SNAP_REL = join('.figwright', 'snapshots', '1-1.json');
+const SELECTION_SNAP_REL = join('.figwright', 'snapshots', 'selection.json');
 
 const ctx = (over: Partial<GetDesignContextResult> = {}): GetDesignContextResult => ({
   nodes: [
@@ -57,7 +60,7 @@ describe('handleDesignDiff', () => {
     const r = await handleDesignDiff(dispatch, { nodeId: '1:1', rootDir: dir });
     expect(r.status).toBe('baseline-created');
     expect(r.nodeId).toBe('1:1');
-    expect(r.snapshotPath).toBe(SNAP_REL);
+    expect(r.snapshotPath).toBe(SNAP_REL.replaceAll('\\', '/'));
     expect(r.summary).toBeUndefined();
 
     // The file exists, is format-tagged, and stores the raw context.
@@ -99,27 +102,70 @@ describe('handleDesignDiff', () => {
     expect(plain.summary!.changed).toBe(1);
 
     // update:true accepts the current design as the new baseline...
-    const accepted = await handleDesignDiff(dispatch, {
-      nodeId: '1:1',
-      rootDir: dir,
-      update: true,
-    });
+    const accepted = await handleDesignDiff(
+      dispatch,
+      { nodeId: '1:1', rootDir: dir, update: true },
+      new RepoReader({ rootDir: dir }),
+      new AtomicFileStore(),
+      {
+        relativePath: SNAP_REL.replaceAll('\\', '/'),
+        absolutePath: join(dir, SNAP_REL),
+        destructiveApproved: true,
+        overwrites: true,
+      } as never,
+    );
     expect(accepted.baselineUpdated).toBe(true);
     // ...so the next diff (still the "Updated" design) is clean.
     const after = await handleDesignDiff(dispatch, { nodeId: '1:1', rootDir: dir });
     expect(after.status).toBe('no-changes');
   });
 
-  it('re-baselines (never mis-diffs) when the on-disk format version is stale', async () => {
+  it('refuses to replace a stale on-disk format without update, then re-baselines with bound approval', async () => {
     await mkdir(join(dir, '.figwright', 'snapshots'), { recursive: true });
     await writeFile(
       join(dir, SNAP_REL),
       JSON.stringify({ figwrightSnapshot: 999, nodeId: '1:1', capturedAt: 'x', context: ctx() }),
     );
-    const r = await handleDesignDiff(dispatch, { nodeId: '1:1', rootDir: dir });
+    await expect(handleDesignDiff(dispatch, { nodeId: '1:1', rootDir: dir })).rejects.toMatchObject(
+      { code: 'SNAPSHOT_REPLACE_REQUIRES_UPDATE' },
+    );
+    const r = await handleDesignDiff(
+      dispatch,
+      { nodeId: '1:1', rootDir: dir, update: true },
+      new RepoReader({ rootDir: dir }),
+      new AtomicFileStore(),
+      {
+        relativePath: SNAP_REL.replaceAll('\\', '/'),
+        absolutePath: join(dir, SNAP_REL),
+        destructiveApproved: true,
+        overwrites: true,
+      } as never,
+    );
     expect(r.status).toBe('baseline-created');
     const saved = JSON.parse(await readFile(join(dir, SNAP_REL), 'utf8'));
     expect(saved.figwrightSnapshot).toBe(2); // rewritten to the current format
+  });
+
+  it('does not self-assert destructive approval for an update', async () => {
+    await handleDesignDiff(dispatch, { nodeId: '1:1', rootDir: dir });
+    const before = await readFile(join(dir, SNAP_REL));
+    currentCtx = ctx({ nodes: [{ id: '1:1', name: 'Updated', type: 'FRAME' }] });
+
+    await expect(
+      handleDesignDiff(
+        dispatch,
+        { nodeId: '1:1', rootDir: dir, update: true },
+        new RepoReader({ rootDir: dir }),
+        new AtomicFileStore(),
+        {
+          relativePath: SNAP_REL.replaceAll('\\', '/'),
+          absolutePath: join(dir, SNAP_REL),
+          destructiveApproved: false,
+          overwrites: true,
+        } as never,
+      ),
+    ).rejects.toMatchObject({ code: 'REPLACE_APPROVAL_REQUIRED' });
+    await expect(readFile(join(dir, SNAP_REL))).resolves.toEqual(before);
   });
 
   it('warns (but still diffs) when the baseline root looks like a different node', async () => {
@@ -136,6 +182,31 @@ describe('handleDesignDiff', () => {
   it('keys the baseline by the resolved root when nodeId is omitted (selection)', async () => {
     const r = await handleDesignDiff(dispatch, { rootDir: dir });
     expect(r.nodeId).toBe('1:1');
-    expect(r.snapshotPath).toBe(SNAP_REL);
+    expect(r.snapshotPath).toBe(SELECTION_SNAP_REL.replaceAll('\\', '/'));
+  });
+
+  it('rejects policy authority whose absolute target is rooted above the resolved subproject', async () => {
+    const subproject = join(dir, 'packages', 'app');
+    await mkdir(subproject, { recursive: true });
+    const files: AtomicWritePort = {
+      createNew: vi.fn<AtomicWritePort['createNew']>(async path => ({ path, bytes: 1 })),
+      replace: vi.fn<AtomicWritePort['replace']>(async path => ({ path, bytes: 1 })),
+    };
+
+    await expect(
+      handleDesignDiff(
+        dispatch,
+        { nodeId: '1:1', rootDir: subproject },
+        new RepoReader({ rootDir: subproject }),
+        files,
+        {
+          relativePath: SNAP_REL.replaceAll('\\', '/'),
+          absolutePath: join(dir, SNAP_REL),
+          destructiveApproved: false,
+          overwrites: false,
+        } as never,
+      ),
+    ).rejects.toMatchObject({ code: 'SNAPSHOT_AUTHORITY_MISMATCH' });
+    expect(files.createNew).not.toHaveBeenCalled();
   });
 });

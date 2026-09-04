@@ -4,6 +4,7 @@ import { join } from 'node:path';
 
 import { describe, expect, it } from 'vitest';
 
+import { RepoReader } from '../../src/fs/repo-walk.js';
 import { analyzeProject, type ProjectProfile } from '../../src/profile/profile.js';
 import { loadProjectTokens, resolveTokenSource } from '../../src/tokens/load.js';
 
@@ -12,6 +13,42 @@ const profileWith = (
   styling: Partial<ProjectProfile['styling']>,
 ): Pick<ProjectProfile, 'styling'> => ({
   styling: { system: 'unknown', ...styling },
+});
+
+describe('token loader RepoReader authority', () => {
+  it('loads tokens only from the injected reader root', async () => {
+    const declaredRoot = await mkdtemp(join(tmpdir(), 'tokens-declared-root-'));
+    const authorityRoot = await mkdtemp(join(tmpdir(), 'tokens-authority-root-'));
+    try {
+      await writeFile(join(authorityRoot, 'tokens.css'), ':root { --owned-color: #123456; }');
+      const reader = new RepoReader({ rootDir: authorityRoot });
+      const profile = await analyzeProject(authorityRoot, reader);
+      const loaded = await loadProjectTokens(declaredRoot, profile, 'tokens.css', reader);
+      expect(loaded.tokens).toEqual([
+        expect.objectContaining({ name: 'owned-color', value: '#123456' }),
+      ]);
+    } finally {
+      await Promise.all([
+        rm(declaredRoot, { recursive: true, force: true }),
+        rm(authorityRoot, { recursive: true, force: true }),
+      ]);
+    }
+  });
+
+  it('bounds explicit token-source materialization with the operation RepoReader budget', async () => {
+    const root = await mkdtemp(join(tmpdir(), 'tokens-result-budget-'));
+    try {
+      await writeFile(join(root, 'tokens.css'), ':root { --one: 1px; --two: 2px; }');
+      const profile = await analyzeProject(root);
+      const reader = new RepoReader({ rootDir: root, maxParseResults: 1 } as never);
+
+      await expect(loadProjectTokens(root, profile, 'tokens.css', reader)).rejects.toMatchObject({
+        code: 'REPO_PARSE_RESULT_LIMIT_EXCEEDED',
+      });
+    } finally {
+      await rm(root, { recursive: true, force: true });
+    }
+  });
 });
 
 describe('resolveTokenSource', () => {

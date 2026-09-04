@@ -4,6 +4,7 @@ import { join } from 'node:path';
 
 import { describe, expect, it } from 'vitest';
 
+import { RepoReader } from '../../src/fs/repo-walk.js';
 import {
   detectTokenBuildTool,
   findGeneratedStylesheets,
@@ -22,6 +23,19 @@ describe('detectTokenBuildTool', () => {
 });
 
 describe('findGeneratedStylesheets', () => {
+  it('uses RepoReader for generated output traversal instead of a raw fdir crawl', async () => {
+    const dir = await mkdtemp(join(tmpdir(), 'gen-reader-'));
+    try {
+      await mkdir(join(dir, 'build'), { recursive: true });
+      await writeFile(join(dir, 'build', 'tokens.css'), ':root{--a:1px}');
+      await expect(
+        findGeneratedStylesheets(new RepoReader({ rootDir: dir }) as never),
+      ).resolves.toEqual(['build/tokens.css']);
+    } finally {
+      await rm(dir, { recursive: true, force: true });
+    }
+  });
+
   it('finds a stylesheet nested anywhere under an output directory', async () => {
     const dir = await mkdtemp(join(tmpdir(), 'gen-deep-'));
     try {

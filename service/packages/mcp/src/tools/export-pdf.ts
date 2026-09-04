@@ -1,9 +1,7 @@
-import { mkdir, writeFile } from 'node:fs/promises';
-import { dirname, resolve } from 'node:path';
-
 import type { ExportPdfResult, PdfExport } from '@sfp/shared';
 import { z } from 'zod';
 
+import { AtomicFileStore, type AtomicWritePort } from '../fs/atomic-file.js';
 import { binaryPayload } from './binary-payload.js';
 import type { RawToolSpec } from './spec.js';
 
@@ -44,20 +42,20 @@ export type ToolDispatcher = (toolName: string, args: unknown) => Promise<unknow
 export const writeExportedPdf = async (
   outPath: string,
   pdf: PdfExport,
+  files: AtomicWritePort = new AtomicFileStore(),
 ): Promise<ExportPdfResult> => {
   const empty = pdf.empty === true ? { empty: true } : {};
   const payload = binaryPayload(pdf);
   if (payload === null) return { nodeId: pdf.nodeId, path: null, ...empty };
-  const path = resolve(outPath);
-  await mkdir(dirname(path), { recursive: true });
-  await writeFile(path, payload);
-  return { nodeId: pdf.nodeId, path, ...empty };
+  const published = await files.createNew(outPath, payload);
+  return { nodeId: pdf.nodeId, path: published.path, ...empty };
 };
 
 /** Reuses the plugin-side export_pdf handler to fetch the PDF bytes, then writes them to disk. */
 export const handleExportPdf = async (
   dispatch: ToolDispatcher,
   rawArgs: unknown,
+  files?: AtomicWritePort,
 ): Promise<ExportPdfResult> => {
   const args = inputSchema.parse(rawArgs);
   const pluginArgs: Record<string, unknown> = {};
@@ -65,5 +63,5 @@ export const handleExportPdf = async (
   pluginArgs.binary = true;
   if (args.nodeId !== undefined) pluginArgs.nodeId = args.nodeId;
   const pdf = (await dispatch(EXPORT_PDF_TOOL_NAME, pluginArgs)) as PdfExport;
-  return writeExportedPdf(args.outPath, pdf);
+  return writeExportedPdf(args.outPath, pdf, files);
 };

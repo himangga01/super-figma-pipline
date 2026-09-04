@@ -22,8 +22,13 @@ export interface RegisteredWorkspaceRoot extends WorkspaceRoot {
 
 /** Resolves every project filesystem effect against an explicitly approved workspace. */
 export interface WorkspacePolicy {
+  resolveRoot?(workspaceId: string): Promise<string>;
   resolveRead(workspaceId: string, input: string): Promise<string>;
   resolveWrite(workspaceId: string, input: string): Promise<{ path: string; overwrites: boolean }>;
+  resolveWriteDirectory?(
+    workspaceId: string,
+    input: string,
+  ): Promise<{ path: string; exists: boolean }>;
   assertWithinRoot(workspaceId: string, path: string): Promise<void>;
 }
 

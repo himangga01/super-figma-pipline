@@ -1,9 +1,8 @@
-import { readFile } from 'node:fs/promises';
-import { basename, dirname, extname, join } from 'node:path';
+import { basename, dirname, extname } from 'node:path';
 
 import { parseSync } from 'oxc-parser';
 
-import { walkRepoFiles } from '../repo-walk.js';
+import { RepoReader } from '../fs/repo-walk.js';
 import { type ScriptLang, scanSfcScripts } from './sfc-blocks.js';
 
 // Component scanner — finds the project's existing components so component_map can join Figma names
@@ -881,21 +880,41 @@ const frameworkForExt = (ext: string): ComponentFramework | null => {
 export const scanComponents = async (
   rootDir: string,
   extensions: readonly string[],
+  reader: RepoReader = new RepoReader({ rootDir }),
+  options: { maxComponents?: number } = {},
 ): Promise<ScannedComponent[]> => {
+  const maxComponents = options.maxComponents ?? 5_000;
+  if (!Number.isSafeInteger(maxComponents) || maxComponents < 1) {
+    throw Object.assign(new Error('component parse-result limit is invalid'), {
+      code: 'REPO_PARSE_RESULT_LIMIT_INVALID',
+    });
+  }
   const out: ScannedComponent[] = [];
-  for await (const rel of walkRepoFiles(rootDir, { extensions })) {
+  const walked = await reader.walk({ extensions });
+  for (const rel of walked.files) {
     const framework = frameworkForExt(extname(rel));
     if (framework === null) continue;
     let code: string;
     try {
       // eslint-disable-next-line no-await-in-loop -- per-file read; clarity over batching
-      code = await readFile(join(rootDir, rel), 'utf8');
-    } catch {
-      continue;
+      code = await reader.readText(rel);
+    } catch (error) {
+      if ((error as { code?: unknown }).code === 'REPO_FILE_NOT_FOUND') continue;
+      throw error;
     }
-    if (framework === 'react') out.push(...extractReactComponents(rel, code));
-    else if (framework === 'angular') out.push(...extractAngularComponents(rel, code));
-    else out.push(...extractSfcComponent(rel, code, framework));
+    const parsed =
+      framework === 'react'
+        ? extractReactComponents(rel, code)
+        : framework === 'angular'
+          ? extractAngularComponents(rel, code)
+          : extractSfcComponent(rel, code, framework);
+    if (parsed.length > maxComponents - out.length) {
+      throw Object.assign(new Error('component parse-result budget is exhausted'), {
+        code: 'REPO_PARSE_RESULT_LIMIT_EXCEEDED',
+      });
+    }
+    reader.chargeParseResults(parsed.length);
+    out.push(...parsed);
   }
   return out;
 };

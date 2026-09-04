@@ -1,12 +1,10 @@
-import { stat } from 'node:fs/promises';
-import { join } from 'node:path';
-
 import type {
   GetDesignContextResult,
   ProjectTokenAnnotation,
   ProjectTokenMatch,
 } from '@sfp/shared';
 
+import { RepoReader } from '../fs/repo-walk.js';
 import { analyzeProject, isUtilityFirst } from '../profile/profile.js';
 import { normHex } from './hex.js';
 import { loadProjectTokens } from './load.js';
@@ -132,11 +130,14 @@ const CACHE_TTL_MS = 60_000;
 
 const cache = new Map<string, CachedIndex>();
 
-const mtimesUnchanged = async (fileMtimes: ReadonlyMap<string, number>): Promise<boolean> => {
+const mtimesUnchanged = async (
+  fileMtimes: ReadonlyMap<string, number>,
+  reader: RepoReader,
+): Promise<boolean> => {
   const checks = await Promise.all(
     [...fileMtimes].map(async ([path, mtimeMs]) => {
       try {
-        return (await stat(path)).mtimeMs === mtimeMs;
+        return (await reader.metadata(path)).mtimeMs === mtimeMs;
       } catch {
         return false;
       }
@@ -152,29 +153,29 @@ const mtimesUnchanged = async (fileMtimes: ReadonlyMap<string, number>): Promise
  */
 export const loadTokenValueIndex = async (
   rootDir: string,
+  reader: RepoReader = new RepoReader({ rootDir }),
 ): Promise<{ index: TokenValueIndex; utilityFirst: boolean }> => {
   const now = Date.now();
   const hit = cache.get(rootDir);
   if (
     hit !== undefined &&
     now - hit.builtAt < CACHE_TTL_MS &&
-    (await mtimesUnchanged(hit.fileMtimes))
+    (await mtimesUnchanged(hit.fileMtimes, reader))
   ) {
     return { index: hit.index, utilityFirst: hit.utilityFirst };
   }
 
   try {
-    const profile = await analyzeProject(rootDir);
-    const loaded = await loadProjectTokens(rootDir, profile, undefined);
+    const profile = await analyzeProject(rootDir, reader);
+    const loaded = await loadProjectTokens(rootDir, profile, undefined, reader);
     const index = buildTokenValueIndex(loaded.tokens);
     const utilityFirst = isUtilityFirst(profile.styling.system);
 
     const fileMtimes = new Map<string, number>();
     await Promise.all(
       loaded.files.map(async rel => {
-        const abs = join(rootDir, rel);
         try {
-          fileMtimes.set(abs, (await stat(abs)).mtimeMs);
+          fileMtimes.set(rel, (await reader.metadata(rel)).mtimeMs);
         } catch {
           // A file that vanished between read and stat simply won't gate the cache.
         }
@@ -183,7 +184,8 @@ export const loadTokenValueIndex = async (
 
     cache.set(rootDir, { index, utilityFirst, fileMtimes, builtAt: now });
     return { index, utilityFirst };
-  } catch {
+  } catch (error) {
+    if ((error as { code?: unknown }).code === 'ABORT_ERR') throw error;
     return { index: new Map(), utilityFirst: false };
   }
 };

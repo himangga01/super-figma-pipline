@@ -1,6 +1,7 @@
 import type { GetDesignContextResult } from '@sfp/shared';
 import { z } from 'zod';
 
+import { RepoReader } from '../fs/repo-walk.js';
 import { detectIconLibraries, scanRepoSvgs } from '../icons/repo-icons.js';
 import { collectFigmaIcons, type IconMapping, joinIcons } from '../join/icon-map.js';
 import {
@@ -74,9 +75,11 @@ export type ToolDispatcher = (toolName: string, args: unknown) => Promise<unknow
 export const handleIconMap = async (
   dispatch: ToolDispatcher,
   rawArgs: unknown,
+  reader?: RepoReader,
 ): Promise<IconMapResult> => {
   const args = inputSchema.parse(rawArgs);
-  const rootDir = args.rootDir ?? process.cwd();
+  const rootDir = reader?.rootDir ?? args.rootDir ?? process.cwd();
+  const repo = reader ?? new RepoReader({ rootDir });
   const threshold = args.threshold ?? DEFAULT_THRESHOLD;
 
   const contextArgs: Record<string, unknown> = { detail: 'full', dedupeComponents: true };
@@ -84,9 +87,9 @@ export const handleIconMap = async (
 
   const [context, profile, svgs, deps] = await Promise.all([
     dispatch(GET_DESIGN_CONTEXT_TOOL_NAME, contextArgs) as Promise<GetDesignContextResult>,
-    analyzeProject(rootDir),
-    scanRepoSvgs(rootDir),
-    readProjectDeps(rootDir),
+    analyzeProject(rootDir, repo),
+    scanRepoSvgs(rootDir, repo),
+    readProjectDeps(rootDir, repo),
   ]);
 
   const icons = collectFigmaIcons(context.nodes);

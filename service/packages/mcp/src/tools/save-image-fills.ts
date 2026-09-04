@@ -1,5 +1,4 @@
-import { mkdir, writeFile } from 'node:fs/promises';
-import { join, resolve } from 'node:path';
+import { join } from 'node:path';
 
 import type {
   ImageFillsResult,
@@ -10,6 +9,7 @@ import type {
 } from '@sfp/shared';
 import { z } from 'zod';
 
+import { AtomicFileStore, type AtomicWritePort } from '../fs/atomic-file.js';
 import { binaryPayload } from './binary-payload.js';
 import type { RawToolSpec } from './spec.js';
 
@@ -97,27 +97,79 @@ const carry = (img: NodeImageFills['images'][number]): Omit<SavedImageFill, 'for
 export const writeImageFills = async (
   outDir: string,
   nodes: readonly NodeImageFills[],
+  files: AtomicWritePort = new AtomicFileStore(),
 ): Promise<SaveImageFillsResult> => {
-  const dir = resolve(outDir);
-  await mkdir(dir, { recursive: true });
+  const dir = outDir;
 
   // Dedup writes by path: a hash reused across nodes maps to one file written once. Build the whole
   // result (and the unique write set) first, then flush the files in parallel — no await in a loop.
-  const toWrite = new Map<string, Buffer>();
+  const toWrite = new Map<string, { bytes: Buffer; imageHash: string }>();
+  let conflict = false;
   const outNodes: SavedNodeImageFills[] = nodes.map(node => {
     const images: SavedImageFill[] = node.images.map(img => {
       const buf = binaryPayload(img);
       if (buf === null || img.imageHash === null) return { ...carry(img), path: null };
       const { format, ext } = detectImageFormat(buf);
       const path = join(dir, `${sanitize(img.imageHash)}.${ext}`);
-      if (!toWrite.has(path)) toWrite.set(path, buf);
+      const planned = toWrite.get(path);
+      if (planned === undefined) toWrite.set(path, { bytes: buf, imageHash: img.imageHash });
+      else if (planned.imageHash !== img.imageHash || !planned.bytes.equals(buf)) conflict = true;
       return { ...carry(img), format, path };
     });
     return { nodeId: node.nodeId, images, ...(node.mixed === true ? { mixed: true } : {}) };
   });
 
-  await Promise.all([...toWrite].map(([path, buf]) => writeFile(path, buf)));
-  return { nodes: outNodes };
+  if (conflict) {
+    throw Object.assign(new Error('sanitized image-fill outputs collide'), {
+      code: 'OUTPUT_PATH_CONFLICT',
+      committed: false,
+    });
+  }
+
+  const writes = [...toWrite];
+  const settlements = await Promise.allSettled(
+    writes.map(([path, planned]) => files.createNew(path, planned.bytes)),
+  );
+  const failures = settlements.filter(
+    (result): result is PromiseRejectedResult => result.status === 'rejected',
+  );
+  if (failures.length > 0) {
+    const committed =
+      settlements.some(result => result.status === 'fulfilled') ||
+      failures.some(
+        failure =>
+          typeof failure.reason === 'object' &&
+          failure.reason !== null &&
+          (failure.reason as { committed?: unknown }).committed === true,
+      );
+    if (!committed) throw failures[0]!.reason;
+    throw Object.assign(
+      new Error('one or more image-fill outputs may have been published', {
+        cause: new AggregateError(
+          failures.map(failure => failure.reason),
+          'image-fill output settlements failed',
+        ),
+      }),
+      { code: 'MULTI_OUTPUT_PUBLICATION_FAILED', committed: true },
+    );
+  }
+  const published = new Map(
+    writes.map(([path], index) => [
+      path,
+      (settlements[index] as PromiseFulfilledResult<Readonly<{ path: string }>>).value.path,
+    ]),
+  );
+  return {
+    nodes: outNodes.map(node =>
+      Object.assign({}, node, {
+        images: node.images.map(image =>
+          Object.assign({}, image, {
+            path: image.path === null ? null : (published.get(image.path) as string),
+          }),
+        ),
+      }),
+    ),
+  };
 };
 
 export type ToolDispatcher = (toolName: string, args: unknown) => Promise<unknown>;
@@ -129,6 +181,7 @@ export type ToolDispatcher = (toolName: string, args: unknown) => Promise<unknow
 export const handleSaveImageFills = async (
   dispatch: ToolDispatcher,
   rawArgs: unknown,
+  files?: AtomicWritePort,
 ): Promise<SaveImageFillsResult> => {
   const args = inputSchema.parse(rawArgs);
   const { nodes } = (await dispatch(SAVE_IMAGE_FILLS_TOOL_NAME, {
@@ -136,5 +189,5 @@ export const handleSaveImageFills = async (
     binary: true,
     nodeIds: args.nodeIds,
   })) as ImageFillsResult;
-  return writeImageFills(args.outDir, nodes);
+  return writeImageFills(args.outDir, nodes, files);
 };

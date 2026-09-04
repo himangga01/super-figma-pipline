@@ -320,16 +320,18 @@ const batchPolicy = policy(
 
 const designDiffPolicy = policy(
   'design_diff',
-  [FIGMA_READ, filesystemRead('rootDir'), filesystemWrite(true, 'rootDir')],
-  (args: ParsedArgs, context) =>
-    Object.freeze([
+  [FIGMA_READ, filesystemRead('rootDir'), filesystemWrite(true, 'snapshotPath')],
+  (args: ParsedArgs, context) => {
+    const overwrites = hasResolvedOverwrite(context, ['snapshotPath']);
+    const writesSnapshot = args.update === true || !overwrites;
+    return Object.freeze([
       FIGMA_READ,
       filesystemRead('rootDir'),
-      filesystemWrite(
-        args.update === true || hasResolvedOverwrite(context, ['rootDir']),
-        'rootDir',
-      ),
-    ]),
+      ...(writesSnapshot
+        ? [filesystemWrite(args.update === true && overwrites, 'snapshotPath')]
+        : []),
+    ]);
+  },
   () => 'operation-id',
   'file-write',
   'operation-id',

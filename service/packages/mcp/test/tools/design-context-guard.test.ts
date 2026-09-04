@@ -218,6 +218,12 @@ describe('handleDesignContext (the public-path guard)', () => {
 });
 
 describe('handleDesignContext — value-reverse annotation', () => {
+  it('does not invoke a project token loader when the runtime has no workspace', async () => {
+    const { dispatch } = dispatcher({ nodes: [leaf('1:1', { fills: ['#123456'] })] });
+    const result = await handleDesignContext(dispatch, {}, null as never);
+    expect(result.projectTokens).toBeUndefined();
+  });
+
   const indexOf = (tokens: { name: string; value: string }[]) =>
     new Map(
       tokens.map(t => [

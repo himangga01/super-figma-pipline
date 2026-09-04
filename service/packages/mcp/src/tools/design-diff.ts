@@ -1,10 +1,12 @@
-import { mkdir, readFile, writeFile } from 'node:fs/promises';
-import { dirname, join } from 'node:path';
+import { createHash } from 'node:crypto';
+import { join } from 'node:path';
 
 import type { GetDesignContextResult } from '@sfp/shared';
 import { z } from 'zod';
 
 import { type DesignDiffChanges, diffDesignContext } from '../diff/design-diff.js';
+import { AtomicFileStore, type AtomicWritePort } from '../fs/atomic-file.js';
+import { RepoReader } from '../fs/repo-walk.js';
 import { GET_DESIGN_CONTEXT_TOOL_NAME } from './get-design-context.js';
 import type { RawToolSpec } from './spec.js';
 
@@ -84,6 +86,13 @@ export interface DesignDiffResult {
   note?: string;
 }
 
+export interface DesignDiffSnapshotAuthority {
+  relativePath: string;
+  absolutePath: string;
+  overwrites: boolean;
+  destructiveApproved: boolean;
+}
+
 const sanitize = (id: string): string => id.replace(/[^a-zA-Z0-9._-]/g, '-');
 
 /**
@@ -108,26 +117,42 @@ const writeSnapshot = async (
   absPath: string,
   nodeId: string,
   context: GetDesignContextResult,
+  files: AtomicWritePort,
+  destructiveApproved: boolean,
+  expectedDigest64?: string,
 ): Promise<SnapshotFile> => {
-  await mkdir(dirname(absPath), { recursive: true });
   const snap: SnapshotFile = {
     figwrightSnapshot: SNAPSHOT_FORMAT_VERSION,
     nodeId,
     capturedAt: new Date().toISOString(),
     context,
   };
-  await writeFile(absPath, JSON.stringify(snap, null, 2), 'utf8');
+  const bytes = Buffer.from(JSON.stringify(snap, null, 2), 'utf8');
+  if (expectedDigest64 === undefined) await files.createNew(absPath, bytes);
+  else {
+    await files.replace(absPath, bytes, {
+      destructiveApproved,
+      expectedDigest64,
+    });
+  }
   return snap;
 };
 
 /** Read + validate a baseline; returns null when absent, unreadable, unparseable, or a stale format. */
-const readSnapshot = async (absPath: string): Promise<SnapshotFile | null> => {
+const readSnapshot = async (
+  reader: RepoReader,
+  relativePath: string,
+): Promise<{ snapshot: SnapshotFile | null; digest64: string | null }> => {
   let raw: string;
   try {
-    raw = await readFile(absPath, 'utf8');
-  } catch {
-    return null; // ENOENT (no baseline) or unreadable — treat as "no baseline".
+    raw = await reader.readText(relativePath);
+  } catch (error) {
+    if ((error as { code?: unknown }).code === 'REPO_FILE_NOT_FOUND') {
+      return { snapshot: null, digest64: null };
+    }
+    throw error;
   }
+  const digest64 = createHash('sha256').update(raw, 'utf8').digest('hex');
   try {
     const parsed = JSON.parse(raw) as Partial<SnapshotFile>;
     if (
@@ -135,11 +160,11 @@ const readSnapshot = async (absPath: string): Promise<SnapshotFile | null> => {
       typeof parsed.context !== 'object' ||
       parsed.context === null
     ) {
-      return null; // Stale format or corrupt → re-baseline rather than mis-diff.
+      return { snapshot: null, digest64 };
     }
-    return parsed as SnapshotFile;
+    return { snapshot: parsed as SnapshotFile, digest64 };
   } catch {
-    return null;
+    return { snapshot: null, digest64 };
   }
 };
 
@@ -152,9 +177,13 @@ const readSnapshot = async (absPath: string): Promise<SnapshotFile | null> => {
 export const handleDesignDiff = async (
   dispatch: ToolDispatcher,
   rawArgs: unknown,
+  reader?: RepoReader,
+  files: AtomicWritePort = new AtomicFileStore(),
+  snapshotAuthority?: Readonly<DesignDiffSnapshotAuthority>,
 ): Promise<DesignDiffResult> => {
   const args = inputSchema.parse(rawArgs);
-  const rootDir = args.rootDir ?? process.cwd();
+  const rootDir = reader?.rootDir ?? args.rootDir ?? process.cwd();
+  const repo = reader ?? new RepoReader({ rootDir });
 
   const current = (await dispatch(GET_DESIGN_CONTEXT_TOOL_NAME, {
     ...(args.nodeId === undefined ? {} : { nodeId: args.nodeId }),
@@ -163,24 +192,55 @@ export const handleDesignDiff = async (
   })) as GetDesignContextResult;
 
   // Key the baseline by the requested nodeId, or the resolved root when the selection was used.
-  const key = args.nodeId ?? current.nodes[0]?.id;
-  if (key === undefined) {
+  const nodeId = args.nodeId ?? current.nodes[0]?.id;
+  if (nodeId === undefined) {
     throw new Error('design_diff: no node to diff (empty selection and no nodeId)');
   }
-  const relPath = join(SNAPSHOT_SUBDIR, `${sanitize(key)}.json`);
+  const snapshotKey = args.nodeId ?? 'selection';
+  const relPath = `${SNAPSHOT_SUBDIR.replaceAll('\\', '/')}/${sanitize(snapshotKey)}.json`;
   const absPath = join(rootDir, relPath);
   const multiRootNote =
     args.nodeId === undefined && current.nodes.length > 1
       ? `selection has ${current.nodes.length} root nodes; the baseline is keyed by the first ("${current.nodes[0]?.name}"). Pass an explicit nodeId for a stable per-node baseline.`
       : undefined;
 
-  const existing = await readSnapshot(absPath);
+  const observed = await readSnapshot(repo, relPath.split('\\').join('/'));
+  const existing = observed.snapshot;
+  const authority =
+    snapshotAuthority ??
+    Object.freeze({
+      relativePath: relPath,
+      absolutePath: absPath,
+      overwrites: observed.digest64 !== null,
+      destructiveApproved: false,
+    });
+  if (
+    authority.relativePath !== relPath ||
+    authority.absolutePath !== absPath ||
+    authority.overwrites !== (observed.digest64 !== null)
+  ) {
+    throw Object.assign(new Error('snapshot authority does not match the observed derived path'), {
+      code: 'SNAPSHOT_AUTHORITY_MISMATCH',
+    });
+  }
 
   if (existing === null) {
-    await writeSnapshot(absPath, key, current);
+    if (observed.digest64 !== null && args.update !== true) {
+      throw Object.assign(new Error('stale snapshot replacement requires update:true'), {
+        code: 'SNAPSHOT_REPLACE_REQUIRES_UPDATE',
+      });
+    }
+    await writeSnapshot(
+      absPath,
+      nodeId,
+      current,
+      files,
+      authority.destructiveApproved,
+      observed.digest64 ?? undefined,
+    );
     return {
       status: 'baseline-created',
-      nodeId: key,
+      nodeId,
       snapshotPath: relPath,
       ...(multiRootNote === undefined ? {} : { note: multiRootNote }),
     };
@@ -194,7 +254,16 @@ export const handleDesignDiff = async (
   };
   const hasChanges = summary.added + summary.removed + summary.changed > 0;
 
-  if (args.update === true) await writeSnapshot(absPath, key, current);
+  if (args.update === true) {
+    await writeSnapshot(
+      absPath,
+      nodeId,
+      current,
+      files,
+      authority.destructiveApproved,
+      observed.digest64 ?? undefined,
+    );
+  }
 
   const notes = [identityNote(existing.context, current), multiRootNote].filter(
     (n): n is string => n !== undefined,
@@ -202,7 +271,7 @@ export const handleDesignDiff = async (
 
   return {
     status: hasChanges ? 'diff' : 'no-changes',
-    nodeId: key,
+    nodeId,
     snapshotPath: relPath,
     baselineCapturedAt: existing.capturedAt,
     summary,

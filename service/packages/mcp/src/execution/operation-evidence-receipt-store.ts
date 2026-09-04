@@ -1,5 +1,5 @@
 import { createHash, randomBytes } from 'node:crypto';
-import { mkdir, open } from 'node:fs/promises';
+import { mkdir, open, type FileHandle } from 'node:fs/promises';
 import { join, resolve } from 'node:path';
 
 import {
@@ -149,6 +149,7 @@ interface StoreOptions {
   compactionHook?: (step: ImmutableGenerationStep) => Promise<void>;
   afterPreRuntimeRecoveryIntentFsync?: () => Promise<void>;
   afterReservationReleaseFsync?: () => Promise<void>;
+  syncPreparedReceipt?: (handle: FileHandle) => Promise<void>;
 }
 
 export class OperationEvidenceReceiptStore implements OperationEvidenceReceiptStorePort {
@@ -374,7 +375,7 @@ export class OperationEvidenceReceiptStore implements OperationEvidenceReceiptSt
     const handle = await open(this.logPath, 'a');
     try {
       await handle.writeFile(serialized, 'utf8');
-      await handle.sync();
+      await (this.options.syncPreparedReceipt ?? ((target: FileHandle) => target.sync()))(handle);
     } finally {
       await handle.close();
     }
@@ -483,19 +484,41 @@ export class OperationEvidenceReceiptStore implements OperationEvidenceReceiptSt
     });
     const logBytes = Buffer.from(rechained.map(row => `${canonicalJson(row)}\n`).join(''), 'utf8');
     const baseTailBytes = await readFileWithinLimit(this.logPath, this.limits.maxBytesPerActor);
-    await publishImmutableGeneration({
-      basePath: this.logPath,
-      store: 'operation-evidence',
-      actorHash: actorFilenameHash(this.options.actorId),
-      logBytes,
-      rows: rechained.length,
-      sequence: rechained.length,
-      previousRecordHash: rechained.at(-1)?.receiptHash ?? null,
-      firstRetainedRecordHash: rechained.at(0)?.receiptHash ?? null,
-      baseTailBytes,
-      now: input.now,
-      ...(this.options.compactionHook === undefined ? {} : { hook: this.options.compactionHook }),
-    });
+    try {
+      await publishImmutableGeneration({
+        basePath: this.logPath,
+        store: 'operation-evidence',
+        actorHash: actorFilenameHash(this.options.actorId),
+        logBytes,
+        rows: rechained.length,
+        sequence: rechained.length,
+        previousRecordHash: rechained.at(-1)?.receiptHash ?? null,
+        firstRetainedRecordHash: rechained.at(0)?.receiptHash ?? null,
+        baseTailBytes,
+        now: input.now,
+        ...(this.options.compactionHook === undefined ? {} : { hook: this.options.compactionHook }),
+      });
+    } catch (error) {
+      if (
+        (error as { code?: unknown; committed?: unknown }).code ===
+          'IMMUTABLE_GENERATION_COMMIT_OUTCOME_UNKNOWN' &&
+        (error as { committed?: unknown }).committed === true
+      ) {
+        this.recovered = false;
+        try {
+          await this.recoverUnlocked();
+        } catch (recoveryError) {
+          throw Object.assign(
+            new AggregateError(
+              [error, recoveryError],
+              'committed receipt compaction recovery failed',
+            ),
+            { code: 'IMMUTABLE_GENERATION_RECOVERY_FAILED', committed: true },
+          );
+        }
+      }
+      throw error;
+    }
     this.rows = rechained;
     this.receipts.clear();
     for (const receipt of rechained) this.receipts.set(receipt.operationId, receipt);

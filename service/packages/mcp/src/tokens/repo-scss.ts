@@ -1,7 +1,4 @@
-import { readFile } from 'node:fs/promises';
-import { join } from 'node:path';
-
-import { walkRepoFiles } from '../repo-walk.js';
+import { RepoReader } from '../fs/repo-walk.js';
 import { parseScssFile } from './scss-file.js';
 import type { ProjectToken } from './tokens.js';
 
@@ -41,20 +38,26 @@ export interface AggregatedScss {
  * whose value swallows the following lines is worse than no token, which is the rule this whole
  * reader is built on.
  */
-export const aggregateRepoScssTokens = async (rootDir: string): Promise<AggregatedScss> => {
+export const aggregateRepoScssTokens = async (
+  rootDir: string,
+  reader: RepoReader = new RepoReader({ rootDir }),
+): Promise<AggregatedScss> => {
   const tokens: ProjectToken[] = [];
   const files: string[] = [];
 
-  for await (const rel of walkRepoFiles(rootDir, { extensions: ['.scss'], cap: MAX_SCSS_FILES })) {
+  const walked = await reader.walk({ extensions: ['.scss'], cap: MAX_SCSS_FILES });
+  for (const rel of walked.files) {
     let body: string;
     try {
       // eslint-disable-next-line no-await-in-loop -- sequential repo walk; clarity over batching
-      body = await readFile(join(rootDir, rel), 'utf8');
-    } catch {
-      continue;
+      body = await reader.readText(rel);
+    } catch (error) {
+      if ((error as { code?: unknown }).code === 'REPO_FILE_NOT_FOUND') continue;
+      throw error;
     }
     const parsed = parseScssFile(body, rel);
     if (parsed.length > 0) {
+      reader.chargeParseResults(parsed.length);
       tokens.push(...parsed);
       files.push(rel);
     }

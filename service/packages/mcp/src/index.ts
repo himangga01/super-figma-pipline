@@ -1,4 +1,5 @@
 import { writeSync } from 'node:fs';
+import { isAbsolute, relative, sep } from 'node:path';
 
 import { McpServer } from '@modelcontextprotocol/server';
 import type { CallToolResult, ServerContext } from '@modelcontextprotocol/server';
@@ -20,6 +21,7 @@ import {
   type OperationEvidenceReceiptV1,
   type ProgressEvent,
   type VerifiedNativeEvidenceContextV1,
+  type WorkspacePolicy,
 } from '@sfp/shared';
 import { z } from 'zod';
 
@@ -55,6 +57,7 @@ import type { LeaderResources } from './election/node.js';
 import { EgressManifestStore } from './execution/egress-manifest-store.js';
 import {
   createDurableExecutionPlaneLifecyclePorts,
+  followerPingTimeoutForPlatform,
   GenerationRetentionCoordinator,
   GenerationRuntimeLifecycleRegistry,
   LeaderGenerationExecutionPlane,
@@ -79,8 +82,12 @@ import { loadOrCreateOperationIdIssuer } from './execution/operation-id.js';
 import { JournalWorkspaceUsageGuard, OperationJournal } from './execution/operation-journal.js';
 import { OperationResolutionIntentStore } from './execution/operation-resolution-intent.js';
 import { TargetResolver } from './execution/target-resolver.js';
-import { AtomicFileStore } from './fs/atomic-file.js';
-import { OperationEvidenceArtifactStore } from './fs/operation-evidence-artifact-store.js';
+import { AtomicFileStore, WorkspaceAtomicFileStore } from './fs/atomic-file.js';
+import {
+  OperationEvidenceArtifactStore,
+  withTask8ProjectionInvariants,
+} from './fs/operation-evidence-artifact-store.js';
+import { RepoReader } from './fs/repo-walk.js';
 import { createWorkspaceConfigStore } from './fs/workspace-config-store.js';
 import { createWorkspacePolicy } from './fs/workspace-policy.js';
 import { createWorkspaceRegistrationResolver } from './fs/workspace-registration-resolver.js';
@@ -104,6 +111,7 @@ import {
   loadOrCreateOwnerPrincipalKey,
 } from './security/principal-derivation.js';
 import { createStatePermissions } from './security/state-permissions.js';
+import { loadTokenValueIndex } from './tokens/token-index.js';
 import { ToolInvocationService } from './tool-invocation-service.js';
 import { ANALYZE_PROJECT_TOOL_NAME, handleAnalyzeProject } from './tools/analyze-project.js';
 import { annotationsFor } from './tools/annotations.js';
@@ -152,17 +160,19 @@ const statePermissions = createStatePermissions(stateRoot);
 await statePermissions.ensureSecure(stateRoot);
 await statePermissions.verifySecure(stateRoot);
 const mcpSession = createMcpSessionId();
-const followerTransport = await createFollowerAuthenticatedTransport({
-  stateRoot,
-  permissions: statePermissions,
-  leaderUrl: `http://127.0.0.1:${PORT}`,
-  mcpSession,
-});
-const pairing = await createPairingManager({
-  stateRoot,
-  permissions: statePermissions,
-  log,
-});
+const [followerTransport, pairing] = await Promise.all([
+  createFollowerAuthenticatedTransport({
+    stateRoot,
+    permissions: statePermissions,
+    leaderUrl: `http://127.0.0.1:${PORT}`,
+    mcpSession,
+  }),
+  createPairingManager({
+    stateRoot,
+    permissions: statePermissions,
+    log,
+  }),
+]);
 
 interface LeaderRuntime {
   generation: string;
@@ -235,6 +245,7 @@ const follower = new Follower({
   leaderUrl: node.leaderUrl,
   log,
   transport: followerTransport.client,
+  pingTimeoutMs: followerPingTimeoutForPlatform(process.platform),
 });
 const election = new Election({ node, follower, buildId: BUILD_ID, log });
 const followerInvocationClient = new FollowerInvocationClient(
@@ -326,7 +337,7 @@ const createPinnedPluginPort = (resources: LeaderResources): PinnedPluginRuntime
     },
   });
 
-const createServerAdapterPort = (): ServerAdapterRuntimePort =>
+const createServerAdapterPort = (workspacePolicy: WorkspacePolicy): ServerAdapterRuntimePort =>
   Object.freeze({
     execute: async (
       scope: RuntimeExecutionScope,
@@ -340,6 +351,67 @@ const createServerAdapterPort = (): ServerAdapterRuntimePort =>
       const dispatch = (name: string, value: unknown): Promise<unknown> =>
         plugin.execute(scope, name, value, signal, reporter, action);
       const routedDispatch = async (): Promise<typeof dispatch> => dispatch;
+      const workspaceId = scope.workspace.workspaceId;
+      const workspaceRoot = scope.workspace.workspaceRoot;
+      const requireWorkspaceId = (): string => {
+        if (workspaceId === null || workspaceRoot === null) {
+          throw Object.assign(new Error('local filesystem tool requires a workspace'), {
+            code: 'WORKSPACE_REQUIRED',
+          });
+        }
+        return workspaceId;
+      };
+      const workspaceArgs = (): Record<string, unknown> => {
+        const record =
+          typeof args === 'object' && args !== null && !Array.isArray(args)
+            ? { ...(args as Record<string, unknown>) }
+            : {};
+        const rootDir = scope.resolvedPaths?.rootDir;
+        if (rootDir !== undefined) record.rootDir = rootDir.path;
+        for (const pathArg of ['outDir', 'outPath'] as const) {
+          const resolved = scope.resolvedPaths?.[pathArg];
+          if (resolved === undefined || workspaceRoot === null) continue;
+          const fromRoot = relative(workspaceRoot, resolved.path);
+          if (fromRoot === '..' || fromRoot.startsWith(`..${sep}`) || isAbsolute(fromRoot)) {
+            throw Object.assign(new Error('output path is outside the resolved workspace root'), {
+              code: 'PATH_OUTSIDE_WORKSPACE',
+            });
+          }
+          record[pathArg] = (fromRoot === '' ? '.' : fromRoot).split(sep).join('/');
+        }
+        return record;
+      };
+      const repoReader = (): RepoReader => {
+        const id = requireWorkspaceId();
+        const rootDir = scope.resolvedPaths?.rootDir?.path ?? (workspaceRoot as string);
+        return new RepoReader({ rootDir, workspaceId: id, workspacePolicy, signal });
+      };
+      const localReadArgs = (reader: RepoReader): Record<string, unknown> => {
+        const record = workspaceArgs();
+        record.rootDir = reader.rootDir;
+        const tokenSource = scope.resolvedPaths?.tokenSource?.path;
+        if (tokenSource !== undefined) {
+          const fromRoot = relative(reader.rootDir, tokenSource);
+          if (
+            fromRoot === '' ||
+            fromRoot === '..' ||
+            fromRoot.startsWith(`..${sep}`) ||
+            isAbsolute(fromRoot)
+          ) {
+            throw Object.assign(new Error('token source is outside the resolved repo root'), {
+              code: 'PATH_OUTSIDE_WORKSPACE',
+            });
+          }
+          record.tokenSource = fromRoot.split(sep).join('/');
+        }
+        return record;
+      };
+      const workspaceFiles = (): WorkspaceAtomicFileStore =>
+        new WorkspaceAtomicFileStore({
+          workspaceId: requireWorkspaceId(),
+          workspacePolicy,
+          atomicFiles: new AtomicFileStore(),
+        });
       switch (toolName) {
         case 'ping':
           return handlePing({
@@ -350,34 +422,78 @@ const createServerAdapterPort = (): ServerAdapterRuntimePort =>
             log,
           });
         case SAVE_SCREENSHOTS_TOOL_NAME:
-          return handleSaveScreenshots(dispatch, args);
+          return handleSaveScreenshots(dispatch, workspaceArgs(), workspaceFiles());
         case SAVE_IMAGE_FILLS_TOOL_NAME:
-          return handleSaveImageFills(dispatch, args);
+          return handleSaveImageFills(dispatch, workspaceArgs(), workspaceFiles());
         case EXPORT_PDF_TOOL_NAME:
-          return handleExportPdf(dispatch, args);
+          return handleExportPdf(dispatch, workspaceArgs(), workspaceFiles());
         case EXPORT_VIDEO_TOOL_NAME:
-          return handleExportVideo(dispatch, args);
+          return handleExportVideo(dispatch, workspaceArgs(), workspaceFiles());
         case GET_SCREENSHOT_TOOL_NAME:
           return dispatch(GET_SCREENSHOT_TOOL_NAME, {
             ...(args as Record<string, unknown>),
             forVision: true,
           });
-        case ANALYZE_PROJECT_TOOL_NAME:
-          return handleAnalyzeProject(args);
-        case SCAN_COMPONENTS_TOOL_NAME:
-          return handleScanComponents(args);
-        case COMPONENT_MAP_TOOL_NAME:
-          return handleComponentMap(await routedDispatch(), args);
-        case TOKEN_MAP_TOOL_NAME:
-          return handleTokenMap(dispatch, args);
-        case ICON_MAP_TOOL_NAME:
-          return handleIconMap(await routedDispatch(), args);
+        case ANALYZE_PROJECT_TOOL_NAME: {
+          const reader = repoReader();
+          return handleAnalyzeProject(localReadArgs(reader), reader);
+        }
+        case SCAN_COMPONENTS_TOOL_NAME: {
+          const reader = repoReader();
+          return handleScanComponents(localReadArgs(reader), reader);
+        }
+        case COMPONENT_MAP_TOOL_NAME: {
+          const reader = repoReader();
+          return handleComponentMap(await routedDispatch(), localReadArgs(reader), reader);
+        }
+        case TOKEN_MAP_TOOL_NAME: {
+          const reader = repoReader();
+          return handleTokenMap(dispatch, localReadArgs(reader), reader);
+        }
+        case ICON_MAP_TOOL_NAME: {
+          const reader = repoReader();
+          return handleIconMap(await routedDispatch(), localReadArgs(reader), reader);
+        }
         case IMPORT_IMAGE_TOOL_NAME:
           return handleImportImage(dispatch, args);
-        case DESIGN_DIFF_TOOL_NAME:
-          return handleDesignDiff(dispatch, args);
+        case DESIGN_DIFF_TOOL_NAME: {
+          const reader = repoReader();
+          const localArgs = localReadArgs(reader);
+          const snapshot = scope.resolvedPaths?.snapshotPath;
+          if (snapshot === undefined) {
+            throw Object.assign(new Error('design diff snapshot authority is missing'), {
+              code: 'SNAPSHOT_AUTHORITY_MISMATCH',
+            });
+          }
+          const fromRoot = relative(reader.rootDir, snapshot.path);
+          if (
+            fromRoot === '' ||
+            fromRoot === '..' ||
+            fromRoot.startsWith(`..${sep}`) ||
+            isAbsolute(fromRoot)
+          ) {
+            throw Object.assign(new Error('design diff snapshot escaped the workspace'), {
+              code: 'SNAPSHOT_AUTHORITY_MISMATCH',
+            });
+          }
+          return handleDesignDiff(dispatch, localArgs, reader, workspaceFiles(), {
+            relativePath: fromRoot.split(sep).join('/'),
+            absolutePath: snapshot.path,
+            overwrites: snapshot.overwrites,
+            destructiveApproved:
+              action !== undefined && localArgs.update === true && snapshot.overwrites,
+          });
+        }
         case GET_DESIGN_CONTEXT_TOOL_NAME:
-          return handleDesignContext(dispatch, args);
+          if (workspaceId === null || workspaceRoot === null) {
+            return handleDesignContext(dispatch, args, null);
+          }
+          {
+            const reader = repoReader();
+            return handleDesignContext(dispatch, args, () =>
+              loadTokenValueIndex(reader.rootDir, reader),
+            );
+          }
         default:
           throw Object.assign(new Error(`server adapter missing: ${toolName}`), {
             code: 'SERVER_ADAPTER_MISSING',
@@ -391,6 +507,13 @@ const initializeLeaderRuntime = async (resources: LeaderResources): Promise<Lead
   const existing = runtimeLifecycles.get(generation);
   if (existing !== undefined) return existing;
   const initializing = runtimeLifecycles.initialize(generation, async signal => {
+    const assertInitializationActive = (): void => {
+      if (!signal.aborted) return;
+      throw Object.assign(new Error('leader generation closed during runtime initialization'), {
+        code: 'LEADER_GENERATION_CLOSED',
+      });
+    };
+    assertInitializationActive();
     if (resources.executionPlane === undefined) {
       throw Object.assign(new Error('leader execution plane was not constructed'), {
         code: 'EXECUTION_PLANE_UNAVAILABLE',
@@ -400,11 +523,13 @@ const initializeLeaderRuntime = async (resources: LeaderResources): Promise<Lead
       stateRoot,
       permissions: statePermissions,
     });
+    assertInitializationActive();
     const ownerActorId = deriveOwnerActor(ownerPrincipalKey, 'control');
     const operationIdIssuer = await loadOrCreateOperationIdIssuer({
       stateRoot,
       permissions: statePermissions,
     });
+    assertInitializationActive();
     const operationJournal = new OperationJournal({ stateRoot, actorId: ownerActorId });
     initializingAuthorities.set(generation, { operationJournal });
     const operationResolutionIntents = new OperationResolutionIntentStore({
@@ -473,11 +598,13 @@ const initializeLeaderRuntime = async (resources: LeaderResources): Promise<Lead
         },
       }),
     ]);
+    assertInitializationActive();
     const workspaceBinding = createMcpWorkspaceBinding(workspaceStore);
     const egressConfigStore = createEgressConfigStore(stateRoot, statePermissions);
     const adminAuditStore = createAdminAuditStore({ stateRoot });
     await adminAuditStore.queryEgress(ownerActorId, { since: null, cursor: null, limit: 1 });
     await adminAuditStore.recover(await egressConfigStore.load());
+    assertInitializationActive();
     const actionNonces = createActionNonceStore({ leaderGeneration: generation });
     const approvalBroker = createApprovalBroker({
       deliverPluginPrompt: async () => {
@@ -575,22 +702,33 @@ const initializeLeaderRuntime = async (resources: LeaderResources): Promise<Lead
       };
       /* eslint-disable no-await-in-loop -- each workspace orphan set is identity-verified */
       for (const workspace of await workspaceStore.list()) {
-        await artifacts.discoverAndCleanupOrphans({
+        const orphanState = await artifacts.discoverAndCleanupOrphans({
           workspaceId: workspace.workspaceId,
           hasLinkedEvidence,
         });
-        await nativeArtifacts.discoverAndCleanupOrphans({
+        if (orphanState.status === 'manual-cleanup') {
+          log(
+            `[retention] workspace ${workspace.workspaceId} evidence requires manual cleanup (${orphanState.errorCode}; scanned=${orphanState.scannedEntries}; rows=${orphanState.retainedRows}; bytes=${orphanState.retainedBytes})`,
+          );
+        }
+        const nativeOrphanState = await nativeArtifacts.discoverAndCleanupOrphans({
           workspaceId: workspace.workspaceId,
           hasLinkedEvidence,
         });
+        if (nativeOrphanState.status === 'manual-cleanup') {
+          log(
+            `[retention] workspace ${workspace.workspaceId} native evidence requires manual cleanup (${nativeOrphanState.errorCode}; scanned=${nativeOrphanState.scannedEntries}; rows=${nativeOrphanState.retainedRows}; bytes=${nativeOrphanState.retainedBytes})`,
+          );
+        }
       }
       /* eslint-enable no-await-in-loop */
       await operationJournal.purgeExpiredTombstones();
     });
     await retention.sweep();
+    assertInitializationActive();
     const runtimes = createBoundRuntimeRegistry(
       createPinnedPluginPort(resources),
-      createServerAdapterPort(),
+      createServerAdapterPort(workspacePolicy),
     );
     const executor = new OperationExecutor({
       issuer: operationIdIssuer,
@@ -601,7 +739,7 @@ const initializeLeaderRuntime = async (resources: LeaderResources): Promise<Lead
         egress: egressManifests,
         receipts: evidenceReceipts,
         artifacts,
-        projector: createOperationEvidenceProjector(),
+        projector: withTask8ProjectionInvariants(createOperationEvidenceProjector()),
         nativeArtifacts,
       },
     });
@@ -783,7 +921,7 @@ const initializeLeaderRuntime = async (resources: LeaderResources): Promise<Lead
         cancel: (principal, request) => resources.executionPlane!.cancel(principal, request),
       },
     });
-    signal.throwIfAborted();
+    assertInitializationActive();
     if (node.getLeader() !== resources) {
       throw Object.assign(new Error('leader generation changed during runtime initialization'), {
         code: 'LEADER_GENERATION_CLOSED',
@@ -877,6 +1015,17 @@ node.onRoleChange(role => {
           });
         },
         log,
+      });
+      void initializeLeaderRuntime(res).catch(error => {
+        if (
+          typeof error === 'object' &&
+          error !== null &&
+          'code' in error &&
+          error.code === 'LEADER_GENERATION_CLOSED'
+        ) {
+          return;
+        }
+        log(`[execution] leader runtime initialization failed (${String(error)})`);
       });
     }
   }

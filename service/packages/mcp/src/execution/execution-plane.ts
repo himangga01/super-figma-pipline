@@ -1,3 +1,5 @@
+import { join } from 'node:path';
+
 import {
   ALL_DATA_CLASSES,
   Base64Url128Schema,
@@ -40,6 +42,9 @@ import { resultEgressPolicyFor } from '../policy/result-egress-policy.js';
 import { ALL_TOOL_SPECS } from '../tools/registry.js';
 import type { ToolSpec } from '../tools/spec.js';
 import type { LeaderDemotionCapability, OperationJournal } from './operation-journal.js';
+
+export const followerPingTimeoutForPlatform = (platform: NodeJS.Platform): number =>
+  platform === 'win32' ? 5_000 : 2_000;
 
 export interface DemotionTicket {
   leaderGeneration: string;
@@ -229,14 +234,18 @@ export class GenerationRuntimeLifecycleRegistry<T extends { close(): Promise<voi
     }
   >();
 
-  initialize(generation: string, initialize: (signal: AbortSignal) => Promise<T>): Promise<T> {
-    if (this.states.has(generation)) {
-      return Promise.reject(
-        Object.assign(new Error('generation runtime already exists'), {
-          code: 'EXECUTION_PLANE_ALREADY_BOUND',
-        }),
-      );
+  constructor(private readonly options: { closeTimeoutMs?: number } = {}) {
+    const timeout = options.closeTimeoutMs ?? 5_000;
+    if (!Number.isSafeInteger(timeout) || timeout < 1 || timeout > 30_000) {
+      throw Object.assign(new Error('generation runtime close timeout is invalid'), {
+        code: 'LEADER_GENERATION_CLOSE_TIMEOUT_INVALID',
+      });
     }
+  }
+
+  initialize(generation: string, initialize: (signal: AbortSignal) => Promise<T>): Promise<T> {
+    const existing = this.states.get(generation);
+    if (existing !== undefined) return existing.promise;
     const controller = new AbortController();
     const state = {
       controller,
@@ -250,19 +259,29 @@ export class GenerationRuntimeLifecycleRegistry<T extends { close(): Promise<voi
     } catch (error) {
       initialized = Promise.reject(error);
     }
-    state.promise = initialized.then(async runtime => {
-      if (state.closing || controller.signal.aborted) {
-        if (!state.closed) {
-          state.closed = true;
-          await runtime.close();
+    state.promise = initialized
+      .then(async runtime => {
+        if (state.closing || controller.signal.aborted) {
+          if (!state.closed) {
+            state.closed = true;
+            await runtime.close();
+          }
+          throw Object.assign(new Error('leader generation closed during initialization'), {
+            code: 'LEADER_GENERATION_CLOSED',
+          });
         }
-        throw Object.assign(new Error('leader generation closed during initialization'), {
-          code: 'LEADER_GENERATION_CLOSED',
-        });
-      }
-      return runtime;
-    });
+        return runtime;
+      })
+      .catch(error => {
+        if (!state.closing && this.states.get(generation) === state) this.states.delete(generation);
+        throw error;
+      });
     this.states.set(generation, state);
+    void state.promise
+      .finally(() => {
+        if (state.closing && this.states.get(generation) === state) this.states.delete(generation);
+      })
+      .catch(() => undefined);
     return state.promise;
   }
 
@@ -279,13 +298,14 @@ export class GenerationRuntimeLifecycleRegistry<T extends { close(): Promise<voi
         code: 'LEADER_GENERATION_CLOSED',
       }),
     );
-    try {
+    const settle = async (): Promise<void> => {
       const runtime = await state.promise;
       if (!state.closed) {
         state.closed = true;
         await runtime.close();
       }
-    } catch (error) {
+    };
+    const normalized = settle().catch(error => {
       if (
         typeof error !== 'object' ||
         error === null ||
@@ -294,9 +314,22 @@ export class GenerationRuntimeLifecycleRegistry<T extends { close(): Promise<voi
       ) {
         throw error;
       }
-    } finally {
-      this.states.delete(generation);
+    });
+    const timeoutMs = this.options.closeTimeoutMs ?? 5_000;
+    let timeout: ReturnType<typeof setTimeout> | undefined;
+    const outcome = await Promise.race([
+      normalized.then(() => 'closed' as const),
+      new Promise<'timeout'>(resolve => {
+        timeout = setTimeout(() => resolve('timeout'), timeoutMs);
+      }),
+    ]);
+    if (timeout !== undefined) clearTimeout(timeout);
+    if (outcome === 'timeout') {
+      throw Object.assign(new Error('leader generation close timed out'), {
+        code: 'LEADER_GENERATION_CLOSE_TIMEOUT',
+      });
     }
+    if (this.states.get(generation) === state) this.states.delete(generation);
   }
 }
 
@@ -1138,12 +1171,19 @@ export const resolvePolicyInvocationContext = async (
   workspace: PolicyInvocationContext['workspace'],
   workspacePolicy: WorkspacePolicy,
 ): Promise<Readonly<PolicyInvocationContext>> => {
-  const pathModes = new Map<string, 'read' | 'write'>();
+  const pathModes = new Map<string, 'read' | 'write' | 'write-directory'>();
   for (const effect of operationPolicyFor(spec.name).possibleEffects) {
     if (effect.type !== 'filesystem-read' && effect.type !== 'filesystem-write') continue;
     for (const pathArg of effect.pathArgs) {
       if (effect.type === 'filesystem-write' || !pathModes.has(pathArg)) {
-        pathModes.set(pathArg, effect.type === 'filesystem-write' ? 'write' : 'read');
+        pathModes.set(
+          pathArg,
+          effect.type === 'filesystem-write'
+            ? pathArg === 'outDir'
+              ? 'write-directory'
+              : 'write'
+            : 'read',
+        );
       }
     }
   }
@@ -1154,9 +1194,18 @@ export const resolvePolicyInvocationContext = async (
   /* eslint-disable no-await-in-loop -- preserve path order and fail before later metadata probes */
   for (const [pathArg, mode] of pathModes) {
     const input = parsedArgs[pathArg];
+    if (pathArg === 'snapshotPath') continue;
     if (typeof input !== 'string') continue;
     if (workspace.workspaceId === null) continue;
-    if (mode === 'write') {
+    if (mode === 'write-directory') {
+      if (workspacePolicy.resolveWriteDirectory === undefined) {
+        throw Object.assign(new Error('workspace directory resolver is unavailable'), {
+          code: 'WORKSPACE_DIRECTORY_RESOLUTION_UNAVAILABLE',
+        });
+      }
+      const resolved = await workspacePolicy.resolveWriteDirectory(workspace.workspaceId, input);
+      resolvedPaths[pathArg] = Object.freeze({ path: resolved.path, overwrites: false });
+    } else if (mode === 'write') {
       const resolved = await workspacePolicy.resolveWrite(workspace.workspaceId, input);
       resolvedPaths[pathArg] = Object.freeze({ ...resolved });
     } else {
@@ -1165,6 +1214,22 @@ export const resolvePolicyInvocationContext = async (
     }
   }
   /* eslint-enable no-await-in-loop */
+  if (spec.name === 'design_diff' && workspace.workspaceId !== null) {
+    const requested = parsedArgs.nodeId;
+    const key =
+      typeof requested === 'string' && requested.length > 0
+        ? requested.replace(/[^\w.-]/gu, '-')
+        : 'selection';
+    const snapshotRoot = resolvedPaths.rootDir?.path ?? workspace.workspaceRoot;
+    if (snapshotRoot === null) {
+      throw Object.assign(new Error('design diff snapshot root is unavailable'), {
+        code: 'SNAPSHOT_AUTHORITY_MISMATCH',
+      });
+    }
+    const snapshotPath = join(snapshotRoot, '.figwright', 'snapshots', `${key}.json`);
+    const resolved = await workspacePolicy.resolveWrite(workspace.workspaceId, snapshotPath);
+    resolvedPaths.snapshotPath = Object.freeze({ ...resolved });
+  }
   const frozenWorkspace = Object.freeze({ ...workspace });
   return Object.keys(resolvedPaths).length === 0
     ? Object.freeze({ workspace: frozenWorkspace })

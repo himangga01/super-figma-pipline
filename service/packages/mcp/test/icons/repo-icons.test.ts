@@ -4,6 +4,7 @@ import { join } from 'node:path';
 
 import { afterEach, describe, expect, it } from 'vitest';
 
+import { RepoReader } from '../../src/fs/repo-walk.js';
 import { classifySvgColor, detectIconLibraries, scanRepoSvgs } from '../../src/icons/repo-icons.js';
 
 describe('classifySvgColor', () => {
@@ -67,5 +68,29 @@ describe('scanRepoSvgs', () => {
     const byName = Object.fromEntries(svgs.map(s => [s.fileName, s.colorContract]));
     expect(byName).toEqual({ search: 'currentColor', logo: 'fixed' });
     expect(svgs.some(s => s.path.includes('node_modules'))).toBe(false);
+  });
+
+  it('uses the injected RepoReader authority rather than a raw root argument', async () => {
+    const declaredRoot = await mkdtemp(join(tmpdir(), 'svg-declared-root-'));
+    dir = await mkdtemp(join(tmpdir(), 'svg-authority-root-'));
+    try {
+      await mkdir(join(dir, 'icons'), { recursive: true });
+      await writeFile(join(dir, 'icons', 'owned.svg'), '<svg><path fill="currentColor"/></svg>');
+      const svgs = await scanRepoSvgs(declaredRoot, new RepoReader({ rootDir: dir }));
+      expect(svgs.map(svg => svg.fileName)).toEqual(['owned']);
+    } finally {
+      await rm(declaredRoot, { recursive: true, force: true });
+    }
+  });
+
+  it('bounds icon result accumulation with the shared RepoReader parse budget', async () => {
+    dir = await mkdtemp(join(tmpdir(), 'svg-budget-'));
+    await writeFile(join(dir, 'a.svg'), '<svg/>');
+    await writeFile(join(dir, 'b.svg'), '<svg/>');
+    const reader = new RepoReader({ rootDir: dir, maxParseResults: 1 } as never);
+
+    await expect(scanRepoSvgs(dir, reader)).rejects.toMatchObject({
+      code: 'REPO_PARSE_RESULT_LIMIT_EXCEEDED',
+    });
   });
 });

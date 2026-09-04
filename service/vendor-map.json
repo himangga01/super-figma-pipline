@@ -106,16 +106,6 @@
     {
       "mode": "copy",
       "originCommit": "a835e81b575eab2c9265a67f9353c89b848f81ca",
-      "sourcePath": "packages/mcp/src/icons/repo-icons.ts",
-      "destination": "packages/mcp/src/icons/repo-icons.ts",
-      "baseSha256": "d63f2f8cda2f1b3b547805af23807ccc8f62036426f26c18f0099c8d96bca5d9",
-      "currentSha256": "d63f2f8cda2f1b3b547805af23807ccc8f62036426f26c18f0099c8d96bca5d9",
-      "transformations": [],
-      "licenseId": "MIT"
-    },
-    {
-      "mode": "copy",
-      "originCommit": "a835e81b575eab2c9265a67f9353c89b848f81ca",
       "sourcePath": "packages/mcp/src/ignored-dirs.ts",
       "destination": "packages/mcp/src/ignored-dirs.ts",
       "baseSha256": "d4bffd382d2459ccf205d7302f6ab761f7c8a180fff2a516a6fe6425482b584a",
@@ -206,16 +196,6 @@
     {
       "mode": "copy",
       "originCommit": "a835e81b575eab2c9265a67f9353c89b848f81ca",
-      "sourcePath": "packages/mcp/src/profile/profile.ts",
-      "destination": "packages/mcp/src/profile/profile.ts",
-      "baseSha256": "5d3517765bc0a6606271e5530b8013a527679d45ba91e023bdea0adbaa587c33",
-      "currentSha256": "5d3517765bc0a6606271e5530b8013a527679d45ba91e023bdea0adbaa587c33",
-      "transformations": [],
-      "licenseId": "MIT"
-    },
-    {
-      "mode": "copy",
-      "originCommit": "a835e81b575eab2c9265a67f9353c89b848f81ca",
       "sourcePath": "packages/mcp/src/prompts/code-to-figma.ts",
       "destination": "packages/mcp/src/prompts/code-to-figma.ts",
       "baseSha256": "bed5e33fea583e01bf6852015205f6d8540c82d5837f9ddff44ac21b153fb8f1",
@@ -240,26 +220,6 @@
       "destination": "packages/mcp/src/prompts/registry.ts",
       "baseSha256": "40dafa70eb3a1ef8742ad406c4948eb92e70cc1eb32e162871ff53f3b96f9110",
       "currentSha256": "40dafa70eb3a1ef8742ad406c4948eb92e70cc1eb32e162871ff53f3b96f9110",
-      "transformations": [],
-      "licenseId": "MIT"
-    },
-    {
-      "mode": "copy",
-      "originCommit": "a835e81b575eab2c9265a67f9353c89b848f81ca",
-      "sourcePath": "packages/mcp/src/repo-walk.ts",
-      "destination": "packages/mcp/src/repo-walk.ts",
-      "baseSha256": "f334ef8a2ba8a2b97163706ce48136e70b86112bd47e99291b25967ef7d56796",
-      "currentSha256": "f334ef8a2ba8a2b97163706ce48136e70b86112bd47e99291b25967ef7d56796",
-      "transformations": [],
-      "licenseId": "MIT"
-    },
-    {
-      "mode": "copy",
-      "originCommit": "a835e81b575eab2c9265a67f9353c89b848f81ca",
-      "sourcePath": "packages/mcp/src/scan/scan.ts",
-      "destination": "packages/mcp/src/scan/scan.ts",
-      "baseSha256": "8e54b070c0dfe3a79e0c5c47da53b516be809e5ddb0bdf86b13e5561290b1aed",
-      "currentSha256": "8e54b070c0dfe3a79e0c5c47da53b516be809e5ddb0bdf86b13e5561290b1aed",
       "transformations": [],
       "licenseId": "MIT"
     },
@@ -296,16 +256,6 @@
     {
       "mode": "copy",
       "originCommit": "a835e81b575eab2c9265a67f9353c89b848f81ca",
-      "sourcePath": "packages/mcp/src/tokens/generated-tokens.ts",
-      "destination": "packages/mcp/src/tokens/generated-tokens.ts",
-      "baseSha256": "390d30a6d8941410e8b6b71dac254a473797132a7cfb7cb8ccf7c32858dcb991",
-      "currentSha256": "390d30a6d8941410e8b6b71dac254a473797132a7cfb7cb8ccf7c32858dcb991",
-      "transformations": [],
-      "licenseId": "MIT"
-    },
-    {
-      "mode": "copy",
-      "originCommit": "a835e81b575eab2c9265a67f9353c89b848f81ca",
       "sourcePath": "packages/mcp/src/tokens/hex.ts",
       "destination": "packages/mcp/src/tokens/hex.ts",
       "baseSha256": "8b57b39a0fc17c58e1437525d5170df2ee3aca5f342a213f7f222649fd71df70",
@@ -326,51 +276,11 @@
     {
       "mode": "copy",
       "originCommit": "a835e81b575eab2c9265a67f9353c89b848f81ca",
-      "sourcePath": "packages/mcp/src/tokens/load.ts",
-      "destination": "packages/mcp/src/tokens/load.ts",
-      "baseSha256": "ca56fbc661965377eac8a93d79e34b2daa40722e4bcbc09c28e81ddcb0605e7e",
-      "currentSha256": "ca56fbc661965377eac8a93d79e34b2daa40722e4bcbc09c28e81ddcb0605e7e",
-      "transformations": [],
-      "licenseId": "MIT"
-    },
-    {
-      "mode": "copy",
-      "originCommit": "a835e81b575eab2c9265a67f9353c89b848f81ca",
-      "sourcePath": "packages/mcp/src/tokens/repo-css.ts",
-      "destination": "packages/mcp/src/tokens/repo-css.ts",
-      "baseSha256": "8cd6d1ac927c2d64f21035a90037b7c62e02bd2befd7dba8e59e8fadc8f9aa74",
-      "currentSha256": "8cd6d1ac927c2d64f21035a90037b7c62e02bd2befd7dba8e59e8fadc8f9aa74",
-      "transformations": [],
-      "licenseId": "MIT"
-    },
-    {
-      "mode": "copy",
-      "originCommit": "a835e81b575eab2c9265a67f9353c89b848f81ca",
-      "sourcePath": "packages/mcp/src/tokens/repo-scss.ts",
-      "destination": "packages/mcp/src/tokens/repo-scss.ts",
-      "baseSha256": "06d5d75e25801d2672a7038d61fab3eeb388827f383cca05bdde0d653bfc2040",
-      "currentSha256": "06d5d75e25801d2672a7038d61fab3eeb388827f383cca05bdde0d653bfc2040",
-      "transformations": [],
-      "licenseId": "MIT"
-    },
-    {
-      "mode": "copy",
-      "originCommit": "a835e81b575eab2c9265a67f9353c89b848f81ca",
       "sourcePath": "packages/mcp/src/tokens/scss-file.ts",
       "destination": "packages/mcp/src/tokens/scss-file.ts",
       "baseSha256": "75ba0c0cc4b18f04242e24a443bd3ecb7716c251d0b82edbe5fe61fd78cd00b0",
       "currentSha256": "75ba0c0cc4b18f04242e24a443bd3ecb7716c251d0b82edbe5fe61fd78cd00b0",
       "transformations": [],
-      "licenseId": "MIT"
-    },
-    {
-      "mode": "copy",
-      "originCommit": "a835e81b575eab2c9265a67f9353c89b848f81ca",
-      "sourcePath": "packages/mcp/src/tokens/token-index.ts",
-      "destination": "packages/mcp/src/tokens/token-index.ts",
-      "baseSha256": "0546a0be96bcdd9015aa1207d7241d015ff7d7f4e1867bc9d923c2b9ac69c3a1",
-      "currentSha256": "210c4b0f9ac182ab19a3599cdb76bc6cac94369e9493fe7c448cd093c659a7b4",
-      "transformations": ["package-specifier-rewrite", "oxfmt-normalize"],
       "licenseId": "MIT"
     },
     {
@@ -391,16 +301,6 @@
       "baseSha256": "9b57408b0eb8110eea61a7f9d645aad1fd095b86229866a394f5d5c75b75b8aa",
       "currentSha256": "9b57408b0eb8110eea61a7f9d645aad1fd095b86229866a394f5d5c75b75b8aa",
       "transformations": [],
-      "licenseId": "MIT"
-    },
-    {
-      "mode": "copy",
-      "originCommit": "a835e81b575eab2c9265a67f9353c89b848f81ca",
-      "sourcePath": "packages/mcp/src/tools/design-context-guard.ts",
-      "destination": "packages/mcp/src/tools/design-context-guard.ts",
-      "baseSha256": "f9228410098da1770e2d82ae1b1773ea58074b6f6d6de5189fccdb942912920e",
-      "currentSha256": "93fd42cc512f92ef20d9b3befc298c6d1c5afe4f62d429b27a395e746c235ec9",
-      "transformations": ["package-specifier-rewrite", "oxfmt-normalize"],
       "licenseId": "MIT"
     },
     {
@@ -501,16 +401,6 @@
       "baseSha256": "99f22dc3ad71dd959ee54624234785e68b9d249d674178d4c3faf76c78deaa60",
       "currentSha256": "7604d3af3fefbf026f0a49a35ef5d3b0dab679651b7454f1e8b885250c1b2187",
       "transformations": ["package-specifier-rewrite", "oxfmt-normalize"],
-      "licenseId": "MIT"
-    },
-    {
-      "mode": "copy",
-      "originCommit": "a835e81b575eab2c9265a67f9353c89b848f81ca",
-      "sourcePath": "packages/mcp/test/icons/repo-icons.test.ts",
-      "destination": "packages/mcp/test/icons/repo-icons.test.ts",
-      "baseSha256": "7df01878a41d9c66db7f846445df160804e7a6a5becbb893d01d9eb309306fd9",
-      "currentSha256": "7df01878a41d9c66db7f846445df160804e7a6a5becbb893d01d9eb309306fd9",
-      "transformations": [],
       "licenseId": "MIT"
     },
     {
@@ -626,16 +516,6 @@
     {
       "mode": "copy",
       "originCommit": "a835e81b575eab2c9265a67f9353c89b848f81ca",
-      "sourcePath": "packages/mcp/test/profile/profile.test.ts",
-      "destination": "packages/mcp/test/profile/profile.test.ts",
-      "baseSha256": "f035f5c6524ed9dedbae1eab8fad3c56ed8e1c94fdce6e9bb1c63072d2027ccc",
-      "currentSha256": "f035f5c6524ed9dedbae1eab8fad3c56ed8e1c94fdce6e9bb1c63072d2027ccc",
-      "transformations": [],
-      "licenseId": "MIT"
-    },
-    {
-      "mode": "copy",
-      "originCommit": "a835e81b575eab2c9265a67f9353c89b848f81ca",
       "sourcePath": "packages/mcp/test/profile/styling-cascade.test.ts",
       "destination": "packages/mcp/test/profile/styling-cascade.test.ts",
       "baseSha256": "1574c214d8e1cea04f16fde17070356d23cf250364aa1e36aea9a99cfc727823",
@@ -676,26 +556,6 @@
     {
       "mode": "copy",
       "originCommit": "a835e81b575eab2c9265a67f9353c89b848f81ca",
-      "sourcePath": "packages/mcp/test/repo-walk.test.ts",
-      "destination": "packages/mcp/test/repo-walk.test.ts",
-      "baseSha256": "3cb715c92cfc9314de60d4000662cff2b50f3afd5a26a7800ad4bfc3375f0b49",
-      "currentSha256": "3cb715c92cfc9314de60d4000662cff2b50f3afd5a26a7800ad4bfc3375f0b49",
-      "transformations": [],
-      "licenseId": "MIT"
-    },
-    {
-      "mode": "copy",
-      "originCommit": "a835e81b575eab2c9265a67f9353c89b848f81ca",
-      "sourcePath": "packages/mcp/test/scan/scan.test.ts",
-      "destination": "packages/mcp/test/scan/scan.test.ts",
-      "baseSha256": "c5a9dbc70e42a7cca54143bf7bb3cdf7472c40bf9bb28121e64070de5e89cdb9",
-      "currentSha256": "c5a9dbc70e42a7cca54143bf7bb3cdf7472c40bf9bb28121e64070de5e89cdb9",
-      "transformations": [],
-      "licenseId": "MIT"
-    },
-    {
-      "mode": "copy",
-      "originCommit": "a835e81b575eab2c9265a67f9353c89b848f81ca",
       "sourcePath": "packages/mcp/test/scan/sfc-blocks.test.ts",
       "destination": "packages/mcp/test/scan/sfc-blocks.test.ts",
       "baseSha256": "c64fba9a8cfb847a222f0f887d52785a962bba577ad26c992fccc111e13631be",
@@ -726,51 +586,11 @@
     {
       "mode": "copy",
       "originCommit": "a835e81b575eab2c9265a67f9353c89b848f81ca",
-      "sourcePath": "packages/mcp/test/tokens/generated-tokens.test.ts",
-      "destination": "packages/mcp/test/tokens/generated-tokens.test.ts",
-      "baseSha256": "fd4736234e886ba631812d179d22b7a69d8c36dede6027e42085cb489cdb1156",
-      "currentSha256": "fd4736234e886ba631812d179d22b7a69d8c36dede6027e42085cb489cdb1156",
-      "transformations": [],
-      "licenseId": "MIT"
-    },
-    {
-      "mode": "copy",
-      "originCommit": "a835e81b575eab2c9265a67f9353c89b848f81ca",
       "sourcePath": "packages/mcp/test/tokens/js-config.test.ts",
       "destination": "packages/mcp/test/tokens/js-config.test.ts",
       "baseSha256": "018dfe1c39446b515ec062c79e66ee905618533b978a33a984fa9a6397ce9c50",
       "currentSha256": "018dfe1c39446b515ec062c79e66ee905618533b978a33a984fa9a6397ce9c50",
       "transformations": [],
-      "licenseId": "MIT"
-    },
-    {
-      "mode": "copy",
-      "originCommit": "a835e81b575eab2c9265a67f9353c89b848f81ca",
-      "sourcePath": "packages/mcp/test/tokens/load.test.ts",
-      "destination": "packages/mcp/test/tokens/load.test.ts",
-      "baseSha256": "cd5e57d013e5f979684b1c49db6ebea63c8aa95b99003f7007e833dee6463b19",
-      "currentSha256": "cd5e57d013e5f979684b1c49db6ebea63c8aa95b99003f7007e833dee6463b19",
-      "transformations": [],
-      "licenseId": "MIT"
-    },
-    {
-      "mode": "copy",
-      "originCommit": "a835e81b575eab2c9265a67f9353c89b848f81ca",
-      "sourcePath": "packages/mcp/test/tokens/repo-css.test.ts",
-      "destination": "packages/mcp/test/tokens/repo-css.test.ts",
-      "baseSha256": "cf19abc52eb521fdf295a04bd515016b752b9577f8b64a4b3c2db4e4153ed070",
-      "currentSha256": "cf19abc52eb521fdf295a04bd515016b752b9577f8b64a4b3c2db4e4153ed070",
-      "transformations": [],
-      "licenseId": "MIT"
-    },
-    {
-      "mode": "copy",
-      "originCommit": "a835e81b575eab2c9265a67f9353c89b848f81ca",
-      "sourcePath": "packages/mcp/test/tokens/token-index.test.ts",
-      "destination": "packages/mcp/test/tokens/token-index.test.ts",
-      "baseSha256": "a4ac5f5ed66500e5257f1fe2dd2df1648f90bc193e4bbd71868723bfd3db90a7",
-      "currentSha256": "37562ff64ac0e0d55bf97fb79178784fae8e1b1684860e1e822eeccdaef60742",
-      "transformations": ["package-specifier-rewrite", "oxfmt-normalize"],
       "licenseId": "MIT"
     },
     {
@@ -790,26 +610,6 @@
       "destination": "packages/mcp/test/tools/component-map.test.ts",
       "baseSha256": "058731561f5f3dcb5090095f125d32bdc2ea5f579d537a7f42b8f8e70666560e",
       "currentSha256": "2e955b671e17652bc3fe378d6dedfa6d3744a73dbfd9e36a9f2f8f9d567d506f",
-      "transformations": ["package-specifier-rewrite", "oxfmt-normalize"],
-      "licenseId": "MIT"
-    },
-    {
-      "mode": "copy",
-      "originCommit": "a835e81b575eab2c9265a67f9353c89b848f81ca",
-      "sourcePath": "packages/mcp/test/tools/design-context-guard.test.ts",
-      "destination": "packages/mcp/test/tools/design-context-guard.test.ts",
-      "baseSha256": "b2af61c84666a401f599f9edfe943921db88e9c0f6285ae7862703222ecbfbd9",
-      "currentSha256": "33ea3539998211e13fdecefb05fe6b3bb27787775768651a3ede22bccda0b4e4",
-      "transformations": ["package-specifier-rewrite", "oxfmt-normalize"],
-      "licenseId": "MIT"
-    },
-    {
-      "mode": "copy",
-      "originCommit": "a835e81b575eab2c9265a67f9353c89b848f81ca",
-      "sourcePath": "packages/mcp/test/tools/design-diff.test.ts",
-      "destination": "packages/mcp/test/tools/design-diff.test.ts",
-      "baseSha256": "e1738cd2d47f50d55220590a185f59bb8c61469bd6883bcaa77e437a0cadf00c",
-      "currentSha256": "2751c7bcc0eceae04cb0ee21a072996b4aa2880ea6db434dbf6e1f8f8974a5fc",
       "transformations": ["package-specifier-rewrite", "oxfmt-normalize"],
       "licenseId": "MIT"
     },
@@ -891,26 +691,6 @@
       "baseSha256": "e4bc78cb24738e7cbd297e7e854690c0bd590b6c3685e6348584d36c295ea292",
       "currentSha256": "e4bc78cb24738e7cbd297e7e854690c0bd590b6c3685e6348584d36c295ea292",
       "transformations": [],
-      "licenseId": "MIT"
-    },
-    {
-      "mode": "copy",
-      "originCommit": "a835e81b575eab2c9265a67f9353c89b848f81ca",
-      "sourcePath": "packages/mcp/test/tools/save-image-fills.test.ts",
-      "destination": "packages/mcp/test/tools/save-image-fills.test.ts",
-      "baseSha256": "86d0227498c8f4e12838599809420c6f956bd95bb14e9832b690b57bb62e993c",
-      "currentSha256": "ec08c5bcd30d7e171db5dbee712b83e421240602a45dafbeaf8f032698892c0c",
-      "transformations": ["package-specifier-rewrite", "oxfmt-normalize"],
-      "licenseId": "MIT"
-    },
-    {
-      "mode": "copy",
-      "originCommit": "a835e81b575eab2c9265a67f9353c89b848f81ca",
-      "sourcePath": "packages/mcp/test/tools/save-screenshots.test.ts",
-      "destination": "packages/mcp/test/tools/save-screenshots.test.ts",
-      "baseSha256": "f3bd97b5050787f943d78b2ed4e530e43a3f08b8500be4365a17507b56f4d886",
-      "currentSha256": "cae05c257f579ade6d9c19c60f66b01c50e84761b3fabb1a7eeda675908a2a21",
-      "transformations": ["package-specifier-rewrite", "oxfmt-normalize"],
       "licenseId": "MIT"
     },
     {

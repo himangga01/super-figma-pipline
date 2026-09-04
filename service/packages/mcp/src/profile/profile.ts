@@ -1,7 +1,4 @@
-import { readFile, stat } from 'node:fs/promises';
-import { join, resolve } from 'node:path';
-
-import { walkRepoFiles } from '../repo-walk.js';
+import { RepoReader } from '../fs/repo-walk.js';
 import { declaresVocabularyPreset } from '../tokens/js-config.js';
 
 // Project Profile — the structured "how this project writes code" that the join tools (component_map,
@@ -185,27 +182,22 @@ const CSS_THEME_BLOCK = /@theme\b/;
 // 4 entries to 17 when UnoCSS's six extensions × two basenames were added. Reading each candidate's
 // whole contents to answer a yes/no was affordable at 4 and is not on a path every grounding call
 // runs through (token_map and the design-context annotation both profile the project).
-const fileExists = async (path: string): Promise<boolean> => {
+const fileExists = (reader: RepoReader, path: string): Promise<boolean> => reader.exists(path);
+
+const readText = async (reader: RepoReader, path: string): Promise<string | null> => {
   try {
-    await stat(path);
-    return true;
-  } catch {
-    return false;
+    return await reader.readText(path);
+  } catch (error) {
+    if ((error as { code?: unknown }).code === 'REPO_FILE_NOT_FOUND') return null;
+    throw error;
   }
 };
 
-const readText = async (path: string): Promise<string | null> => {
+const readJson = async <T>(reader: RepoReader, path: string): Promise<T | null> => {
   try {
-    return await readFile(path, 'utf8');
-  } catch {
-    return null;
-  }
-};
-
-const readJson = async <T>(path: string): Promise<T | null> => {
-  try {
-    return JSON.parse(await readFile(path, 'utf8')) as T;
-  } catch {
+    return JSON.parse(await reader.readText(path)) as T;
+  } catch (error) {
+    if ((error as { code?: unknown }).code === 'PATH_OUTSIDE_WORKSPACE') throw error;
     return null;
   }
 };
@@ -214,14 +206,16 @@ const readJson = async <T>(path: string): Promise<T | null> => {
  * Walk the repo's CSS files looking for the Tailwind v4 markers; returns the first matching file's
  * repo-relative path, or undefined. Directory pruning + .gitignore handling live in walkRepoFiles.
  */
-const findTailwindCssEntry = async (root: string): Promise<string | undefined> => {
-  for await (const rel of walkRepoFiles(root, { extensions: ['.css'], cap: 1000 })) {
+const findTailwindCssEntry = async (reader: RepoReader): Promise<string | undefined> => {
+  const walked = await reader.walk({ extensions: ['.css'], cap: 1000 });
+  for (const rel of walked.files) {
     let body: string;
     try {
       // eslint-disable-next-line no-await-in-loop -- sequential scan, stops at first match
-      body = await readFile(join(root, rel), 'utf8');
-    } catch {
-      continue;
+      body = await reader.readText(rel);
+    } catch (error) {
+      if ((error as { code?: unknown }).code === 'REPO_FILE_NOT_FOUND') continue;
+      throw error;
     }
     if (CSS_TAILWIND_IMPORT.test(body) || CSS_THEME_BLOCK.test(body)) return rel;
   }
@@ -506,25 +500,29 @@ const CLASS_NAMING_FILE_CAP = 400;
  * project's vocabulary at once, and holding a few thousand class names is nothing next to holding
  * every stylesheet that produced them.
  */
-const scanClassNaming = async (root: string): Promise<ClassNamingTally | undefined> => {
+const scanClassNaming = async (reader: RepoReader): Promise<ClassNamingTally | undefined> => {
   const files: StylesheetNames[] = [];
-  for await (const rel of walkRepoFiles(root, {
+  const walked = await reader.walk({
     extensions: [...NESTING_STYLESHEET_EXTENSIONS, ...SFC_EXTENSIONS],
     cap: CLASS_NAMING_FILE_CAP,
-  })) {
+  });
+  for (const rel of walked.files) {
     let body: string;
     try {
       // eslint-disable-next-line no-await-in-loop -- sequential scan, bounded by the cap above
-      body = await readFile(join(root, rel), 'utf8');
-    } catch {
-      continue;
+      body = await reader.readText(rel);
+    } catch (error) {
+      if ((error as { code?: unknown }).code === 'REPO_FILE_NOT_FOUND') continue;
+      throw error;
     }
     const isSfc = SFC_EXTENSIONS.some(ext => rel.endsWith(ext));
     const source = isSfc ? sfcPreprocessorStyles(body) : body;
     // An SFC with no preprocessor style block is not a stylesheet that voted "no habit" — it is a
     // file with nothing to say, and counting it would dilute filesScanned into a meaningless number.
     if (source.trim() === '') continue;
-    files.push(readStylesheetNames(source));
+    const names = readStylesheetNames(source);
+    reader.chargeParseResults(names.ampersand + names.topLevel.length);
+    files.push(names);
   }
   return files.length === 0
     ? undefined
@@ -532,27 +530,30 @@ const scanClassNaming = async (root: string): Promise<ClassNamingTally | undefin
 };
 
 /** Do the filesystem IO once, up front, so detectProfile can stay pure. */
-export const gatherProjectInput = async (rootDir: string): Promise<ProjectInput> => {
-  const root = resolve(rootDir);
-  const packageJson = await readJson<PackageJson>(join(root, 'package.json'));
-  const hasTsconfig = await fileExists(join(root, 'tsconfig.json'));
+export const gatherProjectInput = async (
+  rootDir: string,
+  reader: RepoReader = new RepoReader({ rootDir }),
+): Promise<ProjectInput> => {
+  const root = reader.rootDir;
+  const packageJson = await readJson<PackageJson>(reader, 'package.json');
+  const hasTsconfig = await fileExists(reader, 'tsconfig.json');
 
   // In parallel, and order-preserving via the index — detectStyling's cascade picks the first match
   // from this list, so the result must not depend on which stat resolved first.
-  const probed = await Promise.all(PROBE_CONFIG_FILES.map(name => fileExists(join(root, name))));
+  const probed = await Promise.all(PROBE_CONFIG_FILES.map(name => fileExists(reader, name)));
   const presentConfigFiles = PROBE_CONFIG_FILES.filter((_, i) => probed[i] === true);
 
   // Two independent repo walks, both IO-bound — run them together so the class-naming scan costs
   // essentially nothing in wall clock on top of the Tailwind marker probe that was already here.
   const [tailwindCssEntry, classNamingTally] = await Promise.all([
-    findTailwindCssEntry(root),
-    scanClassNaming(root),
+    findTailwindCssEntry(reader),
+    scanClassNaming(reader),
   ]);
 
   // One extra read, and only when such a config exists: what it loads decides whether the project
   // generates utility classes at all, which no filename or dependency can answer.
   const unoConfig = presentConfigFiles.find(name => UNOCSS_CONFIGS.includes(name));
-  const unoBody = unoConfig === undefined ? null : await readText(join(root, unoConfig));
+  const unoBody = unoConfig === undefined ? null : await readText(reader, unoConfig);
   const unoConfigDeclaresVocabulary =
     unoBody === null ? null : declaresVocabularyPreset(unoConfig as string, unoBody);
 
@@ -573,8 +574,10 @@ const allDeps = (pkg: PackageJson | null): Record<string, string> => ({
 });
 
 /** All dependencies (prod + dev) declared in the project's package.json, or {} when absent. */
-export const readProjectDeps = async (rootDir: string): Promise<Record<string, string>> =>
-  allDeps(await readJson<PackageJson>(join(resolve(rootDir), 'package.json')));
+export const readProjectDeps = async (
+  rootDir: string,
+  reader: RepoReader = new RepoReader({ rootDir }),
+): Promise<Record<string, string>> => allDeps(await readJson<PackageJson>(reader, 'package.json'));
 
 /** Parse the leading major version out of a semver range like "^4.0.0" or "~3.4.1". */
 const parseMajor = (range: string | undefined): number | undefined => {
@@ -889,5 +892,7 @@ export const detectProfile = (input: ProjectInput): ProjectProfile => {
 };
 
 /** Convenience: gather + detect in one call against a real directory. */
-export const analyzeProject = async (rootDir: string): Promise<ProjectProfile> =>
-  detectProfile(await gatherProjectInput(rootDir));
+export const analyzeProject = async (
+  rootDir: string,
+  reader: RepoReader = new RepoReader({ rootDir }),
+): Promise<ProjectProfile> => detectProfile(await gatherProjectInput(rootDir, reader));

@@ -1,9 +1,7 @@
-import { readFile } from 'node:fs/promises';
-import { join } from 'node:path';
-
 import type { GetStylesResult, GetVariableDefsResult } from '@sfp/shared';
 import { z } from 'zod';
 
+import { RepoReader } from '../fs/repo-walk.js';
 import { joinTokens, parseTokenMapFile, type TokenMapping } from '../join/token-map.js';
 import { analyzeProject, isUtilityFirst, type ProjectProfile } from '../profile/profile.js';
 import { resolveFigmaTokens, resolvePaintStyleTokens } from '../tokens/figma-tokens.js';
@@ -17,10 +15,11 @@ export const TOKEN_MAP_TOOL_NAME = 'token_map';
 const DEFAULT_THRESHOLD = 0.7;
 const MAP_FILE = 'docs/figma-token-map.md';
 
-const readOverrides = async (rootDir: string): Promise<ReturnType<typeof parseTokenMapFile>> => {
+const readOverrides = async (reader: RepoReader): Promise<ReturnType<typeof parseTokenMapFile>> => {
   try {
-    return parseTokenMapFile(await readFile(join(rootDir, MAP_FILE), 'utf8'));
-  } catch {
+    return parseTokenMapFile(await reader.readText(MAP_FILE));
+  } catch (error) {
+    if ((error as { code?: unknown }).code === 'PATH_OUTSIDE_WORKSPACE') throw error;
     return new Map();
   }
 };
@@ -131,9 +130,11 @@ export type ToolDispatcher = (toolName: string, args: unknown) => Promise<unknow
 export const handleTokenMap = async (
   dispatch: ToolDispatcher,
   rawArgs: unknown,
+  reader?: RepoReader,
 ): Promise<TokenMapResult> => {
   const args = inputSchema.parse(rawArgs);
-  const rootDir = args.rootDir ?? process.cwd();
+  const rootDir = reader?.rootDir ?? args.rootDir ?? process.cwd();
+  const repo = reader ?? new RepoReader({ rootDir });
   const threshold = args.threshold ?? DEFAULT_THRESHOLD;
 
   // Styles are an additive source, not a requirement: a get_styles failure must not take down the
@@ -146,11 +147,11 @@ export const handleTokenMap = async (
       effects: [],
       grids: [],
     })),
-    analyzeProject(rootDir),
-    readOverrides(rootDir),
+    analyzeProject(rootDir, repo),
+    readOverrides(repo),
   ]);
 
-  const loaded = await loadProjectTokens(rootDir, profile, args.tokenSource);
+  const loaded = await loadProjectTokens(rootDir, profile, args.tokenSource, repo);
 
   // Variables first, then paint-style pseudo-tokens: a pre-variables file (palette carried as
   // shared paint styles, zero variables) joins too instead of coming back empty.

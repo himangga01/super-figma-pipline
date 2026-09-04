@@ -4,6 +4,7 @@ import { join } from 'node:path';
 
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 
+import { RepoReader } from '../../src/fs/repo-walk.js';
 import { aggregateRepoCssTokens } from '../../src/tokens/repo-css.js';
 
 describe('aggregateRepoCssTokens', () => {
@@ -45,5 +46,30 @@ describe('aggregateRepoCssTokens', () => {
     } finally {
       await rm(empty, { recursive: true, force: true });
     }
+  });
+
+  it('uses the injected RepoReader root instead of the raw root', async () => {
+    const declaredRoot = await mkdtemp(join(tmpdir(), 'repocss-declared-'));
+    const authorityRoot = await mkdtemp(join(tmpdir(), 'repocss-authority-'));
+    try {
+      await writeFile(join(authorityRoot, 'owned.css'), ':root { --owned: #010203; }');
+      const result = await aggregateRepoCssTokens(
+        declaredRoot,
+        new RepoReader({ rootDir: authorityRoot }),
+      );
+      expect(result.tokens).toEqual([expect.objectContaining({ name: 'owned' })]);
+    } finally {
+      await Promise.all([
+        rm(declaredRoot, { recursive: true, force: true }),
+        rm(authorityRoot, { recursive: true, force: true }),
+      ]);
+    }
+  });
+
+  it('rejects CSS token accumulation at the shared RepoReader parse-result boundary', async () => {
+    const limited = new RepoReader({ rootDir: dir, maxParseResults: 1 } as never);
+    await expect(aggregateRepoCssTokens(dir, limited)).rejects.toMatchObject({
+      code: 'REPO_PARSE_RESULT_LIMIT_EXCEEDED',
+    });
   });
 });

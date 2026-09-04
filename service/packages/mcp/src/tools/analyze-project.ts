@@ -1,5 +1,6 @@
 import { z } from 'zod';
 
+import { RepoReader } from '../fs/repo-walk.js';
 import { analyzeProject, type ProjectProfile } from '../profile/profile.js';
 import type { RawToolSpec } from './spec.js';
 
@@ -34,7 +35,12 @@ export const analyzeProjectTool: RawToolSpec = {
   // No sandbox handler of its own; its plugin arguments are recorded under the tool it reuses.
   serverOnlyArgs: null,
 };
-export const handleAnalyzeProject = async (rawArgs: unknown): Promise<ProjectProfile> => {
+export const handleAnalyzeProject = async (
+  rawArgs: unknown,
+  reader?: RepoReader,
+): Promise<ProjectProfile> => {
   const args = inputSchema.parse(rawArgs);
-  return analyzeProject(args.rootDir ?? process.cwd());
+  const rootDir = reader?.rootDir ?? args.rootDir ?? process.cwd();
+  const repo = reader ?? new RepoReader({ rootDir });
+  return analyzeProject(rootDir, repo);
 };

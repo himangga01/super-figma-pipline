@@ -1,0 +1,41 @@
+{
+  "schemaVersion": 1,
+  "rows": [
+    {
+      "source": "packages/mcp/src/icons/repo-icons.ts",
+      "test": "packages/mcp/test/icons/repo-icons.test.ts",
+      "legacyImport": "node:fs/promises",
+      "replacement": "RepoReader|WorkspacePolicy"
+    },
+    {
+      "source": "packages/mcp/src/profile/profile.ts",
+      "test": "packages/mcp/test/profile/profile.test.ts",
+      "legacyImport": "node:fs/promises",
+      "replacement": "RepoReader|WorkspacePolicy"
+    },
+    {
+      "source": "packages/mcp/src/tokens/load.ts",
+      "test": "packages/mcp/test/tokens/load.test.ts",
+      "legacyImport": "node:fs/promises",
+      "replacement": "RepoReader|WorkspacePolicy"
+    },
+    {
+      "source": "packages/mcp/src/tokens/repo-css.ts",
+      "test": "packages/mcp/test/tokens/repo-css.test.ts",
+      "legacyImport": "node:fs/promises",
+      "replacement": "RepoReader|WorkspacePolicy"
+    },
+    {
+      "source": "packages/mcp/src/tokens/repo-scss.ts",
+      "test": "packages/mcp/test/tokens/repo-scss.test.ts",
+      "legacyImport": "node:fs/promises",
+      "replacement": "RepoReader|WorkspacePolicy"
+    },
+    {
+      "source": "packages/mcp/src/tokens/token-index.ts",
+      "test": "packages/mcp/test/tokens/token-index.test.ts",
+      "legacyImport": "node:fs/promises",
+      "replacement": "RepoReader|WorkspacePolicy"
+    }
+  ]
+}

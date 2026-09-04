@@ -1,9 +1,7 @@
-import { mkdir, writeFile } from 'node:fs/promises';
-import { dirname, resolve } from 'node:path';
-
 import type { ExportVideoResult, VideoExport } from '@sfp/shared';
 import { z } from 'zod';
 
+import { AtomicFileStore, type AtomicWritePort } from '../fs/atomic-file.js';
 import { EXPERIMENTAL_VIDEO_MAX_BYTES } from '../security/request-limits.js';
 import { binaryPayload } from './binary-payload.js';
 import { videoExportConstraintSchema } from './motion-schemas.js';
@@ -66,6 +64,7 @@ export const writeExportedVideo = async (
   outPath: string,
   video: VideoExport,
   maxBytes = EXPERIMENTAL_VIDEO_MAX_BYTES,
+  files: AtomicWritePort = new AtomicFileStore(),
 ): Promise<ExportVideoResult> => {
   const miss = {
     ...(video.reason !== undefined ? { reason: video.reason } : {}),
@@ -79,16 +78,15 @@ export const writeExportedVideo = async (
   if (payload === null) {
     return { nodeId: video.nodeId, format: video.format, path: null, ...miss };
   }
-  const path = resolve(outPath);
-  await mkdir(dirname(path), { recursive: true });
-  await writeFile(path, payload);
-  return { nodeId: video.nodeId, format: video.format, path };
+  const published = await files.createNew(outPath, payload);
+  return { nodeId: video.nodeId, format: video.format, path: published.path };
 };
 
 /** Reuses the plugin-side export_video handler to fetch the encoded bytes, then writes them to disk. */
 export const handleExportVideo = async (
   dispatch: ToolDispatcher,
   rawArgs: unknown,
+  files?: AtomicWritePort,
 ): Promise<ExportVideoResult> => {
   const { outPath, ...pluginArgs } = inputSchema.parse(rawArgs);
   const video = (await dispatch(EXPORT_VIDEO_TOOL_NAME, {
@@ -96,5 +94,5 @@ export const handleExportVideo = async (
     binary: true,
     ...pluginArgs,
   })) as VideoExport;
-  return writeExportedVideo(outPath, video);
+  return writeExportedVideo(outPath, video, EXPERIMENTAL_VIDEO_MAX_BYTES, files);
 };

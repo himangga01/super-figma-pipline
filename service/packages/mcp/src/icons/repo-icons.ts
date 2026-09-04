@@ -1,6 +1,4 @@
-import { readFile } from 'node:fs/promises';
-
-import { walkRepoFiles } from '../repo-walk.js';
+import { RepoReader } from '../fs/repo-walk.js';
 
 // The repo side of the icon join: the project's existing, curated `.svg` files (the ones a designer
 // hands over), plus any installed icon component library. Both are read off disk so the join only ever
@@ -59,17 +57,23 @@ export const classifySvgColor = (svg: string): SvgColorContract => {
  * Scan the project for curated `.svg` icon files (gitignore-aware), reading each one's color
  * contract.
  */
-export const scanRepoSvgs = async (rootDir: string): Promise<RepoSvg[]> => {
+export const scanRepoSvgs = async (
+  rootDir: string,
+  reader: RepoReader = new RepoReader({ rootDir }),
+): Promise<RepoSvg[]> => {
   const out: RepoSvg[] = [];
-  for await (const path of walkRepoFiles(rootDir, { extensions: ['.svg'] })) {
+  const walked = await reader.walk({ extensions: ['.svg'] });
+  for (const path of walked.files) {
     let content: string;
     try {
       // eslint-disable-next-line no-await-in-loop -- bounded by the walker's cap; clarity over batching
-      content = await readFile(`${rootDir}/${path}`, 'utf8');
-    } catch {
-      continue;
+      content = await reader.readText(path);
+    } catch (error) {
+      if ((error as { code?: unknown }).code === 'REPO_FILE_NOT_FOUND') continue;
+      throw error;
     }
     const base = path.split('/').pop() ?? path;
+    reader.chargeParseResults(1);
     out.push({
       path,
       fileName: base.replace(/\.svg$/i, ''),

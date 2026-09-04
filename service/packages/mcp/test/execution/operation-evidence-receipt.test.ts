@@ -39,6 +39,24 @@ const receiptInput = (operationId: string, completedAt = '2026-08-31T00:00:00.00
 });
 
 describe('operation evidence receipt store', () => {
+  it('runs the prepared-receipt durability seam around the actual file-handle sync', async () => {
+    const stateRoot = await mkdtemp(join(tmpdir(), 'sfp-receipt-sync-seam-'));
+    roots.push(stateRoot);
+    let synced = 0;
+    const store = new OperationEvidenceReceiptStore({
+      stateRoot,
+      actorId,
+      syncPreparedReceipt: async handle => {
+        await handle.sync();
+        synced += 1;
+      },
+    });
+    await store.recover();
+    const reservation = await store.reserveBeforeRuntime(actorId, 'operation-sync-seam', 1);
+    await store.prepareAndFsync(reservation.reservationId, receiptInput('operation-sync-seam'));
+    expect(synced).toBe(1);
+  });
+
   it('reserves before runtime, prepares one hash-chained receipt, and recovers it', async () => {
     const stateRoot = await mkdtemp(join(tmpdir(), 'sfp-receipt-'));
     roots.push(stateRoot);
@@ -119,6 +137,39 @@ describe('operation evidence receipt store', () => {
     const restarted = new OperationEvidenceReceiptStore({ stateRoot, actorId, limits });
     await restarted.recover();
     await expect(restarted.get(actorId, 'operation-compact')).resolves.toEqual(receipt);
+  });
+
+  it('recovers disk and memory before returning a post-truncate committed compaction error', async () => {
+    const stateRoot = await mkdtemp(join(tmpdir(), 'sfp-receipt-post-truncate-'));
+    roots.push(stateRoot);
+    const crash = Object.assign(new Error('injected post-truncate failure'), {
+      code: 'TEST_POST_TRUNCATE_FAILURE',
+    });
+    const limits = {
+      ...OPERATION_EVIDENCE_LIMITS,
+      compactAtRows: OPERATION_EVIDENCE_LIMITS.maxRowsPerActor,
+    };
+    const store = new OperationEvidenceReceiptStore({
+      stateRoot,
+      actorId,
+      limits,
+      compactionHook: async step => {
+        if ((step as string) === 'base-truncate') throw crash;
+      },
+    });
+    await store.recover();
+    const reservation = await store.reserveBeforeRuntime(actorId, 'operation-post-truncate', 1);
+    const receipt = await store.prepareAndFsync(
+      reservation.reservationId,
+      receiptInput('operation-post-truncate'),
+    );
+
+    await expect(store.compact({ now: Date.now(), linkedAt: () => null })).rejects.toMatchObject({
+      code: 'IMMUTABLE_GENERATION_COMMIT_OUTCOME_UNKNOWN',
+      committed: true,
+      cause: crash,
+    });
+    await expect(store.get(actorId, receipt.operationId)).resolves.toEqual(receipt);
   });
 
   it('rejects pointer-selected evidence generation corruption instead of falling back', async () => {

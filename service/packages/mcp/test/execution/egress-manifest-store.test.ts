@@ -363,7 +363,14 @@ describe('durable egress manifest store', () => {
       resultBytes: 2,
       payloadHash: 'sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
     });
-    await expect(second.finalize(secondReservation, secondFinalizer)).rejects.toBe(crash);
+    await expect(second.finalize(secondReservation, secondFinalizer)).rejects.toMatchObject({
+      code: 'IMMUTABLE_GENERATION_COMMIT_OUTCOME_UNKNOWN',
+      committed: true,
+      cause: crash,
+    });
+    await expect(
+      second.readVerifiedFinalizer(actorId, 'operation-second', secondFinalizer.manifestHash),
+    ).resolves.toBeDefined();
 
     const restarted = new EgressManifestStore({ stateRoot, actorId, limits });
     await restarted.recover(Date.now());

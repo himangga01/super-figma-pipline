@@ -3,8 +3,9 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
 import type { GetScreenshotResult, SaveScreenshotsResult, ScreenshotImage } from '@sfp/shared';
-import { afterEach, describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 
+import type { AtomicWritePort } from '../../src/fs/atomic-file.js';
 import {
   handleSaveScreenshots,
   SAVE_SCREENSHOTS_TOOL_NAME,
@@ -80,6 +81,72 @@ describe('writeScreenshots', () => {
     expect(result.saved).toEqual([
       { nodeId: '1:1', format: 'PNG', path: join(dir, '1-1.png'), empty: true },
     ]);
+  });
+
+  it('rejects duplicate sanitized output paths before publishing any screenshot', async () => {
+    const dir = await makeDir();
+    const createNew = vi.fn<AtomicWritePort['createNew']>(async path => ({ path, bytes: 1 }));
+
+    await expect(
+      writeScreenshots(
+        dir,
+        [
+          { nodeId: 'a:b', format: 'PNG', base64: 'AAAA' },
+          { nodeId: 'a/b', format: 'PNG', base64: 'BBBB' },
+        ],
+        { createNew, replace: vi.fn<AtomicWritePort['replace']>() },
+      ),
+    ).rejects.toMatchObject({ code: 'OUTPUT_PATH_CONFLICT', committed: false });
+    expect(createNew).not.toHaveBeenCalled();
+  });
+
+  it('marks a multi-output failure after one publication as committed outcome-unknown', async () => {
+    const dir = await makeDir();
+    const createNew = vi.fn<AtomicWritePort['createNew']>(async path => {
+      if (path.endsWith('2-2.png')) {
+        throw Object.assign(new Error('second output failed'), { code: 'TARGET_ALREADY_EXISTS' });
+      }
+      return { path, bytes: 1 };
+    });
+
+    await expect(
+      writeScreenshots(
+        dir,
+        [
+          { nodeId: '1:1', format: 'PNG', base64: 'AAAA' },
+          { nodeId: '2:2', format: 'PNG', base64: 'BBBB' },
+        ],
+        { createNew, replace: vi.fn<AtomicWritePort['replace']>() },
+      ),
+    ).rejects.toMatchObject({ code: 'MULTI_OUTPUT_PUBLICATION_FAILED', committed: true });
+    expect(createNew).toHaveBeenCalledTimes(2);
+  });
+
+  it('finds a later committed rejection instead of trusting the first rejected settlement', async () => {
+    const dir = await makeDir();
+    const createNew = vi.fn<AtomicWritePort['createNew']>(async path => {
+      if (path.endsWith('1-1.png')) {
+        throw Object.assign(new Error('first uncommitted rejection'), {
+          code: 'TARGET_ALREADY_EXISTS',
+        });
+      }
+      throw Object.assign(new Error('later committed rejection'), {
+        code: 'ATOMIC_COMMIT_OUTCOME_UNKNOWN',
+        committed: true,
+      });
+    });
+
+    await expect(
+      writeScreenshots(
+        dir,
+        [
+          { nodeId: '1:1', format: 'PNG', base64: 'AAAA' },
+          { nodeId: '2:2', format: 'PNG', base64: 'BBBB' },
+        ],
+        { createNew, replace: vi.fn<AtomicWritePort['replace']>() },
+      ),
+    ).rejects.toMatchObject({ code: 'MULTI_OUTPUT_PUBLICATION_FAILED', committed: true });
+    expect(createNew).toHaveBeenCalledTimes(2);
   });
 });
 

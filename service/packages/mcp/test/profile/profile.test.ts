@@ -4,6 +4,7 @@ import { join } from 'node:path';
 
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 
+import { RepoReader } from '../../src/fs/repo-walk.js';
 import {
   analyzeProject,
   detectProfile,
@@ -20,6 +21,29 @@ const baseInput = (over: Partial<ProjectInput> = {}): ProjectInput => ({
   hasTsconfig: false,
   presentConfigFiles: [],
   ...over,
+});
+
+describe('profile RepoReader authority', () => {
+  it('profiles the injected reader root rather than the raw root argument', async () => {
+    const declaredRoot = await mkdtemp(join(tmpdir(), 'profile-declared-root-'));
+    const authorityRoot = await mkdtemp(join(tmpdir(), 'profile-authority-root-'));
+    try {
+      await writeFile(
+        join(authorityRoot, 'package.json'),
+        JSON.stringify({ dependencies: { vue: '^3.5.0' } }),
+      );
+      const profile = await analyzeProject(
+        declaredRoot,
+        new RepoReader({ rootDir: authorityRoot }),
+      );
+      expect(profile).toMatchObject({ rootDir: authorityRoot, framework: 'vue' });
+    } finally {
+      await Promise.all([
+        rm(declaredRoot, { recursive: true, force: true }),
+        rm(authorityRoot, { recursive: true, force: true }),
+      ]);
+    }
+  });
 });
 
 describe('detectProfile (pure)', () => {
@@ -688,6 +712,18 @@ describe('scanClassNaming (real fs)', () => {
         const input = await gatherProjectInput(dir);
         expect(input.classNamingTally).toEqual({ ampersand: 0, flat: 1, filesScanned: 1 });
         expect(detectProfile(input).styling.classNaming).toBe('flat');
+      },
+    );
+  });
+
+  it('bounds profile class-name accumulation with the operation RepoReader budget', async () => {
+    await withProject(
+      { 'src/classes.scss': '.one { color: red; }\n.two { color: blue; }\n' },
+      async dir => {
+        const reader = new RepoReader({ rootDir: dir, maxParseResults: 1 } as never);
+        await expect(gatherProjectInput(dir, reader)).rejects.toMatchObject({
+          code: 'REPO_PARSE_RESULT_LIMIT_EXCEEDED',
+        });
       },
     );
   });

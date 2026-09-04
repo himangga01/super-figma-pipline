@@ -3,8 +3,9 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
 import type { ImageFillsResult, NodeImageFills, SaveImageFillsResult } from '@sfp/shared';
-import { afterEach, describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 
+import type { AtomicWritePort } from '../../src/fs/atomic-file.js';
 import {
   detectImageFormat,
   handleSaveImageFills,
@@ -164,6 +165,60 @@ describe('writeImageFills', () => {
     expect(result.nodes[1]?.images[0]).toEqual({ index: 1, imageHash: null, path: null });
     expect(result.nodes[2]).toEqual({ nodeId: '3:3', images: [], mixed: true });
     await expect(readFile(join(dir, 'gone.png'))).rejects.toThrow(/ENOENT/);
+  });
+
+  it('rejects distinct hashes that sanitize to one output before writing either payload', async () => {
+    const dir = await makeDir();
+    const createNew = vi.fn<AtomicWritePort['createNew']>(async path => ({ path, bytes: 1 }));
+    const nodes: NodeImageFills[] = [
+      {
+        nodeId: '1:1',
+        images: [
+          { index: 0, imageHash: 'a:b', base64: PNG_B64 },
+          { index: 1, imageHash: 'a/b', base64: PNG_B64 },
+        ],
+      },
+    ];
+
+    await expect(
+      writeImageFills(dir, nodes, {
+        createNew,
+        replace: vi.fn<AtomicWritePort['replace']>(),
+      }),
+    ).rejects.toMatchObject({ code: 'OUTPUT_PATH_CONFLICT', committed: false });
+    expect(createNew).not.toHaveBeenCalled();
+  });
+
+  it('propagates a later committed rejection across all image-fill settlements', async () => {
+    const dir = await makeDir();
+    const createNew = vi.fn<AtomicWritePort['createNew']>(async path => {
+      if (path.endsWith('first.png')) {
+        throw Object.assign(new Error('first uncommitted rejection'), {
+          code: 'TARGET_ALREADY_EXISTS',
+        });
+      }
+      throw Object.assign(new Error('later committed rejection'), {
+        code: 'ATOMIC_COMMIT_OUTCOME_UNKNOWN',
+        committed: true,
+      });
+    });
+    const nodes: NodeImageFills[] = [
+      {
+        nodeId: '1:1',
+        images: [
+          { index: 0, imageHash: 'first', base64: PNG_B64 },
+          { index: 1, imageHash: 'second', base64: PNG_B64 },
+        ],
+      },
+    ];
+
+    await expect(
+      writeImageFills(dir, nodes, {
+        createNew,
+        replace: vi.fn<AtomicWritePort['replace']>(),
+      }),
+    ).rejects.toMatchObject({ code: 'MULTI_OUTPUT_PUBLICATION_FAILED', committed: true });
+    expect(createNew).toHaveBeenCalledTimes(2);
   });
 });
 

@@ -1,10 +1,11 @@
-import { mkdir, mkdtemp, utimes, writeFile } from 'node:fs/promises';
+import { mkdir, mkdtemp, rm, utimes, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
 import type { GetDesignContextResult } from '@sfp/shared';
 import { describe, expect, it } from 'vitest';
 
+import { RepoReader } from '../../src/fs/repo-walk.js';
 import {
   annotateProjectTokens,
   buildTokenValueIndex,
@@ -194,6 +195,16 @@ describe('loadTokenValueIndex', () => {
     const r = await loadTokenValueIndex(dir);
     expect(r.index.size).toBe(0);
   });
+
+  it('does not swallow a production RepoReader cancellation as an empty token index', async () => {
+    const dir = await mkdtemp(join(tmpdir(), 'tokenidx-abort-'));
+    const controller = new AbortController();
+    controller.abort(new Error('cancelled token grounding'));
+
+    await expect(
+      loadTokenValueIndex(dir, new RepoReader({ rootDir: dir, signal: controller.signal })),
+    ).rejects.toMatchObject({ name: 'AbortError', code: 'ABORT_ERR' });
+  });
 });
 
 describe('annotateProjectTokens — themed stylesheets', () => {
@@ -245,5 +256,25 @@ describe('annotateProjectTokens — themed stylesheets', () => {
         ],
       },
     });
+  });
+});
+
+describe('token index RepoReader authority', () => {
+  it('builds and revalidates the cache through the injected RepoReader', async () => {
+    const declaredRoot = await mkdtemp(join(tmpdir(), 'sfp-token-index-declared-'));
+    const authorityRoot = await mkdtemp(join(tmpdir(), 'sfp-token-index-authority-'));
+    try {
+      await writeFile(join(authorityRoot, 'tokens.css'), ':root { --owned: #123456; }');
+      const reader = new RepoReader({ rootDir: authorityRoot });
+      const first = await loadTokenValueIndex(declaredRoot, reader);
+      const cached = await loadTokenValueIndex(declaredRoot, reader);
+      expect(first.index.get('#123456')).toEqual([expect.objectContaining({ name: 'owned' })]);
+      expect(cached.index).toBe(first.index);
+    } finally {
+      await Promise.all([
+        rm(declaredRoot, { recursive: true, force: true }),
+        rm(authorityRoot, { recursive: true, force: true }),
+      ]);
+    }
   });
 });

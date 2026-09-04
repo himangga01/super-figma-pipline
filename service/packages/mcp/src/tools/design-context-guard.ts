@@ -243,7 +243,7 @@ export const sectionPlanFromPayload = (
 export const handleDesignContext = async (
   dispatch: ToolDispatcher,
   rawArgs: unknown,
-  loadIndex: typeof loadTokenValueIndex = loadTokenValueIndex,
+  loadIndex: (() => ReturnType<typeof loadTokenValueIndex>) | null = null,
 ): Promise<GetDesignContextResult> => {
   // Parsing with the public shape also strips any caller-supplied `budget` key, so arming the
   // plugin bail stays exclusively this wrapper's decision.
@@ -264,8 +264,8 @@ export const handleDesignContext = async (
   // The annotated payload is the deliverable, so it's what the size nets measure; loadTokenValueIndex
   // never throws and returns an empty index off a non-web project, keeping this a no-op there.
   let result = raw;
-  if (detail === 'full') {
-    const { index, utilityFirst } = await loadIndex(process.cwd());
+  if (detail === 'full' && loadIndex !== null) {
+    const { index, utilityFirst } = await loadIndex();
     result = annotateProjectTokens(raw, index, utilityFirst);
   }
 

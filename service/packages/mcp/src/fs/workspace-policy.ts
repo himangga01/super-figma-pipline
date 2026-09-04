@@ -246,7 +246,16 @@ const configuredWorkspace = async (
   store: Pick<WorkspaceConfigStore, 'list'>,
   workspaceId: string,
 ): Promise<WorkspaceRoot> => {
-  const workspace = (await store.list()).find(entry => entry.workspaceId === workspaceId);
+  let workspaces: readonly WorkspaceRoot[];
+  try {
+    workspaces = await store.list();
+  } catch (error) {
+    if ((error as { code?: unknown }).code === 'WORKSPACE_ROOT_IDENTITY_CHANGED') {
+      throw unavailableRoot(error);
+    }
+    throw error;
+  }
+  const workspace = workspaces.find(entry => entry.workspaceId === workspaceId);
   if (workspace === undefined) {
     throw new WorkspaceError('WORKSPACE_NOT_CONFIGURED', 'workspace is not configured');
   }
@@ -518,7 +527,36 @@ export const createWorkspacePolicy = (
       : { path: candidate, overwrites: false };
   };
 
+  const resolveWriteDirectory = async (
+    workspaceId: string,
+    input: string,
+  ): Promise<{ path: string; exists: boolean }> => {
+    const { root, candidate } = await prepare(workspaceId, input);
+    const walked = await walkDescendants(
+      root,
+      candidate,
+      'write',
+      boundaryInspector,
+      identityGuard(workspaceId),
+    );
+    if (walked.existing && walked.finalKind !== 'directory') {
+      throw new WorkspaceError(
+        'WORKSPACE_PATH_INVALID',
+        'workspace output directory must be a directory',
+      );
+    }
+    return walked.existing
+      ? { path: walked.canonicalPath as string, exists: true }
+      : { path: candidate, exists: false };
+  };
+
   return Object.freeze({
+    resolveRoot: async (workspaceId: string): Promise<string> => {
+      const workspace = await configuredWorkspace(store, workspaceId);
+      const root = resolve(workspace.realPath);
+      await walkDescendants(root, root, 'read', boundaryInspector, identityGuard(workspaceId));
+      return root;
+    },
     resolveRead: async (workspaceId: string, input: string): Promise<string> => {
       const { root, candidate } = await prepare(workspaceId, input);
       const walked = await walkDescendants(
@@ -537,6 +575,7 @@ export const createWorkspacePolicy = (
       return walked.canonicalPath as string;
     },
     resolveWrite,
+    resolveWriteDirectory,
     assertWithinRoot: async (workspaceId: string, path: string): Promise<void> => {
       const { root, candidate } = await prepare(workspaceId, path);
       const existing = await walkDescendants(

@@ -64,6 +64,31 @@ afterEach(async () => {
 });
 
 describe('configured workspace authority', () => {
+  it('resolves an existing output directory and workspace root as directories, not overwrite files', async () => {
+    const output = join(workspaceRoot, 'exports');
+    await mkdir(output);
+    const policy = createWorkspacePolicy(workspaceStore()) as ReturnType<
+      typeof createWorkspacePolicy
+    > & {
+      resolveWriteDirectory(
+        workspaceId: string,
+        input: string,
+      ): Promise<{ path: string; exists: boolean }>;
+    };
+
+    await expect(policy.resolveWriteDirectory(workspaceId, output)).resolves.toEqual({
+      path: await realpath(output),
+      exists: true,
+    });
+    await expect(policy.resolveWriteDirectory(workspaceId, workspaceRoot)).resolves.toEqual({
+      path: await realpath(workspaceRoot),
+      exists: true,
+    });
+    await expect(
+      policy.resolveWriteDirectory(workspaceId, join(workspaceRoot, 'new-output')),
+    ).resolves.toEqual({ path: join(workspaceRoot, 'new-output'), exists: false });
+  });
+
   it('does not treat a tool rootDir as workspace registration', async () => {
     const emptyState = join(await temporaryRoot('sfp-task4-empty-policy-'), 'state');
     await mkdir(emptyState);
