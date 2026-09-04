@@ -2204,7 +2204,7 @@ After the clean Task16 commit, `verify:source-complete` creates exactly three ig
 
 Task16 extracts one application factory. Daemon args are exactly normal `--state-root ... --port ...` or standalone `--self-test`; self-test creates its own secure temp root and exits after internal start/ping/close.
 
-Task16 process tests retain exact children; real-Figma validation requires R27 as amended by R28 READY.
+Task16 process tests retain exact children; real-Figma validation requires R27 as amended by R28 and R29 READY.
 
 | Fake blocking check suffix | Typed fake input and positive assertion | Required negative assertion | Fake teardown |
 |---|---|---|---|
@@ -3296,7 +3296,7 @@ Closed-world order uses class-aware service fork model; edited upstream paths tr
 
 Before/after each 7A/7B/7C staged review, run the exact `TASK6_1_FROZEN_GREEN` block in section 3.5 plus the slice's Task7 focused tests. Reports record base `39a29373b91445e9242e82611f0a8a04fca525ea`, contract `bd296dabe872f08adca793d93a2cd6a2c7efca60c58127b07924b2f18840b27b`, manifest bytes 925, and the exact path list. Task7 execution remains gated only by a fresh READY rereview of this newly checksummed binding plan.
 
-The ignored Task7 brief remains quarantined until R27 as amended by R28 READY.
+The ignored Task7 brief remains quarantined until R27 as amended by R28 and R29 READY.
 
 **Exact staged path allowlists**
 
@@ -5386,7 +5386,7 @@ Stage only `task-15.json` union, byte-verify, review/rerun exact GREEN, then com
 
 - Consumes: Task15 verified local artifacts plus all Task1–15 source authorities and frozen Task6.1.
 - Produces: `createMcpApplication`, stdio/daemon parity, foreground source daemon entry, the exact fake16 evidence checks, strict redacted `CurrentWindowsDiagnosticV1`, `PreviewCandidateV1`, `SourceCompleteEvidenceV1`, and `SourceCompletePreviewV1`.
-- Real-Figma validation is governed only after R27 as amended by R28 READY.
+- Real-Figma validation is governed only after R27 as amended by R28 and R29 READY.
 
 **Commit protocol:** `task-16.json` includes exact root `service/package.json`, existing build-id serviceFork, sole build driver, MCP package/tsdown, application/daemon/index/local-binding sources, root dev-script test, four ControlStatus paths, schemas/scripts/config/lock/authority; generated dist is never staged.
 
@@ -5579,7 +5579,7 @@ Stage only the exact `task-16.json` union, compare staged names byte-for-byte wi
 
 - [ ] **Step 9: Review Task16 quality and scope**
 
-Reviewers defer real-Figma work until R27 as amended by R28 READY.
+Reviewers defer real-Figma work until R27 as amended by R28 and R29 READY.
 
 - [ ] **Step 10: Run the sole terminal source-complete command after the clean commit**
 
@@ -6359,10 +6359,105 @@ R27's `Native bound` row conflated a persisted serializer policy witness with th
 | Docs authority and order | The docs-only parent contains exactly this plan, its regenerated `.sha256` sidecar, and the eCommerce validation plan, with subject `docs(plan): correct native manifest bounds`. After that reviewed parent commits, Task8A may change only R28-authorized source/test paths plus authority metadata derived from the new parent; all other service blobs remain byte-identical. The corrected full Task8A tree reruns exact/full gates and both independent reviews. |
 | Handoff | R28 READY means the exact three tracked docs have no other diff, the sidecar equals the plan bytes, and three independent reviews accept this amendment. The Task8 brief is then regenerated with separate production297,905, persisted299,836 and rejection299,837 proofs before the real Task8A commit. |
 
+### 2026-09-05 R29 Task8A corrective authority and durability closure
+
+R29 supersedes Task8's earlier exact staged-union wording and R28's `Source authority`, `Docs authority and order`, and `Handoff` rows only. R28's formulas, bounds, path rules, production proof, durability proof, and layered negatives remain binding. No Task8B network/domain/import-image path is authorized by R29.
+
+| R29 scope | Binding resolution |
+|---|---|
+| Workspace publication | `withRetainedDirectoryChain` retains the registered root and every descendant through use. Missing directories are created one segment at a time with `recursive:false`, each parent is synced before descent, and no raw recursive mkdir occurs before authority. WorkspaceAtomic and result-evidence marker/artifact writes use the retained leaf; create-new verifies bytes by an `O_NOFOLLOW` descriptor tied to temp/target identity and cleans only the verified temp identity. |
+| Result/native cleanup | Result and native creation, expiry cleanup, restart recovery, and orphan traversal retain the root and every operation directory on POSIX and with a Windows no-delete lease. Result/native share one interprocess mutex, one operation-row count, combined bytes, exact scan budget and immutable defaults of1,024 rows/67,108,864 bytes/4,096 entries. Expired bytes are actually deleted; interrupted quarantine resumes idempotently. Native hashing streams one64KiB chunk at a time without full-body concat. |
+| Windows broker and process locks | Broker requests bound command/line/stdout/stderr/pending sizes, observe write callback plus drain, distinguish local rejection from invalidation, release late leases, and use bounded graceful/terminate/force-kill phases. Unconfirmed termination permanently fails closed and cannot spawn a replacement. PowerShell uses a validated absolute `SystemRoot\System32\WindowsPowerShell\v1.0\powershell.exe`, never PATH/CWD lookup. Path-lock schema v2 binds PID plus OS process-start identity; unavailable identity fails closed and PID reuse is not a live owner. |
+| Commit truth | Immutable generation current-pointer publication is the commit point. Any later directory sync, backup, truncate, base sync, temp cleanup, or hook failure is `IMMUTABLE_GENERATION_COMMIT_OUTCOME_UNKNOWN`; receipt/egress stores recover disk and in-memory state before surfacing it. Atomic create/replace and multi-output writes preserve committed truth after every mutation. |
+| Cancellation and lifecycle | A synchronous post-native terminal claim arbitrates success against cancel/demotion: cancellation before the claim wins; after the claim it awaits the terminal and cannot create aborted-success. Rejected generation initialization is removed for retry. Close is bounded even if initialization ignores abort, and late initialization cleanup is retained. Leader runtime initialization begins only while leader authority is live and checks closure between durability stages. |
+| Windows follower liveness | Frozen follower source/test bytes remain equal to the R28 parent. The already-authorized execution-plane composition supplies a5,000ms Windows authenticated ping budget because owner ACL verification can exceed2,000ms; all authentication, generation, public-ping and challenge proof checks remain unchanged. Non-Windows retains2,000ms. Unit boundary and original built wire/process lifecycle tests bind both branches. |
+| R28 mutation proof | The positive heavy test does not pre-verify its ID; OperationExecutor is the verifying boundary. Grammar-shaped forged384-byte and C0 IDs enter the executor and prove runtime/native/filesystem0. The actual prepared-receipt `FileHandle.sync()` seam is the fourth ordered event after member reread and manifest file+directory sync attempt; removal or reordering fails. The real issuer supplies the308-byte artificial-clock ID used for the serializer299,837 rejection. |
+| Policy correction | `design_diff(update:false)` is read-only even when a snapshot exists. Destructive approval occurs only when `update:true` and the resolved snapshot exists. The direct-FS RED parent is the actual R28 parent `0b5c86ae72c9ae6f5eb0f8444cb184f6cb7dba99`. |
+| Authority | The exact Task8A authority is the71-path list below. The staged candidate must be exactly69 changed paths:65 semantic plus the four authority outputs, with the two authority/lineage tests allowed unchanged. Two repo-walk D+A move pairs remain exact. A mutable authority file cannot add another path beyond this tracked list. |
+| Docs order | The R29 docs-only parent contains exactly this plan, its regenerated `.sha256`, and the eCommerce validation plan with subject `docs(plan): ratify Task 8A corrective authority`. After that three-review READY parent commits, Task8A regenerates only parent-derived metadata, proves all other service blobs unchanged, reruns exact/full gates and receives three same-tree reviews before `feat(io): sandbox workspace files`. |
+
+Exact UTF-8-sorted Task8A authority:
+
+```text
+service/capabilities/change-manifests/task-8a.json
+service/capabilities/task-8a-authority-classes.json
+service/capabilities/task-8a-direct-fs-importers.json
+service/packages/mcp/src/execution/egress-manifest-store.ts
+service/packages/mcp/src/execution/execution-plane.ts
+service/packages/mcp/src/execution/native-evidence-artifact-port.ts
+service/packages/mcp/src/execution/operation-evidence-receipt-store.ts
+service/packages/mcp/src/execution/operation-executor.ts
+service/packages/mcp/src/fs/atomic-file.ts
+service/packages/mcp/src/fs/evidence-retention-authority.ts
+service/packages/mcp/src/fs/operation-evidence-artifact-store.ts
+service/packages/mcp/src/fs/repo-walk.ts
+service/packages/mcp/src/fs/windows-directory-lease-broker.ts
+service/packages/mcp/src/fs/workspace-policy.ts
+service/packages/mcp/src/icons/repo-icons.ts
+service/packages/mcp/src/index.ts
+service/packages/mcp/src/policy/operation-policy.ts
+service/packages/mcp/src/profile/profile.ts
+service/packages/mcp/src/repo-walk.ts
+service/packages/mcp/src/scan/scan.ts
+service/packages/mcp/src/tokens/generated-tokens.ts
+service/packages/mcp/src/tokens/load.ts
+service/packages/mcp/src/tokens/repo-css.ts
+service/packages/mcp/src/tokens/repo-scss.ts
+service/packages/mcp/src/tokens/token-index.ts
+service/packages/mcp/src/tools/analyze-project.ts
+service/packages/mcp/src/tools/component-map.ts
+service/packages/mcp/src/tools/design-context-guard.ts
+service/packages/mcp/src/tools/design-diff.ts
+service/packages/mcp/src/tools/export-pdf.ts
+service/packages/mcp/src/tools/export-video.ts
+service/packages/mcp/src/tools/icon-map.ts
+service/packages/mcp/src/tools/save-image-fills.ts
+service/packages/mcp/src/tools/save-screenshots.ts
+service/packages/mcp/src/tools/scan-components.ts
+service/packages/mcp/src/tools/token-map.ts
+service/packages/mcp/test/e2e/packed-operation-evidence.test.ts
+service/packages/mcp/test/execution/egress-manifest-store.test.ts
+service/packages/mcp/test/execution/execution-plane-lifecycle.test.ts
+service/packages/mcp/test/execution/native-evidence-artifact-port.test.ts
+service/packages/mcp/test/execution/operation-evidence-receipt.test.ts
+service/packages/mcp/test/execution/operation-executor.test.ts
+service/packages/mcp/test/execution/policy-context.test.ts
+service/packages/mcp/test/fs/atomic-file.test.ts
+service/packages/mcp/test/fs/local-tool-boundary.test.ts
+service/packages/mcp/test/fs/operation-evidence-artifact-store.test.ts
+service/packages/mcp/test/fs/repo-walk.test.ts
+service/packages/mcp/test/fs/windows-directory-lease-broker.test.ts
+service/packages/mcp/test/fs/workspace-policy.test.ts
+service/packages/mcp/test/icons/repo-icons.test.ts
+service/packages/mcp/test/policy/operation-policy.test.ts
+service/packages/mcp/test/profile/profile.test.ts
+service/packages/mcp/test/repo-walk.test.ts
+service/packages/mcp/test/scan/scan.test.ts
+service/packages/mcp/test/tokens/generated-tokens.test.ts
+service/packages/mcp/test/tokens/load.test.ts
+service/packages/mcp/test/tokens/repo-css.test.ts
+service/packages/mcp/test/tokens/repo-scss.test.ts
+service/packages/mcp/test/tokens/token-index.test.ts
+service/packages/mcp/test/tools/design-context-guard.test.ts
+service/packages/mcp/test/tools/design-diff.test.ts
+service/packages/mcp/test/tools/save-image-fills.test.ts
+service/packages/mcp/test/tools/save-screenshots.test.ts
+service/packages/shared/src/config.ts
+service/packages/shared/src/operations.ts
+service/test/authority-class-transition.test.ts
+service/test/service-fork-lineage.test.ts
+service/test/task-8a-direct-fs-importers.test.ts
+service/upstream-lock.json
+service/vendor-map.json
+service/vendor-rules.json
+```
+
+R29 READY requires exact three-doc scope, sidecar equality, and three independent Critical0/Important0 reviews. Only after that READY state is the docs-only parent committed and the Task8 brief regenerated from its commit/plan SHA. Task8A code remains unapproved until the new-parent service tree completes the same full gates and three same-tree reviews.
+
 Prior service findings remain incorporated. Prior external-ceremony findings are explicitly superseded by this scope correction and require separate future authorization.
 
 ---
 
 ## 11. Execution Handoff
 
-Commit this R28 three-document correction as the sole docs review target with subject `docs(plan): correct native manifest bounds`. No further Task8A commit before R28 READY; regenerate the quarantined Task8 brief only afterward with the R28 commit/plan SHA and frozen Task6.1 evidence.
+After R29 READY, commit this exact three-document correction with subject `docs(plan): ratify Task 8A corrective authority`; then regenerate the quarantined Task8 brief with the R29 commit/plan SHA and frozen Task6.1 evidence. No Task8A commit is allowed until that regenerated brief, the new-parent full gates, and three same-tree code reviews are complete.

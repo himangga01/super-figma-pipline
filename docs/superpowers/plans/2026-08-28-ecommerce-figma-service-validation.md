@@ -1,6 +1,6 @@
 # eCommerce Figma Service Validation Implementation Plan
 
-> **For agentic workers:** REQUIRED SUB-SKILLS: `figma-design-to-code`, `chrome:control-chrome`, `sites-building`, `sites-hosting`, conditionally `computer-use`; exactly one image-only subagent only if needed. Run after R27 as amended by R28 READY and Tasks1-16 source-complete; main remains sole Site editor.
+> **For agentic workers:** REQUIRED SUB-SKILLS: `figma-design-to-code`, `chrome:control-chrome`, `sites-building`, `sites-hosting`, conditionally `computer-use`; exactly one image-only subagent only if needed. Run after R27 as amended by R28 and R29 READY and Tasks1-16 source-complete; main remains sole Site editor.
 
 **Goal:** Use the completed Super Figma Pipeline service, not direct browser imitation, to understand the supplied Figma Community file, implement a faithful page in `validation/ecommerce-figma-site/`, and prove the service-to-code-to-browser loop.
 
@@ -32,7 +32,7 @@
 
 ## Source-complete Service Gate - Execute inside V1 after the clean scaffold commit
 
-- Tasks1-16 are implemented/reviewed at the source-complete commit and R27 as amended by R28 is READY. Only after V1 clean commit run one source-complete command; never mix runs.
+- Tasks1-16 are implemented/reviewed at the source-complete commit and R27 as amended by R28 and R29 is READY. Only after V1 clean commit run one source-complete command; never mix runs.
 - Immediately strict-validate the same run's exact three documents with `node service/scripts/source-complete-validator.mjs --candidate service/artifacts/preview-candidate.v1.json --evidence service/artifacts/source-complete-evidence.v1.json --marker service/artifacts/source-complete-preview.v1.json`. Require exactly those candidate/evidence/marker files, their three content-hash domains, marker file-byte hashes, and all sourceCommit/harness/artifact cross-field equalities.
 - Hash the same run's `service/artifacts/artifact-manifest.v1.json` and `service/artifacts/SHA256SUMS`. Require those byte hashes to equal `PreviewCandidateV1.artifactManifestSha256`/`artifactChecksumsSha256`; require `service/artifacts/mcp.tgz`, `service/artifacts/cli.tgz`, and `service/artifacts/plugin.zip` byte hashes to agree across both metadata files, the candidate artifact tuple, and `SourceCompleteEvidenceV1.artifacts`. Any mismatch invalidates the whole run.
 - Install only those same-run final artifacts during this gate: install `service/artifacts/mcp.tgz` and `service/artifacts/cli.tgz` into fresh ignored prefixes/caches under `.sfp/validation-runtime/`, and checksum-verify/extract `service/artifacts/plugin.zip`. Do not start a daemon, invoke CLI control, import the plugin, or bind port3055 until V3.
