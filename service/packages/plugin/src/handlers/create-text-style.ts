@@ -15,7 +15,7 @@ import { toFigmaLineHeight } from './convert.js';
 
 export const createCreateTextStyleHandler =
   (figmaCtx: typeof figma): SandboxToolHandler =>
-  async params => {
+  async (params, execution) => {
     const p = (params ?? {}) as {
       name?: unknown;
       fontName?: unknown;
@@ -47,6 +47,7 @@ export const createCreateTextStyleHandler =
     }
 
     const style = figmaCtx.createTextStyle();
+    execution?.markMutated?.();
     try {
       style.name = p.name;
       if (fontName !== undefined) style.fontName = fontName;

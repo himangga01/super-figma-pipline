@@ -24,6 +24,9 @@ import {
   pluginSkewNotice,
   pluginSkewSummary,
   PROTOCOL_VERSION,
+  PluginProgressParamsSchema,
+  PROGRESS_TRANSPORT_LIMITS,
+  type ProgressEvent,
   SystemMethod,
 } from '@sfp/shared';
 import { WebSocketServer, type WebSocket } from 'ws';
@@ -77,6 +80,7 @@ interface Pending {
   // so concurrent calls cannot observe each other's. See sendRequest's `onServed`.
   served: { sessionId: string | undefined };
   expectedTarget: Readonly<RelayPinnedTarget> | undefined;
+  progressRate?: { startedAt: number; count: number };
 }
 
 export interface RelayPinnedTarget {
@@ -92,6 +96,14 @@ export interface RelayPinnedTarget {
 export const DEFAULT_PLUGIN_REQUEST_TIMEOUT_MS = 30_000;
 
 export class Relay {
+  private documentBindingHandler:
+    | ((sessionId: string, input: unknown, signal: AbortSignal) => Promise<unknown>)
+    | null = null;
+  setDocumentBindingHandler(
+    handler: ((sessionId: string, input: unknown, signal: AbortSignal) => Promise<unknown>) | null,
+  ): void {
+    this.documentBindingHandler = handler;
+  }
   readonly sessions = new SessionManager();
   private readonly wss: WebSocketServer;
   private readonly opts: Required<Omit<RelayOptions, 'server'>>;
@@ -488,6 +500,16 @@ export class Relay {
           `[relay] session ${session.id} disconnected (grace ${this.opts.disconnectGraceMs}ms)`,
         );
         this.sessions.markDisconnected(session, this.opts.disconnectGraceMs);
+        // Approval delivery is read-only UI traffic. Re-offer only this pending prompt on an
+        // authenticated resume of the same pinned session; never replay a dispatched mutation.
+        for (const pending of this.pending.values()) {
+          if (
+            pending.method === SystemMethod.Approval &&
+            pending.dispatchedToSessionId === session.id
+          ) {
+            pending.dispatched = false;
+          }
+        }
       }
     });
 
@@ -650,11 +672,47 @@ export class Relay {
   }
 
   private handleEnvelope(session: Session, env: Envelope): void {
-    if (env.sessionId !== session.id) {
+    if (env.v !== PROTOCOL_VERSION || env.sessionId !== session.id) {
       session.socket?.close(1008, 'session identity mismatch');
       return;
     }
     session.heartbeat?.notifyReceived();
+    if (env.kind === 'req' && env.method === SystemMethod.BindDocument) {
+      const socket = session.socket,
+        handler = this.documentBindingHandler;
+      if (socket === null) return;
+      if (handler === null) {
+        this.sendError(
+          socket,
+          env,
+          'IDENTITY_BINDING_UNAVAILABLE',
+          'identity setup is unavailable',
+        );
+        return;
+      }
+      const controller = new AbortController();
+      const close = () => controller.abort();
+      socket.once('close', close);
+      void handler(session.id, env.params, controller.signal)
+        .then(result => {
+          if (socket.readyState === 1 && session.socket === socket)
+            this.sendResponse(socket, env, result);
+          return undefined;
+        })
+        .catch(error => {
+          if (socket.readyState === 1 && session.socket === socket)
+            this.sendError(
+              socket,
+              env,
+              'IDENTITY_BINDING_FAILED',
+              error instanceof Error && /^[A-Z_]+$/u.test(error.message)
+                ? error.message
+                : 'identity setup failed',
+            );
+        })
+        .finally(() => socket.removeListener('close', close));
+      return;
+    }
     // Routing priority: only an explicit $activity event counts as user interaction. Heartbeat
     // replies and tool responses must NOT bump lastActivityAt — both fire on a timer / on
     // server-initiated calls and would race the two sessions to a coin flip every 15s.
@@ -674,7 +732,35 @@ export class Relay {
       if (session.socket !== null) this.sendResponse(session.socket, env, { ok: true });
       return;
     }
+    if (env.kind === 'evt' && env.method === SystemMethod.Progress) {
+      const pending = this.pending.get(env.id);
+      if (pending === undefined || pending.dispatchedToSessionId !== session.id) return;
+      const action = pendingCancellations.get(pending)?.context;
+      const progress = PluginProgressParamsSchema.safeParse(env.params);
+      if (
+        action === undefined ||
+        action.signal.aborted ||
+        !progress.success ||
+        progress.data.operationId !== action.operationId
+      )
+        return;
+      const now = Date.now();
+      const rate = pending.progressRate;
+      if (rate === undefined || now - rate.startedAt >= 1_000) {
+        pending.progressRate = { startedAt: now, count: 1 };
+      } else {
+        if (rate.count >= PROGRESS_TRANSPORT_LIMITS.maxProgressFramesPerSecond) return;
+        rate.count += 1;
+      }
+      try {
+        action.onProgress?.(Object.freeze(progress.data));
+      } catch {
+        // A cancelled or detached progress consumer cannot crash the authenticated socket.
+      }
+      return;
+    }
     if (env.kind === 'res') {
+      if (this.pending.get(env.id)?.dispatchedToSessionId !== session.id) return;
       const p = this.takePending(env.id);
       if (p !== undefined) {
         // Recorded, not dispatched: this runs in the socket's async context, where anything the
@@ -686,12 +772,20 @@ export class Relay {
       return;
     }
     if (env.kind === 'err') {
+      if (this.pending.get(env.id)?.dispatchedToSessionId !== session.id) return;
       const p = this.takePending(env.id);
       if (p !== undefined) {
         // Recorded on the error path too: a plugin that answers METHOD_NOT_FOUND for a tool it
         // predates is the most visible thing an out-of-date one does, and the least self-explaining.
         p.served.sessionId = p.dispatchedToSessionId;
-        p.reject(new Error(`${env.error.code}: ${env.error.message}`));
+        p.reject(
+          Object.assign(new Error(`${env.error.code}: ${env.error.message}`), {
+            code: env.error.code,
+            ...(['PLUGIN_PARTIAL_CHANGE', 'UNDO_FAILED'].includes(env.error.code)
+              ? { committed: true }
+              : {}),
+          }),
+        );
       }
       return;
     }
@@ -835,6 +929,7 @@ interface RelayCancellation {
   signal: AbortSignal;
   operationId: string;
   actionNonce: string;
+  onProgress?: (event: Readonly<ProgressEvent>) => void;
 }
 
 const pendingCancellations = new WeakMap<

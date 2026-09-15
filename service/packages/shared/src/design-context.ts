@@ -33,6 +33,7 @@ import type {
   SerializedPaint,
   SerializedStyleIds,
 } from './serialized-node.js';
+import { SerializedVariableValueSchema, SerializedVariableCollectionSchema } from './variables.js';
 
 export const DETAIL_LEVELS = ['minimal', 'compact', 'full'] as const;
 export type DetailLevel = (typeof DETAIL_LEVELS)[number];
@@ -232,6 +233,11 @@ export interface DesignContextNode {
   styleIds?: SerializedStyleIds;
   boundVariables?: Readonly<Record<string, readonly string[]>>;
   componentProperties?: Readonly<Record<string, SerializedComponentProperty>>;
+  explicitVariableModes?: Record<string, string>;
+  resolvedVariableModes?: Record<string, string>;
+  componentApi?: Record<string, unknown>;
+  variantProperties?: Record<string, string>;
+
   /**
    * Motion (beta) summary — attached at full detail to nodes that carry animation, so codegen sees
    * that a layer animates (and how) without a separate get_node_motion call. Compact by design: the
@@ -404,6 +410,10 @@ export const DesignContextNodeSchema = z.lazy(() =>
     styleIds: SerializedStyleIdsSchema.optional(),
     boundVariables: z.record(z.string(), z.array(z.string())).optional(),
     componentProperties: z.record(z.string(), SerializedComponentPropertySchema).optional(),
+    explicitVariableModes: z.record(z.string(), z.string()).optional(),
+    resolvedVariableModes: z.record(z.string(), z.string()).optional(),
+    componentApi: z.record(z.string(), z.unknown()).optional(),
+    variantProperties: z.record(z.string(), z.string()).optional(),
     motion: z
       .object({
         animationStyles: z.array(z.string()).optional(),
@@ -456,6 +466,11 @@ export const DesignContextNodeSchema = z.lazy(() =>
  * stale after a codebase migration). Omitted when the variable declares none.
  */
 export const ResolvedTokenSchema = z.object({
+  collectionId: z.string().optional(),
+  valuesByMode: z.record(z.string(), SerializedVariableValueSchema).optional(),
+  collection: SerializedVariableCollectionSchema.optional(),
+  paints: z.array(SerializedPaintSchema).optional(),
+  resolution: z.enum(['observed', 'unavailable']).optional(),
   name: z.string(),
   type: z.string(),
   codeSyntax: z.record(z.string(), z.string()).optional(),
@@ -590,6 +605,10 @@ const CONTENT_FIELDS = [
   'textOverrides',
   // Which variant an instance renders — an INSTANCE without its props is not buildable.
   'componentProperties',
+  'explicitVariableModes',
+  'resolvedVariableModes',
+  'componentApi',
+  'variantProperties',
   // The designer's Dev Mode notes: explicit instructions that outrank inference, so dropping them
   // while keeping geometry would be backwards.
   'annotations',

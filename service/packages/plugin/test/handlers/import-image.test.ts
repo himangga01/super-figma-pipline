@@ -66,20 +66,20 @@ describe('import_image handler', () => {
     expect(result).toEqual({ ok: true, nodeId: 'R:1', name: 'Hero', type: 'RECTANGLE' });
   });
 
-  it('fetches from url and honors width/height/scaleMode overrides', async () => {
+  it('honors width/height/scaleMode overrides for validated data', async () => {
     const { figma: f, rect } = makeFigma();
     await createImportImageHandler(f)({
-      url: 'https://x/y.png',
+      data: 'validated-image',
       width: 64,
       height: 64,
       scaleMode: 'FIT',
     });
     expect(rect.width).toBe(64);
     expect(rect.height).toBe(64);
-    expect(rect.fills).toEqual([{ type: 'IMAGE', scaleMode: 'FIT', imageHash: 'URLHASH' }]);
+    expect(rect.fills).toEqual([{ type: 'IMAGE', scaleMode: 'FIT', imageHash: 'HASH123' }]);
   });
 
-  it('requires exactly one nonempty trimmed data or URL source', async () => {
+  it('requires nonempty data and rejects every URL source before the Figma API', async () => {
     const base64Decode = vi.fn<(value: string) => Uint8Array>(() => new Uint8Array([1]));
     const createImageAsync = vi.fn<(value: string) => Promise<unknown>>(async () => ({
       hash: 'URLHASH',
@@ -89,6 +89,7 @@ describe('import_image handler', () => {
     const f = { ...base, base64Decode, createImageAsync } as unknown as typeof figma;
     for (const invalid of [
       { name: 'x' },
+      { url: 'https://x/y.png' },
       { data: '' },
       { data: '   ' },
       { url: '\t' },
@@ -96,7 +97,7 @@ describe('import_image handler', () => {
       { data: 'abc', url: '\t' },
       { data: 'abc', url: 'https://x/y.png' },
     ]) {
-      await expect(createImportImageHandler(f)(invalid)).rejects.toThrow(/exactly one.*data.*url/i);
+      await expect(createImportImageHandler(f)(invalid)).rejects.toThrow(/validated data/i);
     }
     expect(base64Decode).not.toHaveBeenCalled();
     expect(createImageAsync).not.toHaveBeenCalled();
@@ -114,7 +115,9 @@ describe('import_image handler', () => {
     await createImportImageHandler(f)({ data: '  abc  ' });
     expect(base64Decode).toHaveBeenCalledWith('abc');
 
-    await createImportImageHandler(f)({ url: '  https://x/y.png  ' });
-    expect(createImageAsync).toHaveBeenCalledWith('https://x/y.png');
+    await expect(createImportImageHandler(f)({ url: '  https://x/y.png  ' })).rejects.toThrow(
+      /validated data/i,
+    );
+    expect(createImageAsync).not.toHaveBeenCalled();
   });
 });

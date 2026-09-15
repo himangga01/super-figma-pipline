@@ -2,12 +2,12 @@
   "schemaVersion": 2,
   "vendorMap": {
     "path": "vendor-map.json",
-    "sha256": "c45cf806d1c03902aac2421d4ee1eae07bb9534fe4bdca271392c5ab0fa05c28",
+    "sha256": "4c0ec114fca28948a5e56168f8a4b3d4cb7e30dde9db901be771a4acd36bd5b3",
     "counts": {
-      "copy": 369,
-      "mergeDependencyManifest": 4,
+      "copy": 312,
+      "mergeDependencyManifest": 2,
       "referenceOnly": 19,
-      "total": 392
+      "total": 333
     }
   },
   "destinationClosure": {
@@ -29,6 +29,10 @@
     ],
     "serviceOwnedFiles": [
       {
+        "path": "README.md",
+        "sha256": "f56623edd28df711d542a4e2146c19662000b27d7087ea84b85c29fb4589f4fd"
+      },
+      {
         "path": "capabilities/change-manifests/task-7a.json",
         "sha256": "ad89c98a69da9f7dd1cfbecb634b0ad600de1ec8cceab36a38b94b0b3e664431"
       },
@@ -49,8 +53,28 @@
         "sha256": "af2ccb82fc1bb3fa19f21f7c812df648daba7e7e69ad5ae693925f049eecc834"
       },
       {
+        "path": "capabilities/change-manifests/task-review-2026-09-05.json",
+        "sha256": "b3df4893187dbf32edda718f22100e768156160a09a3da22c9ec66906b8fbc57"
+      },
+      {
+        "path": "capabilities/change-manifests/task-review-2026-09-06.json",
+        "sha256": "08758dacf99f29ed086fddf3e80d4c321c285e38c5e7a2bfbbbf0b239f26091d"
+      },
+      {
+        "path": "capabilities/change-manifests/task-review-2026-09-07.json",
+        "sha256": "ba80d78f5ca779a1181c126d173316f42121baf7535d734b7848c03b0e3093c5"
+      },
+      {
+        "path": "capabilities/change-manifests/task-review-2026-09-08.json",
+        "sha256": "7c4fe9ec87209319f09a83d25d4aae62e3881262b51ee580ea3c5aa3915e3a33"
+      },
+      {
+        "path": "capabilities/change-manifests/task-review-2026-09-10.json",
+        "sha256": "736124a457651df63baac5915602c984e9bef3ec53670276d0964d36161d7111"
+      },
+      {
         "path": "capabilities/figmosha-feature-map.json",
-        "sha256": "8b84a17e372975e6590ced2315cbdcfb99f0def6259980e88eaf6c4294ca8956"
+        "sha256": "ce423b9ed67c825a84e5b2500124a305ca5b5119e5e07f8a79aabca05a49d862"
       },
       {
         "path": "capabilities/rust-tool-compat.json",
@@ -81,8 +105,36 @@
         "sha256": "a969d72b64e004d79260d39ce5a06a0ce7aba0eb6b179f2fabc63a5878d509d1"
       },
       {
+        "path": "capabilities/task-review-2026-09-05-authority-classes.json",
+        "sha256": "be260ec1740f3d35b34b4a766e924a94853a38071bf78211a0938e2202695d11"
+      },
+      {
+        "path": "capabilities/task-review-2026-09-06-authority-classes.json",
+        "sha256": "2d6ce0e7a5c9a8411107947d4772758b3ab74e55baae2c8b13452a426bc9c8b0"
+      },
+      {
+        "path": "capabilities/task-review-2026-09-07-authority-classes.json",
+        "sha256": "ae9894c6aa976725be0a19803c85400f9e609508d7c4b2001901ad7811a86c22"
+      },
+      {
+        "path": "capabilities/task-review-2026-09-08-authority-classes.json",
+        "sha256": "d397af0bc440f4fcfb8a2bcfd6fe4e32f2e8035a7975c5c0e435fa2d9bb317da"
+      },
+      {
+        "path": "capabilities/task-review-2026-09-10-authority-classes.json",
+        "sha256": "a0c40885ba9e52d6e8c3c0613c56248b889997eccbd8482e14161e78c9b46f17"
+      },
+      {
         "path": "capabilities/union-manifest.json",
-        "sha256": "761aa1c3f40d166be58e4da4df2cff3db41b23fc9b2e573dd46006238bd67beb"
+        "sha256": "9f42a8e3f96492ea8857f9b71b03e14017a19185856bacb821b955177300a17a"
+      },
+      {
+        "path": "packages/mcp/README.md",
+        "sha256": "60c6bf86282a50989ed300c4c7d4398f1e811fdee0b7ed5fa5768cdbe34bf3b0"
+      },
+      {
+        "path": "packages/mcp/src/build-id.ts",
+        "sha256": "0c7c79d3a408a8c04568ce7d8b1c3d6ea232a66746108d5e2d46c582f69e2493"
       },
       {
         "path": "packages/mcp/src/control/action-nonce-endpoints.ts",
@@ -109,8 +161,16 @@
         "sha256": "062917031b4f6a5f48f633eb4626cbe06c4204a56020cd18cbd72c487be0080f"
       },
       {
+        "path": "packages/mcp/src/control/grounding-endpoints.ts",
+        "sha256": "1897b1c521b2f74c9361ae76ff5b2ed9bb5f98b9ea4f6abc42471e75cfe941a3"
+      },
+      {
+        "path": "packages/mcp/src/control/identity-endpoints.ts",
+        "sha256": "92ec853f0e52df6bc2731672d7887d88de82b2cb69fd183edde6444fa32c0c55"
+      },
+      {
         "path": "packages/mcp/src/control/network-domain-endpoints.ts",
-        "sha256": "8f47c5607fd522d15f64f3bec4788952ee9b0a301d3abe4c6704cb39382e1874"
+        "sha256": "376ef0202cd4663a0c7e2990b33cf58b9b73206ce696a4aaba8734d2e3e5e7bc"
       },
       {
         "path": "packages/mcp/src/control/operation-endpoints.ts",
@@ -122,15 +182,19 @@
       },
       {
         "path": "packages/mcp/src/control/route-registry.ts",
-        "sha256": "86cfb704fa5d46984d953a6d75e45b52b23b8638e73befc8c1bbccf10182792a"
+        "sha256": "250f5feafa2c90f23dae6d2efd358f9b6758616fa1b541e4e7ea7caa5ad6f03d"
       },
       {
         "path": "packages/mcp/src/control/router.ts",
-        "sha256": "71ac2a7dbeec180e83aebbeb06210ea3e797e162b91a105281f45c353b1cc855"
+        "sha256": "cebcb4b9d16169e943a51429d94e454427a97659ddd100fe6e4a5185805dfb3f"
+      },
+      {
+        "path": "packages/mcp/src/control/snapshot-endpoints.ts",
+        "sha256": "416b8b3010a2c53662bde47a8fdd6ef293c708637afcd183b5da1b1bd8cc64d0"
       },
       {
         "path": "packages/mcp/src/control/status-endpoint.ts",
-        "sha256": "bb928cf1cfaf6a7f3e60b2dc9be5a468ddef409150884214520c6053dcf3e7be"
+        "sha256": "391fc861a16d663fbbd3e037db76f0a0c07985b0e8b55ac4ff5b6d94a034ae59"
       },
       {
         "path": "packages/mcp/src/control/tool-call-endpoint.ts",
@@ -138,7 +202,15 @@
       },
       {
         "path": "packages/mcp/src/control/workspace-endpoints.ts",
-        "sha256": "f81aae34cc08f969339e11c28447f2e29f7025742e7d5678c8b1d7baafa06ac2"
+        "sha256": "ce74923c5827ee987f3188439240545c79962b01463420b3ffa0cfdd22e2ddec"
+      },
+      {
+        "path": "packages/mcp/src/daemon-entry.ts",
+        "sha256": "067769430ebd2b17bfb715c20ba561c980217f914fc5a15635e78f9d73dc268f"
+      },
+      {
+        "path": "packages/mcp/src/diff/baseline-identity.ts",
+        "sha256": "71f27eb27c14eda962d58385046b547c8dc926e86e11cc075e35ce833b342e38"
       },
       {
         "path": "packages/mcp/src/dispatch.ts",
@@ -173,12 +245,16 @@
         "sha256": "9014ddb5a1e0cdf3bdad63be00d5eceb13c3b0d780928d10ed31736d4c85603b"
       },
       {
+        "path": "packages/mcp/src/execution/executable-operation.ts",
+        "sha256": "9544274d4e14f3aac6d0e75ebda8ae098bc488435e9196716f3531fd715890d3"
+      },
+      {
         "path": "packages/mcp/src/execution/execution-plane.ts",
-        "sha256": "480018bb5ea5f483c92aa51f13fcd8d5505763772b8d11f99fc1eb112e74f96f"
+        "sha256": "ff27ab9efaeb4af9b7ae607230e9c60586c48efc3e1f8a8b6a13fef6e2cbf86f"
       },
       {
         "path": "packages/mcp/src/execution/file-queue.ts",
-        "sha256": "6bacd95f745888fc29063656fa021d141c298f8195e06b8bf1cf831015783efb"
+        "sha256": "88e4782d5f5a7d9cf11e1be0efda7b8f7d10587ba94d3a71e777c19437e00dc4"
       },
       {
         "path": "packages/mcp/src/execution/follower-invocation-client.ts",
@@ -186,7 +262,11 @@
       },
       {
         "path": "packages/mcp/src/execution/follower-invocation-endpoint.ts",
-        "sha256": "1ebad2ef7a4e75283be5f203f85d160fe49fe898ab631aee9f795ea1ea98c2f3"
+        "sha256": "274d16df22ace5b833cd796647b0874de7cab3857a011efedb09474587d91543"
+      },
+      {
+        "path": "packages/mcp/src/execution/identity-bootstrap-coordinator.ts",
+        "sha256": "d512d273eadf3447b5409d35f1d945308ff2074f8f236df900c5606af9844336"
       },
       {
         "path": "packages/mcp/src/execution/mcp-invocation-adapter.ts",
@@ -198,15 +278,11 @@
       },
       {
         "path": "packages/mcp/src/execution/native-evidence-artifact-port.ts",
-        "sha256": "c5bd7c84152f1534c1c11c96b6ed75f6eaabc841e23b9c884825286afdf86c78"
-      },
-      {
-        "path": "packages/mcp/src/execution/operation-evidence-artifact-port.ts",
-        "sha256": "9ff1db7b5b2bd9f072386fe4c8ee62ae8f1daedc38ee429b981d3ff658727699"
+        "sha256": "6c0b455c786b3a7a440f2b07c8a19f175e4f4d965d54de0824054a3ddb8bc073"
       },
       {
         "path": "packages/mcp/src/execution/operation-evidence-projector.ts",
-        "sha256": "357cbccd47fcc9037a5b57ae50ec953d51258d4df9849b6714ff76f17c25c760"
+        "sha256": "bafca42dc13a9532c89736eb8c80e4d79d16ceb3c43efdf981f10810203c3b85"
       },
       {
         "path": "packages/mcp/src/execution/operation-evidence-receipt-store.ts",
@@ -214,7 +290,7 @@
       },
       {
         "path": "packages/mcp/src/execution/operation-executor.ts",
-        "sha256": "933987fd0739398d29e90b550b61cf7e6454025b052238fbe3a5d7394011fad3"
+        "sha256": "771420bbf73ec74f7c320086b8b35b543acbe6f287e9122abe21ca14faf57685"
       },
       {
         "path": "packages/mcp/src/execution/operation-id.ts",
@@ -229,8 +305,12 @@
         "sha256": "0eacd7243e42f1cf301d5557db293a933f11a71e6094e1c1759a08d04d7ac7a1"
       },
       {
+        "path": "packages/mcp/src/execution/pdf-merge.ts",
+        "sha256": "656c0a466f39cf8f80a1090e616033e007298f6227e68013cc712b50438b29fa"
+      },
+      {
         "path": "packages/mcp/src/execution/service-operation-registry.ts",
-        "sha256": "6e1bd916a959145badbd4df52ed74cfe7a9f63af57923bd84ad2343cdaeb2ec7"
+        "sha256": "7228380bfa5fc1ac389a74aca4f1546c88193e7bba1d495db505cc5e92d9bdd6"
       },
       {
         "path": "packages/mcp/src/execution/target-resolver.ts",
@@ -245,12 +325,20 @@
         "sha256": "bcca7fbf07429e48df1f81572b21812d4ef43d25550e3c50b0057b26cdd4b9f1"
       },
       {
+        "path": "packages/mcp/src/fs/namespace-files.ts",
+        "sha256": "8391fbc83522754dc12b2250980aeb1e1050bd97cdcbfabdabd54367fed4a28b"
+      },
+      {
         "path": "packages/mcp/src/fs/operation-evidence-artifact-store.ts",
         "sha256": "0c8e1ae112f9006bd0184a6a8b8088a4e778d36b19a3f5df225acfc025c83c8f"
       },
       {
         "path": "packages/mcp/src/fs/repo-walk.ts",
-        "sha256": "bfe368b629d7aa3d66fc347132b2a1f1e956b20c7d599fd731eaad0d9aa44248"
+        "sha256": "e5f8e80d15c469266b271e58f04ca8ac3a707daa8398d7deda1b7c61fc7fd937"
+      },
+      {
+        "path": "packages/mcp/src/fs/windows-boundary-probe-worker.ts",
+        "sha256": "bd5d90e09dc0346e19d78d34e1d2586da5cb03d37a8d9b6a2aa1dcdb991e5d41"
       },
       {
         "path": "packages/mcp/src/fs/windows-directory-lease-broker.ts",
@@ -262,7 +350,7 @@
       },
       {
         "path": "packages/mcp/src/fs/workspace-policy.ts",
-        "sha256": "9518d6afa6f7f7d3f80cdea5823e168229e199af80ad7f8be86d179f9a1f7ef7"
+        "sha256": "29a58df64fc6f40819cfaf73c3de6ba80b9b700786d8b39539b67691c023efd4"
       },
       {
         "path": "packages/mcp/src/fs/workspace-registration-resolver.ts",
@@ -274,7 +362,15 @@
       },
       {
         "path": "packages/mcp/src/index.ts",
-        "sha256": "ada2ecd177aee50d0b2a50f10c49b105ecae1e2e878c2e51469788934304c556"
+        "sha256": "5e73d4f49373a3801480f0981c56499caa3a07c0180ebc7acda5796daf5b27d5"
+      },
+      {
+        "path": "packages/mcp/src/instructions.ts",
+        "sha256": "2b3ee4a71a88918b271eef304ba2db9036b7572231d56cad6432c88a0df16e4a"
+      },
+      {
+        "path": "packages/mcp/src/lifecycle.ts",
+        "sha256": "8d1784b2ac60f90367661f61615cbf6abe6e7e88795c2947e9aa69141f1098e9"
       },
       {
         "path": "packages/mcp/src/network/remote-domain-config-store.ts",
@@ -282,11 +378,11 @@
       },
       {
         "path": "packages/mcp/src/network/remote-image-fetcher.ts",
-        "sha256": "e3e14f5c51ccc7e8d8b96dbf19f5ffd35a56cbaa5b1da5b0e65b0e735b20eac6"
+        "sha256": "e1c5bcf0b01662df2c74838ffab62d4da303ad558f4ef2659a1bcdd4ba378eed"
       },
       {
         "path": "packages/mcp/src/policy/approval-broker.ts",
-        "sha256": "87f8942e3e16f3fce9b444479e3dba891f71af87d425fa24118bc31ef4353e3c"
+        "sha256": "a88e11cf6c95d82d56d0504fa99884e5739bbb3a7c8406accc71b9c5d4143638"
       },
       {
         "path": "packages/mcp/src/policy/approval-gate.ts",
@@ -294,7 +390,7 @@
       },
       {
         "path": "packages/mcp/src/policy/approval-prompt.ts",
-        "sha256": "eab1896fddeaf6333a35239ed2e3a09a518196d27b33a2041eb904bec9f15a56"
+        "sha256": "5881d1de41f476c1a3cf7648c8649c3bc14ae384c6e0ef66f36a74790043d24c"
       },
       {
         "path": "packages/mcp/src/policy/egress-policy.ts",
@@ -302,27 +398,119 @@
       },
       {
         "path": "packages/mcp/src/policy/operation-policy.ts",
-        "sha256": "11c76bfaa8edfc3eb030cdb146e5e9e36be3124c5d28ab084523611b2c1a49e6"
+        "sha256": "a3427feeda6a9e32cbb8742601f951300ec5e2ea5dd62081020229f9a1b1e0e6"
       },
       {
         "path": "packages/mcp/src/policy/policy-engine.ts",
-        "sha256": "c1525abd4d4c9c199f055741d269281ed0e4626760c1a48485756692cb0cb9ba"
+        "sha256": "eb0ca54ddc79f77eef56c207350b00e5276781599b095bfa44f367424e1542fb"
       },
       {
         "path": "packages/mcp/src/policy/result-egress-policy.ts",
-        "sha256": "df1b6246a0f7857bc21804a36c57c12fff4a8c64502ecc432f6a56b3553d2c93"
+        "sha256": "aa823e3ffed8a459a705e9d94640cc6aa10346d7c0bc07b3a8aa85f0b55be940"
+      },
+      {
+        "path": "packages/mcp/src/portal-validation.ts",
+        "sha256": "8a48b5f4b3e6f10323e96ada37766a87a3351235dbee8160ca9f4dadcdcfbbf7"
+      },
+      {
+        "path": "packages/mcp/src/portal/authority.ts",
+        "sha256": "0767157fefe0080248401335d53bba913687bbd15820f5de9e86b1572765bde3"
+      },
+      {
+        "path": "packages/mcp/src/portal/chrome-transport.ts",
+        "sha256": "e0457e05d1660287b6264e85be1be3805f345d35314caa8bbb86845ba1bcae59"
+      },
+      {
+        "path": "packages/mcp/src/portal/content.ts",
+        "sha256": "8119eb4d18843b59ae55c50f557a75373d48729fcb8678f1c20dbdf32e677d5a"
+      },
+      {
+        "path": "packages/mcp/src/portal/control.ts",
+        "sha256": "f9469db97a78cde02e0ae8218929be6814b0de4599dfb243623263d45c29d15b"
+      },
+      {
+        "path": "packages/mcp/src/portal/coordinator.ts",
+        "sha256": "5425e9eb393bda00998437ea8eb7460303d2f64f3f1a871f387d0d996b78f211"
+      },
+      {
+        "path": "packages/mcp/src/portal/design-capture.ts",
+        "sha256": "baf37f5c2d69bac308f81a71147245307371a71a3922cc3eb5bce9fa4e6bbf87"
+      },
+      {
+        "path": "packages/mcp/src/portal/design-evidence.ts",
+        "sha256": "4fb5293ca4241564ba634ad162701bf778003e402f452b3efeff5a05349ee3ce"
+      },
+      {
+        "path": "packages/mcp/src/portal/design-normalization.ts",
+        "sha256": "051341df27d9506900e5cc1c1a3e0e8e85a7a851745cd44036246a1a738dd49b"
+      },
+      {
+        "path": "packages/mcp/src/portal/native-runner.ts",
+        "sha256": "d96ed07b94f76416185ae7008dc10e14744c90b0e424c1c2f6400ab78f33ddc3"
+      },
+      {
+        "path": "packages/mcp/src/portal/native-work.ts",
+        "sha256": "b30fa61f0b891c0db2100fad4c732575ae714073a93e725d76f5e3ca5cdbe7e6"
+      },
+      {
+        "path": "packages/mcp/src/portal/presentation.ts",
+        "sha256": "585bebea9f9252b377cd91eaf6024d297a9b36776ed91e043b6be5e433537c0f"
+      },
+      {
+        "path": "packages/mcp/src/portal/preview.ts",
+        "sha256": "865843d989b3bb86380444fa91b05257e9b33244e6a9df4aba364e8239d1c49d"
+      },
+      {
+        "path": "packages/mcp/src/portal/profile-closure.ts",
+        "sha256": "e3d0d9dfbb28a94511bdae8b52739101b4e681c54854092bd788e30884908068"
+      },
+      {
+        "path": "packages/mcp/src/portal/service-graph.ts",
+        "sha256": "ff6d32d02ca7d972e5b8a68dd44b65ae8ecfe4a081e8aeaad353e6ec6f0b3ed9"
+      },
+      {
+        "path": "packages/mcp/src/portal/source-guard.ts",
+        "sha256": "df2720d152abba27035203f62d110543e27d2d0393d7ab63260e816ca23a7aee"
+      },
+      {
+        "path": "packages/mcp/src/portal/store.ts",
+        "sha256": "3c257b2dc08d929d0b27ee74c9bbc8c4c5207085de17e1969c2ac7750e7784f0"
+      },
+      {
+        "path": "packages/mcp/src/portal/visual-evidence.ts",
+        "sha256": "68f68010f6869088c031b9009dda73139d6a21f0a7ab5f76b25f9c5c7c9dde12"
+      },
+      {
+        "path": "packages/mcp/src/portal/vite-preview.ts",
+        "sha256": "18274b3a555e34020f241f61d8f2056a514db43ce6f5d2f6fa72beabd36b71fe"
+      },
+      {
+        "path": "packages/mcp/src/portal/windows-job.ts",
+        "sha256": "cd74ed3f587f6d55a5ff49e3115e56d2819de540609fcb17b567b249953de538"
+      },
+      {
+        "path": "packages/mcp/src/portal/workflow-requirements.ts",
+        "sha256": "a6fd33d9bf54c97fda1b0c883b26af880ac4a7948a50bb964e50a2f32896535a"
+      },
+      {
+        "path": "packages/mcp/src/profile/conventions.ts",
+        "sha256": "b7fa444190c60d717a430b5650053311936714c282055b51dd604929c7865ce5"
       },
       {
         "path": "packages/mcp/src/profile/profile.ts",
-        "sha256": "ccf0d6174fd4bf11c527142037c9ec3e74547ca170ea31f36f7c42eb8ae6188f"
+        "sha256": "197ab0c2310b8e570171647400842b96662d9317e4f7e31395b3585492f2e495"
       },
       {
         "path": "packages/mcp/src/relay/relay.ts",
-        "sha256": "d8d832278a9421abdba6c5792052144f94b596ebf5c1c21ec1af16f5eab645f2"
+        "sha256": "8a89bf5b70038ffde196531e4df9f037fe0eb3eba3aac5a7378ddf65212384ba"
       },
       {
         "path": "packages/mcp/src/relay/session.ts",
-        "sha256": "f2fc235f4785460f3526cc3e5760bf6d179b0e961138ee76299657e27d5d3bd7"
+        "sha256": "67ecec2074a1a45054c9be9cf02b5ef997a981e142c92ddb99d82aa2fea84193"
+      },
+      {
+        "path": "packages/mcp/src/runtime-mode.ts",
+        "sha256": "5febee0171b24e9596b6128c60bfd9757a0b60b130e8695f18e3e968df916813"
       },
       {
         "path": "packages/mcp/src/runtime-paths.ts",
@@ -333,12 +521,20 @@
         "sha256": "fd4aa617c0c2936e3c6438429c9818d7b7892b8036484341cf6e62f7ea7a0a75"
       },
       {
+        "path": "packages/mcp/src/scan/sfc-blocks.ts",
+        "sha256": "1073a64c4cf33c63beaf94f14eb5444f2b7a6f6282608320c05d08ec50756831"
+      },
+      {
+        "path": "packages/mcp/src/security/document-binding-store.ts",
+        "sha256": "7cb04cd7f99ca56bdafb412dad04be741deb0a0f84bf0df6e328188655f50463"
+      },
+      {
         "path": "packages/mcp/src/security/follower-auth.ts",
         "sha256": "ead64222bed9dbdb9c0022a12b11a91307f29fcec8848984a9922f0f2acdb61e"
       },
       {
         "path": "packages/mcp/src/security/follower-transport.ts",
-        "sha256": "e9599c7053cda26649101997ef44c575b094a05864b549d6bd3f2f4f8daa542f"
+        "sha256": "e332752ca5d51ef8d26d11b47bb2d2121a9971eae3ebf3e6693b8bb4443e8f0c"
       },
       {
         "path": "packages/mcp/src/security/local-access.ts",
@@ -358,11 +554,43 @@
       },
       {
         "path": "packages/mcp/src/security/state-permissions.ts",
-        "sha256": "e4dde1554bef8dd8f5e2c526b1f2a98956aae62eb5d55fabdc6d4223a2385e44"
+        "sha256": "6025ee14f621e68981c0904e463ebed0df776c99561d1a9430826c094c6e1e1e"
+      },
+      {
+        "path": "packages/mcp/src/snapshot/build-grounding-graph.ts",
+        "sha256": "9763cce1a53da326319125607fe7e9ebcfa1a68f7117cc184d07a6b320025d6d"
+      },
+      {
+        "path": "packages/mcp/src/snapshot/capture-snapshot.ts",
+        "sha256": "d3f0b8983868fb8d271a3afae4941f88b9a0dc1ec28b3dc16b5ffaf878e42f61"
+      },
+      {
+        "path": "packages/mcp/src/snapshot/operations.ts",
+        "sha256": "2f92e284ff7d8bb20e11ff0c5f4a44ebcc02dfb46a3577175849d94b9ab8bae3"
+      },
+      {
+        "path": "packages/mcp/src/snapshot/refresh-grounding-graph.ts",
+        "sha256": "b83bbfa3188cd5af0916c48f97320eee260f23f147b4a7f37f84b0016727b9db"
+      },
+      {
+        "path": "packages/mcp/src/snapshot/snapshot-operation-evidence.ts",
+        "sha256": "23df8e1a9050f7dee97ab9380bfc406fe64db7c4a37c5d35cac2c12970af8fbc"
+      },
+      {
+        "path": "packages/mcp/src/snapshot/workspace-graph-storage.ts",
+        "sha256": "86acc9dc7cfaf38f9adfda6a754e1509ab9421a342175c7f11a3c45ccf3b0811"
+      },
+      {
+        "path": "packages/mcp/src/snapshot/workspace-snapshot-storage.ts",
+        "sha256": "5b4fcda4db7a1335450b92e9f225ca2f1590acec0fd9c697e649e80f8117149d"
       },
       {
         "path": "packages/mcp/src/tokens/generated-tokens.ts",
         "sha256": "3f7f604e85cee75651a8d7cead855f8b064794acf8f76e44ec44778956ac722d"
+      },
+      {
+        "path": "packages/mcp/src/tokens/hex.ts",
+        "sha256": "f7b969cea35055f7aedf4c777df01157f6c6db3e1b6acfc1a3613f5460dbb180"
       },
       {
         "path": "packages/mcp/src/tokens/load.ts",
@@ -382,7 +610,7 @@
       },
       {
         "path": "packages/mcp/src/tool-invocation-service.ts",
-        "sha256": "3f78d1e2c14754b209c492077dec51dbfe3e8d337e04e4041c1fa30dfb1f121a"
+        "sha256": "cd3e1966941f4f0f5edc955c485e313a99b8cc5bf1dbda20e1cf6c618dced1f4"
       },
       {
         "path": "packages/mcp/src/tools/add-component-property.ts",
@@ -402,7 +630,7 @@
       },
       {
         "path": "packages/mcp/src/tools/annotations.ts",
-        "sha256": "cdba27adbfb69de0cf30173ad04e4e0110b9a176a0cfc30b8003e3eab51a28d0"
+        "sha256": "7bbffe8d03f6d95814aec820d13ceb50af3c877c405e8a1bef49d483060e7ea4"
       },
       {
         "path": "packages/mcp/src/tools/apply-animation-style.ts",
@@ -534,7 +762,7 @@
       },
       {
         "path": "packages/mcp/src/tools/design-diff.ts",
-        "sha256": "4d524078fcc84343ac4b065e561d4154e6ebad3b917f1db627dd09dcf0663edc"
+        "sha256": "190193979969d887d3a161b4ffe235413f3a2ce57f994bcc05e907b42f37ba58"
       },
       {
         "path": "packages/mcp/src/tools/detach-instance.ts",
@@ -662,11 +890,15 @@
       },
       {
         "path": "packages/mcp/src/tools/ping.ts",
-        "sha256": "08dc11b037ae4afd166e534ba0da78bd68b2d3003213eceea12bac0f57c8a21e"
+        "sha256": "7c7aaa4e7dc425003772cf4365166cc83f79d83dd6e161afdae1964725c6239a"
+      },
+      {
+        "path": "packages/mcp/src/tools/portal.ts",
+        "sha256": "251eb4b9ac5cf05de9cfb99261338dbf5b9c5bcba8848ccb6c980aed400a32ac"
       },
       {
         "path": "packages/mcp/src/tools/registry.ts",
-        "sha256": "3ec4f38b5ed4340896b67e5b217022f9393f3df0f67eb1e34a6d2b7d4d382750"
+        "sha256": "6b8e2b4c056b43ac335b99941f6a680e475cb8a5881bfc855da3ecd8816de677"
       },
       {
         "path": "packages/mcp/src/tools/remove-animation-style.ts",
@@ -710,7 +942,11 @@
       },
       {
         "path": "packages/mcp/src/tools/runtime-registry.ts",
-        "sha256": "9274e13378f7dc026fa2b38b2379db141c1440e56d7b144ef15596cdab4fad29"
+        "sha256": "8eeaba3cc042b6a8775cf56bd3554cfd915cee8297be0e953dd8bb0b62bc4d40"
+      },
+      {
+        "path": "packages/mcp/src/tools/safe-union.ts",
+        "sha256": "7dbafd0de6b744888472d341e84c5e478e68942cbb257d4b8ccfa781d398fc3e"
       },
       {
         "path": "packages/mcp/src/tools/save-image-fills.ts",
@@ -866,7 +1102,7 @@
       },
       {
         "path": "packages/mcp/test/control/control-router.test.ts",
-        "sha256": "014d998c13223e8a37386992944be58217d4d30750de5328c64c49e4c9abd91e"
+        "sha256": "354d19ae3a1d9e86dfeeb4eb55cf3189117a728eae8f8679544fbbea43a2bb33"
       },
       {
         "path": "packages/mcp/test/control/control-status.test.ts",
@@ -886,15 +1122,23 @@
       },
       {
         "path": "packages/mcp/test/e2e/_helpers.ts",
-        "sha256": "43d03c2962fea88e4665084d3fb76755c9a17c07c56f2452c604e3e403634b22"
+        "sha256": "bc37fb00521e1b76439c53e59920157b79daeec45678c31cb07c5aa8858caf2c"
       },
       {
         "path": "packages/mcp/test/e2e/mcp-wire.test.ts",
-        "sha256": "5f252769c11e31a322350a3797365c65e54091de8cb54177633c68ee9d0e252a"
+        "sha256": "0f02f0e5aea42e4cb8bf9a3ca0c294cc6bc520b0ba0ca8f588b221bdf52a9f0b"
       },
       {
         "path": "packages/mcp/test/e2e/packed-operation-evidence.test.ts",
         "sha256": "1e4be5a4fb0e864415ca2219af7e2a1a824bdb723c76c25df06bcf71eeb3ae71"
+      },
+      {
+        "path": "packages/mcp/test/e2e/ping.test.ts",
+        "sha256": "60c3a2fb43b26ddc454606da7baf6665f1b7e8e26841f09754da5ba3f6ab51cc"
+      },
+      {
+        "path": "packages/mcp/test/e2e/process-lifecycle.test.ts",
+        "sha256": "d8100592b830e4ba71f21de688634f6dd9ebfb9ea4046420fc944529d869b0f0"
       },
       {
         "path": "packages/mcp/test/election/control-route-registry.test.ts",
@@ -966,7 +1210,7 @@
       },
       {
         "path": "packages/mcp/test/execution/file-queue.test.ts",
-        "sha256": "e563122675b6d94d2d775186d258d8674d498df59591bfdb00b6562fa8e591c8"
+        "sha256": "e73b8ec5544edd8b162ea74b6fb3c375efdaf9686f4ffecbd61fe21dce619ae0"
       },
       {
         "path": "packages/mcp/test/execution/follower-invocation-client.test.ts",
@@ -977,8 +1221,12 @@
         "sha256": "a69bf781ded98eaab104f26344898da251207c073a9324d2d851e5a5544295da"
       },
       {
+        "path": "packages/mcp/test/execution/identity-bootstrap-coordinator.test.ts",
+        "sha256": "d4634b81d15464e777862129aab7eaf8626c390f59430884ac55cb1f4d8f194c"
+      },
+      {
         "path": "packages/mcp/test/execution/invocation-boundary.test.ts",
-        "sha256": "d50f63c8497df6e5eb295d5364b9a59c2d9a884c0d1ba0bd3b12b30553d865a2"
+        "sha256": "3ed0c90a2785848f32c1f9d0219481a7c4c8d30afb8bed2ddff17fe52bbcd7ee"
       },
       {
         "path": "packages/mcp/test/execution/mcp-selector-synthesis.test.ts",
@@ -1006,7 +1254,7 @@
       },
       {
         "path": "packages/mcp/test/execution/operation-executor.test.ts",
-        "sha256": "eacfcc94da0f122fc90ab5d0ba76ecdbf8d45f5d859b674d6b50421bd17e6e53"
+        "sha256": "5cc64aff857bc7d79a7d39e6e8ab3a6ea4443a68071b32b0f4aa2ec29097e852"
       },
       {
         "path": "packages/mcp/test/execution/operation-id.test.ts",
@@ -1026,7 +1274,7 @@
       },
       {
         "path": "packages/mcp/test/execution/policy-context.test.ts",
-        "sha256": "b5b91c78e93661d6b4355eda1d4bf9df61ae53d1ef82855e0266b3d057738b68"
+        "sha256": "1b62074e63e9b2f022caadc2b0a5e2ca44c0acec894b3919591f4c48924593f8"
       },
       {
         "path": "packages/mcp/test/execution/progress-framing.test.ts",
@@ -1046,7 +1294,7 @@
       },
       {
         "path": "packages/mcp/test/execution/service-operation-registry.test.ts",
-        "sha256": "7ccf1cca10cb66fb1b270dbb896f68aa2134086a9b5d72378f0041e43e0f8a6b"
+        "sha256": "940577c161c9d53224b41e2248c204bed3f8780fee844a36ffc9ce0a65ae9fc7"
       },
       {
         "path": "packages/mcp/test/execution/target-requirement.test.ts",
@@ -1062,7 +1310,7 @@
       },
       {
         "path": "packages/mcp/test/fs/atomic-file.test.ts",
-        "sha256": "68cdfde5550dbab3540f5138aea78176ffef4880db7a8fa620b0924a18b38e9e"
+        "sha256": "8db04abaa058d42619ae7b61f79553b78d5d219d9c3c3eb54f9bd389f8213868"
       },
       {
         "path": "packages/mcp/test/fs/local-tool-boundary.test.ts",
@@ -1070,19 +1318,23 @@
       },
       {
         "path": "packages/mcp/test/fs/operation-evidence-artifact-store.test.ts",
-        "sha256": "232229d7185f6faa2401c275c28b30f356c530abae02003fda76cd63ca7b576a"
+        "sha256": "8dff6db1ba9d8b6566e6c1f257913d72490dd758327f009be295955747352789"
       },
       {
         "path": "packages/mcp/test/fs/repo-walk.test.ts",
-        "sha256": "c1437d0a383fd265294266e081e06e9f8aed2e76b2e5316b54b53980155a5dd3"
+        "sha256": "8706eadb6a05bfccb8256109a44d656e6a3102a68eb1ec21befbe457619011eb"
       },
       {
         "path": "packages/mcp/test/fs/runtime-paths.test.ts",
-        "sha256": "f5faccbd5ec914f7728e5a9d11680396b0dba3006910137d8bb870247e4d8662"
+        "sha256": "a38f003adb442cff2f8cd9d946d6af4ca37e7c4a64dbfefd78d5aa8ae2cf8ead"
       },
       {
         "path": "packages/mcp/test/fs/shared-dependency-boundary.test.ts",
         "sha256": "1ea7bdba4a3f14d5d0c904e8e5b672c97531dc3667d99c41c9ef3fd114ad6b44"
+      },
+      {
+        "path": "packages/mcp/test/fs/windows-boundary-probe-worker.test.ts",
+        "sha256": "e7d1a8966b2265df0980b73d41f1df4ca4fde95a0957b020e4d030da07fa91cf"
       },
       {
         "path": "packages/mcp/test/fs/windows-directory-lease-broker.test.ts",
@@ -1126,11 +1378,23 @@
       },
       {
         "path": "packages/mcp/test/network/remote-domain-config.test.ts",
-        "sha256": "b4e51e3fbe82a843adbc88768d296056b4d932faa9145e4a788e3f8af50654e7"
+        "sha256": "01936ad051c77b64a13ca630fe5b7540f6d4b0428d7197085d4e73d6bdb18354"
       },
       {
         "path": "packages/mcp/test/network/remote-image-fetcher.test.ts",
         "sha256": "fb13c9844703d88c27af1cf144cc0bbb1db4ebc3bb21d979ee8c4267433ce105"
+      },
+      {
+        "path": "packages/mcp/test/node-id.test.ts",
+        "sha256": "20d11bd4392da5fe70b5b0f9a48b573c94f134006bef87b1f03534468ad2ad2f"
+      },
+      {
+        "path": "packages/mcp/test/plugin-contract.json",
+        "sha256": "88c286c0f5ccae3ca023be4b8cf85c245bd409965cc90b4afeb4450a7d1ffa58"
+      },
+      {
+        "path": "packages/mcp/test/plugin-contract.test.ts",
+        "sha256": "5187d71679c5acafc31e93a0fdd3745d2c7d18bde04decc7edbe14682fd34fde"
       },
       {
         "path": "packages/mcp/test/policy/egress-config.test.ts",
@@ -1138,11 +1402,71 @@
       },
       {
         "path": "packages/mcp/test/policy/operation-policy.test.ts",
-        "sha256": "4c1731b7e7302ffa4d0b2b106e5915afb4962b69e4c65eb4c1d4686c929ec7c4"
+        "sha256": "bac8281dcfd8e7379e6fc4530252f47a1a25ec67dad9abc414537a58117fa295"
       },
       {
         "path": "packages/mcp/test/policy/result-egress-policy.test.ts",
-        "sha256": "e4bf3a9dcf03cd727e441427d217673660a767d6e14e2e949d2bb3648ee1125a"
+        "sha256": "7b98dc80a6e8c7e9f3427809f78ab218700ae73c2d6dc1e73fe71b9113951fcc"
+      },
+      {
+        "path": "packages/mcp/test/portal/capture-continuation.test.ts",
+        "sha256": "2768dbd75f8a69d3aa0fb154f53c35f000d49cf31cd7955cec9cf62cd0ea7435"
+      },
+      {
+        "path": "packages/mcp/test/portal/capture-flow.test.ts",
+        "sha256": "7121ad725ac0e0c137c0d76104da9b54c99c1d6bba2edb1d8de03ce8e0b32fc6"
+      },
+      {
+        "path": "packages/mcp/test/portal/capture-session.test.ts",
+        "sha256": "d65737d935fbf6bc2d78dcf2833b82a6b0e71865fb2457d83aefc30cfd99ea45"
+      },
+      {
+        "path": "packages/mcp/test/portal/chrome-transport.test.ts",
+        "sha256": "c7a08bcd617b936a9e9031d5e3ff23b7ed35f6154424163fa336a457782f57c5"
+      },
+      {
+        "path": "packages/mcp/test/portal/coordinator.test.ts",
+        "sha256": "e742a034600c580a42032a346650cfe0d23c5d28abc41ed478c3d2a6ff351cb1"
+      },
+      {
+        "path": "packages/mcp/test/portal/design-evidence.test.ts",
+        "sha256": "cc5e4c7ecd48c283792e843dc760f6991b45a4943b9165de0219ca37e17c1237"
+      },
+      {
+        "path": "packages/mcp/test/portal/fixtures.ts",
+        "sha256": "a0851d0400a0d68d69bef4eace4048ad5a41d4768b65a8bb4feabecde3d66634"
+      },
+      {
+        "path": "packages/mcp/test/portal/native-runner.test.ts",
+        "sha256": "ed07a4a7294295112770daf23cccd93160280d59efb7f38bd1902c59cc9da40e"
+      },
+      {
+        "path": "packages/mcp/test/portal/native-work.test.ts",
+        "sha256": "c4547aa3d79b840cc64830258bb09cf7804a2572bb9bef9cd11aec5a36cc200e"
+      },
+      {
+        "path": "packages/mcp/test/portal/operational-native.test.ts",
+        "sha256": "85c6f2969db0aff050e91e3fb05d0e95442dbb9e6f2c289ca6286fa3ca5276e1"
+      },
+      {
+        "path": "packages/mcp/test/portal/preview.test.ts",
+        "sha256": "b6a3223e82149e972349cb22eb0513d5a10fe0835102596c4207d77877b2300d"
+      },
+      {
+        "path": "packages/mcp/test/portal/service-graph.test.ts",
+        "sha256": "20f92f1eda5833c753d3bc7d98110d0082f81cc7dc3ab34aa9da415401fbf83f"
+      },
+      {
+        "path": "packages/mcp/test/portal/source-guard.test.ts",
+        "sha256": "081377bac94e8f2114ef451ad33f83e57025ef6c9b0b9113aee9fa7898d1f075"
+      },
+      {
+        "path": "packages/mcp/test/portal/store.test.ts",
+        "sha256": "7a1bfe9d1cf312e893114cec5f76ddf9d53e5c54aeb6de508fd910554c33f980"
+      },
+      {
+        "path": "packages/mcp/test/portal/workflow-requirements.test.ts",
+        "sha256": "c7a46467328c25bae3cfc2ca028891c60a84fc09f4b669a60826b343c7a02505"
       },
       {
         "path": "packages/mcp/test/profile/profile.test.ts",
@@ -1150,7 +1474,7 @@
       },
       {
         "path": "packages/mcp/test/relay/relay.test.ts",
-        "sha256": "f65c167c3f608a499d31223f84c200b09fbbbeaa84a26a826df48866eac16d0b"
+        "sha256": "f98a5da565650100650adf0aca998657dba183fb0d098fe9bb176b593a28d76c"
       },
       {
         "path": "packages/mcp/test/relay/session.test.ts",
@@ -1185,6 +1509,10 @@
         "sha256": "95d50a8adb5085dd6bd1996af9db9e79e0d1b1369c3681063d01644897aee884"
       },
       {
+        "path": "packages/mcp/test/snapshot/service-operations.test.ts",
+        "sha256": "4049862a70ca9e3a46f3ffc2ed7bfed0cb34d65c3d38e0b334a337ce676956c1"
+      },
+      {
         "path": "packages/mcp/test/tokens/generated-tokens.test.ts",
         "sha256": "64803a8ea439d944c95d898e9adfa13270f792d5502873bb9f4c268e7b0564a4"
       },
@@ -1202,7 +1530,7 @@
       },
       {
         "path": "packages/mcp/test/tokens/token-index.test.ts",
-        "sha256": "6e33eb167b1b0d30599fb5246d1fce9db6678b0790a56d9e076c92aa3abc83d0"
+        "sha256": "924a10704e1c1e85601c25cc25d4bd652b006e1ede09a4e6deb8558cdfce70de"
       },
       {
         "path": "packages/mcp/test/tool-schema.ts",
@@ -1218,7 +1546,7 @@
       },
       {
         "path": "packages/mcp/test/tools/design-diff.test.ts",
-        "sha256": "8a0564d282fb4700302fbb4bf554327d96228d93bd08cc14ed8a184a5847cad3"
+        "sha256": "3a7839bd66a34f924af9154e2d63cb32d1ca83caea7b10389481952156dbe2c9"
       },
       {
         "path": "packages/mcp/test/tools/export-video.test.ts",
@@ -1237,6 +1565,10 @@
         "sha256": "d6f719a80032e901e035d5961aacd2c2f6afd984f7e4b9ded3bf14002f074277"
       },
       {
+        "path": "packages/mcp/test/tools/safe-union.test.ts",
+        "sha256": "22eb07e3861720b16a30cfb96d6432c4c619e69c1aa662c389fd45177e399afc"
+      },
+      {
         "path": "packages/mcp/test/tools/save-image-fills.test.ts",
         "sha256": "c76f3c25ab73190f168a827c146640916021848e090cd91b6ff9e5bffbd8c2d1"
       },
@@ -1249,36 +1581,300 @@
         "sha256": "863d239cd51af55618fa4cc0d016060ce7e9ffdf6e0b74293f5859fec0eb18b5"
       },
       {
+        "path": "packages/plugin/protocol/bridge.ts",
+        "sha256": "fd21269cf77dd5067abca7ac0204ee349e2d72fb9c600a526d98d660f7a21432"
+      },
+      {
+        "path": "packages/plugin/protocol/identity-seed.ts",
+        "sha256": "5e700bc4d4a9756e0131b62a33413f58aa790c41285e8e67788cd80a7892c314"
+      },
+      {
+        "path": "packages/plugin/src/cancellation.ts",
+        "sha256": "2c1ded0173baf42b78c5b20fbb796c947fd26d62c76a800312f963745e51aecf"
+      },
+      {
+        "path": "packages/plugin/src/code.ts",
+        "sha256": "ebb94862751f5423cec4e0a34f2c9413bc76ed5f0465605f0b4b40ceea3db3df"
+      },
+      {
+        "path": "packages/plugin/src/dispatcher.ts",
+        "sha256": "71864208fbcedbbe3d8bf5b77845051cf61303c662e80193922d254dd71cc79a"
+      },
+      {
+        "path": "packages/plugin/src/file-identity.ts",
+        "sha256": "3078fb49bd14221bb8e8323ac7e8f4017908fcddfb118653787eed36366bfb5b"
+      },
+      {
+        "path": "packages/plugin/src/handlers/add-page.ts",
+        "sha256": "a3f6695e311072740986c02c79da8db9edb520670453c7a073cea77e2c38172e"
+      },
+      {
         "path": "packages/plugin/src/handlers/batch.ts",
-        "sha256": "4bc28348cc235f44def30cf9a4053f561812a96df3b5087d346ad8d5dc329029"
+        "sha256": "12220b8e14846ae88a447e9f69331e6ee47f83c2797bd81bf523dbe3b4e96205"
+      },
+      {
+        "path": "packages/plugin/src/handlers/clone-node.ts",
+        "sha256": "f444c3b5e88bdea898edd30dfd13755b90a0bb62b6464faec9d66aaff92f5db0"
+      },
+      {
+        "path": "packages/plugin/src/handlers/combine-as-variants.ts",
+        "sha256": "3d70ef2f1eb6ea51548d7d15b6e91a6f82d322de28f2f264ae5ae43b35c3f18a"
+      },
+      {
+        "path": "packages/plugin/src/handlers/create-component.ts",
+        "sha256": "7e45245c46977be0ccff001c513c27dc94490dfef121532acbf4418b4595b353"
+      },
+      {
+        "path": "packages/plugin/src/handlers/create-effect-style.ts",
+        "sha256": "dc35c73e1279f5a983fd3e10bfec0303bea5e8c3efa3688bfa32e4b0baca7119"
+      },
+      {
+        "path": "packages/plugin/src/handlers/create-ellipse.ts",
+        "sha256": "164422bfc7352fc9551cce80bebbf55dc4cde66533503745598d09593469e2a6"
+      },
+      {
+        "path": "packages/plugin/src/handlers/create-frame.ts",
+        "sha256": "692b90dab18fa54f3f384c099d88988e00e7838a609359b671254b8507f8790f"
+      },
+      {
+        "path": "packages/plugin/src/handlers/create-grid-style.ts",
+        "sha256": "9dd72d342bf3163ac78ada9a1922848cf9bc5883eb88f84f1647e9332a70aa26"
       },
       {
         "path": "packages/plugin/src/handlers/create-instance.ts",
-        "sha256": "588fee3691f7283996b7615e795e6509c3d1afe40059486b645cd322ca9bd996"
+        "sha256": "5270224bf9e7fb7985040284ba10b5126f482693c784fa9d35ccb2021cc18bbc"
+      },
+      {
+        "path": "packages/plugin/src/handlers/create-paint-style.ts",
+        "sha256": "6d00f71138a5eb7834949b28da79e90371fd7fbe95fec376541fcbf1ef9ae0a9"
+      },
+      {
+        "path": "packages/plugin/src/handlers/create-rectangle.ts",
+        "sha256": "b943d389891f139d464fd84bbcbc259d8d8c83cd22b51db21631927cbc6ab811"
+      },
+      {
+        "path": "packages/plugin/src/handlers/create-section.ts",
+        "sha256": "4cba369a7953fb234390aaba3a0a8e8faea29ca756f8cad711c6b80d15c5d071"
+      },
+      {
+        "path": "packages/plugin/src/handlers/create-text-style.ts",
+        "sha256": "fa1f83b433bd07ff56cc091b7e22f3aae42622a37eaccc80fd246191c18a2cb3"
+      },
+      {
+        "path": "packages/plugin/src/handlers/create-text.ts",
+        "sha256": "0ec988b6655b4f6c144978da719c8247f0f11476da08be5056746a0733de2790"
+      },
+      {
+        "path": "packages/plugin/src/handlers/create-variable-collection.ts",
+        "sha256": "5f4e26830add3fe39cb338f9bb54fcc44a4ec7dc0d8b6d342f68988fa65e6646"
+      },
+      {
+        "path": "packages/plugin/src/handlers/create-variable.ts",
+        "sha256": "db4d9b23339be66457a20b98a9a60fb85c29dcc62b2aa5b549caacc3d3753d9e"
+      },
+      {
+        "path": "packages/plugin/src/handlers/get-reactions.ts",
+        "sha256": "bd44d34099f2749c35a8a29dd5f43a15f4be72a86c9a6024b6d06105a300bdd2"
+      },
+      {
+        "path": "packages/plugin/src/handlers/group-nodes.ts",
+        "sha256": "a58cfe03c4994b9f96a971c798e4a7a8d3de6ed73083d01fb86d0372e78638d5"
       },
       {
         "path": "packages/plugin/src/handlers/import-image.ts",
-        "sha256": "98f685fd2b2003cd9c39ae871238bab2a4447db730b27c2eda8efd28f871734a"
+        "sha256": "8387e1b7952f4437bbdfbae7deed8c9988ea10ec1e7baa05153d1786d1494fb8"
+      },
+      {
+        "path": "packages/plugin/src/handlers/import-library-variable.ts",
+        "sha256": "220f521a6460027e8603c6bc24fb9be8f7460a895b075cd1c5b9342f135713c7"
+      },
+      {
+        "path": "packages/plugin/src/handlers/import-svg.ts",
+        "sha256": "42260ff2091e06ba5f84bcc4be54ab792904541171dcf8fa20b5e6ca525bf5f3"
+      },
+      {
+        "path": "packages/plugin/src/handlers/registry.ts",
+        "sha256": "31de8faf4ca43263e1a190f8897bc7535f522577456ca3583ba91f49441b1330"
       },
       {
         "path": "packages/plugin/src/handlers/swap-component.ts",
         "sha256": "3def36e2628b1c19490c40ff882f36ea6f8c826e2b3378f34c5ca55d0919247f"
       },
       {
+        "path": "packages/plugin/src/idempotency.ts",
+        "sha256": "cd5bdfa2daa29ba6be0409be6ba71f49c9b6ec79049c682a95a624d233f97f7a"
+      },
+      {
+        "path": "packages/plugin/src/identity-bootstrap.ts",
+        "sha256": "e9e1a756cec9cf671336a76f83ca16056443d3c2b7b2c648fdebee35fc6057d3"
+      },
+      {
+        "path": "packages/plugin/src/mutation.ts",
+        "sha256": "9f6cae317fc5b161df2c5e716cdb7352c7e6bc6f6ac7137614aecfdcca0cbcc7"
+      },
+      {
+        "path": "packages/plugin/test/auth/pair-exchange.test.ts",
+        "sha256": "63d8d98eb6cbd2e6925849934683f64d4c5d27bb1be7e9ee6cd081c7c489477d"
+      },
+      {
+        "path": "packages/plugin/test/auth/resume-rotation.test.ts",
+        "sha256": "db70e6d21e21ac03458f3d284d3e32f80a5a5344031a574051697555709ad7a6"
+      },
+      {
+        "path": "packages/plugin/test/components/pairing-flow.test.ts",
+        "sha256": "babff8af6f95e0a8da897fcb38d45e8d2a5438a99420c9b7bb3cf20a25b5d86b"
+      },
+      {
+        "path": "packages/plugin/test/components/panel-chrome.test.ts",
+        "sha256": "8c8b21b520bd497d2d3cb9e572eaf8af161ded3b81ba91565cd9965cc9da15b8"
+      },
+      {
+        "path": "packages/plugin/test/components/panel-tabs.test.ts",
+        "sha256": "f414902593b655dcfa3c17e023eee40a424e4abcf7445fe724cd5eded435247a"
+      },
+      {
+        "path": "packages/plugin/test/composables/use-approvals.test.ts",
+        "sha256": "bd05c77fef88dd6cad488cbc4e2f5993a03b3e57499c322ed448d4c0a34e8178"
+      },
+      {
+        "path": "packages/plugin/test/composables/use-relay-session.test.ts",
+        "sha256": "9dfbd9d7d033a00f0e02fa68e890fd1f313a8a1ed4c273ff6cba3d471e579ad2"
+      },
+      {
+        "path": "packages/plugin/test/dispatcher.test.ts",
+        "sha256": "476f2c4083234479ae2a314d5a4f65bc2bf1724244da69d4d925fc211f0b91ad"
+      },
+      {
+        "path": "packages/plugin/test/file-identity-bootstrap-hello.test.ts",
+        "sha256": "3d1d00235b4fe50a41c01199ac211fd748b7cf63dc0f60ca6bb43327f10f099e"
+      },
+      {
+        "path": "packages/plugin/test/file-identity.test.ts",
+        "sha256": "856bc5103cc31033963a35da754f786f22d163a5c230c53975ce8c0e42378ab6"
+      },
+      {
+        "path": "packages/plugin/test/handlers/batch.test.ts",
+        "sha256": "03dd6ae0251a82f8cb25e29072480bd0b5674738aa7dafb0a69955ee2d699114"
+      },
+      {
         "path": "packages/plugin/test/handlers/create-instance.test.ts",
         "sha256": "b7cfbdaa71033faa66b822b696a84c13cd8ea63c8851bd82c40ec70993767698"
       },
       {
+        "path": "packages/plugin/test/handlers/get-reactions.test.ts",
+        "sha256": "cbe56728db3fa53a2293208a132f9e211d71af264e82e275c67ae1b947e3f227"
+      },
+      {
         "path": "packages/plugin/test/handlers/import-image.test.ts",
-        "sha256": "328b0a7110496cc858136b9ac09f305e84190f29a5c623d47ffc2f8fd78a8289"
+        "sha256": "90cb6995968848e5dc6f3862882ee29a0f59c281234f2fc96e9adbf9c7fb8d4f"
+      },
+      {
+        "path": "packages/plugin/test/handlers/import-library-variable.test.ts",
+        "sha256": "b9ccd247cb554815fb22f4cc173be81c53e17694e0c77c3124dd839f06ced04a"
       },
       {
         "path": "packages/plugin/test/handlers/swap-component.test.ts",
         "sha256": "3de3e1c14414593fcccc9a2df098580e390301f890818073e958ba606e38efc1"
       },
       {
+        "path": "packages/plugin/test/idempotency.test.ts",
+        "sha256": "d318d4a4fed8b7fd8cf0e86e0dca69b8cccda1f6ca01847626616a7915c7c27a"
+      },
+      {
+        "path": "packages/plugin/test/identity-bootstrap.test.ts",
+        "sha256": "f03534d5b08f39f0dc7418d2d7584c9dc523e930d878f03576df787870384feb"
+      },
+      {
+        "path": "packages/plugin/test/mutation.test.ts",
+        "sha256": "9d8840dd3ccc86dda4fdcea812ff3375f08f3b8b69012e2c76a33e34bc73bd6f"
+      },
+      {
+        "path": "packages/plugin/test/protocol/bridge.test.ts",
+        "sha256": "65e990ce461d85965f8aec2da22baf3e4a24bfbd88830c323ed1e0a78629e1a8"
+      },
+      {
+        "path": "packages/plugin/test/protocol/progress-cancel.test.ts",
+        "sha256": "175574bdc856a9efc9b20649bf8922ed41ac66dbb4a4b5766961f0e1974428cd"
+      },
+      {
+        "path": "packages/plugin/test/relay/bootstrap.test.ts",
+        "sha256": "91dbf125ff5d93f62331f0a227dd628a65e0f115bab1678755dc273943ad7682"
+      },
+      {
+        "path": "packages/plugin/test/relay/client.test.ts",
+        "sha256": "d6f9895cd5a3900437feb307e259b347a1dbc65217289499a25f038480f8d6cd"
+      },
+      {
+        "path": "packages/plugin/test/sandbox/startup.test.ts",
+        "sha256": "62144e35f8da79e7b32e32cc1151fdb3e8a4b9f84a97a2a0c5c6e9c467c09b81"
+      },
+      {
+        "path": "packages/plugin/test/sandbox/tool-bridge.test.ts",
+        "sha256": "ecb1f54fc5efe9cf06a14898ead5cd5cc7097428b34fd2dc95c5e1f51ab7ba39"
+      },
+      {
+        "path": "packages/plugin/ui/App.vue",
+        "sha256": "d420fad1fa6447fc68a01e701809104173f5344b114656b157f6c0b7bb43cef5"
+      },
+      {
+        "path": "packages/plugin/ui/components/DocumentBinding.vue",
+        "sha256": "b064ccc05b8d133b4c7d308f48b5df6d748a81cdab6827efb6f2348c00dbcf22"
+      },
+      {
+        "path": "packages/plugin/ui/components/PanelTabs.vue",
+        "sha256": "3fee6965fd1551490fe59d631a0c5a80958f5ba299d3868f880d1afecc5c3ce0"
+      },
+      {
+        "path": "packages/plugin/ui/components/TabApprovals.vue",
+        "sha256": "887532470f3de755b7d0b384f8a0b0b1a45f50822ebe202a4306d715b136ce60"
+      },
+      {
+        "path": "packages/plugin/ui/components/TabPairing.vue",
+        "sha256": "e896fadc342b49ffa9c8966b2e640c6b4bfa07f8a7ccfc44fd26fd293f3f885e"
+      },
+      {
+        "path": "packages/plugin/ui/composables/useApprovals.ts",
+        "sha256": "3250d25446a0a4eb736ec49f657d8a006e28b7d5138a06ec9e5bdcfd554fbd27"
+      },
+      {
+        "path": "packages/plugin/ui/composables/useDocumentBinding.ts",
+        "sha256": "94f6297e308b102bbb38a63855228763de43aa4c962c85d46e0192985c19a257"
+      },
+      {
+        "path": "packages/plugin/ui/composables/usePairing.ts",
+        "sha256": "f55f53dbcb754585d34128b6e93a0c18001fb53ec4ac2c3223cbbe27daa7277a"
+      },
+      {
+        "path": "packages/plugin/ui/composables/useRelaySession.ts",
+        "sha256": "7b92fd23c19dd2d4c78ab6a1bf5a962a538416d4b5ba7a0cb670be95d8911699"
+      },
+      {
+        "path": "packages/plugin/ui/lib/tabs.ts",
+        "sha256": "270e7c7a24b35ae4fd02cef38693e68bfd3048fd90b1c3f94f069a81869cbb94"
+      },
+      {
+        "path": "packages/plugin/ui/relay/bootstrap.ts",
+        "sha256": "ee83ffe252b2ca1ce66d98bc281ddd7f1480d2a47c46324555fc31866bd8dd30"
+      },
+      {
+        "path": "packages/plugin/ui/relay/client.ts",
+        "sha256": "f3857763258dbd26e129b512b219752a431cdad247fe7c2289510728c0d46e6b"
+      },
+      {
+        "path": "packages/plugin/ui/relay/state.ts",
+        "sha256": "b4288308d5235a4b450587347d009c18c1641a78a0c9aa0312ae2b14e4b8b583"
+      },
+      {
+        "path": "packages/plugin/ui/sandbox/messaging.ts",
+        "sha256": "668b8c8bdd02822ed4c0c6e5a5b3cb0c7c633e163cac2e536a9d7832f416d4ce"
+      },
+      {
+        "path": "packages/plugin/ui/sandbox/tool-bridge.ts",
+        "sha256": "67ddbf853afdd072fa3ba657a3ecaf2f991d2f6d09e03e4b454aa9b4c854e897"
+      },
+      {
         "path": "packages/shared/src/action-nonce.ts",
-        "sha256": "25530abfc47ac8b94149d414806c2dbab12745cc9250b678b9b0f2598f169dd4"
+        "sha256": "de5da596f26ae026f00fcb3574ecf727b4078eff05d01eaa50c303e75a3712c1"
       },
       {
         "path": "packages/shared/src/approval.ts",
@@ -1298,7 +1894,11 @@
       },
       {
         "path": "packages/shared/src/control.ts",
-        "sha256": "649cdf4784257dc78582369ea3294fb910a9fad54baf9ec1947c632e2b3703ca"
+        "sha256": "df9d15d93d9fbde7a490b3d79151c6bc826404a6bf102421c401e860018eb773"
+      },
+      {
+        "path": "packages/shared/src/document-binding.ts",
+        "sha256": "f71e6dfd6f2ffedb6a210f8e90d3d420a3ec9504f6528bb77f1503304d8cca96"
       },
       {
         "path": "packages/shared/src/egress.ts",
@@ -1310,27 +1910,43 @@
       },
       {
         "path": "packages/shared/src/index.ts",
-        "sha256": "69625f650ceafb5e71f7ce6bfabb0911f8d25bfa6dca5c87a249ed3a173e1d8d"
+        "sha256": "7fcb3a14730e18ede4aa07e574a81a055bc897582724bdb78c030768705d2937"
       },
       {
         "path": "packages/shared/src/invocation.ts",
-        "sha256": "1598aae34fbaae9acf1cc39b73f27517ad8a006417aed6e4a94197c53b854c1a"
+        "sha256": "b28bf6725e203d75414a44fe84f2411a2680fb11300632b2b582cdc4de10bb46"
       },
       {
         "path": "packages/shared/src/operations.ts",
-        "sha256": "d9c9fef1aaf8a99207be24417f2c72b7d6dc83f00aa95259d80c656673134136"
+        "sha256": "b5bb436c9cc5ef9c9f491156c4d288c812786b3d466a7be679150724e629b3b5"
+      },
+      {
+        "path": "packages/shared/src/portal.ts",
+        "sha256": "367ffa353ba21a18ce3f7771dee13d8a9db527b919ed063395fa74ba22722b32"
       },
       {
         "path": "packages/shared/src/progress.ts",
-        "sha256": "99d405a9e39f8652c0d5827686993feb49e517bc33e186c7269351a8ff9b3446"
+        "sha256": "103c259c7bdee769c61d3059ce89509cb94e723937e48463eea964ce196b07dd"
+      },
+      {
+        "path": "packages/shared/src/project-conventions.ts",
+        "sha256": "717509cd7ece136c3046ca43a6bb99ab33fbdc9db1771afd44cd6c990ca0ba08"
+      },
+      {
+        "path": "packages/shared/src/project-profile.ts",
+        "sha256": "c3867e83747d5649caabc8d399710d1de6360cf77c4144ce2b27ccaf03abe962"
       },
       {
         "path": "packages/shared/src/protocol.ts",
-        "sha256": "e9765d856e4f3542101dbcfd519c3bda6af1fd6dfdfb77e74650a3edef37c145"
+        "sha256": "1b31416c86e7211cdc0a806fc1cf1701c60f884f2c7b3483c58218aee9d60550"
+      },
+      {
+        "path": "packages/shared/src/queries.ts",
+        "sha256": "31c39bb0b54edd0b032d243a20ca96e8800a6f97042a45077123a4c67fb45f0b"
       },
       {
         "path": "packages/shared/src/result-schemas.ts",
-        "sha256": "30f49e189da85e5e898b96ee4b725f9bb139daeb318e4b438ab422a3c162d473"
+        "sha256": "ac75057ff76eb04618d325f79308b0058d2dd5a200d403c0d63fa2a04f06f35d"
       },
       {
         "path": "packages/shared/src/rpc.ts",
@@ -1341,12 +1957,36 @@
         "sha256": "09c411479206fc353aaadf4fe91fc1c54f93ccf0c322fcb2debd6da2b6a707b7"
       },
       {
+        "path": "packages/shared/src/tool-budgets.ts",
+        "sha256": "7df74e54927d964f1362e5f6448536e33985c5e4f7bab6f930b62b8ef077d899"
+      },
+      {
+        "path": "packages/shared/src/union-tools.ts",
+        "sha256": "a6261e018a4cf6edb49d2b41ddd887aaa3f54196221072d574a6b2c77229549d"
+      },
+      {
         "path": "packages/shared/test/control-schema.test.ts",
         "sha256": "3d714e87cba3b197b7f69e3e7a7fe57f859d5ce49c3d5e0b081d822e317eaf70"
       },
       {
         "path": "packages/shared/test/file-identity-hash.test.ts",
         "sha256": "48b203372256e350a8400dceb152f99a0f3a0fc001ae37ceb250cc320b356c23"
+      },
+      {
+        "path": "packages/shared/test/portal.test.ts",
+        "sha256": "e138a37fa30e5dbc30f27c0b8995d380cc42219c752e9b67a827a9f7fc9da721"
+      },
+      {
+        "path": "skills/figma-codegen/SKILL.md",
+        "sha256": "a020a6d57f4ae1f93e2ea58a81b717f1b79b0e0c2f6ca946bcc9f579065878ba"
+      },
+      {
+        "path": "skills/figma-codegen/references/verify.md",
+        "sha256": "599de0304f4c67ba53e6aabb2dbbe7602f92d4bb300e52b47dacd77af99da3a7"
+      },
+      {
+        "path": "test/artifact-contents.test.ts",
+        "sha256": "93caf0b9f0a9756ec750bf77b521a00b73cd57481f893ea11db1c45fb992bbbd"
       },
       {
         "path": "test/authority-class-transition.test.ts",
@@ -1358,7 +1998,7 @@
       },
       {
         "path": "test/change-manifest.test.ts",
-        "sha256": "65ffb20153ac6c99f9bc7d653fa2afab6d1bdc9eaf2ea98f9b84f3469810cb58"
+        "sha256": "8f9c4e40ea189eff5c51d8d3bfd0a177e303b01780228f0f0a6970087877aad6"
       },
       {
         "path": "test/service-fork-lineage.test.ts",
@@ -1370,7 +2010,7 @@
       },
       {
         "path": "test/tool-contract.test.ts",
-        "sha256": "995433df2312cf06dff1cdca2763b196bb82701f682f1b63d9b57e4b844e2f53"
+        "sha256": "26741268606fb4930bd51e1b0de121c98442a3e57139e425d24dd632e384162f"
       },
       {
         "path": "test/tool-registry.test.ts",
@@ -1378,11 +2018,11 @@
       },
       {
         "path": "test/upstream-parity.test.ts",
-        "sha256": "68c755c675f9312940ecb5e7ba59e16ec92f8dea2ac1c9631a70572c3891b3c6"
+        "sha256": "05638f6360be9fe7ded26a93880a14ecd08f5fe6a2a928cd396da0153a405f4f"
       },
       {
         "path": "test/vendor-upstreams.test.ts",
-        "sha256": "e74675ebe27127f2b4213472ed93368e035649356a3018ca3c22c85e8a36797d"
+        "sha256": "1c383bf0dff8eb7e39d1b2f26114b729de928d929280c812d3d7d133597758a8"
       }
     ]
   },
@@ -1421,7 +2061,19 @@
     },
     {
       "path": "PROVENANCE.md",
-      "sha256": "a7b79696822dfc9871908b5a47f9b7d24754b42705dd2b7d05f24b7673fc2b64"
+      "sha256": "44f911ccc9b69bb5002e73811e575fe6dc26641200f5e771bdb1778f2b676b78"
+    },
+    {
+      "path": "README.md",
+      "sha256": "f56623edd28df711d542a4e2146c19662000b27d7087ea84b85c29fb4589f4fd"
+    },
+    {
+      "path": "SBOM.spdx.json",
+      "sha256": "f1a83a7107e31a0181bde707e3c280ec2896f04f8d632ec8679dff735244cbfd"
+    },
+    {
+      "path": "THIRD_PARTY_NOTICES.md",
+      "sha256": "7e5dcb7c3f7d35d9fbd3519a3ce1e8f4f239afda7d9a1f3cf10ec83d55d46ee8"
     },
     {
       "path": "capabilities/change-manifests/task-7a.json",
@@ -1444,8 +2096,28 @@
       "sha256": "af2ccb82fc1bb3fa19f21f7c812df648daba7e7e69ad5ae693925f049eecc834"
     },
     {
+      "path": "capabilities/change-manifests/task-review-2026-09-05.json",
+      "sha256": "b3df4893187dbf32edda718f22100e768156160a09a3da22c9ec66906b8fbc57"
+    },
+    {
+      "path": "capabilities/change-manifests/task-review-2026-09-06.json",
+      "sha256": "08758dacf99f29ed086fddf3e80d4c321c285e38c5e7a2bfbbbf0b239f26091d"
+    },
+    {
+      "path": "capabilities/change-manifests/task-review-2026-09-07.json",
+      "sha256": "ba80d78f5ca779a1181c126d173316f42121baf7535d734b7848c03b0e3093c5"
+    },
+    {
+      "path": "capabilities/change-manifests/task-review-2026-09-08.json",
+      "sha256": "7c4fe9ec87209319f09a83d25d4aae62e3881262b51ee580ea3c5aa3915e3a33"
+    },
+    {
+      "path": "capabilities/change-manifests/task-review-2026-09-10.json",
+      "sha256": "736124a457651df63baac5915602c984e9bef3ec53670276d0964d36161d7111"
+    },
+    {
       "path": "capabilities/figmosha-feature-map.json",
-      "sha256": "8b84a17e372975e6590ced2315cbdcfb99f0def6259980e88eaf6c4294ca8956"
+      "sha256": "ce423b9ed67c825a84e5b2500124a305ca5b5119e5e07f8a79aabca05a49d862"
     },
     {
       "path": "capabilities/rust-tool-compat.json",
@@ -1476,12 +2148,52 @@
       "sha256": "a969d72b64e004d79260d39ce5a06a0ce7aba0eb6b179f2fabc63a5878d509d1"
     },
     {
+      "path": "capabilities/task-review-2026-09-05-authority-classes.json",
+      "sha256": "be260ec1740f3d35b34b4a766e924a94853a38071bf78211a0938e2202695d11"
+    },
+    {
+      "path": "capabilities/task-review-2026-09-06-authority-classes.json",
+      "sha256": "2d6ce0e7a5c9a8411107947d4772758b3ab74e55baae2c8b13452a426bc9c8b0"
+    },
+    {
+      "path": "capabilities/task-review-2026-09-07-authority-classes.json",
+      "sha256": "ae9894c6aa976725be0a19803c85400f9e609508d7c4b2001901ad7811a86c22"
+    },
+    {
+      "path": "capabilities/task-review-2026-09-08-authority-classes.json",
+      "sha256": "d397af0bc440f4fcfb8a2bcfd6fe4e32f2e8035a7975c5c0e435fa2d9bb317da"
+    },
+    {
+      "path": "capabilities/task-review-2026-09-10-authority-classes.json",
+      "sha256": "a0c40885ba9e52d6e8c3c0613c56248b889997eccbd8482e14161e78c9b46f17"
+    },
+    {
       "path": "capabilities/union-manifest.json",
-      "sha256": "761aa1c3f40d166be58e4da4df2cff3db41b23fc9b2e573dd46006238bd67beb"
+      "sha256": "9f42a8e3f96492ea8857f9b71b03e14017a19185856bacb821b955177300a17a"
+    },
+    {
+      "path": "connect-desktop.ps1",
+      "sha256": "1d4ff477bd06cc0d4b6547fed6989a5578d8eb94cd49496daf3f893b69662741"
+    },
+    {
+      "path": "docs/operations-ko.md",
+      "sha256": "2617a4762d12fb80ab3ac257334bb3e90c76c081b111ac909397898b4bc1195f"
+    },
+    {
+      "path": "docs/portal-native.md",
+      "sha256": "39ddcecb2d60c52f359c0ce8958619466e361084be14ec061640478ec77ab0ca"
+    },
+    {
+      "path": "inspect-chrome.cmd",
+      "sha256": "6a19653f30e1e84878c6a45c0f9c0e3c0e07fcdf6db57217df2e3512e6b106b3"
+    },
+    {
+      "path": "inspect-chrome.ps1",
+      "sha256": "31a381a5344e35632ef1c58b26c6d3ba8f7a93deda404322ef287398d43126e3"
     },
     {
       "path": "knip.json",
-      "sha256": "903e6773c50a222d6c2193345e27220d3c89e59ab977e14d46a79679873d46e4"
+      "sha256": "7eefab5a1bf57117509b916f22d384b5067766ddd50b7a9d32fc2967394021c5"
     },
     {
       "path": "licenses/figma-mcp-rust-LICENSE",
@@ -1496,24 +2208,212 @@
       "sha256": "596f04ba93da8a848340599a9fafbbda8859d45a4087fd19c220bf16640c4d8f"
     },
     {
+      "path": "package.json",
+      "sha256": "30ac7b4298d9ca6a7de895ce27bf4c5ea0671f5d49aa88725c1e09d5a4e6a901"
+    },
+    {
+      "path": "packages/cli/package.json",
+      "sha256": "dfd56472eb6e9da15369ee6216fdb7b71829bdffd98aaaa34fe37d2752dfff18"
+    },
+    {
+      "path": "packages/cli/src/admin-commands.ts",
+      "sha256": "ab38e063f78451f10801d74a6cd3f99e8a0bbc966967644c3a6959e8d30d95cc"
+    },
+    {
+      "path": "packages/cli/src/artifacts.ts",
+      "sha256": "83c73887f82ffc164ab37c7bebcb31f5c4172642d135100f354c35aeb7ea310e"
+    },
+    {
+      "path": "packages/cli/src/asset-program.ts",
+      "sha256": "709bef72542e2942a21114f8820fd4d01ce27bdf40fec9ac9cca79c22d419fa6"
+    },
+    {
+      "path": "packages/cli/src/browser-session.ts",
+      "sha256": "0751a72e2a67a0056c644200e6cecada8421c8d39fa530b1eedc14cdf78cbd54"
+    },
+    {
+      "path": "packages/cli/src/capture-assets.ts",
+      "sha256": "9ada8ac2e063aaf825288160dd7b991a69869d9e69ab0f786ded578c5da24491"
+    },
+    {
+      "path": "packages/cli/src/chrome-endpoint.ts",
+      "sha256": "82ccb75f8827aa11dd046c1c50d4c761e51b461b2efd3a332c139b9fd775af01"
+    },
+    {
+      "path": "packages/cli/src/commands.ts",
+      "sha256": "eabaaa75a9a5634b6426e8bf88680d8457031406b78453aba8f68db1e351fd20"
+    },
+    {
+      "path": "packages/cli/src/control-client.ts",
+      "sha256": "9d2529b609546717bf5039b4dcde4d861e78725734e789cd8d78e30c0d6558aa"
+    },
+    {
+      "path": "packages/cli/src/desktop-reader.ts",
+      "sha256": "0642eba4436b761ea473b6df521ca6c78ac6b47747360802bf226545001154ea"
+    },
+    {
+      "path": "packages/cli/src/figma-url.ts",
+      "sha256": "5efd26f37e4e4667918535db915075babab6f2c5a5d547770f544da1b689dfb9"
+    },
+    {
       "path": "packages/cli/src/index.ts",
-      "sha256": "125d2c36e653abafaccad2140482c664ea85bba4f5bc14b7c9907a0194c9a8c8"
+      "sha256": "4c4ec545f6072b371e63ee4891df8510d77259b37c305b3f9e861d1bfd80188b"
+    },
+    {
+      "path": "packages/cli/src/library.ts",
+      "sha256": "398b3f02b65b1a0e7fad791309231932ea30b70b4c06ce632c1ab3cfeb2710b5"
+    },
+    {
+      "path": "packages/cli/src/plugin-bootstrap.ts",
+      "sha256": "ffc9bf975b6165b8b2ef6d07db9442aca96c5fca361eef32448abe42c8c799ed"
+    },
+    {
+      "path": "packages/cli/src/portal-commands.ts",
+      "sha256": "9c4eafbe26b8109f7928e1f5e17a87333ded40efd3bbfaaafe1fbcebc8929e89"
+    },
+    {
+      "path": "packages/cli/src/project-inspector.ts",
+      "sha256": "1c41622ebc9862d8f4bb7e3cca09512c653484c30b0c7ea3de6ee1f7d6d9f15a"
+    },
+    {
+      "path": "packages/cli/src/read-program.ts",
+      "sha256": "ac63cd83a43c4925422f4082cf9dc26c9b72553ef61957437a203dd5e29d09f3"
+    },
+    {
+      "path": "packages/cli/src/scripter-bridge.ts",
+      "sha256": "a791585f47f06efcb3d38544d5b82895db07f9cd6b47c659d0027e0ef65d0438"
+    },
+    {
+      "path": "packages/cli/src/scripter-reader.ts",
+      "sha256": "057fddbdaa9665206f987af7889401f2b1ecbadace4985b63b07fcb18c30def6"
+    },
+    {
+      "path": "packages/cli/src/server-session.ts",
+      "sha256": "6a99228c04ac82c72ddd118904b0b277bebb22dc8bcd902f105425e76996e529"
+    },
+    {
+      "path": "packages/cli/src/snapshot-reader.ts",
+      "sha256": "2757dffdd757574d6a253601177d142628752481400e254be1cc458d2aea7656"
+    },
+    {
+      "path": "packages/cli/src/vector-export-source.ts",
+      "sha256": "a26c8d4be6811042da199aab2d100f29c84f22b003860823f2d32eb886f0df28"
+    },
+    {
+      "path": "packages/cli/test/admin-commands.test.ts",
+      "sha256": "4c3ecd6952bb173c111c4b740b5eb6a17065e4bef9bcac68199ac91b22bf505a"
+    },
+    {
+      "path": "packages/cli/test/asset-program.test.ts",
+      "sha256": "040d145f48684653f0502582d600ea1a2c52f8ae668cb959cdc32f4702d0c125"
+    },
+    {
+      "path": "packages/cli/test/browser-observation.test.ts",
+      "sha256": "993cb1770951d297e820d860627d4d417cda2b80023657fd236c944210f8d771"
+    },
+    {
+      "path": "packages/cli/test/browser-session.test.ts",
+      "sha256": "f4cf54ddbf59f57d5f5dfb51ab26945c0361b345bec06ca9c91d148e3f3a81ad"
+    },
+    {
+      "path": "packages/cli/test/chrome-endpoint.test.ts",
+      "sha256": "a60d626bd828e3f7322cd8e8059375264940d296d5b70353401ff50f59bf0b7d"
+    },
+    {
+      "path": "packages/cli/test/control-client-http.test.ts",
+      "sha256": "c7f3db30b83956539e1a24546e7d1deb4ab21e01436d8f9af0d9702d25eb4ce8"
+    },
+    {
+      "path": "packages/cli/test/desktop-reader.test.ts",
+      "sha256": "0728e6ca11fa67baf0d6cc92b63607d53aed450268726930d54501cb04eecebf"
+    },
+    {
+      "path": "packages/cli/test/portal-commands.test.ts",
+      "sha256": "d479416a9daaf07008dfc53f190ebca73a3fe5ccf69401e751693eb0d3ff2677"
+    },
+    {
+      "path": "packages/cli/test/project-inspector.test.ts",
+      "sha256": "044fbed84904c54aacaca6e03356016ab4f070d5ed34c7a6b76132b00e4806eb"
+    },
+    {
+      "path": "packages/cli/test/scripter-reader.test.ts",
+      "sha256": "6035b917d97db008058c47cd8549995c7daa4dd90ffdc06e017f0df8d841df4a"
     },
     {
       "path": "packages/cli/tsconfig.json",
-      "sha256": "8c3c22065b32aaf16d93def1c65c4c1574bf9503730351a5354c0dee301a004d"
+      "sha256": "345ffc10135c67434b3cf967fa93f47a3dc30e45384b9a5f0e90884bf43f55e0"
     },
     {
       "path": "packages/cli/tsdown.config.ts",
-      "sha256": "4249acfdcef36a0cac3f8887aecba2e1a0d2af7049209ac29e281449c552159b"
+      "sha256": "42660fb32f948ed5e971bf81f088c3de2fedc0b60297503c7948f0cada0e4cbf"
     },
     {
       "path": "packages/cli/vitest.config.ts",
       "sha256": "2e9322b92897aac96af7a2eca9229407c74bfc00d935801d27e2e42465b17578"
     },
     {
+      "path": "packages/ir/package.json",
+      "sha256": "7df844027e1ff3079fcfec65b228d593bdc59562ba5173f14b07b91192a16d37"
+    },
+    {
+      "path": "packages/ir/src/canonical-json.ts",
+      "sha256": "4ca7ea6df2ca8f630efc1879d502e5cdc28dc12e1dac825b036d0a81ce41725b"
+    },
+    {
+      "path": "packages/ir/src/fidelity.ts",
+      "sha256": "b44ebf5d855d6f3d0667b9e7d33fc2457bdc4ee907d9e7cf151106441713ef97"
+    },
+    {
+      "path": "packages/ir/src/grounding-graph-v1.ts",
+      "sha256": "722675d4d8caa6779cec143f44a895e27737de5ba278816372099cd08e993b10"
+    },
+    {
       "path": "packages/ir/src/index.ts",
-      "sha256": "125d2c36e653abafaccad2140482c664ea85bba4f5bc14b7c9907a0194c9a8c8"
+      "sha256": "c373cbc90e1ea9f6c81ce4d788f7487ef39c862e1ffd4722688de597e4a90aed"
+    },
+    {
+      "path": "packages/ir/src/inspection-v1.ts",
+      "sha256": "2ad01dd6f8bbb8a84e8e014e748d64e704828b743c49a1ba60fdca4a0622343e"
+    },
+    {
+      "path": "packages/ir/src/portal-run.ts",
+      "sha256": "9b5e35f0e51012d3c4e0d8b7f44cffb19250bfaf77709eed9cc918ca952e4d9e"
+    },
+    {
+      "path": "packages/ir/src/snapshot-storage.ts",
+      "sha256": "ea72fb7a7d9d50fce9a1f8774a64f852045d692a4d9ecc11b5d6a9000a82519e"
+    },
+    {
+      "path": "packages/ir/src/snapshot-v1.ts",
+      "sha256": "b7f6409500c45c3f66fdf865d31533560a0577a5ad98c6d94ec853a3771fe19d"
+    },
+    {
+      "path": "packages/ir/src/store.ts",
+      "sha256": "99ee4139b3a1819dd1c5f9feb1256a4dd38958a9c82bc76a78fb3deb2153646b"
+    },
+    {
+      "path": "packages/ir/test/canonical-json.test.ts",
+      "sha256": "021dfb21e093c452a8f4434c7d318bdba8485a07a4a5f506ae7f1388898a49cb"
+    },
+    {
+      "path": "packages/ir/test/graph-fixture.ts",
+      "sha256": "021ddf83ad30e3fbd1a1508e77cc3555e5b3c58aa29fe7d9516f9e2f49a72f09"
+    },
+    {
+      "path": "packages/ir/test/grounding-graph.test.ts",
+      "sha256": "0bb81920b250b5493bb48662a82b099f71e8e5e3903f1fd6e0fc5e0b83b37079"
+    },
+    {
+      "path": "packages/ir/test/inspection-v1.test.ts",
+      "sha256": "ee66748b8460f16178fc2c8ba3c76d450fbf53fe2ed483112254d03567c99c65"
+    },
+    {
+      "path": "packages/ir/test/portal-completion.test.ts",
+      "sha256": "b00d48f81a170d01c75764efb06d618380c02df688740deab0e1d5d75f5db55f"
+    },
+    {
+      "path": "packages/ir/test/snapshot-v1.test.ts",
+      "sha256": "5291200a9ca9ce5fca1103d5a5433f7ab8854da9b1c1a9ab8e5bfbb80569128d"
     },
     {
       "path": "packages/ir/tsconfig.json",
@@ -1522,6 +2422,18 @@
     {
       "path": "packages/ir/vitest.config.ts",
       "sha256": "899b41c980cc4cb39d0808c0c7e9bd8814afe8265344448e4ad0089e1a8cde3d"
+    },
+    {
+      "path": "packages/mcp/README.md",
+      "sha256": "60c6bf86282a50989ed300c4c7d4398f1e811fdee0b7ed5fa5768cdbe34bf3b0"
+    },
+    {
+      "path": "packages/mcp/package.json",
+      "sha256": "b309d15dfbc37e31cafafa23ef29ca655fa3b22b76d19cc479aa34fcd45300e3"
+    },
+    {
+      "path": "packages/mcp/src/build-id.ts",
+      "sha256": "0c7c79d3a408a8c04568ce7d8b1c3d6ea232a66746108d5e2d46c582f69e2493"
     },
     {
       "path": "packages/mcp/src/control/action-nonce-endpoints.ts",
@@ -1548,8 +2460,16 @@
       "sha256": "062917031b4f6a5f48f633eb4626cbe06c4204a56020cd18cbd72c487be0080f"
     },
     {
+      "path": "packages/mcp/src/control/grounding-endpoints.ts",
+      "sha256": "1897b1c521b2f74c9361ae76ff5b2ed9bb5f98b9ea4f6abc42471e75cfe941a3"
+    },
+    {
+      "path": "packages/mcp/src/control/identity-endpoints.ts",
+      "sha256": "92ec853f0e52df6bc2731672d7887d88de82b2cb69fd183edde6444fa32c0c55"
+    },
+    {
       "path": "packages/mcp/src/control/network-domain-endpoints.ts",
-      "sha256": "8f47c5607fd522d15f64f3bec4788952ee9b0a301d3abe4c6704cb39382e1874"
+      "sha256": "376ef0202cd4663a0c7e2990b33cf58b9b73206ce696a4aaba8734d2e3e5e7bc"
     },
     {
       "path": "packages/mcp/src/control/operation-endpoints.ts",
@@ -1561,15 +2481,19 @@
     },
     {
       "path": "packages/mcp/src/control/route-registry.ts",
-      "sha256": "86cfb704fa5d46984d953a6d75e45b52b23b8638e73befc8c1bbccf10182792a"
+      "sha256": "250f5feafa2c90f23dae6d2efd358f9b6758616fa1b541e4e7ea7caa5ad6f03d"
     },
     {
       "path": "packages/mcp/src/control/router.ts",
-      "sha256": "71ac2a7dbeec180e83aebbeb06210ea3e797e162b91a105281f45c353b1cc855"
+      "sha256": "cebcb4b9d16169e943a51429d94e454427a97659ddd100fe6e4a5185805dfb3f"
+    },
+    {
+      "path": "packages/mcp/src/control/snapshot-endpoints.ts",
+      "sha256": "416b8b3010a2c53662bde47a8fdd6ef293c708637afcd183b5da1b1bd8cc64d0"
     },
     {
       "path": "packages/mcp/src/control/status-endpoint.ts",
-      "sha256": "bb928cf1cfaf6a7f3e60b2dc9be5a468ddef409150884214520c6053dcf3e7be"
+      "sha256": "391fc861a16d663fbbd3e037db76f0a0c07985b0e8b55ac4ff5b6d94a034ae59"
     },
     {
       "path": "packages/mcp/src/control/tool-call-endpoint.ts",
@@ -1577,7 +2501,15 @@
     },
     {
       "path": "packages/mcp/src/control/workspace-endpoints.ts",
-      "sha256": "f81aae34cc08f969339e11c28447f2e29f7025742e7d5678c8b1d7baafa06ac2"
+      "sha256": "ce74923c5827ee987f3188439240545c79962b01463420b3ffa0cfdd22e2ddec"
+    },
+    {
+      "path": "packages/mcp/src/daemon-entry.ts",
+      "sha256": "067769430ebd2b17bfb715c20ba561c980217f914fc5a15635e78f9d73dc268f"
+    },
+    {
+      "path": "packages/mcp/src/diff/baseline-identity.ts",
+      "sha256": "71f27eb27c14eda962d58385046b547c8dc926e86e11cc075e35ce833b342e38"
     },
     {
       "path": "packages/mcp/src/dispatch.ts",
@@ -1612,12 +2544,16 @@
       "sha256": "9014ddb5a1e0cdf3bdad63be00d5eceb13c3b0d780928d10ed31736d4c85603b"
     },
     {
+      "path": "packages/mcp/src/execution/executable-operation.ts",
+      "sha256": "9544274d4e14f3aac6d0e75ebda8ae098bc488435e9196716f3531fd715890d3"
+    },
+    {
       "path": "packages/mcp/src/execution/execution-plane.ts",
-      "sha256": "480018bb5ea5f483c92aa51f13fcd8d5505763772b8d11f99fc1eb112e74f96f"
+      "sha256": "ff27ab9efaeb4af9b7ae607230e9c60586c48efc3e1f8a8b6a13fef6e2cbf86f"
     },
     {
       "path": "packages/mcp/src/execution/file-queue.ts",
-      "sha256": "6bacd95f745888fc29063656fa021d141c298f8195e06b8bf1cf831015783efb"
+      "sha256": "88e4782d5f5a7d9cf11e1be0efda7b8f7d10587ba94d3a71e777c19437e00dc4"
     },
     {
       "path": "packages/mcp/src/execution/follower-invocation-client.ts",
@@ -1625,7 +2561,11 @@
     },
     {
       "path": "packages/mcp/src/execution/follower-invocation-endpoint.ts",
-      "sha256": "1ebad2ef7a4e75283be5f203f85d160fe49fe898ab631aee9f795ea1ea98c2f3"
+      "sha256": "274d16df22ace5b833cd796647b0874de7cab3857a011efedb09474587d91543"
+    },
+    {
+      "path": "packages/mcp/src/execution/identity-bootstrap-coordinator.ts",
+      "sha256": "d512d273eadf3447b5409d35f1d945308ff2074f8f236df900c5606af9844336"
     },
     {
       "path": "packages/mcp/src/execution/mcp-invocation-adapter.ts",
@@ -1637,15 +2577,11 @@
     },
     {
       "path": "packages/mcp/src/execution/native-evidence-artifact-port.ts",
-      "sha256": "c5bd7c84152f1534c1c11c96b6ed75f6eaabc841e23b9c884825286afdf86c78"
-    },
-    {
-      "path": "packages/mcp/src/execution/operation-evidence-artifact-port.ts",
-      "sha256": "9ff1db7b5b2bd9f072386fe4c8ee62ae8f1daedc38ee429b981d3ff658727699"
+      "sha256": "6c0b455c786b3a7a440f2b07c8a19f175e4f4d965d54de0824054a3ddb8bc073"
     },
     {
       "path": "packages/mcp/src/execution/operation-evidence-projector.ts",
-      "sha256": "357cbccd47fcc9037a5b57ae50ec953d51258d4df9849b6714ff76f17c25c760"
+      "sha256": "bafca42dc13a9532c89736eb8c80e4d79d16ceb3c43efdf981f10810203c3b85"
     },
     {
       "path": "packages/mcp/src/execution/operation-evidence-receipt-store.ts",
@@ -1653,7 +2589,7 @@
     },
     {
       "path": "packages/mcp/src/execution/operation-executor.ts",
-      "sha256": "933987fd0739398d29e90b550b61cf7e6454025b052238fbe3a5d7394011fad3"
+      "sha256": "771420bbf73ec74f7c320086b8b35b543acbe6f287e9122abe21ca14faf57685"
     },
     {
       "path": "packages/mcp/src/execution/operation-id.ts",
@@ -1668,8 +2604,12 @@
       "sha256": "0eacd7243e42f1cf301d5557db293a933f11a71e6094e1c1759a08d04d7ac7a1"
     },
     {
+      "path": "packages/mcp/src/execution/pdf-merge.ts",
+      "sha256": "656c0a466f39cf8f80a1090e616033e007298f6227e68013cc712b50438b29fa"
+    },
+    {
       "path": "packages/mcp/src/execution/service-operation-registry.ts",
-      "sha256": "6e1bd916a959145badbd4df52ed74cfe7a9f63af57923bd84ad2343cdaeb2ec7"
+      "sha256": "7228380bfa5fc1ac389a74aca4f1546c88193e7bba1d495db505cc5e92d9bdd6"
     },
     {
       "path": "packages/mcp/src/execution/target-resolver.ts",
@@ -1684,12 +2624,20 @@
       "sha256": "bcca7fbf07429e48df1f81572b21812d4ef43d25550e3c50b0057b26cdd4b9f1"
     },
     {
+      "path": "packages/mcp/src/fs/namespace-files.ts",
+      "sha256": "8391fbc83522754dc12b2250980aeb1e1050bd97cdcbfabdabd54367fed4a28b"
+    },
+    {
       "path": "packages/mcp/src/fs/operation-evidence-artifact-store.ts",
       "sha256": "0c8e1ae112f9006bd0184a6a8b8088a4e778d36b19a3f5df225acfc025c83c8f"
     },
     {
       "path": "packages/mcp/src/fs/repo-walk.ts",
-      "sha256": "bfe368b629d7aa3d66fc347132b2a1f1e956b20c7d599fd731eaad0d9aa44248"
+      "sha256": "e5f8e80d15c469266b271e58f04ca8ac3a707daa8398d7deda1b7c61fc7fd937"
+    },
+    {
+      "path": "packages/mcp/src/fs/windows-boundary-probe-worker.ts",
+      "sha256": "bd5d90e09dc0346e19d78d34e1d2586da5cb03d37a8d9b6a2aa1dcdb991e5d41"
     },
     {
       "path": "packages/mcp/src/fs/windows-directory-lease-broker.ts",
@@ -1701,7 +2649,7 @@
     },
     {
       "path": "packages/mcp/src/fs/workspace-policy.ts",
-      "sha256": "9518d6afa6f7f7d3f80cdea5823e168229e199af80ad7f8be86d179f9a1f7ef7"
+      "sha256": "29a58df64fc6f40819cfaf73c3de6ba80b9b700786d8b39539b67691c023efd4"
     },
     {
       "path": "packages/mcp/src/fs/workspace-registration-resolver.ts",
@@ -1713,7 +2661,15 @@
     },
     {
       "path": "packages/mcp/src/index.ts",
-      "sha256": "ada2ecd177aee50d0b2a50f10c49b105ecae1e2e878c2e51469788934304c556"
+      "sha256": "5e73d4f49373a3801480f0981c56499caa3a07c0180ebc7acda5796daf5b27d5"
+    },
+    {
+      "path": "packages/mcp/src/instructions.ts",
+      "sha256": "2b3ee4a71a88918b271eef304ba2db9036b7572231d56cad6432c88a0df16e4a"
+    },
+    {
+      "path": "packages/mcp/src/lifecycle.ts",
+      "sha256": "8d1784b2ac60f90367661f61615cbf6abe6e7e88795c2947e9aa69141f1098e9"
     },
     {
       "path": "packages/mcp/src/network/remote-domain-config-store.ts",
@@ -1721,11 +2677,11 @@
     },
     {
       "path": "packages/mcp/src/network/remote-image-fetcher.ts",
-      "sha256": "e3e14f5c51ccc7e8d8b96dbf19f5ffd35a56cbaa5b1da5b0e65b0e735b20eac6"
+      "sha256": "e1c5bcf0b01662df2c74838ffab62d4da303ad558f4ef2659a1bcdd4ba378eed"
     },
     {
       "path": "packages/mcp/src/policy/approval-broker.ts",
-      "sha256": "87f8942e3e16f3fce9b444479e3dba891f71af87d425fa24118bc31ef4353e3c"
+      "sha256": "a88e11cf6c95d82d56d0504fa99884e5739bbb3a7c8406accc71b9c5d4143638"
     },
     {
       "path": "packages/mcp/src/policy/approval-gate.ts",
@@ -1733,7 +2689,7 @@
     },
     {
       "path": "packages/mcp/src/policy/approval-prompt.ts",
-      "sha256": "eab1896fddeaf6333a35239ed2e3a09a518196d27b33a2041eb904bec9f15a56"
+      "sha256": "5881d1de41f476c1a3cf7648c8649c3bc14ae384c6e0ef66f36a74790043d24c"
     },
     {
       "path": "packages/mcp/src/policy/egress-policy.ts",
@@ -1741,27 +2697,119 @@
     },
     {
       "path": "packages/mcp/src/policy/operation-policy.ts",
-      "sha256": "11c76bfaa8edfc3eb030cdb146e5e9e36be3124c5d28ab084523611b2c1a49e6"
+      "sha256": "a3427feeda6a9e32cbb8742601f951300ec5e2ea5dd62081020229f9a1b1e0e6"
     },
     {
       "path": "packages/mcp/src/policy/policy-engine.ts",
-      "sha256": "c1525abd4d4c9c199f055741d269281ed0e4626760c1a48485756692cb0cb9ba"
+      "sha256": "eb0ca54ddc79f77eef56c207350b00e5276781599b095bfa44f367424e1542fb"
     },
     {
       "path": "packages/mcp/src/policy/result-egress-policy.ts",
-      "sha256": "df1b6246a0f7857bc21804a36c57c12fff4a8c64502ecc432f6a56b3553d2c93"
+      "sha256": "aa823e3ffed8a459a705e9d94640cc6aa10346d7c0bc07b3a8aa85f0b55be940"
+    },
+    {
+      "path": "packages/mcp/src/portal-validation.ts",
+      "sha256": "8a48b5f4b3e6f10323e96ada37766a87a3351235dbee8160ca9f4dadcdcfbbf7"
+    },
+    {
+      "path": "packages/mcp/src/portal/authority.ts",
+      "sha256": "0767157fefe0080248401335d53bba913687bbd15820f5de9e86b1572765bde3"
+    },
+    {
+      "path": "packages/mcp/src/portal/chrome-transport.ts",
+      "sha256": "e0457e05d1660287b6264e85be1be3805f345d35314caa8bbb86845ba1bcae59"
+    },
+    {
+      "path": "packages/mcp/src/portal/content.ts",
+      "sha256": "8119eb4d18843b59ae55c50f557a75373d48729fcb8678f1c20dbdf32e677d5a"
+    },
+    {
+      "path": "packages/mcp/src/portal/control.ts",
+      "sha256": "f9469db97a78cde02e0ae8218929be6814b0de4599dfb243623263d45c29d15b"
+    },
+    {
+      "path": "packages/mcp/src/portal/coordinator.ts",
+      "sha256": "5425e9eb393bda00998437ea8eb7460303d2f64f3f1a871f387d0d996b78f211"
+    },
+    {
+      "path": "packages/mcp/src/portal/design-capture.ts",
+      "sha256": "baf37f5c2d69bac308f81a71147245307371a71a3922cc3eb5bce9fa4e6bbf87"
+    },
+    {
+      "path": "packages/mcp/src/portal/design-evidence.ts",
+      "sha256": "4fb5293ca4241564ba634ad162701bf778003e402f452b3efeff5a05349ee3ce"
+    },
+    {
+      "path": "packages/mcp/src/portal/design-normalization.ts",
+      "sha256": "051341df27d9506900e5cc1c1a3e0e8e85a7a851745cd44036246a1a738dd49b"
+    },
+    {
+      "path": "packages/mcp/src/portal/native-runner.ts",
+      "sha256": "d96ed07b94f76416185ae7008dc10e14744c90b0e424c1c2f6400ab78f33ddc3"
+    },
+    {
+      "path": "packages/mcp/src/portal/native-work.ts",
+      "sha256": "b30fa61f0b891c0db2100fad4c732575ae714073a93e725d76f5e3ca5cdbe7e6"
+    },
+    {
+      "path": "packages/mcp/src/portal/presentation.ts",
+      "sha256": "585bebea9f9252b377cd91eaf6024d297a9b36776ed91e043b6be5e433537c0f"
+    },
+    {
+      "path": "packages/mcp/src/portal/preview.ts",
+      "sha256": "865843d989b3bb86380444fa91b05257e9b33244e6a9df4aba364e8239d1c49d"
+    },
+    {
+      "path": "packages/mcp/src/portal/profile-closure.ts",
+      "sha256": "e3d0d9dfbb28a94511bdae8b52739101b4e681c54854092bd788e30884908068"
+    },
+    {
+      "path": "packages/mcp/src/portal/service-graph.ts",
+      "sha256": "ff6d32d02ca7d972e5b8a68dd44b65ae8ecfe4a081e8aeaad353e6ec6f0b3ed9"
+    },
+    {
+      "path": "packages/mcp/src/portal/source-guard.ts",
+      "sha256": "df2720d152abba27035203f62d110543e27d2d0393d7ab63260e816ca23a7aee"
+    },
+    {
+      "path": "packages/mcp/src/portal/store.ts",
+      "sha256": "3c257b2dc08d929d0b27ee74c9bbc8c4c5207085de17e1969c2ac7750e7784f0"
+    },
+    {
+      "path": "packages/mcp/src/portal/visual-evidence.ts",
+      "sha256": "68f68010f6869088c031b9009dda73139d6a21f0a7ab5f76b25f9c5c7c9dde12"
+    },
+    {
+      "path": "packages/mcp/src/portal/vite-preview.ts",
+      "sha256": "18274b3a555e34020f241f61d8f2056a514db43ce6f5d2f6fa72beabd36b71fe"
+    },
+    {
+      "path": "packages/mcp/src/portal/windows-job.ts",
+      "sha256": "cd74ed3f587f6d55a5ff49e3115e56d2819de540609fcb17b567b249953de538"
+    },
+    {
+      "path": "packages/mcp/src/portal/workflow-requirements.ts",
+      "sha256": "a6fd33d9bf54c97fda1b0c883b26af880ac4a7948a50bb964e50a2f32896535a"
+    },
+    {
+      "path": "packages/mcp/src/profile/conventions.ts",
+      "sha256": "b7fa444190c60d717a430b5650053311936714c282055b51dd604929c7865ce5"
     },
     {
       "path": "packages/mcp/src/profile/profile.ts",
-      "sha256": "ccf0d6174fd4bf11c527142037c9ec3e74547ca170ea31f36f7c42eb8ae6188f"
+      "sha256": "197ab0c2310b8e570171647400842b96662d9317e4f7e31395b3585492f2e495"
     },
     {
       "path": "packages/mcp/src/relay/relay.ts",
-      "sha256": "d8d832278a9421abdba6c5792052144f94b596ebf5c1c21ec1af16f5eab645f2"
+      "sha256": "8a89bf5b70038ffde196531e4df9f037fe0eb3eba3aac5a7378ddf65212384ba"
     },
     {
       "path": "packages/mcp/src/relay/session.ts",
-      "sha256": "f2fc235f4785460f3526cc3e5760bf6d179b0e961138ee76299657e27d5d3bd7"
+      "sha256": "67ecec2074a1a45054c9be9cf02b5ef997a981e142c92ddb99d82aa2fea84193"
+    },
+    {
+      "path": "packages/mcp/src/runtime-mode.ts",
+      "sha256": "5febee0171b24e9596b6128c60bfd9757a0b60b130e8695f18e3e968df916813"
     },
     {
       "path": "packages/mcp/src/runtime-paths.ts",
@@ -1772,12 +2820,20 @@
       "sha256": "fd4aa617c0c2936e3c6438429c9818d7b7892b8036484341cf6e62f7ea7a0a75"
     },
     {
+      "path": "packages/mcp/src/scan/sfc-blocks.ts",
+      "sha256": "1073a64c4cf33c63beaf94f14eb5444f2b7a6f6282608320c05d08ec50756831"
+    },
+    {
+      "path": "packages/mcp/src/security/document-binding-store.ts",
+      "sha256": "7cb04cd7f99ca56bdafb412dad04be741deb0a0f84bf0df6e328188655f50463"
+    },
+    {
       "path": "packages/mcp/src/security/follower-auth.ts",
       "sha256": "ead64222bed9dbdb9c0022a12b11a91307f29fcec8848984a9922f0f2acdb61e"
     },
     {
       "path": "packages/mcp/src/security/follower-transport.ts",
-      "sha256": "e9599c7053cda26649101997ef44c575b094a05864b549d6bd3f2f4f8daa542f"
+      "sha256": "e332752ca5d51ef8d26d11b47bb2d2121a9971eae3ebf3e6693b8bb4443e8f0c"
     },
     {
       "path": "packages/mcp/src/security/local-access.ts",
@@ -1797,11 +2853,43 @@
     },
     {
       "path": "packages/mcp/src/security/state-permissions.ts",
-      "sha256": "e4dde1554bef8dd8f5e2c526b1f2a98956aae62eb5d55fabdc6d4223a2385e44"
+      "sha256": "6025ee14f621e68981c0904e463ebed0df776c99561d1a9430826c094c6e1e1e"
+    },
+    {
+      "path": "packages/mcp/src/snapshot/build-grounding-graph.ts",
+      "sha256": "9763cce1a53da326319125607fe7e9ebcfa1a68f7117cc184d07a6b320025d6d"
+    },
+    {
+      "path": "packages/mcp/src/snapshot/capture-snapshot.ts",
+      "sha256": "d3f0b8983868fb8d271a3afae4941f88b9a0dc1ec28b3dc16b5ffaf878e42f61"
+    },
+    {
+      "path": "packages/mcp/src/snapshot/operations.ts",
+      "sha256": "2f92e284ff7d8bb20e11ff0c5f4a44ebcc02dfb46a3577175849d94b9ab8bae3"
+    },
+    {
+      "path": "packages/mcp/src/snapshot/refresh-grounding-graph.ts",
+      "sha256": "b83bbfa3188cd5af0916c48f97320eee260f23f147b4a7f37f84b0016727b9db"
+    },
+    {
+      "path": "packages/mcp/src/snapshot/snapshot-operation-evidence.ts",
+      "sha256": "23df8e1a9050f7dee97ab9380bfc406fe64db7c4a37c5d35cac2c12970af8fbc"
+    },
+    {
+      "path": "packages/mcp/src/snapshot/workspace-graph-storage.ts",
+      "sha256": "86acc9dc7cfaf38f9adfda6a754e1509ab9421a342175c7f11a3c45ccf3b0811"
+    },
+    {
+      "path": "packages/mcp/src/snapshot/workspace-snapshot-storage.ts",
+      "sha256": "5b4fcda4db7a1335450b92e9f225ca2f1590acec0fd9c697e649e80f8117149d"
     },
     {
       "path": "packages/mcp/src/tokens/generated-tokens.ts",
       "sha256": "3f7f604e85cee75651a8d7cead855f8b064794acf8f76e44ec44778956ac722d"
+    },
+    {
+      "path": "packages/mcp/src/tokens/hex.ts",
+      "sha256": "f7b969cea35055f7aedf4c777df01157f6c6db3e1b6acfc1a3613f5460dbb180"
     },
     {
       "path": "packages/mcp/src/tokens/load.ts",
@@ -1821,7 +2909,7 @@
     },
     {
       "path": "packages/mcp/src/tool-invocation-service.ts",
-      "sha256": "3f78d1e2c14754b209c492077dec51dbfe3e8d337e04e4041c1fa30dfb1f121a"
+      "sha256": "cd3e1966941f4f0f5edc955c485e313a99b8cc5bf1dbda20e1cf6c618dced1f4"
     },
     {
       "path": "packages/mcp/src/tools/add-component-property.ts",
@@ -1841,7 +2929,7 @@
     },
     {
       "path": "packages/mcp/src/tools/annotations.ts",
-      "sha256": "cdba27adbfb69de0cf30173ad04e4e0110b9a176a0cfc30b8003e3eab51a28d0"
+      "sha256": "7bbffe8d03f6d95814aec820d13ceb50af3c877c405e8a1bef49d483060e7ea4"
     },
     {
       "path": "packages/mcp/src/tools/apply-animation-style.ts",
@@ -1973,7 +3061,7 @@
     },
     {
       "path": "packages/mcp/src/tools/design-diff.ts",
-      "sha256": "4d524078fcc84343ac4b065e561d4154e6ebad3b917f1db627dd09dcf0663edc"
+      "sha256": "190193979969d887d3a161b4ffe235413f3a2ce57f994bcc05e907b42f37ba58"
     },
     {
       "path": "packages/mcp/src/tools/detach-instance.ts",
@@ -2101,11 +3189,15 @@
     },
     {
       "path": "packages/mcp/src/tools/ping.ts",
-      "sha256": "08dc11b037ae4afd166e534ba0da78bd68b2d3003213eceea12bac0f57c8a21e"
+      "sha256": "7c7aaa4e7dc425003772cf4365166cc83f79d83dd6e161afdae1964725c6239a"
+    },
+    {
+      "path": "packages/mcp/src/tools/portal.ts",
+      "sha256": "251eb4b9ac5cf05de9cfb99261338dbf5b9c5bcba8848ccb6c980aed400a32ac"
     },
     {
       "path": "packages/mcp/src/tools/registry.ts",
-      "sha256": "3ec4f38b5ed4340896b67e5b217022f9393f3df0f67eb1e34a6d2b7d4d382750"
+      "sha256": "6b8e2b4c056b43ac335b99941f6a680e475cb8a5881bfc855da3ecd8816de677"
     },
     {
       "path": "packages/mcp/src/tools/remove-animation-style.ts",
@@ -2149,7 +3241,11 @@
     },
     {
       "path": "packages/mcp/src/tools/runtime-registry.ts",
-      "sha256": "9274e13378f7dc026fa2b38b2379db141c1440e56d7b144ef15596cdab4fad29"
+      "sha256": "8eeaba3cc042b6a8775cf56bd3554cfd915cee8297be0e953dd8bb0b62bc4d40"
+    },
+    {
+      "path": "packages/mcp/src/tools/safe-union.ts",
+      "sha256": "7dbafd0de6b744888472d341e84c5e478e68942cbb257d4b8ccfa781d398fc3e"
     },
     {
       "path": "packages/mcp/src/tools/save-image-fills.ts",
@@ -2305,7 +3401,7 @@
     },
     {
       "path": "packages/mcp/test/control/control-router.test.ts",
-      "sha256": "014d998c13223e8a37386992944be58217d4d30750de5328c64c49e4c9abd91e"
+      "sha256": "354d19ae3a1d9e86dfeeb4eb55cf3189117a728eae8f8679544fbbea43a2bb33"
     },
     {
       "path": "packages/mcp/test/control/control-status.test.ts",
@@ -2325,15 +3421,23 @@
     },
     {
       "path": "packages/mcp/test/e2e/_helpers.ts",
-      "sha256": "43d03c2962fea88e4665084d3fb76755c9a17c07c56f2452c604e3e403634b22"
+      "sha256": "bc37fb00521e1b76439c53e59920157b79daeec45678c31cb07c5aa8858caf2c"
     },
     {
       "path": "packages/mcp/test/e2e/mcp-wire.test.ts",
-      "sha256": "5f252769c11e31a322350a3797365c65e54091de8cb54177633c68ee9d0e252a"
+      "sha256": "0f02f0e5aea42e4cb8bf9a3ca0c294cc6bc520b0ba0ca8f588b221bdf52a9f0b"
     },
     {
       "path": "packages/mcp/test/e2e/packed-operation-evidence.test.ts",
       "sha256": "1e4be5a4fb0e864415ca2219af7e2a1a824bdb723c76c25df06bcf71eeb3ae71"
+    },
+    {
+      "path": "packages/mcp/test/e2e/ping.test.ts",
+      "sha256": "60c3a2fb43b26ddc454606da7baf6665f1b7e8e26841f09754da5ba3f6ab51cc"
+    },
+    {
+      "path": "packages/mcp/test/e2e/process-lifecycle.test.ts",
+      "sha256": "d8100592b830e4ba71f21de688634f6dd9ebfb9ea4046420fc944529d869b0f0"
     },
     {
       "path": "packages/mcp/test/election/control-route-registry.test.ts",
@@ -2405,7 +3509,7 @@
     },
     {
       "path": "packages/mcp/test/execution/file-queue.test.ts",
-      "sha256": "e563122675b6d94d2d775186d258d8674d498df59591bfdb00b6562fa8e591c8"
+      "sha256": "e73b8ec5544edd8b162ea74b6fb3c375efdaf9686f4ffecbd61fe21dce619ae0"
     },
     {
       "path": "packages/mcp/test/execution/follower-invocation-client.test.ts",
@@ -2416,8 +3520,12 @@
       "sha256": "a69bf781ded98eaab104f26344898da251207c073a9324d2d851e5a5544295da"
     },
     {
+      "path": "packages/mcp/test/execution/identity-bootstrap-coordinator.test.ts",
+      "sha256": "d4634b81d15464e777862129aab7eaf8626c390f59430884ac55cb1f4d8f194c"
+    },
+    {
       "path": "packages/mcp/test/execution/invocation-boundary.test.ts",
-      "sha256": "d50f63c8497df6e5eb295d5364b9a59c2d9a884c0d1ba0bd3b12b30553d865a2"
+      "sha256": "3ed0c90a2785848f32c1f9d0219481a7c4c8d30afb8bed2ddff17fe52bbcd7ee"
     },
     {
       "path": "packages/mcp/test/execution/mcp-selector-synthesis.test.ts",
@@ -2445,7 +3553,7 @@
     },
     {
       "path": "packages/mcp/test/execution/operation-executor.test.ts",
-      "sha256": "eacfcc94da0f122fc90ab5d0ba76ecdbf8d45f5d859b674d6b50421bd17e6e53"
+      "sha256": "5cc64aff857bc7d79a7d39e6e8ab3a6ea4443a68071b32b0f4aa2ec29097e852"
     },
     {
       "path": "packages/mcp/test/execution/operation-id.test.ts",
@@ -2465,7 +3573,7 @@
     },
     {
       "path": "packages/mcp/test/execution/policy-context.test.ts",
-      "sha256": "b5b91c78e93661d6b4355eda1d4bf9df61ae53d1ef82855e0266b3d057738b68"
+      "sha256": "1b62074e63e9b2f022caadc2b0a5e2ca44c0acec894b3919591f4c48924593f8"
     },
     {
       "path": "packages/mcp/test/execution/progress-framing.test.ts",
@@ -2485,7 +3593,7 @@
     },
     {
       "path": "packages/mcp/test/execution/service-operation-registry.test.ts",
-      "sha256": "7ccf1cca10cb66fb1b270dbb896f68aa2134086a9b5d72378f0041e43e0f8a6b"
+      "sha256": "940577c161c9d53224b41e2248c204bed3f8780fee844a36ffc9ce0a65ae9fc7"
     },
     {
       "path": "packages/mcp/test/execution/target-requirement.test.ts",
@@ -2501,7 +3609,7 @@
     },
     {
       "path": "packages/mcp/test/fs/atomic-file.test.ts",
-      "sha256": "68cdfde5550dbab3540f5138aea78176ffef4880db7a8fa620b0924a18b38e9e"
+      "sha256": "8db04abaa058d42619ae7b61f79553b78d5d219d9c3c3eb54f9bd389f8213868"
     },
     {
       "path": "packages/mcp/test/fs/local-tool-boundary.test.ts",
@@ -2509,19 +3617,23 @@
     },
     {
       "path": "packages/mcp/test/fs/operation-evidence-artifact-store.test.ts",
-      "sha256": "232229d7185f6faa2401c275c28b30f356c530abae02003fda76cd63ca7b576a"
+      "sha256": "8dff6db1ba9d8b6566e6c1f257913d72490dd758327f009be295955747352789"
     },
     {
       "path": "packages/mcp/test/fs/repo-walk.test.ts",
-      "sha256": "c1437d0a383fd265294266e081e06e9f8aed2e76b2e5316b54b53980155a5dd3"
+      "sha256": "8706eadb6a05bfccb8256109a44d656e6a3102a68eb1ec21befbe457619011eb"
     },
     {
       "path": "packages/mcp/test/fs/runtime-paths.test.ts",
-      "sha256": "f5faccbd5ec914f7728e5a9d11680396b0dba3006910137d8bb870247e4d8662"
+      "sha256": "a38f003adb442cff2f8cd9d946d6af4ca37e7c4a64dbfefd78d5aa8ae2cf8ead"
     },
     {
       "path": "packages/mcp/test/fs/shared-dependency-boundary.test.ts",
       "sha256": "1ea7bdba4a3f14d5d0c904e8e5b672c97531dc3667d99c41c9ef3fd114ad6b44"
+    },
+    {
+      "path": "packages/mcp/test/fs/windows-boundary-probe-worker.test.ts",
+      "sha256": "e7d1a8966b2265df0980b73d41f1df4ca4fde95a0957b020e4d030da07fa91cf"
     },
     {
       "path": "packages/mcp/test/fs/windows-directory-lease-broker.test.ts",
@@ -2565,11 +3677,23 @@
     },
     {
       "path": "packages/mcp/test/network/remote-domain-config.test.ts",
-      "sha256": "b4e51e3fbe82a843adbc88768d296056b4d932faa9145e4a788e3f8af50654e7"
+      "sha256": "01936ad051c77b64a13ca630fe5b7540f6d4b0428d7197085d4e73d6bdb18354"
     },
     {
       "path": "packages/mcp/test/network/remote-image-fetcher.test.ts",
       "sha256": "fb13c9844703d88c27af1cf144cc0bbb1db4ebc3bb21d979ee8c4267433ce105"
+    },
+    {
+      "path": "packages/mcp/test/node-id.test.ts",
+      "sha256": "20d11bd4392da5fe70b5b0f9a48b573c94f134006bef87b1f03534468ad2ad2f"
+    },
+    {
+      "path": "packages/mcp/test/plugin-contract.json",
+      "sha256": "88c286c0f5ccae3ca023be4b8cf85c245bd409965cc90b4afeb4450a7d1ffa58"
+    },
+    {
+      "path": "packages/mcp/test/plugin-contract.test.ts",
+      "sha256": "5187d71679c5acafc31e93a0fdd3745d2c7d18bde04decc7edbe14682fd34fde"
     },
     {
       "path": "packages/mcp/test/policy/egress-config.test.ts",
@@ -2577,11 +3701,71 @@
     },
     {
       "path": "packages/mcp/test/policy/operation-policy.test.ts",
-      "sha256": "4c1731b7e7302ffa4d0b2b106e5915afb4962b69e4c65eb4c1d4686c929ec7c4"
+      "sha256": "bac8281dcfd8e7379e6fc4530252f47a1a25ec67dad9abc414537a58117fa295"
     },
     {
       "path": "packages/mcp/test/policy/result-egress-policy.test.ts",
-      "sha256": "e4bf3a9dcf03cd727e441427d217673660a767d6e14e2e949d2bb3648ee1125a"
+      "sha256": "7b98dc80a6e8c7e9f3427809f78ab218700ae73c2d6dc1e73fe71b9113951fcc"
+    },
+    {
+      "path": "packages/mcp/test/portal/capture-continuation.test.ts",
+      "sha256": "2768dbd75f8a69d3aa0fb154f53c35f000d49cf31cd7955cec9cf62cd0ea7435"
+    },
+    {
+      "path": "packages/mcp/test/portal/capture-flow.test.ts",
+      "sha256": "7121ad725ac0e0c137c0d76104da9b54c99c1d6bba2edb1d8de03ce8e0b32fc6"
+    },
+    {
+      "path": "packages/mcp/test/portal/capture-session.test.ts",
+      "sha256": "d65737d935fbf6bc2d78dcf2833b82a6b0e71865fb2457d83aefc30cfd99ea45"
+    },
+    {
+      "path": "packages/mcp/test/portal/chrome-transport.test.ts",
+      "sha256": "c7a08bcd617b936a9e9031d5e3ff23b7ed35f6154424163fa336a457782f57c5"
+    },
+    {
+      "path": "packages/mcp/test/portal/coordinator.test.ts",
+      "sha256": "e742a034600c580a42032a346650cfe0d23c5d28abc41ed478c3d2a6ff351cb1"
+    },
+    {
+      "path": "packages/mcp/test/portal/design-evidence.test.ts",
+      "sha256": "cc5e4c7ecd48c283792e843dc760f6991b45a4943b9165de0219ca37e17c1237"
+    },
+    {
+      "path": "packages/mcp/test/portal/fixtures.ts",
+      "sha256": "a0851d0400a0d68d69bef4eace4048ad5a41d4768b65a8bb4feabecde3d66634"
+    },
+    {
+      "path": "packages/mcp/test/portal/native-runner.test.ts",
+      "sha256": "ed07a4a7294295112770daf23cccd93160280d59efb7f38bd1902c59cc9da40e"
+    },
+    {
+      "path": "packages/mcp/test/portal/native-work.test.ts",
+      "sha256": "c4547aa3d79b840cc64830258bb09cf7804a2572bb9bef9cd11aec5a36cc200e"
+    },
+    {
+      "path": "packages/mcp/test/portal/operational-native.test.ts",
+      "sha256": "85c6f2969db0aff050e91e3fb05d0e95442dbb9e6f2c289ca6286fa3ca5276e1"
+    },
+    {
+      "path": "packages/mcp/test/portal/preview.test.ts",
+      "sha256": "b6a3223e82149e972349cb22eb0513d5a10fe0835102596c4207d77877b2300d"
+    },
+    {
+      "path": "packages/mcp/test/portal/service-graph.test.ts",
+      "sha256": "20f92f1eda5833c753d3bc7d98110d0082f81cc7dc3ab34aa9da415401fbf83f"
+    },
+    {
+      "path": "packages/mcp/test/portal/source-guard.test.ts",
+      "sha256": "081377bac94e8f2114ef451ad33f83e57025ef6c9b0b9113aee9fa7898d1f075"
+    },
+    {
+      "path": "packages/mcp/test/portal/store.test.ts",
+      "sha256": "7a1bfe9d1cf312e893114cec5f76ddf9d53e5c54aeb6de508fd910554c33f980"
+    },
+    {
+      "path": "packages/mcp/test/portal/workflow-requirements.test.ts",
+      "sha256": "c7a46467328c25bae3cfc2ca028891c60a84fc09f4b669a60826b343c7a02505"
     },
     {
       "path": "packages/mcp/test/profile/profile.test.ts",
@@ -2589,7 +3773,7 @@
     },
     {
       "path": "packages/mcp/test/relay/relay.test.ts",
-      "sha256": "f65c167c3f608a499d31223f84c200b09fbbbeaa84a26a826df48866eac16d0b"
+      "sha256": "f98a5da565650100650adf0aca998657dba183fb0d098fe9bb176b593a28d76c"
     },
     {
       "path": "packages/mcp/test/relay/session.test.ts",
@@ -2624,6 +3808,10 @@
       "sha256": "95d50a8adb5085dd6bd1996af9db9e79e0d1b1369c3681063d01644897aee884"
     },
     {
+      "path": "packages/mcp/test/snapshot/service-operations.test.ts",
+      "sha256": "4049862a70ca9e3a46f3ffc2ed7bfed0cb34d65c3d38e0b334a337ce676956c1"
+    },
+    {
       "path": "packages/mcp/test/tokens/generated-tokens.test.ts",
       "sha256": "64803a8ea439d944c95d898e9adfa13270f792d5502873bb9f4c268e7b0564a4"
     },
@@ -2641,7 +3829,7 @@
     },
     {
       "path": "packages/mcp/test/tokens/token-index.test.ts",
-      "sha256": "6e33eb167b1b0d30599fb5246d1fce9db6678b0790a56d9e076c92aa3abc83d0"
+      "sha256": "924a10704e1c1e85601c25cc25d4bd652b006e1ede09a4e6deb8558cdfce70de"
     },
     {
       "path": "packages/mcp/test/tool-schema.ts",
@@ -2657,7 +3845,7 @@
     },
     {
       "path": "packages/mcp/test/tools/design-diff.test.ts",
-      "sha256": "8a0564d282fb4700302fbb4bf554327d96228d93bd08cc14ed8a184a5847cad3"
+      "sha256": "3a7839bd66a34f924af9154e2d63cb32d1ca83caea7b10389481952156dbe2c9"
     },
     {
       "path": "packages/mcp/test/tools/export-video.test.ts",
@@ -2674,6 +3862,10 @@
     {
       "path": "packages/mcp/test/tools/result-validation.test.ts",
       "sha256": "d6f719a80032e901e035d5961aacd2c2f6afd984f7e4b9ded3bf14002f074277"
+    },
+    {
+      "path": "packages/mcp/test/tools/safe-union.test.ts",
+      "sha256": "22eb07e3861720b16a30cfb96d6432c4c619e69c1aa662c389fd45177e399afc"
     },
     {
       "path": "packages/mcp/test/tools/save-image-fills.test.ts",
@@ -2693,47 +3885,311 @@
     },
     {
       "path": "packages/mcp/tsdown.config.ts",
-      "sha256": "b1204306ffcd2148c9cb8ed5cd1ddff890060e987744faecf8d7adcaaac0043e"
+      "sha256": "5bb0337074dc73d8906c5adb6a161d1e0175bc24a30b9e64ee090024ead87a1d"
     },
     {
       "path": "packages/mcp/vitest.config.ts",
-      "sha256": "b6b159662ab8e1db26fc92e959fb5fdf974ae51f4bda50d5e40f6a1bdcd8a522"
+      "sha256": "4d595389bf941d746ded5ac39df948d0fca57db88b3bff446127d3db96ad3896"
     },
     {
       "path": "packages/plugin/manifest.json",
-      "sha256": "50dfca36db2f066e13f5cb424b86755537f31934420110492274b5e73c5a3fe8"
+      "sha256": "d658e7e382bb503adba766dce6698d1d853466601a97f0266926ab2fc093665f"
+    },
+    {
+      "path": "packages/plugin/protocol/bridge.ts",
+      "sha256": "fd21269cf77dd5067abca7ac0204ee349e2d72fb9c600a526d98d660f7a21432"
+    },
+    {
+      "path": "packages/plugin/protocol/identity-seed.ts",
+      "sha256": "5e700bc4d4a9756e0131b62a33413f58aa790c41285e8e67788cd80a7892c314"
+    },
+    {
+      "path": "packages/plugin/src/cancellation.ts",
+      "sha256": "2c1ded0173baf42b78c5b20fbb796c947fd26d62c76a800312f963745e51aecf"
+    },
+    {
+      "path": "packages/plugin/src/code.ts",
+      "sha256": "ebb94862751f5423cec4e0a34f2c9413bc76ed5f0465605f0b4b40ceea3db3df"
+    },
+    {
+      "path": "packages/plugin/src/dispatcher.ts",
+      "sha256": "71864208fbcedbbe3d8bf5b77845051cf61303c662e80193922d254dd71cc79a"
+    },
+    {
+      "path": "packages/plugin/src/file-identity.ts",
+      "sha256": "3078fb49bd14221bb8e8323ac7e8f4017908fcddfb118653787eed36366bfb5b"
+    },
+    {
+      "path": "packages/plugin/src/handlers/add-page.ts",
+      "sha256": "a3f6695e311072740986c02c79da8db9edb520670453c7a073cea77e2c38172e"
     },
     {
       "path": "packages/plugin/src/handlers/batch.ts",
-      "sha256": "4bc28348cc235f44def30cf9a4053f561812a96df3b5087d346ad8d5dc329029"
+      "sha256": "12220b8e14846ae88a447e9f69331e6ee47f83c2797bd81bf523dbe3b4e96205"
+    },
+    {
+      "path": "packages/plugin/src/handlers/clone-node.ts",
+      "sha256": "f444c3b5e88bdea898edd30dfd13755b90a0bb62b6464faec9d66aaff92f5db0"
+    },
+    {
+      "path": "packages/plugin/src/handlers/combine-as-variants.ts",
+      "sha256": "3d70ef2f1eb6ea51548d7d15b6e91a6f82d322de28f2f264ae5ae43b35c3f18a"
+    },
+    {
+      "path": "packages/plugin/src/handlers/create-component.ts",
+      "sha256": "7e45245c46977be0ccff001c513c27dc94490dfef121532acbf4418b4595b353"
+    },
+    {
+      "path": "packages/plugin/src/handlers/create-effect-style.ts",
+      "sha256": "dc35c73e1279f5a983fd3e10bfec0303bea5e8c3efa3688bfa32e4b0baca7119"
+    },
+    {
+      "path": "packages/plugin/src/handlers/create-ellipse.ts",
+      "sha256": "164422bfc7352fc9551cce80bebbf55dc4cde66533503745598d09593469e2a6"
+    },
+    {
+      "path": "packages/plugin/src/handlers/create-frame.ts",
+      "sha256": "692b90dab18fa54f3f384c099d88988e00e7838a609359b671254b8507f8790f"
+    },
+    {
+      "path": "packages/plugin/src/handlers/create-grid-style.ts",
+      "sha256": "9dd72d342bf3163ac78ada9a1922848cf9bc5883eb88f84f1647e9332a70aa26"
     },
     {
       "path": "packages/plugin/src/handlers/create-instance.ts",
-      "sha256": "588fee3691f7283996b7615e795e6509c3d1afe40059486b645cd322ca9bd996"
+      "sha256": "5270224bf9e7fb7985040284ba10b5126f482693c784fa9d35ccb2021cc18bbc"
+    },
+    {
+      "path": "packages/plugin/src/handlers/create-paint-style.ts",
+      "sha256": "6d00f71138a5eb7834949b28da79e90371fd7fbe95fec376541fcbf1ef9ae0a9"
+    },
+    {
+      "path": "packages/plugin/src/handlers/create-rectangle.ts",
+      "sha256": "b943d389891f139d464fd84bbcbc259d8d8c83cd22b51db21631927cbc6ab811"
+    },
+    {
+      "path": "packages/plugin/src/handlers/create-section.ts",
+      "sha256": "4cba369a7953fb234390aaba3a0a8e8faea29ca756f8cad711c6b80d15c5d071"
+    },
+    {
+      "path": "packages/plugin/src/handlers/create-text-style.ts",
+      "sha256": "fa1f83b433bd07ff56cc091b7e22f3aae42622a37eaccc80fd246191c18a2cb3"
+    },
+    {
+      "path": "packages/plugin/src/handlers/create-text.ts",
+      "sha256": "0ec988b6655b4f6c144978da719c8247f0f11476da08be5056746a0733de2790"
+    },
+    {
+      "path": "packages/plugin/src/handlers/create-variable-collection.ts",
+      "sha256": "5f4e26830add3fe39cb338f9bb54fcc44a4ec7dc0d8b6d342f68988fa65e6646"
+    },
+    {
+      "path": "packages/plugin/src/handlers/create-variable.ts",
+      "sha256": "db4d9b23339be66457a20b98a9a60fb85c29dcc62b2aa5b549caacc3d3753d9e"
+    },
+    {
+      "path": "packages/plugin/src/handlers/get-reactions.ts",
+      "sha256": "bd44d34099f2749c35a8a29dd5f43a15f4be72a86c9a6024b6d06105a300bdd2"
+    },
+    {
+      "path": "packages/plugin/src/handlers/group-nodes.ts",
+      "sha256": "a58cfe03c4994b9f96a971c798e4a7a8d3de6ed73083d01fb86d0372e78638d5"
     },
     {
       "path": "packages/plugin/src/handlers/import-image.ts",
-      "sha256": "98f685fd2b2003cd9c39ae871238bab2a4447db730b27c2eda8efd28f871734a"
+      "sha256": "8387e1b7952f4437bbdfbae7deed8c9988ea10ec1e7baa05153d1786d1494fb8"
+    },
+    {
+      "path": "packages/plugin/src/handlers/import-library-variable.ts",
+      "sha256": "220f521a6460027e8603c6bc24fb9be8f7460a895b075cd1c5b9342f135713c7"
+    },
+    {
+      "path": "packages/plugin/src/handlers/import-svg.ts",
+      "sha256": "42260ff2091e06ba5f84bcc4be54ab792904541171dcf8fa20b5e6ca525bf5f3"
+    },
+    {
+      "path": "packages/plugin/src/handlers/registry.ts",
+      "sha256": "31de8faf4ca43263e1a190f8897bc7535f522577456ca3583ba91f49441b1330"
     },
     {
       "path": "packages/plugin/src/handlers/swap-component.ts",
       "sha256": "3def36e2628b1c19490c40ff882f36ea6f8c826e2b3378f34c5ca55d0919247f"
     },
     {
+      "path": "packages/plugin/src/idempotency.ts",
+      "sha256": "cd5bdfa2daa29ba6be0409be6ba71f49c9b6ec79049c682a95a624d233f97f7a"
+    },
+    {
+      "path": "packages/plugin/src/identity-bootstrap.ts",
+      "sha256": "e9e1a756cec9cf671336a76f83ca16056443d3c2b7b2c648fdebee35fc6057d3"
+    },
+    {
+      "path": "packages/plugin/src/mutation.ts",
+      "sha256": "9f6cae317fc5b161df2c5e716cdb7352c7e6bc6f6ac7137614aecfdcca0cbcc7"
+    },
+    {
+      "path": "packages/plugin/test/auth/pair-exchange.test.ts",
+      "sha256": "63d8d98eb6cbd2e6925849934683f64d4c5d27bb1be7e9ee6cd081c7c489477d"
+    },
+    {
+      "path": "packages/plugin/test/auth/resume-rotation.test.ts",
+      "sha256": "db70e6d21e21ac03458f3d284d3e32f80a5a5344031a574051697555709ad7a6"
+    },
+    {
+      "path": "packages/plugin/test/components/pairing-flow.test.ts",
+      "sha256": "babff8af6f95e0a8da897fcb38d45e8d2a5438a99420c9b7bb3cf20a25b5d86b"
+    },
+    {
+      "path": "packages/plugin/test/components/panel-chrome.test.ts",
+      "sha256": "8c8b21b520bd497d2d3cb9e572eaf8af161ded3b81ba91565cd9965cc9da15b8"
+    },
+    {
+      "path": "packages/plugin/test/components/panel-tabs.test.ts",
+      "sha256": "f414902593b655dcfa3c17e023eee40a424e4abcf7445fe724cd5eded435247a"
+    },
+    {
+      "path": "packages/plugin/test/composables/use-approvals.test.ts",
+      "sha256": "bd05c77fef88dd6cad488cbc4e2f5993a03b3e57499c322ed448d4c0a34e8178"
+    },
+    {
+      "path": "packages/plugin/test/composables/use-relay-session.test.ts",
+      "sha256": "9dfbd9d7d033a00f0e02fa68e890fd1f313a8a1ed4c273ff6cba3d471e579ad2"
+    },
+    {
+      "path": "packages/plugin/test/dispatcher.test.ts",
+      "sha256": "476f2c4083234479ae2a314d5a4f65bc2bf1724244da69d4d925fc211f0b91ad"
+    },
+    {
+      "path": "packages/plugin/test/file-identity-bootstrap-hello.test.ts",
+      "sha256": "3d1d00235b4fe50a41c01199ac211fd748b7cf63dc0f60ca6bb43327f10f099e"
+    },
+    {
+      "path": "packages/plugin/test/file-identity.test.ts",
+      "sha256": "856bc5103cc31033963a35da754f786f22d163a5c230c53975ce8c0e42378ab6"
+    },
+    {
+      "path": "packages/plugin/test/handlers/batch.test.ts",
+      "sha256": "03dd6ae0251a82f8cb25e29072480bd0b5674738aa7dafb0a69955ee2d699114"
+    },
+    {
       "path": "packages/plugin/test/handlers/create-instance.test.ts",
       "sha256": "b7cfbdaa71033faa66b822b696a84c13cd8ea63c8851bd82c40ec70993767698"
     },
     {
+      "path": "packages/plugin/test/handlers/get-reactions.test.ts",
+      "sha256": "cbe56728db3fa53a2293208a132f9e211d71af264e82e275c67ae1b947e3f227"
+    },
+    {
       "path": "packages/plugin/test/handlers/import-image.test.ts",
-      "sha256": "328b0a7110496cc858136b9ac09f305e84190f29a5c623d47ffc2f8fd78a8289"
+      "sha256": "90cb6995968848e5dc6f3862882ee29a0f59c281234f2fc96e9adbf9c7fb8d4f"
+    },
+    {
+      "path": "packages/plugin/test/handlers/import-library-variable.test.ts",
+      "sha256": "b9ccd247cb554815fb22f4cc173be81c53e17694e0c77c3124dd839f06ced04a"
     },
     {
       "path": "packages/plugin/test/handlers/swap-component.test.ts",
       "sha256": "3de3e1c14414593fcccc9a2df098580e390301f890818073e958ba606e38efc1"
     },
     {
+      "path": "packages/plugin/test/idempotency.test.ts",
+      "sha256": "d318d4a4fed8b7fd8cf0e86e0dca69b8cccda1f6ca01847626616a7915c7c27a"
+    },
+    {
+      "path": "packages/plugin/test/identity-bootstrap.test.ts",
+      "sha256": "f03534d5b08f39f0dc7418d2d7584c9dc523e930d878f03576df787870384feb"
+    },
+    {
+      "path": "packages/plugin/test/mutation.test.ts",
+      "sha256": "9d8840dd3ccc86dda4fdcea812ff3375f08f3b8b69012e2c76a33e34bc73bd6f"
+    },
+    {
+      "path": "packages/plugin/test/protocol/bridge.test.ts",
+      "sha256": "65e990ce461d85965f8aec2da22baf3e4a24bfbd88830c323ed1e0a78629e1a8"
+    },
+    {
+      "path": "packages/plugin/test/protocol/progress-cancel.test.ts",
+      "sha256": "175574bdc856a9efc9b20649bf8922ed41ac66dbb4a4b5766961f0e1974428cd"
+    },
+    {
+      "path": "packages/plugin/test/relay/bootstrap.test.ts",
+      "sha256": "91dbf125ff5d93f62331f0a227dd628a65e0f115bab1678755dc273943ad7682"
+    },
+    {
+      "path": "packages/plugin/test/relay/client.test.ts",
+      "sha256": "d6f9895cd5a3900437feb307e259b347a1dbc65217289499a25f038480f8d6cd"
+    },
+    {
+      "path": "packages/plugin/test/sandbox/startup.test.ts",
+      "sha256": "62144e35f8da79e7b32e32cc1151fdb3e8a4b9f84a97a2a0c5c6e9c467c09b81"
+    },
+    {
+      "path": "packages/plugin/test/sandbox/tool-bridge.test.ts",
+      "sha256": "ecb1f54fc5efe9cf06a14898ead5cd5cc7097428b34fd2dc95c5e1f51ab7ba39"
+    },
+    {
       "path": "packages/plugin/tsconfig.json",
       "sha256": "0cf4dcc5fa7a3e7e04fb613c2d4e35c1ea99c0fa193672a399c6f15ac6cba086"
+    },
+    {
+      "path": "packages/plugin/ui/App.vue",
+      "sha256": "d420fad1fa6447fc68a01e701809104173f5344b114656b157f6c0b7bb43cef5"
+    },
+    {
+      "path": "packages/plugin/ui/components/DocumentBinding.vue",
+      "sha256": "b064ccc05b8d133b4c7d308f48b5df6d748a81cdab6827efb6f2348c00dbcf22"
+    },
+    {
+      "path": "packages/plugin/ui/components/PanelTabs.vue",
+      "sha256": "3fee6965fd1551490fe59d631a0c5a80958f5ba299d3868f880d1afecc5c3ce0"
+    },
+    {
+      "path": "packages/plugin/ui/components/TabApprovals.vue",
+      "sha256": "887532470f3de755b7d0b384f8a0b0b1a45f50822ebe202a4306d715b136ce60"
+    },
+    {
+      "path": "packages/plugin/ui/components/TabPairing.vue",
+      "sha256": "e896fadc342b49ffa9c8966b2e640c6b4bfa07f8a7ccfc44fd26fd293f3f885e"
+    },
+    {
+      "path": "packages/plugin/ui/composables/useApprovals.ts",
+      "sha256": "3250d25446a0a4eb736ec49f657d8a006e28b7d5138a06ec9e5bdcfd554fbd27"
+    },
+    {
+      "path": "packages/plugin/ui/composables/useDocumentBinding.ts",
+      "sha256": "94f6297e308b102bbb38a63855228763de43aa4c962c85d46e0192985c19a257"
+    },
+    {
+      "path": "packages/plugin/ui/composables/usePairing.ts",
+      "sha256": "f55f53dbcb754585d34128b6e93a0c18001fb53ec4ac2c3223cbbe27daa7277a"
+    },
+    {
+      "path": "packages/plugin/ui/composables/useRelaySession.ts",
+      "sha256": "7b92fd23c19dd2d4c78ab6a1bf5a962a538416d4b5ba7a0cb670be95d8911699"
+    },
+    {
+      "path": "packages/plugin/ui/lib/tabs.ts",
+      "sha256": "270e7c7a24b35ae4fd02cef38693e68bfd3048fd90b1c3f94f069a81869cbb94"
+    },
+    {
+      "path": "packages/plugin/ui/relay/bootstrap.ts",
+      "sha256": "ee83ffe252b2ca1ce66d98bc281ddd7f1480d2a47c46324555fc31866bd8dd30"
+    },
+    {
+      "path": "packages/plugin/ui/relay/client.ts",
+      "sha256": "f3857763258dbd26e129b512b219752a431cdad247fe7c2289510728c0d46e6b"
+    },
+    {
+      "path": "packages/plugin/ui/relay/state.ts",
+      "sha256": "b4288308d5235a4b450587347d009c18c1641a78a0c9aa0312ae2b14e4b8b583"
+    },
+    {
+      "path": "packages/plugin/ui/sandbox/messaging.ts",
+      "sha256": "668b8c8bdd02822ed4c0c6e5a5b3cb0c7c633e163cac2e536a9d7832f416d4ce"
+    },
+    {
+      "path": "packages/plugin/ui/sandbox/tool-bridge.ts",
+      "sha256": "67ddbf853afdd072fa3ba657a3ecaf2f991d2f6d09e03e4b454aa9b4c854e897"
     },
     {
       "path": "packages/plugin/vite.config.main.ts",
@@ -2749,7 +4205,7 @@
     },
     {
       "path": "packages/shared/src/action-nonce.ts",
-      "sha256": "25530abfc47ac8b94149d414806c2dbab12745cc9250b678b9b0f2598f169dd4"
+      "sha256": "de5da596f26ae026f00fcb3574ecf727b4078eff05d01eaa50c303e75a3712c1"
     },
     {
       "path": "packages/shared/src/approval.ts",
@@ -2769,7 +4225,11 @@
     },
     {
       "path": "packages/shared/src/control.ts",
-      "sha256": "649cdf4784257dc78582369ea3294fb910a9fad54baf9ec1947c632e2b3703ca"
+      "sha256": "df9d15d93d9fbde7a490b3d79151c6bc826404a6bf102421c401e860018eb773"
+    },
+    {
+      "path": "packages/shared/src/document-binding.ts",
+      "sha256": "f71e6dfd6f2ffedb6a210f8e90d3d420a3ec9504f6528bb77f1503304d8cca96"
     },
     {
       "path": "packages/shared/src/egress.ts",
@@ -2781,27 +4241,43 @@
     },
     {
       "path": "packages/shared/src/index.ts",
-      "sha256": "69625f650ceafb5e71f7ce6bfabb0911f8d25bfa6dca5c87a249ed3a173e1d8d"
+      "sha256": "7fcb3a14730e18ede4aa07e574a81a055bc897582724bdb78c030768705d2937"
     },
     {
       "path": "packages/shared/src/invocation.ts",
-      "sha256": "1598aae34fbaae9acf1cc39b73f27517ad8a006417aed6e4a94197c53b854c1a"
+      "sha256": "b28bf6725e203d75414a44fe84f2411a2680fb11300632b2b582cdc4de10bb46"
     },
     {
       "path": "packages/shared/src/operations.ts",
-      "sha256": "d9c9fef1aaf8a99207be24417f2c72b7d6dc83f00aa95259d80c656673134136"
+      "sha256": "b5bb436c9cc5ef9c9f491156c4d288c812786b3d466a7be679150724e629b3b5"
+    },
+    {
+      "path": "packages/shared/src/portal.ts",
+      "sha256": "367ffa353ba21a18ce3f7771dee13d8a9db527b919ed063395fa74ba22722b32"
     },
     {
       "path": "packages/shared/src/progress.ts",
-      "sha256": "99d405a9e39f8652c0d5827686993feb49e517bc33e186c7269351a8ff9b3446"
+      "sha256": "103c259c7bdee769c61d3059ce89509cb94e723937e48463eea964ce196b07dd"
+    },
+    {
+      "path": "packages/shared/src/project-conventions.ts",
+      "sha256": "717509cd7ece136c3046ca43a6bb99ab33fbdc9db1771afd44cd6c990ca0ba08"
+    },
+    {
+      "path": "packages/shared/src/project-profile.ts",
+      "sha256": "c3867e83747d5649caabc8d399710d1de6360cf77c4144ce2b27ccaf03abe962"
     },
     {
       "path": "packages/shared/src/protocol.ts",
-      "sha256": "e9765d856e4f3542101dbcfd519c3bda6af1fd6dfdfb77e74650a3edef37c145"
+      "sha256": "1b31416c86e7211cdc0a806fc1cf1701c60f884f2c7b3483c58218aee9d60550"
+    },
+    {
+      "path": "packages/shared/src/queries.ts",
+      "sha256": "31c39bb0b54edd0b032d243a20ca96e8800a6f97042a45077123a4c67fb45f0b"
     },
     {
       "path": "packages/shared/src/result-schemas.ts",
-      "sha256": "30f49e189da85e5e898b96ee4b725f9bb139daeb318e4b438ab422a3c162d473"
+      "sha256": "ac75057ff76eb04618d325f79308b0058d2dd5a200d403c0d63fa2a04f06f35d"
     },
     {
       "path": "packages/shared/src/rpc.ts",
@@ -2812,12 +4288,24 @@
       "sha256": "09c411479206fc353aaadf4fe91fc1c54f93ccf0c322fcb2debd6da2b6a707b7"
     },
     {
+      "path": "packages/shared/src/tool-budgets.ts",
+      "sha256": "7df74e54927d964f1362e5f6448536e33985c5e4f7bab6f930b62b8ef077d899"
+    },
+    {
+      "path": "packages/shared/src/union-tools.ts",
+      "sha256": "a6261e018a4cf6edb49d2b41ddd887aaa3f54196221072d574a6b2c77229549d"
+    },
+    {
       "path": "packages/shared/test/control-schema.test.ts",
       "sha256": "3d714e87cba3b197b7f69e3e7a7fe57f859d5ce49c3d5e0b081d822e317eaf70"
     },
     {
       "path": "packages/shared/test/file-identity-hash.test.ts",
       "sha256": "48b203372256e350a8400dceb152f99a0f3a0fc001ae37ceb250cc320b356c23"
+    },
+    {
+      "path": "packages/shared/test/portal.test.ts",
+      "sha256": "e138a37fa30e5dbc30f27c0b8995d380cc42219c752e9b67a827a9f7fc9da721"
     },
     {
       "path": "packages/shared/tsconfig.json",
@@ -2829,7 +4317,7 @@
     },
     {
       "path": "pnpm-lock.yaml",
-      "sha256": "d99a8d289ec62f70081313c88414391d9aeedeaa7b7210544a69a774d9132153"
+      "sha256": "505dbecccc138e31765d8a54f7fd7b01a99f8a61c749a8b953ab1cb5bccd9b8a"
     },
     {
       "path": "pnpm-workspace.yaml",
@@ -2840,12 +4328,76 @@
       "sha256": "e8d5ead71f336782f058631f7c97fdcce473b1c8ca0355c68795252a090345c4"
     },
     {
+      "path": "scripts/build-server.mjs",
+      "sha256": "030b22df09f003b79b0a80e454cdb81f612fb31b0e12a91ae2d8785116116ed0"
+    },
+    {
+      "path": "scripts/desktop-acceptance.mjs",
+      "sha256": "3a3576fcd8225b8ecc94fca3aacddd957339b9057f82969b67eb7614446327bc"
+    },
+    {
+      "path": "scripts/generate-checksums.mjs",
+      "sha256": "d657b7d850e7d7af209d522d5fec94b32f3be7a93df790268d37b8365181e174"
+    },
+    {
+      "path": "scripts/generate-notices.mjs",
+      "sha256": "ea795ae14640ea7f6d416fa3d8fdcd7a1cd732e5bb459b98bc01f60f7fb348af"
+    },
+    {
+      "path": "scripts/generate-sbom.mjs",
+      "sha256": "23588b79eb31bcc3b4686684ecf1e90b21504ffe8b12b7dce881bd2473f50645"
+    },
+    {
+      "path": "scripts/graph-memory-child.mjs",
+      "sha256": "c5fe557e11a4f3c6ee5866c9283e995a66d8b0aa90fa75838cd2f07d0eac9697"
+    },
+    {
+      "path": "scripts/package-artifacts.mjs",
+      "sha256": "8aac049ef4b827274020e211d741d047097aeee8ab66d208732ece70e22249df"
+    },
+    {
+      "path": "scripts/register-source.mjs",
+      "sha256": "2c5a19bb767c5a9ee57bdbe363b5182e8255f95855a6e9da541c2c9b124ba668"
+    },
+    {
+      "path": "scripts/release-common.mjs",
+      "sha256": "9e3c489a720a40925cfca0a3f2fb2e7de38ffae421a5c4a9f4fc4a152fabb5d9"
+    },
+    {
+      "path": "scripts/run-source-checks.mjs",
+      "sha256": "f8c8026349faf5024d65e16ad6e8c3ac0b4ce311fbda788a3ebaf302c173f515"
+    },
+    {
+      "path": "scripts/smoke-packed-mcp.mjs",
+      "sha256": "c5288175fbd8294bc5164039564a936653dc3e9506aa854a1fa6eac45103fe46"
+    },
+    {
+      "path": "scripts/smoke-runtime-entries.mjs",
+      "sha256": "1b070cb402721753870d6f3b6cd91b807dc222636fc5235eb0a6c96b7d4c4c4a"
+    },
+    {
+      "path": "scripts/update-portal-contracts.mjs",
+      "sha256": "54248811037bd5b1eeb86a433458eb41b5d7c5625d059a9eb005940445c8ecc2"
+    },
+    {
       "path": "scripts/update-service-forks.mjs",
-      "sha256": "25f42a7cc012bc7d91f3b129155ff34db9bceed57ad118801859f6ea913ece2f"
+      "sha256": "06d7d4e647dd2a393294e1e0cdf38e58359d62556678c54b116307a769f136af"
+    },
+    {
+      "path": "scripts/update-target-contracts.mjs",
+      "sha256": "bc6cf99d509ed3ed386964054d855cf8ab482b25e956ddabad765e813fc81180"
     },
     {
       "path": "scripts/vendor-upstreams.mjs",
-      "sha256": "aaf1ed55fc8e592fe4c057bd300a9446866ef4f8f522cddc57c9f7c75604328b"
+      "sha256": "64d3e9cde5e97cef2c4acb05990e6770a5659ee35059c8c70265339e8547316e"
+    },
+    {
+      "path": "scripts/verify-artifacts.mjs",
+      "sha256": "456751bbaaa4b639e97454fb1076b53009c3748685dd33442d9f6a75ac5c4ad5"
+    },
+    {
+      "path": "scripts/verify-graph-memory.mjs",
+      "sha256": "839314602c27edf79bef738e51101f5219246d4750dc15bde784c880f50f6fae"
     },
     {
       "path": "scripts/verify-runtime-specifiers.mjs",
@@ -2853,11 +4405,23 @@
     },
     {
       "path": "scripts/verify-staged-change-manifest.mjs",
-      "sha256": "4e2c8b3f69e1cc7c6404e1ee0b4487a9dbdb8d87900c53490ebfe27ac75bf8c8"
+      "sha256": "ccd1702d0f98407b9cedd577b779cd853166b730fb68471728eb169ecf1efd79"
     },
     {
       "path": "scripts/verify-upstream-lock.mjs",
-      "sha256": "c9211e5cdd3a8b1d5bcaf64da18c0273c9e6d9a2467f5fb5d39df371bf3ebe97"
+      "sha256": "9dc703da406bb1be96820feb9a386c582273558e4db52a41d7ee3f96f04845e8"
+    },
+    {
+      "path": "skills/figma-codegen/SKILL.md",
+      "sha256": "a020a6d57f4ae1f93e2ea58a81b717f1b79b0e0c2f6ca946bcc9f579065878ba"
+    },
+    {
+      "path": "skills/figma-codegen/references/verify.md",
+      "sha256": "599de0304f4c67ba53e6aabb2dbbe7602f92d4bb300e52b47dacd77af99da3a7"
+    },
+    {
+      "path": "test/artifact-contents.test.ts",
+      "sha256": "93caf0b9f0a9756ec750bf77b521a00b73cd57481f893ea11db1c45fb992bbbd"
     },
     {
       "path": "test/authority-class-transition.test.ts",
@@ -2869,7 +4433,7 @@
     },
     {
       "path": "test/change-manifest.test.ts",
-      "sha256": "65ffb20153ac6c99f9bc7d653fa2afab6d1bdc9eaf2ea98f9b84f3469810cb58"
+      "sha256": "8f9c4e40ea189eff5c51d8d3bfd0a177e303b01780228f0f0a6970087877aad6"
     },
     {
       "path": "test/service-fork-lineage.test.ts",
@@ -2881,7 +4445,7 @@
     },
     {
       "path": "test/tool-contract.test.ts",
-      "sha256": "995433df2312cf06dff1cdca2763b196bb82701f682f1b63d9b57e4b844e2f53"
+      "sha256": "26741268606fb4930bd51e1b0de121c98442a3e57139e425d24dd632e384162f"
     },
     {
       "path": "test/tool-registry.test.ts",
@@ -2889,11 +4453,11 @@
     },
     {
       "path": "test/upstream-parity.test.ts",
-      "sha256": "68c755c675f9312940ecb5e7ba59e16ec92f8dea2ac1c9631a70572c3891b3c6"
+      "sha256": "05638f6360be9fe7ded26a93880a14ecd08f5fe6a2a928cd396da0153a405f4f"
     },
     {
       "path": "test/vendor-upstreams.test.ts",
-      "sha256": "e74675ebe27127f2b4213472ed93368e035649356a3018ca3c22c85e8a36797d"
+      "sha256": "1c383bf0dff8eb7e39d1b2f26114b729de928d929280c812d3d7d133597758a8"
     },
     {
       "path": "tsconfig.base.json",
@@ -2905,15 +4469,15 @@
     },
     {
       "path": "vendor-allowed-figwright-strings.json",
-      "sha256": "e51a8f3bf5d1d2c214b210e6221d042195e25186f5b23721f088fff7d3c0c412"
+      "sha256": "eaea9e19ac515d8f5ab3c6f282de9ded1edeb13e3702d0fec1b6a0365a771d30"
     },
     {
       "path": "vendor-rules.json",
-      "sha256": "72da4a008dce439be9fceda0cc0461c47fdc2aa97e752c5fbc05ee0c03ab094d"
+      "sha256": "7697a14172ba6599a33bf57b845dba8ac002f94b934ffb4416c0181f1864f6c7"
     },
     {
       "path": "vitest.config.ts",
-      "sha256": "569ea7bec19aa62b23b164aa3e674646ed2bda9b4cf4810e5a2bc7d4a0191029"
+      "sha256": "e0aaafe54ef80f130a980fc3c9f5637a2fe9ae0a279d0fbe1242cfd8cb1b7016"
     }
   ],
   "packageAuthorities": [
@@ -2931,7 +4495,6 @@
         "devDependencies": {
           "@types/node": "^24.13.3",
           "@vitest/coverage-v8": "^4.1.11",
-          "changelogen": "^0.6.2",
           "knip": "^6.32.2",
           "oxfmt": "^0.65.0",
           "oxlint": "^1.80.0",
@@ -2957,7 +4520,8 @@
           "test:unit": "vitest run --exclude \"**/test/e2e/**\" --exclude \"test/artifact-contents.test.ts\"",
           "typecheck": "pnpm -r run typecheck",
           "verify": "pnpm typecheck && pnpm lint && pnpm format:check && pnpm knip && pnpm build && pnpm test",
-          "verify:release": "pnpm verify && node scripts/generate-sbom.mjs && node scripts/generate-notices.mjs && node scripts/package-artifacts.mjs && node scripts/generate-checksums.mjs && pnpm test:artifacts && node scripts/verify-artifacts.mjs"
+          "verify:release": "pnpm verify && node scripts/generate-sbom.mjs && node scripts/generate-notices.mjs && node scripts/package-artifacts.mjs && node scripts/generate-checksums.mjs && pnpm test:artifacts && node scripts/verify-artifacts.mjs",
+          "verify:source": "node scripts/run-source-checks.mjs"
         }
       }
     },
@@ -2998,8 +4562,16 @@
         "type": "module",
         "bin": null,
         "files": null,
-        "exports": null,
-        "dependencies": null,
+        "exports": {
+          ".": {
+            "types": "./src/index.ts",
+            "default": "./src/index.ts"
+          }
+        },
+        "dependencies": {
+          "@sfp/shared": "workspace:*",
+          "zod": "4.4.3"
+        },
         "devDependencies": null,
         "optionalDependencies": null,
         "peerDependencies": null,
@@ -3016,19 +4588,38 @@
         "version": "0.1.0",
         "private": true,
         "type": "module",
-        "bin": null,
-        "files": null,
-        "exports": null,
+        "bin": {
+          "sfp-daemon": "dist/daemon-entry.mjs"
+        },
+        "files": [
+          "dist",
+          "README.md",
+          "LICENSE",
+          "THIRD_PARTY_NOTICES.md",
+          "PROVENANCE.md",
+          "SBOM.spdx.json",
+          "licenses",
+          "capabilities"
+        ],
+        "exports": {
+          ".": "./dist/index.mjs",
+          "./daemon": "./dist/daemon-entry.mjs",
+          "./portal-validation": "./dist/portal-validation.mjs"
+        },
         "dependencies": {
           "@modelcontextprotocol/server": "^2.0.0",
           "@msgpack/msgpack": "^3.1.3",
-          "fdir": "^6.5.0",
+          "@pdf-lib/upng": "1.0.1",
+          "@sfp/ir": "workspace:*",
           "ignore": "^7.0.6",
           "oxc-parser": "^0.147.0",
+          "pdf-lib": "1.17.1",
+          "playwright": "1.63.0",
           "ws": "^8.21.3",
           "zod": "^4.4.3"
         },
         "devDependencies": {
+          "@figma/plugin-typings": "1.135.0",
           "@sfp/shared": "workspace:*",
           "@types/ws": "^8.18.1",
           "publint": "^0.3.24",
@@ -3037,7 +4628,7 @@
         "optionalDependencies": null,
         "peerDependencies": null,
         "serviceScripts": {
-          "build": "tsdown",
+          "build": "node ../../scripts/build-server.mjs",
           "typecheck": "tsc --noEmit -p tsconfig.json"
         }
       }
@@ -3087,11 +4678,34 @@
         "version": "0.1.0",
         "private": true,
         "type": "module",
-        "bin": null,
-        "files": null,
-        "exports": null,
-        "dependencies": null,
-        "devDependencies": null,
+        "bin": {
+          "sfp": "./dist/index.mjs"
+        },
+        "files": [
+          "dist",
+          "README.md",
+          "LICENSE",
+          "THIRD_PARTY_NOTICES.md",
+          "PROVENANCE.md",
+          "SBOM.spdx.json",
+          "licenses",
+          "capabilities"
+        ],
+        "exports": {
+          ".": "./dist/library.mjs"
+        },
+        "dependencies": {
+          "@sfp/ir": "workspace:*",
+          "@sfp/mcp": "workspace:*",
+          "@sfp/shared": "workspace:*",
+          "ignore": "7.0.6",
+          "oxc-parser": "0.147.0",
+          "playwright": "1.63.0",
+          "zod": "4.4.3"
+        },
+        "devDependencies": {
+          "tsdown": "^0.22.14"
+        },
         "optionalDependencies": null,
         "peerDependencies": null,
         "serviceScripts": {
@@ -3116,7 +4730,8 @@
       "test:unit": "vitest run --exclude \"**/test/e2e/**\" --exclude \"test/artifact-contents.test.ts\"",
       "typecheck": "pnpm -r run typecheck",
       "verify": "pnpm typecheck && pnpm lint && pnpm format:check && pnpm knip && pnpm build && pnpm test",
-      "verify:release": "pnpm verify && node scripts/generate-sbom.mjs && node scripts/generate-notices.mjs && node scripts/package-artifacts.mjs && node scripts/generate-checksums.mjs && pnpm test:artifacts && node scripts/verify-artifacts.mjs"
+      "verify:release": "pnpm verify && node scripts/generate-sbom.mjs && node scripts/generate-notices.mjs && node scripts/package-artifacts.mjs && node scripts/generate-checksums.mjs && pnpm test:artifacts && node scripts/verify-artifacts.mjs",
+      "verify:source": "node scripts/run-source-checks.mjs"
     },
     "workspacePackageNames": ["@sfp/shared", "@sfp/ir", "@sfp/mcp", "@sfp/plugin", "@sfp/cli"],
     "knipWorkspaces": [
@@ -3140,9 +4755,7 @@
         "test:coverage": "vitest run --coverage",
         "test:watch": "vitest"
       },
-      "devDependencies": {
-        "changelogen": "^0.6.2"
-      }
+      "devDependencies": {}
     },
     {
       "path": "packages/shared/package.json",
@@ -3167,7 +4780,6 @@
       "dependencies": {
         "@modelcontextprotocol/server": "^2.0.0",
         "@msgpack/msgpack": "^3.1.3",
-        "fdir": "^6.5.0",
         "ignore": "^7.0.6",
         "oxc-parser": "^0.147.0",
         "ws": "^8.21.3",
@@ -3300,6 +4912,66 @@
   "serviceForks": [
     {
       "originRepo": "figwright",
+      "originPath": "README.md",
+      "previousMode": "copy",
+      "originCommit": "a835e81b575eab2c9265a67f9353c89b848f81ca",
+      "baseSha256": "da7022dad4e57c2730e371a348397a068808b9826aa715ed0df6fb52607e8aea",
+      "transitionTask": "review-2026-09-05",
+      "reason": "service-owned behavior introduced by Task review-2026-09-05",
+      "transition": "edit",
+      "destination": "README.md",
+      "stagedSha256": "f56623edd28df711d542a4e2146c19662000b27d7087ea84b85c29fb4589f4fd"
+    },
+    {
+      "originRepo": "figwright",
+      "originPath": "package.json",
+      "previousMode": "mergeDependencyManifest",
+      "originCommit": "a835e81b575eab2c9265a67f9353c89b848f81ca",
+      "baseSha256": "10e73d05cb4707ade39813f4069c99c7479e37a0346b27f79a1274c1c7ee32db",
+      "transitionTask": "review-2026-09-05",
+      "reason": "service-owned behavior introduced by Task review-2026-09-05",
+      "transition": "edit",
+      "destination": "package.json",
+      "stagedSha256": "30ac7b4298d9ca6a7de895ce27bf4c5ea0671f5d49aa88725c1e09d5a4e6a901"
+    },
+    {
+      "originRepo": "figwright",
+      "originPath": "packages/mcp/README.md",
+      "previousMode": "copy",
+      "originCommit": "a835e81b575eab2c9265a67f9353c89b848f81ca",
+      "baseSha256": "8ea9041e462109f12761bf14c23f71cf31b91b6f0157d57df180c46d14676e26",
+      "transitionTask": "review-2026-09-05",
+      "reason": "service-owned behavior introduced by Task review-2026-09-05",
+      "transition": "edit",
+      "destination": "packages/mcp/README.md",
+      "stagedSha256": "60c6bf86282a50989ed300c4c7d4398f1e811fdee0b7ed5fa5768cdbe34bf3b0"
+    },
+    {
+      "originRepo": "figwright",
+      "originPath": "packages/mcp/package.json",
+      "previousMode": "mergeDependencyManifest",
+      "originCommit": "a835e81b575eab2c9265a67f9353c89b848f81ca",
+      "baseSha256": "c85460d5a205418c4b8818e0316aed18b49a6aba6846a91771cb92ec88306f5f",
+      "transitionTask": "review-2026-09-05",
+      "reason": "service-owned behavior introduced by Task review-2026-09-05",
+      "transition": "edit",
+      "destination": "packages/mcp/package.json",
+      "stagedSha256": "b309d15dfbc37e31cafafa23ef29ca655fa3b22b76d19cc479aa34fcd45300e3"
+    },
+    {
+      "originRepo": "figwright",
+      "originPath": "packages/mcp/src/build-id.ts",
+      "previousMode": "copy",
+      "originCommit": "a835e81b575eab2c9265a67f9353c89b848f81ca",
+      "baseSha256": "8ce5da63e34af094a214d9b8231664fb276844b332076e9bae24daf382d5ea10",
+      "transitionTask": "review-2026-09-06",
+      "reason": "service-owned behavior introduced by Task review-2026-09-06",
+      "transition": "edit",
+      "destination": "packages/mcp/src/build-id.ts",
+      "stagedSha256": "0c7c79d3a408a8c04568ce7d8b1c3d6ea232a66746108d5e2d46c582f69e2493"
+    },
+    {
+      "originRepo": "figwright",
       "originPath": "packages/mcp/src/election/election.ts",
       "previousMode": "copy",
       "originCommit": "a835e81b575eab2c9265a67f9353c89b848f81ca",
@@ -3324,6 +4996,30 @@
     },
     {
       "originRepo": "figwright",
+      "originPath": "packages/mcp/src/instructions.ts",
+      "previousMode": "copy",
+      "originCommit": "a835e81b575eab2c9265a67f9353c89b848f81ca",
+      "baseSha256": "e42360b1bed9d1b0dab872551e76c7771e2ec48f1639def109924449478d73bc",
+      "transitionTask": "review-2026-09-05",
+      "reason": "service-owned behavior introduced by Task review-2026-09-05",
+      "transition": "edit",
+      "destination": "packages/mcp/src/instructions.ts",
+      "stagedSha256": "2b3ee4a71a88918b271eef304ba2db9036b7572231d56cad6432c88a0df16e4a"
+    },
+    {
+      "originRepo": "figwright",
+      "originPath": "packages/mcp/src/lifecycle.ts",
+      "previousMode": "copy",
+      "originCommit": "a835e81b575eab2c9265a67f9353c89b848f81ca",
+      "baseSha256": "331bae755d1a5027c2764143e9dba0467e98e496bc10c60c1b69e27a7448c06d",
+      "transitionTask": "review-2026-09-06",
+      "reason": "service-owned behavior introduced by Task review-2026-09-06",
+      "transition": "edit",
+      "destination": "packages/mcp/src/lifecycle.ts",
+      "stagedSha256": "8d1784b2ac60f90367661f61615cbf6abe6e7e88795c2947e9aa69141f1098e9"
+    },
+    {
+      "originRepo": "figwright",
       "originPath": "packages/mcp/src/profile/profile.ts",
       "previousMode": "copy",
       "originCommit": "a835e81b575eab2c9265a67f9353c89b848f81ca",
@@ -3332,7 +5028,7 @@
       "reason": "service-owned behavior introduced by Task 8A",
       "transition": "edit",
       "destination": "packages/mcp/src/profile/profile.ts",
-      "stagedSha256": "ccf0d6174fd4bf11c527142037c9ec3e74547ca170ea31f36f7c42eb8ae6188f"
+      "stagedSha256": "197ab0c2310b8e570171647400842b96662d9317e4f7e31395b3585492f2e495"
     },
     {
       "originRepo": "figwright",
@@ -3345,7 +5041,7 @@
       "transition": "move",
       "oldDestination": "packages/mcp/src/repo-walk.ts",
       "newDestination": "packages/mcp/src/fs/repo-walk.ts",
-      "newSha256": "bfe368b629d7aa3d66fc347132b2a1f1e956b20c7d599fd731eaad0d9aa44248"
+      "newSha256": "e5f8e80d15c469266b271e58f04ca8ac3a707daa8398d7deda1b7c61fc7fd937"
     },
     {
       "originRepo": "figwright",
@@ -3361,6 +5057,18 @@
     },
     {
       "originRepo": "figwright",
+      "originPath": "packages/mcp/src/scan/sfc-blocks.ts",
+      "previousMode": "copy",
+      "originCommit": "a835e81b575eab2c9265a67f9353c89b848f81ca",
+      "baseSha256": "3d598a168655cc963d02b43dadeb92fc8b7704ee81b139c898628fda9fd659ae",
+      "transitionTask": "review-2026-09-08",
+      "reason": "service-owned behavior introduced by Task review-2026-09-08",
+      "transition": "edit",
+      "destination": "packages/mcp/src/scan/sfc-blocks.ts",
+      "stagedSha256": "1073a64c4cf33c63beaf94f14eb5444f2b7a6f6282608320c05d08ec50756831"
+    },
+    {
+      "originRepo": "figwright",
       "originPath": "packages/mcp/src/tokens/generated-tokens.ts",
       "previousMode": "copy",
       "originCommit": "a835e81b575eab2c9265a67f9353c89b848f81ca",
@@ -3370,6 +5078,18 @@
       "transition": "edit",
       "destination": "packages/mcp/src/tokens/generated-tokens.ts",
       "stagedSha256": "3f7f604e85cee75651a8d7cead855f8b064794acf8f76e44ec44778956ac722d"
+    },
+    {
+      "originRepo": "figwright",
+      "originPath": "packages/mcp/src/tokens/hex.ts",
+      "previousMode": "copy",
+      "originCommit": "a835e81b575eab2c9265a67f9353c89b848f81ca",
+      "baseSha256": "8b57b39a0fc17c58e1437525d5170df2ee3aca5f342a213f7f222649fd71df70",
+      "transitionTask": "review-2026-09-05",
+      "reason": "service-owned behavior introduced by Task review-2026-09-05",
+      "transition": "edit",
+      "destination": "packages/mcp/src/tokens/hex.ts",
+      "stagedSha256": "f7b969cea35055f7aedf4c777df01157f6c6db3e1b6acfc1a3613f5460dbb180"
     },
     {
       "originRepo": "figwright",
@@ -3433,6 +5153,30 @@
     },
     {
       "originRepo": "figwright",
+      "originPath": "packages/mcp/test/e2e/ping.test.ts",
+      "previousMode": "copy",
+      "originCommit": "a835e81b575eab2c9265a67f9353c89b848f81ca",
+      "baseSha256": "5da3eb151863d5447f6068ef8c9d3d76030b02a34cae5d254eaa21a261e4e0d7",
+      "transitionTask": "review-2026-09-05",
+      "reason": "service-owned behavior introduced by Task review-2026-09-05",
+      "transition": "edit",
+      "destination": "packages/mcp/test/e2e/ping.test.ts",
+      "stagedSha256": "60c3a2fb43b26ddc454606da7baf6665f1b7e8e26841f09754da5ba3f6ab51cc"
+    },
+    {
+      "originRepo": "figwright",
+      "originPath": "packages/mcp/test/e2e/process-lifecycle.test.ts",
+      "previousMode": "copy",
+      "originCommit": "a835e81b575eab2c9265a67f9353c89b848f81ca",
+      "baseSha256": "38e04758b7bd2ce65a0359dc3acbb039a59dea9bbb2b99a32b38442b20969877",
+      "transitionTask": "review-2026-09-05",
+      "reason": "service-owned behavior introduced by Task review-2026-09-05",
+      "transition": "edit",
+      "destination": "packages/mcp/test/e2e/process-lifecycle.test.ts",
+      "stagedSha256": "d8100592b830e4ba71f21de688634f6dd9ebfb9ea4046420fc944529d869b0f0"
+    },
+    {
+      "originRepo": "figwright",
       "originPath": "packages/mcp/test/icons/repo-icons.test.ts",
       "previousMode": "copy",
       "originCommit": "a835e81b575eab2c9265a67f9353c89b848f81ca",
@@ -3442,6 +5186,42 @@
       "transition": "edit",
       "destination": "packages/mcp/test/icons/repo-icons.test.ts",
       "stagedSha256": "7bf91bb6ce3285edd707f15e34d793ccf9bd3ed5832e313b278dc7444948b8ec"
+    },
+    {
+      "originRepo": "figwright",
+      "originPath": "packages/mcp/test/node-id.test.ts",
+      "previousMode": "copy",
+      "originCommit": "a835e81b575eab2c9265a67f9353c89b848f81ca",
+      "baseSha256": "fe5cf453d3e0b74e6bfd5a0f99a02aa44b45f976212d825db1d2c49ab34aebd0",
+      "transitionTask": "review-2026-09-08",
+      "reason": "service-owned behavior introduced by Task review-2026-09-08",
+      "transition": "edit",
+      "destination": "packages/mcp/test/node-id.test.ts",
+      "stagedSha256": "20d11bd4392da5fe70b5b0f9a48b573c94f134006bef87b1f03534468ad2ad2f"
+    },
+    {
+      "originRepo": "figwright",
+      "originPath": "packages/mcp/test/plugin-contract.json",
+      "previousMode": "copy",
+      "originCommit": "a835e81b575eab2c9265a67f9353c89b848f81ca",
+      "baseSha256": "964fa2ae76973766e25a30eae9d22f0c637152aec858e6d15760b7d4bbd7a237",
+      "transitionTask": "review-2026-09-06",
+      "reason": "service-owned behavior introduced by Task review-2026-09-06",
+      "transition": "edit",
+      "destination": "packages/mcp/test/plugin-contract.json",
+      "stagedSha256": "88c286c0f5ccae3ca023be4b8cf85c245bd409965cc90b4afeb4450a7d1ffa58"
+    },
+    {
+      "originRepo": "figwright",
+      "originPath": "packages/mcp/test/plugin-contract.test.ts",
+      "previousMode": "copy",
+      "originCommit": "a835e81b575eab2c9265a67f9353c89b848f81ca",
+      "baseSha256": "c5de9815efaa9f3252068851ec6ade19f68a2bd9d1e3431fee5edee40959ed28",
+      "transitionTask": "review-2026-09-05",
+      "reason": "service-owned behavior introduced by Task review-2026-09-05",
+      "transition": "edit",
+      "destination": "packages/mcp/test/plugin-contract.test.ts",
+      "stagedSha256": "5187d71679c5acafc31e93a0fdd3745d2c7d18bde04decc7edbe14682fd34fde"
     },
     {
       "originRepo": "figwright",
@@ -3466,7 +5246,7 @@
       "transition": "move",
       "oldDestination": "packages/mcp/test/repo-walk.test.ts",
       "newDestination": "packages/mcp/test/fs/repo-walk.test.ts",
-      "newSha256": "c1437d0a383fd265294266e081e06e9f8aed2e76b2e5316b54b53980155a5dd3"
+      "newSha256": "8706eadb6a05bfccb8256109a44d656e6a3102a68eb1ec21befbe457619011eb"
     },
     {
       "originRepo": "figwright",
@@ -3526,7 +5306,7 @@
       "reason": "service-owned behavior introduced by Task 8A",
       "transition": "edit",
       "destination": "packages/mcp/test/tokens/token-index.test.ts",
-      "stagedSha256": "6e33eb167b1b0d30599fb5246d1fce9db6678b0790a56d9e076c92aa3abc83d0"
+      "stagedSha256": "924a10704e1c1e85601c25cc25d4bd652b006e1ede09a4e6deb8558cdfce70de"
     },
     {
       "originRepo": "figwright",
@@ -3550,7 +5330,7 @@
       "reason": "service-owned behavior introduced by Task 8A",
       "transition": "edit",
       "destination": "packages/mcp/test/tools/design-diff.test.ts",
-      "stagedSha256": "8a0564d282fb4700302fbb4bf554327d96228d93bd08cc14ed8a184a5847cad3"
+      "stagedSha256": "3a7839bd66a34f924af9154e2d63cb32d1ca83caea7b10389481952156dbe2c9"
     },
     {
       "originRepo": "figwright",
@@ -3578,6 +5358,510 @@
     },
     {
       "originRepo": "figwright",
+      "originPath": "packages/plugin/protocol/bridge.ts",
+      "previousMode": "copy",
+      "originCommit": "a835e81b575eab2c9265a67f9353c89b848f81ca",
+      "baseSha256": "f4d81085084669ae6d1ce17b895a2d760db621256e30cf20abfd2247fe8f126f",
+      "transitionTask": "review-2026-09-05",
+      "reason": "service-owned behavior introduced by Task review-2026-09-05",
+      "transition": "edit",
+      "destination": "packages/plugin/protocol/bridge.ts",
+      "stagedSha256": "fd21269cf77dd5067abca7ac0204ee349e2d72fb9c600a526d98d660f7a21432"
+    },
+    {
+      "originRepo": "figwright",
+      "originPath": "packages/plugin/src/code.ts",
+      "previousMode": "copy",
+      "originCommit": "a835e81b575eab2c9265a67f9353c89b848f81ca",
+      "baseSha256": "1649ef27fc89e44c8ebf65ccc3542aec42d343bfe21ce11f4555ae98c7d0ed34",
+      "transitionTask": "review-2026-09-05",
+      "reason": "service-owned behavior introduced by Task review-2026-09-05",
+      "transition": "edit",
+      "destination": "packages/plugin/src/code.ts",
+      "stagedSha256": "ebb94862751f5423cec4e0a34f2c9413bc76ed5f0465605f0b4b40ceea3db3df"
+    },
+    {
+      "originRepo": "figwright",
+      "originPath": "packages/plugin/src/dispatcher.ts",
+      "previousMode": "copy",
+      "originCommit": "a835e81b575eab2c9265a67f9353c89b848f81ca",
+      "baseSha256": "efa13ab21530201410ed33862e5539046805ce2a22f11a5fc9769799d4d58b6c",
+      "transitionTask": "review-2026-09-05",
+      "reason": "service-owned behavior introduced by Task review-2026-09-05",
+      "transition": "edit",
+      "destination": "packages/plugin/src/dispatcher.ts",
+      "stagedSha256": "71864208fbcedbbe3d8bf5b77845051cf61303c662e80193922d254dd71cc79a"
+    },
+    {
+      "originRepo": "figwright",
+      "originPath": "packages/plugin/src/handlers/add-page.ts",
+      "previousMode": "copy",
+      "originCommit": "a835e81b575eab2c9265a67f9353c89b848f81ca",
+      "baseSha256": "5d75e299b6807bce51fb52f8b1530cb2f82cd55a733d7f3f29f997c25c1e7b39",
+      "transitionTask": "review-2026-09-06",
+      "reason": "service-owned behavior introduced by Task review-2026-09-06",
+      "transition": "edit",
+      "destination": "packages/plugin/src/handlers/add-page.ts",
+      "stagedSha256": "a3f6695e311072740986c02c79da8db9edb520670453c7a073cea77e2c38172e"
+    },
+    {
+      "originRepo": "figwright",
+      "originPath": "packages/plugin/src/handlers/clone-node.ts",
+      "previousMode": "copy",
+      "originCommit": "a835e81b575eab2c9265a67f9353c89b848f81ca",
+      "baseSha256": "4b0b3400e70f5ab4abb96c5e16ffb49c8dad63922cb86e302bec3c39c4f781fe",
+      "transitionTask": "review-2026-09-06",
+      "reason": "service-owned behavior introduced by Task review-2026-09-06",
+      "transition": "edit",
+      "destination": "packages/plugin/src/handlers/clone-node.ts",
+      "stagedSha256": "f444c3b5e88bdea898edd30dfd13755b90a0bb62b6464faec9d66aaff92f5db0"
+    },
+    {
+      "originRepo": "figwright",
+      "originPath": "packages/plugin/src/handlers/combine-as-variants.ts",
+      "previousMode": "copy",
+      "originCommit": "a835e81b575eab2c9265a67f9353c89b848f81ca",
+      "baseSha256": "7575726ae47f2fdb6d5b32f366c98022a33f56b140128250ecf873650228adb1",
+      "transitionTask": "review-2026-09-06",
+      "reason": "service-owned behavior introduced by Task review-2026-09-06",
+      "transition": "edit",
+      "destination": "packages/plugin/src/handlers/combine-as-variants.ts",
+      "stagedSha256": "3d70ef2f1eb6ea51548d7d15b6e91a6f82d322de28f2f264ae5ae43b35c3f18a"
+    },
+    {
+      "originRepo": "figwright",
+      "originPath": "packages/plugin/src/handlers/create-component.ts",
+      "previousMode": "copy",
+      "originCommit": "a835e81b575eab2c9265a67f9353c89b848f81ca",
+      "baseSha256": "38d2a4bd1100cfca393a2d07f01a1a06ccbc685a116ec7eafca563e631c1e2b6",
+      "transitionTask": "review-2026-09-06",
+      "reason": "service-owned behavior introduced by Task review-2026-09-06",
+      "transition": "edit",
+      "destination": "packages/plugin/src/handlers/create-component.ts",
+      "stagedSha256": "7e45245c46977be0ccff001c513c27dc94490dfef121532acbf4418b4595b353"
+    },
+    {
+      "originRepo": "figwright",
+      "originPath": "packages/plugin/src/handlers/create-effect-style.ts",
+      "previousMode": "copy",
+      "originCommit": "a835e81b575eab2c9265a67f9353c89b848f81ca",
+      "baseSha256": "8abacbea45f287ed09ea2f6cc2beed642c6ed55f1d523107969e718e64136931",
+      "transitionTask": "review-2026-09-06",
+      "reason": "service-owned behavior introduced by Task review-2026-09-06",
+      "transition": "edit",
+      "destination": "packages/plugin/src/handlers/create-effect-style.ts",
+      "stagedSha256": "dc35c73e1279f5a983fd3e10bfec0303bea5e8c3efa3688bfa32e4b0baca7119"
+    },
+    {
+      "originRepo": "figwright",
+      "originPath": "packages/plugin/src/handlers/create-ellipse.ts",
+      "previousMode": "copy",
+      "originCommit": "a835e81b575eab2c9265a67f9353c89b848f81ca",
+      "baseSha256": "b230a4323209a2748a261896afe690232bd6c86ce44a178b8a27a38f783f16a3",
+      "transitionTask": "review-2026-09-06",
+      "reason": "service-owned behavior introduced by Task review-2026-09-06",
+      "transition": "edit",
+      "destination": "packages/plugin/src/handlers/create-ellipse.ts",
+      "stagedSha256": "164422bfc7352fc9551cce80bebbf55dc4cde66533503745598d09593469e2a6"
+    },
+    {
+      "originRepo": "figwright",
+      "originPath": "packages/plugin/src/handlers/create-frame.ts",
+      "previousMode": "copy",
+      "originCommit": "a835e81b575eab2c9265a67f9353c89b848f81ca",
+      "baseSha256": "fcf0e75a6faeb4c0e2c59dd094de0d3a3501eba97b6746323fa35981b3958687",
+      "transitionTask": "review-2026-09-06",
+      "reason": "service-owned behavior introduced by Task review-2026-09-06",
+      "transition": "edit",
+      "destination": "packages/plugin/src/handlers/create-frame.ts",
+      "stagedSha256": "692b90dab18fa54f3f384c099d88988e00e7838a609359b671254b8507f8790f"
+    },
+    {
+      "originRepo": "figwright",
+      "originPath": "packages/plugin/src/handlers/create-grid-style.ts",
+      "previousMode": "copy",
+      "originCommit": "a835e81b575eab2c9265a67f9353c89b848f81ca",
+      "baseSha256": "49e324b2650f935a33fb27a1eb359efe014c943822e3fbf4bc41aa42d6e2a30b",
+      "transitionTask": "review-2026-09-06",
+      "reason": "service-owned behavior introduced by Task review-2026-09-06",
+      "transition": "edit",
+      "destination": "packages/plugin/src/handlers/create-grid-style.ts",
+      "stagedSha256": "9dd72d342bf3163ac78ada9a1922848cf9bc5883eb88f84f1647e9332a70aa26"
+    },
+    {
+      "originRepo": "figwright",
+      "originPath": "packages/plugin/src/handlers/create-paint-style.ts",
+      "previousMode": "copy",
+      "originCommit": "a835e81b575eab2c9265a67f9353c89b848f81ca",
+      "baseSha256": "9ff3ff460145b7be889adb70a8bb394c10a02c3d1959f173a989e6befab81660",
+      "transitionTask": "review-2026-09-06",
+      "reason": "service-owned behavior introduced by Task review-2026-09-06",
+      "transition": "edit",
+      "destination": "packages/plugin/src/handlers/create-paint-style.ts",
+      "stagedSha256": "6d00f71138a5eb7834949b28da79e90371fd7fbe95fec376541fcbf1ef9ae0a9"
+    },
+    {
+      "originRepo": "figwright",
+      "originPath": "packages/plugin/src/handlers/create-rectangle.ts",
+      "previousMode": "copy",
+      "originCommit": "a835e81b575eab2c9265a67f9353c89b848f81ca",
+      "baseSha256": "aaec6c0a9560e484111dea83f8ccab856c154d09328f8561ba73080b8a8c861f",
+      "transitionTask": "review-2026-09-06",
+      "reason": "service-owned behavior introduced by Task review-2026-09-06",
+      "transition": "edit",
+      "destination": "packages/plugin/src/handlers/create-rectangle.ts",
+      "stagedSha256": "b943d389891f139d464fd84bbcbc259d8d8c83cd22b51db21631927cbc6ab811"
+    },
+    {
+      "originRepo": "figwright",
+      "originPath": "packages/plugin/src/handlers/create-section.ts",
+      "previousMode": "copy",
+      "originCommit": "a835e81b575eab2c9265a67f9353c89b848f81ca",
+      "baseSha256": "ba5e96460134052b12d6285409d9218410fee8044ce4c87b57931a5a92738991",
+      "transitionTask": "review-2026-09-06",
+      "reason": "service-owned behavior introduced by Task review-2026-09-06",
+      "transition": "edit",
+      "destination": "packages/plugin/src/handlers/create-section.ts",
+      "stagedSha256": "4cba369a7953fb234390aaba3a0a8e8faea29ca756f8cad711c6b80d15c5d071"
+    },
+    {
+      "originRepo": "figwright",
+      "originPath": "packages/plugin/src/handlers/create-text-style.ts",
+      "previousMode": "copy",
+      "originCommit": "a835e81b575eab2c9265a67f9353c89b848f81ca",
+      "baseSha256": "af3c7cf3b3a24639b9a2d4875e4cb63ac46273277e3c43deb2bd4b66416e0992",
+      "transitionTask": "review-2026-09-06",
+      "reason": "service-owned behavior introduced by Task review-2026-09-06",
+      "transition": "edit",
+      "destination": "packages/plugin/src/handlers/create-text-style.ts",
+      "stagedSha256": "fa1f83b433bd07ff56cc091b7e22f3aae42622a37eaccc80fd246191c18a2cb3"
+    },
+    {
+      "originRepo": "figwright",
+      "originPath": "packages/plugin/src/handlers/create-text.ts",
+      "previousMode": "copy",
+      "originCommit": "a835e81b575eab2c9265a67f9353c89b848f81ca",
+      "baseSha256": "97adf43ebf7a0093fcea0592455b9176513156abd4afb6c87523f40c321af034",
+      "transitionTask": "review-2026-09-06",
+      "reason": "service-owned behavior introduced by Task review-2026-09-06",
+      "transition": "edit",
+      "destination": "packages/plugin/src/handlers/create-text.ts",
+      "stagedSha256": "0ec988b6655b4f6c144978da719c8247f0f11476da08be5056746a0733de2790"
+    },
+    {
+      "originRepo": "figwright",
+      "originPath": "packages/plugin/src/handlers/create-variable-collection.ts",
+      "previousMode": "copy",
+      "originCommit": "a835e81b575eab2c9265a67f9353c89b848f81ca",
+      "baseSha256": "e1c3e30b9a818b7521d53802046820b03bb0b5ac456cf87abbefe9e59f51dfa7",
+      "transitionTask": "review-2026-09-06",
+      "reason": "service-owned behavior introduced by Task review-2026-09-06",
+      "transition": "edit",
+      "destination": "packages/plugin/src/handlers/create-variable-collection.ts",
+      "stagedSha256": "5f4e26830add3fe39cb338f9bb54fcc44a4ec7dc0d8b6d342f68988fa65e6646"
+    },
+    {
+      "originRepo": "figwright",
+      "originPath": "packages/plugin/src/handlers/create-variable.ts",
+      "previousMode": "copy",
+      "originCommit": "a835e81b575eab2c9265a67f9353c89b848f81ca",
+      "baseSha256": "44b3287b0d57fc8759b17132d88a1ec465c0995321c27a7b46c3cacfc2652951",
+      "transitionTask": "review-2026-09-06",
+      "reason": "service-owned behavior introduced by Task review-2026-09-06",
+      "transition": "edit",
+      "destination": "packages/plugin/src/handlers/create-variable.ts",
+      "stagedSha256": "db4d9b23339be66457a20b98a9a60fb85c29dcc62b2aa5b549caacc3d3753d9e"
+    },
+    {
+      "originRepo": "figwright",
+      "originPath": "packages/plugin/src/handlers/get-reactions.ts",
+      "previousMode": "copy",
+      "originCommit": "a835e81b575eab2c9265a67f9353c89b848f81ca",
+      "baseSha256": "0aa9a882070afc6e53c57e0f935050f03749a900ed74d064a5a16f04e3c4f90b",
+      "transitionTask": "review-2026-09-06",
+      "reason": "service-owned behavior introduced by Task review-2026-09-06",
+      "transition": "edit",
+      "destination": "packages/plugin/src/handlers/get-reactions.ts",
+      "stagedSha256": "bd44d34099f2749c35a8a29dd5f43a15f4be72a86c9a6024b6d06105a300bdd2"
+    },
+    {
+      "originRepo": "figwright",
+      "originPath": "packages/plugin/src/handlers/group-nodes.ts",
+      "previousMode": "copy",
+      "originCommit": "a835e81b575eab2c9265a67f9353c89b848f81ca",
+      "baseSha256": "ec53bd2e4359aa79a3029acccd8068ecdd689cf3afa515f1c3df2b9616a55881",
+      "transitionTask": "review-2026-09-06",
+      "reason": "service-owned behavior introduced by Task review-2026-09-06",
+      "transition": "edit",
+      "destination": "packages/plugin/src/handlers/group-nodes.ts",
+      "stagedSha256": "a58cfe03c4994b9f96a971c798e4a7a8d3de6ed73083d01fb86d0372e78638d5"
+    },
+    {
+      "originRepo": "figwright",
+      "originPath": "packages/plugin/src/handlers/import-svg.ts",
+      "previousMode": "copy",
+      "originCommit": "a835e81b575eab2c9265a67f9353c89b848f81ca",
+      "baseSha256": "4414aecff3d904e9b99b43b3070613dea5d8937c5311cd96defd78841265750e",
+      "transitionTask": "review-2026-09-06",
+      "reason": "service-owned behavior introduced by Task review-2026-09-06",
+      "transition": "edit",
+      "destination": "packages/plugin/src/handlers/import-svg.ts",
+      "stagedSha256": "42260ff2091e06ba5f84bcc4be54ab792904541171dcf8fa20b5e6ca525bf5f3"
+    },
+    {
+      "originRepo": "figwright",
+      "originPath": "packages/plugin/src/handlers/registry.ts",
+      "previousMode": "copy",
+      "originCommit": "a835e81b575eab2c9265a67f9353c89b848f81ca",
+      "baseSha256": "8aa7da8069cbd133185a074f450007a78d0010cbc5056a9b306ef2b5d996e4bb",
+      "transitionTask": "review-2026-09-06",
+      "reason": "service-owned behavior introduced by Task review-2026-09-06",
+      "transition": "edit",
+      "destination": "packages/plugin/src/handlers/registry.ts",
+      "stagedSha256": "31de8faf4ca43263e1a190f8897bc7535f522577456ca3583ba91f49441b1330"
+    },
+    {
+      "originRepo": "figwright",
+      "originPath": "packages/plugin/src/idempotency.ts",
+      "previousMode": "copy",
+      "originCommit": "a835e81b575eab2c9265a67f9353c89b848f81ca",
+      "baseSha256": "95308e478ce350a245155f43385d52b1c9599fb832f721f2d9c12b2448b9139d",
+      "transitionTask": "review-2026-09-05",
+      "reason": "service-owned behavior introduced by Task review-2026-09-05",
+      "transition": "edit",
+      "destination": "packages/plugin/src/idempotency.ts",
+      "stagedSha256": "cd5bdfa2daa29ba6be0409be6ba71f49c9b6ec79049c682a95a624d233f97f7a"
+    },
+    {
+      "originRepo": "figwright",
+      "originPath": "packages/plugin/test/components/panel-chrome.test.ts",
+      "previousMode": "copy",
+      "originCommit": "a835e81b575eab2c9265a67f9353c89b848f81ca",
+      "baseSha256": "566d055563f6c5223eb9662a3a09154a3a80f9cf503607084762ed0ab0082e4b",
+      "transitionTask": "review-2026-09-06",
+      "reason": "service-owned behavior introduced by Task review-2026-09-06",
+      "transition": "edit",
+      "destination": "packages/plugin/test/components/panel-chrome.test.ts",
+      "stagedSha256": "8c8b21b520bd497d2d3cb9e572eaf8af161ded3b81ba91565cd9965cc9da15b8"
+    },
+    {
+      "originRepo": "figwright",
+      "originPath": "packages/plugin/test/components/panel-tabs.test.ts",
+      "previousMode": "copy",
+      "originCommit": "a835e81b575eab2c9265a67f9353c89b848f81ca",
+      "baseSha256": "e7d4efa0707bf041259e9e943b0e374dadf87bc0fd53b8a0b5689e5f1a3e9233",
+      "transitionTask": "review-2026-09-05",
+      "reason": "service-owned behavior introduced by Task review-2026-09-05",
+      "transition": "edit",
+      "destination": "packages/plugin/test/components/panel-tabs.test.ts",
+      "stagedSha256": "f414902593b655dcfa3c17e023eee40a424e4abcf7445fe724cd5eded435247a"
+    },
+    {
+      "originRepo": "figwright",
+      "originPath": "packages/plugin/test/composables/use-relay-session.test.ts",
+      "previousMode": "copy",
+      "originCommit": "a835e81b575eab2c9265a67f9353c89b848f81ca",
+      "baseSha256": "6d5408a9e6368659149eaac1c534d3b3b1e0861061c0f92fdc366a0644ae199e",
+      "transitionTask": "review-2026-09-05",
+      "reason": "service-owned behavior introduced by Task review-2026-09-05",
+      "transition": "edit",
+      "destination": "packages/plugin/test/composables/use-relay-session.test.ts",
+      "stagedSha256": "9dfbd9d7d033a00f0e02fa68e890fd1f313a8a1ed4c273ff6cba3d471e579ad2"
+    },
+    {
+      "originRepo": "figwright",
+      "originPath": "packages/plugin/test/dispatcher.test.ts",
+      "previousMode": "copy",
+      "originCommit": "a835e81b575eab2c9265a67f9353c89b848f81ca",
+      "baseSha256": "6484ff31277ed8ace5f206d76da8070105c9231e237135a6cd2682ed7c69ea4b",
+      "transitionTask": "review-2026-09-05",
+      "reason": "service-owned behavior introduced by Task review-2026-09-05",
+      "transition": "edit",
+      "destination": "packages/plugin/test/dispatcher.test.ts",
+      "stagedSha256": "476f2c4083234479ae2a314d5a4f65bc2bf1724244da69d4d925fc211f0b91ad"
+    },
+    {
+      "originRepo": "figwright",
+      "originPath": "packages/plugin/test/handlers/batch.test.ts",
+      "previousMode": "copy",
+      "originCommit": "a835e81b575eab2c9265a67f9353c89b848f81ca",
+      "baseSha256": "59b8316d9f7e31455e1e27b9b67836a5de4e9cccbf5288ec5efafc9ee454a82b",
+      "transitionTask": "review-2026-09-06",
+      "reason": "service-owned behavior introduced by Task review-2026-09-06",
+      "transition": "edit",
+      "destination": "packages/plugin/test/handlers/batch.test.ts",
+      "stagedSha256": "03dd6ae0251a82f8cb25e29072480bd0b5674738aa7dafb0a69955ee2d699114"
+    },
+    {
+      "originRepo": "figwright",
+      "originPath": "packages/plugin/test/handlers/get-reactions.test.ts",
+      "previousMode": "copy",
+      "originCommit": "a835e81b575eab2c9265a67f9353c89b848f81ca",
+      "baseSha256": "2bcac080313525f767dc2aeb614fbb7a1f8aea2b0631c996ade86b221b5a33b9",
+      "transitionTask": "review-2026-09-06",
+      "reason": "service-owned behavior introduced by Task review-2026-09-06",
+      "transition": "edit",
+      "destination": "packages/plugin/test/handlers/get-reactions.test.ts",
+      "stagedSha256": "cbe56728db3fa53a2293208a132f9e211d71af264e82e275c67ae1b947e3f227"
+    },
+    {
+      "originRepo": "figwright",
+      "originPath": "packages/plugin/test/idempotency.test.ts",
+      "previousMode": "copy",
+      "originCommit": "a835e81b575eab2c9265a67f9353c89b848f81ca",
+      "baseSha256": "1a8d27ae939f1be863413d6c1e29a268c1c691e229d9d9a502245806a10821a4",
+      "transitionTask": "review-2026-09-05",
+      "reason": "service-owned behavior introduced by Task review-2026-09-05",
+      "transition": "edit",
+      "destination": "packages/plugin/test/idempotency.test.ts",
+      "stagedSha256": "d318d4a4fed8b7fd8cf0e86e0dca69b8cccda1f6ca01847626616a7915c7c27a"
+    },
+    {
+      "originRepo": "figwright",
+      "originPath": "packages/plugin/test/protocol/bridge.test.ts",
+      "previousMode": "copy",
+      "originCommit": "a835e81b575eab2c9265a67f9353c89b848f81ca",
+      "baseSha256": "722087580d9f799491aee98d4a7b88d3685f5208d135625a603e70283a4cb602",
+      "transitionTask": "review-2026-09-05",
+      "reason": "service-owned behavior introduced by Task review-2026-09-05",
+      "transition": "edit",
+      "destination": "packages/plugin/test/protocol/bridge.test.ts",
+      "stagedSha256": "65e990ce461d85965f8aec2da22baf3e4a24bfbd88830c323ed1e0a78629e1a8"
+    },
+    {
+      "originRepo": "figwright",
+      "originPath": "packages/plugin/test/relay/client.test.ts",
+      "previousMode": "copy",
+      "originCommit": "a835e81b575eab2c9265a67f9353c89b848f81ca",
+      "baseSha256": "ebd44cb7bfe06a44ac18d5158e873dc2cc196b263f68729a3b129d6d3794ffc1",
+      "transitionTask": "review-2026-09-05",
+      "reason": "service-owned behavior introduced by Task review-2026-09-05",
+      "transition": "edit",
+      "destination": "packages/plugin/test/relay/client.test.ts",
+      "stagedSha256": "d6f9895cd5a3900437feb307e259b347a1dbc65217289499a25f038480f8d6cd"
+    },
+    {
+      "originRepo": "figwright",
+      "originPath": "packages/plugin/test/sandbox/tool-bridge.test.ts",
+      "previousMode": "copy",
+      "originCommit": "a835e81b575eab2c9265a67f9353c89b848f81ca",
+      "baseSha256": "d833effeba92f70be4396044dc3d8f41cae3a32efc25f99329d358a5adf9d3bf",
+      "transitionTask": "review-2026-09-05",
+      "reason": "service-owned behavior introduced by Task review-2026-09-05",
+      "transition": "edit",
+      "destination": "packages/plugin/test/sandbox/tool-bridge.test.ts",
+      "stagedSha256": "ecb1f54fc5efe9cf06a14898ead5cd5cc7097428b34fd2dc95c5e1f51ab7ba39"
+    },
+    {
+      "originRepo": "figwright",
+      "originPath": "packages/plugin/ui/App.vue",
+      "previousMode": "copy",
+      "originCommit": "a835e81b575eab2c9265a67f9353c89b848f81ca",
+      "baseSha256": "3e1cf9d78240b117880f4c1059eca330214117a6d3e1b30c75844da4dfb40c77",
+      "transitionTask": "review-2026-09-05",
+      "reason": "service-owned behavior introduced by Task review-2026-09-05",
+      "transition": "edit",
+      "destination": "packages/plugin/ui/App.vue",
+      "stagedSha256": "d420fad1fa6447fc68a01e701809104173f5344b114656b157f6c0b7bb43cef5"
+    },
+    {
+      "originRepo": "figwright",
+      "originPath": "packages/plugin/ui/components/PanelTabs.vue",
+      "previousMode": "copy",
+      "originCommit": "a835e81b575eab2c9265a67f9353c89b848f81ca",
+      "baseSha256": "5049070fa42ae0c4647024532c37936c4628a496983f507bfd2c3c924d71f7e2",
+      "transitionTask": "review-2026-09-05",
+      "reason": "service-owned behavior introduced by Task review-2026-09-05",
+      "transition": "edit",
+      "destination": "packages/plugin/ui/components/PanelTabs.vue",
+      "stagedSha256": "3fee6965fd1551490fe59d631a0c5a80958f5ba299d3868f880d1afecc5c3ce0"
+    },
+    {
+      "originRepo": "figwright",
+      "originPath": "packages/plugin/ui/composables/useRelaySession.ts",
+      "previousMode": "copy",
+      "originCommit": "a835e81b575eab2c9265a67f9353c89b848f81ca",
+      "baseSha256": "77ff235a089434e2bfce13d57f7766f54c983129cf6acca65c3b667a970ee460",
+      "transitionTask": "review-2026-09-05",
+      "reason": "service-owned behavior introduced by Task review-2026-09-05",
+      "transition": "edit",
+      "destination": "packages/plugin/ui/composables/useRelaySession.ts",
+      "stagedSha256": "7b92fd23c19dd2d4c78ab6a1bf5a962a538416d4b5ba7a0cb670be95d8911699"
+    },
+    {
+      "originRepo": "figwright",
+      "originPath": "packages/plugin/ui/lib/tabs.ts",
+      "previousMode": "copy",
+      "originCommit": "a835e81b575eab2c9265a67f9353c89b848f81ca",
+      "baseSha256": "8a2608d71d65c79ec365c6dc725af65d196f8507b1cf34cd35bb598eb80ae60d",
+      "transitionTask": "review-2026-09-05",
+      "reason": "service-owned behavior introduced by Task review-2026-09-05",
+      "transition": "edit",
+      "destination": "packages/plugin/ui/lib/tabs.ts",
+      "stagedSha256": "270e7c7a24b35ae4fd02cef38693e68bfd3048fd90b1c3f94f069a81869cbb94"
+    },
+    {
+      "originRepo": "figwright",
+      "originPath": "packages/plugin/ui/relay/client.ts",
+      "previousMode": "copy",
+      "originCommit": "a835e81b575eab2c9265a67f9353c89b848f81ca",
+      "baseSha256": "aacecaa11bd1bd20b6bd25d8fb880f9a6ffd45220f334a3f5f662a827253e246",
+      "transitionTask": "review-2026-09-05",
+      "reason": "service-owned behavior introduced by Task review-2026-09-05",
+      "transition": "edit",
+      "destination": "packages/plugin/ui/relay/client.ts",
+      "stagedSha256": "f3857763258dbd26e129b512b219752a431cdad247fe7c2289510728c0d46e6b"
+    },
+    {
+      "originRepo": "figwright",
+      "originPath": "packages/plugin/ui/relay/state.ts",
+      "previousMode": "copy",
+      "originCommit": "a835e81b575eab2c9265a67f9353c89b848f81ca",
+      "baseSha256": "b3f9489b27870de3d3afd9cc0e9f3d230fcf14049d31769b3c742a83ac647b0c",
+      "transitionTask": "review-2026-09-05",
+      "reason": "service-owned behavior introduced by Task review-2026-09-05",
+      "transition": "edit",
+      "destination": "packages/plugin/ui/relay/state.ts",
+      "stagedSha256": "b4288308d5235a4b450587347d009c18c1641a78a0c9aa0312ae2b14e4b8b583"
+    },
+    {
+      "originRepo": "figwright",
+      "originPath": "packages/plugin/ui/sandbox/messaging.ts",
+      "previousMode": "copy",
+      "originCommit": "a835e81b575eab2c9265a67f9353c89b848f81ca",
+      "baseSha256": "0f31c6312aa55d5cdd97f0dc4023c497dec444774b3e5e6d69f468d113831688",
+      "transitionTask": "review-2026-09-05",
+      "reason": "service-owned behavior introduced by Task review-2026-09-05",
+      "transition": "edit",
+      "destination": "packages/plugin/ui/sandbox/messaging.ts",
+      "stagedSha256": "668b8c8bdd02822ed4c0c6e5a5b3cb0c7c633e163cac2e536a9d7832f416d4ce"
+    },
+    {
+      "originRepo": "figwright",
+      "originPath": "packages/plugin/ui/sandbox/tool-bridge.ts",
+      "previousMode": "copy",
+      "originCommit": "a835e81b575eab2c9265a67f9353c89b848f81ca",
+      "baseSha256": "7eaf885fa51d66704c14e3b8e2facacc64d52d6469642b66f04d50c54e61c4f4",
+      "transitionTask": "review-2026-09-05",
+      "reason": "service-owned behavior introduced by Task review-2026-09-05",
+      "transition": "edit",
+      "destination": "packages/plugin/ui/sandbox/tool-bridge.ts",
+      "stagedSha256": "67ddbf853afdd072fa3ba657a3ecaf2f991d2f6d09e03e4b454aa9b4c854e897"
+    },
+    {
+      "originRepo": "figwright",
+      "originPath": "packages/shared/src/queries.ts",
+      "previousMode": "copy",
+      "originCommit": "a835e81b575eab2c9265a67f9353c89b848f81ca",
+      "baseSha256": "a9f4daddbfc906c76204ef63a7c9e2874a9313a3c4593ee665ecfc746f6a1489",
+      "transitionTask": "review-2026-09-06",
+      "reason": "service-owned behavior introduced by Task review-2026-09-06",
+      "transition": "edit",
+      "destination": "packages/shared/src/queries.ts",
+      "stagedSha256": "31c39bb0b54edd0b032d243a20ca96e8800a6f97042a45077123a4c67fb45f0b"
+    },
+    {
+      "originRepo": "figwright",
       "originPath": "packages/shared/src/rpc.ts",
       "previousMode": "copy",
       "originCommit": "a835e81b575eab2c9265a67f9353c89b848f81ca",
@@ -3587,6 +5871,42 @@
       "transition": "edit",
       "destination": "packages/shared/src/rpc.ts",
       "stagedSha256": "eda7928f4e22bd8f6f07afb1f6f47e26e085f763ee43065d19b940fed94f4ee6"
+    },
+    {
+      "originRepo": "figwright",
+      "originPath": "packages/shared/src/tool-budgets.ts",
+      "previousMode": "copy",
+      "originCommit": "a835e81b575eab2c9265a67f9353c89b848f81ca",
+      "baseSha256": "f374b47cf86b515c56af6c6ff45a38c99248849a5b75a5ec87148bcf5b55b042",
+      "transitionTask": "review-2026-09-06",
+      "reason": "service-owned behavior introduced by Task review-2026-09-06",
+      "transition": "edit",
+      "destination": "packages/shared/src/tool-budgets.ts",
+      "stagedSha256": "7df74e54927d964f1362e5f6448536e33985c5e4f7bab6f930b62b8ef077d899"
+    },
+    {
+      "originRepo": "figwright",
+      "originPath": "skills/figma-codegen/SKILL.md",
+      "previousMode": "copy",
+      "originCommit": "a835e81b575eab2c9265a67f9353c89b848f81ca",
+      "baseSha256": "b1acd5cb8e965b4ae2ee15f1b7cbf70a82df3a79705165b1af7353153181d8e8",
+      "transitionTask": "review-2026-09-08",
+      "reason": "service-owned behavior introduced by Task review-2026-09-08",
+      "transition": "edit",
+      "destination": "skills/figma-codegen/SKILL.md",
+      "stagedSha256": "a020a6d57f4ae1f93e2ea58a81b717f1b79b0e0c2f6ca946bcc9f579065878ba"
+    },
+    {
+      "originRepo": "figwright",
+      "originPath": "skills/figma-codegen/references/verify.md",
+      "previousMode": "copy",
+      "originCommit": "a835e81b575eab2c9265a67f9353c89b848f81ca",
+      "baseSha256": "8ef7cdc3f0fa3840299a31f0458e77c445354b37c70de158032e222ec06e22e1",
+      "transitionTask": "review-2026-09-08",
+      "reason": "service-owned behavior introduced by Task review-2026-09-08",
+      "transition": "edit",
+      "destination": "skills/figma-codegen/references/verify.md",
+      "stagedSha256": "599de0304f4c67ba53e6aabb2dbbe7602f92d4bb300e52b47dacd77af99da3a7"
     }
   ]
 }

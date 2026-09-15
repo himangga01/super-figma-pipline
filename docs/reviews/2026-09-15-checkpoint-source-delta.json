@@ -1,0 +1,287 @@
+[
+  {
+    "path": "service/packages/cli/src/catalog-recipe.ts",
+    "beforeHash": null,
+    "hash": "feb660612f507786a2cc87c76a3d6f7ad1abe2a2695bc35b307c1974458837b8"
+  },
+  {
+    "path": "service/packages/cli/src/control-recipe-client.ts",
+    "beforeHash": "32daab46bb8a171681231da437fb02133fbdb022968205a0ba6ed435e0a9d5c2",
+    "hash": "18f21093828d1e1cbbd95902374285cbf231831fda0c015b5b3574a684aa9745"
+  },
+  {
+    "path": "service/packages/cli/src/recipe-checkpoint.ts",
+    "beforeHash": "d7fc87896edbc3eecb4cfb663156a5e171c1b5ca1c0a74f1356ae5c823fd9a7f",
+    "hash": "04eb9c5b33dfba01b88908ca9cdd6be2bcc81313f38ea7463d3a3a65346f982f"
+  },
+  {
+    "path": "service/packages/cli/src/recipe-compositions.ts",
+    "beforeHash": null,
+    "hash": "1220ed1a8262d7f07718ce5f4b56c313f99c6393254982b2a2d270e6cb52fd13"
+  },
+  {
+    "path": "service/packages/cli/src/recipe-design-system.ts",
+    "beforeHash": null,
+    "hash": "28ab9473133a9bd272b1861bc149d4d8ec8be925eb2d5e84b6da38271aea3f0e"
+  },
+  {
+    "path": "service/packages/cli/src/recipe-export-model.ts",
+    "beforeHash": null,
+    "hash": "3edbcb341486cb39d0deccfcf9ffd8b718013e2e80aec1c373382fe9082cb653"
+  },
+  {
+    "path": "service/packages/cli/src/recipe-helpers.ts",
+    "beforeHash": null,
+    "hash": "2eb5ec3d950e85b2c25d9008425e18e5d29ce041464804c371877b356e124145"
+  },
+  {
+    "path": "service/packages/cli/src/recipe-plan.ts",
+    "beforeHash": "623a5faa0a73f5892225550510c7335fe6413e8718a785617a8a4563e99d2a32",
+    "hash": "f6d242d57a65ee393bac748411d5e10bf833abffb322c3289ae576e30d7266fd"
+  },
+  {
+    "path": "service/packages/cli/src/recipe-scene-compositions.ts",
+    "beforeHash": null,
+    "hash": "40a67af367ed99bf4b08983f04cfe61a3e9bb4d52e5e23225117db0ee81dce76"
+  },
+  {
+    "path": "service/packages/cli/src/style-recipe-model.ts",
+    "beforeHash": null,
+    "hash": "c6fdc5ce8d832654c788e8a11561eba4470acf43fad6f3fbf5d8dc4c0cc7b84f"
+  },
+  {
+    "path": "service/packages/cli/test/catalog-recipe.test.ts",
+    "beforeHash": null,
+    "hash": "0da6bea20473b3f70242714028e00c1a972a87a1b9d47701a02b8a8f6b6e9aa8"
+  },
+  {
+    "path": "service/packages/cli/test/recipe-compositions.test.ts",
+    "beforeHash": null,
+    "hash": "1c7a210f618fdfd09c26e537a45aefb693a80cabd5fc063cf09cb38a6a45b6fa"
+  },
+  {
+    "path": "service/packages/cli/test/recipe-design-system.test.ts",
+    "beforeHash": null,
+    "hash": "462b72eed13fc7152973b073f84b0b163de29fee382939ace364d09d237da66f"
+  },
+  {
+    "path": "service/packages/cli/test/recipe-export-model.test.ts",
+    "beforeHash": null,
+    "hash": "891035dec0aa386f98b1cccaf0c0a42ee49554158a04ea84d32d074c850f5b32"
+  },
+  {
+    "path": "service/packages/cli/test/recipe-helpers.test.ts",
+    "beforeHash": null,
+    "hash": "aba8202a10bdd462de8c4a1657e1aad0d5415ae860931e0ecb1be097ff53bec2"
+  },
+  {
+    "path": "service/packages/cli/test/recipe-runner.test.ts",
+    "beforeHash": "e64de70dc0e068b05762e00e234ea19262d2609756ea2cabd7cc8d9658e702ea",
+    "hash": "4a431a0f1094788d3845b2872b806a7055455af32f867a68c9aaea7b050c0910"
+  },
+  {
+    "path": "service/packages/cli/test/recipe-scene-compositions.test.ts",
+    "beforeHash": null,
+    "hash": "a94a7a754e4e53054577e81b2bb800986e5f26f4ce8a0d8dd81158d57510cc08"
+  },
+  {
+    "path": "service/packages/cli/test/style-recipe-model.test.ts",
+    "beforeHash": null,
+    "hash": "2c259c0bf218844bb2e1a59c167f7b5a67b0faba7724a0bbd991d48a896e1d8c"
+  },
+  {
+    "path": "service/packages/ir/src/portal-run.ts",
+    "beforeHash": "1fc8335462a0e47be9d9519711df31e086653b2a31f43942833bef082c531bac",
+    "hash": "882cae6fcdad5d0cceffa76975cc05d500fb5bad5c1f5dc09e1a8fc75e2532bb"
+  },
+  {
+    "path": "service/packages/ir/test/portal-candidate.test.ts",
+    "beforeHash": null,
+    "hash": "218d940054f1810f9cfb14d30d12a718b1d30b84f85244e0f8ae3ba5ce975146"
+  },
+  {
+    "path": "service/packages/mcp/package.json",
+    "beforeHash": "b309d15dfbc37e31cafafa23ef29ca655fa3b22b76d19cc479aa34fcd45300e3",
+    "hash": "d5c1e28c230939de88c10fdd0e839500f2b01a388e80a07506d1883196b8af05"
+  },
+  {
+    "path": "service/packages/mcp/src/portal/coordinator.ts",
+    "beforeHash": "70eea4a39dfef803014a1b2bf18d87c5a8b202504a764f5073b192c287dedad3",
+    "hash": "05fa3eec1f987d41769c72dd30c1d033adc19057f536d8f113bb7d19b306ce79"
+  },
+  {
+    "path": "service/packages/mcp/src/portal/native-work.ts",
+    "beforeHash": "3c6213aee705d03da930ca5972364b06483c1a16a6e4713054c52c612ea8f0f5",
+    "hash": "3a6d4fc3026a0eeb7ff7616edd9d6e9e8374a1bfa92b6c88100a03ec211f33a7"
+  },
+  {
+    "path": "service/packages/mcp/src/portal/preview-consumption.ts",
+    "beforeHash": null,
+    "hash": "1eb9ae551627953dd7838fb02ae5e890b553bae5b55800fb5a8101a5c9808790"
+  },
+  {
+    "path": "service/packages/mcp/src/portal/preview-interactions.ts",
+    "beforeHash": "1efc25f23264c075c8149f660a485b1816c86f56094e474f988689516f451e9f",
+    "hash": "7505dd4fd5ae8dd2b1411a7777b5b31967c18922eb7a2daf0daa8d416dad00ce"
+  },
+  {
+    "path": "service/packages/mcp/src/portal/preview.ts",
+    "beforeHash": "4d51560697cd4ead2027b91b10950d061e39444100180d5f1d815d166191f21e",
+    "hash": "91a28f6eca78364a2d1b1402d0bb5e73d566a62be340ab4460ca2885cdddec10"
+  },
+  {
+    "path": "service/packages/mcp/src/portal/recipes/artifact-readback.ts",
+    "beforeHash": null,
+    "hash": "c6fe062db674ed0faab7ebe56962b34ffeb6077b5c930602e4714f611e4efda9"
+  },
+  {
+    "path": "service/packages/mcp/src/portal/recipes/consumption-components.ts",
+    "beforeHash": null,
+    "hash": "715c46a28ca9d808f585d769a8cb948aa2a975c41dbe0cedf63b32645768d702"
+  },
+  {
+    "path": "service/packages/mcp/src/portal/recipes/consumption-input.ts",
+    "beforeHash": null,
+    "hash": "21947cf4e61aa733751025a1de96771f860bda3f5f3e74af21d6201ca6f0743b"
+  },
+  {
+    "path": "service/packages/mcp/src/portal/recipes/consumption-values.ts",
+    "beforeHash": null,
+    "hash": "a8ea74d2077b3a0bc0157b7323dd8c35ea0902e3abff14d1faca81480014f905"
+  },
+  {
+    "path": "service/packages/mcp/src/portal/recipes/core-consumption.ts",
+    "beforeHash": null,
+    "hash": "3a5ee4f9c5c4cb0f08b14a21ab743cb21e30daefc536490e7ce0bd8d0fe11556"
+  },
+  {
+    "path": "service/packages/mcp/src/tools/create-variable-collection.ts",
+    "beforeHash": "860f084b07c74ac1baed9aadfd6f567362252bd19a5dffbb3eb9dd067287bea9",
+    "hash": "58d7736c85ad9c3d38dbc1ba66d1a76fef1876acf179753f212e4d65ba09a336"
+  },
+  {
+    "path": "service/packages/mcp/src/tools/create-variable.ts",
+    "beforeHash": "85dd5c0f99b6b7286a19f253e321e36b7ba80cc4f745f933507bc7e0de8a5aee",
+    "hash": "3a5b5cc8ab1706185439695fd3d4e50ce8f66eb9a3d5fe5d9427b378ec7cbb70"
+  },
+  {
+    "path": "service/packages/mcp/src/tools/get-annotations.ts",
+    "beforeHash": "be6737d402ee79d1c0da38eed18257f03ca41abfac8bc88aa5ddf7983c2d16eb",
+    "hash": "88e058cca3251dd89c2a75c44fe05b311d98e3e0160294647b1c900a91920744"
+  },
+  {
+    "path": "service/packages/mcp/src/tools/get-fonts.ts",
+    "beforeHash": "18084eb6f3e11557b03f926438f07b7d69f3f9ccb546e192fa73ff8e248ccbeb",
+    "hash": "ccb01cd3ea64675908a7eb1f81545237194804155453eaca6389813f283322fe"
+  },
+  {
+    "path": "service/packages/mcp/test/portal/consumption-components.test.ts",
+    "beforeHash": null,
+    "hash": "d4cc546c827c50fae231fb291fdfc72e6b2cb03f74843b08bf69210a46fc14b8"
+  },
+  {
+    "path": "service/packages/mcp/test/portal/consumption-input.test.ts",
+    "beforeHash": null,
+    "hash": "76c57a192f85a769d98e13ba6457e2b04da889ce2fdeb19a8adfdc60e4026a4c"
+  },
+  {
+    "path": "service/packages/mcp/test/portal/consumption-values.test.ts",
+    "beforeHash": null,
+    "hash": "ae791c4170fb782340f5a23836ecb3c094b743340584f3e993006d98a908c9a5"
+  },
+  {
+    "path": "service/packages/mcp/test/portal/native-work.test.ts",
+    "beforeHash": "cb2443cbd18c46793235db6ebbed8ab433170b3da69fa16de23426fb940900ae",
+    "hash": "a778347f3596844d9314830c90ea4ead512910ac60e4fbc19835b3e42ce1c6db"
+  },
+  {
+    "path": "service/packages/mcp/test/portal/operational-native.test.ts",
+    "beforeHash": "851185fae90ff1823d2285dfab5d17943ce39aaa7db69c69891dda2cf33c867b",
+    "hash": "17ffea17f6e77d6802631ae7c123ac3a76ba9cf3cb12bf693545edf3d693ac81"
+  },
+  {
+    "path": "service/packages/mcp/test/portal/preview-consumption.test.ts",
+    "beforeHash": null,
+    "hash": "49cb12060174f9d019ecce89efe953743e1662fd31b3c828ef81bbbe872121d2"
+  },
+  {
+    "path": "service/packages/mcp/test/portal/preview-interactions.test.ts",
+    "beforeHash": "df41bc6466d6cb83531fe6d113715d895c4b60a47e12958ac8dfd65b307b0898",
+    "hash": "6567456802d5b9081671c556e10f2ccb1a3daea8f2b63ca562e2e58dc358d71a"
+  },
+  {
+    "path": "service/packages/mcp/test/portal/preview-native.test.ts",
+    "beforeHash": "fc79c0f3fc4a10125f9b00534816cfbea574cb646df13ae810fc18ceffe99232",
+    "hash": "483079e2fac746a587567e2a3b55e460fd5c38400e9d5dbfd24efc3eb1396d50"
+  },
+  {
+    "path": "service/packages/mcp/test/portal/recipe-artifact-readback.test.ts",
+    "beforeHash": null,
+    "hash": "04bf7717ca0dcf881b05980e3c49eae63970ed46463e2fe67d794796128c6b15"
+  },
+  {
+    "path": "service/packages/plugin/src/handlers/create-variable-collection.ts",
+    "beforeHash": "5f4e26830add3fe39cb338f9bb54fcc44a4ec7dc0d8b6d342f68988fa65e6646",
+    "hash": "1387d4b3ae92a149c01388290b02a6c65cd3eb0626bb807a4638310acf3064cc"
+  },
+  {
+    "path": "service/packages/plugin/src/handlers/create-variable.ts",
+    "beforeHash": "db4d9b23339be66457a20b98a9a60fb85c29dcc62b2aa5b549caacc3d3753d9e",
+    "hash": "3147dc0cc3344209115785111272c0c6ad36c1b636656557098da447a3c2d20f"
+  },
+  {
+    "path": "service/packages/plugin/src/handlers/get-annotations.ts",
+    "beforeHash": "7cb02b5004f9972b92e78f00c999a4a4079e325b64648751641533d923686caa",
+    "hash": "0da18020bee2b5590de78db313a88ae48f88f47e2b093580c9b3a1341ea44ef1"
+  },
+  {
+    "path": "service/packages/plugin/src/handlers/get-fonts.ts",
+    "beforeHash": "d2376dd05ac1e13f30a489b11ed08d337bead58d7add6e7af73bfe26b3aca933",
+    "hash": "b816bd7d62e6a2c487b175a6edc221715bf00289a179440e0da18ee44b800de0"
+  },
+  {
+    "path": "service/packages/plugin/test/handlers/create-variable-collection.test.ts",
+    "beforeHash": "9bb93641b854e692531c3cc860f3be237ec02def66ddccb9eed1b600e0388b0c",
+    "hash": "b516111fb8753d390ffe65b59c8adae6efafc760bb9bc2c69cc30c752d3949c4"
+  },
+  {
+    "path": "service/packages/plugin/test/handlers/create-variable.test.ts",
+    "beforeHash": "552780fa0e76491902c2b02d3403da5b34f737b01d06c07abc0a55c6ae5051e0",
+    "hash": "d84703df8bf12aab5250a0ca1845f99fd07ed9f403b5d7068675fad842e3c2f2"
+  },
+  {
+    "path": "service/packages/plugin/test/handlers/get-annotations.test.ts",
+    "beforeHash": "7316512ab5534af663cf37f30ac9143fb03619dfcd183924b1784175317111e9",
+    "hash": "7cffc434df35407bdb2c77d292225f056ed7f9dd5a89b665c683bb2c22903698"
+  },
+  {
+    "path": "service/packages/plugin/test/handlers/get-fonts.test.ts",
+    "beforeHash": "9f6185d63dad97dbda7f542e818cd3eefa8522cb4827a6ead89e72819c431fb3",
+    "hash": "2ba580e0ab3dae77618bfacf9b51c7e6ae074b745f8d6e86f7682f07173a40bc"
+  },
+  {
+    "path": "service/packages/shared/src/portal-consumption.ts",
+    "beforeHash": null,
+    "hash": "05abcb86384b044c60a27bea2ec2343ad03c3ea1bb72d709aa402213e4f4a3e9"
+  },
+  {
+    "path": "service/packages/shared/src/portal-recipe-use.ts",
+    "beforeHash": null,
+    "hash": "62251b523789abae141763f954bb1c575d444d52872107846218d25c80585ed0"
+  },
+  {
+    "path": "service/packages/shared/src/queries.ts",
+    "beforeHash": "31c39bb0b54edd0b032d243a20ca96e8800a6f97042a45077123a4c67fb45f0b",
+    "hash": "a53b50e99e04b55ef620c7ae827fc6d93eb7dd0d37a5f2fbb6a602573df6ebaa"
+  },
+  {
+    "path": "service/packages/shared/src/variables.ts",
+    "beforeHash": "8ffd8b7d6d7938e6c4a371a31964887f866d77ac4f98099529db85cfd0453e02",
+    "hash": "0363347104b58247579f5914c08c595d669065563cda71f802dc626d4d6994d8"
+  },
+  {
+    "path": "service/pnpm-lock.yaml",
+    "beforeHash": "505dbecccc138e31765d8a54f7fd7b01a99f8a61c749a8b953ab1cb5bccd9b8a",
+    "hash": "4e498a2e3bc24dfb765cab09c54066f33971dbf1c8b4da794caf9c342b8ed40f"
+  }
+]

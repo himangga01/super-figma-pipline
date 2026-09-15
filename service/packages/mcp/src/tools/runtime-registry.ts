@@ -1,4 +1,5 @@
 import type { ProgressReporter, RuntimeExecutionScope, ToolName } from '@sfp/shared';
+import { PORTAL_TOOL_NAMES } from '@sfp/shared';
 
 import { RESULT_SCHEMAS } from '../../../shared/src/result-schemas.js';
 
@@ -50,6 +51,10 @@ export interface RuntimeBinding<I = unknown, O = unknown> {
 export type RuntimeRegistry = Readonly<Record<string, RuntimeBinding>>;
 
 export const BASELINE_SERVER_ADAPTER_NAMES = Object.freeze([
+  ...PORTAL_TOOL_NAMES,
+  'export_tokens',
+  'export_frames_to_pdf',
+  'doctor',
   'ping',
   'get_screenshot',
   'get_design_context',
@@ -71,6 +76,10 @@ const SERVER_ADAPTER_NAMES = new Set<ToolName>(BASELINE_SERVER_ADAPTER_NAMES);
 // Handler parity is deliberately independent from execution routing. These seven tools have no
 // same-name sandbox handler, while seven additional tools are daemon adapters around a handler.
 const SERVER_HANDLER_NAMES = new Set<ToolName>([
+  ...PORTAL_TOOL_NAMES,
+  'export_tokens',
+  'export_frames_to_pdf',
+  'doctor',
   'save_screenshots',
   'analyze_project',
   'scan_components',

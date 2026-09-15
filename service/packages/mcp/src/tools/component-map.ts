@@ -2,12 +2,9 @@ import type { GetDesignContextResult } from '@sfp/shared';
 import { z } from 'zod';
 
 import { RepoReader } from '../fs/repo-walk.js';
-import {
-  collectFigmaComponents,
-  type ComponentMapping,
-  joinComponents,
-  parseMapFile,
-} from '../join/component-map.js';
+import type { ComponentMapping } from '../join/component-map.js';
+import { observeMappingContext, mapObservationComponents } from '../mapping/design-mapping.js';
+import { readMappingOverrides } from '../mapping/mapping-overrides.js';
 import { analyzeProject, type ProjectProfile } from '../profile/profile.js';
 import { scanComponents } from '../scan/scan.js';
 import { GET_DESIGN_CONTEXT_TOOL_NAME } from './get-design-context.js';
@@ -16,7 +13,6 @@ import type { RawToolSpec } from './spec.js';
 export const COMPONENT_MAP_TOOL_NAME = 'component_map';
 
 const DEFAULT_THRESHOLD = 0.7;
-const MAP_FILE = 'docs/figma-component-map.md';
 
 const inputSchema = z.object({
   nodeId: z.string().describe('Root node id; omit to use the selection or current page').optional(),
@@ -49,8 +45,7 @@ export const componentMapTool: RawToolSpec = {
     'Map the Figma component instances in a selection/subtree to existing local code components, so ' +
     'they can be reused instead of regenerated. Joins the grounded Figma component names (and their ' +
     'variant axes) against an AST scan of the project; an explicit docs/figma-component-map.md row ' +
-    '(FigmaName | code/path) overrides the fuzzy match — this file is the durable record a verified ' +
-    'mapping is written back to, so the next run reuses it instead of re-guessing. A row whose ' +
+    '(FigmaName | code/path) is an unverified hint; file existence and name agreement do not prove API compatibility. A row whose ' +
     'target no longer resolves (deleted/renamed) is reported in staleOverrides and degrades to the ' +
     'fuzzy result rather than a phantom import. Each distinct component is mapped once with all its ' +
     'instance ids. A mapped candidate also reports matchedProps (Figma axes the component already ' +
@@ -63,36 +58,6 @@ export const componentMapTool: RawToolSpec = {
   serverOnlyArgs: null,
 };
 export type ToolDispatcher = (toolName: string, args: unknown) => Promise<unknown>;
-
-/**
- * Read the map file and, for each override, whether its target file is present on disk. The join
- * trusts an override that either resolves in the scan or exists on disk; one that is neither is
- * stale (the recorded file was deleted/renamed) and must not be honoured as a phantom import — the
- * write-back loop makes stale rows a real possibility, so the read side degrades them safely.
- */
-const readOverrides = async (
-  reader: RepoReader,
-): Promise<{ overrides: ReturnType<typeof parseMapFile>; overridesOnDisk: Set<string> }> => {
-  let overrides: ReturnType<typeof parseMapFile>;
-  try {
-    overrides = parseMapFile(await reader.readText(MAP_FILE));
-  } catch (error) {
-    if ((error as { code?: unknown }).code === 'PATH_OUTSIDE_WORKSPACE') throw error;
-    return { overrides: new Map(), overridesOnDisk: new Set() };
-  }
-  // One fs check per distinct target path, then map the result back onto every key (raw + norm) that
-  // points at it — mirroring how parseMapFile stores both key forms.
-  const uniquePaths = [...new Set([...overrides.values()].map(o => o.filePath))];
-  const present = new Set<string>();
-  await Promise.all(
-    uniquePaths.map(async p => {
-      if (await reader.exists(p)) present.add(p);
-    }),
-  );
-  const overridesOnDisk = new Set<string>();
-  for (const [key, o] of overrides) if (present.has(o.filePath)) overridesOnDisk.add(key);
-  return { overrides, overridesOnDisk };
-};
 
 /**
  * Orchestrate the join: pull the grounded Figma tree (reusing get_design_context — no dedicated
@@ -116,18 +81,19 @@ export const handleComponentMap = async (
   // owning COMPONENT_SET (id + name) on its mainComponent, so collectFigmaComponents can group/name
   // by the set directly. The old scan called findAllWithCriteria over the whole document (68s+ /
   // 30s-timeout on large multi-page files) just to recover those set names.
-  const [context, profile, { overrides, overridesOnDisk }] = await Promise.all([
+  const [context, profile, overrides] = await Promise.all([
     dispatch(GET_DESIGN_CONTEXT_TOOL_NAME, contextArgs) as Promise<GetDesignContextResult>,
     analyzeProject(rootDir, repo),
-    readOverrides(repo),
+    readMappingOverrides(repo),
   ]);
 
   const scanned = await scanComponents(rootDir, profile.componentExtensions, repo);
 
-  const usages = collectFigmaComponents(context.nodes);
-  const mappings = joinComponents(usages, scanned, {
+  const observation = observeMappingContext(context);
+  const mappings = mapObservationComponents(observation, scanned, {
     threshold,
-    ...(overrides.size > 0 ? { overrides, overridesOnDisk } : {}),
+    overrides: overrides.components,
+    overridesOnDisk: overrides.componentsOnDisk,
   });
   const unmapped = mappings.filter(m => m.status === 'unmapped').map(m => m.figmaComponentName);
   // Stale rows (target gone) that degraded to a fuzzy/unmapped result — surfaced so the caller can

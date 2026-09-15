@@ -449,7 +449,7 @@
           "schemaHash": "0c40933900a901ab5a75b8c93d7804ad50568c3175bac4ed6ecd317152521703"
         }
       ],
-      "targetContractHash": "71bf5e754247ae4226d3ffa377cf62d0bdd1e790e1c527ae1a27cbd947ad3094",
+      "targetContractHash": "4b1a94c4767d0f2f89c701eee5cc0d35a3df4060788c5d609a9c01a9c1159102",
       "disposition": "adapter",
       "registration": "advertised",
       "availability": ["connected-plugin"],
@@ -674,7 +674,7 @@
           "schemaHash": "507d983d9c0977e1a02e7b30f365da5fdcf5da7a6d4d6901d6f3e8bb8f575a75"
         }
       ],
-      "targetContractHash": "f6cd319661edf24702b54a51b2692b536c544164c4d93c4668683b7fa5cc7789",
+      "targetContractHash": "403b7a23270d6c65c93bbba8c2b6235a8c0a88dd847f064d3ae16ea392352eb6",
       "disposition": "native",
       "registration": "advertised",
       "availability": ["server"],
@@ -695,7 +695,7 @@
           "schemaHash": "f35bd6f02a34c64b984f0793588a00596f8c73e6db66edd0f07f8882895a09c5"
         }
       ],
-      "targetContractHash": "d69c99b59ab988a6ef596c24b3f38e63eaee061e8ab66057f86727d2d62333d6",
+      "targetContractHash": "ab60f568f00fc2ccff50551265e6ea67e19b656323f690809c6324f6c7593127",
       "disposition": "native",
       "registration": "advertised",
       "availability": ["server"],
@@ -716,7 +716,7 @@
           "schemaHash": "91e7a33092432568d06bdc31273a9d6e42bf773737f56e81f71ee0e41bea4115"
         }
       ],
-      "targetContractHash": "ac050a8bc36a34d79ce10413d1d285d61771297dd3c306e3e0ff487a10af68c7",
+      "targetContractHash": "44a1563f8c3fda9fb8088d0f92795326f16151d78e1ee24bb1767eb909681a4c",
       "disposition": "native",
       "registration": "advertised",
       "availability": ["server"],
@@ -737,7 +737,7 @@
           "schemaHash": "68ff28308abeab7c5c933bdda6eb8af4685be8d283b930cf94c26b5da7c4c1fe"
         }
       ],
-      "targetContractHash": "c2574cdce263b2ecd865676604d274d39baa10b93c52f7e8ce1d1c284fe9624d",
+      "targetContractHash": "7cdff440232e18f4a22d14781da409c572bdca1ec6aeeefee1b64dfc9e39edf4",
       "disposition": "native",
       "registration": "advertised",
       "availability": ["server"],
@@ -758,7 +758,7 @@
           "schemaHash": "91e7a33092432568d06bdc31273a9d6e42bf773737f56e81f71ee0e41bea4115"
         }
       ],
-      "targetContractHash": "a212e62bb0873c3a6bd13e2a4ee6b9efe360467ad9f88e6f1628d433bffd5d44",
+      "targetContractHash": "c97a284ae17ee548bb9ed913772a692ce75084e60743c04aeed45cb6af3f5a14",
       "disposition": "native",
       "registration": "advertised",
       "availability": ["server"],
@@ -2719,13 +2719,13 @@
           "schemaHash": "ddba5ad38fe0355e6ee97d013bd014ae154ecff069b56ec261c100f85265be94"
         }
       ],
-      "targetContractHash": "758a8453f3b9bf9533d18dabddd955bd049240213f252d541db85d439d63686d",
+      "targetContractHash": "f9d2e68ba4e8dee4138a806098dfd82ac690a281365b07b5dd01d91d542c371e",
       "disposition": "adapter",
       "registration": "advertised",
       "availability": ["server"],
       "investment": "active",
-      "implementationStatus": "planned",
-      "implementation": "packages/mcp/src/tools/export-tokens.ts",
+      "implementationStatus": "implemented",
+      "implementation": "packages/mcp/src/tools/safe-union.ts",
       "test": "packages/mcp/test/tools/safe-union.test.ts",
       "policyId": "tool:export_tokens:v1"
     },
@@ -2740,13 +2740,13 @@
           "schemaHash": "d37db8dfde49b6a9e357b38f04eb245bc5c0665e2c1a01895bd3c96ff77709e7"
         }
       ],
-      "targetContractHash": "ba268f5c7e896b1459cfc5937f0ed8847e2356a121a39fc24147a79c4188c276",
+      "targetContractHash": "18bfc613620083f7f6a360c6f8f51f0b9001ed98173952a37236a420204e0797",
       "disposition": "adapter",
       "registration": "advertised",
       "availability": ["server"],
       "investment": "active",
-      "implementationStatus": "planned",
-      "implementation": "packages/mcp/src/tools/export-frames-to-pdf.ts",
+      "implementationStatus": "implemented",
+      "implementation": "packages/mcp/src/tools/safe-union.ts",
       "test": "packages/mcp/test/tools/safe-union.test.ts",
       "policyId": "tool:export_frames_to_pdf:v1"
     },
@@ -2759,13 +2759,13 @@
           "schemaHash": "96a69db7ff71b9d0596a2762808873c7b0b14f3d3d5bb2916af48b7991996f9d"
         }
       ],
-      "targetContractHash": "87efb0c4cd326732504e2947095deea684da1da1361fadddde2173599131a393",
+      "targetContractHash": "ccecc6f8502aa921873e1a2b9648873f9bf18809602c2c0eb26b092adc9e231a",
       "disposition": "native",
       "registration": "advertised",
       "availability": ["server"],
       "investment": "active",
-      "implementationStatus": "planned",
-      "implementation": "packages/mcp/src/tools/doctor.ts",
+      "implementationStatus": "implemented",
+      "implementation": "packages/mcp/src/tools/safe-union.ts",
       "test": "packages/mcp/test/tools/safe-union.test.ts",
       "policyId": "tool:doctor:v1"
     },
@@ -2778,15 +2778,195 @@
           "schemaHash": "48271dd6a04860b3acb5a548c4130b03fc95ebc8f5fbe9ac46c5835c430ff48a"
         }
       ],
-      "targetContractHash": "47fc9a5d77086d4050179b79df6ae76da94241111ffcc5885c7076c86b7162da",
+      "targetContractHash": "d7b545278f75ed9c1b5d61c987f199130551b7618c01717ec8b15993c6964a0b",
       "disposition": "adapter",
       "registration": "advertised",
       "availability": ["figma-design"],
       "investment": "active",
-      "implementationStatus": "planned",
-      "implementation": "packages/mcp/src/tools/import-library-variable.ts",
-      "test": "packages/mcp/test/tools/safe-union.test.ts",
+      "implementationStatus": "implemented",
+      "implementation": "packages/plugin/src/handlers/import-library-variable.ts",
+      "test": "packages/plugin/test/handlers/import-library-variable.test.ts",
       "policyId": "tool:import_library_variable:v1"
+    },
+    {
+      "name": "portal_plan",
+      "sourceRefs": ["super-figma-pipeline:packages/shared/src/portal.ts#portal_plan"],
+      "sourceContracts": [
+        {
+          "source": "super-figma-pipeline",
+          "schemaHash": "89dea128129568471351f535459c6d60e2903c15e05e70677ef93d0d793c09b6"
+        }
+      ],
+      "targetContractHash": "c6dacbbfb3c06221833e55072249b9e8d2bd6fd471c406b7e21907ff429eb0f4",
+      "disposition": "adapter",
+      "registration": "advertised",
+      "availability": ["registered-workspace", "authenticated-owner"],
+      "investment": "active",
+      "implementationStatus": "implemented",
+      "implementation": "packages/mcp/src/portal/coordinator.ts",
+      "test": "packages/mcp/test/portal/coordinator.test.ts",
+      "policyId": "tool:portal_plan:v1"
+    },
+    {
+      "name": "portal_start",
+      "sourceRefs": ["super-figma-pipeline:packages/shared/src/portal.ts#portal_start"],
+      "sourceContracts": [
+        {
+          "source": "super-figma-pipeline",
+          "schemaHash": "c405d38b4b44164ae727bef89354e65dc63d4f2007d89e812641166a658aa68e"
+        }
+      ],
+      "targetContractHash": "5e48b9960790e0e6f0d2e8f5a67b676fd2fa30d1dd474753e8e8f10752a84800",
+      "disposition": "adapter",
+      "registration": "advertised",
+      "availability": ["registered-workspace", "authenticated-owner"],
+      "investment": "active",
+      "implementationStatus": "implemented",
+      "implementation": "packages/mcp/src/portal/coordinator.ts",
+      "test": "packages/mcp/test/portal/coordinator.test.ts",
+      "policyId": "tool:portal_start:v1"
+    },
+    {
+      "name": "portal_next",
+      "sourceRefs": ["super-figma-pipeline:packages/shared/src/portal.ts#portal_next"],
+      "sourceContracts": [
+        {
+          "source": "super-figma-pipeline",
+          "schemaHash": "f559d54df07c5cfb273fb167cfb33433a7d4d678240895a455f606ab2b46ae58"
+        }
+      ],
+      "targetContractHash": "fca1b5a1b40bde8efd98c1d6e0f46325d489ebcde0899f5de5978f6bdee1bf1e",
+      "disposition": "adapter",
+      "registration": "advertised",
+      "availability": ["registered-workspace", "authenticated-owner"],
+      "investment": "active",
+      "implementationStatus": "implemented",
+      "implementation": "packages/mcp/src/portal/coordinator.ts",
+      "test": "packages/mcp/test/portal/coordinator.test.ts",
+      "policyId": "tool:portal_next:v1"
+    },
+    {
+      "name": "portal_submit",
+      "sourceRefs": ["super-figma-pipeline:packages/shared/src/portal.ts#portal_submit"],
+      "sourceContracts": [
+        {
+          "source": "super-figma-pipeline",
+          "schemaHash": "0c07dbf1bdd6cb2ac180ca11450d633f37bb6c13cd8e366b07d3ea82dd0868cd"
+        }
+      ],
+      "targetContractHash": "0977b53de908d2569489f2190ac2095b80a3d231de518c42ffd21626210c4e5b",
+      "disposition": "adapter",
+      "registration": "advertised",
+      "availability": ["registered-workspace", "authenticated-owner"],
+      "investment": "active",
+      "implementationStatus": "implemented",
+      "implementation": "packages/mcp/src/portal/coordinator.ts",
+      "test": "packages/mcp/test/portal/coordinator.test.ts",
+      "policyId": "tool:portal_submit:v1"
+    },
+    {
+      "name": "portal_apply",
+      "sourceRefs": ["super-figma-pipeline:packages/shared/src/portal.ts#portal_apply"],
+      "sourceContracts": [
+        {
+          "source": "super-figma-pipeline",
+          "schemaHash": "3a62b8bb9ff1cd7bc298c94f70ab776c6ed6c5abed2b50bc8ddb923254b1400a"
+        }
+      ],
+      "targetContractHash": "33f86fdc06871383e3ac421fc348b8b17e5db0cf4a612b4648f702d186d274de",
+      "disposition": "adapter",
+      "registration": "advertised",
+      "availability": [
+        "registered-workspace",
+        "authenticated-owner",
+        "complete-candidate-acceptance-required"
+      ],
+      "investment": "active",
+      "implementationStatus": "implemented",
+      "implementation": "packages/mcp/src/portal/coordinator.ts",
+      "test": "packages/mcp/test/portal/native-work.test.ts",
+      "policyId": "tool:portal_apply:v1"
+    },
+    {
+      "name": "portal_validate",
+      "sourceRefs": ["super-figma-pipeline:packages/shared/src/portal.ts#portal_validate"],
+      "sourceContracts": [
+        {
+          "source": "super-figma-pipeline",
+          "schemaHash": "0b3a47befbc98a6e2313481f0965b586eef63a132a041dab75705a4834a1cc27"
+        }
+      ],
+      "targetContractHash": "1a8de225d0009e2895d70e21a6cae088e984abee52faba5508d2da95c0766b75",
+      "disposition": "adapter",
+      "registration": "advertised",
+      "availability": [
+        "registered-workspace",
+        "authenticated-owner",
+        "owner-native-profile-required",
+        "no-docker"
+      ],
+      "investment": "active",
+      "implementationStatus": "implemented",
+      "implementation": "packages/mcp/src/portal/coordinator.ts",
+      "test": "packages/mcp/test/portal/native-work.test.ts",
+      "policyId": "tool:portal_validate:v1"
+    },
+    {
+      "name": "portal_status",
+      "sourceRefs": ["super-figma-pipeline:packages/shared/src/portal.ts#portal_status"],
+      "sourceContracts": [
+        {
+          "source": "super-figma-pipeline",
+          "schemaHash": "3a62b8bb9ff1cd7bc298c94f70ab776c6ed6c5abed2b50bc8ddb923254b1400a"
+        }
+      ],
+      "targetContractHash": "33f86fdc06871383e3ac421fc348b8b17e5db0cf4a612b4648f702d186d274de",
+      "disposition": "adapter",
+      "registration": "advertised",
+      "availability": ["registered-workspace", "authenticated-owner"],
+      "investment": "active",
+      "implementationStatus": "implemented",
+      "implementation": "packages/mcp/src/portal/coordinator.ts",
+      "test": "packages/mcp/test/portal/coordinator.test.ts",
+      "policyId": "tool:portal_status:v1"
+    },
+    {
+      "name": "portal_resume",
+      "sourceRefs": ["super-figma-pipeline:packages/shared/src/portal.ts#portal_resume"],
+      "sourceContracts": [
+        {
+          "source": "super-figma-pipeline",
+          "schemaHash": "803ff6e81b35ddf953c7ced8d1a56f45832386d8d2fc230a4bd8895c14a9c5b6"
+        }
+      ],
+      "targetContractHash": "a56aa9f0d9ab637165bdb004cef85eef08fbdaa7699c4675ceb350abd7c8ad23",
+      "disposition": "adapter",
+      "registration": "advertised",
+      "availability": ["registered-workspace", "authenticated-owner"],
+      "investment": "active",
+      "implementationStatus": "implemented",
+      "implementation": "packages/mcp/src/portal/coordinator.ts",
+      "test": "packages/mcp/test/portal/coordinator.test.ts",
+      "policyId": "tool:portal_resume:v1"
+    },
+    {
+      "name": "portal_cancel",
+      "sourceRefs": ["super-figma-pipeline:packages/shared/src/portal.ts#portal_cancel"],
+      "sourceContracts": [
+        {
+          "source": "super-figma-pipeline",
+          "schemaHash": "3a62b8bb9ff1cd7bc298c94f70ab776c6ed6c5abed2b50bc8ddb923254b1400a"
+        }
+      ],
+      "targetContractHash": "33f86fdc06871383e3ac421fc348b8b17e5db0cf4a612b4648f702d186d274de",
+      "disposition": "adapter",
+      "registration": "advertised",
+      "availability": ["registered-workspace", "authenticated-owner"],
+      "investment": "active",
+      "implementationStatus": "implemented",
+      "implementation": "packages/mcp/src/portal/coordinator.ts",
+      "test": "packages/mcp/test/portal/coordinator.test.ts",
+      "policyId": "tool:portal_cancel:v1"
     }
   ],
   "sourceSurfaces": {
@@ -4448,7 +4628,7 @@
       {
         "name": "bF",
         "source": "figmosha2",
-        "mapping": "bind_variable_to_paint(field=fill)",
+        "mapping": "bind_variable_to_paint(target=fills); automatic variable lookup/import recipe pending",
         "disposition": "alias",
         "implementation": "packages/mcp/src/tools/bind-variable-to-paint.ts",
         "test": "test/tool-contract.test.ts"
@@ -4456,7 +4636,7 @@
       {
         "name": "bS",
         "source": "figmosha2",
-        "mapping": "bind_variable_to_paint(field=stroke)",
+        "mapping": "bind_variable_to_paint(target=strokes); automatic variable lookup/import recipe pending",
         "disposition": "alias",
         "implementation": "packages/mcp/src/tools/bind-variable-to-paint.ts",
         "test": "test/tool-contract.test.ts"
@@ -4472,7 +4652,7 @@
       {
         "name": "findByName",
         "source": "figmosha2",
-        "mapping": "search_nodes exact-name preset",
+        "mapping": "Related primitive: search_nodes; first exact case-sensitive descendant adapter pending",
         "disposition": "alias",
         "implementation": "packages/mcp/src/tools/search-nodes.ts",
         "test": "test/tool-contract.test.ts"
@@ -4480,7 +4660,7 @@
       {
         "name": "findAllByName",
         "source": "figmosha2",
-        "mapping": "search_nodes exact-name preset",
+        "mapping": "Related primitive: search_nodes; all exact case-sensitive descendants adapter pending",
         "disposition": "alias",
         "implementation": "packages/mcp/src/tools/search-nodes.ts",
         "test": "test/tool-contract.test.ts"
@@ -4488,7 +4668,7 @@
       {
         "name": "dumpTree",
         "source": "figmosha2",
-        "mapping": "get_design_context(compact/full)",
+        "mapping": "Related primitive: get_design_context; simplified dumpTree renderer not exposed",
         "disposition": "alias",
         "implementation": "packages/mcp/src/tools/get-design-context.ts",
         "test": "test/tool-contract.test.ts"
@@ -4512,7 +4692,7 @@
       {
         "name": "cloneNext",
         "source": "figmosha2",
-        "mapping": "clone_node + set_position",
+        "mapping": "clone_node + set_position primitives; directional clone recipe pending",
         "disposition": "alias",
         "implementation": "packages/mcp/src/tools/clone-node.ts",
         "test": "test/tool-contract.test.ts"
@@ -4528,7 +4708,7 @@
       {
         "name": "variantsOf",
         "source": "figmosha2",
-        "mapping": "get_component_api",
+        "mapping": "get_component_api inspection; current/all variant recipe pending",
         "disposition": "alias",
         "implementation": "packages/mcp/src/tools/get-component-api.ts",
         "test": "test/tool-contract.test.ts"
@@ -4544,7 +4724,7 @@
       {
         "name": "hex",
         "source": "figmosha2",
-        "mapping": "client paint utility",
+        "mapping": "Paint input schema only; hex conversion helper not exposed",
         "disposition": "alias",
         "implementation": "packages/mcp/src/tools/paint-schema.ts",
         "test": "test/tool-contract.test.ts"
@@ -4552,7 +4732,7 @@
       {
         "name": "solid",
         "source": "figmosha2",
-        "mapping": "canonical paint builder",
+        "mapping": "Paint input schema only; solid paint builder helper not exposed",
         "disposition": "alias",
         "implementation": "packages/mcp/src/tools/paint-schema.ts",
         "test": "test/tool-contract.test.ts"
@@ -4560,7 +4740,7 @@
       {
         "name": "frame",
         "source": "figmosha2",
-        "mapping": "batch(create_frame,set_auto_layout,set_fills)",
+        "mapping": "Frame/layout/fill primitives available; dependent-result frame recipe pending",
         "disposition": "alias",
         "implementation": "packages/mcp/src/tools/batch.ts",
         "test": "test/tool-contract.test.ts"
@@ -4568,7 +4748,7 @@
       {
         "name": "resolve",
         "source": "figmosha2",
-        "mapping": "target resolver",
+        "mapping": "Node ID normalization only; page/selection/typed target resolver pending",
         "disposition": "native",
         "implementation": "packages/mcp/src/node-id.ts",
         "test": "test/tool-contract.test.ts"
@@ -4584,15 +4764,15 @@
       {
         "name": "var_",
         "source": "figmosha2",
-        "mapping": "variable resolver + library import",
+        "mapping": "Explicit local IDs and library import; automatic variable resolution recipe pending",
         "disposition": "adapter",
-        "implementation": "packages/mcp/src/tools/import-library-variable.ts",
+        "implementation": "packages/mcp/src/tools/safe-union.ts",
         "test": "test/tool-contract.test.ts"
       },
       {
         "name": "importComp",
         "source": "figmosha2",
-        "mapping": "create_instance(componentKey) 또는 swap_component(componentKey)",
+        "mapping": "create_instance(componentKey) or swap_component(componentKey)",
         "disposition": "alias",
         "implementation": "packages/mcp/src/tools/create-instance.ts",
         "test": "test/tool-contract.test.ts"
@@ -4600,9 +4780,9 @@
       {
         "name": "importVar",
         "source": "figmosha2",
-        "mapping": "import_library_variable 신설",
+        "mapping": "import_library_variable; call through the generic tool interface",
         "disposition": "adapter",
-        "implementation": "packages/mcp/src/tools/import-library-variable.ts",
+        "implementation": "packages/mcp/src/tools/safe-union.ts",
         "test": "test/tool-contract.test.ts"
       }
     ],
@@ -4618,9 +4798,9 @@
       {
         "name": "doctor",
         "source": "figmosha2",
-        "mapping": "doctor orchestration 신설",
+        "mapping": "doctor tool diagnostics; standalone parser and extended workflow pending",
         "disposition": "native",
-        "implementation": "packages/mcp/src/tools/doctor.ts",
+        "implementation": "packages/mcp/src/tools/safe-union.ts",
         "test": "test/tool-contract.test.ts"
       },
       {

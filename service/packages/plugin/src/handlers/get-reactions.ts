@@ -1,43 +1,70 @@
-import type {
-  GetReactionsResult,
-  SerializedAction,
-  SerializedReaction,
-  SerializedTrigger,
-} from '@sfp/shared';
+import { SerializedReactionSchema } from '@sfp/shared';
+import type { GetReactionsResult, SerializedReaction } from '@sfp/shared';
 
 import type { SandboxToolHandler } from '../dispatcher.js';
 
-const serializeTrigger = (trigger: Trigger | null): SerializedTrigger | null => {
-  if (trigger === null) return null;
-  const out: SerializedTrigger = { type: trigger.type };
-  if ('timeout' in trigger) out.timeout = trigger.timeout;
-  if ('delay' in trigger) out.delay = trigger.delay;
-  return out;
-};
-
-const serializeAction = (action: Action): SerializedAction => {
-  const out: SerializedAction = { type: action.type };
-  if ('destinationId' in action) out.destinationId = action.destinationId;
-  if ('navigation' in action) out.navigation = String(action.navigation);
-  if ('url' in action) out.url = action.url;
-  if ('transition' in action) {
-    out.transition =
-      action.transition === null
-        ? null
-        : {
-            type: action.transition.type,
-            ...('duration' in action.transition ? { duration: action.transition.duration } : {}),
-          };
-  }
-  return out;
-};
-
-const serializeReaction = (reaction: Reaction): SerializedReaction => {
-  const actions = reaction.actions ?? (reaction.action === undefined ? [] : [reaction.action]);
-  return {
-    trigger: serializeTrigger(reaction.trigger),
-    actions: actions.map(serializeAction),
+// Clone the complete Plugin API value, including conditional/variable actions,
+// overlay placement and easing. Stop explicitly instead of silently losing fields.
+const serializeReactions = (
+  source: readonly Reaction[],
+): { reactions: SerializedReaction[]; truncated: boolean } => {
+  let values = 0,
+    characters = 0,
+    truncated = false;
+  const seen = new WeakSet<object>();
+  const clone = (value: unknown, depth = 0): unknown => {
+    if (++values > 50_000 || depth > 24) {
+      truncated = true;
+      return null;
+    }
+    if (value === null || typeof value === 'boolean') return value;
+    if (typeof value === 'number') return Number.isFinite(value) ? value : null;
+    if (typeof value === 'string') {
+      characters += value.length;
+      if (characters > 250_000) {
+        truncated = true;
+        return '';
+      }
+      return value;
+    }
+    if (typeof value !== 'object') {
+      truncated = true;
+      return null;
+    }
+    if (seen.has(value)) {
+      truncated = true;
+      return null;
+    }
+    seen.add(value);
+    let result: unknown;
+    if (Array.isArray(value)) {
+      if (value.length > 4096) truncated = true;
+      result = value.slice(0, 4096).map(item => clone(item, depth + 1));
+    } else {
+      const output: Record<string, unknown> = Object.create(null);
+      for (const key of Object.keys(value)) {
+        if (values >= 50_000) {
+          truncated = true;
+          break;
+        }
+        output[key] = clone((value as Record<string, unknown>)[key], depth + 1);
+      }
+      result = output;
+    }
+    seen.delete(value);
+    return result;
   };
+  const reactions: SerializedReaction[] = [];
+  for (const reaction of source.slice(0, 4096)) {
+    const value = clone({
+      trigger: reaction.trigger,
+      actions: reaction.actions ?? (reaction.action === undefined ? [] : [reaction.action]),
+    });
+    const parsed = SerializedReactionSchema.safeParse(value);
+    if (parsed.success) reactions.push(parsed.data);
+    else truncated = true;
+  }
+  return { reactions, truncated: truncated || source.length > 4096 };
 };
 
 const hasReactions = (node: BaseNode): node is BaseNode & { reactions: readonly Reaction[] } =>
@@ -51,8 +78,11 @@ export const createGetReactionsHandler =
       throw new TypeError('get_reactions: nodeId must be a string');
     }
     const node = await figmaCtx.getNodeByIdAsync(nodeId);
-    const reactions =
-      node !== null && hasReactions(node) ? node.reactions.map(serializeReaction) : [];
-    const result: GetReactionsResult = { nodeId, reactions };
+    const captured = serializeReactions(node !== null && hasReactions(node) ? node.reactions : []);
+    const result: GetReactionsResult = {
+      nodeId,
+      reactions: captured.reactions,
+      ...(captured.truncated ? { truncated: true, warnings: ['REACTION_VALUE_LIMIT'] } : {}),
+    };
     return result;
   };

@@ -232,7 +232,11 @@ export const FontUsageSchema = z.object({
 });
 export type FontUsage = z.infer<typeof FontUsageSchema>;
 
-export const GetFontsResultSchema = z.object({ fonts: z.array(FontUsageSchema) });
+export const GetFontsResultSchema = z.object({
+  fonts: z.array(FontUsageSchema),
+  // Absence is the historical page-usage result, never proof of font availability.
+  scope: z.enum(['used', 'available']).optional(),
+});
 export type GetFontsResult = z.infer<typeof GetFontsResultSchema>;
 
 // ── get_annotations ──────────────────────────────────────────────────────────
@@ -251,24 +255,32 @@ export const GetAnnotationsResultSchema = z.object({
 export type GetAnnotationsResult = z.infer<typeof GetAnnotationsResultSchema>;
 
 // ── get_reactions ────────────────────────────────────────────────────────────
-export const SerializedTriggerSchema = z.object({
-  type: z.string(),
-  timeout: z.number().optional(),
-  delay: z.number().optional(),
-});
+export const SerializedTriggerSchema = z
+  .object({
+    type: z.string(),
+    timeout: z.number().optional(),
+    delay: z.number().optional(),
+  })
+  .catchall(z.json());
 export type SerializedTrigger = z.infer<typeof SerializedTriggerSchema>;
 
 /**
  * Bounded action wire-format: common NODE / URL / BACK / CLOSE fields; exotic actions keep type
  * only.
  */
-export const SerializedActionSchema = z.object({
-  type: z.string(),
-  destinationId: z.string().nullable().optional(),
-  navigation: z.string().optional(),
-  url: z.string().optional(),
-  transition: z.object({ type: z.string(), duration: z.number().optional() }).nullable().optional(),
-});
+export const SerializedActionSchema = z
+  .object({
+    type: z.string(),
+    destinationId: z.string().nullable().optional(),
+    navigation: z.string().optional(),
+    url: z.string().optional(),
+    transition: z
+      .object({ type: z.string(), duration: z.number().optional() })
+      .catchall(z.json())
+      .nullable()
+      .optional(),
+  })
+  .catchall(z.json());
 export type SerializedAction = z.infer<typeof SerializedActionSchema>;
 
 export const SerializedReactionSchema = z.object({
@@ -280,6 +292,8 @@ export type SerializedReaction = z.infer<typeof SerializedReactionSchema>;
 export const GetReactionsResultSchema = z.object({
   nodeId: z.string(),
   reactions: z.array(SerializedReactionSchema),
+  truncated: z.boolean().optional(),
+  warnings: z.array(z.string()).optional(),
 });
 export type GetReactionsResult = z.infer<typeof GetReactionsResultSchema>;
 

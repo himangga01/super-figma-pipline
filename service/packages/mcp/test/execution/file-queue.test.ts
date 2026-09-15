@@ -11,6 +11,23 @@ const deferred = <T>() => {
 };
 
 describe('per-file execution queue', () => {
+  it('keeps portal status/cancel independent from a long native run and unrelated null-target work', async () => {
+    const queue = new FileExecutionQueue();
+    const release = deferred<void>();
+    const long = queue.run('portal:process:run-a', 'exclusive-heavy', () => release.promise);
+    const targetless = queue.run(null, 'exclusive-heavy', () => release.promise);
+    try {
+      await expect(
+        queue.run('portal:control:run-a', 'parallel-read', async () => 'status'),
+      ).resolves.toBe('status');
+      await expect(
+        queue.run('portal:control:run-a', 'exclusive-heavy', async () => 'cancel'),
+      ).resolves.toBe('cancel');
+    } finally {
+      release.resolve();
+      await Promise.all([long, targetless]);
+    }
+  });
   it('serializes writes targeting two sessions with the same FileExecutionKey', async () => {
     const queue = new FileExecutionQueue();
     const releaseFirst = deferred<void>();

@@ -4,7 +4,7 @@ import type { SandboxToolHandler } from '../dispatcher.js';
 
 export const createCloneNodeHandler =
   (figmaCtx: typeof figma): SandboxToolHandler =>
-  async params => {
+  async (params, execution) => {
     const p = (params ?? {}) as { nodeId?: unknown };
     if (typeof p.nodeId !== 'string') throw new TypeError('clone_node: nodeId must be a string');
     const node = await figmaCtx.getNodeByIdAsync(p.nodeId);
@@ -12,6 +12,7 @@ export const createCloneNodeHandler =
       throw new Error(`clone_node: node ${p.nodeId} not found or cannot be cloned`);
     }
     const copy = (node as SceneNode).clone();
+    execution?.markMutated?.();
 
     // Place the copy alongside the original (or the current page if the original is detached).
     const parent = (node as SceneNode).parent;

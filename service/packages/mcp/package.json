@@ -2,22 +2,46 @@
   "name": "@sfp/mcp",
   "version": "0.1.0",
   "private": true,
+  "license": "MIT",
+  "bin": {
+    "sfp-daemon": "dist/daemon-entry.mjs"
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE",
+    "THIRD_PARTY_NOTICES.md",
+    "PROVENANCE.md",
+    "SBOM.spdx.json",
+    "licenses",
+    "capabilities"
+  ],
   "type": "module",
+  "exports": {
+    ".": "./dist/index.mjs",
+    "./daemon": "./dist/daemon-entry.mjs",
+    "./portal-validation": "./dist/portal-validation.mjs"
+  },
   "scripts": {
-    "build": "tsdown",
+    "build": "node ../../scripts/build-server.mjs",
     "dev": "tsdown --watch",
     "typecheck": "tsc --noEmit -p tsconfig.json"
   },
   "dependencies": {
     "@modelcontextprotocol/server": "^2.0.0",
     "@msgpack/msgpack": "^3.1.3",
-    "fdir": "^6.5.0",
+    "@pdf-lib/upng": "1.0.1",
+    "@sfp/ir": "workspace:*",
+    "@vue/compiler-dom": "3.5.42",
     "ignore": "^7.0.6",
     "oxc-parser": "^0.147.0",
+    "pdf-lib": "1.17.1",
+    "playwright": "1.63.0",
     "ws": "^8.21.3",
     "zod": "^4.4.3"
   },
   "devDependencies": {
+    "@figma/plugin-typings": "1.135.0",
     "@sfp/shared": "workspace:*",
     "@types/ws": "^8.18.1",
     "publint": "^0.3.24",

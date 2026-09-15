@@ -15,7 +15,25 @@ lifting so you are not guessing from a screenshot. This file is the router; deep
 - The user pastes a Figma URL/selection and asks for code ("code this", "build this component").
 - The user wants to extend an existing component to match a Figma frame.
 
-## Workflow
+## Portal scope and client driver
+
+Use Super Figma Pipeline's own tools. The official Figma MCP and Dev Mode are not prerequisites. Do not launch Chrome, create Chrome tabs/profiles, or use the built-in GPT browser for the Figma source.
+
+- C1 resolves to C3 when explicit service references exist and C4 otherwise.
+- C2 adapts a legacy service and implements every relevant service layer.
+- C3 creates an independent portal from explicit service references, including required backend/API/data/auth/integration behavior.
+- Only C4 is frontend-only. Keep its local demo adapters and limitations explicit.
+- The three foundation upstreams are not implicit service references. Inspect only the registered roots the user selected.
+
+Start with `portal_plan` and `portal_start`. Use `portal_next` to claim/renew the coding lease and read the paginated design hierarchy, variables, assets, service evidence and actual code conventions. Generate real files, then submit their content hashes with `portal_submit`. Reuse captured image/SVG assets by their recorded IDs and hashes. Do not replace an implemented interface with a screenshot.
+
+Learn the relevant full service, including routes, DTOs, persistence, authentication/authorization, jobs, configuration and integrations. A frontend-only reference does not justify omitting required backend behavior. Read actual source beyond dependency names. Use explicit workflow requirements and native end-to-end checks.
+
+The coding agent authors the appropriate native validation profile from the actual repository toolchain and registers it through the owner CLI. Use `portal_validate`, repair from returned diagnostics, apply only a fully accepted candidate, and validate the applied result. Docker is prohibited; previews use headless Firefox. Read [native verification](references/verify.md).
+
+For Chrome captures, the portal work item already carries the raw design facts and exported assets. Use the detailed references below to interpret those facts; do not assume a paired plugin or official MCP is available. For paired Desktop/plugin workflows, the existing grounded tool sequence below remains useful.
+
+## Paired-plugin grounding workflow
 
 Run the grounded tools against the selection, then generate — **trust them over the rendered image.**
 
@@ -25,7 +43,7 @@ Run the grounded tools against the selection, then generate — **trust them ove
    Keep `dedupeComponents: true` and don't depth-limit a subtree you'll build from.
    → **How to read the tree, the per-node fidelity catalog (effects, per-side borders, stroke align,
    per-corner radius, blend, masks, gradients, image-fit, auto-layout/grid, aspect-ratio,
-   scroll/sticky, stack & stroke-space), Dev Mode annotations as ground truth, and grounding a page
+   scroll/sticky, stack & stroke-space), available annotations as supplementary evidence, and grounding a page
    too big for one call: [`references/grounding.md`](./references/grounding.md).**
 
 2. **`component_map`** → every Figma component grouped to a local code component with a `status`

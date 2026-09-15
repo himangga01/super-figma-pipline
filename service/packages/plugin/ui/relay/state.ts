@@ -12,7 +12,17 @@ import type { ActivityPayload } from './payload.js';
 
 export type RelayStatus = 'idle' | 'connecting' | 'connected' | 'reconnecting' | 'disconnected';
 
-export type ToolHandler = (method: string, params: unknown) => Promise<unknown>;
+export type RelayToolExecutionContext = Readonly<{
+  requestId: string;
+  operationId: string;
+  actionNonce: string;
+}>;
+
+export type ToolHandler = (
+  method: string,
+  params: unknown,
+  context?: RelayToolExecutionContext,
+) => Promise<unknown>;
 
 /** Most-recent tool calls kept in memory for the UI Activity tab. */
 export const ACTIVITY_LIMIT = 30;

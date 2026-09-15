@@ -14,3 +14,10 @@ declare const __FIGWRIGHT_BUILD_ID__: string | undefined;
 
 export const BUILD_ID: number =
   typeof __FIGWRIGHT_BUILD_ID__ === 'string' ? Number(__FIGWRIGHT_BUILD_ID__) : 0;
+
+// eslint-disable-next-line no-underscore-dangle -- compile-time build identity
+declare const __SFP_BUILD_HASH__: string | undefined;
+export const BUILD_IDENTITY_HASH =
+  typeof __SFP_BUILD_HASH__ === 'string' && /^sha256:[0-9a-f]{64}$/u.test(__SFP_BUILD_HASH__)
+    ? (__SFP_BUILD_HASH__ as `sha256:${string}`)
+    : null;

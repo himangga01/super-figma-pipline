@@ -1,5 +1,12 @@
 import { createHash, timingSafeEqual } from 'node:crypto';
 
+import {
+  assertLocator,
+  canonicalJson as canonicalIrJson,
+  GroundingRefreshResultSchema,
+  SnapshotCaptureResultSchema,
+  SnapshotLocatorSchema,
+} from '@sfp/ir';
 import type {
   NativeEvidenceContextHash,
   NativeEvidenceProjectionContextV1,
@@ -82,7 +89,12 @@ const exportCandidates = (operationName: string, result: unknown) => {
         : [];
     });
   }
-  if (operationName === 'export_pdf' || operationName === 'export_video') {
+  if (
+    operationName === 'export_pdf' ||
+    operationName === 'export_video' ||
+    operationName === 'export_frames_to_pdf' ||
+    operationName === 'export_tokens'
+  ) {
     return [candidate(record.path, '/path', record.nodeId)];
   }
   return [];
@@ -98,11 +110,67 @@ export const createOperationEvidenceProjector = (): OperationEvidenceProjector =
       strictRedactedResult: unknown,
     ): Readonly<NativeEvidenceProjectionV1> => {
       const contextHash = nativeEvidenceContextHash(context);
+      if (operationKind === 'service' && operationName === 'snapshot.capture') {
+        const result = SnapshotCaptureResultSchema.parse(strictRedactedResult),
+          ref = result.snapshot;
+        if (ref.workspaceId !== context.workspaceId)
+          throw new Error('NATIVE_EVIDENCE_CONTEXT_MISMATCH');
+        if (result.graph !== null) assertLocator(ref, result.graph);
+        return deepFreeze({
+          contextHash,
+          kind: 'snapshot-candidate',
+          artifactRelativePath: ref.relativePath,
+          sourceRef: { resultPointer: '/snapshot/relativePath', sourceNodeId: null },
+          metadata: {
+            workspaceId: ref.workspaceId,
+            fileIdentityHash: ref.fileIdentityHash as `sha256:${string}`,
+            snapshotId: ref.snapshotId as `sfp_snap1_${string}`,
+            refRelativePath: ref.relativePath,
+            checksum: ref.checksum as `sha256:${string}`,
+            fidelity: ref.fidelity.truncated ? 'partial' : 'complete-leaf',
+            ...(result.graph === null
+              ? {}
+              : {
+                  graph: {
+                    relativePath: result.graph.relativePath,
+                    checksum: result.graph.checksum as `sha256:${string}`,
+                  },
+                }),
+          },
+        });
+      }
+      if (operationKind === 'service' && operationName === 'grounding.refresh') {
+        const result = GroundingRefreshResultSchema.parse(strictRedactedResult),
+          ref = result.graph;
+        if (ref.workspaceId !== context.workspaceId)
+          throw new Error('NATIVE_EVIDENCE_CONTEXT_MISMATCH');
+        const locator = SnapshotLocatorSchema.parse({
+          workspaceId: ref.workspaceId,
+          fileIdentityHash: ref.fileIdentityHash,
+          snapshotId: ref.snapshotId,
+        });
+        return deepFreeze({
+          contextHash,
+          kind: 'grounding-graph-candidate',
+          artifactRelativePath: ref.relativePath,
+          sourceRef: { resultPointer: '/graph/relativePath', sourceNodeId: null },
+          metadata: {
+            locator: canonicalIrJson(locator),
+            checksum: ref.checksum as `sha256:${string}`,
+            fidelity: result.fidelity,
+          },
+        });
+      }
       const isExporter =
         operationKind === 'tool' &&
-        ['save_screenshots', 'save_image_fills', 'export_pdf', 'export_video'].includes(
-          operationName,
-        );
+        [
+          'save_screenshots',
+          'save_image_fills',
+          'export_pdf',
+          'export_video',
+          'export_tokens',
+          'export_frames_to_pdf',
+        ].includes(operationName);
       return deepFreeze(
         isExporter
           ? {

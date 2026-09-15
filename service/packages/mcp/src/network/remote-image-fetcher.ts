@@ -45,8 +45,6 @@ export interface RemoteImageFetcher {
   ): Promise<Readonly<RemoteImageFetchResult>>;
 }
 
-export type RemoteImageAbortSignal = AbortSignal;
-
 export type RemoteImageResolver = (
   hostname: string,
   signal: AbortSignal,

@@ -13,6 +13,9 @@ import {
   type ToolApprovalHandle,
   type ToolInvocationOptionsV1,
   type ToolName,
+  type OperationName,
+  ToolNameSchema,
+  ServiceOperationNameSchema,
   type EgressManifestPort,
   type EgressReservation,
   type InvocationFrameV1,
@@ -21,6 +24,7 @@ import {
   type OperationEvidenceReceiptStorePort,
   type OutputEgressManifest,
   OPERATION_EVIDENCE_LIMITS,
+  OPERATION_CAPTURE_MAX_BYTES,
   type InvocationCancelV1,
   type NativeEvidenceArtifactPortContract,
   type OperationEvidenceProjector,
@@ -39,6 +43,7 @@ import { resultEgressPolicyFor } from '../policy/result-egress-policy.js';
 import { ALL_TOOL_SPECS } from '../tools/registry.js';
 import { executeToolRuntime, type RuntimeRegistry } from '../tools/runtime-registry.js';
 import type { EgressOperationState } from './egress-manifest-store.js';
+import type { ExecutableOperations } from './executable-operation.js';
 import type { FileExecutionQueue } from './file-queue.js';
 import type {
   PreRuntimeCrashReservation,
@@ -89,6 +94,7 @@ export interface OperationExecutorOptions {
   journal: OperationJournalPort | OperationJournal;
   queue: FileExecutionQueue;
   runtimes: RuntimeRegistry;
+  operations?: ExecutableOperations;
   now?: () => number;
   replayAudit?: (record: Readonly<Record<string, unknown>>) => void;
   durability?: OperationDurabilityPorts;
@@ -110,7 +116,7 @@ export interface OperationDurabilityPorts {
 
 interface PreparedInvocation {
   scope: ResolvedInvocationScope;
-  toolName: ToolName;
+  toolName: OperationName;
   parsedArgs: Readonly<Record<string, unknown>>;
   operationId: string;
   issuedAt: number;
@@ -155,6 +161,8 @@ interface ReservationFailureSettlement {
 }
 
 interface CancellationState {
+  preDispatchSettlement: Promise<void> | null;
+  reservationPreparation: Promise<void> | null;
   operationId: string;
   principal: Readonly<import('@sfp/shared').ActorContext>;
   requestId: string;
@@ -275,6 +283,13 @@ export class DurableOperationFinalizer {
     requestId: `sfp_req1_${string}`;
     result: unknown;
   }): Promise<void> {
+    if (
+      input.captureIntent.captureResult &&
+      input.canonicalRedactedBytes.byteLength > OPERATION_CAPTURE_MAX_BYTES
+    )
+      throw Object.assign(new Error('Captured result exceeds the service byte limit'), {
+        code: 'EVIDENCE_CAPTURE_TOO_LARGE',
+      });
     if (this.terminalClaims.has(input.operationId)) {
       throw Object.assign(new Error('operation terminal was already claimed'), {
         code: 'TERMINAL_ALREADY_SETTLED',
@@ -827,6 +842,15 @@ export class OperationExecutor {
   private readonly now: () => number;
 
   constructor(private readonly options: OperationExecutorOptions) {
+    for (const [name, extension] of Object.entries(options.operations ?? {})) {
+      if (
+        name !== extension.name ||
+        ALL_TOOL_SPECS.some(spec => spec.name === name) ||
+        extension.policy.toolName !== name ||
+        (extension.operationKind === 'system') !== (name === 'identity.bootstrap')
+      )
+        throw new Error('EXECUTABLE_OPERATION_CONFLICT');
+    }
     this.now = options.now ?? Date.now;
     this.durableFinalizer =
       options.durability === undefined
@@ -838,6 +862,57 @@ export class OperationExecutor {
             journal: options.journal,
             emitTerminal: async () => undefined,
           });
+  }
+
+  private specFor(name: OperationName) {
+    const spec =
+      this.options.operations?.[name] ?? ALL_TOOL_SPECS.find(candidate => candidate.name === name);
+    if (spec === undefined)
+      throw Object.assign(new Error('operation is not registered'), {
+        code: ServiceOperationNameSchema.safeParse(name).success
+          ? 'SERVICE_OPERATION_NOT_FOUND'
+          : 'TOOL_NOT_FOUND',
+      });
+    return spec;
+  }
+  private kindFor(name: OperationName): 'tool' | 'service' | 'system' {
+    return this.options.operations?.[name]?.operationKind ?? 'tool';
+  }
+  private evaluate(
+    name: OperationName,
+    args: Readonly<Record<string, unknown>>,
+    scope: ResolvedInvocationScope,
+  ) {
+    return evaluateOperationPolicy(name, args, scope, this.options.operations?.[name]?.policy);
+  }
+  private egressFor(name: OperationName) {
+    return this.options.operations?.[name]?.egress ?? resultEgressPolicyFor(name);
+  }
+
+  /** Owner-authorized portal control reaches reservations that have not entered the coordinator. */
+  async cancelPendingPortalRun(
+    principal: Readonly<import('@sfp/shared').ActorContext>,
+    runId: string,
+  ): Promise<void> {
+    const cancellations: Promise<void>[] = [];
+    for (const state of this.activeControllers.values()) {
+      const prepared = state.prepared;
+      if (
+        state.principal.actorId !== principal.actorId ||
+        state.dispatched ||
+        !prepared.scope.portalAuthority ||
+        !['portal_validate', 'portal_apply', 'portal_resume'].includes(prepared.toolName) ||
+        (prepared.parsedArgs as { runId?: unknown }).runId !== runId
+      )
+        continue;
+      const current = this.options.journal.get(state.operationId);
+      if (current?.status !== 'queued' && current?.status !== 'pending-approval') continue;
+      state.controller.abort(
+        Object.assign(new Error('portal run cancelled'), { code: 'OPERATION_CANCELLED' }),
+      );
+      cancellations.push(this.settlePreDispatchCancellation(state, current.status));
+    }
+    await Promise.all(cancellations);
   }
 
   async cancel(
@@ -946,7 +1021,7 @@ export class OperationExecutor {
 
   invokeTool(
     scope: RuntimeExecutionScope,
-    toolName: ToolName,
+    toolName: OperationName,
     rawArgs: unknown,
     suppliedOperationId?: string,
     invocationOptions: Readonly<ToolInvocationOptionsV1> = NO_CAPTURE_OPTIONS,
@@ -982,7 +1057,7 @@ export class OperationExecutor {
 
   async beginToolApproval(
     scope: ResolvedInvocationScope,
-    toolName: ToolName,
+    toolName: OperationName,
     rawArgs: unknown,
     operationId: string,
     approvalId: string,
@@ -1004,7 +1079,7 @@ export class OperationExecutor {
         throw new OperationIdConflictError();
       }
     } else {
-      const policy = evaluateOperationPolicy(toolName, prepared.parsedArgs, prepared.scope);
+      const policy = this.evaluate(toolName, prepared.parsedArgs, prepared.scope);
       await this.options.journal.appendInitial(
         this.initialRecord(prepared, policy, approvalId),
         'pending-approval',
@@ -1018,7 +1093,7 @@ export class OperationExecutor {
 
   async rejectToolBeforeEgress(
     scope: ResolvedInvocationScope,
-    toolName: ToolName,
+    toolName: OperationName,
     rawArgs: unknown,
     operationId: string,
     errorCode: string,
@@ -1045,7 +1120,7 @@ export class OperationExecutor {
         operationId,
       });
     }
-    const policy = evaluateOperationPolicy(toolName, prepared.parsedArgs, prepared.scope);
+    const policy = this.evaluate(toolName, prepared.parsedArgs, prepared.scope);
     return this.options.journal.appendInitial(
       this.initialRecord(prepared, policy, null),
       'pre-egress-rejected',
@@ -1120,14 +1195,22 @@ export class OperationExecutor {
 
   private prepare<TScope extends ResolvedInvocationScope>(
     scope: TScope,
-    toolName: ToolName,
+    toolName: OperationName,
     rawArgs: unknown,
     suppliedOperationId: string | undefined,
     options: Readonly<ToolInvocationOptionsV1>,
   ): PreparedInvocation & { scope: TScope } {
-    const spec = ALL_TOOL_SPECS.find(candidate => candidate.name === toolName);
+    const spec = this.specFor(toolName);
     if (spec === undefined)
       throw Object.assign(new Error('unknown tool'), { code: 'TOOL_NOT_FOUND' });
+    const kind = this.kindFor(toolName);
+    if (
+      (kind === 'system' && scope.actor.entryPath !== 'internal-system') ||
+      (kind === 'service' && scope.actor.entryPath !== 'control')
+    )
+      throw Object.assign(new Error('operation origin is not permitted'), {
+        code: 'INVOCATION_ORIGIN_INVALID',
+      });
     if (typeof rawArgs === 'object' && rawArgs !== null && !Array.isArray(rawArgs)) {
       const declared = new Set(Object.keys(spec.inputSchema.shape));
       if (Object.keys(rawArgs).some(key => !declared.has(key))) {
@@ -1152,7 +1235,21 @@ export class OperationExecutor {
       scope.workspace.workspaceId,
     );
     const parsedArgs = Object.freeze(parsed.data as Readonly<Record<string, unknown>>);
-    const argsHash = hash('sfp-parsed-args-v1', canonicalJson(parsedArgs));
+    const argsHash =
+      scope.portalAuthority === undefined
+        ? hash('sfp-parsed-args-v1', canonicalJson(parsedArgs))
+        : hash(
+            'sfp-portal-parsed-args-v1',
+            canonicalJson({
+              args: parsedArgs,
+              authorityHash: scope.portalAuthority.hash,
+              executionAuthorityHash: scope.portalAuthority.executionAuthorityHash ?? null,
+              ...(scope.portalAuthority.captureSource
+                ? { captureSource: scope.portalAuthority.captureSource }
+                : {}),
+              candidateHash: scope.portalAuthority.candidateHash ?? null,
+            }),
+          );
     const fileExecutionKeyHash =
       scope.target.fileExecutionKey === null
         ? null
@@ -1168,7 +1265,7 @@ export class OperationExecutor {
     const fingerprint = {
       actorId: scope.actor.actorId,
       operationId,
-      operationKind: 'tool' as const,
+      operationKind: this.kindFor(toolName),
       operationName: toolName,
       argsHash,
       workspaceId: scope.workspace.workspaceId,
@@ -1232,7 +1329,7 @@ export class OperationExecutor {
     approvalId: string | null,
   ): NewOperationRecord {
     const originEntryPath = prepared.scope.actor.entryPath;
-    if (originEntryPath === 'internal-system') {
+    if (originEntryPath === 'internal-system' && this.kindFor(prepared.toolName) !== 'system') {
       throw Object.assign(new Error('tool invocation cannot use an internal-system origin'), {
         code: 'INVOCATION_ORIGIN_INVALID',
       });
@@ -1240,14 +1337,17 @@ export class OperationExecutor {
     return {
       actorId: prepared.scope.actor.actorId,
       originAuthSessionId: prepared.scope.actor.authSessionId,
-      origin: {
-        kind: 'entry',
-        entryPath: originEntryPath,
-        authSessionId: prepared.scope.actor.authSessionId,
-      },
+      origin:
+        originEntryPath === 'internal-system'
+          ? this.systemOrigin(prepared)
+          : {
+              kind: 'entry',
+              entryPath: originEntryPath,
+              authSessionId: prepared.scope.actor.authSessionId,
+            },
       operationId: prepared.operationId,
       issuedAt: prepared.issuedAt,
-      operationKind: 'tool',
+      operationKind: this.kindFor(prepared.toolName),
       operationName: prepared.toolName,
       argsHash: prepared.argsHash,
       captureIntentHash: prepared.captureIntentHash,
@@ -1255,14 +1355,16 @@ export class OperationExecutor {
       resultHash: null,
       resultBytes: null,
       workspaceId: prepared.scope.workspace.workspaceId,
-      fileExecutionKey: prepared.scope.target.fileExecutionKey,
+      fileExecutionKey:
+        originEntryPath === 'internal-system' ? null : prepared.scope.target.fileExecutionKey,
       fileExecutionKeyHash: prepared.fileExecutionKeyHash,
       targetBindingHash: prepared.targetBindingHash,
-      pluginGeneration: null,
+      pluginGeneration:
+        originEntryPath === 'internal-system' ? prepared.scope.target.pluginGeneration : null,
       leaderGeneration: prepared.scope.leaderGeneration,
       policyId:
         policyDecision.policy.toolName === prepared.toolName
-          ? `tool:${prepared.toolName}:v1`
+          ? `${this.kindFor(prepared.toolName)}:${prepared.toolName}:v1`
           : 'invalid',
       effectSummary: policyDecision.effects.map(effect => effect.type),
       approvalId,
@@ -1272,16 +1374,42 @@ export class OperationExecutor {
     };
   }
 
+  private systemOrigin(
+    prepared: PreparedInvocation,
+  ): Extract<import('@sfp/shared').OperationOriginV1, { kind: 'internal-system' }> {
+    const target = prepared.scope.target;
+    if (
+      prepared.toolName !== 'identity.bootstrap' ||
+      target.sessionId === null ||
+      target.fileIdentity === null ||
+      target.pluginGeneration === null ||
+      prepared.fileExecutionKeyHash === null ||
+      prepared.targetBindingHash === null
+    )
+      throw Object.assign(new Error('system operation requires an exact paired target'), {
+        code: 'INVOCATION_ORIGIN_INVALID',
+      });
+    return {
+      kind: 'internal-system',
+      entryPath: 'internal-system',
+      authSessionId: prepared.scope.actor.authSessionId,
+      systemName: 'identity.bootstrap',
+      pairedSessionHash: hash('sfp-paired-session-v1', target.sessionId),
+      targetSessionIdHash: hash('sfp-target-session-v1', target.sessionId),
+      fileIdentityHash: canonicalFileIdentityHash(target.fileIdentity),
+      fileExecutionKeyHash: prepared.fileExecutionKeyHash,
+      pluginGeneration: target.pluginGeneration,
+      leaderGeneration: prepared.scope.leaderGeneration,
+      targetBindingHash: prepared.targetBindingHash,
+    };
+  }
+
   private async executeNew(
     prepared: PreparedRuntimeInvocation,
     cacheKey: string,
     reporter?: ProgressReporter,
   ): Promise<unknown> {
-    const policyDecision = evaluateOperationPolicy(
-      prepared.toolName,
-      prepared.parsedArgs,
-      prepared.scope,
-    );
+    const policyDecision = this.evaluate(prepared.toolName, prepared.parsedArgs, prepared.scope);
     let durability: PreparedDurability | null;
     try {
       durability = await this.prepareDurability(prepared, policyDecision);
@@ -1310,9 +1438,9 @@ export class OperationExecutor {
       this.activeControllers.delete(prepared.operationId);
       throw error;
     }
-    await this.options.durability?.afterEvidenceReservationFsync?.();
     const cancellation = this.ensureCancellationState(prepared);
     cancellation.durability = durability;
+    await this.options.durability?.afterEvidenceReservationFsync?.();
     try {
       await this.options.journal.appendInitial(
         {
@@ -1340,43 +1468,48 @@ export class OperationExecutor {
     cacheKey: string,
     reporter?: ProgressReporter,
   ): Promise<unknown> {
-    const policyDecision = evaluateOperationPolicy(
-      prepared.toolName,
-      prepared.parsedArgs,
-      prepared.scope,
-    );
+    const policyDecision = this.evaluate(prepared.toolName, prepared.parsedArgs, prepared.scope);
+    const cancellation = this.ensureCancellationState(prepared);
+    cancellation.controller.signal.throwIfAborted();
+    let attached!: () => void, attachmentFailed!: (error: unknown) => void;
+    cancellation.reservationPreparation = new Promise<void>((resolve, reject) => {
+      attached = resolve;
+      attachmentFailed = reject;
+    });
+    void cancellation.reservationPreparation.catch(() => {});
     let durability: PreparedDurability | null;
     try {
       durability = await this.prepareDurability(prepared, policyDecision);
+      cancellation.durability = durability;
+      attached();
     } catch (error) {
-      const settlement = this.reservationFailureSettlement(error);
-      const errorCode =
-        typeof error === 'object' && error !== null && 'code' in error
-          ? String(error.code)
-          : 'OPERATION_RESERVATION_FAILED';
-      if (settlement === null) {
-        await this.transition(prepared, 'pre-egress-rejected', { errorCode });
-      } else {
-        await this.options.journal.transition(prepared.operationId, 'queued', {
-          preExecutionConsentManifestHash: settlement.preManifestHash,
-        });
-        await this.transition(prepared, settlement.status, {
-          errorCode,
-          operationEvidenceReceiptHash: null,
-          finalEgressManifestHash: settlement.finalEgressManifestHash,
-        });
+      try {
+        const settlement = this.reservationFailureSettlement(error);
+        const errorCode =
+          typeof error === 'object' && error !== null && 'code' in error
+            ? String(error.code)
+            : 'OPERATION_RESERVATION_FAILED';
+        if (settlement === null) {
+          await this.transition(prepared, 'pre-egress-rejected', { errorCode });
+        } else {
+          await this.options.journal.transition(prepared.operationId, 'queued', {
+            preExecutionConsentManifestHash: settlement.preManifestHash,
+          });
+          await this.transition(prepared, settlement.status, {
+            errorCode,
+            operationEvidenceReceiptHash: null,
+            finalEgressManifestHash: settlement.finalEgressManifestHash,
+          });
+        }
+        this.activeControllers.delete(prepared.operationId);
+        throw error;
+      } finally {
+        attachmentFailed(error);
       }
-      this.activeControllers.delete(prepared.operationId);
-      throw error;
     }
     await this.options.durability?.afterEvidenceReservationFsync?.();
-    const cancellation = this.ensureCancellationState(prepared);
-    cancellation.durability = durability;
     if (cancellation.controller.signal.aborted) {
-      const current = this.options.journal.get(prepared.operationId);
-      if (current?.status === 'pending-approval') {
-        await this.settlePreDispatchCancellation(cancellation, 'pending-approval');
-      }
+      await this.settlePreDispatchCancellation(cancellation, 'pending-approval');
       this.activeControllers.delete(prepared.operationId);
       throw cancellation.controller.signal.reason;
     }
@@ -1389,7 +1522,9 @@ export class OperationExecutor {
           : { preExecutionConsentManifestHash: durability.preManifest.manifestHash },
       );
     } catch (error) {
-      await this.releasePreparedBeforeDispatch(durability);
+      if (cancellation.controller.signal.aborted)
+        await this.settlePreDispatchCancellation(cancellation, 'pending-approval');
+      else await this.releasePreparedBeforeDispatch(durability);
       this.activeControllers.delete(prepared.operationId);
       throw error;
     }
@@ -1403,187 +1538,144 @@ export class OperationExecutor {
     durability: PreparedDurability | null,
     reporter?: ProgressReporter,
   ): Promise<unknown> {
-    return this.options.queue.run(
-      prepared.scope.target.fileExecutionKey,
-      policyDecision.concurrency,
-      async () => {
-        const cancellation = this.ensureCancellationState(prepared);
-        if (cancellation.controller.signal.aborted) {
-          const current = this.options.journal.get(prepared.operationId);
-          if (current?.status === 'queued') {
-            await this.settlePreDispatchCancellation(cancellation, 'queued');
+    const cancellation = this.ensureCancellationState(prepared);
+    const resources = prepared.scope.portalAuthority?.executionResources ?? [
+      {
+        key:
+          prepared.scope.portalAuthority?.resource.key ??
+          prepared.scope.target.fileExecutionKey ??
+          'target:none',
+        mode:
+          policyDecision.concurrency === 'parallel-read' ? ('read' as const) : ('write' as const),
+      },
+    ];
+    return this.options.queue
+      .runResources(
+        resources,
+        async () => {
+          if (cancellation.controller.signal.aborted) {
+            const current = this.options.journal.get(prepared.operationId);
+            if (current?.status === 'queued') {
+              await this.settlePreDispatchCancellation(cancellation, 'queued');
+            }
+            throw cancellation.controller.signal.reason;
           }
-          throw cancellation.controller.signal.reason;
-        }
-        await this.options.journal.transition(
-          prepared.operationId,
-          'dispatched',
-          durability === null
-            ? {}
-            : { preExecutionConsentManifestHash: durability.preManifest.manifestHash },
-        );
-        cancellation.dispatched = true;
-        const controller = cancellation.controller;
-        let runtimeCompleted = false;
-        try {
-          const validated = await executeToolRuntime(
-            prepared.toolName,
-            prepared.scope,
-            prepared.parsedArgs,
-            controller.signal,
-            this.options.runtimes,
-            reporter,
-            {
+          await this.options.journal.transition(
+            prepared.operationId,
+            'dispatched',
+            durability === null
+              ? {}
+              : { preExecutionConsentManifestHash: durability.preManifest.manifestHash },
+          );
+          cancellation.dispatched = true;
+          const controller = cancellation.controller;
+          let runtimeCompleted = false;
+          try {
+            const extension = this.options.operations?.[prepared.toolName];
+            const action = {
               operationId: prepared.operationId,
               actionNonce: cancellation.actionNonce,
-            },
-          );
-          runtimeCompleted = true;
-          if (controller.signal.aborted) {
-            if (cancellation.demoting && cancellation.demotionSettlement !== null) {
-              await cancellation.demotionSettlement;
-              throw Object.assign(new Error('demoted plugin outcome is unknown'), {
-                code: 'OPERATION_OUTCOME_UNKNOWN',
-              });
-            }
-            const current = this.options.journal.get(prepared.operationId);
-            if (current?.status === 'dispatched') {
-              const errorCode = cancellation.demoting
-                ? 'LEADER_GENERATION_CLOSED'
-                : 'OPERATION_CANCELLED_AFTER_DISPATCH';
-              if (durability !== null) {
-                await this.finalizeUnknown(prepared, durability, errorCode);
-              } else {
-                await this.transition(prepared, 'outcome-unknown', { errorCode });
-              }
-            }
-            throw Object.assign(new Error('cancelled plugin outcome is unknown'), {
-              code: 'OPERATION_OUTCOME_UNKNOWN',
-            });
-          }
-          const egress = resultEgressPolicyFor(prepared.toolName);
-          const redacted = egress.redactResult(
-            validated as Readonly<Record<string, unknown>>,
-            prepared.scope.consent.allowedClasses,
-          );
-          const canonicalRedactedResultBytes = Buffer.from(canonicalJson(redacted), 'utf8');
-          const resultHash = hash(null, canonicalRedactedResultBytes);
-          if (durability === null || this.durableFinalizer === null) {
-            controller.signal.throwIfAborted();
-            cancellation.terminalClaimed = true;
-            await this.transition(prepared, 'succeeded', {
-              resultHash,
-              resultBytes: canonicalRedactedResultBytes.byteLength,
-            });
-          } else {
-            const classifiedResult = egress.classifyResult(
-              redacted as Readonly<Record<string, unknown>>,
-            );
-            const outputManifest = createOutputEgressManifest({
-              preExecutionManifestHash: durability.preManifest.manifestHash,
-              resultClasses: classifiedResult.classes,
-              outputBytes: canonicalRedactedResultBytes.byteLength,
-              outputTokens: classifiedResult.tokens,
-              redactedFieldCount: 0,
-              resultHash,
-              resultBytes: canonicalRedactedResultBytes.byteLength,
-              payloadHash: resultHash,
-            });
-            const nativeEvidence = await this.materializeNativeEvidence(
-              prepared,
-              redacted,
-              controller.signal,
-            );
-            controller.signal.throwIfAborted();
-            cancellation.terminalClaimed = true;
-            await this.durableFinalizer.succeed({
-              actorId: prepared.scope.actor.actorId,
-              operationId: prepared.operationId,
-              operationKind: 'tool',
-              operationName: prepared.toolName,
-              argsHash: prepared.argsHash,
-              workspaceId: prepared.scope.workspace.workspaceId,
-              fileExecutionKeyHash: prepared.fileExecutionKeyHash,
-              targetBindingHash: prepared.targetBindingHash,
-              captureIntentHash: prepared.captureIntentHash,
-              captureIntent: prepared.options.captureIntent,
-              canonicalRedactedBytes: canonicalRedactedResultBytes,
-              resultSchemaHash: this.resultSchemaHash(prepared.toolName),
-              resultHash,
-              nativeEvidence,
-              daemonGenerationHash: hash(
-                'sfp-daemon-generation-v1',
-                prepared.scope.leaderGeneration,
-              ),
-              leaderGeneration: prepared.scope.leaderGeneration,
-              evidenceReservationId: durability.evidenceReservationId,
-              egressReservation: durability.egressReservation,
-              outputManifest,
-              completedAt: new Date(this.now()).toISOString(),
-              requestId: prepared.scope.requestId,
-              result: redacted,
-            });
-          }
-          this.cacheCompleted(
-            cacheKey,
-            prepared,
-            canonicalRedactedResultBytes,
-            this.resultSchemaHash(prepared.toolName),
-          );
-          return JSON.parse(canonicalRedactedResultBytes.toString('utf8'));
-        } catch (error) {
-          if (cancellation.demoting && cancellation.demotionSettlement !== null) {
-            await cancellation.demotionSettlement;
-            throw Object.assign(new Error('demoted plugin outcome is unknown'), {
-              code: 'OPERATION_OUTCOME_UNKNOWN',
-              cause: error,
-            });
-          }
-          const code =
-            typeof error === 'object' && error !== null && 'code' in error
-              ? String((error as { code: unknown }).code)
-              : 'RUNTIME_FAILED';
-          const postCommit =
-            typeof error === 'object' &&
-            error !== null &&
-            'committed' in error &&
-            error.committed === true;
-          const current = this.options.journal.get(prepared.operationId);
-          if (current?.status === 'dispatched') {
+            };
+            const validated =
+              extension === undefined
+                ? await executeToolRuntime(
+                    ToolNameSchema.parse(prepared.toolName),
+                    prepared.scope,
+                    prepared.parsedArgs,
+                    controller.signal,
+                    this.options.runtimes,
+                    reporter,
+                    action,
+                  )
+                : extension.resultSchema.parse(
+                    await extension.execute(
+                      prepared.scope,
+                      prepared.parsedArgs,
+                      controller.signal,
+                      reporter,
+                      action,
+                    ),
+                  );
+            runtimeCompleted = true;
             if (controller.signal.aborted) {
-              const errorCode = cancellation.demoting
-                ? 'LEADER_GENERATION_CLOSED'
-                : 'OPERATION_CANCELLED_AFTER_DISPATCH';
-              if (durability !== null) {
-                await this.finalizeUnknown(prepared, durability, errorCode);
-              } else {
-                await this.transition(prepared, 'outcome-unknown', { errorCode });
+              if (cancellation.demoting && cancellation.demotionSettlement !== null) {
+                await cancellation.demotionSettlement;
+                throw Object.assign(new Error('demoted plugin outcome is unknown'), {
+                  code: 'OPERATION_OUTCOME_UNKNOWN',
+                });
+              }
+              const current = this.options.journal.get(prepared.operationId);
+              if (current?.status === 'dispatched') {
+                const errorCode = cancellation.demoting
+                  ? 'LEADER_GENERATION_CLOSED'
+                  : 'OPERATION_CANCELLED_AFTER_DISPATCH';
+                if (durability !== null) {
+                  await this.finalizeUnknown(prepared, durability, errorCode);
+                } else {
+                  await this.transition(prepared, 'outcome-unknown', { errorCode });
+                }
               }
               throw Object.assign(new Error('cancelled plugin outcome is unknown'), {
                 code: 'OPERATION_OUTCOME_UNKNOWN',
-                cause: error,
               });
             }
+            const egress = this.egressFor(prepared.toolName);
+            const redacted = egress.redactResult(
+              validated as Readonly<Record<string, unknown>>,
+              prepared.scope.consent.allowedClasses,
+            );
+            const canonicalRedactedResultBytes = Buffer.from(canonicalJson(redacted), 'utf8');
             if (
-              !runtimeCompleted &&
-              !postCommit &&
-              durability !== null &&
-              this.durableFinalizer !== null
-            ) {
-              const noOutputManifest = createNoOutputEgressManifest({
-                preExecutionManifestHash: durability.preManifest.manifestHash,
-                reasonCode: controller.signal.aborted ? 'cancelled' : 'runtime-failed',
+              prepared.options.captureIntent.captureResult &&
+              canonicalRedactedResultBytes.byteLength > OPERATION_CAPTURE_MAX_BYTES
+            )
+              throw Object.assign(new Error('Captured result exceeds the service byte limit'), {
+                code: 'EVIDENCE_CAPTURE_TOO_LARGE',
               });
-              await this.durableFinalizer.fail({
+            const resultHash = hash(null, canonicalRedactedResultBytes);
+            if (durability === null || this.durableFinalizer === null) {
+              controller.signal.throwIfAborted();
+              cancellation.terminalClaimed = true;
+              await this.transition(prepared, 'succeeded', {
+                resultHash,
+                resultBytes: canonicalRedactedResultBytes.byteLength,
+              });
+            } else {
+              const classifiedResult = egress.classifyResult(
+                redacted as Readonly<Record<string, unknown>>,
+              );
+              const outputManifest = createOutputEgressManifest({
+                preExecutionManifestHash: durability.preManifest.manifestHash,
+                resultClasses: classifiedResult.classes,
+                outputBytes: canonicalRedactedResultBytes.byteLength,
+                outputTokens: classifiedResult.tokens,
+                redactedFieldCount: 0,
+                resultHash,
+                resultBytes: canonicalRedactedResultBytes.byteLength,
+                payloadHash: resultHash,
+              });
+              const nativeEvidence = await this.materializeNativeEvidence(
+                prepared,
+                redacted,
+                controller.signal,
+              );
+              controller.signal.throwIfAborted();
+              cancellation.terminalClaimed = true;
+              await this.durableFinalizer.succeed({
                 actorId: prepared.scope.actor.actorId,
                 operationId: prepared.operationId,
-                operationKind: 'tool',
+                operationKind: this.kindFor(prepared.toolName),
                 operationName: prepared.toolName,
                 argsHash: prepared.argsHash,
                 workspaceId: prepared.scope.workspace.workspaceId,
                 fileExecutionKeyHash: prepared.fileExecutionKeyHash,
                 targetBindingHash: prepared.targetBindingHash,
                 captureIntentHash: prepared.captureIntentHash,
+                captureIntent: prepared.options.captureIntent,
+                canonicalRedactedBytes: canonicalRedactedResultBytes,
+                resultSchemaHash: this.resultSchemaHash(prepared.toolName),
+                resultHash,
+                nativeEvidence,
                 daemonGenerationHash: hash(
                   'sfp-daemon-generation-v1',
                   prepared.scope.leaderGeneration,
@@ -1591,33 +1683,122 @@ export class OperationExecutor {
                 leaderGeneration: prepared.scope.leaderGeneration,
                 evidenceReservationId: durability.evidenceReservationId,
                 egressReservation: durability.egressReservation,
-                noOutputManifest,
+                outputManifest,
                 completedAt: new Date(this.now()).toISOString(),
-                errorCode: code,
+                requestId: prepared.scope.requestId,
+                result: redacted,
               });
-            } else if ((runtimeCompleted || postCommit) && durability !== null) {
-              await this.finalizeUnknown(prepared, durability, postCommit ? code : undefined);
-            } else {
-              await this.transition(
-                prepared,
-                runtimeCompleted || postCommit ? 'outcome-unknown' : 'failed',
-                {
-                  errorCode: postCommit
-                    ? code
-                    : runtimeCompleted
-                      ? 'OPERATION_TERMINAL_DURABILITY_FAILED'
-                      : code,
-                },
-              );
             }
+            this.cacheCompleted(
+              cacheKey,
+              prepared,
+              canonicalRedactedResultBytes,
+              this.resultSchemaHash(prepared.toolName),
+            );
+            return JSON.parse(canonicalRedactedResultBytes.toString('utf8'));
+          } catch (error) {
+            if (cancellation.demoting && cancellation.demotionSettlement !== null) {
+              await cancellation.demotionSettlement;
+              throw Object.assign(new Error('demoted plugin outcome is unknown'), {
+                code: 'OPERATION_OUTCOME_UNKNOWN',
+                cause: error,
+              });
+            }
+            const code =
+              typeof error === 'object' && error !== null && 'code' in error
+                ? String((error as { code: unknown }).code)
+                : 'RUNTIME_FAILED';
+            const postCommit =
+              typeof error === 'object' &&
+              error !== null &&
+              'committed' in error &&
+              error.committed === true;
+            const current = this.options.journal.get(prepared.operationId);
+            if (current?.status === 'dispatched') {
+              if (controller.signal.aborted) {
+                const errorCode = cancellation.demoting
+                  ? 'LEADER_GENERATION_CLOSED'
+                  : 'OPERATION_CANCELLED_AFTER_DISPATCH';
+                if (durability !== null) {
+                  await this.finalizeUnknown(prepared, durability, errorCode);
+                } else {
+                  await this.transition(prepared, 'outcome-unknown', { errorCode });
+                }
+                throw Object.assign(new Error('cancelled plugin outcome is unknown'), {
+                  code: 'OPERATION_OUTCOME_UNKNOWN',
+                  cause: error,
+                });
+              }
+              if (
+                !runtimeCompleted &&
+                !postCommit &&
+                durability !== null &&
+                this.durableFinalizer !== null
+              ) {
+                const noOutputManifest = createNoOutputEgressManifest({
+                  preExecutionManifestHash: durability.preManifest.manifestHash,
+                  reasonCode: controller.signal.aborted ? 'cancelled' : 'runtime-failed',
+                });
+                await this.durableFinalizer.fail({
+                  actorId: prepared.scope.actor.actorId,
+                  operationId: prepared.operationId,
+                  operationKind: this.kindFor(prepared.toolName),
+                  operationName: prepared.toolName,
+                  argsHash: prepared.argsHash,
+                  workspaceId: prepared.scope.workspace.workspaceId,
+                  fileExecutionKeyHash: prepared.fileExecutionKeyHash,
+                  targetBindingHash: prepared.targetBindingHash,
+                  captureIntentHash: prepared.captureIntentHash,
+                  daemonGenerationHash: hash(
+                    'sfp-daemon-generation-v1',
+                    prepared.scope.leaderGeneration,
+                  ),
+                  leaderGeneration: prepared.scope.leaderGeneration,
+                  evidenceReservationId: durability.evidenceReservationId,
+                  egressReservation: durability.egressReservation,
+                  noOutputManifest,
+                  completedAt: new Date(this.now()).toISOString(),
+                  errorCode: code,
+                });
+              } else if ((runtimeCompleted || postCommit) && durability !== null) {
+                await this.finalizeUnknown(
+                  prepared,
+                  durability,
+                  postCommit || code === 'EVIDENCE_CAPTURE_TOO_LARGE' ? code : undefined,
+                );
+              } else {
+                await this.transition(
+                  prepared,
+                  runtimeCompleted || postCommit ? 'outcome-unknown' : 'failed',
+                  {
+                    errorCode:
+                      postCommit || code === 'EVIDENCE_CAPTURE_TOO_LARGE'
+                        ? code
+                        : runtimeCompleted
+                          ? 'OPERATION_TERMINAL_DURABILITY_FAILED'
+                          : code,
+                  },
+                );
+              }
+            }
+            throw error;
+          } finally {
+            cancellation.settleTerminal();
+            this.activeControllers.delete(prepared.operationId);
           }
-          throw error;
-        } finally {
-          cancellation.settleTerminal();
-          this.activeControllers.delete(prepared.operationId);
-        }
-      },
-    );
+        },
+        cancellation.controller.signal,
+      )
+      .catch(async error => {
+        if (
+          this.options.journal.get(prepared.operationId)?.status === 'queued' &&
+          cancellation.controller.signal.aborted
+        )
+          await this.settlePreDispatchCancellation(cancellation, 'queued');
+        cancellation.settleTerminal();
+        this.activeControllers.delete(prepared.operationId);
+        throw error;
+      });
   }
 
   private async prepareDurability(
@@ -1635,7 +1816,7 @@ export class OperationExecutor {
         prepared.options.captureIntent,
       );
     }
-    const egress = resultEgressPolicyFor(prepared.toolName);
+    const egress = this.egressFor(prepared.toolName);
     const classifiedInput = egress.classifyInput(prepared.parsedArgs);
     const preManifest = createPreExecutionConsentManifest({
       consentId: prepared.scope.consent.consentId,
@@ -1746,13 +1927,36 @@ export class OperationExecutor {
     const context = Object.freeze({ operationId: prepared.operationId, workspaceId });
     const projection = durability.projector.project(
       context,
-      'tool',
+      this.kindFor(prepared.toolName),
       prepared.toolName,
       prepared.parsedArgs,
       redacted,
     );
     signal.throwIfAborted();
-    if (projection.kind === 'no-artifact') return projection;
+    if (projection.kind === 'no-artifact')
+      return { kind: 'no-artifact', reasonCode: projection.reasonCode };
+    if (
+      projection.kind === 'snapshot-candidate' ||
+      projection.kind === 'grounding-graph-candidate'
+    ) {
+      if (
+        !(prepared.scope.evidenceWrites ?? []).some(
+          effect =>
+            effect.workspaceId === workspaceId &&
+            effect.resolvedRelativePath === projection.artifactRelativePath,
+        ) ||
+        durability.nativeArtifacts.materializeServiceArtifact === undefined
+      )
+        throw Object.assign(new Error('service artifact lacks declared write authority'), {
+          code: 'NATIVE_EVIDENCE_CONTEXT_MISMATCH',
+        });
+      const { verifyNativeEvidenceContext } = await import('./operation-evidence-projector.js');
+      return durability.nativeArtifacts.materializeServiceArtifact({
+        context: verifyNativeEvidenceContext(context, projection),
+        projection,
+        signal,
+      });
+    }
     if (projection.kind !== 'export-candidates') {
       return { kind: 'no-artifact', reasonCode: 'not-native-evidence' };
     }
@@ -1786,6 +1990,8 @@ export class OperationExecutor {
       demoting: false,
       prepared,
       demotionSettlement: null,
+      preDispatchSettlement: null,
+      reservationPreparation: null,
       terminalClaimed: false,
       terminalSettlement,
       settleTerminal,
@@ -1794,12 +2000,24 @@ export class OperationExecutor {
     return state;
   }
 
-  private async settlePreDispatchCancellation(
+  private settlePreDispatchCancellation(
     state: CancellationState,
     currentStatus: 'pending-approval' | 'queued',
     errorCode = 'OPERATION_CANCELLED',
     capability?: LeaderDemotionCapability,
   ): Promise<void> {
+    state.preDispatchSettlement ??= Promise.resolve().then(() =>
+      this.performPreDispatchCancellation(state, currentStatus, errorCode, capability),
+    );
+    return state.preDispatchSettlement;
+  }
+  private async performPreDispatchCancellation(
+    state: CancellationState,
+    currentStatus: 'pending-approval' | 'queued',
+    errorCode: string,
+    capability?: LeaderDemotionCapability,
+  ): Promise<void> {
+    await state.reservationPreparation;
     let finalEgressManifestHash: PrefixedSha256 | null = null;
     if (state.durability !== null && this.options.durability !== undefined) {
       const noOutput = createNoOutputEgressManifest({
@@ -1959,9 +2177,7 @@ export class OperationExecutor {
       let parsedResult: unknown;
       let canonicalRoundTrip = false;
       try {
-        const schema = ALL_TOOL_SPECS.find(
-          candidate => candidate.name === prepared.toolName,
-        )!.resultSchema;
+        const schema = this.specFor(prepared.toolName).resultSchema;
         const parsed = schema.safeParse(
           JSON.parse(Buffer.from(cache.canonicalRedactedResultBytes).toString('utf8')),
         );
@@ -2004,7 +2220,7 @@ export class OperationExecutor {
     return hash(
       'sfp-consent-fingerprint-v1',
       canonicalJson({
-        operationKind: 'tool',
+        operationKind: this.kindFor(prepared.toolName),
         operationName: prepared.toolName,
         mode: prepared.scope.consent.mode,
         consentId: prepared.scope.consent.consentId,
@@ -2014,8 +2230,8 @@ export class OperationExecutor {
     );
   }
 
-  private resultSchemaHash(toolName: ToolName): PrefixedSha256 {
-    const spec = ALL_TOOL_SPECS.find(candidate => candidate.name === toolName)!;
+  private resultSchemaHash(toolName: OperationName): PrefixedSha256 {
+    const spec = this.specFor(toolName);
     return hash('sfp-result-schema-v1', canonicalJson(spec.resultSchema.toJSONSchema()));
   }
 

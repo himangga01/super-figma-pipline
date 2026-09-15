@@ -16,6 +16,20 @@ const fakeFigma = (
   }) as unknown as typeof figma;
 
 describe('get_annotations handler', () => {
+  it('returns an exact empty row for a supported targeted node but keeps page scans sparse', async () => {
+    const target = node('empty', []);
+    const handler = createGetAnnotationsHandler(fakeFigma([target], { empty: target }));
+    expect(await handler({ nodeId: 'empty' })).toEqual({
+      annotations: [{ nodeId: 'empty', nodeName: 'empty', annotations: [] }],
+    });
+    expect(await handler({})).toEqual({ annotations: [] });
+  });
+  it('does not invent an empty preimage for missing or unsupported nodes', async () => {
+    const unsupported = { id: 'unsupported', name: 'Unsupported', type: 'DOCUMENT' } as BaseNode;
+    const handler = createGetAnnotationsHandler(fakeFigma([], { unsupported }));
+    expect(await handler({ nodeId: 'missing' })).toEqual({ annotations: [] });
+    expect(await handler({ nodeId: 'unsupported' })).toEqual({ annotations: [] });
+  });
   it('scans the current page for annotated nodes when no nodeId given', async () => {
     const page = [
       node(

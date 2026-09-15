@@ -12,7 +12,7 @@ import {
 import { createServer } from 'node:http';
 import type { AddressInfo } from 'node:net';
 import { tmpdir } from 'node:os';
-import { join, relative, resolve as resolvePath } from 'node:path';
+import { isAbsolute, join, relative, resolve as resolvePath } from 'node:path';
 
 import {
   ALL_DATA_CLASSES,
@@ -20,6 +20,7 @@ import {
   createResponse,
   decodeEnvelope,
   encodeEnvelope,
+  getFollowerBudget,
   hashEgressConfig,
   MIN_PLUGIN_VERSION,
   newId,
@@ -32,7 +33,6 @@ import {
 import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
 import { WebSocket } from 'ws';
 
-import { leaderLockPath } from '../../src/election/leader-lock.js';
 import { createEgressConfigStore } from '../../src/policy/policy-engine.js';
 import { PROMPT_DEFINITIONS } from '../../src/prompts/registry.js';
 import { createStatePermissions } from '../../src/security/state-permissions.js';
@@ -68,6 +68,9 @@ const freePort = async (): Promise<number> => {
   return port;
 };
 
+// Real ACL setup, pairing, invocation and cleanup are cumulative; retain each request's own deadline.
+const WIRE_TEST_TIMEOUT_MS = process.platform === 'win32' ? 60_000 : 30_000;
+
 const within = <T>(promise: Promise<T>, timeoutMs: number, message: () => string): Promise<T> =>
   Promise.race([
     promise,
@@ -95,7 +98,8 @@ const removeTemporaryStateBase = (stateBase: string): void => {
   if (
     fromTemporary === '' ||
     fromTemporary === '..' ||
-    fromTemporary.startsWith(`..${process.platform === 'win32' ? '\\' : '/'}`)
+    fromTemporary.startsWith(`..${process.platform === 'win32' ? '\\' : '/'}`) ||
+    isAbsolute(fromTemporary)
   ) {
     throw new Error('refusing to remove a wire-test path outside the OS temporary directory');
   }
@@ -151,6 +155,9 @@ class WireClient {
     const environment: Record<string, string | undefined> = {
       ...process.env,
       FIGWRIGHT_PORT: String(port),
+      TEMP: this.stateBase,
+      TMP: this.stateBase,
+      TMPDIR: this.stateBase,
     };
     if (process.platform === 'win32') {
       environment.LOCALAPPDATA = this.stateBase;
@@ -278,11 +285,17 @@ class WireClient {
     params: Record<string, unknown> = {},
   ): { id: number; response: Promise<JsonRpcResponse> } {
     const id = this.nextId++;
+    // A wire client must outlive the service's inner tool deadline. The old fixed 15s timer
+    // could abandon valid 30s operations while Windows persisted their admission/evidence.
+    const timeoutMs =
+      method === 'tools/call' && typeof params.name === 'string'
+        ? getFollowerBudget(params.name)
+        : 15_000;
     const wait = new Promise<JsonRpcResponse>((resolve, reject) => {
       const timer = setTimeout(() => {
         this.pending.delete(id);
         reject(new Error(`timed out waiting for ${method}\nstderr:\n${this.stderr}`));
-      }, 15_000);
+      }, timeoutMs);
       timer.unref();
       this.pending.set(id, r => {
         clearTimeout(timer);
@@ -335,12 +348,7 @@ class WireClient {
    * SIGKILL escalation that silently rescued a stuck shutdown would let a hang pass as a pass.
    */
   async stop(): Promise<{ code: number | null; escalated: boolean }> {
-    // Each spawned server leaves a leader note for the random port it owned (election/leader-lock).
-    // Production overwrites one file per port forever; a suite would otherwise leave one behind per
-    // server, per run, on every dev machine and CI runner. Done here rather than in a hook because
-    // this file creates WireClients inside individual tests too, not only in beforeAll.
-    rmSync(leaderLockPath(this.port), { force: true });
-    if (this.child.exitCode !== null) {
+    if (this.child.exitCode !== null || this.child.signalCode !== null) {
       const result = { code: this.child.exitCode, escalated: false };
       this.cleanupState();
       return result;
@@ -355,11 +363,15 @@ class WireClient {
     }, 5_000);
     escalate.unref();
     try {
-      const [code] = (await exited) as [number | null];
+      const [code] = (await within(
+        exited,
+        7_000,
+        () => 'wire child termination could not be confirmed',
+      )) as [number | null];
       return { code, escalated };
     } finally {
       clearTimeout(escalate);
-      this.cleanupState();
+      if (this.child.exitCode !== null || this.child.signalCode !== null) this.cleanupState();
     }
   }
 }
@@ -402,7 +414,7 @@ describe.skipIf(!existsSync(DIST_ENTRY))('MCP wire contract (built dist)', () =>
     const res = await client.send('tools/list');
     tools = (res.result?.tools ?? []) as AdvertisedTool[];
     await Promise.all([client.controlStatus(), failClosedClient.controlStatus()]);
-  }, 30_000);
+  }, WIRE_TEST_TIMEOUT_MS);
 
   afterAll(async () => {
     await Promise.all([client?.stop(), failClosedClient?.stop()]);
@@ -580,239 +592,255 @@ describe.skipIf(!existsSync(DIST_ENTRY))('MCP wire contract (built dist)', () =>
     expect(failClosedClient.durableInvocationBytes()).toBeGreaterThan(0);
   });
 
-  it('warns on a real tools/call when the connected plugin is out of date', async () => {
-    // The assembled product, over real stdio, against a real plugin socket. Every piece of this had
-    // unit coverage and the wiring in index.ts had none: deleting the append there left all 1387
-    // tests green. A warning that is not actually attached reaches nobody.
-    const server = new WireClient();
-    await server.start();
-    await server.handshake(LATEST_CLIENT_PROTOCOL);
-    const wsTicket = await server.pairTicket();
-    const plugin = await connectFakePlugin({
-      port: server.port,
-      credential: { kind: 'ticket', value: wsTicket },
-      clientVersion: '0.0.1',
-      handlers: { get_selection: () => ({ pageId: '1:1', pageName: 'Page 1', nodes: [] }) },
-    });
-
-    try {
-      const res = await server.send('tools/call', { name: 'get_selection', arguments: {} });
-      const content = res.result?.content as { type: string; text: string }[];
-
-      // The result the agent asked for is untouched and still first.
-      expect(JSON.parse(content[0]?.text ?? '{}')).toMatchObject({ pageName: 'Page 1' });
-      // The warning rides alongside it, not inside it.
-      expect(content).toHaveLength(2);
-      expect(content[1]?.text).toMatch(/OUT OF DATE/);
-      expect(content[1]?.text).toMatch(/older than this server/i);
-    } finally {
-      closeSocket(plugin);
-      await server.stop();
-    }
-  }, 30_000);
-
-  it('explains a METHOD_NOT_FOUND from an out-of-date plugin instead of leaving it bare', async () => {
-    // What an old plugin does loudest: nine tools in the last shipped build have no handler in it.
-    // Bare, that error reads as "this tool is broken" and the agent goes looking for another way
-    // round; attributed, the user gets told to update.
-    const server = new WireClient();
-    await server.start();
-    await server.handshake(LATEST_CLIENT_PROTOCOL);
-    const wsTicket = await server.pairTicket();
-    const plugin = await connectFakePlugin({
-      port: server.port,
-      credential: { kind: 'ticket', value: wsTicket },
-      clientVersion: '0.0.1',
-      // No handler for the tool called below — exactly what a plugin that predates it does.
-      handlers: {},
-    });
-
-    try {
-      const res = await server.send('tools/call', { name: 'get_selection', arguments: {} });
-
-      expect(res.result?.isError).toBe(true);
-      const content = res.result?.content as { type: string; text: string }[];
-      const text = content.map(c => c.text).join('');
-      expect(text).toMatch(/OUT OF DATE/);
-      expect(text).toMatch(/older than this server/i);
-    } finally {
-      closeSocket(plugin);
-      await server.stop();
-    }
-  }, 30_000);
-
-  it('leaves a real tools/call alone when the plugin is current', async () => {
-    const server = new WireClient();
-    await server.start();
-    await server.handshake(LATEST_CLIENT_PROTOCOL);
-    const wsTicket = await server.pairTicket();
-    const plugin = await connectFakePlugin({
-      port: server.port,
-      credential: { kind: 'ticket', value: wsTicket },
-      handlers: { get_selection: () => ({ pageId: '1:1', pageName: 'Page 1', nodes: [] }) },
-    });
-
-    try {
-      const res = await server.send('tools/call', { name: 'get_selection', arguments: {} });
-      const content = res.result?.content as { type: string; text: string }[];
-
-      expect(content).toHaveLength(1);
-    } finally {
-      closeSocket(plugin);
-      await server.stop();
-    }
-  }, 30_000);
-
-  it('turns a real MCP request abort into one Relay cancel and one durable unknown terminal', async () => {
-    const server = new WireClient();
-    await server.start();
-    await server.handshake(LATEST_CLIENT_PROTOCOL);
-    const ticket = await server.pairTicket();
-    const sessionId = newId();
-    const plugin = new WebSocket(`ws://127.0.0.1:${server.port}/ws`, { origin: 'null' });
-    await new Promise<void>((resolve, reject) => {
-      plugin.once('open', () => resolve());
-      plugin.once('error', reject);
-    });
-    let resolveHello!: (value: ResponseEnvelope) => void;
-    let resolveInvocation!: (value: Envelope) => void;
-    let resolveCancel!: (value: Envelope) => void;
-    const hello = new Promise<ResponseEnvelope>(resolve => {
-      resolveHello = resolve;
-    });
-    const invocation = new Promise<Envelope>(resolve => {
-      resolveInvocation = resolve;
-    });
-    const cancellation = new Promise<Envelope>(resolve => {
-      resolveCancel = resolve;
-    });
-    plugin.on('message', raw => {
-      const envelope = decodeEnvelope(raw as Uint8Array);
-      if (envelope.kind === 'res' && envelope.id === 'mcp-cancel-hello') {
-        resolveHello(envelope);
-        return;
-      }
-      if (envelope.kind === 'req' && envelope.method === SystemMethod.Ping) {
-        plugin.send(
-          encodeEnvelope(
-            createResponse({
-              id: envelope.id,
-              sessionId: envelope.sessionId,
-              result: { ok: true },
-            }),
-          ),
-        );
-        return;
-      }
-      if (envelope.kind === 'req' && envelope.method === 'get_selection') {
-        resolveInvocation(envelope);
-        return;
-      }
-      if (envelope.kind === 'evt' && envelope.method === SystemMethod.Cancel) {
-        resolveCancel(envelope);
-      }
-    });
-    plugin.send(
-      encodeEnvelope(
-        createRequest({
-          id: 'mcp-cancel-hello',
-          sessionId,
-          method: SystemMethod.Hello,
-          params: {
-            credential: { kind: 'ticket', value: ticket },
-            nonce: Buffer.alloc(16, 2).toString('base64url'),
-            protocolVersion: PROTOCOL_VERSION,
-            productVersion: '0.1.0',
-            pluginVersion: MIN_PLUGIN_VERSION,
-            pluginGeneration: 'plugin-generation-mcp-cancel',
-            editorType: 'figma',
-            mode: 'default',
-            fileIdentity: { kind: 'figma-file-key', value: 'file-key-mcp-cancel' },
-            fileName: 'MCP Cancel',
-            capabilities: [],
-          },
-        }),
-      ),
-    );
-    await hello;
-
-    let call: { id: number; response: Promise<JsonRpcResponse> } | undefined;
-    let pluginRequest: Envelope | undefined;
-    let failure: unknown;
-    try {
-      call = server.begin('tools/call', { name: 'get_selection', arguments: {} });
-      pluginRequest = await invocation;
-      if (pluginRequest.kind !== 'req')
-        throw new Error('plugin request was not a request envelope');
-      server.notify('notifications/cancelled', {
-        requestId: call.id,
-        reason: 'test request abort',
+  it(
+    'warns on a real tools/call when the connected plugin is out of date',
+    async () => {
+      // The assembled product, over real stdio, against a real plugin socket. Every piece of this had
+      // unit coverage and the wiring in index.ts had none: deleting the append there left all 1387
+      // tests green. A warning that is not actually attached reaches nobody.
+      const server = new WireClient();
+      await server.start();
+      await server.handshake(LATEST_CLIENT_PROTOCOL);
+      const wsTicket = await server.pairTicket();
+      const plugin = await connectFakePlugin({
+        port: server.port,
+        credential: { kind: 'ticket', value: wsTicket },
+        clientVersion: '0.0.1',
+        handlers: { get_selection: () => ({ pageId: '1:1', pageName: 'Page 1', nodes: [] }) },
       });
-      const cancel = await Promise.race([
-        cancellation,
-        new Promise<never>((_resolve, reject) => {
-          const timer = setTimeout(
-            () => reject(new Error('actual MCP abort did not reach Relay cancel')),
-            1_000,
+
+      try {
+        const res = await server.send('tools/call', { name: 'get_selection', arguments: {} });
+        const content = res.result?.content as { type: string; text: string }[];
+
+        // The result the agent asked for is untouched and still first.
+        expect(JSON.parse(content[0]?.text ?? '{}')).toMatchObject({ pageName: 'Page 1' });
+        // The warning rides alongside it, not inside it.
+        expect(content).toHaveLength(2);
+        expect(content[1]?.text).toMatch(/OUT OF DATE/);
+        expect(content[1]?.text).toMatch(/older than this server/i);
+      } finally {
+        closeSocket(plugin);
+        await server.stop();
+      }
+    },
+    WIRE_TEST_TIMEOUT_MS,
+  );
+
+  it(
+    'explains a METHOD_NOT_FOUND from an out-of-date plugin instead of leaving it bare',
+    async () => {
+      // What an old plugin does loudest: nine tools in the last shipped build have no handler in it.
+      // Bare, that error reads as "this tool is broken" and the agent goes looking for another way
+      // round; attributed, the user gets told to update.
+      const server = new WireClient();
+      await server.start();
+      await server.handshake(LATEST_CLIENT_PROTOCOL);
+      const wsTicket = await server.pairTicket();
+      const plugin = await connectFakePlugin({
+        port: server.port,
+        credential: { kind: 'ticket', value: wsTicket },
+        clientVersion: '0.0.1',
+        // No handler for the tool called below — exactly what a plugin that predates it does.
+        handlers: {},
+      });
+
+      try {
+        const res = await server.send('tools/call', { name: 'get_selection', arguments: {} });
+
+        expect(res.result?.isError).toBe(true);
+        const content = res.result?.content as { type: string; text: string }[];
+        const text = content.map(c => c.text).join('');
+        expect(text).toMatch(/OUT OF DATE/);
+        expect(text).toMatch(/older than this server/i);
+      } finally {
+        closeSocket(plugin);
+        await server.stop();
+      }
+    },
+    WIRE_TEST_TIMEOUT_MS,
+  );
+
+  it(
+    'leaves a real tools/call alone when the plugin is current',
+    async () => {
+      const server = new WireClient();
+      await server.start();
+      await server.handshake(LATEST_CLIENT_PROTOCOL);
+      const wsTicket = await server.pairTicket();
+      const plugin = await connectFakePlugin({
+        port: server.port,
+        credential: { kind: 'ticket', value: wsTicket },
+        handlers: { get_selection: () => ({ pageId: '1:1', pageName: 'Page 1', nodes: [] }) },
+      });
+
+      try {
+        const res = await server.send('tools/call', { name: 'get_selection', arguments: {} });
+        const content = res.result?.content as { type: string; text: string }[];
+
+        expect(content).toHaveLength(1);
+      } finally {
+        closeSocket(plugin);
+        await server.stop();
+      }
+    },
+    WIRE_TEST_TIMEOUT_MS,
+  );
+
+  it(
+    'turns a real MCP request abort into one Relay cancel and one durable unknown terminal',
+    async () => {
+      const server = new WireClient();
+      await server.start();
+      await server.handshake(LATEST_CLIENT_PROTOCOL);
+      const ticket = await server.pairTicket();
+      const sessionId = newId();
+      const plugin = new WebSocket(`ws://127.0.0.1:${server.port}/ws`, { origin: 'null' });
+      await new Promise<void>((resolve, reject) => {
+        plugin.once('open', () => resolve());
+        plugin.once('error', reject);
+      });
+      let resolveHello!: (value: ResponseEnvelope) => void;
+      let resolveInvocation!: (value: Envelope) => void;
+      let resolveCancel!: (value: Envelope) => void;
+      const hello = new Promise<ResponseEnvelope>(resolve => {
+        resolveHello = resolve;
+      });
+      const invocation = new Promise<Envelope>(resolve => {
+        resolveInvocation = resolve;
+      });
+      const cancellation = new Promise<Envelope>(resolve => {
+        resolveCancel = resolve;
+      });
+      plugin.on('message', raw => {
+        const envelope = decodeEnvelope(raw as Uint8Array);
+        if (envelope.kind === 'res' && envelope.id === 'mcp-cancel-hello') {
+          resolveHello(envelope);
+          return;
+        }
+        if (envelope.kind === 'req' && envelope.method === SystemMethod.Ping) {
+          plugin.send(
+            encodeEnvelope(
+              createResponse({
+                id: envelope.id,
+                sessionId: envelope.sessionId,
+                result: { ok: true },
+              }),
+            ),
           );
-          timer.unref();
-        }),
-      ]);
-      expect(pluginRequest).toMatchObject({
-        operationId: expect.any(String),
-        actionNonce: expect.any(String),
+          return;
+        }
+        if (envelope.kind === 'req' && envelope.method === 'get_selection') {
+          resolveInvocation(envelope);
+          return;
+        }
+        if (envelope.kind === 'evt' && envelope.method === SystemMethod.Cancel) {
+          resolveCancel(envelope);
+        }
       });
-      expect(cancel).toMatchObject({
-        kind: 'evt',
-        method: SystemMethod.Cancel,
-        params: {
-          operationId: pluginRequest.operationId,
-          actionNonce: pluginRequest.actionNonce,
-        },
-      });
-
       plugin.send(
         encodeEnvelope(
-          createResponse({
-            id: pluginRequest.id,
-            sessionId: pluginRequest.sessionId,
-            result: { pageId: '1:1', pageName: 'late', nodes: [] },
+          createRequest({
+            id: 'mcp-cancel-hello',
+            sessionId,
+            method: SystemMethod.Hello,
+            params: {
+              credential: { kind: 'ticket', value: ticket },
+              nonce: Buffer.alloc(16, 2).toString('base64url'),
+              protocolVersion: PROTOCOL_VERSION,
+              productVersion: '0.1.0',
+              pluginVersion: MIN_PLUGIN_VERSION,
+              pluginGeneration: 'plugin-generation-mcp-cancel',
+              editorType: 'figma',
+              mode: 'default',
+              fileIdentity: { kind: 'figma-file-key', value: 'file-key-mcp-cancel' },
+              fileName: 'MCP Cancel',
+              capabilities: [],
+            },
           }),
         ),
       );
-      void call.response.catch(() => undefined);
-      const operationId = String(pluginRequest.operationId);
-      await vi.waitFor(() => {
-        const authorities = server.operationAuthorityLines(operationId);
-        const terminals = authorities.filter(line =>
-          /"status":"(?:pre-egress-rejected|rejected|succeeded|failed|outcome-unknown|resolved-applied|resolved-not-applied|abandoned)"/u.test(
-            line,
-          ),
-        );
-        expect(terminals).toHaveLength(1);
-        expect(terminals[0]).toContain('"status":"outcome-unknown"');
-      });
-    } catch (error) {
-      failure = error;
-    } finally {
-      if (pluginRequest?.kind === 'req') {
+      await hello;
+
+      let call: { id: number; response: Promise<JsonRpcResponse> } | undefined;
+      let pluginRequest: Envelope | undefined;
+      let failure: unknown;
+      try {
+        call = server.begin('tools/call', { name: 'get_selection', arguments: {} });
+        pluginRequest = await invocation;
+        if (pluginRequest.kind !== 'req')
+          throw new Error('plugin request was not a request envelope');
+        server.notify('notifications/cancelled', {
+          requestId: call.id,
+          reason: 'test request abort',
+        });
+        const cancel = await Promise.race([
+          cancellation,
+          new Promise<never>((_resolve, reject) => {
+            const timer = setTimeout(
+              () => reject(new Error('actual MCP abort did not reach Relay cancel')),
+              1_000,
+            );
+            timer.unref();
+          }),
+        ]);
+        expect(pluginRequest).toMatchObject({
+          operationId: expect.any(String),
+          actionNonce: expect.any(String),
+        });
+        expect(cancel).toMatchObject({
+          kind: 'evt',
+          method: SystemMethod.Cancel,
+          params: {
+            operationId: pluginRequest.operationId,
+            actionNonce: pluginRequest.actionNonce,
+          },
+        });
+
         plugin.send(
           encodeEnvelope(
             createResponse({
               id: pluginRequest.id,
               sessionId: pluginRequest.sessionId,
-              result: { pageId: '1:1', pageName: 'cleanup', nodes: [] },
+              result: { pageId: '1:1', pageName: 'late', nodes: [] },
             }),
           ),
         );
+        void call.response.catch(() => undefined);
+        const operationId = String(pluginRequest.operationId);
+        await vi.waitFor(() => {
+          const authorities = server.operationAuthorityLines(operationId);
+          const terminals = authorities.filter(line =>
+            /"status":"(?:pre-egress-rejected|rejected|succeeded|failed|outcome-unknown|resolved-applied|resolved-not-applied|abandoned)"/u.test(
+              line,
+            ),
+          );
+          expect(terminals).toHaveLength(1);
+          expect(terminals[0]).toContain('"status":"outcome-unknown"');
+        });
+      } catch (error) {
+        failure = error;
+      } finally {
+        if (pluginRequest?.kind === 'req') {
+          plugin.send(
+            encodeEnvelope(
+              createResponse({
+                id: pluginRequest.id,
+                sessionId: pluginRequest.sessionId,
+                result: { pageId: '1:1', pageName: 'cleanup', nodes: [] },
+              }),
+            ),
+          );
+        }
+        void call?.response.catch(() => undefined);
+        await new Promise(resolve => setTimeout(resolve, 25));
+        closeSocket(plugin);
+        await server.stop();
       }
-      void call?.response.catch(() => undefined);
-      await new Promise(resolve => setTimeout(resolve, 25));
-      closeSocket(plugin);
-      await server.stop();
-    }
-    if (failure !== undefined) throw failure;
-  }, 30_000);
+      if (failure !== undefined) throw failure;
+    },
+    WIRE_TEST_TIMEOUT_MS,
+  );
 
   it('cancels a real follower-role MCP call through the matching authenticated authority', async () => {
     const sharedPort = await freePort();
@@ -1002,8 +1030,11 @@ describe.skipIf(!existsSync(DIST_ENTRY))('MCP wire contract (built dist)', () =>
       void call?.response.catch(() => undefined);
       await new Promise(resolve => setTimeout(resolve, 25));
       if (plugin !== undefined) closeSocket(plugin);
-      if (followerStarted) await follower.stop();
-      if (leaderStarted) await leader.stop();
+      try {
+        if (followerStarted) await follower.stop();
+      } finally {
+        if (leaderStarted) await leader.stop();
+      }
       removeTemporaryStateBase(sharedStateBase);
     }
     if (failure !== undefined) throw failure;
@@ -1025,68 +1056,80 @@ describe.skipIf(!existsSync(DIST_ENTRY))('MCP wire contract (built dist)', () =>
     expect(res.error?.code).toBe(-32602);
   });
 
-  it('still serves a client that opens with the oldest supported protocol revision', async () => {
-    // Clients ship wildly different SDK versions; the failure mode of a protocol-constant change is
-    // exactly that an older client stops being served, and it is invisible from the newest one.
-    const old = new WireClient();
-    await old.start();
-    try {
-      const result = await old.handshake(OLDEST_CLIENT_PROTOCOL);
-      expect(result.protocolVersion).toBe(OLDEST_CLIENT_PROTOCOL);
-      const res = await old.send('tools/list');
-      expect((res.result?.tools as unknown[] | undefined)?.length).toBe(ALL_TOOL_SPECS.length);
-    } finally {
-      await old.stop();
-    }
-  }, 30_000);
+  it(
+    'still serves a client that opens with the oldest supported protocol revision',
+    async () => {
+      // Clients ship wildly different SDK versions; the failure mode of a protocol-constant change is
+      // exactly that an older client stops being served, and it is invisible from the newest one.
+      const old = new WireClient();
+      await old.start();
+      try {
+        const result = await old.handshake(OLDEST_CLIENT_PROTOCOL);
+        expect(result.protocolVersion).toBe(OLDEST_CLIENT_PROTOCOL);
+        const res = await old.send('tools/list');
+        expect((res.result?.tools as unknown[] | undefined)?.length).toBe(ALL_TOOL_SPECS.length);
+      } finally {
+        await old.stop();
+      }
+    },
+    WIRE_TEST_TIMEOUT_MS,
+  );
 
-  it('serves the 2026-07-28 revision to a client that claims it', async () => {
-    // This is the whole reason `src/index.ts` hands a factory to `serveStdio` instead of wiring a
-    // `StdioServerTransport` itself: the era is chosen per connection from the opening exchange.
-    // On stdio there is no header layer, so the signal is the request's `_meta` envelope claim — a
-    // claim-less message is 2025-era traffic and never reaches the modern arm.
-    const modern = new WireClient();
-    await modern.start();
-    try {
-      const meta = {
-        'io.modelcontextprotocol/protocolVersion': MODERN_CLIENT_PROTOCOL,
-        'io.modelcontextprotocol/clientCapabilities': {},
-      };
-      const discover = await modern.send('server/discover', { _meta: meta });
-      expect(discover.result?.supportedVersions).toEqual([MODERN_CLIENT_PROTOCOL]);
-      expect(discover.result?.capabilities).toMatchObject({ tools: {}, prompts: {} });
+  it(
+    'serves the 2026-07-28 revision to a client that claims it',
+    async () => {
+      // This is the whole reason `src/index.ts` hands a factory to `serveStdio` instead of wiring a
+      // `StdioServerTransport` itself: the era is chosen per connection from the opening exchange.
+      // On stdio there is no header layer, so the signal is the request's `_meta` envelope claim — a
+      // claim-less message is 2025-era traffic and never reaches the modern arm.
+      const modern = new WireClient();
+      await modern.start();
+      try {
+        const meta = {
+          'io.modelcontextprotocol/protocolVersion': MODERN_CLIENT_PROTOCOL,
+          'io.modelcontextprotocol/clientCapabilities': {},
+        };
+        const discover = await modern.send('server/discover', { _meta: meta });
+        expect(discover.result?.supportedVersions).toEqual([MODERN_CLIENT_PROTOCOL]);
+        expect(discover.result?.capabilities).toMatchObject({ tools: {}, prompts: {} });
 
-      // The same registrations must serve both eras — a modern client sees the identical tool set.
-      const res = await modern.send('tools/list', { _meta: meta });
-      expect((res.result?.tools as unknown[] | undefined)?.length).toBe(ALL_TOOL_SPECS.length);
+        // The same registrations must serve both eras — a modern client sees the identical tool set.
+        const res = await modern.send('tools/list', { _meta: meta });
+        expect((res.result?.tools as unknown[] | undefined)?.length).toBe(ALL_TOOL_SPECS.length);
 
-      // ...but the method set is not the same: 2026-07-28 deleted `ping`, so the era has to
-      // withhold it. Serving it here would mean era selection degraded into a union of both
-      // registries — a change `tsc` cannot see, since neither registry is a type this repo names.
-      const gone = await modern.send('ping', { _meta: meta });
-      expect(gone.result).toBeUndefined();
-      expect(gone.error?.code).toBe(-32_601);
-    } finally {
-      await modern.stop();
-    }
-  }, 30_000);
+        // ...but the method set is not the same: 2026-07-28 deleted `ping`, so the era has to
+        // withhold it. Serving it here would mean era selection degraded into a union of both
+        // registries — a change `tsc` cannot see, since neither registry is a type this repo names.
+        const gone = await modern.send('ping', { _meta: meta });
+        expect(gone.result).toBeUndefined();
+        expect(gone.error?.code).toBe(-32_601);
+      } finally {
+        await modern.stop();
+      }
+    },
+    WIRE_TEST_TIMEOUT_MS,
+  );
 
-  it('exits cleanly when the client goes away mid-session', async () => {
-    // The transport is owned by `serveStdio`, which pins a server instance for the connection and
-    // has to be closed on the way out. Shutdown also tears down the relay, and this process holds
-    // the port until it exits — a shutdown that stalls here is the zombie-leader failure that
-    // `lifecycle.ts` exists to prevent, one layer down from where `process-lifecycle.test.ts`
-    // checks it (that one never opens an MCP session, so it never has an instance to close).
-    const live = new WireClient();
-    await live.start();
-    await live.handshake(LATEST_CLIENT_PROTOCOL);
-    await live.send('tools/call', { name: 'ping', arguments: {} });
+  it(
+    'exits cleanly when the client goes away mid-session',
+    async () => {
+      // The transport is owned by `serveStdio`, which pins a server instance for the connection and
+      // has to be closed on the way out. Shutdown also tears down the relay, and this process holds
+      // the port until it exits — a shutdown that stalls here is the zombie-leader failure that
+      // `lifecycle.ts` exists to prevent, one layer down from where `process-lifecycle.test.ts`
+      // checks it (that one never opens an MCP session, so it never has an instance to close).
+      const live = new WireClient();
+      await live.start();
+      await live.handshake(LATEST_CLIENT_PROTOCOL);
+      await live.send('tools/call', { name: 'ping', arguments: {} });
 
-    const started = Date.now();
-    const { code, escalated } = await live.stop();
-    expect(escalated).toBe(false);
-    expect(code).toBe(0);
-    // The hard-exit backstop fires at 5s; a graceful exit should be far inside that.
-    expect(Date.now() - started).toBeLessThan(4_000);
-  }, 30_000);
+      const started = Date.now();
+      const { code, escalated } = await live.stop();
+      expect(escalated).toBe(false);
+      expect(code).toBe(0);
+      // The hard-exit backstop fires at 5s; a graceful exit should be far inside that.
+      expect(Date.now() - started).toBeLessThan(4_000);
+    },
+    WIRE_TEST_TIMEOUT_MS,
+  );
 });

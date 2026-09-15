@@ -7,6 +7,50 @@ const fakeFigma = (lookup: Record<string, BaseNode | null>): typeof figma =>
   ({ getNodeByIdAsync: async (id: string) => lookup[id] ?? null }) as unknown as typeof figma;
 
 describe('get_reactions handler', () => {
+  it('retains easing, overlay configuration, conditions and variable expressions', async () => {
+    const actions = [
+      {
+        type: 'NODE',
+        destinationId: '2:1',
+        navigation: 'OVERLAY',
+        overlayRelativePosition: { x: 12, y: 20 },
+        transition: {
+          type: 'SMART_ANIMATE',
+          duration: 0.3,
+          easing: {
+            type: 'CUSTOM_CUBIC_BEZIER',
+            easingFunctionCubicBezier: { x1: 0.2, y1: 0, x2: 0.8, y2: 1 },
+          },
+        },
+      },
+      {
+        type: 'CONDITIONAL',
+        conditionalBlocks: [
+          {
+            condition: { type: 'BOOLEAN', resolvedType: 'BOOLEAN', value: true },
+            actions: [
+              {
+                type: 'SET_VARIABLE',
+                variableId: 'v:1',
+                variableValue: { type: 'STRING', resolvedType: 'STRING', value: 'checked' },
+              },
+            ],
+          },
+        ],
+      },
+    ];
+    const node = {
+      reactions: [
+        { trigger: { type: 'ON_KEY_DOWN', device: 'KEYBOARD', keyCodes: [13] }, actions },
+      ],
+    } as unknown as BaseNode;
+    const result = (await createGetReactionsHandler(fakeFigma({ '1:1': node }))({
+      nodeId: '1:1',
+    })) as GetReactionsResult;
+    expect(result.reactions[0]!.actions).toEqual(actions);
+    expect(result.reactions[0]!.trigger).toMatchObject({ keyCodes: [13] });
+    expect(result.truncated).toBeUndefined();
+  });
   it('serializes trigger + actions (NODE navigate with transition)', async () => {
     const node = {
       id: '1:1',

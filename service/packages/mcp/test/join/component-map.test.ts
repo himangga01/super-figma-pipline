@@ -39,18 +39,18 @@ describe('diceSimilarity', () => {
 describe('joinComponents', () => {
   const scanned = [comp('Button', ['size', 'variant']), comp('Card'), comp('Avatar')];
 
-  it('maps an exact name as high confidence', () => {
+  it('maps an exact name as a candidate requiring API verification', () => {
     const [m] = joinComponents([usage({ name: 'Button' })], scanned, { threshold: 0.7 });
     expect(m?.candidate?.name).toBe('Button');
-    expect(m?.candidate?.confidence).toBe(1);
-    expect(m?.status).toBe('high');
+    expect(m?.candidate?.confidence).toBe(0.84);
+    expect(m?.status).toBe('medium');
     expect(m?.source).toBe('scan');
   });
 
   it('strips Figma variant/slash decoration before matching', () => {
     const [m] = joinComponents([usage({ name: 'Button/Primary' })], scanned, { threshold: 0.7 });
     expect(m?.candidate?.name).toBe('Button');
-    expect(m?.status).toBe('high');
+    expect(m?.status).toBe('medium');
   });
 
   it('rewards variant axes that match code props, recording them', () => {
@@ -128,7 +128,7 @@ describe('joinComponents', () => {
   it('matches an accented Figma name to its ASCII code identifier', () => {
     const [m] = joinComponents([usage({ name: 'Café' })], [comp('Cafe')], { threshold: 0.7 });
     expect(m?.candidate?.name).toBe('Cafe');
-    expect(m?.candidate?.confidence).toBe(1);
+    expect(m?.candidate?.confidence).toBe(0.84);
   });
 
   it('matches components and axes named in a non-Latin script', () => {
@@ -148,7 +148,7 @@ describe('joinComponents', () => {
       { threshold: 0.7 },
     );
     expect(m?.candidate?.name).toBe('按鈕');
-    expect(m?.status).toBe('high');
+    expect(m?.status).toBe('medium');
     expect(m?.candidate?.matchedProps).toEqual(['尺寸', '是否停用']);
   });
 
@@ -217,7 +217,7 @@ describe('joinComponents', () => {
       const ds = [comp('Button'), comp('Card'), comp('Size')];
       const [m] = joinComponents([usage({ name })], ds, { threshold: 0.7 });
       expect(m?.candidate?.name).toBe('Button');
-      expect(m?.status).toBe('high');
+      expect(m?.status).toBe('medium');
     },
   );
 
@@ -225,7 +225,7 @@ describe('joinComponents', () => {
     const scanned2 = [comp('Button')];
     const at = (threshold: number) =>
       joinComponents([usage({ name: 'Buton' })], scanned2, { threshold })[0];
-    expect(at(0.7)?.status).toBe('high'); // 0.889 — confident by default
+    expect(at(0.7)?.status).toBe('medium'); // Naming alone cannot verify the component API.
     expect(at(0.95)?.status).toBe('low'); // …but below a caller who asked for 0.95
     expect(at(0.95)?.candidate?.name).toBe('Button'); // still surfaced, just not reuse-grade
   });
@@ -251,9 +251,9 @@ describe('joinComponents', () => {
   });
 
   it('does not flag a distant runner-up (below the tie epsilon)', () => {
-    // Card matches cleanly; Avatar/Button are far off → not ambiguous, so full high, no ambiguousWith.
+    // A distinct naming candidate has no competing name; API verification remains separate.
     const [m] = joinComponents([usage({ name: 'Card' })], scanned, { threshold: 0.7 });
-    expect(m?.status).toBe('high');
+    expect(m?.status).toBe('medium');
     expect(m?.candidate?.ambiguousWith).toBeUndefined();
   });
 
@@ -264,9 +264,8 @@ describe('joinComponents', () => {
     expect(m?.candidate?.ambiguousWith).toHaveLength(3);
   });
 
-  it('trusts an override whose file is on disk even when the scan did not parse it', () => {
-    // The scanner can miss a real component (an unusual export). The override still wins at full
-    // confidence — but only because the tool confirmed the file is on disk (overridesOnDisk).
+  it('keeps an unparsed on-disk override as a low-confidence hint', () => {
+    // The scanner can miss a real component. File existence preserves only a low-confidence hint.
     const overrides = new Map([['Tooltip', { name: 'Tip', filePath: 'src/ui/Tip.tsx' }]]);
     const [m] = joinComponents([usage({ name: 'Tooltip' })], scanned, {
       threshold: 0.7,
@@ -274,7 +273,8 @@ describe('joinComponents', () => {
       overridesOnDisk: new Set(['Tooltip']),
     });
     expect(m?.candidate?.name).toBe('Tip');
-    expect(m?.candidate?.confidence).toBe(1);
+    expect(m?.candidate?.confidence).toBe(0.5);
+    expect(m?.overrideStatus).toBe('legacy-unverified');
     expect(m?.source).toBe('map-file');
     expect(m?.staleOverride).toBeUndefined();
   });

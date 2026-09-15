@@ -1,0 +1,137 @@
+corepack.cmd : $ pnpm typecheck && pnpm lint && pnpm format:check && pnpm knip && pnpm build && pnpm test
+At line:4 char:1
++ & corepack pnpm verify *> $reviewLog
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: ($ pnpm typechec...ld && pnpm test:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+$ pnpm -r run typecheck
+Scope: 5 of 6 workspace projects
+packages/ir typecheck$ tsc --noEmit -p tsconfig.json
+packages/shared typecheck$ tsc --noEmit -p tsconfig.json
+packages/ir typecheck: Done
+packages/shared typecheck: Done
+packages/cli typecheck$ tsc --noEmit -p tsconfig.json
+packages/plugin typecheck$ vue-tsc --noEmit -p tsconfig.json
+packages/mcp typecheck$ tsc --noEmit -p tsconfig.json
+packages/cli typecheck: Done
+packages/plugin typecheck: Done
+packages/mcp typecheck: Done
+$ oxlint --deny-warnings .
+$ oxfmt --check .
+Checking formatting...
+
+All matched files use the correct format.
+Finished in 471ms on 778 files using 24 threads.
+$ knip
+$ pnpm -r run build
+Scope: 5 of 6 workspace projects
+packages/ir build$ tsc --noEmit -p tsconfig.json
+packages/shared build$ tsc --noEmit -p tsconfig.json
+packages/ir build: Done
+packages/shared build: Done
+packages/mcp build$ tsdown
+packages/plugin build$ pnpm run build:main && pnpm run build:ui
+packages/cli build$ tsdown
+packages/mcp build: ℹ tsdown v0.22.14 powered by rolldown v1.2.6
+packages/cli build: ℹ tsdown v0.22.14 powered by rolldown v1.2.6
+packages/mcp build: ℹ config file: C:\project\2026\super-figma-pipline\service\packages\mcp\tsdown.config.ts 
+packages/mcp build: ℹ entry: src/index.ts
+packages/mcp build: ℹ target: node24
+packages/mcp build: ℹ tsconfig: tsconfig.json
+packages/cli build: ℹ config file: C:\project\2026\super-figma-pipline\service\packages\cli\tsdown.config.ts 
+packages/mcp build: ℹ Build start
+packages/cli build: ℹ entry: src/index.ts, src/library.ts
+packages/cli build: ℹ target: node24
+packages/cli build: ℹ tsconfig: tsconfig.json
+packages/cli build: ℹ Build start
+packages/mcp build: ℹ Cleaning 6 files
+packages/cli build: ℹ Cleaning 4 files
+packages/cli build: ℹ Granting execute permission to dist\index.mjs
+packages/cli build: ℹ Granting execute permission to dist\library.mjs
+packages/cli build: ℹ dist\index.mjs                      56.94 kB │ gzip: 13.73 kB
+packages/cli build: ℹ dist\library.mjs                     0.44 kB │ gzip:  0.23 kB
+packages/cli build: ℹ dist\scripter-reader-Ee5DD_NP.mjs  143.22 kB │ gzip: 38.36 kB
+packages/cli build: ℹ 3 files, total: 200.60 kB
+packages/cli build: ✔ Build complete in 35ms
+packages/mcp build: ℹ Granting execute permission to dist\index.mjs
+packages/mcp build: ℹ dist\index.mjs                                    1.21 MB
+packages/mcp build: ℹ dist\src-Bsx2xrHA.mjs                           135.90 kB │ gzip: 36.51 kB
+packages/mcp build: ℹ dist\operation-evidence-projector-DUrg4vN3.mjs    3.81 kB │ gzip:  1.41 kB
+packages/mcp build: ℹ dist\src-CKStIGVQ.mjs                             0.17 kB │ gzip:  0.14 kB
+packages/mcp build: ℹ dist\operation-evidence-projector-DG-4b2K7.mjs    0.16 kB │ gzip:  0.13 kB
+packages/mcp build: ℹ 5 files, total: 1.35 MB
+packages/mcp build: ✔ Build complete in 77ms
+packages/plugin build: $ vite build --config vite.config.main.ts
+packages/plugin build: vite v8.2.2 building client environment for production...
+packages/plugin build: transforming...
+packages/plugin build: ✓ 245 modules transformed.
+packages/plugin build: rendering chunks...
+packages/plugin build: computing gzip size...
+packages/plugin build: dist/code.js  232.89 kB │ gzip: 59.83 kB
+packages/plugin build: ✓ built in 44ms
+packages/cli build: ℹ [publint] The package publishes internal tests or config files (/test/). You can use pkg.files to only publish certain files and save user bandwidth.
+packages/cli build: Done
+packages/mcp build: ℹ [publint] The package does not specify the "license" field but a license file was detected at /LICENSE. Consider adding a "license" field so it's displayed on npm.
+packages/mcp build: ℹ [publint] The package publishes internal tests or config files (/test/). You can use pkg.files to only publish certain files and save user bandwidth.
+packages/mcp build: Done
+packages/plugin build: $ vite build --config vite.config.ts
+packages/plugin build: vite v8.2.2 building client environment for production...
+packages/plugin build: transforming...
+packages/plugin build: ✓ 1973 modules transformed.
+packages/plugin build: rendering chunks...
+packages/plugin build: [plugin vite:singlefile] 
+packages/plugin build: [plugin vite:singlefile] Inlining: index-CeWJ2V4i.js
+packages/plugin build: [plugin vite:singlefile] Inlining: style-BGqKAUH2.css
+packages/plugin build: computing gzip size...
+packages/plugin build: dist/index.html  293.97 kB │ gzip: 90.39 kB
+packages/plugin build: ✓ built in 345ms
+packages/plugin build: Done
+$ vitest run --exclude "test/artifact-contents.test.ts"
+
+ RUN  v4.1.11 C:/project/2026/super-figma-pipline/service
+
+ ❯ |mcp| test/network/remote-domain-config.test.ts (43 tests | 1 failed | 1 skipped) 9634ms
+     × fails closed when the state file is a symlink 6ms
+ ❯ |mcp| test/fs/operation-evidence-artifact-store.test.ts (53 tests | 1 failed | 1 skipped) 36964ms
+     × enforces the global retained-marker row cap before publishing another residue 5017ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |mcp| test/fs/operation-evidence-artifact-store.test.ts > operation evidence result artifact store > enforce
+s the global retained-marker row cap before publishing another residue
+Error: Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeou
+t".
+ ❯ test/fs/operation-evidence-artifact-store.test.ts:1008:3
+    1006|   );
+    1007|
+    1008|   it('enforces the global retained-marker row cap before publishing an…
+       |   ^
+    1009|     const root = await mkdtemp(join(tmpdir(), 'sfp-retained-marker-row…
+    1010|     roots.push(root);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  |mcp| test/network/remote-domain-config.test.ts > durable remote domain state > fails closed when the state 
+file is a symlink
+Error: EPERM: operation not permitted, symlink 'C:\Users\c\AppData\Local\Temp\sfp-remote-domains-YSB5UU\outside.jso
+n' -> 'C:\Users\c\AppData\Local\Temp\sfp-remote-domains-bUYunw\network\remote-domains.v1.json'
+ ❯ test/network/remote-domain-config.test.ts:413:5
+    411|     const path = remoteDomainConfigPath(stateRoot);
+    412|     await mkdir(dirname(path), { recursive: true, mode: 0o700 });
+    413|     await symlink(outside, path, 'file');
+       |     ^
+    414|     const store = createStore();
+    415|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  2 failed | 284 passed (286)
+      Tests  2 failed | 3279 passed | 16 skipped (3297)
+   Start at  21:59:58
+   Duration  643.80s (transform 7.81s, setup 0ms, import 26.25s, tests 750.72s, environment 2.76s)
+
+[ELIFECYCLE] Test failed. See above for more details.
+[ELIFECYCLE] Command failed with exit code 1.

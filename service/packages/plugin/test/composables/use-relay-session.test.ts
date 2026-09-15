@@ -13,11 +13,39 @@ const mocks = vi.hoisted(() => {
   const notifyActivity = vi.fn<(p: unknown) => void>();
   const wake = vi.fn<() => void>();
   const connect = vi.fn<() => Promise<void>>(() => Promise.resolve());
-  const disconnect = vi.fn<() => Promise<void>>(() => Promise.resolve());
+  const disconnect = vi.fn<(_options?: { forgetCredential?: boolean }) => Promise<void>>(() =>
+    Promise.resolve(),
+  );
+  const configureHelloSeed =
+    vi.fn<(seed: { pluginGeneration: string; provisionalSessionId?: string }) => void>();
   const setToolHandler = vi.fn<(h: unknown) => void>();
+  const setToolCancelHandler = vi.fn<(h: unknown) => void>();
+  const sendProgress = vi.fn<(binding: unknown, progress: unknown) => void>();
   const unsubscribe = vi.fn<() => void>();
   const bridgeDispose = vi.fn<() => void>();
   const bridgeHandler = vi.fn<() => void>();
+  const bridgeCancel = vi.fn<() => boolean>(() => true);
+  let bridgeOptions: { onProgress?: (binding: unknown, progress: unknown) => void } | null = null;
+  const pairingDispose = vi.fn<() => void>();
+  const pairingReset = vi.fn<() => void>();
+  const pairingBegin = vi.fn<() => void>();
+  const pairingCancel = vi.fn<() => void>();
+  const pairingSubmit = vi.fn<() => Promise<void>>(() => Promise.resolve());
+  const pairing = {
+    state: { value: { status: 'unpaired' as const } },
+    challengeId: { value: '' },
+    code: { value: '' },
+    paste: { value: '' },
+    begin: pairingBegin,
+    submit: pairingSubmit,
+    cancel: pairingCancel,
+    reset: pairingReset,
+    dispose: pairingDispose,
+  };
+  let pairingOptions: {
+    client: unknown;
+    resolveHello: (seed: { pluginGeneration: string; provisionalSessionId: string }) => unknown;
+  } | null = null;
   /** Captured so tests can push a new state through the subscription. */
   let emitState: ((s: RelayClientState) => void) | null = null;
 
@@ -40,14 +68,29 @@ const mocks = vi.hoisted(() => {
     wake,
     connect,
     disconnect,
+    configureHelloSeed,
     setToolHandler,
+    setToolCancelHandler,
+    sendProgress,
     unsubscribe,
     bridgeDispose,
     bridgeHandler,
+    bridgeCancel,
+    pairing,
+    pairingDispose,
+    pairingReset,
     baseState,
     getEmitState: () => emitState,
     setEmitState: (fn: (s: RelayClientState) => void) => {
       emitState = fn;
+    },
+    getBridgeOptions: () => bridgeOptions,
+    setBridgeOptions: (options: typeof bridgeOptions) => {
+      bridgeOptions = options;
+    },
+    getPairingOptions: () => pairingOptions,
+    setPairingOptions: (options: typeof pairingOptions) => {
+      pairingOptions = options;
     },
   };
 });
@@ -55,7 +98,12 @@ const mocks = vi.hoisted(() => {
 vi.mock('../../ui/relay/client.js', () => ({
   RelayClient: class {
     sessionId = 'session-abcdef123456';
+    helloSeed: { pluginGeneration: string; provisionalSessionId: string } | null = null;
     setToolHandler = mocks.setToolHandler;
+    setApprovalHandler = vi.fn<(handler: unknown) => void>();
+    setBindingOfferHandler = vi.fn<(handler: unknown) => void>();
+    setToolCancelHandler = mocks.setToolCancelHandler;
+    sendProgress = mocks.sendProgress;
     getState = (): RelayClientState => mocks.baseState;
     subscribe = (fn: (s: RelayClientState) => void): (() => void) => {
       mocks.setEmitState(fn);
@@ -65,11 +113,40 @@ vi.mock('../../ui/relay/client.js', () => ({
     wake = mocks.wake;
     connect = mocks.connect;
     disconnect = mocks.disconnect;
+    configureHelloSeed = (seed: {
+      pluginGeneration: string;
+      provisionalSessionId?: string;
+    }): void => {
+      mocks.configureHelloSeed(seed);
+      this.helloSeed = {
+        pluginGeneration: seed.pluginGeneration,
+        provisionalSessionId: seed.provisionalSessionId ?? 'ui-provisional-session-test',
+      };
+      this.sessionId = this.helloSeed.provisionalSessionId;
+    };
   },
 }));
 
 vi.mock('../../ui/sandbox/tool-bridge.js', () => ({
-  createToolBridge: () => ({ handler: mocks.bridgeHandler, dispose: mocks.bridgeDispose }),
+  createToolBridge: (options: { onProgress?: (binding: unknown, progress: unknown) => void }) => {
+    mocks.setBridgeOptions(options);
+    return {
+      handler: mocks.bridgeHandler,
+      cancel: mocks.bridgeCancel,
+      pendingCount: 0,
+      dispose: mocks.bridgeDispose,
+    };
+  },
+}));
+
+vi.mock('../../ui/composables/usePairing.js', () => ({
+  usePairing: (options: {
+    client: unknown;
+    resolveHello: (seed: { pluginGeneration: string; provisionalSessionId: string }) => unknown;
+  }) => {
+    mocks.setPairingOptions(options);
+    return mocks.pairing;
+  },
 }));
 
 const { useRelaySession } = await import('../../ui/composables/useRelaySession.js');
@@ -95,6 +172,13 @@ const pushContext = (overrides: Partial<PluginContextEvent> = {}): void => {
       editorType: 'figma',
       mode: 'default',
       apiVersion: '1.0.0',
+      pluginGeneration: 'plugin-generation-test',
+      fileIdentity: {
+        kind: 'unstable-readonly',
+        sessionId: 'provisional-session-test',
+        pluginGeneration: 'plugin-generation-test',
+      },
+      capabilities: [],
     }),
     ...overrides,
   };
@@ -123,12 +207,30 @@ const withSession = (): ReturnType<typeof useRelaySession> => {
 describe('useRelaySession', () => {
   beforeEach(async () => {
     vi.clearAllMocks();
+    mocks.pairing.challengeId.value = '';
+    mocks.pairing.code.value = '';
+    mocks.pairing.paste.value = '';
     await setVisibility('visible');
   });
 
   afterEach(() => {
     while (mounted.length > 0) mounted.pop()?.unmount();
     vi.unstubAllGlobals();
+  });
+
+  it('automatically submits the local pairing seed once after valid sandbox context arrives', () => {
+    const seed = document.createElement('script');
+    seed.id = 'sfp-pair-bootstrap';
+    seed.textContent = JSON.stringify({ pairCode: 'SFP-ABCDEFGHIJ-12345678' });
+    document.body.append(seed);
+    withSession();
+    expect(seed.isConnected).toBe(false);
+    expect(seed.textContent).toBe('');
+    expect(mocks.pairing.submit).not.toHaveBeenCalled();
+    pushContext();
+    pushContext();
+    expect(mocks.pairing.paste.value).toBe('SFP-ABCDEFGHIJ-12345678');
+    expect(mocks.pairing.submit).toHaveBeenCalledOnce();
   });
 
   describe('activity routing (the multi-file routing invariant)', () => {
@@ -229,11 +331,126 @@ describe('useRelaySession', () => {
   });
 
   describe('lifecycle', () => {
-    it('wires the sandbox bridge as the tool handler and connects on mount', () => {
+    it('exposes the pairing controller owned by the relay session scope', () => {
+      expect(withSession().pairing).toBe(mocks.pairing);
+    });
+
+    it('wires the sandbox bridge but opens no socket before pairing', () => {
       withSession();
 
       expect(mocks.setToolHandler).toHaveBeenCalledWith(mocks.bridgeHandler);
-      expect(mocks.connect).toHaveBeenCalled();
+      expect(mocks.connect).not.toHaveBeenCalled();
+    });
+
+    it('wires exact cancellation and progress bindings between relay and sandbox bridge', () => {
+      withSession();
+      const binding = {
+        requestId: 'request-1',
+        operationId: 'operation-1',
+        actionNonce: 'nonce-1',
+      };
+      const progress = { operationId: 'operation-1', phase: 'running', completed: 1, total: 2 };
+
+      const cancelHandler = mocks.setToolCancelHandler.mock.calls[0]?.[0] as
+        | ((value: typeof binding) => boolean)
+        | undefined;
+      expect(cancelHandler?.(binding)).toBe(true);
+      expect(mocks.bridgeCancel).toHaveBeenCalledWith(binding);
+
+      mocks.getBridgeOptions()?.onProgress?.(binding, progress);
+      expect(mocks.sendProgress).toHaveBeenCalledWith(binding, progress);
+    });
+
+    it('configures the single hello seed from sandbox identity without opening a socket', () => {
+      withSession();
+
+      pushContext();
+
+      expect(mocks.configureHelloSeed).toHaveBeenCalledWith({
+        pluginGeneration: 'plugin-generation-test',
+        provisionalSessionId: 'provisional-session-test',
+      });
+      expect(mocks.connect).not.toHaveBeenCalled();
+    });
+
+    it('builds an immutable hello snapshot from the exact configured context', () => {
+      withSession();
+      pushContext();
+      const resolveHello = mocks.getPairingOptions()?.resolveHello;
+
+      const hello = resolveHello?.({
+        pluginGeneration: 'plugin-generation-test',
+        provisionalSessionId: 'provisional-session-test',
+      }) as {
+        protocolVersion: string;
+        productVersion: string;
+        pluginVersion: string;
+        pluginGeneration: string;
+        fileIdentity: { kind: string; sessionId: string };
+        capabilities: readonly string[];
+      };
+
+      expect(hello).toMatchObject({
+        productVersion: '1.2.3',
+        pluginVersion: '1.2.3',
+        pluginGeneration: 'plugin-generation-test',
+        fileIdentity: { kind: 'unstable-readonly', sessionId: 'provisional-session-test' },
+        capabilities: [],
+      });
+      expect(Object.isFrozen(hello)).toBe(true);
+      expect(Object.isFrozen(hello.fileIdentity)).toBe(true);
+      expect(Object.isFrozen(hello.capabilities)).toBe(true);
+    });
+
+    it('fails closed when hello context is absent or does not match the seed', () => {
+      withSession();
+      const resolveHello = mocks.getPairingOptions()?.resolveHello;
+      const seed = {
+        pluginGeneration: 'plugin-generation-test',
+        provisionalSessionId: 'provisional-session-test',
+      };
+
+      expect(() => resolveHello?.(seed)).toThrowError('PAIR_CONTEXT_REQUIRED');
+      pushContext();
+      expect(() =>
+        resolveHello?.({ ...seed, pluginGeneration: 'different-generation' }),
+      ).toThrowError('PAIR_CONTEXT_REQUIRED');
+      expect(() =>
+        resolveHello?.({ ...seed, provisionalSessionId: 'different-session' }),
+      ).toThrowError('PAIR_CONTEXT_REQUIRED');
+    });
+
+    it('rejects legacy context missing authenticated facts and forgets any credential', () => {
+      withSession();
+
+      pushContext({
+        pluginGeneration: undefined,
+        fileIdentity: undefined,
+        capabilities: undefined,
+      });
+
+      expect(mocks.configureHelloSeed).not.toHaveBeenCalled();
+      expect(mocks.pairingReset).toHaveBeenCalled();
+      expect(mocks.disconnect).toHaveBeenCalledWith({ forgetCredential: true });
+      expect(mocks.notifyActivity).not.toHaveBeenCalled();
+    });
+
+    it('pins the first file identity and rejects a same-generation identity swap', () => {
+      withSession();
+      pushContext();
+      vi.clearAllMocks();
+
+      pushContext({
+        fileIdentity: {
+          kind: 'document-plugin-uuid',
+          value: '2d1dc805-e625-4d07-a219-476b3dd30b51',
+        },
+      });
+
+      expect(mocks.configureHelloSeed).not.toHaveBeenCalled();
+      expect(mocks.pairingReset).toHaveBeenCalled();
+      expect(mocks.disconnect).toHaveBeenCalledWith({ forgetCredential: true });
+      expect(mocks.notifyActivity).not.toHaveBeenCalled();
     });
 
     it('mirrors relay state into a ref', () => {
@@ -252,8 +469,25 @@ describe('useRelaySession', () => {
       mounted.pop()?.unmount();
 
       expect(mocks.unsubscribe).toHaveBeenCalled();
+      expect(mocks.pairingDispose).toHaveBeenCalled();
       expect(mocks.bridgeDispose).toHaveBeenCalled();
-      expect(mocks.disconnect).toHaveBeenCalled();
+      expect(mocks.setToolHandler).toHaveBeenLastCalledWith(null);
+      expect(mocks.setToolCancelHandler).toHaveBeenLastCalledWith(null);
+      expect(mocks.disconnect).toHaveBeenCalledWith({ forgetCredential: true });
+    });
+
+    it('continues closing every owner when one synchronous disposer throws', () => {
+      mocks.pairingDispose.mockImplementationOnce(() => {
+        throw new Error('synthetic dispose failure');
+      });
+      withSession();
+
+      mounted.pop()?.unmount();
+
+      expect(mocks.bridgeDispose).toHaveBeenCalled();
+      expect(mocks.setToolHandler).toHaveBeenLastCalledWith(null);
+      expect(mocks.setToolCancelHandler).toHaveBeenLastCalledWith(null);
+      expect(mocks.disconnect).toHaveBeenCalledWith({ forgetCredential: true });
     });
 
     it('exposes the context pushed from the sandbox', () => {
@@ -334,8 +568,19 @@ describe('useRelaySession', () => {
 
       expect(bundle.versions.plugin).toBe('1.2.3');
       expect(bundle.versions.editorType).toBe('figma');
-      expect(bundle.session.id).toBe('session-abcdef123456');
+      expect(bundle.session.id).toBe('provisional-session-test');
       expect(bundle.context?.fileName).toBe('Design File');
+    });
+
+    it('never serializes pairing code or pasted credential', () => {
+      const session = withSession();
+      mocks.pairing.code.value = '12345678';
+      mocks.pairing.paste.value = 'SFP-ABCDEFGHJK-12345678';
+
+      const bundle = session.buildDiagnostics();
+
+      expect(bundle).not.toContain('12345678');
+      expect(bundle).not.toContain('SFP-');
     });
   });
 });

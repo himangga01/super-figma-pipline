@@ -9,7 +9,7 @@ import type { SandboxToolHandler } from '../dispatcher.js';
  */
 export const createCombineAsVariantsHandler =
   (figmaCtx: typeof figma): SandboxToolHandler =>
-  async params => {
+  async (params, execution) => {
     const p = (params ?? {}) as { nodeIds?: unknown; parentId?: unknown; name?: unknown };
     if (!Array.isArray(p.nodeIds) || p.nodeIds.length < 2) {
       throw new TypeError('combine_as_variants: nodeIds must be an array of at least 2 ids');
@@ -47,6 +47,7 @@ export const createCombineAsVariantsHandler =
     }
 
     const set = figmaCtx.combineAsVariants(components, parent);
+    execution?.markMutated?.();
     if (typeof p.name === 'string') set.name = p.name;
 
     const result: CreateResult = { ok: true, nodeId: set.id, name: set.name, type: set.type };

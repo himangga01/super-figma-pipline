@@ -7,6 +7,7 @@ import type {
   OperationPolicy,
   OperationPolicyRegistry,
 } from '@sfp/shared';
+import { PORTAL_TOOL_NAMES } from '@sfp/shared';
 
 import { parseBatchOperations } from '../tools/batch.js';
 
@@ -41,6 +42,8 @@ const approvalForEffects = (effects: readonly Effect[]): ApprovalRequirement => 
     effects.some(
       effect =>
         effect.type === 'network' ||
+        effect.type === 'native-process-run' ||
+        effect.type === 'external-browser-read' ||
         effect.type === 'figma-library-import' ||
         (effect.type === 'figma-write' && (effect.destructive || effect.broad)) ||
         (effect.type === 'filesystem-write' && effect.destructive),
@@ -101,6 +104,8 @@ const FIGMA_READ_TOOL_NAMES = [
   'scan_nodes_by_types',
   'get_styles',
   'get_variable_defs',
+  'portal_capture_read',
+  'portal_capture_asset',
   'get_local_components',
   'get_component_api',
   'get_viewport',
@@ -139,6 +144,7 @@ const ORDINARY_WRITE_TOOL_NAMES = [
   'set_opacity',
   'set_visible',
   'rename_node',
+  'set_annotations',
   'create_text',
   'create_rectangle',
   'set_corner_radius',
@@ -352,6 +358,39 @@ const entries = [
     filesystemWriterPolicy('export_video', 'outPath', 'never-auto-retry', 'exclusive-heavy'),
   ],
   ['design_diff', designDiffPolicy],
+  [
+    'export_frames_to_pdf',
+    filesystemWriterPolicy('export_frames_to_pdf', 'outPath', 'operation-id', 'exclusive-heavy'),
+  ],
+  [
+    'export_tokens',
+    policy(
+      'export_tokens',
+      [FIGMA_READ, filesystemWrite(true, 'outPath')],
+      (args, context) =>
+        args.outPath === undefined
+          ? [FIGMA_READ]
+          : [FIGMA_READ, filesystemWrite(hasResolvedOverwrite(context, ['outPath']), 'outPath')],
+      args => (args.outPath === undefined ? 'safe-retry' : 'operation-id'),
+      'exclusive-heavy',
+      'operation-id',
+    ),
+  ],
+  [
+    'doctor',
+    policy(
+      'doctor',
+      [FIGMA_READ],
+      args => (args.roundTrip === true ? [FIGMA_READ] : []),
+      () => 'safe-retry',
+      'parallel-read',
+      'safe-retry',
+    ),
+  ],
+  [
+    'import_library_variable',
+    staticPolicy('import_library_variable', [FIGMA_LIBRARY_IMPORT], 'operation-id', 'file-write'),
+  ],
   ...ordinaryWriteEntries,
   ...destructiveWriteEntries,
   ...broadWriteEntries,
@@ -379,7 +418,87 @@ const createRegistry = (
   return Object.freeze(registry);
 };
 
-export const OPERATION_POLICIES = createRegistry(entries);
+const portalEntries = PORTAL_TOOL_NAMES.map(name => {
+  const effects: Effect[] =
+    name === 'portal_status' ? [{ type: 'portal-state-read' }] : [{ type: 'portal-state-write' }];
+  if (name === 'portal_plan' || name === 'portal_next')
+    effects.push(filesystemRead('portalSources'));
+  if (name === 'portal_apply') effects.push(filesystemWrite(true, 'portalTarget'));
+  if (name === 'portal_validate')
+    effects.push(
+      { type: 'native-process-run', profileArg: 'profileId' },
+      { type: 'external-browser-read', urlArg: 'plan.design.url', attachOnly: true },
+      filesystemRead('portalSources'),
+    );
+  if (name === 'portal_cancel') effects.push({ type: 'owned-process-stop' });
+  if (name === 'portal_plan') {
+    const browser: Effect = {
+      type: 'external-browser-read',
+      urlArg: 'design.url',
+      attachOnly: true,
+    };
+    return [
+      name,
+      policy(
+        name,
+        [...effects, browser, FIGMA_READ],
+        (args, context) => {
+          const design = args.design as { artifactPath?: string; freshness?: string } | undefined;
+          return !design?.artifactPath || design.freshness === 'require-live'
+            ? [...effects, context.portalCaptureSource === 'desktop' ? FIGMA_READ : browser]
+            : effects;
+        },
+        () => 'operation-id',
+        'exclusive-heavy',
+        'operation-id',
+      ),
+    ] as const;
+  }
+  if (name === 'portal_validate')
+    return [
+      name,
+      policy(
+        name,
+        [...effects, FIGMA_READ],
+        (_args, context) =>
+          context.portalCaptureSource === 'desktop'
+            ? [...effects.filter(effect => effect.type !== 'external-browser-read'), FIGMA_READ]
+            : effects,
+        () => 'operation-id',
+        'exclusive-heavy',
+        'operation-id',
+      ),
+    ] as const;
+  if (name === 'portal_resume') {
+    const writes = filesystemWrite(true, 'portalTarget');
+    return [
+      name,
+      policy(
+        name,
+        [...effects, filesystemRead('portalTarget'), writes],
+        args =>
+          args.reconcile === 'continue'
+            ? [...effects, filesystemRead('portalTarget'), writes]
+            : args.reconcile === 'inspect'
+              ? [...effects, filesystemRead('portalTarget')]
+              : effects,
+        () => 'operation-id',
+        'exclusive-heavy',
+        'operation-id',
+      ),
+    ] as const;
+  }
+  return [
+    name,
+    staticPolicy(
+      name,
+      effects,
+      name === 'portal_status' ? 'safe-retry' : 'operation-id',
+      name === 'portal_status' ? 'parallel-read' : 'exclusive-heavy',
+    ),
+  ] as const;
+});
+export const OPERATION_POLICIES = createRegistry([...entries, ...portalEntries]);
 
 /** Fail closed for an unregistered name; callers never synthesize policy from `kind`. */
 export const operationPolicyFor = (toolName: string): OperationPolicy => {

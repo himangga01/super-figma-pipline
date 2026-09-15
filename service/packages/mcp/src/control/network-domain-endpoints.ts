@@ -15,8 +15,6 @@ export const NetworkDomainAddRequestSchema = z
   })
   .strict();
 
-export const NetworkDomainRemoveRequestSchema = NetworkDomainAddRequestSchema;
-
 export interface NetworkDomainMutationStore {
   list(): Promise<readonly Readonly<RemoteDomainRule>[]>;
   addAuthorized(
@@ -71,7 +69,7 @@ export const createNetworkDomainEndpoints = (dependencies: {
       input: unknown,
       signal: CancellationSignal,
     ): Promise<void> => {
-      const request = NetworkDomainRemoveRequestSchema.parse(input);
+      const request = NetworkDomainAddRequestSchema.parse(input);
       const fqdnAscii = normalizeRemoteDomain(request.fqdn);
       const requestHash = hashActionRequest('network-domain.remove', { domain: fqdnAscii });
       assertActive(signal);

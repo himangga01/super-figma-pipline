@@ -1,4 +1,5 @@
 import { createHash } from 'node:crypto';
+import { existsSync } from 'node:fs';
 
 import { describe, expect, it } from 'vitest';
 
@@ -13,15 +14,20 @@ import {
   schemaContractJson,
   UNION_MANIFEST,
 } from '../packages/shared/src/capability-manifest.js';
+import { PORTAL_TOOL_NAMES } from '../packages/shared/src/portal.js';
 import { RESULT_SCHEMAS } from '../packages/shared/src/result-schemas.js';
 
 const sha256 = (value: string): string => createHash('sha256').update(value).digest('hex');
 const hashPattern = /^[0-9a-f]{64}$/;
 
 const BASELINE_SERVER_ONLY = [
+  ...PORTAL_TOOL_NAMES,
   'analyze_project',
   'component_map',
   'design_diff',
+  'doctor',
+  'export_frames_to_pdf',
+  'export_tokens',
   'icon_map',
   'save_screenshots',
   'scan_components',
@@ -29,6 +35,10 @@ const BASELINE_SERVER_ONLY = [
 ] as const;
 
 const BASELINE_SERVER_ADAPTER_NAMES = [
+  ...PORTAL_TOOL_NAMES,
+  'doctor',
+  'export_frames_to_pdf',
+  'export_tokens',
   'ping',
   'get_screenshot',
   'get_design_context',
@@ -43,13 +53,6 @@ const BASELINE_SERVER_ADAPTER_NAMES = [
   'icon_map',
   'import_image',
   'design_diff',
-] as const;
-
-const PLANNED_SAFE_UNION = [
-  'doctor',
-  'export_frames_to_pdf',
-  'export_tokens',
-  'import_library_variable',
 ] as const;
 
 const EXPERIMENTAL_NATIVE = [
@@ -73,12 +76,12 @@ describe('tool contract authorities', () => {
   it('has one strict result schema and runtime for every baseline tool', () => {
     const names = ALL_TOOL_SPECS.map(spec => spec.name).toSorted();
 
-    expect(names).toHaveLength(112);
+    expect(names).toHaveLength(125);
     expect(Object.keys(RESULT_SCHEMAS).toSorted()).toEqual(names);
     expect(Object.keys(TOOL_RUNTIMES).toSorted()).toEqual(names);
     expect(
       Object.values(TOOL_RUNTIMES).filter(binding => binding.execution === 'server-adapter'),
-    ).toHaveLength(14);
+    ).toHaveLength(26);
 
     for (const [name, schema] of Object.entries(RESULT_SCHEMAS)) {
       const jsonSchema = schema.toJSONSchema({ unrepresentable: 'any' });
@@ -101,9 +104,9 @@ describe('tool contract authorities', () => {
     }
   });
 
-  it('derives the literal seven server-only tools while retaining 105 plugin handlers', () => {
-    expect([...SERVER_ONLY_TOOLS].toSorted()).toEqual([...BASELINE_SERVER_ONLY]);
-    expect(Object.keys(createSandboxHandlers({} as never))).toHaveLength(105);
+  it('derives nineteen server-only tools while retaining 106 plugin handlers', () => {
+    expect([...SERVER_ONLY_TOOLS].toSorted()).toEqual([...BASELINE_SERVER_ONLY].toSorted());
+    expect(Object.keys(createSandboxHandlers({} as never))).toHaveLength(106);
   });
 
   it('keeps handler parity independent from the exact baseline execution adapters', () => {
@@ -115,7 +118,7 @@ describe('tool contract authorities', () => {
       {},
     );
 
-    expect(grouped).toEqual({ 'plugin-direct': 98, 'server-adapter': 14 });
+    expect(grouped).toEqual({ 'plugin-direct': 99, 'server-adapter': 26 });
     expect(
       Object.entries(TOOL_RUNTIMES)
         .filter(([, binding]) => binding.execution === 'server-adapter')
@@ -141,9 +144,24 @@ describe('tool contract authorities', () => {
 });
 
 describe('two-layer capability manifest', () => {
+  it('points every declared implementation and test to an existing source file', () => {
+    const rows = [
+      ...UNION_MANIFEST.canonicalTools,
+      ...UNION_MANIFEST.sourceSurfaces.figmoshaHelpers,
+      ...UNION_MANIFEST.sourceSurfaces.figmoshaCliParsers,
+    ];
+    for (const row of rows) {
+      for (const path of [row.implementation, row.test]) {
+        if (path === null) continue;
+        expect(existsSync(new URL(`../${path}`, import.meta.url)), `${row.name}: ${path}`).toBe(
+          true,
+        );
+      }
+    }
+  });
   it('materializes all canonical and source surfaces at their exact cardinalities', () => {
     expect(UNION_MANIFEST.schemaVersion).toBe(1);
-    expect(UNION_MANIFEST.canonicalTools).toHaveLength(116);
+    expect(UNION_MANIFEST.canonicalTools).toHaveLength(125);
     expect(UNION_MANIFEST.sourceSurfaces.lexicalTools).toHaveLength(114);
     expect(UNION_MANIFEST.sourceSurfaces.figmoshaHelpers).toHaveLength(20);
     expect(UNION_MANIFEST.sourceSurfaces.figmoshaCliParsers).toHaveLength(12);
@@ -155,7 +173,7 @@ describe('two-layer capability manifest', () => {
     );
   });
 
-  it('keeps only the four safe-union rows planned and every baseline row implemented', () => {
+  it('implements every canonical tool including the four safe-union tools', () => {
     const planned = UNION_MANIFEST.canonicalTools
       .filter(row => row.implementationStatus === 'planned')
       .map(row => row.name)
@@ -164,8 +182,8 @@ describe('two-layer capability manifest', () => {
       row => row.implementationStatus === 'implemented',
     );
 
-    expect(planned).toEqual([...PLANNED_SAFE_UNION]);
-    expect(implemented).toHaveLength(112);
+    expect(planned).toEqual([]);
+    expect(implemented).toHaveLength(125);
     expect(implemented.map(row => row.name).toSorted()).toEqual(
       ALL_TOOL_SPECS.map(spec => spec.name).toSorted(),
     );

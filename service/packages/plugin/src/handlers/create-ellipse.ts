@@ -5,7 +5,7 @@ import { placeNode } from './place.js';
 
 export const createCreateEllipseHandler =
   (figmaCtx: typeof figma): SandboxToolHandler =>
-  async params => {
+  async (params, execution) => {
     const p = (params ?? {}) as {
       parentId?: unknown;
       name?: unknown;
@@ -16,6 +16,7 @@ export const createCreateEllipseHandler =
     };
 
     const ellipse = figmaCtx.createEllipse();
+    execution?.markMutated?.();
     if (typeof p.name === 'string') ellipse.name = p.name;
     if (typeof p.width === 'number' && typeof p.height === 'number') {
       ellipse.resize(p.width, p.height);

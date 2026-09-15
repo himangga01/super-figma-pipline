@@ -15,6 +15,7 @@ import { basename, dirname, join, normalize, sep } from 'node:path';
 
 import {
   PortableRelativeArtifactPathSchema,
+  OPERATION_CAPTURE_MAX_BYTES,
   type NativeEvidenceProjectionV1,
   type OperationEvidenceProjector,
   type OperationEvidenceArtifactPort,
@@ -1030,6 +1031,11 @@ export class OperationEvidenceArtifactStore implements OperationEvidenceArtifact
     if (!input.intent.captureResult) {
       throw evidenceError('EVIDENCE_CAPTURE_DISABLED', 'capture artifact was not requested');
     }
+    if (input.canonicalRedactedBytes.byteLength > OPERATION_CAPTURE_MAX_BYTES)
+      throw evidenceError(
+        'EVIDENCE_CAPTURE_TOO_LARGE',
+        'Captured result exceeds the service byte limit',
+      );
     const observedDigest = digest(input.canonicalRedactedBytes);
     if (input.resultHash !== `sha256:${observedDigest}`) {
       throw evidenceError(

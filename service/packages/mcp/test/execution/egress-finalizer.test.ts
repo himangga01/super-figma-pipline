@@ -443,3 +443,45 @@ describe('durable operation finalizer', () => {
     },
   );
 });
+
+it('refuses oversized captured success before any finalizer side effect', async () => {
+  const touch = vi.fn<() => never>(() => {
+    throw Error('FINALIZER_MUST_NOT_PUBLISH');
+  });
+  const finalizer = new DurableOperationFinalizer({
+    artifacts: { createNew: touch },
+    receipts: { prepareAndFsync: touch },
+    egress: { finalize: touch },
+    journal: { transition: touch },
+    emitTerminal: touch,
+  });
+  await expect(
+    finalizer.succeed({
+      actorId: 'actor1_AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA',
+      operationId: 'operation-1',
+      operationKind: 'tool',
+      operationName: 'get_selection',
+      argsHash: hash('1'),
+      workspaceId: '123e4567-e89b-42d3-a456-426614174000',
+      fileExecutionKeyHash: null,
+      targetBindingHash: null,
+      captureIntentHash: hash('2'),
+      captureIntent: {
+        captureResult: true,
+        relativePath: '.sfp/operation-evidence/a/result.v1.json',
+      } as never,
+      canonicalRedactedBytes: Buffer.alloc(8_388_609),
+      resultSchemaHash: hash('b'),
+      resultHash: hash('a'),
+      nativeEvidence: { kind: 'no-artifact', reasonCode: 'not-native-evidence' },
+      daemonGenerationHash: hash('3'),
+      evidenceReservationId: 'evidence-reservation-1',
+      egressReservation: { preManifestHash: hash('4') } as never,
+      outputManifest: { finalStatus: 'output', manifestHash: hash('5') } as never,
+      completedAt: '2026-08-31T00:00:00.000Z',
+      requestId: 'sfp_req1_AAAAAAAAAAAAAAAAAAAAAA',
+      result: {},
+    }),
+  ).rejects.toMatchObject({ code: 'EVIDENCE_CAPTURE_TOO_LARGE' });
+  expect(touch).not.toHaveBeenCalled();
+});

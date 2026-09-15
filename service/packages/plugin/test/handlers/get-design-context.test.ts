@@ -24,9 +24,15 @@ const fakeFigma = (opts: {
   lookup?: Record<string, BaseNode | null>;
   variables?: Record<
     string,
-    { name: string; resolvedType: string; codeSyntax?: Record<string, string> }
+    {
+      name: string;
+      resolvedType: string;
+      codeSyntax?: Record<string, string>;
+      [key: string]: unknown;
+    }
   >;
-  styles?: Record<string, { name: string; type: string }>;
+  styles?: Record<string, { name: string; type: string; [key: string]: unknown }>;
+  collections?: Record<string, unknown>;
 }): typeof figma =>
   ({
     currentPage: { selection: opts.selection ?? [], children: opts.pageChildren ?? [] },
@@ -34,6 +40,7 @@ const fakeFigma = (opts: {
     getStyleByIdAsync: async (id: string) => opts.styles?.[id] ?? null,
     variables: {
       getVariableByIdAsync: async (id: string) => opts.variables?.[id] ?? null,
+      getVariableCollectionByIdAsync: async (id: string) => opts.collections?.[id] ?? null,
     },
   }) as unknown as typeof figma;
 
@@ -593,14 +600,14 @@ describe('get_design_context handler', () => {
 
     // styleId comma stripped on the node so it joins the map key
     expect(full.nodes[0]?.styleIds).toEqual({ fill: 'S:text1' });
-    expect(full.variables).toEqual({
+    expect(full.variables).toMatchObject({
       'VariableID:181:4147': {
         name: 'Primary/500',
         type: 'COLOR',
         codeSyntax: { WEB: '--color-primary' },
       },
     });
-    expect(full.styles).toEqual({ 'S:text1': { name: 'Body/Bold', type: 'TEXT' } });
+    expect(full.styles).toMatchObject({ 'S:text1': { name: 'Body/Bold', type: 'TEXT' } });
   });
 
   it("resolves a mixed TEXT run's per-segment token bindings into the top-level maps", async () => {
@@ -653,13 +660,13 @@ describe('get_design_context handler', () => {
     expect(seg?.styleIds).toEqual({ text: 'S:linkstyle' });
     expect(seg?.boundVariables).toEqual({ fills: ['VariableID:primary'] });
     // … and those per-segment ids resolve into the deduped top-level token maps.
-    expect(full.styles).toEqual({ 'S:linkstyle': { name: 'Link/Default', type: 'TEXT' } });
-    expect(full.variables).toEqual({
+    expect(full.styles).toMatchObject({ 'S:linkstyle': { name: 'Link/Default', type: 'TEXT' } });
+    expect(full.variables).toMatchObject({
       'VariableID:primary': { name: 'Primary/500', type: 'COLOR' },
     });
   });
 
-  it('omits token maps below full detail and when refs are unresolvable', async () => {
+  it('omits compact token maps and preserves unavailable full-detail references', async () => {
     const ref = node({
       id: 'r',
       type: 'TEXT',
@@ -679,7 +686,7 @@ describe('get_design_context handler', () => {
     const full = (await createGetDesignContextHandler(
       fakeFigma({ selection: [ref], variables: {} }),
     )({ detail: 'full' })) as GetDesignContextResult;
-    expect(full.variables).toBeUndefined();
+    expect(full.variables?.['VariableID:9:9']).toMatchObject({ resolution: 'unavailable' });
     expect(full.nodes[0]?.boundVariables).toEqual({ fills: ['VariableID:9:9'] }); // raw id stays as fallback
   });
 
@@ -909,5 +916,81 @@ describe('get_design_context — Motion (beta) summary', () => {
     const handler = createGetDesignContextHandler(fakeFigma({ selection: [plain] }));
     const r = (await handler({ detail: 'full' })) as GetDesignContextResult;
     expect(r.nodes[0]?.motion).toBeUndefined();
+  });
+});
+
+it('retains actual variable values, referenced alias dependencies, collection modes and node API evidence', async () => {
+  const collection = {
+    id: 'colors',
+    key: 'k',
+    name: 'Colors',
+    defaultModeId: 'light',
+    modes: [
+      { modeId: 'light', name: 'Light' },
+      { modeId: 'dark', name: 'Dark' },
+    ],
+    variableIds: ['semantic', 'primitive'],
+  };
+  const main = node({
+    id: 'main',
+    type: 'COMPONENT',
+    key: 'key',
+    componentPropertyDefinitions: {
+      Size: { type: 'VARIANT', defaultValue: 'Small', variantOptions: ['Small', 'Large'] },
+    },
+  }) as unknown as ComponentNode;
+  const instance = node({
+    id: 'instance',
+    type: 'INSTANCE',
+    getMainComponentAsync: async () => main,
+    explicitVariableModes: { colors: 'dark' },
+    resolvedVariableModes: { colors: 'dark' },
+    componentProperties: { Size: { type: 'VARIANT', value: 'Large' } },
+    boundVariables: { fills: [{ type: 'VARIABLE_ALIAS', id: 'semantic' }] },
+    fillStyleId: 'paint',
+    fills: [{ type: 'SOLID', color: { r: 0, g: 0, b: 1 } }],
+  });
+  const result = (await createGetDesignContextHandler(
+    fakeFigma({
+      selection: [instance],
+      collections: { colors: collection },
+      variables: {
+        semantic: {
+          name: 'Alias',
+          resolvedType: 'COLOR',
+          variableCollectionId: 'colors',
+          valuesByMode: {
+            light: { type: 'VARIABLE_ALIAS', id: 'primitive' },
+            dark: { type: 'VARIABLE_ALIAS', id: 'primitive' },
+          },
+        },
+        primitive: {
+          name: 'Color',
+          resolvedType: 'COLOR',
+          variableCollectionId: 'colors',
+          valuesByMode: { light: { r: 1, g: 0, b: 0 }, dark: { r: 0, g: 0, b: 1 } },
+        },
+      },
+      styles: {
+        paint: {
+          name: 'Paint',
+          type: 'PAINT',
+          paints: [{ type: 'SOLID', color: { r: 1, g: 0, b: 0 } }],
+        },
+      },
+    }),
+  )({ detail: 'full' })) as GetDesignContextResult;
+  expect(result.variables?.semantic).toMatchObject({
+    collectionId: 'colors',
+    collection,
+    valuesByMode: { dark: { type: 'VARIABLE_ALIAS', id: 'primitive' } },
+    resolution: 'observed',
+  });
+  expect(result.variables?.primitive?.valuesByMode?.dark).toMatchObject({ r: 0, g: 0, b: 1, a: 1 });
+  expect(result.styles?.paint?.paints).toHaveLength(1);
+  expect(result.nodes[0]).toMatchObject({
+    explicitVariableModes: { colors: 'dark' },
+    resolvedVariableModes: { colors: 'dark' },
+    componentApi: { properties: { Size: { variantOptions: ['Small', 'Large'] } } },
   });
 });

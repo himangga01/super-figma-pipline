@@ -3,23 +3,24 @@ import {
   type GetVariableDefsResult,
   type SerializedMotionEasing,
   type SerializedVariable,
-  type SerializedVariableCollection,
   type SerializedVariableValue,
   toHex,
 } from '@sfp/shared';
 
-// Figma token extraction — the left-hand (neutral provenance) side of the token join. Flattens
-// get_variable_defs into { name, value, type } pairs by reading each variable at its collection's
-// default mode, following VARIABLE_ALIAS chains to a concrete value, and rendering colors as the same
-// hex form the grounding output uses (so value-matching against project tokens lines up). A variable
-// in a multi-mode collection whose value actually changes across modes additionally carries `modes`
-// (mode name → resolved value): the per-theme values (Light/Dark) that codegen must keep
-// theme-aware rather than collapse into the default mode's literal. Pure.
+// Catalog values retain source/collection/mode IDs. Same-collection aliases can resolve in a
+// catalog projection; cross-collection aliases require actual node selections and are resolved
+// separately by DesignObservation.bindings. Never use a catalog default as a node's active mode.
 
 /** A resolved concrete value: hex string for color, primitive otherwise; null if unresolved. */
 type FigmaTokenValue = string | number | boolean | null;
 
 export interface FigmaToken {
+  sourceId?: string;
+  collectionId?: string;
+  defaultModeId?: string;
+  modeValues?: Record<string, FigmaTokenValue>;
+  resolution?: 'catalog' | 'unresolved';
+
   /** Figma variable name, group separators kept, e.g. "Primary/500". */
   name: string;
   /** Resolved value at the collection's default mode. */
@@ -74,101 +75,78 @@ const formatEasing = (val: SerializedMotionEasing): string => {
   return val.type;
 };
 
-/** The mode being resolved, carried across alias hops so Light keeps chasing Light. */
-interface ModeContext {
-  modeId: string;
-  name: string;
-}
-
-/**
- * The mode of `collection` to read under `ctx`: the exact mode when the hop stays in the same
- * collection, else the same-named mode (designers name theme modes identically across collections —
- * Light/Dark in both the semantic and the primitive collection, and matching by name is how the
- * themes are meant to switch together), else the collection's default — which mirrors Figma's own
- * resolution, where a collection that doesn't carry the consuming mode resolves at its default. A
- * null ctx (the plain default-mode read) always uses the default.
- */
-const modeIn = (collection: SerializedVariableCollection, ctx: ModeContext | null): string => {
-  if (ctx !== null) {
-    if (collection.modes.some(m => m.modeId === ctx.modeId)) return ctx.modeId;
-    const named =
-      collection.modes.find(m => m.name === ctx.name) ??
-      collection.modes.find(m => m.name.toLowerCase() === ctx.name.toLowerCase());
-    if (named !== undefined) return named.modeId;
-  }
-  return collection.defaultModeId;
+const uniqueIndex = <T extends { id: string }>(items: T[]) => {
+  const index = new Map<string, T | undefined>();
+  for (const item of items) index.set(item.id, index.has(item.id) ? undefined : item);
+  return index;
 };
 
-/**
- * Resolve get_variable_defs into a flat list of concrete Figma tokens. Aliases are chased to a
- * concrete value — at the collection's default mode for `value`, and once per mode (the mode
- * context following the alias across collections) for `modes` — with a visited-set cycle guard so a
- * self/mutual reference yields null rather than looping.
- */
+/** Catalog defaults are presentation only, never observed node mode selections. */
 export const resolveFigmaTokens = (defs: GetVariableDefsResult): FigmaToken[] => {
-  const collectionById = new Map(defs.collections.map(c => [c.id, c]));
-  const byId = new Map(defs.variables.map(varDef => [varDef.id, varDef]));
-
-  /** Raw value of `variable` under `ctx` (falls back to its first mode when the mode is absent). */
-  const valueAt = (
-    variable: SerializedVariable,
-    ctx: ModeContext | null,
-  ): SerializedVariableValue | undefined => {
-    const collection = collectionById.get(variable.collectionId);
-    if (collection !== undefined) {
-      const modeId = modeIn(collection, ctx);
-      if (modeId in variable.valuesByMode) return variable.valuesByMode[modeId];
-    }
-    return Object.values(variable.valuesByMode)[0];
-  };
-
+  const variableIndex = uniqueIndex(defs.variables),
+    collectionIndex = uniqueIndex(defs.collections);
   const resolve = (
     variable: SerializedVariable,
-    ctx: ModeContext | null,
+    modeId: string,
     seen: Set<string>,
   ): FigmaTokenValue => {
-    if (seen.has(variable.id)) return null;
+    if (seen.has(variable.id) || seen.size >= 128) return null;
     seen.add(variable.id);
-    const raw = valueAt(variable, ctx);
+    if (!variableIndex.get(variable.id)) return null;
+    const raw = variable.valuesByMode[modeId];
     if (raw === undefined) return null;
     if (isAlias(raw)) {
-      const target = byId.get(raw.id);
-      return target === undefined ? null : resolve(target, ctx, seen);
+      const target = variableIndex.get(raw.id);
+      // Cross-collection aliases need independently observed node selections, not mode names.
+      return target?.collectionId === variable.collectionId &&
+        target.resolvedType === variable.resolvedType
+        ? resolve(target, modeId, seen)
+        : null;
     }
-    if (isRgba(raw)) return toHex(raw, raw.a);
-    // The only object-shaped value left is an EASING curve — flatten it to a scalar token value.
-    if (typeof raw === 'object' && raw !== null) return formatEasing(raw);
-    return raw;
+    if (isRgba(raw))
+      return variable.resolvedType === 'COLOR' &&
+        [raw.r, raw.g, raw.b, raw.a].every(
+          channel => Number.isFinite(channel) && channel >= 0 && channel <= 1,
+        )
+        ? toHex(raw, raw.a)
+        : null;
+    if (typeof raw === 'object' && raw !== null)
+      return variable.resolvedType === 'EASING' ? formatEasing(raw) : null;
+    if (typeof raw === 'string') return variable.resolvedType === 'STRING' ? raw : null;
+    if (typeof raw === 'boolean') return variable.resolvedType === 'BOOLEAN' ? raw : null;
+    return ['FLOAT', 'TIMING'].includes(variable.resolvedType) ? raw : null;
   };
-
-  /**
-   * Per-theme values for a variable in a multi-mode collection, or undefined when every mode
-   * resolves to the same value (an identical-everywhere value isn't theme-dependent, and emitting
-   * it would bloat every mapping in a multi-mode file for no signal).
-   */
-  const modesOf = (variable: SerializedVariable): FigmaToken['modes'] => {
-    const collection = collectionById.get(variable.collectionId);
-    if (collection === undefined || collection.modes.length < 2) return undefined;
-    const out: NonNullable<FigmaToken['modes']> = {};
-    for (const mode of collection.modes) {
-      // Duplicate mode names can't be told apart as record keys; qualify the later one by id.
-      const key = mode.name in out ? `${mode.name} (${mode.modeId})` : mode.name;
-      out[key] = resolve(variable, { modeId: mode.modeId, name: mode.name }, new Set());
-    }
-    const values = Object.values(out);
-    return values.some(v => v !== values[0]) ? out : undefined;
-  };
-
   return defs.variables.map(variable => {
-    const collection = collectionById.get(variable.collectionId);
-    const name = collection?.name;
-    const modes = modesOf(variable);
+    const collection = collectionIndex.get(variable.collectionId);
+    const modeValues = Object.fromEntries(
+      (collection?.modes ?? []).map(mode => [
+        mode.modeId,
+        resolve(variable, mode.modeId, new Set()),
+      ]),
+    );
+    const value = collection ? (modeValues[collection.defaultModeId] ?? null) : null;
+    const modes: Record<string, FigmaTokenValue> = {};
+    for (const mode of collection?.modes ?? []) {
+      const key =
+        collection!.modes.filter(other => other.name === mode.name).length > 1
+          ? `${mode.name} (${mode.modeId})`
+          : mode.name;
+      modes[key] = modeValues[mode.modeId] ?? null;
+    }
     return {
+      sourceId: variable.id,
+      collectionId: variable.collectionId,
       name: variable.name,
-      value: resolve(variable, null, new Set()),
       type: variable.resolvedType,
-      ...(name === undefined || name.length === 0 ? {} : { collection: name }),
-      ...(modes === undefined ? {} : { modes }),
+      value,
+      modeValues,
+      resolution: value === null ? ('unresolved' as const) : ('catalog' as const),
+      ...(collection
+        ? { collection: collection.name, defaultModeId: collection.defaultModeId }
+        : {}),
+      ...(Object.values(modes).some(modeValue => modeValue !== Object.values(modes)[0])
+        ? { modes }
+        : {}),
     };
   });
 };
@@ -187,6 +165,8 @@ export const resolvePaintStyleTokens = (paints: GetStylesResult['paints']): Figm
     const only = visible.length === 1 ? visible[0] : undefined;
     if (only === undefined || only.type !== 'SOLID' || !('color' in only)) continue;
     out.push({
+      sourceId: style.id,
+      resolution: 'catalog',
       name: style.name,
       value: toHex(only.color, only.opacity),
       type: 'COLOR',

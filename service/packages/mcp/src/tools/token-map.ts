@@ -1,11 +1,11 @@
-import type { GetStylesResult, GetVariableDefsResult } from '@sfp/shared';
+import type { GetDesignContextResult, GetStylesResult, GetVariableDefsResult } from '@sfp/shared';
 import { z } from 'zod';
 
 import { RepoReader } from '../fs/repo-walk.js';
-import { joinTokens, parseTokenMapFile, type TokenMapping } from '../join/token-map.js';
+import type { TokenMapping } from '../join/token-map.js';
+import { mapObservationTokens, observeMappingContext } from '../mapping/design-mapping.js';
+import { readMappingOverrides, loadMappingTokenSource } from '../mapping/mapping-overrides.js';
 import { analyzeProject, isUtilityFirst, type ProjectProfile } from '../profile/profile.js';
-import { resolveFigmaTokens, resolvePaintStyleTokens } from '../tokens/figma-tokens.js';
-import { loadProjectTokens } from '../tokens/load.js';
 import { GET_STYLES_TOOL_NAME } from './get-styles.js';
 import { GET_VARIABLE_DEFS_TOOL_NAME } from './get-variable-defs.js';
 import type { RawToolSpec } from './spec.js';
@@ -13,18 +13,8 @@ import type { RawToolSpec } from './spec.js';
 export const TOKEN_MAP_TOOL_NAME = 'token_map';
 
 const DEFAULT_THRESHOLD = 0.7;
-const MAP_FILE = 'docs/figma-token-map.md';
-
-const readOverrides = async (reader: RepoReader): Promise<ReturnType<typeof parseTokenMapFile>> => {
-  try {
-    return parseTokenMapFile(await reader.readText(MAP_FILE));
-  } catch (error) {
-    if ((error as { code?: unknown }).code === 'PATH_OUTSIDE_WORKSPACE') throw error;
-    return new Map();
-  }
-};
-
 const inputSchema = z.object({
+  nodeId: z.string().optional(),
   rootDir: z.string().describe('Project root; defaults to the server cwd').optional(),
   tokenSource: z
     .string()
@@ -43,6 +33,8 @@ const inputSchema = z.object({
 
 export interface TokenMapResult {
   mappings: TokenMapping[];
+  codeSourceHash: string;
+  observation: ReturnType<typeof observeMappingContext>;
   /** Figma token names with no project token candidate ≥ 0.5 — the gap to define. */
   unmapped: string[];
   /**
@@ -72,48 +64,19 @@ export interface TokenMapResult {
 export const tokenMapTool: RawToolSpec = {
   name: TOKEN_MAP_TOOL_NAME,
   description:
-    "Map the document's Figma variables — and its shared paint styles (single solid color styles, " +
-    "the design-token mechanism of pre-variables files; such rows carry source: 'style') — to the " +
-    "project's design tokens, so generated code references " +
-    'existing tokens instead of hard-coded values. Joins the grounded Figma names + values ' +
-    "against the project's design tokens — parsed from its CSS (Tailwind v4 @theme or :root custom " +
-    'properties), on a Tailwind v3 or UnoCSS project from the theme scales in its JS/TS config ' +
-    '(whose tokens have no var() form: reference them by candidate.ref, the utility base), and on a ' +
-    'SCSS project from its $variables. A SCSS candidate carries candidate.from, the file declaring ' +
-    'it: candidate.ref does NOT resolve on its own — the consuming file must @use that file. from ' +
-    'is REPO-relative and Sass resolves @use against the importing file, so re-resolve it from the ' +
-    "file being written (from src/components/card.scss it is '../styles/tokens', never the " +
-    'repo-relative path verbatim). `as *` keeps the ref as written; a namespaced @use requires ' +
-    'prefixing the ref with that namespace. Emitting the ref without the import is a compile ' +
-    'error. The ' +
-    'match is name-based with an exact color value-match as confirmation. When several project ' +
-    'tokens share the exact same color value and the name cannot pick one, the mapping is capped ' +
-    "below 'high' and candidate.ambiguousWith lists the other same-value tokens — verify that pick " +
-    'semantically instead of trusting it blindly. When the rival is the SAME name in another file ' +
-    '(a SCSS layout with per-component variable files), candidate.ambiguousFrom lists those files ' +
-    'instead: the ref is right and the declaring file is the open question, so confirm which one ' +
-    'the design means before writing its @use. On a project with a utility framework (Tailwind ' +
-    'or UnoCSS) a ' +
-    'variable that hits a framework built-in scale (spacing/N, line-height/N, weight/*) is reported as ' +
-    "status 'framework-builtin' with { builtin: { scale, step } } rather than unmapped — it has no " +
-    '@theme token but the utility (p-4 / gap-4, leading-7, font-bold) is still usable. A variable in ' +
-    'a multi-mode collection whose value differs per mode (a Light/Dark theme) carries figmaModes ' +
-    '(mode name → value per theme; figmaValue is only the default mode), and the result lists ' +
-    'themedCollections — keep such tokens theme-aware (a token that itself switches per theme, or ' +
-    "the non-default values wired through the project's dark-mode mechanism), never just the " +
-    'default-mode literal. tokenSource ' +
-    'overrides the ' +
-    'detected styling config; rootDir defaults to the server cwd. A JS-config theme built at ' +
-    'runtime (spread from an imported palette, computed, or living in a preset) is only partly ' +
-    'readable — the note says how much was skipped or whether the theme was reachable at all, and ' +
-    'the project CSS is pooled alongside it either way. ' +
-    'An explicit docs/figma-token-map.md row ' +
-    '(FigmaName | ref) overrides the fuzzy join with matchedBy ["map-file"] — this file is the ' +
-    'durable record a verified token mapping is written back to, so the next run reuses it instead ' +
-    'of re-guessing an ambiguous or value-only match. A row whose ref no longer resolves to a ' +
-    'project token is reported in staleOverrides and degrades to the normal join. Returns { mappings ' +
-    '(candidate + confidence + status + matchedBy + builtin), unmapped, staleOverrides, tokenSource, ' +
-    'profile }.',
+    'Map captured variable catalog values and single-solid paint styles to repository tokens. ' +
+    'Source IDs, collection IDs and modeValues preserve identity; catalog defaults are not node selections. ' +
+    'Pass nodeId to include actual node bindings, independently selected collection modes and alias resolution. ' +
+    'Missing modes, remote dependencies, failed catalogs and ambiguous SCSS declarations are not verified reuse. ' +
+    'Candidate refs require source inspection; SCSS candidates require an import from candidate.from. ' +
+    'Name matches and unsupported unit/color/theme conversions remain candidates. ' +
+    'Historical docs/figma-token-map.md name/ref rows are legacy-unverified hints. ' +
+    'A fenced sfp-token-map-v2 JSON array can record sourceId/type/value/collectionId/defaultModeId/modeValues, ' +
+    'ref/token/projectValue/from/codeSourceHash; the shared reader verifies exact current design/code evidence ' +
+    'and rejects stale proofs. Only mechanically comparable uniform values can verify this catalog proof; ' +
+    'runtime theme and property consumption require separate validation. ' +
+    'Styles read failures propagate. Outputs retain an observation marked with its actual authority, ' +
+    'which standalone mapping reads do not elevate to coherent live capture.',
   inputSchema,
   kind: 'local',
   // No sandbox handler of its own; its plugin arguments are recorded under the tool it reuses.
@@ -137,29 +100,30 @@ export const handleTokenMap = async (
   const repo = reader ?? new RepoReader({ rootDir });
   const threshold = args.threshold ?? DEFAULT_THRESHOLD;
 
-  // Styles are an additive source, not a requirement: a get_styles failure must not take down the
-  // variable join that succeeded before styles existed — degrade to variables-only instead.
-  const [defs, styles, profile, overrides] = await Promise.all([
+  // Required style catalog failures propagate; an absent result is not an observed empty palette.
+  const [defs, styles, profile, overrides, context] = await Promise.all([
     dispatch(GET_VARIABLE_DEFS_TOOL_NAME, {}) as Promise<GetVariableDefsResult>,
-    (dispatch(GET_STYLES_TOOL_NAME, {}) as Promise<GetStylesResult>).catch((): GetStylesResult => ({
-      paints: [],
-      texts: [],
-      effects: [],
-      grids: [],
-    })),
+    dispatch(GET_STYLES_TOOL_NAME, {}) as Promise<GetStylesResult>,
     analyzeProject(rootDir, repo),
-    readOverrides(repo),
+    readMappingOverrides(repo),
+    args.nodeId === undefined
+      ? Promise.resolve({ nodes: [] } as GetDesignContextResult)
+      : (dispatch('get_design_context', {
+          nodeId: args.nodeId,
+          detail: 'full',
+          dedupeComponents: false,
+        }) as Promise<GetDesignContextResult>),
   ]);
 
-  const loaded = await loadProjectTokens(rootDir, profile, args.tokenSource, repo);
+  const { loaded, codeSourceHash } = await loadMappingTokenSource(repo, profile, args.tokenSource);
 
-  // Variables first, then paint-style pseudo-tokens: a pre-variables file (palette carried as
-  // shared paint styles, zero variables) joins too instead of coming back empty.
-  const figmaTokens = [...resolveFigmaTokens(defs), ...resolvePaintStyleTokens(styles.paints)];
-  const mappings = joinTokens(figmaTokens, loaded.tokens, {
+  const observation = observeMappingContext(context, { variables: defs, styles });
+  const mappings = mapObservationTokens(observation, loaded.tokens, {
     threshold,
     utilityFirst: isUtilityFirst(profile.styling.system),
-    ...(overrides.size > 0 ? { overrides } : {}),
+    overrides: overrides.tokens,
+    proofs: overrides.proofs,
+    codeSourceHash,
   });
   const unmapped = mappings.filter(m => m.status === 'unmapped').map(m => m.figmaName);
   // Stale rows (recorded ref no longer resolves) that degraded to the normal join — surfaced so the
@@ -172,11 +136,13 @@ export const handleTokenMap = async (
     .map(c => ({
       name: c.name,
       modes: c.modes.map(m => m.name),
-      defaultMode: c.modes.find(m => m.modeId === c.defaultModeId)?.name ?? c.modes[0]?.name ?? '',
+      defaultMode: c.modes.find(m => m.modeId === c.defaultModeId)?.name ?? '',
     }));
 
   return {
     mappings,
+    observation,
+    codeSourceHash,
     unmapped,
     themedCollections,
     profile,

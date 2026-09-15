@@ -2,9 +2,38 @@
   "name": "@sfp/cli",
   "version": "0.1.0",
   "private": true,
+  "license": "MIT",
+  "bin": {
+    "sfp": "./dist/index.mjs"
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE",
+    "THIRD_PARTY_NOTICES.md",
+    "PROVENANCE.md",
+    "SBOM.spdx.json",
+    "licenses",
+    "capabilities"
+  ],
   "type": "module",
+  "exports": {
+    ".": "./dist/library.mjs"
+  },
   "scripts": {
     "build": "tsdown",
     "typecheck": "tsc --noEmit -p tsconfig.json"
+  },
+  "dependencies": {
+    "@sfp/ir": "workspace:*",
+    "@sfp/mcp": "workspace:*",
+    "@sfp/shared": "workspace:*",
+    "ignore": "7.0.6",
+    "oxc-parser": "0.147.0",
+    "playwright": "1.63.0",
+    "zod": "4.4.3"
+  },
+  "devDependencies": {
+    "tsdown": "^0.22.14"
   }
 }

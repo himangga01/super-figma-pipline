@@ -84,7 +84,14 @@ export class McpInvocationAdapter {
       );
     }
     const requirement = spec.targetRequirementFor(parsed.data);
-    const targetSelector = { kind: requirement === 'required' ? 'active' : 'none' } as const;
+    const targetSelector = {
+      kind:
+        toolName === 'portal_plan' || toolName === 'portal_validate'
+          ? 'portal-source'
+          : requirement === 'required'
+            ? 'active'
+            : 'none',
+    } as const;
     const policy = operationPolicyFor(toolName);
     const needsWorkspace = policy.possibleEffects.some(
       effect => effect.type === 'filesystem-read' || effect.type === 'filesystem-write',

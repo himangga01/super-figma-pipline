@@ -29,6 +29,9 @@ const HEAVY_TOOLS: ReadonlySet<string> = new Set([
   'save_screenshots',
   'save_image_fills',
   'export_pdf',
+  'export_frames_to_pdf',
+  'export_tokens',
+  'import_library_variable',
   'get_document',
   'get_design_context',
   // Full recursive subtree serialization with no depth limit or dedupe (per mixed TEXT a
@@ -42,7 +45,17 @@ const HEAVY_TOOLS: ReadonlySet<string> = new Set([
 
 /** Base budget `B`: how long the Figma sandbox itself may take. Used by the UI → sandbox bridge. */
 export const getToolBudget = (toolName: string): number =>
-  HEAVY_TOOLS.has(toolName) ? HEAVY_TOOL_BUDGET_MS : DEFAULT_TOOL_BUDGET_MS;
+  toolName === 'portal_validate'
+    ? 3_600_000
+    : toolName === 'portal_plan'
+      ? 660_000
+      : toolName === 'portal_apply' || toolName === 'portal_resume'
+        ? 600_000
+        : toolName === 'portal_next'
+          ? 120_000
+          : HEAVY_TOOLS.has(toolName)
+            ? HEAVY_TOOL_BUDGET_MS
+            : DEFAULT_TOOL_BUDGET_MS;
 
 /** Relay → plugin request budget = B + one margin, so the sandbox bridge (inner) fires first. */
 export const getRelayBudget = (toolName: string): number =>

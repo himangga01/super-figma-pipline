@@ -1,7 +1,12 @@
+import { join } from 'node:path';
+
 import { defineConfig } from 'vitest/config';
 
 export default defineConfig({
   test: {
+    // Windows integration fixtures start real ACL/lease helper processes. CPU-count parallelism
+    // can exhaust their deadlines even though each fixture passes in isolation.
+    ...(process.platform === 'win32' ? { maxWorkers: 4 } : {}),
     projects: [
       'packages/*/vitest.config.ts',
       {
@@ -12,6 +17,20 @@ export default defineConfig({
           environment: 'node',
         },
       },
+      ...(process.platform === 'win32'
+        ? [
+            {
+              test: {
+                name: 'mcp-e2e',
+                root: join(import.meta.dirname, 'packages/mcp'),
+                include: ['test/e2e/**/*.{test,spec}.ts'],
+                environment: 'node',
+                fileParallelism: false,
+                sequence: { groupOrder: 1 },
+              },
+            },
+          ]
+        : []),
     ],
     coverage: {
       provider: 'v8',

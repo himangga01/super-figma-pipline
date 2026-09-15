@@ -1,3 +1,6 @@
+import { canonicalJson } from '@sfp/ir';
+import { z } from 'zod';
+
 import type { FigmaToken } from '../tokens/figma-tokens.js';
 import { normHex } from '../tokens/hex.js';
 import { type ProjectToken, refOf } from '../tokens/tokens.js';
@@ -14,7 +17,30 @@ import { statusFor } from './status.js';
 // color matching (and unit-aware number matching) is deferred; those still fall back to name-match.
 // Pure, like the component join, so it's unit-testable without Figma or the filesystem.
 
+const scalar = z.union([z.string(), z.number(), z.boolean(), z.null()]);
+export const TokenOverrideProofSchema = z.strictObject({
+  version: z.literal(2),
+  sourceId: z.string().min(1),
+  type: z.string(),
+  value: scalar,
+  collectionId: z.string().optional(),
+  defaultModeId: z.string().optional(),
+  modeValues: z.record(z.string(), scalar).optional(),
+  ref: z.string(),
+  token: z.string(),
+  projectValue: z.string(),
+  from: z.string().optional(),
+  codeSourceHash: z.string().regex(/^sha256:[a-f0-9]{64}$/),
+});
+export type TokenOverrideProof = z.infer<typeof TokenOverrideProofSchema>;
 export interface TokenMapping {
+  sourceId?: string;
+  collectionId?: string;
+  defaultModeId?: string;
+  modeValues?: FigmaToken['modeValues'];
+  resolution?: FigmaToken['resolution'];
+  overrideStatus?: 'verified' | 'legacy-unverified' | 'stale';
+
   figmaName: string;
   figmaValue: FigmaToken['value'];
   figmaType: string;
@@ -50,7 +76,8 @@ export interface TokenMapping {
     confidence: number;
     /**
      * Which signal produced the match: name similarity and/or exact color value, or 'map-file' for
-     * an explicit recorded override (authoritative — the opposite of a weak ['value'] hypothesis).
+     * a recorded row. Only overrideStatus 'verified' has current material proof; legacy rows are
+     * hints.
      */
     matchedBy: ('name' | 'value' | 'map-file')[];
     /**
@@ -269,10 +296,12 @@ export interface TokenJoinOptions {
   utilityFirst?: boolean;
   /**
    * Explicit figmaName → project-token ref overrides from docs/figma-token-map.md (raw + normalized
-   * keys, like the component map). Highest authority when the ref still resolves to a project
-   * token; a ref that no longer resolves is reported stale and degrades to the normal join.
+   * keys, like the component map). These legacy rows remain capped hints. Only separately supplied
+   * v2 proofs can verify current material equality; missing refs are reported stale.
    */
   overrides?: ReadonlyMap<string, string>;
+  proofs?: readonly TokenOverrideProof[];
+  codeSourceHash?: string;
 }
 
 // Used for override lookups AND as a map key, so a fold that collapsed non-Latin names would make
@@ -391,12 +420,19 @@ const tailwindBuiltinScale = (figmaName: string): { scale: string; step: string 
   return null;
 };
 
+const same = (a: unknown, b: unknown) => canonicalJson(a ?? null) === canonicalJson(b ?? null);
+
 const joinOne = (
   figma: FigmaToken,
   projectTokens: readonly ProjectToken[],
   opts: TokenJoinOptions,
 ): TokenMapping => {
   const base: TokenMapping = {
+    ...(figma.sourceId === undefined ? {} : { sourceId: figma.sourceId }),
+    ...(figma.collectionId === undefined ? {} : { collectionId: figma.collectionId }),
+    ...(figma.defaultModeId === undefined ? {} : { defaultModeId: figma.defaultModeId }),
+    ...(figma.modeValues === undefined ? {} : { modeValues: figma.modeValues }),
+    ...(figma.resolution === undefined ? {} : { resolution: figma.resolution }),
     figmaName: figma.name,
     figmaValue: figma.value,
     figmaType: figma.type,
@@ -405,42 +441,81 @@ const joinOne = (
     status: 'unmapped',
   };
 
-  const override = opts.overrides?.get(figma.name) ?? opts.overrides?.get(normKey(figma.name));
-  if (override !== undefined) {
-    // An explicit recorded mapping wins when its ref still resolves to a project token. A ref that no
-    // longer resolves (the token was renamed/removed) would reference a nonexistent token — worse
-    // than the fuzzy fallback — so it degrades to the normal join, tagged stale for cleanup.
-    const token = resolveOverrideToken(override, projectTokens);
-    if (token !== undefined) {
-      // A recorded row names a ref, and a ref has no way to name a file. When several file-bound
-      // tokens answer to it, the declaring file returned is this join's choice rather than the
-      // author's — so it carries the same cap the name-only path uses, not the certainty a
-      // recorded mapping otherwise earns.
-      const fileAmbiguous =
-        token.from !== undefined &&
-        projectTokens.some(
-          t => t.name === token.name && t.from !== undefined && t.from !== token.from,
-        );
-      const confidence = fileAmbiguous ? 0.7 : 1;
-      const otherFiles = fileAmbiguous
-        ? projectTokens
-            .filter(t => t.name === token.name && t.from !== undefined && t.from !== token.from)
-            .map(t => t.from as string)
-        : [];
+  const proofs = opts.proofs?.filter(proof => proof.sourceId === figma.sourceId) ?? [];
+  if (proofs.length) {
+    const proof = proofs[0]!;
+    const candidates = projectTokens.filter(
+      token =>
+        token.name === proof.token &&
+        refOf(token, opts.utilityFirst === true) === proof.ref &&
+        token.from === proof.from &&
+        token.value === proof.projectValue,
+    );
+    const referenced = projectTokens.filter(
+      token => refOf(token, opts.utilityFirst === true) === proof.ref && token.from === proof.from,
+    );
+    const equivalent = (value: FigmaToken['value']) =>
+      value !== null &&
+      figma.type !== 'EASING' &&
+      (figma.type === 'COLOR' && typeof value === 'string'
+        ? normHex(value) !== null && normHex(value) === normHex(proof.projectValue)
+        : typeof value !== 'string'
+          ? String(value) === proof.projectValue
+          : value === proof.projectValue);
+    const valid =
+      proofs.length === 1 &&
+      candidates.length === 1 &&
+      referenced.every(token => token.value === proof.projectValue) &&
+      opts.codeSourceHash === proof.codeSourceHash &&
+      figma.type === proof.type &&
+      same(figma.value, proof.value) &&
+      figma.collectionId === proof.collectionId &&
+      figma.defaultModeId === proof.defaultModeId &&
+      same(figma.modeValues, proof.modeValues) &&
+      equivalent(figma.value) &&
+      Object.values(figma.modeValues ?? {}).every(equivalent);
+    if (valid)
       return {
         ...base,
+        overrideStatus: 'verified',
+        status: 'high',
+        candidate: candidateFrom(candidates[0]!, 1, ['map-file'], opts.utilityFirst === true),
+      };
+    return {
+      ...joinTokenScan(figma, projectTokens, opts, base),
+      overrideStatus: 'stale',
+      staleOverride: { ref: proof.ref },
+    };
+  }
+  const override = opts.overrides?.get(figma.name) ?? opts.overrides?.get(normKey(figma.name));
+  if (override !== undefined) {
+    const token = resolveOverrideToken(override, projectTokens);
+    if (token) {
+      const ambiguousFrom = projectTokens
+        .filter(
+          other =>
+            other.name === token.name && other.from !== undefined && other.from !== token.from,
+        )
+        .map(other => other.from!);
+      return {
+        ...base,
+        overrideStatus: 'legacy-unverified',
+        status: statusFor(0.7, opts.threshold),
         candidate: candidateFrom(
           token,
-          confidence,
+          0.7,
           ['map-file'],
           opts.utilityFirst === true,
           undefined,
-          otherFiles,
+          ambiguousFrom,
         ),
-        status: fileAmbiguous ? statusFor(confidence, opts.threshold) : 'high',
       };
     }
-    return { ...joinTokenScan(figma, projectTokens, opts, base), staleOverride: { ref: override } };
+    return {
+      ...joinTokenScan(figma, projectTokens, opts, base),
+      overrideStatus: 'legacy-unverified',
+      staleOverride: { ref: override },
+    };
   }
 
   return joinTokenScan(figma, projectTokens, opts, base);
@@ -556,7 +631,7 @@ const joinTokenScan = (
       );
     const confidence = Math.min(
       valueDisagrees ? Math.min(nameMatch.score, 0.84) : nameMatch.score,
-      fileAmbiguous ? 0.7 : 1,
+      fileAmbiguous ? 0.7 : 0.84,
     );
     const otherFiles = fileAmbiguous
       ? projectTokens

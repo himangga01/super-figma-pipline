@@ -1,10 +1,12 @@
 import type { SandboxToolHandler } from './dispatcher.js';
+import { isMutatingFailure } from './mutation.js';
 
 export const DEFAULT_IDEMPOTENCY_TTL_MS = 60_000;
 
 interface Entry {
   result: unknown;
   ts: number;
+  failed?: boolean;
 }
 
 export interface IdempotencyCache {
@@ -23,6 +25,7 @@ export const createIdempotencyCache = (
   now: () => number = Date.now,
 ): IdempotencyCache => {
   const map = new Map<string, Entry>();
+  const inFlight = new Map<string, Promise<unknown>>();
 
   const prune = (): void => {
     const cutoff = now() - ttlMs;
@@ -35,11 +38,32 @@ export const createIdempotencyCache = (
     async run(requestId, fn) {
       if (requestId === undefined) return fn(); // no key → no dedup
       const hit = map.get(requestId);
-      if (hit !== undefined && now() - hit.ts < ttlMs) return hit.result;
-      const result = await fn();
-      map.set(requestId, { result, ts: now() });
-      prune();
-      return result;
+      if (hit !== undefined && now() - hit.ts < ttlMs) {
+        if (hit.failed) throw hit.result;
+        return hit.result;
+      }
+      const pending = inFlight.get(requestId);
+      if (pending !== undefined) return pending;
+      // Publish before invoking the handler, including handlers that synchronously re-enter.
+      // Pending work never expires: a slow mutation must not execute twice across the TTL.
+      const execution = Promise.resolve().then(fn);
+      inFlight.set(requestId, execution);
+      try {
+        const result = await execution;
+        map.set(requestId, { result, ts: now() });
+        prune();
+        return result;
+      } catch (error) {
+        // A failed write with an observed or uncertain effect is terminal too: never apply its
+        // partial effect twice. Pure preflight failures remain retryable within this layer.
+        if (isMutatingFailure(error)) {
+          map.set(requestId, { result: error, ts: now(), failed: true });
+          prune();
+        }
+        throw error;
+      } finally {
+        inFlight.delete(requestId);
+      }
     },
     size: () => map.size,
   };
@@ -51,7 +75,9 @@ export const createIdempotencyCache = (
  */
 export const idempotent =
   (cache: IdempotencyCache, handler: SandboxToolHandler): SandboxToolHandler =>
-  params => {
-    const requestId = (params as { requestId?: unknown } | null)?.requestId;
-    return cache.run(typeof requestId === 'string' ? requestId : undefined, () => handler(params));
+  (params, context) => {
+    const requestId = context?.requestId ?? (params as { requestId?: unknown } | null)?.requestId;
+    return cache.run(typeof requestId === 'string' ? requestId : undefined, () =>
+      handler(params, context),
+    );
   };

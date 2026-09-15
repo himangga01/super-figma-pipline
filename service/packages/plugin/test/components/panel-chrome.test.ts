@@ -34,9 +34,29 @@ vi.mock('../../ui/composables/useRelaySession.js', () => ({
   useRelaySession: () => ({
     state: ref(state),
     context: contextRef,
+    pairing: {
+      state: ref({ status: 'connected', errorCode: null, attemptsRemaining: null }),
+      challengeId: ref(''),
+      code: ref(''),
+      paste: ref(''),
+      begin: () => {},
+      cancel: () => {},
+      submit: async () => {},
+      reset: () => {},
+      dispose: () => {},
+    },
     busy: ref(false),
     sessionId: ref('sess-1'),
     buildDiagnostics: (): string => '{}',
+    approvals: { prompts: ref([]), decide: () => {}, clear: () => {} },
+    binding: {
+      url: ref(''),
+      persistent: ref(false),
+      status: ref('idle'),
+      error: ref(null),
+      bind: async () => {},
+      dispose: () => {},
+    },
   }),
 }));
 

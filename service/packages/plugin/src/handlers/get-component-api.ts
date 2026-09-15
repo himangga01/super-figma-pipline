@@ -45,24 +45,30 @@ export const createGetComponentApiHandler =
       );
     }
 
-    const properties: Record<string, ComponentPropertyApiEntry> = {};
-    for (const [name, def] of Object.entries(target.componentPropertyDefinitions)) {
-      const entry: ComponentPropertyApiEntry = { type: def.type, defaultValue: def.defaultValue };
-      if (def.variantOptions !== undefined) entry.variantOptions = [...def.variantOptions];
-      if (def.preferredValues !== undefined) {
-        entry.preferredValues = def.preferredValues.map(v => ({ type: v.type, key: v.key }));
-      }
-      if (typeof def.description === 'string' && def.description !== '') {
-        entry.description = def.description;
-      }
-      properties[name] = entry;
-    }
-
-    const result: GetComponentApiResult = {
-      id: target.id,
-      name: target.name,
-      type: target.type,
-      properties,
-    };
-    return result;
+    return serializeComponentApi(target);
   };
+
+export const serializeComponentApi = (
+  target: ComponentNode | ComponentSetNode,
+): GetComponentApiResult => {
+  const properties: Record<string, ComponentPropertyApiEntry> = {};
+  for (const [name, def] of Object.entries(target.componentPropertyDefinitions)) {
+    const entry: ComponentPropertyApiEntry = { type: def.type, defaultValue: def.defaultValue };
+    if (def.variantOptions !== undefined) entry.variantOptions = [...def.variantOptions];
+    if (def.preferredValues !== undefined) {
+      entry.preferredValues = def.preferredValues.map(v => ({ type: v.type, key: v.key }));
+    }
+    if (typeof def.description === 'string' && def.description !== '') {
+      entry.description = def.description;
+    }
+    properties[name] = entry;
+  }
+
+  const result: GetComponentApiResult = {
+    id: target.id,
+    name: target.name,
+    type: target.type,
+    properties,
+  };
+  return result;
+};

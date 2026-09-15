@@ -1005,73 +1005,77 @@ describe('operation evidence result artifact store', () => {
     },
   );
 
-  it('enforces the global retained-marker row cap before publishing another residue', async () => {
-    const root = await mkdtemp(join(tmpdir(), 'sfp-retained-marker-row-cap-'));
-    roots.push(root);
-    const { workspaceRoot, workspaceId, policy } = await realWorkspaceAuthority(root);
-    const writer = new OperationEvidenceArtifactStore({
-      workspacePolicy: policy,
-      atomicFiles: new AtomicFileStore(),
-    });
-    const bytes = Buffer.from('{"ok":true}', 'utf8');
-    const fixtures = await Promise.all(
-      ['a', 'b', 'c'].map(async suffix => {
-        const operationId = `operation-retained-row-${suffix}`;
-        const options = createToolInvocationOptions(true, operationId, workspaceId);
-        const artifact = await writer.createNew({
-          workspaceId,
-          operationId,
-          intent: options.captureIntent,
-          canonicalRedactedBytes: bytes,
-          resultSchemaHash: `sha256:${'a'.repeat(64)}`,
-          resultHash: `sha256:${createHash('sha256').update(bytes).digest('hex')}`,
-        });
-        return {
-          operationId,
-          artifact,
-          target: join(workspaceRoot, options.captureIntent.relativePath as string),
-        };
-      }),
-    );
-    const capped = new OperationEvidenceArtifactStore({
-      workspacePolicy: policy,
-      atomicFiles: new AtomicFileStore(),
-      retainedMarkerLimits: { maxRows: 2, maxBytes: 1_000_000, maxScanEntries: 64 },
-      afterRetainedMarkerFsync: async () => {
-        throw Object.assign(new Error('hold retained row for cap test'), {
-          code: 'TEST_RETAINED_ROW_HELD',
-        });
-      },
-    } as never);
+  it(
+    'enforces the global retained-marker row cap before publishing another residue',
+    async () => {
+      const root = await mkdtemp(join(tmpdir(), 'sfp-retained-marker-row-cap-'));
+      roots.push(root);
+      const { workspaceRoot, workspaceId, policy } = await realWorkspaceAuthority(root);
+      const writer = new OperationEvidenceArtifactStore({
+        workspacePolicy: policy,
+        atomicFiles: new AtomicFileStore(),
+      });
+      const bytes = Buffer.from('{"ok":true}', 'utf8');
+      const fixtures = await Promise.all(
+        ['a', 'b', 'c'].map(async suffix => {
+          const operationId = `operation-retained-row-${suffix}`;
+          const options = createToolInvocationOptions(true, operationId, workspaceId);
+          const artifact = await writer.createNew({
+            workspaceId,
+            operationId,
+            intent: options.captureIntent,
+            canonicalRedactedBytes: bytes,
+            resultSchemaHash: `sha256:${'a'.repeat(64)}`,
+            resultHash: `sha256:${createHash('sha256').update(bytes).digest('hex')}`,
+          });
+          return {
+            operationId,
+            artifact,
+            target: join(workspaceRoot, options.captureIntent.relativePath as string),
+          };
+        }),
+      );
+      const capped = new OperationEvidenceArtifactStore({
+        workspacePolicy: policy,
+        atomicFiles: new AtomicFileStore(),
+        retainedMarkerLimits: { maxRows: 2, maxBytes: 1_000_000, maxScanEntries: 64 },
+        afterRetainedMarkerFsync: async () => {
+          throw Object.assign(new Error('hold retained row for cap test'), {
+            code: 'TEST_RETAINED_ROW_HELD',
+          });
+        },
+      } as never);
 
-    await expect(
-      capped.removeLinked({
-        workspaceId,
-        operationId: fixtures[0]?.operationId as string,
-        artifact: fixtures[0]?.artifact as Readonly<ResultArtifactV1>,
-      }),
-    ).rejects.toMatchObject({ code: 'TEST_RETAINED_ROW_HELD' });
-    await expect(
-      capped.removeLinked({
-        workspaceId,
-        operationId: fixtures[1]?.operationId as string,
-        artifact: fixtures[1]?.artifact as Readonly<ResultArtifactV1>,
-      }),
-    ).rejects.toMatchObject({ code: 'TEST_RETAINED_ROW_HELD' });
-    await expect(
-      capped.removeLinked({
-        workspaceId,
-        operationId: fixtures[2]?.operationId as string,
-        artifact: fixtures[2]?.artifact as Readonly<ResultArtifactV1>,
-      }),
-    ).rejects.toMatchObject({ code: 'EVIDENCE_RETAINED_MARKER_CAPACITY_EXCEEDED' });
-    await expect(
-      Promise.all([
-        readFile(fixtures[2]?.target as string),
-        readFile(join(dirname(fixtures[2]?.target as string), 'cleanup-intent.v1.json')),
-      ]),
-    ).resolves.toBeDefined();
-  });
+      await expect(
+        capped.removeLinked({
+          workspaceId,
+          operationId: fixtures[0]?.operationId as string,
+          artifact: fixtures[0]?.artifact as Readonly<ResultArtifactV1>,
+        }),
+      ).rejects.toMatchObject({ code: 'TEST_RETAINED_ROW_HELD' });
+      await expect(
+        capped.removeLinked({
+          workspaceId,
+          operationId: fixtures[1]?.operationId as string,
+          artifact: fixtures[1]?.artifact as Readonly<ResultArtifactV1>,
+        }),
+      ).rejects.toMatchObject({ code: 'TEST_RETAINED_ROW_HELD' });
+      await expect(
+        capped.removeLinked({
+          workspaceId,
+          operationId: fixtures[2]?.operationId as string,
+          artifact: fixtures[2]?.artifact as Readonly<ResultArtifactV1>,
+        }),
+      ).rejects.toMatchObject({ code: 'EVIDENCE_RETAINED_MARKER_CAPACITY_EXCEEDED' });
+      await expect(
+        Promise.all([
+          readFile(fixtures[2]?.target as string),
+          readFile(join(dirname(fixtures[2]?.target as string), 'cleanup-intent.v1.json')),
+        ]),
+      ).resolves.toBeDefined();
+    },
+    process.platform === 'win32' ? 15_000 : 5_000,
+  );
 
   it('enforces the global retained-marker byte cap at cap plus one', async () => {
     const root = await mkdtemp(join(tmpdir(), 'sfp-retained-marker-byte-cap-'));
@@ -2314,4 +2318,26 @@ describe('operation evidence result artifact store', () => {
       retainedBytes: 0,
     });
   });
+});
+
+it('rejects an oversized captured artifact before filesystem or workspace authority use', async () => {
+  const bytes = Buffer.alloc(8_388_609, 120);
+  const store = new OperationEvidenceArtifactStore({
+    workspacePolicy: {
+      resolveWrite: async () => {
+        throw Error('WORKSPACE_MUST_NOT_BE_TOUCHED');
+      },
+    } as unknown as WorkspacePolicy,
+    atomicFiles: new AtomicFileStore(),
+  });
+  await expect(
+    store.createNew({
+      workspaceId: 'workspace',
+      operationId: 'oversize',
+      intent: createToolInvocationOptions(true, 'oversize', 'workspace').captureIntent,
+      canonicalRedactedBytes: bytes,
+      resultSchemaHash: `sha256:${'a'.repeat(64)}`,
+      resultHash: `sha256:${createHash('sha256').update(bytes).digest('hex')}`,
+    }),
+  ).rejects.toMatchObject({ code: 'EVIDENCE_CAPTURE_TOO_LARGE' });
 });

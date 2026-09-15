@@ -1,0 +1,781 @@
+{
+  "spdxVersion": "SPDX-2.3",
+  "dataLicense": "CC0-1.0",
+  "SPDXID": "SPDXRef-DOCUMENT",
+  "name": "Super Figma Pipeline installed production dependency inventory",
+  "documentNamespace": "https://super-figma-pipeline.local/spdx/505dbecccc138e31765d8a54f7fd7b01a99f8a61c749a8b953ab1cb5bccd9b8a",
+  "creationInfo": {
+    "created": "2026-09-04T22:43:25.000Z",
+    "creators": ["Tool: sfp-generate-sbom"]
+  },
+  "documentComment": "Installed production dependencies, including bundled plugin/CLI dependencies. Platform optional packages absent on this builder are not represented. Exact resolution is pinned by pnpm-lock.yaml.",
+  "packages": [
+    {
+      "SPDXID": "SPDXRef-04c944deddaf678e2d99587a",
+      "name": "@babel/helper-string-parser",
+      "versionInfo": "7.29.7",
+      "downloadLocation": "https://registry.npmjs.org/@babel/helper-string-parser/-/helper-string-parser-7.29.7.tgz",
+      "filesAnalyzed": false,
+      "licenseDeclared": "MIT",
+      "licenseConcluded": "NOASSERTION",
+      "copyrightText": "NOASSERTION"
+    },
+    {
+      "SPDXID": "SPDXRef-00b659115b7ee63691d6a4ee",
+      "name": "@babel/helper-validator-identifier",
+      "versionInfo": "7.29.7",
+      "downloadLocation": "https://registry.npmjs.org/@babel/helper-validator-identifier/-/helper-validator-identifier-7.29.7.tgz",
+      "filesAnalyzed": false,
+      "licenseDeclared": "MIT",
+      "licenseConcluded": "NOASSERTION",
+      "copyrightText": "NOASSERTION"
+    },
+    {
+      "SPDXID": "SPDXRef-97c0bc9baaf8e5c7eb48e322",
+      "name": "@babel/parser",
+      "versionInfo": "7.29.8",
+      "downloadLocation": "https://registry.npmjs.org/@babel/parser/-/parser-7.29.8.tgz",
+      "filesAnalyzed": false,
+      "licenseDeclared": "MIT",
+      "licenseConcluded": "NOASSERTION",
+      "copyrightText": "NOASSERTION"
+    },
+    {
+      "SPDXID": "SPDXRef-95b409a45bd5db817c86ec79",
+      "name": "@babel/types",
+      "versionInfo": "7.29.8",
+      "downloadLocation": "https://registry.npmjs.org/@babel/types/-/types-7.29.8.tgz",
+      "filesAnalyzed": false,
+      "licenseDeclared": "MIT",
+      "licenseConcluded": "NOASSERTION",
+      "copyrightText": "NOASSERTION"
+    },
+    {
+      "SPDXID": "SPDXRef-7cc6a7e89395742a565b0386",
+      "name": "@jridgewell/sourcemap-codec",
+      "versionInfo": "1.5.5",
+      "downloadLocation": "https://registry.npmjs.org/@jridgewell/sourcemap-codec/-/sourcemap-codec-1.5.5.tgz",
+      "filesAnalyzed": false,
+      "licenseDeclared": "MIT",
+      "licenseConcluded": "NOASSERTION",
+      "copyrightText": "NOASSERTION"
+    },
+    {
+      "SPDXID": "SPDXRef-f44ef3b161d4ac6ba562a49a",
+      "name": "@lucide/vue",
+      "versionInfo": "1.34.0",
+      "downloadLocation": "https://registry.npmjs.org/@lucide/vue/-/vue-1.34.0.tgz",
+      "filesAnalyzed": false,
+      "licenseDeclared": "ISC",
+      "licenseConcluded": "NOASSERTION",
+      "copyrightText": "NOASSERTION"
+    },
+    {
+      "SPDXID": "SPDXRef-546354de5e470d59c05f60ee",
+      "name": "@modelcontextprotocol/core",
+      "versionInfo": "2.0.0",
+      "downloadLocation": "https://registry.npmjs.org/@modelcontextprotocol/core/-/core-2.0.0.tgz",
+      "filesAnalyzed": false,
+      "licenseDeclared": "MIT",
+      "licenseConcluded": "NOASSERTION",
+      "copyrightText": "NOASSERTION"
+    },
+    {
+      "SPDXID": "SPDXRef-39f69d3701b8a25a805f8bbb",
+      "name": "@modelcontextprotocol/server",
+      "versionInfo": "2.0.0",
+      "downloadLocation": "https://registry.npmjs.org/@modelcontextprotocol/server/-/server-2.0.0.tgz",
+      "filesAnalyzed": false,
+      "licenseDeclared": "MIT",
+      "licenseConcluded": "NOASSERTION",
+      "copyrightText": "NOASSERTION"
+    },
+    {
+      "SPDXID": "SPDXRef-ffacfc5aa92458a8a1b17edc",
+      "name": "@msgpack/msgpack",
+      "versionInfo": "3.1.3",
+      "downloadLocation": "https://registry.npmjs.org/@msgpack/msgpack/-/msgpack-3.1.3.tgz",
+      "filesAnalyzed": false,
+      "licenseDeclared": "ISC",
+      "licenseConcluded": "NOASSERTION",
+      "copyrightText": "NOASSERTION"
+    },
+    {
+      "SPDXID": "SPDXRef-0800a7642171a93e77c43074",
+      "name": "@oxc-parser/binding-win32-x64-msvc",
+      "versionInfo": "0.147.0",
+      "downloadLocation": "https://registry.npmjs.org/@oxc-parser/binding-win32-x64-msvc/-/binding-win32-x64-msvc-0.147.0.tgz",
+      "filesAnalyzed": false,
+      "licenseDeclared": "MIT",
+      "licenseConcluded": "NOASSERTION",
+      "copyrightText": "NOASSERTION"
+    },
+    {
+      "SPDXID": "SPDXRef-04a200c550e4605ed2198099",
+      "name": "@oxc-project/types",
+      "versionInfo": "0.147.0",
+      "downloadLocation": "https://registry.npmjs.org/@oxc-project/types/-/types-0.147.0.tgz",
+      "filesAnalyzed": false,
+      "licenseDeclared": "MIT",
+      "licenseConcluded": "NOASSERTION",
+      "copyrightText": "NOASSERTION"
+    },
+    {
+      "SPDXID": "SPDXRef-c0faed3beadcf7d3206a221d",
+      "name": "@pdf-lib/standard-fonts",
+      "versionInfo": "1.0.0",
+      "downloadLocation": "https://registry.npmjs.org/@pdf-lib/standard-fonts/-/standard-fonts-1.0.0.tgz",
+      "filesAnalyzed": false,
+      "licenseDeclared": "MIT",
+      "licenseConcluded": "NOASSERTION",
+      "copyrightText": "NOASSERTION"
+    },
+    {
+      "SPDXID": "SPDXRef-26620e5cb34523f5cd6465b3",
+      "name": "@pdf-lib/upng",
+      "versionInfo": "1.0.1",
+      "downloadLocation": "https://registry.npmjs.org/@pdf-lib/upng/-/upng-1.0.1.tgz",
+      "filesAnalyzed": false,
+      "licenseDeclared": "MIT",
+      "licenseConcluded": "NOASSERTION",
+      "copyrightText": "NOASSERTION"
+    },
+    {
+      "SPDXID": "SPDXRef-4642e402edf6e6ec53ce7dbf",
+      "name": "@sfp/cli",
+      "versionInfo": "0.1.0",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "licenseDeclared": "MIT",
+      "licenseConcluded": "NOASSERTION",
+      "copyrightText": "NOASSERTION"
+    },
+    {
+      "SPDXID": "SPDXRef-ad6ad33db1950792125a94a9",
+      "name": "@sfp/ir",
+      "versionInfo": "0.1.0",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "licenseDeclared": "NOASSERTION",
+      "licenseConcluded": "NOASSERTION",
+      "copyrightText": "NOASSERTION"
+    },
+    {
+      "SPDXID": "SPDXRef-0d95dfc162e0e4e8fe6ff30d",
+      "name": "@sfp/mcp",
+      "versionInfo": "0.1.0",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "licenseDeclared": "MIT",
+      "licenseConcluded": "NOASSERTION",
+      "copyrightText": "NOASSERTION"
+    },
+    {
+      "SPDXID": "SPDXRef-b68777b07e8d3e92a8b23f53",
+      "name": "@sfp/plugin",
+      "versionInfo": "0.1.0",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "licenseDeclared": "NOASSERTION",
+      "licenseConcluded": "NOASSERTION",
+      "copyrightText": "NOASSERTION"
+    },
+    {
+      "SPDXID": "SPDXRef-b77954924613a1cb10eebd9b",
+      "name": "@sfp/shared",
+      "versionInfo": "0.1.0",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "licenseDeclared": "NOASSERTION",
+      "licenseConcluded": "NOASSERTION",
+      "copyrightText": "NOASSERTION"
+    },
+    {
+      "SPDXID": "SPDXRef-707a38d35fbf85d8e512b9e3",
+      "name": "@types/web-bluetooth",
+      "versionInfo": "0.0.21",
+      "downloadLocation": "https://registry.npmjs.org/@types/web-bluetooth/-/web-bluetooth-0.0.21.tgz",
+      "filesAnalyzed": false,
+      "licenseDeclared": "MIT",
+      "licenseConcluded": "NOASSERTION",
+      "copyrightText": "NOASSERTION"
+    },
+    {
+      "SPDXID": "SPDXRef-ce9efee57e9917dc85dd5b87",
+      "name": "@vue/compiler-core",
+      "versionInfo": "3.5.42",
+      "downloadLocation": "https://registry.npmjs.org/@vue/compiler-core/-/compiler-core-3.5.42.tgz",
+      "filesAnalyzed": false,
+      "licenseDeclared": "MIT",
+      "licenseConcluded": "NOASSERTION",
+      "copyrightText": "NOASSERTION"
+    },
+    {
+      "SPDXID": "SPDXRef-e935dc8399500860777cdc08",
+      "name": "@vue/compiler-dom",
+      "versionInfo": "3.5.42",
+      "downloadLocation": "https://registry.npmjs.org/@vue/compiler-dom/-/compiler-dom-3.5.42.tgz",
+      "filesAnalyzed": false,
+      "licenseDeclared": "MIT",
+      "licenseConcluded": "NOASSERTION",
+      "copyrightText": "NOASSERTION"
+    },
+    {
+      "SPDXID": "SPDXRef-80b2ef3b98ff57db1f258b24",
+      "name": "@vue/compiler-sfc",
+      "versionInfo": "3.5.42",
+      "downloadLocation": "https://registry.npmjs.org/@vue/compiler-sfc/-/compiler-sfc-3.5.42.tgz",
+      "filesAnalyzed": false,
+      "licenseDeclared": "MIT",
+      "licenseConcluded": "NOASSERTION",
+      "copyrightText": "NOASSERTION"
+    },
+    {
+      "SPDXID": "SPDXRef-180605483b5688688c23437e",
+      "name": "@vue/compiler-ssr",
+      "versionInfo": "3.5.42",
+      "downloadLocation": "https://registry.npmjs.org/@vue/compiler-ssr/-/compiler-ssr-3.5.42.tgz",
+      "filesAnalyzed": false,
+      "licenseDeclared": "MIT",
+      "licenseConcluded": "NOASSERTION",
+      "copyrightText": "NOASSERTION"
+    },
+    {
+      "SPDXID": "SPDXRef-4215487b4d31631ef57b83d3",
+      "name": "@vue/reactivity",
+      "versionInfo": "3.5.42",
+      "downloadLocation": "https://registry.npmjs.org/@vue/reactivity/-/reactivity-3.5.42.tgz",
+      "filesAnalyzed": false,
+      "licenseDeclared": "MIT",
+      "licenseConcluded": "NOASSERTION",
+      "copyrightText": "NOASSERTION"
+    },
+    {
+      "SPDXID": "SPDXRef-563ba238d6cb8e3ec7bdce3c",
+      "name": "@vue/runtime-core",
+      "versionInfo": "3.5.42",
+      "downloadLocation": "https://registry.npmjs.org/@vue/runtime-core/-/runtime-core-3.5.42.tgz",
+      "filesAnalyzed": false,
+      "licenseDeclared": "MIT",
+      "licenseConcluded": "NOASSERTION",
+      "copyrightText": "NOASSERTION"
+    },
+    {
+      "SPDXID": "SPDXRef-1bb780a526ea188d94f1642b",
+      "name": "@vue/runtime-dom",
+      "versionInfo": "3.5.42",
+      "downloadLocation": "https://registry.npmjs.org/@vue/runtime-dom/-/runtime-dom-3.5.42.tgz",
+      "filesAnalyzed": false,
+      "licenseDeclared": "MIT",
+      "licenseConcluded": "NOASSERTION",
+      "copyrightText": "NOASSERTION"
+    },
+    {
+      "SPDXID": "SPDXRef-b86521b97822c2976422b155",
+      "name": "@vue/server-renderer",
+      "versionInfo": "3.5.42",
+      "downloadLocation": "https://registry.npmjs.org/@vue/server-renderer/-/server-renderer-3.5.42.tgz",
+      "filesAnalyzed": false,
+      "licenseDeclared": "MIT",
+      "licenseConcluded": "NOASSERTION",
+      "copyrightText": "NOASSERTION"
+    },
+    {
+      "SPDXID": "SPDXRef-9ad0129e481ab228effe7e8f",
+      "name": "@vue/shared",
+      "versionInfo": "3.5.42",
+      "downloadLocation": "https://registry.npmjs.org/@vue/shared/-/shared-3.5.42.tgz",
+      "filesAnalyzed": false,
+      "licenseDeclared": "MIT",
+      "licenseConcluded": "NOASSERTION",
+      "copyrightText": "NOASSERTION"
+    },
+    {
+      "SPDXID": "SPDXRef-48c980baa4c6bce5a0b546d8",
+      "name": "@vueuse/core",
+      "versionInfo": "14.4.0",
+      "downloadLocation": "https://registry.npmjs.org/@vueuse/core/-/core-14.4.0.tgz",
+      "filesAnalyzed": false,
+      "licenseDeclared": "MIT",
+      "licenseConcluded": "NOASSERTION",
+      "copyrightText": "NOASSERTION"
+    },
+    {
+      "SPDXID": "SPDXRef-9128e8cd4fa9b5e4e7ae60b9",
+      "name": "@vueuse/metadata",
+      "versionInfo": "14.4.0",
+      "downloadLocation": "https://registry.npmjs.org/@vueuse/metadata/-/metadata-14.4.0.tgz",
+      "filesAnalyzed": false,
+      "licenseDeclared": "MIT",
+      "licenseConcluded": "NOASSERTION",
+      "copyrightText": "NOASSERTION"
+    },
+    {
+      "SPDXID": "SPDXRef-4de299552d8f15b51349b8cf",
+      "name": "@vueuse/shared",
+      "versionInfo": "14.4.0",
+      "downloadLocation": "https://registry.npmjs.org/@vueuse/shared/-/shared-14.4.0.tgz",
+      "filesAnalyzed": false,
+      "licenseDeclared": "MIT",
+      "licenseConcluded": "NOASSERTION",
+      "copyrightText": "NOASSERTION"
+    },
+    {
+      "SPDXID": "SPDXRef-d75166202534f28b8dff0ee3",
+      "name": "csstype",
+      "versionInfo": "3.2.3",
+      "downloadLocation": "https://registry.npmjs.org/csstype/-/csstype-3.2.3.tgz",
+      "filesAnalyzed": false,
+      "licenseDeclared": "MIT",
+      "licenseConcluded": "NOASSERTION",
+      "copyrightText": "NOASSERTION"
+    },
+    {
+      "SPDXID": "SPDXRef-550970cdda4184ada4885b7c",
+      "name": "entities",
+      "versionInfo": "7.0.1",
+      "downloadLocation": "https://registry.npmjs.org/entities/-/entities-7.0.1.tgz",
+      "filesAnalyzed": false,
+      "licenseDeclared": "BSD-2-Clause",
+      "licenseConcluded": "NOASSERTION",
+      "copyrightText": "NOASSERTION"
+    },
+    {
+      "SPDXID": "SPDXRef-a553e3a0980556a11505f7c5",
+      "name": "estree-walker",
+      "versionInfo": "2.0.2",
+      "downloadLocation": "https://registry.npmjs.org/estree-walker/-/estree-walker-2.0.2.tgz",
+      "filesAnalyzed": false,
+      "licenseDeclared": "MIT",
+      "licenseConcluded": "NOASSERTION",
+      "copyrightText": "NOASSERTION"
+    },
+    {
+      "SPDXID": "SPDXRef-5327a0e07d206b3f195bb2a5",
+      "name": "ignore",
+      "versionInfo": "7.0.6",
+      "downloadLocation": "https://registry.npmjs.org/ignore/-/ignore-7.0.6.tgz",
+      "filesAnalyzed": false,
+      "licenseDeclared": "MIT",
+      "licenseConcluded": "NOASSERTION",
+      "copyrightText": "NOASSERTION"
+    },
+    {
+      "SPDXID": "SPDXRef-a2e515768834b0a42b52b722",
+      "name": "magic-string",
+      "versionInfo": "0.30.21",
+      "downloadLocation": "https://registry.npmjs.org/magic-string/-/magic-string-0.30.21.tgz",
+      "filesAnalyzed": false,
+      "licenseDeclared": "MIT",
+      "licenseConcluded": "NOASSERTION",
+      "copyrightText": "NOASSERTION"
+    },
+    {
+      "SPDXID": "SPDXRef-b20a4df32f5a227ecd964c6e",
+      "name": "nanoid",
+      "versionInfo": "3.3.18",
+      "downloadLocation": "https://registry.npmjs.org/nanoid/-/nanoid-3.3.18.tgz",
+      "filesAnalyzed": false,
+      "licenseDeclared": "MIT",
+      "licenseConcluded": "NOASSERTION",
+      "copyrightText": "NOASSERTION"
+    },
+    {
+      "SPDXID": "SPDXRef-0b6038cc42194cdbaf677a1f",
+      "name": "oxc-parser",
+      "versionInfo": "0.147.0",
+      "downloadLocation": "https://registry.npmjs.org/oxc-parser/-/oxc-parser-0.147.0.tgz",
+      "filesAnalyzed": false,
+      "licenseDeclared": "MIT",
+      "licenseConcluded": "NOASSERTION",
+      "copyrightText": "NOASSERTION"
+    },
+    {
+      "SPDXID": "SPDXRef-6e28ab9159ba8072c915d312",
+      "name": "pako",
+      "versionInfo": "1.0.11",
+      "downloadLocation": "https://registry.npmjs.org/pako/-/pako-1.0.11.tgz",
+      "filesAnalyzed": false,
+      "licenseDeclared": "(MIT AND Zlib)",
+      "licenseConcluded": "NOASSERTION",
+      "copyrightText": "NOASSERTION"
+    },
+    {
+      "SPDXID": "SPDXRef-0ae07beb90ec184d7ec88988",
+      "name": "pdf-lib",
+      "versionInfo": "1.17.1",
+      "downloadLocation": "https://registry.npmjs.org/pdf-lib/-/pdf-lib-1.17.1.tgz",
+      "filesAnalyzed": false,
+      "licenseDeclared": "MIT",
+      "licenseConcluded": "NOASSERTION",
+      "copyrightText": "NOASSERTION"
+    },
+    {
+      "SPDXID": "SPDXRef-7c5f372425355293c448d740",
+      "name": "picocolors",
+      "versionInfo": "1.1.1",
+      "downloadLocation": "https://registry.npmjs.org/picocolors/-/picocolors-1.1.1.tgz",
+      "filesAnalyzed": false,
+      "licenseDeclared": "ISC",
+      "licenseConcluded": "NOASSERTION",
+      "copyrightText": "NOASSERTION"
+    },
+    {
+      "SPDXID": "SPDXRef-e708629117d99a29f8cebcd8",
+      "name": "playwright-core",
+      "versionInfo": "1.63.0",
+      "downloadLocation": "https://registry.npmjs.org/playwright-core/-/playwright-core-1.63.0.tgz",
+      "filesAnalyzed": false,
+      "licenseDeclared": "Apache-2.0",
+      "licenseConcluded": "NOASSERTION",
+      "copyrightText": "NOASSERTION"
+    },
+    {
+      "SPDXID": "SPDXRef-104e1ee57575afcb9e6ce40c",
+      "name": "playwright",
+      "versionInfo": "1.63.0",
+      "downloadLocation": "https://registry.npmjs.org/playwright/-/playwright-1.63.0.tgz",
+      "filesAnalyzed": false,
+      "licenseDeclared": "Apache-2.0",
+      "licenseConcluded": "NOASSERTION",
+      "copyrightText": "NOASSERTION"
+    },
+    {
+      "SPDXID": "SPDXRef-dd6223d49d4c2170a7d32e05",
+      "name": "postcss",
+      "versionInfo": "8.5.26",
+      "downloadLocation": "https://registry.npmjs.org/postcss/-/postcss-8.5.26.tgz",
+      "filesAnalyzed": false,
+      "licenseDeclared": "MIT",
+      "licenseConcluded": "NOASSERTION",
+      "copyrightText": "NOASSERTION"
+    },
+    {
+      "SPDXID": "SPDXRef-43b6dddbe93e9eda84973298",
+      "name": "source-map-js",
+      "versionInfo": "1.2.1",
+      "downloadLocation": "https://registry.npmjs.org/source-map-js/-/source-map-js-1.2.1.tgz",
+      "filesAnalyzed": false,
+      "licenseDeclared": "BSD-3-Clause",
+      "licenseConcluded": "NOASSERTION",
+      "copyrightText": "NOASSERTION"
+    },
+    {
+      "SPDXID": "SPDXRef-db52196f17504762b4c88c0a",
+      "name": "super-figma-pipeline",
+      "versionInfo": "0.1.0",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "licenseDeclared": "NOASSERTION",
+      "licenseConcluded": "NOASSERTION",
+      "copyrightText": "NOASSERTION"
+    },
+    {
+      "SPDXID": "SPDXRef-2cd3e3e96a257e519fb1b58f",
+      "name": "tslib",
+      "versionInfo": "1.14.1",
+      "downloadLocation": "https://registry.npmjs.org/tslib/-/tslib-1.14.1.tgz",
+      "filesAnalyzed": false,
+      "licenseDeclared": "0BSD",
+      "licenseConcluded": "NOASSERTION",
+      "copyrightText": "NOASSERTION"
+    },
+    {
+      "SPDXID": "SPDXRef-e500ed061b70ae8772dc4e46",
+      "name": "typescript",
+      "versionInfo": "6.0.3",
+      "downloadLocation": "https://registry.npmjs.org/typescript/-/typescript-6.0.3.tgz",
+      "filesAnalyzed": false,
+      "licenseDeclared": "Apache-2.0",
+      "licenseConcluded": "NOASSERTION",
+      "copyrightText": "NOASSERTION"
+    },
+    {
+      "SPDXID": "SPDXRef-63c0b36becdd01a591443cdb",
+      "name": "vue",
+      "versionInfo": "3.5.42",
+      "downloadLocation": "https://registry.npmjs.org/vue/-/vue-3.5.42.tgz",
+      "filesAnalyzed": false,
+      "licenseDeclared": "MIT",
+      "licenseConcluded": "NOASSERTION",
+      "copyrightText": "NOASSERTION"
+    },
+    {
+      "SPDXID": "SPDXRef-d250ffc75a805ad5e5d7e509",
+      "name": "ws",
+      "versionInfo": "8.21.3",
+      "downloadLocation": "https://registry.npmjs.org/ws/-/ws-8.21.3.tgz",
+      "filesAnalyzed": false,
+      "licenseDeclared": "MIT",
+      "licenseConcluded": "NOASSERTION",
+      "copyrightText": "NOASSERTION"
+    },
+    {
+      "SPDXID": "SPDXRef-0479f5dfed7fff3d2e253715",
+      "name": "zod",
+      "versionInfo": "4.4.3",
+      "downloadLocation": "https://registry.npmjs.org/zod/-/zod-4.4.3.tgz",
+      "filesAnalyzed": false,
+      "licenseDeclared": "MIT",
+      "licenseConcluded": "NOASSERTION",
+      "copyrightText": "NOASSERTION"
+    }
+  ],
+  "relationships": [
+    {
+      "spdxElementId": "SPDXRef-DOCUMENT",
+      "relationshipType": "DESCRIBES",
+      "relatedSpdxElement": "SPDXRef-04c944deddaf678e2d99587a"
+    },
+    {
+      "spdxElementId": "SPDXRef-DOCUMENT",
+      "relationshipType": "DESCRIBES",
+      "relatedSpdxElement": "SPDXRef-00b659115b7ee63691d6a4ee"
+    },
+    {
+      "spdxElementId": "SPDXRef-DOCUMENT",
+      "relationshipType": "DESCRIBES",
+      "relatedSpdxElement": "SPDXRef-97c0bc9baaf8e5c7eb48e322"
+    },
+    {
+      "spdxElementId": "SPDXRef-DOCUMENT",
+      "relationshipType": "DESCRIBES",
+      "relatedSpdxElement": "SPDXRef-95b409a45bd5db817c86ec79"
+    },
+    {
+      "spdxElementId": "SPDXRef-DOCUMENT",
+      "relationshipType": "DESCRIBES",
+      "relatedSpdxElement": "SPDXRef-7cc6a7e89395742a565b0386"
+    },
+    {
+      "spdxElementId": "SPDXRef-DOCUMENT",
+      "relationshipType": "DESCRIBES",
+      "relatedSpdxElement": "SPDXRef-f44ef3b161d4ac6ba562a49a"
+    },
+    {
+      "spdxElementId": "SPDXRef-DOCUMENT",
+      "relationshipType": "DESCRIBES",
+      "relatedSpdxElement": "SPDXRef-546354de5e470d59c05f60ee"
+    },
+    {
+      "spdxElementId": "SPDXRef-DOCUMENT",
+      "relationshipType": "DESCRIBES",
+      "relatedSpdxElement": "SPDXRef-39f69d3701b8a25a805f8bbb"
+    },
+    {
+      "spdxElementId": "SPDXRef-DOCUMENT",
+      "relationshipType": "DESCRIBES",
+      "relatedSpdxElement": "SPDXRef-ffacfc5aa92458a8a1b17edc"
+    },
+    {
+      "spdxElementId": "SPDXRef-DOCUMENT",
+      "relationshipType": "DESCRIBES",
+      "relatedSpdxElement": "SPDXRef-0800a7642171a93e77c43074"
+    },
+    {
+      "spdxElementId": "SPDXRef-DOCUMENT",
+      "relationshipType": "DESCRIBES",
+      "relatedSpdxElement": "SPDXRef-04a200c550e4605ed2198099"
+    },
+    {
+      "spdxElementId": "SPDXRef-DOCUMENT",
+      "relationshipType": "DESCRIBES",
+      "relatedSpdxElement": "SPDXRef-c0faed3beadcf7d3206a221d"
+    },
+    {
+      "spdxElementId": "SPDXRef-DOCUMENT",
+      "relationshipType": "DESCRIBES",
+      "relatedSpdxElement": "SPDXRef-26620e5cb34523f5cd6465b3"
+    },
+    {
+      "spdxElementId": "SPDXRef-DOCUMENT",
+      "relationshipType": "DESCRIBES",
+      "relatedSpdxElement": "SPDXRef-4642e402edf6e6ec53ce7dbf"
+    },
+    {
+      "spdxElementId": "SPDXRef-DOCUMENT",
+      "relationshipType": "DESCRIBES",
+      "relatedSpdxElement": "SPDXRef-ad6ad33db1950792125a94a9"
+    },
+    {
+      "spdxElementId": "SPDXRef-DOCUMENT",
+      "relationshipType": "DESCRIBES",
+      "relatedSpdxElement": "SPDXRef-0d95dfc162e0e4e8fe6ff30d"
+    },
+    {
+      "spdxElementId": "SPDXRef-DOCUMENT",
+      "relationshipType": "DESCRIBES",
+      "relatedSpdxElement": "SPDXRef-b68777b07e8d3e92a8b23f53"
+    },
+    {
+      "spdxElementId": "SPDXRef-DOCUMENT",
+      "relationshipType": "DESCRIBES",
+      "relatedSpdxElement": "SPDXRef-b77954924613a1cb10eebd9b"
+    },
+    {
+      "spdxElementId": "SPDXRef-DOCUMENT",
+      "relationshipType": "DESCRIBES",
+      "relatedSpdxElement": "SPDXRef-707a38d35fbf85d8e512b9e3"
+    },
+    {
+      "spdxElementId": "SPDXRef-DOCUMENT",
+      "relationshipType": "DESCRIBES",
+      "relatedSpdxElement": "SPDXRef-ce9efee57e9917dc85dd5b87"
+    },
+    {
+      "spdxElementId": "SPDXRef-DOCUMENT",
+      "relationshipType": "DESCRIBES",
+      "relatedSpdxElement": "SPDXRef-e935dc8399500860777cdc08"
+    },
+    {
+      "spdxElementId": "SPDXRef-DOCUMENT",
+      "relationshipType": "DESCRIBES",
+      "relatedSpdxElement": "SPDXRef-80b2ef3b98ff57db1f258b24"
+    },
+    {
+      "spdxElementId": "SPDXRef-DOCUMENT",
+      "relationshipType": "DESCRIBES",
+      "relatedSpdxElement": "SPDXRef-180605483b5688688c23437e"
+    },
+    {
+      "spdxElementId": "SPDXRef-DOCUMENT",
+      "relationshipType": "DESCRIBES",
+      "relatedSpdxElement": "SPDXRef-4215487b4d31631ef57b83d3"
+    },
+    {
+      "spdxElementId": "SPDXRef-DOCUMENT",
+      "relationshipType": "DESCRIBES",
+      "relatedSpdxElement": "SPDXRef-563ba238d6cb8e3ec7bdce3c"
+    },
+    {
+      "spdxElementId": "SPDXRef-DOCUMENT",
+      "relationshipType": "DESCRIBES",
+      "relatedSpdxElement": "SPDXRef-1bb780a526ea188d94f1642b"
+    },
+    {
+      "spdxElementId": "SPDXRef-DOCUMENT",
+      "relationshipType": "DESCRIBES",
+      "relatedSpdxElement": "SPDXRef-b86521b97822c2976422b155"
+    },
+    {
+      "spdxElementId": "SPDXRef-DOCUMENT",
+      "relationshipType": "DESCRIBES",
+      "relatedSpdxElement": "SPDXRef-9ad0129e481ab228effe7e8f"
+    },
+    {
+      "spdxElementId": "SPDXRef-DOCUMENT",
+      "relationshipType": "DESCRIBES",
+      "relatedSpdxElement": "SPDXRef-48c980baa4c6bce5a0b546d8"
+    },
+    {
+      "spdxElementId": "SPDXRef-DOCUMENT",
+      "relationshipType": "DESCRIBES",
+      "relatedSpdxElement": "SPDXRef-9128e8cd4fa9b5e4e7ae60b9"
+    },
+    {
+      "spdxElementId": "SPDXRef-DOCUMENT",
+      "relationshipType": "DESCRIBES",
+      "relatedSpdxElement": "SPDXRef-4de299552d8f15b51349b8cf"
+    },
+    {
+      "spdxElementId": "SPDXRef-DOCUMENT",
+      "relationshipType": "DESCRIBES",
+      "relatedSpdxElement": "SPDXRef-d75166202534f28b8dff0ee3"
+    },
+    {
+      "spdxElementId": "SPDXRef-DOCUMENT",
+      "relationshipType": "DESCRIBES",
+      "relatedSpdxElement": "SPDXRef-550970cdda4184ada4885b7c"
+    },
+    {
+      "spdxElementId": "SPDXRef-DOCUMENT",
+      "relationshipType": "DESCRIBES",
+      "relatedSpdxElement": "SPDXRef-a553e3a0980556a11505f7c5"
+    },
+    {
+      "spdxElementId": "SPDXRef-DOCUMENT",
+      "relationshipType": "DESCRIBES",
+      "relatedSpdxElement": "SPDXRef-5327a0e07d206b3f195bb2a5"
+    },
+    {
+      "spdxElementId": "SPDXRef-DOCUMENT",
+      "relationshipType": "DESCRIBES",
+      "relatedSpdxElement": "SPDXRef-a2e515768834b0a42b52b722"
+    },
+    {
+      "spdxElementId": "SPDXRef-DOCUMENT",
+      "relationshipType": "DESCRIBES",
+      "relatedSpdxElement": "SPDXRef-b20a4df32f5a227ecd964c6e"
+    },
+    {
+      "spdxElementId": "SPDXRef-DOCUMENT",
+      "relationshipType": "DESCRIBES",
+      "relatedSpdxElement": "SPDXRef-0b6038cc42194cdbaf677a1f"
+    },
+    {
+      "spdxElementId": "SPDXRef-DOCUMENT",
+      "relationshipType": "DESCRIBES",
+      "relatedSpdxElement": "SPDXRef-6e28ab9159ba8072c915d312"
+    },
+    {
+      "spdxElementId": "SPDXRef-DOCUMENT",
+      "relationshipType": "DESCRIBES",
+      "relatedSpdxElement": "SPDXRef-0ae07beb90ec184d7ec88988"
+    },
+    {
+      "spdxElementId": "SPDXRef-DOCUMENT",
+      "relationshipType": "DESCRIBES",
+      "relatedSpdxElement": "SPDXRef-7c5f372425355293c448d740"
+    },
+    {
+      "spdxElementId": "SPDXRef-DOCUMENT",
+      "relationshipType": "DESCRIBES",
+      "relatedSpdxElement": "SPDXRef-e708629117d99a29f8cebcd8"
+    },
+    {
+      "spdxElementId": "SPDXRef-DOCUMENT",
+      "relationshipType": "DESCRIBES",
+      "relatedSpdxElement": "SPDXRef-104e1ee57575afcb9e6ce40c"
+    },
+    {
+      "spdxElementId": "SPDXRef-DOCUMENT",
+      "relationshipType": "DESCRIBES",
+      "relatedSpdxElement": "SPDXRef-dd6223d49d4c2170a7d32e05"
+    },
+    {
+      "spdxElementId": "SPDXRef-DOCUMENT",
+      "relationshipType": "DESCRIBES",
+      "relatedSpdxElement": "SPDXRef-43b6dddbe93e9eda84973298"
+    },
+    {
+      "spdxElementId": "SPDXRef-DOCUMENT",
+      "relationshipType": "DESCRIBES",
+      "relatedSpdxElement": "SPDXRef-db52196f17504762b4c88c0a"
+    },
+    {
+      "spdxElementId": "SPDXRef-DOCUMENT",
+      "relationshipType": "DESCRIBES",
+      "relatedSpdxElement": "SPDXRef-2cd3e3e96a257e519fb1b58f"
+    },
+    {
+      "spdxElementId": "SPDXRef-DOCUMENT",
+      "relationshipType": "DESCRIBES",
+      "relatedSpdxElement": "SPDXRef-e500ed061b70ae8772dc4e46"
+    },
+    {
+      "spdxElementId": "SPDXRef-DOCUMENT",
+      "relationshipType": "DESCRIBES",
+      "relatedSpdxElement": "SPDXRef-63c0b36becdd01a591443cdb"
+    },
+    {
+      "spdxElementId": "SPDXRef-DOCUMENT",
+      "relationshipType": "DESCRIBES",
+      "relatedSpdxElement": "SPDXRef-d250ffc75a805ad5e5d7e509"
+    },
+    {
+      "spdxElementId": "SPDXRef-DOCUMENT",
+      "relationshipType": "DESCRIBES",
+      "relatedSpdxElement": "SPDXRef-0479f5dfed7fff3d2e253715"
+    }
+  ]
+}

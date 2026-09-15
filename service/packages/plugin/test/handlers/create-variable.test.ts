@@ -12,6 +12,136 @@ const withCollection = (collection: unknown): typeof figma =>
   }) as unknown as typeof figma;
 
 describe('create_variable handler', () => {
+  function initializedFixture(
+    options: { failSet?: boolean; failRemove?: boolean; silentSet?: boolean } = {},
+  ) {
+    const collection = {
+      id: 'VC:0',
+      modes: [
+        { modeId: 'M:light', name: 'Light' },
+        { modeId: 'M:dark', name: 'Dark' },
+      ],
+    };
+    const other = { id: 'V:existing', resolvedType: 'FLOAT', remove: vi.fn<() => void>() };
+    const valuesByMode: Record<string, unknown> = {};
+    let exists = false;
+    const variable = {
+      id: 'V:new',
+      name: 'space',
+      valuesByMode,
+      setValueForMode: vi.fn<(mode: string, value: unknown) => void>((mode, value) => {
+        if (options.failSet) throw new Error('host refused');
+        if (!options.silentSet) valuesByMode[mode] = value;
+      }),
+      remove: vi.fn<() => void>(() => {
+        if (options.failRemove) throw new Error('host refused removal');
+        exists = false;
+      }),
+    };
+    const createVariable = vi.fn<() => typeof variable>(() => {
+      exists = true;
+      return variable;
+    });
+    const f = {
+      variables: {
+        getVariableCollectionByIdAsync: vi.fn<() => Promise<typeof collection>>(
+          async () => collection,
+        ),
+        getVariableByIdAsync: vi.fn<(id: string) => Promise<typeof other | typeof variable | null>>(
+          async (id: string) =>
+            id === other.id ? other : id === variable.id && exists ? variable : null,
+        ),
+        createVariable,
+      },
+    } as unknown as typeof figma;
+    return { f, collection, variable, other, createVariable };
+  }
+  const request = { name: 'space', collectionId: 'VC:0', resolvedType: 'FLOAT' };
+  it('initializes every actual mode, preserving zero and a typed existing alias', async () => {
+    const fixture = initializedFixture();
+    await expect(
+      createCreateVariableHandler(fixture.f)({
+        ...request,
+        initialValues: [
+          { modeId: 'M:light', value: 0 },
+          { modeId: 'M:dark', value: { type: 'VARIABLE_ALIAS', id: 'V:existing' } },
+        ],
+      }),
+    ).resolves.toEqual({ ok: true, variableId: 'V:new', name: 'space' });
+    expect(fixture.variable.valuesByMode).toEqual({
+      'M:light': 0,
+      'M:dark': { type: 'VARIABLE_ALIAS', id: 'V:existing' },
+    });
+    expect(fixture.other.remove).not.toHaveBeenCalled();
+  });
+  it('rejects incomplete modes, duplicate modes, incorrect typed values and unknown aliases before create', async () => {
+    for (const initialValues of [
+      [{ modeId: 'M:light', value: 0 }],
+      [
+        { modeId: 'M:light', value: 0 },
+        { modeId: 'M:light', value: 1 },
+      ],
+      [
+        { modeId: 'M:light', value: '0' },
+        { modeId: 'M:dark', value: 1 },
+      ],
+      [
+        { modeId: 'M:light', value: { type: 'VARIABLE_ALIAS', id: 'absent' } },
+        { modeId: 'M:dark', value: 1 },
+      ],
+    ]) {
+      const fixture = initializedFixture();
+      await expect(
+        createCreateVariableHandler(fixture.f)({ ...request, initialValues }),
+      ).rejects.toThrow(/mode|resolvedType|alias/i);
+      expect(fixture.createVariable).not.toHaveBeenCalled();
+    }
+  });
+  it('rechecks collection modes after asynchronous dependency preflight', async () => {
+    const fixture = initializedFixture();
+    vi.mocked(fixture.f.variables.getVariableByIdAsync).mockImplementationOnce(async () => {
+      fixture.collection.modes.push({ modeId: 'M:new', name: 'New' });
+      return fixture.other as unknown as Variable;
+    });
+    await expect(
+      createCreateVariableHandler(fixture.f)({
+        ...request,
+        initialValues: [
+          { modeId: 'M:light', value: { type: 'VARIABLE_ALIAS', id: 'V:existing' } },
+          { modeId: 'M:dark', value: 1 },
+        ],
+      }),
+    ).rejects.toThrow(/modes changed/);
+    expect(fixture.createVariable).not.toHaveBeenCalled();
+  });
+  it('verifies cleanup of only the newly created variable on host failure or ignored initialization', async () => {
+    for (const options of [{ failSet: true }, { silentSet: true }]) {
+      const fixture = initializedFixture(options);
+      await expect(
+        createCreateVariableHandler(fixture.f)({
+          ...request,
+          initialValues: [
+            { modeId: 'M:light', value: 0 },
+            { modeId: 'M:dark', value: 1 },
+          ],
+        }),
+      ).rejects.toThrow(/removal verified/);
+      expect(fixture.variable.remove).toHaveBeenCalledOnce();
+      expect(fixture.other.remove).not.toHaveBeenCalled();
+    }
+  });
+  it('reports a partial effect if removal cannot be verified', async () => {
+    const fixture = initializedFixture({ failSet: true, failRemove: true });
+    await expect(
+      createCreateVariableHandler(fixture.f)({
+        ...request,
+        initialValues: [
+          { modeId: 'M:light', value: 0 },
+          { modeId: 'M:dark', value: 1 },
+        ],
+      }),
+    ).rejects.toThrow(/partial effect requires reconciliation/);
+  });
   it('creates a variable in the resolved collection', async () => {
     const collection = { id: 'VC:0' };
     const createVariable = vi.fn<(name: string) => { id: string; name: string }>(

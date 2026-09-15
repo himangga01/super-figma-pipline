@@ -1,4 +1,4 @@
-import type { DesignContextNode } from '@sfp/shared';
+import type { DesignContextNode, DesignJson } from '@sfp/shared';
 
 import type { ScannedComponent } from '../scan/scan.js';
 import { casefold } from './casefold.js';
@@ -43,6 +43,7 @@ export interface FigmaComponentUsage {
 }
 
 export interface ComponentMapping {
+  observations?: { nodeId: string; properties: Record<string, DesignJson> }[];
   figmaComponentName: string;
   mainComponentId?: string;
   variantAxes: string[];
@@ -74,6 +75,7 @@ export interface ComponentMapping {
   status: MappingStatus;
   /** Which path produced the mapping. */
   source: 'map-file' | 'scan';
+  overrideStatus?: 'legacy-unverified' | 'stale';
   /**
    * Set when the map file had a row for this component but its target neither parsed in the scan
    * nor exists on disk — a stale recorded mapping (the file was deleted/renamed after it was
@@ -196,18 +198,18 @@ const partitionAxes = (
 
 /**
  * The scanned component an override points to, so its props can be diffed against the Figma axes
- * even on the map-file path. Match by repo-relative path first, then by component name.
+ * even on the map-file path. A symbol in a different file cannot validate the recorded path.
  */
 const resolveOverrideComponent = (
   override: { name: string; filePath: string },
   scanned: readonly ScannedComponent[],
 ): ScannedComponent | undefined =>
-  scanned.find(c => c.filePath === override.filePath) ??
-  scanned.find(c => norm(c.name) === norm(override.name));
+  scanned.find(c => c.filePath === override.filePath && norm(c.name) === norm(override.name)) ??
+  scanned.find(c => c.filePath === override.filePath);
 
 export interface JoinOptions {
   threshold: number;
-  /** Explicit figmaName → code target overrides (highest authority). */
+  /** Legacy figmaName → code target hints; never proof of API compatibility. */
   overrides?: ReadonlyMap<string, { name: string; filePath: string }>;
   /**
    * The override keys (raw and normalized, mirroring `overrides`) whose target file exists on disk.
@@ -234,32 +236,38 @@ const joinOne = (
   const override = opts.overrides?.get(usage.name) ?? opts.overrides?.get(norm(usage.name));
   if (override !== undefined) {
     const component = resolveOverrideComponent(override, scanned);
-    // Trust the override when the scan resolved it (a parsed component) OR its file is on disk (the
-    // scanner missed a real file — an unusual export the human/LLM knew about). Only an override that
-    // is neither is stale: honouring it would ship an import of a deleted/renamed module, strictly
-    // worse than falling back to the fuzzy guess. So a stale one falls through, tagged for cleanup.
+    // A recorded target is a hint only. A parsed candidate exposes missing props; an unparsed
+    // on-disk target cannot claim API knowledge. Missing targets fall back with stale evidence.
     const onDisk =
       opts.overridesOnDisk?.has(usage.name) === true ||
       opts.overridesOnDisk?.has(norm(usage.name)) === true;
     if (component !== undefined || onDisk) {
       const { matchedProps, unmatchedProps } = component
         ? partitionAxes(usage.variantAxes, component)
-        : { matchedProps: [], unmatchedProps: [] };
+        : { matchedProps: [], unmatchedProps: [...usage.variantAxes] };
       return {
         ...shared,
         candidate: {
-          name: override.name,
+          name: component?.name ?? override.name,
           filePath: override.filePath,
-          confidence: 1,
+          confidence: component === undefined || unmatchedProps.length > 0 ? 0.5 : 0.7,
           matchedProps,
           unmatchedProps,
         },
-        status: 'high',
+        status: statusFor(
+          component === undefined || unmatchedProps.length > 0 ? 0.5 : 0.7,
+          opts.threshold,
+        ),
+        overrideStatus: 'legacy-unverified',
         source: 'map-file',
       };
     }
     // Stale: degrade to the normal join below, but carry the dead row so the caller can fix it.
-    return { ...joinScan(usage, scanned, opts, shared), staleOverride: override };
+    return {
+      ...joinScan(usage, scanned, opts, shared),
+      staleOverride: override,
+      overrideStatus: 'stale',
+    };
   }
 
   return joinScan(usage, scanned, opts, shared);
@@ -285,7 +293,10 @@ const joinScan = (
   // already plausibly matches, so an unrelated component can't be promoted on prop overlap alone.
   const { matchedProps, unmatchedProps } = partitionAxes(usage.variantAxes, best.component);
   const bonus = Math.min(MAX_VARIANT_BONUS, matchedProps.length * VARIANT_BONUS_PER_PROP);
-  const confidence = Math.min(1, Number((best.score + bonus).toFixed(3)));
+  const confidence = Math.min(
+    unmatchedProps.length > 0 ? 0.7 : 0.84,
+    Number((best.score + bonus).toFixed(3)),
+  );
 
   // Near-ties: other plausible components (name at/above the floor) whose score is within
   // TIE_EPSILON of the winner. A near-tie means the name couldn't confidently pick one — surface
@@ -389,6 +400,12 @@ export const collectFigmaComponents = (
         props[label] = prop.value;
         if (!usage.variantAxes.includes(label)) usage.variantAxes.push(label);
       }
+      const apiProperties = node.componentApi?.properties;
+      if (apiProperties && typeof apiProperties === 'object' && !Array.isArray(apiProperties))
+        for (const axis of Object.keys(apiProperties)) {
+          const label = axis.split('#')[0] ?? axis;
+          if (!usage.variantAxes.includes(label)) usage.variantAxes.push(label);
+        }
       usage.instances.push({
         nodeId: node.id,
         ...(Object.keys(props).length > 0 ? { props } : {}),

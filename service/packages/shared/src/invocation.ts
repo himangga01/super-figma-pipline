@@ -27,6 +27,7 @@ export const InvocationTargetSelectorSchema = z.discriminatedUnion('kind', [
   z.object({ kind: z.literal('session'), sessionId: Base64Url128Schema }).strict(),
   z.object({ kind: z.literal('stable-file'), fileIdentityHash: PrefixedSha256Schema }).strict(),
   z.object({ kind: z.literal('none') }).strict(),
+  z.object({ kind: z.literal('portal-source') }).strict(),
 ]);
 
 export type TargetRequirement = 'forbidden' | 'optional' | 'required';
@@ -64,7 +65,8 @@ export type InvocationTargetSelector =
   | { kind: 'active' }
   | { kind: 'session'; sessionId: z.infer<typeof Base64Url128Schema> }
   | { kind: 'stable-file'; fileIdentityHash: `sha256:${string}` }
-  | { kind: 'none' };
+  | { kind: 'none' }
+  | { kind: 'portal-source' };
 
 export const InvocationRequestV1Schema = z
   .object({
@@ -286,6 +288,10 @@ export interface PluginTarget {
 }
 
 export interface ResolvedInvocationScope extends PolicyInvocationContext {
+  /** Server-resolved portal authority. Never accepted from a transport envelope or tool argument. */
+  readonly portalAuthority?: import('./portal.js').PortalAuthority;
+  readonly approvalLabel?: string;
+  readonly evidenceWrites?: readonly import('./operations.js').ServerEvidenceWriteEffectV1[];
   readonly requestId: `sfp_req1_${string}`;
   readonly leaderGeneration: string;
   readonly actor: Readonly<ActorContext>;

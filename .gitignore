@@ -9,3 +9,13 @@ code-kb/
 *.log
 .DS_Store
 Thumbs.db
+
+# Local Figma captures and browser verification output
+validation/browser-captures/
+validation/desktop-captures/
+validation/existing-chrome/
+.sfp/inspections/
+service/.sfp/inspections/
+
+# Local generated portal drafts, captures, credentials and run state
+validation/

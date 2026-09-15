@@ -34,6 +34,7 @@ describe('strict invocation boundary', () => {
     'pluginGeneration',
     'editorType',
     'capabilities',
+    'portalAuthority',
   ])('rejects body-derived invocation context key %s', forbidden => {
     expect(() =>
       api.parseInvocationRequest?.({

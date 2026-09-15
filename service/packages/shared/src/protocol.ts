@@ -31,6 +31,9 @@ export const SystemMethod = {
   Activity: '$activity',
   Progress: '$progress',
   Cancel: '$cancel',
+  Approval: '$approval',
+  BindDocument: '$bind-document',
+  BindingOffer: '$binding-offer',
 } as const;
 export type SystemMethod = (typeof SystemMethod)[keyof typeof SystemMethod];
 

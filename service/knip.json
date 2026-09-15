@@ -1,6 +1,7 @@
 {
   "$schema": "./node_modules/knip/schema.json",
   "ignoreExportsUsedInFile": true,
+  "ignoreBinaries": ["icacls.exe"],
   "workspaces": {
     ".": {
       "project": ["*.{ts,js}"]
@@ -18,7 +19,8 @@
       "project": ["protocol/**/*.ts", "src/**/*.ts", "ui/**/*.{ts,vue,css}"]
     },
     "packages/cli": {
-      "project": ["src/**/*.ts"]
+      "project": ["src/**/*.ts"],
+      "ignoreDependencies": ["ignore", "oxc-parser", "@sfp/mcp"]
     }
   }
 }

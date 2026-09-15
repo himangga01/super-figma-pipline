@@ -2,7 +2,16 @@ import { ErrorCode } from '@sfp/shared';
 import { describe, expect, it, vi } from 'vitest';
 
 import { createToolCall, isPluginBridgeMessage } from '../protocol/bridge.js';
-import { dispatchSandboxMessage, type SandboxHandlers } from '../src/dispatcher.js';
+import {
+  dispatchSandboxMessage,
+  type SandboxExecutionContext,
+  type SandboxHandlers,
+} from '../src/dispatcher.js';
+
+const executionContext = (signal: AbortSignal, phases: string[]): SandboxExecutionContext => ({
+  signal,
+  report: progress => phases.push(progress.phase),
+});
 
 describe('dispatchSandboxMessage', () => {
   it('replies with tool-result when handler resolves', async () => {
@@ -116,5 +125,56 @@ describe('dispatchSandboxMessage', () => {
       editorType: 'figma',
     });
     expect(outcome.kind).toBe('ignore');
+  });
+
+  it('passes the exact optional execution context and emits bounded synthetic progress', async () => {
+    const controller = new AbortController();
+    const phases: string[] = [];
+    let observed: SandboxExecutionContext | undefined;
+    const context = executionContext(controller.signal, phases);
+    const outcome = await dispatchSandboxMessage({
+      raw: createToolCall({ id: 'ctx', method: 'ping' }),
+      handlers: {
+        ping: (_params, received) => {
+          observed = received;
+          return { pong: true };
+        },
+      },
+      editorType: 'figma',
+      execution: context,
+    });
+
+    expect(observed).toBe(context);
+    expect(phases).toEqual(['received', 'dispatched', 'completed']);
+    expect(outcome.kind).toBe('reply');
+  });
+
+  it('suppresses invocation or a late reply when cancellation wins', async () => {
+    const before = new AbortController();
+    before.abort();
+    const beforeHandler = vi.fn<() => void>();
+    await expect(
+      dispatchSandboxMessage({
+        raw: createToolCall({ id: 'before', method: 'ping' }),
+        handlers: { ping: beforeHandler },
+        editorType: 'figma',
+        execution: executionContext(before.signal, []),
+      }),
+    ).resolves.toEqual({ kind: 'ignore' });
+    expect(beforeHandler).not.toHaveBeenCalled();
+
+    const after = new AbortController();
+    const outcome = await dispatchSandboxMessage({
+      raw: createToolCall({ id: 'after', method: 'ping' }),
+      handlers: {
+        ping: () => {
+          after.abort();
+          return { tooLate: true };
+        },
+      },
+      editorType: 'figma',
+      execution: executionContext(after.signal, []),
+    });
+    expect(outcome).toEqual({ kind: 'ignore' });
   });
 });

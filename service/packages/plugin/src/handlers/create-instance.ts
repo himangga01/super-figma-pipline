@@ -9,7 +9,7 @@ import { placeNode } from './place.js';
  */
 export const createCreateInstanceHandler =
   (figmaCtx: typeof figma): SandboxToolHandler =>
-  async params => {
+  async (params, execution) => {
     const p = (params ?? {}) as {
       componentId?: unknown;
       componentKey?: unknown;
@@ -41,6 +41,7 @@ export const createCreateInstanceHandler =
     }
 
     const instance = component.createInstance();
+    execution?.markMutated?.();
     if (typeof p.name === 'string') instance.name = p.name;
     if (typeof p.x === 'number') instance.x = p.x;
     if (typeof p.y === 'number') instance.y = p.y;

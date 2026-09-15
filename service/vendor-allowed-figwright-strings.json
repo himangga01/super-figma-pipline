@@ -2,22 +2,8 @@
   "schemaVersion": 1,
   "entries": [
     {
-      "path": "packages/mcp/README.md",
-      "line": 1,
-      "column": 3,
-      "value": "@figwright/mcp",
-      "reason": "upstream protocol tag, comment, fixture, or user guidance"
-    },
-    {
-      "path": "packages/mcp/README.md",
-      "line": 16,
-      "column": 23,
-      "value": "@figwright/mcp@latest",
-      "reason": "upstream protocol tag, comment, fixture, or user guidance"
-    },
-    {
       "path": "packages/mcp/src/relay/relay.ts",
-      "line": 528,
+      "line": 532,
       "column": 65,
       "value": "@figwright/mcp",
       "reason": "upstream protocol tag, comment, fixture, or user guidance"
@@ -31,7 +17,7 @@
     },
     {
       "path": "packages/plugin/protocol/bridge.ts",
-      "line": 19,
+      "line": 20,
       "column": 35,
       "value": "@figwright/bridge",
       "reason": "upstream protocol tag, comment, fixture, or user guidance"
@@ -59,7 +45,7 @@
     },
     {
       "path": "packages/plugin/test/dispatcher.test.ts",
-      "line": 111,
+      "line": 120,
       "column": 28,
       "value": "@figwright/bridge",
       "reason": "upstream protocol tag, comment, fixture, or user guidance"

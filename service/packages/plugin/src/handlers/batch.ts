@@ -2,6 +2,7 @@ import type { BatchResult } from '@sfp/shared';
 
 import type { SandboxHandlers, SandboxToolHandler } from '../dispatcher.js';
 import { assertFigmaEditor, isMotionNode, toPlainJson } from './motion-shared.js';
+import { annotationBatchInverse } from './set-annotations.js';
 
 /**
  * Atomic batch: apply several invertible write ops as a unit. Two phases —
@@ -24,7 +25,13 @@ interface BatchInverse {
    */
   capture(figmaCtx: typeof figma, params: unknown): Promise<unknown>;
   /** Restore the pre-op state. Receives the capture snapshot and the op's apply result. Best-effort. */
-  undo(figmaCtx: typeof figma, params: unknown, captured: unknown, result: unknown): Promise<void>;
+  undo(
+    figmaCtx: typeof figma,
+    params: unknown,
+    captured: unknown,
+    result: unknown,
+    failure?: unknown,
+  ): Promise<void>;
 }
 
 /**
@@ -101,7 +108,9 @@ const createInverse = (tool: string, hasParent = true): BatchInverse => ({
   },
   async undo(figmaCtx, _params, _captured, result) {
     const id = (result as { nodeId?: unknown } | null)?.nodeId;
-    if (typeof id !== 'string') return;
+    if (typeof id !== 'string') {
+      throw new Error('creation failed before returning an identity; created node may remain');
+    }
     const node = await figmaCtx.getNodeByIdAsync(id);
     if (node !== null && 'remove' in node) (node as { remove(): void }).remove();
   },
@@ -361,6 +370,7 @@ const INVERSES: Readonly<Record<string, BatchInverse>> = {
   set_effects: nodeProps('set_effects', ['effects']),
   set_constraints: nodeProps('set_constraints', ['constraints']),
   rename_node: nodeProps('rename_node', ['name']),
+  set_annotations: annotationBatchInverse,
   set_text: setTextInverse,
   set_text_properties: setTextPropertiesInverse,
   // Multi-node mutations.
@@ -447,7 +457,7 @@ const parseOps = (params: unknown): ParsedOp[] => {
  */
 export const createBatchHandler =
   (figmaCtx: typeof figma, apply: SandboxHandlers): SandboxToolHandler =>
-  async params => {
+  async (params, context) => {
     const ops = parseOps(params);
     for (const op of ops) {
       if (apply[op.tool] === undefined) throw new Error(`batch: no handler for op '${op.tool}'`);
@@ -464,14 +474,23 @@ export const createBatchHandler =
     for (let i = 0; i < ops.length; i += 1) {
       const op = ops[i]!;
       try {
-        results.push(await apply[op.tool]!(op.params));
+        context?.signal.throwIfAborted();
+        results.push(await apply[op.tool]!(op.params, context));
       } catch (err) {
         // Unwind applied ops in reverse. Keep going even if one undo throws, but record which ones
         // failed so the error never claims a clean rollback that didn't happen.
         const undoFailures: string[] = [];
-        for (let j = i - 1; j >= 0; j -= 1) {
+        // The failing handler may already have changed a property or one of several nodes.
+        // Include its captured state; a create without an identity must report uncertainty.
+        for (let j = i; j >= 0; j -= 1) {
           try {
-            await INVERSES[ops[j]!.tool]!.undo(figmaCtx, ops[j]!.params, captured[j], results[j]);
+            await INVERSES[ops[j]!.tool]!.undo(
+              figmaCtx,
+              ops[j]!.params,
+              captured[j],
+              results[j],
+              j === i ? err : undefined,
+            );
           } catch (undoErr) {
             const m = undoErr instanceof Error ? undoErr.message : String(undoErr);
             undoFailures.push(`op ${j} (${ops[j]!.tool}): ${m}`);
@@ -480,11 +499,14 @@ export const createBatchHandler =
         const message = err instanceof Error ? err.message : String(err);
         const rollback =
           undoFailures.length === 0
-            ? `rolled back ${i} applied op(s)`
-            : `rolled back ${i - undoFailures.length}/${i} op(s); ${undoFailures.length} undo(s) FAILED [${undoFailures.join('; ')}] — document may be partially changed`;
-        throw new Error(`batch: op ${i} (${op.tool}) failed, ${rollback}: ${message}`, {
-          cause: err,
-        });
+            ? `rolled back ${i} applied op(s); restored the failing op`
+            : `${undoFailures.length} undo(s) FAILED [${undoFailures.join('; ')}] — document may be partially changed`;
+        throw Object.assign(
+          new Error(`batch: op ${i} (${op.tool}) failed, ${rollback}: ${message}`, {
+            cause: err,
+          }),
+          { code: undoFailures.length === 0 ? 'BATCH_ROLLED_BACK' : 'BATCH_PARTIAL_CHANGE' },
+        );
       }
     }
     /* eslint-enable no-await-in-loop */

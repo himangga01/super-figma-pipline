@@ -1,3 +1,4 @@
+import { createHash } from 'node:crypto';
 import { writeSync } from 'node:fs';
 import { isAbsolute, relative, sep } from 'node:path';
 
@@ -23,10 +24,12 @@ import {
   type VerifiedNativeEvidenceContextV1,
   type WorkspacePolicy,
 } from '@sfp/shared';
+import { PORTAL_TOOL_NAMES, type PortalToolName } from '@sfp/shared';
+import { firefox } from 'playwright';
 import { z } from 'zod';
 
 import pkg from '../package.json' with { type: 'json' };
-import { BUILD_ID } from './build-id.js';
+import { BUILD_ID, BUILD_IDENTITY_HASH } from './build-id.js';
 import { createActionNonceEndpoint } from './control/action-nonce-endpoints.js';
 import { createActionNonceStore } from './control/action-nonce-store.js';
 import { createAdminAuditEndpoint } from './control/admin-audit-endpoints.js';
@@ -36,18 +39,22 @@ import {
   createEgressAdminAuditTransactions,
   createEgressControl,
 } from './control/egress-endpoints.js';
+import { createGroundingEndpoint } from './control/grounding-endpoints.js';
+import { registerIdentityRoutes } from './control/identity-endpoints.js';
 import { createNetworkDomainEndpoints } from './control/network-domain-endpoints.js';
 import { createOperationEndpoints } from './control/operation-endpoints.js';
 import { createOperationEvidenceEndpoint } from './control/operation-evidence-endpoint.js';
 import {
   registerTask7ControlRoutes,
   registerTask8BNetworkRoutes,
+  registerSnapshotControlRoutes,
 } from './control/route-registry.js';
 import {
   AuthenticatedControlRouter,
   createControlHttpHandler,
   createLazyControlHttpHandler,
 } from './control/router.js';
+import { createSnapshotEndpoint } from './control/snapshot-endpoints.js';
 import { createControlStatusEndpoint } from './control/status-endpoint.js';
 import { createToolCallEndpoint } from './control/tool-call-endpoint.js';
 import { createWorkspaceEndpoints } from './control/workspace-endpoints.js';
@@ -69,6 +76,11 @@ import {
 import { FileExecutionQueue } from './execution/file-queue.js';
 import { FollowerInvocationClient } from './execution/follower-invocation-client.js';
 import { createFollowerInvocationEndpoint } from './execution/follower-invocation-endpoint.js';
+import {
+  createIdentityBootstrapCoordinator,
+  createIdentityOperation,
+  type SessionDocumentBinding,
+} from './execution/identity-bootstrap-coordinator.js';
 import { McpInvocationAdapter } from './execution/mcp-invocation-adapter.js';
 import { createMcpWorkspaceBinding } from './execution/mcp-workspace-binding.js';
 import { NativeEvidenceArtifactPort } from './execution/native-evidence-artifact-port.js';
@@ -105,8 +117,32 @@ import {
 import { normalizeIdArgs } from './node-id.js';
 import { createApprovalBroker } from './policy/approval-broker.js';
 import { authorizeEgress, createEgressConfigStore } from './policy/policy-engine.js';
+import { preparePortalCaptureAuthority } from './portal/capture-admission-runtime.js';
+import { createPortalCaptureRuntime } from './portal/capture-runtime.js';
+import {
+  createPortalBindingResolver,
+  type PortalCaptureAdmissionPorts,
+} from './portal/capture-source-admission.js';
+import {
+  createPortalProfileEndpoint,
+  createPortalProfilePreparationEndpoint,
+  registerPortalControlRoutes,
+  registerPortalEnvironmentRoutes,
+} from './portal/control.js';
+import { PortalCoordinator } from './portal/coordinator.js';
+import { ExistingChromeDesignCapture } from './portal/design-capture.js';
+import { PortalNativeWork } from './portal/native-work.js';
+import { presentPortalNext } from './portal/presentation.js';
+import { PortalCoreLifecycle } from './portal/recipes/core-lifecycle.js';
+import { CorePreparations } from './portal/recipes/core-preparation.js';
+import { registerRecipeEvidenceRoutes } from './portal/recipes/evidence-control.js';
+import { RecipeEvidenceHolds } from './portal/recipes/evidence-hold.js';
+import { createRecipeEvidenceOperations } from './portal/recipes/evidence-operations.js';
+import { PortalStore } from './portal/store.js';
 import { PROMPTS } from './prompts/registry.js';
+import { isDaemonMode } from './runtime-mode.js';
 import { resolveDefaultStateRoot } from './runtime-paths.js';
+import { DocumentBindingStore } from './security/document-binding-store.js';
 import {
   createFollowerAuthenticatedTransport,
   createFollowerTransportRequestId,
@@ -120,6 +156,7 @@ import {
   loadOrCreateOwnerPrincipalKey,
 } from './security/principal-derivation.js';
 import { createStatePermissions } from './security/state-permissions.js';
+import { createSnapshotOperations } from './snapshot/operations.js';
 import { loadTokenValueIndex } from './tokens/token-index.js';
 import { ToolInvocationService } from './tool-invocation-service.js';
 import { ANALYZE_PROJECT_TOOL_NAME, handleAnalyzeProject } from './tools/analyze-project.js';
@@ -141,6 +178,7 @@ import {
   type RuntimeActionContext,
   type ServerAdapterRuntimePort,
 } from './tools/runtime-registry.js';
+import { handleExportTokens, handleExportFramesToPdf, handleDoctor } from './tools/safe-union.js';
 import { handleSaveImageFills, SAVE_IMAGE_FILLS_TOOL_NAME } from './tools/save-image-fills.js';
 import { handleSaveScreenshots, SAVE_SCREENSHOTS_TOOL_NAME } from './tools/save-screenshots.js';
 import { handleScanComponents, SCAN_COMPONENTS_TOOL_NAME } from './tools/scan-components.js';
@@ -300,7 +338,7 @@ const createPinnedPluginPort = (resources: LeaderResources): PinnedPluginRuntime
       toolName: ToolName,
       args: unknown,
       signal: AbortSignal,
-      _reporter?: ProgressReporter,
+      reporter?: ProgressReporter,
       action?: Readonly<RuntimeActionContext>,
     ) => {
       if (scope.target.sessionId === null) {
@@ -332,6 +370,17 @@ const createPinnedPluginPort = (resources: LeaderResources): PinnedPluginRuntime
               signal,
               operationId: action.operationId,
               actionNonce: action.actionNonce,
+              ...(reporter === undefined
+                ? {}
+                : {
+                    onProgress: (progress: Readonly<ProgressEvent>) =>
+                      reporter.report({
+                        phase: progress.phase,
+                        completed: progress.completed,
+                        total: progress.total,
+                        message: progress.message,
+                      }),
+                  }),
             },
         {
           sessionId: scope.target.sessionId,
@@ -350,6 +399,8 @@ const createServerAdapterPort = (
   workspacePolicy: WorkspacePolicy,
   remoteImages: RemoteImageFetcher,
   remoteDomains: RemoteDomainConfigStore,
+  portal: PortalCoordinator,
+  captureRuntime: ReturnType<typeof createPortalCaptureRuntime>,
 ): ServerAdapterRuntimePort =>
   Object.freeze({
     execute: async (
@@ -361,8 +412,40 @@ const createServerAdapterPort = (
       reporter?: ProgressReporter,
       action?: Readonly<RuntimeActionContext>,
     ) => {
-      const dispatch = (name: string, value: unknown): Promise<unknown> =>
-        plugin.execute(scope, name, value, signal, reporter, action);
+      if (PORTAL_TOOL_NAMES.some(name => name === toolName)) {
+        if (!scope.portalAuthority || !action)
+          throw Object.assign(new Error('Verified portal invocation authority is required'), {
+            code: 'PORTAL_AUTHORITY_REQUIRED',
+          });
+        const scopedCapture = await captureRuntime(scope, plugin, action, reporter);
+        try {
+          return await portal.execute(toolName as PortalToolName, args, {
+            actor: scope.actor,
+            workspaceId: scope.workspace.workspaceId,
+            operationId: action.operationId,
+            authority: scope.portalAuthority,
+            ...(scopedCapture.capture ? { capture: scopedCapture.capture } : {}),
+            ...(reporter ? { reporter } : {}),
+            signal,
+          });
+        } finally {
+          await scopedCapture.close();
+        }
+      }
+      let dispatchIndex = 0;
+      const dispatch = (name: string, value: unknown): Promise<unknown> => {
+        const index = dispatchIndex++;
+        const childAction =
+          action === undefined || index === 0
+            ? action
+            : {
+                ...action,
+                actionNonce: createHash('sha256')
+                  .update(`${action.actionNonce}:${index}`)
+                  .digest('base64url'),
+              };
+        return plugin.execute(scope, name, value, signal, reporter, childAction);
+      };
       const routedDispatch = async (): Promise<typeof dispatch> => dispatch;
       const workspaceId = scope.workspace.workspaceId;
       const workspaceRoot = scope.workspace.workspaceRoot;
@@ -426,6 +509,22 @@ const createServerAdapterPort = (
           atomicFiles: new AtomicFileStore(),
         });
       switch (toolName) {
+        case 'export_tokens':
+          if (scope.resolvedPaths?.outPath?.overwrites) throw new Error('TARGET_ALREADY_EXISTS');
+          return handleExportTokens(
+            dispatch,
+            workspaceArgs(),
+            (args as { outPath?: string }).outPath === undefined ? undefined : workspaceFiles(),
+          );
+        case 'export_frames_to_pdf':
+          if (scope.resolvedPaths?.outPath?.overwrites) throw new Error('TARGET_ALREADY_EXISTS');
+          return handleExportFramesToPdf(dispatch, workspaceArgs(), workspaceFiles());
+        case 'doctor':
+          return handleDoctor(args, {
+            role: node.role,
+            pluginConnected: node.getLeader()?.relay.pickActiveSession() !== undefined,
+            roundTrip: () => dispatch('get_metadata', {}),
+          });
         case 'ping':
           return handlePing({
             node,
@@ -493,13 +592,20 @@ const createServerAdapterPort = (
               code: 'SNAPSHOT_AUTHORITY_MISMATCH',
             });
           }
-          return handleDesignDiff(dispatch, localArgs, reader, workspaceFiles(), {
-            relativePath: fromRoot.split(sep).join('/'),
-            absolutePath: snapshot.path,
-            overwrites: snapshot.overwrites,
-            destructiveApproved:
-              action !== undefined && localArgs.update === true && snapshot.overwrites,
-          });
+          return handleDesignDiff(
+            dispatch,
+            localArgs,
+            reader,
+            workspaceFiles(),
+            {
+              relativePath: fromRoot.split(sep).join('/'),
+              absolutePath: snapshot.path,
+              overwrites: snapshot.overwrites,
+              destructiveApproved:
+                action !== undefined && localArgs.update === true && snapshot.overwrites,
+            },
+            canonicalFileIdentityHash(scope.target.fileIdentity!),
+          );
         }
         case GET_DESIGN_CONTEXT_TOOL_NAME:
           if (workspaceId === null || workspaceRoot === null) {
@@ -547,7 +653,11 @@ const initializeLeaderRuntime = async (resources: LeaderResources): Promise<Lead
       permissions: statePermissions,
     });
     assertInitializationActive();
-    const operationJournal = new OperationJournal({ stateRoot, actorId: ownerActorId });
+    const operationJournal = new OperationJournal({
+      stateRoot,
+      actorId: ownerActorId,
+      externallyManagedRetention: true,
+    });
     initializingAuthorities.set(generation, { operationJournal });
     const operationResolutionIntents = new OperationResolutionIntentStore({
       stateRoot,
@@ -571,6 +681,35 @@ const initializeLeaderRuntime = async (resources: LeaderResources): Promise<Lead
       workspaceRegistrationResolver,
     );
     const workspacePolicy = createWorkspacePolicy(workspaceStore);
+    const portalStore = new PortalStore(stateRoot, ownerPrincipalKey, statePermissions, () => {
+      if (!resources.executionPlane?.admissionOpen)
+        throw Object.assign(new Error('Portal leader generation is closed'), {
+          code: 'LEADER_GENERATION_CLOSED',
+        });
+    });
+    const portalCapture = new ExistingChromeDesignCapture(stateRoot, statePermissions, portalStore);
+    const portalWork = new PortalNativeWork({
+      stateRoot,
+      leaderGeneration: generation,
+      store: portalStore,
+      policy: workspacePolicy,
+      permissions: statePermissions,
+      designCapture: portalCapture,
+      validatorModuleUrl: new URL('./portal-validation.mjs', import.meta.url).href,
+      firefoxExecutable: firefox.executablePath(),
+    });
+    const portalRecipes = new PortalCoreLifecycle(
+      new CorePreparations({ stateRoot, store: portalStore, permissions: statePermissions }),
+    );
+    const portal = new PortalCoordinator(
+      portalStore,
+      workspacePolicy,
+      portalWork,
+      Date.now,
+      portalCapture,
+      (actor, runId) => executor.cancelPendingPortalRun(actor, runId),
+      portalRecipes,
+    );
     const remoteDomains = new RemoteDomainConfigStore({
       stateRoot,
       permissions: statePermissions,
@@ -631,14 +770,54 @@ const initializeLeaderRuntime = async (resources: LeaderResources): Promise<Lead
     assertInitializationActive();
     const actionNonces = createActionNonceStore({ leaderGeneration: generation });
     const approvalBroker = createApprovalBroker({
-      deliverPluginPrompt: async () => {
-        throw Object.assign(new Error('paired approval consumer is not installed'), {
-          code: 'APPROVAL_CHANNEL_UNAVAILABLE',
-        });
+      deliverPluginPrompt: async prompt => {
+        const binding = approvalBroker.getBinding(prompt.approvalId);
+        if (binding?.channel !== 'plugin-session' || binding.leaderGeneration !== generation)
+          throw Object.assign(new Error('approval binding is unavailable'), {
+            code: 'APPROVAL_CHANNEL_UNAVAILABLE',
+          });
+        const target = targetResolver.resolve(
+          { kind: 'session', sessionId: binding.pairedSessionId },
+          'required',
+        );
+        if (
+          target.pluginGeneration !== binding.pluginGeneration ||
+          target.fileExecutionKey !== binding.fileExecutionKey ||
+          target.fileIdentity === null
+        )
+          throw Object.assign(new Error('approval target changed'), {
+            code: 'APPROVAL_TARGET_MISMATCH',
+          });
+        const decision = await resources.relay.sendRequest(
+          '$approval',
+          prompt,
+          Math.max(1, prompt.expiresAt - Date.now()),
+          binding.pairedSessionId,
+          undefined,
+          undefined,
+          {
+            sessionId: binding.pairedSessionId,
+            pluginGeneration: binding.pluginGeneration,
+            fileIdentity: target.fileIdentity,
+            fileIdentityHash: canonicalFileIdentityHash(target.fileIdentity),
+            fileExecutionKey: binding.fileExecutionKey,
+            editorType: target.editorType!,
+            capabilities: target.capabilities!,
+          },
+        );
+        await approvalBroker.settlePlugin(
+          {
+            pairedSessionId: binding.pairedSessionId,
+            leaderGeneration: generation,
+            pluginGeneration: binding.pluginGeneration,
+            fileExecutionKey: binding.fileExecutionKey,
+          },
+          decision,
+        );
       },
       deliverControlPrompt: async () => undefined,
     });
-    const targetResolver = new TargetResolver({
+    const targetSessions: PortalCaptureAdmissionPorts['sessions'] = {
       active: () => {
         const session = resources.relay.pickActiveSession();
         return session === undefined
@@ -663,7 +842,8 @@ const initializeLeaderRuntime = async (resources: LeaderResources): Promise<Lead
           connectedSequence: session.connectedSequence,
           healthy: session.state === 'connected' && session.socket !== null,
         })),
-    });
+    };
+    const targetResolver = new TargetResolver(targetSessions);
     const removeRetainedArtifacts = async (
       receipt: Readonly<OperationEvidenceReceiptV1>,
     ): Promise<void> => {
@@ -701,64 +881,126 @@ const initializeLeaderRuntime = async (resources: LeaderResources): Promise<Lead
         });
       }
     };
-    const retention = new GenerationRetentionCoordinator(async () => {
-      const now = Date.now();
-      const linkedAt = (operationId: string): number | null =>
-        operationJournal.settledAt(operationId);
-      await evidenceReceipts.compact({ now, linkedAt });
-      await egressManifests.compact({ now, linkedAt });
-      await evidenceReceipts.drainPendingArtifactCleanup(removeRetainedArtifacts);
-      const hasLinkedEvidence = async (operationId: string): Promise<boolean> => {
-        const operation = operationJournal.get(operationId);
-        return (
-          (operation !== undefined &&
-            ['pending-approval', 'queued', 'dispatched', 'outcome-unknown'].includes(
-              operation.status,
-            )) ||
-          (operation !== undefined &&
-            'preExecutionConsentManifestHash' in operation &&
-            operation.preExecutionConsentManifestHash !== null) ||
-          (operation?.operationEvidenceReceiptHash ?? null) !== null ||
-          (operation?.finalEgressManifestHash ?? null) !== null ||
-          (await evidenceReceipts.get(ownerActorId, operationId)) !== null ||
-          (await egressManifests.hasFinalizer(ownerActorId, operationId))
-        );
-      };
-      /* eslint-disable no-await-in-loop -- each workspace orphan set is identity-verified */
-      for (const workspace of await workspaceStore.list()) {
-        const orphanState = await artifacts.discoverAndCleanupOrphans({
-          workspaceId: workspace.workspaceId,
-          hasLinkedEvidence,
-        });
-        if (orphanState.status === 'manual-cleanup') {
-          log(
-            `[retention] workspace ${workspace.workspaceId} evidence requires manual cleanup (${orphanState.errorCode}; scanned=${orphanState.scannedEntries}; rows=${orphanState.retainedRows}; bytes=${orphanState.retainedBytes})`,
-          );
-        }
-        const nativeOrphanState = await nativeArtifacts.discoverAndCleanupOrphans({
-          workspaceId: workspace.workspaceId,
-          hasLinkedEvidence,
-        });
-        if (nativeOrphanState.status === 'manual-cleanup') {
-          log(
-            `[retention] workspace ${workspace.workspaceId} native evidence requires manual cleanup (${nativeOrphanState.errorCode}; scanned=${nativeOrphanState.scannedEntries}; rows=${nativeOrphanState.retainedRows}; bytes=${nativeOrphanState.retainedBytes})`,
-          );
-        }
-      }
-      /* eslint-enable no-await-in-loop */
-      await operationJournal.purgeExpiredTombstones();
+    const operationEvidenceEndpoint = createOperationEvidenceEndpoint({
+      operations: operationJournal,
+      receipts: evidenceReceipts,
+      egress: egressManifests,
     });
+    const recipeEvidenceHolds = new RecipeEvidenceHolds({
+      stateRoot,
+      store: portalStore,
+      permissions: statePermissions,
+      issuer: operationIdIssuer,
+      operations: operationJournal,
+      workspacePolicy,
+      readEvidence: operationEvidenceEndpoint,
+      hasRetainedEvidence: async (actorId, operationId) =>
+        (await evidenceReceipts.get(actorId, operationId)) !== null ||
+        (await egressManifests.hasFinalizer(actorId, operationId)),
+    });
+    const retention = new GenerationRetentionCoordinator(() =>
+      recipeEvidenceHolds.withRetentionSweep(async retentionScope => {
+        const { isHeld } = retentionScope;
+        const now = Date.now();
+        const linkedAt = (operationId: string): number | null =>
+          isHeld(operationId) ? null : operationJournal.settledAt(operationId);
+        await evidenceReceipts.compact({ now, linkedAt });
+        await egressManifests.compact({ now, linkedAt });
+        await evidenceReceipts.drainPendingArtifactCleanup(async receipt => {
+          if (isHeld(receipt.operationId))
+            throw Object.assign(new Error('Held evidence has a pending cleanup intent'), {
+              code: 'RECIPE_HOLD_RETENTION_CONFLICT',
+            });
+          await removeRetainedArtifacts(receipt);
+        });
+        const hasLinkedEvidence = async (operationId: string): Promise<boolean> => {
+          if (isHeld(operationId)) return true;
+          const operation = operationJournal.get(operationId);
+          return (
+            (operation !== undefined &&
+              ['pending-approval', 'queued', 'dispatched', 'outcome-unknown'].includes(
+                operation.status,
+              )) ||
+            (operation !== undefined &&
+              'preExecutionConsentManifestHash' in operation &&
+              operation.preExecutionConsentManifestHash !== null) ||
+            (operation?.operationEvidenceReceiptHash ?? null) !== null ||
+            (operation?.finalEgressManifestHash ?? null) !== null ||
+            (await evidenceReceipts.get(ownerActorId, operationId)) !== null ||
+            (await egressManifests.hasFinalizer(ownerActorId, operationId))
+          );
+        };
+        /* eslint-disable no-await-in-loop -- each workspace orphan set is identity-verified */
+        for (const workspace of await workspaceStore.list()) {
+          const orphanState = await artifacts.discoverAndCleanupOrphans({
+            workspaceId: workspace.workspaceId,
+            hasLinkedEvidence,
+          });
+          if (orphanState.status === 'manual-cleanup') {
+            log(
+              `[retention] workspace ${workspace.workspaceId} evidence requires manual cleanup (${orphanState.errorCode}; scanned=${orphanState.scannedEntries}; rows=${orphanState.retainedRows}; bytes=${orphanState.retainedBytes})`,
+            );
+          }
+          const nativeOrphanState = await nativeArtifacts.discoverAndCleanupOrphans({
+            workspaceId: workspace.workspaceId,
+            hasLinkedEvidence,
+          });
+          if (nativeOrphanState.status === 'manual-cleanup') {
+            log(
+              `[retention] workspace ${workspace.workspaceId} native evidence requires manual cleanup (${nativeOrphanState.errorCode}; scanned=${nativeOrphanState.scannedEntries}; rows=${nativeOrphanState.retainedRows}; bytes=${nativeOrphanState.retainedBytes})`,
+            );
+          }
+        }
+        /* eslint-enable no-await-in-loop */
+        await operationJournal.purgeExpiredTombstones(now, retentionScope);
+      }),
+    );
     await retention.sweep();
     assertInitializationActive();
+    const pluginPort = createPinnedPluginPort(resources);
+    const snapshotOperations = createSnapshotOperations({
+      workspacePolicy,
+      plugin: pluginPort,
+      productVersion: SERVER_VERSION,
+      fileName: sessionId => resources.relay.sessions.get(sessionId)?.fileName ?? 'Figma document',
+      getOperation: operationId => operationJournal.get(operationId),
+    });
+    const serviceOperations = Object.freeze({
+      ...snapshotOperations,
+      ...createRecipeEvidenceOperations(recipeEvidenceHolds),
+      'identity.bootstrap': createIdentityOperation(pluginPort),
+    });
+    const documentBindings = new DocumentBindingStore(
+      stateRoot,
+      ownerPrincipalKey,
+      statePermissions,
+    );
+    const sessionBindings = new Map<string, SessionDocumentBinding>();
+    const captureAdmission: PortalCaptureAdmissionPorts = {
+      sessions: targetSessions,
+      bindingFor: createPortalBindingResolver({
+        fileName: sessionId => resources.relay.sessions.get(sessionId)?.fileName,
+        documents: documentBindings,
+        sessions: sessionBindings,
+      }),
+    };
+    const captureRuntime = createPortalCaptureRuntime({
+      stateRoot,
+      permissions: statePermissions,
+      store: portalStore,
+      chrome: portalCapture,
+      admission: captureAdmission,
+    });
     const runtimes = createBoundRuntimeRegistry(
-      createPinnedPluginPort(resources),
-      createServerAdapterPort(workspacePolicy, remoteImages, remoteDomains),
+      pluginPort,
+      createServerAdapterPort(workspacePolicy, remoteImages, remoteDomains, portal, captureRuntime),
     );
     const executor = new OperationExecutor({
       issuer: operationIdIssuer,
       journal: operationJournal,
       queue: new FileExecutionQueue(),
       runtimes,
+      operations: serviceOperations,
       durability: {
         egress: egressManifests,
         receipts: evidenceReceipts,
@@ -774,8 +1016,71 @@ const initializeLeaderRuntime = async (resources: LeaderResources): Promise<Lead
       executor,
     });
     const invocationService = new ToolInvocationService(executor);
+    resources.relay.setDocumentBindingHandler(
+      createIdentityBootstrapCoordinator({
+        ownerKey: ownerPrincipalKey,
+        actorId: ownerActorId,
+        generation,
+        plugin: pluginPort,
+        targets: targetResolver,
+        executor,
+        approvals: approvalBroker,
+        issuer: operationIdIssuer,
+        pairing,
+        bindings: documentBindings,
+        sessionBindings,
+      }),
+    );
     resources.executionPlane.bindInvocationService(invocationService);
     resources.executionPlane.bindAdmissionAuthority({
+      operations: serviceOperations,
+      resolveToolAuthority: async input => {
+        if (!PORTAL_TOOL_NAMES.some(name => name === input.name)) return undefined;
+        const { authority, target: selectedTarget } = await preparePortalCaptureAuthority(
+          { ...input, name: input.name as PortalToolName },
+          portal,
+          captureAdmission,
+        );
+        const registration = (await workspaceStore.list()).find(
+          row => row.workspaceId === authority.workspaceId,
+        );
+        const roots = Object.fromEntries(
+          authority.roots.map((root, index) => [
+            `portalSource${index}`,
+            { path: root.path, overwrites: false },
+          ]),
+        );
+        const target = authority.roots.find(root => root.role === 'target');
+        return {
+          workspace: {
+            workspaceId: registration ? authority.workspaceId : null,
+            workspaceRoot: registration?.realPath ?? null,
+          },
+          portalAuthority: authority,
+          target: selectedTarget,
+          resolvedPaths: {
+            ...roots,
+            ...Object.fromEntries(
+              Object.entries(
+                (
+                  authority.nativeEnvironment as
+                    | { environment?: Record<string, string> }
+                    | undefined
+                )?.environment ?? {},
+              ).map(([name, path]) => [`portalEnvironment_${name}`, { path, overwrites: true }]),
+            ),
+            ...(target
+              ? {
+                  portalTarget: {
+                    path: target.path,
+                    overwrites: authority.scope === 'operational-portal',
+                  },
+                }
+              : {}),
+          },
+          approvalLabel: `Portal ${authority.scope}: ${authority.targetPath}; native execution, retained environment artifacts; ${authority.executionResources?.map(resource => resource.key).join(', ') ?? authority.resource.key}; same owner account, no OS sandbox`,
+        };
+      },
       resolveWorkspaceContext: async workspaceId => {
         if (workspaceId === null) {
           return Object.freeze({ workspaceId: null, workspaceRoot: null });
@@ -821,18 +1126,37 @@ const initializeLeaderRuntime = async (resources: LeaderResources): Promise<Lead
         resources.executionPlane?.cancel(principal, input) ?? Promise.resolve(),
     });
     const typedControlRouter = new AuthenticatedControlRouter();
-    const operationEvidenceEndpoint = createOperationEvidenceEndpoint({
-      operations: operationJournal,
-      receipts: evidenceReceipts,
-      egress: egressManifests,
-    });
     registerTask7ControlRoutes(typedControlRouter, {
       status: createControlStatusEndpoint({
+        browserConnection: () => portalCapture.connectionState(),
         serverVersion: SERVER_VERSION,
         buildId: BUILD_ID,
-        buildIdentityHash: null,
+        buildIdentityHash: BUILD_IDENTITY_HASH,
         leaderGeneration: () => generation,
         role: () => node.role,
+        bindingFor: async sessionId => {
+          const session = resources.relay.sessions.get(sessionId);
+          const sessionBinding = sessionBindings.get(sessionId);
+          if (
+            session !== undefined &&
+            sessionBinding !== undefined &&
+            sessionBinding.pluginGeneration === session.pluginGeneration &&
+            sessionBinding.fileIdentityHash === canonicalFileIdentityHash(session.fileIdentity) &&
+            sessionBinding.fileName === session.fileName
+          )
+            return {
+              bindingFileKeyHash: sessionBinding.fileKeyHash,
+              bindingVerifiedBy: 'owner-session-confirmation' as const,
+            };
+          if (session?.fileIdentity.kind !== 'document-plugin-uuid') return null;
+          const binding = await documentBindings.get(session.fileIdentity);
+          return binding !== null && binding.fileName === session.fileName
+            ? {
+                bindingFileKeyHash: binding.fileKeyHash,
+                bindingVerifiedBy: 'owner-confirmation' as const,
+              }
+            : null;
+        },
         sessions: () => {
           const connected = resources.relay.sessions.connected();
           const active = resources.relay.pickActiveSession();
@@ -846,6 +1170,7 @@ const initializeLeaderRuntime = async (resources: LeaderResources): Promise<Lead
                     fileName: active.fileName,
                     pageName: active.pageName,
                     fileIdentityKind: active.fileIdentity.kind,
+                    fileIdentity: active.fileIdentity,
                     pluginVersion: active.clientVersion,
                     pluginGeneration: active.pluginGeneration,
                     editorType: active.editorType,
@@ -907,6 +1232,18 @@ const initializeLeaderRuntime = async (resources: LeaderResources): Promise<Lead
       outputSchema: OperationEvidenceViewV1Schema,
       handle: (principal, input) => operationEvidenceEndpoint(principal, input.operationId),
     });
+    registerSnapshotControlRoutes(typedControlRouter, {
+      capture: createSnapshotEndpoint(resources.executionPlane),
+      refresh: createGroundingEndpoint(resources.executionPlane),
+    });
+    registerRecipeEvidenceRoutes(typedControlRouter, resources.executionPlane);
+    registerIdentityRoutes(typedControlRouter, resources.relay, targetResolver);
+    registerPortalEnvironmentRoutes(typedControlRouter, portalWork, actionNonces);
+    registerPortalControlRoutes(
+      typedControlRouter,
+      createPortalProfileEndpoint({ store: portalStore, work: portalWork, nonces: actionNonces }),
+      createPortalProfilePreparationEndpoint({ store: portalStore, work: portalWork }),
+    );
     typedControlRouter.freeze();
     const controlHandler = createControlHttpHandler({
       router: typedControlRouter,
@@ -948,7 +1285,13 @@ const initializeLeaderRuntime = async (resources: LeaderResources): Promise<Lead
             NO_CAPTURE_OPTIONS,
             subscriberSignal,
           ),
-        invokeService: () => resources.executionPlane!.invokeServiceFrames(),
+        invokeService: (principal, request, subscriberSignal) =>
+          resources.executionPlane!.invokeServiceFrames(
+            principal,
+            request,
+            NO_CAPTURE_OPTIONS,
+            subscriberSignal,
+          ),
         cancel: (principal, request) => resources.executionPlane!.cancel(principal, request),
       },
     });
@@ -981,7 +1324,11 @@ const initializeLeaderRuntime = async (resources: LeaderResources): Promise<Lead
       retentionTimer,
       executor,
       close: async () => {
+        await portalCapture.close();
+        await portalWork.close();
+        resources.relay.setDocumentBindingHandler(null);
         clearInterval(retentionTimer);
+        approvalBroker.dispose();
         await retention.close();
         await Promise.allSettled([
           operationJournal.flush(),
@@ -1167,6 +1514,7 @@ const invokeProductionTool = async (
 };
 
 const presentResult = (toolName: string, result: unknown): CallToolResult => {
+  if (toolName === 'portal_next') return presentPortalNext(result);
   if (toolName === GET_SCREENSHOT_TOOL_NAME) {
     return { content: screenshotContent(result as GetScreenshotResult) };
   }
@@ -1291,21 +1639,23 @@ writeReadyLog(
   `[figwright] server ${SERVER_VERSION} (protocol ${PROTOCOL_VERSION}) ready as ${node.role}, ${roleDetail}`,
 );
 
-const stdio = serveStdio(createMcpServer, {
-  // serveStdio would otherwise construct its own transport, and we need one that reports its death.
-  transport: stdioTransport,
-  // Unset, serveStdio discards transport errors outright, so the one message naming the cause
-  // (e.g. "ReadBuffer exceeded maximum size of 10485760 bytes") never reaches the user's stderr.
-  onerror: (error: Error): void => {
-    log(`[figwright] stdio transport error: ${error.message}`);
-  },
-});
+const stdio = isDaemonMode()
+  ? null
+  : serveStdio(createMcpServer, {
+      // serveStdio would otherwise construct its own transport, and we need one that reports its death.
+      transport: stdioTransport,
+      // Unset, serveStdio discards transport errors outright, so the one message naming the cause
+      // (e.g. "ReadBuffer exceeded maximum size of 10485760 bytes") never reaches the user's stderr.
+      onerror: (error: Error): void => {
+        log(`[figwright] stdio transport error: ${error.message}`);
+      },
+    });
 
 const shutdown = async (): Promise<void> => {
   // serveStdio owns the transport it started, so it has to be the one to close it — closing the
   // pinned instance and detaching from stdin. Its own errors must not skip the relay teardown
   // below: the relay port is the resource a zombie would hold, and stdio is already going away.
-  await stdio.close().catch(() => {});
+  await stdio?.close().catch(() => {});
   election.stop();
   await node.stop();
   process.exit(0);
@@ -1319,7 +1669,7 @@ const shutdown = async (): Promise<void> => {
 // forced, non-clean variant.
 triggerShutdown = wireShutdown({
   proc: process,
-  stdin: process.stdin,
+  ...(isDaemonMode() ? {} : { stdin: process.stdin }),
   shutdown,
   hardExit: () => {
     log('[figwright] graceful shutdown stalled — forcing exit');

@@ -1,5 +1,6 @@
 import type { SandboxHandlers } from '../dispatcher.js';
 import { createIdempotencyCache, idempotent } from '../idempotency.js';
+import { withMutationOutcome } from '../mutation.js';
 import { createAddComponentPropertyHandler } from './add-component-property.js';
 import { createAddPageHandler } from './add-page.js';
 import { createAddVariableModeHandler } from './add-variable-mode.js';
@@ -57,12 +58,15 @@ import { createGetVariableDefsHandler } from './get-variable-defs.js';
 import { createGetViewportHandler } from './get-viewport.js';
 import { createGroupNodesHandler } from './group-nodes.js';
 import { createImportImageHandler } from './import-image.js';
+import { createImportLibraryVariableHandler } from './import-library-variable.js';
 import { createImportSvgHandler } from './import-svg.js';
 import { createListFilesHandler } from './list-files.js';
 import { createSetLockedHandler } from './lock-nodes.js';
 import { createMoveNodesHandler } from './move-nodes.js';
 import { createNavigateToPageHandler } from './navigate-to-page.js';
 import { createPingHandler } from './ping.js';
+import { createPortalCaptureAssetHandler } from './portal-capture-asset.js';
+import { createPortalCaptureReadHandler } from './portal-capture-read.js';
 import { createRemoveAnimationStyleHandler } from './remove-animation-style.js';
 import { createRemoveManualKeyframeTrackHandler } from './remove-manual-keyframe-track.js';
 import { createRemoveReactionsHandler } from './remove-reactions.js';
@@ -77,6 +81,7 @@ import { createSaveImageFillsHandler } from './save-image-fills.js';
 import { createScanNodesByTypesHandler } from './scan-nodes-by-types.js';
 import { createScanTextNodesHandler } from './scan-text-nodes.js';
 import { createSearchNodesHandler } from './search-nodes.js';
+import { createSetAnnotationsHandler } from './set-annotations.js';
 import { createSetArcHandler } from './set-arc.js';
 import { createSetAutoLayoutHandler } from './set-auto-layout.js';
 import { createSetBlendModeHandler } from './set-blend-mode.js';
@@ -117,6 +122,7 @@ export const createSandboxHandlers = (figmaCtx: typeof figma): SandboxHandlers =
   const cache = createIdempotencyCache();
 
   const rawWrites: SandboxHandlers = {
+    import_library_variable: createImportLibraryVariableHandler(figmaCtx),
     set_fills: createSetFillsHandler(figmaCtx),
     set_text: createSetTextHandler(figmaCtx),
     set_text_properties: createSetTextPropertiesHandler(figmaCtx),
@@ -125,6 +131,7 @@ export const createSandboxHandlers = (figmaCtx: typeof figma): SandboxHandlers =
     set_opacity: createSetOpacityHandler(figmaCtx),
     set_visible: createSetVisibleHandler(figmaCtx),
     rename_node: createRenameNodeHandler(figmaCtx),
+    set_annotations: createSetAnnotationsHandler(figmaCtx),
     delete_nodes: createDeleteNodesHandler(figmaCtx),
     create_text: createCreateTextHandler(figmaCtx),
     create_rectangle: createCreateRectangleHandler(figmaCtx),
@@ -215,6 +222,8 @@ export const createSandboxHandlers = (figmaCtx: typeof figma): SandboxHandlers =
     scan_text_nodes: createScanTextNodesHandler(figmaCtx),
     scan_nodes_by_types: createScanNodesByTypesHandler(figmaCtx),
     get_styles: createGetStylesHandler(figmaCtx),
+    portal_capture_read: createPortalCaptureReadHandler(figmaCtx),
+    portal_capture_asset: createPortalCaptureAssetHandler(figmaCtx),
     get_variable_defs: createGetVariableDefsHandler(figmaCtx),
     get_local_components: createGetLocalComponentsHandler(figmaCtx),
     get_component_api: createGetComponentApiHandler(figmaCtx),
@@ -233,9 +242,12 @@ export const createSandboxHandlers = (figmaCtx: typeof figma): SandboxHandlers =
   };
 
   for (const name of Object.keys(rawWrites)) {
-    handlers[name] = idempotent(cache, rawWrites[name]!);
+    handlers[name] = idempotent(cache, withMutationOutcome(figmaCtx, name, rawWrites[name]!));
   }
-  handlers.batch = idempotent(cache, createBatchHandler(figmaCtx, rawWrites));
+  handlers.batch = idempotent(
+    cache,
+    withMutationOutcome(figmaCtx, 'batch', createBatchHandler(figmaCtx, rawWrites)),
+  );
 
   return handlers;
 };

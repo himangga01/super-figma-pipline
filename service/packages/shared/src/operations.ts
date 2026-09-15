@@ -23,6 +23,9 @@ import {
   type SystemOperationName,
 } from './service-operations.js';
 
+/** Maximum canonical bytes published in a captured operation result artifact. */
+export const OPERATION_CAPTURE_MAX_BYTES = 8_388_608;
+
 /** A side effect resolved from already-parsed tool arguments. */
 export type Effect =
   | { type: 'figma-read' }
@@ -31,6 +34,11 @@ export type Effect =
   | { type: 'figma-library-import' }
   | { type: 'filesystem-read'; pathArgs: readonly string[] }
   | { type: 'filesystem-write'; pathArgs: readonly string[]; destructive: boolean }
+  | { type: 'portal-state-write' }
+  | { type: 'portal-state-read' }
+  | { type: 'native-process-run'; profileArg: string }
+  | { type: 'owned-process-stop' }
+  | { type: 'external-browser-read'; urlArg: string; attachOnly: true }
   | { type: 'network'; urlArg: string };
 
 export interface ServerEvidenceWriteEffectV1 {
@@ -61,6 +69,7 @@ export interface WorkspaceInvocationContext {
  * without making policy classification perform side effects.
  */
 export interface PolicyInvocationContext {
+  portalCaptureSource?: 'chrome' | 'desktop';
   workspace: WorkspaceInvocationContext;
   /** Present after Task 4 resolves path arguments; absent means no overwrite has been observed. */
   resolvedPaths?: Readonly<Record<string, ResolvedWorkspacePath>>;
@@ -468,7 +477,7 @@ export interface ToolApprovalHandle {
 export interface OperationInvocationService {
   rejectToolBeforeEgress(
     scope: ResolvedInvocationScope,
-    toolName: ToolName,
+    toolName: OperationName,
     rawArgs: unknown,
     operationId: string,
     errorCode: string,
@@ -476,7 +485,7 @@ export interface OperationInvocationService {
   ): Promise<OperationRecord>;
   beginToolApproval(
     scope: ResolvedInvocationScope,
-    toolName: ToolName,
+    toolName: OperationName,
     rawArgs: unknown,
     operationId: string,
     approvalId: string,
@@ -501,6 +510,8 @@ export interface OperationInvocationService {
     operationName: ServiceOperationName,
     rawArgs: unknown,
     operationId?: string,
+    options?: Readonly<ToolInvocationOptionsV1>,
+    reporter?: ProgressReporter,
   ): Promise<unknown>;
   cancel?(principal: Readonly<ActorContext>, request: Readonly<InvocationCancelV1>): Promise<void>;
   status(
@@ -671,6 +682,7 @@ export type NativeEvidenceProjectionV1 = { contextHash: NativeEvidenceContextHas
         refRelativePath: string;
         checksum: PrefixedSha256;
         fidelity: 'complete-leaf' | 'partial';
+        graph?: { relativePath: string; checksum: PrefixedSha256 };
       };
     }
   | {
@@ -727,6 +739,16 @@ export type VerifiedNativeEvidenceContextV1 = Readonly<NativeEvidenceProjectionC
   readonly __verifiedNativeEvidenceContext: unique symbol;
 };
 export interface NativeEvidenceArtifactPortContract {
+  materializeServiceArtifact?(input: {
+    context: VerifiedNativeEvidenceContextV1;
+    projection: Readonly<
+      Extract<
+        NativeEvidenceProjectionV1,
+        { kind: 'snapshot-candidate' | 'grounding-graph-candidate' }
+      >
+    >;
+    signal?: AbortSignalLike;
+  }): Promise<Readonly<Extract<NativeEvidenceV1, { kind: 'snapshot' | 'grounding-graph' }>>>;
   createNativeManifest(input: {
     context: VerifiedNativeEvidenceContextV1;
     projection: Readonly<Extract<NativeEvidenceProjectionV1, { kind: 'export-candidates' }>>;

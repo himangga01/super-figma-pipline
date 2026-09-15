@@ -1,5 +1,6 @@
 import {
   ALL_DATA_CLASSES,
+  PORTAL_TOOL_NAMES,
   EgressPolicyError,
   type ClassifiedPayload,
   type DataClass,
@@ -25,6 +26,16 @@ const PROJECT_DESIGN_TEXT_AND_IMAGE = frozenClasses('project-code', 'design-text
 
 /** Literal upper bounds. Each baseline name owns one row even when rows share pure classifiers. */
 const POSSIBLE_RESULT_CLASSES = Object.freeze({
+  ...Object.fromEntries(
+    PORTAL_TOOL_NAMES.map(name => [
+      name,
+      name === 'portal_next' ? PROJECT_DESIGN_TEXT_AND_IMAGE : PROJECT_AND_DESIGN_TEXT,
+    ]),
+  ),
+  export_tokens: PROJECT_AND_DESIGN_TEXT,
+  export_frames_to_pdf: PROJECT_CODE,
+  doctor: PUBLIC,
+  import_library_variable: DESIGN_TEXT,
   ping: frozenClasses('public', 'design-text', 'secret'),
   get_selection: DESIGN_TEXT_AND_IMAGE,
   get_document: DESIGN_TEXT_AND_IMAGE,
@@ -37,6 +48,8 @@ const POSSIBLE_RESULT_CLASSES = Object.freeze({
   scan_nodes_by_types: DESIGN_TEXT_AND_IMAGE,
   get_styles: PROJECT_DESIGN_TEXT_AND_IMAGE,
   get_variable_defs: PROJECT_DESIGN_TEXT_AND_IMAGE,
+  portal_capture_read: PROJECT_DESIGN_TEXT_AND_IMAGE,
+  portal_capture_asset: DESIGN_IMAGE,
   get_local_components: DESIGN_TEXT,
   get_component_api: DESIGN_TEXT,
   get_viewport: DESIGN_TEXT,
@@ -66,6 +79,7 @@ const POSSIBLE_RESULT_CLASSES = Object.freeze({
   set_opacity: PUBLIC,
   set_visible: PUBLIC,
   rename_node: PUBLIC,
+  set_annotations: PUBLIC,
   delete_nodes: PUBLIC,
   create_text: DESIGN_TEXT,
   create_rectangle: DESIGN_TEXT,
@@ -159,6 +173,7 @@ const DESIGN_TEXT_INPUTS = new Set([
   'set_text_range',
   'create_frame',
   'rename_node',
+  'set_annotations',
   'create_text',
   'create_rectangle',
   'create_paint_style',
@@ -224,6 +239,8 @@ const collectKeyframeInputClasses = (value: unknown, classes: Set<DataClass>): v
 };
 
 const possibleInputClassesFor = (toolName: string, args: UnknownRecord): readonly DataClass[] => {
+  if (PORTAL_TOOL_NAMES.some(name => name === toolName))
+    return toolName === 'portal_submit' ? PROJECT_DESIGN_TEXT_AND_IMAGE : PROJECT_AND_DESIGN_TEXT;
   if (toolName === 'import_image') {
     const classes: DataClass[] = [];
     if (nonEmptyString(args.name)) classes.push('design-text');

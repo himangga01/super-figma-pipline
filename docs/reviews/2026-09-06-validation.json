@@ -1,0 +1,117 @@
+{
+  "schemaVersion": 1,
+  "status": "local-source-verified",
+  "sourceHash": "sha256:1636f158c83838868bf1db44b3c0f21cd124c2bbc87b6890b378011ee05e0d02",
+  "verifiedAt": "2026-09-05T21:24:27.900Z",
+  "checks": [
+    {
+      "name": "verify",
+      "exitCode": 0,
+      "elapsedMs": 552563,
+      "logSha256": "1e910af5badc3331112714f113ab438e2c4961ada0aa39fdd0b05f3a8aa390ce"
+    },
+    {
+      "name": "provenance",
+      "exitCode": 0,
+      "elapsedMs": 142,
+      "logSha256": "5bfda53d1b4b527e6c4d1268a147d62b4241730387b2da7a220aafa616be2cae"
+    },
+    {
+      "name": "graph-memory",
+      "exitCode": 0,
+      "elapsedMs": 1853,
+      "logSha256": "4f24c2e35d916e83eb3ccf7ce73bd079aebf034a718d5d61c54eac7b589a5d52"
+    },
+    {
+      "name": "sbom",
+      "exitCode": 0,
+      "elapsedMs": 364,
+      "logSha256": "5050e2b64967628342b03bfe2f347240429b99246c2cf78d2ccb5496ad2e2775"
+    },
+    {
+      "name": "notices",
+      "exitCode": 0,
+      "elapsedMs": 538,
+      "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "package",
+      "exitCode": 0,
+      "elapsedMs": 877,
+      "logSha256": "dd961e284d84b930b897f8c90c5e6609b608e25ac74a556a093cb23d46f72460"
+    },
+    {
+      "name": "checksums",
+      "exitCode": 0,
+      "elapsedMs": 75,
+      "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "artifacts",
+      "exitCode": 0,
+      "elapsedMs": 200,
+      "logSha256": "7d6f80b2b8b6494acb80b6b688c02f580fa01ad65f47ab86e5f7fd6cfb85d076"
+    },
+    {
+      "name": "isolated-runtime",
+      "exitCode": 0,
+      "elapsedMs": 16263,
+      "logSha256": "920c94068ab672b3dddcb8401c5d61cd7bfe3be487a6dbe1d46b5a51f54bfdb9"
+    }
+  ],
+  "realFigmaValidated": false,
+  "targetServiceValidated": false,
+  "remoteCiValidated": false,
+  "tests": {
+    "passed": 3325,
+    "skipped": 17,
+    "total": 3342,
+    "failed": 0,
+    "filesPassed": 300
+  },
+  "memory": {
+    "passed": true,
+    "runs": [
+      {
+        "nodes": 10000,
+        "edges": 20000,
+        "heapDelta": 70995688,
+        "serializedBytes": 15629525
+      },
+      {
+        "nodes": 10000,
+        "edges": 20000,
+        "heapDelta": 70675600,
+        "serializedBytes": 15629525
+      },
+      {
+        "nodes": 10000,
+        "edges": 20000,
+        "heapDelta": 70713328,
+        "serializedBytes": 15629525
+      }
+    ]
+  },
+  "artifactChecksums": [
+    "a2328999ece61f2a573ebba7b48008c72c9febbdee24f2ffabc6e3c27f8843ce  artifact-manifest.v1.json",
+    "636b2359354db3c9797cea82361ab35fd6beb7e7d67cc5c5f2b3ed3ed5782670  cli.tgz",
+    "af0ef2aa710ddc924daf23e6dc8b173e70a925116bab0faeae5ed22ee2b22e9b  mcp.tgz",
+    "5fa84ef2e9fb8e218aaae8fe782a8a58c7aaa9b369fba2a677fc6b4a8a2a5351  plugin.zip"
+  ],
+  "artifactReproducibilityVerified": true,
+  "daemon": {
+    "running": true,
+    "port": 3055,
+    "pid": 57020,
+    "pairedPluginCount": 0,
+    "schemaVersion": 1,
+    "buildId": 1788642911203,
+    "identity": "sha256:991af4673f6059e4de1d3ba8fbceedb1d7e1a920109425551a5f0ed3f1f0038f"
+  },
+  "liveBlockers": [
+    "Desktop native control pipe unavailable; first plugin registration/run unverified",
+    "Existing Chrome is not running at the last process check",
+    "Target service repository path not provided",
+    "Remote CI has not been run"
+  ]
+}

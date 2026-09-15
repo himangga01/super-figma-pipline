@@ -15,6 +15,7 @@ import {
 
 import { readFileWithinLimit } from '../fs/atomic-file.js';
 import { ALL_TOOL_SPECS } from '../tools/registry.js';
+import { assertOperationRetentionScope, type OperationRetentionScope } from './retention-scope.js';
 
 export type NewOperationRecord = Omit<
   OperationRecord,
@@ -28,6 +29,8 @@ export interface LeaderDemotionCapability {
 export interface OperationJournalOptions {
   stateRoot: string;
   actorId: OperationRecord['actorId'];
+  /** Recipe evidence requires explicit purge under the complete locked retention snapshot. */
+  externallyManagedRetention?: boolean;
   now?: () => number;
   capacity?: { maxRows: number; maxBytes: number; compactAtRows: number; compactAtBytes: number };
   tombstoneCapacity?: { maxRows: number; maxBytes: number };
@@ -882,8 +885,8 @@ export class OperationJournal {
     };
   }
 
-  async purgeExpiredTombstones(now = this.now()): Promise<number> {
-    return this.exclusive(async () => this.purgeExpiredTombstonesUnlocked(now));
+  async purgeExpiredTombstones(now = this.now(), scope?: OperationRetentionScope): Promise<number> {
+    return this.exclusive(async () => this.purgeExpiredTombstonesUnlocked(now, scope));
   }
 
   async hasUnsettled(workspaceId: string): Promise<boolean> {
@@ -1540,10 +1543,15 @@ export class OperationJournal {
     }
   }
 
-  private async purgeExpiredTombstonesUnlocked(now = this.now()): Promise<number> {
+  private async purgeExpiredTombstonesUnlocked(
+    now = this.now(),
+    scope?: OperationRetentionScope,
+  ): Promise<number> {
+    if (this.options.externallyManagedRetention && scope === undefined) return 0;
+    if (scope !== undefined) assertOperationRetentionScope(scope);
     let removed = 0;
     for (const [operationId, tombstone] of this.tombstones) {
-      if (now < tombstone.expiresAt) continue;
+      if (now < tombstone.expiresAt || scope?.isHeld(operationId)) continue;
       this.tombstones.delete(operationId);
       removed += 1;
     }

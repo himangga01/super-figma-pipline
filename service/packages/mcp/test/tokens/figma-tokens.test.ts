@@ -196,7 +196,7 @@ describe('resolveFigmaTokens', () => {
     expect(result[0]?.modes).toBeUndefined();
   });
 
-  it('resolves per-mode aliases into a single-mode primitive collection', () => {
+  it('requires observed selection even for an alias into a single-mode collection', () => {
     // The common semantic → primitive split: the themed collection aliases a different primitive
     // per mode; the primitives themselves are single-mode.
     const result = resolveFigmaTokens(
@@ -254,15 +254,12 @@ describe('resolveFigmaTokens', () => {
       }),
     );
     const surface = result.find(t => t.name === 'bg/surface');
-    expect(surface?.value).toBe('#FAFAFA'); // default mode (Light) → gray/50
-    expect(surface?.modes).toEqual({ Light: '#FAFAFA', Dark: '#111827' });
+    expect(surface?.value).toBeNull(); // No node selection for the target collection.
+    expect(surface?.modeValues).toEqual({ light: null, dark: null });
   });
 
-  it('chases the same-named mode across multi-mode collections', () => {
-    // An alias into another multi-mode collection follows the mode NAME (Light chases Light), even
-    // when the target collection's default is the other mode — that's how paired theme collections
-    // are meant to switch together. The plain default-mode `value` keeps Figma's own default
-    // resolution (each collection at its default), unchanged from before.
+  it('does not infer independently selected collections from matching mode names', () => {
+    // Identical display names do not prove that two collections select their modes together.
     const result = resolveFigmaTokens(
       defs({
         collections: [
@@ -316,9 +313,9 @@ describe('resolveFigmaTokens', () => {
       }),
     );
     const surface = result.find(t => t.name === 'bg/surface');
-    expect(surface?.modes).toEqual({ Light: '#FFFFFF', Dark: '#0A0A0A' });
-    // Default read resolves each hop at its own collection's default (Palette's is Dark).
-    expect(surface?.value).toBe('#0A0A0A');
+    expect(surface?.modeValues).toEqual({ light: null, dark: null });
+    // A catalog projection cannot choose the target collection's mode.
+    expect(surface?.value).toBeNull();
   });
 
   it('omits modes (and does not loop) when a multi-mode alias cycles', () => {
@@ -416,7 +413,12 @@ describe('resolvePaintStyleTokens', () => {
 
   it('converts a single visible SOLID paint style into a COLOR pseudo-token marked style', () => {
     const [t] = resolvePaintStyleTokens([paint('Primary/500', [solid(0.384, 0.4, 0.941)])]);
-    expect(t).toEqual({ name: 'Primary/500', value: '#6266F0', type: 'COLOR', source: 'style' });
+    expect(t).toMatchObject({
+      name: 'Primary/500',
+      value: '#6266F0',
+      type: 'COLOR',
+      source: 'style',
+    });
   });
 
   it('folds a semi-transparent solid into an 8-digit hex', () => {

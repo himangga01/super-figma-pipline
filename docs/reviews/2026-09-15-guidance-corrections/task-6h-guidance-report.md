@@ -1,0 +1,5 @@
+# Existing guidance corrections
+
+Two documentation-only TypeScript strings were corrected after the reviewed implementations established actual behavior. clone_node now describes appending as the last sibling, matching its real handler. The figma_to_code prompt no longer promises confidence-1/certain reuse from legacy component/token map rows or treats collection defaults as a node's active mode. It explains current source/mode identity, verified catalog proof versus runtime use, correct imports, unresolved values and C4 construction. A portal-specific paragraph defers to the signed implementation scope and native validation/publication path; C2/C3 required layers remain in scope.
+
+Existing prompt-tool-name tests: two passed, exit 0. Both files pass formatter and lint. No runtime behavior, schema or effect authorization changed. Exact original/current hashes are retained in task-6h-guidance-owned-files.json. This does not complete Task6H: all other prompt/skill routing, new recipe integration and capability/provenance metadata still require the planned final reconciliation. No Docker, Superpowers, browser, daemon, build, dependency, Git index or commit action.

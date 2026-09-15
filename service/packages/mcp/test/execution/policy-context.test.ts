@@ -1,14 +1,17 @@
 import { join } from 'node:path';
 
-import type { WorkspacePolicy } from '@sfp/shared';
+import { canonicalFileIdentityHash, type WorkspacePolicy } from '@sfp/shared';
 import { describe, expect, it, vi } from 'vitest';
 
+import { designDiffRelativePath } from '../../src/diff/baseline-identity.js';
 import { resolvePolicyInvocationContext } from '../../src/execution/execution-plane.js';
 import { evaluateOperationPolicy } from '../../src/policy/policy-engine.js';
 import { ALL_TOOL_SPECS } from '../../src/tools/registry.js';
 
 const workspaceId = '123e4567-e89b-42d3-a456-426614174000';
 const workspaceRoot = 'C:/workspace';
+const fileIdentity = { kind: 'figma-file-key', value: 'test-file' } as const;
+const snapshotRelative = designDiffRelativePath(canonicalFileIdentityHash(fileIdentity), '1:1');
 
 const spec = (name: string) => ALL_TOOL_SPECS.find(candidate => candidate.name === name)!;
 
@@ -62,6 +65,7 @@ describe('path-first policy context', () => {
       { rootDir: '.', nodeId: '1:1', update: true },
       { workspaceId, workspaceRoot },
       policy,
+      fileIdentity,
     );
 
     expect(policy.resolveWrite).toHaveBeenCalledOnce();
@@ -69,7 +73,7 @@ describe('path-first policy context', () => {
     expect(context.resolvedPaths).toEqual({
       rootDir: { path: 'C:/workspace', overwrites: false },
       snapshotPath: {
-        path: join('C:/workspace', '.figwright', 'snapshots', '1-1.json'),
+        path: join('C:/workspace', snapshotRelative),
         overwrites: true,
       },
     });
@@ -90,11 +94,30 @@ describe('path-first policy context', () => {
         resolveWrite,
         assertWithinRoot: async () => undefined,
       },
+      fileIdentity,
     );
 
-    const snapshot = join(subproject, '.figwright', 'snapshots', '1-1.json');
+    const snapshot = join(subproject, snapshotRelative);
     expect(resolveWrite).toHaveBeenLastCalledWith(workspaceId, snapshot);
     expect(context.resolvedPaths?.snapshotPath?.path).toBe(snapshot);
+  });
+
+  it('refuses persistent diff for unstable identity before probing an output path', async () => {
+    const policy = {
+      resolveRead: async () => workspaceRoot,
+      resolveWrite: vi.fn<WorkspacePolicy['resolveWrite']>(),
+      assertWithinRoot: async () => undefined,
+    };
+    await expect(
+      resolvePolicyInvocationContext(
+        spec('design_diff'),
+        { nodeId: '1:1' },
+        { workspaceId, workspaceRoot },
+        policy,
+        { kind: 'unstable-readonly', sessionId: 'session', pluginGeneration: 'generation' },
+      ),
+    ).rejects.toMatchObject({ code: 'DESIGN_DIFF_FILE_IDENTITY_REQUIRED' });
+    expect(policy.resolveWrite).not.toHaveBeenCalled();
   });
 
   it('uses directory-specific resolution for an existing save_screenshots outDir', async () => {

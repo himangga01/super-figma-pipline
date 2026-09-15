@@ -8,6 +8,19 @@ import { BATCHABLE_TOOL_NAMES as POLICY_BATCHABLE_TOOL_NAMES } from '../../src/t
 import { ALL_TOOL_SPECS } from '../../src/tools/registry.js';
 
 const BASELINE_TOOL_NAMES = [
+  'portal_plan',
+  'portal_start',
+  'portal_next',
+  'portal_submit',
+  'portal_apply',
+  'portal_validate',
+  'portal_status',
+  'portal_resume',
+  'portal_cancel',
+  'export_tokens',
+  'export_frames_to_pdf',
+  'doctor',
+  'import_library_variable',
   'ping',
   'get_selection',
   'get_document',
@@ -20,11 +33,14 @@ const BASELINE_TOOL_NAMES = [
   'scan_nodes_by_types',
   'get_styles',
   'get_variable_defs',
+  'portal_capture_read',
+  'portal_capture_asset',
   'get_local_components',
   'get_component_api',
   'get_viewport',
   'get_fonts',
   'get_annotations',
+  'set_annotations',
   'get_reactions',
   'get_motion_styles',
   'get_node_motion',
@@ -175,7 +191,7 @@ const parsedBatch = (
 
 describe('baseline operation policy authority', () => {
   it('has exactly one named policy for each literal baseline tool', () => {
-    expect(BASELINE_TOOL_NAMES).toHaveLength(112);
+    expect(BASELINE_TOOL_NAMES).toHaveLength(128);
     expect(Object.keys(OPERATION_POLICIES).toSorted()).toEqual([...BASELINE_TOOL_NAMES].toSorted());
     expect(ALL_TOOL_SPECS.map(tool => tool.name)).toEqual([...BASELINE_TOOL_NAMES]);
     expect(
@@ -311,7 +327,7 @@ describe('baseline operation policy authority', () => {
   });
 
   it('covers the plugin invertible batch allowlist exactly without admitting nested batch', () => {
-    expect(POLICY_BATCHABLE_TOOL_NAMES).toHaveLength(30);
+    expect(POLICY_BATCHABLE_TOOL_NAMES).toHaveLength(31);
     expect(POLICY_BATCHABLE_TOOL_NAMES).not.toContain('batch');
     expect(POLICY_BATCHABLE_TOOL_NAMES).not.toContain('swap_component');
   });
@@ -367,11 +383,11 @@ describe('baseline operation policy authority', () => {
 
   it('keeps navigation UI-only and gives every other baseline write a Figma document effect', () => {
     const writes = ALL_TOOL_SPECS.filter(tool => tool.kind === 'write');
-    expect(writes).toHaveLength(79);
+    expect(writes).toHaveLength(81);
     expect(types(effects('navigate_to_page', { pageId: '1:2' }))).toEqual(['figma-ui']);
 
     const missingDocumentWrite = writes
-      .filter(tool => tool.name !== 'navigate_to_page')
+      .filter(tool => !['navigate_to_page', 'import_library_variable'].includes(tool.name))
       .filter(tool => {
         const args =
           tool.name === 'batch'
@@ -507,7 +523,7 @@ describe('baseline operation policy authority', () => {
     expect(operationPolicyFor('export_video').concurrency).toBe('exclusive-heavy');
     expect(
       Object.values(OPERATION_POLICIES).filter(policy => policy.concurrency === 'exclusive-heavy'),
-    ).toHaveLength(1);
+    ).toHaveLength(11);
   });
 
   it('requires an approved workspace for filesystem effects but not Figma-only calls', () => {
@@ -557,3 +573,23 @@ describe('conservative MCP annotations', () => {
     });
   });
 });
+
+it.each(['portal_plan', 'portal_validate'] as const)(
+  'declares only the admitted collector read effect for %s',
+  name => {
+    const policy = operationPolicyFor(name);
+    const workspace = { workspaceId: null, workspaceRoot: null };
+    const desktop = policy.effectsFor(
+      { design: { source: 'desktop' } },
+      { workspace, portalCaptureSource: 'desktop' },
+    );
+    expect(desktop).toContainEqual({ type: 'figma-read' });
+    expect(desktop.some(effect => effect.type === 'external-browser-read')).toBe(false);
+    const chrome = policy.effectsFor(
+      { design: { source: 'chrome' } },
+      { workspace, portalCaptureSource: 'chrome' },
+    );
+    expect(chrome.some(effect => effect.type === 'external-browser-read')).toBe(true);
+    expect(chrome.some(effect => effect.type === 'figma-read')).toBe(false);
+  },
+);

@@ -1,6 +1,7 @@
 {
   "minPluginVersion": "0.5.0",
   "tools": {
+    "import_library_variable": ["key", "requestId"],
     "ping": [],
     "get_selection": [],
     "get_document": [],

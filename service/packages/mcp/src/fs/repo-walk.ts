@@ -2,10 +2,11 @@ import type { Stats } from 'node:fs';
 import { lstat, opendir, realpath } from 'node:fs/promises';
 import { isAbsolute, join, relative, resolve, sep } from 'node:path';
 
-import type { WorkspacePolicy } from '@sfp/shared';
+import type { PortalSourceInventory, WorkspacePolicy } from '@sfp/shared';
 import ignore, { type Ignore } from 'ignore';
 
 import { IGNORED_DIRS } from '../ignored-dirs.js';
+import { isPortableSourcePath, portalSourceExclusion } from '../portal/source-path-policy.js';
 import { readFileWithinLimit, withRetainedDirectoryAuthority } from './atomic-file.js';
 
 const DEFAULT_CAP = 5_000;
@@ -32,6 +33,8 @@ const inside = (root: string, candidate: string): boolean => {
 const portableToNative = (path: string): string => path.replaceAll('/', sep);
 
 export interface WalkOptions {
+  /** Complete source discovery under fixed service policy; rejects semantic filters/subroots. */
+  mode?: 'semantic' | 'portal-source-authority';
   /** Only yield files with these extensions (leading dot optional). Omitted means every file. */
   extensions?: readonly string[];
   /** Terminal cap on returned paths. Default 5000. */
@@ -47,6 +50,8 @@ export interface RepoWalkResult {
   scanned: number;
   skipped: number;
   truncated: boolean;
+  exclusions?: PortalSourceInventory['exclusions'];
+  issues?: PortalSourceInventory['issues'];
 }
 
 export interface RepoFileMetadata {
@@ -78,6 +83,8 @@ export class RepoReader {
   private readonly workspacePolicy: WorkspacePolicy | undefined;
   private readonly maxFileBytes: number;
   private readonly maxTotalBytes: number;
+  private readonly configuredMaxFileBytes: number | undefined;
+  private readonly configuredMaxTotalBytes: number | undefined;
   private readonly maxParseResults: number;
   private readonly signal: AbortSignal | undefined;
   private readonly beforeFileOpen: ((path: string) => Promise<void>) | undefined;
@@ -95,6 +102,8 @@ export class RepoReader {
     this.workspacePolicy = options.workspacePolicy;
     this.maxFileBytes = options.maxFileBytes ?? DEFAULT_MAX_FILE_BYTES;
     this.maxTotalBytes = options.maxTotalBytes ?? 67_108_864;
+    this.configuredMaxFileBytes = options.maxFileBytes;
+    this.configuredMaxTotalBytes = options.maxTotalBytes;
     this.maxParseResults = options.maxParseResults ?? DEFAULT_MAX_PARSE_RESULTS;
     this.signal = options.signal;
     this.beforeFileOpen = options.beforeFileOpen;
@@ -102,6 +111,8 @@ export class RepoReader {
     this.beforeDirectoryOpen = options.beforeDirectoryOpen;
     this.afterDirectoryOpen = options.afterDirectoryOpen;
     if (
+      !Number.isSafeInteger(this.maxFileBytes) ||
+      this.maxFileBytes < 1 ||
       !Number.isSafeInteger(this.maxTotalBytes) ||
       this.maxTotalBytes < 1 ||
       !Number.isSafeInteger(this.maxParseResults) ||
@@ -149,6 +160,26 @@ export class RepoReader {
     throw Object.assign(new Error('repo operation was aborted'), {
       name: 'AbortError',
       code: 'ABORT_ERR',
+    });
+  }
+
+  /** Derive a bounded child reader only after the parent verifies its complete directory chain. */
+  async subdirectory(path: string): Promise<RepoReader> {
+    if (path === '.') return this;
+    this.throwIfAborted();
+    const child = await this.resolveExisting(path, 'directory');
+    return new RepoReader({
+      rootDir: child.path,
+      maxFileBytes: this.maxFileBytes,
+      maxTotalBytes: Math.min(8_388_608, Math.max(1, this.maxTotalBytes - this.totalBytes)),
+      maxParseResults: this.maxParseResults,
+      ...(this.workspaceId === undefined ? {} : { workspaceId: this.workspaceId }),
+      ...(this.workspacePolicy === undefined ? {} : { workspacePolicy: this.workspacePolicy }),
+      ...(this.signal === undefined ? {} : { signal: this.signal }),
+      beforeFileOpen: async () => {
+        await this.rootAuthority();
+        await this.resolveExisting(path, 'directory');
+      },
     });
   }
 
@@ -318,6 +349,47 @@ export class RepoReader {
     return (await this.readBytes(relativePath, maxBytes)).toString('utf8');
   }
 
+  /** Independent bounded accounting while retaining this reader's root identity and read guards. */
+  async withByteBudget(limits: {
+    maxFileBytes: number;
+    maxTotalBytes: number;
+  }): Promise<RepoReader> {
+    await this.rootAuthority();
+    const child = new RepoReader({
+      rootDir: this.rootDir,
+      maxFileBytes: Math.min(
+        limits.maxFileBytes,
+        this.configuredMaxFileBytes ?? limits.maxFileBytes,
+      ),
+      maxTotalBytes: Math.min(
+        limits.maxTotalBytes,
+        this.configuredMaxTotalBytes ?? limits.maxTotalBytes,
+      ),
+      maxParseResults: this.maxParseResults,
+      ...(this.workspaceId === undefined ? {} : { workspaceId: this.workspaceId }),
+      ...(this.workspacePolicy === undefined ? {} : { workspacePolicy: this.workspacePolicy }),
+      ...(this.signal === undefined ? {} : { signal: this.signal }),
+      beforeFileOpen: async path => {
+        await this.rootAuthority();
+        await this.beforeFileOpen?.(path);
+      },
+      ...(this.afterFileOpen === undefined ? {} : { afterFileOpen: this.afterFileOpen }),
+      beforeDirectoryOpen: async path => {
+        await this.rootAuthority();
+        await this.beforeDirectoryOpen?.(path);
+      },
+      ...(this.afterDirectoryOpen === undefined
+        ? {}
+        : { afterDirectoryOpen: this.afterDirectoryOpen }),
+    });
+    child.rootIdentity = this.rootIdentity;
+    return child;
+  }
+
+  get byteLimits(): Readonly<{ maxFileBytes: number; maxTotalBytes: number }> {
+    return { maxFileBytes: this.maxFileBytes, maxTotalBytes: this.maxTotalBytes };
+  }
+
   async exists(relativePath: string): Promise<boolean> {
     try {
       await this.resolveExisting(relativePath, 'file');
@@ -335,7 +407,19 @@ export class RepoReader {
 
   private async ignoreMatcher(): Promise<Ignore> {
     const matcher = ignore();
-    for (const path of ['.gitignore', '.git/info/exclude']) {
+    const paths = ['.gitignore'];
+    await this.rootAuthority();
+    const git = await lstat(join(this.rootDir, '.git')).catch(cause => {
+      if ((cause as NodeJS.ErrnoException).code === 'ENOENT') return null;
+      throw cause;
+    });
+    if (git !== null) {
+      // Worktrees/submodules store a gitdir pointer in a regular file. Never follow it outside
+      // this workspace; the workspace's own .gitignore remains authoritative for this scan.
+      await this.resolveExisting('.git', git.isDirectory() ? 'directory' : 'file');
+      if (git.isDirectory()) paths.push('.git/info/exclude');
+    }
+    for (const path of paths) {
       try {
         // eslint-disable-next-line no-await-in-loop -- two fixed bounded reads
         matcher.add(await this.readText(path, 1_048_576));
@@ -348,6 +432,16 @@ export class RepoReader {
 
   async walk(options: WalkOptions = {}): Promise<Readonly<RepoWalkResult>> {
     this.throwIfAborted();
+    const authorityMode = options.mode === 'portal-source-authority';
+    if (
+      authorityMode &&
+      (options.extensions !== undefined || options.startDirectories !== undefined)
+    ) {
+      throw repoError(
+        'REPO_AUTHORITY_FILTER_INVALID',
+        'authority discovery cannot use semantic filters',
+      );
+    }
     const cap = options.cap ?? DEFAULT_CAP;
     const maxScanEntries = options.maxScanEntries ?? DEFAULT_MAX_SCAN_ENTRIES;
     if (
@@ -359,7 +453,7 @@ export class RepoReader {
       throw repoError('REPO_SCAN_LIMIT_INVALID', 'repo scan limits are invalid');
     }
     await this.rootAuthority();
-    const matcher = await this.ignoreMatcher();
+    const matcher = authorityMode ? undefined : await this.ignoreMatcher();
     const extensions = options.extensions?.map(extension =>
       extension.startsWith('.') ? extension : `.${extension}`,
     );
@@ -371,94 +465,154 @@ export class RepoReader {
       return Object.freeze({ files: Object.freeze([]), scanned: 0, skipped: 0, truncated: false });
     }
     const matches: string[] = [];
+    const exclusions: PortalSourceInventory['exclusions'] = [];
+    const issues: PortalSourceInventory['issues'] = [];
+    const canonicalPaths = new Set<string>();
     let scanned = 0;
     let skipped = 0;
     let truncated = false;
+    let currentDirectory = '';
     /* eslint-disable no-await-in-loop -- bounded breadth-first traversal preserves deterministic authority */
-    scan: for (let directoryIndex = 0; directoryIndex < directories.length; directoryIndex += 1) {
-      this.throwIfAborted();
-      const relativeDirectory = directories[directoryIndex] as string;
-      const resolvedDirectory =
-        relativeDirectory === ''
-          ? { path: this.rootDir, metadata: await this.rootAuthority() }
-          : await this.resolveExisting(relativeDirectory, 'directory');
-      await this.beforeDirectoryOpen?.(relativeDirectory);
-      this.throwIfAborted();
-      const absoluteDirectory = resolvedDirectory.path;
-      const entries = [] as Array<{
-        name: string;
-        directory: boolean;
-        file: boolean;
-        link: boolean;
-      }>;
-      let scanCapacityReached = false;
-      await withRetainedDirectoryAuthority(
-        absoluteDirectory,
-        resolvedDirectory.metadata,
-        async authority => {
-          const stream = await opendir(authority.path, { bufferSize: 1 });
-          for await (const entry of stream) {
-            this.throwIfAborted();
-            if (scanned >= maxScanEntries) {
-              truncated = true;
-              scanCapacityReached = true;
-              break;
+    try {
+      scan: for (let directoryIndex = 0; directoryIndex < directories.length; directoryIndex += 1) {
+        this.throwIfAborted();
+        const relativeDirectory = directories[directoryIndex] as string;
+        currentDirectory = relativeDirectory;
+        const resolvedDirectory =
+          relativeDirectory === ''
+            ? { path: this.rootDir, metadata: await this.rootAuthority() }
+            : await this.resolveExisting(relativeDirectory, 'directory');
+        await this.beforeDirectoryOpen?.(relativeDirectory);
+        this.throwIfAborted();
+        const absoluteDirectory = resolvedDirectory.path;
+        const entries = [] as Array<{
+          name: string;
+          directory: boolean;
+          file: boolean;
+          link: boolean;
+        }>;
+        let scanCapacityReached = false;
+        await withRetainedDirectoryAuthority(
+          absoluteDirectory,
+          resolvedDirectory.metadata,
+          async authority => {
+            const stream = await opendir(authority.path, { bufferSize: 1 });
+            for await (const entry of stream) {
+              this.throwIfAborted();
+              if (scanned >= maxScanEntries) {
+                truncated = true;
+                scanCapacityReached = true;
+                break;
+              }
+              scanned += 1;
+              entries.push({
+                name: entry.name,
+                directory: entry.isDirectory(),
+                file: entry.isFile(),
+                link: entry.isSymbolicLink(),
+              });
             }
-            scanned += 1;
-            entries.push({
-              name: entry.name,
-              directory: entry.isDirectory(),
-              file: entry.isFile(),
-              link: entry.isSymbolicLink(),
-            });
+            await authority.verify();
+          },
+          {
+            ...(this.afterDirectoryOpen === undefined
+              ? {}
+              : { afterOpen: () => this.afterDirectoryOpen!(relativeDirectory) }),
+            errorCode: 'PATH_OUTSIDE_WORKSPACE',
+          },
+        );
+        if (scanCapacityReached) break scan;
+        entries.sort((left, right) =>
+          left.name < right.name ? -1 : left.name > right.name ? 1 : 0,
+        );
+        for (const entry of entries) {
+          const path = relativeDirectory === '' ? entry.name : `${relativeDirectory}/${entry.name}`;
+          if (authorityMode) {
+            if (!isPortableSourcePath(path)) {
+              issues.push({ code: 'REPO_SOURCE_PATH_UNSAFE' });
+              break scan;
+            }
+            const canonicalPath = path.toLowerCase();
+            if (canonicalPaths.has(canonicalPath)) {
+              issues.push({ code: 'REPO_SOURCE_PATH_COLLISION', path });
+              break scan;
+            }
+            canonicalPaths.add(canonicalPath);
+            const reason = portalSourceExclusion(path);
+            if (reason !== undefined) {
+              exclusions.push({
+                path,
+                reason,
+                kind: entry.link
+                  ? 'link'
+                  : entry.directory
+                    ? 'directory'
+                    : entry.file
+                      ? 'file'
+                      : 'other',
+              });
+              skipped += 1;
+              continue;
+            }
+            if (entry.link || (!entry.directory && !entry.file)) {
+              issues.push({ code: 'REPO_SOURCE_ENTRY_UNSUPPORTED', path });
+              break scan;
+            }
           }
-          await authority.verify();
-        },
-        {
-          ...(this.afterDirectoryOpen === undefined
-            ? {}
-            : { afterOpen: () => this.afterDirectoryOpen!(relativeDirectory) }),
-          errorCode: 'PATH_OUTSIDE_WORKSPACE',
-        },
-      );
-      if (scanCapacityReached) break scan;
-      entries.sort((left, right) => (left.name < right.name ? -1 : left.name > right.name ? 1 : 0));
-      for (const entry of entries) {
-        const path = relativeDirectory === '' ? entry.name : `${relativeDirectory}/${entry.name}`;
-        if (entry.link) {
-          skipped += 1;
-          continue;
-        }
-        if (entry.directory) {
-          if (entry.name.startsWith('.') || IGNORED_DIRS.has(entry.name)) skipped += 1;
-          else directories.push(path);
-          continue;
-        }
-        if (!entry.file || entry.name.startsWith('.')) {
-          skipped += 1;
-          continue;
-        }
-        if (
-          extensions !== undefined &&
-          !extensions.some(extension => entry.name.endsWith(extension))
-        ) {
-          skipped += 1;
-          continue;
-        }
-        if (matcher.ignores(path)) {
-          skipped += 1;
-          continue;
-        }
-        matches.push(path);
-        if (matches.length > cap) {
-          truncated = true;
-          break scan;
+          if (entry.link) {
+            skipped += 1;
+            continue;
+          }
+          if (entry.directory) {
+            if (!authorityMode && (entry.name.startsWith('.') || IGNORED_DIRS.has(entry.name)))
+              skipped += 1;
+            else directories.push(path);
+            continue;
+          }
+          if (!entry.file || (!authorityMode && entry.name.startsWith('.'))) {
+            skipped += 1;
+            continue;
+          }
+          if (
+            extensions !== undefined &&
+            !extensions.some(extension => entry.name.endsWith(extension))
+          ) {
+            skipped += 1;
+            continue;
+          }
+          if (matcher?.ignores(path)) {
+            skipped += 1;
+            continue;
+          }
+          matches.push(path);
+          if (matches.length > cap) {
+            truncated = true;
+            break scan;
+          }
         }
       }
+    } catch (cause) {
+      const code = (cause as { code?: unknown } | null)?.code;
+      if (!authorityMode || code === 'ABORT_ERR') throw cause;
+      issues.push({
+        code:
+          typeof code === 'string' && code.length > 0
+            ? code.slice(0, 128)
+            : 'REPO_SOURCE_DISCOVERY_FAILED',
+        ...(currentDirectory !== '' && isPortableSourcePath(currentDirectory)
+          ? { path: currentDirectory }
+          : {}),
+      });
     }
     /* eslint-enable no-await-in-loop */
     const files = matches.toSorted(byDepthThenPath).slice(0, cap);
-    return Object.freeze({ files: Object.freeze(files), scanned, skipped, truncated });
+    return Object.freeze({
+      files: Object.freeze(files),
+      scanned,
+      skipped,
+      truncated,
+      ...(authorityMode ? { exclusions, issues } : {}),
+    });
   }
 }
 

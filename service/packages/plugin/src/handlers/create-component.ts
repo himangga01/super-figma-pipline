@@ -5,7 +5,7 @@ import { placeNode } from './place.js';
 
 export const createCreateComponentHandler =
   (figmaCtx: typeof figma): SandboxToolHandler =>
-  async params => {
+  async (params, execution) => {
     const p = (params ?? {}) as {
       fromNodeId?: unknown;
       parentId?: unknown;
@@ -36,9 +36,11 @@ export const createCreateComponentHandler =
         );
       }
       component = figmaCtx.createComponentFromNode(source as SceneNode);
+      execution?.markMutated?.();
       alreadyPlaced = true;
     } else {
       component = figmaCtx.createComponent();
+      execution?.markMutated?.();
     }
 
     if (typeof p.name === 'string') component.name = p.name;

@@ -1,0 +1,72 @@
+{
+  "schemaVersion": 1,
+  "date": "2026-09-05",
+  "baselineCommit": "f1bba1a",
+  "reviewSlice": "review-2026-09-05",
+  "status": "review-complete-full-run-plus-targeted-recovery",
+  "inventory": {
+    "production": {
+      "files": 406,
+      "lines": 63454
+    },
+    "test": {
+      "files": 285,
+      "lines": 68611
+    },
+    "build-tooling": {
+      "files": 15,
+      "lines": 3218
+    }
+  },
+  "checks": {
+    "typecheck": "passed",
+    "lint": "passed",
+    "format": "passed",
+    "knip": "passed",
+    "build": "passed",
+    "upstreamOffline": "passed",
+    "upstreamPinnedObjects": "passed",
+    "stagedChangeManifest": "passed",
+    "builtSandboxWithoutBrowserGlobals": "passed",
+    "verify": "last-full-run-failed-one-test; corrected-harness-and-targeted-recovery-passed"
+  },
+  "testDiscovery": {
+    "files": 282,
+    "uniquePaths": 282,
+    "windowsProcessE2eFiles": 7
+  },
+  "externalFigmaValidation": "not-run",
+  "targetServiceVisualAndInteractionValidation": "not-run",
+  "gitCommitCreated": false,
+  "fullRun": {
+    "command": "corepack pnpm verify",
+    "testFiles": 282,
+    "tests": 3275,
+    "passed": 3258,
+    "failed": 1,
+    "skipped": 16,
+    "durationSeconds": 597.61,
+    "rerunAfterFinalTestHarnessFix": false
+  },
+  "recovery": {
+    "command": "corepack pnpm exec vitest run packages/mcp/test/e2e/mcp-wire.test.ts -t 'exits cleanly when the client goes away mid-session'",
+    "passed": 1,
+    "failed": 0,
+    "filteredTestsNotCountedAsPlatformSkips": 22
+  },
+  "aggregateAcrossRuns": {
+    "passed": 3259,
+    "unresolvedFailures": 0,
+    "platformSkipped": 16,
+    "isSingleFullSuccessfulRun": false
+  },
+  "serviceGitTree": "22d83884863a74166f2d3dbf80d8c1d366ee7bfe",
+  "limitations": [
+    "Real Figma Desktop/account validation not run",
+    "Target service implementation and visual/interaction validation not run",
+    "CLI/IR entrypoints remain empty",
+    "Approval UI, identity bootstrap, undo and remaining roadmap are unfinished",
+    "Release verification is not implemented",
+    "Windows integration tests are slow and resource-sensitive"
+  ]
+}

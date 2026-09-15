@@ -254,7 +254,7 @@ const main = async () => {
     );
   }
   const slice = args[offset + 1];
-  if (!/^(?:7[ABC]|8[AB]|9[ABC]|10|11|12[AB]|13|14|15|16)$/.test(slice)) {
+  if (!/^(?:7[ABC]|8[AB]|9[ABC]|10|11|12[AB]|13|14|15|16|review-\d{4}-\d{2}-\d{2})$/.test(slice)) {
     fail('CHANGE_MANIFEST_SLICE_INVALID', slice);
   }
   const slug = slice.toLowerCase();

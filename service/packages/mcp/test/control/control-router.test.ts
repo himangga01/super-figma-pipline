@@ -18,6 +18,26 @@ const principal = Object.freeze({
 }) satisfies Readonly<ActorContext>;
 
 describe('authenticated control router', () => {
+  it('returns a retryable absence while an accepted operation has not reached the journal', async () => {
+    const router = new AuthenticatedControlRouter();
+    router.register({
+      id: 'operation.status',
+      method: 'GET',
+      path: '/control/operations/:operationId',
+      routeClass: 'admin',
+      inputSchema: z.object({ operationId: z.string() }).strict(),
+      outputSchema: z.literal('ready'),
+      handle: async () => {
+        throw Object.assign(new Error('operation was not found'), { code: 'OPERATION_NOT_FOUND' });
+      },
+    });
+    router.freeze();
+    const observed = await callHttpHandler(
+      createControlHttpHandler({ router, principalForRequest: async () => principal }),
+      { method: 'GET', url: '/control/operations/accepted-operation' },
+    );
+    expect(observed).toEqual({ status: 404, body: '{"code":"OPERATION_NOT_FOUND"}' });
+  });
   it('rejects ambiguous dynamic siblings regardless of parameter names', () => {
     const router = new AuthenticatedControlRouter();
     router.register({

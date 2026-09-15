@@ -16,7 +16,9 @@ import {
 } from '@sfp/shared';
 
 import type { SandboxToolHandler } from '../dispatcher.js';
-import { serializeCodeSyntax, serializeFlatSync } from '../serializer.js';
+import { serializeCodeSyntax, serializeFlatSync, serializePaint } from '../serializer.js';
+import { serializeComponentApi } from './get-component-api.js';
+import { serializeVariableValue } from './get-variable-defs.js';
 
 const isSceneNode = (node: BaseNode): node is SceneNode =>
   node.type !== 'DOCUMENT' && node.type !== 'PAGE';
@@ -71,6 +73,19 @@ export const project = (node: SceneNode, detail: DetailLevel): DesignContextNode
   // full — unchanged from the original projection: serializeFlatSync once, every field from flat.
   const flat = serializeFlatSync(node);
   const out: DesignContextNode = { id: flat.id, name: flat.name, type: flat.type };
+  for (const field of [
+    'explicitVariableModes',
+    'resolvedVariableModes',
+    'variantProperties',
+  ] as const) {
+    const value = (node as unknown as Record<string, unknown>)[field];
+    if (value && typeof value === 'object' && !Array.isArray(value))
+      out[field] = Object.fromEntries(
+        Object.entries(value).filter(
+          (entry): entry is [string, string] => typeof entry[1] === 'string',
+        ),
+      );
+  }
   // No-op defaults are omitted (consistent with every other field here): absent visible = true,
   // absent rotation = 0, absent opacity = 1, absent cornerRadius = 0 (unrounded). Strict equality so
   // a 0.0001-rad rotation or a 0.99 opacity still surfaces; `mixed` corners (the MIXED symbol) are
@@ -262,38 +277,86 @@ const resolveTokens = async (
   const out: Pick<GetDesignContextResult, 'variables' | 'styles'> = {};
 
   const getVar = figmaCtx.variables?.getVariableByIdAsync;
-  if (varIds.size > 0 && typeof getVar === 'function') {
-    const variables: Record<string, ResolvedToken> = {};
-    await Promise.all(
-      [...varIds].map(async id => {
-        try {
-          const v = await getVar.call(figmaCtx.variables, id);
-          if (v !== null) {
-            const token: ResolvedToken = { name: v.name, type: v.resolvedType };
-            // Designer-declared code-side name (e.g. WEB → `--color-primary`) — carried when
-            // declared so the consumer can skip the heuristic name join.
-            const codeSyntax = serializeCodeSyntax((v as { codeSyntax?: unknown }).codeSyntax);
-            if (codeSyntax !== undefined) token.codeSyntax = codeSyntax;
-            variables[id] = token;
-          }
-        } catch {
-          /* unresolved ref — skip, inline value remains the fallback */
-        }
-      }),
-    );
-    if (Object.keys(variables).length > 0) out.variables = variables;
+  const variables: Record<string, ResolvedToken> = {};
+  const pending = [...varIds];
+  const seen = new Set<string>();
+  while (pending.length && seen.size < 10000) {
+    const id = pending.shift()!;
+    if (seen.has(id)) continue;
+    seen.add(id);
+    variables[id] = { name: id, type: 'UNKNOWN', resolution: 'unavailable' };
+    if (typeof getVar !== 'function') continue;
+    try {
+      // eslint-disable-next-line no-await-in-loop -- bounded dependency closure, no guessed aliases
+      const v = await getVar.call(figmaCtx.variables, id);
+      if (!v) continue;
+      const token: ResolvedToken = {
+        name: v.name,
+        type: v.resolvedType,
+        ...(typeof v.variableCollectionId === 'string'
+          ? { collectionId: v.variableCollectionId }
+          : {}),
+        ...(v.valuesByMode
+          ? {
+              valuesByMode: Object.fromEntries(
+                Object.entries(v.valuesByMode).map(([mode, value]) => [
+                  mode,
+                  serializeVariableValue(value),
+                ]),
+              ),
+            }
+          : {}),
+        resolution: v.valuesByMode ? 'observed' : 'unavailable',
+      };
+      const codeSyntax = serializeCodeSyntax((v as { codeSyntax?: unknown }).codeSyntax);
+      if (codeSyntax) token.codeSyntax = codeSyntax;
+      variables[id] = token;
+      for (const value of Object.values(v.valuesByMode ?? {}))
+        if (
+          typeof value === 'object' &&
+          value !== null &&
+          'type' in value &&
+          value.type === 'VARIABLE_ALIAS'
+        )
+          pending.push(value.id);
+      const getCollection = figmaCtx.variables?.getVariableCollectionByIdAsync;
+      if (typeof getCollection === 'function') {
+        // eslint-disable-next-line no-await-in-loop -- collection identity accompanies its values
+        const collection = await getCollection.call(figmaCtx.variables, v.variableCollectionId);
+        if (collection)
+          token.collection = {
+            id: collection.id,
+            name: collection.name,
+            key: collection.key,
+            defaultModeId: collection.defaultModeId,
+            modes: [...collection.modes],
+            variableIds: [...collection.variableIds],
+          };
+      }
+    } catch {
+      /* retained unavailable observation or observed values with missing collection */
+    }
   }
+  if (Object.keys(variables).length) out.variables = variables;
 
   const getStyle = figmaCtx.getStyleByIdAsync;
-  if (styleIds.size > 0 && typeof getStyle === 'function') {
+  if (styleIds.size > 0) {
     const styles: Record<string, ResolvedToken> = {};
     await Promise.all(
       [...styleIds].map(async id => {
         try {
+          styles[id] = { name: id, type: 'UNKNOWN', resolution: 'unavailable' };
+          if (typeof getStyle !== 'function') return;
           const s = await getStyle.call(figmaCtx, id);
-          if (s !== null) styles[id] = { name: s.name, type: s.type };
+          if (s !== null)
+            styles[id] = {
+              name: s.name,
+              type: s.type,
+              resolution: 'observed',
+              ...(s.type === 'PAINT' ? { paints: s.paints.map(serializePaint) } : {}),
+            };
         } catch {
-          /* unresolved ref — skip */
+          styles[id] = { name: id, type: 'UNKNOWN', resolution: 'unavailable' };
         }
       }),
     );
@@ -489,6 +552,15 @@ const buildNode = async (
   // Motion is a Motion-API dimension (not a serializer field), so it's attached here rather than in
   // project(). Full detail only — the compact hot path stays untouched.
   if (ctx.detail === 'full') {
+    if (
+      (node.type === 'COMPONENT' || node.type === 'COMPONENT_SET') &&
+      node.componentPropertyDefinitions
+    )
+      out.componentApi = {
+        ...serializeComponentApi(
+          node.type === 'COMPONENT' && node.parent?.type === 'COMPONENT_SET' ? node.parent : node,
+        ),
+      };
     const motion = motionSummary(node);
     if (motion !== undefined) out.motion = motion;
   }
@@ -516,6 +588,9 @@ const buildNode = async (
           mc.componentSetName = parent.name;
         }
         out.mainComponent = mc;
+        const owner = main.parent?.type === 'COMPONENT_SET' ? main.parent : main;
+        if (owner.componentPropertyDefinitions)
+          out.componentApi = { ...serializeComponentApi(owner) };
       }
       if (ctx.dedupe) {
         if (ctx.seen.has(main.id)) {

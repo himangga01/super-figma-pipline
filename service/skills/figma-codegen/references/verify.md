@@ -1,29 +1,16 @@
-# Verify visually (close the loop)
+# Verify the native portal
 
-Loaded by **figma-codegen**. Generated code that you never render is unverified. Don't ship it on
-faith — **render it with the project's own toolchain, screenshot it, compare against the Figma node,
-and fix the diff.** This is the self-correcting step: it catches exactly the fidelity misses the
-grounding tools warn about (dropped shadows, uniform-vs-per-side borders, wrong font sizes, missing
-assets, full-bleed gutters, broken reflow) — things that only show up once pixels exist.
+Render generated code with the actual project toolchain. A successful scaffold or build alone is not verified UX.
 
-There is **no generic "verify" tool**, and there shouldn't be: the render entry is project-specific
-(dev server vs build+preview, the port, the route, how a single component is mounted, what props/data
-it needs, the runtime context). You have the project context + a shell + a browser — so drive it
-yourself, per project:
+## Use the portal validation flow
 
-1. **Render with the project's runtime.** Use what the project actually uses — e.g. Vite: `pnpm build`
-   then `pnpm preview`; Next: `next build && next start`; or the existing dev server. Mount what you
-   built (a page route, or a throwaway entry/harness for a single component) and make sure tokens,
-   Tailwind/CSS, and exported assets are wired so the render isn't half-styled (a half-styled render
-   makes the diff pure noise — that defeats the check).
-2. **Screenshot at the design's real viewport.** Use Chrome headless via CDP
-   `Emulation.setDeviceMetricsOverride` for an exact width — **do not trust `--window-size`** for
-   exact-width/mobile shots (it renders wider than asked and crops a centered `mx-auto` root, faking a
-   right-edge overflow). For wide desktop, `--headless=new --screenshot --window-size=1440,1500` is
-   fine (cards have margin, nothing gets cut). Get the Figma side from `get_screenshot` on the same node.
-3. **Compare and fix.** Diff the two (eyeball, or pixelmatch/odiff for a %); for each real discrepancy
-   trace it back to the cause (re-`get_design_context` that node — don't re-guess from the screenshot)
-   and fix the code. Re-render. Repeat until it matches.
-4. **Check both breakpoints.** Re-screenshot at desktop _and_ mobile widths; confirm zero horizontal
-   overflow on mobile (`document.scrollWidth === innerWidth`, allowing intentional `overflow-x-auto`
-   carousels) and that the desktop layout didn't regress.
+1. Create an owner-reviewed native profile for the exact candidate and relevant script/configuration closure. Use a separate work copy. Do not use Docker or automatically substitute another container/VM.
+2. Install dependencies with lifecycle scripts disabled unless the reviewed profile explicitly enables them. Start the actual application and its necessary native test services. Never provide production credentials.
+3. Run `portal_validate`. Use headless Firefox for previews. Do not launch Chrome, create a Chrome tab/profile, or repurpose the user's Figma tab for application previews.
+4. Compare against an exported PNG for the same Figma node and source scope, with matching viewport, DPR, fonts, assets, locale and state. An editor screenshot is not the design oracle. The service's native preview helper records actual/diff images and fails on visual mismatches.
+5. Exercise routing, forms, keyboard/focus behavior, error states and responsive layouts. Add the project's full accessibility checks. Basic DOM labeling checks alone are not a complete accessibility review.
+6. For C2/C3, verify the unmocked frontend-to-API-to-data journey, required authorization, migrations, jobs and integrations. Frontend mocks plus independent backend tests do not prove the portal is wired correctly. Only C4 is frontend-only.
+7. Read the returned failed checks/logs, repair the candidate through its lease, and validate again within the original budget. Missing or skipped required checks remain incomplete.
+8. Apply only a fully accepted candidate, then validate the actual applied source. For live-bound designs, require the final design recheck to match. Preserve conflicts and uncertain effects for explicit reconciliation.
+
+Use the [native portal guide](../../../docs/portal-native.md) for profile registration, the Firefox helper and recovery commands. Raw native execution runs under the local owner account; work-copy and command controls do not provide an OS security sandbox.

@@ -1,3 +1,4 @@
+import { SystemMethod } from '@sfp/shared';
 import { z } from 'zod';
 
 import { dispatchTool } from '../dispatch.js';
@@ -11,7 +12,7 @@ export const pingTool: RawToolSpec = {
   name: PING_TOOL_NAME,
   description:
     'Health check. Returns server info plus, when a plugin is connected, end-to-end info from the ' +
-    'Figma sandbox. On a follower it also reports the leader’s version and build, and warns ' +
+    'authenticated plugin connection. On a follower it also reports the leader’s version and build, and warns ' +
     '(versionSkew / buildSkew) when a stale older server still owns the plugin.',
   inputSchema: z.object({}),
   kind: 'read',
@@ -168,8 +169,9 @@ export const handlePing = async (ctx: PingContext): Promise<PingResult> => {
           follower: ctx.follower,
           ...(ctx.log === undefined ? {} : { log: ctx.log }),
         },
-        'ping',
+        SystemMethod.Ping,
         {},
+        routed === undefined ? {} : { sessionId: routed.id },
       );
       // No skew warning in here on purpose: every tool result already carries one when it applies,
       // ping included, and repeating the same paragraph inside the payload it is appended to reads

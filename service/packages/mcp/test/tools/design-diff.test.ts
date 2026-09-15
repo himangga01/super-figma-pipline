@@ -1,17 +1,24 @@
 import { mkdtemp, mkdir, readFile, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
-import { join } from 'node:path';
+import { dirname, join } from 'node:path';
 
 import type { GetDesignContextResult } from '@sfp/shared';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
+import { designDiffRelativePath } from '../../src/diff/baseline-identity.js';
 import { AtomicFileStore, type AtomicWritePort } from '../../src/fs/atomic-file.js';
 import { RepoReader } from '../../src/fs/repo-walk.js';
-import { handleDesignDiff, type ToolDispatcher } from '../../src/tools/design-diff.js';
+import {
+  handleDesignDiff as runDesignDiff,
+  type ToolDispatcher,
+} from '../../src/tools/design-diff.js';
 import { GET_DESIGN_CONTEXT_TOOL_NAME } from '../../src/tools/get-design-context.js';
 
-const SNAP_REL = join('.figwright', 'snapshots', '1-1.json');
-const SELECTION_SNAP_REL = join('.figwright', 'snapshots', 'selection.json');
+const FILE_HASH = `sha256:${'a'.repeat(64)}`;
+const SNAP_REL = designDiffRelativePath(FILE_HASH, '1:1');
+const SELECTION_SNAP_REL = designDiffRelativePath(FILE_HASH);
+const handleDesignDiff = (...args: Parameters<typeof runDesignDiff>) =>
+  runDesignDiff(args[0], args[1], args[2], args[3], args[4], args[5] ?? FILE_HASH);
 
 const ctx = (over: Partial<GetDesignContextResult> = {}): GetDesignContextResult => ({
   nodes: [
@@ -65,7 +72,8 @@ describe('handleDesignDiff', () => {
 
     // The file exists, is format-tagged, and stores the raw context.
     const saved = JSON.parse(await readFile(join(dir, SNAP_REL), 'utf8'));
-    expect(saved.figwrightSnapshot).toBe(2);
+    expect(saved.figwrightSnapshot).toBe(3);
+    expect(saved.fileIdentityHash).toBe(FILE_HASH);
     expect(saved.nodeId).toBe('1:1');
     expect(saved.context.nodes[0].id).toBe('1:1');
   });
@@ -121,7 +129,7 @@ describe('handleDesignDiff', () => {
   });
 
   it('refuses to replace a stale on-disk format without update, then re-baselines with bound approval', async () => {
-    await mkdir(join(dir, '.figwright', 'snapshots'), { recursive: true });
+    await mkdir(dirname(join(dir, SNAP_REL)), { recursive: true });
     await writeFile(
       join(dir, SNAP_REL),
       JSON.stringify({ figwrightSnapshot: 999, nodeId: '1:1', capturedAt: 'x', context: ctx() }),
@@ -143,7 +151,7 @@ describe('handleDesignDiff', () => {
     );
     expect(r.status).toBe('baseline-created');
     const saved = JSON.parse(await readFile(join(dir, SNAP_REL), 'utf8'));
-    expect(saved.figwrightSnapshot).toBe(2); // rewritten to the current format
+    expect(saved.figwrightSnapshot).toBe(3); // rewritten to the current format
   });
 
   it('does not self-assert destructive approval for an update', async () => {
@@ -179,10 +187,56 @@ describe('handleDesignDiff', () => {
     expect(r.note).toMatch(/different node or a renamed root/i);
   });
 
-  it('keys the baseline by the resolved root when nodeId is omitted (selection)', async () => {
+  it('keeps a file-scoped selection slot when nodeId is omitted', async () => {
     const r = await handleDesignDiff(dispatch, { rootDir: dir });
     expect(r.nodeId).toBe('1:1');
     expect(r.snapshotPath).toBe(SELECTION_SNAP_REL.replaceAll('\\', '/'));
+  });
+
+  it('separates the same node ID in two files and rejects a changed selection', async () => {
+    const a = await handleDesignDiff(dispatch, { nodeId: '1:1', rootDir: dir });
+    const b = await handleDesignDiff(
+      dispatch,
+      { nodeId: '1:1', rootDir: dir },
+      undefined,
+      undefined,
+      undefined,
+      `sha256:${'b'.repeat(64)}`,
+    );
+    expect(a.snapshotPath).not.toBe(b.snapshotPath);
+    expect(b.status).toBe('baseline-created');
+    await handleDesignDiff(dispatch, { rootDir: dir });
+    currentCtx = ctx({ nodes: [{ id: '2:1', name: 'Other selection', type: 'FRAME' }] });
+    await expect(handleDesignDiff(dispatch, { rootDir: dir })).rejects.toMatchObject({
+      code: 'DESIGN_DIFF_BASELINE_IDENTITY_MISMATCH',
+    });
+  });
+
+  it('rejects forged baseline identity and missing file binding', async () => {
+    const args = { nodeId: '1:1', rootDir: dir };
+    await expect(runDesignDiff(dispatch, args)).rejects.toMatchObject({
+      code: 'DESIGN_DIFF_FILE_IDENTITY_REQUIRED',
+    });
+    await handleDesignDiff(dispatch, args);
+    const snapshot = JSON.parse(await readFile(join(dir, SNAP_REL), 'utf8'));
+    snapshot.fileIdentityHash = `sha256:${'b'.repeat(64)}`;
+    await writeFile(join(dir, SNAP_REL), JSON.stringify(snapshot));
+    await expect(handleDesignDiff(dispatch, args)).rejects.toMatchObject({
+      code: 'DESIGN_DIFF_BASELINE_IDENTITY_MISMATCH',
+    });
+  });
+
+  it('uses collision-resistant portable names for raw node IDs', () => {
+    expect(designDiffRelativePath(FILE_HASH, '1:2')).not.toBe(
+      designDiffRelativePath(FILE_HASH, '1-2'),
+    );
+    expect(designDiffRelativePath(FILE_HASH, '../1:2\\ads')).toMatch(
+      /^\.sfp\/design-diff-baselines\/v1\/[0-9a-f]{64}\/[0-9a-f]{64}\.json$/,
+    );
+    expect(designDiffRelativePath(FILE_HASH, 'selection')).not.toBe(
+      designDiffRelativePath(FILE_HASH),
+    );
+    expect(() => designDiffRelativePath('sha256:../bad', '1:2')).toThrow(/stable file identity/);
   });
 
   it('rejects policy authority whose absolute target is rooted above the resolved subproject', async () => {

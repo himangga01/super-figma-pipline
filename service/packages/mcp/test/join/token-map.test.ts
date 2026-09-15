@@ -91,7 +91,7 @@ describe('joinTokens', () => {
     expect(m?.status).not.toBe('high');
   });
 
-  it('does not cap a name-only match because a pooled custom property has no file', () => {
+  it('does not invent file ambiguity for a pooled name-only candidate', () => {
     // A custom property carries no `from` at all. Counting that absence as "a different declaring
     // file" capped every name-only match on the mirror layout, where exactly one file declares it.
     const mixed: ProjectToken[] = [
@@ -99,15 +99,15 @@ describe('joinTokens', () => {
       { name: 'radius-lg', value: '8px', cssVar: 'var(--radius-lg)' },
     ];
     const [m] = joinTokens([fig('radius/lg', 8, 'FLOAT')], mixed, { threshold: 0.7 });
-    expect(m?.status).toBe('high');
+    expect(m?.status).toBe('medium');
   });
 
-  it('does not cap a name-only match when one file declares the name', () => {
+  it('keeps a single-file name-only match as an unverified value candidate', () => {
     const oneFile: ProjectToken[] = [
       { name: 'radius-lg', value: '8px', scssVar: '$radius-lg', from: 'src/_a.scss' },
     ];
     const [m] = joinTokens([fig('radius/lg', 8, 'FLOAT')], oneFile, { threshold: 0.7 });
-    expect(m?.status).toBe('high');
+    expect(m?.status).toBe('medium');
   });
 
   it('does not list a same-named sibling as an alternative to choose between', () => {
@@ -153,12 +153,12 @@ describe('joinTokens', () => {
     const overrides = parseTokenMapFile('| Accent | $primary |');
     const [m] = joinTokens([fig('Accent', '#123456')], twoFiles, { threshold: 0.7, overrides });
     expect(m?.status).not.toBe('high');
-    // One file, and a recorded mapping keeps the certainty it earns.
+    // A single declaring file still does not verify material equality.
     const [one] = joinTokens([fig('Accent', '#123456')], [twoFiles[0] as ProjectToken], {
       threshold: 0.7,
       overrides,
     });
-    expect(one?.status).toBe('high');
+    expect(one?.status).toBe('medium');
   });
 
   it('resolves a map-file override against a SCSS variable, with or without the sigil', () => {
@@ -202,7 +202,7 @@ describe('joinTokens', () => {
     const [m] = joinTokens([fig('Primary/500', '#6266F0')], oklch, { threshold: 0.7 });
     expect(m?.candidate?.token).toBe('color-primary-500');
     expect(m?.candidate?.matchedBy).toEqual(['name']);
-    expect(m?.status).toBe('high');
+    expect(m?.status).toBe('medium');
   });
 
   it('normalizes hex shorthand and a fully-opaque alpha before comparing', () => {
@@ -237,7 +237,7 @@ describe('joinTokens', () => {
       const spacing = [proj('spacing-2', '8px', '2', 'spacing')];
       const [m] = joinTokens([fig('spacing/2', 8, 'FLOAT')], spacing, { threshold: 0.7 });
       expect(m?.candidate?.token).toBe('spacing-2');
-      expect(m?.status).toBe('high');
+      expect(m?.status).toBe('medium');
     });
   });
 
@@ -246,7 +246,7 @@ describe('joinTokens', () => {
       const radii = [proj('radius-lg', '0.5rem', 'lg', 'radius')];
       const [m] = joinTokens([fig('rounded/lg', 8, 'FLOAT')], radii, { threshold: 0.7 });
       expect(m?.candidate?.token).toBe('radius-lg');
-      expect(m?.status).toBe('high');
+      expect(m?.status).toBe('medium');
     });
 
     it('does NOT alias size→text outside a typography collection (size/* is overloaded)', () => {
@@ -266,7 +266,7 @@ describe('joinTokens', () => {
       const text = [proj('text-base', '1rem', 'base', 'font-size')];
       const [m] = joinTokens([fig('size/base', 16, 'FLOAT', 'font')], text, { threshold: 0.7 });
       expect(m?.candidate?.token).toBe('text-base');
-      expect(m?.status).toBe('high');
+      expect(m?.status).toBe('medium');
     });
 
     it('still gates on the step: rounded/md does not match radius-lg', () => {
@@ -312,7 +312,7 @@ describe('joinTokens', () => {
         threshold: 0.7,
         utilityFirst: true,
       });
-      expect(m?.status).toBe('high');
+      expect(m?.status).toBe('medium');
       expect(m?.candidate?.token).toBe('spacing-4');
       expect(m?.builtin).toBeUndefined();
     });
@@ -469,9 +469,8 @@ describe('joinTokens — same-value siblings (value-match ambiguity)', () => {
 });
 
 describe('joinTokens — map-file overrides (write-back loop)', () => {
-  it('an override wins as high with matchedBy map-file when its ref resolves', () => {
-    // A recorded mapping for an otherwise-ambiguous / value-only Figma token: authoritative, not a
-    // weak ['value'] hypothesis. The ref may be written as a utility, a var() reference, or a bare
+  it('a legacy override remains an unverified hint when its ref resolves', () => {
+    // A historical name/ref records a hint; it supplies no current material proof. The ref may be written as a utility, a var() reference, or a bare
     // custom-property name — all resolve to the same project token.
     const overrides = new Map([['Brand/Accent', 'primary-500']]);
     for (const ref of ['primary-500', 'var(--color-primary-500)', 'color-primary-500']) {
@@ -481,9 +480,9 @@ describe('joinTokens — map-file overrides (write-back loop)', () => {
         overrides: new Map([...overrides, ['Brand/Accent', ref]]),
       });
       expect(m?.candidate?.token).toBe('color-primary-500');
-      expect(m?.candidate?.confidence).toBe(1);
+      expect(m?.candidate?.confidence).toBe(0.7);
       expect(m?.candidate?.matchedBy).toEqual(['map-file']);
-      expect(m?.status).toBe('high');
+      expect(m?.status).toBe('medium');
       expect(m?.staleOverride).toBeUndefined();
     }
   });

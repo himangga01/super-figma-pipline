@@ -21,6 +21,19 @@ const proj = (name: string, value: string, utility?: string): ProjectToken => ({
 });
 
 describe('buildTokenValueIndex', () => {
+  it('matches alpha shorthand to full RGBA and ignores invalid hex lengths', () => {
+    const index = buildTokenValueIndex([
+      proj('opaque-short', '#abcf'),
+      proj('opaque-full', '#aabbcc'),
+      proj('alpha-short', '#abc8'),
+      proj('alpha-full', '#aabbcc88'),
+      proj('invalid-five', '#abcde'),
+      proj('invalid-seven', '#abcdef0'),
+    ]);
+    expect(index.size).toBe(2);
+    expect(index.get('#AABBCC')?.map(token => token.name)).toEqual(['opaque-short', 'opaque-full']);
+    expect(index.get('#AABBCC88')?.map(token => token.name)).toEqual(['alpha-short', 'alpha-full']);
+  });
   it('indexes hex-valued tokens by normalized hex and skips non-hex values', () => {
     const index = buildTokenValueIndex([
       proj('color-primary', '#6266F0'),

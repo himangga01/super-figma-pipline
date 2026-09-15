@@ -6,7 +6,7 @@ import { toFigmaLayoutGridsBound } from './bindings.js';
 export const createCreateGridStyleHandler =
   (figmaCtx: typeof figma): SandboxToolHandler =>
   // eslint-disable-next-line @typescript-eslint/require-await
-  async params => {
+  async (params, execution) => {
     const p = (params ?? {}) as { name?: unknown; grids?: unknown; description?: unknown };
     if (typeof p.name !== 'string') throw new TypeError('create_grid_style: name must be a string');
     if (!Array.isArray(p.grids)) throw new TypeError('create_grid_style: grids must be an array');
@@ -19,6 +19,7 @@ export const createCreateGridStyleHandler =
     );
 
     const style = figmaCtx.createGridStyle();
+    execution?.markMutated?.();
     style.name = p.name;
     style.layoutGrids = grids;
     if (typeof p.description === 'string') style.description = p.description;

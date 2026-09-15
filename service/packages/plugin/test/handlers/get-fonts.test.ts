@@ -53,3 +53,50 @@ describe('get_fonts handler', () => {
     expect(result.fonts).toEqual([]);
   });
 });
+it('lists actual available faces only when requested and never labels them page usage', async () => {
+  let called = 0;
+  const ctx = {
+    currentPage: {
+      get children() {
+        throw new Error('PAGE_USAGE_MUST_NOT_BE_READ');
+      },
+    },
+    listAvailableFontsAsync: async () => {
+      called++;
+      return [
+        { fontName: { family: 'Zeta', style: 'Regular' } },
+        { fontName: { family: 'Inter', style: 'Bold' } },
+        { fontName: { family: 'Inter', style: 'Bold' } },
+      ];
+    },
+  } as unknown as typeof figma;
+  const result = await createGetFontsHandler(ctx)({ available: true });
+  expect(called).toBe(1);
+  expect(result).toEqual({
+    scope: 'available',
+    fonts: [
+      { fontName: { family: 'Inter', style: 'Bold' }, count: 0 },
+      { fontName: { family: 'Zeta', style: 'Regular' }, count: 0 },
+    ],
+  });
+});
+it('does not turn an unavailable or oversized font API into empty availability', async () => {
+  await expect(createGetFontsHandler(fakeFigma([]))({ available: true })).rejects.toThrow(
+    'font availability API unavailable',
+  );
+  const ctx = {
+    listAvailableFontsAsync: async () =>
+      Array.from({ length: 10001 }, () => ({ fontName: { family: 'Inter', style: 'Regular' } })),
+  } as unknown as typeof figma;
+  await expect(createGetFontsHandler(ctx)({ available: true })).rejects.toThrow(
+    'available-font result limit',
+  );
+});
+it('keeps legacy default output and explicitly observed empty availability distinct', async () => {
+  expect(await createGetFontsHandler(fakeFigma([]))({})).toEqual({ fonts: [] });
+  const ctx = { listAvailableFontsAsync: async () => [] } as unknown as typeof figma;
+  expect(await createGetFontsHandler(ctx)({ available: true })).toEqual({
+    scope: 'available',
+    fonts: [],
+  });
+});

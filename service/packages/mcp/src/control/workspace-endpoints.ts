@@ -2,7 +2,6 @@ import {
   hashActionRequest,
   type ActionNonceStore,
   type ActorContext,
-  type PrefixedSha256,
   type RegisteredWorkspaceRoot,
   type ResolvedWorkspaceRegistration,
   type WorkspaceConfigStore,
@@ -102,5 +101,3 @@ export const createWorkspaceEndpoints = (dependencies: {
     getDefault: async () => dependencies.store.getDefault(),
   });
 };
-
-export type WorkspaceActionRequestHash = PrefixedSha256;

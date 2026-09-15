@@ -1,0 +1,2 @@
+MCP wire=125; daemon survives stdin EOF; owned processes stopped
+Standalone install passed: 125 tools, daemon and plugin assets

@@ -1,0 +1,102 @@
+Scope: 5 of 6 workspace projects
+packages/shared typecheck$ tsc --noEmit -p tsconfig.json
+packages/shared typecheck: Done
+packages/ir typecheck$ tsc --noEmit -p tsconfig.json
+packages/plugin typecheck$ vue-tsc --noEmit -p tsconfig.json
+packages/ir typecheck: Done
+packages/plugin typecheck: Done
+packages/mcp typecheck$ tsc --noEmit -p tsconfig.json
+packages/mcp typecheck: Done
+packages/cli typecheck$ tsc --noEmit -p tsconfig.json
+packages/cli typecheck: Done
+Checking formatting...
+
+All matched files use the correct format.
+Finished in 443ms on 905 files using 24 threads.
+Scope: 5 of 6 workspace projects
+packages/shared build$ tsc --noEmit -p tsconfig.json
+packages/shared build: Done
+packages/ir build$ tsc --noEmit -p tsconfig.json
+packages/plugin build$ pnpm run build:main && pnpm run build:ui
+packages/plugin build: $ vite build --config vite.config.main.ts
+packages/plugin build: vite v8.2.2 building client environment for production...
+packages/plugin build: transforming...
+packages/plugin build: ✓ 253 modules transformed.
+packages/plugin build: rendering chunks...
+packages/plugin build: computing gzip size...
+packages/plugin build: dist/code.js  257.77 kB │ gzip: 67.93 kB
+packages/plugin build: ✓ built in 44ms
+packages/plugin build: $ vite build --config vite.config.ts
+packages/plugin build: vite v8.2.2 building client environment for production...
+packages/plugin build: transforming...
+packages/ir build: Done
+packages/plugin build: ✓ 1984 modules transformed.
+packages/plugin build: rendering chunks...
+packages/plugin build: [plugin vite:singlefile]
+packages/plugin build: [plugin vite:singlefile] Inlining: index-DsKdIhTB.js
+packages/plugin build: [plugin vite:singlefile] Inlining: style-BX-z2B9S.css
+packages/plugin build: computing gzip size...
+packages/plugin build: dist/index.html  322.54 kB │ gzip: 99.23 kB
+packages/plugin build: ✓ built in 340ms
+packages/plugin build: Done
+packages/mcp build$ node ../../scripts/build-server.mjs
+packages/mcp build: ℹ tsdown v0.22.14 powered by rolldown v1.2.6
+packages/mcp build: ℹ config file: C:\project\2026\super-figma-pipline\service\packages\mcp\tsdown.config.ts
+packages/mcp build: ℹ entry: src/index.ts, src/daemon-entry.ts, src/portal-validation.ts
+packages/mcp build: ℹ target: node24
+packages/mcp build: ℹ tsconfig: tsconfig.json
+packages/mcp build: ℹ Build start
+packages/mcp build: ℹ Cleaning 12 files
+packages/mcp build: ℹ Granting execute permission to dist\daemon-entry.mjs
+packages/mcp build: ℹ Granting execute permission to dist\index.mjs
+packages/mcp build: ℹ Granting execute permission to dist\portal-validation.mjs
+packages/mcp build: ℹ dist\index.mjs                                    1.35 MB
+packages/mcp build: ℹ dist\daemon-entry.mjs                             0.38 kB │ gzip:  0.28 kB
+packages/mcp build: ℹ dist\portal-validation.mjs                        0.22 kB │ gzip:  0.15 kB
+packages/mcp build: ℹ dist\src-C7-2LtTk.mjs                           161.80 kB │ gzip: 43.21 kB
+packages/mcp build: ℹ dist\preview-BnPZv8Zl.mjs                       114.50 kB │ gzip: 26.60 kB
+packages/mcp build: ℹ dist\src-CPz8Myxc.mjs                            24.79 kB │ gzip:  6.51 kB
+packages/mcp build: ℹ dist\operation-evidence-projector-Xhhd0K7p.mjs    5.82 kB │ gzip:  1.89 kB
+packages/mcp build: ℹ dist\runtime-mode-CtV2_UhM.mjs                    0.22 kB │ gzip:  0.16 kB
+packages/mcp build: ℹ dist\src-L7sQcv26.mjs                             0.17 kB │ gzip:  0.14 kB
+packages/mcp build: ℹ dist\operation-evidence-projector-CuanHsFE.mjs    0.16 kB │ gzip:  0.13 kB
+packages/mcp build: ℹ 10 files, total: 1.66 MB
+packages/mcp build: ✔ Build complete in 77ms
+packages/mcp build: ✔ [publint] No issues found (23ms)
+packages/mcp build: Done
+packages/cli build$ tsdown
+packages/cli build: ℹ tsdown v0.22.14 powered by rolldown v1.2.6
+packages/cli build: ℹ config file: C:\project\2026\super-figma-pipline\service\packages\cli\tsdown.config.ts
+packages/cli build: ℹ entry: src/index.ts, src/library.ts
+packages/cli build: ℹ target: node24
+packages/cli build: ℹ tsconfig: tsconfig.json
+packages/cli build: ℹ Build start
+packages/cli build: ℹ Cleaning 4 files
+packages/cli build: ℹ Hint: consider adding deps.onlyBundle option to avoid unintended bundling of dependencies, or set deps.onlyBundle: false to disable this hint.
+packages/cli build: See more at https://tsdown.dev/options/dependencies#deps-onlybundle
+packages/cli build: Detected dependencies in bundle:
+packages/cli build: - pako
+packages/cli build: - @pdf-lib/upng
+packages/cli build: - ws
+packages/cli build: - tslib
+packages/cli build: - pdf-lib
+packages/cli build: - @pdf-lib/standard-fonts
+packages/cli build: ℹ Granting execute permission to dist\index.mjs
+packages/cli build: ℹ Granting execute permission to dist\library.mjs
+packages/cli build: ℹ dist\index.mjs                       1.60 MB
+packages/cli build: ℹ dist\library.mjs                     0.44 kB │ gzip:  0.23 kB
+packages/cli build: ℹ dist\scripter-reader-B_gN6xIi.mjs  197.25 kB │ gzip: 51.48 kB
+packages/cli build: ℹ 3 files, total: 1.80 MB
+packages/cli build: ✔ Build complete in 101ms
+packages/cli build: ✔ [publint] No issues found (18ms)
+packages/cli build: Done
+
+ RUN  v4.1.11 C:/project/2026/super-figma-pipline/service
+
+SFP_PREVIEW_REPORT:{"browser":"firefox","browserVersion":"155.0","deviceScaleFactor":1,"locale":"en-US","timezone":"UTC","screens":[{"id":"blue","passed":true,"failures":[],"viewport":{"width":100,"height":100},"ratio":0,"oracleHash":"sha256:a37a1cb4a053381e43488b48d817c17e9e73f8fcca9a422a9d01a5debb504e12","actualHash":"sha256:7fc378f5e1238f4d1c539ba8d390a3f32449afbec6f4bd7dfad3ccd9cff5bdb0","actualPath":".sfp-native-preview/blue.actual.png","diffPath":".sfp-native-preview/blue.diff.png","accessibilityCoverage":"basic-dom-and-configured-keyboard-workflows"}]}
+SFP_PREVIEW_REPORT:{"browser":"firefox","browserVersion":"155.0","deviceScaleFactor":1,"locale":"en-US","timezone":"UTC","screens":[{"id":"red","passed":false,"failures":["VISUAL_MISMATCH"],"viewport":{"width":100,"height":100},"ratio":1,"oracleHash":"sha256:a37a1cb4a053381e43488b48d817c17e9e73f8fcca9a422a9d01a5debb504e12","actualHash":"sha256:7ec4139db16db9b37e9c60bf70198a2f9984206feabdb665bffdf2315af083d7","actualPath":".sfp-native-preview/red.actual.png","diffPath":".sfp-native-preview/red.diff.png","accessibilityCoverage":"basic-dom-and-configured-keyboard-workflows"}]}
+
+ Test Files  316 passed (316)
+      Tests  3395 passed | 17 skipped (3412)
+   Start at  13:45:07
+   Duration  607.06s (transform 8.42s, setup 0ms, import 33.45s, tests 831.01s, environment 2.56s)

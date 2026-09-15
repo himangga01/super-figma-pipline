@@ -11,6 +11,7 @@ import type {
   ToolInvocationOptionsV1,
   ToolApprovalHandle,
   ToolName,
+  OperationName,
 } from '@sfp/shared';
 
 import type { OperationExecutor } from './execution/operation-executor.js';
@@ -20,7 +21,7 @@ export class ToolInvocationService implements OperationInvocationService {
 
   rejectToolBeforeEgress(
     scope: ResolvedInvocationScope,
-    toolName: ToolName,
+    toolName: OperationName,
     rawArgs: unknown,
     operationId: string,
     errorCode: string,
@@ -38,7 +39,7 @@ export class ToolInvocationService implements OperationInvocationService {
 
   beginToolApproval(
     scope: ResolvedInvocationScope,
-    toolName: ToolName,
+    toolName: OperationName,
     rawArgs: unknown,
     operationId: string,
     approvalId: string,
@@ -78,16 +79,14 @@ export class ToolInvocationService implements OperationInvocationService {
   }
 
   invokeService(
-    _scope: RuntimeExecutionScope,
-    _operationName: ServiceOperationName,
-    _rawArgs: unknown,
-    _operationId?: string,
+    scope: RuntimeExecutionScope,
+    operationName: ServiceOperationName,
+    rawArgs: unknown,
+    operationId?: string,
+    options?: Readonly<ToolInvocationOptionsV1>,
+    reporter?: ProgressReporter,
   ): Promise<unknown> {
-    return Promise.reject(
-      Object.assign(new Error('service operation missing'), {
-        code: 'SERVICE_OPERATION_NOT_FOUND',
-      }),
-    );
+    return this.executor.invokeTool(scope, operationName, rawArgs, operationId, options, reporter);
   }
 
   cancel(principal: Readonly<ActorContext>, request: Readonly<InvocationCancelV1>): Promise<void> {

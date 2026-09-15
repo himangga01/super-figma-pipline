@@ -208,7 +208,10 @@ const assertPinnedUpstream = rules => {
   if (rules.schemaVersion !== 1 || rules.upstream !== 'figwright') {
     throw new Error('vendor-rules.json must describe schemaVersion 1 for figwright');
   }
-  const actualCommit = gitText('rev-parse', 'HEAD');
+  // Reference checkouts may advance. Both paths and bytes still come exclusively from the
+  // immutable locked commit; changing the checkout must never update the vendored version.
+  if (!/^[0-9a-f]{40}$/.test(rules.commit)) throw new Error('invalid pinned figwright commit');
+  const actualCommit = gitText('rev-parse', '--verify', `${rules.commit}^{commit}`);
   if (actualCommit !== rules.commit) {
     throw new Error(
       `figwright commit mismatch: expected ${rules.commit}, received ${actualCommit}`,
@@ -219,8 +222,12 @@ const assertPinnedUpstream = rules => {
   return actualCommit;
 };
 
-const listTrackedPaths = () =>
-  gitBytes('ls-files', '-z').toString('utf8').split('\0').filter(Boolean).toSorted(compareStrings);
+const listTrackedPaths = commit =>
+  gitBytes('ls-tree', '-r', '--name-only', '-z', commit)
+    .toString('utf8')
+    .split('\0')
+    .filter(Boolean)
+    .toSorted(compareStrings);
 
 const readPinnedFile = (commit, sourcePath) => gitBytes('show', `${commit}:${sourcePath}`);
 
@@ -719,7 +726,7 @@ const main = async () => {
   }
   const rules = await readJson(rulesPath);
   const commit = assertPinnedUpstream(rules);
-  const trackedPaths = listTrackedPaths();
+  const trackedPaths = listTrackedPaths(commit);
   const selected = classifyTrackedFiles(trackedPaths, rules);
   if (mode === '--copy-only') await copyOnly(rules, commit, selected);
   else await mergeManifests(rules, commit);

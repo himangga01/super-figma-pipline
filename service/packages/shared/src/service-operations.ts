@@ -19,7 +19,15 @@ export const ServiceOperationNameSchema = z
   .min(1)
   .max(128)
   .regex(/^[a-z][a-z0-9_]*(?:\.[a-z][a-z0-9_]*)+$/)
-  .pipe(z.enum(['snapshot.capture', 'grounding.refresh']));
+  .pipe(
+    z.enum([
+      'snapshot.capture',
+      'grounding.refresh',
+      'recipe.evidence.hold',
+      'recipe.evidence.verify',
+      'recipe.evidence.release',
+    ]),
+  );
 
 export type ServiceOperationName = z.infer<typeof ServiceOperationNameSchema>;
 export const SystemOperationNameSchema = z.literal('identity.bootstrap');

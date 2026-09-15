@@ -1,5 +1,5 @@
 import { newId } from '@sfp/shared';
-import { afterEach, describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import type { WebSocket } from 'ws';
 
 import { handlePing } from '../../src/tools/ping.js';
@@ -44,20 +44,15 @@ describe('e2e ping smoke test', () => {
     expect(result.server.port).toBe(h.port);
   });
 
-  it('leader with plugin connected returns e2e hop with sandbox info', async () => {
+  it('probes the authenticated plugin connection without an unbound sandbox tool call', async () => {
     const h = track(await startLeader());
-    const sandbox = {
-      apiVersion: '1.0.0',
-      editorType: 'figma',
-      currentPageId: 'page-1',
-      currentPageName: 'Cover',
-      fileKey: 'fk-123',
-      ts: 1_700_000_000,
-    };
+    const sandbox = vi.fn<() => unknown>(() => {
+      throw new Error('unbound sandbox call');
+    });
     trackSocket(
       await connectFakePlugin({
         port: h.port,
-        handlers: { ping: () => sandbox },
+        handlers: { ping: sandbox },
       }),
     );
 
@@ -67,18 +62,18 @@ describe('e2e ping smoke test', () => {
       serverVersion: 'e2e-1.0.0',
     });
     expect(result.hop).toBe('e2e');
-    expect(result.plugin).toEqual(sandbox);
+    expect(result.plugin).toEqual({ ok: true });
+    expect(sandbox).not.toHaveBeenCalled();
   });
 
   it('end-to-end ping survives plugin disconnect+reconnect through session grace', async () => {
     const h = track(await startLeader());
     const sessionId = newId();
-    const sandbox = { apiVersion: '1.0.0', currentPageId: 'p', fileKey: null, ts: 1 };
 
     const first = await connectFakePlugin({
       port: h.port,
       sessionId,
-      handlers: { ping: () => sandbox },
+      handlers: {},
     });
     first.close();
     await new Promise(resolve => setTimeout(resolve, 20));
@@ -87,7 +82,7 @@ describe('e2e ping smoke test', () => {
       await connectFakePlugin({
         port: h.port,
         sessionId,
-        handlers: { ping: () => sandbox },
+        handlers: {},
       }),
     );
 
@@ -97,6 +92,6 @@ describe('e2e ping smoke test', () => {
       serverVersion: 'e2e-1.0.0',
     });
     expect(result.hop).toBe('e2e');
-    expect(result.plugin).toEqual(sandbox);
+    expect(result.plugin).toEqual({ ok: true });
   });
 });

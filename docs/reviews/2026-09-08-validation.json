@@ -1,0 +1,87 @@
+{
+  "schemaVersion": 1,
+  "recordedAt": "2026-09-08T05:00:58.100302+00:00",
+  "status": "source-tested-with-targeted-packaging-repair",
+  "sourceHash": "sha256:11115561e503845687aaca140aee72c6b0a296fb16972e6c487b0db02b21c231",
+  "fullSuite": {
+    "filesPassed": 316,
+    "testsPassed": 3395,
+    "testsSkipped": 17,
+    "testsFailed": 0,
+    "durationSeconds": 607.06,
+    "logPath": "docs/reviews/2026-09-08-full-verify.txt",
+    "logNormalization": "Trailing whitespace was trimmed in the review copy. The original artifact log and its SHA-256 remain recorded under checks.verify."
+  },
+  "checks": {
+    "verify": {
+      "passed": true,
+      "logPath": "service/artifacts/source-checks/verify.txt",
+      "logSha256": "39fe348aa92e372b546bc78ce12197d30875158cabf128699b72f9a6dee8f5ca"
+    },
+    "provenance": {
+      "passed": true,
+      "logPath": "service/artifacts/source-checks/provenance.txt",
+      "logSha256": "3e09f121ea9aa9072f42b018fa0ff580316376bf033e9e5c124cb5822a7b73bf"
+    },
+    "graph-memory": {
+      "passed": true,
+      "logPath": "service/artifacts/source-checks/graph-memory.txt",
+      "logSha256": "e56b4936f76fb23cc597b999c14b4b6cb8f5c69a3734d9a072aae08bb928a085"
+    },
+    "sbom": {
+      "passed": true,
+      "logPath": "service/artifacts/source-checks/sbom.txt",
+      "logSha256": "5050e2b64967628342b03bfe2f347240429b99246c2cf78d2ccb5496ad2e2775"
+    },
+    "notices": {
+      "passed": true,
+      "logPath": "service/artifacts/source-checks/notices.txt",
+      "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "package": {
+      "passed": true,
+      "logPath": "service/artifacts/source-checks/package.txt",
+      "logSha256": "dd961e284d84b930b897f8c90c5e6609b608e25ac74a556a093cb23d46f72460"
+    },
+    "checksums": {
+      "passed": true,
+      "logPath": "service/artifacts/source-checks/checksums.txt",
+      "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "artifacts": {
+      "passed": true,
+      "logPath": "service/artifacts/source-checks/artifacts.txt",
+      "logSha256": "7d6f80b2b8b6494acb80b6b688c02f580fa01ad65f47ab86e5f7fd6cfb85d076"
+    }
+  },
+  "aggregateCommandPassed": false,
+  "aggregateCommandNote": "The aggregate reached the final installed-runtime step, which failed on stale tool counts. Both smoke scripts were corrected to compare canonical tool names, linted/formatted, and successfully rerun. Runtime product source did not change after the full suite. Provenance and archives were refreshed and verified after this runner-only correction. The entire full suite was not repeated.",
+  "postSuiteChanges": [
+    "service/scripts/smoke-packed-mcp.mjs",
+    "service/scripts/smoke-runtime-entries.mjs",
+    "service/capabilities/change-manifests/task-review-2026-09-08.json",
+    "service/upstream-lock.json",
+    "service/vendor-map.json",
+    "service/vendor-rules.json"
+  ],
+  "packedRuntime": {
+    "passed": true,
+    "canonicalTools": 125,
+    "logPath": "docs/reviews/2026-09-08-packed-runtime.txt",
+    "logSha256": "e2a4141080031743c91bdc9bf24006fd38e7cc09e9a96f39c93b310f89cae9ef"
+  },
+  "windowsOwnerDeathExperiment": {
+    "passed": true,
+    "heartbeatStopped": true
+  },
+  "liveFigma": {
+    "validated": false,
+    "fileKey": "4IBhv1d8hEclifZQrOYxHS",
+    "latestResult": "CHROME_CONNECTION_REQUIRED",
+    "existingChromeOnly": true
+  },
+  "targetPortalValidated": false,
+  "allUpstreamRecipesCompleted": false,
+  "dockerUsed": false,
+  "superpowersUsed": false
+}

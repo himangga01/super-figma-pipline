@@ -52,8 +52,9 @@ export const evaluateOperationPolicy = (
   toolName: string,
   parsedArgs: Readonly<Record<string, unknown>>,
   context: PolicyInvocationContext,
+  override?: Readonly<OperationPolicy>,
 ): EvaluatedOperationPolicy => {
-  const operationPolicy = operationPolicyFor(toolName);
+  const operationPolicy = override ?? operationPolicyFor(toolName);
   const effects = operationPolicy.effectsFor(parsedArgs, context);
   if (
     effects.some(

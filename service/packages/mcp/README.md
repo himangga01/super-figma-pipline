@@ -1,35 +1,11 @@
-# @figwright/mcp
+# @sfp/mcp
 
-> The MCP server for **[Figwright](https://github.com/awdr74100/figwright)** — a two-way Figma agent for Claude Code, Cursor, Codex, and other MCP clients.
+Super Figma Pipeline's local MCP server exposes **125 MCP tools**. It supports design reads without Figma Dev Mode or the official Figma MCP, through the paired Desktop plugin or an existing Chrome session using external Playwright/Scripter.
 
-Figwright bridges MCP clients to a Figma plugin over a local WebSocket relay, so an AI agent can both **read** your designs with high-fidelity grounding and **write** back to the canvas — no Figma paid tier required. The server exposes **112 tools** spanning reads, writes, and codebase-grounded context.
+The nine `portal_*` tools provide planning, coding leases, candidate submission, native validation, guarded source application, status, cancellation and reconciliation. Only C4 is frontend-only; legacy/reference strategies retain all relevant service layers. The coding agent produces the actual implementation from the returned design and source evidence.
 
-## Usage
+Docker is not used. Native profiles run in separate working copies under the local owner account, with executable/source checks, filtered environments, bounded execution and owned process cleanup. This is not an OS sandbox. Headless Firefox is used for application previews; the existing Chrome remains the Figma source.
 
-Add it to your MCP client config (e.g. Claude Code's `.mcp.json`):
+Build from `service/` and configure the MCP client to run `node <absolute-service-path>/packages/mcp/dist/index.mjs`. The package is a private development distribution. The CLI, authentication, pairing and workspace configuration are described in the [service README](../../README.md) and [native portal guide](../../docs/portal-native.md).
 
-```json
-{
-  "mcpServers": {
-    "figwright": {
-      "command": "npx",
-      "args": ["-y", "@figwright/mcp@latest"]
-    }
-  }
-}
-```
-
-The server talks to the Figwright Figma plugin running in your Figma app. See the [main repository](https://github.com/awdr74100/figwright) for the full setup (installing the plugin, connecting, and the available skills).
-
-## Requirements
-
-- Node.js 20.19+ or 22.12+ (the server runs via `npx` as its own process, independent of your project's Node version)
-
-## Links
-
-- Repository & docs: https://github.com/awdr74100/figwright
-- Issues: https://github.com/awdr74100/figwright/issues
-
-## License
-
-[MIT](https://github.com/awdr74100/figwright/blob/main/LICENSE)
+The `@sfp/mcp/portal-validation` export supplies the native Firefox/PNG verification helper for reviewed application validation harnesses. Registration and successful local tests do not imply live Figma or real target-service acceptance.

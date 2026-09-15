@@ -1,5 +1,23 @@
 # Source provenance
 
+## Current implementation status (2026-09-07)
+
+The current service registers 116 canonical tools and 106 plugin handlers, including four
+safe-union additions. IR, CLI, snapshots, grounding graphs, authenticated execution and local
+packaging are implemented. The Task 1/2 baseline descriptions below are historical provenance,
+not the current feature-availability catalog.
+
+All 112 original Figwright and 73 original Rust tool names are represented, but name coverage
+does not establish behavioral parity, workflow integration or live verification. The Figmosha
+feature map records related primitives and pending helper recipes; it does not install the
+original helper globals or CLI parser aliases. The independent 2026-09-07 audits under the
+repository's `docs/reviews/` record those distinctions and prioritized adoption work.
+
+Paint-style token export was adopted on 2026-09-07 by combining Rust export behavior with the
+existing Figwright-derived paint-token converter. Its targeted regression tests preserve
+variable modes, paint definitions, opacity and collision handling. This change is not evidence
+that every original upstream feature or the new portal orchestration has been completed.
+
 Super Figma Pipeline is a standalone service. Runtime packages, skills, and package scripts do not
 read the local upstream checkouts. Reproduction uses the development-only vendoring and lock
 verification scripts. Offline verification is available now; Task 15 wires it into the release
@@ -55,14 +73,11 @@ The root `README.md` and `packages/mcp/README.md` are copied as fixtures for the
 tests. They temporarily retain upstream product language; Task 14 replaces them with service-specific
 documentation before release. They add no runtime behavior.
 
-## Service-only package scaffolding
+## Service-only package scaffolding (Task 1/2 history)
 
-`packages/ir/src/index.ts` and `packages/cli/src/index.ts` are service-authored empty entrypoints. They
-exist only so the five-package Task 1 workspace can execute its configured TypeScript checks before
-the IR and CLI implementations arrive. They contain no upstream or domain behavior and must be
-replaced by Tasks 11 and 13 respectively; later IR and CLI contract tests prevent them from standing
-in for those implementations. Each file carries a one-line lint suppression documenting that its
-empty export is intentional; the implementing task removes the suppression with the empty export.
+The original `packages/ir/src/index.ts` and `packages/cli/src/index.ts` were service-authored empty
+entrypoints used to type-check the Task 1 workspace. They have since been replaced by the IR and
+CLI implementations. Their initial placeholders were not upstream feature implementations.
 
 ## Behavior-only attribution
 

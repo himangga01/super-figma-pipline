@@ -117,6 +117,11 @@ describe('normalizeIdArgs', () => {
       'modeId', // variable-mode ids
       'animationStyleId', // Motion applied-style instance ids
       'timelineId', // Motion timeline ids
+      'planId', // signed portal plan identity
+      'runId', // signed portal run identity
+      'leaseId', // session-bound portal coding lease
+      'profileId', // owner-reviewed native execution profile
+      'assetIds', // numeric indices in a captured portal asset manifest
     ]);
     const covered = new Set<string>([...STRING_ID_FIELDS, 'nodeIds']);
     const offenders: string[] = [];

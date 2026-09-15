@@ -190,15 +190,25 @@ export const resolveWindowsPowerShellExecutable = (
   return executable;
 };
 
+export const windowsDirectoryLeaseInvocation = () => ({
+  protocol: 'windows-directory-lease-v1' as const,
+  executable: resolveWindowsPowerShellExecutable(),
+  args: [
+    '-NoLogo',
+    '-NoProfile',
+    '-NonInteractive',
+    '-EncodedCommand',
+    Buffer.from(windowsDirectoryLeaseScript, 'utf16le').toString('base64'),
+  ],
+});
 const createWindowsDirectoryLeaseBroker = (): Promise<DirectoryLeaseBroker> => {
-  const encoded = Buffer.from(windowsDirectoryLeaseScript, 'utf16le').toString('base64');
+  const invocation = windowsDirectoryLeaseInvocation();
   return DirectoryLeaseBroker.start({
     spawnChild: () =>
-      spawn(
-        resolveWindowsPowerShellExecutable(),
-        ['-NoLogo', '-NoProfile', '-NonInteractive', '-EncodedCommand', encoded],
-        { stdio: ['pipe', 'pipe', 'pipe'], windowsHide: true },
-      ),
+      spawn(invocation.executable, invocation.args, {
+        stdio: ['pipe', 'pipe', 'pipe'],
+        windowsHide: true,
+      }),
     requestTimeoutMs: 5_000,
     maxLineBytes: 4_096,
     maxStdoutBytes: 4_194_304,

@@ -78,6 +78,11 @@ export class TargetResolver {
     selector: InvocationTargetSelector,
     requirement: TargetRequirement,
   ): Readonly<PluginTarget> {
+    if (selector.kind === 'portal-source')
+      throw new TargetResolutionError(
+        'TARGET_REQUIRED',
+        'portal source intent requires canonical portal admission',
+      );
     if (requirement === 'forbidden' && selector.kind !== 'none') {
       throw new TargetResolutionError('TARGET_FORBIDDEN', 'this operation forbids a plugin target');
     }

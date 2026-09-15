@@ -20,7 +20,7 @@ const serializeMotionEasing = (easing: MotionEasing): SerializedMotionEasing => 
   return out;
 };
 
-const serializeVariableValue = (value: VariableValue): SerializedVariableValue => {
+export const serializeVariableValue = (value: VariableValue): SerializedVariableValue => {
   if (typeof value === 'object' && value !== null) {
     if ('type' in value && value.type === 'VARIABLE_ALIAS') {
       return { type: 'VARIABLE_ALIAS', id: value.id };

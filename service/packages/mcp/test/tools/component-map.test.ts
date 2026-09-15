@@ -71,7 +71,7 @@ describe('handleComponentMap', () => {
     const tooltip = result.mappings.find(m => m.figmaComponentName === 'Tooltip');
 
     expect(button?.candidate?.name).toBe('Button');
-    expect(button?.status).toBe('high');
+    expect(button?.status).toBe('medium');
     expect(button?.candidate?.matchedProps).toEqual(['Size']);
     expect(tooltip?.status).toBe('unmapped');
     expect(result.unmapped).toContain('Tooltip');

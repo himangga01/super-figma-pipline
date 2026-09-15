@@ -1,0 +1,53 @@
+{
+  "schemaVersion": 1,
+  "date": "2026-09-05",
+  "transport": "external-playwright-existing-chrome",
+  "playwrightVersion": "1.63.0",
+  "chromeVersion": "152.0.7977.76",
+  "fileKey": "4IBhv1d8hEclifZQrOYxHS",
+  "pageId": "0:1",
+  "pageName": "Visual Design🖌",
+  "nodeCount": 3198,
+  "sectionCount": 11,
+  "truncated": false,
+  "pendingRootIds": [],
+  "automaticScripterStartVerified": true,
+  "newBrowserCreatedDuringFinalValidation": false,
+  "newTabCreatedDuringFinalValidation": false,
+  "usedBuiltInBrowserControl": false,
+  "usedOfficialFigmaMcpForRead": false,
+  "desktopLiveValidation": "blocked-native-computer-use-pipe-unavailable",
+  "desktopBootstrapTests": "passed",
+  "tests": {
+    "passed": 118,
+    "files": 11,
+    "fullVerifyRerun": false
+  },
+  "checks": {
+    "typecheck": "passed",
+    "build": "passed",
+    "lint": "passed",
+    "format": "passed",
+    "knip": "passed",
+    "upstreamOffline": "passed",
+    "runtimeSpecifiers": "passed",
+    "stagedManifest": "passed"
+  },
+  "captureFiles": [
+    {
+      "path": "validation/existing-chrome/all-sections.json",
+      "bytes": 10390051,
+      "sha256": "7577a289d9b91549f84880cb36f26616aec36a4e34f380ed265d50fe23039221"
+    },
+    {
+      "path": "validation/existing-chrome/overview.json",
+      "bytes": 24089,
+      "sha256": "40c3f7bbaf8142aaabad968b0f4ad18bff0512f8e21f5b18b70fc8d4514b9743"
+    },
+    {
+      "path": "validation/existing-chrome/existing-tab.png",
+      "bytes": 227365,
+      "sha256": "2c424ec021334b62376852e212684a2a914be3dabfc394dcc505db8c26faa2e0"
+    }
+  ]
+}

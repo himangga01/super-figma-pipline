@@ -8,7 +8,7 @@ export const getAnnotationsTool: RawToolSpec = {
   name: GET_ANNOTATIONS_TOOL_NAME,
   description:
     'Return Dev Mode annotations as { annotations: [{ nodeId, nodeName, annotations }] }. ' +
-    "With nodeId, returns that node's annotations; without it, scans the current page for all " +
+    "With nodeId, returns the supported node's exact row even when its annotations array is empty; missing or unsupported nodes produce no row. Without it, scans the current page for all " +
     'annotated nodes.',
   inputSchema: z.object({
     nodeId: z

@@ -6,7 +6,7 @@ import { toFigmaEffectsBound } from './bindings.js';
 export const createCreateEffectStyleHandler =
   (figmaCtx: typeof figma): SandboxToolHandler =>
   // eslint-disable-next-line @typescript-eslint/require-await
-  async params => {
+  async (params, execution) => {
     const p = (params ?? {}) as { name?: unknown; effects?: unknown; description?: unknown };
     if (typeof p.name !== 'string')
       throw new TypeError('create_effect_style: name must be a string');
@@ -21,6 +21,7 @@ export const createCreateEffectStyleHandler =
     );
 
     const style = figmaCtx.createEffectStyle();
+    execution?.markMutated?.();
     style.name = p.name;
     style.effects = effects;
     if (typeof p.description === 'string') style.description = p.description;

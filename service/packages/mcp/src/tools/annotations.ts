@@ -15,19 +15,27 @@ export const annotationsFor = (spec: ToolSpec<unknown, unknown>): ToolAnnotation
   const policy = operationPolicyFor(spec.name);
   const possible = policy.possibleEffects;
   const readOnlyHint = possible.every(
-    effect => effect.type === 'figma-read' || effect.type === 'filesystem-read',
+    effect =>
+      effect.type === 'figma-read' ||
+      effect.type === 'filesystem-read' ||
+      effect.type === 'portal-state-read',
   );
   const destructiveHint = possible.some(
     effect =>
       (effect.type === 'figma-write' && effect.destructive) ||
-      (effect.type === 'filesystem-write' && effect.destructive),
+      (effect.type === 'filesystem-write' && effect.destructive) ||
+      effect.type === 'native-process-run',
   );
   return {
     readOnlyHint,
     destructiveHint,
     idempotentHint: policy.possibleIdempotency === 'safe-retry',
     openWorldHint: possible.some(
-      effect => effect.type === 'network' || effect.type === 'figma-library-import',
+      effect =>
+        effect.type === 'network' ||
+        effect.type === 'figma-library-import' ||
+        effect.type === 'native-process-run' ||
+        effect.type === 'external-browser-read',
     ),
   };
 };

@@ -1,0 +1,164 @@
+{
+  "schemaVersion": 1,
+  "reviewedAt": "2026-09-05T22:26:41.608878+09:00",
+  "scope": "Current service source and staged changes; review-only, no product source edits",
+  "head": "f1bba1a530012dd45d0265073c72c25bbb53987d",
+  "serviceIndexTree": "d0aff7d0c2d322f6a94d13d688edea9a639ec879",
+  "environment": {
+    "platform": "win32",
+    "node": "v24.19.0",
+    "pnpm": "11.24.0"
+  },
+  "inventory": {
+    "sourceFiles": 415,
+    "sourceLines": 63719,
+    "testAreaFiles": 289,
+    "actualTestFiles": 286,
+    "configFiles": 12,
+    "toolingFiles": 8,
+    "totalFiles": 724,
+    "path": "2026-09-05-rereview-inventory.csv"
+  },
+  "fullVerify": {
+    "command": "corepack pnpm verify",
+    "exitCode": 1,
+    "typecheck": "passed",
+    "lint": "passed",
+    "formatCheck": "passed",
+    "knip": "passed",
+    "build": "passed",
+    "tests": {
+      "total": 3297,
+      "passed": 3279,
+      "failed": 2,
+      "skipped": 16,
+      "files": 286,
+      "filesPassed": 284,
+      "filesFailed": 2,
+      "durationSeconds": 643.8
+    },
+    "log": "2026-09-05-rereview-verify.txt",
+    "logSha256": "dcb4bbd4f368b6f84051fd009f275de218ff9f31164cf0dd2c979ac06f232fe0",
+    "failures": [
+      {
+        "file": "service/packages/mcp/test/fs/operation-evidence-artifact-store.test.ts",
+        "line": 1008,
+        "reason": "Test timed out in 5000ms",
+        "rerun": "passed at 4550ms with maxWorkers=1 and unchanged test timeout"
+      },
+      {
+        "file": "service/packages/mcp/test/network/remote-domain-config.test.ts",
+        "line": 413,
+        "reason": "EPERM creating fixture symlink before store recovery was invoked",
+        "rerun": "failed with the same EPERM"
+      }
+    ]
+  },
+  "targetedRerun": {
+    "maxWorkers": 1,
+    "timeoutOverridden": false,
+    "selectedTests": [
+      {
+        "file": "packages/mcp/test/fs/operation-evidence-artifact-store.test.ts",
+        "title": "enforces the global retained-marker row cap before publishing another residue",
+        "status": "passed",
+        "durationMs": 4549.5621
+      },
+      {
+        "file": "packages/mcp/test/network/remote-domain-config.test.ts",
+        "title": "fails closed when the state file is a symlink",
+        "status": "failed",
+        "durationMs": 6.286599999999993
+      }
+    ],
+    "passed": 1,
+    "failed": 1,
+    "notSelectedOrSkipped": 94,
+    "combinedWithFullSuite": false
+  },
+  "otherChecks": {
+    "offlineUpstreamLock": {
+      "status": "passed",
+      "upstreams": 3,
+      "vendorRows": 364
+    },
+    "stagedChangeManifest": {
+      "status": "passed",
+      "slice": "review-2026-09-05",
+      "changes": 93,
+      "authority": 4
+    },
+    "runtimeSpecifiers": {
+      "status": "passed",
+      "codeFiles": 705,
+      "manifests": 6,
+      "allowedStrings": 13
+    },
+    "gitDiffCheck": "passed",
+    "gitCachedDiffCheck": "passed"
+  },
+  "diagnostics": {
+    "command": "node --experimental-transform-types docs/reviews/2026-09-05-rereview-reproduce.mjs",
+    "exitCode": 0,
+    "kind": "Observed defects, not passing regression tests",
+    "realFigmaModified": false,
+    "observations": {
+      "tokenOverflow": {
+        "input": 257,
+        "output": 256,
+        "truncated": false
+      },
+      "rootOverflow": {
+        "input": 3,
+        "output": 1,
+        "truncated": false,
+        "pendingRootIds": []
+      },
+      "fieldCoverage": {
+        "inputFields": ["isMask", "maskType", "gridRowCount", "gridColumnCount"],
+        "preserved": [],
+        "componentPropertiesIn": 129,
+        "componentPropertiesOut": 128,
+        "truncated": false
+      },
+      "gitfile": {
+        "plain": {
+          "files": ["Button.tsx"],
+          "scanned": 1,
+          "skipped": 0,
+          "truncated": false
+        },
+        "worktree": {
+          "accepted": false,
+          "code": "PATH_OUTSIDE_WORKSPACE",
+          "message": "repo path parent is not a directory"
+        }
+      },
+      "batchFailure": {
+        "before": {
+          "x": 10,
+          "y": 20
+        },
+        "after": {
+          "x": 99,
+          "y": 20
+        },
+        "error": "batch: op 0 (move_nodes) failed, rolled back 0 applied op(s): HOST_SETTER_FAILURE"
+      },
+      "desktopPageMixing": {
+        "metadataPage": "0:1",
+        "documentPage": "0:2"
+      }
+    }
+  },
+  "liveValidation": {
+    "newChromeStarted": false,
+    "newTabsCreated": false,
+    "builtInBrowserUsed": false,
+    "newLiveFigmaInspection": false,
+    "priorChromeEvidence": "2026-09-05-browser-validation.json",
+    "desktopLivePairing": "not verified"
+  },
+  "productSourceModifiedByReview": false,
+  "allGatesPassed": false
+}

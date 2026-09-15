@@ -4,6 +4,8 @@ import {
   ALL_DATA_CLASSES,
   Base64Url128Schema,
   FileIdentitySchema,
+  canonicalFileIdentityHash,
+  type FileIdentity,
   NO_CAPTURE_OPTIONS,
   parseActorContext,
   parseInvocationRequest,
@@ -12,7 +14,7 @@ import {
   validateToolInvocationOptions,
   type ActorContext,
   type ConsentContext,
-  type Effect,
+  type InvocationEffectV1,
   type InvocationRequestV1,
   type InvocationCancelV1,
   type InvocationFrameV1,
@@ -24,6 +26,9 @@ import {
   type TargetRequirement,
   type ToolInvocationOptionsV1,
   type ToolName,
+  type OperationName,
+  ServiceOperationRequestV1Schema,
+  ServiceOperationNameSchema,
   type PolicyInvocationContext,
   type WorkspaceInvocationContext,
   type WorkspacePolicy,
@@ -36,11 +41,13 @@ import {
   type ProgressReporter,
 } from '@sfp/shared';
 
+import { designDiffRelativePath } from '../diff/baseline-identity.js';
 import { operationPolicyFor } from '../policy/operation-policy.js';
 import { evaluateOperationPolicy, type EvaluatedOperationPolicy } from '../policy/policy-engine.js';
 import { resultEgressPolicyFor } from '../policy/result-egress-policy.js';
 import { ALL_TOOL_SPECS } from '../tools/registry.js';
 import type { ToolSpec } from '../tools/spec.js';
+import type { ExecutableOperations } from './executable-operation.js';
 import type { LeaderDemotionCapability, OperationJournal } from './operation-journal.js';
 
 export const followerPingTimeoutForPlatform = (platform: NodeJS.Platform): number =>
@@ -133,10 +140,11 @@ export const createDurableExecutionPlaneLifecyclePorts = (input: {
 };
 
 export interface ApprovalDecisionPort {
+  cancel?(operationId: string): void;
   request(
     scope: ResolvedInvocationScope,
     operationName: ToolName,
-    effects: readonly Effect[],
+    effects: readonly InvocationEffectV1[],
     operationId: string,
   ): Promise<Readonly<{
     approvalId: string;
@@ -164,13 +172,31 @@ export interface TargetResolverPort {
 }
 
 export interface ExecutionPlaneAdmissionAuthority {
+  operations?: ExecutableOperations;
+  resolveToolAuthority?(input: {
+    name: string;
+    args: Readonly<Record<string, unknown>>;
+    principal: Readonly<ActorContext>;
+    workspaceId: string | null;
+    operationId: string;
+    targetSelector: InvocationTargetSelector;
+  }): Promise<
+    | {
+        workspace: WorkspaceInvocationContext;
+        portalAuthority: NonNullable<ResolvedInvocationScope['portalAuthority']>;
+        resolvedPaths: NonNullable<ResolvedInvocationScope['resolvedPaths']>;
+        approvalLabel: string;
+        target?: Readonly<PluginTarget>;
+      }
+    | undefined
+  >;
   resolveWorkspaceContext(workspaceId: string | null): Promise<WorkspaceInvocationContext>;
   workspacePolicy: WorkspacePolicy;
   targetResolver: TargetResolverPort;
   approval: ApprovalDecisionPort;
   authorizeEgress(input: {
     principal: Readonly<ActorContext>;
-    request: Readonly<InvocationRequestV1>;
+    request: Readonly<Omit<InvocationRequestV1, 'toolName'> & { toolName: OperationName }>;
     scope: Readonly<ResolvedInvocationScope>;
     policy: Readonly<EvaluatedOperationPolicy>;
     parsedArgs: Readonly<Record<string, unknown>>;
@@ -625,11 +651,29 @@ export class LeaderGenerationExecutionPlane {
     this.admissionAuthority = authority;
   }
 
-  async invokeTool(
+  invokeTool(
+    principal: Readonly<ActorContext>,
+    request: unknown,
+    options: Readonly<ToolInvocationOptionsV1> = NO_CAPTURE_OPTIONS,
+    reporter?: ProgressReporter,
+  ): Promise<unknown> {
+    return this.invokeOperation(principal, request, options, reporter, false);
+  }
+  invokeService(
+    principal: Readonly<ActorContext>,
+    request: unknown,
+    options: Readonly<ToolInvocationOptionsV1> = NO_CAPTURE_OPTIONS,
+    reporter?: ProgressReporter,
+  ): Promise<unknown> {
+    return this.invokeOperation(principal, request, options, reporter, true);
+  }
+
+  private async invokeOperation(
     untrustedPrincipal: Readonly<ActorContext>,
     untrustedRequest: unknown,
     options: Readonly<ToolInvocationOptionsV1> = NO_CAPTURE_OPTIONS,
     reporter?: ProgressReporter,
+    service = false,
   ): Promise<unknown> {
     if (!this.accepting) {
       return Promise.reject(
@@ -639,7 +683,10 @@ export class LeaderGenerationExecutionPlane {
       );
     }
     const principal = parseActorContext(untrustedPrincipal);
-    if (principal.entryPath === 'internal-system') {
+    if (
+      principal.entryPath === 'internal-system' ||
+      (service && principal.entryPath !== 'control')
+    ) {
       throw Object.assign(new Error('public tool admission cannot use an internal principal'), {
         code: 'INVOCATION_PRINCIPAL_INVALID',
       });
@@ -655,7 +702,12 @@ export class LeaderGenerationExecutionPlane {
       rawArgsCandidate ?? {},
       INVOCATION_ADMISSION_LIMITS.maxRawArgsBytesPerOperation,
     );
-    const request = parseInvocationRequest(untrustedRequest);
+    const request = service
+      ? (() => {
+          const input = ServiceOperationRequestV1Schema.parse(untrustedRequest);
+          return { ...input, toolName: input.serviceOperationName };
+        })()
+      : parseInvocationRequest(untrustedRequest);
     const admission = this.invocationAdmission.admit({
       ownerId: principal.actorId,
       authSessionId: principal.authSessionId,
@@ -668,7 +720,15 @@ export class LeaderGenerationExecutionPlane {
           code: 'EXECUTION_PLANE_UNBOUND',
         });
       }
-      const spec = ALL_TOOL_SPECS.find(candidate => candidate.name === request.toolName);
+      const extension = service
+        ? this.admissionAuthority.operations?.[request.toolName]
+        : undefined;
+      if (service && extension?.operationKind !== 'service')
+        throw Object.assign(new Error('service operation missing'), {
+          code: 'SERVICE_OPERATION_NOT_FOUND',
+        });
+      const spec =
+        extension ?? ALL_TOOL_SPECS.find(candidate => candidate.name === request.toolName);
       if (spec === undefined) {
         throw Object.assign(new Error('unknown tool'), { code: 'TOOL_NOT_FOUND' });
       }
@@ -690,36 +750,91 @@ export class LeaderGenerationExecutionPlane {
       }
       const parsedArgs = deepFreeze(parsed.data) as Readonly<Record<string, unknown>>;
       const requestedWorkspaceId = request.workspaceId ?? null;
+      const operationId =
+        request.operationId ?? this.admissionAuthority.issueOperationId(principal.actorId);
+      this.admissionAuthority.verifyOperationId(principal.actorId, operationId);
+      const toolAuthority =
+        extension === undefined
+          ? await this.admissionAuthority.resolveToolAuthority?.({
+              name: spec.name,
+              args: parsedArgs,
+              principal,
+              workspaceId: requestedWorkspaceId,
+              operationId,
+              targetSelector: parseInvocationTargetSelector(request.targetSelector),
+            })
+          : undefined;
       const workspace = freezeWorkspace(
-        requestedWorkspaceId,
-        await this.admissionAuthority.resolveWorkspaceContext(requestedWorkspaceId),
+        toolAuthority === undefined ? requestedWorkspaceId : toolAuthority.workspace.workspaceId,
+        toolAuthority?.workspace ??
+          (await this.admissionAuthority.resolveWorkspaceContext(requestedWorkspaceId)),
       );
-      const policyContext = await resolvePolicyInvocationContext(
-        spec,
+      const targetResolver = this.admissionAuthority.targetResolver;
+      const resolveTarget = () =>
+        freezeVerifiedTarget(
+          toolAuthority?.target ??
+            targetResolver.resolve(
+              parseInvocationTargetSelector(request.targetSelector),
+              spec.targetRequirementFor(parsedArgs),
+            ),
+        );
+      // Persistent diff paths must bind the same target used for execution, before approval.
+      const earlyTarget = spec.name === 'design_diff' || service ? resolveTarget() : undefined;
+      const resolved =
+        extension?.resolveScope === undefined
+          ? undefined
+          : await extension.resolveScope({
+              workspace,
+              target: earlyTarget!,
+              operationId,
+              args: parsedArgs,
+              workspacePolicy: this.admissionAuthority.workspacePolicy,
+            });
+      const policyContext =
+        toolAuthority !== undefined
+          ? {
+              workspace,
+              resolvedPaths: toolAuthority.resolvedPaths,
+              ...(toolAuthority.portalAuthority.captureSource
+                ? { portalCaptureSource: toolAuthority.portalAuthority.captureSource.kind }
+                : {}),
+            }
+          : extension !== undefined
+            ? {
+                workspace,
+                ...(resolved === undefined ? {} : { resolvedPaths: resolved.resolvedPaths }),
+              }
+            : await resolvePolicyInvocationContext(
+                spec as ToolSpec<unknown, unknown>,
+                parsedArgs,
+                workspace,
+                this.admissionAuthority.workspacePolicy,
+                earlyTarget?.fileIdentity ?? undefined,
+              );
+      const policy = evaluateOperationPolicy(
+        request.toolName,
         parsedArgs,
-        workspace,
-        this.admissionAuthority.workspacePolicy,
+        policyContext,
+        extension?.policy,
       );
-      const policy = evaluateOperationPolicy(request.toolName, parsedArgs, policyContext);
-      const target = freezeVerifiedTarget(
-        this.admissionAuthority.targetResolver.resolve(
-          parseInvocationTargetSelector(request.targetSelector),
-          spec.targetRequirementFor(parsedArgs),
-        ),
-      );
+      const target = earlyTarget ?? resolveTarget();
       const resolvedScope = deepFreeze({
         requestId: request.requestId,
         leaderGeneration: this.leaderGeneration,
         actor: principal,
+        ...(toolAuthority === undefined
+          ? {}
+          : {
+              portalAuthority: toolAuthority.portalAuthority,
+              approvalLabel: toolAuthority.approvalLabel,
+            }),
         workspace: policyContext.workspace,
         ...(policyContext.resolvedPaths === undefined
           ? {}
           : { resolvedPaths: policyContext.resolvedPaths }),
         target,
+        ...(resolved === undefined ? {} : { evidenceWrites: resolved.evidenceWrites }),
       }) as Readonly<ResolvedInvocationScope>;
-      const operationId =
-        request.operationId ?? this.admissionAuthority.issueOperationId(principal.actorId);
-      this.admissionAuthority.verifyOperationId(principal.actorId, operationId);
       const verifiedOptions = validateToolInvocationOptions(
         options,
         operationId,
@@ -734,7 +849,7 @@ export class LeaderGenerationExecutionPlane {
           pending = await this.admissionAuthority.approval.request(
             resolvedScope,
             request.toolName,
-            policy.effects,
+            [...policy.effects, ...(resolvedScope.evidenceWrites ?? [])],
             operationId,
           );
           if (pending === null) {
@@ -783,7 +898,7 @@ export class LeaderGenerationExecutionPlane {
           });
         }
       }
-      const resultPolicy = resultEgressPolicyFor(request.toolName);
+      const resultPolicy = extension?.egress ?? resultEgressPolicyFor(request.toolName);
       let consent: Readonly<ConsentContext>;
       try {
         consent = freezeConsent(
@@ -822,14 +937,23 @@ export class LeaderGenerationExecutionPlane {
       }
       const runtimeScope = deepFreeze({ ...resolvedScope, consent }) as RuntimeExecutionScope;
       return await (approvalHandle === null
-        ? this.invocationService.invokeTool(
-            runtimeScope,
-            request.toolName,
-            parsedArgs,
-            operationId,
-            verifiedOptions,
-            reporter,
-          )
+        ? service
+          ? this.invocationService.invokeService(
+              runtimeScope,
+              ServiceOperationNameSchema.parse(request.toolName),
+              parsedArgs,
+              operationId,
+              verifiedOptions,
+              reporter,
+            )
+          : this.invocationService.invokeTool(
+              runtimeScope,
+              request.toolName as ToolName,
+              parsedArgs,
+              operationId,
+              verifiedOptions,
+              reporter,
+            )
         : this.invocationService.resumeApprovedTool(approvalHandle, runtimeScope, reporter));
     } catch (error) {
       if (principal.entryPath === 'control') {
@@ -842,14 +966,35 @@ export class LeaderGenerationExecutionPlane {
     }
   }
 
-  async *invokeToolFrames(
+  invokeToolFrames(
+    principal: Readonly<ActorContext>,
+    request: unknown,
+    options: Readonly<ToolInvocationOptionsV1> = NO_CAPTURE_OPTIONS,
+    signal?: AbortSignal,
+  ): AsyncIterable<InvocationFrameV1> {
+    return this.invokeFrames(principal, request, options, signal, false);
+  }
+  invokeServiceFrames(
+    principal: Readonly<ActorContext>,
+    request: unknown,
+    options: Readonly<ToolInvocationOptionsV1> = NO_CAPTURE_OPTIONS,
+    signal?: AbortSignal,
+  ): AsyncIterable<InvocationFrameV1> {
+    return this.invokeFrames(principal, request, options, signal, true);
+  }
+
+  private async *invokeFrames(
     untrustedPrincipal: Readonly<ActorContext>,
     untrustedRequest: unknown,
     options: Readonly<ToolInvocationOptionsV1> = NO_CAPTURE_OPTIONS,
     subscriberSignal?: AbortSignal,
+    service = false,
   ): AsyncIterable<InvocationFrameV1> {
     const principal = parseActorContext(untrustedPrincipal);
-    const parsed = parseInvocationRequest(untrustedRequest);
+    const parsed = service
+      ? ServiceOperationRequestV1Schema.parse(untrustedRequest)
+      : parseInvocationRequest(untrustedRequest);
+    const operationName = 'toolName' in parsed ? parsed.toolName : parsed.serviceOperationName;
     if (this.admissionAuthority === null || this.invocationService === null) {
       throw Object.assign(new Error('execution plane authorities are not bound'), {
         code: 'EXECUTION_PLANE_UNBOUND',
@@ -867,7 +1012,7 @@ export class LeaderGenerationExecutionPlane {
     const ownsProducer = progressHandle.isProducer;
     let settled = false;
     let earlyError: unknown;
-    const result = this.invokeTool(principal, request, options, broadcaster.reporter);
+    const result = this.invokeOperation(principal, request, options, broadcaster.reporter, service);
     void result.then(
       () => {
         settled = true;
@@ -924,8 +1069,8 @@ export class LeaderGenerationExecutionPlane {
           type: 'accepted',
           requestId: request.requestId,
           operationId,
-          operationKind: 'tool',
-          operationName: request.toolName,
+          operationKind: service ? 'service' : 'tool',
+          operationName,
         })
         .catch(error => channel.fail(error));
     }
@@ -998,13 +1143,6 @@ export class LeaderGenerationExecutionPlane {
     }
   }
 
-  async *invokeServiceFrames(): AsyncIterable<InvocationFrameV1> {
-    yield* [] as InvocationFrameV1[];
-    throw Object.assign(new Error('service operation missing'), {
-      code: 'SERVICE_OPERATION_NOT_FOUND',
-    });
-  }
-
   async cancel(
     untrustedPrincipal: Readonly<ActorContext>,
     untrustedRequest: unknown,
@@ -1022,6 +1160,7 @@ export class LeaderGenerationExecutionPlane {
       });
     }
     await this.invocationService.cancel(principal, request);
+    this.admissionAuthority?.approval.cancel?.(request.operationId);
   }
 
   async drainInvocationStreams(deadlineAt: number): Promise<boolean> {
@@ -1170,6 +1309,7 @@ export const resolvePolicyInvocationContext = async (
   parsedArgs: Readonly<Record<string, unknown>>,
   workspace: PolicyInvocationContext['workspace'],
   workspacePolicy: WorkspacePolicy,
+  fileIdentity?: Readonly<FileIdentity>,
 ): Promise<Readonly<PolicyInvocationContext>> => {
   const pathModes = new Map<string, 'read' | 'write' | 'write-directory'>();
   for (const effect of operationPolicyFor(spec.name).possibleEffects) {
@@ -1216,17 +1356,24 @@ export const resolvePolicyInvocationContext = async (
   /* eslint-enable no-await-in-loop */
   if (spec.name === 'design_diff' && workspace.workspaceId !== null) {
     const requested = parsedArgs.nodeId;
-    const key =
-      typeof requested === 'string' && requested.length > 0
-        ? requested.replace(/[^\w.-]/gu, '-')
-        : 'selection';
+    if (fileIdentity === undefined || fileIdentity.kind === 'unstable-readonly') {
+      throw Object.assign(new Error('persistent design diff requires a stable file identity'), {
+        code: 'DESIGN_DIFF_FILE_IDENTITY_REQUIRED',
+      });
+    }
     const snapshotRoot = resolvedPaths.rootDir?.path ?? workspace.workspaceRoot;
     if (snapshotRoot === null) {
       throw Object.assign(new Error('design diff snapshot root is unavailable'), {
         code: 'SNAPSHOT_AUTHORITY_MISMATCH',
       });
     }
-    const snapshotPath = join(snapshotRoot, '.figwright', 'snapshots', `${key}.json`);
+    const snapshotPath = join(
+      snapshotRoot,
+      designDiffRelativePath(
+        canonicalFileIdentityHash(fileIdentity),
+        typeof requested === 'string' ? requested : undefined,
+      ),
+    );
     const resolved = await workspacePolicy.resolveWrite(workspace.workspaceId, snapshotPath);
     resolvedPaths.snapshotPath = Object.freeze({ ...resolved });
   }

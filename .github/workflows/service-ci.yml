@@ -1,0 +1,56 @@
+name: Service verification
+on:
+  push:
+    paths: ["service/**", ".github/workflows/service-ci.yml"]
+  pull_request:
+    paths: ["service/**", ".github/workflows/service-ci.yml"]
+permissions:
+  contents: read
+jobs:
+  verify:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-latest, ubuntu-latest]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 35
+    defaults:
+      run:
+        working-directory: service
+        shell: bash
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          repository: awdr74100/figwright
+          ref: a835e81b575eab2c9265a67f9353c89b848f81ca
+          path: code-kb/figwright
+          persist-credentials: false
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          repository: alvinindra/figma-mcp-rust
+          ref: 6094566436577b29d04393c774d51492c12671e1
+          path: code-kb/figma-mcp-rust
+          persist-credentials: false
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          repository: denysosadchyi/figmosha2
+          ref: 547cefb4c90abaa1da68db5455b921cbf3f8a5b9
+          path: code-kb/figmosha2
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: 24.19.0
+      - run: corepack enable
+      - run: corepack pnpm install --frozen-lockfile
+      - run: node scripts/verify-upstream-lock.mjs --offline
+      - run: corepack pnpm verify
+      - run: node scripts/verify-graph-memory.mjs
+      - run: node scripts/generate-sbom.mjs
+      - run: node scripts/generate-notices.mjs
+      - run: node scripts/package-artifacts.mjs
+      - run: node scripts/generate-checksums.mjs
+      - run: corepack pnpm test:artifacts
+      - run: node scripts/smoke-packed-mcp.mjs

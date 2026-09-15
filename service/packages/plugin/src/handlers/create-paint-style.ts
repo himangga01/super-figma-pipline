@@ -5,7 +5,7 @@ import { toFigmaPaintsBound } from './bindings.js';
 
 export const createCreatePaintStyleHandler =
   (figmaCtx: typeof figma): SandboxToolHandler =>
-  async params => {
+  async (params, execution) => {
     const p = (params ?? {}) as { name?: unknown; paints?: unknown; description?: unknown };
     if (typeof p.name !== 'string')
       throw new TypeError('create_paint_style: name must be a string');
@@ -21,6 +21,7 @@ export const createCreatePaintStyleHandler =
     );
 
     const style = figmaCtx.createPaintStyle();
+    execution?.markMutated?.();
     style.name = p.name;
     style.paints = paints;
     if (typeof p.description === 'string') style.description = p.description;

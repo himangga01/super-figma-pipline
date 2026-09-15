@@ -17,6 +17,7 @@ import { moveNodesTool } from './move-nodes.js';
 import { renameNodeTool } from './rename-node.js';
 import { resizeNodesTool } from './resize-nodes.js';
 import { rotateNodesTool } from './rotate-nodes.js';
+import { setAnnotationsTool } from './set-annotations.js';
 import { setArcTool } from './set-arc.js';
 import { setBlendModeTool } from './set-blend-mode.js';
 import { setConstraintsTool } from './set-constraints.js';
@@ -46,6 +47,7 @@ export const BATCHABLE_TOOL_SPECS = Object.freeze([
   setEffectsTool,
   setConstraintsTool,
   renameNodeTool,
+  setAnnotationsTool,
   setTextTool,
   setTextPropertiesTool,
   moveNodesTool,

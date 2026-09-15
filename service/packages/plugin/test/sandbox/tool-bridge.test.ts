@@ -1,6 +1,7 @@
 import { describe, expect, it, vi } from 'vitest';
 
 import {
+  createToolProgress,
   createToolError,
   createToolResult,
   isPluginBridgeMessage,
@@ -69,6 +70,38 @@ describe('createToolBridge', () => {
     await expect(bridge.handler('ping', undefined)).rejects.toThrow(/timeout/);
   });
 
+  it('does not retain pending work when posting the initial sandbox call fails', async () => {
+    const bridge = createToolBridge({
+      timeoutMs: 60_000,
+      postMessage: message => {
+        if (message.kind === 'tool-call') throw new Error('sandbox transport unavailable');
+      },
+      subscribe: () => () => undefined,
+    });
+
+    await expect(bridge.handler('ping', undefined)).rejects.toThrow(/transport unavailable/);
+    const retained = bridge.pendingCount();
+    bridge.dispose();
+    expect(retained).toBe(0);
+  });
+
+  it('forwards timeout and disposal cancellation for bound sandbox work', async () => {
+    const binding = {
+      requestId: 'sfp_req1_AAAAAAAAAAAAAAAAAAAAAA',
+      operationId: 'operation-timeout',
+      actionNonce: 'action-timeout',
+    } as const;
+    const timed = setup(10);
+    await expect(timed.bridge.handler('ping', {}, binding)).rejects.toThrow(/timeout/);
+    expect(timed.sent.at(-1)).toMatchObject({ kind: 'tool-cancel', binding });
+
+    const disposed = setup();
+    const pending = disposed.bridge.handler('ping', {}, binding);
+    disposed.bridge.dispose();
+    await expect(pending).rejects.toThrow(/disposed/);
+    expect(disposed.sent.at(-1)).toMatchObject({ kind: 'tool-cancel', binding });
+  });
+
   it('ignores orphan replies for unknown ids', async () => {
     const log = vi.fn<(msg: string) => void>();
     const emitter: { current: ((raw: unknown) => void) | null } = { current: null };
@@ -102,5 +135,71 @@ describe('createToolBridge', () => {
     bridge.dispose();
     await expect(promise).rejects.toThrow(/disposed/);
     expect(bridge.pendingCount()).toBe(0);
+  });
+
+  it('binds progress and cancellation to the exact request, operation and action nonce', async () => {
+    const progress: string[] = [];
+    const sent: PluginBridgeMessage[] = [];
+    let emit: ((raw: unknown) => void) | undefined;
+    const bridge = createToolBridge({
+      postMessage: message => sent.push(message),
+      subscribe: listener => {
+        emit = listener;
+        return () => {
+          emit = undefined;
+        };
+      },
+      onProgress: (_binding, event) => progress.push(event.phase),
+    });
+    const binding = {
+      requestId: 'sfp_req1_AAAAAAAAAAAAAAAAAAAAAA',
+      operationId: 'operation-1',
+      actionNonce: 'action-nonce-1',
+    } as const;
+    const promise = bridge.handler('ping', {}, binding);
+    const call = sent[0]!;
+    expect(call).toMatchObject({ kind: 'tool-call', binding });
+
+    emit?.(
+      createToolProgress({
+        id: call.id,
+        binding,
+        progress: {
+          operationId: binding.operationId,
+          phase: 'dispatched',
+          completed: 0,
+          total: 1,
+          message: '',
+          emittedAt: 1,
+        },
+      }),
+    );
+    expect(progress).toEqual(['dispatched']);
+    expect(bridge.cancel({ ...binding, actionNonce: 'wrong' })).toBe(false);
+    expect(bridge.cancel(binding)).toBe(true);
+    expect(bridge.cancel(binding)).toBe(false);
+    await expect(promise).rejects.toMatchObject({
+      name: 'AbortError',
+      code: 'OPERATION_CANCELLED',
+    });
+    expect(sent.at(-1)).toMatchObject({ kind: 'tool-cancel', binding });
+
+    emit?.(
+      createToolProgress({
+        id: call.id,
+        binding,
+        progress: {
+          operationId: binding.operationId,
+          phase: 'late',
+          completed: 1,
+          total: 1,
+          message: '',
+          emittedAt: 2,
+        },
+      }),
+    );
+    expect(progress).toEqual(['dispatched']);
+    expect(bridge.pendingCount()).toBe(0);
+    bridge.dispose();
   });
 });

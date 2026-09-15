@@ -1,23 +1,51 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue';
+import { computed, ref, watch } from 'vue';
 
 import { isEmbeddedInPanel } from '../protocol/editor-context.js';
+import DocumentBinding from './components/DocumentBinding.vue';
 import PanelBackgroundButton from './components/PanelBackgroundButton.vue';
 import PanelFooter from './components/PanelFooter.vue';
 import PanelGrip from './components/PanelGrip.vue';
 import PanelStatus from './components/PanelStatus.vue';
 import PanelTabs from './components/PanelTabs.vue';
 import TabActivity from './components/TabActivity.vue';
+import TabApprovals from './components/TabApprovals.vue';
 import TabContext from './components/TabContext.vue';
 import TabDebug from './components/TabDebug.vue';
+import TabPairing, { type PairingSubmission } from './components/TabPairing.vue';
 import { useRelaySession } from './composables/useRelaySession.js';
 import type { Tab } from './lib/tabs.js';
 
 const appVersion = __APP_VERSION__;
 
-const { state, context, busy, sessionId, buildDiagnostics } = useRelaySession(appVersion);
+const { state, context, busy, sessionId, buildDiagnostics, pairing, approvals, binding } =
+  useRelaySession(appVersion);
 
 const tab = ref<Tab>('activity');
+const pairingState = computed(() => pairing.state.value);
+watch(approvals.prompts, prompts => {
+  if (prompts.length > 0) tab.value = 'approvals';
+});
+
+watch(tab, selected => {
+  if (selected === 'pairing' && pairing.state.value.status === 'unpaired') pairing.begin();
+});
+
+const submitPairing = (input: PairingSubmission): void => {
+  if ('pairCode' in input) {
+    pairing.challengeId.value = '';
+    pairing.code.value = '';
+    pairing.paste.value = input.pairCode;
+  } else {
+    pairing.paste.value = '';
+    pairing.challengeId.value = input.challengeId;
+    pairing.code.value = input.code;
+  }
+  // usePairing snapshots and scrubs its secret refs synchronously before its first network await.
+  // It owns typed failures in state; this terminal catch prevents an unexpected rejection from
+  // becoming an unhandled browser error without ever logging the submitted credential.
+  void pairing.submit().catch(() => {});
+};
 
 /**
  * In Dev Mode's Inspect panel our UI is an iframe filling a panel Figma sizes, so neither piece of
@@ -97,12 +125,34 @@ const embedded = computed(() => context.value !== null && isEmbeddedInPanel(cont
             :connected="state.status === 'connected'"
           />
           <TabContext v-else-if="tab === 'context'" :context="context" />
+          <TabPairing
+            v-else-if="tab === 'pairing'"
+            :status="pairingState.status"
+            :error-code="pairingState.errorCode"
+            :attempts-remaining="pairingState.attemptsRemaining"
+            @submit="submitPairing"
+            @cancel="pairing.cancel"
+          />
+          <TabApprovals
+            v-else-if="tab === 'approvals'"
+            :prompts="approvals.prompts.value"
+            :file-name="context?.fileName ?? '현재 파일'"
+            @decide="approvals.decide"
+          />
           <TabDebug
             v-else
             :state="state"
             :session-id="sessionId"
             :plugin-version="appVersion"
             :build-diagnostics="buildDiagnostics"
+          />
+          <DocumentBinding
+            v-if="tab === 'pairing' && state.status === 'connected'"
+            v-model="binding.url.value"
+            v-model:persistent="binding.persistent.value"
+            :status="binding.status.value"
+            :error="binding.error.value"
+            @bind="binding.bind()"
           />
         </div>
       </Transition>

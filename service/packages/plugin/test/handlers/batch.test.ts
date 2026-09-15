@@ -67,6 +67,52 @@ const realWrites = (figmaCtx: typeof figma): SandboxHandlers => ({
 const SOLID = (r: number): unknown => ({ type: 'SOLID', color: { r, g: 0, b: 0 } });
 
 describe('batch handler', () => {
+  it('restores the failing multi-property operation after a host setter partially succeeds', async () => {
+    let valueY = 20;
+    let fail = true;
+    const target = {
+      id: '1:1',
+      x: 10,
+      get y() {
+        return valueY;
+      },
+      set y(value: number) {
+        if (fail) {
+          fail = false;
+          throw new Error('host setter failed');
+        }
+        valueY = value;
+      },
+    };
+    const { figmaCtx } = makeFigma({ '1:1': target });
+    await expect(
+      createBatchHandler(
+        figmaCtx,
+        realWrites(figmaCtx),
+      )({
+        ops: [{ tool: 'move_nodes', params: { nodeIds: ['1:1'], dx: 89, dy: 80 } }],
+      }),
+    ).rejects.toMatchObject({ code: 'BATCH_ROLLED_BACK' });
+    expect({ x: target.x, y: target.y }).toEqual({ x: 10, y: 20 });
+  });
+
+  it('reports uncertainty when a creation fails before returning its new node identity', async () => {
+    const { figmaCtx } = makeFigma({});
+    const apply = {
+      create_frame: async () => {
+        throw new Error('placement failed');
+      },
+    };
+    await expect(
+      createBatchHandler(
+        figmaCtx,
+        apply,
+      )({
+        ops: [{ tool: 'create_frame', params: {} }],
+      }),
+    ).rejects.toMatchObject({ code: 'BATCH_PARTIAL_CHANGE' });
+  });
+
   it('applies ops in order and returns one result per op', async () => {
     const { figmaCtx, store } = makeFigma({
       '1:1': { id: '1:1', name: 'A', opacity: 1 },

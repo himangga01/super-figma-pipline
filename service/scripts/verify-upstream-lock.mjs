@@ -453,7 +453,9 @@ const verifyServiceForks = async (lock, vendorMap) => {
     );
     assertSha(row.baseSha256, `serviceForks[${index}].baseSha256`);
     assert(
-      /^(?:7[ABC]|8[AB]|9[ABC]|10|11|12[AB]|13|14|15|16)$/.test(row.transitionTask),
+      /^(?:7[ABC]|8[AB]|9[ABC]|10|11|12[AB]|13|14|15|16|review-\d{4}-\d{2}-\d{2})$/.test(
+        row.transitionTask,
+      ),
       `serviceForks[${index}] transitionTask is invalid`,
     );
     assert(
@@ -759,7 +761,7 @@ const verifyWithUpstreams = async (lock, vendorMap, upstreamsRoot) => {
   for (const upstream of lock.upstreams) {
     const root = join(upstreamsRoot, upstream.directory);
     assert(
-      gitText(root, 'rev-parse', 'HEAD') === upstream.commit,
+      gitText(root, 'rev-parse', '--verify', `${upstream.commit}^{commit}`) === upstream.commit,
       `${upstream.id} commit mismatch`,
     );
     const status = gitText(root, 'status', '--porcelain=v1', '--untracked-files=all');
@@ -786,7 +788,14 @@ const verifyWithUpstreams = async (lock, vendorMap, upstreamsRoot) => {
     rules.commit === figwright.commit,
     'vendor-rules.json commit does not match upstream lock',
   );
-  const trackedPaths = gitBytes(figwrightRoot, 'ls-files', '-z')
+  const trackedPaths = gitBytes(
+    figwrightRoot,
+    'ls-tree',
+    '-r',
+    '--name-only',
+    '-z',
+    figwright.commit,
+  )
     .toString('utf8')
     .split('\0')
     .filter(Boolean)

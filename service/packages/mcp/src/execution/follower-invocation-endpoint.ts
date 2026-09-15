@@ -19,6 +19,7 @@ interface FollowerPlanePort {
   invokeService(
     principal: Readonly<ActorContext>,
     request: unknown,
+    subscriberSignal?: AbortSignal,
   ): AsyncIterable<InvocationFrameV1> | Promise<unknown>;
   cancel(principal: Readonly<ActorContext>, request: unknown): Promise<void>;
 }
@@ -94,7 +95,7 @@ export const createFollowerInvocationEndpoint =
     const invoked =
       inner.type === 'tool'
         ? dependencies.plane.invokeTool(principal, inner.request, subscriberSignal)
-        : dependencies.plane.invokeService(principal, inner.request);
+        : dependencies.plane.invokeService(principal, inner.request, subscriberSignal);
     const request = inner.request;
     const operationKind = inner.type;
     const operationName =

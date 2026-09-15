@@ -1,7 +1,7 @@
 import { defineConfig } from 'tsdown';
 
 export default defineConfig({
-  entry: ['src/index.ts'],
+  entry: ['src/index.ts', 'src/daemon-entry.ts', 'src/portal-validation.ts'],
   outDir: 'dist',
   format: 'esm',
   target: 'node24',
@@ -10,7 +10,8 @@ export default defineConfig({
   clean: true,
   shims: false,
   define: {
-    __FIGWRIGHT_BUILD_ID__: JSON.stringify(String(Date.now())),
+    __FIGWRIGHT_BUILD_ID__: JSON.stringify(process.env.SFP_BUILD_ID ?? String(Date.now())),
+    __SFP_BUILD_HASH__: JSON.stringify(process.env.SFP_BUILD_HASH ?? ''),
   },
   fixedExtension: true,
   publint: true,

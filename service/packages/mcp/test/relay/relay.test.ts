@@ -143,6 +143,115 @@ describe('Relay upgrade gating', () => {
 });
 
 describe('Relay hello loop', () => {
+  it('forwards only bound live progress and caps it before delivery', async () => {
+    const { port, relay } = await startRelay();
+    const socket = await connect(port);
+    const sessionId = newId();
+    const helloReply = nextMessage(socket);
+    socket.send(
+      encodeEnvelope(
+        createRequest({
+          id: 'hello-progress',
+          sessionId,
+          method: SystemMethod.Hello,
+          params: helloParams(),
+        }),
+      ),
+    );
+    await helloReply;
+    const onProgress = vi.fn<(event: unknown) => void>();
+    const frame = nextMessage(socket);
+    const result = relay.sendRequest('get_design_context', {}, 2_000, sessionId, undefined, {
+      signal: new AbortController().signal,
+      operationId: 'bound-operation',
+      actionNonce: 'bound-nonce',
+      onProgress,
+    });
+    const request = decodeEnvelope(await frame);
+    const params = {
+      operationId: 'bound-operation',
+      phase: 'serializing',
+      completed: 1,
+      total: 2,
+      message: 'section read',
+      emittedAt: 1,
+    };
+    const sendProgress = (id: string, progress = params) =>
+      socket.send(
+        encodeEnvelope(
+          createEvent({ id, sessionId, method: SystemMethod.Progress, params: progress }),
+        ),
+      );
+    sendProgress('unbound-id');
+    sendProgress(request.id, { ...params, operationId: 'wrong-operation' });
+    for (let i = 0; i < 21; i += 1) sendProgress(request.id);
+    const barrier = nextMessage(socket);
+    socket.send(
+      encodeEnvelope(
+        createRequest({ id: 'progress-barrier', sessionId, method: SystemMethod.Ping }),
+      ),
+    );
+    await barrier;
+    expect(onProgress).toHaveBeenCalledTimes(20);
+    expect(onProgress).toHaveBeenLastCalledWith(params);
+    socket.send(encodeEnvelope(createResponse({ id: request.id, sessionId, result: 'done' })));
+    await expect(result).resolves.toBe('done');
+    sendProgress(request.id);
+    const after = nextMessage(socket);
+    socket.send(
+      encodeEnvelope(createRequest({ id: 'after-terminal', sessionId, method: SystemMethod.Ping })),
+    );
+    await after;
+    expect(onProgress).toHaveBeenCalledTimes(20);
+    socket.close();
+  });
+  it('does not let another paired file settle a pinned request', async () => {
+    const { port, relay } = await startRelay();
+    const target = await connect(port);
+    const other = await connect(port);
+    const targetId = newId();
+    const otherId = newId();
+    for (const [socket, sessionId] of [
+      [target, targetId],
+      [other, otherId],
+    ] as const) {
+      const reply = nextMessage(socket);
+      socket.send(
+        encodeEnvelope(
+          createRequest({
+            id: newId(),
+            sessionId,
+            method: SystemMethod.Hello,
+            params: helloParams(),
+          }),
+        ),
+      );
+      // eslint-disable-next-line no-await-in-loop -- authenticate each socket before using it
+      await reply;
+    }
+    const requestFrame = nextMessage(target);
+    const result = relay.sendRequest('get_selection', {}, 1_000, targetId);
+    const request = decodeEnvelope(await requestFrame);
+    other.send(
+      encodeEnvelope(createResponse({ id: request.id, sessionId: otherId, result: 'wrong file' })),
+    );
+    // The following heartbeat is an ordering barrier for processing the forged response.
+    const barrier = nextMessage(other);
+    other.send(
+      encodeEnvelope(
+        createRequest({ id: 'barrier', sessionId: otherId, method: SystemMethod.Ping }),
+      ),
+    );
+    await barrier;
+    target.send(
+      encodeEnvelope(
+        createResponse({ id: request.id, sessionId: targetId, result: 'correct file' }),
+      ),
+    );
+    expect(await result).toBe('correct file');
+    target.close();
+    other.close();
+  });
   it('accepts a $hello request and returns server info', async () => {
     const { port } = await startRelay();
     const ws = await connect(port);

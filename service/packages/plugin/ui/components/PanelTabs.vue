@@ -11,16 +11,15 @@ const activeIndex = computed(() => TABS.findIndex(([id]) => id === active.value)
 </script>
 
 <template>
-  <nav class="relative grid grid-cols-3 gap-1">
-    <!--
-      The indicator's geometry is coupled to this nav's `grid-cols-3 gap-1` (gap = 0.25rem):
-      width = (track − 2 gaps) / 3 columns; each step = one column + one gap. Keep these in sync if
-      the column count or gap ever changes.
-    -->
+  <nav
+    class="relative grid gap-1"
+    :style="{ gridTemplateColumns: `repeat(${TABS.length}, minmax(0, 1fr))` }"
+  >
+    <!-- Equal columns share the gaps; each indicator step is one column plus one gap. -->
     <span
       class="absolute inset-y-0 left-0 rounded-md bg-raised transition-transform duration-200 ease-standard"
       :style="{
-        width: 'calc((100% - 0.5rem) / 3)',
+        width: `calc(${100 / TABS.length}% - ${((TABS.length - 1) * 0.25) / TABS.length}rem)`,
         transform: `translateX(calc(${activeIndex} * (100% + 0.25rem)))`,
       }"
     />

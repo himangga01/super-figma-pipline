@@ -1,5 +1,8 @@
+import type { ProjectConventions } from '@sfp/shared';
+
 import { RepoReader } from '../fs/repo-walk.js';
 import { declaresVocabularyPreset } from '../tokens/js-config.js';
+import { analyzeConventions } from './conventions.js';
 
 // Project Profile — the structured "how this project writes code" that the join tools (component_map,
 // token_map) switch their target side on. Detection is split in two: gatherProjectInput does the IO
@@ -109,6 +112,7 @@ export interface ProjectProfile {
   componentExtensions: string[];
   /** Human-readable reasons for each conclusion; surfaced so a wrong guess is debuggable. */
   evidence: string[];
+  conventions?: ProjectConventions;
 }
 
 /** Snapshot of the on-disk signals detection reasons about. Produced by gatherProjectInput. */
@@ -895,4 +899,7 @@ export const detectProfile = (input: ProjectInput): ProjectProfile => {
 export const analyzeProject = async (
   rootDir: string,
   reader: RepoReader = new RepoReader({ rootDir }),
-): Promise<ProjectProfile> => detectProfile(await gatherProjectInput(rootDir, reader));
+): Promise<ProjectProfile> => {
+  const profile = detectProfile(await gatherProjectInput(rootDir, reader));
+  return { ...profile, conventions: await analyzeConventions(reader) };
+};

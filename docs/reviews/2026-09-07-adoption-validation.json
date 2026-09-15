@@ -1,0 +1,48 @@
+{
+  "schemaVersion": 1,
+  "date": "2026-09-07",
+  "scope": "Targeted upstream adoption and metadata corrections, not complete portal-engine or full upstream parity verification",
+  "checks": {
+    "targetedTests": {
+      "files": 6,
+      "passed": 65,
+      "failed": 0
+    },
+    "mcpTypecheck": "passed",
+    "lint": "passed",
+    "formatCheck": "passed",
+    "mcpAndCliBuild": "passed",
+    "offlineUpstreamLock": "passed",
+    "stagedChangeManifest": "review-2026-09-07 passed"
+  },
+  "liveFigmaRun": false,
+  "fullSuiteRerun": false,
+  "packagedReleaseVerifiedForThisRevision": false,
+  "completePortalImplemented": false,
+  "sourceFiles": [
+    {
+      "path": "service/packages/mcp/src/tools/safe-union.ts",
+      "sha256": "7dbafd0de6b744888472d341e84c5e478e68942cbb257d4b8ccfa781d398fc3e"
+    },
+    {
+      "path": "service/packages/mcp/test/tools/safe-union.test.ts",
+      "sha256": "22eb07e3861720b16a30cfb96d6432c4c619e69c1aa662c389fd45177e399afc"
+    },
+    {
+      "path": "service/test/tool-contract.test.ts",
+      "sha256": "11af69a92cbda0a3ca87588f16375856cf19ecad892dd70474c4069b61946f39"
+    },
+    {
+      "path": "service/capabilities/figmosha-feature-map.json",
+      "sha256": "ce423b9ed67c825a84e5b2500124a305ca5b5119e5e07f8a79aabca05a49d862"
+    },
+    {
+      "path": "service/capabilities/union-manifest.json",
+      "sha256": "46fb4bf3a600f3df5d95e04487989c73a8bca2d05befb4267c52344cc2fcd871"
+    },
+    {
+      "path": "service/PROVENANCE.md",
+      "sha256": "44f911ccc9b69bb5002e73811e575fe6dc26641200f5e771bdb1778f2b676b78"
+    }
+  ]
+}

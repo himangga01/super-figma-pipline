@@ -5,7 +5,7 @@ import { placeNode } from './place.js';
 
 export const createCreateRectangleHandler =
   (figmaCtx: typeof figma): SandboxToolHandler =>
-  async params => {
+  async (params, execution) => {
     const p = (params ?? {}) as {
       parentId?: unknown;
       name?: unknown;
@@ -16,6 +16,7 @@ export const createCreateRectangleHandler =
     };
 
     const rect = figmaCtx.createRectangle();
+    execution?.markMutated?.();
     if (typeof p.name === 'string') rect.name = p.name;
     if (typeof p.width === 'number' && typeof p.height === 'number') rect.resize(p.width, p.height);
     if (typeof p.x === 'number') rect.x = p.x;

@@ -32,13 +32,25 @@ export const ControlStatusV1Schema = z
     leaderGeneration: z.string().min(1).max(256),
     role: z.enum(['leader', 'follower', 'unknown', 'conflicted']),
     pairedPluginCount: z.number().int().nonnegative().safe(),
+    browserConnection: z
+      .enum(['not-requested', 'awaiting-browser', 'connected', 'unavailable'])
+      .optional(),
     activePlugin: z
       .object({
         sessionId: z.string().min(1).max(256),
         fileName: z.string().max(1_024).nullable(),
         pageName: z.string().max(1_024).nullable(),
         fileIdentityKind: z.enum(['figma-file-key', 'document-plugin-uuid', 'unstable-readonly']),
+        fileIdentityHash: z
+          .string()
+          .regex(/^sha256:[0-9a-f]{64}$/u)
+          .optional(),
         pluginVersion: z.string().min(1).max(256),
+        bindingFileKeyHash: z
+          .string()
+          .regex(/^sha256:[0-9a-f]{64}$/u)
+          .optional(),
+        bindingVerifiedBy: z.enum(['owner-confirmation', 'owner-session-confirmation']).optional(),
         pluginGenerationHash: z.string().regex(/^sha256:[0-9a-f]{64}$/u),
         editorType: z.enum(['figma', 'figjam', 'dev']),
         capabilities: z.array(z.string().min(1).max(256)).max(1_024).readonly(),

@@ -9,15 +9,23 @@
  * `unknown`-typed post lacked.
  */
 
+import type { IdentityPublish, IdentityReady } from '@sfp/shared';
+
 import {
   isPluginContextEvent,
   type PluginBridgeMessage,
   type PluginContextEvent,
 } from '../../protocol/bridge.js';
+import type { PluginIdentitySeed } from '../../protocol/identity-seed.js';
 import type { PanelControlMessage } from '../../protocol/panel-control.js';
 
 /** Everything the panel is allowed to send up to the sandbox. */
-export type SandboxOutbound = PluginBridgeMessage | PanelControlMessage;
+export type SandboxOutbound =
+  | PluginBridgeMessage
+  | PanelControlMessage
+  | PluginIdentitySeed
+  | IdentityPublish
+  | IdentityReady;
 
 type ParentFrame = { postMessage: (message: unknown, targetOrigin: string) => void };
 

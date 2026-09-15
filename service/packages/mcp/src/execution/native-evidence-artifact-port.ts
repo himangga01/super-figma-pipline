@@ -30,6 +30,7 @@ import {
   scanEvidenceRetentionAuthority,
   withEvidenceRetentionMutex,
 } from '../fs/evidence-retention-authority.js';
+import { materializeSnapshotEvidence } from '../snapshot/snapshot-operation-evidence.js';
 import { nativeEvidenceContextHash } from './operation-evidence-projector.js';
 
 const canonicalJson = (value: unknown): string => {
@@ -175,6 +176,15 @@ export const serializeNativeArtifactManifestV1 = (
 };
 
 export class NativeEvidenceArtifactPort implements NativeEvidenceArtifactPortContract {
+  async materializeServiceArtifact(
+    input: Parameters<
+      NonNullable<NativeEvidenceArtifactPortContract['materializeServiceArtifact']>
+    >[0],
+  ) {
+    if (nativeEvidenceContextHash(input.context) !== input.projection.contextHash)
+      throw nativeError('NATIVE_EVIDENCE_CONTEXT_MISMATCH', 'service evidence context changed');
+    return materializeSnapshotEvidence(this.dependencies.workspacePolicy, input);
+  }
   constructor(
     private readonly dependencies: {
       workspacePolicy: WorkspacePolicy;

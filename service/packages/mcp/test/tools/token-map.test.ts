@@ -408,16 +408,14 @@ describe('handleTokenMap', () => {
     expect(rows[1]?.source).toBe('style');
   });
 
-  it('degrades to the variables-only join when get_styles fails (styles are additive)', async () => {
+  it('propagates failed style enumeration instead of returning an empty success', async () => {
     const failingStyles: ToolDispatcher = async tool => {
       if (tool === GET_VARIABLE_DEFS_TOOL_NAME) return defs;
-      if (tool === GET_STYLES_TOOL_NAME) throw new Error('styles timed out');
-      throw new Error(`unexpected dispatch: ${tool}`);
+      throw new Error('styles timed out');
     };
-    const result = await handleTokenMap(failingStyles, { rootDir: dir });
-    // Exactly the pre-styles behaviour: the variable join succeeds untouched.
-    expect(result.mappings.find(m => m.figmaName === 'Primary/500')?.status).toBe('high');
-    expect(result.mappings.every(m => m.source === undefined)).toBe(true);
+    await expect(handleTokenMap(failingStyles, { rootDir: dir })).rejects.toThrow(
+      'styles timed out',
+    );
   });
 
   describe('map-file overrides (docs/figma-token-map.md)', () => {
@@ -441,7 +439,7 @@ describe('handleTokenMap', () => {
       await rm(odir, { recursive: true, force: true });
     });
 
-    it('lets a docs/figma-token-map.md row override an unmapped token as map-file', async () => {
+    it('retains a historical token-map row as an unverified hint', async () => {
       // Accent/Teal has no project token of its own; the recorded row points it at an existing one.
       await writeFile(
         join(odir, 'docs', 'figma-token-map.md'),
@@ -451,7 +449,8 @@ describe('handleTokenMap', () => {
       const teal = result.mappings.find(m => m.figmaName === 'Accent/Teal');
       expect(teal?.candidate?.token).toBe('color-primary-500');
       expect(teal?.candidate?.matchedBy).toEqual(['map-file']);
-      expect(teal?.status).toBe('high');
+      expect(teal?.status).toBe('medium');
+      expect(teal?.overrideStatus).toBe('legacy-unverified');
       expect(result.unmapped).not.toContain('Accent/Teal');
       expect(result.staleOverrides).toBeUndefined();
     });

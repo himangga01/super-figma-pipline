@@ -525,7 +525,9 @@ const main = async () => {
     '15',
     '16',
   ]);
-  if (!allowedSlices.has(slice)) fail('SERVICE_FORK_SLICE_INVALID', slice);
+  if (!allowedSlices.has(slice) && !/^review-\d{4}-\d{2}-\d{2}$/.test(slice)) {
+    fail('SERVICE_FORK_SLICE_INVALID', slice);
+  }
   if (!indexPath.startsWith('service/capabilities/change-manifests/')) {
     fail('SERVICE_FORK_INDEX_INVALID', indexPath);
   }

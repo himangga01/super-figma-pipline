@@ -82,9 +82,12 @@ describe('plugin context event', () => {
       { id: '1:3', name: 'Frame A', type: 'FRAME', width: 480, height: 270 },
       { id: '1:4', name: 'Label', type: 'TEXT', width: 120, height: 24 },
     ],
-    editorType: 'figma',
+    editorType: 'figma' as const,
     mode: 'default',
     apiVersion: '1.0.0',
+    pluginGeneration: 'generation-1',
+    fileIdentity: { kind: 'figma-file-key' as const, value: 'file-key-1' },
+    capabilities: [] as const,
   };
 
   it('createPluginContextEvent tags and round-trips through schema', () => {
@@ -107,5 +110,28 @@ describe('plugin context event', () => {
 
   it('a context event is not mistaken for a tool-call bridge message', () => {
     expect(isPluginBridgeMessage(createPluginContextEvent(ctx))).toBe(false);
+  });
+
+  it('rejects unknown context and bridge fields instead of stripping identity overrides', () => {
+    expect(
+      PluginContextEventSchema.safeParse({ ...createPluginContextEvent(ctx), actorId: 'forged' })
+        .success,
+    ).toBe(false);
+    expect(
+      PluginBridgeMessageSchema.safeParse({
+        ...createToolCall({ id: 'x', method: 'ping' }),
+        leaderGeneration: 'forged',
+      }).success,
+    ).toBe(false);
+  });
+
+  it('requires hello identity facts as one all-or-none sandbox projection', () => {
+    const event = createPluginContextEvent(ctx);
+    expect(PluginContextEventSchema.safeParse({ ...event, fileIdentity: undefined }).success).toBe(
+      false,
+    );
+    expect(PluginContextEventSchema.safeParse({ ...event, capabilities: ['forged'] }).success).toBe(
+      false,
+    );
   });
 });

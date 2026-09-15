@@ -77,7 +77,14 @@ export class SessionManager {
       pluginGeneration: input.pluginGeneration,
       editorType: input.editorType,
       mode: input.mode,
-      fileIdentity: input.fileIdentity,
+      fileIdentity:
+        input.fileIdentity.kind === 'unstable-readonly'
+          ? Object.freeze({
+              kind: 'unstable-readonly',
+              sessionId: input.id,
+              pluginGeneration: input.pluginGeneration,
+            })
+          : input.fileIdentity,
       capabilities: Object.freeze([...input.capabilities]),
       connectedAt: existing?.connectedAt ?? now,
       connectedSequence: existing?.connectedSequence ?? this.nextConnectedSequence++,

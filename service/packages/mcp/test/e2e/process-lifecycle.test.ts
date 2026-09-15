@@ -1,12 +1,11 @@
 import { type ChildProcess, spawn } from 'node:child_process';
-import { existsSync, rmSync } from 'node:fs';
+import { existsSync, mkdirSync, mkdtempSync, rmSync } from 'node:fs';
 import { createServer } from 'node:http';
 import type { AddressInfo } from 'node:net';
-import { join } from 'node:path';
+import { tmpdir } from 'node:os';
+import { isAbsolute, join, relative, resolve as resolvePath } from 'node:path';
 
-import { afterEach, describe, expect, it } from 'vitest';
-
-import { leaderLockPath } from '../../src/election/leader-lock.js';
+import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
 // Process-level proof of the zombie fixes: real spawned servers (the built dist), a real stdin
 // EOF, and a real election takeover — the layers no in-process test exercises (process.exit
@@ -31,23 +30,43 @@ interface Server {
 
 const servers: Server[] = [];
 
-afterEach(() => {
-  for (const s of servers) {
-    if (s.exited() === null) s.child.kill('SIGKILL');
-  }
-  servers.length = 0;
-  // Each spawned server leaves a leader note for its random port (election/leader-lock). Production
-  // overwrites one file forever; without this a suite run leaves one behind per server, per run.
-  for (const port of usedPorts) rmSync(leaderLockPath(port), { force: true });
-  usedPorts.clear();
+let stateBase: string;
+let serverEnvironment: NodeJS.ProcessEnv;
+
+beforeEach(() => {
+  stateBase = mkdtempSync(join(tmpdir(), 'sfp-lifecycle-state-'));
+  serverEnvironment = { ...process.env, TEMP: stateBase, TMP: stateBase, TMPDIR: stateBase };
+  if (process.platform === 'win32') serverEnvironment.LOCALAPPDATA = stateBase;
+  else if (process.platform === 'darwin') {
+    serverEnvironment.HOME = stateBase;
+    mkdirSync(join(stateBase, 'Library', 'Application Support'), { recursive: true, mode: 0o700 });
+  } else serverEnvironment.XDG_STATE_HOME = stateBase;
 });
 
-const usedPorts = new Set<number>();
+afterEach(async () => {
+  for (const server of servers) {
+    if (server.exited() === null) server.child.kill('SIGKILL');
+  }
+  await Promise.all(
+    servers.map(server => waitFor(() => server.exited() !== null, 'owned child cleanup', 2_000)),
+  );
+  servers.length = 0;
+  const candidate = resolvePath(stateBase);
+  const fromTemporary = relative(tmpdir(), candidate);
+  if (
+    fromTemporary === '' ||
+    fromTemporary === '..' ||
+    fromTemporary.startsWith(`..${process.platform === 'win32' ? '\\' : '/'}`) ||
+    isAbsolute(fromTemporary)
+  ) {
+    throw new Error('refusing to remove lifecycle state outside the temporary directory');
+  }
+  rmSync(candidate, { recursive: true, force: true });
+});
 
 const spawnServer = (port: number): Server => {
-  usedPorts.add(port);
   const child = spawn(process.execPath, [DIST_ENTRY], {
-    env: { ...process.env, FIGWRIGHT_PORT: String(port) },
+    env: { ...serverEnvironment, FIGWRIGHT_PORT: String(port) },
     stdio: ['pipe', 'pipe', 'pipe'],
   });
   let stderr = '';
@@ -75,9 +94,19 @@ const waitFor = async (pred: () => boolean, label: string, timeoutMs: number): P
 };
 
 describe.skipIf(!existsSync(DIST_ENTRY))('process lifecycle (built dist)', () => {
+  it('exits cleanly when stdin reaches EOF during startup', { timeout: 8_000 }, async () => {
+    const server = spawnServer(await freePort());
+    server.child.stdin?.end();
+    await waitFor(() => server.exited() !== null, 'startup EOF exit', 5_000);
+    expect(server.exited()?.code).toBe(0);
+    expect(server.stderr()).not.toContain('forcing exit');
+  });
+
   it(
     'leader exits promptly on stdin EOF and a live follower takes over the port',
-    { timeout: 20_000 },
+    // Five independently bounded 8s stages plus a 1.5s heartbeat warmup. Windows permission
+    // probes need real process startup; the outer timeout must not preempt those stage bounds.
+    { timeout: 45_000 },
     async () => {
       const port = await freePort();
 

@@ -10,7 +10,7 @@ import { placeNode } from './place.js';
  */
 export const createImportSvgHandler =
   (figmaCtx: typeof figma): SandboxToolHandler =>
-  async params => {
+  async (params, execution) => {
     const p = (params ?? {}) as {
       svg?: unknown;
       name?: unknown;
@@ -25,6 +25,7 @@ export const createImportSvgHandler =
     }
 
     const node = figmaCtx.createNodeFromSvg(p.svg);
+    execution?.markMutated?.();
     if (typeof p.name === 'string') node.name = p.name;
     if (typeof p.width === 'number' || typeof p.height === 'number') {
       node.resize(

@@ -6,7 +6,7 @@ export interface ShutdownWiring {
   /** The process, for SIGINT / SIGTERM. */
   proc: Listenable;
   /** The transport input stream (stdin); its end/close means the client that spawned us is gone. */
-  stdin: Listenable;
+  stdin?: Listenable;
   /** Performs the actual graceful shutdown; invoked at most once. */
   shutdown: () => void | Promise<void>;
   /**
@@ -60,7 +60,7 @@ export const wireShutdown = ({
   };
   proc.on('SIGINT', once);
   proc.on('SIGTERM', once);
-  stdin.on('end', once);
-  stdin.on('close', once);
+  stdin?.on('end', once);
+  stdin?.on('close', once);
   return once;
 };

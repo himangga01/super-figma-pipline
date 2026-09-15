@@ -22,6 +22,8 @@ export const ActionNonceActionSchema = z.enum([
   'network-domain.remove',
   'egress.configure',
   'egress.reset',
+  'portal.profile.register',
+  'portal.environment.reconcile',
 ]);
 export type ActionNonceAction = z.infer<typeof ActionNonceActionSchema>;
 
@@ -96,6 +98,15 @@ const byteSortedUniqueStrings = (values: readonly string[]): readonly string[] =
 };
 
 const semanticSchemas = {
+  'portal.environment.reconcile': z
+    .object({ attemptId: z.string().regex(/^[a-f0-9]{64}$/u), receiptHash: PrefixedSha256Schema })
+    .strict(),
+  'portal.profile.register': z
+    .object({
+      planId: z.string().regex(/^sfp_portal1_[a-f0-9]{32}$/u),
+      profileHash: PrefixedSha256Schema,
+    })
+    .strict(),
   'workspace.add': z.object({ realPath: z.string().min(1).max(32_768) }).strict(),
   'workspace.remove': z.object({ workspaceId: WorkspaceIdSchema }).strict(),
   'workspace.set-default': z.object({ workspaceId: WorkspaceIdSchema.nullable() }).strict(),

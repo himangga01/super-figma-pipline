@@ -280,6 +280,7 @@ const publicError = (error: unknown): { status: number; code: string } => {
 
 const PUBLIC_ERROR_STATUS: Readonly<Record<string, number>> = Object.freeze({
   CONTROL_ROUTE_NOT_FOUND: 404,
+  OPERATION_NOT_FOUND: 404,
   REMOTE_DOMAIN_NOT_FOUND: 404,
   CONTROL_REQUEST_TOO_LARGE: 413,
   APPROVAL_ALREADY_SETTLED: 409,

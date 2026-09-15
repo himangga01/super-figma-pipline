@@ -4,6 +4,7 @@ import { join } from 'node:path';
 import type { GetDesignContextResult } from '@sfp/shared';
 import { z } from 'zod';
 
+import { designDiffRelativePath } from '../diff/baseline-identity.js';
 import { type DesignDiffChanges, diffDesignContext } from '../diff/design-diff.js';
 import { AtomicFileStore, type AtomicWritePort } from '../fs/atomic-file.js';
 import { RepoReader } from '../fs/repo-walk.js';
@@ -15,17 +16,18 @@ export const DESIGN_DIFF_TOOL_NAME = 'design_diff';
 // design_diff turns the one-shot Figma→code flow into an incremental one: snapshot a node's
 // get_design_context now, and on a later run report exactly what changed in the design (per node,
 // per property) so an agent edits the affected code instead of regenerating the screen. The baseline
-// is written to a file under the project (.figwright/snapshots/) — the tool never mutates Figma and
+// is written under .sfp/design-diff-baselines/v1/ — the tool never mutates Figma and
 // never touches an existing code path; it's a local consumer of get_design_context, like token_map.
 
 /**
  * Bumped only when the on-disk snapshot shape changes; an older file is re-baselined, never
  * mis-diffed. v2: the read-dimension batch (itemReverseZIndex / strokesIncludedInLayout /
  * targetAspectRatio / numberOfFixedChildren / annotations / filtersApplied) — a v1 baseline lacking
- * those fields would report them as spurious "changes" against a fresh capture.
+ * those fields would report them as spurious "changes" against a fresh capture. v3: a baseline is
+ * bound to the stable file hash and exact node identity. Old node-only files stay untouched and
+ * must be recaptured, since they cannot prove which file produced them.
  */
-const SNAPSHOT_FORMAT_VERSION = 2;
-const SNAPSHOT_SUBDIR = join('.figwright', 'snapshots');
+const SNAPSHOT_FORMAT_VERSION = 3;
 
 const inputSchema = z.object({
   nodeId: z
@@ -44,14 +46,16 @@ export const designDiffTool: RawToolSpec = {
   description:
     'Diff a Figma node against a saved baseline of itself, so after a design changes you edit only ' +
     'the affected code instead of regenerating. First call on a node saves a baseline (its ' +
-    'get_design_context, full detail) under .figwright/snapshots/ and returns status ' +
+    'get_design_context, full detail) under .sfp/design-diff-baselines/v1/ using file and node digests, and returns status ' +
     "'baseline-created'; a later call returns status 'diff' with the per-node, per-property changes " +
     '(added / removed / changed nodes; fills, layout/padding, text, token bindings — resolved to ' +
     "readable values, not opaque ids) or 'no-changes'. Pass update:true to accept the current design " +
     'as the new baseline (re-snapshot). nodeId defaults to the selection; rootDir defaults to the ' +
     'server cwd. The baseline is a plain file the tool writes under the project — committing it (so ' +
     'teammates share the baseline) or gitignoring it is your call; the tool never changes git. It ' +
-    'never mutates Figma. Scope by a component / section nodeId, the same unit codegen works on.',
+    'never mutates Figma. A stable file identity is required. Old node-only baselines need recapture. ' +
+    'The selection slot refuses a changed root; use an explicit nodeId for separate selection baselines. ' +
+    'Scope by a component / section nodeId, the same unit codegen works on.',
   inputSchema,
   kind: 'local',
   // No sandbox handler of its own; its plugin arguments are recorded under the tool it reuses.
@@ -66,6 +70,7 @@ export type ToolDispatcher = (toolName: string, args: unknown) => Promise<unknow
  */
 interface SnapshotFile {
   figwrightSnapshot: number;
+  fileIdentityHash: string;
   nodeId: string;
   capturedAt: string;
   context: GetDesignContextResult;
@@ -93,8 +98,6 @@ export interface DesignDiffSnapshotAuthority {
   destructiveApproved: boolean;
 }
 
-const sanitize = (id: string): string => id.replace(/[^a-zA-Z0-9._-]/g, '-');
-
 /**
  * Root-identity sanity check: warn (don't refuse) when the baseline root looks like a different
  * node.
@@ -119,10 +122,12 @@ const writeSnapshot = async (
   context: GetDesignContextResult,
   files: AtomicWritePort,
   destructiveApproved: boolean,
+  fileIdentityHash: string,
   expectedDigest64?: string,
 ): Promise<SnapshotFile> => {
   const snap: SnapshotFile = {
     figwrightSnapshot: SNAPSHOT_FORMAT_VERSION,
+    fileIdentityHash,
     nodeId,
     capturedAt: new Date().toISOString(),
     context,
@@ -180,8 +185,10 @@ export const handleDesignDiff = async (
   reader?: RepoReader,
   files: AtomicWritePort = new AtomicFileStore(),
   snapshotAuthority?: Readonly<DesignDiffSnapshotAuthority>,
+  fileIdentityHash = '',
 ): Promise<DesignDiffResult> => {
   const args = inputSchema.parse(rawArgs);
+  const relPath = designDiffRelativePath(fileIdentityHash, args.nodeId);
   const rootDir = reader?.rootDir ?? args.rootDir ?? process.cwd();
   const repo = reader ?? new RepoReader({ rootDir });
 
@@ -196,8 +203,6 @@ export const handleDesignDiff = async (
   if (nodeId === undefined) {
     throw new Error('design_diff: no node to diff (empty selection and no nodeId)');
   }
-  const snapshotKey = args.nodeId ?? 'selection';
-  const relPath = `${SNAPSHOT_SUBDIR.replaceAll('\\', '/')}/${sanitize(snapshotKey)}.json`;
   const absPath = join(rootDir, relPath);
   const multiRootNote =
     args.nodeId === undefined && current.nodes.length > 1
@@ -206,6 +211,21 @@ export const handleDesignDiff = async (
 
   const observed = await readSnapshot(repo, relPath.split('\\').join('/'));
   const existing = observed.snapshot;
+  if (
+    existing !== null &&
+    (existing.fileIdentityHash !== fileIdentityHash ||
+      existing.nodeId !== nodeId ||
+      existing.context.nodes?.[0]?.id !== current.nodes[0]?.id)
+  ) {
+    throw Object.assign(
+      new Error(
+        'baseline belongs to another file or selection; use an explicit nodeId and recapture',
+      ),
+      {
+        code: 'DESIGN_DIFF_BASELINE_IDENTITY_MISMATCH',
+      },
+    );
+  }
   const authority =
     snapshotAuthority ??
     Object.freeze({
@@ -236,6 +256,7 @@ export const handleDesignDiff = async (
       current,
       files,
       authority.destructiveApproved,
+      fileIdentityHash,
       observed.digest64 ?? undefined,
     );
     return {
@@ -261,6 +282,7 @@ export const handleDesignDiff = async (
       current,
       files,
       authority.destructiveApproved,
+      fileIdentityHash,
       observed.digest64 ?? undefined,
     );
   }

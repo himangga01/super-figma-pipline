@@ -86,6 +86,54 @@ const createRoot = async () => {
 };
 
 describe('idempotent journaled operation executor', () => {
+  it('persists a strict no-artifact receipt for a workspace-bound tool result', async () => {
+    const root = await createRoot();
+    const issuer = operationIdIssuerFromKey(Buffer.alloc(32, 62));
+    const operationId = issuer.issue(actorId, fixedNow, { nonce: 'PgAAAAAAAAAAAAAAAAAAAA' });
+    const journal = new OperationJournal({ stateRoot: root, actorId, now: () => fixedNow });
+    const egress = new EgressManifestStore({ stateRoot: root, actorId, now: () => fixedNow });
+    const receipts = new OperationEvidenceReceiptStore({ stateRoot: root, actorId });
+    await Promise.all([journal.recover(), egress.recover(fixedNow), receipts.recover()]);
+    const output = { ok: true, nodeId: '1:2', name: 'Text', type: 'TEXT' };
+    const executor = new OperationExecutor({
+      issuer,
+      journal,
+      queue: new FileExecutionQueue(),
+      runtimes: createBoundRuntimeRegistry(
+        { execute: async () => output },
+        { execute: async () => ({}) },
+      ),
+      durability: {
+        egress,
+        receipts,
+        artifacts: { createNew: vi.fn<() => never>() },
+        projector: createOperationEvidenceProjector(),
+        nativeArtifacts: { createNativeManifest: vi.fn<() => never>() },
+      },
+      now: () => fixedNow,
+    });
+    const invocationScope = Object.freeze({
+      ...scope(),
+      workspace: Object.freeze({
+        workspaceId: '123e4567-e89b-42d3-a456-426614174000',
+        workspaceRoot: root,
+      }),
+    });
+    expect(
+      await executor.invokeTool(
+        invocationScope,
+        'create_text',
+        { characters: 'A' },
+        operationId,
+        NO_CAPTURE_OPTIONS,
+      ),
+    ).toEqual(output);
+    expect(journal.get(operationId)?.status).toBe('succeeded');
+    expect((await receipts.get(actorId, operationId))?.nativeEvidence).toEqual({
+      kind: 'no-artifact',
+      reasonCode: 'not-native-evidence',
+    });
+  });
   it.each([`sfp_op1_${'A'.repeat(332)}.${'A'.repeat(43)}`, '\u0001'.repeat(384)])(
     'rejects forged 384-byte operation authority through the executor before runtime or evidence IO',
     async forgedOperationId => {
@@ -1008,9 +1056,10 @@ describe('idempotent journaled operation executor', () => {
       finalEgressManifestHash: expect.stringMatching(/^sha256:/u),
       operationEvidenceReceiptHash: null,
     });
+    // The cancelled invocation settles while the incumbent still owns the queue lane.
+    await invocation.catch(() => undefined);
     releaseQueue();
     await blocker;
-    await invocation.catch(() => undefined);
   });
 
   it('closes a dispatched demotion as outcome-unknown before releasing a missing receipt reservation', async () => {
@@ -2159,3 +2208,89 @@ describe('idempotent journaled operation executor', () => {
     });
   });
 });
+
+it.each(['attached', 'late'] as const)(
+  'settles approved cancellation during %s reservation attachment exactly once',
+  async boundary => {
+    const root = await createRoot();
+    const issuer = operationIdIssuerFromKey(Buffer.alloc(32, 62));
+    const operationId = issuer.issue(actorId, fixedNow, { nonce: 'PgAAAAAAAAAAAAAAAAAAAA' });
+    const journal = new OperationJournal({ stateRoot: root, actorId, now: () => fixedNow });
+    const egress = new EgressManifestStore({ stateRoot: root, actorId, now: () => fixedNow });
+    const receipts = new OperationEvidenceReceiptStore({ stateRoot: root, actorId });
+    await Promise.all([journal.recover(), egress.recover(fixedNow), receipts.recover()]);
+    let reached!: () => void, release!: () => void;
+    const ready = new Promise<void>(r => {
+      reached = r;
+    });
+    const gate = new Promise<void>(r => {
+      release = r;
+    });
+    const finalizer = vi.spyOn(egress, 'finalize');
+    const releaseReservation = vi.spyOn(receipts, 'releaseWithoutReceipt');
+    const originalReserve = receipts.reserveBeforeRuntime.bind(receipts);
+    vi.spyOn(receipts, 'reserveBeforeRuntime').mockImplementation(async (...args) => {
+      const value = await originalReserve(...args);
+      if (boundary === 'late') {
+        reached();
+        await gate;
+      }
+      return value;
+    });
+    const runtime = vi.fn<() => Promise<Record<string, unknown>>>(async () => ({
+      ok: true,
+      nodeId: '1:2',
+      name: 'Text',
+      type: 'TEXT',
+    }));
+    const executor = new OperationExecutor({
+      issuer,
+      journal,
+      queue: new FileExecutionQueue(),
+      runtimes: createBoundRuntimeRegistry({ execute: runtime }, { execute: async () => ({}) }),
+      durability: {
+        egress,
+        receipts,
+        artifacts: { createNew: vi.fn<() => never>() },
+        projector: createOperationEvidenceProjector(),
+        nativeArtifacts: { createNativeManifest: vi.fn<() => never>() },
+        afterEvidenceReservationFsync: async () => {
+          if (boundary === 'attached') {
+            reached();
+            await gate;
+          }
+        },
+      },
+      now: () => fixedNow,
+    });
+    const handle = await executor.beginToolApproval(
+      scope(),
+      'create_text',
+      { characters: 'A' },
+      operationId,
+      'sfp_ap1_AAAAAAAAAAAAAAAAAAAAAA',
+      NO_CAPTURE_OPTIONS,
+    );
+    const result = executor.resumeApprovedTool(handle, scope()).catch(error => error);
+    await ready;
+    let cancelled = false;
+    const cancellation = executor
+      .cancel(scope().actor, { version: 1, requestId: scope().requestId, operationId })
+      .then(() => {
+        cancelled = true;
+        return undefined;
+      });
+    await Promise.resolve();
+    await Promise.resolve();
+    expect(boundary === 'late' && cancelled).toBe(false);
+    release();
+    await cancellation;
+    expect(await result).toMatchObject({ code: 'OPERATION_CANCELLED' });
+    expect(runtime).not.toHaveBeenCalled();
+    expect(journal.get(operationId)).toMatchObject({ status: 'pre-egress-rejected' });
+    const evidence = await egress.classifyOperationState(actorId, operationId);
+    expect(finalizer).toHaveBeenCalledTimes(1);
+    expect(releaseReservation).toHaveBeenCalledTimes(1);
+    expect(evidence.kind).toBe('final');
+  },
+);

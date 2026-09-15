@@ -38,10 +38,17 @@ const copyServiceFixture = async (): Promise<{ repositoryRoot: string; serviceRo
   return { repositoryRoot: fixtureRepository, serviceRoot: fixtureService };
 };
 
-const removeRootReadmeRule = async (fixtureService: string): Promise<void> => {
+const OBSOLETE_COPY_PATH = 'packages/mcp/src/tools/paint-schema.ts';
+const excludeCopiedTool = async (fixtureService: string): Promise<void> => {
+  const map = JSON.parse(await readFile(join(fixtureService, 'vendor-map.json'), 'utf8')) as {
+    files: Array<{ mode: string; destination: string }>;
+  };
+  expect(map.files).toContainEqual(
+    expect.objectContaining({ mode: 'copy', destination: OBSOLETE_COPY_PATH }),
+  );
   const path = join(fixtureService, 'vendor-rules.json');
-  const rules = JSON.parse(await readFile(path, 'utf8')) as { copy: string[] };
-  rules.copy = rules.copy.filter(pattern => pattern !== 'README.md');
+  const rules = JSON.parse(await readFile(path, 'utf8')) as { exclude: string[] };
+  rules.exclude.push(OBSOLETE_COPY_PATH);
   await writeFile(path, `${JSON.stringify(rules, null, 2)}\n`, 'utf8');
 };
 
@@ -105,27 +112,27 @@ describe('vendor upstream reconciliation', () => {
 
   it('removes a previous managed destination when its mapped bytes are unchanged', async () => {
     const fixture = await copyServiceFixture();
-    await removeRootReadmeRule(fixture.serviceRoot);
+    await excludeCopiedTool(fixture.serviceRoot);
 
     const result = runCopyOnly(fixture.serviceRoot);
 
     expect(result.status).toBe(0);
-    await expect(stat(join(fixture.serviceRoot, 'README.md'))).rejects.toMatchObject({
+    await expect(stat(join(fixture.serviceRoot, OBSOLETE_COPY_PATH))).rejects.toMatchObject({
       code: 'ENOENT',
     });
     const vendorMap = JSON.parse(
       await readFile(join(fixture.serviceRoot, 'vendor-map.json'), 'utf8'),
     ) as { files: Array<{ destination: string | null }> };
-    expect(vendorMap.files.some(row => row.destination === 'README.md')).toBe(false);
+    expect(vendorMap.files.some(row => row.destination === OBSOLETE_COPY_PATH)).toBe(false);
   }, 30_000);
 
   it('rejects a locally modified obsolete destination without changing the file or map', async () => {
     const fixture = await copyServiceFixture();
-    const readmePath = join(fixture.serviceRoot, 'README.md');
+    const readmePath = join(fixture.serviceRoot, OBSOLETE_COPY_PATH);
     const mapPath = join(fixture.serviceRoot, 'vendor-map.json');
     const previousMap = await readFile(mapPath);
     await writeFile(readmePath, 'locally modified\n', 'utf8');
-    await removeRootReadmeRule(fixture.serviceRoot);
+    await excludeCopiedTool(fixture.serviceRoot);
 
     const result = runCopyOnly(fixture.serviceRoot);
 
@@ -383,7 +390,7 @@ describe('protected service authorities', () => {
     {
       name: 'Task 5 exact image-source plugin authority',
       path: 'packages/plugin/src/handlers/import-image.ts',
-      mutate: contents => contents.replace('provide exactly one', 'prefer data over'),
+      mutate: contents => contents.replace('provide validated data', 'accept any remote url'),
     },
     {
       name: 'Task 5 normalized component-key schema authority',

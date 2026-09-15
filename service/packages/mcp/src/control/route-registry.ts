@@ -1,3 +1,4 @@
+import { GroundingRefreshResultSchema, SnapshotCaptureResultSchema } from '@sfp/ir';
 import {
   ActionNonceClaimsSchema,
   ActionNonceIssueRequestV1Schema,
@@ -17,14 +18,17 @@ import type { createActionNonceEndpoint } from './action-nonce-endpoints.js';
 import type { createAdminAuditEndpoint } from './admin-audit-endpoints.js';
 import type { createApprovalEndpoints } from './approval-endpoints.js';
 import type { createEgressControl } from './egress-endpoints.js';
+import {
+  GroundingRefreshRequestSchema,
+  type createGroundingEndpoint,
+} from './grounding-endpoints.js';
 import type { createNetworkDomainEndpoints } from './network-domain-endpoints.js';
 import type { createOperationEndpoints } from './operation-endpoints.js';
 import { OperationListRequestSchema } from './operation-endpoints.js';
 import type { AuthenticatedControlRouter } from './router.js';
+import { SnapshotCaptureRequestSchema, type createSnapshotEndpoint } from './snapshot-endpoints.js';
 import type { createToolCallEndpoint } from './tool-call-endpoint.js';
 import type { createWorkspaceEndpoints } from './workspace-endpoints.js';
-
-export type ReturnTypeOfActionNonceEndpoint = ReturnType<typeof createActionNonceEndpoint>;
 
 export interface Task7ControlRoutes {
   status: () => Promise<unknown>;
@@ -91,6 +95,32 @@ export const registerTask8BNetworkRoutes = (
 };
 
 const EmptySchema = z.object({}).strict();
+export const registerSnapshotControlRoutes = (
+  router: AuthenticatedControlRouter,
+  endpoints: {
+    capture: ReturnType<typeof createSnapshotEndpoint>;
+    refresh: ReturnType<typeof createGroundingEndpoint>;
+  },
+) => {
+  router.register({
+    id: 'snapshot.capture',
+    method: 'POST',
+    path: '/control/snapshots/capture',
+    routeClass: 'service',
+    inputSchema: SnapshotCaptureRequestSchema,
+    outputSchema: SnapshotCaptureResultSchema,
+    handle: (principal, input, signal) => endpoints.capture(principal, input, signal),
+  });
+  router.register({
+    id: 'grounding.refresh',
+    method: 'POST',
+    path: '/control/grounding/refresh',
+    routeClass: 'service',
+    inputSchema: GroundingRefreshRequestSchema,
+    outputSchema: GroundingRefreshResultSchema,
+    handle: (principal, input, signal) => endpoints.refresh(principal, input, signal),
+  });
+};
 const WorkspaceIdSchema = z
   .string()
   .regex(/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/u);
@@ -245,6 +275,15 @@ export const registerTask7ControlRoutes = (
     inputSchema: EmptySchema,
     outputSchema: z.object({ operationId: z.string() }).strict(),
     handle: async principal => endpoints.operations.issue(principal),
+  });
+  router.register({
+    id: 'workspace.get-default',
+    method: 'GET',
+    path: '/control/workspaces/default',
+    routeClass: 'admin',
+    inputSchema: EmptySchema,
+    outputSchema: WorkspaceIdSchema.nullable(),
+    handle: async () => endpoints.workspaces.getDefault(),
   });
   router.register({
     id: 'operation.list',

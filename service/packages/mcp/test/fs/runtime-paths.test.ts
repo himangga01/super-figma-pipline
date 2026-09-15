@@ -7,6 +7,7 @@ import { promisify } from 'node:util';
 import type { WorkspaceRoot } from '@sfp/shared';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
+import * as windowsInspectionModule from '../../src/fs/windows-boundary-probe-worker.js';
 import { createRuntimePaths, resolveDefaultStateRoot } from '../../src/runtime-paths.js';
 import {
   type BoundStatePermissions,
@@ -770,3 +771,24 @@ it.runIf(process.platform === 'win32')(
     expect(stdout).toMatch(/S-1-/);
   },
 );
+
+describe('persistent Windows state inspection errors', () => {
+  it.each([
+    ['WINDOWS_BOUNDARY_PROTOCOL_INVALID', 'STATE_ACL_INVALID'],
+    ['WINDOWS_BOUNDARY_TIMEOUT', 'STATE_ACL_COMMAND_FAILED'],
+    ['WINDOWS_BOUNDARY_TERMINATION_UNCONFIRMED', 'STATE_ACL_COMMAND_FAILED'],
+  ])('fails closed on %s without changing state', async (probeCode, stateCode) => {
+    const product = await windowsProductState();
+    const failure = Object.assign(new Error('inspection failed'), { code: probeCode });
+    const probe = vi
+      .spyOn(windowsInspectionModule, 'inspectWindowsBoundaries')
+      .mockRejectedValue(failure);
+    const permissions = createStatePermissions(product.stateRoot, product.options);
+    await expect(permissions.ensureSecure(product.stateRoot)).rejects.toMatchObject({
+      code: stateCode,
+      cause: failure,
+    });
+    expect(probe).toHaveBeenCalledTimes(1);
+    await expect(stat(product.stateRoot)).rejects.toMatchObject({ code: 'ENOENT' });
+  });
+});

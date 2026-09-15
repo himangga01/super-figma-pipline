@@ -5,7 +5,7 @@ import { placeNode } from './place.js';
 
 export const createCreateTextHandler =
   (figmaCtx: typeof figma): SandboxToolHandler =>
-  async params => {
+  async (params, execution) => {
     const p = (params ?? {}) as {
       parentId?: unknown;
       characters?: unknown;
@@ -18,6 +18,7 @@ export const createCreateTextHandler =
     }
 
     const text = figmaCtx.createText();
+    execution?.markMutated?.();
     await figmaCtx.loadFontAsync(text.fontName as FontName); // default font must be loaded first
     text.characters = p.characters;
     if (typeof p.fontSize === 'number') text.fontSize = p.fontSize;

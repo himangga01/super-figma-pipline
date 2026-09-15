@@ -30,6 +30,8 @@
 export type ScriptLang = 'ts' | 'tsx' | 'js' | 'jsx';
 
 export interface SfcScriptBlock {
+  /** Requested by source-graph consumers; omitted for the original scanner contract. */
+  offset?: number;
   /** Raw text between the open tag and its end tag. Empty for a `src=` or self-closed block. */
   body: string;
   /**
@@ -52,6 +54,7 @@ export interface SfcScriptScan {
 }
 
 export interface SfcScanOptions {
+  includeOffsets?: boolean;
   /**
    * Whether a top-level `<template>` wraps markup that must not be searched for script blocks. True
    * for Vue (the SFC's markup lives in that block); false for Svelte, whose markup _is_ the top
@@ -312,7 +315,12 @@ export const scanSfcScripts = (code: string, opts: SfcScanOptions): SfcScriptSca
       const src = tag.attrs.get('src');
       const external = src !== undefined && src !== '';
       if (tag.selfClosing) {
-        blocks.push({ body: '', lang: langOf(tag.attrs), external });
+        blocks.push({
+          body: '',
+          lang: langOf(tag.attrs),
+          external,
+          ...(opts.includeOffsets ? { offset: tag.end } : {}),
+        });
         i = tag.end;
         continue;
       }
@@ -321,7 +329,12 @@ export const scanSfcScripts = (code: string, opts: SfcScanOptions): SfcScriptSca
         unterminated = true;
         break;
       }
-      blocks.push({ body: code.slice(tag.end, rawEnd), lang: langOf(tag.attrs), external });
+      blocks.push({
+        body: code.slice(tag.end, rawEnd),
+        lang: langOf(tag.attrs),
+        external,
+        ...(opts.includeOffsets ? { offset: tag.end } : {}),
+      });
       i = skipToGt(code, rawEnd);
       continue;
     }

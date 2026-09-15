@@ -222,11 +222,11 @@ describe('plugin argument contract', () => {
     // never saw `budget` at all.
     expect(injected).toContain('forVision');
     expect(injected).toContain('budget');
-    expect(injected).toContain('requestId');
+    // Execution identity now travels in the authenticated envelope/bridge binding, not args.
+    // The plugin's idempotency tests cover that context independently of argument injection.
+    expect(injected).not.toContain('requestId');
 
     const declared = new Set(ALL_TOOL_SPECS.flatMap(spec => spec.injectedArgs ?? []));
-    // requestId is derived from `kind === 'write'` at the dispatch site, not declared per spec.
-    declared.add('requestId');
     // A key that is already some tool's own argument is a default being materialised before
     // dispatch (`detail`, `dedupeComponents`), not a new argument the plugin has to learn. This is
     // the deliberate limit of the scan: it catches invented names, not a known name reused.

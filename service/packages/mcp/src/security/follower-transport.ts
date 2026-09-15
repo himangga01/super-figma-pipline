@@ -943,7 +943,7 @@ export const createFollowerAuthenticatedTransport = async (
       const response = await fetch(`${options.leaderUrl}${call.path}`, {
         method: 'POST',
         headers: sealed.headers,
-        body: sealed.body,
+        body: new Uint8Array(sealed.body).buffer,
         signal,
       });
       const responseHeaders = response.headers;

@@ -1,10 +1,10 @@
-import { execFile } from 'node:child_process';
 import type { Stats } from 'node:fs';
 import { lstat, readFile, realpath, stat } from 'node:fs/promises';
 import { isAbsolute, join, posix, relative, resolve, sep, win32 } from 'node:path';
 
 import type { WorkspaceConfigStore, WorkspacePolicy, WorkspaceRoot } from '@sfp/shared';
 
+import { inspectWindowsBoundaries } from './windows-boundary-probe-worker.js';
 import { WorkspaceError } from './workspace-config-store.js';
 
 type ResolutionMode = 'read' | 'write';
@@ -31,24 +31,6 @@ export type BoundaryCommandRunner = (
   args: readonly string[],
   options?: { environment?: Readonly<Record<string, string>> },
 ) => Promise<{ stdout: string; stderr: string }>;
-
-const runBoundaryCommand: BoundaryCommandRunner = (file, args, options) =>
-  new Promise((resolvePromise, reject) => {
-    execFile(
-      file,
-      [...args],
-      {
-        encoding: 'utf8',
-        env: { ...process.env, ...options?.environment },
-        shell: false,
-        windowsHide: true,
-      },
-      (error, stdout, stderr) => {
-        if (error !== null) reject(error);
-        else resolvePromise({ stdout, stderr });
-      },
-    );
-  });
 
 const mountInfoPath = (value: string): string =>
   value.replaceAll(/\\([0-7]{3})/gu, (_match, octal: string) =>
@@ -99,30 +81,34 @@ export const createLinuxBoundaryInspector = (
 });
 
 export const createWindowsBoundaryInspector = (
-  command: BoundaryCommandRunner = runBoundaryCommand,
+  command?: BoundaryCommandRunner,
 ): WorkspaceBoundaryInspector => ({
   assertSafe: async (_root, paths) => {
-    let stdout: string;
+    let records: unknown;
     try {
-      ({ stdout } = await command(
-        'powershell.exe',
-        ['-NoLogo', '-NoProfile', '-NonInteractive', '-Command', WINDOWS_BOUNDARY_SCRIPT],
-        { environment: { SFP_BOUNDARY_PATHS: JSON.stringify(paths) } },
-      ));
+      if (command === undefined) {
+        records = await inspectWindowsBoundaries(paths);
+      } else {
+        const { stdout } = await command(
+          'powershell.exe',
+          ['-NoLogo', '-NoProfile', '-NonInteractive', '-Command', WINDOWS_BOUNDARY_SCRIPT],
+          { environment: { SFP_BOUNDARY_PATHS: JSON.stringify(paths) } },
+        );
+        try {
+          records = JSON.parse(stdout.replace(/^\uFEFF/u, '').trim());
+        } catch (error) {
+          throw new WorkspaceError(
+            'WORKSPACE_BOUNDARY_UNAVAILABLE',
+            'Windows boundary probe returned malformed JSON',
+            error,
+          );
+        }
+      }
     } catch (error) {
+      if (error instanceof WorkspaceError) throw error;
       throw new WorkspaceError(
         'WORKSPACE_BOUNDARY_UNAVAILABLE',
         'Windows reparse boundaries could not be inspected',
-        error,
-      );
-    }
-    let records: unknown;
-    try {
-      records = JSON.parse(stdout.replace(/^\uFEFF/u, '').trim());
-    } catch (error) {
-      throw new WorkspaceError(
-        'WORKSPACE_BOUNDARY_UNAVAILABLE',
-        'Windows boundary probe returned malformed JSON',
         error,
       );
     }

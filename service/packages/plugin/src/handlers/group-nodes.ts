@@ -5,7 +5,7 @@ import type { SandboxToolHandler } from '../dispatcher.js';
 /** Group nodes under their (shared) parent. Returns the new group's id / name / type. */
 export const createGroupNodesHandler =
   (figmaCtx: typeof figma): SandboxToolHandler =>
-  async params => {
+  async (params, execution) => {
     const p = (params ?? {}) as { nodeIds?: unknown; name?: unknown };
     if (
       !Array.isArray(p.nodeIds) ||
@@ -24,6 +24,7 @@ export const createGroupNodesHandler =
       throw new Error('group_nodes: nodes have no groupable parent');
     }
     const group = figmaCtx.group(nodes, parent as BaseNode & ChildrenMixin);
+    execution?.markMutated?.();
     if (typeof p.name === 'string') group.name = p.name;
 
     const result: CreateResult = { ok: true, nodeId: group.id, name: group.name, type: group.type };

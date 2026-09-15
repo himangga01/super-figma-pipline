@@ -1,4 +1,4 @@
-import { ErrorCode } from '@sfp/shared';
+import { ErrorCode, type ProgressEvent } from '@sfp/shared';
 
 import {
   createToolError,
@@ -8,8 +8,19 @@ import {
   type PluginToolResult,
 } from '../protocol/bridge.js';
 import { withEditorContext } from '../protocol/editor-context.js';
+import { settleHandlerFailure, settleHandlerOutcome } from './mutation.js';
 
-export type SandboxToolHandler = (params: unknown) => unknown | Promise<unknown>;
+export type SandboxProgress = Omit<ProgressEvent, 'operationId' | 'emittedAt'>;
+export interface SandboxExecutionContext {
+  readonly requestId?: string;
+  readonly signal: Pick<AbortSignal, 'aborted' | 'reason' | 'throwIfAborted'>;
+  report(progress: Readonly<SandboxProgress>): void;
+  markMutated?(): void;
+}
+export type SandboxToolHandler = (
+  params: unknown,
+  context?: Readonly<SandboxExecutionContext>,
+) => unknown | Promise<unknown>;
 export type SandboxHandlers = Record<string, SandboxToolHandler>;
 
 export interface DispatchInput {
@@ -22,6 +33,7 @@ export interface DispatchInput {
    */
   editorType: string;
   log?: (msg: string) => void;
+  execution?: Readonly<SandboxExecutionContext>;
 }
 
 export type DispatchOutcome =
@@ -29,8 +41,10 @@ export type DispatchOutcome =
   | { kind: 'ignore' };
 
 export const dispatchSandboxMessage = async (input: DispatchInput): Promise<DispatchOutcome> => {
+  const cancelled = (): boolean => input.execution?.signal.aborted === true;
   if (!isPluginBridgeMessage(input.raw)) return { kind: 'ignore' };
   if (input.raw.kind !== 'tool-call') return { kind: 'ignore' };
+  if (cancelled()) return { kind: 'ignore' };
 
   const { id, method, params } = input.raw;
   const handler = input.handlers[method];
@@ -49,9 +63,31 @@ export const dispatchSandboxMessage = async (input: DispatchInput): Promise<Disp
   }
 
   try {
-    const result = await handler(params);
+    input.execution?.report({
+      phase: 'received',
+      completed: 0,
+      total: 1,
+      message: 'request received',
+    });
+    if (cancelled()) return { kind: 'ignore' };
+    input.execution?.report({
+      phase: 'dispatched',
+      completed: 0,
+      total: 1,
+      message: 'request dispatched',
+    });
+    const result = settleHandlerOutcome(await handler(params, input.execution));
+    if (cancelled()) return { kind: 'ignore' };
+    input.execution?.report({
+      phase: 'completed',
+      completed: 1,
+      total: 1,
+      message: 'request completed',
+    });
     return { kind: 'reply', reply: createToolResult({ id, result }) };
   } catch (err) {
+    const mutation = settleHandlerFailure(err);
+    if (cancelled()) return { kind: 'ignore' };
     const raised = err instanceof Error ? err.message : String(err);
     log(`[sandbox] handler ${method} threw: ${raised}`);
     // FigJam and Dev Mode reject whole classes of call that Figma Design accepts, and the API's own
@@ -61,7 +97,10 @@ export const dispatchSandboxMessage = async (input: DispatchInput): Promise<Disp
       kind: 'reply',
       reply: createToolError({
         id,
-        code: ErrorCode.Internal,
+        code:
+          mutation === true || mutation === 'unknown'
+            ? 'PLUGIN_PARTIAL_CHANGE'
+            : ErrorCode.Internal,
         message: withEditorContext(raised, input.editorType),
       }),
     };

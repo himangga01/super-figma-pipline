@@ -18,8 +18,8 @@ export const createGetAnnotationsHandler =
     }
 
     const out: NodeAnnotations[] = [];
-    const collect = (node: BaseNode): void => {
-      if (hasAnnotations(node) && node.annotations.length > 0) {
+    const collect = (node: BaseNode, includeEmpty = false): void => {
+      if (hasAnnotations(node) && (includeEmpty || node.annotations.length > 0)) {
         out.push({
           nodeId: node.id,
           nodeName: node.name,
@@ -30,7 +30,7 @@ export const createGetAnnotationsHandler =
 
     if (typeof nodeId === 'string') {
       const node = await figmaCtx.getNodeByIdAsync(nodeId);
-      if (node !== null) collect(node);
+      if (node !== null) collect(node, true);
     } else {
       for (const node of walk(figmaCtx.currentPage.children)) collect(node);
     }

@@ -2,6 +2,11 @@ import { z } from 'zod';
 
 import { GetLocalComponentsResultSchema, GetComponentApiResultSchema } from './components.js';
 import { GetDesignContextResultSchema } from './design-context.js';
+import { DesignObservationSchema } from './design-observation.js';
+import { FigmaCaptureAssetResultSchema } from './figma-capture-assets.js';
+import { FigmaCaptureReadResultSchema } from './figma-capture-query.js';
+import { PORTAL_RESULT_SCHEMAS } from './portal.js';
+import { ProjectProfileSchema } from './project-profile.js';
 import {
   ExportPdfResultSchema,
   ExportVideoResultSchema,
@@ -26,6 +31,12 @@ import {
   NodeListResultSchema,
 } from './serialized-node.js';
 import { GetStylesResultSchema } from './styles.js';
+import {
+  ExportTokensResultSchema,
+  ExportFramesToPdfResultSchema,
+  DoctorResultSchema,
+  ImportLibraryVariableResultSchema,
+} from './union-tools.js';
 import { GetVariableDefsResultSchema } from './variables.js';
 import {
   ApplyAnimationStyleResultSchema,
@@ -125,39 +136,6 @@ export const PingResultSchema = z
   })
   .strict();
 
-const ProjectProfileSchema = z
-  .object({
-    rootDir: z.string(),
-    framework: z.enum(['next', 'nuxt', 'react', 'vue', 'svelte', 'solid', 'angular', 'unknown']),
-    language: z.enum(['ts', 'js']),
-    styling: z
-      .object({
-        system: z.enum([
-          'tailwind',
-          'unocss',
-          'css-variables',
-          'scss',
-          'css-modules',
-          'plain-css',
-          'unknown',
-        ]),
-        configPath: z.string().optional(),
-        tailwindVersion: z.number().optional(),
-        classNaming: z.enum(['ampersand', 'flat']).optional(),
-      })
-      .strict(),
-    svg: z
-      .object({
-        mode: z.enum(['component', 'url']),
-        loader: z.string().optional(),
-        importHint: z.string().optional(),
-      })
-      .strict(),
-    componentExtensions: z.array(z.string()),
-    evidence: z.array(z.string()),
-  })
-  .strict();
-
 const ScannedComponentSchema = z
   .object({
     name: z.string(),
@@ -181,9 +159,15 @@ const FigmaInstanceSchema = z
     props: z.record(z.string(), z.union([z.string(), z.boolean()])).optional(),
   })
   .strict();
-const ComponentMappingSchema = z
+export const ComponentMappingSchema = z
   .object({
     figmaComponentName: z.string(),
+    overrideStatus: z.enum(['legacy-unverified', 'stale']).optional(),
+    observations: z
+      .array(
+        z.object({ nodeId: z.string(), properties: z.record(z.string(), z.unknown()) }).strict(),
+      )
+      .optional(),
     mainComponentId: z.string().optional(),
     variantAxes: z.array(z.string()),
     instances: z.array(FigmaInstanceSchema),
@@ -224,8 +208,14 @@ export const ComponentMapResultSchema = z
   .strict();
 
 const TokenValueSchema = z.union([z.string(), z.number(), z.boolean(), z.null()]);
-const TokenMappingSchema = z
+export const TokenMappingSchema = z
   .object({
+    sourceId: z.string().optional(),
+    collectionId: z.string().optional(),
+    defaultModeId: z.string().optional(),
+    modeValues: z.record(z.string(), TokenValueSchema).optional(),
+    resolution: z.enum(['catalog', 'unresolved']).optional(),
+    overrideStatus: z.enum(['verified', 'legacy-unverified', 'stale']).optional(),
     figmaName: z.string(),
     figmaValue: TokenValueSchema,
     figmaType: z.string(),
@@ -254,6 +244,11 @@ const TokenMappingSchema = z
 export const TokenMapResultSchema = z
   .object({
     mappings: z.array(TokenMappingSchema),
+    observation: DesignObservationSchema.optional(),
+    codeSourceHash: z
+      .string()
+      .regex(/^sha256:[a-f0-9]{64}$/)
+      .optional(),
     unmapped: z.array(z.string()),
     themedCollections: z.array(
       z.object({ name: z.string(), modes: z.array(z.string()), defaultMode: z.string() }).strict(),
@@ -268,7 +263,7 @@ export const TokenMapResultSchema = z
   })
   .strict();
 
-const IconMappingSchema = z
+export const IconMappingSchema = z
   .object({
     figmaName: z.string(),
     name: z.string(),
@@ -342,6 +337,10 @@ export const DesignDiffResultSchema = z
   .strict();
 
 const RESULT_SCHEMA_ENTRIES = [
+  ['export_tokens', ExportTokensResultSchema],
+  ['export_frames_to_pdf', ExportFramesToPdfResultSchema],
+  ['doctor', DoctorResultSchema],
+  ['import_library_variable', ImportLibraryVariableResultSchema],
   ['ping', PingResultSchema],
   ['get_selection', strictResult(GetSelectionResultSchema)],
   ['get_document', strictResult(GetDocumentResultSchema)],
@@ -353,6 +352,8 @@ const RESULT_SCHEMA_ENTRIES = [
   ['scan_text_nodes', strictResult(NodeListResultSchema)],
   ['scan_nodes_by_types', strictResult(NodeListResultSchema)],
   ['get_styles', strictResult(GetStylesResultSchema)],
+  ['portal_capture_read', strictResult(FigmaCaptureReadResultSchema)],
+  ['portal_capture_asset', strictResult(FigmaCaptureAssetResultSchema)],
   ['get_variable_defs', strictResult(GetVariableDefsResultSchema)],
   ['get_local_components', strictResult(GetLocalComponentsResultSchema)],
   ['get_component_api', strictResult(GetComponentApiResultSchema)],
@@ -383,6 +384,7 @@ const RESULT_SCHEMA_ENTRIES = [
   ['set_opacity', strictResult(MutateResultSchema)],
   ['set_visible', strictResult(MutateResultSchema)],
   ['rename_node', strictResult(MutateResultSchema)],
+  ['set_annotations', strictResult(MutateResultSchema)],
   ['delete_nodes', strictResult(BatchNodeResultSchema)],
   ['create_text', strictResult(CreateResultSchema)],
   ['create_rectangle', strictResult(CreateResultSchema)],
@@ -454,6 +456,7 @@ const RESULT_SCHEMA_ENTRIES = [
   ['remove_manual_keyframe_track', strictResult(MutateResultSchema)],
   ['set_timeline_duration', strictResult(MutateResultSchema)],
   ['batch', strictResult(BatchResultSchema)],
+  ...Object.entries(PORTAL_RESULT_SCHEMAS),
 ] as const satisfies readonly (readonly [string, ResultSchema])[];
 
 export const RESULT_SCHEMAS = createResultSchemaRegistry(RESULT_SCHEMA_ENTRIES);

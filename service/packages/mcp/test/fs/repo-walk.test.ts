@@ -29,6 +29,29 @@ afterEach(async () =>
 );
 
 describe('RepoReader bounded traversal', () => {
+  it('scans a gitfile worktree without following its external gitdir pointer', async () => {
+    const root = await repository({
+      '.git': 'gitdir: /outside/main/.git/worktrees/target\n',
+      '.gitignore': 'Generated.tsx\n',
+      'Button.tsx': 'owned',
+      'Generated.tsx': 'ignored',
+    });
+    await expect(
+      new RepoReader({ rootDir: root }).walk({ extensions: ['.tsx'] }),
+    ).resolves.toMatchObject({ files: ['Button.tsx'], truncated: false });
+  });
+
+  it('still applies an owned clone git/info/exclude', async () => {
+    const root = await repository({
+      '.git/info/exclude': 'Generated.tsx\n',
+      'Button.tsx': 'owned',
+      'Generated.tsx': 'ignored',
+    });
+    await expect(
+      new RepoReader({ rootDir: root }).walk({ extensions: ['.tsx'] }),
+    ).resolves.toMatchObject({ files: ['Button.tsx'] });
+  });
+
   it('prunes baseline dependency/vendor directories without relying on gitignore', async () => {
     const root = await repository({
       'src/Button.tsx': 'owned',

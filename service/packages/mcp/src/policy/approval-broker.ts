@@ -66,6 +66,7 @@ const finishApproval = (
 };
 
 export interface ApprovalBroker extends ApprovalDecisionPort {
+  dispose(): void;
   settleControl(
     principal: Readonly<ActorContext>,
     decision: unknown,
@@ -119,6 +120,16 @@ export const createApprovalBroker = (options: ApprovalBrokerOptions): ApprovalBr
     effects,
     operationId,
   ) => {
+    for (const [id, pending] of pendingById) {
+      if (now() >= pending.binding.expiresAt) {
+        expire(pending);
+        pendingById.delete(id);
+      } else if (pendingById.size >= 256 && settled(pending.binding.state)) pendingById.delete(id);
+    }
+    if (pendingById.size >= 256)
+      throw Object.assign(new Error('approval capacity exceeded'), {
+        code: 'APPROVAL_CAPACITY_EXCEEDED',
+      });
     const channel = selectApprovalChannel(scope);
     if (channel === null) return null;
     const prompt = createApprovalPrompt({
@@ -222,6 +233,14 @@ export const createApprovalBroker = (options: ApprovalBrokerOptions): ApprovalBr
     return { decision, pending };
   };
   const broker: ApprovalBroker = {
+    cancel: operationId => {
+      for (const pending of pendingById.values())
+        if (pending.binding.operationId === operationId) expire(pending);
+    },
+    dispose: () => {
+      for (const pending of pendingById.values()) expire(pending);
+      pendingById.clear();
+    },
     request,
     settleControl: async (principal, input, leaderGeneration) => {
       const { decision, pending } = decisionAndPending(input);

@@ -7,7 +7,8 @@ export const normHex = (raw: string): string | null => {
   const m = /^#([0-9a-fA-F]{3,8})$/.exec(raw.trim());
   if (m === null) return null;
   let h = m[1] ?? '';
-  if (h.length === 3) h = [...h].map(c => c + c).join('');
+  if (![3, 4, 6, 8].includes(h.length)) return null;
+  if (h.length === 3 || h.length === 4) h = [...h].map(c => c + c).join('');
   if (h.length === 8 && h.slice(6).toUpperCase() === 'FF') h = h.slice(0, 6);
   return `#${h.toUpperCase()}`;
 };

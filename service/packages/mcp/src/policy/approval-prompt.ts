@@ -5,16 +5,17 @@ import {
   canonicalFileIdentityHash,
   hashCanonicalJson,
   type ApprovalPromptV1,
-  type Effect,
+  type InvocationEffectV1,
   type ResolvedInvocationScope,
   type ToolName,
+  ServiceOperationNameSchema,
 } from '@sfp/shared';
 
 import type { ApprovalChannel } from './approval-gate.js';
 
 export const APPROVAL_TTL_MS = 120_000 as const;
 
-const summarizeEffect = (effect: Effect): string => {
+const summarizeEffect = (effect: InvocationEffectV1): string => {
   switch (effect.type) {
     case 'figma-read':
       return 'figma-read';
@@ -30,13 +31,25 @@ const summarizeEffect = (effect: Effect): string => {
       return `filesystem-write:${effect.destructive ? 'destructive' : 'non-destructive'}:${effect.pathArgs.join(',')}`;
     case 'network':
       return `network:${effect.urlArg}`;
+    case 'portal-state-write':
+      return 'portal-state-write:owner-bound';
+    case 'portal-state-read':
+      return 'portal-state-read:owner-bound';
+    case 'native-process-run':
+      return `native-process-run:no-docker:local-owner-account:${effect.profileArg}`;
+    case 'owned-process-stop':
+      return 'owned-process-stop:portal-run-only';
+    case 'external-browser-read':
+      return `existing-chrome-read:attach-only:scripter:${effect.urlArg}`;
+    case 'server-evidence-write':
+      return `server-evidence-write:${effect.evidenceKind}:${effect.writeMode}`;
   }
 };
 
 export const createApprovalPrompt = (input: {
   scope: Readonly<ResolvedInvocationScope>;
   operationName: ToolName;
-  effects: readonly Effect[];
+  effects: readonly InvocationEffectV1[];
   operationId: string;
   channel: ApprovalChannel;
   now?: number;
@@ -55,13 +68,20 @@ export const createApprovalPrompt = (input: {
     type: 'approval.prompt' as const,
     approvalId,
     operationId: input.operationId,
-    operationKind: 'tool' as const,
+    operationKind:
+      input.operationName === 'identity.bootstrap'
+        ? ('system' as const)
+        : ServiceOperationNameSchema.safeParse(input.operationName).success
+          ? ('service' as const)
+          : ('tool' as const),
     operationName: input.operationName,
     channel: input.channel,
     effectSummary: Object.freeze(input.effects.map(summarizeEffect)),
     target: Object.freeze({
       fileIdentityHash,
-      label: fileIdentityHash === null ? 'Owner control operation' : 'Authenticated Figma target',
+      label:
+        input.scope.approvalLabel ??
+        (fileIdentityHash === null ? 'Owner control operation' : 'Authenticated Figma target'),
       targetCount: fileIdentityHash === null ? null : 1,
     }),
     issuedAt,

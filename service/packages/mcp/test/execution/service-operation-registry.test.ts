@@ -38,8 +38,18 @@ const spec = (name: 'snapshot.capture' | 'grounding.refresh') => ({
 });
 
 describe('service operation registry seam', () => {
-  it('starts empty and remains outside canonical tool counts', () => {
-    expect(Object.keys(SERVICE_OPERATION_SPECS)).toEqual([]);
+  it('advertises control-only operations separately from the canonical MCP tools', () => {
+    expect(Object.keys(SERVICE_OPERATION_SPECS).toSorted()).toEqual([
+      'grounding.refresh',
+      'recipe.evidence.hold',
+      'recipe.evidence.release',
+      'recipe.evidence.verify',
+      'snapshot.capture',
+    ]);
+    expect(SERVICE_OPERATION_SPECS['snapshot.capture']?.targetRequirementFor({})).toBe('required');
+    expect(SERVICE_OPERATION_SPECS['grounding.refresh']?.targetRequirementFor({})).toBe(
+      'forbidden',
+    );
   });
 
   it('rejects duplicate rows instead of hiding one with object overwrite', () => {

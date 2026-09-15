@@ -7,8 +7,8 @@
   "editorType": ["figma", "figjam", "dev"],
   "documentAccess": "dynamic-page",
   "networkAccess": {
-    "allowedDomains": ["*"],
-    "reasoning": "The development plugin connects to the local Super Figma Pipeline relay and preserves the upstream URL-import baseline until the secured server-side fetch adapter is introduced."
+    "allowedDomains": ["http://127.0.0.1:3055", "ws://127.0.0.1:3055"],
+    "reasoning": "The Desktop development plugin connects only to the local Super Figma Pipeline relay. The daemon fetches approved remote images and supplies validated data."
   },
   "capabilities": ["inspect"]
 }

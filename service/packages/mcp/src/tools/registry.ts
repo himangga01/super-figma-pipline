@@ -1,9 +1,8 @@
+import type { ResultSchemaRegistry } from '../../../shared/src/result-schemas.js';
 // Single source of truth for what the MCP server advertises and which tools are writes. index.ts
 // registers every spec with McpServer (which generates the advertised JSON Schema from each Zod
 // inputSchema); the write set is derived from `kind`, not maintained by hand. A registry test asserts
 // these stay in sync with the plugin's handler map so a new tool can't be half-wired.
-
-import type { ResultSchemaRegistry } from '../../../shared/src/result-schemas.js';
 import { RESULT_SCHEMAS } from '../../../shared/src/result-schemas.js';
 import { OPERATION_POLICIES } from '../policy/operation-policy.js';
 import { RESULT_EGRESS_POLICIES } from '../policy/result-egress-policy.js';
@@ -74,6 +73,8 @@ import { lockNodesTool } from './lock-nodes.js';
 import { moveNodesTool } from './move-nodes.js';
 import { navigateToPageTool } from './navigate-to-page.js';
 import { pingTool } from './ping.js';
+import { portalCaptureReadTool, portalCaptureAssetTool } from './portal-capture.js';
+import { PORTAL_TOOL_SPECS } from './portal.js';
 import { removeAnimationStyleTool } from './remove-animation-style.js';
 import { removeManualKeyframeTrackTool } from './remove-manual-keyframe-track.js';
 import { removeReactionsTool } from './remove-reactions.js';
@@ -85,12 +86,19 @@ import { reparentNodesTool } from './reparent-nodes.js';
 import { resizeNodesTool } from './resize-nodes.js';
 import { rotateNodesTool } from './rotate-nodes.js';
 import { SERVER_ONLY_TOOLS, TOOL_RUNTIMES, type RuntimeRegistry } from './runtime-registry.js';
+import {
+  exportTokensTool,
+  exportFramesToPdfTool,
+  doctorTool,
+  importLibraryVariableTool,
+} from './safe-union.js';
 import { saveImageFillsTool } from './save-image-fills.js';
 import { saveScreenshotsTool } from './save-screenshots.js';
 import { scanComponentsTool } from './scan-components.js';
 import { scanNodesByTypesTool } from './scan-nodes-by-types.js';
 import { scanTextNodesTool } from './scan-text-nodes.js';
 import { searchNodesTool } from './search-nodes.js';
+import { setAnnotationsTool } from './set-annotations.js';
 import { setArcTool } from './set-arc.js';
 import { setAutoLayoutTool } from './set-auto-layout.js';
 import { setBlendModeTool } from './set-blend-mode.js';
@@ -124,6 +132,11 @@ import { updateTextStyleTool } from './update-text-style.js';
 
 /** Every unchanged vendored declaration, in ListTools order. */
 const RAW_TOOL_SPECS: readonly RawToolSpec[] = [
+  ...PORTAL_TOOL_SPECS,
+  exportTokensTool,
+  exportFramesToPdfTool,
+  doctorTool,
+  importLibraryVariableTool,
   // Reads
   pingTool,
   getSelectionTool,
@@ -137,11 +150,14 @@ const RAW_TOOL_SPECS: readonly RawToolSpec[] = [
   scanNodesByTypesTool,
   getStylesTool,
   getVariableDefsTool,
+  portalCaptureReadTool,
+  portalCaptureAssetTool,
   getLocalComponentsTool,
   getComponentApiTool,
   getViewportTool,
   getFontsTool,
   getAnnotationsTool,
+  setAnnotationsTool,
   getReactionsTool,
   getMotionStylesTool,
   getNodeMotionTool,
@@ -277,11 +293,25 @@ export const finalizeToolSpecs = (
         policyId: `tool:${spec.name}:v1`,
         handlerAuthority: SERVER_ONLY_TOOLS.has(spec.name) ? 'server-only' : 'plugin-handler',
         targetRequirementFor:
-          spec.name === 'analyze_project' || spec.name === 'scan_components'
-            ? () => 'forbidden' as const
-            : spec.name === 'ping'
-              ? () => 'optional' as const
-              : () => 'required' as const,
+          spec.name === 'portal_validate'
+            ? () => 'optional' as const
+            : spec.name === 'portal_plan'
+              ? (args: unknown) =>
+                  (args as { design?: { source?: string } }).design?.source === 'desktop'
+                    ? ('required' as const)
+                    : ('forbidden' as const)
+              : spec.name === 'analyze_project' ||
+                  spec.name === 'scan_components' ||
+                  PORTAL_TOOL_SPECS.some(portal => portal.name === spec.name)
+                ? () => 'forbidden' as const
+                : spec.name === 'doctor'
+                  ? (args: unknown) =>
+                      (args as { roundTrip?: boolean }).roundTrip === true
+                        ? ('required' as const)
+                        : ('forbidden' as const)
+                  : spec.name === 'ping'
+                    ? () => 'optional' as const
+                    : () => 'required' as const,
       }),
     ),
   );

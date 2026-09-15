@@ -106,19 +106,39 @@ export const connectFakePlugin = async (opts: FakePluginOptions): Promise<WebSoc
   const ws = new WebSocket(`ws://127.0.0.1:${opts.port}/ws`, { origin: 'null' });
 
   await new Promise<void>((resolve, reject) => {
-    const onError = (err: Error): void => reject(err);
-    ws.once('error', onError);
-    ws.once('open', () => {
+    const helloId = 'fake-hello-1';
+    const cleanup = (): void => {
+      clearTimeout(timer);
       ws.off('error', onError);
-      const helloId = 'fake-hello-1';
-      const onMessage = (raw: WebSocket.RawData): void => {
+      ws.off('close', onClose);
+      ws.off('message', onMessage);
+    };
+    const onError = (err: Error): void => {
+      cleanup();
+      ws.close();
+      reject(err);
+    };
+    const onClose = (code: number): void =>
+      onError(new Error(`fake plugin closed during hello (${code})`));
+    const onMessage = (raw: WebSocket.RawData): void => {
+      try {
         const env = decodeEnvelope(raw as Uint8Array) as Envelope;
-        if (env.kind === 'res' && env.id === helloId) {
-          ws.off('message', onMessage);
+        if (env.id !== helloId) return;
+        if (env.kind === 'err')
+          return onError(new Error(`fake plugin hello rejected: ${env.error.code}`));
+        if (env.kind === 'res') {
+          cleanup();
           resolve();
         }
-      };
-      ws.on('message', onMessage);
+      } catch (error) {
+        onError(error as Error);
+      }
+    };
+    const timer = setTimeout(() => onError(new Error('fake plugin hello timed out')), 15_000);
+    ws.once('error', onError);
+    ws.once('close', onClose);
+    ws.on('message', onMessage);
+    ws.once('open', () => {
       ws.send(
         encodeEnvelope(
           createRequest({

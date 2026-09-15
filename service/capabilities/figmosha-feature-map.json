@@ -4,7 +4,7 @@
     {
       "name": "bF",
       "source": "figmosha2",
-      "mapping": "bind_variable_to_paint(field=fill)",
+      "mapping": "bind_variable_to_paint(target=fills); automatic variable lookup/import recipe pending",
       "disposition": "alias",
       "implementation": "packages/mcp/src/tools/bind-variable-to-paint.ts",
       "test": "test/tool-contract.test.ts"
@@ -12,7 +12,7 @@
     {
       "name": "bS",
       "source": "figmosha2",
-      "mapping": "bind_variable_to_paint(field=stroke)",
+      "mapping": "bind_variable_to_paint(target=strokes); automatic variable lookup/import recipe pending",
       "disposition": "alias",
       "implementation": "packages/mcp/src/tools/bind-variable-to-paint.ts",
       "test": "test/tool-contract.test.ts"
@@ -28,7 +28,7 @@
     {
       "name": "findByName",
       "source": "figmosha2",
-      "mapping": "search_nodes exact-name preset",
+      "mapping": "Related primitive: search_nodes; first exact case-sensitive descendant adapter pending",
       "disposition": "alias",
       "implementation": "packages/mcp/src/tools/search-nodes.ts",
       "test": "test/tool-contract.test.ts"
@@ -36,7 +36,7 @@
     {
       "name": "findAllByName",
       "source": "figmosha2",
-      "mapping": "search_nodes exact-name preset",
+      "mapping": "Related primitive: search_nodes; all exact case-sensitive descendants adapter pending",
       "disposition": "alias",
       "implementation": "packages/mcp/src/tools/search-nodes.ts",
       "test": "test/tool-contract.test.ts"
@@ -44,7 +44,7 @@
     {
       "name": "dumpTree",
       "source": "figmosha2",
-      "mapping": "get_design_context(compact/full)",
+      "mapping": "Related primitive: get_design_context; simplified dumpTree renderer not exposed",
       "disposition": "alias",
       "implementation": "packages/mcp/src/tools/get-design-context.ts",
       "test": "test/tool-contract.test.ts"
@@ -68,7 +68,7 @@
     {
       "name": "cloneNext",
       "source": "figmosha2",
-      "mapping": "clone_node + set_position",
+      "mapping": "clone_node + set_position primitives; directional clone recipe pending",
       "disposition": "alias",
       "implementation": "packages/mcp/src/tools/clone-node.ts",
       "test": "test/tool-contract.test.ts"
@@ -84,7 +84,7 @@
     {
       "name": "variantsOf",
       "source": "figmosha2",
-      "mapping": "get_component_api",
+      "mapping": "get_component_api inspection; current/all variant recipe pending",
       "disposition": "alias",
       "implementation": "packages/mcp/src/tools/get-component-api.ts",
       "test": "test/tool-contract.test.ts"
@@ -100,7 +100,7 @@
     {
       "name": "hex",
       "source": "figmosha2",
-      "mapping": "client paint utility",
+      "mapping": "Paint input schema only; hex conversion helper not exposed",
       "disposition": "alias",
       "implementation": "packages/mcp/src/tools/paint-schema.ts",
       "test": "test/tool-contract.test.ts"
@@ -108,7 +108,7 @@
     {
       "name": "solid",
       "source": "figmosha2",
-      "mapping": "canonical paint builder",
+      "mapping": "Paint input schema only; solid paint builder helper not exposed",
       "disposition": "alias",
       "implementation": "packages/mcp/src/tools/paint-schema.ts",
       "test": "test/tool-contract.test.ts"
@@ -116,7 +116,7 @@
     {
       "name": "frame",
       "source": "figmosha2",
-      "mapping": "batch(create_frame,set_auto_layout,set_fills)",
+      "mapping": "Frame/layout/fill primitives available; dependent-result frame recipe pending",
       "disposition": "alias",
       "implementation": "packages/mcp/src/tools/batch.ts",
       "test": "test/tool-contract.test.ts"
@@ -124,7 +124,7 @@
     {
       "name": "resolve",
       "source": "figmosha2",
-      "mapping": "target resolver",
+      "mapping": "Node ID normalization only; page/selection/typed target resolver pending",
       "disposition": "native",
       "implementation": "packages/mcp/src/node-id.ts",
       "test": "test/tool-contract.test.ts"
@@ -140,15 +140,15 @@
     {
       "name": "var_",
       "source": "figmosha2",
-      "mapping": "variable resolver + library import",
+      "mapping": "Explicit local IDs and library import; automatic variable resolution recipe pending",
       "disposition": "adapter",
-      "implementation": "packages/mcp/src/tools/import-library-variable.ts",
+      "implementation": "packages/mcp/src/tools/safe-union.ts",
       "test": "test/tool-contract.test.ts"
     },
     {
       "name": "importComp",
       "source": "figmosha2",
-      "mapping": "create_instance(componentKey) 또는 swap_component(componentKey)",
+      "mapping": "create_instance(componentKey) or swap_component(componentKey)",
       "disposition": "alias",
       "implementation": "packages/mcp/src/tools/create-instance.ts",
       "test": "test/tool-contract.test.ts"
@@ -156,9 +156,9 @@
     {
       "name": "importVar",
       "source": "figmosha2",
-      "mapping": "import_library_variable 신설",
+      "mapping": "import_library_variable; call through the generic tool interface",
       "disposition": "adapter",
-      "implementation": "packages/mcp/src/tools/import-library-variable.ts",
+      "implementation": "packages/mcp/src/tools/safe-union.ts",
       "test": "test/tool-contract.test.ts"
     }
   ],
@@ -174,9 +174,9 @@
     {
       "name": "doctor",
       "source": "figmosha2",
-      "mapping": "doctor orchestration 신설",
+      "mapping": "doctor tool diagnostics; standalone parser and extended workflow pending",
       "disposition": "native",
-      "implementation": "packages/mcp/src/tools/doctor.ts",
+      "implementation": "packages/mcp/src/tools/safe-union.ts",
       "test": "test/tool-contract.test.ts"
     },
     {

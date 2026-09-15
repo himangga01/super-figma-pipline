@@ -405,12 +405,19 @@ describe('durable remote domain state', () => {
     });
   });
 
-  it('fails closed when the state file is a symlink', async () => {
+  it('fails closed when the state file is a symlink', async context => {
     const outside = join(await temporaryRoot(), 'outside.json');
     await writeFile(outside, '{}\n', { mode: 0o600 });
     const path = remoteDomainConfigPath(stateRoot);
     await mkdir(dirname(path), { recursive: true, mode: 0o700 });
-    await symlink(outside, path, 'file');
+    try {
+      await symlink(outside, path, 'file');
+    } catch (error) {
+      if (process.platform === 'win32' && (error as NodeJS.ErrnoException).code === 'EPERM') {
+        context.skip('Windows file symlinks require Developer Mode or symlink privilege');
+      }
+      throw error;
+    }
     const store = createStore();
 
     await expect(store.recover()).rejects.toMatchObject({

@@ -5,7 +5,7 @@ import { placeNode } from './place.js';
 
 export const createCreateSectionHandler =
   (figmaCtx: typeof figma): SandboxToolHandler =>
-  async params => {
+  async (params, execution) => {
     const p = (params ?? {}) as {
       parentId?: unknown;
       name?: unknown;
@@ -16,6 +16,7 @@ export const createCreateSectionHandler =
     };
 
     const section = figmaCtx.createSection();
+    execution?.markMutated?.();
     if (typeof p.name === 'string') section.name = p.name;
     // Sections size via resizeWithoutConstraints (they have no constraint behaviour).
     if (typeof p.width === 'number' && typeof p.height === 'number') {

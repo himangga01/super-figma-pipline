@@ -5,7 +5,7 @@ import { placeNode } from './place.js';
 
 export const createCreateFrameHandler =
   (figmaCtx: typeof figma): SandboxToolHandler =>
-  async params => {
+  async (params, execution) => {
     const p = (params ?? {}) as {
       parentId?: unknown;
       name?: unknown;
@@ -16,6 +16,7 @@ export const createCreateFrameHandler =
     };
 
     const frame = figmaCtx.createFrame();
+    execution?.markMutated?.();
     if (typeof p.name === 'string') frame.name = p.name;
     if (typeof p.width === 'number' && typeof p.height === 'number') {
       frame.resize(p.width, p.height);

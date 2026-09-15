@@ -63,6 +63,29 @@ export const SerializedVariableValueSchema = z.union([
 ]);
 export type SerializedVariableValue = z.infer<typeof SerializedVariableValueSchema>;
 
+/** Creation accepts exact typed values; it never coerces strings or writes motion variables. */
+export const VariableInitialValuesSchema = z
+  .array(
+    z.strictObject({
+      modeId: z.string().min(1).max(512),
+      value: z.union([
+        z.boolean(),
+        z.number().finite(),
+        z.string().max(65536),
+        z.strictObject({
+          r: z.number().min(0).max(1),
+          g: z.number().min(0).max(1),
+          b: z.number().min(0).max(1),
+          a: z.number().min(0).max(1),
+        }),
+        z.strictObject({ type: z.literal('VARIABLE_ALIAS'), id: z.string().min(1).max(512) }),
+      ]),
+    }),
+  )
+  .min(1)
+  .max(128)
+  .refine(rows => new Set(rows.map(row => row.modeId)).size === rows.length, 'Duplicate mode ID');
+
 export const SerializedVariableCollectionSchema = z.object({
   id: z.string(),
   name: z.string(),

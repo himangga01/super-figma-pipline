@@ -607,21 +607,58 @@ describe('exclusive atomic file publication', () => {
       const { withCanonicalPathMutex } = await import(${JSON.stringify(moduleUrl)});
       await withCanonicalPathMutex(process.env.SFP_LOCK_TARGET, async () => {
         process.stdout.write('entered\\n');
-        await new Promise(resolve => setTimeout(resolve, 300));
+        await new Promise(resolve => process.stdin.once('data', resolve));
+        process.stdin.pause();
       });
     `;
     const child = spawn(
       process.execPath,
       ['--experimental-transform-types', '--input-type=module', '-e', script],
-      { env: { ...process.env, SFP_LOCK_TARGET: target }, stdio: ['ignore', 'pipe', 'ignore'] },
+      { env: { ...process.env, SFP_LOCK_TARGET: target }, stdio: ['pipe', 'pipe', 'ignore'] },
     );
-    await once(child.stdout!, 'data');
-    const liveOwner = await readFile(lockPath);
-    await expect(
-      withCanonicalPathMutex(target, async () => 'stolen', { timeoutMs: 50 }),
-    ).rejects.toMatchObject({ code: 'PATH_LOCK_TIMEOUT' });
-    await expect(readFile(lockPath)).resolves.toEqual(liveOwner);
-    expect((await once(child, 'exit'))[0]).toBe(0);
-    await expect(readFile(lockPath)).rejects.toMatchObject({ code: 'ENOENT' });
+    const exited = once(child, 'exit');
+    let exitObserved = false;
+    void exited.then(
+      () => {
+        exitObserved = true;
+        return undefined;
+      },
+      () => undefined,
+    );
+    child.stdin!.on('error', () => undefined);
+    const bounded = async <T>(promise: Promise<T>): Promise<T> => {
+      let timer: ReturnType<typeof setTimeout> | undefined;
+      try {
+        return await Promise.race([
+          promise,
+          new Promise<never>((_, reject) => {
+            timer = setTimeout(() => reject(new Error('live owner child did not finish')), 2_000);
+          }),
+        ]);
+      } finally {
+        clearTimeout(timer);
+      }
+    };
+    try {
+      await bounded(once(child.stdout!, 'data'));
+      const liveOwner = await readFile(lockPath);
+      await expect(
+        withCanonicalPathMutex(target, async () => 'stolen', { timeoutMs: 50 }),
+      ).rejects.toMatchObject({ code: 'PATH_LOCK_TIMEOUT' });
+      await expect(readFile(lockPath)).resolves.toEqual(liveOwner);
+      child.stdin!.end('release\n');
+      expect((await bounded(exited))[0]).toBe(0);
+      await expect(readFile(lockPath)).rejects.toMatchObject({ code: 'ENOENT' });
+    } finally {
+      if (!exitObserved) {
+        child.kill('SIGKILL');
+        await bounded(exited).catch(error => {
+          // Retain owner state if termination cannot be confirmed.
+          const index = roots.indexOf(root);
+          if (index !== -1) roots.splice(index, 1);
+          throw error;
+        });
+      }
+    }
   });
 });

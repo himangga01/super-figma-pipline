@@ -3,7 +3,8 @@ import { z } from 'zod';
 
 import { RepoReader } from '../fs/repo-walk.js';
 import { detectIconLibraries, scanRepoSvgs } from '../icons/repo-icons.js';
-import { collectFigmaIcons, type IconMapping, joinIcons } from '../join/icon-map.js';
+import { type IconMapping } from '../join/icon-map.js';
+import { observeMappingContext, mapObservationIcons } from '../mapping/design-mapping.js';
 import {
   analyzeProject,
   isUtilityFirst,
@@ -92,8 +93,7 @@ export const handleIconMap = async (
     readProjectDeps(rootDir, repo),
   ]);
 
-  const icons = collectFigmaIcons(context.nodes);
-  const mappings = joinIcons(icons, svgs, {
+  const mappings = mapObservationIcons(observeMappingContext(context), svgs, {
     threshold,
     svg: profile.svg,
     utilityFirst: isUtilityFirst(profile.styling.system),

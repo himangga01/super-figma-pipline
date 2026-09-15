@@ -48,7 +48,7 @@ describe('baseline result-egress policy authority', () => {
   it('has one complete classifier row for every baseline tool', () => {
     const names = ALL_TOOL_SPECS.map(tool => tool.name).toSorted();
 
-    expect(names).toHaveLength(112);
+    expect(names).toHaveLength(128);
     expect(Object.keys(RESULT_EGRESS_POLICIES).toSorted()).toEqual(names);
     for (const name of names) {
       const policy = RESULT_EGRESS_POLICIES[name]!;
@@ -266,7 +266,7 @@ describe('baseline result-egress policy authority', () => {
     ).toEqual(['project-code', 'design-text', 'design-image']);
   });
 
-  it('keeps every actual class inside its declared upper bound for all 112 policies', () => {
+  it('keeps every actual class inside its declared upper bound for all 127 policies', () => {
     const breaches = ALL_TOOL_SPECS.flatMap(tool => {
       const policy = resultEgressPolicyFor(tool.name);
       const actual = policy.classifyResult({}).classes;

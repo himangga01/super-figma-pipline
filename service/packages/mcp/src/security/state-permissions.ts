@@ -5,6 +5,10 @@ import { dirname, parse, posix, resolve, win32 } from 'node:path';
 
 import type { StatePermissions } from '@sfp/shared';
 
+import {
+  inspectWindowsBoundaries,
+  inspectWindowsStateAcl,
+} from '../fs/windows-boundary-probe-worker.js';
 import { resolveDefaultStateRoot } from '../runtime-paths.js';
 
 const SYSTEM_SID = 'S-1-5-18';
@@ -279,6 +283,21 @@ const probeBoundariesWithPowerShell = async (
   });
 };
 
+const runStateInspection = async <T>(inspect: () => Promise<T>): Promise<T> => {
+  try {
+    return await inspect();
+  } catch (error) {
+    const code = (error as { code?: unknown } | null)?.code;
+    throw new StatePermissionError(
+      code === 'WINDOWS_BOUNDARY_PROTOCOL_INVALID'
+        ? 'STATE_ACL_INVALID'
+        : 'STATE_ACL_COMMAND_FAILED',
+      'failed to inspect Windows state permissions',
+      error,
+    );
+  }
+};
+
 const daclFromSddl = (sddl: string): string | undefined => {
   const start = sddl.indexOf('D:');
   if (start === -1) return undefined;
@@ -452,11 +471,16 @@ export const createStatePermissions = (
   const command = options.command ?? runExecFile;
   const currentUid = options.currentUid ?? (() => process.getuid?.());
   const windowsAclProbe =
-    options.windowsAclProbe ?? ((path: string) => probeAclWithPowerShell(path, command));
+    options.windowsAclProbe ??
+    (options.command === undefined
+      ? (path: string) => runStateInspection(() => inspectWindowsStateAcl(path))
+      : (path: string) => probeAclWithPowerShell(path, command));
   const windowsBoundaryProbe =
     options.windowsBoundaryProbe ??
     (options.windowsAclProbe === undefined
-      ? (paths: readonly string[]) => probeBoundariesWithPowerShell(paths, command)
+      ? options.command === undefined
+        ? (paths: readonly string[]) => runStateInspection(() => inspectWindowsBoundaries(paths))
+        : (paths: readonly string[]) => probeBoundariesWithPowerShell(paths, command)
       : (paths: readonly string[]) =>
           Promise.all(
             paths.map(async path => {

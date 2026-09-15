@@ -1,0 +1,96 @@
+Scope: 5 of 6 workspace projects
+packages/shared typecheck$ tsc --noEmit -p tsconfig.json
+packages/shared typecheck: Done
+packages/ir typecheck$ tsc --noEmit -p tsconfig.json
+packages/plugin typecheck$ vue-tsc --noEmit -p tsconfig.json
+packages/ir typecheck: Done
+packages/plugin typecheck: Done
+packages/mcp typecheck$ tsc --noEmit -p tsconfig.json
+packages/mcp typecheck: Done
+packages/cli typecheck$ tsc --noEmit -p tsconfig.json
+packages/cli typecheck: Done
+Checking formatting...
+
+All matched files use the correct format.
+Finished in 464ms on 856 files using 24 threads.
+Scope: 5 of 6 workspace projects
+packages/shared build$ tsc --noEmit -p tsconfig.json
+packages/shared build: Done
+packages/ir build$ tsc --noEmit -p tsconfig.json
+packages/plugin build$ pnpm run build:main && pnpm run build:ui
+packages/plugin build: $ vite build --config vite.config.main.ts
+packages/plugin build: vite v8.2.2 building client environment for production...
+packages/plugin build: transforming...
+packages/plugin build: ✓ 251 modules transformed.
+packages/plugin build: rendering chunks...
+packages/plugin build: computing gzip size...
+packages/plugin build: dist/code.js  245.95 kB │ gzip: 64.07 kB
+packages/plugin build: ✓ built in 45ms
+packages/plugin build: $ vite build --config vite.config.ts
+packages/plugin build: vite v8.2.2 building client environment for production...
+packages/ir build: Done
+packages/plugin build: transforming...
+packages/plugin build: ✓ 1982 modules transformed.
+packages/plugin build: rendering chunks...
+packages/plugin build: [plugin vite:singlefile]
+packages/plugin build: [plugin vite:singlefile] Inlining: index-Bf0PX4dN.js
+packages/plugin build: [plugin vite:singlefile] Inlining: style-BX-z2B9S.css
+packages/plugin build: computing gzip size...
+packages/plugin build: dist/index.html  310.58 kB │ gzip: 95.69 kB
+packages/plugin build: ✓ built in 337ms
+packages/plugin build: Done
+packages/mcp build$ node ../../scripts/build-server.mjs
+packages/mcp build: ℹ tsdown v0.22.14 powered by rolldown v1.2.6
+packages/mcp build: ℹ config file: C:\project\2026\super-figma-pipline\service\packages\mcp\tsdown.config.ts
+packages/mcp build: ℹ entry: src/index.ts, src/daemon-entry.ts
+packages/mcp build: ℹ target: node24
+packages/mcp build: ℹ tsconfig: tsconfig.json
+packages/mcp build: ℹ Build start
+packages/mcp build: ℹ Cleaning 9 files
+packages/mcp build: ℹ Granting execute permission to dist\daemon-entry.mjs
+packages/mcp build: ℹ Granting execute permission to dist\index.mjs
+packages/mcp build: ℹ dist\index.mjs                                    1.29 MB
+packages/mcp build: ℹ dist\daemon-entry.mjs                             0.38 kB │ gzip:  0.28 kB
+packages/mcp build: ℹ dist\src-CbU7M3Ue.mjs                           141.16 kB │ gzip: 37.67 kB
+packages/mcp build: ℹ dist\operation-evidence-projector-BaKiZbXQ.mjs   23.09 kB │ gzip:  5.95 kB
+packages/mcp build: ℹ dist\runtime-mode-CtV2_UhM.mjs                    0.22 kB │ gzip:  0.16 kB
+packages/mcp build: ℹ dist\src-CQMTwTOv.mjs                             0.17 kB │ gzip:  0.14 kB
+packages/mcp build: ℹ dist\operation-evidence-projector-LgeiAh6h.mjs    0.16 kB │ gzip:  0.13 kB
+packages/mcp build: ℹ 7 files, total: 1.46 MB
+packages/mcp build: ✔ Build complete in 71ms
+packages/mcp build: ✔ [publint] No issues found (21ms)
+packages/mcp build: Done
+packages/cli build$ tsdown
+packages/cli build: ℹ tsdown v0.22.14 powered by rolldown v1.2.6
+packages/cli build: ℹ config file: C:\project\2026\super-figma-pipline\service\packages\cli\tsdown.config.ts
+packages/cli build: ℹ entry: src/index.ts, src/library.ts
+packages/cli build: ℹ target: node24
+packages/cli build: ℹ tsconfig: tsconfig.json
+packages/cli build: ℹ Build start
+packages/cli build: ℹ Cleaning 4 files
+packages/cli build: ℹ Hint: consider adding deps.onlyBundle option to avoid unintended bundling of dependencies, or set deps.onlyBundle: false to disable this hint.
+packages/cli build: See more at https://tsdown.dev/options/dependencies#deps-onlybundle
+packages/cli build: Detected dependencies in bundle:
+packages/cli build: - ws
+packages/cli build: - tslib
+packages/cli build: - pdf-lib
+packages/cli build: - pako
+packages/cli build: - @pdf-lib/standard-fonts
+packages/cli build: - @pdf-lib/upng
+packages/cli build: ℹ Granting execute permission to dist\index.mjs
+packages/cli build: ℹ Granting execute permission to dist\library.mjs
+packages/cli build: ℹ dist\index.mjs                       1.57 MB
+packages/cli build: ℹ dist\library.mjs                     0.44 kB │ gzip:  0.23 kB
+packages/cli build: ℹ dist\scripter-reader-B0TkdAd2.mjs  175.87 kB │ gzip: 46.12 kB
+packages/cli build: ℹ 3 files, total: 1.75 MB
+packages/cli build: ✔ Build complete in 108ms
+packages/cli build: ✔ [publint] No issues found (18ms)
+packages/cli build: Done
+
+ RUN  v4.1.11 C:/project/2026/super-figma-pipline/service
+
+
+ Test Files  299 passed (299)
+      Tests  3323 passed | 17 skipped (3340)
+   Start at  06:00:39
+   Duration  534.55s (transform 8.05s, setup 0ms, import 28.89s, tests 631.75s, environment 2.60s)
