@@ -97,6 +97,81 @@ const fixture = async (html: string, assets: Record<string, Buffer> = {}) => {
       ),
   };
 };
+it.each(['property', 'failed-image'] as const)(
+  'restores document and nested scroll positions after %s observation',
+  async kind => {
+    const f = await fixture(`<!doctype html><html><style>
+      html,#outer,#inner{scroll-behavior:smooth}
+      body{margin:0;width:1800px;height:2400px}
+      main{position:absolute;left:600px;top:900px;width:800px;height:800px}
+      #outer,#inner{width:200px;height:200px;overflow:auto}
+      #inner{position:absolute;left:400px;top:400px}
+      .space{position:relative;width:1000px;height:1000px}
+      #target{position:absolute;left:500px;top:500px;width:60px;height:60px;color:red}
+    </style><body><main data-sfp-root="1:1"><div id="outer"><div class="space"><div id="inner"><div class="space"><div id="target" ${kind === 'failed-image' ? 'style="background-image:url(/invalid-image.png)"' : ''}>Target</div></div></div></div></div></main></body></html>`);
+    await f.page.evaluate(`(() => {
+      window.scrollTo({ left: 100, top: 150, behavior: 'instant' });
+      document.querySelector('#outer').scrollTo({ left: 25, top: 35, behavior: 'instant' });
+      document.querySelector('#inner').scrollTo({ left: 45, top: 55, behavior: 'instant' });
+    })()`);
+    const positions = () =>
+      f.page.evaluate<number[][]>(`[
+        [window.scrollX, window.scrollY],
+        ...['#outer', '#inner'].map(selector => {
+          const node = document.querySelector(selector);
+          return [node.scrollLeft, node.scrollTop];
+        }),
+      ]`);
+    const before = await positions();
+    const screenshot = await f.page.screenshot();
+    const rows = await f.observe([
+      check(
+        'scroll',
+        '#target',
+        kind === 'property'
+          ? {
+              kind: 'property',
+              property: 'color',
+              value: { kind: 'color', value: [1, 0, 0, 1] },
+            }
+          : { kind: 'asset', usage: 'background-image', hash, bytes: 1 },
+      ),
+    ]);
+    expect(rows[0]?.passed).toBe(kind === 'property');
+    expect(rows[0]?.reason).not.toBe('PORTAL_CONSUMPTION_ELEMENT_HIDDEN');
+    expect(await positions()).toEqual(before);
+    // Allow queued scroll events and any accidental smooth scrolling to settle.
+    await f.page.waitForTimeout(200);
+    expect(await positions()).toEqual(before);
+    expect(await f.page.screenshot()).toEqual(screenshot);
+  },
+  30000,
+);
+
+it('rejects an observation if a page scroll handler prevents restoring the original viewport', async () => {
+  const f = await fixture(
+    '<!doctype html><body style="margin:0;height:2400px"><main data-sfp-root="1:1" style="height:2200px"><div id="target" style="position:absolute;top:1600px;width:50px;height:50px;color:red">Target</div></main></body>',
+  );
+  await f.page.evaluate("window.scrollTo({ top: 150, behavior: 'instant' })");
+  await f.page.waitForTimeout(100);
+  const before = await f.page.evaluate<number>('window.scrollY');
+  expect(before).toBeGreaterThan(0);
+  await f.page.evaluate(
+    "window.addEventListener('scroll', () => window.scrollTo({ top: 0, behavior: 'instant' }))",
+  );
+  const rows = await f.observe([
+    check('restore-failure', '#target', {
+      kind: 'property',
+      property: 'color',
+      value: { kind: 'color', value: [1, 0, 0, 1] },
+    }),
+  ]);
+  expect(rows[0]).toMatchObject({
+    passed: false,
+    reason: 'PORTAL_CONSUMPTION_SCROLL_RESTORE_FAILED',
+  });
+}, 30000);
+
 it('observes real scoped properties, source modes and opacity despite poisoned page globals', async () => {
   const f = await fixture(
     `<html><style>#root{width:200px;height:200px}#valid{color:rgba(255,0,0,.5);opacity:.4;padding-left:12px;font:16px monospace}#hidden{opacity:0;color:red}#outside{color:red}</style><body><main id="root" data-sfp-root="1:1"><span id="valid">상품</span><span id="hidden">hidden</span></main><span id="outside">outside</span><script>window.getComputedStyle=()=>({getPropertyValue:()=>"rgb(0,0,255)"});document.querySelectorAll=()=>[];Element.prototype.getAttribute=()=>"forged";</script></body></html>`,

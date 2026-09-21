@@ -215,7 +215,8 @@ const OBSERVE_BODY = ` const roots=document.querySelectorAll('[data-sfp-root='+J
  if(roots.length!==1||matches.length!==1||!roots[0].contains(matches[0]))throw Error('PORTAL_CONSUMPTION_SCOPE_MISMATCH');
  const root=roots[0],element=matches[0];if(['IFRAME','FRAME'].includes(element.tagName))throw Error('PORTAL_CONSUMPTION_IFRAME_UNSUPPORTED');if(!elementIds.has(element))elementIds.set(element,documentId+'-'+(++elementSequence));const elementIdentity=elementIds.get(element);if(input.phase==='after-actions'&&root.getAttribute('data-sfp-state')!==input.state)throw Error('PORTAL_CONSUMPTION_STATE_MISMATCH');
  const exposed=target=>{for(let at=target;at;at=at.parentElement){const style=getComputedStyle(at);if(style.display==='none'||style.visibility==='hidden'||Number(style.opacity)===0)return false}const box=target.getBoundingClientRect();if(box.width<=0||box.height<=0)return false;const x=Math.max(0,Math.min(innerWidth-1,box.x+box.width/2)),y=Math.max(0,Math.min(innerHeight-1,box.y+box.height/2));const hit=document.elementFromPoint(x,y);return !!hit&&(hit===target||target.contains(hit)||(getComputedStyle(target).pointerEvents==='none'&&hit.contains(target)))};
- element.scrollIntoView({block:'nearest',inline:'nearest'});if(!exposed(root)||!exposed(element))throw Error('PORTAL_CONSUMPTION_ELEMENT_HIDDEN');
+ return preserveScroll(element,async()=>{
+ element.scrollIntoView({block:'nearest',inline:'nearest',behavior:'instant'});if(!exposed(root)||!exposed(element))throw Error('PORTAL_CONSUMPTION_ELEMENT_HIDDEN');
  const expected=input.expectation,style=getComputedStyle(element);let value=null,resourceUrl=null,fontAvailable=null,sourceNodeId=null;
  if(expected.kind==='property'){
   value=expected.property==='textContent'?element.textContent:style.getPropertyValue(expected.property);if(value===null||value.length>16384)throw Error('PORTAL_CONSUMPTION_VALUE_LIMIT');
@@ -244,8 +245,9 @@ const OBSERVE_BODY = ` const roots=document.querySelectorAll('[data-sfp-root='+J
   if(!resourceUrl||resourceUrl.length>25165824||(!resourceUrl.startsWith('data:')&&resourceUrl.length>4096))throw Error('PORTAL_CONSUMPTION_RESOURCE_LIMIT');
  }
  if(!element.isConnected||!root.contains(element)||document.querySelectorAll(input.selector).length!==1||document.querySelector(input.selector)!==element||!exposed(element))throw Error('PORTAL_CONSUMPTION_STATE_CHANGED');
- return {value,resourceUrl,fontAvailable,sourceNodeId,elementIdentity};`;
+ return {value,resourceUrl,fontAvailable,sourceNodeId,elementIdentity};});`;
 const PROBE_BODY = ` const root=document.querySelector('[data-sfp-root='+JSON.stringify(input.rootId)+']'),element=document.querySelector(input.selector);if(!root||!element||!root.contains(element)||elementIds.get(element)!==input.elementIdentity)throw Error('PORTAL_CONSUMPTION_SCOPE_MISMATCH');
+ return preserveScroll(element,async()=>{
  const read=()=>getComputedStyle(element).getPropertyValue(input.property),before=read();const wait=()=>new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)));
  let target=element;
  for(let depth=0;target&&depth<=64;depth++,target=target.parentElement){
@@ -255,7 +257,7 @@ const PROBE_BODY = ` const root=document.querySelector('[data-sfp-root='+JSON.st
   if(changed!==before)return {cssVariable:input.variable,ancestorDepth:depth,before,variableBefore,sentinel:input.sentinel,changed,restored:true};
   if(target===root)break;
  }
- return null;`;
+ return null;});`;
 const MOTION_BODY = `const {sourceId,targetId}=input;
           const records=[],seen=new Set(),now=performance.now.bind(performance),frame=requestAnimationFrame.bind(window),cancel=cancelAnimationFrame.bind(window),styleOf=getComputedStyle.bind(window),animations=document.getAnimations.bind(document);
           const push=Function.call.bind(Array.prototype.push),rect=Function.call.bind(Element.prototype.getBoundingClientRect),property=Function.call.bind(CSSStyleDeclaration.prototype.getPropertyValue),timing=Function.call.bind(KeyframeEffect.prototype.getTiming),keyframes=Function.call.bind(KeyframeEffect.prototype.getKeyframes),effectOf=Function.call.bind(Object.getOwnPropertyDescriptor(Animation.prototype,'effect').get),finished=Function.call.bind(Object.getOwnPropertyDescriptor(Animation.prototype,'finished').get);
@@ -275,6 +277,25 @@ const VISIBLE_BODY = `const values=document.querySelectorAll(input.selector);if(
 const selectorEngineName = 'sfpconsumption' + randomUUID().replaceAll('-', '');
 const ENGINE_SOURCE = `(() => {
  const jobs=new Map(),motions=new Map(),elementIds=new WeakMap();let elementSequence=0;const documentId=String(Date.now())+'-'+String(Math.random());
+ // Inspection may reveal offscreen content, but must preserve the screenshot/action viewport.
+ // Keep this in the isolated world so page scripts cannot replace the DOM methods or snapshot.
+ const preserveScroll=async(element,read)=>{
+  const positions=[],x=scrollX,y=scrollY;
+  for(let at=element;at;at=at.parentElement){
+   if(positions.length>=256)throw Error('PORTAL_CONSUMPTION_SCROLL_DEPTH_LIMIT');
+   positions.push({element:at,x:at.scrollLeft,y:at.scrollTop});
+  }
+  try{return await read();}
+  finally{
+   for(const entry of positions)entry.element.scrollTo({left:entry.x,top:entry.y,behavior:'instant'});
+   window.scrollTo({left:x,top:y,behavior:'instant'});
+   const restored=()=>scrollX===x&&scrollY===y&&positions.every(entry=>entry.element.isConnected&&entry.element.scrollLeft===entry.x&&entry.element.scrollTop===entry.y);
+   if(!restored())throw Error('PORTAL_CONSUMPTION_SCROLL_RESTORE_FAILED');
+   // Observe queued scroll handlers before publishing a successful measurement.
+   await new Promise(resolve=>{const timeout=setTimeout(resolve,100);requestAnimationFrame(()=>requestAnimationFrame(()=>{clearTimeout(timeout);resolve()}));});
+   if(!restored())throw Error('PORTAL_CONSUMPTION_SCROLL_RESTORE_FAILED');
+  }
+ };
  const observe=async input=>{${OBSERVE_BODY}};
  const probe=async input=>{${PROBE_BODY}};
  const motionStart=input=>{${MOTION_BODY}};

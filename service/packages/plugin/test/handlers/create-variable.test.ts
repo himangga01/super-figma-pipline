@@ -2,6 +2,7 @@ import type { VariableResult } from '@sfp/shared';
 import { describe, expect, it, vi } from 'vitest';
 
 import { createCreateVariableHandler } from '../../src/handlers/create-variable.js';
+import { settleHandlerFailure, withMutationOutcome } from '../../src/mutation.js';
 
 const withCollection = (collection: unknown): typeof figma =>
   ({
@@ -57,6 +58,58 @@ describe('create_variable handler', () => {
     return { f, collection, variable, other, createVariable };
   }
   const request = { name: 'space', collectionId: 'VC:0', resolvedType: 'FLOAT' };
+  it.each(['collection', 'alias', 'mode-recheck'] as const)(
+    'does not create or initialize a variable cancelled during %s preflight',
+    async boundary => {
+      const fixture = initializedFixture();
+      const controller = new AbortController();
+      const reason = new Error('cancelled during preflight');
+      let reads = 0;
+      vi.mocked(fixture.f.variables.getVariableCollectionByIdAsync).mockImplementation(async () => {
+        reads++;
+        if (
+          (boundary === 'collection' && reads === 1) ||
+          (boundary === 'mode-recheck' && reads === 2)
+        )
+          controller.abort(reason);
+        return fixture.collection as unknown as VariableCollection;
+      });
+      vi.mocked(fixture.f.variables.getVariableByIdAsync).mockImplementation(async () => {
+        if (boundary === 'alias') controller.abort(reason);
+        return fixture.other as unknown as Variable;
+      });
+      const handler = withMutationOutcome(
+        fixture.f,
+        'create_variable',
+        createCreateVariableHandler(fixture.f),
+      );
+      const error = await Promise.resolve(
+        handler(
+          {
+            ...request,
+            ...(boundary === 'collection'
+              ? {}
+              : {
+                  initialValues: [
+                    { modeId: 'M:light', value: 0 },
+                    { modeId: 'M:dark', value: { type: 'VARIABLE_ALIAS', id: 'V:existing' } },
+                  ],
+                }),
+          },
+          { signal: controller.signal, report: () => {} },
+        ),
+      ).then(
+        () => null,
+        cause => cause,
+      );
+      expect(error).toBe(reason);
+      expect(settleHandlerFailure(error)).toBe(false);
+      expect(fixture.createVariable).not.toHaveBeenCalled();
+      expect(fixture.variable.setValueForMode).not.toHaveBeenCalled();
+      expect(fixture.variable.remove).not.toHaveBeenCalled();
+      expect(fixture.other.remove).not.toHaveBeenCalled();
+    },
+  );
   it('initializes every actual mode, preserving zero and a typed existing alias', async () => {
     const fixture = initializedFixture();
     await expect(

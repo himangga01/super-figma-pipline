@@ -80,6 +80,9 @@ export const createCreateVariableHandler =
         throw new Error('create_variable: collection modes changed during preflight');
       }
     }
+    // Collection and alias preflight can yield while cancellation is requested.
+    // Keep the final cancellation check adjacent to the first synchronous write.
+    execution?.signal.throwIfAborted();
     const variable = figmaCtx.variables.createVariable(
       p.name,
       collection,
