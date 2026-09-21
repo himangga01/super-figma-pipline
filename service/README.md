@@ -1,8 +1,24 @@
 # Super Figma Pipeline
 
+[English overview](../README.md) | [Korean overview](../README.ko.md)
+
 A local Figma-to-portal pipeline that can read design values without Figma Dev Mode or the official Figma MCP. It supports a paired Desktop development plugin and external Playwright/Scripter access to an existing Chrome tab.
 
-The current source registry contains **125 MCP tools**, **106 plugin handlers**, and **19 server-only tools**. Execution uses 99 direct plugin routes and 26 server adapters. Registration is distinct from successful live design or target-portal acceptance.
+**Development status, September 21, 2026:** this is a work-in-progress service, not a completed release. The latest cancellation and observation-scroll fixes passed 37 related tests, MCP/plugin type checks, and lint. See the [fix report](../docs/reviews/2026-09-21-cancellation-and-scroll-fixes.md) and the [remaining work](../README.md#current-progress-and-remaining-work).
+
+Use `node packages/cli/dist/index.mjs tools list` against the running daemon for the current tool schemas. Tool registration is distinct from successful live design or target-portal acceptance; historical fixed tool counts are not the current capability contract.
+
+## Build and start
+
+Use Node.js 24 and `pnpm@11.24.0`, from `service/` in a separate development working copy:
+
+```powershell
+corepack pnpm install --frozen-lockfile --ignore-scripts
+corepack pnpm build
+node packages/mcp/dist/daemon-entry.mjs
+```
+
+The daemon runs in the foreground; stop it with `Ctrl+C`. Run CLI commands from another terminal in `service/`. For MCP clients, configure `node` with the absolute path to `packages/mcp/dist/index.mjs` instead. See the [repository overview](../README.md#development-setup).
 
 ## Four implementation cases
 
@@ -29,6 +45,8 @@ node packages/cli/dist/index.mjs portal plan --case new-blank --stack react-vite
 The supplied Figma file `4IBhv1d8hEclifZQrOYxHS`, initially node `0:1`, is the default design binding. `--url` selects another explicit design. A new service does not require an existing repository: the CLI can register `~/Projects/SuperFigmaPortals` as its output workspace.
 
 Keep the requested file open in the existing Chrome. Enable remote debugging at `chrome://inspect/#remote-debugging` and accept Chrome's connection prompt. The service attaches to that session, finds the exact file, and runs the verified Scripter reader. It does not launch Chrome, create Chrome tabs, navigate the Figma tab elsewhere, or copy login cookies. Scripter must be available to the account/file; unavailable access remains an explicit incomplete plan.
+
+The Chrome path uses external Playwright, not the built-in GPT browser, and does not require the Figma Desktop app. Chrome's native permission prompt cannot be accepted through a Playwright connection that has not yet been authorized.
 
 A coding agent uses `portal_start`, `portal_next`, and `portal_submit` to implement actual files. It receives design values, assets, service evidence, code conventions, and failed validation logs. Starting a run alone does not generate an application. See the [native portal workflow](docs/portal-native.md).
 
@@ -61,7 +79,7 @@ The retained [code generation guide](skills/figma-codegen/SKILL.md) and its refe
 
 ## Development and verification
 
-Node.js 24 and `pnpm@11.24.0` are the supported development toolchain.
+Node.js 24 and `pnpm@11.24.0` are the supported development toolchain. Run validation in a separate working copy under the same local account; this is not an OS sandbox. Windows is the current native acceptance target; final acceptance on other host platforms is not claimed.
 
 ```powershell
 corepack pnpm install --frozen-lockfile --ignore-scripts
