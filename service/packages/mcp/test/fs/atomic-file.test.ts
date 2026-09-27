@@ -390,9 +390,9 @@ describe('exclusive atomic file publication', () => {
     expect(bodyReads).toBe(0);
   });
 
-  it.each(['symlink', 'directory'] as const)(
+  it.for(['symlink', 'directory'] as const)(
     'rejects a CAS recovery %s before following or reading the target body',
-    async targetKind => {
+    async (targetKind, context) => {
       const root = await mkdtemp(join(tmpdir(), 'sfp-replace-recovery-nofollow-'));
       roots.push(root);
       const target = join(root, 'snapshot.json');
@@ -411,7 +411,10 @@ describe('exclusive atomic file publication', () => {
         try {
           await symlink(outside, target, 'file');
         } catch (error) {
-          if ((error as NodeJS.ErrnoException).code === 'EPERM') return;
+          if ((error as NodeJS.ErrnoException).code === 'EPERM')
+            context.skip(
+              'Creating a symbolic link needs the Windows symlink privilege (Developer Mode or elevation)',
+            );
           throw error;
         }
       } else {

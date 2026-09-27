@@ -16,7 +16,7 @@ for (const item of await installedPackages()) {
     try {
       sections.push(`### ${name}\n\n${await readFile(join(item.path, name), 'utf8')}`);
     } catch (error) {
-      if (error.code !== 'EISDIR') throw error;
+      if (/** @type {NodeJS.ErrnoException} */ (error).code !== 'EISDIR') throw error;
     }
   }
 }

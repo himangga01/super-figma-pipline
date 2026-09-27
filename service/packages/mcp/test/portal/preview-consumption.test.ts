@@ -5,8 +5,9 @@ import { join } from 'node:path';
 import pngModule from '@pdf-lib/upng';
 import { storedChecksum } from '@sfp/ir';
 import { firefox } from 'playwright';
-import { afterEach, expect, it } from 'vitest';
+import { afterEach, beforeEach, expect, it } from 'vitest';
 
+import { requireFirefox } from '../../../../test/support/required-suite.js';
 import {
   PortalConsumptionBatchSchema,
   type PortalConsumptionCheck,
@@ -23,6 +24,9 @@ import { assertNativePortalPreview } from '../../src/portal/preview.js';
 import { currentCaptureFixture } from './capture-fixture.js';
 import { portalFixture } from './fixtures.js';
 const cleanups: Array<() => Promise<void>> = [];
+// Required suite 'firefox': every test in this file is gated, including the one pure check, so a
+// missing browser fails the file unless SFP_ALLOW_SKIP=firefox.
+beforeEach(context => requireFirefox(context, firefox.executablePath()));
 afterEach(async () => {
   for (const cleanup of cleanups.splice(0)) await cleanup();
 });

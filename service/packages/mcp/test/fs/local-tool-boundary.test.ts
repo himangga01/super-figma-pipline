@@ -48,7 +48,7 @@ const workspaceAuthority = async () => {
 };
 
 describe('sandboxed local tool filesystem boundary', () => {
-  it('rejects a symlinked source file returned by repo walking', async () => {
+  it('rejects a symlinked source file returned by repo walking', async context => {
     const { root, workspaceId, workspacePolicy } = await workspaceAuthority();
     const outside = await mkdtemp(join(tmpdir(), 'sfp-local-boundary-outside-'));
     roots.push(outside);
@@ -59,7 +59,10 @@ describe('sandboxed local tool filesystem boundary', () => {
     try {
       await symlink(outsideFile, linked, 'file');
     } catch (error) {
-      if ((error as NodeJS.ErrnoException).code === 'EPERM') return;
+      if ((error as NodeJS.ErrnoException).code === 'EPERM')
+        context.skip(
+          'Creating a symbolic link needs the Windows symlink privilege (Developer Mode or elevation)',
+        );
       throw error;
     }
     const reader = new RepoReader({ rootDir: root, workspaceId, workspacePolicy });

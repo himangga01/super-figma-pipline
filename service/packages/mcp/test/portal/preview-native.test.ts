@@ -12,6 +12,7 @@ import { firefox } from 'playwright';
 import { build } from 'tsdown';
 import { afterEach, beforeAll, expect, it } from 'vitest';
 
+import { requireFirefox } from '../../../../test/support/required-suite.js';
 import { PortalCoordinator } from '../../src/portal/coordinator.js';
 import { nativeExecutableHash } from '../../src/portal/native-runner.js';
 import { PortalNativeWork, PortalNativeProfileSchema } from '../../src/portal/native-work.js';
@@ -45,7 +46,8 @@ const actor: ActorContext = {
   authSessionId: `auth1_${'a'.repeat(43)}`,
   entryPath: 'control',
 };
-it('executes a prepared owned worker through NativeWork and ignores forged stdout reports', async () => {
+it('executes a prepared owned worker through NativeWork and ignores forged stdout reports', async context => {
+  requireFirefox(context, firefox.executablePath());
   const f = await portalFixture();
   cleanups.push(f.cleanup);
   const png =

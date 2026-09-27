@@ -2,9 +2,11 @@
 import { execFileSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
 import { readFile, readdir, mkdir, writeFile, rename } from 'node:fs/promises';
-import { resolve, join, relative, dirname } from 'node:path';
+import { resolve, join, relative } from 'node:path';
 
 import { format } from 'oxfmt';
+
+import { resolvePnpmEntry } from './package-manager-entry.mjs';
 
 export const root = resolve(import.meta.dirname, '..');
 export const artifactRoot = join(root, 'artifacts');
@@ -45,16 +47,7 @@ export const installedPackages = async () => {
   const list = JSON.parse(
     execFileSync(
       process.execPath,
-      [
-        process.env.npm_execpath ??
-          join(dirname(process.execPath), 'node_modules/corepack/dist/pnpm.js'),
-        'list',
-        '-r',
-        '--prod',
-        '--depth',
-        'Infinity',
-        '--json',
-      ],
+      [resolvePnpmEntry(), 'list', '-r', '--prod', '--depth', 'Infinity', '--json'],
       { cwd: root, encoding: 'utf8', maxBuffer: 32_000_000, windowsHide: true },
     ),
   );
@@ -65,7 +58,7 @@ export const installedPackages = async () => {
       try {
         metadata = JSON.parse(await readFile(join(item.path, 'package.json'), 'utf8'));
       } catch (error) {
-        if (optional && error.code === 'ENOENT') return;
+        if (optional && /** @type {NodeJS.ErrnoException} */ (error).code === 'ENOENT') return;
         throw error;
       }
       const meta = metadata;

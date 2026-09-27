@@ -69,9 +69,8 @@ const packagingFixture = async (root: string) => {
     'packages/plugin/dist/code.js': 'figma.closePlugin();\n',
     'packages/plugin/dist/index.html': '<!doctype html><title>fixture</title>\n',
   });
-  await mkdir(join(service, 'scripts'));
-  for (const name of ['package-artifacts.mjs', 'release-common.mjs', 'hermetic-git.mjs'])
-    await cp(join(serviceRoot, 'scripts', name), join(service, 'scripts', name));
+  // The real release scripts, including every module that package-artifacts.mjs imports.
+  await cp(join(serviceRoot, 'scripts'), join(service, 'scripts'), { recursive: true });
   await symlink(
     join(serviceRoot, 'node_modules'),
     join(service, 'node_modules'),

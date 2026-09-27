@@ -16,6 +16,18 @@ import {
 await ensureArtifacts();
 const staging = await mkdtemp(join(artifactRoot, '.staging-'));
 const common = ['LICENSE', 'THIRD_PARTY_NOTICES.md', 'PROVENANCE.md', 'SBOM.spdx.json', 'licenses'];
+/**
+ * @type {{
+ *   schemaVersion: number;
+ *   created: string;
+ *   archives: Array<{
+ *     name: string;
+ *     sha256: string;
+ *     bytes: number;
+ *     files: Array<{ path: string; bytes: number; sha256: string }>;
+ *   }>;
+ * }}
+ */
 const manifest = { schemaVersion: 1, created: isoTime, archives: [] };
 for (const kind of ['mcp', 'cli', 'plugin']) {
   const stage = join(staging, kind),
