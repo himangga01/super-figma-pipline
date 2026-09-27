@@ -674,7 +674,7 @@
           "schemaHash": "507d983d9c0977e1a02e7b30f365da5fdcf5da7a6d4d6901d6f3e8bb8f575a75"
         }
       ],
-      "targetContractHash": "403b7a23270d6c65c93bbba8c2b6235a8c0a88dd847f064d3ae16ea392352eb6",
+      "targetContractHash": "2bd20350c7c119ee43d1b0338fe25fa074839f514916069437a6295e6dffa11e",
       "disposition": "native",
       "registration": "advertised",
       "availability": ["server"],
@@ -695,7 +695,7 @@
           "schemaHash": "f35bd6f02a34c64b984f0793588a00596f8c73e6db66edd0f07f8882895a09c5"
         }
       ],
-      "targetContractHash": "ab60f568f00fc2ccff50551265e6ea67e19b656323f690809c6324f6c7593127",
+      "targetContractHash": "e78a01139cc51fb5a925ce16065a665ba927108c76ccb37ff70a8a140ee6120f",
       "disposition": "native",
       "registration": "advertised",
       "availability": ["server"],
@@ -758,7 +758,7 @@
           "schemaHash": "91e7a33092432568d06bdc31273a9d6e42bf773737f56e81f71ee0e41bea4115"
         }
       ],
-      "targetContractHash": "c97a284ae17ee548bb9ed913772a692ce75084e60743c04aeed45cb6af3f5a14",
+      "targetContractHash": "71ec7af172b56c79caf4f13d588a7b300ecfdd1ab28ddf5bc48826498bc91273",
       "disposition": "native",
       "registration": "advertised",
       "availability": ["server"],
