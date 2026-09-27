@@ -1,7 +1,13 @@
 import { mkdir, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 
-import { PortalRunSchema, contentHash, storedChecksum } from '@sfp/ir';
+import {
+  PortalPlanSchema,
+  PortalRunSchema,
+  contentHash,
+  portalCandidateHash,
+  storedChecksum,
+} from '@sfp/ir';
 import { type ActorContext, type PortalToolName } from '@sfp/shared';
 import { afterEach, expect, it } from 'vitest';
 import { z } from 'zod';
@@ -162,7 +168,22 @@ it('refuses a changed declaration even if its signed container and declaration h
     run.coreDeclarationsHash = coreDeclarationsHash(run.coreDeclarations);
     return run;
   });
-  await expect(loadCoreConsumptionInput(f, f.request)).rejects.toThrow('DECLARATIONS_CHANGED');
+  // The candidate hash binds the declarations, so the signed request no longer names this run's
+  // candidate. Candidate identity is refused first, before any declaration is interpreted.
+  await expect(loadCoreConsumptionInput(f, f.request)).rejects.toThrow('CANDIDATE_CHANGED');
+
+  // Rehash the candidate too, so the container, declaration and candidate hashes are all valid:
+  // the declaration still has to match the kind of its signed recipe result.
+  const plan = await f.store.get('plans', f.request.planId, PortalPlanSchema);
+  let candidateHash = '';
+  await f.store.update('runs', f.request.planId, PortalRunSchema, run => {
+    run.candidateHash = portalCandidateHash(run.files, plan!, run.coreDeclarations);
+    candidateHash = run.candidateHash;
+    return run;
+  });
+  await expect(loadCoreConsumptionInput(f, { ...f.request, candidateHash })).rejects.toThrow(
+    'DECLARATIONS_CHANGED',
+  );
 });
 it('rehashes actual stored content and never trusts its declared hash alone', async () => {
   const f = await fixture();
