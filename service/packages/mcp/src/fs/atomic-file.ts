@@ -101,6 +101,9 @@ public sealed class SfpDirectoryLease {
 }
 
 public static class SfpRetainedDirectoryLease {
+  // The helper serves one request at a time, so one provider instance is never shared.
+  static readonly SHA256 Digest = new SHA256CryptoServiceProvider();
+
   [DllImport("kernel32.dll", CharSet = CharSet.Unicode, SetLastError = true)]
   static extern SafeFileHandle CreateFileW(
     string path,
@@ -129,10 +132,8 @@ public static class SfpRetainedDirectoryLease {
       throw new ArgumentException("lease path contains NUL");
     }
     StringBuilder digest = new StringBuilder(64);
-    using (SHA256 sha = new SHA256CryptoServiceProvider()) {
-      foreach (byte value in sha.ComputeHash(bytes)) {
-        digest.Append(value.ToString("x2", CultureInfo.InvariantCulture));
-      }
+    foreach (byte value in Digest.ComputeHash(bytes)) {
+      digest.Append(value.ToString("x2", CultureInfo.InvariantCulture));
     }
     const uint FILE_SHARE_READ = 0x00000001;
     const uint FILE_SHARE_WRITE = 0x00000002;

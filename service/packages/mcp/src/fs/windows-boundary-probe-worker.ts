@@ -64,34 +64,9 @@ $reader = New-Object System.IO.StreamReader([Console]::OpenStandardInput(), $utf
 $writer = New-Object System.IO.StreamWriter([Console]::OpenStandardOutput(), $utf8)
 $writer.AutoFlush = $true
 $writer.NewLine = [string][char]10
-function ConvertFrom-SfpPath([string]$encoded) {
-  $bytes = [Convert]::FromBase64String($encoded)
-  if ($bytes.Length -lt 2 -or ($bytes.Length % 2) -ne 0) {
-    throw 'boundary request path encoding is invalid'
-  }
-  $units = New-Object char[] ($bytes.Length / 2)
-  [Buffer]::BlockCopy($bytes, 0, $units, 0, $bytes.Length)
-  return -join $units
-}
-function ConvertTo-SfpPath([string]$path) {
-  $units = $path.ToCharArray()
-  $bytes = New-Object byte[] ($units.Length * 2)
-  [Buffer]::BlockCopy($units, 0, $bytes, 0, $bytes.Length)
-  return [Convert]::ToBase64String($bytes)
-}
-function ConvertTo-SfpAscii([string]$json) {
-  if ($json -cnotmatch '[^\x20-\x7E]') { return $json }
-  $builder = New-Object System.Text.StringBuilder
-  foreach ($unit in $json.ToCharArray()) {
-    $code = [int]$unit
-    if ($code -lt 32 -or $code -gt 126) {
-      [void]$builder.Append('\u').Append($code.ToString('x4'))
-    } else {
-      [void]$builder.Append($unit)
-    }
-  }
-  return $builder.ToString()
-}
+# Static .NET calls only: a PowerShell function call per path would double request latency.
+# An unpaired surrogate decodes to U+FFFD, so Node's exact path comparison fails closed.
+$unicode = [System.Text.Encoding]::Unicode
 $writer.WriteLine('READY')
 while ($true) {
   $line = $reader.ReadLine()
@@ -117,9 +92,9 @@ while ($true) {
       if ($encoded -isnot [string] -or $encoded.Length -eq 0) {
         throw 'boundary request path is invalid'
       }
-      $item = Get-Item -LiteralPath (ConvertFrom-SfpPath $encoded) -Force
+      $item = Get-Item -LiteralPath ($unicode.GetString([Convert]::FromBase64String($encoded))) -Force
       $record = [ordered]@{
-        pathUtf16B64 = ConvertTo-SfpPath $item.FullName
+        pathUtf16B64 = [Convert]::ToBase64String($unicode.GetBytes($item.FullName))
         attributes = [int64]$item.Attributes
       }
       if ($request.kind -eq 'acl') {
@@ -136,7 +111,11 @@ while ($true) {
       error = $_.Exception.Message
     }
   }
-  $writer.WriteLine((ConvertTo-SfpAscii ($response | ConvertTo-Json -Compress -Depth 4)))
+  $json = $response | ConvertTo-Json -Compress -Depth 4
+  if ($json -cmatch '[^\x20-\x7E]') {
+    $json = [regex]::Replace($json, '[^\x20-\x7E]', { param($match) '\u' + ([int][char]$match.Value).ToString('x4') })
+  }
+  $writer.WriteLine($json)
 }
 `;
 
