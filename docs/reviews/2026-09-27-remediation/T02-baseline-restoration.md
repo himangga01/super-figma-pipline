@@ -17,7 +17,7 @@ The session scratchpad is shared by every lane agent. This lane created a scratc
 - One `oxfmt` write at 20:18:04 reformatted 13 files in lane D's worktree.
 - Between about 20:13 and 20:15 the file pointed at lane B, so lane D's commands in that window may have run here. Lane B's `git status` was clean afterwards.
 
-Those 13 lane-D files are byte-identical to the formatting committed here in `7c23bca`. Restoring them in lane D was refused by the permission policy, so they remain modified there. The owner or lane D should either restore them (`git checkout -- <the 13 paths>` in lane D) or keep them, since merging with this branch produces no conflict. From 20:18 on, every command in this lane used explicit absolute paths and a lane-specific environment.
+Those 13 lane-D files were byte-identical to the formatting committed here in `7c23bca`. This lane's attempt to restore them in lane D was refused by the permission policy. A later read-only check found lane D's working tree clean and its branch (`1da01f9`) free of those changes, so lane D discarded them itself. From 20:18 on, every command in this lane used explicit absolute paths and a lane-specific environment.
 
 ## Commands
 
@@ -61,6 +61,8 @@ The environment group was `runtime-paths` (3), `workspace-config-store` (2), `id
 | `5b3e5fb` | Triage of the three group B findings |
 | `0f3fd6e` | Known-failure ledger and report checker |
 | `39be314` | Remaining-work plan ledger update |
+| `90e140b` | This evidence note |
+| `957d3ec` | Generator scripts made clean under lane D's `checkJs` settings (no output change) |
 
 ## Static gates
 
@@ -224,9 +226,12 @@ The per-task offline provenance step depends on the T05a tooling, which does not
 1. **The full-run gate did not pass.** No ledgered defect was stale or misclassified, but 9 timing-sensitive tests failed while other lanes ran Vitest on the same machine. Before the result is treated as a gate, rerun the full suite and the checker when no other lane is testing (owner consent applies). Two structural fixes should follow:
    - Give the helper-heavy portal fixtures a justified Windows budget until T11 lowers the process cost. Either use explicit per-test timeouts, or add a Windows `testTimeout` in `packages/mcp/vitest.config.ts` next to the existing Windows `maxWorkers` rationale. `core-coordinator` › retains one-character source ownership needs this even alone.
    - Lane A (T01 helper budgets) should take the `windows-boundary-probe-worker` and `native-module-fence` flakes.
-2. **Cross-lane incident.** 13 files in lane D are formatted by this lane's accidental `oxfmt` run (identical to `7c23bca`); restoring them needs the owner or lane D.
+2. **Integration with lanes C and D.**
+   - Lane D's `vitest.config.ts` writes a JSON report when `SFP_VITEST_JSON_REPORT` is set; the checker can gate that same report.
+   - Lane D wraps the ledgered `preview-native` test in a Firefox requirement. Without Firefox, that test fails with a different message, which the checker reports rather than tolerates.
+   - Rerun the checker after merging, so the ledger is verified against the combined tree, including lane C's characterization tests.
 3. **Plugin floor.** Decide whether the 11 SILENT plugin arguments from `8a8dd01` need a `MIN_PLUGIN_VERSION` raise once release versions move.
 4. **Provenance.** T05a must register the new files, refresh `upstream-lock.json`, and may retire the superseded `update-target-contracts.mjs` and `update-portal-contracts.mjs`.
-5. **Static typing of tooling.** The root tests and `scripts/*.mjs` are not type-checked; T04's `checkJs` configuration will cover `contracts-lib.mjs` and `check-test-report.mjs`, which may need JSDoc types.
+5. **Static typing of tooling.** This branch does not type-check root tests or scripts; lane D's T04 adds `typecheck:tools`. A probe with lane D's exact `tsconfig.tools.json` settings, limited to this branch's new and changed scripts and root tests, reports no errors after `957d3ec`.
 6. **Node version.** The toolchain here is Node 24.21.0 while `.node-version` pins 24.17.0 (T00 and T04).
 7. **Wiring.** The checker must be wired with `--log`, because unhandled errors never appear in the JSON report.
