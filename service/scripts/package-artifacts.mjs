@@ -1,8 +1,8 @@
 /* eslint-disable no-await-in-loop -- ordered deterministic staging and archives */
-import { execFileSync } from 'node:child_process';
 import { cp, mkdir, mkdtemp, readFile, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 
+import { hermeticGit } from './hermetic-git.mjs';
 import {
   root,
   artifactRoot,
@@ -51,13 +51,12 @@ for (const kind of ['mcp', 'cli', 'plugin']) {
     const bytes = await readFile(join(stage, path));
     rows.push({ path, bytes: bytes.length, sha256: sha256(bytes) });
   }
+  // Hermetic: the user's global/system git configuration, hooks, templates and signing cannot
+  // change the archive bytes or prompt, and an outer GIT_DIR cannot redirect the staging repo.
   const git = args =>
-    execFileSync('git', ['-C', stage, ...args], {
-      windowsHide: true,
-      stdio: 'pipe',
+    hermeticGit(stage, args, {
       env: {
         ...process.env,
-        GIT_CONFIG_NOSYSTEM: '1',
         GIT_AUTHOR_NAME: 'SFP',
         GIT_AUTHOR_EMAIL: 'release@localhost',
         GIT_COMMITTER_NAME: 'SFP',

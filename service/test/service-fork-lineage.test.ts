@@ -6,14 +6,15 @@ import { join, resolve } from 'node:path';
 
 import { afterEach, describe, expect, it } from 'vitest';
 
+import { hermeticGitEnvironment, spawnHermeticGit } from '../scripts/hermetic-git.mjs';
+
 const sourceScript = resolve(import.meta.dirname, '..', 'scripts', 'update-service-forks.mjs');
 const roots: string[] = [];
 afterEach(async () => {
   await Promise.all(roots.splice(0).map(root => rm(root, { recursive: true, force: true })));
 });
 
-const git = (root: string, ...args: string[]) =>
-  spawnSync('git', ['-C', root, ...args], { encoding: 'utf8' });
+const git = (root: string, ...args: string[]) => spawnHermeticGit(root, args);
 const sha256 = (value: string) => createHash('sha256').update(value).digest('hex');
 
 const writeChangeManifest = async (
@@ -131,7 +132,8 @@ describe('service-fork lineage updater', () => {
       {
         cwd: setup.root,
         encoding: 'utf8',
-        env: { ...process.env, SFP_REPOSITORY_ROOT: setup.root },
+        env: hermeticGitEnvironment({ ...process.env, SFP_REPOSITORY_ROOT: setup.root }),
+        windowsHide: true,
       },
     );
 
@@ -181,7 +183,8 @@ describe('service-fork lineage updater', () => {
       {
         cwd: setup.root,
         encoding: 'utf8',
-        env: { ...process.env, SFP_REPOSITORY_ROOT: setup.root },
+        env: hermeticGitEnvironment({ ...process.env, SFP_REPOSITORY_ROOT: setup.root }),
+        windowsHide: true,
       },
     );
     expect({ status: result.status, stderr: result.stderr }).toEqual({ status: 0, stderr: '' });
@@ -198,7 +201,8 @@ describe('service-fork lineage updater', () => {
       {
         cwd: setup.root,
         encoding: 'utf8',
-        env: { ...process.env, SFP_REPOSITORY_ROOT: setup.root },
+        env: hermeticGitEnvironment({ ...process.env, SFP_REPOSITORY_ROOT: setup.root }),
+        windowsHide: true,
       },
     );
     expect({ status: rerun.status, stderr: rerun.stderr }).toEqual({ status: 0, stderr: '' });
@@ -238,7 +242,8 @@ describe('service-fork lineage updater', () => {
       {
         cwd: setup.root,
         encoding: 'utf8',
-        env: { ...process.env, SFP_REPOSITORY_ROOT: setup.root },
+        env: hermeticGitEnvironment({ ...process.env, SFP_REPOSITORY_ROOT: setup.root }),
+        windowsHide: true,
       },
     );
     expect({ status: result.status, stderr: result.stderr }).toEqual({ status: 0, stderr: '' });
@@ -276,7 +281,8 @@ describe('service-fork lineage updater', () => {
       {
         cwd: setup.root,
         encoding: 'utf8',
-        env: { ...process.env, SFP_REPOSITORY_ROOT: setup.root },
+        env: hermeticGitEnvironment({ ...process.env, SFP_REPOSITORY_ROOT: setup.root }),
+        windowsHide: true,
       },
     );
 
@@ -309,7 +315,8 @@ describe('service-fork lineage updater', () => {
       {
         cwd: setup.root,
         encoding: 'utf8',
-        env: { ...process.env, SFP_REPOSITORY_ROOT: setup.root },
+        env: hermeticGitEnvironment({ ...process.env, SFP_REPOSITORY_ROOT: setup.root }),
+        windowsHide: true,
       },
     );
 
@@ -345,7 +352,8 @@ describe('service-fork lineage updater', () => {
       {
         cwd: setup.root,
         encoding: 'utf8',
-        env: { ...process.env, SFP_REPOSITORY_ROOT: setup.root },
+        env: hermeticGitEnvironment({ ...process.env, SFP_REPOSITORY_ROOT: setup.root }),
+        windowsHide: true,
       },
     );
 
@@ -381,7 +389,8 @@ describe('service-fork lineage updater', () => {
       {
         cwd: setup.root,
         encoding: 'utf8',
-        env: { ...process.env, SFP_REPOSITORY_ROOT: setup.root },
+        env: hermeticGitEnvironment({ ...process.env, SFP_REPOSITORY_ROOT: setup.root }),
+        windowsHide: true,
       },
     );
 
@@ -448,7 +457,8 @@ describe('service-fork lineage updater', () => {
       {
         cwd: setup.root,
         encoding: 'utf8',
-        env: { ...process.env, SFP_REPOSITORY_ROOT: setup.root },
+        env: hermeticGitEnvironment({ ...process.env, SFP_REPOSITORY_ROOT: setup.root }),
+        windowsHide: true,
       },
     );
 
@@ -512,7 +522,8 @@ describe('service-fork lineage updater', () => {
       {
         cwd: setup.root,
         encoding: 'utf8',
-        env: { ...process.env, SFP_REPOSITORY_ROOT: setup.root },
+        env: hermeticGitEnvironment({ ...process.env, SFP_REPOSITORY_ROOT: setup.root }),
+        windowsHide: true,
       },
     );
 
@@ -590,7 +601,8 @@ describe('service-fork lineage updater', () => {
         {
           cwd: setup.root,
           encoding: 'utf8',
-          env: { ...process.env, SFP_REPOSITORY_ROOT: setup.root },
+          env: hermeticGitEnvironment({ ...process.env, SFP_REPOSITORY_ROOT: setup.root }),
+          windowsHide: true,
         },
       );
 
@@ -611,11 +623,12 @@ describe('service-fork lineage updater', () => {
     const crashed = spawnSync(process.execPath, scriptArguments, {
       cwd: setup.root,
       encoding: 'utf8',
-      env: {
+      env: hermeticGitEnvironment({
         ...process.env,
         SFP_REPOSITORY_ROOT: setup.root,
         SFP_SERVICE_FORK_TEST_CRASH_AFTER_RENAMES: '1',
-      },
+      }),
+      windowsHide: true,
     });
     expect(crashed.status).not.toBe(0);
     await expect(
@@ -625,7 +638,8 @@ describe('service-fork lineage updater', () => {
     const recovered = spawnSync(process.execPath, scriptArguments, {
       cwd: setup.root,
       encoding: 'utf8',
-      env: { ...process.env, SFP_REPOSITORY_ROOT: setup.root },
+      env: hermeticGitEnvironment({ ...process.env, SFP_REPOSITORY_ROOT: setup.root }),
+      windowsHide: true,
     });
     expect({ status: recovered.status, stderr: recovered.stderr }).toEqual({
       status: 0,
@@ -654,11 +668,12 @@ describe('service-fork lineage updater', () => {
     const crashed = spawnSync(process.execPath, scriptArguments, {
       cwd: setup.root,
       encoding: 'utf8',
-      env: {
+      env: hermeticGitEnvironment({
         ...process.env,
         SFP_REPOSITORY_ROOT: setup.root,
         SFP_SERVICE_FORK_TEST_CRASH_BEFORE_POINTER_RENAME: '1',
-      },
+      }),
+      windowsHide: true,
     });
     expect(crashed.status).toBe(1);
     expect(crashed.stderr).toContain('SERVICE_FORK_TEST_CRASH');
@@ -669,7 +684,8 @@ describe('service-fork lineage updater', () => {
     const recovered = spawnSync(process.execPath, scriptArguments, {
       cwd: setup.root,
       encoding: 'utf8',
-      env: { ...process.env, SFP_REPOSITORY_ROOT: setup.root },
+      env: hermeticGitEnvironment({ ...process.env, SFP_REPOSITORY_ROOT: setup.root }),
+      windowsHide: true,
     });
     expect({ status: recovered.status, stderr: recovered.stderr }).toEqual({
       status: 0,

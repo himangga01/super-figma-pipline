@@ -313,6 +313,7 @@ describe('exclusive atomic file publication', () => {
             SFP_REPLACE_OLD_DIGEST: expectedDigest64,
           },
           stdio: 'ignore',
+          windowsHide: true,
         },
       );
       expect((await once(child, 'exit'))[0]).toBe(expectedExit);
@@ -462,6 +463,7 @@ describe('exclusive atomic file publication', () => {
         {
           env: { ...process.env, SFP_LOCK_TARGET: target, SFP_LOCK_COUNTER: counter },
           stdio: 'ignore',
+          windowsHide: true,
         },
       ),
     );
@@ -569,7 +571,7 @@ describe('exclusive atomic file publication', () => {
       const child = spawn(
         process.execPath,
         ['--experimental-transform-types', '--input-type=module', '-e', script],
-        { env: { ...process.env, SFP_LOCK_TARGET: target }, stdio: 'ignore' },
+        { env: { ...process.env, SFP_LOCK_TARGET: target }, stdio: 'ignore', windowsHide: true },
       );
       const exit = (await once(child, 'exit'))[0];
 
@@ -614,7 +616,11 @@ describe('exclusive atomic file publication', () => {
     const child = spawn(
       process.execPath,
       ['--experimental-transform-types', '--input-type=module', '-e', script],
-      { env: { ...process.env, SFP_LOCK_TARGET: target }, stdio: ['pipe', 'pipe', 'ignore'] },
+      {
+        env: { ...process.env, SFP_LOCK_TARGET: target },
+        stdio: ['pipe', 'pipe', 'ignore'],
+        windowsHide: true,
+      },
     );
     const exited = once(child, 'exit');
     let exitObserved = false;

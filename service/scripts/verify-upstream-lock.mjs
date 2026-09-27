@@ -188,11 +188,13 @@ const gitText = (root, ...args) =>
   execFileSync('git', ['-C', root, ...args], {
     encoding: 'utf8',
     maxBuffer: 64 * 1024 * 1024,
+    windowsHide: true,
   }).trim();
 
 const gitBytes = (root, ...args) =>
   execFileSync('git', ['-C', root, ...args], {
     maxBuffer: 64 * 1024 * 1024,
+    windowsHide: true,
   });
 
 const globToRegExp = glob => {

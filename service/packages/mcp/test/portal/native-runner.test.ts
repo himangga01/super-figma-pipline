@@ -125,6 +125,8 @@ it('supports owner cancellation while a native step is active', async () => {
   expect((await running).commands[0]?.status).toBe('cancelled');
 });
 it('finishes when a root exits while a descendant holds inherited output pipes', async () => {
+  // spawn-hygiene-exempt: workload fixture that models user code whose descendant keeps inherited
+  // output pipes open; the runner starts the root with windowsHide.
   const value = await fixture(
     'import {spawn} from "node:child_process"; const child=spawn(process.execPath,["-e", "setInterval(()=>{},1000)"],{stdio:"inherit"}); child.unref(); console.log("root finished");',
   );

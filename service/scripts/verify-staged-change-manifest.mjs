@@ -179,7 +179,7 @@ const cachedChanges = () => {
       '--',
       'service',
     ],
-    { maxBuffer: 64 * 1024 * 1024 },
+    { maxBuffer: 64 * 1024 * 1024, windowsHide: true },
   )
     .toString('utf8')
     .split('\0')
@@ -198,6 +198,7 @@ const cachedChanges = () => {
         : sha256(
             execFileSync('git', ['-C', repositoryRoot, 'show', `:${path}`], {
               maxBuffer: 64 * 1024 * 1024,
+              windowsHide: true,
             }),
           );
     rows.push({ status, path, sha256: digest });
@@ -218,7 +219,7 @@ const assertNoUnstagedServiceChanges = () => {
       '--',
       'service',
     ],
-    { maxBuffer: 64 * 1024 * 1024 },
+    { maxBuffer: 64 * 1024 * 1024, windowsHide: true },
   )
     .toString('utf8')
     .split('\0')
@@ -233,9 +234,11 @@ const indexMatchesHead = path => {
   try {
     const head = execFileSync('git', ['-C', repositoryRoot, 'rev-parse', `HEAD:${path}`], {
       encoding: 'utf8',
+      windowsHide: true,
     }).trim();
     const index = execFileSync('git', ['-C', repositoryRoot, 'rev-parse', `:${path}`], {
       encoding: 'utf8',
+      windowsHide: true,
     }).trim();
     return /^[0-9a-f]{40,64}$/.test(head) && head === index;
   } catch {

@@ -350,6 +350,7 @@ describe.skipIf(process.platform === 'win32')('leader lock: the real OS probe', 
   const spawnIdle = async (): Promise<ChildProcess> => {
     const child = spawn(process.execPath, ['-e', 'setInterval(() => {}, 1000)'], {
       stdio: 'ignore',
+      windowsHide: true,
     });
     children.push(child);
     await new Promise<void>(resolve => setTimeout(resolve, 400));

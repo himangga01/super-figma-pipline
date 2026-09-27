@@ -59,7 +59,7 @@ const stagedChanges = () => {
       '--',
       'service',
     ],
-    { encoding: 'buffer', maxBuffer: 64 * 1024 * 1024 },
+    { encoding: 'buffer', maxBuffer: 64 * 1024 * 1024, windowsHide: true },
   )
     .toString('utf8')
     .split('\0')
@@ -289,12 +289,14 @@ const applyDeclaredMovePairs = (
 const stagedBytes = path =>
   execFileSync('git', ['-C', repositoryRoot, 'show', `:service/${path}`], {
     maxBuffer: 64 * 1024 * 1024,
+    windowsHide: true,
   });
 
 const parentTreeHasBlob = path => {
   try {
     execFileSync('git', ['-C', repositoryRoot, 'cat-file', '-e', `HEAD:service/${path}`], {
       stdio: 'ignore',
+      windowsHide: true,
     });
     return true;
   } catch (error) {

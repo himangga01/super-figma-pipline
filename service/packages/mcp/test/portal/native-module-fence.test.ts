@@ -190,6 +190,8 @@ it('retains producer-bound module bytes consumed and deleted during the same com
   expect(result.outputReceipts[0]!.inventory.files).toBe(0);
 });
 it('propagates consumed module authority into ordinary Node children and workers', async () => {
+  // spawn-hygiene-exempt: module-fence fixture that models untrusted workload code; the fenced
+  // parent is started with windowsHide, so its Node children inherit that hidden console.
   const source =
     'const {spawnSync}=require("node:child_process");const {Worker}=require("node:worker_threads");const path=require("node:path");const child=spawnSync(process.execPath,["child.cjs"],{encoding:"utf8"});if(child.status!==0)throw Error(child.stderr);const worker=new Worker(path.resolve("worker.cjs"));worker.on("message",value=>{if(value!==42)throw Error("worker value")});worker.on("error",error=>{throw error});';
   const value = await supportedFixture(source, {
@@ -204,6 +206,8 @@ it('propagates consumed module authority into ordinary Node children and workers
   expect(result.commands[0]!.moduleEvidence!.loadedModules).toBeGreaterThanOrEqual(5);
 });
 it('rejects an unbound module in a child even when its parent ignores the child failure', async () => {
+  // spawn-hygiene-exempt: module-fence fixture that models untrusted workload code; the fenced
+  // parent is started with windowsHide, so its Node children inherit that hidden console.
   const value = await supportedFixture(
     'require("node:child_process").spawnSync(process.execPath,["child.cjs"]);',
     { 'child.cjs': 'require("../outside.cjs")' },
@@ -223,6 +227,8 @@ it('rejects custom runtime hook registration even when the program catches the e
 it.each(['spawn', 'fork', 'worker'] as const)(
   'preserves module evidence when %s replaces environment or execArgv defaults',
   async mode => {
+    // spawn-hygiene-exempt: module-fence fixture that models untrusted workload code; the fenced
+    // parent is started with windowsHide, so its Node children inherit that hidden console.
     const source =
       mode === 'spawn'
         ? 'const child=require("node:child_process").spawnSync(process.execPath,["child.cjs"],{env:{},encoding:"utf8"});if(child.status!==0)throw Error(child.stderr);'
@@ -241,6 +247,8 @@ it.each(['spawn', 'fork', 'worker'] as const)(
 it.each(['spawn', 'fork', 'worker'] as const)(
   'blocks unbound child code when %s replaces environment or execArgv defaults',
   async mode => {
+    // spawn-hygiene-exempt: module-fence fixture that models untrusted workload code; the fenced
+    // parent is started with windowsHide, so its Node children inherit that hidden console.
     const source =
       mode === 'spawn'
         ? 'require("node:child_process").spawnSync(process.execPath,["child.cjs"],{env:{}});'
@@ -256,6 +264,8 @@ it.each(['spawn', 'fork', 'worker'] as const)(
   },
 );
 it('rejects a child custom preload before its code can execute', async () => {
+  // spawn-hygiene-exempt: module-fence fixture that models untrusted workload code; the fenced
+  // parent is started with windowsHide, so its Node children inherit that hidden console.
   const value = await supportedFixture(
     'try{require("node:child_process").spawnSync(process.execPath,["--import","data:text/javascript,console.log(123)","check.cjs"],{env:{}})}catch{}',
   );
@@ -343,6 +353,8 @@ it.each([
 ])(
   'refuses unsupported host probe text without invoking any child transport: %s',
   async request => {
+    // spawn-hygiene-exempt: module-fence fixture; the fence must refuse this call before any
+    // child process starts.
     const value = await probeFixture(
       `try{require('node:child_process').exec(${JSON.stringify(request)})}catch(error){console.log(error.code)}`,
     );
@@ -353,6 +365,8 @@ it.each([
 it.each(['PROBE_EXECUTABLE', 'PROBE_HELPER'])(
   'does not grant generic child execution through host-probe role: %s',
   async executable => {
+    // spawn-hygiene-exempt: module-fence fixture; the fence must refuse this call before any
+    // child process starts.
     const value = await probeFixture(
       `try{require('node:child_process').execFile(${executable},['use','/delete'])}catch(error){console.log(error.code)}`,
     );
@@ -399,6 +413,8 @@ it.each(['__filename', '"[eval]-wrapper"'])(
 it.each([false, true])(
   'preserves promisified exec streams, child and rejection metadata (error=%s)',
   async mockError => {
+    // spawn-hygiene-exempt: module-fence fixture; the options-less promisified exec is the
+    // case under test, the fence adds windowsHide itself and the child transport is mocked.
     const value = await probeFixture(
       `const {promisify}=require('node:util');const promise=promisify(require('node:child_process').exec)('net use');const hasChild=typeof promise.child?.on==='function';promise.then(result=>console.log(JSON.stringify({hasChild,stdout:result.stdout,stderr:result.stderr})),error=>console.log(JSON.stringify({hasChild,code:error.code,stdout:error.stdout,stderr:error.stderr})));`,
       mockError,
@@ -416,6 +432,8 @@ it.each([false, true])(
   },
 );
 it('rejects unsupported promisified exec requests without invoking child transport', async () => {
+  // spawn-hygiene-exempt: module-fence fixture; the fence must refuse this call before any
+  // child process starts.
   const value = await probeFixture(
     `require('node:util').promisify(require('node:child_process').exec)('net use /delete').catch(error=>console.log(error.code));`,
   );

@@ -68,6 +68,7 @@ const spawnServer = (port: number): Server => {
   const child = spawn(process.execPath, [DIST_ENTRY], {
     env: { ...serverEnvironment, FIGWRIGHT_PORT: String(port) },
     stdio: ['pipe', 'pipe', 'pipe'],
+    windowsHide: true,
   });
   let stderr = '';
   child.stderr?.on('data', (d: Buffer) => {
