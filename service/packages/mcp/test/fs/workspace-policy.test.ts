@@ -113,25 +113,33 @@ describe('configured workspace authority', () => {
 });
 
 describe('platform boundary inspection', () => {
-  it('rejects a nested Linux bind mount hidden behind an in-root lexical alias', async () => {
-    const mountedTarget = join(workspaceRoot, 'src', 'mounted-target');
-    const alias = join(workspaceRoot, 'mounted-alias');
-    await mkdir(mountedTarget);
-    await writeFile(join(mountedTarget, 'inside.ts'), 'export {};');
-    await symlink(mountedTarget, alias, process.platform === 'win32' ? 'junction' : 'dir');
-    const canonicalTarget = await realpath(mountedTarget);
-    const mountPoint = posix.resolve(canonicalTarget);
-    const boundaryInspector = createLinuxBoundaryInspector({
-      readMountInfo: async () => `37 36 0:32 /source ${mountPoint} rw,relatime - ext4 /dev/root rw`,
-    });
-    const policy = createWorkspacePolicy(workspaceStore(), { boundaryInspector });
+  // POSIX-only by construction: the synthetic mountinfo record embeds the host's canonical path,
+  // and a Windows drive path is neither POSIX nor valid mountinfo (a segment such as
+  // `\2026_project` decodes as the octal escape `\202`). Windows never uses the Linux inspector;
+  // its junction case is covered by 'rejects an existing in-root Windows link as a reparse point'.
+  it.runIf(process.platform !== 'win32')(
+    'rejects a nested Linux bind mount hidden behind an in-root lexical alias',
+    async () => {
+      const mountedTarget = join(workspaceRoot, 'src', 'mounted-target');
+      const alias = join(workspaceRoot, 'mounted-alias');
+      await mkdir(mountedTarget);
+      await writeFile(join(mountedTarget, 'inside.ts'), 'export {};');
+      await symlink(mountedTarget, alias, process.platform === 'win32' ? 'junction' : 'dir');
+      const canonicalTarget = await realpath(mountedTarget);
+      const mountPoint = posix.resolve(canonicalTarget);
+      const boundaryInspector = createLinuxBoundaryInspector({
+        readMountInfo: async () =>
+          `37 36 0:32 /source ${mountPoint} rw,relatime - ext4 /dev/root rw`,
+      });
+      const policy = createWorkspacePolicy(workspaceStore(), { boundaryInspector });
 
-    await expect(
-      policy.resolveRead(workspaceId, join('mounted-alias', 'inside.ts')),
-    ).rejects.toMatchObject({
-      code: 'WORKSPACE_PATH_REPARSE',
-    });
-  });
+      await expect(
+        policy.resolveRead(workspaceId, join('mounted-alias', 'inside.ts')),
+      ).rejects.toMatchObject({
+        code: 'WORKSPACE_PATH_REPARSE',
+      });
+    },
+  );
 
   it('preserves an ordinary in-root alias when its canonical target has no boundary', async () => {
     const target = join(workspaceRoot, 'src', 'ordinary-target');

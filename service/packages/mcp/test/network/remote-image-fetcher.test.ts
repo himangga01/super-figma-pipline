@@ -76,6 +76,13 @@ const extendedWebpBytes = (): Buffer =>
     { type: 'VP8 ', bytes: Buffer.from([1]) },
   ]);
 const PNG = pngBytes();
+// Byte-exact comparison for the 6 MiB fixtures. A structural matcher such as `toMatchObject`
+// walks a Buffer element by element: about 21 s per 6 MiB comparison alone and over the old 30 s
+// timeout under suite load, while the fetcher itself returns in milliseconds.
+const expectSameBytes = (actual: Uint8Array, expected: Uint8Array): void => {
+  expect(actual.byteLength).toBe(expected.byteLength);
+  expect(Buffer.compare(actual, expected)).toBe(0);
+};
 const JPEG = Buffer.from([0xff, 0xd8, 0xff, 0xe0, 0x01, 0xff, 0xd9]);
 const GIF = Buffer.from('GIF89a;');
 const WEBP = webpBytes();
@@ -938,21 +945,20 @@ describe('remote image fetcher', () => {
 
   it('accepts the exact 6 MiB body and rejects declared or streamed max plus one', async () => {
     const exact = pngBytes(REMOTE_IMAGE_LIMITS.maxDecodedBytes);
-    await expect(
-      successFetcher([
-        {
-          headers: [
-            ['Content-Type', 'image/png'],
-            ['Content-Length', String(exact.byteLength)],
-          ],
-          chunks: [exact],
-        },
-      ]).fetcher.fetchApproved(
-        'https://assets.example.com/a',
-        policy(),
-        new AbortController().signal,
-      ),
-    ).resolves.toMatchObject({ bytes: exact });
+    const accepted = await successFetcher([
+      {
+        headers: [
+          ['Content-Type', 'image/png'],
+          ['Content-Length', String(exact.byteLength)],
+        ],
+        chunks: [exact],
+      },
+    ]).fetcher.fetchApproved(
+      'https://assets.example.com/a',
+      policy(),
+      new AbortController().signal,
+    );
+    expectSameBytes(accepted.bytes, exact);
 
     const declared = successFetcher([
       {
@@ -981,7 +987,7 @@ describe('remote image fetcher', () => {
         new AbortController().signal,
       ),
     ).rejects.toMatchObject({ code: 'REMOTE_BODY_TOO_LARGE', beforeRead: false });
-  }, 30_000);
+  });
 
   it('enforces explicit chunked bodies below, at, and above the decoded limit', async () => {
     const chunkedHeaders = [
@@ -997,13 +1003,14 @@ describe('remote image fetcher', () => {
     ).resolves.toMatchObject({ bytes: PNG });
 
     const exact = pngBytes(REMOTE_IMAGE_LIMITS.maxDecodedBytes);
-    await expect(
-      successFetcher([{ headers: chunkedHeaders, chunks: [exact] }]).fetcher.fetchApproved(
-        'https://assets.example.com/exact',
-        policy(),
-        new AbortController().signal,
-      ),
-    ).resolves.toMatchObject({ bytes: exact });
+    const accepted = await successFetcher([
+      { headers: chunkedHeaders, chunks: [exact] },
+    ]).fetcher.fetchApproved(
+      'https://assets.example.com/exact',
+      policy(),
+      new AbortController().signal,
+    );
+    expectSameBytes(accepted.bytes, exact);
 
     const oversized = pngBytes(REMOTE_IMAGE_LIMITS.maxDecodedBytes + 1);
     const over = successFetcher([{ headers: chunkedHeaders, chunks: [oversized] }]);
@@ -1018,7 +1025,7 @@ describe('remote image fetcher', () => {
     ).rejects.toMatchObject({ code: 'REMOTE_BODY_TOO_LARGE', beforeRead: false });
     expect(resultCount).toBe(0);
     expect(over.harness.options).toHaveLength(1);
-  }, 30_000);
+  });
 
   it.each([
     [

@@ -150,12 +150,19 @@ export const portalCandidateHash = (
   plan: Pick<PortalPlan, 'contextHash' | 'blueprintHash' | 'coreRecipes'>,
   declarations?: unknown,
 ): `sha256:${string}` => {
-  if(plan.coreRecipes && declarations===undefined)
+  if (plan.coreRecipes && declarations === undefined)
     throw new Error('PORTAL_CORE_DECLARATIONS_REQUIRED');
   return contentHash(plan.coreRecipes ? 'sfp-portal-candidate-v2' : 'sfp-portal-candidate-v1', {
     contextHash: plan.contextHash,
     blueprintHash: plan.blueprintHash,
-    ...(plan.coreRecipes ? {declarationsHash:contentHash('sfp-portal-core-declarations-v1',canonicalCoreDeclarations(declarations))} : {}),
+    ...(plan.coreRecipes
+      ? {
+          declarationsHash: contentHash(
+            'sfp-portal-core-declarations-v1',
+            canonicalCoreDeclarations(declarations),
+          ),
+        }
+      : {}),
     files: files
       .map(file => ({
         path: file.path,

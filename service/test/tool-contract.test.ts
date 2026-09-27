@@ -1,4 +1,3 @@
-import { createHash } from 'node:crypto';
 import { existsSync } from 'node:fs';
 
 import { describe, expect, it } from 'vitest';
@@ -11,14 +10,19 @@ import { createSandboxHandlers } from '../packages/plugin/src/handlers/registry.
 import {
   FIGMOSHA_FEATURE_MAP,
   RUST_TOOL_COMPAT,
-  schemaContractJson,
   UNION_MANIFEST,
 } from '../packages/shared/src/capability-manifest.js';
 import { PORTAL_TOOL_NAMES } from '../packages/shared/src/portal.js';
 import { RESULT_SCHEMAS } from '../packages/shared/src/result-schemas.js';
+import { SERVICE_LOCAL_TOOL_NAMES, SERVICE_SOURCE } from '../scripts/contracts-lib.mjs';
 
-const sha256 = (value: string): string => createHash('sha256').update(value).digest('hex');
+// Tool counts are derived, never restated. This file checks the registry against its own
+// authorities and the committed capability manifest against its own provenance. Whether the two
+// agree is the single drift check in contract-drift.test.ts, which names `pnpm contracts:update`.
+
 const hashPattern = /^[0-9a-f]{64}$/;
+const sorted = (values: Iterable<string>): string[] => [...values].toSorted();
+const registeredNames = (): string[] => sorted(ALL_TOOL_SPECS.map(spec => spec.name));
 
 const BASELINE_SERVER_ONLY = [
   ...PORTAL_TOOL_NAMES,
@@ -34,7 +38,7 @@ const BASELINE_SERVER_ONLY = [
   'token_map',
 ] as const;
 
-const BASELINE_SERVER_ADAPTER_NAMES = [
+const BASELINE_SERVER_ADAPTER_NAMES: readonly string[] = [
   ...PORTAL_TOOL_NAMES,
   'doctor',
   'export_frames_to_pdf',
@@ -53,7 +57,14 @@ const BASELINE_SERVER_ADAPTER_NAMES = [
   'icon_map',
   'import_image',
   'design_diff',
-] as const;
+];
+
+const SAFE_UNION_IMPLEMENTATIONS = {
+  doctor: 'packages/mcp/src/tools/safe-union.ts',
+  export_frames_to_pdf: 'packages/mcp/src/tools/safe-union.ts',
+  export_tokens: 'packages/mcp/src/tools/safe-union.ts',
+  import_library_variable: 'packages/plugin/src/handlers/import-library-variable.ts',
+} as const;
 
 const EXPERIMENTAL_NATIVE = [
   'apply_animation_style',
@@ -66,6 +77,13 @@ const EXPERIMENTAL_NATIVE = [
   'set_timeline_duration',
 ] as const;
 
+const runtimeNames = (execution: string): string[] =>
+  sorted(
+    Object.entries(TOOL_RUNTIMES)
+      .filter(([, binding]) => binding.execution === execution)
+      .map(([name]) => name),
+  );
+
 describe('tool contract authorities', () => {
   it('keeps policy batch children equal to the plugin invertible allowlist', () => {
     expect([...POLICY_BATCHABLE_TOOL_NAMES].toSorted()).toEqual(
@@ -73,15 +91,12 @@ describe('tool contract authorities', () => {
     );
   });
 
-  it('has one strict result schema and runtime for every baseline tool', () => {
-    const names = ALL_TOOL_SPECS.map(spec => spec.name).toSorted();
+  it('has one strict result schema and runtime for every registered tool', () => {
+    const names = registeredNames();
 
-    expect(names).toHaveLength(125);
+    expect(new Set(names).size).toBe(names.length);
     expect(Object.keys(RESULT_SCHEMAS).toSorted()).toEqual(names);
     expect(Object.keys(TOOL_RUNTIMES).toSorted()).toEqual(names);
-    expect(
-      Object.values(TOOL_RUNTIMES).filter(binding => binding.execution === 'server-adapter'),
-    ).toHaveLength(26);
 
     for (const [name, schema] of Object.entries(RESULT_SCHEMAS)) {
       const jsonSchema = schema.toJSONSchema({ unrepresentable: 'any' });
@@ -104,27 +119,21 @@ describe('tool contract authorities', () => {
     }
   });
 
-  it('derives nineteen server-only tools while retaining 106 plugin handlers', () => {
-    expect([...SERVER_ONLY_TOOLS].toSorted()).toEqual([...BASELINE_SERVER_ONLY].toSorted());
-    expect(Object.keys(createSandboxHandlers({} as never))).toHaveLength(106);
+  it('derives the server-only tools and one plugin handler for every other tool', () => {
+    expect(sorted(SERVER_ONLY_TOOLS)).toEqual(sorted(BASELINE_SERVER_ONLY));
+    expect(sorted(Object.keys(createSandboxHandlers({} as never)))).toEqual(
+      registeredNames().filter(name => !SERVER_ONLY_TOOLS.has(name)),
+    );
   });
 
   it('keeps handler parity independent from the exact baseline execution adapters', () => {
-    const grouped = Object.values(TOOL_RUNTIMES).reduce<Record<string, number>>(
-      (counts, binding) => {
-        counts[binding.execution] = (counts[binding.execution] ?? 0) + 1;
-        return counts;
-      },
-      {},
+    expect(new Set(Object.values(TOOL_RUNTIMES).map(binding => binding.execution))).toEqual(
+      new Set(['plugin-direct', 'server-adapter']),
     );
-
-    expect(grouped).toEqual({ 'plugin-direct': 99, 'server-adapter': 26 });
-    expect(
-      Object.entries(TOOL_RUNTIMES)
-        .filter(([, binding]) => binding.execution === 'server-adapter')
-        .map(([name]) => name)
-        .toSorted(),
-    ).toEqual([...BASELINE_SERVER_ADAPTER_NAMES].toSorted());
+    expect(runtimeNames('server-adapter')).toEqual(sorted(BASELINE_SERVER_ADAPTER_NAMES));
+    expect(runtimeNames('plugin-direct')).toEqual(
+      registeredNames().filter(name => !BASELINE_SERVER_ADAPTER_NAMES.includes(name)),
+    );
   });
 
   it('binds exact baseline target requirements after strict args parsing', () => {
@@ -159,9 +168,10 @@ describe('two-layer capability manifest', () => {
       }
     }
   });
-  it('materializes all canonical and source surfaces at their exact cardinalities', () => {
+
+  it('materializes the pinned source surfaces at their exact cardinalities', () => {
+    // These count frozen upstream inventories at their pinned commits, not the tool registry.
     expect(UNION_MANIFEST.schemaVersion).toBe(1);
-    expect(UNION_MANIFEST.canonicalTools).toHaveLength(125);
     expect(UNION_MANIFEST.sourceSurfaces.lexicalTools).toHaveLength(114);
     expect(UNION_MANIFEST.sourceSurfaces.figmoshaHelpers).toHaveLength(20);
     expect(UNION_MANIFEST.sourceSurfaces.figmoshaCliParsers).toHaveLength(12);
@@ -173,20 +183,69 @@ describe('two-layer capability manifest', () => {
     );
   });
 
-  it('implements every canonical tool including the four safe-union tools', () => {
-    const planned = UNION_MANIFEST.canonicalTools
-      .filter(row => row.implementationStatus === 'planned')
-      .map(row => row.name)
-      .toSorted();
-    const implemented = UNION_MANIFEST.canonicalTools.filter(
-      row => row.implementationStatus === 'implemented',
-    );
+  it('is the upstream canonical catalog plus the explicitly declared service-local tools', () => {
+    const surfaces = UNION_MANIFEST.sourceSurfaces;
+    const upstreamSources = new Set([
+      ...surfaces.lexicalTools.flatMap(row => row.sources),
+      ...surfaces.figmoshaHelpers.map(row => row.source),
+      ...surfaces.figmoshaCliParsers.map(row => row.source),
+    ]);
+    const rows = UNION_MANIFEST.canonicalTools;
+    const provenance = (row: (typeof rows)[number]): string =>
+      row.sourceContracts.every(contract => upstreamSources.has(contract.source))
+        ? 'upstream'
+        : row.sourceContracts.every(contract => contract.source === SERVICE_SOURCE)
+          ? 'service'
+          : 'mixed';
+    const upstream = rows.filter(row => provenance(row) === 'upstream').map(row => row.name);
+    const service = rows.filter(row => provenance(row) === 'service').map(row => row.name);
+    // The canonical catalog is every upstream-sourced tool plus the portal contract; the only
+    // other rows are the service-local tools declared in scripts/contracts-lib.mjs.
+    const catalog = [...upstream, ...PORTAL_TOOL_NAMES];
 
-    expect(planned).toEqual([]);
-    expect(implemented).toHaveLength(125);
-    expect(implemented.map(row => row.name).toSorted()).toEqual(
-      ALL_TOOL_SPECS.map(spec => spec.name).toSorted(),
+    expect(rows.filter(row => provenance(row) === 'mixed').map(row => row.name)).toEqual([]);
+    expect(sorted(service)).toEqual(sorted([...PORTAL_TOOL_NAMES, ...SERVICE_LOCAL_TOOL_NAMES]));
+    expect(sorted(rows.map(row => row.name))).toEqual(
+      sorted([...catalog, ...SERVICE_LOCAL_TOOL_NAMES]),
     );
+    expect(new Set([...catalog, ...SERVICE_LOCAL_TOOL_NAMES]).size).toBe(rows.length);
+    // Every upstream lexical tool reaches the catalog, and none is relabelled as service-local.
+    expect(surfaces.lexicalTools.filter(row => !upstream.includes(row.canonicalName))).toEqual([]);
+    expect(
+      surfaces.lexicalTools.filter(row =>
+        (SERVICE_LOCAL_TOOL_NAMES as readonly string[]).includes(row.canonicalName),
+      ),
+    ).toEqual([]);
+  });
+
+  it('records each service-local tool as an honest service-native row', () => {
+    for (const name of SERVICE_LOCAL_TOOL_NAMES) {
+      const row = UNION_MANIFEST.canonicalTools.find(candidate => candidate.name === name);
+      expect(row).toMatchObject({
+        name,
+        disposition: 'native',
+        registration: 'advertised',
+        implementationStatus: 'implemented',
+        policyId: `tool:${name}:v1`,
+      });
+      // Its only source contract is the service's own schema; no upstream contract is invented.
+      expect(row!.sourceContracts).toEqual([
+        { source: SERVICE_SOURCE, schemaHash: expect.stringMatching(hashPattern) },
+      ]);
+      expect(row!.sourceRefs.every(ref => ref.startsWith(`${SERVICE_SOURCE}:`))).toBe(true);
+    }
+  });
+
+  it('implements every canonical tool including the four safe-union tools', () => {
+    const rows = UNION_MANIFEST.canonicalTools;
+
+    expect(rows.filter(row => row.implementationStatus !== 'implemented')).toEqual([]);
+    for (const [name, implementation] of Object.entries(SAFE_UNION_IMPLEMENTATIONS)) {
+      expect(rows.find(row => row.name === name)).toMatchObject({
+        implementationStatus: 'implemented',
+        implementation,
+      });
+    }
   });
 
   it('marks exactly Motion seven plus video experimental-native and deferred-investment', () => {
@@ -247,18 +306,19 @@ describe('two-layer capability manifest', () => {
     }
   });
 
-  it('uses deterministic target schema hashes distinct from the retained source contracts', () => {
-    for (const spec of ALL_TOOL_SPECS) {
-      const row = UNION_MANIFEST.canonicalTools.find(candidate => candidate.name === spec.name);
-      expect(row).toBeDefined();
-      expect(row!.targetContractHash).toBe(
-        sha256(schemaContractJson(spec.inputSchema, spec.resultSchema)),
-      );
-      expect(row!.sourceContracts.every(contract => hashPattern.test(contract.schemaHash))).toBe(
+  it('keeps target schema hashes well-formed and distinct from the retained source contracts', () => {
+    // Whether each target hash matches the registry schema is the drift check's job: it
+    // regenerates every row, so a stale hash fails there exactly once.
+    for (const row of UNION_MANIFEST.canonicalTools) {
+      expect({ name: row.name, targetContractHash: row.targetContractHash }).toEqual({
+        name: row.name,
+        targetContractHash: expect.stringMatching(hashPattern),
+      });
+      expect(row.sourceContracts.every(contract => hashPattern.test(contract.schemaHash))).toBe(
         true,
       );
-      expect(row!.sourceContracts.map(contract => contract.schemaHash)).not.toContain(
-        row!.targetContractHash,
+      expect(row.sourceContracts.map(contract => contract.schemaHash)).not.toContain(
+        row.targetContractHash,
       );
     }
   });

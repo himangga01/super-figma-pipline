@@ -330,7 +330,9 @@ const acceptanceFixture = async (
       interactionContractHash: contentHash('sfp-interaction-contract-v1', plan.interactionContract),
       receiptHash: storedChecksum('fixture'),
       executedObservationIds: ['fixture'],
-      executedAssertionIds: plan.interactionContract!.interactions.map(value => value.id),
+      executedAssertionIds: plan.interactionContract!.interactions.map(
+        interaction => interaction.id,
+      ),
       executedWorkflowIds: plan.interactionContract!.workflowIds,
     },
     capture: {
@@ -888,7 +890,11 @@ it('accounts verified recovery backups separately from a material tree near the 
     encoding: 'utf8',
     artifact: { path: 'contents/large-fixture.json', hash: contentDigest, bytes: content.length },
   });
-  value.run.candidateHash = portalCandidateHash(value.run.files, value.plan, value.run.coreDeclarations);
+  value.run.candidateHash = portalCandidateHash(
+    value.run.files,
+    value.plan,
+    value.run.coreDeclarations,
+  );
   value.run.validation = await acceptanceFixture(value);
   expect(value.plan.profiles[0]!.graph.sourceInventory!.totalBytes).toBeGreaterThan(
     120 * 1024 * 1024,

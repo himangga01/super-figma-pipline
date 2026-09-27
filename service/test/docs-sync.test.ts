@@ -3,26 +3,29 @@ import { join } from 'node:path';
 
 import { describe, expect, it } from 'vitest';
 
-import { ALL_TOOL_SPECS } from '../packages/mcp/src/tools/registry.js';
+import { UNION_MANIFEST } from '../packages/shared/src/capability-manifest.js';
+import { ARTIFACT_PATHS, TOOL_COUNT_BEGIN, TOOL_COUNT_END } from '../scripts/contracts-lib.mjs';
 
-// Docs-sync guard: the tool count is prose in two user-facing READMEs (the GitHub front page and
-// the npm package page) while the authority is ALL_TOOL_SPECS.length — and the npm one has already
-// drifted once (advertised 96 while the server shipped 101). Lock every bolded "**N tools**" /
-// "**N MCP tools**" claim to the registry. Requiring at least one match per file keeps the guard
-// itself honest: a reworded README that no longer matches the pattern fails loudly instead of
-// silently un-guarding the number.
+// Docs-sync guard: the tool count is prose in two user-facing READMEs, and it drifted repeatedly
+// (the npm page once advertised 96 while the server shipped 101). The count is now written only
+// by `pnpm contracts:update`, into one generated block per README; whether that block matches the
+// live registry is the single drift check in contract-drift.test.ts. This guard keeps hand-written
+// "**N tools**" / "**N MCP tools**" claims from reappearing outside the block, and keeps the
+// generated claim consistent with the committed capability manifest. Requiring exactly one claim in
+// the block keeps the guard itself honest: a reworded block fails instead of silently un-guarding.
 
-const README_PATHS = ['README.md', 'packages/mcp/README.md'];
 const TOOL_COUNT_CLAIM = /\*\*(\d+)(?: MCP)? tools\*\*/g;
+const claims = (text: string): number[] =>
+  [...text.matchAll(TOOL_COUNT_CLAIM)].map(match => Number(match[1]));
 
 describe('README tool counts', () => {
-  it.each(README_PATHS)('%s advertises exactly ALL_TOOL_SPECS.length tools', path => {
+  it.each(ARTIFACT_PATHS.readmes)('%s states its tool count only in the generated block', path => {
     const body = readFileSync(join(import.meta.dirname, '..', path), 'utf8');
-    const claims = [...body.matchAll(TOOL_COUNT_CLAIM)].map(m => Number(m[1]));
-    expect(
-      claims.length,
-      `${path}: no "**N tools**" claim found — update TOOL_COUNT_CLAIM`,
-    ).toBeGreaterThan(0);
-    expect(claims).toEqual(claims.map(() => ALL_TOOL_SPECS.length));
+    const begin = body.indexOf(TOOL_COUNT_BEGIN);
+    const end = body.indexOf(TOOL_COUNT_END, begin);
+
+    expect({ path, hasBlock: begin !== -1 && end !== -1 }).toEqual({ path, hasBlock: true });
+    expect(claims(body.slice(0, begin) + body.slice(end))).toEqual([]);
+    expect(claims(body.slice(begin, end))).toEqual([UNION_MANIFEST.canonicalTools.length]);
   });
 });

@@ -86,9 +86,12 @@ export const PORTAL_CORE_DECLARATION_LIMITS = Object.freeze({
   batch: 64,
   batchBytes: 1_048_576,
 });
+// The input stage is an array of unknown rows so the advertised MCP input schema is typed (a bare
+// `unknown` stage advertises `{}`, which clients may coerce); the byte/value bound still runs before
+// any row is validated, and non-arrays are rejected exactly as the array stage below rejected them.
 const declarations = (count: number, bytes: number) =>
   z
-    .unknown()
+    .array(z.unknown())
     .superRefine((value, ctx) => {
       if (!isBoundedDesignJson(value, bytes, PORTAL_CORE_DECLARATION_LIMITS.values))
         ctx.addIssue({ code: 'custom', message: 'PORTAL_CORE_DECLARATION_LIMIT' });

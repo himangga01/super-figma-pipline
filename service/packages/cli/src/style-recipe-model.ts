@@ -74,7 +74,8 @@ export const StyleRecipeSchema = z
       }),
   );
 export type StyleRecipe = z.infer<typeof StyleRecipeSchema>;
-const sorted = <T extends { id: string }>(items: T[]) => items.toSorted((a, b) => a.id.localeCompare(b.id));
+const sorted = <T extends { id: string }>(items: T[]) =>
+  items.toSorted((a, b) => a.id.localeCompare(b.id));
 
 /** Full style inventory; unresolved inline binding IDs cannot be claimed complete. */
 export function styleSnapshot(input: unknown): GetStylesResult {
