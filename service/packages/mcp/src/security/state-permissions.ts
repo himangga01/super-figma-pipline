@@ -16,19 +16,83 @@ const SID_PATTERN = /^S-\d-\d+(?:-\d+)+$/i;
 const ALLOW_ACE_TYPES = new Set(['A', 'OA', 'XA', 'ZA']);
 const WINDOWS_DIRECTORY_ATTRIBUTE = 0x10;
 const WINDOWS_REPARSE_ATTRIBUTE = 0x400;
-const WINDOWS_ACL_PROBE_SCRIPT = [
+// The fixed probes exchange paths as base64 of their UTF-16LE code units and write BOM-less UTF-8
+// through an explicit stream, so the console code page cannot garble a non-ASCII path (OPS-1).
+const WINDOWS_PROBE_PRELUDE = [
   "$ErrorActionPreference='Stop'",
-  '$item=Get-Item -LiteralPath $env:SFP_STATE_ACL_TARGET -Force',
+  '$w=New-Object System.IO.StreamWriter([Console]::OpenStandardOutput(),(New-Object System.Text.UTF8Encoding($false)))',
+  'function ConvertFrom-SfpPath([string]$e){$b=[Convert]::FromBase64String($e);$u=New-Object char[] ($b.Length/2);[Buffer]::BlockCopy($b,0,$u,0,$b.Length);-join $u}',
+  'function ConvertTo-SfpPath([string]$p){$u=$p.ToCharArray();$b=New-Object byte[] ($u.Length*2);[Buffer]::BlockCopy($u,0,$b,0,$b.Length);[Convert]::ToBase64String($b)}',
+];
+const WINDOWS_ACL_PROBE_SCRIPT = [
+  ...WINDOWS_PROBE_PRELUDE,
+  '$item=Get-Item -LiteralPath (ConvertFrom-SfpPath $env:SFP_STATE_ACL_TARGET_UTF16B64) -Force',
   '$acl=Get-Acl -LiteralPath $item.FullName',
-  '[ordered]@{path=$item.FullName;attributes=[int64]$item.Attributes;sddl=$acl.Sddl}|ConvertTo-Json -Compress',
+  '$w.Write(([ordered]@{pathUtf16B64=(ConvertTo-SfpPath $item.FullName);attributes=[int64]$item.Attributes;sddl=$acl.Sddl}|ConvertTo-Json -Compress))',
+  '$w.Flush()',
 ].join(';');
 const WINDOWS_BOUNDARY_PROBE_SCRIPT = [
-  "$ErrorActionPreference='Stop'",
-  '$paths=ConvertFrom-Json $env:SFP_STATE_BOUNDARY_PATHS',
+  ...WINDOWS_PROBE_PRELUDE,
   '$records=@()',
-  'foreach($path in $paths){$item=Get-Item -LiteralPath $path -Force;$records+=[pscustomobject]@{path=$item.FullName;attributes=[int64]$item.Attributes}}',
-  'ConvertTo-Json -InputObject $records -Compress',
+  'foreach($encoded in (ConvertFrom-Json $env:SFP_STATE_BOUNDARY_PATHS_UTF16B64)){$item=Get-Item -LiteralPath (ConvertFrom-SfpPath $encoded) -Force;$records+=[pscustomobject]@{pathUtf16B64=(ConvertTo-SfpPath $item.FullName);attributes=[int64]$item.Attributes}}',
+  '$w.Write((ConvertTo-Json -InputObject $records -Compress))',
+  '$w.Flush()',
 ].join(';');
+
+/**
+ * Fixed Windows commands. The production runner resolves them under `%SystemRoot%\System32` and
+ * never searches PATH, where a shell such as Git Bash can shadow them (K11).
+ */
+const WINDOWS_STATE_COMMANDS = {
+  'whoami.exe': ['whoami.exe'],
+  'icacls.exe': ['icacls.exe'],
+  'powershell.exe': ['WindowsPowerShell', 'v1.0', 'powershell.exe'],
+} as const;
+export type WindowsStateCommand = keyof typeof WINDOWS_STATE_COMMANDS;
+
+const resolveWindowsStateCommand = (
+  command: WindowsStateCommand,
+  environment: Readonly<Record<string, string | undefined>> = process.env,
+): string => {
+  const systemRoot = environment.SystemRoot ?? environment.windir;
+  if (
+    systemRoot === undefined ||
+    !win32.isAbsolute(systemRoot) ||
+    [...systemRoot].some(
+      character => (character.codePointAt(0) as number) <= 0x1f || '"<>|'.includes(character),
+    )
+  ) {
+    throw new StatePermissionError(
+      'STATE_ACL_COMMAND_FAILED',
+      'Windows SystemRoot is not one validated absolute path',
+    );
+  }
+  const root = win32.normalize(systemRoot);
+  const executable = win32.join(root, 'System32', ...WINDOWS_STATE_COMMANDS[command]);
+  const fromRoot = win32.relative(root, executable);
+  if (fromRoot.startsWith('..') || win32.isAbsolute(fromRoot)) {
+    throw new StatePermissionError(
+      'STATE_ACL_COMMAND_FAILED',
+      'Windows system command escapes SystemRoot',
+    );
+  }
+  return executable;
+};
+
+const encodeProbePath = (path: string): string => Buffer.from(path, 'utf16le').toString('base64');
+
+const decodeProbePath = (encoded: unknown): string | undefined => {
+  if (
+    typeof encoded !== 'string' ||
+    encoded.length === 0 ||
+    encoded.length % 4 !== 0 ||
+    !/^[A-Za-z0-9+/]+={0,2}$/u.test(encoded)
+  ) {
+    return undefined;
+  }
+  const bytes = Buffer.from(encoded, 'base64');
+  return bytes.byteLength % 2 === 0 ? bytes.toString('utf16le') : undefined;
+};
 
 export type StatePermissionErrorCode =
   | 'STATE_ACL_COMMAND_FAILED'
@@ -68,7 +132,7 @@ export type WindowsBoundaryProbe = (
 ) => Promise<readonly Pick<WindowsAclProbeRecord, 'attributes' | 'path'>[]>;
 
 export type StatePermissionCommandRunner = (
-  file: string,
+  file: WindowsStateCommand,
   args: readonly string[],
   options?: { environment?: Readonly<Record<string, string>> },
 ) => Promise<{ stdout: string; stderr: string }>;
@@ -104,8 +168,15 @@ export interface SecurePathIdentity {
 
 const runExecFile: StatePermissionCommandRunner = (file, args, options) =>
   new Promise((resolvePromise, reject) => {
+    let executable: string;
+    try {
+      executable = resolveWindowsStateCommand(file);
+    } catch (error) {
+      reject(error);
+      return;
+    }
     execFile(
-      file,
+      executable,
       [...args],
       {
         encoding: 'utf8',
@@ -198,7 +269,7 @@ const probeAclWithPowerShell = async (
     ({ stdout } = await command(
       'powershell.exe',
       ['-NoLogo', '-NoProfile', '-NonInteractive', '-Command', WINDOWS_ACL_PROBE_SCRIPT],
-      { environment: { SFP_STATE_ACL_TARGET: path } },
+      { environment: { SFP_STATE_ACL_TARGET_UTF16B64: encodeProbePath(path) } },
     ));
   } catch (error) {
     throw new StatePermissionError(
@@ -217,20 +288,23 @@ const probeAclWithPowerShell = async (
       error,
     );
   }
+  const record =
+    typeof value === 'object' && value !== null && !Array.isArray(value)
+      ? (value as { pathUtf16B64?: unknown; attributes?: unknown; sddl?: unknown })
+      : {};
+  const observedPath = decodeProbePath(record.pathUtf16B64);
   if (
-    typeof value !== 'object' ||
-    value === null ||
-    Array.isArray(value) ||
-    typeof (value as Partial<WindowsAclProbeRecord>).path !== 'string' ||
-    !Number.isSafeInteger((value as Partial<WindowsAclProbeRecord>).attributes) ||
-    typeof (value as Partial<WindowsAclProbeRecord>).sddl !== 'string'
+    observedPath === undefined ||
+    typeof record.attributes !== 'number' ||
+    !Number.isSafeInteger(record.attributes) ||
+    typeof record.sddl !== 'string'
   ) {
     throw new StatePermissionError(
       'STATE_ACL_INVALID',
       'Windows ACL probe returned an invalid record',
     );
   }
-  return value as WindowsAclProbeRecord;
+  return { path: observedPath, attributes: record.attributes, sddl: record.sddl };
 };
 
 const probeBoundariesWithPowerShell = async (
@@ -242,7 +316,11 @@ const probeBoundariesWithPowerShell = async (
     ({ stdout } = await command(
       'powershell.exe',
       ['-NoLogo', '-NoProfile', '-NonInteractive', '-Command', WINDOWS_BOUNDARY_PROBE_SCRIPT],
-      { environment: { SFP_STATE_BOUNDARY_PATHS: JSON.stringify(paths) } },
+      {
+        environment: {
+          SFP_STATE_BOUNDARY_PATHS_UTF16B64: JSON.stringify(paths.map(encodeProbePath)),
+        },
+      },
     ));
   } catch (error) {
     throw new StatePermissionError(
@@ -267,19 +345,23 @@ const probeBoundariesWithPowerShell = async (
       'Windows state boundary probe returned the wrong record count',
     );
   }
-  return value.map(record => {
+  return value.map((record: unknown) => {
+    const fields =
+      typeof record === 'object' && record !== null && !Array.isArray(record)
+        ? (record as { pathUtf16B64?: unknown; attributes?: unknown })
+        : {};
+    const observedPath = decodeProbePath(fields.pathUtf16B64);
     if (
-      typeof record !== 'object' ||
-      record === null ||
-      typeof (record as { path?: unknown }).path !== 'string' ||
-      !Number.isSafeInteger((record as { attributes?: unknown }).attributes)
+      observedPath === undefined ||
+      typeof fields.attributes !== 'number' ||
+      !Number.isSafeInteger(fields.attributes)
     ) {
       throw new StatePermissionError(
         'STATE_ACL_INVALID',
         'Windows state boundary probe returned an invalid record',
       );
     }
-    return record as Pick<WindowsAclProbeRecord, 'attributes' | 'path'>;
+    return { path: observedPath, attributes: fields.attributes };
   });
 };
 
