@@ -150,6 +150,10 @@ const WorkspaceRootSchema = z
     realPath: z.string().min(1).max(32_768),
     rootIdentityKey: z.string().min(1).max(1024).optional(),
     addedAt: z.string().datetime({ offset: true }),
+    availability: z.enum(['available', 'unavailable', 'legacy-unbound']).optional(),
+    unavailableReason: z
+      .enum(['WORKSPACE_ROOT_MISSING', 'WORKSPACE_ROOT_IDENTITY_CHANGED'])
+      .optional(),
   })
   .strict();
 const OperationProjectionSchema = z.union([OperationRecordSchema, OperationTombstoneSchema]);

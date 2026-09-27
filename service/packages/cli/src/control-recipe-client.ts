@@ -132,7 +132,9 @@ const workspacesSchema = z
       .object({
         workspaceId: z.string(),
         realPath: z.string().min(1),
-        rootIdentityKey: z.string().min(1),
+        // Legacy-unbound registrations have no identity; they must not break other workspaces.
+        rootIdentityKey: z.string().min(1).optional(),
+        availability: z.string().optional(),
       })
       .passthrough(),
   )
@@ -293,7 +295,12 @@ export class ControlRecipeClient {
     const workspace = workspacesSchema
       .parse(await this.control.request('/control/workspaces'))
       .find(row => row.workspaceId === a.workspaceId);
-    if (!workspace) throw recipeError('RECIPE_WORKSPACE_UNAVAILABLE');
+    if (
+      !workspace ||
+      workspace.rootIdentityKey === undefined ||
+      (workspace.availability !== undefined && workspace.availability !== 'available')
+    )
+      throw recipeError('RECIPE_WORKSPACE_UNAVAILABLE');
     const rootIdentity = await lstat(workspace.realPath, { bigint: true });
     if (
       `${rootIdentity.dev}:${rootIdentity.ino}:${rootIdentity.birthtimeNs}` !==

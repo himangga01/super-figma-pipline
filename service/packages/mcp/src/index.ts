@@ -104,7 +104,10 @@ import {
   withTask8ProjectionInvariants,
 } from './fs/operation-evidence-artifact-store.js';
 import { RepoReader } from './fs/repo-walk.js';
-import { createWorkspaceConfigStore } from './fs/workspace-config-store.js';
+import {
+  createWorkspaceConfigStore,
+  sweepAvailableWorkspaces,
+} from './fs/workspace-config-store.js';
 import { createWorkspacePolicy } from './fs/workspace-policy.js';
 import { createWorkspaceRegistrationResolver } from './fs/workspace-registration-resolver.js';
 import { SERVER_INSTRUCTIONS } from './instructions.js';
@@ -930,8 +933,8 @@ const initializeLeaderRuntime = async (resources: LeaderResources): Promise<Lead
             (await egressManifests.hasFinalizer(ownerActorId, operationId))
           );
         };
-        /* eslint-disable no-await-in-loop -- each workspace orphan set is identity-verified */
-        for (const workspace of await workspaceStore.list()) {
+        // Unavailable and legacy-unbound registrations are logged and skipped (LC-2, T08).
+        await sweepAvailableWorkspaces(await workspaceStore.list(), log, async workspace => {
           const orphanState = await artifacts.discoverAndCleanupOrphans({
             workspaceId: workspace.workspaceId,
             hasLinkedEvidence,
@@ -950,8 +953,7 @@ const initializeLeaderRuntime = async (resources: LeaderResources): Promise<Lead
               `[retention] workspace ${workspace.workspaceId} native evidence requires manual cleanup (${nativeOrphanState.errorCode}; scanned=${nativeOrphanState.scannedEntries}; rows=${nativeOrphanState.retainedRows}; bytes=${nativeOrphanState.retainedBytes})`,
             );
           }
-        }
-        /* eslint-enable no-await-in-loop */
+        });
         await operationJournal.purgeExpiredTombstones(now, retentionScope);
       }),
     );

@@ -80,6 +80,9 @@ describe('workspace control endpoints', () => {
             addedAt: '2026-08-31T00:00:00.000Z',
           };
         },
+        rebindResolved: async () => {
+          throw new Error('not used');
+        },
         list: async () => [],
         remove: async () => {},
         removeAuthorized: async () => {},
