@@ -63,7 +63,9 @@ it('blocks uncaptured destinations and keeps temporal motion separate from still
   const motion = await currentCaptureFixture(f, {
     nodes: nodes('2:1', { type: 'DISSOLVE', duration: 0.3 }),
   });
-  expect(derivePortalInteractionContract(motion.captured, []).interactions[0]?.temporal).toMatchObject({
+  expect(
+    derivePortalInteractionContract(motion.captured, []).interactions[0]?.temporal,
+  ).toMatchObject({
     durationMs: 300,
     type: 'DISSOLVE',
   });

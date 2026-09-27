@@ -29,12 +29,8 @@ import {
 import { z } from 'zod';
 
 import { parseFigmaTarget } from '../../../cli/src/figma-url.js';
-import { PortalRecipeUseSchema } from '../../../shared/src/portal-recipe-use.js';
-import { CorePreparations } from './recipes/core-preparation.js';
-import { PortalCoreLifecycle } from './recipes/core-lifecycle.js';
-import { loadCoreConsumptionInput } from './recipes/consumption-input.js';
-import { compileCoreConsumption, attachCoreConsumption } from './recipes/core-consumption.js';
 import { PortalObservationManifestSchema } from '../../../shared/src/portal-observations.js';
+import { PortalRecipeUseSchema } from '../../../shared/src/portal-recipe-use.js';
 import {
   AtomicFileStore,
   readFileWithinLimit,
@@ -84,6 +80,10 @@ import {
   portalMaterialFiles,
   assertPortalMaterialFiles,
 } from './profile-closure.js';
+import { loadCoreConsumptionInput } from './recipes/consumption-input.js';
+import { compileCoreConsumption, attachCoreConsumption } from './recipes/core-consumption.js';
+import { PortalCoreLifecycle } from './recipes/core-lifecycle.js';
+import { CorePreparations } from './recipes/core-preparation.js';
 import { isPortalSourcePath } from './service-graph.js';
 import { selectPortalServices } from './service-selection.js';
 import { assertFrontendSource } from './source-guard.js';
@@ -242,7 +242,13 @@ export class PortalNativeWork implements PortalWorkPort {
     );
     this.runner = options.runner ?? new NativePortalRunner();
     this.permissions = options.permissions ?? createStatePermissions(options.stateRoot);
-    this.coreLifecycle=new PortalCoreLifecycle(new CorePreparations({stateRoot:options.stateRoot,store:options.store,permissions:this.permissions}));
+    this.coreLifecycle = new PortalCoreLifecycle(
+      new CorePreparations({
+        stateRoot: options.stateRoot,
+        store: options.store,
+        permissions: this.permissions,
+      }),
+    );
   }
 
   async cancel(runId: string): Promise<void> {
@@ -778,20 +784,44 @@ export class PortalNativeWork implements PortalWorkPort {
   }
 
   /** Called only from an owner-authorized profile registration path, never from agent submissions. */
-  private async consumptionInput(profile:PortalNativeProfile,target?:'candidate'|'applied',signal?:AbortSignal){
-    const run=await this.options.store.get('runs',profile.planId,PortalRunSchema);
-    if(!run || run.ownerId!==profile.ownerId)throw portalError('PORTAL_RUN_NOT_FOUND');
-    return loadCoreConsumptionInput({store:this.options.store,lifecycle:this.coreLifecycle,policy:this.options.policy,
-      verifyAppliedTarget:async(plan,run,signal)=>{
-        const authority=await resolvePortalAuthority(this.options.policy,plan.workspaceId,plan.request,plan.planId,plan.implementationScope,plan);
-        await this.verifyApplied(plan,run,authority,signal);
+  private async consumptionInput(
+    profile: PortalNativeProfile,
+    target?: 'candidate' | 'applied',
+    signal?: AbortSignal,
+  ) {
+    const run = await this.options.store.get('runs', profile.planId, PortalRunSchema);
+    if (!run || run.ownerId !== profile.ownerId) throw portalError('PORTAL_RUN_NOT_FOUND');
+    return loadCoreConsumptionInput(
+      {
+        store: this.options.store,
+        lifecycle: this.coreLifecycle,
+        policy: this.options.policy,
+        verifyAppliedTarget: async (plan, appliedRun, verifySignal) => {
+          const authority = await resolvePortalAuthority(
+            this.options.policy,
+            plan.workspaceId,
+            plan.request,
+            plan.planId,
+            plan.implementationScope,
+            plan,
+          );
+          await this.verifyApplied(plan, appliedRun, authority, verifySignal);
+        },
       },
-    },{ownerId:profile.ownerId,planId:profile.planId,candidateHash:profile.native.sourceHash,target:target??(run.appliedHash?'applied':'candidate')},signal);
+      {
+        ownerId: profile.ownerId,
+        planId: profile.planId,
+        candidateHash: profile.native.sourceHash,
+        target: target ?? (run.appliedHash ? 'applied' : 'candidate'),
+      },
+      signal,
+    );
   }
-  async assertRecipeRegistration(input:PortalNativeProfile):Promise<void>{
-    const profile=PortalNativeProfileSchema.parse(input);
+  async assertRecipeRegistration(input: PortalNativeProfile): Promise<void> {
+    const profile = PortalNativeProfileSchema.parse(input);
     await this.assertPreparedProfile(profile);
-    if(profile.recipeUse?.prepared?.status!=='ready')throw portalError('PORTAL_CONSUMPTION_PREPARATION_REQUIRED');
+    if (profile.recipeUse?.prepared?.status !== 'ready')
+      throw portalError('PORTAL_CONSUMPTION_PREPARATION_REQUIRED');
   }
   async registerProfile(input: PortalNativeProfile): Promise<string> {
     const profile = PortalNativeProfileSchema.parse(input);
@@ -953,16 +983,29 @@ export class PortalNativeWork implements PortalWorkPort {
             ];
         }
     }
-    const consumption=await this.consumptionInput(profile);
-    const compiled=compileCoreConsumption(consumption,profile.recipeUse,observationManifest);
-    const attached=attachCoreConsumption(commands,compiled);
-    const assertions=[...profile.assertions];
-    for(const addition of attached.added){
-      const original=profile.assertions.find(value=>value.commandId===addition.from&&value.check.kind==='visual');
-      if(!original)throw portalError('PORTAL_CONSUMPTION_VISUAL_ASSERTION_REQUIRED');
-      assertions.push({commandId:addition.to,check:{...original.check,id:'core-visual-'+contentHash('sfp-core-assertion-v1',addition).slice(7,31)}});
+    const consumption = await this.consumptionInput(profile);
+    const compiled = compileCoreConsumption(consumption, profile.recipeUse, observationManifest);
+    const attached = attachCoreConsumption(commands, compiled);
+    const assertions = [...profile.assertions];
+    for (const addition of attached.added) {
+      const original = profile.assertions.find(
+        value => value.commandId === addition.from && value.check.kind === 'visual',
+      );
+      if (!original) throw portalError('PORTAL_CONSUMPTION_VISUAL_ASSERTION_REQUIRED');
+      assertions.push({
+        commandId: addition.to,
+        check: {
+          ...original.check,
+          id: 'core-visual-' + contentHash('sfp-core-assertion-v1', addition).slice(7, 31),
+        },
+      });
     }
-    const native = { ...profile.native, commands:attached.commands, environment, externalArtifacts };
+    const native = {
+      ...profile.native,
+      commands: attached.commands,
+      environment,
+      externalArtifacts,
+    };
     if (native.environmentAuthority)
       await verifyNativeEnvironment({ ...profile, native }, this.options.stateRoot);
     else
@@ -971,7 +1014,13 @@ export class PortalNativeWork implements PortalWorkPort {
         this.options.stateRoot,
       );
     native.artifactAuthority = await prepareNativeArtifactAuthority(native);
-    return PortalNativeProfileSchema.parse({ ...profile, native, observationManifest, recipeUse:compiled.use, assertions });
+    return PortalNativeProfileSchema.parse({
+      ...profile,
+      native,
+      observationManifest,
+      recipeUse: compiled.use,
+      assertions,
+    });
   }
   private async assertPreparedProfile(profile: PortalNativeProfile): Promise<void> {
     await verifyNativeEnvironment(profile, this.options.stateRoot);
