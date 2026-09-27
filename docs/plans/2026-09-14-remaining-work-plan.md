@@ -196,13 +196,13 @@ Remote preflight on September 15 found no advertised branch heads on `origin` (a
 | Planning review round 1 | Complete: revise | Architecture, fidelity and execution findings adjudicated in round 1 record |
 | Planning review round 2 | Complete: corrections accepted | Three fresh perspectives; main source verification and final rules above |
 | Final implementation plan | Final v1 | Both planning rounds completed; implementation authorized |
-| W01-W10 implementation | In progress | Task 1 integrated; Task 2 live diagnosis and regression work underway; remaining packages pending |
+| W01-W10 implementation | In progress | Tasks 1–5 implemented at scoped PASS; Task 6 partial, with 6E pending; Tasks 7–8 pending. The [prioritized fix plan](2026-09-27-prioritized-fix-plan.md) runs first |
 | Code review round 1 | Pending | Final implemented source and acceptance evidence |
 | Code review round 2 | Pending | Corrected source and verified findings |
 | Final verification and delivery | Pending | No unresolved required failures or hidden partial acceptance |
 | Commit, merge and main push | Pending | User requires completed latest code on remote main after review/verification; clean integration and non-force push |
 
-Implementation checkpoint: Task 1 is complete and integrated after one correction/re-review round. [Implementation evidence](../reviews/2026-09-15-build-identity/task-1-report.md) and [task review](../reviews/2026-09-15-build-identity/task-1-review.md) are preserved outside scratch. Seven focused tests passed again after hash-checked integration. This does not complete W01's capture diagnosis or the later work packages.
+Implementation checkpoint, September 27, 2026: Tasks 1–5 are implemented and passed their scoped task reviews; those are not the post-implementation code-review rounds above. Task 6 is partial: 6E, the native consumption receipt, is pending, so portal completion is unreachable (finding K1), and the recipe-engine wiring mapped to 6F is also open. Tasks 7 and 8 are pending. Before this plan continues, the [prioritized fix plan](2026-09-27-prioritized-fix-plan.md) sets the order for remediating the September 27 review findings; its T14b delivers 6E and T41 covers 6F. The Task 1 [implementation evidence](../reviews/2026-09-15-build-identity/task-1-report.md) and [task review](../reviews/2026-09-15-build-identity/task-1-review.md) remain the historical Task 1 records.
 
 ## Execution task decomposition
 
