@@ -152,8 +152,8 @@ The test asserts four things:
 
 Standard input is ignored, so git cannot read an answer from a terminal. The signing program's mark
 file stays absent, which shows that git never attempted to sign, so a GUI pinentry prompt cannot
-appear. The real `~/.gitconfig` is never read or written. A third test checks the case-insensitive
-removal of the variables directly.
+appear. The real `~/.gitconfig` is never read or written. A second test in the same file checks the
+case-insensitive removal of the variables directly.
 
 ## Verification
 
