@@ -1,3 +1,4 @@
+import { randomBytes } from 'node:crypto';
 import { mkdtemp, readFile, rm, stat, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { isAbsolute, join, relative, resolve } from 'node:path';
@@ -5,11 +6,12 @@ import { isAbsolute, join, relative, resolve } from 'node:path';
 import {
   ALL_DATA_CLASSES,
   type ActorContext,
-  type OperationEvidenceReceiptV1,
   type WorkspacePolicy,
+  type WorkspaceRoot,
 } from '@sfp/shared';
 import { afterEach, describe, expect, it } from 'vitest';
 
+import { createOperationEvidenceEndpoint } from '../../src/control/operation-evidence-endpoint.js';
 import { EgressManifestStore } from '../../src/execution/egress-manifest-store.js';
 import { LeaderGenerationExecutionPlane } from '../../src/execution/execution-plane.js';
 import { FileExecutionQueue } from '../../src/execution/file-queue.js';
@@ -19,29 +21,35 @@ import { OperationEvidenceReceiptStore } from '../../src/execution/operation-evi
 import { OperationExecutor } from '../../src/execution/operation-executor.js';
 import { operationIdIssuerFromKey } from '../../src/execution/operation-id.js';
 import { OperationJournal } from '../../src/execution/operation-journal.js';
+import { cleanupRetainedEvidence, runRetentionSweep } from '../../src/execution/retention-sweep.js';
 import { AtomicFileStore } from '../../src/fs/atomic-file.js';
+import { OperationEvidenceArtifactStore } from '../../src/fs/operation-evidence-artifact-store.js';
 import { createApprovalBroker } from '../../src/policy/approval-broker.js';
+import { RecipeEvidenceHolds } from '../../src/portal/recipes/evidence-hold.js';
+import { PortalStore } from '../../src/portal/store.js';
 import { createSnapshotOperations } from '../../src/snapshot/operations.js';
 import { ToolInvocationService } from '../../src/tool-invocation-service.js';
+import { fixturePermissions } from '../portal/fixtures.js';
 
 /*
- * T06a characterization of finding LC-1 (remediation plan section 3.1). The fix is task T09.
+ * LC-1 regression tests (remediation plan section 3.1), flipped by task T09 from the T06a
+ * characterization in this file. The file name is kept so that the T06a evidence still resolves.
  *
- * LC-1: the leader's startup retention sweep (mcp/src/index.ts:958) drains durable cleanup
- * intents for expired operation evidence (index.ts:909-915). Its callback, removeRetainedArtifacts
- * (index.ts:847-883), handles only `export` and `no-artifact` native evidence and throws
- * NATIVE_ARTIFACT_IDENTITY_MISMATCH for anything else, while snapshot.capture and
- * grounding.refresh record `snapshot` and `grounding-graph` native evidence
- * (mcp/src/snapshot/snapshot-operation-evidence.ts:61,87). The drain
- * (mcp/src/execution/operation-evidence-receipt-store.ts:531-545) has no per-intent isolation, so
- * the first such intent aborts the drain, later intents are never drained, and every restart
- * fails the same way: leader initialization wedges 30 days after the first capture.
+ * Before T09, the leader's startup retention sweep drained durable cleanup intents through a
+ * closure in index.ts (removeRetainedArtifacts) that threw NATIVE_ARTIFACT_IDENTITY_MISMATCH for
+ * every native evidence kind other than `export` and `no-artifact`. snapshot.capture and
+ * grounding.refresh record `snapshot` and `grounding-graph` evidence, the drain had no per-intent
+ * isolation, and leader initialization awaited the sweep, so every start failed 30 days after the
+ * first capture.
  *
- * Seam: removeRetainedArtifacts is a closure inside leader initialization and cannot be imported.
- * The drain is driven through the real OperationEvidenceReceiptStore with a verbatim mirror of
- * the callback's branches for receipts without a result artifact, and a separate test pins the
- * mirrored branches to the index.ts source. The receipts come from the real snapshot services,
- * using the canonical execution-plane harness of snapshot/service-operations.test.ts.
+ * After T09 the production cleanup is cleanupRetainedEvidence (execution/retention-sweep.ts). It
+ * only detaches `snapshot` and `grounding-graph` evidence; deleting those workspace files stays a
+ * user decision. The drain isolates every intent, and the leader schedules the sweep after its
+ * initialization. The tests import that function instead of mirroring a closure, and a source test
+ * pins index.ts to it. The process-level acceptance test is test/e2e/retention-startup.test.ts.
+ *
+ * Seam: the receipts come from the real snapshot services, using the canonical execution-plane
+ * harness of snapshot/service-operations.test.ts, and drain through the real receipt store.
  */
 const roots: string[] = [];
 afterEach(async () => {
@@ -222,30 +230,66 @@ const setup = async () => {
       issuer.verify(id, operationId);
     },
   });
-  return { root, stateRoot, plane, receipts, issuer, broker };
+  // The harness workspace as the workspace store lists an available registration.
+  const registration: Readonly<WorkspaceRoot> = Object.freeze({
+    workspaceId,
+    path: root,
+    realPath: root,
+    rootIdentityKey: '1:1:1',
+    addedAt: '2026-08-31T00:00:00.000Z',
+    availability: 'available',
+  });
+  return {
+    root,
+    stateRoot,
+    plane,
+    receipts,
+    journal,
+    egress,
+    policy,
+    issuer,
+    broker,
+    registration,
+  };
+};
+type Harness = Awaited<ReturnType<typeof setup>>;
+
+const capture = async (state: Harness, requestId: string) => {
+  const operationId = state.issuer.issue(actor.actorId);
+  const captured = (await state.plane.invokeService(actor, {
+    version: 1,
+    requestId,
+    serviceOperationName: 'snapshot.capture',
+    rawArgs: { nodeIds: ['1:1'] },
+    workspaceId,
+    targetSelector: { kind: 'session', sessionId: target.sessionId },
+    operationId,
+  })) as {
+    snapshot: {
+      relativePath: string;
+      workspaceId: string;
+      snapshotId: string;
+      fileIdentityHash: string;
+    };
+    graph: { relativePath: string; checksum: string };
+  };
+  return { operationId, captured };
 };
 
-/**
- * Mirror of removeRetainedArtifacts (mcp/src/index.ts:847-883) for receipts without a result
- * artifact. The `export` branch is not mirrored because these receipts never take it.
- */
-const indexRetentionCleanupMirror = async (
-  receipt: Readonly<OperationEvidenceReceiptV1>,
-): Promise<void> => {
-  if (receipt.workspaceId === null) {
-    if (receipt.resultArtifact !== null || receipt.nativeEvidence.kind !== 'no-artifact')
-      throw Object.assign(new Error('retained evidence lacks a workspace binding'), {
-        code: 'EVIDENCE_ARTIFACT_IDENTITY_MISMATCH',
-      });
-    return;
-  }
-  if (receipt.resultArtifact !== null || receipt.nativeEvidence.kind === 'export')
-    throw new Error('T06a mirror does not cover result-artifact or export cleanup');
-  if (receipt.nativeEvidence.kind !== 'no-artifact')
-    throw Object.assign(new Error('native evidence cleanup requires manual verification'), {
-      code: 'NATIVE_ARTIFACT_IDENTITY_MISMATCH',
-    });
+/** Filesystem cleanup ports that must not be reached: snapshot evidence is only detached. */
+const unreachable = {
+  artifacts: {
+    removeLinked: async () => {
+      throw new Error('snapshot cleanup must not remove a result artifact');
+    },
+  },
+  nativeArtifacts: {
+    removeLinkedManifest: async () => {
+      throw new Error('snapshot cleanup must not remove a native manifest');
+    },
+  },
 };
+
 /** The no-artifact receipt fixture of operation-evidence-receipt.test.ts. */
 const noArtifactReceipt = (operationId: string, completedAt: string) => ({
   schemaVersion: 1 as const,
@@ -272,26 +316,19 @@ const noArtifactReceipt = (operationId: string, completedAt: string) => ({
   nativeEvidence: { kind: 'no-artifact' as const, reasonCode: 'not-native-evidence' as const },
 });
 const DAY_MS = 86_400_000;
+const codeUnitOrder = (left: string, right: string) => (left < right ? -1 : left > right ? 1 : 0);
 
-describe('LC-1 characterization (flip in T09)', () => {
-  it('LC-1 characterization: expired snapshot and grounding-graph evidence makes the retention drain throw NATIVE_ARTIFACT_IDENTITY_MISMATCH and strands later intents (flip in T09)', async () => {
-    // LC-1, fixed by T09. Produce real receipts through the snapshot services.
+describe('LC-1 regression (T09)', () => {
+  it('LC-1 regression (T09): expired snapshot and grounding-graph evidence drains through the production cleanup without throwing, detaches the evidence and drains the later harmless intent too', async () => {
+    // Produce real receipts through the snapshot services.
     const state = await setup();
     let captureId: string, refreshId: string;
+    let snapshotPath: string, graphPath: string;
     try {
-      captureId = state.issuer.issue(actor.actorId);
-      const captured = (await state.plane.invokeService(actor, {
-        version: 1,
-        requestId: `sfp_req1_${'A'.repeat(22)}`,
-        serviceOperationName: 'snapshot.capture',
-        rawArgs: { nodeIds: ['1:1'] },
-        workspaceId,
-        targetSelector: { kind: 'session', sessionId: target.sessionId },
-        operationId: captureId,
-      })) as {
-        snapshot: { workspaceId: string; snapshotId: string; fileIdentityHash: string };
-        graph: { checksum: string };
-      };
+      const first = await capture(state, `sfp_req1_${'A'.repeat(22)}`);
+      captureId = first.operationId;
+      snapshotPath = join(state.root, first.captured.snapshot.relativePath);
+      graphPath = join(state.root, first.captured.graph.relativePath);
       await writeFile(
         join(state.root, 'Button.tsx'),
         'export const Button = () => <button>Changed</button>;\n',
@@ -304,10 +341,10 @@ describe('LC-1 characterization (flip in T09)', () => {
         rawArgs: {
           locator: {
             workspaceId,
-            snapshotId: captured.snapshot.snapshotId,
-            fileIdentityHash: captured.snapshot.fileIdentityHash,
+            snapshotId: first.captured.snapshot.snapshotId,
+            fileIdentityHash: first.captured.snapshot.fileIdentityHash,
           },
-          expectedGraphChecksum: captured.graph.checksum,
+          expectedGraphChecksum: first.captured.graph.checksum,
         },
         workspaceId,
         targetSelector: { kind: 'none' },
@@ -346,55 +383,168 @@ describe('LC-1 characterization (flip in T09)', () => {
     });
     for (const operationId of expiredIds)
       await expect(state.receipts.get(actor.actorId, operationId)).resolves.toBeNull();
+    expect((await stat(state.receipts.cleanupIntentPath)).size).toBeGreaterThan(0);
 
-    // Current behavior: the first snapshot intent throws and aborts the whole drain.
-    const attempted: string[] = [];
-    await expect(
-      state.receipts.drainPendingArtifactCleanup(async receipt => {
-        attempted.push(receipt.operationId);
-        await indexRetentionCleanupMirror(receipt);
+    // Fixed behavior: the production cleanup drains every intent, in operation-id order.
+    const report = await state.receipts.drainPendingArtifactCleanup(receipt =>
+      cleanupRetainedEvidence(receipt, {
+        isHeld: () => false,
+        workspaces: [state.registration],
+        ...unreachable,
       }),
-    ).rejects.toMatchObject({ code: 'NATIVE_ARTIFACT_IDENTITY_MISMATCH' });
-    expect(attempted).toHaveLength(1);
-    expect([captureId, refreshId]).toContain(attempted[0]);
+    );
+    expect(report.results).toEqual(
+      expiredIds.toSorted(codeUnitOrder).map(operationId => ({
+        operationId,
+        workspaceId: operationId === harmlessId ? null : workspaceId,
+        outcome: 'done',
+      })),
+    );
+    expect(report.next).toBeNull();
+    expect(report.results.at(-1)?.operationId).toBe(harmlessId);
+    // Every intent is done, so the cleanup log is truncated.
+    expect((await stat(state.receipts.cleanupIntentPath)).size).toBe(0);
+    // Detaching keeps the snapshot and grounding-graph files: deleting them is the user's decision.
+    await expect(stat(snapshotPath)).resolves.toBeDefined();
+    await expect(stat(graphPath)).resolves.toBeDefined();
 
-    // Durable and permanent: a restarted store (the next leader start) fails the same way.
+    // Durable: a restarted store (the next leader start) has nothing left to drain.
     const restarted = new OperationEvidenceReceiptStore({
       stateRoot: state.stateRoot,
       actorId: actor.actorId,
     });
     await restarted.recover();
-    await expect(
-      restarted.drainPendingArtifactCleanup(indexRetentionCleanupMirror),
-    ).rejects.toMatchObject({ code: 'NATIVE_ARTIFACT_IDENTITY_MISMATCH' });
-
-    // Control: nothing was drained, including the harmless intent that sorts after the failure,
-    // and a callback that does not throw drains all three in operation-id order.
     const drained: string[] = [];
     await restarted.drainPendingArtifactCleanup(async receipt => {
       drained.push(receipt.operationId);
     });
-    expect(drained).toEqual(expiredIds.toSorted((left, right) => left.localeCompare(right)));
-    expect(drained.at(-1)).toBe(harmlessId);
+    expect(drained).toEqual([]);
   }, 60_000);
 
-  it('LC-1 characterization: the index.ts retention callback throws NATIVE_ARTIFACT_IDENTITY_MISMATCH for every native evidence kind except export and no-artifact (flip in T09)', async () => {
-    // LC-1, fixed by T09 (snapshot and grounding-graph cleanup only detaches the evidence). This
-    // pins the mirrored branches above to the production callback, which cannot be imported.
+  it('LC-1 regression (T09): the retention sweep drains a 31-day-old snapshot receipt whose .sfp folder was deleted, and tool calls keep working', async () => {
+    // Seam: the full leader start is test/e2e/retention-startup.test.ts. Here the extracted sweep,
+    // runRetentionSweep, runs over the real journal, receipt, egress and recipe-hold stores with the
+    // production cleanup, the way index.ts wires it.
+    const state = await setup();
+    try {
+      const { operationId } = await capture(state, `sfp_req1_${'A'.repeat(22)}`);
+      expect(await state.receipts.get(actor.actorId, operationId)).toMatchObject({
+        nativeEvidence: { kind: 'snapshot' },
+      });
+      await rm(join(state.root, '.sfp'), { recursive: true, force: true });
+
+      const permissions = fixturePermissions(state.stateRoot);
+      const holds = new RecipeEvidenceHolds({
+        stateRoot: state.stateRoot,
+        store: new PortalStore(state.stateRoot, randomBytes(32), permissions),
+        permissions,
+        issuer: state.issuer,
+        operations: state.journal,
+        workspacePolicy: state.policy,
+        readEvidence: createOperationEvidenceEndpoint({
+          operations: state.journal,
+          receipts: state.receipts,
+          egress: state.egress,
+        }),
+        hasRetainedEvidence: async (id, candidate) =>
+          (await state.receipts.get(id, candidate)) !== null ||
+          (await state.egress.hasFinalizer(id, candidate)),
+      });
+      const artifacts = new OperationEvidenceArtifactStore({
+        workspacePolicy: state.policy,
+        atomicFiles: new AtomicFileStore(),
+      });
+      const nativeArtifacts = new NativeEvidenceArtifactPort({
+        workspacePolicy: state.policy,
+        atomicFiles: new AtomicFileStore(),
+      });
+      const lines: string[] = [];
+      const summary = await runRetentionSweep({
+        now: () => Date.now() + 31 * DAY_MS,
+        log: line => lines.push(line),
+        withRetentionBatch: work => holds.withRetentionSweep(work),
+        compactEvidence: async (now, { isHeld }) => {
+          const linkedAt = (id: string): number | null =>
+            isHeld(id) ? null : state.journal.settledAt(id);
+          await state.receipts.compact({ now, linkedAt });
+          await state.egress.compact({ now, linkedAt });
+        },
+        drainCleanupIntents: ({ isHeld }, batch) =>
+          state.receipts.drainPendingArtifactCleanup(
+            receipt =>
+              cleanupRetainedEvidence(receipt, {
+                isHeld,
+                workspaces: [state.registration],
+                artifacts,
+                nativeArtifacts,
+              }),
+            batch,
+          ),
+        listWorkspaces: async () => [state.registration],
+        scanWorkspace: async (workspace, { isHeld }) => {
+          const hasLinkedEvidence = async (id: string) =>
+            isHeld(id) || (await state.receipts.get(actor.actorId, id)) !== null;
+          expect(
+            await artifacts.discoverAndCleanupOrphans({
+              workspaceId: workspace.workspaceId,
+              hasLinkedEvidence,
+            }),
+          ).toMatchObject({ status: 'ready' });
+          expect(
+            await nativeArtifacts.discoverAndCleanupOrphans({
+              workspaceId: workspace.workspaceId,
+              hasLinkedEvidence,
+            }),
+          ).toMatchObject({ status: 'ready' });
+        },
+        purgeExpiredTombstones: async (now, scope) => {
+          await state.journal.purgeExpiredTombstones(now, scope);
+        },
+      });
+
+      // The intent ends done, and nothing failed or was left pending.
+      expect(summary).toMatchObject({
+        aborted: false,
+        failedPhases: [],
+        cleanup: { done: 1, deferred: 0, failed: 0, quarantined: 0 },
+        workspaces: { scanned: [workspaceId], skipped: [], failed: [] },
+      });
+      await expect(state.receipts.get(actor.actorId, operationId)).resolves.toBeNull();
+      expect((await stat(state.receipts.cleanupIntentPath)).size).toBe(0);
+      expect(lines.filter(line => !line.startsWith('[retention] sweep finished'))).toEqual([]);
+
+      // Tool calls keep working after the sweep: the same plane captures a new snapshot.
+      const again = await capture(state, `sfp_req1_${'D'.repeat(21)}A`);
+      expect(await state.receipts.get(actor.actorId, again.operationId)).toMatchObject({
+        nativeEvidence: { kind: 'snapshot' },
+      });
+    } finally {
+      state.broker.dispose();
+    }
+  }, 60_000);
+
+  it('LC-1 regression (T09): index.ts drains through the production cleanup and schedules the sweep after leader initialization instead of awaiting it', async () => {
+    // Pins the wiring that the behavioral tests above cannot reach: index.ts is the process entry.
     const source = await readFile(resolve(import.meta.dirname, '../../src/index.ts'), 'utf8');
-    const start = source.indexOf('const removeRetainedArtifacts = async (');
-    const end = source.indexOf('const operationEvidenceEndpoint =', start);
+    // No local copy of the cleanup callback and no blanket manual-verification throw remain.
+    expect(source).not.toContain('removeRetainedArtifacts');
+    expect(source).not.toContain('native evidence cleanup requires manual verification');
+    // The sweep drains every pending intent through the imported production cleanup.
+    expect(source).toMatch(
+      /evidenceReceipts\.drainPendingArtifactCleanup\(\s*receipt =>\s*cleanupRetainedEvidence\(receipt, \{/u,
+    );
+    // Initialization never awaits a sweep; the sweeps are scheduled once the runtime is built.
+    const start = source.indexOf('const initializeLeaderRuntime = async (');
+    const end = source.indexOf('resolvedRuntimes.set(generation, runtime);', start);
     expect(start).toBeGreaterThan(-1);
     expect(end).toBeGreaterThan(start);
-    const callback = source.slice(start, end);
-    expect(callback).toMatch(/if \(receipt\.nativeEvidence\.kind === 'export'\) \{/u);
-    expect(callback).toMatch(
-      /\} else if \(receipt\.nativeEvidence\.kind !== 'no-artifact'\) \{\s*throw Object\.assign\(new Error\('native evidence cleanup requires manual verification'\), \{\s*code: 'NATIVE_ARTIFACT_IDENTITY_MISMATCH',/u,
-    );
-    expect(callback).not.toMatch(/'snapshot'|'grounding-graph'/u);
-    // The startup sweep drains every pending intent through that callback.
-    expect(source).toMatch(
-      /evidenceReceipts\.drainPendingArtifactCleanup\(async receipt => \{[\s\S]{0,400}?await removeRetainedArtifacts\(receipt\);/u,
+    const initialization = source.slice(start, end);
+    expect(initialization).not.toMatch(/await retention\.sweep\(/u);
+    expect(initialization).toMatch(/runRetentionSweep\(\{/u);
+    const scheduled = initialization.indexOf('scheduleRetentionSweeps(retention, log)');
+    expect(scheduled).toBeGreaterThan(initialization.indexOf('typedControlRouter.freeze()'));
+    expect(scheduled).toBeGreaterThan(
+      initialization.lastIndexOf('if (node.getLeader() !== resources) {'),
     );
   });
 });

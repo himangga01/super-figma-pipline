@@ -386,24 +386,61 @@ export const workspaceUnavailableError = (
       );
 };
 
-/** Visits available registrations in order; logs and skips unavailable and legacy-unbound rows. */
+export interface WorkspaceSweepSummary {
+  readonly scanned: readonly string[];
+  readonly skipped: readonly string[];
+  readonly failed: readonly string[];
+}
+const WELL_FORMED_ERROR_CODE = /^[A-Z][A-Z0-9_]{0,95}$/u;
+
+/**
+ * Visits available registrations in order; logs and skips unavailable and legacy-unbound rows. A
+ * failing visit is logged by error code and does not stop the other workspaces (LC-1, T09). An
+ * aborted signal stops the iteration before the next workspace.
+ */
 export const sweepAvailableWorkspaces = async (
   workspaces: readonly Readonly<WorkspaceRoot>[],
   log: (line: string) => void,
   visit: (workspace: Readonly<WorkspaceRoot>) => Promise<void>,
-): Promise<void> => {
+  signal?: AbortSignal,
+): Promise<WorkspaceSweepSummary> => {
+  const scanned: string[] = [];
+  const skipped: string[] = [];
+  const failed: string[] = [];
   /* eslint-disable no-await-in-loop -- each workspace orphan set is identity-verified in order */
   for (const workspace of workspaces) {
+    if (signal?.aborted === true) break;
     const cause = unavailabilityCause(workspace);
-    if (cause === undefined) {
-      await visit(workspace);
-    } else {
+    if (cause !== undefined) {
+      skipped.push(workspace.workspaceId);
       log(
         `[retention] workspace ${workspace.workspaceId} is ${workspace.availability} (${cause.code}); its evidence scan is skipped until it is rebound or removed`,
+      );
+      continue;
+    }
+    try {
+      await visit(workspace);
+      scanned.push(workspace.workspaceId);
+    } catch (error) {
+      failed.push(workspace.workspaceId);
+      const code = (error as { code?: unknown } | null | undefined)?.code;
+      log(
+        `[retention] workspace ${workspace.workspaceId} evidence scan failed (${
+          typeof code === 'string' && WELL_FORMED_ERROR_CODE.test(code)
+            ? code
+            : error instanceof Error
+              ? error.name
+              : 'NonError'
+        }); the other workspaces are still scanned`,
       );
     }
   }
   /* eslint-enable no-await-in-loop */
+  return Object.freeze({
+    scanned: Object.freeze(scanned),
+    skipped: Object.freeze(skipped),
+    failed: Object.freeze(failed),
+  });
 };
 
 const authenticatedActor = (actorId: string): void => {

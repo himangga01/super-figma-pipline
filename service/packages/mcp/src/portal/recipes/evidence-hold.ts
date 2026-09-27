@@ -122,7 +122,7 @@ interface Dependencies {
   now?: () => number;
   limits?: Partial<Record<keyof typeof RECIPE_EVIDENCE_HOLD_LIMITS, number>>;
 }
-/** Every mutation and complete retention sweep uses the same durable state-root mutex. */
+/** Every mutation and every retention batch uses the same durable state-root mutex. */
 export class RecipeEvidenceHolds {
   private readonly limits: Readonly<Record<keyof typeof RECIPE_EVIDENCE_HOLD_LIMITS, number>>;
   constructor(private readonly dependencies: Dependencies) {
@@ -456,7 +456,12 @@ export class RecipeEvidenceHolds {
       await save();
     });
   }
-  /** Keep the lock until receipt/finalizer compaction, pending cleanup and orphan scans all finish. */
+  /**
+   * One retention batch: keeps the lock, and the snapshot of held operations taken under it, until
+   * `sweep` finishes. The leader's sweep calls this once per batch (compaction, each group of
+   * cleanup intents, each workspace scan, the tombstone purge; LC-1, T09), so hold operations
+   * proceed between batches and every batch honors the holds created before it.
+   */
   withRetentionSweep<T>(sweep: (holds: OperationRetentionScope) => Promise<T>): Promise<T> {
     return this.locked(async index => {
       const held = new Set(

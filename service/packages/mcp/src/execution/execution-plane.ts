@@ -222,8 +222,13 @@ export interface LazyLeaderRuntimeBoundary<T> {
 export class GenerationRetentionCoordinator {
   private flight: Promise<void> | null = null;
   private closed = false;
+  private readonly closing = new AbortController();
 
-  constructor(private readonly runSweep: () => Promise<void>) {}
+  /**
+   * `runSweep` receives a signal that aborts when the generation closes, so that it stops between
+   * batches. Its result is discarded.
+   */
+  constructor(private readonly runSweep: (signal: AbortSignal) => Promise<unknown>) {}
 
   sweep(): Promise<void> {
     if (this.closed) {
@@ -235,7 +240,8 @@ export class GenerationRetentionCoordinator {
     }
     if (this.flight !== null) return this.flight;
     const settled = Promise.resolve()
-      .then(this.runSweep)
+      .then(() => this.runSweep(this.closing.signal))
+      .then(() => undefined)
       .finally(() => {
         if (this.flight === settled) this.flight = null;
       });
@@ -243,9 +249,14 @@ export class GenerationRetentionCoordinator {
     return settled;
   }
 
+  /** Waits for the running sweep to stop; its failure belongs to the sweep's caller, not close. */
   async close(): Promise<void> {
     this.closed = true;
-    await this.flight;
+    this.closing.abort();
+    await this.flight?.then(
+      () => undefined,
+      () => undefined,
+    );
   }
 }
 

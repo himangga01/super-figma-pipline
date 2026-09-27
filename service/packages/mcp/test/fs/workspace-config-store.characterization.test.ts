@@ -28,6 +28,9 @@ import { fixturePermissions } from '../portal/fixtures.js';
  * After T08, each row is validated on its own. A row that fails is listed as `unavailable` and kept
  * verbatim, the other rows keep working, and the unavailable row can be removed with an action
  * nonce.
+ *
+ * T09 (LC-1) moved the sweep's workspace iteration into execution/retention-sweep.ts and made the
+ * helper isolate a failing scan of one available workspace.
  */
 const roots: string[] = [];
 afterEach(async () => {
@@ -137,7 +140,7 @@ it('LC-2 regression (T08): deleting registered workspace A keeps workspace B usa
 
 it('LC-2 regression (T08): the leader retention sweep skips an unavailable workspace with a log line instead of throwing', async () => {
   // Seam: leader initialization cannot be run in a unit test, so the sweep's workspace iteration
-  // is the exported helper that index.ts calls; the second half pins that call.
+  // is the exported helper that the retention sweep calls; the second half pins that call.
   const { workspaceA, store, a, b } = await scenario();
   await rm(workspaceA, { recursive: true, force: true });
   const visited: string[] = [];
@@ -151,17 +154,55 @@ it('LC-2 regression (T08): the leader retention sweep skips an unavailable works
         visited.push(workspace.workspaceId);
       },
     ),
-  ).resolves.toBeUndefined();
+  ).resolves.toEqual({ scanned: [b.workspaceId], skipped: [a.workspaceId], failed: [] });
 
   expect(visited).toEqual([b.workspaceId]);
   expect(lines).toHaveLength(1);
   expect(lines[0]).toContain(`[retention] workspace ${a.workspaceId} is unavailable`);
   expect(lines[0]).toContain('WORKSPACE_ROOT_MISSING');
 
-  // The leader's startup sweep iterates registrations only through this helper.
-  const source = await readFile(resolve(import.meta.dirname, '../../src/index.ts'), 'utf8');
-  expect(source).toMatch(
-    /await sweepAvailableWorkspaces\(await workspaceStore\.list\(\), log, async workspace => \{/u,
+  // The leader's sweep iterates registrations only through this helper. Since T09 the iteration
+  // lives in runRetentionSweep (execution/retention-sweep.ts), which index.ts wires to the store.
+  const sweep = await readFile(
+    resolve(import.meta.dirname, '../../src/execution/retention-sweep.ts'),
+    'utf8',
   );
+  expect(sweep).toMatch(
+    /await sweepAvailableWorkspaces\(\s*await dependencies\.listWorkspaces\(\),\s*dependencies\.log,/u,
+  );
+  const source = await readFile(resolve(import.meta.dirname, '../../src/index.ts'), 'utf8');
+  expect(source).toMatch(/listWorkspaces: \(\) => workspaceStore\.list\(\),/u);
   expect(source).not.toMatch(/for \(const workspace of await workspaceStore\.list\(\)\)/u);
+});
+
+it('LC-1 regression (T09): a failing evidence scan of one available workspace is logged and the other workspaces are still scanned', async () => {
+  // T08 left this open: the helper did not isolate a failing scan of an available workspace.
+  const { stateRoot, workspaceC, store, a, b } = await scenario();
+  const c = await store.add(principal.actorId, workspaceC);
+  const visited: string[] = [];
+  const lines: string[] = [];
+
+  await expect(
+    sweepAvailableWorkspaces(
+      await store.list(),
+      line => lines.push(line),
+      async workspace => {
+        visited.push(workspace.workspaceId);
+        if (workspace.workspaceId === b.workspaceId)
+          throw Object.assign(new Error(`scan failed under ${stateRoot}`), {
+            code: 'EVIDENCE_ARTIFACT_IDENTITY_MISMATCH',
+          });
+      },
+    ),
+  ).resolves.toEqual({
+    scanned: [a.workspaceId, c.workspaceId],
+    skipped: [],
+    failed: [b.workspaceId],
+  });
+
+  expect(visited).toEqual([a.workspaceId, b.workspaceId, c.workspaceId]);
+  // One line with the error code only; the message, which may name paths, is not logged.
+  expect(lines).toEqual([
+    `[retention] workspace ${b.workspaceId} evidence scan failed (EVIDENCE_ARTIFACT_IDENTITY_MISMATCH); the other workspaces are still scanned`,
+  ]);
 });
