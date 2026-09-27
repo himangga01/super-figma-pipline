@@ -52,17 +52,50 @@ interface QueuedProbe {
   reject(error: Error): void;
 }
 
+// Paths cross the pipe as base64 of their UTF-16LE code units in both directions, and responses
+// escape every other non-ASCII character, so the hidden console's code page cannot alter them.
 const WINDOWS_BOUNDARY_WORKER_SCRIPT = String.raw`
 $ErrorActionPreference = 'Stop'
 # A PowerShell 7 caller can contribute incompatible modules through PSModulePath.
 # Bind ACL commands to this trusted native executable's own security module.
 Import-Module ($PSHOME + '\Modules\Microsoft.PowerShell.Security\Microsoft.PowerShell.Security.psd1') -ErrorAction Stop
-$encoding = New-Object System.Text.UTF8Encoding($false)
-[Console]::InputEncoding = $encoding
-[Console]::OutputEncoding = $encoding
-[Console]::Out.WriteLine('READY')
-[Console]::Out.Flush()
-while (($line = [Console]::In.ReadLine()) -ne $null) {
+$utf8 = New-Object System.Text.UTF8Encoding($false)
+$reader = New-Object System.IO.StreamReader([Console]::OpenStandardInput(), $utf8, $false)
+$writer = New-Object System.IO.StreamWriter([Console]::OpenStandardOutput(), $utf8)
+$writer.AutoFlush = $true
+$writer.NewLine = [string][char]10
+function ConvertFrom-SfpPath([string]$encoded) {
+  $bytes = [Convert]::FromBase64String($encoded)
+  if ($bytes.Length -lt 2 -or ($bytes.Length % 2) -ne 0) {
+    throw 'boundary request path encoding is invalid'
+  }
+  $units = New-Object char[] ($bytes.Length / 2)
+  [Buffer]::BlockCopy($bytes, 0, $units, 0, $bytes.Length)
+  return -join $units
+}
+function ConvertTo-SfpPath([string]$path) {
+  $units = $path.ToCharArray()
+  $bytes = New-Object byte[] ($units.Length * 2)
+  [Buffer]::BlockCopy($units, 0, $bytes, 0, $bytes.Length)
+  return [Convert]::ToBase64String($bytes)
+}
+function ConvertTo-SfpAscii([string]$json) {
+  if ($json -cnotmatch '[^\x20-\x7E]') { return $json }
+  $builder = New-Object System.Text.StringBuilder
+  foreach ($unit in $json.ToCharArray()) {
+    $code = [int]$unit
+    if ($code -lt 32 -or $code -gt 126) {
+      [void]$builder.Append('\u').Append($code.ToString('x4'))
+    } else {
+      [void]$builder.Append($unit)
+    }
+  }
+  return $builder.ToString()
+}
+$writer.WriteLine('READY')
+while ($true) {
+  $line = $reader.ReadLine()
+  if ($null -eq $line) { break }
   $id = ''
   try {
     $request = ConvertFrom-Json -InputObject $line
@@ -70,23 +103,23 @@ while (($line = [Console]::In.ReadLine()) -ne $null) {
       throw 'boundary request id is invalid'
     }
     $id = $request.id
-    if ($null -eq $request.paths -or $request.paths -isnot [array]) {
+    if ($null -eq $request.pathsUtf16B64 -or $request.pathsUtf16B64 -isnot [array]) {
       throw 'boundary request paths are invalid'
     }
     if ($request.kind -ne 'boundary' -and $request.kind -ne 'acl') {
       throw 'inspection request kind is invalid'
     }
-    if ($request.kind -eq 'acl' -and $request.paths.Count -ne 1) {
+    if ($request.kind -eq 'acl' -and $request.pathsUtf16B64.Count -ne 1) {
       throw 'ACL request requires exactly one path'
     }
     $records = [System.Collections.Generic.List[object]]::new()
-    foreach ($path in $request.paths) {
-      if ($path -isnot [string] -or $path.Length -eq 0) {
+    foreach ($encoded in $request.pathsUtf16B64) {
+      if ($encoded -isnot [string] -or $encoded.Length -eq 0) {
         throw 'boundary request path is invalid'
       }
-      $item = Get-Item -LiteralPath $path -Force
+      $item = Get-Item -LiteralPath (ConvertFrom-SfpPath $encoded) -Force
       $record = [ordered]@{
-        path = $item.FullName
+        pathUtf16B64 = ConvertTo-SfpPath $item.FullName
         attributes = [int64]$item.Attributes
       }
       if ($request.kind -eq 'acl') {
@@ -103,10 +136,37 @@ while (($line = [Console]::In.ReadLine()) -ne $null) {
       error = $_.Exception.Message
     }
   }
-  [Console]::Out.WriteLine(($response | ConvertTo-Json -Compress -Depth 4))
-  [Console]::Out.Flush()
+  $writer.WriteLine((ConvertTo-SfpAscii ($response | ConvertTo-Json -Compress -Depth 4)))
 }
 `;
+
+const encodeProbePath = (path: string): string => Buffer.from(path, 'utf16le').toString('base64');
+
+const decodeProbePath = (encoded: unknown): string | undefined => {
+  if (
+    typeof encoded !== 'string' ||
+    encoded.length === 0 ||
+    encoded.length % 4 !== 0 ||
+    !/^[A-Za-z0-9+/]+={0,2}$/u.test(encoded)
+  ) {
+    return undefined;
+  }
+  const bytes = Buffer.from(encoded, 'base64');
+  return bytes.byteLength % 2 === 0 ? bytes.toString('utf16le') : undefined;
+};
+
+/** Request lines are ASCII-only; every UTF-16 code unit outside printable ASCII is escaped. */
+const probeRequestLine = (id: string, kind: InspectionKind, paths: readonly string[]): string =>
+  `${JSON.stringify({ id, kind, pathsUtf16B64: paths.map(encodeProbePath) }).replace(
+    /[^\x20-\x7e]/gu,
+    character => {
+      let escaped = '';
+      for (let index = 0; index < character.length; index += 1) {
+        escaped += `\\u${character.charCodeAt(index).toString(16).padStart(4, '0')}`;
+      }
+      return escaped;
+    },
+  )}\n`;
 
 const probeError = (code: string, message: string, cause?: unknown): Error & { code: string } =>
   Object.assign(new Error(message, cause === undefined ? undefined : { cause }), { code });
@@ -273,6 +333,15 @@ class WindowsBoundaryProbeWorker {
         );
         return;
       }
+      if (!/^[\x20-\x7e]*$/u.test(line)) {
+        void this.invalidate(
+          probeError(
+            'WINDOWS_BOUNDARY_PROTOCOL_INVALID',
+            'Windows boundary worker response is not ASCII',
+          ),
+        );
+        return;
+      }
       this.acceptLine(line);
       if (this.outputIsClosed()) return;
     }
@@ -378,21 +447,32 @@ class WindowsBoundaryProbeWorker {
       );
       return;
     }
-    if (
-      !Array.isArray(response.records) ||
-      response.records.length !== active.paths.length ||
-      response.records.some(
-        (record, index) =>
-          typeof record !== 'object' ||
-          record === null ||
-          Array.isArray(record) ||
-          typeof (record as { path?: unknown }).path !== 'string' ||
-          win32.resolve((record as { path: string }).path).toLowerCase() !==
-            win32.resolve(active.paths[index] as string).toLowerCase() ||
-          !Number.isSafeInteger((record as { attributes?: unknown }).attributes) ||
-          (active.kind === 'acl' && typeof (record as { sddl?: unknown }).sddl !== 'string'),
-      )
-    ) {
+    const records =
+      Array.isArray(response.records) && response.records.length === active.paths.length
+        ? response.records.map((record: unknown, index): WindowsBoundaryProbeRecord | undefined => {
+            if (typeof record !== 'object' || record === null || Array.isArray(record))
+              return undefined;
+            const { pathUtf16B64, attributes, sddl } = record as {
+              pathUtf16B64?: unknown;
+              attributes?: unknown;
+              sddl?: unknown;
+            };
+            const path = decodeProbePath(pathUtf16B64);
+            if (
+              path === undefined ||
+              win32.resolve(path).toLowerCase() !==
+                win32.resolve(active.paths[index] as string).toLowerCase() ||
+              typeof attributes !== 'number' ||
+              !Number.isSafeInteger(attributes) ||
+              (active.kind === 'acl' && typeof sddl !== 'string')
+            )
+              return undefined;
+            return active.kind === 'acl'
+              ? ({ path, attributes, sddl } as WindowsStateAclProbeRecord)
+              : { path, attributes };
+          })
+        : undefined;
+    if (records === undefined || records.some(record => record === undefined)) {
       void this.invalidate(
         probeError(
           'WINDOWS_BOUNDARY_PROTOCOL_INVALID',
@@ -402,7 +482,7 @@ class WindowsBoundaryProbeWorker {
       return;
     }
     this.finishActive();
-    active.resolve(response.records as WindowsBoundaryProbeRecord[]);
+    active.resolve(records as WindowsBoundaryProbeRecord[]);
   }
 
   private finishActive(): void {
@@ -437,7 +517,7 @@ class WindowsBoundaryProbeWorker {
       );
     }
     const id = randomUUID().replaceAll('-', '');
-    const bytes = Buffer.from(`${JSON.stringify({ id, kind, paths })}\n`, 'utf8');
+    const bytes = Buffer.from(probeRequestLine(id, kind, paths), 'utf8');
     if (bytes.byteLength > this.options.maxCommandBytes) {
       throw probeError(
         'WINDOWS_BOUNDARY_REQUEST_TOO_LARGE',
@@ -568,9 +648,10 @@ const normalizeOptions = (options: WindowsBoundaryProbePoolOptions): RequiredPro
     idleTimeoutMs: options.idleTimeoutMs ?? 5_000,
     shutdownTimeoutMs: options.shutdownTimeoutMs ?? 1_000,
     forceKillTimeoutMs: options.forceKillTimeoutMs ?? 1_000,
-    maxLineBytes: options.maxLineBytes ?? 1_048_576,
+    // Base64 UTF-16LE paths are about 2.7 times their UTF-8 size for ASCII names.
+    maxLineBytes: options.maxLineBytes ?? 4_194_304,
     maxStderrBytes: options.maxStderrBytes ?? 65_536,
-    maxCommandBytes: options.maxCommandBytes ?? 262_144,
+    maxCommandBytes: options.maxCommandBytes ?? 1_048_576,
     maxPaths: options.maxPaths ?? 4_096,
     maxPending: options.maxPending ?? 64,
   };
@@ -634,8 +715,7 @@ export class WindowsBoundaryProbePool {
         probeError('WINDOWS_BOUNDARY_REQUEST_TOO_LARGE', 'Windows boundary paths are invalid'),
       );
     }
-    const sizingId = '0'.repeat(32);
-    const bytes = Buffer.byteLength(`${JSON.stringify({ id: sizingId, kind, paths })}\n`, 'utf8');
+    const bytes = Buffer.byteLength(probeRequestLine('0'.repeat(32), kind, paths), 'utf8');
     if (bytes > this.options.maxCommandBytes) {
       return Promise.reject(
         probeError(
