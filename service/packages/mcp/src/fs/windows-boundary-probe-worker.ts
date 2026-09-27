@@ -17,6 +17,8 @@ type InspectionKind = 'boundary' | 'acl';
 export interface WindowsBoundaryProbePoolOptions {
   spawnChild?: () => ChildProcessWithoutNullStreams;
   requestTimeoutMs?: number;
+  /** READY budget: a cold start loads the security module and is scanned by antivirus. */
+  startupTimeoutMs?: number;
   queueTimeoutMs?: number;
   idleTimeoutMs?: number;
   shutdownTimeoutMs?: number;
@@ -31,6 +33,7 @@ export interface WindowsBoundaryProbePoolOptions {
 interface RequiredProbeOptions {
   spawnChild: () => ChildProcessWithoutNullStreams;
   requestTimeoutMs: number;
+  startupTimeoutMs: number;
   queueTimeoutMs: number;
   idleTimeoutMs: number;
   shutdownTimeoutMs: number;
@@ -274,7 +277,7 @@ class WindowsBoundaryProbeWorker {
       void this.invalidate(
         probeError('WINDOWS_BOUNDARY_TIMEOUT', 'Windows boundary worker startup timed out'),
       );
-    }, this.options.requestTimeoutMs);
+    }, this.options.startupTimeoutMs);
     try {
       await this.ready;
     } catch (error) {
@@ -620,11 +623,15 @@ class WindowsBoundaryProbeWorker {
 }
 
 const normalizeOptions = (options: WindowsBoundaryProbePoolOptions): RequiredProbeOptions => {
+  const requestTimeoutMs = options.requestTimeoutMs ?? 5_000;
+  const startupTimeoutMs = options.startupTimeoutMs ?? 30_000;
   const normalized: RequiredProbeOptions = {
     spawnChild: options.spawnChild ?? spawnWindowsBoundaryProbeProcess,
-    requestTimeoutMs: options.requestTimeoutMs ?? 5_000,
-    queueTimeoutMs: options.queueTimeoutMs ?? 5_000,
-    idleTimeoutMs: options.idleTimeoutMs ?? 5_000,
+    requestTimeoutMs,
+    startupTimeoutMs,
+    // Queued work may wait for a cold start plus the request ahead of it.
+    queueTimeoutMs: options.queueTimeoutMs ?? startupTimeoutMs + requestTimeoutMs,
+    idleTimeoutMs: options.idleTimeoutMs ?? 600_000,
     shutdownTimeoutMs: options.shutdownTimeoutMs ?? 1_000,
     forceKillTimeoutMs: options.forceKillTimeoutMs ?? 1_000,
     // Base64 UTF-16LE paths are about 2.7 times their UTF-8 size for ASCII names.
@@ -636,6 +643,7 @@ const normalizeOptions = (options: WindowsBoundaryProbePoolOptions): RequiredPro
   };
   if (
     !validPositive(normalized.requestTimeoutMs) ||
+    !validPositive(normalized.startupTimeoutMs) ||
     !validPositive(normalized.queueTimeoutMs) ||
     !validPositive(normalized.idleTimeoutMs) ||
     !validPositive(normalized.shutdownTimeoutMs) ||

@@ -33,7 +33,11 @@ const childScript = String.raw`
   const input = readline.createInterface({ input: process.stdin });
   const decode = value => Buffer.from(value, 'base64').toString('utf16le');
   const encode = value => Buffer.from(value, 'utf16le').toString('base64');
-  process.stdout.write('READY\n');
+  if (mode === 'slow-ready') {
+    setTimeout(() => process.stdout.write('READY\n'), Number(process.env.SFP_BOUNDARY_READY_DELAY_MS));
+  } else {
+    process.stdout.write('READY\n');
+  }
   input.on('line', line => {
     if (Buffer.byteLength(line, 'utf8') !== line.length || /[^\x20-\x7e]/.test(line)) {
       process.stderr.write('non-ASCII request line\n');
@@ -72,9 +76,12 @@ const noReadChildScript = String.raw`
   setInterval(() => {}, 1000);
 `;
 
-const spawnTestChild = (mode: string): ChildProcessWithoutNullStreams =>
+const spawnTestChild = (
+  mode: string,
+  environment: Record<string, string> = {},
+): ChildProcessWithoutNullStreams =>
   spawn(process.execPath, ['-e', childScript], {
-    env: { ...process.env, SFP_BOUNDARY_TEST_MODE: mode },
+    env: { ...process.env, SFP_BOUNDARY_TEST_MODE: mode, ...environment },
     stdio: ['pipe', 'pipe', 'pipe'],
     windowsHide: true,
   });
@@ -243,6 +250,22 @@ describe('bounded persistent Windows boundary probe worker', () => {
     expect(results[2]).toEqual([{ path: 'C:\\state', attributes: 16 }]);
     expect(spawns).toBe(1);
   });
+
+  it('lets queued requests wait out a cold start slower than the request budget', async () => {
+    // Production defaults: 5 s per request, 30 s for READY, queued work covers the startup.
+    const pool = new WindowsBoundaryProbePool({
+      spawnChild: () => spawnTestChild('slow-ready', { SFP_BOUNDARY_READY_DELAY_MS: '8000' }),
+    });
+    pools.push(pool);
+    const started = performance.now();
+    const [first, second] = await Promise.all([
+      pool.inspect(['C:\\first']),
+      pool.inspect(['C:\\second']),
+    ]);
+    expect(first).toEqual([{ path: 'C:\\first', attributes: 16 }]);
+    expect(second).toEqual([{ path: 'C:\\second', attributes: 16 }]);
+    expect(performance.now() - started).toBeGreaterThanOrEqual(7_900);
+  }, 30_000);
 
   it('sends ASCII-only requests and returns exact non-ASCII paths', async () => {
     let spawns = 0;
@@ -457,7 +480,12 @@ describe('bounded persistent Windows boundary probe worker', () => {
         spawns += 1;
         return neverExitingStartupChild();
       },
-      { requestTimeoutMs: 15, shutdownTimeoutMs: 10, forceKillTimeoutMs: 10 },
+      {
+        requestTimeoutMs: 15,
+        startupTimeoutMs: 15,
+        shutdownTimeoutMs: 10,
+        forceKillTimeoutMs: 10,
+      },
     );
 
     await expect(pool.inspect(['C:\\first'])).rejects.toMatchObject({
