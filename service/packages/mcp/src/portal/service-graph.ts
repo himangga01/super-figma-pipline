@@ -10,6 +10,7 @@ import { scanSfcScripts } from '../scan/sfc-blocks.js';
 import { resolvePortalModules } from './module-resolution.js';
 import {
   analyzePortalServiceConnections,
+  type PortalConnectionMember,
   type PortalRoutingBinding,
 } from './service-connections.js';
 import { classifyPortalSourceBytes, collectPortalSourceInventory } from './source-inventory.js';
@@ -19,6 +20,27 @@ export { isPortalSourcePath } from './source-path-policy.js';
 
 type Evidence = ServiceGraphProfile['services'][number]['evidence'][number];
 type Service = ServiceGraphProfile['services'][number];
+/** Text analysis bounds. Hash-only members are byte-bound by the inventory instead. */
+const MAX_TEXT_FILE_BYTES = 262_144;
+const MAX_TEXT_TOTAL_BYTES = 8_388_608;
+const MAX_SERVICE_EVIDENCE = 512;
+/** Dependency lockfiles are resolution records, never text evidence: always hash-only. */
+const lockfiles =
+  /(?:^|\/)(?:package-lock\.json|npm-shrinkwrap\.json|pnpm-lock\.ya?ml|yarn\.lock|bun\.lockb?|deno\.lock|composer\.lock|Gemfile\.lock|Pipfile\.lock|poetry\.lock|pdm\.lock|uv\.lock|Cargo\.lock|go\.sum|packages\.lock\.json|gradle\.lockfile|flake\.lock|mix\.lock|Podfile\.lock|pubspec\.lock|Package\.resolved)$/u;
+/** Data read as text only while it fits the text bounds; otherwise it is a hash-only member. */
+const dataText =
+  /\.(?:json|ya?ml|toml|xml|html|css|scss|md|graphql|gql)$|(?:^|\/)Dockerfile(?:\.[^/]*)?$/u;
+/** Module-resolution configuration: parsed by resolvePortalModules, including `extends` parents. */
+const resolutionConfiguration = /(?:^|\/)(?:ts|js)config[^/]*\.json$/u;
+/**
+ * Package key of a module specifier: `@scope/name`, `name` or `node:name`. Relative and absolute
+ * specifiers name file locations rather than modules and share one key.
+ */
+const moduleKey = (specifier: string): string => {
+  if (/^\.{1,2}(?:\/|$)/u.test(specifier) || specifier.startsWith('/')) return '(relative)';
+  const [first = specifier, second] = specifier.split('/');
+  return first.startsWith('@') && second !== undefined ? `${first}/${second}` : first;
+};
 const auxiliary = (path: string) =>
   /(?:^|\/)(?:test|tests|__tests__|examples?|fixtures?|stories)(?:\/|$)|\.(?:test|spec|stories)\.[^/]+$/u.test(
     path,
@@ -87,56 +109,84 @@ export const analyzeServiceGraph = async (
       else issuesTruncated = true;
     }
   };
-  const source = new Map<string, string>();
   let bytes = 0,
     incomplete = !sourceInventory.complete,
     hardIncomplete = !sourceInventory.complete;
+  const hard = (issue: string) => {
+    incomplete = true;
+    hardIncomplete = true;
+    addIssue(issue);
+  };
+  // Sources that the analysis must read (code, manifests, resolution configuration and routing)
+  // take the text budget first. Other data is read only while it fits; the rest, and every
+  // lockfile, is a hash-only member whose bytes the inventory binds.
+  const required = (path: string) =>
+    Object.hasOwn(languages, posix.extname(path).slice(1)) ||
+    manifests.test(path) ||
+    resolutionConfiguration.test(path) ||
+    path === 'portal.routes.json' ||
+    path.endsWith('.mdx');
+  const candidates = sourceInventory.files.filter(
+    member => isPortalSourcePath(member.path) && !lockfiles.test(member.path),
+  );
+  const texts = new Map<string, { text: string; bytes: number }>();
+  const failed = new Set<string>();
+  const fail = (path: string, code: string) => {
+    failed.add(path);
+    hard(`${code}:${path}`);
+  };
+  for (const mustRead of [true, false])
+    for (const member of candidates) {
+      const path = member.path;
+      if (required(path) !== mustRead || (!mustRead && !dataText.test(path))) continue;
+      if (member.bytes > MAX_TEXT_FILE_BYTES || bytes + member.bytes > MAX_TEXT_TOTAL_BYTES) {
+        if (mustRead) fail(path, 'SOURCE_LIMIT');
+        continue;
+      }
+      let data: Buffer;
+      try {
+        // eslint-disable-next-line no-await-in-loop -- shared RepoReader byte and path authority
+        data = await reader.readBytes(path, MAX_TEXT_FILE_BYTES);
+      } catch (cause) {
+        const code = (cause as { code?: unknown } | null)?.code;
+        if (code === 'ABORT_ERR') throw cause;
+        if (code === 'REPO_TOTAL_BYTES_EXCEEDED') {
+          if (mustRead) fail(path, 'SOURCE_LIMIT');
+        } else
+          fail(
+            path,
+            code === 'FILE_SIZE_LIMIT_EXCEEDED' || code === 'REPO_FILE_NOT_FOUND'
+              ? 'SOURCE_CHANGED_DURING_ANALYSIS'
+              : 'SOURCE_UNREADABLE',
+          );
+        continue;
+      }
+      bytes += data.length;
+      if (storedChecksum(data) !== member.hash) {
+        fail(path, 'SOURCE_CHANGED_DURING_ANALYSIS');
+        continue;
+      }
+      let text: string | undefined;
+      try {
+        // The default decoder removes one leading BOM; hashes always bind the raw bytes.
+        if (classifyPortalSourceBytes(data) === 'text')
+          text = new TextDecoder('utf-8', { fatal: true }).decode(data);
+      } catch {
+        text = undefined;
+      }
+      if (text === undefined) fail(path, 'SOURCE_ENCODING');
+      else texts.set(path, { text, bytes: data.length });
+    }
+  // Inventory order keeps evidence and module resolution deterministic.
+  const source = new Map<string, string>();
+  const hashOnly: string[] = [];
   for (const member of sourceInventory.files) {
-    const path = member.path;
-    if (!isPortalSourcePath(path)) continue;
-    const extension = posix.extname(path).slice(1);
-    if (
-      !(extension in languages) &&
-      !manifests.test(path) &&
-      !/\.(?:json|ya?ml|toml|xml|html|css|scss)$/u.test(path) &&
-      !/(?:^|\/)Dockerfile(?:\..*)?$/u.test(path) &&
-      !/\.(?:mdx?|graphql|gql)$/u.test(path)
-    )
-      continue;
-    // eslint-disable-next-line no-await-in-loop -- preserve bounded, root-verified source reads
-    const metadata = await reader.metadata(path);
-    if (metadata.size > 262_144 || bytes + metadata.size > 8_388_608) {
-      incomplete = true;
-      hardIncomplete = true;
-      addIssue(`SOURCE_LIMIT:${path}`);
-      continue;
-    }
-    // eslint-disable-next-line no-await-in-loop -- shared RepoReader byte and path authority
-    const data = await reader.readBytes(path);
-    bytes += data.length;
-    if (storedChecksum(data) !== member.hash) {
-      incomplete = true;
-      hardIncomplete = true;
-      addIssue(`SOURCE_CHANGED_DURING_ANALYSIS:${path}`);
-      continue;
-    }
-    if (classifyPortalSourceBytes(data) === 'binary') {
-      incomplete = true;
-      hardIncomplete = true;
-      addIssue(`SOURCE_ENCODING:${path}`);
-      continue;
-    }
-    let text: string;
-    try {
-      text = new TextDecoder('utf-8', { fatal: true }).decode(data);
-    } catch {
-      incomplete = true;
-      hardIncomplete = true;
-      addIssue(`SOURCE_ENCODING:${path}`);
-      continue;
-    }
-    source.set(path, text);
-    files.push({ path, hash: storedChecksum(data), bytes: data.length });
+    const read = texts.get(member.path);
+    if (read) {
+      source.set(member.path, read.text);
+      files.push({ path: member.path, hash: member.hash, bytes: read.bytes });
+    } else if (isPortalSourcePath(member.path) && !failed.has(member.path))
+      hashOnly.push(member.path);
   }
   const roots = [
     ...new Set(
@@ -210,12 +260,59 @@ export const analyzeServiceGraph = async (
     roots
       .filter(value => value === '.' || path.startsWith(`${value}/`))
       .toSorted((a, b) => (b === '.' ? 0 : b.length) - (a === '.' ? 0 : a.length))[0]!;
+  // Structural edges are kept once per endpoint pair; import and API edges stay per occurrence.
+  const structuralEdges = new Set<string>();
   const addEdge = (edge: ServiceGraphProfile['edges'][number]) => {
+    if (edge.kind === 'configures' || edge.kind === 'depends-on') {
+      const edgeKey = JSON.stringify([edge.kind, edge.from, edge.to, edge.evidence.kind]);
+      if (structuralEdges.has(edgeKey)) return;
+      structuralEdges.add(edgeKey);
+    }
     if (edges.length < 10000) edges.push(edge);
     else {
       incomplete = true;
       hardIncomplete = true;
       if (!issues.includes('EDGE_LIMIT')) addIssue('EDGE_LIMIT');
+    }
+  };
+  const newlines = new Map<string, number[]>();
+  /** 1-based line of `offset`: one more than the newlines strictly before it. */
+  const lineOf = (path: string, offset: number) => {
+    let positions = newlines.get(path);
+    if (positions === undefined) {
+      positions = [];
+      const text = source.get(path) ?? '';
+      for (let index = text.indexOf('\n'); index >= 0; index = text.indexOf('\n', index + 1))
+        positions.push(index);
+      newlines.set(path, positions);
+    }
+    let low = 0,
+      high = positions.length;
+    while (low < high) {
+      const middle = (low + high) >>> 1;
+      if (positions[middle]! < offset) low = middle + 1;
+      else high = middle;
+    }
+    return low + 1;
+  };
+  // Service evidence is aggregated per kind, role and module key (or detail): one row with the
+  // first location and an exact `count`, instead of one row per occurrence.
+  const rowIndex = new Map<Service, Map<string, Evidence>>();
+  const addRow = (service: Service, evidence: Evidence, key: string, layer?: PortalLayer) => {
+    if (layer && !service.layers.includes(layer)) service.layers.push(layer);
+    const rows = rowIndex.get(service) ?? new Map<string, Evidence>();
+    rowIndex.set(service, rows);
+    const rowKey = JSON.stringify([evidence.kind, evidence.sourceRole ?? null, key]);
+    const row = rows.get(rowKey);
+    if (row) row.count = (row.count ?? 1) + 1;
+    else if (service.evidence.length < MAX_SERVICE_EVIDENCE) {
+      const created = { ...evidence, detail: key.slice(0, 2048), count: 1 };
+      service.evidence.push(created);
+      rows.set(rowKey, created);
+    } else {
+      incomplete = true;
+      hardIncomplete = true;
+      if (!issues.includes('EVIDENCE_LIMIT')) addIssue('EVIDENCE_LIMIT');
     }
   };
   const references = new Map<string, typeof moduleGraph.references>();
@@ -229,8 +326,15 @@ export const analyzeServiceGraph = async (
     const service = services.get(root)!;
     const language = languages[posix.extname(path).slice(1)];
     if (language && !service.languages.includes(language)) service.languages.push(language);
-    const add = (kind: string, detail: string, offset: number, layer?: PortalLayer): Evidence => {
-      const line = text.slice(0, offset).split('\n').length;
+    /** Exact per-occurrence evidence for edges; the service row aggregates it under `key`. */
+    const add = (
+      kind: string,
+      detail: string,
+      offset: number,
+      layer?: PortalLayer,
+      key = detail,
+    ): Evidence => {
+      const line = lineOf(path, offset);
       const evidence = {
         sourceId,
         sourceRole: sourceRole(path),
@@ -241,13 +345,7 @@ export const analyzeServiceGraph = async (
         kind,
         detail: detail.slice(0, 2048),
       };
-      if (service.evidence.length < 512) service.evidence.push(evidence);
-      else {
-        incomplete = true;
-        hardIncomplete = true;
-        if (!issues.includes('EVIDENCE_LIMIT')) addIssue('EVIDENCE_LIMIT');
-      }
-      if (layer && !service.layers.includes(layer)) service.layers.push(layer);
+      addRow(service, evidence, key, layer);
       return evidence;
     };
     for (const reference of references.get(path) ?? []) {
@@ -262,6 +360,12 @@ export const analyzeServiceGraph = async (
         sourceRole(path) !== 'runtime' || reference.specifier === null
           ? undefined
           : layerForModule(reference.specifier),
+        // Local files aggregate per target service; packages and built-ins per package key.
+        reference.status === 'resolved' && reference.targets.length
+          ? `local:${[...new Set(reference.targets.map(fileRoot))].toSorted().join(',')}`
+          : reference.specifier === null
+            ? (reference.reason ?? 'Nonliteral module')
+            : moduleKey(reference.specifier),
       );
       for (const target of reference.targets) {
         addEdge({ from: path, to: target, kind: 'imports', evidence });
@@ -490,6 +594,20 @@ export const analyzeServiceGraph = async (
       addIssue('ROUTING_CONFIGURATION_INVALID:portal.routes.json');
     }
   }
+  const inventoryHashes = new Map(sourceInventory.files.map(file => [file.path, file.hash]));
+  const members: PortalConnectionMember[] = hashOnly.map(path => ({
+    sourceId,
+    serviceId: services.get(fileRoot(path))!.id,
+    path,
+    hash: inventoryHashes.get(path)!,
+    role: lockfiles.test(path)
+      ? 'configuration'
+      : auxiliary(path)
+        ? 'auxiliary'
+        : /\.(?:json|ya?ml|toml|xml|html|css|scss)$/u.test(path)
+          ? 'configuration'
+          : 'asset',
+  }));
   const connections = analyzePortalServiceConnections({
     sources: [...source].map(([path, text]) => ({
       sourceId,
@@ -499,34 +617,31 @@ export const analyzeServiceGraph = async (
       text,
       role: sourceRole(path),
     })),
+    members,
     modules: [{ sourceId, complete: moduleGraph.complete, references: moduleGraph.references }],
     routingBindings,
   });
+  const serviceById = new Map([...services.values()].map(service => [service.id, service]));
   for (const [kind, entries, layer] of [
     ['provides-api', connections.producers, 'api'],
     ['consumes-api', connections.clients, undefined],
     ['persists', connections.data, 'database'],
   ] as const) {
     for (const entry of entries) {
-      const service = [...services.values()].find(value => value.id === entry.serviceId)!;
+      const service = serviceById.get(entry.serviceId)!;
       const ev = entry.evidence;
+      const line = lineOf(ev.path, ev.offset);
       const evidence = {
         sourceId,
         sourceRole: sourceRole(ev.path),
         path: ev.path,
         hash: ev.hash,
-        startLine: source.get(ev.path)!.slice(0, ev.offset).split('\n').length,
-        endLine: source.get(ev.path)!.slice(0, ev.offset).split('\n').length,
+        startLine: line,
+        endLine: line,
         kind,
         detail: 'route' in entry ? entry.method + ' ' + entry.route : entry.module,
       };
-      if (layer && !service.layers.includes(layer)) service.layers.push(layer);
-      if (service.evidence.length < 512) service.evidence.push(evidence);
-      else {
-        incomplete = true;
-        hardIncomplete = true;
-        addIssue('EVIDENCE_LIMIT');
-      }
+      addRow(service, evidence, evidence.detail, layer);
       addEdge({ from: ev.path, to: 'route' in entry ? entry.route : entry.module, kind, evidence });
     }
   }

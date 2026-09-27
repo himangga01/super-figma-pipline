@@ -2,6 +2,7 @@ import { mkdtemp, mkdir, writeFile, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
+import { storedChecksum } from '@sfp/ir';
 import { ServiceGraphProfileSchema } from '@sfp/shared';
 import { afterEach, expect, it } from 'vitest';
 
@@ -307,4 +308,66 @@ it('assigns one-character service roots and deeper children before the whole-roo
   expect(graph.edges).toContainEqual(
     expect.objectContaining({ from: 'a', to: 'b', kind: 'depends-on' }),
   );
+});
+
+const writeTree = async (prefix: string, files: Record<string, string | Buffer>) => {
+  const root = await mkdtemp(join(tmpdir(), prefix));
+  roots.push(root);
+  for (const [path, content] of Object.entries(files)) {
+    await mkdir(join(root, path, '..'), { recursive: true });
+    await writeFile(join(root, path), content);
+  }
+  return root;
+};
+
+it('decodes a UTF-8 BOM tolerantly while binding and comparing the raw bytes (SA-3)', async () => {
+  const bom = Buffer.from([0xef, 0xbb, 0xbf]);
+  const server = Buffer.concat([
+    bom,
+    Buffer.from(
+      "import express from 'express';\nconst app = express();\napp.get('/health', (_request, response) => response.end());\n",
+    ),
+  ]);
+  const manifest = Buffer.concat([bom, Buffer.from('{"dependencies":{"express":"5.1.0"}}')]);
+  const graph = await analyzeServiceGraph(
+    new RepoReader({
+      rootDir: await writeTree('sfp-service-bom-', {
+        'package.json': manifest,
+        'src/server.ts': server,
+      }),
+    }),
+  );
+  expect(graph).toMatchObject({ incomplete: false, issues: [] });
+  expect(graph.connections).toMatchObject({ complete: true, issues: [] });
+  expect(graph.files.find(file => file.path === 'src/server.ts')).toEqual({
+    path: 'src/server.ts',
+    hash: storedChecksum(server),
+    bytes: server.length,
+  });
+  expect(graph.services[0]!.dependencies).toEqual({ express: '5.1.0' });
+  expect(graph.services[0]!.evidence).toContainEqual(
+    expect.objectContaining({ kind: 'provides-api', detail: 'GET /health', startLine: 3 }),
+  );
+});
+
+it('aggregates connection evidence rows per service, module key and kind (SA-2)', async () => {
+  const files: Record<string, string> = {
+    'package.json': '{"dependencies":{"pg":"8.16.0"}}',
+  };
+  for (let index = 0; index < 30; index += 1)
+    files[`src/repository${index}.ts`] =
+      "import { Pool } from 'pg';\nexport const pool = new Pool();\n";
+  const graph = await analyzeServiceGraph(
+    new RepoReader({ rootDir: await writeTree('sfp-service-aggregate-', files) }),
+  );
+  expect(graph).toMatchObject({ incomplete: false, issues: [] });
+  expect(graph.connections?.data).toHaveLength(30);
+  const rows = graph.services[0]!.evidence;
+  expect(rows.filter(row => row.kind === 'persists')).toEqual([
+    expect.objectContaining({ detail: 'pg', path: 'src/repository0.ts', count: 30 }),
+  ]);
+  expect(rows.filter(row => row.kind === 'declared-external-module')).toEqual([
+    expect.objectContaining({ detail: 'pg', path: 'src/repository0.ts', count: 30 }),
+  ]);
+  expect(graph.services[0]!.layers).toContain('database');
 });

@@ -295,3 +295,25 @@ it('SA-1 regression: a 200-file React application is sampled with exact counts a
   const again = await analyzeConventions(await writeTree(files));
   expect(canonicalJson(again.categories)).toBe(canonicalJson(conventions.categories));
 }, 120_000);
+
+it('SA-1 regression: the 200-file React application maps without a pattern issue and map-design is ready', async () => {
+  // This needs SA-2 as well: the application has 592 import statements, which used to be 592
+  // service evidence rows and a hard EVIDENCE_LIMIT.
+  const { prepared, bundle } = await prepare(await writeTree(reactApplication()));
+  expect(prepared.inventory.complete).toBe(true);
+  expect(prepared.graph).toMatchObject({ incomplete: false, issues: [] });
+  expect(prepared.graph.services[0]!.evidence.length).toBeLessThan(32);
+  expect(prepared.graph.services[0]!.codePatterns?.conventions).toMatchObject({
+    truncated: false,
+    unreadFiles: [],
+  });
+  expect(prepared.mappingIssue).toBeNull();
+  expect(prepared.mappingResults).not.toBeNull();
+  const map = bundle.results.find(result => result.recipeId === 'map-design')!;
+  expect(map.output).toMatchObject({ status: 'ready', blockingIssueCount: 0 });
+  expect(
+    bundle.pages
+      .flatMap(item => item.page.rows)
+      .filter(row => row.kind === 'issue' && row.issue.code === 'CORE_SOURCE_PATTERN_INCOMPLETE'),
+  ).toEqual([]);
+}, 120_000);

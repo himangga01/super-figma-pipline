@@ -449,6 +449,8 @@ export const PortalEvidenceSchema = z
     hash: PortalHashSchema,
     kind: z.string().min(1).max(64),
     detail: z.string().max(2048),
+    /** Occurrences aggregated into a service evidence row; the location is the first one. */
+    count: z.number().int().min(1).optional(),
   })
   .strict();
 export const PortalServiceSchema = z

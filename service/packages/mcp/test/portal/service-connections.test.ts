@@ -421,3 +421,110 @@ it.each([512, 513])(
     ).toBe(true);
   },
 );
+
+const digest = (value: string | Buffer) =>
+  `sha256:${createHash('sha256').update(value).digest('hex')}`;
+
+it('matches BOM-stripped text against the raw-byte hash and still refuses other bytes (SA-3)', () => {
+  const text = `fetch('/docs');`;
+  const source = (hash: string): PortalConnectionSource => ({
+    sourceId: 'r:1',
+    serviceId: 'web',
+    path: 'main.ts',
+    text,
+    hash,
+    role: 'runtime',
+  });
+  const analyzeHash = (hash: string) =>
+    analyzePortalServiceConnections({
+      sources: [source(hash)],
+      modules: [{ sourceId: 'r:1', complete: true, references: [] }],
+    }).issues.map(issue => issue.code);
+  const bom = Buffer.from([0xef, 0xbb, 0xbf]);
+  expect(analyzeHash(digest(Buffer.concat([bom, Buffer.from(text)])))).not.toContain(
+    'SOURCE_HASH_MISMATCH',
+  );
+  expect(analyzeHash(digest(text))).not.toContain('SOURCE_HASH_MISMATCH');
+  // Two BOMs, a BOM without the text, or unrelated bytes are still different bytes.
+  for (const bytes of [Buffer.concat([bom, bom, Buffer.from(text)]), bom, Buffer.from(`${text} `)])
+    expect(analyzeHash(digest(bytes))).toContain('SOURCE_HASH_MISMATCH');
+});
+
+it('emits one module-resolution configuration candidate per configuration file and service (SA-2)', () => {
+  const files: Record<string, string> = {
+    'tsconfig.json': '{"compilerOptions":{"baseUrl":".","paths":{"@m/*":["web/modules/*"]}}}',
+    'web/a.ts': `import '@m/one'; import '@m/two';`,
+    'web/b.ts': `import '@m/one';`,
+    'web/modules/one.ts': 'export {};',
+    'web/modules/two.ts': 'export {};',
+  };
+  const modules = resolvePortalModules(new Map(Object.entries(files)), Object.keys(files));
+  expect(
+    modules.references.filter(ref => ref.configuration.includes('tsconfig.json')),
+  ).toHaveLength(3);
+  const result = analyzePortalServiceConnections({
+    sources: Object.entries(files).map(([path, text]) => ({
+      sourceId: 'reference:0',
+      serviceId: 'web',
+      path,
+      text,
+      hash: digest(text),
+      role: path.endsWith('.json') ? 'configuration' : 'runtime',
+    })),
+    modules: [{ sourceId: 'reference:0', ...modules }],
+  });
+  expect(result.complete).toBe(true);
+  expect(result.configuration).toEqual([
+    {
+      sourceId: 'reference:0',
+      serviceId: 'web',
+      module: 'tsconfig.json',
+      status: 'candidate',
+      evidence: {
+        sourceId: 'reference:0',
+        path: 'tsconfig.json',
+        hash: digest(files['tsconfig.json']!),
+        offset: 0,
+        reason: 'Module resolution configuration input',
+      },
+    },
+  ]);
+});
+
+it('verifies resolved targets against byte-bound members that carry no text (SA-2)', () => {
+  const files = { 'web/main.ts': `import logo from './logo.svg'; export default logo;` };
+  const modules = resolvePortalModules(new Map(Object.entries(files)), [
+    'web/main.ts',
+    'web/logo.svg',
+  ]);
+  const sources: PortalConnectionSource[] = [
+    {
+      sourceId: 'reference:0',
+      serviceId: 'web',
+      path: 'web/main.ts',
+      text: files['web/main.ts'],
+      hash: digest(files['web/main.ts']),
+      role: 'runtime',
+    },
+  ];
+  const run = (members?: Parameters<typeof analyzePortalServiceConnections>[0]['members']) =>
+    analyzePortalServiceConnections({
+      sources,
+      modules: [{ sourceId: 'reference:0', ...modules }],
+      ...(members ? { members } : {}),
+    });
+  expect(run().issues.map(issue => issue.code)).toContain('MODULE_TARGET_MISSING');
+  const member = {
+    sourceId: 'reference:0',
+    serviceId: 'web',
+    path: 'web/logo.svg',
+    hash: digest('<svg/>'),
+    role: 'asset' as const,
+  };
+  const bound = run([member]);
+  expect(bound).toMatchObject({ complete: true, issues: [] });
+  // A member cannot shadow a text source with the same qualified path.
+  expect(run([{ ...member, path: 'web/main.ts' }]).issues.map(issue => issue.code)).toContain(
+    'DUPLICATE_SOURCE',
+  );
+});
