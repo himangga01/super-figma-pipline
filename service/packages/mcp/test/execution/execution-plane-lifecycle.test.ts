@@ -14,6 +14,7 @@ import { createOperationEvidenceEndpoint } from '../../src/control/operation-evi
 import {
   createDurableExecutionPlaneLifecyclePorts,
   followerPingTimeoutForPlatform,
+  GenerationRetentionCoordinator,
   GenerationRuntimeLifecycleRegistry,
   createLazyLeaderRuntimeBoundary,
   LeaderGenerationExecutionPlane,
@@ -153,6 +154,33 @@ describe('leader-generation execution plane lifecycle', () => {
       'old-store-flush-and-port-release',
       'successor-sweep-start',
     ]);
+  });
+
+  it('signals the running retention sweep to stop between batches on close and never rethrows its failure (T09)', async () => {
+    let observed: AbortSignal | undefined;
+    let releaseSweep!: () => void;
+    const blocked = new Promise<void>(resolve => {
+      releaseSweep = resolve;
+    });
+    const coordinator = new GenerationRetentionCoordinator(async signal => {
+      observed = signal;
+      await blocked;
+      // The sweep notices the closed generation at its next batch boundary and gives up.
+      if (signal.aborted)
+        throw Object.assign(new Error('retention sweep stopped'), {
+          code: 'LEADER_GENERATION_CLOSED',
+        });
+    });
+    const flight = coordinator.sweep();
+    const handled = flight.catch(error => error as { code?: string });
+    await vi.waitFor(() => expect(observed).toBeDefined());
+    expect(observed?.aborted).toBe(false);
+    const closing = coordinator.close();
+    expect(observed?.aborted).toBe(true);
+    releaseSweep();
+    // Runtime close continues past a failed sweep; the sweep's own caller already logged it.
+    await expect(closing).resolves.toBeUndefined();
+    await expect(handled).resolves.toMatchObject({ code: 'LEADER_GENERATION_CLOSED' });
   });
 
   it('aborts and closes an initializing runtime so no retention timer survives demotion', async () => {

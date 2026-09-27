@@ -19,9 +19,7 @@ import {
   type ProgressReporter,
   type RuntimeExecutionScope,
   type ToolName,
-  type OperationEvidenceReceiptV1,
   type ProgressEvent,
-  type VerifiedNativeEvidenceContextV1,
   type WorkspacePolicy,
 } from '@sfp/shared';
 import { PORTAL_TOOL_NAMES, type PortalToolName } from '@sfp/shared';
@@ -84,10 +82,7 @@ import {
 import { McpInvocationAdapter } from './execution/mcp-invocation-adapter.js';
 import { createMcpWorkspaceBinding } from './execution/mcp-workspace-binding.js';
 import { NativeEvidenceArtifactPort } from './execution/native-evidence-artifact-port.js';
-import {
-  createOperationEvidenceProjector,
-  nativeEvidenceContextHash,
-} from './execution/operation-evidence-projector.js';
+import { createOperationEvidenceProjector } from './execution/operation-evidence-projector.js';
 import { OperationEvidenceReceiptStore } from './execution/operation-evidence-receipt-store.js';
 import {
   DurableOperationFinalizer,
@@ -97,6 +92,12 @@ import {
 import { loadOrCreateOperationIdIssuer } from './execution/operation-id.js';
 import { JournalWorkspaceUsageGuard, OperationJournal } from './execution/operation-journal.js';
 import { OperationResolutionIntentStore } from './execution/operation-resolution-intent.js';
+import {
+  cleanupRetainedEvidence,
+  runRetentionSweep,
+  scheduleRetentionSweeps,
+  type RetentionSchedule,
+} from './execution/retention-sweep.js';
 import { TargetResolver } from './execution/target-resolver.js';
 import { AtomicFileStore, WorkspaceAtomicFileStore } from './fs/atomic-file.js';
 import {
@@ -104,10 +105,7 @@ import {
   withTask8ProjectionInvariants,
 } from './fs/operation-evidence-artifact-store.js';
 import { RepoReader } from './fs/repo-walk.js';
-import {
-  createWorkspaceConfigStore,
-  sweepAvailableWorkspaces,
-} from './fs/workspace-config-store.js';
+import { createWorkspaceConfigStore } from './fs/workspace-config-store.js';
 import { createWorkspacePolicy } from './fs/workspace-policy.js';
 import { createWorkspaceRegistrationResolver } from './fs/workspace-registration-resolver.js';
 import { SERVER_INSTRUCTIONS } from './instructions.js';
@@ -237,7 +235,7 @@ interface LeaderRuntime {
   operationJournal: OperationJournal;
   egressManifests: EgressManifestStore;
   evidenceReceipts: OperationEvidenceReceiptStore;
-  retentionTimer: NodeJS.Timeout;
+  retentionSchedule: RetentionSchedule;
   executor: OperationExecutor;
   close(): Promise<void>;
 }
@@ -847,43 +845,6 @@ const initializeLeaderRuntime = async (resources: LeaderResources): Promise<Lead
         })),
     };
     const targetResolver = new TargetResolver(targetSessions);
-    const removeRetainedArtifacts = async (
-      receipt: Readonly<OperationEvidenceReceiptV1>,
-    ): Promise<void> => {
-      if (receipt.workspaceId === null) {
-        if (receipt.resultArtifact !== null || receipt.nativeEvidence.kind !== 'no-artifact') {
-          throw Object.assign(new Error('retained evidence lacks a workspace binding'), {
-            code: 'EVIDENCE_ARTIFACT_IDENTITY_MISMATCH',
-          });
-        }
-        return;
-      }
-      if (receipt.resultArtifact !== null) {
-        await artifacts.removeLinked({
-          workspaceId: receipt.workspaceId,
-          operationId: receipt.operationId,
-          artifact: receipt.resultArtifact,
-        });
-      }
-      if (receipt.nativeEvidence.kind === 'export') {
-        const base = Object.freeze({
-          operationId: receipt.operationId,
-          workspaceId: receipt.workspaceId,
-        });
-        const context = Object.freeze({
-          ...base,
-          contextHash: nativeEvidenceContextHash(base),
-        }) as VerifiedNativeEvidenceContextV1;
-        await nativeArtifacts.removeLinkedManifest({
-          context,
-          evidence: receipt.nativeEvidence,
-        });
-      } else if (receipt.nativeEvidence.kind !== 'no-artifact') {
-        throw Object.assign(new Error('native evidence cleanup requires manual verification'), {
-          code: 'NATIVE_ARTIFACT_IDENTITY_MISMATCH',
-        });
-      }
-    };
     const operationEvidenceEndpoint = createOperationEvidenceEndpoint({
       operations: operationJournal,
       receipts: evidenceReceipts,
@@ -901,40 +862,48 @@ const initializeLeaderRuntime = async (resources: LeaderResources): Promise<Lead
         (await evidenceReceipts.get(actorId, operationId)) !== null ||
         (await egressManifests.hasFinalizer(actorId, operationId)),
     });
-    const retention = new GenerationRetentionCoordinator(() =>
-      recipeEvidenceHolds.withRetentionSweep(async retentionScope => {
-        const { isHeld } = retentionScope;
-        const now = Date.now();
-        const linkedAt = (operationId: string): number | null =>
-          isHeld(operationId) ? null : operationJournal.settledAt(operationId);
-        await evidenceReceipts.compact({ now, linkedAt });
-        await egressManifests.compact({ now, linkedAt });
-        await evidenceReceipts.drainPendingArtifactCleanup(async receipt => {
-          if (isHeld(receipt.operationId))
-            throw Object.assign(new Error('Held evidence has a pending cleanup intent'), {
-              code: 'RECIPE_HOLD_RETENTION_CONFLICT',
-            });
-          await removeRetainedArtifacts(receipt);
-        });
-        const hasLinkedEvidence = async (operationId: string): Promise<boolean> => {
-          if (isHeld(operationId)) return true;
-          const operation = operationJournal.get(operationId);
-          return (
-            (operation !== undefined &&
-              ['pending-approval', 'queued', 'dispatched', 'outcome-unknown'].includes(
-                operation.status,
-              )) ||
-            (operation !== undefined &&
-              'preExecutionConsentManifestHash' in operation &&
-              operation.preExecutionConsentManifestHash !== null) ||
-            (operation?.operationEvidenceReceiptHash ?? null) !== null ||
-            (operation?.finalEgressManifestHash ?? null) !== null ||
-            (await evidenceReceipts.get(ownerActorId, operationId)) !== null ||
-            (await egressManifests.hasFinalizer(ownerActorId, operationId))
+    // LC-1 (T09): the sweep is scheduled after initialization and never fails it. Each batch takes
+    // the recipe-hold lock on its own, and every cleanup intent and workspace scan is isolated.
+    const retention = new GenerationRetentionCoordinator(sweepSignal =>
+      runRetentionSweep({
+        signal: sweepSignal,
+        log,
+        now: Date.now,
+        withRetentionBatch: work => recipeEvidenceHolds.withRetentionSweep(work),
+        compactEvidence: async (now, { isHeld }) => {
+          const linkedAt = (operationId: string): number | null =>
+            isHeld(operationId) ? null : operationJournal.settledAt(operationId);
+          await evidenceReceipts.compact({ now, linkedAt });
+          await egressManifests.compact({ now, linkedAt });
+        },
+        drainCleanupIntents: async ({ isHeld }, batch) => {
+          const workspaces = await workspaceStore.list();
+          return evidenceReceipts.drainPendingArtifactCleanup(
+            receipt =>
+              cleanupRetainedEvidence(receipt, { isHeld, workspaces, artifacts, nativeArtifacts }),
+            batch,
           );
-        };
+        },
         // Unavailable and legacy-unbound registrations are logged and skipped (LC-2, T08).
-        await sweepAvailableWorkspaces(await workspaceStore.list(), log, async workspace => {
+        listWorkspaces: () => workspaceStore.list(),
+        scanWorkspace: async (workspace, { isHeld }) => {
+          const hasLinkedEvidence = async (operationId: string): Promise<boolean> => {
+            if (isHeld(operationId)) return true;
+            const operation = operationJournal.get(operationId);
+            return (
+              (operation !== undefined &&
+                ['pending-approval', 'queued', 'dispatched', 'outcome-unknown'].includes(
+                  operation.status,
+                )) ||
+              (operation !== undefined &&
+                'preExecutionConsentManifestHash' in operation &&
+                operation.preExecutionConsentManifestHash !== null) ||
+              (operation?.operationEvidenceReceiptHash ?? null) !== null ||
+              (operation?.finalEgressManifestHash ?? null) !== null ||
+              (await evidenceReceipts.get(ownerActorId, operationId)) !== null ||
+              (await egressManifests.hasFinalizer(ownerActorId, operationId))
+            );
+          };
           const orphanState = await artifacts.discoverAndCleanupOrphans({
             workspaceId: workspace.workspaceId,
             hasLinkedEvidence,
@@ -953,12 +922,12 @@ const initializeLeaderRuntime = async (resources: LeaderResources): Promise<Lead
               `[retention] workspace ${workspace.workspaceId} native evidence requires manual cleanup (${nativeOrphanState.errorCode}; scanned=${nativeOrphanState.scannedEntries}; rows=${nativeOrphanState.retainedRows}; bytes=${nativeOrphanState.retainedBytes})`,
             );
           }
-        });
-        await operationJournal.purgeExpiredTombstones(now, retentionScope);
+        },
+        purgeExpiredTombstones: async (now, retentionScope) => {
+          await operationJournal.purgeExpiredTombstones(now, retentionScope);
+        },
       }),
     );
-    await retention.sweep();
-    assertInitializationActive();
     const pluginPort = createPinnedPluginPort(resources);
     const snapshotOperations = createSnapshotOperations({
       workspacePolicy,
@@ -1303,13 +1272,8 @@ const initializeLeaderRuntime = async (resources: LeaderResources): Promise<Lead
         code: 'LEADER_GENERATION_CLOSED',
       });
     }
-    const retentionTimer = setInterval(() => {
-      void retention.sweep().catch(error => {
-        const errorType = error instanceof Error ? error.name : 'NonError';
-        log(`[retention] evidence cleanup failed closed (${errorType})`);
-      });
-    }, 86_400_000);
-    retentionTimer.unref();
+    // Initialization is complete: only now start the startup sweep and the daily sweeps (LC-1).
+    const retentionSchedule = scheduleRetentionSweeps(retention, log);
     const runtime: LeaderRuntime = {
       generation,
       plane: resources.executionPlane,
@@ -1323,13 +1287,13 @@ const initializeLeaderRuntime = async (resources: LeaderResources): Promise<Lead
       operationJournal,
       egressManifests,
       evidenceReceipts,
-      retentionTimer,
+      retentionSchedule,
       executor,
       close: async () => {
         await portalCapture.close();
         await portalWork.close();
         resources.relay.setDocumentBindingHandler(null);
-        clearInterval(retentionTimer);
+        retentionSchedule.stop();
         approvalBroker.dispose();
         await retention.close();
         await Promise.allSettled([

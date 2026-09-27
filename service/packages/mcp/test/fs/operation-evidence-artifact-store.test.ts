@@ -636,6 +636,41 @@ describe('operation evidence result artifact store', () => {
     expect(absenceProofs).toBe(0);
   });
 
+  it('treats a verifiably missing operation directory as already removed (T09, LC-1)', async () => {
+    const root = await mkdtemp(join(tmpdir(), 'sfp-artifact-missing-operation-directory-'));
+    roots.push(root);
+    const { workspaceRoot, workspaceId, policy } = await realWorkspaceAuthority(root);
+    const operationId = 'operation-missing-directory';
+    const options = createToolInvocationOptions(true, operationId, workspaceId);
+    const store = new OperationEvidenceArtifactStore({
+      workspacePolicy: policy,
+      atomicFiles: new AtomicFileStore(),
+    });
+    const bytes = Buffer.from('{"ok":true}', 'utf8');
+    const artifact = await store.createNew({
+      workspaceId,
+      operationId,
+      intent: options.captureIntent,
+      canonicalRedactedBytes: bytes,
+      resultSchemaHash: `sha256:${'a'.repeat(64)}`,
+      resultHash: `sha256:${createHash('sha256').update(bytes).digest('hex')}`,
+    });
+    // The owner deleted the workspace's .sfp folder; the registered workspace itself is intact.
+    await rm(join(workspaceRoot, '.sfp'), { recursive: true, force: true });
+
+    await expect(
+      store.removeLinked({ workspaceId, operationId, artifact }),
+    ).resolves.toBeUndefined();
+    // Other refusals are unchanged: a path that is not the fixed operation path still fails.
+    await expect(
+      store.removeLinked({
+        workspaceId,
+        operationId: 'operation-other',
+        artifact,
+      }),
+    ).rejects.toMatchObject({ code: 'EVIDENCE_ARTIFACT_IDENTITY_MISMATCH' });
+  });
+
   it('recovers a receipt cleanup crash after removeLinked and durably completes the intent', async () => {
     const root = await mkdtemp(join(tmpdir(), 'sfp-artifact-receipt-cleanup-restart-'));
     roots.push(root);
@@ -691,6 +726,8 @@ describe('operation evidence result artifact store', () => {
       linkedAt: observed => (observed === operationId ? completedAt : null),
     });
 
+    // Since T09 the drain isolates each intent: the injected failure after removeLinked is recorded
+    // as a durable failed attempt instead of aborting the drain, and the intent stays pending.
     await expect(
       receipts.drainPendingArtifactCleanup(async receipt => {
         await artifacts.removeLinked({
@@ -700,7 +737,18 @@ describe('operation evidence result artifact store', () => {
         });
         throw Object.assign(new Error('injected cleanup crash'), { code: 'TEST_CLEANUP_CRASH' });
       }),
-    ).rejects.toMatchObject({ code: 'TEST_CLEANUP_CRASH' });
+    ).resolves.toEqual({
+      results: [
+        {
+          operationId,
+          workspaceId,
+          outcome: 'failed',
+          errorCode: 'TEST_CLEANUP_CRASH',
+          attempts: 1,
+        },
+      ],
+      next: null,
+    });
     await expect(stat(target)).rejects.toMatchObject({ code: 'ENOENT' });
 
     const restarted = new OperationEvidenceReceiptStore({ stateRoot, actorId });
