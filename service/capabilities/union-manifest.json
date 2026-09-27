@@ -272,7 +272,7 @@
           "schemaHash": "b5d9c491856160fd5908acb61b98670a5130dd86fe921d1440234e6b537b5ad2"
         }
       ],
-      "targetContractHash": "e2e226b61100e3f6940448648e68d6dfc8fc5e76ae35c2adba02a9a8133e23ae",
+      "targetContractHash": "a5b96d2cfb9d8d6b025d3a14add97df4a440502d6fc0b938da888986c45edd6b",
       "disposition": "native",
       "registration": "advertised",
       "availability": ["connected-plugin"],
@@ -397,7 +397,7 @@
           "schemaHash": "b5d9c491856160fd5908acb61b98670a5130dd86fe921d1440234e6b537b5ad2"
         }
       ],
-      "targetContractHash": "40213377ca973e06f6b7313041514bb74f8c28793a03c2b5d3fa96ad61af5944",
+      "targetContractHash": "4d8dcd025c0b4048097c895ec66b669653edf891fbb2499fccd91a5c5eb42a8f",
       "disposition": "adapter",
       "registration": "advertised",
       "availability": ["connected-plugin"],
@@ -538,7 +538,7 @@
           "schemaHash": "0ddd15ebb9a22eacbe79d5595d7eddee158b3f997336170989da964e9a12f388"
         }
       ],
-      "targetContractHash": "a1a326f5c745fd86ce7eb4404c2684f8f28d66f9f2a23af595d74117354894dc",
+      "targetContractHash": "e640a255b39e93739e1d8fbd449d3f8c3cb97e6e6936bdb6a82a99d2a6f67b0c",
       "disposition": "adapter",
       "registration": "advertised",
       "availability": ["connected-plugin"],
@@ -716,7 +716,7 @@
           "schemaHash": "91e7a33092432568d06bdc31273a9d6e42bf773737f56e81f71ee0e41bea4115"
         }
       ],
-      "targetContractHash": "44a1563f8c3fda9fb8088d0f92795326f16151d78e1ee24bb1767eb909681a4c",
+      "targetContractHash": "edeb5e9855b5639a23d213209c8d63c52cc6bb2c6dd47f9238a4fb653ce20da0",
       "disposition": "native",
       "registration": "advertised",
       "availability": ["server"],
@@ -737,7 +737,7 @@
           "schemaHash": "68ff28308abeab7c5c933bdda6eb8af4685be8d283b930cf94c26b5da7c4c1fe"
         }
       ],
-      "targetContractHash": "7cdff440232e18f4a22d14781da409c572bdca1ec6aeeefee1b64dfc9e39edf4",
+      "targetContractHash": "d988d195144309cbe1505a2f75077072b0a0d00b55c16b7dc27d0963b03a5de2",
       "disposition": "native",
       "registration": "advertised",
       "availability": ["server"],
@@ -1722,7 +1722,7 @@
           "schemaHash": "3c0fdb760c11d7bfb73eb73e63caf07fb1576687be93b45dda18394b30270d59"
         }
       ],
-      "targetContractHash": "6a52a5c00da04cda9926067c91ab2ce402b9892fcf48f4c27cd38f85d65d92ed",
+      "targetContractHash": "4c9c5201669149a527604f2e0bc314a79460d2024d86ca00f05edaa7c460b287",
       "disposition": "adapter",
       "registration": "advertised",
       "availability": ["connected-plugin"],
@@ -1774,7 +1774,7 @@
           "schemaHash": "b3c136f4ee9ebce31eeabacca7546d1361d45d10d5d16261ad9db5042ce975af"
         }
       ],
-      "targetContractHash": "f848f38da3fb24a8baf47ba45a708b481f14f30dc33a17c77e9bd04a705b3276",
+      "targetContractHash": "385d022606b4a69e871dcb0ed80cce31da7ef6eec0b4dc8499817d1563bdc7ca",
       "disposition": "adapter",
       "registration": "advertised",
       "availability": ["connected-plugin"],
@@ -2794,10 +2794,10 @@
       "sourceContracts": [
         {
           "source": "super-figma-pipeline",
-          "schemaHash": "89dea128129568471351f535459c6d60e2903c15e05e70677ef93d0d793c09b6"
+          "schemaHash": "277148ee3b824230299ac8707f70993bc0b2be65cc9d4d4a78b0dbd31dba6939"
         }
       ],
-      "targetContractHash": "c6dacbbfb3c06221833e55072249b9e8d2bd6fd471c406b7e21907ff429eb0f4",
+      "targetContractHash": "06857a11a5811fa8651c781abaf7d28b460ec290480f781e20c16a348d89607e",
       "disposition": "adapter",
       "registration": "advertised",
       "availability": ["registered-workspace", "authenticated-owner"],
@@ -2816,7 +2816,7 @@
           "schemaHash": "c405d38b4b44164ae727bef89354e65dc63d4f2007d89e812641166a658aa68e"
         }
       ],
-      "targetContractHash": "5e48b9960790e0e6f0d2e8f5a67b676fd2fa30d1dd474753e8e8f10752a84800",
+      "targetContractHash": "ff53aed57a855e08cfa2ff04a5c9b316b6e7e4087b002833bb97b5f2c1d86616",
       "disposition": "adapter",
       "registration": "advertised",
       "availability": ["registered-workspace", "authenticated-owner"],
@@ -2832,10 +2832,10 @@
       "sourceContracts": [
         {
           "source": "super-figma-pipeline",
-          "schemaHash": "f559d54df07c5cfb273fb167cfb33433a7d4d678240895a455f606ab2b46ae58"
+          "schemaHash": "67338fa38cd6bcd944ca13e9a9e218f441ded5edc6ee6128135e14866b297893"
         }
       ],
-      "targetContractHash": "fca1b5a1b40bde8efd98c1d6e0f46325d489ebcde0899f5de5978f6bdee1bf1e",
+      "targetContractHash": "2dcd6b45d8dec9990c726d733697ecee81995ece132c337452cd22ac9345bafa",
       "disposition": "adapter",
       "registration": "advertised",
       "availability": ["registered-workspace", "authenticated-owner"],
@@ -2851,10 +2851,10 @@
       "sourceContracts": [
         {
           "source": "super-figma-pipeline",
-          "schemaHash": "0c07dbf1bdd6cb2ac180ca11450d633f37bb6c13cd8e366b07d3ea82dd0868cd"
+          "schemaHash": "a11f9fd25b6cc706f5a9ed39dac1fc2a2525d94894cc17d40d40faddfd0b25c5"
         }
       ],
-      "targetContractHash": "0977b53de908d2569489f2190ac2095b80a3d231de518c42ffd21626210c4e5b",
+      "targetContractHash": "44a1051c00f997567ecbfef6522c5832a2b1231b436a0f4ae3725b068133987a",
       "disposition": "adapter",
       "registration": "advertised",
       "availability": ["registered-workspace", "authenticated-owner"],
@@ -2873,7 +2873,7 @@
           "schemaHash": "3a62b8bb9ff1cd7bc298c94f70ab776c6ed6c5abed2b50bc8ddb923254b1400a"
         }
       ],
-      "targetContractHash": "33f86fdc06871383e3ac421fc348b8b17e5db0cf4a612b4648f702d186d274de",
+      "targetContractHash": "a8cee11ca1f0e5f8ad74524a6b3cff27b119a12b924250147c9e52d1fbb081ec",
       "disposition": "adapter",
       "registration": "advertised",
       "availability": [
@@ -2896,7 +2896,7 @@
           "schemaHash": "0b3a47befbc98a6e2313481f0965b586eef63a132a041dab75705a4834a1cc27"
         }
       ],
-      "targetContractHash": "1a8de225d0009e2895d70e21a6cae088e984abee52faba5508d2da95c0766b75",
+      "targetContractHash": "811aae5b771fb228b88e73b20bbf8d00524ae417c24d40ed0d3e0290da91e70c",
       "disposition": "adapter",
       "registration": "advertised",
       "availability": [
@@ -2917,10 +2917,10 @@
       "sourceContracts": [
         {
           "source": "super-figma-pipeline",
-          "schemaHash": "3a62b8bb9ff1cd7bc298c94f70ab776c6ed6c5abed2b50bc8ddb923254b1400a"
+          "schemaHash": "2500ed2a0aa9df2e3c768a88b1e2693457f7a05322c61ffa3304dda35158e055"
         }
       ],
-      "targetContractHash": "33f86fdc06871383e3ac421fc348b8b17e5db0cf4a612b4648f702d186d274de",
+      "targetContractHash": "9279355b9f8ddc94d84f2dc9840baff05ae155c370cc7939576251de9767b32f",
       "disposition": "adapter",
       "registration": "advertised",
       "availability": ["registered-workspace", "authenticated-owner"],
@@ -2939,7 +2939,7 @@
           "schemaHash": "803ff6e81b35ddf953c7ced8d1a56f45832386d8d2fc230a4bd8895c14a9c5b6"
         }
       ],
-      "targetContractHash": "a56aa9f0d9ab637165bdb004cef85eef08fbdaa7699c4675ceb350abd7c8ad23",
+      "targetContractHash": "1da53b540de2f0aa04e95a46ae53bb402c230af15699534c137a29b349142afc",
       "disposition": "adapter",
       "registration": "advertised",
       "availability": ["registered-workspace", "authenticated-owner"],
@@ -2958,7 +2958,7 @@
           "schemaHash": "3a62b8bb9ff1cd7bc298c94f70ab776c6ed6c5abed2b50bc8ddb923254b1400a"
         }
       ],
-      "targetContractHash": "33f86fdc06871383e3ac421fc348b8b17e5db0cf4a612b4648f702d186d274de",
+      "targetContractHash": "a8cee11ca1f0e5f8ad74524a6b3cff27b119a12b924250147c9e52d1fbb081ec",
       "disposition": "adapter",
       "registration": "advertised",
       "availability": ["registered-workspace", "authenticated-owner"],
@@ -2967,6 +2967,67 @@
       "implementation": "packages/mcp/src/portal/coordinator.ts",
       "test": "packages/mcp/test/portal/coordinator.test.ts",
       "policyId": "tool:portal_cancel:v1"
+    },
+    {
+      "name": "portal_capture_read",
+      "sourceRefs": [
+        "super-figma-pipeline:packages/mcp/src/tools/portal-capture.ts#portal_capture_read"
+      ],
+      "sourceContracts": [
+        {
+          "source": "super-figma-pipeline",
+          "schemaHash": "60319cf2a48f6639b94f962e90b67e3fe4b82302161a9b5d837c1973a0ec909b"
+        }
+      ],
+      "targetContractHash": "11f5e0265e93d1ccd159385373e175cc4debc2ca7741b912208cc854e6986830",
+      "disposition": "native",
+      "registration": "advertised",
+      "availability": ["connected-plugin"],
+      "investment": "active",
+      "implementationStatus": "implemented",
+      "implementation": "packages/plugin/src/handlers/portal-capture-read.ts",
+      "test": "packages/mcp/test/portal/desktop-capture.test.ts",
+      "policyId": "tool:portal_capture_read:v1"
+    },
+    {
+      "name": "portal_capture_asset",
+      "sourceRefs": [
+        "super-figma-pipeline:packages/mcp/src/tools/portal-capture.ts#portal_capture_asset"
+      ],
+      "sourceContracts": [
+        {
+          "source": "super-figma-pipeline",
+          "schemaHash": "4a6724600a49f0291c6b6b47fa14e2cd4605a2bad23cd76150e38dd26fe99312"
+        }
+      ],
+      "targetContractHash": "7d9091dc34d90badaac3d711bf1c974bb83720f6b1e260cac4fc5e5452d55362",
+      "disposition": "native",
+      "registration": "advertised",
+      "availability": ["connected-plugin"],
+      "investment": "active",
+      "implementationStatus": "implemented",
+      "implementation": "packages/plugin/src/handlers/portal-capture-asset.ts",
+      "test": "packages/mcp/test/portal/desktop-capture.test.ts",
+      "policyId": "tool:portal_capture_asset:v1"
+    },
+    {
+      "name": "set_annotations",
+      "sourceRefs": ["super-figma-pipeline:packages/mcp/src/tools/set-annotations.ts"],
+      "sourceContracts": [
+        {
+          "source": "super-figma-pipeline",
+          "schemaHash": "59ecfb70c0e7c8685c2e722b24c74558602f60bf6f60edb72220ad0568e8d387"
+        }
+      ],
+      "targetContractHash": "f30d6c59628e34981f0db952b92386a0ebd2e70aea73a818b3f6afc1db2db33e",
+      "disposition": "native",
+      "registration": "advertised",
+      "availability": ["connected-plugin"],
+      "investment": "active",
+      "implementationStatus": "implemented",
+      "implementation": "packages/plugin/src/handlers/set-annotations.ts",
+      "test": "packages/plugin/test/handlers/set-annotations.test.ts",
+      "policyId": "tool:set_annotations:v1"
     }
   ],
   "sourceSurfaces": {

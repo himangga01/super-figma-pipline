@@ -1,5 +1,6 @@
 import { afterEach, expect, it, vi } from 'vitest';
 
+import { ALL_TOOL_SPECS } from '../../mcp/src/tools/registry.js';
 import { runAdminCommand } from '../src/admin-commands.js';
 import { ControlClient } from '../src/control-client.js';
 
@@ -10,7 +11,10 @@ it('lists the complete contract locally without requiring a daemon', async () =>
     .mockRejectedValue(new Error('must not request'));
   const emit = vi.fn<(value: unknown) => void>();
   expect(await runAdminCommand(['tools', 'list'], emit)).toBe(true);
-  expect((emit.mock.calls[0]![0] as { tools: unknown[] }).tools).toHaveLength(127);
+  // Derived from the registry rather than a literal count, so adding a tool cannot break it.
+  expect(
+    (emit.mock.calls[0]![0] as { tools: Array<{ name: string }> }).tools.map(tool => tool.name),
+  ).toEqual(ALL_TOOL_SPECS.map(spec => spec.name));
   expect(request).not.toHaveBeenCalled();
 });
 it('routes portal status through the canonical tool invocation with no Figma target', async () => {

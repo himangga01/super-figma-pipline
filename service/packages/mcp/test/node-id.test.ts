@@ -117,7 +117,11 @@ describe('normalizeIdArgs', () => {
       'modeId', // variable-mode ids
       'animationStyleId', // Motion applied-style instance ids
       'timelineId', // Motion timeline ids
+      'variableIds', // portal_capture_read reference query: variable ids (VariableID:…)
+      'collectionIds', // portal_capture_read reference query: variable-collection ids
+      'styleIds', // portal_capture_read reference query: shared-style ids (S:…)
       'planId', // signed portal plan identity
+      'resumePlanId', // signed portal plan identity (sfp_portal1_…) of a plan to resume
       'runId', // signed portal run identity
       'leaseId', // session-bound portal coding lease
       'profileId', // owner-reviewed native execution profile

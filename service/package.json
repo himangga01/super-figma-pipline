@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "build": "pnpm -r run build",
+    "contracts:update": "node --experimental-transform-types --disable-warning=ExperimentalWarning scripts/update-contracts.mjs",
     "desktop:acceptance": "node scripts/desktop-acceptance.mjs",
     "dev": "pnpm -r --parallel run dev",
     "format": "oxfmt .",
