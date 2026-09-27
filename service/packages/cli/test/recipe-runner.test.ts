@@ -539,6 +539,7 @@ const fixture = async (
   }
   recipeRouter.freeze();
   let corrupt: (value: unknown) => unknown = value => value;
+  let workspaceRows: (rows: readonly unknown[]) => readonly unknown[] = rows => rows;
   const server = createServer((request, response) => {
     void (async () => {
       if (
@@ -584,7 +585,7 @@ const fixture = async (
           principal,
           new AbortController().signal,
         );
-      else if (path === '/control/workspaces') result = await workspaces.list();
+      else if (path === '/control/workspaces') result = workspaceRows(await workspaces.list());
       else if (path === '/control/operations' && request.method === 'POST')
         result = { operationId: issuer.issue(actorId, Date.now()) };
       else if (path === '/control/tools/call') result = await endpoint(principal, body);
@@ -719,6 +720,9 @@ const fixture = async (
     setCorrupt: (fn: typeof corrupt) => {
       corrupt = fn;
     },
+    setWorkspaceRows: (fn: typeof workspaceRows) => {
+      workspaceRows = fn;
+    },
     setAfter: (fn: typeof mutateAfter) => {
       mutateAfter = fn;
     },
@@ -800,6 +804,44 @@ it('recovers the original completed write after checkpoint failure without dupli
     runOwnerRecipe(f.plan, f.client, f.checkpoints, { approve: true }),
   ).resolves.toMatchObject({ status: 'succeeded' });
   expect(f.calls.filter(tool => tool === 'create_frame')).toHaveLength(1);
+});
+it('reads results while another registration is legacy-unbound or unavailable (LC-2, T08)', async () => {
+  const f = await fixture();
+  f.setWorkspaceRows(rows => [
+    {
+      workspaceId: '123e4567-e89b-42d3-a456-426614174000',
+      path: join(f.stateRoot, 'legacy'),
+      realPath: join(f.stateRoot, 'legacy'),
+      addedAt: '2026-08-28T00:00:00.000Z',
+      availability: 'legacy-unbound',
+    },
+    ...rows,
+    {
+      workspaceId: '123e4567-e89b-42d3-a456-426614174001',
+      path: join(f.stateRoot, 'moved'),
+      realPath: join(f.stateRoot, 'moved'),
+      rootIdentityKey: '1:2:3',
+      addedAt: '2026-08-31T00:00:00.000Z',
+      availability: 'unavailable',
+      unavailableReason: 'WORKSPACE_ROOT_MISSING',
+    },
+  ]);
+  await expect(
+    runOwnerRecipe(f.plan, f.client, f.checkpoints, { approve: true }),
+  ).resolves.toMatchObject({ status: 'succeeded' });
+});
+it('refuses to read results from an unavailable recipe workspace (LC-2, T08)', async () => {
+  const f = await fixture();
+  f.setWorkspaceRows(rows =>
+    rows.map(row => ({
+      ...(row as object),
+      availability: 'unavailable',
+      unavailableReason: 'WORKSPACE_ROOT_IDENTITY_CHANGED',
+    })),
+  );
+  await expect(runOwnerRecipe(f.plan, f.client, f.checkpoints, { approve: true })).rejects.toThrow(
+    'RECIPE_WORKSPACE_UNAVAILABLE',
+  );
 });
 it('wrong owner and source preimage cannot dispatch writes', async () => {
   const f = await fixture();

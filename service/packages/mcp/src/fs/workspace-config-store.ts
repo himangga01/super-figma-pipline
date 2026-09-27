@@ -10,6 +10,7 @@ import type {
   WorkspaceBootstrapStore,
   WorkspaceRegistrationResolver,
   WorkspaceRoot,
+  WorkspaceUnavailableReason,
   WorkspaceUsageGuard,
 } from '@sfp/shared';
 
@@ -48,7 +49,9 @@ export type WorkspaceErrorCode =
   | 'WORKSPACE_PATH_REPARSE'
   | 'WORKSPACE_REGISTRATION_CHANGED'
   | 'WORKSPACE_ROOT_IDENTITY_CHANGED'
+  | 'WORKSPACE_ROOT_MISSING'
   | 'WORKSPACE_ROOT_UNAVAILABLE'
+  | 'WORKSPACE_ROOT_UNBOUND'
   | 'WORKSPACE_USAGE_CHECK_FAILED';
 
 export class WorkspaceError extends Error {
@@ -96,12 +99,40 @@ interface WorkspaceConfigV2Payload {
   workspaces: RegisteredWorkspaceRoot[];
   defaultWorkspaceId: string | null;
 }
-type WorkspaceConfigPayload = WorkspaceConfigV1Payload | WorkspaceConfigV2Payload;
+/**
+ * A v3 row persists its binding state, never its availability. A bound row is the v2 row followed
+ * by `state: 'bound'`; a legacy-unbound row is a v1 row, which has no identity key, followed by
+ * `state: 'legacy-unbound'`. Only add and rebind write a root identity.
+ */
+interface BoundWorkspaceRecord {
+  workspaceId: string;
+  path: string;
+  realPath: string;
+  rootIdentityKey: string;
+  addedAt: string;
+  state: 'bound';
+}
+interface LegacyUnboundWorkspaceRecord {
+  workspaceId: string;
+  path: string;
+  realPath: string;
+  addedAt: string;
+  state: 'legacy-unbound';
+}
+type WorkspaceRecord = BoundWorkspaceRecord | LegacyUnboundWorkspaceRecord;
+interface WorkspaceConfigV3Payload {
+  version: 3;
+  workspaces: WorkspaceRecord[];
+  defaultWorkspaceId: string | null;
+}
+type WorkspaceConfigPayload =
+  | WorkspaceConfigV1Payload
+  | WorkspaceConfigV2Payload
+  | WorkspaceConfigV3Payload;
 type WorkspaceConfigEnvelope = WorkspaceConfigPayload & { checksum: string };
 interface WorkspaceConfigState {
-  workspaces: RegisteredWorkspaceRoot[];
+  workspaces: WorkspaceRecord[];
   defaultWorkspaceId: string | null;
-  sourceVersion: 1 | 2;
 }
 
 export const workspaceConfigPath = (stateRoot: string): string =>
@@ -173,8 +204,60 @@ const v2WorkspaceFromUnknown = (value: unknown): RegisteredWorkspaceRoot | undef
     addedAt: common.addedAt,
   };
 };
+const boundRecord = (
+  workspace: Readonly<LegacyWorkspaceRoot>,
+  rootIdentityKey: string,
+): BoundWorkspaceRecord => ({
+  workspaceId: workspace.workspaceId,
+  path: workspace.path,
+  realPath: workspace.realPath,
+  rootIdentityKey,
+  addedAt: workspace.addedAt,
+  state: 'bound',
+});
+const legacyUnboundRecord = (
+  workspace: Readonly<LegacyWorkspaceRoot>,
+): LegacyUnboundWorkspaceRecord => ({
+  workspaceId: workspace.workspaceId,
+  path: workspace.path,
+  realPath: workspace.realPath,
+  addedAt: workspace.addedAt,
+  state: 'legacy-unbound',
+});
+const canonicalRecord = (record: Readonly<WorkspaceRecord>): WorkspaceRecord =>
+  record.state === 'bound'
+    ? boundRecord(record, record.rootIdentityKey)
+    : legacyUnboundRecord(record);
+const v3WorkspaceFromUnknown = (value: unknown): WorkspaceRecord | undefined => {
+  if (!isPlainObject(value)) return undefined;
+  if (value.state === 'bound') {
+    if (
+      !exactKeys(value, ['workspaceId', 'path', 'realPath', 'rootIdentityKey', 'addedAt', 'state'])
+    ) {
+      return undefined;
+    }
+    const common = commonWorkspace(value);
+    if (
+      common === undefined ||
+      typeof value.rootIdentityKey !== 'string' ||
+      value.rootIdentityKey === ''
+    ) {
+      return undefined;
+    }
+    return boundRecord(common, value.rootIdentityKey);
+  }
+  if (value.state === 'legacy-unbound') {
+    if (!exactKeys(value, ['workspaceId', 'path', 'realPath', 'addedAt', 'state']))
+      return undefined;
+    const common = commonWorkspace(value);
+    return common === undefined ? undefined : legacyUnboundRecord(common);
+  }
+  return undefined;
+};
 
-const uniqueWorkspaces = (workspaces: readonly WorkspaceRoot[]): boolean => {
+const uniqueWorkspaces = (
+  workspaces: readonly Readonly<{ workspaceId: string; realPath: string }>[],
+): boolean => {
   const ids = new Set<string>();
   const realPaths = new Set<string>();
   for (const workspace of workspaces) {
@@ -184,6 +267,32 @@ const uniqueWorkspaces = (workspaces: readonly WorkspaceRoot[]): boolean => {
     realPaths.add(comparablePath);
   }
   return true;
+};
+
+/** Closed v2/v3 envelope rows with unique IDs and real paths and a default naming one row. */
+const defaultedRows = <Row extends { workspaceId: string; realPath: string }>(
+  value: Record<string, unknown>,
+  rowFromUnknown: (row: unknown) => Row | undefined,
+): { workspaces: Row[]; defaultWorkspaceId: string | null } | undefined => {
+  const defaultWorkspaceId = value.defaultWorkspaceId;
+  if (
+    !exactKeys(value, ['version', 'workspaces', 'defaultWorkspaceId', 'checksum']) ||
+    !Array.isArray(value.workspaces) ||
+    !(defaultWorkspaceId === null || typeof defaultWorkspaceId === 'string')
+  ) {
+    return undefined;
+  }
+  const rows = value.workspaces.map(rowFromUnknown);
+  if (rows.some(row => row === undefined)) return undefined;
+  const workspaces = rows as Row[];
+  if (
+    !uniqueWorkspaces(workspaces) ||
+    (defaultWorkspaceId !== null &&
+      !workspaces.some(workspace => workspace.workspaceId === defaultWorkspaceId))
+  ) {
+    return undefined;
+  }
+  return { workspaces, defaultWorkspaceId };
 };
 
 const configFromUnknown = (value: unknown): WorkspaceConfigEnvelope | undefined => {
@@ -212,32 +321,89 @@ const configFromUnknown = (value: unknown): WorkspaceConfigEnvelope | undefined 
     return { ...payload, checksum: value.checksum };
   }
   if (value.version === 2) {
-    if (
-      !exactKeys(value, ['version', 'workspaces', 'defaultWorkspaceId', 'checksum']) ||
-      !Array.isArray(value.workspaces) ||
-      !(value.defaultWorkspaceId === null || typeof value.defaultWorkspaceId === 'string')
-    ) {
-      return undefined;
-    }
-    const workspaces = value.workspaces.map(v2WorkspaceFromUnknown);
-    if (workspaces.some(workspace => workspace === undefined)) return undefined;
-    const parsed = workspaces as RegisteredWorkspaceRoot[];
-    if (
-      !uniqueWorkspaces(parsed) ||
-      (value.defaultWorkspaceId !== null &&
-        !parsed.some(workspace => workspace.workspaceId === value.defaultWorkspaceId))
-    ) {
-      return undefined;
-    }
-    const payload: WorkspaceConfigV2Payload = {
-      version: 2,
-      workspaces: parsed,
-      defaultWorkspaceId: value.defaultWorkspaceId,
-    };
+    const parsed = defaultedRows(value, v2WorkspaceFromUnknown);
+    if (parsed === undefined) return undefined;
+    const payload: WorkspaceConfigV2Payload = { version: 2, ...parsed };
+    if (checksumFor(payload) !== value.checksum) return undefined;
+    return { ...payload, checksum: value.checksum };
+  }
+  if (value.version === 3) {
+    const parsed = defaultedRows(value, v3WorkspaceFromUnknown);
+    if (parsed === undefined) return undefined;
+    const payload: WorkspaceConfigV3Payload = { version: 3, ...parsed };
     if (checksumFor(payload) !== value.checksum) return undefined;
     return { ...payload, checksum: value.checksum };
   }
   return undefined;
+};
+
+/** Reads never migrate: v1 rows become legacy-unbound and v2 rows become bound, verbatim. */
+const configState = (config: WorkspaceConfigEnvelope): WorkspaceConfigState => {
+  if (config.version === 1) {
+    return { workspaces: config.workspaces.map(legacyUnboundRecord), defaultWorkspaceId: null };
+  }
+  if (config.version === 2) {
+    return {
+      workspaces: config.workspaces.map(row => boundRecord(row, row.rootIdentityKey)),
+      defaultWorkspaceId: config.defaultWorkspaceId,
+    };
+  }
+  return { workspaces: config.workspaces, defaultWorkspaceId: config.defaultWorkspaceId };
+};
+
+const unavailabilityCause = (workspace: Readonly<WorkspaceRoot>): WorkspaceError | undefined => {
+  if (workspace.availability === undefined || workspace.availability === 'available') {
+    return undefined;
+  }
+  if (workspace.availability === 'legacy-unbound') {
+    return new WorkspaceError(
+      'WORKSPACE_ROOT_UNBOUND',
+      'the legacy workspace registration has no recorded root identity; rebind it explicitly',
+    );
+  }
+  return workspace.unavailableReason === 'WORKSPACE_ROOT_IDENTITY_CHANGED'
+    ? new WorkspaceError(
+        'WORKSPACE_ROOT_IDENTITY_CHANGED',
+        'the registered path now resolves to a directory other than the recorded root identity',
+      )
+    : new WorkspaceError(
+        'WORKSPACE_ROOT_MISSING',
+        'the registered path no longer resolves to an accessible real directory',
+      );
+};
+
+/** The precise error for an operation that targets a registration that is not available. */
+export const workspaceUnavailableError = (
+  workspace: Readonly<WorkspaceRoot>,
+): WorkspaceError | undefined => {
+  const cause = unavailabilityCause(workspace);
+  return cause === undefined
+    ? undefined
+    : new WorkspaceError(
+        'WORKSPACE_ROOT_UNAVAILABLE',
+        `workspace ${workspace.workspaceId} is ${workspace.availability} (${cause.code}); rebind or remove its registration`,
+        cause,
+      );
+};
+
+/** Visits available registrations in order; logs and skips unavailable and legacy-unbound rows. */
+export const sweepAvailableWorkspaces = async (
+  workspaces: readonly Readonly<WorkspaceRoot>[],
+  log: (line: string) => void,
+  visit: (workspace: Readonly<WorkspaceRoot>) => Promise<void>,
+): Promise<void> => {
+  /* eslint-disable no-await-in-loop -- each workspace orphan set is identity-verified in order */
+  for (const workspace of workspaces) {
+    const cause = unavailabilityCause(workspace);
+    if (cause === undefined) {
+      await visit(workspace);
+    } else {
+      log(
+        `[retention] workspace ${workspace.workspaceId} is ${workspace.availability} (${cause.code}); its evidence scan is skipped until it is rebound or removed`,
+      );
+    }
+  }
+  /* eslint-enable no-await-in-loop */
 };
 
 const authenticatedActor = (actorId: string): void => {
@@ -261,15 +427,23 @@ const safeStateRoot = (input: string): string => {
   }
   return stateRoot;
 };
-const immutableWorkspace = (workspace: RegisteredWorkspaceRoot): RegisteredWorkspaceRoot =>
+const immutableWorkspace = <Workspace extends WorkspaceRoot>(workspace: Workspace): Workspace =>
   Object.freeze({ ...workspace });
-const workspaceRecord = (workspace: RegisteredWorkspaceRoot): RegisteredWorkspaceRoot => ({
-  workspaceId: workspace.workspaceId,
-  path: workspace.path,
-  realPath: workspace.realPath,
-  rootIdentityKey: workspace.rootIdentityKey,
-  addedAt: workspace.addedAt,
-});
+/** The listed view of a bound record: available unless an observation gives a reason. */
+const boundWorkspace = (
+  record: Readonly<BoundWorkspaceRecord>,
+  unavailableReason?: WorkspaceUnavailableReason,
+): RegisteredWorkspaceRoot =>
+  immutableWorkspace({
+    workspaceId: record.workspaceId,
+    path: record.path,
+    realPath: record.realPath,
+    rootIdentityKey: record.rootIdentityKey,
+    addedAt: record.addedAt,
+    ...(unavailableReason === undefined
+      ? { availability: 'available' as const }
+      : { availability: 'unavailable' as const, unavailableReason }),
+  });
 const handleIdentityKey = (metadata: BigIntStats): string =>
   `${metadata.dev}:${metadata.ino}:${metadata.birthtimeNs}`;
 
@@ -411,56 +585,42 @@ export const createWorkspaceConfigStore = (
     }
   };
 
-  const revalidateRows = async (
-    rows: readonly (LegacyWorkspaceRoot | RegisteredWorkspaceRoot)[],
-    sourceVersion: 1 | 2,
-  ): Promise<RegisteredWorkspaceRoot[]> => {
-    const validated: RegisteredWorkspaceRoot[] = [];
-    /* eslint-disable no-await-in-loop -- preserve fail-closed configured order */
-    for (const row of rows) {
-      const expected = {
-        requestedPath: row.path,
-        realPath: row.realPath,
-        identityKey: 'rootIdentityKey' in row ? row.rootIdentityKey : '',
-      };
-      let current: Readonly<ResolvedWorkspaceRegistration>;
-      try {
-        current =
-          sourceVersion === 2
-            ? await registrationResolver.revalidateInsideMutation(expected)
-            : await registrationResolver.resolveForNonce(row.path);
-      } catch (error) {
-        throw new WorkspaceError(
-          'WORKSPACE_ROOT_IDENTITY_CHANGED',
-          'configured workspace root identity changed',
-          error,
-        );
-      }
-      if (
-        normalizedForComparison(current.realPath) !== normalizedForComparison(row.realPath) ||
-        (sourceVersion === 2 && current.identityKey !== expected.identityKey)
-      ) {
-        throw new WorkspaceError(
-          'WORKSPACE_ROOT_IDENTITY_CHANGED',
-          'configured workspace root identity changed',
-        );
-      }
-      validated.push({
-        workspaceId: row.workspaceId,
-        path: row.path,
-        realPath: row.realPath,
-        rootIdentityKey: current.identityKey,
-        addedAt: row.addedAt,
+  /**
+   * Observes one row. A failure never escapes: the row is listed as unavailable and its record,
+   * including the recorded identity, stays exactly as persisted. Legacy rows have no identity to
+   * compare, so they are never adopted here.
+   */
+  const listedWorkspace = async (record: Readonly<WorkspaceRecord>): Promise<WorkspaceRoot> => {
+    if (record.state === 'legacy-unbound') {
+      return immutableWorkspace({
+        workspaceId: record.workspaceId,
+        path: record.path,
+        realPath: record.realPath,
+        addedAt: record.addedAt,
+        availability: 'legacy-unbound',
       });
     }
-    /* eslint-enable no-await-in-loop */
-    return validated;
+    let current: Readonly<ResolvedWorkspaceRegistration>;
+    try {
+      current = await registrationResolver.resolveForNonce(record.path);
+    } catch {
+      return boundWorkspace(record, 'WORKSPACE_ROOT_MISSING');
+    }
+    const recorded = {
+      requestedPath: record.path,
+      realPath: record.realPath,
+      identityKey: record.rootIdentityKey,
+    };
+    return sameWorkspaceRegistration(recorded, current)
+      ? boundWorkspace(record)
+      : boundWorkspace(record, 'WORKSPACE_ROOT_IDENTITY_CHANGED');
   };
 
+  /** Reads the persisted rows without touching any registered workspace. */
   const readConfig = async (): Promise<WorkspaceConfigState> => {
     const { realPath: stateRealPath } = await ensureStateRoot();
     const raw = await readSecureConfigText();
-    if (raw === undefined) return { workspaces: [], defaultWorkspaceId: null, sourceVersion: 2 };
+    if (raw === undefined) return { workspaces: [], defaultWorkspaceId: null };
     let unknownConfig: unknown;
     try {
       unknownConfig = JSON.parse(raw);
@@ -484,21 +644,18 @@ export const createWorkspaceConfigStore = (
         'workspace config overlaps owner-only service state',
       );
     }
-    return {
-      workspaces: await revalidateRows(config.workspaces, config.version),
-      defaultWorkspaceId: config.version === 2 ? config.defaultWorkspaceId : null,
-      sourceVersion: config.version,
-    };
+    return configState(config);
   };
 
+  /** Every explicit mutation writes v3 and carries rows it does not target through verbatim. */
   const writeConfig = async (
-    workspaces: readonly RegisteredWorkspaceRoot[],
+    workspaces: readonly Readonly<WorkspaceRecord>[],
     defaultWorkspaceId: string | null,
   ): Promise<void> => {
     await ensureStateRoot();
-    const payload: WorkspaceConfigV2Payload = {
-      version: 2,
-      workspaces: workspaces.map(workspaceRecord),
+    const payload: WorkspaceConfigV3Payload = {
+      version: 3,
+      workspaces: workspaces.map(canonicalRecord),
       defaultWorkspaceId,
     };
     const envelope: WorkspaceConfigEnvelope = { ...payload, checksum: checksumFor(payload) };
@@ -556,6 +713,39 @@ export const createWorkspaceConfigStore = (
       return result;
     });
 
+  const revalidateRegistration = async (
+    expected: Readonly<ResolvedWorkspaceRegistration>,
+  ): Promise<Readonly<ResolvedWorkspaceRegistration>> => {
+    try {
+      return await registrationResolver.revalidateInsideMutation(expected);
+    } catch (error) {
+      throw new WorkspaceError(
+        'WORKSPACE_REGISTRATION_CHANGED',
+        'workspace registration changed before nonce consumption',
+        error,
+      );
+    }
+  };
+
+  const assertSettled = async (workspaceId: string): Promise<void> => {
+    let unsettled: boolean;
+    try {
+      unsettled = await usageGuard.hasUnsettled(workspaceId);
+    } catch (error) {
+      throw new WorkspaceError(
+        'WORKSPACE_USAGE_CHECK_FAILED',
+        'workspace usage could not be verified',
+        error,
+      );
+    }
+    if (unsettled) {
+      throw new WorkspaceError(
+        'WORKSPACE_IN_USE',
+        'workspace still has unsettled operation references',
+      );
+    }
+  };
+
   const addResolved = async (
     actorId: string,
     expected: Readonly<ResolvedWorkspaceRegistration>,
@@ -583,37 +773,90 @@ export const createWorkspaceConfigStore = (
           'the workspace real path is already approved',
         );
       }
-      let workspace!: RegisteredWorkspaceRoot;
+      let record!: BoundWorkspaceRecord;
       await addResolvedWorkspaceAtomically({
         expected,
-        revalidate: async () => {
-          try {
-            return await registrationResolver.revalidateInsideMutation(expected);
-          } catch (error) {
-            throw new WorkspaceError(
-              'WORKSPACE_REGISTRATION_CHANGED',
-              'workspace registration changed before nonce consumption',
-              error,
-            );
-          }
-        },
+        revalidate: () => revalidateRegistration(expected),
         consumeNonceCas,
         commit: async () => {
           let workspaceId = randomUUID();
           while (state.workspaces.some(entry => entry.workspaceId === workspaceId)) {
             workspaceId = randomUUID();
           }
-          workspace = {
-            workspaceId,
-            path: expected.requestedPath,
-            realPath: expected.realPath,
-            rootIdentityKey: expected.identityKey,
-            addedAt: new Date().toISOString(),
-          };
-          await writeConfig([...state.workspaces, workspace], state.defaultWorkspaceId);
+          record = boundRecord(
+            {
+              workspaceId,
+              path: expected.requestedPath,
+              realPath: expected.realPath,
+              addedAt: new Date().toISOString(),
+            },
+            expected.identityKey,
+          );
+          await writeConfig([...state.workspaces, record], state.defaultWorkspaceId);
         },
       });
-      return immutableWorkspace(workspace);
+      return boundWorkspace(record);
+    });
+  };
+
+  /**
+   * Replaces one row's path and root identity and keeps its ID, creation time and default. Like
+   * removal it requires settled operations, because unsettled operations were authorized against
+   * the recorded root and their recovery reads evidence under it.
+   */
+  const rebindResolved = async (
+    actorId: string,
+    workspaceId: string,
+    expected: Readonly<ResolvedWorkspaceRegistration>,
+    consumeNonceCas: (revalidateImmediatelyBeforeConsume: () => Promise<void>) => Promise<void>,
+  ): Promise<RegisteredWorkspaceRoot> => {
+    authenticatedActor(actorId);
+    return mutate(async () => {
+      const { realPath: stateRealPath } = await ensureStateRoot();
+      const state = await readConfig();
+      const current = state.workspaces.find(entry => entry.workspaceId === workspaceId);
+      if (current === undefined) {
+        throw new WorkspaceError('WORKSPACE_NOT_CONFIGURED', 'workspace is not configured');
+      }
+      if (pathsOverlap(stateRealPath, expected.realPath)) {
+        throw new WorkspaceError(
+          'STATE_WORKSPACE_OVERLAP',
+          'approved workspace cannot overlap owner-only service state',
+        );
+      }
+      if (
+        state.workspaces.some(
+          entry =>
+            entry.workspaceId !== workspaceId &&
+            normalizedForComparison(entry.realPath) === normalizedForComparison(expected.realPath),
+        )
+      ) {
+        throw new WorkspaceError(
+          'WORKSPACE_ALREADY_CONFIGURED',
+          'the workspace real path is already approved for another workspace',
+        );
+      }
+      await assertSettled(workspaceId);
+      const record = boundRecord(
+        {
+          workspaceId,
+          path: expected.requestedPath,
+          realPath: expected.realPath,
+          addedAt: current.addedAt,
+        },
+        expected.identityKey,
+      );
+      await addResolvedWorkspaceAtomically({
+        expected,
+        revalidate: () => revalidateRegistration(expected),
+        consumeNonceCas,
+        commit: () =>
+          writeConfig(
+            state.workspaces.map(entry => (entry.workspaceId === workspaceId ? record : entry)),
+            state.defaultWorkspaceId,
+          ),
+      });
+      return boundWorkspace(record);
     });
   };
 
@@ -635,22 +878,7 @@ export const createWorkspaceConfigStore = (
           'the current default workspace must be changed or cleared before removal',
         );
       }
-      let unsettled: boolean;
-      try {
-        unsettled = await usageGuard.hasUnsettled(workspaceId);
-      } catch (error) {
-        throw new WorkspaceError(
-          'WORKSPACE_USAGE_CHECK_FAILED',
-          'workspace usage could not be verified',
-          error,
-        );
-      }
-      if (unsettled) {
-        throw new WorkspaceError(
-          'WORKSPACE_IN_USE',
-          'workspace still has unsettled operation references',
-        );
-      }
+      await assertSettled(workspaceId);
       await consumeNonceCas();
       await writeConfig(
         state.workspaces.filter(entry => entry.workspaceId !== workspaceId),
@@ -696,10 +924,12 @@ export const createWorkspaceConfigStore = (
       }
       return addResolved(actorId, expected, async revalidate => revalidate());
     },
+    rebindResolved,
     list: async () => {
       const queue = await mutationQueue();
       await queue.tail;
-      return Object.freeze((await readConfig()).workspaces.map(immutableWorkspace));
+      const { workspaces } = await readConfig();
+      return Object.freeze(await Promise.all(workspaces.map(listedWorkspace)));
     },
     remove: (actorId, workspaceId) => removeAuthorized(actorId, workspaceId, async () => {}),
     removeAuthorized,

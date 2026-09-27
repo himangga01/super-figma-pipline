@@ -5,7 +5,7 @@ import { isAbsolute, join, posix, relative, resolve, sep, win32 } from 'node:pat
 import type { WorkspaceConfigStore, WorkspacePolicy, WorkspaceRoot } from '@sfp/shared';
 
 import { inspectWindowsBoundaries } from './windows-boundary-probe-worker.js';
-import { WorkspaceError } from './workspace-config-store.js';
+import { WorkspaceError, workspaceUnavailableError } from './workspace-config-store.js';
 
 type ResolutionMode = 'read' | 'write';
 const WINDOWS_REPARSE_ATTRIBUTE = 0x400;
@@ -245,6 +245,9 @@ const configuredWorkspace = async (
   if (workspace === undefined) {
     throw new WorkspaceError('WORKSPACE_NOT_CONFIGURED', 'workspace is not configured');
   }
+  // Another row's availability never matters here; this row's does, with its own cause.
+  const unavailable = workspaceUnavailableError(workspace);
+  if (unavailable !== undefined) throw unavailable;
   return workspace;
 };
 
@@ -457,19 +460,25 @@ export const createWorkspacePolicy = (
   const boundaryInspector =
     options.boundaryInspector ?? defaultBoundaryInspector(options.platform ?? process.platform);
   const rootIdentities = new Map<string, WorkspaceRootIdentity>();
+  // The pin is scoped to the recorded root identity, so an explicit rebind starts a new pin.
   const identityGuard =
-    (workspaceId: string) =>
+    (workspace: Readonly<WorkspaceRoot>) =>
     (identity: WorkspaceRootIdentity): void => {
-      const existing = rootIdentities.get(workspaceId);
+      const pinKey = `${workspace.workspaceId}\0${workspace.rootIdentityKey ?? ''}`;
+      const existing = rootIdentities.get(pinKey);
       if (existing !== undefined && !sameWorkspaceRootIdentity(existing, identity)) {
         throw unavailableRoot();
       }
-      rootIdentities.set(workspaceId, identity);
+      rootIdentities.set(pinKey, identity);
     };
   const prepare = async (
     workspaceId: string,
     input: string,
-  ): Promise<{ root: string; candidate: string }> => {
+  ): Promise<{
+    root: string;
+    candidate: string;
+    guard: (identity: WorkspaceRootIdentity) => void;
+  }> => {
     invalidInput(input);
     const workspace = await configuredWorkspace(store, workspaceId);
     const root = resolve(workspace.realPath);
@@ -480,28 +489,22 @@ export const createWorkspacePolicy = (
         'workspace path is outside its approved root',
       );
     }
-    return { root, candidate };
+    return { root, candidate, guard: identityGuard(workspace) };
   };
 
   const resolveWrite = async (
     workspaceId: string,
     input: string,
   ): Promise<{ path: string; overwrites: boolean }> => {
-    const { root, candidate } = await prepare(workspaceId, input);
+    const { root, candidate, guard } = await prepare(workspaceId, input);
     if (comparable(root) === comparable(candidate)) {
-      await walkDescendants(root, candidate, 'read', boundaryInspector, identityGuard(workspaceId));
+      await walkDescendants(root, candidate, 'read', boundaryInspector, guard);
       throw new WorkspaceError(
         'WORKSPACE_PATH_INVALID',
         'workspace root itself is not a writable output path',
       );
     }
-    const walked = await walkDescendants(
-      root,
-      candidate,
-      'write',
-      boundaryInspector,
-      identityGuard(workspaceId),
-    );
+    const walked = await walkDescendants(root, candidate, 'write', boundaryInspector, guard);
     if (walked.existing && walked.finalKind !== 'file') {
       throw new WorkspaceError(
         'WORKSPACE_PATH_INVALID',
@@ -517,14 +520,8 @@ export const createWorkspacePolicy = (
     workspaceId: string,
     input: string,
   ): Promise<{ path: string; exists: boolean }> => {
-    const { root, candidate } = await prepare(workspaceId, input);
-    const walked = await walkDescendants(
-      root,
-      candidate,
-      'write',
-      boundaryInspector,
-      identityGuard(workspaceId),
-    );
+    const { root, candidate, guard } = await prepare(workspaceId, input);
+    const walked = await walkDescendants(root, candidate, 'write', boundaryInspector, guard);
     if (walked.existing && walked.finalKind !== 'directory') {
       throw new WorkspaceError(
         'WORKSPACE_PATH_INVALID',
@@ -540,18 +537,12 @@ export const createWorkspacePolicy = (
     resolveRoot: async (workspaceId: string): Promise<string> => {
       const workspace = await configuredWorkspace(store, workspaceId);
       const root = resolve(workspace.realPath);
-      await walkDescendants(root, root, 'read', boundaryInspector, identityGuard(workspaceId));
+      await walkDescendants(root, root, 'read', boundaryInspector, identityGuard(workspace));
       return root;
     },
     resolveRead: async (workspaceId: string, input: string): Promise<string> => {
-      const { root, candidate } = await prepare(workspaceId, input);
-      const walked = await walkDescendants(
-        root,
-        candidate,
-        'read',
-        boundaryInspector,
-        identityGuard(workspaceId),
-      );
+      const { root, candidate, guard } = await prepare(workspaceId, input);
+      const walked = await walkDescendants(root, candidate, 'read', boundaryInspector, guard);
       if (!walked.existing) {
         throw new WorkspaceError(
           'WORKSPACE_PATH_NOT_FOUND',
@@ -563,22 +554,10 @@ export const createWorkspacePolicy = (
     resolveWrite,
     resolveWriteDirectory,
     assertWithinRoot: async (workspaceId: string, path: string): Promise<void> => {
-      const { root, candidate } = await prepare(workspaceId, path);
-      const existing = await walkDescendants(
-        root,
-        candidate,
-        'read',
-        boundaryInspector,
-        identityGuard(workspaceId),
-      );
+      const { root, candidate, guard } = await prepare(workspaceId, path);
+      const existing = await walkDescendants(root, candidate, 'read', boundaryInspector, guard);
       if (!existing.existing) {
-        await walkDescendants(
-          root,
-          candidate,
-          'write',
-          boundaryInspector,
-          identityGuard(workspaceId),
-        );
+        await walkDescendants(root, candidate, 'write', boundaryInspector, guard);
       }
     },
   });

@@ -6,14 +6,30 @@ export interface RuntimePaths {
   workspaceRoots: readonly WorkspaceRoot[];
 }
 
+/**
+ * Whether a listed registration can be used now. It is observed per row on every listing and is
+ * never persisted: `unavailable` rows keep their recorded identity until an explicit rebind, and
+ * `legacy-unbound` rows (v1 records without an identity) are unusable until they are rebound.
+ */
+export type WorkspaceAvailability = 'available' | 'unavailable' | 'legacy-unbound';
+
+/** Why a bound registration is `unavailable`. */
+export type WorkspaceUnavailableReason =
+  | 'WORKSPACE_ROOT_MISSING'
+  | 'WORKSPACE_ROOT_IDENTITY_CHANGED';
+
 /** One workspace registration persisted under owner-only service state. */
 export interface WorkspaceRoot {
   workspaceId: string;
   path: string;
   realPath: string;
-  /** Present on every v2 record; optional only for the read-only Task4 bootstrap seam. */
+  /** Present on every bound record; absent on legacy-unbound records and the Task4 seam. */
   rootIdentityKey?: string;
   addedAt: string;
+  /** Set by the config store on listed and returned rows; absent only on test seams. */
+  availability?: WorkspaceAvailability;
+  /** Set only when `availability` is `unavailable`. */
+  unavailableReason?: WorkspaceUnavailableReason;
 }
 
 export interface RegisteredWorkspaceRoot extends WorkspaceRoot {
@@ -52,6 +68,14 @@ export interface WorkspaceConfigStore {
     expected: Readonly<ResolvedWorkspaceRegistration>,
     consumeNonceCas: (revalidateImmediatelyBeforeConsume: () => Promise<void>) => Promise<void>,
   ): Promise<RegisteredWorkspaceRoot>;
+  /** Replaces one registration's path and identity; the only mutation besides add that binds one. */
+  rebindResolved(
+    actorId: string,
+    workspaceId: string,
+    expected: Readonly<ResolvedWorkspaceRegistration>,
+    consumeNonceCas: (revalidateImmediatelyBeforeConsume: () => Promise<void>) => Promise<void>,
+  ): Promise<RegisteredWorkspaceRoot>;
+  /** Every registration in configured order, each with its own availability. */
   list(): Promise<readonly WorkspaceRoot[]>;
   remove(actorId: string, workspaceId: string): Promise<void>;
   removeAuthorized(

@@ -24,6 +24,7 @@ import {
   type WorkspaceConfigDurability,
   workspaceConfigPath,
 } from '../../src/fs/workspace-config-store.js';
+import { createWorkspacePolicy } from '../../src/fs/workspace-policy.js';
 import { createWorkspaceRegistrationResolver } from '../../src/fs/workspace-registration-resolver.js';
 import {
   type BoundStatePermissions,
@@ -410,8 +411,18 @@ describe('checksummed atomic config', () => {
       defaultWorkspaceId: envelope.defaultWorkspaceId,
     });
 
-    expect(envelope.version).toBe(2);
-    expect(envelope.workspaces).toEqual([workspace]);
+    expect(envelope.version).toBe(3);
+    expect(envelope.workspaces).toEqual([
+      {
+        workspaceId: workspace.workspaceId,
+        path: workspace.path,
+        realPath: workspace.realPath,
+        rootIdentityKey: workspace.rootIdentityKey,
+        addedAt: workspace.addedAt,
+        state: 'bound',
+      },
+    ]);
+    expect(workspace.availability).toBe('available');
     expect(envelope.defaultWorkspaceId).toBeNull();
     expect(envelope.checksum).toBe(createHash('sha256').update(payload).digest('hex'));
     expect(raw).not.toContain('actor-secret');
@@ -554,10 +565,11 @@ describe('v2 identity-bound registration and default selection', () => {
     const persisted = JSON.parse(await readFile(workspaceConfigPath(stateRoot), 'utf8')) as {
       version: number;
       defaultWorkspaceId: string | null;
-      workspaces: Array<{ rootIdentityKey?: string }>;
+      workspaces: Array<{ rootIdentityKey?: string; state?: string }>;
     };
-    expect(persisted).toMatchObject({ version: 2, defaultWorkspaceId: null });
+    expect(persisted).toMatchObject({ version: 3, defaultWorkspaceId: null });
     expect(persisted.workspaces[0]?.rootIdentityKey).toBe(expected.identityKey);
+    expect(persisted.workspaces[0]?.state).toBe('bound');
   });
 
   it('preserves the default across restart and guards current-default removal', async () => {
@@ -589,7 +601,7 @@ describe('v2 identity-bound registration and default selection', () => {
     await expect(restarted.list()).resolves.toEqual([]);
   });
 
-  it('fails later reads when a registered root is replaced at the same spelling', async () => {
+  it('lists a registered root replaced at the same spelling as unavailable instead of failing reads', async () => {
     const resolver = createWorkspaceRegistrationResolver();
     const store = createRawWorkspaceConfigStore(
       stateRoot,
@@ -599,11 +611,345 @@ describe('v2 identity-bound registration and default selection', () => {
       resolver,
     );
     const expected = await resolver.resolveForNonce(workspaceRoot);
-    await store.addResolved('actor', expected, async () => {});
+    const workspace = await store.addResolved('actor', expected, async () => {});
     const moved = `${workspaceRoot}-old`;
     await rename(workspaceRoot, moved);
     await mkdir(workspaceRoot);
 
-    await expect(store.list()).rejects.toMatchObject({ code: 'WORKSPACE_ROOT_IDENTITY_CHANGED' });
+    await expect(store.list()).resolves.toEqual([
+      {
+        ...workspace,
+        availability: 'unavailable',
+        unavailableReason: 'WORKSPACE_ROOT_IDENTITY_CHANGED',
+      },
+    ]);
+  });
+});
+
+const noBoundaryProbe = { boundaryInspector: { assertSafe: async () => undefined } };
+const sha256Hex = (value: string): string => createHash('sha256').update(value).digest('hex');
+const writeEnvelope = async (payload: Record<string, unknown>): Promise<string> => {
+  const raw = `${JSON.stringify({ ...payload, checksum: sha256Hex(JSON.stringify(payload)) })}\n`;
+  await writeFile(workspaceConfigPath(stateRoot), raw);
+  return raw;
+};
+const readEnvelope = async (): Promise<{
+  version: number;
+  workspaces: Array<Record<string, unknown>>;
+  defaultWorkspaceId: string | null;
+}> => JSON.parse(await readFile(workspaceConfigPath(stateRoot), 'utf8'));
+const resolverStore = (guard: WorkspaceUsageGuard = idleGuard) => {
+  const resolver = createWorkspaceRegistrationResolver();
+  return {
+    resolver,
+    store: createRawWorkspaceConfigStore(
+      stateRoot,
+      guard,
+      verifiedTestPermissions(stateRoot),
+      {},
+      resolver,
+    ),
+  };
+};
+const extraWorkspace = async (name: string): Promise<string> => {
+  const path = join(await temporaryRoot(`sfp-t08-${name}-`), name);
+  await mkdir(path);
+  return path;
+};
+
+describe('per-row workspace availability (LC-2, T08)', () => {
+  it('keeps an unavailable row byte-for-byte, including its identity, through unrelated mutations', async () => {
+    const [second, third] = await Promise.all([extraWorkspace('second'), extraWorkspace('third')]);
+    const { store } = resolverStore();
+    const a = await store.add('actor', workspaceRoot);
+    const b = await store.add('actor', second);
+    const before = await readEnvelope();
+    const rowA = JSON.stringify(before.workspaces[0]);
+    expect(before.workspaces[0]).toEqual({
+      workspaceId: a.workspaceId,
+      path: a.path,
+      realPath: a.realPath,
+      rootIdentityKey: a.rootIdentityKey,
+      addedAt: a.addedAt,
+      state: 'bound',
+    });
+
+    await rm(workspaceRoot, { recursive: true });
+    const c = await store.add('actor', third);
+    expect(await readFile(workspaceConfigPath(stateRoot), 'utf8')).toContain(rowA);
+    expect((await readEnvelope()).workspaces).toHaveLength(3);
+    await store.setDefault('actor', c.workspaceId);
+    await store.setDefault('actor', null);
+    await store.remove('actor', b.workspaceId);
+
+    const after = await readEnvelope();
+    expect(after.version).toBe(3);
+    expect(await readFile(workspaceConfigPath(stateRoot), 'utf8')).toContain(rowA);
+    expect(JSON.stringify(after.workspaces[0])).toBe(rowA);
+    expect(after.workspaces[0]?.rootIdentityKey).toBe(a.rootIdentityKey);
+    await expect(store.list()).resolves.toEqual([
+      { ...a, availability: 'unavailable', unavailableReason: 'WORKSPACE_ROOT_MISSING' },
+      { ...c, availability: 'available' },
+    ]);
+  });
+
+  it('keeps a different directory recreated at a registered path unavailable until an explicit rebind', async () => {
+    const { resolver, store } = resolverStore();
+    const a = await store.add('actor', workspaceRoot);
+    const policy = createWorkspacePolicy(store, noBoundaryProbe);
+    await expect(policy.resolveRoot!(a.workspaceId)).resolves.toBe(await realpath(workspaceRoot));
+
+    await rename(workspaceRoot, `${workspaceRoot}-original`);
+    await mkdir(workspaceRoot);
+
+    const unavailable = {
+      ...a,
+      availability: 'unavailable',
+      unavailableReason: 'WORKSPACE_ROOT_IDENTITY_CHANGED',
+    };
+    await expect(store.list()).resolves.toEqual([unavailable]);
+    await expect(policy.resolveRoot!(a.workspaceId)).rejects.toMatchObject({
+      code: 'WORKSPACE_ROOT_UNAVAILABLE',
+      cause: { code: 'WORKSPACE_ROOT_IDENTITY_CHANGED' },
+    });
+    // Neither re-adding the path nor an unrelated mutation adopts the new directory's identity.
+    await expect(store.add('actor', workspaceRoot)).rejects.toMatchObject({
+      code: 'WORKSPACE_ALREADY_CONFIGURED',
+    });
+    await store.setDefault('actor', a.workspaceId);
+    await store.setDefault('actor', null);
+    expect((await readEnvelope()).workspaces[0]?.rootIdentityKey).toBe(a.rootIdentityKey);
+    await expect(resolverStore().store.list()).resolves.toEqual([unavailable]);
+
+    // Only an explicit rebind records the replacement identity.
+    const replacement = await resolver.resolveForNonce(workspaceRoot);
+    expect(replacement.identityKey).not.toBe(a.rootIdentityKey);
+    const events: string[] = [];
+    const rebound = await store.rebindResolved(
+      'actor',
+      a.workspaceId,
+      replacement,
+      async revalidate => {
+        await revalidate();
+        events.push('nonce-consumed');
+      },
+    );
+    expect(events).toEqual(['nonce-consumed']);
+    expect(rebound).toEqual({
+      ...a,
+      rootIdentityKey: replacement.identityKey,
+      availability: 'available',
+    });
+    await expect(store.list()).resolves.toEqual([rebound]);
+    // The same long-lived policy accepts the rebound root.
+    await expect(policy.resolveRoot!(a.workspaceId)).resolves.toBe(await realpath(workspaceRoot));
+  });
+
+  it('rebinds a moved workspace to its new path while keeping its ID and default', async () => {
+    const { resolver, store } = resolverStore();
+    const a = await store.add('actor', workspaceRoot);
+    await store.setDefault('actor', a.workspaceId);
+    const moved = join(await temporaryRoot('sfp-t08-moved-'), 'moved');
+    await rename(workspaceRoot, moved);
+    await expect(store.list()).resolves.toEqual([
+      { ...a, availability: 'unavailable', unavailableReason: 'WORKSPACE_ROOT_MISSING' },
+    ]);
+
+    const registration = await resolver.resolveForNonce(moved);
+    const rebound = await store.rebindResolved('actor', a.workspaceId, registration, async r =>
+      r(),
+    );
+
+    expect(rebound).toEqual({
+      workspaceId: a.workspaceId,
+      path: registration.requestedPath,
+      realPath: registration.realPath,
+      rootIdentityKey: registration.identityKey,
+      addedAt: a.addedAt,
+      availability: 'available',
+    });
+    await expect(store.getDefault()).resolves.toBe(a.workspaceId);
+    await expect(store.list()).resolves.toEqual([rebound]);
+  });
+
+  it('refuses a rebind that conflicts, overlaps owner state or has unsettled operations', async () => {
+    const second = await extraWorkspace('second');
+    let unsettled = false;
+    const { resolver, store } = resolverStore({ hasUnsettled: async () => unsettled });
+    const a = await store.add('actor', workspaceRoot);
+    const b = await store.add('actor', second);
+    let consumed = 0;
+    const consume = async (revalidate: () => Promise<void>): Promise<void> => {
+      await revalidate();
+      consumed += 1;
+    };
+
+    await expect(
+      store.rebindResolved('actor', a.workspaceId, await resolver.resolveForNonce(second), consume),
+    ).rejects.toMatchObject({ code: 'WORKSPACE_ALREADY_CONFIGURED' });
+    await expect(
+      store.rebindResolved(
+        'actor',
+        a.workspaceId,
+        await resolver.resolveForNonce(join(stateRoot, '..')),
+        consume,
+      ),
+    ).rejects.toMatchObject({ code: 'STATE_WORKSPACE_OVERLAP' });
+    await expect(
+      store.rebindResolved(
+        'actor',
+        '123e4567-e89b-42d3-a456-426614174099',
+        await resolver.resolveForNonce(workspaceRoot),
+        consume,
+      ),
+    ).rejects.toMatchObject({ code: 'WORKSPACE_NOT_CONFIGURED' });
+    await expect(
+      store.rebindResolved(
+        '',
+        a.workspaceId,
+        await resolver.resolveForNonce(workspaceRoot),
+        consume,
+      ),
+    ).rejects.toMatchObject({ code: 'WORKSPACE_AUTH_REQUIRED' });
+    unsettled = true;
+    await expect(
+      store.rebindResolved(
+        'actor',
+        a.workspaceId,
+        await resolver.resolveForNonce(workspaceRoot),
+        consume,
+      ),
+    ).rejects.toMatchObject({ code: 'WORKSPACE_IN_USE' });
+    expect(consumed).toBe(0);
+    await expect(store.list()).resolves.toEqual([
+      { ...a, availability: 'available' },
+      { ...b, availability: 'available' },
+    ]);
+  });
+
+  it('keeps the nonce unconsumed and the row unchanged when the rebind target changes before commit', async () => {
+    const { resolver, store } = resolverStore();
+    const a = await store.add('actor', workspaceRoot);
+    await rm(workspaceRoot, { recursive: true });
+    const target = await extraWorkspace('target');
+    const registration = await resolver.resolveForNonce(target);
+    await rename(target, `${target}-swapped`);
+    await mkdir(target);
+    let consumed = 0;
+
+    await expect(
+      store.rebindResolved('actor', a.workspaceId, registration, async revalidate => {
+        await revalidate();
+        consumed += 1;
+      }),
+    ).rejects.toMatchObject({ code: 'WORKSPACE_REGISTRATION_CHANGED' });
+    expect(consumed).toBe(0);
+    expect((await readEnvelope()).workspaces[0]?.rootIdentityKey).toBe(a.rootIdentityKey);
+  });
+
+  it('loads a v1 config as legacy-unbound rows without adopting the current identity', async () => {
+    const legacy = {
+      workspaceId: '123e4567-e89b-42d3-a456-426614174000',
+      path: resolve(workspaceRoot),
+      realPath: await realpath(workspaceRoot),
+      addedAt: '2026-08-28T00:00:00.000Z',
+    };
+    const raw = await writeEnvelope({ version: 1, workspaces: [legacy] });
+    const { resolver, store } = resolverStore();
+
+    await expect(store.list()).resolves.toEqual([{ ...legacy, availability: 'legacy-unbound' }]);
+    await expect(store.getDefault()).resolves.toBeNull();
+    // Reads never rewrite the file.
+    expect(await readFile(workspaceConfigPath(stateRoot), 'utf8')).toBe(raw);
+    const policy = createWorkspacePolicy(store, noBoundaryProbe);
+    await expect(policy.resolveRoot!(legacy.workspaceId)).rejects.toMatchObject({
+      code: 'WORKSPACE_ROOT_UNAVAILABLE',
+      cause: { code: 'WORKSPACE_ROOT_UNBOUND' },
+    });
+
+    // An explicit, unrelated mutation writes v3 and keeps the legacy row unbound.
+    const second = await store.add('actor', await extraWorkspace('second'));
+    const migrated = await readEnvelope();
+    expect(migrated.version).toBe(3);
+    expect(migrated.workspaces[0]).toEqual({ ...legacy, state: 'legacy-unbound' });
+    await expect(store.list()).resolves.toEqual([
+      { ...legacy, availability: 'legacy-unbound' },
+      { ...second, availability: 'available' },
+    ]);
+
+    // Only an explicit rebind binds an identity to the legacy registration.
+    const registration = await resolver.resolveForNonce(workspaceRoot);
+    const rebound = await store.rebindResolved('actor', legacy.workspaceId, registration, async r =>
+      r(),
+    );
+    expect(rebound).toEqual({
+      ...legacy,
+      rootIdentityKey: registration.identityKey,
+      availability: 'available',
+    });
+    expect((await readEnvelope()).workspaces[0]).toEqual({
+      ...legacy,
+      rootIdentityKey: registration.identityKey,
+      state: 'bound',
+    });
+    await expect(policy.resolveRoot!(legacy.workspaceId)).resolves.toBe(
+      await realpath(workspaceRoot),
+    );
+  });
+
+  it('loads a v2 config unchanged and migrates it to v3 only through an explicit mutation', async () => {
+    const { resolver, store } = resolverStore();
+    const registration = await resolver.resolveForNonce(workspaceRoot);
+    const bound = {
+      workspaceId: '123e4567-e89b-42d3-a456-426614174001',
+      path: registration.requestedPath,
+      realPath: registration.realPath,
+      rootIdentityKey: registration.identityKey,
+      addedAt: '2026-08-31T00:00:00.000Z',
+    };
+    const raw = await writeEnvelope({
+      version: 2,
+      workspaces: [bound],
+      defaultWorkspaceId: bound.workspaceId,
+    });
+
+    await expect(store.list()).resolves.toEqual([{ ...bound, availability: 'available' }]);
+    await expect(store.getDefault()).resolves.toBe(bound.workspaceId);
+    expect(await readFile(workspaceConfigPath(stateRoot), 'utf8')).toBe(raw);
+
+    await store.setDefault('actor', null);
+    const migrated = await readEnvelope();
+    expect(migrated).toMatchObject({ version: 3, defaultWorkspaceId: null });
+    // A v3 bound row is the v2 row followed by its state.
+    expect(JSON.stringify(migrated.workspaces[0])).toBe(
+      JSON.stringify({ ...bound, state: 'bound' }),
+    );
+    await expect(store.list()).resolves.toEqual([{ ...bound, availability: 'available' }]);
+  });
+
+  it.each([
+    ['a bound row without an identity', { state: 'bound' }],
+    ['a legacy row with an identity', { state: 'legacy-unbound', rootIdentityKey: '1:2:3' }],
+    ['an unknown state', { state: 'unavailable', rootIdentityKey: '1:2:3' }],
+    ['a row without a state', { rootIdentityKey: '1:2:3' }],
+    ['a persisted availability', { state: 'bound', rootIdentityKey: '1:2:3', availability: 'x' }],
+  ])('rejects a v3 config with %s', async (_name, fields) => {
+    await writeEnvelope({
+      version: 3,
+      workspaces: [
+        {
+          workspaceId: '123e4567-e89b-42d3-a456-426614174002',
+          path: resolve(workspaceRoot),
+          realPath: await realpath(workspaceRoot),
+          addedAt: '2026-09-27T00:00:00.000Z',
+          ...fields,
+        },
+      ],
+      defaultWorkspaceId: null,
+    });
+
+    await expect(resolverStore().store.list()).rejects.toMatchObject({
+      code: 'WORKSPACE_CONFIG_INVALID',
+    });
   });
 });

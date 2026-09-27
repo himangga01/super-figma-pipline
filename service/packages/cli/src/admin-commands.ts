@@ -1,4 +1,4 @@
-import { readFile } from 'node:fs/promises';
+import { readFile, realpath } from 'node:fs/promises';
 import { parseArgs } from 'node:util';
 
 import { contentHash, GroundingRefreshArgsSchema, SnapshotCaptureArgsSchema } from '@sfp/ir';
@@ -92,7 +92,9 @@ export const runAdminCommand = async (
   for (const token of parsed.tokens)
     if (token.kind === 'option' && !allowed.has(token.name))
       throw commandError(`--${token.name} is not supported by this command`);
-  if (parsed.positionals.length > 3) throw commandError('Too many positional arguments');
+  const maximumPositionals = command === 'workspace' && action === 'rebind' ? 4 : 3;
+  if (parsed.positionals.length > maximumPositionals)
+    throw commandError('Too many positional arguments');
   if (opts.workspace !== undefined && opts['workspace-id'] !== undefined)
     throw commandError('Choose --workspace or --workspace-id');
   if (opts.session !== undefined && opts.target !== undefined)
@@ -240,7 +242,24 @@ export const runAdminCommand = async (
           actionNonce,
         }),
       );
-    } else throw commandError('workspace list|add <path>|default [id|none]|remove <id>');
+    } else if (action === 'rebind' && value !== undefined && parsed.positionals[3] !== undefined) {
+      // The daemon resolves the path again and binds the nonce to that root identity.
+      const realPath = await realpath(parsed.positionals[3]);
+      const actionNonce = await nonce(
+        'workspace.rebind',
+        { workspaceId: value, realPath },
+        { registrationPath: realPath, workspaceId: value },
+      );
+      emit(
+        await client.request(`/control/workspaces/${encodeURIComponent(value)}/rebind`, 'POST', {
+          path: realPath,
+          actionNonce,
+        }),
+      );
+    } else
+      throw commandError(
+        'workspace list|add <path>|default [id|none]|remove <id>|rebind <id> <path>',
+      );
     return true;
   }
   if (command === 'egress') {

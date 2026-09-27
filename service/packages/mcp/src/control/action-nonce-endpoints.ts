@@ -19,7 +19,7 @@ export const createActionNonceEndpoint =
     input: unknown,
   ): Promise<Readonly<ActionNonceClaims>> => {
     const request = ActionNonceIssueRequestV1Schema.parse(input);
-    if (request.action !== 'workspace.add') {
+    if (request.action !== 'workspace.add' && request.action !== 'workspace.rebind') {
       return dependencies.store.issue(
         principal,
         request.action,
@@ -29,16 +29,28 @@ export const createActionNonceEndpoint =
     const registration = await dependencies.registrationResolver.resolveForNonce(
       request.registrationPath,
     );
-    const expectedHash = hashActionRequest('workspace.add', { realPath: registration.realPath });
+    const expectedHash =
+      request.action === 'workspace.add'
+        ? hashActionRequest('workspace.add', { realPath: registration.realPath })
+        : hashActionRequest('workspace.rebind', {
+            workspaceId: request.workspaceId,
+            realPath: registration.realPath,
+          });
     if (request.requestHash !== expectedHash) {
       throw new ActionNonceError(
         'ACTION_NONCE_REQUEST_HASH_MISMATCH',
-        'workspace.add request hash does not match the server-resolved real path',
+        `${request.action} request hash does not match the server-resolved real path`,
       );
     }
-    return dependencies.store.issueWorkspaceAdd(
-      principal,
-      request.requestHash as `sha256:${string}`,
-      registration,
-    );
+    return request.action === 'workspace.add'
+      ? dependencies.store.issueWorkspaceAdd(
+          principal,
+          request.requestHash as `sha256:${string}`,
+          registration,
+        )
+      : dependencies.store.issueWorkspaceRebind(
+          principal,
+          request.requestHash as `sha256:${string}`,
+          registration,
+        );
   };
