@@ -8,10 +8,16 @@ export interface PortalConnectionSource {
   sourceId: string;
   serviceId: string;
   path: string;
+  /** Hash of the raw bytes. `text` is their UTF-8 decoding, with at most one leading BOM removed. */
   hash: string;
   text: string;
   role: 'runtime' | 'auxiliary' | 'configuration' | 'asset';
 }
+/**
+ * A byte-bound inventory member that is not analyzed as text, such as a lockfile, a large data file
+ * or a binary asset. It can be a verified module target; the caller vouches for its hash.
+ */
+export type PortalConnectionMember = Omit<PortalConnectionSource, 'text'>;
 export interface PortalConnectionEvidence {
   sourceId: string;
   path: string;
@@ -89,8 +95,15 @@ const limit = (value: number | undefined, fallback: number) =>
   Number.isInteger(value ?? fallback) && (value ?? fallback) > 0
     ? Math.min(value ?? fallback, fallback)
     : 0;
+const UTF8_BOM = Buffer.from([0xef, 0xbb, 0xbf]);
+const sha256 = (value: string | Buffer) =>
+  `sha256:${createHash('sha256').update(value).digest('hex')}`;
+/** A default UTF-8 decoder removes one leading BOM, so the raw bytes may carry one more. */
+const matchesRawBytes = (source: PortalConnectionSource) =>
+  source.hash === sha256(source.text) ||
+  source.hash === sha256(Buffer.concat([UTF8_BOM, Buffer.from(source.text, 'utf8')]));
 const evidence = (
-  source: PortalConnectionSource,
+  source: PortalConnectionMember,
   offset: unknown,
   reason: string,
 ): PortalConnectionEvidence => ({
@@ -121,6 +134,8 @@ const url = (value: string): { route: string; origin?: string } | undefined => {
 /** Bounded, read-only static evidence. Complete means supported analysis, never execution proof. */
 export const analyzePortalServiceConnections = (input: {
   sources: readonly PortalConnectionSource[];
+  /** Hash-only members: never parsed, but valid module targets. */
+  members?: readonly PortalConnectionMember[];
   modules: readonly {
     sourceId: string;
     complete: boolean;
@@ -153,9 +168,11 @@ export const analyzePortalServiceConnections = (input: {
     else if (evidenceCount === maxEvidence + 1) problem('EVIDENCE_LIMIT');
   };
   const sources = new Map<string, PortalConnectionSource>();
+  const members = new Map<string, PortalConnectionMember>();
   const duplicateSources = new Set<string>();
   let bytes = 0;
-  if (input.sources.length > 5000 || input.modules.length > 5000) problem('FILE_LIMIT');
+  if (input.sources.length + (input.members?.length ?? 0) > 5000 || input.modules.length > 5000)
+    problem('FILE_LIMIT');
   for (const source of input.sources.slice(0, 5000)) {
     bytes += Buffer.byteLength(source.text);
     if (Buffer.byteLength(source.text) > 262_144 || bytes > 8_388_608) {
@@ -169,12 +186,29 @@ export const analyzePortalServiceConnections = (input: {
       duplicateSources.add(sourceKey);
       continue;
     }
-    if (source.hash !== `sha256:${createHash('sha256').update(source.text).digest('hex')}`) {
+    if (!matchesRawBytes(source)) {
       problem('SOURCE_HASH_MISMATCH', evidence(source, 0, 'Text differs from verified bytes'));
       continue;
     }
     sources.set(sourceKey, source);
   }
+  for (const byteMember of (input.members ?? []).slice(
+    0,
+    Math.max(0, 5000 - input.sources.length),
+  )) {
+    const memberKey = key(byteMember.sourceId, byteMember.path);
+    if (sources.has(memberKey) || members.has(memberKey) || duplicateSources.has(memberKey)) {
+      problem('DUPLICATE_SOURCE', evidence(byteMember, 0, 'Duplicate qualified path'));
+      sources.delete(memberKey);
+      members.delete(memberKey);
+      duplicateSources.add(memberKey);
+      continue;
+    }
+    members.set(memberKey, byteMember);
+  }
+  /** A byte-verified module target: a text source or a hash-only member. */
+  const verifiedTarget = (sourceId: string, path: string): PortalConnectionMember | undefined =>
+    sources.get(key(sourceId, path)) ?? members.get(key(sourceId, path));
   const verifiedEvidence = (item: PortalConnectionEvidence) => {
     const source = sources.get(key(item.sourceId, item.path));
     return (
@@ -220,6 +254,10 @@ export const analyzePortalServiceConnections = (input: {
   if ((input.routingBindings?.length ?? 0) > 5000) problem('ROUTING_LIMIT');
   const refs = new Map<string, PortalModuleReference[]>();
   const analyzedSources = new Set<string>();
+  // One candidate per configuration file and consuming service, and one module dependency per
+  // service pair, instead of one per import. The first import in module order is the evidence.
+  const configurationCandidates = new Set<string>();
+  const moduleDependencies = new Set<string>();
   let refCount = 0;
   for (const module of input.modules.slice(0, 5000)) {
     if (analyzedSources.has(module.sourceId)) {
@@ -259,11 +297,14 @@ export const analyzePortalServiceConnections = (input: {
           evidence: ev,
         });
       for (const path of ref.configuration.slice(0, 5000)) {
-        const config = sources.get(key(source.sourceId, path));
+        const config = verifiedTarget(source.sourceId, path);
         if (!config) {
           problem('CONFIGURATION_SOURCE_MISSING', ev);
           continue;
         }
+        const candidateKey = JSON.stringify([source.sourceId, source.serviceId, path]);
+        if (configurationCandidates.has(candidateKey)) continue;
+        configurationCandidates.add(candidateKey);
         emit(out.configuration, {
           sourceId: source.sourceId,
           serviceId: source.serviceId,
@@ -275,25 +316,34 @@ export const analyzePortalServiceConnections = (input: {
       if (ref.targets.length > 5000 || ref.configuration.length > 5000)
         problem('MODULE_TARGET_LIMIT', ev);
       for (const path of ref.targets.slice(0, 5000)) {
-        const target = sources.get(key(source.sourceId, path));
-        if (!target) {
+        const resolved = verifiedTarget(source.sourceId, path);
+        if (!resolved) {
           problem('MODULE_TARGET_MISSING', ev);
           continue;
         }
-        if (target.role === 'auxiliary') problem('AUXILIARY_RUNTIME_IMPORT', ev);
+        if (resolved.role === 'auxiliary') problem('AUXILIARY_RUNTIME_IMPORT', ev);
+        const dependencyKey = JSON.stringify([
+          source.sourceId,
+          source.serviceId,
+          resolved.sourceId,
+          resolved.serviceId,
+        ]);
         if (
-          target.role !== 'asset' &&
-          target.serviceId !== source.serviceId &&
-          ref.status === 'resolved'
-        )
+          resolved.role !== 'asset' &&
+          resolved.serviceId !== source.serviceId &&
+          ref.status === 'resolved' &&
+          !moduleDependencies.has(dependencyKey)
+        ) {
+          moduleDependencies.add(dependencyKey);
           emit(out.connections, {
             kind: 'module-dependency',
             fromSourceId: source.sourceId,
             fromServiceId: source.serviceId,
-            toSourceId: target.sourceId,
-            toServiceId: target.serviceId,
-            evidence: [ev, evidence(target, 0, 'Resolved target')],
+            toSourceId: resolved.sourceId,
+            toServiceId: resolved.serviceId,
+            evidence: [ev, evidence(resolved, 0, 'Resolved target')],
           });
+        }
       }
     }
   }

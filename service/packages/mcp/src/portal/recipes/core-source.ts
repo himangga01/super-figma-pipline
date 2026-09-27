@@ -314,6 +314,8 @@ export async function prepareCoreRecipeSources(input: {
         const sourceProfiles = selected.length
           ? selected
           : [await analyzeProject(source.reader.rootDir, candidateReader)];
+        // Blocks only on unread effective inputs: `truncated` is never set by a full evidence
+        // sample, and every unread input is named in `unreadFiles`.
         if (
           sourceProfiles.some(
             profile => profile.conventions?.truncated || profile.conventions?.unreadFiles.length,
