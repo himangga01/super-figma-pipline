@@ -16,8 +16,8 @@ const catalog = JSON.parse(
 const expectedNames = catalog.canonicalTools.map(tool => tool.name).toSorted();
 const state = await mkdtemp(join(tmpdir(), 'sfp-runtime-smoke-'));
 const listener = createServer();
-await new Promise(done => listener.listen(0, '127.0.0.1', done));
-const port = listener.address().port;
+await /** @type {Promise<void>} */ (new Promise(done => listener.listen(0, '127.0.0.1', done)));
+const port = /** @type {import('node:net').AddressInfo} */ (listener.address()).port;
 await new Promise(done => listener.close(done));
 await mkdir(join(state, 'owner'));
 const env = {

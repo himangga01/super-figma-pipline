@@ -1178,9 +1178,9 @@ describe('packed operation evidence parity', () => {
     await expect(readFile(manifestPath)).resolves.toEqual(bytes);
   });
 
-  it.each(['symlink', 'escape'] as const)(
+  it.for(['symlink', 'escape'] as const)(
     'rejects invalid native member authority %s before manifest publication',
-    async fault => {
+    async (fault, context) => {
       const root = await mkdtemp(join(tmpdir(), 'sfp-native-member-authority-'));
       roots.push(root);
       const outside = await mkdtemp(join(tmpdir(), 'sfp-native-member-outside-'));
@@ -1193,7 +1193,10 @@ describe('packed operation evidence parity', () => {
         try {
           await symlink(outsideFile, linked, 'file');
         } catch (error) {
-          if ((error as NodeJS.ErrnoException).code === 'EPERM') return;
+          if ((error as NodeJS.ErrnoException).code === 'EPERM')
+            context.skip(
+              'Creating a symbolic link needs the Windows symlink privilege (Developer Mode or elevation)',
+            );
           throw error;
         }
       }

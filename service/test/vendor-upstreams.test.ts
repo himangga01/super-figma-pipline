@@ -6,6 +6,8 @@ import { fileURLToPath } from 'node:url';
 
 import { afterEach, describe, expect, it } from 'vitest';
 
+import { hermeticGitEnvironment, spawnHermeticGit } from '../scripts/hermetic-git.mjs';
+
 const serviceRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const repositoryRoot = resolve(serviceRoot, '..');
 const fixtureRoots: string[] = [];
@@ -59,7 +61,9 @@ const runCopyOnly = (fixtureService: string): ReturnType<typeof spawnSync> =>
     {
       cwd: dirname(fixtureService),
       encoding: 'utf8',
+      env: hermeticGitEnvironment(),
       timeout: 30_000,
+      windowsHide: true,
     },
   );
 
@@ -77,7 +81,9 @@ const runVerifier = (
     {
       cwd: fixture.repositoryRoot,
       encoding: 'utf8',
+      env: hermeticGitEnvironment(),
       timeout: 30_000,
+      windowsHide: true,
     },
   );
 
@@ -159,7 +165,9 @@ describe('vendor upstream reconciliation', () => {
       {
         cwd: fixture.repositoryRoot,
         encoding: 'utf8',
+        env: hermeticGitEnvironment(),
         timeout: 30_000,
+        windowsHide: true,
       },
     );
 
@@ -240,19 +248,12 @@ describe('offline upstream-lock v2 schema and fork origins', () => {
 
   it('rederives fork origin fields from the parent HEAD authorities offline', async () => {
     const fixture = await copyServiceFixture();
-    spawnSync('git', ['-C', fixture.repositoryRoot, 'init'], { encoding: 'utf8' });
-    spawnSync('git', ['-C', fixture.repositoryRoot, 'config', 'user.email', 'test@example.com'], {
-      encoding: 'utf8',
-    });
-    spawnSync('git', ['-C', fixture.repositoryRoot, 'config', 'user.name', 'Test'], {
-      encoding: 'utf8',
-    });
-    spawnSync('git', ['-C', fixture.repositoryRoot, 'add', 'service'], { encoding: 'utf8' });
-    expect(
-      spawnSync('git', ['-C', fixture.repositoryRoot, 'commit', '-m', 'parent'], {
-        encoding: 'utf8',
-      }).status,
-    ).toBe(0);
+    const git = (...args: string[]) => spawnHermeticGit(fixture.repositoryRoot, args);
+    git('init');
+    git('config', 'user.email', 'test@example.com');
+    git('config', 'user.name', 'Test');
+    git('add', 'service');
+    expect(git('commit', '-m', 'parent').status).toBe(0);
     const lockPath = join(fixture.serviceRoot, 'upstream-lock.json');
     const lock = JSON.parse(await readFile(lockPath, 'utf8')) as {
       serviceForks: Array<{ originPath: string }>;

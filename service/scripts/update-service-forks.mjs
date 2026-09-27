@@ -25,6 +25,7 @@ const formattedJsonBytes = async (path, value) => {
   return Buffer.from(formatted.code);
 };
 
+/** @type {(code: string, message: string) => never} */
 const fail = (code, message) => {
   throw new Error(`[${code}] ${message}`);
 };
@@ -59,11 +60,12 @@ const stagedChanges = () => {
       '--',
       'service',
     ],
-    { encoding: 'buffer', maxBuffer: 64 * 1024 * 1024 },
+    { encoding: 'buffer', maxBuffer: 64 * 1024 * 1024, windowsHide: true },
   )
     .toString('utf8')
     .split('\0')
     .filter(Boolean);
+  /** @type {{ status: string | undefined; path: string; oldPath?: string }[]} */
   const rows = [];
   for (let index = 0; index < output.length; index += 2) {
     const statusToken = output[index];
@@ -289,16 +291,18 @@ const applyDeclaredMovePairs = (
 const stagedBytes = path =>
   execFileSync('git', ['-C', repositoryRoot, 'show', `:service/${path}`], {
     maxBuffer: 64 * 1024 * 1024,
+    windowsHide: true,
   });
 
 const parentTreeHasBlob = path => {
   try {
     execFileSync('git', ['-C', repositoryRoot, 'cat-file', '-e', `HEAD:service/${path}`], {
       stdio: 'ignore',
+      windowsHide: true,
     });
     return true;
   } catch (error) {
-    if (error?.status === 128) return false;
+    if (/** @type {{ status?: number } | undefined} */ (error)?.status === 128) return false;
     fail('SERVICE_FORK_PARENT_LOOKUP_FAILED', path);
   }
 };
@@ -370,6 +374,7 @@ const assertTransaction = transaction => {
   return transaction;
 };
 
+/** @param {number | null} [crashAfterRenames] */
 const applyAuthorityTransaction = async (transaction, crashAfterRenames = null) => {
   let renamed = 0;
   /* eslint-disable no-await-in-loop -- durable authority publication and crash injection are ordered */
@@ -433,7 +438,8 @@ const commitAuthorityTransaction = async targets => {
   const transaction = {
     schemaVersion: 1,
     transactionId,
-    targets: [],
+    targets:
+      /** @type {{ path: string; temporaryPath: string; oldSha256: string; newSha256: string }[]} */ ([]),
   };
   /* eslint-disable no-await-in-loop -- each prepared authority file is fsynced before pointer publication */
   for (const target of sorted) {
@@ -505,7 +511,7 @@ const main = async () => {
       'usage: update-service-forks.mjs --slice <id> --index <repo-relative-path>',
     );
   }
-  const slice = args[1];
+  const slice = /** @type {string} */ (args[1]);
   const indexPath = safePath(args[3]);
   const allowedSlices = new Set([
     '7A',

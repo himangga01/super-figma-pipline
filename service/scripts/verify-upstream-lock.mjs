@@ -31,6 +31,7 @@ class VerificationError extends Error {
   }
 }
 
+/** @type {(condition: unknown, message: string) => asserts condition} */
 const assert = (condition, message) => {
   if (!condition) throw new Error(message);
 };
@@ -188,11 +189,13 @@ const gitText = (root, ...args) =>
   execFileSync('git', ['-C', root, ...args], {
     encoding: 'utf8',
     maxBuffer: 64 * 1024 * 1024,
+    windowsHide: true,
   }).trim();
 
 const gitBytes = (root, ...args) =>
   execFileSync('git', ['-C', root, ...args], {
     maxBuffer: 64 * 1024 * 1024,
+    windowsHide: true,
   });
 
 const globToRegExp = glob => {
@@ -861,7 +864,11 @@ const main = async () => {
   await verifyManifestContracts(lock);
   await verifyLicenseCopies(lock);
   if (mode === '--with-upstreams') {
-    await verifyWithUpstreams(lock, vendorMap, resolve(process.cwd(), upstreamsArgument));
+    await verifyWithUpstreams(
+      lock,
+      vendorMap,
+      resolve(process.cwd(), /** @type {string} */ (upstreamsArgument)),
+    );
   }
   console.log(
     `upstream-lock=ok mode=${mode.slice(2)} upstreams=${lock.upstreams.length} vendorRows=${vendorMap.files.length}`,

@@ -5,8 +5,10 @@ import { isAbsolute, join, relative } from 'node:path';
 
 import pngModule from '@pdf-lib/upng';
 import { storedChecksum } from '@sfp/ir';
+import { firefox } from 'playwright';
 import { afterEach, expect, it } from 'vitest';
 
+import { requireFirefox } from '../../../../test/support/required-suite.js';
 import { assertNativePortalPreview, comparePortalPng } from '../../src/portal/preview.js';
 import { verifyPortalVisualEvidence } from '../../src/portal/visual-evidence.js';
 const png =
@@ -54,7 +56,8 @@ it('compares actual RGBA values and refuses malformed or oversized PNG inputs', 
   ]);
   expect(() => comparePortalPng(duplicate, red)).toThrow('PORTAL_PREVIEW_PNG_INVALID');
 });
-it('renders an owned local fixture in Firefox and rejects a real visual mismatch', async () => {
+it('renders an owned local fixture in Firefox and rejects a real visual mismatch', async context => {
+  requireFirefox(context, firefox.executablePath());
   const root = await mkdtemp(join(tmpdir(), 'sfp-firefox-preview-'));
   roots.push(root);
   const oracle = solid(0, 0, 255);
@@ -141,7 +144,8 @@ it('renders an owned local fixture in Firefox and rejects a real visual mismatch
   }
 }, 30_000);
 
-it('captures a small real component in its hover state without shrinking the browser viewport', async () => {
+it('captures a small real component in its hover state without shrinking the browser viewport', async context => {
+  requireFirefox(context, firefox.executablePath());
   const root = await mkdtemp(join(tmpdir(), 'sfp-component-preview-'));
   roots.push(root);
   const oracle = solid(0, 0, 255, 50, 32);

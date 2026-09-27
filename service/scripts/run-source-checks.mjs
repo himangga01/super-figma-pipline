@@ -1,10 +1,12 @@
 /* eslint-disable no-await-in-loop -- checks and source fingerprints have a fixed evidence order */
 import { execFileSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
-import { readFile, mkdir } from 'node:fs/promises';
+import { readFile, mkdir, rm } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
 
+import { resolvePnpmEntry } from './package-manager-entry.mjs';
 import { root, artifactRoot, sha256, publish } from './release-common.mjs';
+import { allowedSkipSuites, testSkipCensus } from './test-skip-census.mjs';
 
 const sourceHash = async () => {
   const names = execFileSync(
@@ -22,18 +24,21 @@ const sourceHash = async () => {
         .update('\0')
         .update(await readFile(join(dirname(root), name)));
     } catch (error) {
-      if (error.code !== 'ENOENT') throw error;
+      if (/** @type {NodeJS.ErrnoException} */ (error).code !== 'ENOENT') throw error;
     }
   }
   return `sha256:${hash.digest('hex')}`;
 };
-const pnpm =
-  process.env.npm_execpath ?? join(dirname(process.execPath), 'node_modules/corepack/dist/pnpm.js');
+const pnpm = resolvePnpmEntry();
 const before = await sourceHash();
 const folder = join(artifactRoot, 'source-checks');
 await mkdir(folder, { recursive: true });
+// vitest.config.ts adds a JSON reporter when SFP_VITEST_JSON_REPORT is set; the skip census reads it.
+const vitestReport = join(folder, 'vitest-report.json');
+await rm(vitestReport, { force: true });
+/** @type {[name: string, args: string[], environment?: Record<string, string>][]} */
 const checks = [
-  ['verify', [pnpm, 'verify']],
+  ['verify', [pnpm, 'verify'], { SFP_VITEST_JSON_REPORT: vitestReport }],
   ['provenance', ['scripts/verify-upstream-lock.mjs', '--offline']],
   ['graph-memory', ['scripts/verify-graph-memory.mjs']],
   ['sbom', ['scripts/generate-sbom.mjs']],
@@ -43,8 +48,32 @@ const checks = [
   ['artifacts', ['scripts/verify-artifacts.mjs']],
   ['isolated-runtime', ['scripts/smoke-packed-mcp.mjs']],
 ];
+/** @type {{ name: string; exitCode: number; elapsedMs: number; logSha256: string }[]} */
 const results = [];
-for (const [name, args] of checks) {
+/** @type {Record<string, unknown> | undefined} */
+let testSkips;
+// Every skipped test is recorded; a skipped REQUIRED suite fails unless SFP_ALLOW_SKIP names it.
+const recordTestSkips = async () => {
+  const report = JSON.parse(
+    await readFile(vitestReport, 'utf8').catch(error => {
+      throw new Error('SOURCE_CHECK_FAILED:vitest-report-missing', { cause: error });
+    }),
+  );
+  const census = testSkipCensus(report, { serviceRoot: root, allowed: allowedSkipSuites() });
+  await publish(
+    join(folder, 'test-skips.json'),
+    Buffer.from(`${JSON.stringify(census, null, 2)}\n`),
+  );
+  if (census.blockedSuites.length > 0)
+    throw new Error(`SOURCE_CHECK_FAILED:required-suite-skipped:${census.blockedSuites.join(',')}`);
+  testSkips = {
+    report: 'source-checks/vitest-report.json',
+    allowedSuites: census.allowedSuites,
+    skippedSuites: census.skippedSuites,
+    skipped: census.skipped,
+  };
+};
+for (const [name, args, environment = {}] of checks) {
   process.stdout.write(`Checking ${name}\n`);
   const started = Date.now();
   try {
@@ -54,26 +83,29 @@ for (const [name, args] of checks) {
       encoding: 'utf8',
       maxBuffer: 64_000_000,
       timeout: 1_800_000,
-      env: { ...process.env, PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: '1' },
+      env: { ...process.env, PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: '1', ...environment },
     });
     await publish(join(folder, `${name}.txt`), Buffer.from(output));
     results.push({ name, exitCode: 0, elapsedMs: Date.now() - started, logSha256: sha256(output) });
   } catch (error) {
+    const failure = /** @type {{ stdout?: string; stderr?: string }} */ (error);
     await publish(
       join(folder, `${name}.txt`),
-      Buffer.from(String(error.stdout ?? '') + String(error.stderr ?? '')),
+      Buffer.from(String(failure.stdout ?? '') + String(failure.stderr ?? '')),
     );
     throw new Error(`SOURCE_CHECK_FAILED:${name}`, { cause: error });
   }
+  if (name === 'verify') await recordTestSkips();
 }
 const after = await sourceHash();
 if (before !== after) throw new Error('SOURCE_CHANGED_DURING_VERIFICATION');
 const report = {
-  schemaVersion: 1,
+  schemaVersion: 2,
   status: 'local-source-verified',
   sourceHash: after,
   verifiedAt: new Date().toISOString(),
   checks: results,
+  testSkips,
   realFigmaValidated: false,
   targetServiceValidated: false,
   remoteCiValidated: false,

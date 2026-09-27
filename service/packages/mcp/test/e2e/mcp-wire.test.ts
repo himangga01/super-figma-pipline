@@ -176,6 +176,7 @@ class WireClient {
     this.child = spawn(process.execPath, [DIST_ENTRY], {
       env: environment,
       stdio: ['pipe', 'pipe', 'pipe'],
+      windowsHide: true,
     });
     this.child.stderr?.on('data', (d: Buffer) => {
       this.stderr += d.toString('utf8');

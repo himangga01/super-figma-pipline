@@ -338,10 +338,11 @@ describe('read resolution', () => {
 });
 
 describe('write resolution', () => {
-  it.each(['NUL', 'nul.txt', 'COM¹.log', 'LPT²'])(
+  it.for(['NUL', 'nul.txt', 'COM¹.log', 'LPT²'])(
     'rejects the Windows reserved device basename %s',
-    async deviceName => {
-      if (process.platform !== 'win32') return;
+    async (deviceName, context) => {
+      if (process.platform !== 'win32')
+        context.skip('Windows reserved device names apply only on win32');
       const policy = createWorkspacePolicy(workspaceStore(), {
         boundaryInspector: { assertSafe: async () => undefined },
       });

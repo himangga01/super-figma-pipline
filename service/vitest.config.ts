@@ -2,8 +2,13 @@ import { join } from 'node:path';
 
 import { defineConfig } from 'vitest/config';
 
+// `verify:source` and CI set SFP_VITEST_JSON_REPORT so that scripts/test-skip-census.mjs can record
+// every skipped test from Vitest's JSON report.
+const jsonReport = process.env.SFP_VITEST_JSON_REPORT;
+
 export default defineConfig({
   test: {
+    ...(jsonReport ? { reporters: ['default', 'json'], outputFile: { json: jsonReport } } : {}),
     // Windows integration fixtures start real ACL/lease helper processes. CPU-count parallelism
     // can exhaust their deadlines even though each fixture passes in isolation.
     ...(process.platform === 'win32' ? { maxWorkers: 4 } : {}),

@@ -168,7 +168,7 @@ describe('RepoReader bounded traversal', () => {
     expect(new Set(runs.map(files => files.join('\n'))).size).toBe(1);
   });
 
-  it('rejects a junction/reparse directory instead of reading through it', async () => {
+  it('rejects a junction/reparse directory instead of reading through it', async context => {
     const root = await repository({ 'owned/Secret.ts': 'owned' });
     await mkdir(join(root, 'src'), { recursive: true });
     try {
@@ -178,7 +178,10 @@ describe('RepoReader bounded traversal', () => {
         process.platform === 'win32' ? 'junction' : 'dir',
       );
     } catch (error) {
-      if ((error as NodeJS.ErrnoException).code === 'EPERM') return;
+      if ((error as NodeJS.ErrnoException).code === 'EPERM')
+        context.skip(
+          'Creating a symbolic link needs the Windows symlink privilege (Developer Mode or elevation)',
+        );
       throw error;
     }
     await expect(

@@ -1,7 +1,8 @@
 import './register-source.mjs';
 const { graphFixture } = await import('../packages/ir/test/graph-fixture.ts');
 const { GroundingGraphV1Schema, encodeStored } = await import('../packages/ir/src/index.ts');
-globalThis.gc();
+// Run with --expose-gc (verify-graph-memory.mjs does); the call throws otherwise.
+/** @type {() => void} */ (globalThis.gc)();
 const baseline = process.memoryUsage().heapUsed;
 let peak = baseline;
 const sample = () => {

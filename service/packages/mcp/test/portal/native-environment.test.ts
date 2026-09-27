@@ -205,6 +205,8 @@ it.runIf(process.platform === 'win32')(
       controller.signal,
     );
     const script = join(f.workspaceRoot, 'run.cjs');
+    // spawn-hygiene-exempt: workload fixture that models a descendant outliving its root inside the
+    // Windows job; the broker that starts the root runs with windowsHide.
     await writeFile(
       script,
       `require('node:fs').writeFileSync(${JSON.stringify(marker)},'ok');require('node:child_process').spawn(process.execPath,['-e','setInterval(()=>{},1000)'],{stdio:'ignore'}).unref();`,

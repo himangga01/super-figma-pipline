@@ -130,11 +130,13 @@ const gitText = (...args) =>
   execFileSync('git', ['-C', upstreamRoot, ...args], {
     encoding: 'utf8',
     maxBuffer: 64 * 1024 * 1024,
+    windowsHide: true,
   }).trim();
 
 const gitBytes = (...args) =>
   execFileSync('git', ['-C', upstreamRoot, ...args], {
     maxBuffer: 64 * 1024 * 1024,
+    windowsHide: true,
   });
 
 const globToRegExp = glob => {
@@ -272,7 +274,7 @@ const moduleSpecifierLiterals = sourceFile => {
       literals.push(node.argument.literal);
     } else if (
       ts.isCallExpression(node) &&
-      node.arguments.length > 0 &&
+      node.arguments[0] !== undefined &&
       ts.isStringLiteralLike(node.arguments[0]) &&
       (node.expression.kind === ts.SyntaxKind.ImportKeyword ||
         (ts.isIdentifier(node.expression) && node.expression.text === 'require'))
@@ -356,7 +358,7 @@ const hashAuthorities = async (paths = serviceAuthorityPaths) => {
       const absolutePath = destinationPath(path);
       const metadata = await stat(absolutePath).catch(() => null);
       if (!metadata?.isFile()) throw new Error(`missing Task 1 service authority: ${path}`);
-      return [path, sha256(await readFile(absolutePath))];
+      return /** @type {[string, string]} */ ([path, sha256(await readFile(absolutePath))]);
     }),
   );
   return new Map(entries);
@@ -484,7 +486,7 @@ const rawFigwrightEntries = async (copyRows, serviceOwnedDestinations) => {
         const rowEntries = [];
         const lines = contents.split('\n');
         for (let lineIndex = 0; lineIndex < lines.length; lineIndex += 1) {
-          for (const match of lines[lineIndex].matchAll(matcher)) {
+          for (const match of /** @type {string} */ (lines[lineIndex]).matchAll(matcher)) {
             rowEntries.push({
               path: destination,
               line: lineIndex + 1,
@@ -719,7 +721,10 @@ const mergeManifests = async (rules, commit) => {
 
 const main = async () => {
   const [mode, ...unexpected] = process.argv.slice(2);
-  if (!['--copy-only', '--merge-manifests'].includes(mode) || unexpected.length > 0) {
+  if (
+    !['--copy-only', '--merge-manifests'].includes(/** @type {string} */ (mode)) ||
+    unexpected.length > 0
+  ) {
     throw new Error(
       'usage: node service/scripts/vendor-upstreams.mjs --copy-only|--merge-manifests',
     );
