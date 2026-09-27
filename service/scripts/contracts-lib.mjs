@@ -173,8 +173,11 @@ export const buildUnionManifest = (current, specs = ALL_TOOL_SPECS) => {
   const sources = upstreamSources(current);
   const bySpec = new Map(specs.map(spec => [spec.name, spec]));
   const byRow = new Map(current.canonicalTools.map(row => [row.name, row]));
+  /** @type {ReadonlySet<string>} */
   const portal = new Set(PORTAL_TOOL_NAMES);
+  /** @type {ReadonlyMap<string, (typeof SERVICE_LOCAL_TOOLS)[number]>} */
   const local = new Map(SERVICE_LOCAL_TOOLS.map(tool => [tool.name, tool]));
+  /** @type {string[]} */
   const problems = [];
 
   for (const tool of SERVICE_LOCAL_TOOLS) {
@@ -288,7 +291,7 @@ const readOptional = async path => {
   try {
     return await readFile(path, 'utf8');
   } catch (error) {
-    if (error?.code === 'ENOENT') return null;
+    if (/** @type {NodeJS.ErrnoException} */ (error)?.code === 'ENOENT') return null;
     throw error;
   }
 };
@@ -390,19 +393,18 @@ export const generateContracts = async ({ root = SERVICE_ROOT } = {}) => {
       describe: () => ['tool-count block'],
     })),
   ];
-  const texts = await Promise.all(
-    drafts.map(draft => formatted(root, draft.path, draft.generated)),
+  return Promise.all(
+    drafts.map(async draft => {
+      const next = await formatted(root, draft.path, draft.generated);
+      return {
+        path: draft.path,
+        current: draft.current,
+        next,
+        stale: draft.current !== next,
+        describe: draft.describe,
+      };
+    }),
   );
-  return drafts.map((draft, index) => {
-    const next = texts[index];
-    return {
-      path: draft.path,
-      current: draft.current,
-      next,
-      stale: draft.current !== next,
-      describe: draft.describe,
-    };
-  });
 };
 
 /** The drift report for stale artifacts, or '' when every artifact matches the registry. */

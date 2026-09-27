@@ -21,7 +21,7 @@ let lib;
 try {
   lib = await import('./contracts-lib.mjs');
 } catch (error) {
-  if (error?.code === 'ERR_UNSUPPORTED_TYPESCRIPT_SYNTAX') {
+  if (/** @type {NodeJS.ErrnoException} */ (error)?.code === 'ERR_UNSUPPORTED_TYPESCRIPT_SYNTAX') {
     process.stderr.write(
       'The TypeScript sources need --experimental-transform-types. Run `pnpm contracts:update`.\n',
     );
