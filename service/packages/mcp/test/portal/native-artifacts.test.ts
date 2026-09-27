@@ -9,8 +9,10 @@ import { storedChecksum } from '@sfp/ir';
 import { afterEach, expect, it, vi } from 'vitest';
 
 import {
+  NativeArtifactAuthoritySchema,
   prepareNativeArtifactAuthority,
   inventoryNativeArtifact,
+  verifyNativeArtifactAuthority,
   verifyNativeOutputReceipts,
 } from '../../src/portal/native-artifacts.js';
 import {
@@ -18,6 +20,7 @@ import {
   NativeProfileSchema,
   nativeExecutableHash,
 } from '../../src/portal/native-runner.js';
+import { portalFixture } from './fixtures.js';
 vi.setConfig({ testTimeout: 30000, hookTimeout: 30000 });
 const roots: string[] = [];
 const runners: NativePortalRunner[] = [];
@@ -68,6 +71,48 @@ const fixture = async () => {
 it('fences historical missing external authority at the actual runner', async () => {
   const value = await fixture();
   await expect(value.run()).rejects.toMatchObject({ code: 'PORTAL_ARTIFACT_AUTHORITY_REQUIRED' });
+});
+it('accepts both directory-lease protocol literals and rejects unknown ones', async () => {
+  const value = await fixture();
+  const authority = await prepareNativeArtifactAuthority(value.profile);
+  const directoryLease = (protocol: string) => ({
+    ...authority,
+    directoryLease: {
+      protocol,
+      executable: authority.executables[0],
+      args: ['-NoLogo', '-NoProfile', '-NonInteractive', '-EncodedCommand', 'AAAA'],
+    },
+  });
+  for (const protocol of ['windows-directory-lease-v1', 'windows-directory-lease-v2'])
+    expect(NativeArtifactAuthoritySchema.safeParse(directoryLease(protocol)).success).toBe(true);
+  expect(
+    NativeArtifactAuthoritySchema.safeParse(directoryLease('windows-directory-lease-v3')).success,
+  ).toBe(false);
+});
+it('maps a stored windows-directory-lease-v1 authority to a typed re-prepare error', async () => {
+  const value = await fixture();
+  const authority = await prepareNativeArtifactAuthority(value.profile);
+  const historical = NativeProfileSchema.parse({
+    ...value.profile,
+    artifactAuthority: {
+      ...authority,
+      directoryLease: {
+        protocol: 'windows-directory-lease-v1',
+        executable: authority.executables[0],
+        args: ['-NoLogo', '-NoProfile', '-NonInteractive', '-EncodedCommand', 'AAAA'],
+      },
+    },
+  });
+  const portal = await portalFixture();
+  roots.push(portal.root);
+  await portal.store.create('lease-profiles', 'historical', historical, NativeProfileSchema);
+  const stored = await portal.store.get('lease-profiles', 'historical', NativeProfileSchema);
+  expect(stored?.artifactAuthority?.directoryLease?.protocol).toBe('windows-directory-lease-v1');
+  await expect(verifyNativeArtifactAuthority(stored!)).rejects.toMatchObject({
+    code: 'PORTAL_ARTIFACT_REPREPARE_REQUIRED',
+  });
+  value.profile.artifactAuthority = stored!.artifactAuthority;
+  await expect(value.run()).rejects.toMatchObject({ code: 'PORTAL_ARTIFACT_REPREPARE_REQUIRED' });
 });
 it('binds the whole approved external harness tree before launch', async () => {
   const value = await fixture();
