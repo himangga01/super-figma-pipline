@@ -312,9 +312,11 @@ describe('secure owner-state prerequisite', () => {
       const store = createWorkspaceConfigStore(product.stateRoot, idleGuard, permissions);
       await store.add('actor', workspaceRoot);
       const configPath = workspaceConfigPath(product.stateRoot);
-      await execFile('icacls.exe', [configPath, '/grant', '*S-1-1-0:(R)'], {
-        windowsHide: true,
-      });
+      await execFile(
+        join(process.env.SystemRoot!, 'System32', 'icacls.exe'),
+        [configPath, '/grant', '*S-1-1-0:(R)'],
+        { windowsHide: true },
+      );
 
       await expect(store.list()).rejects.toMatchObject({ code: 'STATE_ACL_INSECURE' });
     },

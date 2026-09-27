@@ -20,6 +20,7 @@ import type { WorkspacePolicy } from '@sfp/shared';
 import {
   DirectoryLeaseBroker,
   DirectoryLeaseBrokerPool,
+  WINDOWS_DIRECTORY_LEASE_PROTOCOL,
 } from './windows-directory-lease-broker.js';
 
 export interface AtomicFilePublication {
@@ -50,11 +51,33 @@ export interface FileIdentity {
 const sameIdentity = (left: FileIdentity, right: FileIdentity): boolean =>
   left.dev === right.dev && left.ino === right.ino;
 
+/**
+ * Protocol v2 lease helper. The wire is ASCII-only in both directions: paths travel as base64 of
+ * their UTF-16LE code units, and the helper echoes the SHA-256 of the bytes it received. Explicit
+ * BOM-less UTF-8 streams replace the console code page, which garbled non-ASCII paths (OPS-1).
+ * Every request is parsed inside its own `try`, so a malformed line gets an error response. A
+ * constrained or compile-restricted host reports RESTRICTED instead of READY; Node then fails with
+ * HOST_POWERSHELL_RESTRICTED and never falls back to lease-less writes.
+ */
 const windowsDirectoryLeaseScript = String.raw`
 $ErrorActionPreference = 'Stop'
+$languageMode = $ExecutionContext.SessionState.LanguageMode
+if ($languageMode -ne 'FullLanguage') {
+  Write-Output ('RESTRICTED language-mode ' + $languageMode)
+  exit 3
+}
+$utf8 = New-Object System.Text.UTF8Encoding($false)
+$reader = New-Object System.IO.StreamReader([Console]::OpenStandardInput(), $utf8, $false)
+$writer = New-Object System.IO.StreamWriter([Console]::OpenStandardOutput(), $utf8)
+$writer.AutoFlush = $true
+$writer.NewLine = [string][char]10
 $source = @'
 using System;
+using System.ComponentModel;
+using System.Globalization;
 using System.Runtime.InteropServices;
+using System.Security.Cryptography;
+using System.Text;
 using Microsoft.Win32.SafeHandles;
 
 [StructLayout(LayoutKind.Sequential)]
@@ -71,9 +94,18 @@ public struct SfpByHandleFileInformation {
   public uint FileIndexLow;
 }
 
+public sealed class SfpDirectoryLease {
+  public SafeFileHandle Handle;
+  public string Identity;
+  public string PathSha256;
+}
+
 public static class SfpRetainedDirectoryLease {
+  // The helper serves one request at a time, so one provider instance is never shared.
+  static readonly SHA256 Digest = new SHA256CryptoServiceProvider();
+
   [DllImport("kernel32.dll", CharSet = CharSet.Unicode, SetLastError = true)]
-  public static extern SafeFileHandle CreateFileW(
+  static extern SafeFileHandle CreateFileW(
     string path,
     uint desiredAccess,
     uint shareMode,
@@ -83,72 +115,129 @@ public static class SfpRetainedDirectoryLease {
     IntPtr templateFile);
 
   [DllImport("kernel32.dll", SetLastError = true)]
-  public static extern bool GetFileInformationByHandle(
+  static extern bool GetFileInformationByHandle(
     SafeFileHandle handle,
     out SfpByHandleFileInformation information);
 
-  public static SafeFileHandle Open(string path) {
+  public static SfpDirectoryLease Acquire(string pathUtf16B64) {
+    byte[] bytes = Convert.FromBase64String(pathUtf16B64);
+    if (bytes.Length < 2 || bytes.Length > 65534 || (bytes.Length & 1) != 0) {
+      throw new ArgumentException("lease path encoding is invalid");
+    }
+    // Copy code units verbatim; Encoding.Unicode would replace unpaired surrogates.
+    char[] units = new char[bytes.Length / 2];
+    Buffer.BlockCopy(bytes, 0, units, 0, bytes.Length);
+    string path = new string(units);
+    if (path.IndexOf('\0') >= 0) {
+      throw new ArgumentException("lease path contains NUL");
+    }
+    StringBuilder digest = new StringBuilder(64);
+    foreach (byte value in Digest.ComputeHash(bytes)) {
+      digest.Append(value.ToString("x2", CultureInfo.InvariantCulture));
+    }
     const uint FILE_SHARE_READ = 0x00000001;
     const uint FILE_SHARE_WRITE = 0x00000002;
     const uint OPEN_EXISTING = 3;
     const uint FILE_FLAG_BACKUP_SEMANTICS = 0x02000000;
     const uint FILE_FLAG_OPEN_REPARSE_POINT = 0x00200000;
-    return CreateFileW(
-      path,
+    SafeFileHandle handle = CreateFileW(
+      ExtendedPath(path),
       0,
       FILE_SHARE_READ | FILE_SHARE_WRITE,
       IntPtr.Zero,
       OPEN_EXISTING,
       FILE_FLAG_BACKUP_SEMANTICS | FILE_FLAG_OPEN_REPARSE_POINT,
       IntPtr.Zero);
+    if (handle.IsInvalid) {
+      int code = Marshal.GetLastWin32Error();
+      handle.Dispose();
+      throw new Win32Exception(code, "CreateFileW failed: " + code.ToString(CultureInfo.InvariantCulture));
+    }
+    try {
+      SfpByHandleFileInformation information;
+      if (!GetFileInformationByHandle(handle, out information)) {
+        int code = Marshal.GetLastWin32Error();
+        throw new Win32Exception(code, "GetFileInformationByHandle failed: " + code.ToString(CultureInfo.InvariantCulture));
+      }
+      ulong index = ((ulong)information.FileIndexHigh << 32) | information.FileIndexLow;
+      SfpDirectoryLease lease = new SfpDirectoryLease();
+      lease.Handle = handle;
+      lease.Identity = information.VolumeSerialNumber.ToString(CultureInfo.InvariantCulture) + ":" + index.ToString(CultureInfo.InvariantCulture);
+      lease.PathSha256 = digest.ToString();
+      return lease;
+    } catch {
+      handle.Dispose();
+      throw;
+    }
   }
 
-  public static string Identity(SafeFileHandle handle) {
-    SfpByHandleFileInformation information;
-    if (!GetFileInformationByHandle(handle, out information)) {
-      throw new System.ComponentModel.Win32Exception(Marshal.GetLastWin32Error());
+  // Extended-length paths bypass MAX_PATH; paths that are already prefixed are kept verbatim.
+  public static string ExtendedPath(string path) {
+    if (path.StartsWith(@"\\?\", StringComparison.Ordinal) || path.StartsWith(@"\\.\", StringComparison.Ordinal)) {
+      return path;
     }
-    ulong index = ((ulong)information.FileIndexHigh << 32) | information.FileIndexLow;
-    return information.VolumeSerialNumber.ToString() + ":" + index.ToString();
+    if (path.StartsWith(@"\\", StringComparison.Ordinal)) {
+      return @"\\?\" + "UNC" + path.Substring(1);
+    }
+    if (path.Length >= 3 && path[1] == ':' && path[2] == '\\') {
+      return @"\\?\" + path;
+    }
+    throw new ArgumentException("lease path is not fully qualified");
+  }
+
+  // JSON string literal restricted to printable ASCII, so no code page can alter a response.
+  public static string JsonString(string text) {
+    StringBuilder builder = new StringBuilder("\"");
+    foreach (char unit in text ?? string.Empty) {
+      if (unit == '"' || unit == '\\') {
+        builder.Append('\\').Append(unit);
+      } else if (unit < ' ' || unit > '~') {
+        builder.Append("\\u").Append(((int)unit).ToString("x4", CultureInfo.InvariantCulture));
+      } else {
+        builder.Append(unit);
+      }
+    }
+    return builder.Append('"').ToString();
   }
 }
 '@
-Add-Type -TypeDefinition $source
+try {
+  Add-Type -TypeDefinition $source -ReferencedAssemblies 'System.Core'
+} catch {
+  $writer.WriteLine('RESTRICTED add-type ' + [Convert]::ToBase64String([System.Text.Encoding]::Unicode.GetBytes([string]$_.Exception.Message)))
+  exit 4
+}
 $handles = @{}
 try {
-  [Console]::Out.WriteLine("READY")
-  [Console]::Out.Flush()
-  while (($line = [Console]::In.ReadLine()) -ne $null) {
-    $command = $line | ConvertFrom-Json
+  $writer.WriteLine('READY ${WINDOWS_DIRECTORY_LEASE_PROTOCOL}')
+  while ($true) {
+    $line = $reader.ReadLine()
+    if ($null -eq $line) { break }
+    $id = ''
     try {
-      if ($command.action -eq 'acquire') {
-        $handle = [SfpRetainedDirectoryLease]::Open([string]$command.path)
-        if ($handle.IsInvalid) {
-          $code = [Runtime.InteropServices.Marshal]::GetLastWin32Error()
-          $handle.Dispose()
-          throw "CreateFileW failed: $code"
-        }
-        $handles[[string]$command.id] = $handle
-        $response = @{
-          id = [string]$command.id
-          ok = $true
-          identity = [SfpRetainedDirectoryLease]::Identity($handle)
-        }
-      } elseif ($command.action -eq 'release') {
-        $id = [string]$command.id
+      $request = ConvertFrom-Json -InputObject $line
+      if ($request -isnot [System.Management.Automation.PSCustomObject]) { throw 'lease request is not an object' }
+      if ($request.id -isnot [string] -or $request.id -cnotmatch '^[0-9a-f]{32}$') { throw 'lease request id is invalid' }
+      $id = $request.id
+      if ($request.action -ceq 'acquire') {
+        if ($request.pathUtf16B64 -isnot [string]) { throw 'lease request path is invalid' }
+        if ($handles.ContainsKey($id)) { throw 'lease id is already held' }
+        $lease = [SfpRetainedDirectoryLease]::Acquire($request.pathUtf16B64)
+        $handles[$id] = $lease.Handle
+        $response = '{"id":"' + $id + '","ok":true,"identity":"' + $lease.Identity + '","pathSha256":"' + $lease.PathSha256 + '"}'
+      } elseif ($request.action -ceq 'release') {
         if ($handles.ContainsKey($id)) {
           $handles[$id].Dispose()
           $handles.Remove($id)
         }
-        $response = @{ id = $id; ok = $true }
+        $response = '{"id":"' + $id + '","ok":true}'
       } else {
         throw 'unknown directory lease command'
       }
     } catch {
-      $response = @{ id = [string]$command.id; ok = $false; error = $_.Exception.Message }
+      $response = '{"id":"' + $id + '","ok":false,"error":' + [SfpRetainedDirectoryLease]::JsonString([string]$_.Exception.Message) + '}'
     }
-    [Console]::Out.WriteLine(($response | ConvertTo-Json -Compress))
-    [Console]::Out.Flush()
+    $writer.WriteLine($response)
   }
 } finally {
   foreach ($handle in $handles.Values) { $handle.Dispose() }
@@ -191,7 +280,7 @@ export const resolveWindowsPowerShellExecutable = (
 };
 
 export const windowsDirectoryLeaseInvocation = () => ({
-  protocol: 'windows-directory-lease-v1' as const,
+  protocol: WINDOWS_DIRECTORY_LEASE_PROTOCOL,
   executable: resolveWindowsPowerShellExecutable(),
   args: [
     '-NoLogo',
@@ -201,6 +290,8 @@ export const windowsDirectoryLeaseInvocation = () => ({
     Buffer.from(windowsDirectoryLeaseScript, 'utf16le').toString('base64'),
   ],
 });
+// The native module fence admits exactly this spawn shape: the approved args, windowsHide and
+// three pipes. Keep it byte-identical or update native-module-fence-source.ts in lockstep.
 const createWindowsDirectoryLeaseBroker = (): Promise<DirectoryLeaseBroker> => {
   const invocation = windowsDirectoryLeaseInvocation();
   return DirectoryLeaseBroker.start({
@@ -209,16 +300,23 @@ const createWindowsDirectoryLeaseBroker = (): Promise<DirectoryLeaseBroker> => {
         stdio: ['pipe', 'pipe', 'pipe'],
         windowsHide: true,
       }),
-    requestTimeoutMs: 5_000,
-    maxLineBytes: 4_096,
+    // A cold start compiles the helper with Add-Type and is scanned by antivirus.
+    startupTimeoutMs: 30_000,
+    requestTimeoutMs: 10_000,
+    shutdownTimeoutMs: 5_000,
+    forceKillTimeoutMs: 5_000,
+    maxLineBytes: 16_384,
     maxStdoutBytes: 4_194_304,
     maxStderrBytes: 65_536,
-    maxCommandBytes: 65_536,
+    // A 32,767-unit path is 87,380 base64 characters on the wire.
+    maxCommandBytes: 131_072,
     maxPending: 256,
     unrefChild: true,
   });
 };
-const windowsDirectoryLeasePool = new DirectoryLeaseBrokerPool(createWindowsDirectoryLeaseBroker);
+const windowsDirectoryLeasePool = new DirectoryLeaseBrokerPool(createWindowsDirectoryLeaseBroker, {
+  idleRetirementMs: 600_000,
+});
 
 export const acquireWindowsDirectoryLease = async (
   path: string,

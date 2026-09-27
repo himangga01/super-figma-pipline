@@ -10,6 +10,7 @@ import { parseSync } from 'oxc-parser';
 import { z } from 'zod';
 
 import { windowsDirectoryLeaseInvocation } from '../fs/atomic-file.js';
+import { WINDOWS_DIRECTORY_LEASE_PROTOCOL } from '../fs/windows-directory-lease-broker.js';
 import {
   NATIVE_MODULE_FENCE_PROTOCOL,
   NATIVE_MODULE_FENCE_SOURCE,
@@ -66,7 +67,8 @@ export const NativeArtifactAuthoritySchema = z
       .optional(),
     directoryLease: z
       .object({
-        protocol: z.literal('windows-directory-lease-v1'),
+        // v1 stays readable so stored profiles fail with a typed re-prepare error, not a ZodError.
+        protocol: z.enum(['windows-directory-lease-v1', 'windows-directory-lease-v2']),
         executable: InventorySchema,
         args: z.array(z.string()).length(5),
       })
@@ -443,6 +445,11 @@ export const verifyNativeArtifactAuthority = async (
   if (!profile.artifactAuthority) throw portalError('PORTAL_ARTIFACT_AUTHORITY_REQUIRED');
   if (profile.artifactAuthority.version !== 1)
     throw portalError('PORTAL_ARTIFACT_AUTHORITY_VERSION_UNSUPPORTED');
+  if (
+    profile.artifactAuthority.directoryLease !== undefined &&
+    profile.artifactAuthority.directoryLease.protocol !== WINDOWS_DIRECTORY_LEASE_PROTOCOL
+  )
+    throw portalError('PORTAL_ARTIFACT_REPREPARE_REQUIRED');
   const actual = await prepareNativeArtifactAuthority(profile, signal);
   if (
     contentHash('sfp-native-artifact-authority-v1', actual) !==

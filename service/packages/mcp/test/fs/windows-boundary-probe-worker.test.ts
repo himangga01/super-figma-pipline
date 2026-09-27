@@ -31,9 +31,21 @@ const childScript = String.raw`
   const readline = require('node:readline');
   const mode = process.env.SFP_BOUNDARY_TEST_MODE;
   const input = readline.createInterface({ input: process.stdin });
-  process.stdout.write('READY\n');
+  const decode = value => Buffer.from(value, 'base64').toString('utf16le');
+  const encode = value => Buffer.from(value, 'utf16le').toString('base64');
+  if (mode === 'slow-ready') {
+    setTimeout(() => process.stdout.write('READY\n'), Number(process.env.SFP_BOUNDARY_READY_DELAY_MS));
+  } else {
+    process.stdout.write('READY\n');
+  }
   input.on('line', line => {
+    if (Buffer.byteLength(line, 'utf8') !== line.length || /[^\x20-\x7e]/.test(line)) {
+      process.stderr.write('non-ASCII request line\n');
+      process.exit(9);
+    }
     const request = JSON.parse(line);
+    if (!Array.isArray(request.pathsUtf16B64) || 'paths' in request) process.exit(11);
+    const paths = request.pathsUtf16B64.map(decode);
     if (mode === 'malformed') return process.stdout.write('{not-json\n');
     if (mode === 'null') return process.stdout.write('null\n');
     if (mode === 'exit') return process.exit(13);
@@ -43,12 +55,12 @@ const childScript = String.raw`
         process.stdout.write(JSON.stringify({ id: request.id, ok: false, error: 'path unavailable' }) + '\n');
         return;
       }
-      let records = request.paths.map(path => ({
-        path, attributes: 16,
+      let records = paths.map(path => ({
+        pathUtf16B64: encode(path), attributes: 16,
         ...(request.kind === 'acl' && mode !== 'missing-sddl' ? { sddl: 'D:P(A;;FA;;;SY)' } : {}),
       }));
       if (mode === 'wrong-count') records.push(records[0]);
-      if (mode === 'wrong-path') records[0].path += '-different';
+      if (mode === 'wrong-path') records[0].pathUtf16B64 = encode(paths[0] + '-different');
       if (mode === 'oversized-sddl') records[0].sddl = 'x'.repeat(4096);
       process.stdout.write(JSON.stringify({ id: mode === 'wrong-owner' ? 'unowned' : request.id, ok: true, records }) + '\n');
     };
@@ -64,9 +76,12 @@ const noReadChildScript = String.raw`
   setInterval(() => {}, 1000);
 `;
 
-const spawnTestChild = (mode: string): ChildProcessWithoutNullStreams =>
+const spawnTestChild = (
+  mode: string,
+  environment: Record<string, string> = {},
+): ChildProcessWithoutNullStreams =>
   spawn(process.execPath, ['-e', childScript], {
-    env: { ...process.env, SFP_BOUNDARY_TEST_MODE: mode },
+    env: { ...process.env, SFP_BOUNDARY_TEST_MODE: mode, ...environment },
     stdio: ['pipe', 'pipe', 'pipe'],
     windowsHide: true,
   });
@@ -182,7 +197,7 @@ describe('bounded persistent Windows boundary probe worker', () => {
       expect(typeof before.sddl).toBe('string');
       await new Promise<void>((resolve, reject) => {
         execFile(
-          'icacls.exe',
+          join(process.env.SystemRoot!, 'System32', 'icacls.exe'),
           [container, '/grant', '*S-1-1-0:(R)'],
           { windowsHide: true },
           error => {
@@ -235,6 +250,70 @@ describe('bounded persistent Windows boundary probe worker', () => {
     expect(results[2]).toEqual([{ path: 'C:\\state', attributes: 16 }]);
     expect(spawns).toBe(1);
   });
+
+  it('lets queued requests wait out a cold start slower than the request budget', async () => {
+    // Production defaults: 5 s per request, 30 s for READY, queued work covers the startup.
+    const pool = new WindowsBoundaryProbePool({
+      spawnChild: () => spawnTestChild('slow-ready', { SFP_BOUNDARY_READY_DELAY_MS: '8000' }),
+    });
+    pools.push(pool);
+    const started = performance.now();
+    const [first, second] = await Promise.all([
+      pool.inspect(['C:\\first']),
+      pool.inspect(['C:\\second']),
+    ]);
+    expect(first).toEqual([{ path: 'C:\\first', attributes: 16 }]);
+    expect(second).toEqual([{ path: 'C:\\second', attributes: 16 }]);
+    expect(performance.now() - started).toBeGreaterThanOrEqual(7_900);
+  }, 30_000);
+
+  it('sends ASCII-only requests and returns exact non-ASCII paths', async () => {
+    let spawns = 0;
+    const pool = createPool(() => {
+      spawns += 1;
+      return spawnTestChild('normal');
+    });
+    const paths = [
+      'C:\\Users\\강지혜\\AppData\\Local',
+      'C:\\state\\Cafe\u0301-\u1100\u1161',
+      'C:\\state\\emoji-\u{1F600}-\u{20BB7}',
+      '\\\\server\\share\\상태',
+    ];
+    await expect(pool.inspect(paths)).resolves.toEqual(
+      paths.map(path => ({ path, attributes: 16 })),
+    );
+    await expect(pool.inspectAcl(paths[0]!)).resolves.toEqual({
+      path: paths[0],
+      attributes: 16,
+      sddl: 'D:P(A;;FA;;;SY)',
+    });
+    expect(spawns).toBe(1);
+  });
+
+  it.runIf(process.platform === 'win32')(
+    'inspects Korean, NFD and surrogate-pair directories through the real worker',
+    async () => {
+      const container = await mkdtemp(join(tmpdir(), '강지혜-boundary-'));
+      temporaryRoots.push(container);
+      const paths = [
+        join(container, '강지혜', 'AppData'),
+        join(container, 'Cafe\u0301-\u1100\u1161'),
+        join(container, 'emoji-\u{1F600}-\u{20BB7}'),
+      ];
+      for (const path of paths) await mkdir(path, { recursive: true });
+      const pool = createPool(spawnWindowsBoundaryProbeProcess, {
+        requestTimeoutMs: 30_000,
+        queueTimeoutMs: 30_000,
+      });
+      await expect(pool.inspect(paths)).resolves.toEqual(
+        paths.map(path => ({ path, attributes: expect.any(Number) })),
+      );
+      const acl = await pool.inspectAcl(paths[0]!);
+      expect(acl.path).toBe(paths[0]);
+      expect(acl.sddl).toContain('D:');
+    },
+    60_000,
+  );
 
   it('rejects malformed output, retires the child, and recovers on the next request', async () => {
     let spawns = 0;
@@ -401,7 +480,12 @@ describe('bounded persistent Windows boundary probe worker', () => {
         spawns += 1;
         return neverExitingStartupChild();
       },
-      { requestTimeoutMs: 15, shutdownTimeoutMs: 10, forceKillTimeoutMs: 10 },
+      {
+        requestTimeoutMs: 15,
+        startupTimeoutMs: 15,
+        shutdownTimeoutMs: 10,
+        forceKillTimeoutMs: 10,
+      },
     );
 
     await expect(pool.inspect(['C:\\first'])).rejects.toMatchObject({

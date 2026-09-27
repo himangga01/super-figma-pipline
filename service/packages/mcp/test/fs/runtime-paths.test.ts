@@ -1,5 +1,15 @@
 import { execFile as execFileCallback } from 'node:child_process';
-import { chmod, mkdtemp, mkdir, rename, rm, stat, symlink, writeFile } from 'node:fs/promises';
+import {
+  chmod,
+  copyFile,
+  mkdtemp,
+  mkdir,
+  rename,
+  rm,
+  stat,
+  symlink,
+  writeFile,
+} from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { dirname, isAbsolute, join, parse, relative, resolve } from 'node:path';
 import { promisify } from 'node:util';
@@ -15,7 +25,6 @@ import {
   type StatePermissionCommand,
   type StatePermissionCommandRunner,
   type StatePermissionOptions,
-  type WindowsAclProbeRecord,
 } from '../../src/security/state-permissions.js';
 import * as statePermissionModule from '../../src/security/state-permissions.js';
 
@@ -481,26 +490,30 @@ describe('owner-only state permissions', () => {
     await mkdir(product.stateRoot);
     const sid = 'S-1-5-21-111-222-333-1001';
     const calls: StatePermissionCommand[] = [];
+    const environments: Array<Readonly<Record<string, string>>> = [];
     const command = vi.fn<StatePermissionCommandRunner>(async (file, args, options) => {
       calls.push({ file, args: [...args] });
+      if (options?.environment !== undefined) environments.push(options.environment);
       if (file === 'whoami.exe') return { stdout: `"owner","${sid}"\r\n`, stderr: '' };
       if (file === 'powershell.exe') {
-        const aclTarget = options?.environment?.SFP_STATE_ACL_TARGET;
+        const aclTarget = options?.environment?.SFP_STATE_ACL_TARGET_UTF16B64;
         if (aclTarget !== undefined) {
           return {
             stdout: JSON.stringify({
-              path: aclTarget,
+              pathUtf16B64: aclTarget,
               attributes: 16,
               sddl: `O:${sid}G:${sid}D:PAI(A;OICI;FA;;;SY)(A;OICI;FA;;;${sid})`,
-            } satisfies WindowsAclProbeRecord),
+            }),
             stderr: '',
           };
         }
         const boundaryPaths = JSON.parse(
-          options?.environment?.SFP_STATE_BOUNDARY_PATHS ?? '[]',
+          options?.environment?.SFP_STATE_BOUNDARY_PATHS_UTF16B64 ?? '[]',
         ) as string[];
         return {
-          stdout: JSON.stringify(boundaryPaths.map(path => ({ path, attributes: 16 }))),
+          stdout: JSON.stringify(
+            boundaryPaths.map(pathUtf16B64 => ({ pathUtf16B64, attributes: 16 })),
+          ),
           stderr: '',
         };
       }
@@ -517,6 +530,15 @@ describe('owner-only state permissions', () => {
       'powershell.exe',
       'whoami.exe',
       'powershell.exe',
+    ]);
+    // Paths reach the probes only as base64 UTF-16LE, never as raw non-ASCII text.
+    expect(environments.map(environment => Object.keys(environment))).toEqual([
+      ['SFP_STATE_BOUNDARY_PATHS_UTF16B64'],
+      ['SFP_STATE_ACL_TARGET_UTF16B64'],
+    ]);
+    expect(environments.flatMap(environment => Object.values(environment))).toEqual([
+      expect.stringMatching(/^\["[A-Za-z0-9+/]+=*"(?:,"[A-Za-z0-9+/]+=*")*\]$/u),
+      expect.stringMatching(/^[A-Za-z0-9+/]+=*$/u),
     ]);
     expect(calls.flatMap(call => call.args)).not.toContain('/save');
     expect(calls.flatMap(call => call.args)).not.toEqual(
@@ -762,15 +784,66 @@ describe('owner-only state permissions', () => {
   );
 });
 
+const system32 = (...segments: string[]): string =>
+  join(process.env.SystemRoot ?? 'C:\\Windows', 'System32', ...segments);
+
+/** Executes the fixed state commands for real, pinned to System32 like the production runner. */
+const realWindowsCommand: StatePermissionCommandRunner = async (file, args, options) =>
+  execFile(
+    file === 'powershell.exe'
+      ? system32('WindowsPowerShell', 'v1.0', 'powershell.exe')
+      : system32(file),
+    [...args],
+    {
+      encoding: 'utf8',
+      env: { ...process.env, ...options?.environment },
+      windowsHide: true,
+    },
+  );
+
 it.runIf(process.platform === 'win32')(
   'uses icacls directly in the Windows acceptance environment',
   async () => {
-    const { stdout } = await execFile('whoami.exe', ['/user', '/fo', 'csv', '/nh'], {
+    const { stdout } = await execFile(system32('whoami.exe'), ['/user', '/fo', 'csv', '/nh'], {
       windowsHide: true,
     });
     expect(stdout).toMatch(/S-1-/);
   },
 );
+
+describe.runIf(process.platform === 'win32')('Windows state commands on this host', () => {
+  it('runs the fixed PowerShell probes against a Korean-named state root', async () => {
+    const base = await temporaryRoot('강지혜-state-');
+    const stateRoot = join(base, 'SuperFigmaPipeline');
+    const permissions = createStatePermissions(stateRoot, {
+      platform: 'win32',
+      environment: { LOCALAPPDATA: base },
+      homeDirectory: base,
+      command: realWindowsCommand,
+    });
+
+    await permissions.ensureSecure(stateRoot);
+    await expect(permissions.verifySecure(stateRoot)).resolves.toBeUndefined();
+  }, 60_000);
+
+  it('runs System32 whoami and icacls even when PATH lists look-alikes first', async () => {
+    const planted = await temporaryRoot('sfp-planted-path-');
+    const decoy = system32('hostname.exe');
+    await copyFile(decoy, join(planted, 'whoami.exe'));
+    await copyFile(decoy, join(planted, 'icacls.exe'));
+    const product = await windowsProductState();
+    const originalPath = process.env.PATH;
+    process.env.PATH = `${planted};${originalPath ?? ''}`;
+    try {
+      const permissions = createStatePermissions(product.stateRoot, product.options);
+      await permissions.ensureSecure(product.stateRoot);
+      await expect(permissions.verifySecure(product.stateRoot)).resolves.toBeUndefined();
+    } finally {
+      if (originalPath === undefined) delete process.env.PATH;
+      else process.env.PATH = originalPath;
+    }
+  }, 60_000);
+});
 
 describe('persistent Windows state inspection errors', () => {
   it.each([
