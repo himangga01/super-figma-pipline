@@ -1,7 +1,6 @@
 {
   "$schema": "./node_modules/knip/schema.json",
   "ignoreExportsUsedInFile": true,
-  "ignoreBinaries": ["icacls.exe"],
   "workspaces": {
     ".": {
       "project": ["*.{ts,js}"],
