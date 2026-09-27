@@ -56,9 +56,17 @@ it('binds every nonexcluded source byte independently of semantic parse coverage
   await writeFile(join(root, 'asset.bin'), Buffer.from([0, 255, 128, 10]));
   const graph = await analyzeServiceGraph(new RepoReader({ rootDir: root }));
   expect(graph.sourceInventory?.complete).toBe(true);
+  // T26 (SVC-8): `build/` and `dist/` are generated-output directories. They are recorded,
+  // hashed exclusion decisions instead of byte-bound members; an import of them is an explicit
+  // issue (see the generated-output test below). Ignored, dot, vendor and test inputs stay bound.
+  const generated = new Set(['build/index.js', 'dist/index.js']);
   expect(graph.sourceInventory?.files.map(file => file.path)).toEqual(
-    [...Object.keys(members), 'asset.bin'].toSorted(),
+    [...Object.keys(members).filter(path => !generated.has(path)), 'asset.bin'].toSorted(),
   );
+  expect(graph.sourceInventory?.exclusions).toEqual([
+    { path: 'build', kind: 'directory', reason: 'generated-output' },
+    { path: 'dist', kind: 'directory', reason: 'generated-output' },
+  ]);
   expect(graph.sourceInventory?.files.find(file => file.path === 'asset.bin')).toMatchObject({
     bytes: 4,
     classification: 'binary',
@@ -66,18 +74,23 @@ it('binds every nonexcluded source byte independently of semantic parse coverage
   });
   expect(graph.files.some(file => file.path === 'asset.bin')).toBe(false);
   expect(graph.files.some(file => file.path === 'module.mts')).toBe(true);
-  for (const path of [
-    'src/generated/client.ts',
-    '.editorconfig',
-    'build/index.js',
-    '.gitignore',
-    'asset.bin',
-  ]) {
+  for (const path of ['src/generated/client.ts', '.editorconfig', '.gitignore', 'asset.bin']) {
     const before = await analyzeServiceGraph(new RepoReader({ rootDir: root }));
     await writeFile(join(root, path), `changed ${path}`);
     const after = await analyzeServiceGraph(new RepoReader({ rootDir: root }));
     expect(after.sourceHash).not.toBe(before.sourceHash);
   }
+  // Generated output is never read, so its bytes do not bind the source identity; the recorded
+  // exclusion decision does.
+  const withBuild = await analyzeServiceGraph(new RepoReader({ rootDir: root }));
+  await writeFile(join(root, 'build/index.js'), 'changed generated output');
+  expect((await analyzeServiceGraph(new RepoReader({ rootDir: root }))).sourceHash).toBe(
+    withBuild.sourceHash,
+  );
+  await rm(join(root, 'build'), { recursive: true });
+  expect((await analyzeServiceGraph(new RepoReader({ rootDir: root }))).sourceHash).not.toBe(
+    withBuild.sourceHash,
+  );
   const stable = await analyzeServiceGraph(new RepoReader({ rootDir: root }));
   expect((await analyzeServiceGraph(new RepoReader({ rootDir: root }))).sourceHash).toBe(
     stable.sourceHash,
@@ -348,6 +361,41 @@ it('decodes a UTF-8 BOM tolerantly while binding and comparing the raw bytes (SA
   expect(graph.services[0]!.evidence).toContainEqual(
     expect.objectContaining({ kind: 'provides-api', detail: 'GET /health', startLine: 3 }),
   );
+});
+
+it('reports an import of an excluded generated-output or credential input as an explicit issue (SVC-8)', async () => {
+  const files = {
+    'package.json': '{"name":"app"}',
+    'build/helper.js': 'export const helper = 1;\n',
+    'src/credentials.json': '{"token":"never read"}',
+    'src/main.ts': 'export const value = 1;\n',
+  };
+  const control = await analyzeServiceGraph(
+    new RepoReader({ rootDir: await writeTree('sfp-service-excluded-', files) }),
+  );
+  expect(control).toMatchObject({ incomplete: false, issues: [] });
+  expect(control.sourceInventory?.exclusions).toEqual([
+    { path: 'build', kind: 'directory', reason: 'generated-output' },
+    { path: 'src/credentials.json', kind: 'file', reason: 'credentials' },
+  ]);
+
+  const main =
+    "import { helper } from '../build/helper.js';\nimport credentials from './credentials.json';\nexport const value = [helper, credentials];\n";
+  const graph = await analyzeServiceGraph(
+    new RepoReader({
+      rootDir: await writeTree('sfp-service-excluded-', { ...files, 'src/main.ts': main }),
+    }),
+  );
+  expect(graph.sourceInventory?.complete).toBe(true);
+  expect(graph).toMatchObject({ incomplete: true, lexicalReviewable: false });
+  const second = main.indexOf('import credentials');
+  expect(graph.issues).toEqual(
+    expect.arrayContaining([
+      'SOURCE_REQUIRED_INPUT_EXCLUDED:src/main.ts:0:generated-output:build',
+      `SOURCE_REQUIRED_INPUT_EXCLUDED:src/main.ts:${second}:credentials:src/credentials.json`,
+    ]),
+  );
+  expect(JSON.stringify(graph)).not.toContain('never read');
 });
 
 it('aggregates connection evidence rows per service, module key and kind (SA-2)', async () => {

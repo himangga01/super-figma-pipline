@@ -248,3 +248,42 @@ describe('walkRepoFiles compatibility generator', () => {
     expect(await filesFromGenerator(root, { extensions: ['.css'] })).toEqual(['a.css', 'b.css']);
   });
 });
+
+describe('RepoReader portal-source-authority policy (T26)', () => {
+  it('excludes generated-output directories by entry kind and keeps same-named files', async () => {
+    const root = await repository({
+      build: '#!/bin/sh\necho build script',
+      out: 'plain file named out',
+      'dist/bundle.js': 'generated',
+      'packages/app/Target/debug.bin': 'generated',
+      'src/index.ts': 'export {};',
+    });
+    const walked = await new RepoReader({ rootDir: root }).walk({
+      mode: 'portal-source-authority',
+    });
+    expect(walked.files).toEqual(['build', 'out', 'src/index.ts']);
+    expect(walked.exclusions).toEqual([
+      { path: 'dist', kind: 'directory', reason: 'generated-output' },
+      { path: 'packages/app/Target', kind: 'directory', reason: 'generated-output' },
+    ]);
+    expect(walked.issues).toEqual([]);
+  });
+
+  it('names every unsafe entry with an escaped path and continues the scan', async () => {
+    const root = await repository({
+      'a/cafe\u0301.ts': 'decomposed',
+      'b/\u1112\u1161\u11ab/nested.ts': 'decomposed directory',
+      'c/kept.ts': 'kept',
+    });
+    const walked = await new RepoReader({ rootDir: root }).walk({
+      mode: 'portal-source-authority',
+    });
+    expect(walked.issues).toEqual([
+      { code: 'REPO_SOURCE_PATH_UNSAFE', path: 'a/cafe%CC%81.ts' },
+      { code: 'REPO_SOURCE_PATH_UNSAFE', path: 'b/%E1%84%92%E1%85%A1%E1%86%AB' },
+    ]);
+    // The unsafe directory is not entered; later entries are still walked.
+    expect(walked.files).toEqual(['c/kept.ts']);
+    expect(walked.truncated).toBe(false);
+  });
+});

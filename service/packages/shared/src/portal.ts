@@ -494,6 +494,7 @@ export const PortalSourceInventorySchema = z
               'provisioned-dependencies',
               'credentials',
               'service-runtime',
+              'generated-output',
             ]),
           })
           .strict(),

@@ -226,6 +226,34 @@ export const analyzeServiceGraph = async (
     hardIncomplete = true;
     addIssue(...moduleGraph.issues);
   }
+  // A required input is byte-bound or blocking: a relative import into a recorded exclusion
+  // (generated output, credentials, dependencies) is named explicitly, never silently missing.
+  const exclusions = sourceInventory.exclusions.map(exclusion => ({
+    ...exclusion,
+    folded: exclusion.path.toLowerCase(),
+  }));
+  for (const reference of moduleGraph.references) {
+    if (
+      reference.status !== 'unresolved' ||
+      reference.specifier === null ||
+      !/^\.{1,2}(?:\/|$)/u.test(reference.specifier)
+    )
+      continue;
+    const target = posix
+      .normalize(posix.join(posix.dirname(reference.from), reference.specifier))
+      .replace(/\/+$/u, '')
+      .toLowerCase();
+    const excluded = exclusions.find(
+      exclusion =>
+        target === exclusion.folded ||
+        target.startsWith(`${exclusion.folded}/`) ||
+        (exclusion.kind !== 'directory' && exclusion.folded.startsWith(`${target}.`)),
+    );
+    if (excluded)
+      hard(
+        `SOURCE_REQUIRED_INPUT_EXCLUDED:${reference.from}:${reference.offset}:${excluded.reason}:${excluded.path}`,
+      );
+  }
   const runtimePaths = new Set(
     [...source.keys()].filter(
       path =>

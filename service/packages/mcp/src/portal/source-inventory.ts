@@ -64,11 +64,14 @@ export const collectPortalSourceInventory = async (
   } catch (cause) {
     const error = cause as { code?: unknown; path?: unknown };
     if (error.code === 'ABORT_ERR') throw cause;
-    const path = typeof error.path === 'string' ? error.path : currentPath;
+    // A filesystem error carries a native absolute path; the relative path being read names it.
+    const path = [error.path, currentPath].find(
+      (value): value is string => typeof value === 'string' && isPortableSourcePath(value),
+    );
     issues.push({
       code:
         typeof error.code === 'string' ? error.code.slice(0, 128) : 'SOURCE_INVENTORY_READ_FAILED',
-      ...(path !== undefined && isPortableSourcePath(path) ? { path } : {}),
+      ...(path === undefined ? {} : { path }),
     });
   }
   exclusions.sort((a, b) => (a.path < b.path ? -1 : a.path > b.path ? 1 : 0));
