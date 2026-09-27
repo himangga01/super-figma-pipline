@@ -20,6 +20,13 @@ export const WorkspaceAddRequestSchema = z
     actionNonce: NonceSchema,
   })
   .strict();
+export const WorkspaceRebindRequestSchema = z
+  .object({
+    workspaceId: WorkspaceIdSchema,
+    path: z.string().min(1).max(32_768),
+    actionNonce: NonceSchema,
+  })
+  .strict();
 export const WorkspaceRemoveRequestSchema = z
   .object({ workspaceId: WorkspaceIdSchema, actionNonce: NonceSchema })
   .strict();
@@ -46,18 +53,25 @@ export const createWorkspaceEndpoints = (dependencies: {
     dependencies.registrationForNonce ??
     ((actor: Readonly<ActorContext>, value: string) =>
       (dependencies.nonceStore as ActionNonceAuthority).registrationFor(actor, value));
+  const boundRegistration = (
+    principal: Readonly<ActorContext>,
+    request: { path: string; actionNonce: string },
+  ): Readonly<ResolvedWorkspaceRegistration> => {
+    const registration = registrationFor(principal, request.actionNonce);
+    if (registration === undefined || registration.requestedPath !== request.path) {
+      throw Object.assign(new Error('workspace nonce registration binding is invalid'), {
+        code: 'ACTION_NONCE_INVALID',
+      });
+    }
+    return registration;
+  };
   return Object.freeze({
     add: async (
       principal: Readonly<ActorContext>,
       input: unknown,
     ): Promise<RegisteredWorkspaceRoot> => {
       const request = WorkspaceAddRequestSchema.parse(input);
-      const registration = registrationFor(principal, request.actionNonce);
-      if (registration === undefined || registration.requestedPath !== request.path) {
-        throw Object.assign(new Error('workspace nonce registration binding is invalid'), {
-          code: 'ACTION_NONCE_INVALID',
-        });
-      }
+      const registration = boundRegistration(principal, request);
       const expectedHash = hashActionRequest('workspace.add', { realPath: registration.realPath });
       return dependencies.store.addResolved(principal.actorId, registration, revalidate =>
         dependencies.nonceStore.consumeCas(
@@ -67,6 +81,35 @@ export const createWorkspaceEndpoints = (dependencies: {
           expectedHash,
           revalidate,
         ),
+      );
+    },
+    /**
+     * Binds a registration to the identity resolved when its nonce was issued. The nonce hash
+     * covers the workspace ID and the server-resolved real path, and the registration is
+     * revalidated immediately before the nonce is consumed.
+     */
+    rebind: async (
+      principal: Readonly<ActorContext>,
+      input: unknown,
+    ): Promise<RegisteredWorkspaceRoot> => {
+      const request = WorkspaceRebindRequestSchema.parse(input);
+      const registration = boundRegistration(principal, request);
+      const expectedHash = hashActionRequest('workspace.rebind', {
+        workspaceId: request.workspaceId,
+        realPath: registration.realPath,
+      });
+      return dependencies.store.rebindResolved(
+        principal.actorId,
+        request.workspaceId,
+        registration,
+        revalidate =>
+          dependencies.nonceStore.consumeCas(
+            principal,
+            request.actionNonce,
+            'workspace.rebind',
+            expectedHash,
+            revalidate,
+          ),
       );
     },
     list: async () => dependencies.store.list(),

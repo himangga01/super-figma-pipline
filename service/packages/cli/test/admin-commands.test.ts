@@ -1,9 +1,86 @@
+import { mkdtemp, realpath, rm } from 'node:fs/promises';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
+
+import { hashActionRequest } from '@sfp/shared';
 import { afterEach, expect, it, vi } from 'vitest';
 
 import { runAdminCommand } from '../src/admin-commands.js';
 import { ControlClient } from '../src/control-client.js';
 
 afterEach(() => vi.restoreAllMocks());
+it('lists workspace availability and rebinds a registration with a server-bound nonce', async () => {
+  const directory = await mkdtemp(join(tmpdir(), 'sfp-cli-rebind-'));
+  try {
+    const canonical = await realpath(directory);
+    const workspaceId = '123e4567-e89b-42d3-a456-426614174000';
+    const rows = [
+      {
+        workspaceId,
+        path: canonical,
+        realPath: canonical,
+        rootIdentityKey: '1:2:3',
+        addedAt: '2026-09-27T00:00:00.000Z',
+        availability: 'unavailable',
+        unavailableReason: 'WORKSPACE_ROOT_IDENTITY_CHANGED',
+      },
+    ];
+    const rebound = {
+      workspaceId,
+      path: canonical,
+      realPath: canonical,
+      rootIdentityKey: '1:2:4',
+      addedAt: '2026-09-27T00:00:00.000Z',
+      availability: 'available',
+    };
+    const request = vi
+      .spyOn(ControlClient.prototype, 'request')
+      .mockImplementation(async path =>
+        path === '/control/workspaces'
+          ? rows
+          : path === '/control/action-nonces'
+            ? { value: 'nonce-fixture' }
+            : rebound,
+      );
+    const emit = vi.fn<(value: unknown) => void>();
+
+    await runAdminCommand(['workspace', 'list'], emit);
+    expect(emit).toHaveBeenLastCalledWith(rows);
+
+    await runAdminCommand(['workspace', 'rebind', workspaceId, directory], emit);
+    expect(request.mock.calls.slice(1)).toEqual([
+      [
+        '/control/action-nonces',
+        'POST',
+        {
+          action: 'workspace.rebind',
+          requestHash: hashActionRequest('workspace.rebind', { workspaceId, realPath: canonical }),
+          registrationPath: canonical,
+          workspaceId,
+        },
+      ],
+      [
+        `/control/workspaces/${workspaceId}/rebind`,
+        'POST',
+        { path: canonical, actionNonce: 'nonce-fixture' },
+      ],
+    ]);
+    expect(emit).toHaveBeenLastCalledWith(rebound);
+
+    // Adding the path again does not silently reuse the unavailable registration.
+    request.mockClear();
+    await expect(runAdminCommand(['workspace', 'add', directory], emit)).rejects.toMatchObject({
+      code: 'WORKSPACE_ROOT_UNAVAILABLE',
+      message: expect.stringContaining(`sfp workspace rebind ${workspaceId}`),
+    });
+    expect(request.mock.calls.map(call => call[0])).toEqual(['/control/workspaces']);
+    await expect(runAdminCommand(['workspace', 'rebind', workspaceId], emit)).rejects.toMatchObject(
+      { code: 'CLI_USAGE' },
+    );
+  } finally {
+    await rm(directory, { recursive: true, force: true });
+  }
+});
 it('lists the complete contract locally without requiring a daemon', async () => {
   const request = vi
     .spyOn(ControlClient.prototype, 'request')

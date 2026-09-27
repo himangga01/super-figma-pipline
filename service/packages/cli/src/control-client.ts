@@ -308,9 +308,27 @@ export class ControlClient {
   }
   async workspace(path: string): Promise<string> {
     const canonical = await realpath(path);
-    const existing =
-      await this.request<Array<{ workspaceId: string; realPath: string }>>('/control/workspaces');
+    const existing = await this.request<
+      Array<{
+        workspaceId: string;
+        realPath: string;
+        availability?: string;
+        unavailableReason?: string;
+      }>
+    >('/control/workspaces');
     const found = existing.find(row => row.realPath === canonical);
+    if (
+      found !== undefined &&
+      found.availability !== undefined &&
+      found.availability !== 'available'
+    )
+      // Never reuse or re-add a registration whose recorded identity no longer matches this path.
+      throw Object.assign(
+        new Error(
+          `Workspace ${found.workspaceId} at this path is ${found.availability}${found.unavailableReason === undefined ? '' : ` (${found.unavailableReason})`}. Run "sfp workspace rebind ${found.workspaceId} <path>" to bind it to this directory, or remove it.`,
+        ),
+        { code: 'WORKSPACE_ROOT_UNAVAILABLE' },
+      );
     if (found !== undefined) return found.workspaceId;
     const nonce = await this.request<{ value: string }>('/control/action-nonces', 'POST', {
       action: 'workspace.add',

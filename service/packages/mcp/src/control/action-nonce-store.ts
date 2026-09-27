@@ -67,8 +67,19 @@ const sha256 = (...parts: readonly (string | Uint8Array)[]): PrefixedSha256 => {
   return `sha256:${digest.digest('hex')}`;
 };
 
+/** Actions whose nonce binds the server-resolved registration of the approved path. */
+const REGISTRATION_BOUND_ACTIONS: ReadonlySet<ActionNonceAction> = new Set([
+  'workspace.add',
+  'workspace.rebind',
+]);
+
 export interface ActionNonceAuthority extends ActionNonceStore {
   issueWorkspaceAdd(
+    actor: Readonly<ActorContext>,
+    requestHash: PrefixedSha256,
+    registration: Readonly<ResolvedWorkspaceRegistration>,
+  ): Promise<Readonly<ActionNonceClaims>>;
+  issueWorkspaceRebind(
     actor: Readonly<ActorContext>,
     requestHash: PrefixedSha256,
     registration: Readonly<ResolvedWorkspaceRegistration>,
@@ -139,11 +150,8 @@ export const createActionNonceStore = (options: ActionNonceStoreOptions): Action
       const actor = validActor(untrustedActor);
       const action = ActionNonceActionSchema.parse(untrustedAction);
       const requestHash = ActionNonceRequestHashSchema.parse(untrustedHash) as PrefixedSha256;
-      if ((action === 'workspace.add') !== (registration !== null)) {
-        throw new ActionNonceError(
-          'ACTION_NONCE_INVALID',
-          'workspace.add nonce binding is incomplete',
-        );
+      if (REGISTRATION_BOUND_ACTIONS.has(action) !== (registration !== null)) {
+        throw new ActionNonceError('ACTION_NONCE_INVALID', `${action} nonce binding is incomplete`);
       }
       const issuedAt = now();
       purgeExpired(issuedAt);
@@ -252,6 +260,8 @@ export const createActionNonceStore = (options: ActionNonceStoreOptions): Action
     issue: (actor, action, requestHash) => issue(actor, action, requestHash, null),
     issueWorkspaceAdd: (actor, requestHash, registration) =>
       issue(actor, 'workspace.add', requestHash, registration),
+    issueWorkspaceRebind: (actor, requestHash, registration) =>
+      issue(actor, 'workspace.rebind', requestHash, registration),
     consumeCas,
     registrationFor: (actor, value) => {
       const parsed = validActor(actor);

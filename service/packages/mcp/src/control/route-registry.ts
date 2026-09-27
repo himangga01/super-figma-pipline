@@ -244,6 +244,17 @@ export const registerTask7ControlRoutes = (
     handle: async (principal, input) => endpoints.workspaces.add(principal, input),
   });
   router.register({
+    id: 'workspace.rebind',
+    method: 'POST',
+    path: '/control/workspaces/:workspaceId/rebind',
+    routeClass: 'admin',
+    inputSchema: z
+      .object({ workspaceId: WorkspaceIdSchema, path: z.string().min(1), actionNonce: NonceSchema })
+      .strict(),
+    outputSchema: WorkspaceRootSchema.required({ rootIdentityKey: true }),
+    handle: async (principal, input) => endpoints.workspaces.rebind(principal, input),
+  });
+  router.register({
     id: 'workspace.remove',
     method: 'DELETE',
     path: '/control/workspaces/:workspaceId',
