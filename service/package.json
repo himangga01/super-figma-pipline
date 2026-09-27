@@ -16,6 +16,7 @@
     "lint:fix": "oxlint --fix .",
     "test": "vitest run --exclude \"test/artifact-contents.test.ts\"",
     "test:artifacts": "vitest run test/artifact-contents.test.ts",
+    "test:check-report": "node scripts/check-test-report.mjs",
     "test:coverage": "vitest run --coverage",
     "test:e2e": "vitest run packages/mcp/test/e2e",
     "test:unit": "vitest run --exclude \"**/test/e2e/**\" --exclude \"test/artifact-contents.test.ts\"",

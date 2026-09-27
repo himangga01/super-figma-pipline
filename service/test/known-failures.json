@@ -1,0 +1,726 @@
+{
+  "schemaVersion": 1,
+  "description": "Known-defect test failures that scripts/check-test-report.mjs tolerates in a full Vitest JSON report. Each entry names one failing test, the finding that causes it and the fix-plan task that must remove the entry. A ledgered test that passes is reported as STALE and fails the check.",
+  "entries": [
+    {
+      "file": "packages/mcp/test/portal/native-work.test.ts",
+      "test": "cancels source application between files and preserves the durable partial result",
+      "finding": "K1",
+      "owner": "T14b",
+      "reason": "apply throws PORTAL_VALIDATION_REQUIRED (K1) before the write hook this test waits on, so it reaches its 60 s timeout, which Vitest 4 reports as STACK_TRACE_ERROR.",
+      "failureIncludes": "STACK_TRACE_ERROR"
+    },
+    {
+      "file": "packages/mcp/test/portal/native-work.test.ts",
+      "test": "executes an owner-bound native assertion in a separate work copy and keeps incomplete acceptance blocked",
+      "finding": "SVC-1",
+      "owner": "T13",
+      "reason": "registerProfile re-prepares the profile without its recipeUse (SVC-1), so assertRecipeRegistration throws PORTAL_CONSUMPTION_PREPARATION_REQUIRED before the behavior under test runs.",
+      "failureIncludes": "PORTAL_CONSUMPTION_PREPARATION_REQUIRED"
+    },
+    {
+      "file": "packages/mcp/test/portal/native-work.test.ts",
+      "test": "publishes hash-bound files once and refuses to overwrite a later user edit during reconciliation",
+      "finding": "K1",
+      "owner": "T14b",
+      "reason": "Validation never records recipeConsumption (K1), so portalCompletionIssues keeps the acceptance incomplete and apply throws PORTAL_VALIDATION_REQUIRED before the behavior under test runs.",
+      "failureIncludes": "PORTAL_VALIDATION_REQUIRED"
+    },
+    {
+      "file": "packages/mcp/test/portal/native-work.test.ts",
+      "test": "refuses target publication without complete acceptance and preserves an existing output collision",
+      "finding": "K1",
+      "owner": "T14b",
+      "reason": "Validation never records recipeConsumption (K1), so portalCompletionIssues keeps the acceptance incomplete and apply throws PORTAL_VALIDATION_REQUIRED before the behavior under test runs.",
+      "failureIncludes": "PORTAL_VALIDATION_REQUIRED"
+    },
+    {
+      "file": "packages/mcp/test/portal/native-work.test.ts",
+      "test": "stages all material legacy inputs while omitting excluded metadata and credentials",
+      "finding": "SVC-1",
+      "owner": "T13",
+      "reason": "registerProfile re-prepares the profile without its recipeUse (SVC-1), so assertRecipeRegistration throws PORTAL_CONSUMPTION_PREPARATION_REQUIRED before the behavior under test runs.",
+      "failureIncludes": "PORTAL_CONSUMPTION_PREPARATION_REQUIRED"
+    },
+    {
+      "file": "packages/mcp/test/portal/native-work.test.ts",
+      "test": "blocks change of an original included input after planning",
+      "finding": "SVC-1",
+      "owner": "T13",
+      "reason": "registerProfile re-prepares the profile without its recipeUse (SVC-1), so assertRecipeRegistration throws PORTAL_CONSUMPTION_PREPARATION_REQUIRED before the behavior under test runs.",
+      "failureIncludes": "PORTAL_CONSUMPTION_PREPARATION_REQUIRED"
+    },
+    {
+      "file": "packages/mcp/test/portal/native-work.test.ts",
+      "test": "blocks add of an original included input after planning",
+      "finding": "SVC-1",
+      "owner": "T13",
+      "reason": "registerProfile re-prepares the profile without its recipeUse (SVC-1), so assertRecipeRegistration throws PORTAL_CONSUMPTION_PREPARATION_REQUIRED before the behavior under test runs.",
+      "failureIncludes": "PORTAL_CONSUMPTION_PREPARATION_REQUIRED"
+    },
+    {
+      "file": "packages/mcp/test/portal/native-work.test.ts",
+      "test": "blocks remove of an original included input after planning",
+      "finding": "SVC-1",
+      "owner": "T13",
+      "reason": "registerProfile re-prepares the profile without its recipeUse (SVC-1), so assertRecipeRegistration throws PORTAL_CONSUMPTION_PREPARATION_REQUIRED before the behavior under test runs.",
+      "failureIncludes": "PORTAL_CONSUMPTION_PREPARATION_REQUIRED"
+    },
+    {
+      "file": "packages/mcp/test/portal/native-work.test.ts",
+      "test": "rejects an untouched actual target change while native validation is paused",
+      "finding": "K1",
+      "owner": "T14b",
+      "reason": "Validation never records recipeConsumption (K1), so portalCompletionIssues keeps the acceptance incomplete and apply throws PORTAL_VALIDATION_REQUIRED before the behavior under test runs.",
+      "failureIncludes": "PORTAL_VALIDATION_REQUIRED"
+    },
+    {
+      "file": "packages/mcp/test/portal/native-work.test.ts",
+      "test": "rejects an untouched actual target add while native validation is paused",
+      "finding": "K1",
+      "owner": "T14b",
+      "reason": "Validation never records recipeConsumption (K1), so portalCompletionIssues keeps the acceptance incomplete and apply throws PORTAL_VALIDATION_REQUIRED before the behavior under test runs.",
+      "failureIncludes": "PORTAL_VALIDATION_REQUIRED"
+    },
+    {
+      "file": "packages/mcp/test/portal/native-work.test.ts",
+      "test": "rejects an untouched actual target remove while native validation is paused",
+      "finding": "K1",
+      "owner": "T14b",
+      "reason": "Validation never records recipeConsumption (K1), so portalCompletionIssues keeps the acceptance incomplete and apply throws PORTAL_VALIDATION_REQUIRED before the behavior under test runs.",
+      "failureIncludes": "PORTAL_VALIDATION_REQUIRED"
+    },
+    {
+      "file": "packages/mcp/test/portal/native-work.test.ts",
+      "test": "retains a partial journal and rejects continuation after an untouched baseline change",
+      "finding": "K1",
+      "owner": "T14b",
+      "reason": "Validation never records recipeConsumption (K1), so portalCompletionIssues keeps the acceptance incomplete and apply throws PORTAL_VALIDATION_REQUIRED before the behavior under test runs.",
+      "failureIncludes": "PORTAL_VALIDATION_REQUIRED"
+    },
+    {
+      "file": "packages/mcp/test/portal/native-work.test.ts",
+      "test": "reconciles journal intent against an actual preimage",
+      "finding": "K1",
+      "owner": "T14b",
+      "reason": "Validation never records recipeConsumption (K1), so portalCompletionIssues keeps the acceptance incomplete and apply throws PORTAL_VALIDATION_REQUIRED before the behavior under test runs.",
+      "failureIncludes": "PORTAL_VALIDATION_REQUIRED"
+    },
+    {
+      "file": "packages/mcp/test/portal/native-work.test.ts",
+      "test": "reconciles journal intent against an actual postimage",
+      "finding": "K1",
+      "owner": "T14b",
+      "reason": "Validation never records recipeConsumption (K1), so portalCompletionIssues keeps the acceptance incomplete and apply throws PORTAL_VALIDATION_REQUIRED before the behavior under test runs.",
+      "failureIncludes": "PORTAL_VALIDATION_REQUIRED"
+    },
+    {
+      "file": "packages/mcp/test/portal/native-work.test.ts",
+      "test": "keeps signed legacy profiles and apply records inspectable without granting current execution",
+      "finding": "K1",
+      "owner": "T14b",
+      "reason": "Validation never records recipeConsumption (K1), so portalCompletionIssues keeps the acceptance incomplete and apply throws PORTAL_VALIDATION_REQUIRED before the behavior under test runs.",
+      "failureIncludes": "PORTAL_VALIDATION_REQUIRED"
+    },
+    {
+      "file": "packages/mcp/test/portal/native-work.test.ts",
+      "test": "recovers a current signed intent after native CAS is quarantined",
+      "finding": "K1",
+      "owner": "T14b",
+      "reason": "Validation never records recipeConsumption (K1), so portalCompletionIssues keeps the acceptance incomplete and apply throws PORTAL_VALIDATION_REQUIRED before the behavior under test runs.",
+      "failureIncludes": "PORTAL_VALIDATION_REQUIRED"
+    },
+    {
+      "file": "packages/mcp/test/portal/native-work.test.ts",
+      "test": "recovers a current signed intent after native CAS is published-linked",
+      "finding": "K1",
+      "owner": "T14b",
+      "reason": "Validation never records recipeConsumption (K1), so portalCompletionIssues keeps the acceptance incomplete and apply throws PORTAL_VALIDATION_REQUIRED before the behavior under test runs.",
+      "failureIncludes": "PORTAL_VALIDATION_REQUIRED"
+    },
+    {
+      "file": "packages/mcp/test/portal/native-work.test.ts",
+      "test": "binds a newly created target identity and rejects a same-byte directory replacement",
+      "finding": "K1",
+      "owner": "T14b",
+      "reason": "Validation never records recipeConsumption (K1), so portalCompletionIssues keeps the acceptance incomplete and apply throws PORTAL_VALIDATION_REQUIRED before the behavior under test runs.",
+      "failureIncludes": "PORTAL_VALIDATION_REQUIRED"
+    },
+    {
+      "file": "packages/mcp/test/portal/native-work.test.ts",
+      "test": "accounts verified recovery backups separately from a material tree near the source byte cap",
+      "finding": "K1",
+      "owner": "T14b",
+      "reason": "Validation never records recipeConsumption (K1), so portalCompletionIssues keeps the acceptance incomplete and apply throws PORTAL_VALIDATION_REQUIRED before the behavior under test runs.",
+      "failureIncludes": "PORTAL_VALIDATION_REQUIRED"
+    },
+    {
+      "file": "packages/mcp/test/portal/native-work.test.ts",
+      "test": "reports a replacement-row user edit as conflict while preserving its retained backup",
+      "finding": "K1",
+      "owner": "T14b",
+      "reason": "Validation never records recipeConsumption (K1), so portalCompletionIssues keeps the acceptance incomplete and apply throws PORTAL_VALIDATION_REQUIRED before the behavior under test runs.",
+      "failureIncludes": "PORTAL_VALIDATION_REQUIRED"
+    },
+    {
+      "file": "packages/mcp/test/portal/native-work.test.ts",
+      "test": "prepares exact owner-scoped artifact authority and rejects a stale approved registration",
+      "finding": "SVC-1",
+      "owner": "T13",
+      "reason": "registerProfile re-prepares the profile and the prepared hash no longer matches (SVC-1), so assertPreparedProfile throws PORTAL_PROFILE_PREPARATION_CHANGED.",
+      "failureIncludes": "PORTAL_PROFILE_PREPARATION_CHANGED"
+    },
+    {
+      "file": "packages/mcp/test/portal/native-work.test.ts",
+      "test": "prepares the actual installed validator bundle and pnpm-backed transitive packages",
+      "finding": "SVC-1",
+      "owner": "T13",
+      "reason": "registerProfile re-prepares the profile without its recipeUse (SVC-1), so assertRecipeRegistration throws PORTAL_CONSUMPTION_PREPARATION_REQUIRED before the behavior under test runs.",
+      "failureIncludes": "PORTAL_CONSUMPTION_PREPARATION_REQUIRED"
+    },
+    {
+      "file": "packages/mcp/test/portal/native-work.test.ts",
+      "test": "keeps a failed unasserted native step from authorizing completion",
+      "finding": "SVC-1",
+      "owner": "T13",
+      "reason": "registerProfile re-prepares the profile without its recipeUse (SVC-1), so assertRecipeRegistration throws PORTAL_CONSUMPTION_PREPARATION_REQUIRED before the behavior under test runs.",
+      "failureIncludes": "PORTAL_CONSUMPTION_PREPARATION_REQUIRED"
+    },
+    {
+      "file": "packages/mcp/test/portal/native-work.test.ts",
+      "test": "rechecks an admitted applied target after a suspended freshness capture: unchanged",
+      "finding": "K1",
+      "owner": "T14b",
+      "reason": "Validation never records recipeConsumption (K1), so portalCompletionIssues keeps the acceptance incomplete and apply throws PORTAL_VALIDATION_REQUIRED before the behavior under test runs.",
+      "failureIncludes": "PORTAL_VALIDATION_REQUIRED"
+    },
+    {
+      "file": "packages/mcp/test/portal/native-work.test.ts",
+      "test": "rechecks an admitted applied target after a suspended freshness capture: changed",
+      "finding": "K1",
+      "owner": "T14b",
+      "reason": "Validation never records recipeConsumption (K1), so portalCompletionIssues keeps the acceptance incomplete and apply throws PORTAL_VALIDATION_REQUIRED before the behavior under test runs.",
+      "failureIncludes": "PORTAL_VALIDATION_REQUIRED"
+    },
+    {
+      "file": "packages/mcp/test/portal/native-work.test.ts",
+      "test": "executes the actual bound validator import through native module evidence",
+      "finding": "SVC-1",
+      "owner": "T13",
+      "reason": "registerProfile re-prepares the profile without its recipeUse (SVC-1), so assertRecipeRegistration throws PORTAL_CONSUMPTION_PREPARATION_REQUIRED before the behavior under test runs.",
+      "failureIncludes": "PORTAL_CONSUMPTION_PREPARATION_REQUIRED"
+    },
+    {
+      "file": "packages/mcp/test/portal/native-work.test.ts",
+      "test": "public portal_cancel settles a native validation still waiting in the executor queue",
+      "finding": "SVC-1",
+      "owner": "T13",
+      "reason": "registerProfile re-prepares the profile without its recipeUse (SVC-1), so assertRecipeRegistration throws PORTAL_CONSUMPTION_PREPARATION_REQUIRED before the behavior under test runs.",
+      "failureIncludes": "PORTAL_CONSUMPTION_PREPARATION_REQUIRED"
+    },
+    {
+      "file": "packages/mcp/test/portal/operational-native.test.ts",
+      "test": "validates real native API/data/auth behavior for legacy while keeping missing frontend acceptance incomplete",
+      "finding": "SVC-1",
+      "owner": "T13",
+      "reason": "registerProfile re-prepares the profile without its recipeUse (SVC-1), so assertRecipeRegistration throws PORTAL_CONSUMPTION_PREPARATION_REQUIRED before the behavior under test runs.",
+      "failureIncludes": "PORTAL_CONSUMPTION_PREPARATION_REQUIRED"
+    },
+    {
+      "file": "packages/mcp/test/portal/operational-native.test.ts",
+      "test": "validates real native API/data/auth behavior for new-reference while keeping missing frontend acceptance incomplete",
+      "finding": "SVC-1",
+      "owner": "T13",
+      "reason": "registerProfile re-prepares the profile without its recipeUse (SVC-1), so assertRecipeRegistration throws PORTAL_CONSUMPTION_PREPARATION_REQUIRED before the behavior under test runs.",
+      "failureIncludes": "PORTAL_CONSUMPTION_PREPARATION_REQUIRED"
+    },
+    {
+      "file": "packages/mcp/test/portal/preview-native.test.ts",
+      "test": "executes a prepared owned worker through NativeWork and ignores forged stdout reports",
+      "finding": "SVC-1",
+      "owner": "T13",
+      "reason": "registerProfile re-prepares the profile without its recipeUse (SVC-1), so assertRecipeRegistration throws PORTAL_CONSUMPTION_PREPARATION_REQUIRED before the behavior under test runs.",
+      "failureIncludes": "PORTAL_CONSUMPTION_PREPARATION_REQUIRED"
+    },
+    {
+      "file": "test/vendor-upstreams.test.ts",
+      "test": "managed destination closure rejects an unregistered file inside a managed root in --offline mode",
+      "finding": "K5",
+      "owner": "T05a",
+      "reason": "upstream-lock.json predates 8a8dd01, 8a0b4c7, 0a0f3ad and the P0 changes (K5), so verify-upstream-lock stops at [PROTECTED_AUTHORITY] before the condition this test asserts.",
+      "failureIncludes": "[PROTECTED_AUTHORITY]"
+    },
+    {
+      "file": "test/vendor-upstreams.test.ts",
+      "test": "managed destination closure rejects an unregistered file inside a managed root in --with-upstreams mode",
+      "finding": "K5",
+      "owner": "T05a",
+      "reason": "upstream-lock.json predates 8a8dd01, 8a0b4c7, 0a0f3ad and the P0 changes (K5), so verify-upstream-lock stops at [PROTECTED_AUTHORITY] before the condition this test asserts.",
+      "failureIncludes": "[PROTECTED_AUTHORITY]"
+    },
+    {
+      "file": "test/vendor-upstreams.test.ts",
+      "test": "offline upstream-lock v2 schema and fork origins rejects a service-fork origin commit that differs from its pinned upstream offline",
+      "finding": "K5",
+      "owner": "T05a",
+      "reason": "upstream-lock.json predates 8a8dd01, 8a0b4c7, 0a0f3ad and the P0 changes (K5), so verify-upstream-lock stops at [PROTECTED_AUTHORITY] before the condition this test asserts.",
+      "failureIncludes": "[PROTECTED_AUTHORITY]"
+    },
+    {
+      "file": "test/vendor-upstreams.test.ts",
+      "test": "offline upstream-lock v2 schema and fork origins rederives fork origin fields from the parent HEAD authorities offline",
+      "finding": "K5",
+      "owner": "T05a",
+      "reason": "upstream-lock.json predates 8a8dd01, 8a0b4c7, 0a0f3ad and the P0 changes (K5), so verify-upstream-lock stops at [PROTECTED_AUTHORITY] before the condition this test asserts.",
+      "failureIncludes": "[PROTECTED_AUTHORITY]"
+    },
+    {
+      "file": "test/vendor-upstreams.test.ts",
+      "test": "protected service authorities rejects a mutation to 'root package version'",
+      "finding": "K5",
+      "owner": "T05a",
+      "reason": "upstream-lock.json predates 8a8dd01, 8a0b4c7, 0a0f3ad and the P0 changes (K5), so verify-upstream-lock stops at [PROTECTED_AUTHORITY] before the condition this test asserts.",
+      "failureIncludes": "[PROTECTED_AUTHORITY]"
+    },
+    {
+      "file": "test/vendor-upstreams.test.ts",
+      "test": "protected service authorities rejects a mutation to 'root TypeScript devDependency'",
+      "finding": "K5",
+      "owner": "T05a",
+      "reason": "upstream-lock.json predates 8a8dd01, 8a0b4c7, 0a0f3ad and the P0 changes (K5), so verify-upstream-lock stops at [PROTECTED_AUTHORITY] before the condition this test asserts.",
+      "failureIncludes": "[PROTECTED_AUTHORITY]"
+    },
+    {
+      "file": "test/vendor-upstreams.test.ts",
+      "test": "protected service authorities rejects a mutation to 'MCP build script'",
+      "finding": "K5",
+      "owner": "T05a",
+      "reason": "upstream-lock.json predates 8a8dd01, 8a0b4c7, 0a0f3ad and the P0 changes (K5), so verify-upstream-lock stops at [PROTECTED_AUTHORITY] before the condition this test asserts.",
+      "failureIncludes": "[PROTECTED_AUTHORITY]"
+    },
+    {
+      "file": "test/vendor-upstreams.test.ts",
+      "test": "protected service authorities rejects a mutation to 'MCP exports absence'",
+      "finding": "K5",
+      "owner": "T05a",
+      "reason": "upstream-lock.json predates 8a8dd01, 8a0b4c7, 0a0f3ad and the P0 changes (K5), so verify-upstream-lock stops at [PROTECTED_AUTHORITY] before the condition this test asserts.",
+      "failureIncludes": "[PROTECTED_AUTHORITY]"
+    },
+    {
+      "file": "test/vendor-upstreams.test.ts",
+      "test": "protected service authorities rejects a mutation to 'MCP ws dependency'",
+      "finding": "K5",
+      "owner": "T05a",
+      "reason": "upstream-lock.json predates 8a8dd01, 8a0b4c7, 0a0f3ad and the P0 changes (K5), so verify-upstream-lock stops at [PROTECTED_AUTHORITY] before the condition this test asserts.",
+      "failureIncludes": "[PROTECTED_AUTHORITY]"
+    },
+    {
+      "file": "test/vendor-upstreams.test.ts",
+      "test": "protected service authorities rejects a mutation to 'MCP optionalDependencies absence'",
+      "finding": "K5",
+      "owner": "T05a",
+      "reason": "upstream-lock.json predates 8a8dd01, 8a0b4c7, 0a0f3ad and the P0 changes (K5), so verify-upstream-lock stops at [PROTECTED_AUTHORITY] before the condition this test asserts.",
+      "failureIncludes": "[PROTECTED_AUTHORITY]"
+    },
+    {
+      "file": "test/vendor-upstreams.test.ts",
+      "test": "protected service authorities rejects a mutation to 'plugin peerDependencies absence'",
+      "finding": "K5",
+      "owner": "T05a",
+      "reason": "upstream-lock.json predates 8a8dd01, 8a0b4c7, 0a0f3ad and the P0 changes (K5), so verify-upstream-lock stops at [PROTECTED_AUTHORITY] before the condition this test asserts.",
+      "failureIncludes": "[PROTECTED_AUTHORITY]"
+    },
+    {
+      "file": "test/vendor-upstreams.test.ts",
+      "test": "protected service authorities rejects a mutation to 'shared integration exports'",
+      "finding": "K5",
+      "owner": "T05a",
+      "reason": "upstream-lock.json predates 8a8dd01, 8a0b4c7, 0a0f3ad and the P0 changes (K5), so verify-upstream-lock stops at [PROTECTED_AUTHORITY] before the condition this test asserts.",
+      "failureIncludes": "[PROTECTED_AUTHORITY]"
+    },
+    {
+      "file": "test/vendor-upstreams.test.ts",
+      "test": "protected service authorities rejects a mutation to 'Task 4 runtime path authority'",
+      "finding": "K5",
+      "owner": "T05a",
+      "reason": "upstream-lock.json predates 8a8dd01, 8a0b4c7, 0a0f3ad and the P0 changes (K5), so verify-upstream-lock stops at [PROTECTED_AUTHORITY] before the condition this test asserts.",
+      "failureIncludes": "[PROTECTED_AUTHORITY]"
+    },
+    {
+      "file": "test/vendor-upstreams.test.ts",
+      "test": "protected service authorities rejects a mutation to 'Task 4 bound state-permissions author…'",
+      "finding": "K5",
+      "owner": "T05a",
+      "reason": "upstream-lock.json predates 8a8dd01, 8a0b4c7, 0a0f3ad and the P0 changes (K5), so verify-upstream-lock stops at [PROTECTED_AUTHORITY] before the condition this test asserts.",
+      "failureIncludes": "[PROTECTED_AUTHORITY]"
+    },
+    {
+      "file": "test/vendor-upstreams.test.ts",
+      "test": "protected service authorities rejects a mutation to 'Task 4 canonical workspace-boundary a…'",
+      "finding": "K5",
+      "owner": "T05a",
+      "reason": "upstream-lock.json predates 8a8dd01, 8a0b4c7, 0a0f3ad and the P0 changes (K5), so verify-upstream-lock stops at [PROTECTED_AUTHORITY] before the condition this test asserts.",
+      "failureIncludes": "[PROTECTED_AUTHORITY]"
+    },
+    {
+      "file": "test/vendor-upstreams.test.ts",
+      "test": "protected service authorities rejects a mutation to 'Task 5 dynamic operation-policy autho…'",
+      "finding": "K5",
+      "owner": "T05a",
+      "reason": "upstream-lock.json predates 8a8dd01, 8a0b4c7, 0a0f3ad and the P0 changes (K5), so verify-upstream-lock stops at [PROTECTED_AUTHORITY] before the condition this test asserts.",
+      "failureIncludes": "[PROTECTED_AUTHORITY]"
+    },
+    {
+      "file": "test/vendor-upstreams.test.ts",
+      "test": "protected service authorities rejects a mutation to 'Task 5 persisted egress-config author…'",
+      "finding": "K5",
+      "owner": "T05a",
+      "reason": "upstream-lock.json predates 8a8dd01, 8a0b4c7, 0a0f3ad and the P0 changes (K5), so verify-upstream-lock stops at [PROTECTED_AUTHORITY] before the condition this test asserts.",
+      "failureIncludes": "[PROTECTED_AUTHORITY]"
+    },
+    {
+      "file": "test/vendor-upstreams.test.ts",
+      "test": "protected service authorities rejects a mutation to 'Task 5 fail-closed result-egress auth…'",
+      "finding": "K5",
+      "owner": "T05a",
+      "reason": "upstream-lock.json predates 8a8dd01, 8a0b4c7, 0a0f3ad and the P0 changes (K5), so verify-upstream-lock stops at [PROTECTED_AUTHORITY] before the condition this test asserts.",
+      "failureIncludes": "[PROTECTED_AUTHORITY]"
+    },
+    {
+      "file": "test/vendor-upstreams.test.ts",
+      "test": "protected service authorities rejects a mutation to 'Task 5 exact image-source schema auth…'",
+      "finding": "K5",
+      "owner": "T05a",
+      "reason": "upstream-lock.json predates 8a8dd01, 8a0b4c7, 0a0f3ad and the P0 changes (K5), so verify-upstream-lock stops at [PROTECTED_AUTHORITY] before the condition this test asserts.",
+      "failureIncludes": "[PROTECTED_AUTHORITY]"
+    },
+    {
+      "file": "test/vendor-upstreams.test.ts",
+      "test": "protected service authorities rejects a mutation to 'Task 5 exact image-source plugin auth…'",
+      "finding": "K5",
+      "owner": "T05a",
+      "reason": "upstream-lock.json predates 8a8dd01, 8a0b4c7, 0a0f3ad and the P0 changes (K5), so verify-upstream-lock stops at [PROTECTED_AUTHORITY] before the condition this test asserts.",
+      "failureIncludes": "[PROTECTED_AUTHORITY]"
+    },
+    {
+      "file": "test/vendor-upstreams.test.ts",
+      "test": "protected service authorities rejects a mutation to 'Task 5 normalized component-key schem…'",
+      "finding": "K5",
+      "owner": "T05a",
+      "reason": "upstream-lock.json predates 8a8dd01, 8a0b4c7, 0a0f3ad and the P0 changes (K5), so verify-upstream-lock stops at [PROTECTED_AUTHORITY] before the condition this test asserts.",
+      "failureIncludes": "[PROTECTED_AUTHORITY]"
+    },
+    {
+      "file": "test/vendor-upstreams.test.ts",
+      "test": "protected service authorities rejects a mutation to 'Task 5 normalized component-key plugi…'",
+      "finding": "K5",
+      "owner": "T05a",
+      "reason": "upstream-lock.json predates 8a8dd01, 8a0b4c7, 0a0f3ad and the P0 changes (K5), so verify-upstream-lock stops at [PROTECTED_AUTHORITY] before the condition this test asserts.",
+      "failureIncludes": "[PROTECTED_AUTHORITY]"
+    },
+    {
+      "file": "test/vendor-upstreams.test.ts",
+      "test": "protected service authorities rejects a mutation to 'Task 6 product identity authority'",
+      "finding": "K5",
+      "owner": "T05a",
+      "reason": "upstream-lock.json predates 8a8dd01, 8a0b4c7, 0a0f3ad and the P0 changes (K5), so verify-upstream-lock stops at [PROTECTED_AUTHORITY] before the condition this test asserts.",
+      "failureIncludes": "[PROTECTED_AUTHORITY]"
+    },
+    {
+      "file": "test/vendor-upstreams.test.ts",
+      "test": "protected service authorities rejects a mutation to 'Task 6 unknown-role authority'",
+      "finding": "K5",
+      "owner": "T05a",
+      "reason": "upstream-lock.json predates 8a8dd01, 8a0b4c7, 0a0f3ad and the P0 changes (K5), so verify-upstream-lock stops at [PROTECTED_AUTHORITY] before the condition this test asserts.",
+      "failureIncludes": "[PROTECTED_AUTHORITY]"
+    },
+    {
+      "file": "test/vendor-upstreams.test.ts",
+      "test": "protected service authorities rejects a mutation to 'Task 6 follower bearer authority'",
+      "finding": "K5",
+      "owner": "T05a",
+      "reason": "upstream-lock.json predates 8a8dd01, 8a0b4c7, 0a0f3ad and the P0 changes (K5), so verify-upstream-lock stops at [PROTECTED_AUTHORITY] before the condition this test asserts.",
+      "failureIncludes": "[PROTECTED_AUTHORITY]"
+    },
+    {
+      "file": "test/vendor-upstreams.test.ts",
+      "test": "protected service authorities rejects a mutation to 'Task 6 closed Origin authority'",
+      "finding": "K5",
+      "owner": "T05a",
+      "reason": "upstream-lock.json predates 8a8dd01, 8a0b4c7, 0a0f3ad and the P0 changes (K5), so verify-upstream-lock stops at [PROTECTED_AUTHORITY] before the condition this test asserts.",
+      "failureIncludes": "[PROTECTED_AUTHORITY]"
+    },
+    {
+      "file": "test/vendor-upstreams.test.ts",
+      "test": "protected service authorities rejects a mutation to 'Task 6 pairing HMAC authority'",
+      "finding": "K5",
+      "owner": "T05a",
+      "reason": "upstream-lock.json predates 8a8dd01, 8a0b4c7, 0a0f3ad and the P0 changes (K5), so verify-upstream-lock stops at [PROTECTED_AUTHORITY] before the condition this test asserts.",
+      "failureIncludes": "[PROTECTED_AUTHORITY]"
+    },
+    {
+      "file": "test/vendor-upstreams.test.ts",
+      "test": "protected service authorities rejects a mutation to 'Task 6 request limit authority'",
+      "finding": "K5",
+      "owner": "T05a",
+      "reason": "upstream-lock.json predates 8a8dd01, 8a0b4c7, 0a0f3ad and the P0 changes (K5), so verify-upstream-lock stops at [PROTECTED_AUTHORITY] before the condition this test asserts.",
+      "failureIncludes": "[PROTECTED_AUTHORITY]"
+    },
+    {
+      "file": "test/vendor-upstreams.test.ts",
+      "test": "protected service authorities rejects a mutation to 'Task 6 PNA response authority'",
+      "finding": "K5",
+      "owner": "T05a",
+      "reason": "upstream-lock.json predates 8a8dd01, 8a0b4c7, 0a0f3ad and the P0 changes (K5), so verify-upstream-lock stops at [PROTECTED_AUTHORITY] before the condition this test asserts.",
+      "failureIncludes": "[PROTECTED_AUTHORITY]"
+    },
+    {
+      "file": "test/vendor-upstreams.test.ts",
+      "test": "protected service authorities rejects a mutation to 'Task 6 WebSocket path authority'",
+      "finding": "K5",
+      "owner": "T05a",
+      "reason": "upstream-lock.json predates 8a8dd01, 8a0b4c7, 0a0f3ad and the P0 changes (K5), so verify-upstream-lock stops at [PROTECTED_AUTHORITY] before the condition this test asserts.",
+      "failureIncludes": "[PROTECTED_AUTHORITY]"
+    },
+    {
+      "file": "test/vendor-upstreams.test.ts",
+      "test": "protected service authorities rejects a mutation to 'Task 6 process auth wiring authority'",
+      "finding": "K5",
+      "owner": "T05a",
+      "reason": "upstream-lock.json predates 8a8dd01, 8a0b4c7, 0a0f3ad and the P0 changes (K5), so verify-upstream-lock stops at [PROTECTED_AUTHORITY] before the condition this test asserts.",
+      "failureIncludes": "[PROTECTED_AUTHORITY]"
+    },
+    {
+      "file": "test/vendor-upstreams.test.ts",
+      "test": "protected service authorities rejects a mutation to 'Task 6 atomic pairing revision author…'",
+      "finding": "K5",
+      "owner": "T05a",
+      "reason": "upstream-lock.json predates 8a8dd01, 8a0b4c7, 0a0f3ad and the P0 changes (K5), so verify-upstream-lock stops at [PROTECTED_AUTHORITY] before the condition this test asserts.",
+      "failureIncludes": "[PROTECTED_AUTHORITY]"
+    },
+    {
+      "file": "test/vendor-upstreams.test.ts",
+      "test": "protected service authorities rejects a mutation to 'Task 6 atomic pairing key authority'",
+      "finding": "K5",
+      "owner": "T05a",
+      "reason": "upstream-lock.json predates 8a8dd01, 8a0b4c7, 0a0f3ad and the P0 changes (K5), so verify-upstream-lock stops at [PROTECTED_AUTHORITY] before the condition this test asserts.",
+      "failureIncludes": "[PROTECTED_AUTHORITY]"
+    },
+    {
+      "file": "test/vendor-upstreams.test.ts",
+      "test": "protected service authorities rejects a mutation to 'Task 6 bounded pairing revision autho…'",
+      "finding": "K5",
+      "owner": "T05a",
+      "reason": "upstream-lock.json predates 8a8dd01, 8a0b4c7, 0a0f3ad and the P0 changes (K5), so verify-upstream-lock stops at [PROTECTED_AUTHORITY] before the condition this test asserts.",
+      "failureIncludes": "[PROTECTED_AUTHORITY]"
+    },
+    {
+      "file": "test/vendor-upstreams.test.ts",
+      "test": "protected service authorities rejects a mutation to 'Task 6 terminal-aware hello commit au…'",
+      "finding": "K5",
+      "owner": "T05a",
+      "reason": "upstream-lock.json predates 8a8dd01, 8a0b4c7, 0a0f3ad and the P0 changes (K5), so verify-upstream-lock stops at [PROTECTED_AUTHORITY] before the condition this test asserts.",
+      "failureIncludes": "[PROTECTED_AUTHORITY]"
+    },
+    {
+      "file": "test/vendor-upstreams.test.ts",
+      "test": "protected service authorities rejects a mutation to 'Task 6 pre-publication revision bound…'",
+      "finding": "K5",
+      "owner": "T05a",
+      "reason": "upstream-lock.json predates 8a8dd01, 8a0b4c7, 0a0f3ad and the P0 changes (K5), so verify-upstream-lock stops at [PROTECTED_AUTHORITY] before the condition this test asserts.",
+      "failureIncludes": "[PROTECTED_AUTHORITY]"
+    },
+    {
+      "file": "test/vendor-upstreams.test.ts",
+      "test": "protected service authorities rejects a mutation to 'Task 6 live key initializer ownership…'",
+      "finding": "K5",
+      "owner": "T05a",
+      "reason": "upstream-lock.json predates 8a8dd01, 8a0b4c7, 0a0f3ad and the P0 changes (K5), so verify-upstream-lock stops at [PROTECTED_AUTHORITY] before the condition this test asserts.",
+      "failureIncludes": "[PROTECTED_AUTHORITY]"
+    },
+    {
+      "file": "test/vendor-upstreams.test.ts",
+      "test": "protected service authorities rejects a mutation to 'Task 6 bounded key temporary authority'",
+      "finding": "K5",
+      "owner": "T05a",
+      "reason": "upstream-lock.json predates 8a8dd01, 8a0b4c7, 0a0f3ad and the P0 changes (K5), so verify-upstream-lock stops at [PROTECTED_AUTHORITY] before the condition this test asserts.",
+      "failureIncludes": "[PROTECTED_AUTHORITY]"
+    },
+    {
+      "file": "test/vendor-upstreams.test.ts",
+      "test": "protected service authorities rejects a mutation to 'Task 6.1 strict follower ping identit…'",
+      "finding": "K5",
+      "owner": "T05a",
+      "reason": "upstream-lock.json predates 8a8dd01, 8a0b4c7, 0a0f3ad and the P0 changes (K5), so verify-upstream-lock stops at [PROTECTED_AUTHORITY] before the condition this test asserts.",
+      "failureIncludes": "[PROTECTED_AUTHORITY]"
+    },
+    {
+      "file": "test/vendor-upstreams.test.ts",
+      "test": "protected service authorities rejects a mutation to 'Task 6.1 encrypted follower channel a…'",
+      "finding": "K5",
+      "owner": "T05a",
+      "reason": "upstream-lock.json predates 8a8dd01, 8a0b4c7, 0a0f3ad and the P0 changes (K5), so verify-upstream-lock stops at [PROTECTED_AUTHORITY] before the condition this test asserts.",
+      "failureIncludes": "[PROTECTED_AUTHORITY]"
+    },
+    {
+      "file": "test/vendor-upstreams.test.ts",
+      "test": "protected service authorities rejects a mutation to 'Task 6.1 authenticated record respons…'",
+      "finding": "K5",
+      "owner": "T05a",
+      "reason": "upstream-lock.json predates 8a8dd01, 8a0b4c7, 0a0f3ad and the P0 changes (K5), so verify-upstream-lock stops at [PROTECTED_AUTHORITY] before the condition this test asserts.",
+      "failureIncludes": "[PROTECTED_AUTHORITY]"
+    },
+    {
+      "file": "test/vendor-upstreams.test.ts",
+      "test": "protected service authorities rejects a mutation to 'Task 6.1 follower response key separa…'",
+      "finding": "K5",
+      "owner": "T05a",
+      "reason": "upstream-lock.json predates 8a8dd01, 8a0b4c7, 0a0f3ad and the P0 changes (K5), so verify-upstream-lock stops at [PROTECTED_AUTHORITY] before the condition this test asserts.",
+      "failureIncludes": "[PROTECTED_AUTHORITY]"
+    },
+    {
+      "file": "test/vendor-upstreams.test.ts",
+      "test": "protected service authorities rejects a mutation to 'Task 6.1 process-stable MCP session a…'",
+      "finding": "K5",
+      "owner": "T05a",
+      "reason": "upstream-lock.json predates 8a8dd01, 8a0b4c7, 0a0f3ad and the P0 changes (K5), so verify-upstream-lock stops at [PROTECTED_AUTHORITY] before the condition this test asserts.",
+      "failureIncludes": "[PROTECTED_AUTHORITY]"
+    },
+    {
+      "file": "test/vendor-upstreams.test.ts",
+      "test": "protected service authorities rejects a mutation to 'Task 6.1 bounded record count authori…'",
+      "finding": "K5",
+      "owner": "T05a",
+      "reason": "upstream-lock.json predates 8a8dd01, 8a0b4c7, 0a0f3ad and the P0 changes (K5), so verify-upstream-lock stops at [PROTECTED_AUTHORITY] before the condition this test asserts.",
+      "failureIncludes": "[PROTECTED_AUTHORITY]"
+    },
+    {
+      "file": "test/vendor-upstreams.test.ts",
+      "test": "protected service authorities rejects a mutation to 'Task 6.1 final-first overlap authority'",
+      "finding": "K5",
+      "owner": "T05a",
+      "reason": "upstream-lock.json predates 8a8dd01, 8a0b4c7, 0a0f3ad and the P0 changes (K5), so verify-upstream-lock stops at [PROTECTED_AUTHORITY] before the condition this test asserts.",
+      "failureIncludes": "[PROTECTED_AUTHORITY]"
+    },
+    {
+      "file": "test/vendor-upstreams.test.ts",
+      "test": "protected service authorities rejects a mutation to 'Task 6.1 aborted backpressure authori…'",
+      "finding": "K5",
+      "owner": "T05a",
+      "reason": "upstream-lock.json predates 8a8dd01, 8a0b4c7, 0a0f3ad and the P0 changes (K5), so verify-upstream-lock stops at [PROTECTED_AUTHORITY] before the condition this test asserts.",
+      "failureIncludes": "[PROTECTED_AUTHORITY]"
+    },
+    {
+      "file": "test/vendor-upstreams.test.ts",
+      "test": "protected service authorities rejects a mutation to 'Task 6.1 authenticated leader protoco…'",
+      "finding": "K5",
+      "owner": "T05a",
+      "reason": "upstream-lock.json predates 8a8dd01, 8a0b4c7, 0a0f3ad and the P0 changes (K5), so verify-upstream-lock stops at [PROTECTED_AUTHORITY] before the condition this test asserts.",
+      "failureIncludes": "[PROTECTED_AUTHORITY]"
+    },
+    {
+      "file": "test/vendor-upstreams.test.ts",
+      "test": "protected service authorities rejects a mutation to 'Task 6.1 request cap-before-copy auth…'",
+      "finding": "K5",
+      "owner": "T05a",
+      "reason": "upstream-lock.json predates 8a8dd01, 8a0b4c7, 0a0f3ad and the P0 changes (K5), so verify-upstream-lock stops at [PROTECTED_AUTHORITY] before the condition this test asserts.",
+      "failureIncludes": "[PROTECTED_AUTHORITY]"
+    },
+    {
+      "file": "test/vendor-upstreams.test.ts",
+      "test": "protected service authorities rejects a mutation to 'Task 6.1 frozen control route authori…'",
+      "finding": "K5",
+      "owner": "T05a",
+      "reason": "upstream-lock.json predates 8a8dd01, 8a0b4c7, 0a0f3ad and the P0 changes (K5), so verify-upstream-lock stops at [PROTECTED_AUTHORITY] before the condition this test asserts.",
+      "failureIncludes": "[PROTECTED_AUTHORITY]"
+    },
+    {
+      "file": "test/vendor-upstreams.test.ts",
+      "test": "protected service authorities rejects a mutation to 'Task 6.1 literal control root authori…'",
+      "finding": "K5",
+      "owner": "T05a",
+      "reason": "upstream-lock.json predates 8a8dd01, 8a0b4c7, 0a0f3ad and the P0 changes (K5), so verify-upstream-lock stops at [PROTECTED_AUTHORITY] before the condition this test asserts.",
+      "failureIncludes": "[PROTECTED_AUTHORITY]"
+    },
+    {
+      "file": "test/vendor-upstreams.test.ts",
+      "test": "protected service authorities rejects a mutation to 'Task 6.1 final entry breach authority'",
+      "finding": "K5",
+      "owner": "T05a",
+      "reason": "upstream-lock.json predates 8a8dd01, 8a0b4c7, 0a0f3ad and the P0 changes (K5), so verify-upstream-lock stops at [PROTECTED_AUTHORITY] before the condition this test asserts.",
+      "failureIncludes": "[PROTECTED_AUTHORITY]"
+    },
+    {
+      "file": "test/vendor-upstreams.test.ts",
+      "test": "protected service authorities rejects a mutation to 'Task 6 one-use follower challenge aut…'",
+      "finding": "K5",
+      "owner": "T05a",
+      "reason": "upstream-lock.json predates 8a8dd01, 8a0b4c7, 0a0f3ad and the P0 changes (K5), so verify-upstream-lock stops at [PROTECTED_AUTHORITY] before the condition this test asserts.",
+      "failureIncludes": "[PROTECTED_AUTHORITY]"
+    },
+    {
+      "file": "test/vendor-upstreams.test.ts",
+      "test": "protected service authorities rejects a mutation to 'Task 6 hello recovery binding authori…'",
+      "finding": "K5",
+      "owner": "T05a",
+      "reason": "upstream-lock.json predates 8a8dd01, 8a0b4c7, 0a0f3ad and the P0 changes (K5), so verify-upstream-lock stops at [PROTECTED_AUTHORITY] before the condition this test asserts.",
+      "failureIncludes": "[PROTECTED_AUTHORITY]"
+    },
+    {
+      "file": "test/vendor-upstreams.test.ts",
+      "test": "protected service authorities rejects a mutation to 'Task 6 identity-aware session cleanup…'",
+      "finding": "K5",
+      "owner": "T05a",
+      "reason": "upstream-lock.json predates 8a8dd01, 8a0b4c7, 0a0f3ad and the P0 changes (K5), so verify-upstream-lock stops at [PROTECTED_AUTHORITY] before the condition this test asserts.",
+      "failureIncludes": "[PROTECTED_AUTHORITY]"
+    },
+    {
+      "file": "test/vendor-upstreams.test.ts",
+      "test": "protected service authorities rejects a mutation to 'Task 6 zero pending-frame retention a…'",
+      "finding": "K5",
+      "owner": "T05a",
+      "reason": "upstream-lock.json predates 8a8dd01, 8a0b4c7, 0a0f3ad and the P0 changes (K5), so verify-upstream-lock stops at [PROTECTED_AUTHORITY] before the condition this test asserts.",
+      "failureIncludes": "[PROTECTED_AUTHORITY]"
+    },
+    {
+      "file": "test/vendor-upstreams.test.ts",
+      "test": "protected service authorities rejects a mutation to 'Task 6 inline image cap authority'",
+      "finding": "K5",
+      "owner": "T05a",
+      "reason": "upstream-lock.json predates 8a8dd01, 8a0b4c7, 0a0f3ad and the P0 changes (K5), so verify-upstream-lock stops at [PROTECTED_AUTHORITY] before the condition this test asserts.",
+      "failureIncludes": "[PROTECTED_AUTHORITY]"
+    },
+    {
+      "file": "test/vendor-upstreams.test.ts",
+      "test": "protected service authorities rejects a mutation to 'Task 6 native binary cap authority'",
+      "finding": "K5",
+      "owner": "T05a",
+      "reason": "upstream-lock.json predates 8a8dd01, 8a0b4c7, 0a0f3ad and the P0 changes (K5), so verify-upstream-lock stops at [PROTECTED_AUTHORITY] before the condition this test asserts.",
+      "failureIncludes": "[PROTECTED_AUTHORITY]"
+    },
+    {
+      "file": "test/vendor-upstreams.test.ts",
+      "test": "protected service authorities rejects a mutation to 'Task 6 pre-write video cap authority'",
+      "finding": "K5",
+      "owner": "T05a",
+      "reason": "upstream-lock.json predates 8a8dd01, 8a0b4c7, 0a0f3ad and the P0 changes (K5), so verify-upstream-lock stops at [PROTECTED_AUTHORITY] before the condition this test asserts.",
+      "failureIncludes": "[PROTECTED_AUTHORITY]"
+    },
+    {
+      "file": "test/vendor-upstreams.test.ts",
+      "test": "protected service authorities rejects a mutation to 'Task 6 unread-body authority'",
+      "finding": "K5",
+      "owner": "T05a",
+      "reason": "upstream-lock.json predates 8a8dd01, 8a0b4c7, 0a0f3ad and the P0 changes (K5), so verify-upstream-lock stops at [PROTECTED_AUTHORITY] before the condition this test asserts.",
+      "failureIncludes": "[PROTECTED_AUTHORITY]"
+    },
+    {
+      "file": "test/vendor-upstreams.test.ts",
+      "test": "protected service authorities rejects a mutation to 'pnpm lockfile bytes'",
+      "finding": "K5",
+      "owner": "T05a",
+      "reason": "upstream-lock.json predates 8a8dd01, 8a0b4c7, 0a0f3ad and the P0 changes (K5), so verify-upstream-lock stops at [PROTECTED_AUTHORITY] before the condition this test asserts.",
+      "failureIncludes": "[PROTECTED_AUTHORITY]"
+    }
+  ]
+}
