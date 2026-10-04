@@ -1,0 +1,62 @@
+{
+  "schemaVersion": 1,
+  "checkedAtUtc": "2026-09-30T10:24:31.440959+00:00",
+  "baseline": "db821db346e7cb5dd27e4df465b91bb106e2f2b3",
+  "mode": "Read-only document/source integrity verification; no repository runtime execution",
+  "result": "passed",
+  "checks": {
+    "reviewerReports": 12,
+    "reviewRounds": 2,
+    "markdownFilesCheckedBeforeThisRecord": 20,
+    "jsonFilesParsedBeforeThisRecord": 16,
+    "brokenMarkdownLinks": 0,
+    "nonEnglishKoreanProseMatches": 0,
+    "trailingWhitespaceErrors": 0,
+    "canonicalFindings": 42,
+    "severityCounts": {
+      "High": 23,
+      "Medium": 19
+    },
+    "implementationTasks": 17,
+    "findingsWithoutTaskOrMainVerification": 0,
+    "manifestFiles": 1084,
+    "completeBodyCoverage": 1052,
+    "metadataCoverage": 32,
+    "remainingTargetedOrUnreadFiles": 0,
+    "baselineSourceHashMismatches": 0,
+    "headChanged": false,
+    "gitIndexChanged": false,
+    "gitDiffCheck": "passed; only LF-to-CRLF normalization warning for docs/plans/README.md"
+  },
+  "artifacts": [
+    {
+      "path": "docs/plans/2026-09-30-code-remediation-plan.md",
+      "sha256": "4f55ef98063360ad8d39da0488486a47c5b53b1aa156e8e2d242ce4db62c0d9b"
+    },
+    {
+      "path": "docs/reviews/2026-09-30-full-review/final-report.md",
+      "sha256": "d8c1aae265c1100b5c1b6b96f239ae956daf964d354dd18ef0b3c9f1f08b901a"
+    },
+    {
+      "path": "docs/reviews/2026-09-30-full-review/round-2-main-disposition.md",
+      "sha256": "d0110db10b625b3cc15e39a5de7787eca55bf82a028a427d888454da9a6fb2d5"
+    },
+    {
+      "path": "docs/reviews/2026-09-30-full-review/main-findings.json",
+      "sha256": "d6ff551cfaba05dfbae06d5744ae90116a36b09a1a761ab803379f0b39362dac"
+    },
+    {
+      "path": "docs/reviews/2026-09-30-full-review/coverage-summary.json",
+      "sha256": "52c047148423af161179e277df51202401b9931c5116cf6a78b3f984ada7e2a8"
+    },
+    {
+      "path": "docs/reviews/2026-09-30-full-review/source-manifest.json",
+      "sha256": "7db5f318d79a9ae3f30ee508d7e11a00a6829cb7a886253a42cc4fc510613b31"
+    }
+  ],
+  "limitations": [
+    "Static source traces and inspected test assertions are not executed reproductions or passing tests.",
+    "No test/build/install/helper/browser/daemon/native fixture/live acceptance was run.",
+    "Only review and plan documentation changed; implementation and service acceptance remain outstanding."
+  ]
+}

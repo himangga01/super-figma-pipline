@@ -19,6 +19,7 @@ export const createCreatePaintStyleHandler =
       p.paints as SerializedPaint[],
       'create_paint_style',
     );
+    execution?.signal.throwIfAborted();
 
     const style = figmaCtx.createPaintStyle();
     execution?.markMutated?.();

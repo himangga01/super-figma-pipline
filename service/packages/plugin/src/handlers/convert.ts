@@ -1,12 +1,12 @@
 import type {
-  SerializedAction,
   SerializedEffect,
   SerializedLayoutGrid,
   SerializedLineHeight,
   SerializedReaction,
-  SerializedTrigger,
   SerializedVariableValue,
 } from '@sfp/shared';
+
+import { parseReactionWrite } from './reaction-write.js';
 
 // Inverse of serializer.ts — turn the wire-format back into Figma API objects for write tools.
 // (serializer.ts owns the Figma → wire direction; these are the matching wire → Figma helpers.)
@@ -77,28 +77,5 @@ export const toFigmaVariableValue = (value: SerializedVariableValue): VariableVa
   return value;
 };
 
-// Reactions: the Figma Action/Trigger types are strict discriminated unions, so we pass through the
-// fields we serialized and cast — set_reactions is meant for round-tripping get_reactions output.
-const toFigmaTrigger = (t: SerializedTrigger | null): Trigger | null => {
-  if (t === null) return null;
-  const out: Record<string, unknown> = { type: t.type };
-  if (t.timeout !== undefined) out.timeout = t.timeout;
-  if (t.delay !== undefined) out.delay = t.delay;
-  return out as unknown as Trigger;
-};
-
-const toFigmaAction = (a: SerializedAction): Action => {
-  const out: Record<string, unknown> = { type: a.type };
-  if (a.destinationId !== undefined) out.destinationId = a.destinationId;
-  if (a.navigation !== undefined) out.navigation = a.navigation;
-  if (a.url !== undefined) out.url = a.url;
-  if (a.transition !== undefined) out.transition = a.transition;
-  return out as unknown as Action;
-};
-
-/** Wire reaction → Figma Reaction (modern `actions` array form). */
-export const toFigmaReaction = (r: SerializedReaction): Reaction =>
-  ({
-    trigger: toFigmaTrigger(r.trigger),
-    actions: r.actions.map(toFigmaAction),
-  }) as unknown as Reaction;
+/** Validate and clone every supported field before the modern actions-array write. */
+export const toFigmaReaction = (r: SerializedReaction): Reaction => parseReactionWrite(r);

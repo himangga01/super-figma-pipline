@@ -47,6 +47,7 @@ import { evaluateOperationPolicy, type EvaluatedOperationPolicy } from '../polic
 import { resultEgressPolicyFor } from '../policy/result-egress-policy.js';
 import { ALL_TOOL_SPECS } from '../tools/registry.js';
 import type { ToolSpec } from '../tools/spec.js';
+import { waitForDurableAdmission } from './admission-wait.js';
 import type { ExecutableOperations } from './executable-operation.js';
 import type { LeaderDemotionCapability, OperationJournal } from './operation-journal.js';
 
@@ -378,14 +379,22 @@ export const createLazyLeaderRuntimeBoundary = <T>(
   return Object.freeze({
     get: (): Promise<T> => {
       if (flight === null) {
+        let pending: Promise<T>;
         try {
-          flight = initialize().then(value => {
+          pending = Promise.resolve(initialize());
+        } catch (error) {
+          pending = Promise.reject(error);
+        }
+        const attempt = pending
+          .then(value => {
             resolved = value;
             return value;
+          })
+          .catch(error => {
+            if (flight === attempt) flight = null;
+            throw error;
           });
-        } catch (error) {
-          flight = Promise.reject(error);
-        }
+        flight = attempt;
       }
       return flight;
     },
@@ -1037,15 +1046,11 @@ export class LeaderGenerationExecutionPlane {
         return undefined;
       },
     );
-    const waitForDurableAdmission = async (): Promise<void> => {
-      if (this.invocationService?.status(principal.actorId, operationId) !== undefined || settled) {
-        return;
-      }
-      await new Promise<void>(resolve => setImmediate(resolve));
-      await waitForDurableAdmission();
-    };
     try {
-      await waitForDurableAdmission();
+      await waitForDurableAdmission(
+        () =>
+          this.invocationService?.status(principal.actorId, operationId) !== undefined || settled,
+      );
       if (this.invocationService.status(principal.actorId, operationId) === undefined) {
         if (earlyError !== undefined) throw earlyError;
         await result;

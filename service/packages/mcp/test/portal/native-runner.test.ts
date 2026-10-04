@@ -2,7 +2,7 @@ import { mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
-import { storedChecksum } from '@sfp/ir';
+import { contentHash, storedChecksum } from '@sfp/ir';
 import { afterEach, beforeAll, expect, it, vi } from 'vitest';
 
 import { prepareNativeArtifactAuthority } from '../../src/portal/native-artifacts.js';
@@ -60,6 +60,25 @@ const fixture = async (source: string) => {
   };
 };
 
+it('binds the reviewed command separately from the actual guarded launch argv', async () => {
+  const value = await fixture('console.log("guarded command executed");');
+  const result = await value.run();
+  const command = value.profile.commands[0]!;
+  expect(result.commands[0]!.status).toBe('passed');
+  expect(result.commands[0]!.commandHash).toBe(contentHash('sfp-native-command-v1', command));
+  expect(result.commands[0]!.launchCommandHash).toBe(
+    contentHash('sfp-native-command-v1', {
+      ...command,
+      args: [
+        '--require',
+        join(result.commands[0]!.moduleEvidence!.directory, 'preload.cjs'),
+        ...command.args,
+      ],
+    }),
+  );
+  expect(result.commands[0]!.launchCommandHash).not.toBe(result.commands[0]!.commandHash);
+});
+
 it('executes a native profile with filtered environment and explicit isolation limits', async () => {
   const value = await fixture(
     'console.log(process.env.PORTAL_TEST_SECRET); console.log("inherited=" + (process.env.PORTAL_PARENT_SECRET || "absent"));',
@@ -76,6 +95,25 @@ it('executes a native profile with filtered environment and explicit isolation l
     delete process.env.PORTAL_PARENT_SECRET;
   }
 });
+it.runIf(process.platform === 'win32')(
+  'provides existing Windows known folders beneath the owned private USERPROFILE',
+  async () => {
+    const value = await fixture(`
+      import {statSync} from 'node:fs';
+      import {join} from 'node:path';
+      const local = join(process.env.USERPROFILE, 'AppData', 'Local');
+      const roaming = join(process.env.USERPROFILE, 'AppData', 'Roaming');
+      if (!statSync(local).isDirectory() || !statSync(roaming).isDirectory())
+        throw Error('Windows known folders are missing');
+      if (process.env.LOCALAPPDATA !== local || process.env.APPDATA !== roaming)
+        throw Error('Windows known folders do not match the private home');
+      console.log('owned Windows known folders ready');
+    `);
+    const result = await value.run();
+    expect(result.commands[0]?.status).toBe('passed');
+    expect(result.commands[0]?.output).toContain('owned Windows known folders ready');
+  },
+);
 it('refuses a changed script before it can execute', async () => {
   const value = await fixture('console.log("reviewed");');
   await writeFile(join(value.root, 'check.mjs'), 'throw Error("unreviewed script ran");');

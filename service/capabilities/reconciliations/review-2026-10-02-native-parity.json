@@ -1,0 +1,900 @@
+{
+  "schemaVersion": 1,
+  "slice": "review-2026-10-02",
+  "baseline": {
+    "headCommit": "db821db346e7cb5dd27e4df465b91bb106e2f2b3",
+    "authoritySha256": {
+      "upstream-lock.json": "e1cdb18275293feeb191e70ab6c30c589d01acb3b73eaa5bdc3e34316b38ef7c",
+      "vendor-map.json": "b3275c7d8b997d1cfe723d97594659f77d7b4361b824a790bcfdd7ff762589bd",
+      "vendor-rules.json": "ff9eb271556ee807d02b482d8a603e0276a4d60f52d2c18a272b954d50bab5a7"
+    }
+  },
+  "entries": [
+    {
+      "path": "SBOM.spdx.json",
+      "sha256": "8bd232ad242275e93c9e7e369dc34c5fd2bf44a32b0698f88fbf4302f6ea7bff",
+      "priorClaims": [
+        {
+          "class": "protected",
+          "sha256": "b00ca5d9e5a99e27d050b0b05544006fa18cd75dc2128b33410b63c0423789e9"
+        }
+      ],
+      "reason": "Authorized independent Chrome web export, bounded non-eval Kiwi 0.5.0 decoding, instance/style/geometry normalization, image-byte comparison and Scripter selector repair. Preserve partial status and raw differences. Add Desktop bundle preparation without claiming activation. Forward only authenticated client User-Agent, never relay credentials. Focused checks and live collection do not establish full source/release or frontend acceptance."
+    },
+    {
+      "path": "THIRD_PARTY_NOTICES.md",
+      "sha256": "cfd106463229547bbcef5f87d5dcd4a7627d89649e491bf6a90ab8a1de102b4e",
+      "priorClaims": [
+        {
+          "class": "protected",
+          "sha256": "8524b104337b24815a0278a48b30a1bfccf23c684866d8d14b8c2bb79472c296"
+        }
+      ],
+      "reason": "Authorized independent Chrome web export, bounded non-eval Kiwi 0.5.0 decoding, instance/style/geometry normalization, image-byte comparison and Scripter selector repair. Preserve partial status and raw differences. Add Desktop bundle preparation without claiming activation. Forward only authenticated client User-Agent, never relay credentials. Focused checks and live collection do not establish full source/release or frontend acceptance."
+    },
+    {
+      "path": "capabilities/change-manifests/task-review-2026-10-02.json",
+      "sha256": "53d90a50e78d932602c86c5629ac664c038bd35ffd8359b9369ba641af087582",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "53d90a50e78d932602c86c5629ac664c038bd35ffd8359b9369ba641af087582"
+        },
+        {
+          "class": "protected",
+          "sha256": "53d90a50e78d932602c86c5629ac664c038bd35ffd8359b9369ba641af087582"
+        }
+      ],
+      "reason": "Preserve the exact unchanged source bytes and existing authority carried by the prior accepted alternate index. This is an identity-preserving continuation, not renewed live or release acceptance of the historical source."
+    },
+    {
+      "path": "capabilities/reconciliations/review-2026-10-02-final-repairs.json",
+      "sha256": "1db7667fcfda935fe2e75ede5e587717c58c4b15b5823f0ab646d8e8d8f22477",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "1db7667fcfda935fe2e75ede5e587717c58c4b15b5823f0ab646d8e8d8f22477"
+        },
+        {
+          "class": "protected",
+          "sha256": "1db7667fcfda935fe2e75ede5e587717c58c4b15b5823f0ab646d8e8d8f22477"
+        }
+      ],
+      "reason": "Preserve the exact unchanged source bytes and existing authority carried by the prior accepted alternate index. This is an identity-preserving continuation, not renewed live or release acceptance of the historical source."
+    },
+    {
+      "path": "capabilities/reconciliations/review-2026-10-02-fixtures.json",
+      "sha256": "a9e85c5e7fd5c15b18ba8dfb7431099a6cc2b2d5a575e0fa8f29cb9309334359",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "a9e85c5e7fd5c15b18ba8dfb7431099a6cc2b2d5a575e0fa8f29cb9309334359"
+        },
+        {
+          "class": "protected",
+          "sha256": "a9e85c5e7fd5c15b18ba8dfb7431099a6cc2b2d5a575e0fa8f29cb9309334359"
+        }
+      ],
+      "reason": "Preserve the exact unchanged source bytes and existing authority carried by the prior accepted alternate index. This is an identity-preserving continuation, not renewed live or release acceptance of the historical source."
+    },
+    {
+      "path": "capabilities/reconciliations/review-2026-10-02-knip.json",
+      "sha256": "376c8c30a490b3ea4a42c78c0368bf408c1f0f07185a8df7faf02a69131aff05",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "376c8c30a490b3ea4a42c78c0368bf408c1f0f07185a8df7faf02a69131aff05"
+        },
+        {
+          "class": "protected",
+          "sha256": "376c8c30a490b3ea4a42c78c0368bf408c1f0f07185a8df7faf02a69131aff05"
+        }
+      ],
+      "reason": "Preserve the exact unchanged source bytes and existing authority carried by the prior accepted alternate index. This is an identity-preserving continuation, not renewed live or release acceptance of the historical source."
+    },
+    {
+      "path": "capabilities/reconciliations/review-2026-10-02-ledger.json",
+      "sha256": "41d7ea34f5e1e2efa45e79cbcec483d942d6d929f88e4849d72464f7e4acf34f",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "41d7ea34f5e1e2efa45e79cbcec483d942d6d929f88e4849d72464f7e4acf34f"
+        },
+        {
+          "class": "protected",
+          "sha256": "41d7ea34f5e1e2efa45e79cbcec483d942d6d929f88e4849d72464f7e4acf34f"
+        }
+      ],
+      "reason": "Preserve the exact unchanged source bytes and existing authority carried by the prior accepted alternate index. This is an identity-preserving continuation, not renewed live or release acceptance of the historical source."
+    },
+    {
+      "path": "capabilities/reconciliations/review-2026-10-02-service-owned-resume.json",
+      "sha256": "5e25b9126d84d50ccb06f2dcbd4db8a08848a741c2bb6c66952662e8b04d9033",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "5e25b9126d84d50ccb06f2dcbd4db8a08848a741c2bb6c66952662e8b04d9033"
+        },
+        {
+          "class": "protected",
+          "sha256": "5e25b9126d84d50ccb06f2dcbd4db8a08848a741c2bb6c66952662e8b04d9033"
+        }
+      ],
+      "reason": "Preserve the unchanged, previously accepted morning service-owned review record in the carried alternate index. Its existing source authority remains intact; this entry does not reinterpret the historical review as acceptance of the new native parser."
+    },
+    {
+      "path": "capabilities/reconciliations/review-2026-10-02-title-repair.json",
+      "sha256": "0ab980da167e0ad5fdc92f1bf600a048f70af02cef2e3ec43b1c5cfc0c76a387",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "0ab980da167e0ad5fdc92f1bf600a048f70af02cef2e3ec43b1c5cfc0c76a387"
+        },
+        {
+          "class": "protected",
+          "sha256": "0ab980da167e0ad5fdc92f1bf600a048f70af02cef2e3ec43b1c5cfc0c76a387"
+        }
+      ],
+      "reason": "Preserve the exact unchanged source bytes and existing authority carried by the prior accepted alternate index. This is an identity-preserving continuation, not renewed live or release acceptance of the historical source."
+    },
+    {
+      "path": "capabilities/reconciliations/review-2026-10-02.json",
+      "sha256": "10f96bcb4820b3d3fc6f112db333b27d54920ccb5a3c9fefa2476da33f8e9f3d",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "10f96bcb4820b3d3fc6f112db333b27d54920ccb5a3c9fefa2476da33f8e9f3d"
+        },
+        {
+          "class": "protected",
+          "sha256": "10f96bcb4820b3d3fc6f112db333b27d54920ccb5a3c9fefa2476da33f8e9f3d"
+        }
+      ],
+      "reason": "Preserve the exact unchanged source bytes and existing authority carried by the prior accepted alternate index. This is an identity-preserving continuation, not renewed live or release acceptance of the historical source."
+    },
+    {
+      "path": "capabilities/task-review-2026-10-02-authority-classes.json",
+      "sha256": "17fcc75f8d57274a0a7618cc982f3e0da2a803b06a4e53b30745058ae394a293",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "bfd61ce739cd2432c2e88213d2ef5dae511135f27c0755a52f5622b68e722fe7"
+        },
+        {
+          "class": "protected",
+          "sha256": "bfd61ce739cd2432c2e88213d2ef5dae511135f27c0755a52f5622b68e722fe7"
+        }
+      ],
+      "reason": "Authorized independent Chrome web export, bounded non-eval Kiwi 0.5.0 decoding, instance/style/geometry normalization, image-byte comparison and Scripter selector repair. Preserve partial status and raw differences. Add Desktop bundle preparation without claiming activation. Forward only authenticated client User-Agent, never relay credentials. Focused checks and live collection do not establish full source/release or frontend acceptance."
+    },
+    {
+      "path": "docs/reviews/2026-10-02-lossless-design-inverses.md",
+      "sha256": "384126d75386e5ccd865c07e0559b19a113ffc9ea29497f7421fda5b3a7486cd",
+      "priorClaims": [
+        {
+          "class": "protected",
+          "sha256": "384126d75386e5ccd865c07e0559b19a113ffc9ea29497f7421fda5b3a7486cd"
+        }
+      ],
+      "reason": "Preserve the exact unchanged source bytes and existing authority carried by the prior accepted alternate index. This is an identity-preserving continuation, not renewed live or release acceptance of the historical source."
+    },
+    {
+      "path": "packages/cli/package.json",
+      "sha256": "552908a2020466cb0f1cef393f41084707cdf1122b2880446d345b05c07f0628",
+      "priorClaims": [
+        {
+          "class": "package",
+          "sha256": "00f5823e54e06d67b220d4346222e7a065230b76c512c072eb661c464b7e1436"
+        },
+        {
+          "class": "protected",
+          "sha256": "dfd56472eb6e9da15369ee6216fdb7b71829bdffd98aaaa34fe37d2752dfff18"
+        }
+      ],
+      "reason": "Authorized independent Chrome web export, bounded non-eval Kiwi 0.5.0 decoding, instance/style/geometry normalization, image-byte comparison and Scripter selector repair. Preserve partial status and raw differences. Add Desktop bundle preparation without claiming activation. Forward only authenticated client User-Agent, never relay credentials. Focused checks and live collection do not establish full source/release or frontend acceptance."
+    },
+    {
+      "path": "packages/cli/src/artifacts.ts",
+      "sha256": "95cbb9674e9ef3f954cc8b1a4f78782eda2a41a7b920fae09cabf368785dbc56",
+      "priorClaims": [
+        {
+          "class": "protected",
+          "sha256": "83c73887f82ffc164ab37c7bebcb31f5c4172642d135100f354c35aeb7ea310e"
+        }
+      ],
+      "reason": "Authorized independent Chrome web export, bounded non-eval Kiwi 0.5.0 decoding, instance/style/geometry normalization, image-byte comparison and Scripter selector repair. Preserve partial status and raw differences. Add Desktop bundle preparation without claiming activation. Forward only authenticated client User-Agent, never relay credentials. Focused checks and live collection do not establish full source/release or frontend acceptance."
+    },
+    {
+      "path": "packages/cli/src/chrome-diagnostics.ts",
+      "sha256": "025826c78d00af9752899ae6ea5579ea39c1b2ef515ffb7617f99c5ba26dc2c9",
+      "priorClaims": [],
+      "reason": "Authorized independent Chrome web export, bounded non-eval Kiwi 0.5.0 decoding, instance/style/geometry normalization, image-byte comparison and Scripter selector repair. Preserve partial status and raw differences. Add Desktop bundle preparation without claiming activation. Forward only authenticated client User-Agent, never relay credentials. Focused checks and live collection do not establish full source/release or frontend acceptance."
+    },
+    {
+      "path": "packages/cli/src/commands.ts",
+      "sha256": "512cf0159de9c4ec5f9580e31206a52b9985b5965afa6d6f3316f11ee272da78",
+      "priorClaims": [
+        {
+          "class": "protected",
+          "sha256": "59acf264e37ce536ea602905f0d155a846dd710744e441aa41decc926d4d48c3"
+        }
+      ],
+      "reason": "Authorized independent Chrome web export, bounded non-eval Kiwi 0.5.0 decoding, instance/style/geometry normalization, image-byte comparison and Scripter selector repair. Preserve partial status and raw differences. Add Desktop bundle preparation without claiming activation. Forward only authenticated client User-Agent, never relay credentials. Focused checks and live collection do not establish full source/release or frontend acceptance."
+    },
+    {
+      "path": "packages/cli/src/figma-native-assets.ts",
+      "sha256": "dde6c3f673b95cc3b98140a1975beed1282e0c54760a23bda0c5203e07702c7a",
+      "priorClaims": [],
+      "reason": "Authorized independent Chrome web export, bounded non-eval Kiwi 0.5.0 decoding, instance/style/geometry normalization, image-byte comparison and Scripter selector repair. Preserve partial status and raw differences. Add Desktop bundle preparation without claiming activation. Forward only authenticated client User-Agent, never relay credentials. Focused checks and live collection do not establish full source/release or frontend acceptance."
+    },
+    {
+      "path": "packages/cli/src/figma-native-document.ts",
+      "sha256": "e864db52674c282d4cedd461ab21ded084f12b730927da25048624265275154d",
+      "priorClaims": [],
+      "reason": "Authorized independent Chrome web export, bounded non-eval Kiwi 0.5.0 decoding, instance/style/geometry normalization, image-byte comparison and Scripter selector repair. Preserve partial status and raw differences. Add Desktop bundle preparation without claiming activation. Forward only authenticated client User-Agent, never relay credentials. Focused checks and live collection do not establish full source/release or frontend acceptance."
+    },
+    {
+      "path": "packages/cli/src/figma-native-geometry.ts",
+      "sha256": "76e6579bcd0cf69b9af8c8f30f917a94af9d75dee0615040ec31a2f0e71d9a52",
+      "priorClaims": [],
+      "reason": "Authorized independent Chrome web export, bounded non-eval Kiwi 0.5.0 decoding, instance/style/geometry normalization, image-byte comparison and Scripter selector repair. Preserve partial status and raw differences. Add Desktop bundle preparation without claiming activation. Forward only authenticated client User-Agent, never relay credentials. Focused checks and live collection do not establish full source/release or frontend acceptance."
+    },
+    {
+      "path": "packages/cli/src/figma-native-nodes.ts",
+      "sha256": "d62766b9e3b5ff5c86f65705e10a38c70a5711d69d515f715833ffdd6013c15b",
+      "priorClaims": [],
+      "reason": "Authorized independent Chrome web export, bounded non-eval Kiwi 0.5.0 decoding, instance/style/geometry normalization, image-byte comparison and Scripter selector repair. Preserve partial status and raw differences. Add Desktop bundle preparation without claiming activation. Forward only authenticated client User-Agent, never relay credentials. Focused checks and live collection do not establish full source/release or frontend acceptance."
+    },
+    {
+      "path": "packages/cli/src/figma-native-paints.ts",
+      "sha256": "8629fb930c061900e41217548725109ffa83f2f4ad50d6860577d7710d1bad07",
+      "priorClaims": [],
+      "reason": "Authorized independent Chrome web export, bounded non-eval Kiwi 0.5.0 decoding, instance/style/geometry normalization, image-byte comparison and Scripter selector repair. Preserve partial status and raw differences. Add Desktop bundle preparation without claiming activation. Forward only authenticated client User-Agent, never relay credentials. Focused checks and live collection do not establish full source/release or frontend acceptance."
+    },
+    {
+      "path": "packages/cli/src/figma-web-export.ts",
+      "sha256": "7a26c6a98c3e54deb7fff429d760716330eed6fbfbf4d40b4c37e09a721f227e",
+      "priorClaims": [],
+      "reason": "Authorized independent Chrome web export, bounded non-eval Kiwi 0.5.0 decoding, instance/style/geometry normalization, image-byte comparison and Scripter selector repair. Preserve partial status and raw differences. Add Desktop bundle preparation without claiming activation. Forward only authenticated client User-Agent, never relay credentials. Focused checks and live collection do not establish full source/release or frontend acceptance."
+    },
+    {
+      "path": "packages/cli/src/official-figma-mcp-command.ts",
+      "sha256": "fba46756261a5cf7ebd798d9b998d4cb4e885baef293ee0fb3c833832e7f06dd",
+      "priorClaims": [
+        {
+          "class": "protected",
+          "sha256": "fba46756261a5cf7ebd798d9b998d4cb4e885baef293ee0fb3c833832e7f06dd"
+        }
+      ],
+      "reason": "Preserve the exact unchanged source bytes and existing authority carried by the prior accepted alternate index. This is an identity-preserving continuation, not renewed live or release acceptance of the historical source."
+    },
+    {
+      "path": "packages/cli/src/scripter-bridge.ts",
+      "sha256": "8efd3909643c35acfcd885368af221b93b94ee623584cb1e801936f1b2e2a783",
+      "priorClaims": [
+        {
+          "class": "protected",
+          "sha256": "4be5e1c241960231394c014dd8332d1c90ea2ee8d0446a1656d499bd9d1acbe2"
+        }
+      ],
+      "reason": "Authorized independent Chrome web export, bounded non-eval Kiwi 0.5.0 decoding, instance/style/geometry normalization, image-byte comparison and Scripter selector repair. Preserve partial status and raw differences. Add Desktop bundle preparation without claiming activation. Forward only authenticated client User-Agent, never relay credentials. Focused checks and live collection do not establish full source/release or frontend acceptance."
+    },
+    {
+      "path": "packages/cli/test/browser-session-reconnect.test.ts",
+      "sha256": "fe42ef51259927046aae8322078d13233c31140e36370ed28babc8765fb0f114",
+      "priorClaims": [
+        {
+          "class": "protected",
+          "sha256": "fe42ef51259927046aae8322078d13233c31140e36370ed28babc8765fb0f114"
+        }
+      ],
+      "reason": "Preserve the exact unchanged source bytes and existing authority carried by the prior accepted alternate index. This is an identity-preserving continuation, not renewed live or release acceptance of the historical source."
+    },
+    {
+      "path": "packages/cli/test/browser-source-open.test.ts",
+      "sha256": "e6de60cc61e062240f3d3484bff5978da0e141f967d65c136bf1e65f94dadbbb",
+      "priorClaims": [
+        {
+          "class": "protected",
+          "sha256": "e6de60cc61e062240f3d3484bff5978da0e141f967d65c136bf1e65f94dadbbb"
+        }
+      ],
+      "reason": "Preserve the exact unchanged source bytes and existing authority carried by the prior accepted alternate index. This is an identity-preserving continuation, not renewed live or release acceptance of the historical source."
+    },
+    {
+      "path": "packages/cli/test/figma-native-assets.test.ts",
+      "sha256": "5eb3d3ee1d7b9a852a2d970a56480bcafb650e4cb10dac75515b593cf4eb4ed6",
+      "priorClaims": [],
+      "reason": "Authorized independent Chrome web export, bounded non-eval Kiwi 0.5.0 decoding, instance/style/geometry normalization, image-byte comparison and Scripter selector repair. Preserve partial status and raw differences. Add Desktop bundle preparation without claiming activation. Forward only authenticated client User-Agent, never relay credentials. Focused checks and live collection do not establish full source/release or frontend acceptance."
+    },
+    {
+      "path": "packages/cli/test/figma-native-document.test.ts",
+      "sha256": "77db930ec79bd20857d424c5209383e6c35326f7365df2f1d9131f29d677199c",
+      "priorClaims": [],
+      "reason": "Authorized independent Chrome web export, bounded non-eval Kiwi 0.5.0 decoding, instance/style/geometry normalization, image-byte comparison and Scripter selector repair. Preserve partial status and raw differences. Add Desktop bundle preparation without claiming activation. Forward only authenticated client User-Agent, never relay credentials. Focused checks and live collection do not establish full source/release or frontend acceptance."
+    },
+    {
+      "path": "packages/cli/test/figma-native-geometry.test.ts",
+      "sha256": "4fafc3efb793c219cc09d57813a98bdf1ce82246b48c0b9c3e1f5d45e5ed9ba2",
+      "priorClaims": [],
+      "reason": "Authorized independent Chrome web export, bounded non-eval Kiwi 0.5.0 decoding, instance/style/geometry normalization, image-byte comparison and Scripter selector repair. Preserve partial status and raw differences. Add Desktop bundle preparation without claiming activation. Forward only authenticated client User-Agent, never relay credentials. Focused checks and live collection do not establish full source/release or frontend acceptance."
+    },
+    {
+      "path": "packages/cli/test/figma-native-nodes.test.ts",
+      "sha256": "cbf9eb5a8ad9b7537448e336c8790db8a26c819554fdd2f80e6ffb523add970e",
+      "priorClaims": [],
+      "reason": "Authorized independent Chrome web export, bounded non-eval Kiwi 0.5.0 decoding, instance/style/geometry normalization, image-byte comparison and Scripter selector repair. Preserve partial status and raw differences. Add Desktop bundle preparation without claiming activation. Forward only authenticated client User-Agent, never relay credentials. Focused checks and live collection do not establish full source/release or frontend acceptance."
+    },
+    {
+      "path": "packages/cli/test/figma-native-paints.test.ts",
+      "sha256": "e9d49cc4b52a36aa74abc25b41dfd2b371e5b7169205e71532b552d9c82b9567",
+      "priorClaims": [],
+      "reason": "Authorized independent Chrome web export, bounded non-eval Kiwi 0.5.0 decoding, instance/style/geometry normalization, image-byte comparison and Scripter selector repair. Preserve partial status and raw differences. Add Desktop bundle preparation without claiming activation. Forward only authenticated client User-Agent, never relay credentials. Focused checks and live collection do not establish full source/release or frontend acceptance."
+    },
+    {
+      "path": "packages/cli/test/figma-web-export.test.ts",
+      "sha256": "dca0ab353059c513e51bedf91733353204daf005c48b0072105dd90af37f30d1",
+      "priorClaims": [],
+      "reason": "Authorized independent Chrome web export, bounded non-eval Kiwi 0.5.0 decoding, instance/style/geometry normalization, image-byte comparison and Scripter selector repair. Preserve partial status and raw differences. Add Desktop bundle preparation without claiming activation. Forward only authenticated client User-Agent, never relay credentials. Focused checks and live collection do not establish full source/release or frontend acceptance."
+    },
+    {
+      "path": "packages/cli/test/official-figma-mcp.test.ts",
+      "sha256": "9a48e7343804b234763ac60fa269f853e1767835a43309844291c14f544059a8",
+      "priorClaims": [
+        {
+          "class": "protected",
+          "sha256": "9a48e7343804b234763ac60fa269f853e1767835a43309844291c14f544059a8"
+        }
+      ],
+      "reason": "Preserve the exact unchanged source bytes and existing authority carried by the prior accepted alternate index. This is an identity-preserving continuation, not renewed live or release acceptance of the historical source."
+    },
+    {
+      "path": "packages/cli/test/scripter-ui.test.ts",
+      "sha256": "7b5e842db2d10f5af709b627fb04a4a538813fef0ed06bb1bd118aa4183d12b1",
+      "priorClaims": [],
+      "reason": "Authorized independent Chrome web export, bounded non-eval Kiwi 0.5.0 decoding, instance/style/geometry normalization, image-byte comparison and Scripter selector repair. Preserve partial status and raw differences. Add Desktop bundle preparation without claiming activation. Forward only authenticated client User-Agent, never relay credentials. Focused checks and live collection do not establish full source/release or frontend acceptance."
+    },
+    {
+      "path": "packages/cli/test/text-segment-capture.test.ts",
+      "sha256": "a4e660a395e7c29627e2406e4313c9980498302cdb9a605089383964678f2c2f",
+      "priorClaims": [
+        {
+          "class": "protected",
+          "sha256": "a4e660a395e7c29627e2406e4313c9980498302cdb9a605089383964678f2c2f"
+        }
+      ],
+      "reason": "Preserve the exact unchanged source bytes and existing authority carried by the prior accepted alternate index. This is an identity-preserving continuation, not renewed live or release acceptance of the historical source."
+    },
+    {
+      "path": "packages/mcp/src/fs/css-imports.ts",
+      "sha256": "1e2f6d2eb735223eae7023edae4576395afd43806097886b1eb66fb5f7cf026a",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "1e2f6d2eb735223eae7023edae4576395afd43806097886b1eb66fb5f7cf026a"
+        },
+        {
+          "class": "protected",
+          "sha256": "1e2f6d2eb735223eae7023edae4576395afd43806097886b1eb66fb5f7cf026a"
+        }
+      ],
+      "reason": "Preserve the exact unchanged source bytes and existing authority carried by the prior accepted alternate index. This is an identity-preserving continuation, not renewed live or release acceptance of the historical source."
+    },
+    {
+      "path": "packages/mcp/src/fs/owned-tree-reclamation.ts",
+      "sha256": "0b7508d087c775ed7b1d6e27cd72fa92c0bb4da18f12fa5c0a5814c7c40ec262",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "0b7508d087c775ed7b1d6e27cd72fa92c0bb4da18f12fa5c0a5814c7c40ec262"
+        },
+        {
+          "class": "protected",
+          "sha256": "0b7508d087c775ed7b1d6e27cd72fa92c0bb4da18f12fa5c0a5814c7c40ec262"
+        }
+      ],
+      "reason": "Preserve the exact unchanged source bytes and existing authority carried by the prior accepted alternate index. This is an identity-preserving continuation, not renewed live or release acceptance of the historical source."
+    },
+    {
+      "path": "packages/mcp/src/fs/windows-directory-publication.ts",
+      "sha256": "6fc683cf09326704be7e613dc0194adb196fb4c412c6f6cf2f2b2a3a1b00963e",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "6fc683cf09326704be7e613dc0194adb196fb4c412c6f6cf2f2b2a3a1b00963e"
+        },
+        {
+          "class": "protected",
+          "sha256": "6fc683cf09326704be7e613dc0194adb196fb4c412c6f6cf2f2b2a3a1b00963e"
+        }
+      ],
+      "reason": "Preserve the exact unchanged source bytes and existing authority carried by the prior accepted alternate index. This is an identity-preserving continuation, not renewed live or release acceptance of the historical source."
+    },
+    {
+      "path": "packages/mcp/src/official-figma-mcp.ts",
+      "sha256": "68626388b5ff5ef10059c6864e9ac1bf9878152250acaf74a98877765ef89a67",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "68626388b5ff5ef10059c6864e9ac1bf9878152250acaf74a98877765ef89a67"
+        },
+        {
+          "class": "protected",
+          "sha256": "68626388b5ff5ef10059c6864e9ac1bf9878152250acaf74a98877765ef89a67"
+        }
+      ],
+      "reason": "Preserve the exact unchanged source bytes and existing authority carried by the prior accepted alternate index. This is an identity-preserving continuation, not renewed live or release acceptance of the historical source."
+    },
+    {
+      "path": "packages/mcp/src/portal/archive-eligibility.ts",
+      "sha256": "5d1d4834c58175ecc434669ef4f89e9e1c18ec82e1385d260e65c03bc5f044d3",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "5d1d4834c58175ecc434669ef4f89e9e1c18ec82e1385d260e65c03bc5f044d3"
+        },
+        {
+          "class": "protected",
+          "sha256": "5d1d4834c58175ecc434669ef4f89e9e1c18ec82e1385d260e65c03bc5f044d3"
+        }
+      ],
+      "reason": "Preserve the exact unchanged source bytes and existing authority carried by the prior accepted alternate index. This is an identity-preserving continuation, not renewed live or release acceptance of the historical source."
+    },
+    {
+      "path": "packages/mcp/src/portal/chrome-runtime.ts",
+      "sha256": "503405bd09576e2651631eaa9cc35342ec0b66edc5664d9439d5d8dec1ebb077",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "503405bd09576e2651631eaa9cc35342ec0b66edc5664d9439d5d8dec1ebb077"
+        },
+        {
+          "class": "protected",
+          "sha256": "503405bd09576e2651631eaa9cc35342ec0b66edc5664d9439d5d8dec1ebb077"
+        }
+      ],
+      "reason": "Preserve the exact unchanged source bytes and existing authority carried by the prior accepted alternate index. This is an identity-preserving continuation, not renewed live or release acceptance of the historical source."
+    },
+    {
+      "path": "packages/mcp/src/portal/chrome-transport.ts",
+      "sha256": "9237e2c61fdbe1e608847eb9f7266fb15c00789730dcfc471f033b46853a9c6a",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "f01e0ecfef74bdf54b6ad33e2f74918105676a407c074d4dcb4189d8bb6fec7e"
+        },
+        {
+          "class": "protected",
+          "sha256": "f01e0ecfef74bdf54b6ad33e2f74918105676a407c074d4dcb4189d8bb6fec7e"
+        }
+      ],
+      "reason": "Authorized independent Chrome web export, bounded non-eval Kiwi 0.5.0 decoding, instance/style/geometry normalization, image-byte comparison and Scripter selector repair. Preserve partial status and raw differences. Add Desktop bundle preparation without claiming activation. Forward only authenticated client User-Agent, never relay credentials. Focused checks and live collection do not establish full source/release or frontend acceptance."
+    },
+    {
+      "path": "packages/mcp/src/portal/native-directory-creation.ts",
+      "sha256": "ed112d6e3ef0d8ab83ad5142bfae123e74a020749dc500c315fbf2583011ee0e",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "ed112d6e3ef0d8ab83ad5142bfae123e74a020749dc500c315fbf2583011ee0e"
+        },
+        {
+          "class": "protected",
+          "sha256": "ed112d6e3ef0d8ab83ad5142bfae123e74a020749dc500c315fbf2583011ee0e"
+        }
+      ],
+      "reason": "Preserve the exact unchanged source bytes and existing authority carried by the prior accepted alternate index. This is an identity-preserving continuation, not renewed live or release acceptance of the historical source."
+    },
+    {
+      "path": "packages/mcp/src/portal/preview-feedback.ts",
+      "sha256": "d0dee99d9efb2c82b0769db30c9ef0d56ad04e7f8c35038a008334f55832d917",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "d0dee99d9efb2c82b0769db30c9ef0d56ad04e7f8c35038a008334f55832d917"
+        },
+        {
+          "class": "protected",
+          "sha256": "d0dee99d9efb2c82b0769db30c9ef0d56ad04e7f8c35038a008334f55832d917"
+        }
+      ],
+      "reason": "Preserve the exact unchanged source bytes and existing authority carried by the prior accepted alternate index. This is an identity-preserving continuation, not renewed live or release acceptance of the historical source."
+    },
+    {
+      "path": "packages/mcp/src/portal/recipes/consumption-receipt.ts",
+      "sha256": "61f099add2858fc296414735121bd4f9ca46be89c4ce2036a076cab8932fd1bf",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "61f099add2858fc296414735121bd4f9ca46be89c4ce2036a076cab8932fd1bf"
+        },
+        {
+          "class": "protected",
+          "sha256": "61f099add2858fc296414735121bd4f9ca46be89c4ce2036a076cab8932fd1bf"
+        }
+      ],
+      "reason": "Preserve the exact unchanged source bytes and existing authority carried by the prior accepted alternate index. This is an identity-preserving continuation, not renewed live or release acceptance of the historical source."
+    },
+    {
+      "path": "packages/mcp/test/fs/atomic-file.remediation.test.ts",
+      "sha256": "a83f1c32fe35a6c54c78f8969bffef1eb15cbb0eaf5b264209c8fde7efbb95b1",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "a83f1c32fe35a6c54c78f8969bffef1eb15cbb0eaf5b264209c8fde7efbb95b1"
+        },
+        {
+          "class": "protected",
+          "sha256": "a83f1c32fe35a6c54c78f8969bffef1eb15cbb0eaf5b264209c8fde7efbb95b1"
+        }
+      ],
+      "reason": "Preserve the exact unchanged source bytes and existing authority carried by the prior accepted alternate index. This is an identity-preserving continuation, not renewed live or release acceptance of the historical source."
+    },
+    {
+      "path": "packages/mcp/test/fs/owned-tree-reclamation.test.ts",
+      "sha256": "170166e3d5333cfbc553b43e19e5ccd14ebf8f15b29c55a53ac049bd8c7e12f7",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "170166e3d5333cfbc553b43e19e5ccd14ebf8f15b29c55a53ac049bd8c7e12f7"
+        },
+        {
+          "class": "protected",
+          "sha256": "170166e3d5333cfbc553b43e19e5ccd14ebf8f15b29c55a53ac049bd8c7e12f7"
+        }
+      ],
+      "reason": "Preserve the exact unchanged source bytes and existing authority carried by the prior accepted alternate index. This is an identity-preserving continuation, not renewed live or release acceptance of the historical source."
+    },
+    {
+      "path": "packages/mcp/test/official-figma-mcp.test.ts",
+      "sha256": "89f413ce1e10d218c7fe8c1f6040c5fb3140113aea7c64ce2860dafedb28416c",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "89f413ce1e10d218c7fe8c1f6040c5fb3140113aea7c64ce2860dafedb28416c"
+        },
+        {
+          "class": "protected",
+          "sha256": "89f413ce1e10d218c7fe8c1f6040c5fb3140113aea7c64ce2860dafedb28416c"
+        }
+      ],
+      "reason": "Preserve the exact unchanged source bytes and existing authority carried by the prior accepted alternate index. This is an identity-preserving continuation, not renewed live or release acceptance of the historical source."
+    },
+    {
+      "path": "packages/mcp/test/portal/archive-eligibility.test.ts",
+      "sha256": "d6a45faa4cc1a1529717b97656a86b9b4d71470c5a4ad6bde1c69b4d87b13550",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "d6a45faa4cc1a1529717b97656a86b9b4d71470c5a4ad6bde1c69b4d87b13550"
+        },
+        {
+          "class": "protected",
+          "sha256": "d6a45faa4cc1a1529717b97656a86b9b4d71470c5a4ad6bde1c69b4d87b13550"
+        }
+      ],
+      "reason": "Preserve the exact unchanged source bytes and existing authority carried by the prior accepted alternate index. This is an identity-preserving continuation, not renewed live or release acceptance of the historical source."
+    },
+    {
+      "path": "packages/mcp/test/portal/canonical-paragraphs.test.ts",
+      "sha256": "a1531bf0f721a6ad8282d6066c453e8fe47a53c0f850931f74b196216a94a792",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "a1531bf0f721a6ad8282d6066c453e8fe47a53c0f850931f74b196216a94a792"
+        },
+        {
+          "class": "protected",
+          "sha256": "a1531bf0f721a6ad8282d6066c453e8fe47a53c0f850931f74b196216a94a792"
+        }
+      ],
+      "reason": "Preserve the exact unchanged source bytes and existing authority carried by the prior accepted alternate index. This is an identity-preserving continuation, not renewed live or release acceptance of the historical source."
+    },
+    {
+      "path": "packages/mcp/test/portal/chrome-runtime.test.ts",
+      "sha256": "5b11c1c11f5c254866669528b855d5adc7e0381380127007399f019f1da7a601",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "5b11c1c11f5c254866669528b855d5adc7e0381380127007399f019f1da7a601"
+        },
+        {
+          "class": "protected",
+          "sha256": "5b11c1c11f5c254866669528b855d5adc7e0381380127007399f019f1da7a601"
+        }
+      ],
+      "reason": "Preserve the exact unchanged source bytes and existing authority carried by the prior accepted alternate index. This is an identity-preserving continuation, not renewed live or release acceptance of the historical source."
+    },
+    {
+      "path": "packages/mcp/test/portal/chrome-transport.test.ts",
+      "sha256": "e01f8acc3ee91b47fb65b2a1cc87eaec1acdc42c4dc77e9db1e8208e1d8ca46e",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "02c477fe0e54725bcdcad084b9269dcb503fe5c69b0e2bd7740756799e3c79f7"
+        },
+        {
+          "class": "protected",
+          "sha256": "02c477fe0e54725bcdcad084b9269dcb503fe5c69b0e2bd7740756799e3c79f7"
+        }
+      ],
+      "reason": "Authorized independent Chrome web export, bounded non-eval Kiwi 0.5.0 decoding, instance/style/geometry normalization, image-byte comparison and Scripter selector repair. Preserve partial status and raw differences. Add Desktop bundle preparation without claiming activation. Forward only authenticated client User-Agent, never relay credentials. Focused checks and live collection do not establish full source/release or frontend acceptance."
+    },
+    {
+      "path": "packages/mcp/test/portal/consumption-receipt.test.ts",
+      "sha256": "473730a14fc0c666e5e196abd46272b8901aa454dc2793e10d038ed483a406cc",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "473730a14fc0c666e5e196abd46272b8901aa454dc2793e10d038ed483a406cc"
+        },
+        {
+          "class": "protected",
+          "sha256": "473730a14fc0c666e5e196abd46272b8901aa454dc2793e10d038ed483a406cc"
+        }
+      ],
+      "reason": "Preserve the exact unchanged source bytes and existing authority carried by the prior accepted alternate index. This is an identity-preserving continuation, not renewed live or release acceptance of the historical source."
+    },
+    {
+      "path": "packages/mcp/test/portal/coordinator-recovery.test.ts",
+      "sha256": "2ed9f776361508d80ce22a7e7f0bd30d25da01c1ce07e1879b70638494991146",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "2ed9f776361508d80ce22a7e7f0bd30d25da01c1ce07e1879b70638494991146"
+        },
+        {
+          "class": "protected",
+          "sha256": "2ed9f776361508d80ce22a7e7f0bd30d25da01c1ce07e1879b70638494991146"
+        }
+      ],
+      "reason": "Preserve the exact unchanged source bytes and existing authority carried by the prior accepted alternate index. This is an identity-preserving continuation, not renewed live or release acceptance of the historical source."
+    },
+    {
+      "path": "packages/mcp/test/portal/native-directory-creation.test.ts",
+      "sha256": "e7f85f5534613b2e2f15fc2228af3ea5fbc19d90994100aed60323ed0ca796ed",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "e7f85f5534613b2e2f15fc2228af3ea5fbc19d90994100aed60323ed0ca796ed"
+        },
+        {
+          "class": "protected",
+          "sha256": "e7f85f5534613b2e2f15fc2228af3ea5fbc19d90994100aed60323ed0ca796ed"
+        }
+      ],
+      "reason": "Preserve the exact unchanged source bytes and existing authority carried by the prior accepted alternate index. This is an identity-preserving continuation, not renewed live or release acceptance of the historical source."
+    },
+    {
+      "path": "packages/mcp/test/portal/native-lifecycle-archive.test.ts",
+      "sha256": "5ff0feeb7c3110f2b69d0c009c0a1deaeda83a6a48e12cd831c48beaa1f0d81a",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "5ff0feeb7c3110f2b69d0c009c0a1deaeda83a6a48e12cd831c48beaa1f0d81a"
+        },
+        {
+          "class": "protected",
+          "sha256": "5ff0feeb7c3110f2b69d0c009c0a1deaeda83a6a48e12cd831c48beaa1f0d81a"
+        }
+      ],
+      "reason": "Preserve the exact unchanged source bytes and existing authority carried by the prior accepted alternate index. This is an identity-preserving continuation, not renewed live or release acceptance of the historical source."
+    },
+    {
+      "path": "packages/mcp/test/portal/native-lifecycle-creation.test.ts",
+      "sha256": "d864fd7e5f7fb7f4a54a54ec198ab0507ef1078c038d4dba52d62da3ea40b0b8",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "d864fd7e5f7fb7f4a54a54ec198ab0507ef1078c038d4dba52d62da3ea40b0b8"
+        },
+        {
+          "class": "protected",
+          "sha256": "d864fd7e5f7fb7f4a54a54ec198ab0507ef1078c038d4dba52d62da3ea40b0b8"
+        }
+      ],
+      "reason": "Preserve the exact unchanged source bytes and existing authority carried by the prior accepted alternate index. This is an identity-preserving continuation, not renewed live or release acceptance of the historical source."
+    },
+    {
+      "path": "packages/mcp/test/portal/native-owned-chrome-cleanup.test.ts",
+      "sha256": "dbefde4133b3632164312c6c13cbb159747435542f35089376540c9631500389",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "dbefde4133b3632164312c6c13cbb159747435542f35089376540c9631500389"
+        },
+        {
+          "class": "protected",
+          "sha256": "dbefde4133b3632164312c6c13cbb159747435542f35089376540c9631500389"
+        }
+      ],
+      "reason": "Preserve the exact unchanged source bytes and existing authority carried by the prior accepted alternate index. This is an identity-preserving continuation, not renewed live or release acceptance of the historical source."
+    },
+    {
+      "path": "packages/mcp/test/portal/preview-feedback.test.ts",
+      "sha256": "23d73344fb6949531e99d0ceff6537891e369e90ae704f8d45fb43918ef6970b",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "23d73344fb6949531e99d0ceff6537891e369e90ae704f8d45fb43918ef6970b"
+        },
+        {
+          "class": "protected",
+          "sha256": "23d73344fb6949531e99d0ceff6537891e369e90ae704f8d45fb43918ef6970b"
+        }
+      ],
+      "reason": "Preserve the exact unchanged source bytes and existing authority carried by the prior accepted alternate index. This is an identity-preserving continuation, not renewed live or release acceptance of the historical source."
+    },
+    {
+      "path": "packages/plugin/src/handlers/batch-created.ts",
+      "sha256": "038cafd07c35d8e5e3ff713a93af1ccff00a7aa5bc87e0cc268783da0775da01",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "038cafd07c35d8e5e3ff713a93af1ccff00a7aa5bc87e0cc268783da0775da01"
+        },
+        {
+          "class": "protected",
+          "sha256": "038cafd07c35d8e5e3ff713a93af1ccff00a7aa5bc87e0cc268783da0775da01"
+        }
+      ],
+      "reason": "Preserve the exact unchanged source bytes and existing authority carried by the prior accepted alternate index. This is an identity-preserving continuation, not renewed live or release acceptance of the historical source."
+    },
+    {
+      "path": "packages/plugin/src/handlers/reaction-write.ts",
+      "sha256": "84ac9eee95401c2f290461dec17035545004afacbca4abd97661adda30608245",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "84ac9eee95401c2f290461dec17035545004afacbca4abd97661adda30608245"
+        },
+        {
+          "class": "protected",
+          "sha256": "84ac9eee95401c2f290461dec17035545004afacbca4abd97661adda30608245"
+        }
+      ],
+      "reason": "Preserve the exact unchanged source bytes and existing authority carried by the prior accepted alternate index. This is an identity-preserving continuation, not renewed live or release acceptance of the historical source."
+    },
+    {
+      "path": "packages/plugin/test/sandbox/mutation-cancellation.test.ts",
+      "sha256": "0b86c884ec99f05c712327421c1df6aab5e482a84ca8569d42049c5af6d3c000",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "0b86c884ec99f05c712327421c1df6aab5e482a84ca8569d42049c5af6d3c000"
+        },
+        {
+          "class": "protected",
+          "sha256": "0b86c884ec99f05c712327421c1df6aab5e482a84ca8569d42049c5af6d3c000"
+        }
+      ],
+      "reason": "Preserve the exact unchanged source bytes and existing authority carried by the prior accepted alternate index. This is an identity-preserving continuation, not renewed live or release acceptance of the historical source."
+    },
+    {
+      "path": "pnpm-lock.yaml",
+      "sha256": "f2b7fa73710b0e9eec4773c7ad13d068533cf964a3b853b0596330618e016c83",
+      "priorClaims": [
+        {
+          "class": "protected",
+          "sha256": "8173588f612c31ffacc904b2bbbf1035b64113da445b6037dcdbdc7a8bd9326f"
+        }
+      ],
+      "reason": "Authorized independent Chrome web export, bounded non-eval Kiwi 0.5.0 decoding, instance/style/geometry normalization, image-byte comparison and Scripter selector repair. Preserve partial status and raw differences. Add Desktop bundle preparation without claiming activation. Forward only authenticated client User-Agent, never relay credentials. Focused checks and live collection do not establish full source/release or frontend acceptance."
+    },
+    {
+      "path": "scripts/collect-test-registrations.mjs",
+      "sha256": "3b5e0e662b3f4e8881753fd9061b6683e77973288306e6dfb5521c6432ca8e9e",
+      "priorClaims": [
+        {
+          "class": "protected",
+          "sha256": "3b5e0e662b3f4e8881753fd9061b6683e77973288306e6dfb5521c6432ca8e9e"
+        }
+      ],
+      "reason": "Preserve the exact unchanged source bytes and existing authority carried by the prior accepted alternate index. This is an identity-preserving continuation, not renewed live or release acceptance of the historical source."
+    },
+    {
+      "path": "scripts/declare-test-scope.mjs",
+      "sha256": "57024e197b80da28c7022060fbf0976c3e5029ca6a87d92553f8eeb360f1b3fe",
+      "priorClaims": [
+        {
+          "class": "protected",
+          "sha256": "57024e197b80da28c7022060fbf0976c3e5029ca6a87d92553f8eeb360f1b3fe"
+        }
+      ],
+      "reason": "Preserve the exact unchanged source bytes and existing authority carried by the prior accepted alternate index. This is an identity-preserving continuation, not renewed live or release acceptance of the historical source."
+    },
+    {
+      "path": "scripts/source-fingerprint.mjs",
+      "sha256": "4588e76b70d9754078d170160dde4c51f85bf322ee817abf920b592076187905",
+      "priorClaims": [
+        {
+          "class": "protected",
+          "sha256": "4588e76b70d9754078d170160dde4c51f85bf322ee817abf920b592076187905"
+        }
+      ],
+      "reason": "Preserve the exact unchanged source bytes and existing authority carried by the prior accepted alternate index. This is an identity-preserving continuation, not renewed live or release acceptance of the historical source."
+    },
+    {
+      "path": "scripts/test-report-scope.mjs",
+      "sha256": "5d86fe35fe34bb1ef994ac8a82519c15c9e3d8f5c657c6fedb221e0b53a3f90b",
+      "priorClaims": [
+        {
+          "class": "protected",
+          "sha256": "5d86fe35fe34bb1ef994ac8a82519c15c9e3d8f5c657c6fedb221e0b53a3f90b"
+        }
+      ],
+      "reason": "Preserve the exact unchanged source bytes and existing authority carried by the prior accepted alternate index. This is an identity-preserving continuation, not renewed live or release acceptance of the historical source."
+    },
+    {
+      "path": "scripts/upstream-lock-schema.mjs",
+      "sha256": "9fa8e1743396d258046c5d97cb1d075b978c661e7c13475381f381101db3dc6f",
+      "priorClaims": [
+        {
+          "class": "protected",
+          "sha256": "9fa8e1743396d258046c5d97cb1d075b978c661e7c13475381f381101db3dc6f"
+        }
+      ],
+      "reason": "Preserve the exact unchanged source bytes and existing authority carried by the prior accepted alternate index. This is an identity-preserving continuation, not renewed live or release acceptance of the historical source."
+    },
+    {
+      "path": "test/declare-test-scope.test.ts",
+      "sha256": "e97e1c33c8c46f64c41a6d469ac45928efffc2dcccce5b698c9131992aad43c1",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "e97e1c33c8c46f64c41a6d469ac45928efffc2dcccce5b698c9131992aad43c1"
+        },
+        {
+          "class": "protected",
+          "sha256": "e97e1c33c8c46f64c41a6d469ac45928efffc2dcccce5b698c9131992aad43c1"
+        }
+      ],
+      "reason": "Preserve the exact unchanged source bytes and existing authority carried by the prior accepted alternate index. This is an identity-preserving continuation, not renewed live or release acceptance of the historical source."
+    },
+    {
+      "path": "test/service-fork-schema.test.ts",
+      "sha256": "2413c7388dd57f21c0e0a0f99cfc442290d146d5f00bd33bc32430b6946254f9",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "2413c7388dd57f21c0e0a0f99cfc442290d146d5f00bd33bc32430b6946254f9"
+        },
+        {
+          "class": "protected",
+          "sha256": "2413c7388dd57f21c0e0a0f99cfc442290d146d5f00bd33bc32430b6946254f9"
+        }
+      ],
+      "reason": "Preserve the exact unchanged source bytes and existing authority carried by the prior accepted alternate index. This is an identity-preserving continuation, not renewed live or release acceptance of the historical source."
+    },
+    {
+      "path": "test/source-check-attempt.test.ts",
+      "sha256": "efc387f94d06705fd87b4c1b0671a842f5cb57afa9a18da7b8bab75f7f9b43e5",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "efc387f94d06705fd87b4c1b0671a842f5cb57afa9a18da7b8bab75f7f9b43e5"
+        },
+        {
+          "class": "protected",
+          "sha256": "efc387f94d06705fd87b4c1b0671a842f5cb57afa9a18da7b8bab75f7f9b43e5"
+        }
+      ],
+      "reason": "Preserve the exact unchanged source bytes and existing authority carried by the prior accepted alternate index. This is an identity-preserving continuation, not renewed live or release acceptance of the historical source."
+    },
+    {
+      "path": "test/source-fingerprint.test.ts",
+      "sha256": "de9204cd4abad90f09ee52d1b229de64379bbee45e25c1b09e332593931baf10",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "de9204cd4abad90f09ee52d1b229de64379bbee45e25c1b09e332593931baf10"
+        },
+        {
+          "class": "protected",
+          "sha256": "de9204cd4abad90f09ee52d1b229de64379bbee45e25c1b09e332593931baf10"
+        }
+      ],
+      "reason": "Preserve the exact unchanged source bytes and existing authority carried by the prior accepted alternate index. This is an identity-preserving continuation, not renewed live or release acceptance of the historical source."
+    }
+  ]
+}

@@ -6,6 +6,11 @@ import { fileURLToPath } from 'node:url';
 
 import { format as formatWithOxfmt } from 'oxfmt';
 
+import {
+  commitAuthorityTransaction,
+  recoverAuthorityTransaction,
+} from './update-service-forks.mjs';
+
 const defaultRepositoryRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..', '..');
 const repositoryRoot = resolve(process.env.SFP_REPOSITORY_ROOT ?? defaultRepositoryRoot);
 const compareUtf8 = (left, right) => Buffer.compare(Buffer.from(left), Buffer.from(right));
@@ -36,10 +41,15 @@ const upsertHashRow = (rows, path, digest) => {
 const registerGeneratedManifest = async (manifestRelative, manifestBytes) => {
   const lockPath = join(repositoryRoot, 'service', 'upstream-lock.json');
   const rulesPath = join(repositoryRoot, 'service', 'vendor-rules.json');
-  const [lock, rules] = await Promise.all([
-    readJson(lockPath).catch(() => null),
-    readJson(rulesPath).catch(() => null),
+  const mapPath = join(repositoryRoot, 'service', 'vendor-map.json');
+  await recoverAuthorityTransaction();
+  const [lockOriginal, rulesOriginal, mapOriginal] = await Promise.all([
+    readFile(lockPath).catch(() => null),
+    readFile(rulesPath).catch(() => null),
+    readFile(mapPath).catch(() => null),
   ]);
+  const lock = lockOriginal === null ? null : JSON.parse(lockOriginal.toString('utf8'));
+  const rules = rulesOriginal === null ? null : JSON.parse(rulesOriginal.toString('utf8'));
   if (
     lock?.schemaVersion !== 2 ||
     !Array.isArray(lock.serviceFiles) ||
@@ -51,9 +61,12 @@ const registerGeneratedManifest = async (manifestRelative, manifestBytes) => {
   ) {
     return;
   }
+  if (lockOriginal === null || rulesOriginal === null || mapOriginal === null)
+    fail('CHANGE_MANIFEST_AUTHORITY_INVALID', 'authority input bytes are missing');
   const serviceRelative = manifestRelative.slice('service/'.length);
   const digest = sha256(manifestBytes);
   lock.serviceFiles = upsertHashRow(lock.serviceFiles, serviceRelative, digest);
+  let rulesBytes = rulesOriginal;
   if (
     lock.destinationClosure.managedRoots.some(
       root => serviceRelative === root || serviceRelative.startsWith(`${root}/`),
@@ -68,11 +81,18 @@ const registerGeneratedManifest = async (manifestRelative, manifestBytes) => {
     rules.serviceOwned = [...new Set([...rules.serviceOwned, serviceRelative])].toSorted(
       compareUtf8,
     );
-    const rulesBytes = await formattedJsonBytes(rulesPath, rules);
-    await writeFile(rulesPath, rulesBytes);
+    rulesBytes = await formattedJsonBytes(rulesPath, rules);
     lock.serviceFiles = upsertHashRow(lock.serviceFiles, 'vendor-rules.json', sha256(rulesBytes));
   }
-  await writeFile(lockPath, await formattedJsonBytes(lockPath, lock));
+  await commitAuthorityTransaction([
+    {
+      path: 'upstream-lock.json',
+      contents: await formattedJsonBytes(lockPath, lock),
+      oldSha256: sha256(lockOriginal),
+    },
+    { path: 'vendor-rules.json', contents: rulesBytes, oldSha256: sha256(rulesOriginal) },
+    { path: 'vendor-map.json', contents: mapOriginal, oldSha256: sha256(mapOriginal) },
+  ]);
 };
 
 const safeRepositoryPath = path => {

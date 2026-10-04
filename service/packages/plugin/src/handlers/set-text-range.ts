@@ -34,7 +34,7 @@ interface RangeInput {
  */
 export const createSetTextRangeHandler =
   (figmaCtx: typeof figma): SandboxToolHandler =>
-  async params => {
+  async (params, execution) => {
     const p = (params ?? {}) as { nodeId?: unknown; ranges?: unknown };
     if (typeof p.nodeId !== 'string') {
       throw new TypeError('set_text_range: nodeId must be a string');
@@ -44,6 +44,7 @@ export const createSetTextRangeHandler =
     }
 
     const node = await figmaCtx.getNodeByIdAsync(p.nodeId);
+    execution?.signal.throwIfAborted();
     if (node === null || node.type !== 'TEXT') {
       throw new Error(`set_text_range: node ${p.nodeId} is not a TEXT node`);
     }
@@ -79,11 +80,13 @@ export const createSetTextRangeHandler =
       return true;
     });
     await Promise.all(uniqueFonts.map(f => figmaCtx.loadFontAsync(f)));
+    execution?.signal.throwIfAborted();
 
     /* eslint-disable no-await-in-loop -- ranges apply in order (a later range overrides an earlier
        one on overlap), and within a range the async style/variable bindings must land after the
        direct values, so these awaits are intentionally sequential. */
     for (const r of ranges) {
+      execution?.signal.throwIfAborted();
       const { start, end } = r;
       // Direct values first.
       if (r.fontName !== undefined) text.setRangeFontName(start, end, r.fontName);
@@ -91,11 +94,9 @@ export const createSetTextRangeHandler =
       // A run's paints carry their own bindings, exactly like a node's — distinct from the
       // range-level `boundVariables` applied below, which binds a field on the run itself.
       if (r.fills !== undefined) {
-        text.setRangeFills(
-          start,
-          end,
-          await toFigmaPaintsBound(figmaCtx, r.fills, 'set_text_range'),
-        );
+        const fills = await toFigmaPaintsBound(figmaCtx, r.fills, 'set_text_range');
+        execution?.signal.throwIfAborted();
+        text.setRangeFills(start, end, fills);
       }
       if (r.textDecoration !== undefined) {
         text.setRangeTextDecoration(start, end, r.textDecoration as TextDecoration);
@@ -121,15 +122,22 @@ export const createSetTextRangeHandler =
       }
       // Design-system bindings: shared styles (async setters), then variable bindings last so a bound
       // variable wins over a direct value set on the same field above.
-      if (r.textStyleId !== undefined)
+      if (r.textStyleId !== undefined) {
         await text.setRangeTextStyleIdAsync(start, end, r.textStyleId);
-      if (r.fillStyleId !== undefined)
+        execution?.markMutated?.();
+        execution?.signal.throwIfAborted();
+      }
+      if (r.fillStyleId !== undefined) {
         await text.setRangeFillStyleIdAsync(start, end, r.fillStyleId);
+        execution?.markMutated?.();
+        execution?.signal.throwIfAborted();
+      }
       if (r.boundVariables !== undefined) {
         for (const [field, variableId] of Object.entries(r.boundVariables)) {
           let variable: Variable | null = null;
           if (typeof variableId === 'string') {
             variable = await figmaCtx.variables.getVariableByIdAsync(variableId);
+            execution?.signal.throwIfAborted();
             if (variable === null) {
               throw new Error(`set_text_range: variable ${variableId} not found`);
             }

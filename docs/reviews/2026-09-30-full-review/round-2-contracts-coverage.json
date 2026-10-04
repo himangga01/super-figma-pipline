@@ -1,0 +1,392 @@
+[
+  {
+    "path": "service/packages/ir/test/portal-completion.characterization.test.ts",
+    "depth": "full",
+    "notes": "Synthetic current C4 completion characterization; missing consumption receipt remains blocked. Pure predicate does not establish native receipt production."
+  },
+  {
+    "path": "service/packages/ir/test/portal-completion.test.ts",
+    "depth": "full",
+    "notes": "Complete completion predicate tests: required operational layers, actual observation/capture/native authority and core receipt/declaration bindings."
+  },
+  {
+    "path": "service/packages/mcp/test/portal/consumption-components.test.ts",
+    "depth": "full",
+    "notes": "Actual React/Vue source-use parser tests: exports/imports, aliases/barrels, lexical shadows, Vue scopes, unsupported/missing/reordered source and byte bindings."
+  },
+  {
+    "path": "service/packages/mcp/test/portal/consumption-input.test.ts",
+    "depth": "full",
+    "notes": "Coordinator/preparation consumption-input tests: actual candidate/legacy bytes, declaration tampering, owner/candidate/source changes and exact signed page item binding."
+  },
+  {
+    "path": "service/packages/mcp/test/portal/consumption-values.test.ts",
+    "depth": "full",
+    "notes": "Value comparison tests: RGBA/paint alpha, CSS units, exact text/fonts, visibility/material validation, unsupported blends and tolerance."
+  },
+  {
+    "path": "service/packages/mcp/test/portal/core-coordinator.test.ts",
+    "depth": "full",
+    "notes": "Production core/coordinator planning tests: seven required results, signed restart/lease, stale sources, interrupted preparation and dependency release."
+  },
+  {
+    "path": "service/packages/mcp/test/portal/core-lifecycle.test.ts",
+    "depth": "full",
+    "notes": "Core lifecycle/read/view/declaration tests: owner isolation, all-page membership, signed tampering, bounded input and incomplete/blocked preparation."
+  },
+  {
+    "path": "service/packages/mcp/test/portal/core-preparation.test.ts",
+    "depth": "full",
+    "notes": "Preparation reservation/publication/adoption tests: retained cancellation quota, interrupted signed prefixes, intent binding, legacy recovery and failclosed bounded capacity."
+  },
+  {
+    "path": "service/packages/mcp/test/portal/core-recipes.test.ts",
+    "depth": "full",
+    "notes": "Complete 1,536-line derivation suite: catalogs/modes/aliases/assets/reactions, bounds/paging, source mapping/selection/reviews, tamper rejection and deterministic identity."
+  },
+  {
+    "path": "service/packages/mcp/test/portal/core-source.characterization.test.ts",
+    "depth": "full",
+    "notes": "T26 regression logic distinguishes full evidence samples/exact counts from genuinely unread conventions; 33-import and 200-file fixtures."
+  },
+  {
+    "path": "service/packages/mcp/test/portal/recipe-artifact-readback.test.ts",
+    "depth": "full",
+    "notes": "Actual exporter/PDF bytes, frame order and native artifact manifest/member/operation/workspace binding."
+  },
+  {
+    "path": "service/packages/mcp/test/portal/recipe-definitions.test.ts",
+    "depth": "full",
+    "notes": "Definition/feature inventory, implemented-vs-planned recipes, canonical effect contracts, immutable hashes and candidate consumption bindings."
+  },
+  {
+    "path": "service/packages/mcp/test/tools/binary-payload.test.ts",
+    "depth": "full",
+    "notes": "Binary/native byte preference, zero-size vs null payload, exact encoded/decoded budget boundaries."
+  },
+  {
+    "path": "service/packages/mcp/test/tools/component-map.test.ts",
+    "depth": "full",
+    "notes": "Component map matching/stale override, group/set identity and per-instance resolved props; no doc-wide component scan."
+  },
+  {
+    "path": "service/packages/mcp/test/tools/design-context-guard.test.ts",
+    "depth": "full",
+    "notes": "Complete public design-context budget guard suite: full/layout/content/compact/section cascade, notes ordering, root layout and token annotation."
+  },
+  {
+    "path": "service/packages/mcp/test/tools/design-diff.test.ts",
+    "depth": "full",
+    "notes": "Design diff baseline format/file/selection identity, approval-bound updates, no-write conflicts, scope targeting and raw full snapshot capture."
+  },
+  {
+    "path": "service/packages/mcp/test/tools/export-pdf.test.ts",
+    "depth": "full",
+    "notes": "PDF adapter arguments, optional page node, binary/base64/null bytes and output-path validation."
+  },
+  {
+    "path": "service/packages/mcp/test/tools/export-video.test.ts",
+    "depth": "full",
+    "notes": "Video adapter format/options, binary/base64/null payloads, early oversize failure and no partial file."
+  },
+  {
+    "path": "service/packages/mcp/test/tools/get-document.test.ts",
+    "depth": "full",
+    "notes": "Complete document tool input/description definition assertions."
+  },
+  {
+    "path": "service/packages/mcp/test/tools/get-screenshot.test.ts",
+    "depth": "full",
+    "notes": "Screenshot raster/SVG presentation, labelled per-node withholding, exact aggregate budget, split-vs-scale remedies and large single exports."
+  },
+  {
+    "path": "service/packages/mcp/test/tools/get-selection.test.ts",
+    "depth": "full",
+    "notes": "Complete selection tool input/description definition assertions."
+  },
+  {
+    "path": "service/packages/mcp/test/tools/import-image.test.ts",
+    "depth": "full",
+    "notes": "Import image URL admission/fetch boundary and exact encoded/decoded byte pre-dispatch limits."
+  },
+  {
+    "path": "service/packages/mcp/test/tools/layout-tier-coverage.test.ts",
+    "depth": "full",
+    "notes": "Layout tier exhaustive schema field classification, appearance/content distinction and drift detection."
+  },
+  {
+    "path": "service/packages/mcp/test/tools/local-tools.test.ts",
+    "depth": "full",
+    "notes": "Server-local analyze/scan argument parsing, cwd defaults, detected framework extensions and explicit override."
+  },
+  {
+    "path": "service/packages/mcp/test/tools/motion-schemas.test.ts",
+    "depth": "full",
+    "notes": "Motion easing/value/track/field/style schema supported/unsupported boundaries."
+  },
+  {
+    "path": "service/packages/mcp/test/tools/ping.test.ts",
+    "depth": "full",
+    "notes": "Ping leader/follower/no-plugin paths, session routing, conflict diagnosis, build/version skew and unavailable leader info."
+  },
+  {
+    "path": "service/packages/mcp/test/tools/read-tools.test.ts",
+    "depth": "full",
+    "notes": "Complete public read tool name/input requirement/schema definitions including design context and screenshots."
+  },
+  {
+    "path": "service/packages/mcp/test/tools/result-validation.test.ts",
+    "depth": "full",
+    "notes": "Canonical plugin/server result validation and registry duplicate/missing/extra/strict authority initialization."
+  },
+  {
+    "path": "service/packages/mcp/test/tools/safe-union.test.ts",
+    "depth": "full",
+    "notes": "Safe union token modes/aliases/paint opacity/name collision, unresolved-style atomic failure, PDF completeness and doctor error redaction."
+  },
+  {
+    "path": "service/packages/mcp/test/tools/save-image-fills.test.ts",
+    "depth": "full",
+    "notes": "Image magic format sniff, hash dedupe, unresolved fills, sanitized path collisions and committed multi-output failure settlement."
+  },
+  {
+    "path": "service/packages/mcp/test/tools/save-screenshots.test.ts",
+    "depth": "full",
+    "notes": "Screenshot filenames/null/empty payloads, binary export, exact scale forwarding and committed multi-output failure settlement."
+  },
+  {
+    "path": "service/packages/mcp/test/tools/skew-notice.test.ts",
+    "depth": "full",
+    "notes": "Per-call async skew isolation, first/error warning, typed error preservation and client-readable separated warnings."
+  },
+  {
+    "path": "service/packages/mcp/test/tools/token-map.test.ts",
+    "depth": "full",
+    "notes": "Complete token-map suite: Tailwind v3/v4, UnoCSS, pooled CSS refs, unread/empty theme, legacy paint styles and unverified/stale override hints."
+  },
+  {
+    "path": "service/packages/mcp/test/tools/write-tools.test.ts",
+    "depth": "full",
+    "notes": "Complete public write tool schema names/requirements/enums, request-ID hiding and bounded batch definitions."
+  },
+  {
+    "path": "service/packages/shared/test/codec.test.ts",
+    "depth": "full",
+    "notes": "MessagePack request/result/binary/error and ArrayBuffer roundtrip, garbage decode rejection."
+  },
+  {
+    "path": "service/packages/shared/test/control-schema.test.ts",
+    "depth": "full",
+    "notes": "Strict control wire identity/consent/capture fields, nonce semantic hashing and egress class canonicalization."
+  },
+  {
+    "path": "service/packages/shared/test/core-recipe-pages.test.ts",
+    "depth": "full",
+    "notes": "Bounded typed pages/material, accessor/cycle rejection, long node identity and source-context completeness/membership."
+  },
+  {
+    "path": "service/packages/shared/test/design-observation.test.ts",
+    "depth": "full",
+    "notes": "Observation coherence/tree topology, UTF-8 byte budgets, JSON shape limits, authority/version and capability counts."
+  },
+  {
+    "path": "service/packages/shared/test/envelope.test.ts",
+    "depth": "full",
+    "notes": "Complete envelope factory/schema tests, undefined omission and handshake-level version policy."
+  },
+  {
+    "path": "service/packages/shared/test/file-identity-hash.test.ts",
+    "depth": "full",
+    "notes": "Independent canonical file identity hash vectors, identity kinds, field order and Unicode non-normalization."
+  },
+  {
+    "path": "service/packages/shared/test/heartbeat.test.ts",
+    "depth": "full",
+    "notes": "Heartbeat fake-time receive/reset/stop/miss/timeout logic."
+  },
+  {
+    "path": "service/packages/shared/test/portal-recipes.test.ts",
+    "depth": "full",
+    "notes": "Recipe stage separation, result types/effects, concrete consumption identity, legacy authority and bounded declarations/inputs."
+  },
+  {
+    "path": "service/packages/shared/test/portal.test.ts",
+    "depth": "full",
+    "notes": "Four-case scope rules, C4-only frontend limit, safe paths/binary budgets and source authority version schema."
+  },
+  {
+    "path": "service/packages/shared/test/serialized-node.test.ts",
+    "depth": "full",
+    "notes": "Serialized node/paint recursive schema, mixed fields, gradient/PATTERN requirements and read result shape."
+  },
+  {
+    "path": "service/packages/shared/test/tool-budgets.test.ts",
+    "depth": "full",
+    "notes": "Heavy/light tool timeout defaults and nested sandbox/relay/follower budget margins."
+  },
+  {
+    "path": "service/packages/shared/test/version.test.ts",
+    "depth": "full",
+    "notes": "SemVer core/prerelease/build logic, server-clamped floors, unsupported version failclosed and actionable skew notice."
+  },
+  {
+    "path": "service/packages/mcp/src/portal/recipes/core-preparation.ts",
+    "depth": "full",
+    "notes": "Read complete 646-line body in bounded ranges; static capacity, signed identity migration/adoption, publication/readback and dependency/cancellation countercheck."
+  },
+  {
+    "path": "service/packages/mcp/src/portal/control.ts",
+    "depth": "full",
+    "notes": "Read complete public portal control schema and dispatch body; native prepare/register wire challenge."
+  },
+  {
+    "path": "service/packages/mcp/src/portal/native-work.ts",
+    "depth": "targeted",
+    "notes": "Read lines 1-270, 677-768, 806-837 and 882-1055; imports/registration/profile contracts, default preparation service, report assembly, preparation compilation and hash comparison. Other source lines not re-read. Actual body read ranges: 1-270, 677-768, 806-837, 882-1055 of 1713 lines. Not re-read ranges: 271-676, 769-805, 838-881, 1056-1713."
+  },
+  {
+    "path": "service/packages/mcp/src/portal/recipes/core-lifecycle.ts",
+    "depth": "targeted",
+    "notes": "Read lines 106-154, 209-241 and 325-389; preparation call and release/retain dependency countercheck; other body not re-read. Actual body read ranges: 106-154, 209-241, 325-389 of 483 lines. Not re-read ranges: 1-105, 155-208, 242-324, 390-483."
+  },
+  {
+    "path": "service/packages/mcp/src/portal/coordinator.ts",
+    "depth": "targeted",
+    "notes": "Read lines 441-483, 596-635 and 976-1006 plus rg callsite inventory; cancellation/dependency release and mandatory production preparePlan before lease/blueprint. Other body not re-read. Actual body read ranges: 441-483, 596-635, 976-1006 of 1662 lines. Not re-read ranges: 1-440, 484-595, 636-975, 1007-1662."
+  },
+  {
+    "path": "service/packages/ir/src/portal-run.ts",
+    "depth": "targeted",
+    "notes": "Read lines 183-249 recipe completion predicate and binding requirements; other body not re-read. Actual body read ranges: 183-249 of 384 lines. Not re-read ranges: 1-182, 250-384."
+  },
+  {
+    "path": "service/packages/mcp/src/portal/recipes/core-consumption.ts",
+    "depth": "targeted",
+    "notes": "Read lines 813-947 covering command attachment and verifyConsumptionObservations entry; repository rg confirmed no production caller; other body not re-read. Actual body read ranges: 813-947 of 1011 lines. Not re-read ranges: 1-812, 948-1011."
+  },
+  {
+    "path": "service/packages/mcp/src/portal/recipes/evidence-hold.ts",
+    "depth": "targeted",
+    "notes": "Read lines 1-65, 160-238 and 358-475; binding, release/consume and retention pinning paths; other body not re-read. Actual body read ranges: 1-65, 160-238, 358-473 of 473 lines. Not re-read ranges: 66-159, 239-357."
+  },
+  {
+    "path": "service/packages/mcp/src/security/principal-derivation.ts",
+    "depth": "targeted",
+    "notes": "Read lines 160-204 session derivation/rotation path; other body not re-read. Actual body read ranges: 160-197 of 197 lines. Not re-read ranges: 1-159."
+  },
+  {
+    "path": "service/packages/mcp/src/portal/recipes/core-derivation.ts",
+    "depth": "targeted",
+    "notes": "Read lines 47-189, 555-653, 962-1045, 1076-1185; row identity/finalization, reaction derivation, mapping reuse obligations and mandatory recipe publication/verification. Other body not re-read. Actual body read ranges: 47-189, 555-653, 962-1045, 1076-1185 of 1247 lines. Not re-read ranges: 1-46, 190-554, 654-961, 1046-1075, 1186-1247."
+  },
+  {
+    "path": "service/packages/shared/src/design-context-dedupe.ts",
+    "depth": "full",
+    "notes": "Read complete 274-line body in bounded ranges; non-SOLID paint opacity omission, style key collision countercheck and generic/metrics boundary."
+  },
+  {
+    "path": "service/packages/plugin/src/handlers/get-reactions.ts",
+    "depth": "full",
+    "notes": "Read complete handler body; raw public reaction clone counterevidence."
+  },
+  {
+    "path": "service/packages/plugin/src/handlers/set-reactions.ts",
+    "depth": "full",
+    "notes": "Read complete handler body; conversion/set public roundtrip defect countercheck."
+  },
+  {
+    "path": "service/packages/mcp/src/portal/interaction-evidence.ts",
+    "depth": "full",
+    "notes": "Read complete interaction derivation body; all reactions required and supported semantics/destination countercheck."
+  },
+  {
+    "path": "service/packages/mcp/src/portal/observation-manifest.ts",
+    "depth": "targeted",
+    "notes": "Read lines 1-90 manifest admission/root requirements and incomplete contract gate; other body not re-read. Actual body read ranges: 1-90 of 128 lines. Not re-read ranges: 91-128."
+  },
+  {
+    "path": "service/packages/cli/src/admin-commands.ts",
+    "depth": "targeted",
+    "notes": "Read lines 107-178 native profile public prepare/review/nonce/register roundtrip; other body not re-read. Actual body read ranges: 107-178 of 412 lines. Not re-read ranges: 1-106, 179-412."
+  },
+  {
+    "path": "service/packages/plugin/src/handlers/convert.ts",
+    "depth": "full",
+    "notes": "Read complete converters; trigger/action subset drops otherwise accepted roundtrip fields."
+  },
+  {
+    "path": "service/packages/mcp/src/tools/set-reactions.ts",
+    "depth": "full",
+    "notes": "Read complete public tool input contract; serialized reaction argument and advertised roundtrip."
+  },
+  {
+    "path": "service/packages/mcp/src/tools/get-reactions.ts",
+    "depth": "full",
+    "notes": "Read complete public read tool input spec; raw reaction read boundary."
+  },
+  {
+    "path": "service/packages/mcp/src/portal/recipes/evidence-operations.ts",
+    "depth": "full",
+    "notes": "Read complete production registry handlers; all hold release operations use strict authenticated scope."
+  },
+  {
+    "path": "service/packages/mcp/src/index.ts",
+    "depth": "targeted",
+    "notes": "Read lines 690-713 default coordinator core-preparation construction; remaining entrypoint not re-read. Actual body read ranges: 690-713 of 1644 lines. Not re-read ranges: 1-689, 714-1644."
+  },
+  {
+    "path": "service/packages/plugin/src/handlers/get-design-context.ts",
+    "depth": "targeted",
+    "notes": "Read lines 767-795 public full detail dedupe default caller; other serializer body not re-read. Actual body read ranges: 767-792 of 792 lines. Not re-read ranges: 1-766."
+  },
+  {
+    "path": "service/packages/mcp/src/join/component-map.ts",
+    "depth": "targeted",
+    "notes": "Read lines 206-242 and 352-419; production usage extraction keys by component identity but mapping labels by name, same-name reuse obligation countercheck. Actual body read ranges: 206-242, 352-419 of 495 lines. Not re-read ranges: 1-205, 243-351, 420-495."
+  },
+  {
+    "path": "service/packages/shared/src/queries.ts",
+    "depth": "targeted",
+    "notes": "Read lines 245-302 reaction wire loose trigger/action schemas retaining extra fields; other body not re-read. Actual body read ranges: 245-302 of 340 lines. Not re-read ranges: 1-244, 303-340."
+  },
+  {
+    "path": "service/packages/plugin/test/handlers/set-reactions.test.ts",
+    "depth": "full",
+    "notes": "Read complete extra test body; simple CLICK navigation conversion/malformed inputs, lacks richer read/write roundtrip."
+  },
+  {
+    "path": "service/packages/cli/test/admin-commands.test.ts",
+    "depth": "targeted",
+    "notes": "Read lines 180-289; native prepare/register HTTP mocks and authority-fragment assertions, not real public endpoint roundtrip. Other test body not re-read. Actual body read ranges: 180-289 of 332 lines. Not re-read ranges: 1-179, 290-332."
+  },
+  {
+    "path": "service/packages/mcp/test/portal/native-work.test.ts",
+    "depth": "targeted",
+    "notes": "Read lines 408-452 and 756-777; direct internal prepared profile success and legacy identity inspection counterevidence. Other test body not re-read. Actual body read ranges: 408-452, 756-777 of 1302 lines. Not re-read ranges: 1-407, 453-755, 778-1302."
+  },
+  {
+    "path": "AGENTS.md",
+    "depth": "full",
+    "notes": "Read complete repository rules in this round."
+  },
+  {
+    "path": "docs/reviews/2026-09-30-full-review/round-1-main-disposition.md",
+    "depth": "full",
+    "notes": "Read complete disposition body for rotated finding challenges."
+  },
+  {
+    "path": "docs/reviews/2026-09-30-full-review/main-verification-notes.md",
+    "depth": "full",
+    "notes": "Read complete verification notes body for counterevidence and precise finding scope."
+  },
+  {
+    "path": "docs/plans/2026-09-30-code-remediation-plan.md",
+    "depth": "full",
+    "notes": "Read complete initial draft; re-read changed M04/M05/M12/M13 portions during parent revisions. This is document review, not source execution."
+  },
+  {
+    "path": "docs/reviews/2026-09-30-full-review/round-2-closure-assignments.json",
+    "depth": "targeted",
+    "notes": "Read closure.contracts array of 46 assigned files; other lane assignment bodies were not read. Initial oversized whole-file output was not counted as full."
+  }
+]

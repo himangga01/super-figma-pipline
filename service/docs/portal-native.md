@@ -8,6 +8,10 @@ Small non-interactive primitive roots (up to 512 px, excluding frames/text and g
 
 ## Plan and code
 
+Exercise this workflow exclusively through the service's own CLI, MCP tools, collectors and validators. Codex browser control and external connectors do not establish service acceptance. Official Figma MCP tests must invoke the service's official-server integration.
+
+After the user enables Chrome remote debugging and permits the service connection, `chrome-open --url <figma-url>` opens a missing source tab through the service's Playwright connection. `chrome-inspect --open --url <figma-url>` combines explicit source opening with collection. Both reuse an existing unique matching tab, preserve unrelated tabs and never launch another source browser or profile. Without the explicit open request, collection remains attach-only. Browser security approvals stay with the user.
+
 Only C4 is frontend-only. C2 and C3 retain every relevant service layer. Do not use the pipeline's three foundation upstreams as implicit service references.
 
 1. Run `portal plan` with the requested case and explicit legacy/reference paths. Use the known Figma binding unless the user selects another design. A missing new-project directory is normal.
@@ -50,7 +54,7 @@ Do not run repository installation/build scripts before their profile is reviewe
 
 ## Browser and visual checks
 
-Use the exported `@sfp/mcp/portal-validation` helper from a reviewed validation harness. The daemon supplies `SFP_PORTAL_VALIDATOR_URL`, `SFP_PORTAL_FIREFOX_EXECUTABLE`, and, for a captured design, `SFP_FIGMA_ASSET_ROOT`.
+Use the exported `@sfp/mcp/portal-validation` helper from a reviewed validation harness. The daemon supplies `SFP_PORTAL_VALIDATOR_URL`, `SFP_PORTAL_CHROME_EXECUTABLE`, and, for a captured design, `SFP_FIGMA_ASSET_ROOT`.
 
 ```javascript
 const { assertNativePortalPreview } = await import(process.env.SFP_PORTAL_VALIDATOR_URL);
@@ -75,11 +79,15 @@ await assertNativePortalPreview({
 
 Replace the illustrative oracle fields with the actual captured asset path/hash. Start the real application before calling the helper and stop its owned process in `finally`. Do not use an editor screenshot as the oracle, or embed a full-screen screenshot as the implemented UI.
 
-The helper uses fresh headless Firefox contexts, fixed locale/timezone/date, DPR 1, font readiness, PNG comparison, configured interactions and basic DOM/keyboard checks. `beforeActions` can establish the required UI state before capture. Use explicit keyboard/focus, form, error, routing and persistence assertions appropriate to the service. This basic audit does not replace the project's full accessibility suite.
+The default comparison mode is `rgba-v1`: it counts pixels whose white-composited RGB channels differ by more than 12. A profile may explicitly set `comparisonMode: 'pixelmatch-7.2-v1'` for comparisons across renderers. That mode uses the pinned Pixelmatch 7.2.0 algorithm, threshold 0.1, antialias detection, and the same white alpha backdrop. The allowed differing-area ratio is still the profile's `maxDifferenceRatio` (1% in this example). Its report also retains the original RGBA ratio as `strictDifferenceRatio`. A perceptual pass is not a claim that strict RGBA comparison passed.
+
+The chosen mode is part of the reviewed profile and observation identity. The worker rejects a mode that differs from its manifest, and the daemon re-computes comparisons from saved PNG bytes under that bound mode. Changing the comparison mode requires preparing and registering a new reviewed profile. Historical failures are not retroactively converted to passes. Neither mode replaces source-property, asset, interaction, accessibility or live-source checks.
+
+The helper launches installed Google Chrome stable through Playwright's `chrome` channel in an owned headless session with a temporary profile. It uses fresh contexts, fixed locale/timezone/date, DPR 1, font readiness, PNG comparison, configured interactions and basic DOM/keyboard checks. It does not connect previews to the user's existing Figma session. A missing Chrome installation blocks preview validation; no alternate browser is selected. `beforeActions` can establish the required UI state before capture. Use explicit keyboard/focus, form, error, routing and persistence assertions appropriate to the service. This basic audit does not replace the project's full accessibility suite.
 
 Native visual artifacts are saved under `.sfp-native-preview` in the working copy. Command evidence records their paths and hashes. Failed command logs are returned to the next coding lease for repairs. A live design is recaptured after native validation and compared against its original content/assets before the live gate can pass.
 
-The daemon independently rechecks screenshot bytes against every captured root PNG. Screens may be split across multiple successful visual commands; their combined evidence must cover the captured roots. An arbitrary local baseline or an exit code alone cannot pass this gate. Standalone pinned JSON remains useful design evidence but is incomplete without a bound usable asset manifest. Asset delivery supports the collector's 5 MB file limit; request small groups within the 20 MB read budget.
+The daemon independently rechecks screenshot bytes against every captured root PNG. Screens may be split across multiple successful visual commands; their combined evidence must cover the captured roots. An arbitrary local baseline or an exit code alone cannot pass this gate. Standalone pinned JSON remains useful design evidence but is incomplete without a bound usable asset manifest. Original asset reads are capped at 16 MiB; large selections use immutable capture references instead of exceeding the bounded inline response.
 
 Captures beyond one 256-asset or 64 MB batch continue pending exports within the same overall capture deadline and retain signed progress. A later capture of the unchanged tree reuses byte-verified images and vectors. Completed prior captures refresh every root PNG to detect rendering changes during live revalidation. Exact existing asset bytes recover safely after an interrupted progress write. Partial or unavailable captures remain incomplete.
 

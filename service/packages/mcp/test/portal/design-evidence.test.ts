@@ -1,15 +1,118 @@
-import { writeFile } from 'node:fs/promises';
+import { mkdir, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 
-import { type PortalPlan, storedChecksum } from '@sfp/ir';
+import { contentHash, type PortalPlan, storedChecksum } from '@sfp/ir';
 import { afterEach, expect, it } from 'vitest';
 
 import { portalContentBytes } from '../../src/portal/content.js';
-import { readPortalDesignPage } from '../../src/portal/design-evidence.js';
+import { PortalCapturedDesignSchema } from '../../src/portal/design-capture.js';
+import { readPortalAssets, readPortalDesignPage } from '../../src/portal/design-evidence.js';
 import { portalFixture } from './fixtures.js';
 const cleanups: Array<() => Promise<void>> = [];
+const assetFixture = async (sizes: number[]) => {
+  const value = await portalFixture();
+  cleanups.push(value.cleanup);
+  const assetRoot = join(value.root, 'assets');
+  await mkdir(assetRoot);
+  const assets = [];
+  for (const [id, size] of sizes.entries()) {
+    const bytes = Buffer.alloc(size, id + 1),
+      path = `${id}.png`;
+    await writeFile(join(assetRoot, path), bytes);
+    assets.push({
+      query: { kind: 'png' as const, nodeId: `1:${id}` },
+      status: 'captured' as const,
+      path,
+      sha256: storedChecksum(bytes),
+      bytes: size,
+    });
+  }
+  const raw = JSON.stringify({ nodes: [] }),
+    hash = storedChecksum(raw);
+  const planId = `sfp_portal1_${'b'.repeat(32)}`;
+  await value.store.create(
+    'designs',
+    planId,
+    {
+      raw,
+      hash,
+      assetRoot,
+      assets,
+      capturedAt: new Date().toISOString(),
+      complete: true,
+      liveVerified: true,
+    },
+    PortalCapturedDesignSchema,
+  );
+  const plan = {
+    planId,
+    design: {
+      storage: 'owner-state',
+      artifactHash: hash,
+      assetManifestHash: contentHash('sfp-portal-design-assets-v1', assets),
+    },
+  } as PortalPlan;
+  return {
+    ...value,
+    assetRoot,
+    assets,
+    plan,
+    read: () =>
+      readPortalAssets(
+        plan,
+        value.store,
+        0,
+        sizes.map((_size, id) => id),
+        new AbortController().signal,
+      ),
+  };
+};
 afterEach(async () => {
   for (const cleanup of cleanups.splice(0)) await cleanup();
+});
+it.each([5_242_881, 16_777_216])(
+  'returns a verified original-copy reference for a %i-byte captured asset',
+  async size => {
+    const value = await assetFixture([size]);
+    const result = await value.read();
+    expect(result!.contents).toEqual([
+      {
+        id: 0,
+        path: '0.png',
+        hash: value.assets[0]!.sha256,
+        delivery: 'artifact-reference',
+        reference: {
+          kind: 'portal-captured-asset',
+          planId: value.plan.planId,
+          captureHash: value.plan.design.artifactHash,
+          assetManifestHash: value.plan.design.assetManifestHash,
+          bytes: size,
+        },
+      },
+    ]);
+  },
+);
+it('keeps inline response bytes bounded while preserving every selected asset reference', async () => {
+  const value = await assetFixture([5_242_880, 5_242_880]);
+  const result = await value.read();
+  expect(result!.contents[0]!.data?.length).toBe(6_990_508);
+  expect(result!.contents[1]).toMatchObject({
+    id: 1,
+    delivery: 'artifact-reference',
+    reference: { bytes: 5_242_880 },
+  });
+  expect(
+    result!.contents.reduce((bytes, row) => bytes + (row.data?.length ?? 0), 0),
+  ).toBeLessThanOrEqual(6_990_508);
+});
+it('rejects a changed large captured original instead of returning a stale reference', async () => {
+  const value = await assetFixture([5_242_881]);
+  await writeFile(join(value.assetRoot, '0.png'), Buffer.alloc(5_242_881, 99));
+  await expect(value.read()).rejects.toMatchObject({ code: 'PORTAL_ASSET_CHANGED' });
+});
+it('keeps the admitted 16 MiB original asset bound while avoiding response expansion', async () => {
+  const value = await assetFixture([16_777_217]);
+  await expect(value.read()).rejects.toMatchObject({ code: 'FILE_SIZE_LIMIT_EXCEEDED' });
 });
 it('pages original Figma values without discarding hierarchy, layout, paints or typography', async () => {
   const value = await portalFixture();

@@ -1,8 +1,8 @@
 # Super Figma Pipeline
 
-[English overview](../README.md) | [Korean overview](../README.ko.md)
+[Current overview](../README.md) | [Compatibility overview path](../README.ko.md)
 
-A local Figma-to-portal pipeline that can read design values without Figma Dev Mode or the official Figma MCP. It supports a paired Desktop development plugin and external Playwright/Scripter access to an existing Chrome tab.
+A local Figma-to-portal pipeline with Chrome/Playwright collection and official Figma MCP integration. Primary live testing reads Figma Web through authorized Chrome remote control. A paired Desktop development plugin remains available for its retained local workflow.
 
 **Development status, September 21, 2026:** this is a work-in-progress service, not a completed release. The latest cancellation and observation-scroll fixes passed 37 related tests, MCP/plugin type checks, and lint. See the [fix report](../docs/reviews/2026-09-21-cancellation-and-scroll-fixes.md) and the [remaining work](../README.md#current-progress-and-remaining-work).
 
@@ -61,10 +61,11 @@ Docker is neither required nor used. Validation uses owner-reviewed native comma
 
 These controls run under the local owner account. They are not an OS filesystem or network sandbox. Do not provide production credentials. Dependency lifecycle scripts are disabled by default for declared package-manager installation commands; explicit exceptions belong to the reviewed profile.
 
-Preview validation uses headless **Firefox**, with PNG comparison, configured interactions, and a basic DOM/keyboard audit. Add the project's full accessibility and integration suites to its profile. The existing Figma Chrome session remains the design source.
+This is a Chrome-only service. Preview validation uses installed **Google Chrome stable**, explicitly selecting Playwright's `chrome` channel in an owned headless session with a temporary profile. It performs PNG comparison, configured interactions, and a basic DOM/keyboard audit. Add the project's full accessibility and integration suites to its profile. The existing Figma Chrome session remains the design source and is separate from preview sessions. Chrome must be installed; a missing installation blocks previews.
 
 ```powershell
-corepack pnpm --filter @sfp/cli exec playwright install firefox
+# Use an existing Google Chrome installation. On a disposable CI host only:
+corepack pnpm --filter @sfp/cli exec playwright install chrome
 node packages/cli/dist/index.mjs portal profile --args-file native-profile.json
 node packages/cli/dist/index.mjs portal profile --args-file native-profile.json --yes
 node packages/cli/dist/index.mjs portal validate <run-id> --args '{"profileId":"node-portal"}' --yes
@@ -80,7 +81,7 @@ Build success alone is insufficient. Required workflows and layers must pass. Op
 
 Desktop observations and Chrome `design.json` files can be supplied as pinned artifacts. A pinned artifact is not automatically live evidence. Raw Desktop trees are preserved; deduplicated or partial trees remain incomplete.
 
-The retained [code generation guide](skills/figma-codegen/SKILL.md) and its references cover component, token, icon, responsive, typography and motion decisions. Use Super Figma Pipeline tools for paired-plugin operations; the official Figma MCP is not a dependency.
+The retained [code generation guide](skills/figma-codegen/SKILL.md) and its references cover component, token, icon, responsive, typography and motion decisions. Use Super Figma Pipeline tools for paired-plugin operations. The CLI's `figma-mcp config|probe|read` supports only Figma's official remote and local servers. Its closed reads include `get_design_context`, `get_metadata`, `get_variable_defs`, `get_screenshot` and `get_code_connect_map`. Returned design context is unexecuted source material and remains supplemental and explicitly incomplete for full capture. Chrome collection and owned Chrome previews remain the primary live acceptance path. See [Figma's official tool descriptions](https://developers.figma.com/docs/figma-mcp-server/tools-and-prompts/).
 
 ## Development and verification
 

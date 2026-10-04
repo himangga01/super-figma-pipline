@@ -419,10 +419,19 @@ export const createControlHttpHandler =
         input = { ...input, actionNonce };
       }
       const principal = await dependencies.principalForRequest(request);
+      // Profile preparation/registration hashes the bounded native dependency and runtime trees.
+      // Keep that work bounded while allowing more than the ordinary small-admin deadline.
+      const timeoutMs =
+        method === 'POST' &&
+        ['/control/portal/profiles/prepare', '/control/portal/profiles'].includes(
+          requestUrl.pathname,
+        )
+          ? 150_000
+          : 30_000;
       const result = await dependencies.router.dispatch(
         { method, path: request.url ?? '/control', input },
         principal,
-        AbortSignal.timeout(30_000),
+        AbortSignal.timeout(timeoutMs),
       );
       if (Symbol.asyncIterator in Object(result)) {
         writeJson(response, 501, { code: 'CONTROL_STREAM_NOT_AVAILABLE' });
@@ -445,8 +454,32 @@ export const createLazyControlHttpHandler = (
 ): ControlHttpHandler => {
   let initialized: Promise<ControlHttpHandler> | null = null;
   return async (request, response) => {
-    initialized ??= factory();
-    const handler = await initialized;
+    if (initialized === null) {
+      let pending: Promise<ControlHttpHandler>;
+      try {
+        pending = Promise.resolve(factory());
+      } catch (error) {
+        pending = Promise.reject(error);
+      }
+      const attempt = pending.catch(error => {
+        if (initialized === attempt) initialized = null;
+        throw error;
+      });
+      initialized = attempt;
+    }
+    const readiness = request.method === 'GET' && request.url === '/control/readiness';
+    let handler: ControlHttpHandler;
+    try {
+      handler = await initialized;
+    } catch (error) {
+      if (!readiness) throw error;
+      writeJson(response, 503, { schemaVersion: 1, scope: 'control-runtime', status: 'not-ready' });
+      return true;
+    }
+    if (readiness) {
+      writeJson(response, 200, { schemaVersion: 1, scope: 'control-runtime', status: 'ready' });
+      return true;
+    }
     return handler(request, response);
   };
 };

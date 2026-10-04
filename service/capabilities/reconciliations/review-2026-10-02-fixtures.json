@@ -1,0 +1,55 @@
+{
+  "schemaVersion": 1,
+  "slice": "review-2026-10-02",
+  "baseline": {
+    "headCommit": "db821db346e7cb5dd27e4df465b91bb106e2f2b3",
+    "authoritySha256": {
+      "upstream-lock.json": "45f42472885a7acf8183554e3065889e5089ac805785a879f95959b98749cc7a",
+      "vendor-map.json": "b3275c7d8b997d1cfe723d97594659f77d7b4361b824a790bcfdd7ff762589bd",
+      "vendor-rules.json": "ef35625d683cf6ab13aa910ba049717673576385038632df3a8a1383a780a3a6"
+    }
+  },
+  "entries": [
+    {
+      "path": "capabilities/task-review-2026-10-02-authority-classes.json",
+      "sha256": "fc9e50488744b8f1cdf994f9d460e9f8681dc32e7e2876463bf49231c8cf656e",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "7b761177521d5e1199ba7a91a291dc23918187717a99d1406a03caffd4eb8a4a"
+        },
+        {
+          "class": "protected",
+          "sha256": "7b761177521d5e1199ba7a91a291dc23918187717a99d1406a03caffd4eb8a4a"
+        }
+      ],
+      "reason": "Reviewed operational fixture replacement: public registration remains blocked without actual observation/oracle; separately authenticated native backend journey cannot establish full portal acceptance. Named getter rows now exercise the actual empty array instead of an empty Vitest argument tuple."
+    },
+    {
+      "path": "packages/cli/test/text-segment-capture.test.ts",
+      "sha256": "a4e660a395e7c29627e2406e4313c9980498302cdb9a605089383964678f2c2f",
+      "priorClaims": [
+        {
+          "class": "protected",
+          "sha256": "6cfb1373cd10e42a5baea6dc4002cb92c19231dddc00d85bdfbd7da07e7384c8"
+        }
+      ],
+      "reason": "Reviewed operational fixture replacement: public registration remains blocked without actual observation/oracle; separately authenticated native backend journey cannot establish full portal acceptance. Named getter rows now exercise the actual empty array instead of an empty Vitest argument tuple."
+    },
+    {
+      "path": "packages/mcp/test/portal/operational-native.test.ts",
+      "sha256": "442a1eb854e754ce9e831bc711285e6f50a866eed97ba540279d315f3439c78b",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "17ffea17f6e77d6802631ae7c123ac3a76ba9cf3cb12bf693545edf3d693ac81"
+        },
+        {
+          "class": "protected",
+          "sha256": "17ffea17f6e77d6802631ae7c123ac3a76ba9cf3cb12bf693545edf3d693ac81"
+        }
+      ],
+      "reason": "Reviewed operational fixture replacement: public registration remains blocked without actual observation/oracle; separately authenticated native backend journey cannot establish full portal acceptance. Named getter rows now exercise the actual empty array instead of an empty Vitest argument tuple."
+    }
+  ]
+}

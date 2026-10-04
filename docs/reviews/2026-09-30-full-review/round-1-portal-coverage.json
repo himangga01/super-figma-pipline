@@ -1,0 +1,317 @@
+[
+  {
+    "path": "service/packages/mcp/src/portal/authority.ts",
+    "depth": "full",
+    "notes": "Full read: repository selection, retained target/source authority, directory and resource identities."
+  },
+  {
+    "path": "service/packages/mcp/src/portal/content.ts",
+    "depth": "full",
+    "notes": "Full read: candidate content validation, path/content bounds and blob authority."
+  },
+  {
+    "path": "service/packages/mcp/src/portal/control.ts",
+    "depth": "full",
+    "notes": "Full read: actor-scoped profile preparation/nonce registration and environment control endpoints; R1-P01."
+  },
+  {
+    "path": "service/packages/mcp/src/portal/coordinator.ts",
+    "depth": "full",
+    "notes": "Full read in sequential sections: plan/start/next/submit/validate/apply/resume/cancel, ownership, leases and durable state; R1-P03/P06/P08/P09/P10."
+  },
+  {
+    "path": "service/packages/mcp/src/portal/native-artifacts.ts",
+    "depth": "full",
+    "notes": "Full read: native executable, dependency/install/runtime artifact authority and output receipt validation."
+  },
+  {
+    "path": "service/packages/mcp/src/portal/native-lifecycle.ts",
+    "depth": "full",
+    "notes": "Full read: acquisition intents, real database provisioning, process/claim lifecycle, retained index and reconciliation; R1-P04/P05."
+  },
+  {
+    "path": "service/packages/mcp/src/portal/native-module-fence-source.ts",
+    "depth": "full",
+    "notes": "Full read: child-process module hook source, import/require authority and evidence protocol."
+  },
+  {
+    "path": "service/packages/mcp/src/portal/native-module-fence.ts",
+    "depth": "full",
+    "notes": "Full read: module fence preparation, package/runtime authority and execution evidence verification."
+  },
+  {
+    "path": "service/packages/mcp/src/portal/native-process-control.ts",
+    "depth": "full",
+    "notes": "Full read: broker-owned process proof, birth/member checks, stop evidence and reconstruction."
+  },
+  {
+    "path": "service/packages/mcp/src/portal/native-resources.ts",
+    "depth": "full",
+    "notes": "Full read: native grants, namespace/database observations, expansion and resource keys; R1-P06 production queue reasoning."
+  },
+  {
+    "path": "service/packages/mcp/src/portal/native-runner.ts",
+    "depth": "full",
+    "notes": "Full read: native workspace preparation, filtered environment, commands, artifacts, preview receipts and process cleanup; R1-P10."
+  },
+  {
+    "path": "service/packages/mcp/src/portal/native-work.ts",
+    "depth": "full",
+    "notes": "Full read in sequential sections: profile preparation/registration, native acceptance producer, source validation, publication journal and recovery; R1-P01/P02/P03/P07/P08/P09."
+  },
+  {
+    "path": "service/packages/mcp/src/portal/presentation.ts",
+    "depth": "full",
+    "notes": "Full read: public plan/run status and bounded presentation of authority and pending input."
+  },
+  {
+    "path": "service/packages/mcp/src/portal/preview-channel.ts",
+    "depth": "full",
+    "notes": "Full read: authenticated owned receipt transport, protocol bounds, source/attempt binding and finish/close behavior."
+  },
+  {
+    "path": "service/packages/mcp/src/portal/preview-consumption.ts",
+    "depth": "full",
+    "notes": "Full read: isolated DOM consumption observations, exact checks, local state and failure measurements."
+  },
+  {
+    "path": "service/packages/mcp/src/portal/preview-interactions.ts",
+    "depth": "full",
+    "notes": "Full read: interaction and workflow assertions, browser state observation, scroll/motion handling."
+  },
+  {
+    "path": "service/packages/mcp/src/portal/preview-listener.ts",
+    "depth": "full",
+    "notes": "Full read: Windows listener evidence and PID/port parsing; locale impact remains a runtime-dependent hypothesis."
+  },
+  {
+    "path": "service/packages/mcp/src/portal/preview-worker.ts",
+    "depth": "full",
+    "notes": "Full read: owned browser worker, startup/failure path and authenticated receipt publication; R1-P10."
+  },
+  {
+    "path": "service/packages/mcp/src/portal/preview.ts",
+    "depth": "full",
+    "notes": "Full read: preview authority, owned server/browser checks, screenshots/diffs/assets/consumption and failed-report return path; R1-P10."
+  },
+  {
+    "path": "service/packages/mcp/src/portal/profile-closure.ts",
+    "depth": "full",
+    "notes": "Full read: material candidate/baseline membership, reviewed hashes and profile source closure."
+  },
+  {
+    "path": "service/packages/mcp/src/portal/source-guard.ts",
+    "depth": "full",
+    "notes": "Full read: case-specific file/content scope, C4 backend restrictions, C2/C3 allowed layers and source checks."
+  },
+  {
+    "path": "service/packages/mcp/src/portal/store.ts",
+    "depth": "full",
+    "notes": "Full read: owner-bound signing, read/update/CAS and per-kind atomic replacement budgets; R1-P03."
+  },
+  {
+    "path": "service/packages/mcp/src/portal/visual-evidence.ts",
+    "depth": "full",
+    "notes": "Full read: pinned visual oracle bytes, screenshot/evidence identities and comparison authority."
+  },
+  {
+    "path": "service/packages/mcp/src/portal/vite-preview.ts",
+    "depth": "full",
+    "notes": "Full read: native Vite profile builder, preview command/resource/output configuration."
+  },
+  {
+    "path": "service/packages/mcp/src/portal/windows-job.ts",
+    "depth": "full",
+    "notes": "Full read: Windows broker/job process ownership, permission handshake, stop acknowledgments and resource proof."
+  },
+  {
+    "path": "service/packages/mcp/test/portal/coordinator.test.ts",
+    "depth": "full",
+    "notes": "Full read in sequential sections: case selection, owned plan/run lifecycle, leases/submission, validation, apply/cancel/reconciliation; assertions inspected only."
+  },
+  {
+    "path": "service/packages/mcp/test/portal/fixtures.ts",
+    "depth": "full",
+    "notes": "Full read: shared portal fixtures, fake work/authority and acceptance assumptions; fixtures are not native owner-flow acceptance."
+  },
+  {
+    "path": "service/packages/mcp/test/portal/fixtures/native-vite-lock.json",
+    "depth": "metadata",
+    "notes": "Generated metadata inspected for lockfile version, root package/dependency pins and consistency with package fixture. Baseline SHA-256 matched. Nested generated package entries were not read line by line; PowerShell ConvertFrom-Json rejected the valid empty package key, so the top-level metadata was inspected as text."
+  },
+  {
+    "path": "service/packages/mcp/test/portal/fixtures/native-vite-package.json",
+    "depth": "full",
+    "notes": "Complete fixture read: package name/type, build/typecheck/preview scripts and pinned native Vite/TypeScript dependencies."
+  },
+  {
+    "path": "service/packages/mcp/test/portal/native-artifacts.test.ts",
+    "depth": "full",
+    "notes": "Full read: executable/dependency/artifact/install/output authority negative tests and gated actual Vite acceptance; not run."
+  },
+  {
+    "path": "service/packages/mcp/test/portal/native-environment.test.ts",
+    "depth": "full",
+    "notes": "Full read in sequential sections: actual SQLite and Windows process claims, retained resource identity, fault/quarantine tests; creation-gap test expects failed reconcile; not run."
+  },
+  {
+    "path": "service/packages/mcp/test/portal/native-module-fence.test.ts",
+    "depth": "full",
+    "notes": "Full read: authorized/unauthorized import and require hooks, subprocess provenance and execution evidence; not run."
+  },
+  {
+    "path": "service/packages/mcp/test/portal/native-runner.test.ts",
+    "depth": "full",
+    "notes": "Full read: working copy, command/environment/source closure, cancellation and artifact/process evidence; not run."
+  },
+  {
+    "path": "service/packages/mcp/test/portal/native-work.characterization.test.ts",
+    "depth": "full",
+    "notes": "Full read: SVC-1/K1 expected-error characterizations, seeded signed-profile seam and missing-consumption gate; not run and not passing product evidence."
+  },
+  {
+    "path": "service/packages/mcp/test/portal/native-work.test.ts",
+    "depth": "full",
+    "notes": "Full read in sequential sections: native acceptance/publication/preimage/recovery and owner control tests; acceptance fixtures lack mandatory recipeConsumption and can fail before intended journal assertions; not run."
+  },
+  {
+    "path": "service/packages/mcp/test/portal/operational-native.test.ts",
+    "depth": "full",
+    "notes": "Full read: actual native HTTP/SQLite C2/C3-style fixtures and assertion profiles; registration/consumption blockers limit claimed end-to-end reachability; not run."
+  },
+  {
+    "path": "service/packages/mcp/test/portal/preview-channel.test.ts",
+    "depth": "full",
+    "notes": "Full read: authenticated receipt protocol, identity/hash/size checks and forged input; not run."
+  },
+  {
+    "path": "service/packages/mcp/test/portal/preview-consumption.test.ts",
+    "depth": "full",
+    "notes": "Full read: real browser consumption observation and poisoned-page/coverage checks; not run."
+  },
+  {
+    "path": "service/packages/mcp/test/portal/preview-interactions.test.ts",
+    "depth": "full",
+    "notes": "Full read: interaction/workflow browser assertions, state transitions and scroll handling; not run."
+  },
+  {
+    "path": "service/packages/mcp/test/portal/preview-lease.test.ts",
+    "depth": "full",
+    "notes": "Full read: version-2 preview broker grant/liveness/lineage, UTF-8 fragments, capability rejection and signed channel authority; not run."
+  },
+  {
+    "path": "service/packages/mcp/test/portal/preview-listener.test.ts",
+    "depth": "full",
+    "notes": "Full read: English netstat parse fixtures and real listener proof gate; locale coverage is not established; not run."
+  },
+  {
+    "path": "service/packages/mcp/test/portal/preview-native.test.ts",
+    "depth": "full",
+    "notes": "Full read: actual owned native preview, receipt/mismatch/forgery and direct in-process profile seams; not run."
+  },
+  {
+    "path": "service/packages/mcp/test/portal/preview.test.ts",
+    "depth": "full",
+    "notes": "Full read: preview contract, source paths, images/assets/oracles, observations and report failures; not run."
+  },
+  {
+    "path": "service/packages/mcp/test/portal/source-authority.test.ts",
+    "depth": "full",
+    "notes": "Full read: version-2 authority, legacy-record fencing, material source closure, symlink/identity and conflict checks; not run."
+  },
+  {
+    "path": "service/packages/mcp/test/portal/source-guard.test.ts",
+    "depth": "full",
+    "notes": "Full read: C4 frontend restrictions and legacy/reference complete-portal allowances; not run."
+  },
+  {
+    "path": "service/packages/mcp/test/portal/store.characterization.test.ts",
+    "depth": "full",
+    "notes": "Full read: exact 64-success/65th-failure retained-generation characterization and explicit control; not run."
+  },
+  {
+    "path": "service/packages/mcp/test/portal/store.test.ts",
+    "depth": "full",
+    "notes": "Full read: signed store ownership, corruption/tampering, update/CAS and retained state behavior; not run."
+  },
+  {
+    "path": "AGENTS.md",
+    "depth": "full",
+    "notes": "Read complete repository instructions; English Markdown, no Superpowers/Docker, active four-case scope."
+  },
+  {
+    "path": "docs/reviews/2026-09-30-full-review/review-brief.md",
+    "depth": "full",
+    "notes": "Read complete authority, static-only boundaries, findings format, manifest coverage and main-session disposition requirements."
+  },
+  {
+    "path": "docs/reviews/2026-09-30-full-review/source-manifest.json",
+    "depth": "metadata",
+    "notes": "Read assigned lane inventory and file hashes; all 47 portal paths independently SHA-256 checked against baseline with no mismatches."
+  },
+  {
+    "path": "docs/plans/2026-09-07-portal-four-cases-plan.md",
+    "depth": "targeted",
+    "notes": "Read case scope, complete C2/C3 workflow/native environment requirements, C4 backend prohibition, source publication/recovery and acceptance sections. Large document not claimed as full after a truncated combined read."
+  },
+  {
+    "path": "docs/plans/2026-09-27-code-remediation-plan.md",
+    "depth": "targeted",
+    "notes": "Read/located relevant current/older finding IDs, integrated task scope, retention/protocol and recovery remedy boundaries; not complete document review."
+  },
+  {
+    "path": "docs/reviews/2026-09-27-remediation/T06a-critical-reproductions.md",
+    "depth": "targeted",
+    "notes": "Inspected SVC-1/K1/OPS-2 reproductions and seam/acceptance limits; the initial combined output was large, so conservative targeted coverage."
+  },
+  {
+    "path": "docs/reviews/2026-09-27-remediation/T01-lease-broker-encoding.md",
+    "depth": "targeted",
+    "notes": "Read first 95 lines and relevant broker v2/UTF-8/process proof fixes to avoid repeating superseded accusations."
+  },
+  {
+    "path": "docs/reviews/2026-09-27-remediation/T26-analysis-limits.md",
+    "depth": "targeted",
+    "notes": "Read first 95 lines and scoped analysis/source inventory limit fixes; not a full lane review."
+  },
+  {
+    "path": "service/packages/ir/src/portal-run.ts",
+    "depth": "targeted",
+    "notes": "Read lines 175-366 for candidate/applied completion, mandatory recipe-consumption, runtime and workflow gates; rest not exhaustive."
+  },
+  {
+    "path": "service/packages/mcp/src/fs/atomic-file.ts",
+    "depth": "targeted",
+    "notes": "Read lines 1919-2086 for default retained rows/bytes/scans, prospective capacity and replacement contract; not exhaustive atomic implementation review."
+  },
+  {
+    "path": "service/packages/shared/src/portal.ts",
+    "depth": "targeted",
+    "notes": "Read lines 736-1001 plus contract searches for native profile, observations and acceptance schemas; rest not exhaustive."
+  },
+  {
+    "path": "service/packages/mcp/src/portal/service-graph.ts",
+    "depth": "targeted",
+    "notes": "Targeted contract/implementation searches for service layers, required workflow coverage and case scope; not full read."
+  },
+  {
+    "path": "service/packages/mcp/src/portal/source-inventory.ts",
+    "depth": "targeted",
+    "notes": "Targeted searches for current material inventory/source-authority contracts and integrated limit changes; not full read."
+  },
+  {
+    "path": "service/packages/mcp/src/portal/source-path-policy.ts",
+    "depth": "targeted",
+    "notes": "Targeted searches for material source-path inclusion/exclusion and authority boundaries; not full read."
+  },
+  {
+    "path": "service/packages/mcp/src/portal/recipes/core-consumption.ts",
+    "depth": "targeted",
+    "notes": "Located verifier definition at line 856 and searched production call sites; no production caller found. Full recipe compilation/verification belongs to recipes lane."
+  },
+  {
+    "path": "service/packages/mcp/src/execution/operation-executor.ts",
+    "depth": "targeted",
+    "notes": "Read lines 1536-1554 for production queue resource selection, confirming explicit portal executionResources/resource.key does not serialize resume-none with validation/control."
+  }
+]

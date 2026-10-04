@@ -531,7 +531,11 @@ export const analyzePortalServiceConnections = (input: {
           }
       }
     }
-    type Receiver = { kind: 'app' | 'router' | 'client' | 'unknown'; framework?: string; at: Node };
+    type Receiver = {
+      kind: 'app' | 'router' | 'client' | 'collection' | 'unknown';
+      framework?: string;
+      at: Node;
+    };
     const receivers = new Map<string, Receiver>();
     const factory = (
       callee: unknown,
@@ -583,6 +587,18 @@ export const analyzePortalServiceConnections = (input: {
       ) {
         const name = id(node.id)!,
           inferred = factory(initializer.callee);
+        const constructor = id(initializer.callee);
+        if (
+          initializer.type === 'NewExpression' &&
+          ['Map', 'Set', 'WeakMap', 'WeakSet'].includes(constructor ?? '') &&
+          !declarations.has(constructor!) &&
+          !mutated.has(constructor!) &&
+          declarations.get(name) === 1 &&
+          !mutated.has(name)
+        ) {
+          receivers.set(name, { kind: 'collection', at: node });
+          continue;
+        }
         const args = initializer.arguments as unknown[];
         const supportedOptions =
           args.length === 0 ||
@@ -610,6 +626,19 @@ export const analyzePortalServiceConnections = (input: {
         prefix: string;
         evidence: PortalConnectionEvidence;
       }[] = [];
+    const fetchAliases = new Map<string, boolean>();
+    for (const node of nodes) {
+      if (node.type !== 'VariableDeclarator') continue;
+      const name = id(node.id),
+        part = member(node.init);
+      const bare = id(node.init) === 'fetch';
+      const qualified = part?.receiver === 'globalThis' && part.name === 'fetch';
+      if (!name || (!bare && !qualified)) continue;
+      const intrinsic = qualified
+        ? !declarations.has('globalThis') && !mutated.has('globalThis')
+        : !declarations.has('fetch') && !mutated.has('fetch');
+      fetchAliases.set(name, intrinsic && declarations.get(name) === 1 && !mutated.has(name));
+    }
     const invalid = new Set<string>();
     const endpoint = (node: Node, method: string, routeValue: unknown): Endpoint | undefined => {
       const route = str(routeValue),
@@ -633,7 +662,7 @@ export const analyzePortalServiceConnections = (input: {
       let current = value;
       for (let depth = 0; depth < 32; depth++) {
         const name = id(current);
-        if (name) return receivers.has(name);
+        if (name) return receivers.has(name) && receivers.get(name)?.kind !== 'collection';
         if (!obj(current)) return false;
         if (current.type === 'CallExpression' || current.type === 'NewExpression') {
           if (factory(current.callee)) return true;
@@ -649,6 +678,7 @@ export const analyzePortalServiceConnections = (input: {
       const args = node.arguments as unknown[],
         part = member(node.callee),
         receiver = part ? receivers.get(part.receiver) : undefined;
+      if (receiver?.kind === 'collection') continue;
       if (
         obj(node.callee) &&
         node.callee.type === 'MemberExpression' &&
@@ -661,8 +691,16 @@ export const analyzePortalServiceConnections = (input: {
         );
         continue;
       }
-      if (id(node.callee) === 'fetch') {
-        if (declarations.has('fetch')) {
+      const qualifiedFetch = part?.receiver === 'globalThis' && part.name === 'fetch';
+      const alias = fetchAliases.get(id(node.callee) ?? '');
+      if (id(node.callee) === 'fetch' || qualifiedFetch || alias !== undefined) {
+        if (
+          alias === false ||
+          (alias === undefined &&
+            (qualifiedFetch
+              ? declarations.has('globalThis') || mutated.has('globalThis')
+              : declarations.has('fetch') || mutated.has('fetch')))
+        ) {
           problem(
             'SHADOWED_HTTP_CLIENT',
             evidence(source, node.start, 'Fetch binding is not the global client'),

@@ -16,7 +16,7 @@ const SETTER_BY_FIELD: Record<StyleField, string> = {
 
 export const createApplyStyleToNodeHandler =
   (figmaCtx: typeof figma): SandboxToolHandler =>
-  async params => {
+  async (params, execution) => {
     const p = (params ?? {}) as { nodeId?: unknown; styleId?: unknown; field?: unknown };
     if (typeof p.nodeId !== 'string')
       throw new TypeError('apply_style_to_node: nodeId must be a string');
@@ -27,6 +27,8 @@ export const createApplyStyleToNodeHandler =
     }
 
     const node = await figmaCtx.getNodeByIdAsync(p.nodeId);
+
+    execution?.signal.throwIfAborted();
     if (node === null) throw new Error(`apply_style_to_node: node ${p.nodeId} not found`);
 
     const setter = SETTER_BY_FIELD[p.field as StyleField];
@@ -37,6 +39,7 @@ export const createApplyStyleToNodeHandler =
       );
     }
     await (fn as (id: string) => Promise<void>).call(node, p.styleId);
+    execution?.signal.throwIfAborted();
 
     const result: MutateResult = { ok: true, nodeId: node.id };
     return result;

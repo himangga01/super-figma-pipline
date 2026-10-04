@@ -14,6 +14,9 @@ import { readFile } from 'node:fs/promises';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 
+import { assertScopeBinding, checkTestScope } from './test-report-scope.mjs';
+import { REQUIRED_SUITES } from './test-skip-census.mjs';
+
 export const SERVICE_ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 export const DEFAULT_LEDGER = 'test/known-failures.json';
 
@@ -75,6 +78,15 @@ export const checkReport = (report, ledgerEntries, options = {}) => {
   }
 
   const counts = { files: 0, tests: 0, passed: 0, failed: 0, skipped: 0, suiteErrors: 0 };
+  const scopeProblems =
+    options.scope === undefined
+      ? []
+      : checkTestScope(
+          report,
+          options.scope,
+          options.root ?? SERVICE_ROOT,
+          REQUIRED_SUITES.flatMap(suite => suite.files),
+        );
   const results = [];
   const suiteFailures = [];
   for (const file of report.testResults) {
@@ -143,6 +155,7 @@ export const checkReport = (report, ledgerEntries, options = {}) => {
   const unhandledErrors = unhandled === null ? 0 : Number(unhandled[1]);
 
   const ok =
+    scopeProblems.length === 0 &&
     unhandledErrors === 0 &&
     unexpected.length === 0 &&
     suiteFailures.length === 0 &&
@@ -153,6 +166,7 @@ export const checkReport = (report, ledgerEntries, options = {}) => {
     unknownTests.length === 0;
   return {
     ok,
+    scopeProblems,
     counts,
     unhandledErrors,
     known,
@@ -194,6 +208,7 @@ export const formatSummary = (result, ledgerSize) => {
     if (rows.length === 0) return;
     lines.push(`${title} (${rows.length}):`, ...rows.map(row => `  - ${row}`));
   };
+  section('TEST SCOPE incomplete or inconsistent', result.scopeProblems);
   section(
     'UNEXPECTED failures, not in the ledger',
     result.unexpected.map(row => `${row.file} > ${row.test}: ${row.message.split('\n')[0]}`),
@@ -235,12 +250,14 @@ const main = async argv => {
   let ledgerPath = join(SERVICE_ROOT, DEFAULT_LEDGER);
   let logPath;
   let allowPartial = false;
+  let scopePath;
   const positional = [];
   while (args.length > 0) {
     const arg = args.shift();
     if (arg === '--ledger') ledgerPath = resolve(args.shift() ?? '');
     else if (arg === '--log') logPath = resolve(args.shift() ?? '');
     else if (arg === '--allow-partial') allowPartial = true;
+    else if (arg === '--scope') scopePath = resolve(args.shift() ?? '');
     else positional.push(arg);
   }
   if (positional.length !== 1) {
@@ -253,17 +270,26 @@ const main = async argv => {
   let report;
   let entries;
   let log;
+  let scope;
   try {
     report = JSON.parse(await readFile(resolve(positional[0]), 'utf8'));
     entries = parseLedger(JSON.parse(await readFile(ledgerPath, 'utf8')));
     if (logPath !== undefined) log = await readFile(logPath, 'utf8');
+    if (scopePath === undefined)
+      throw new Error(
+        'TEST_SCOPE_REQUIRED: declare scope before collection and pass --scope <path>',
+      );
+    scope = JSON.parse(await readFile(scopePath, 'utf8'));
+    await assertScopeBinding(scope, SERVICE_ROOT);
+    if (allowPartial && scope.mode !== 'focused')
+      throw new Error('--allow-partial requires a focused scope');
   } catch (error) {
     process.stderr.write(`${error instanceof Error ? error.message : String(error)}\n`);
     return 2;
   }
   let result;
   try {
-    result = checkReport(report, entries, { allowPartial, log });
+    result = checkReport(report, entries, { allowPartial: scope.mode === 'focused', log, scope });
   } catch (error) {
     process.stderr.write(`${error instanceof Error ? error.message : String(error)}\n`);
     return 2;

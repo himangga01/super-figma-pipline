@@ -18,6 +18,7 @@ export const createCombineAsVariantsHandler =
     const nodes = await Promise.all(
       (p.nodeIds as string[]).map(id => figmaCtx.getNodeByIdAsync(id)),
     );
+    execution?.signal.throwIfAborted();
     const components: ComponentNode[] = [];
     for (const [i, node] of nodes.entries()) {
       if (node === null) throw new Error(`combine_as_variants: node ${p.nodeIds[i]} not found`);
@@ -33,6 +34,7 @@ export const createCombineAsVariantsHandler =
     let parent: (BaseNode & ChildrenMixin) | null;
     if (typeof p.parentId === 'string') {
       const candidate = await figmaCtx.getNodeByIdAsync(p.parentId);
+      execution?.signal.throwIfAborted();
       if (candidate === null || !('appendChild' in candidate)) {
         throw new Error(
           `combine_as_variants: parent ${p.parentId} not found or cannot contain children`,

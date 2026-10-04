@@ -1,0 +1,407 @@
+[
+  {
+    "path": "docs/plans/2026-09-30-code-remediation-plan.md",
+    "depth": "full",
+    "notes": "Round-two production/document cross-read. Inspected lines 1-196; uninspected lines none. File: 29027 bytes, 196 lines, SHA-256 cf132c0a3b1a06ab7a9565d30375d37ba41533912d6c1f3218547198b987095a. Static inspection only; not executed."
+  },
+  {
+    "path": "docs/reviews/2026-09-30-full-review/main-verification-notes.md",
+    "depth": "full",
+    "notes": "Round-two production/document cross-read. Inspected lines 1-70; uninspected lines none. File: 20846 bytes, 70 lines, SHA-256 bab9419c4d9bd435205d59e6211e89a34e9a22f2955d466036ee98dbbcadaaf1. Static inspection only; not executed."
+  },
+  {
+    "path": "docs/reviews/2026-09-30-full-review/round-1-main-disposition.md",
+    "depth": "full",
+    "notes": "Round-two production/document cross-read. Inspected lines 1-64; uninspected lines none. File: 8955 bytes, 64 lines, SHA-256 d1a025ee2bd4c8f519ece2ef0e68f5ec751effafdffe6331f95b073c0a9ae98f. Static inspection only; not executed."
+  },
+  {
+    "path": "service/packages/mcp/src/control/router.ts",
+    "depth": "targeted",
+    "notes": "Round-two production/document cross-read. Inspected lines 400-452; uninspected lines 1-399. File: 16074 bytes, 452 lines, SHA-256 cebcb4b9d16169e943a51429d94e454427a97659ddd100fe6e4a5185805dfb3f. Static inspection only; not executed."
+  },
+  {
+    "path": "service/packages/mcp/src/election/leader-endpoints.ts",
+    "depth": "targeted",
+    "notes": "Round-two production/document cross-read. Inspected lines 205-309; uninspected lines 1-204, 310-369. File: 12823 bytes, 369 lines, SHA-256 5f92231e28e965e0d126c393ab166d2cfe30c7d38119579d0e3c07817f32c004. Static inspection only; not executed."
+  },
+  {
+    "path": "service/packages/mcp/src/execution/egress-manifest-store.ts",
+    "depth": "targeted",
+    "notes": "Round-two production/document cross-read. Inspected lines 325-370; uninspected lines 1-324, 371-612. File: 22444 bytes, 612 lines, SHA-256 9014ddb5a1e0cdf3bdad63be00d5eceb13c3b0d780928d10ed31736d4c85603b. Static inspection only; not executed."
+  },
+  {
+    "path": "service/packages/mcp/src/execution/execution-plane.ts",
+    "depth": "targeted",
+    "notes": "Round-two production/document cross-read. Inspected lines 250-405, 800-900; uninspected lines 1-249, 406-799, 901-1395. File: 50963 bytes, 1395 lines, SHA-256 2f18b2308da01a1163b8d2c549f763861529899f0c6dd812fdacf18acf9d388b. Static inspection only; not executed."
+  },
+  {
+    "path": "service/packages/mcp/src/execution/follower-invocation-client.ts",
+    "depth": "targeted",
+    "notes": "Round-two production/document cross-read. Inspected lines 125-180; uninspected lines 1-124, 181-258. File: 9119 bytes, 258 lines, SHA-256 3394458ebc5a0a6d6aef2cec4347883601801ebfb7e258da5bef6555f8198b85. Static inspection only; not executed."
+  },
+  {
+    "path": "service/packages/mcp/src/execution/native-evidence-artifact-port.ts",
+    "depth": "targeted",
+    "notes": "Round-two production/document cross-read. Inspected lines 542-590, 685-815; uninspected lines 1-541, 591-684, 816-1075. File: 45679 bytes, 1075 lines, SHA-256 6c0b455c786b3a7a440f2b07c8a19f175e4f4d965d54de0824054a3ddb8bc073. Static inspection only; not executed."
+  },
+  {
+    "path": "service/packages/mcp/src/execution/operation-evidence-receipt-store.ts",
+    "depth": "targeted",
+    "notes": "Round-two production/document cross-read. Inspected lines 455-555; uninspected lines 1-454, 556-1169. File: 47743 bytes, 1169 lines, SHA-256 5940bff514e7c600225e5daa954ca4bfe8efdfded841f9b8249261babf81bc09. Static inspection only; not executed."
+  },
+  {
+    "path": "service/packages/mcp/src/execution/operation-executor.ts",
+    "depth": "targeted",
+    "notes": "Round-two production/document cross-read. Inspected lines 890-1010, 1510-1625, 1690-1805, 2050-2110, 2130-2240; uninspected lines 1-889, 1011-1509, 1626-1689, 1806-2049, 2111-2129, 2241-2267. File: 87397 bytes, 2267 lines, SHA-256 d18a41c7ac1b7a6d05a4a77c38384eed61642821cbed32adada977174dff934e. Static inspection only; not executed."
+  },
+  {
+    "path": "service/packages/mcp/src/execution/operation-journal.ts",
+    "depth": "targeted",
+    "notes": "Round-two production/document cross-read. Inspected lines 810-840, 1450-1570; uninspected lines 1-809, 841-1449, 1571-1609. File: 60492 bytes, 1609 lines, SHA-256 20ff1c3139d8fb48996538e3ce71eb88b32ce4c83b116488763d520750d673aa. Static inspection only; not executed."
+  },
+  {
+    "path": "service/packages/mcp/src/execution/retention-sweep.ts",
+    "depth": "targeted",
+    "notes": "Round-two production/document cross-read. Inspected lines 1-319; uninspected lines 320-353. File: 14718 bytes, 353 lines, SHA-256 b0184b0df2c81301e6747fcd6c29989c36450284996f1f99d9d524d1a2b8b005. Static inspection only; not executed."
+  },
+  {
+    "path": "service/packages/mcp/src/execution/target-resolver.ts",
+    "depth": "full",
+    "notes": "Round-two production/document cross-read. Inspected lines 1-152; uninspected lines none. File: 4915 bytes, 152 lines, SHA-256 e28c82bfcbe7748cdefe9218b7d5d69402610c354c355222ee8f0519056cc13b. Static inspection only; not executed."
+  },
+  {
+    "path": "service/packages/mcp/src/fs/atomic-file.ts",
+    "depth": "targeted",
+    "notes": "Round-two production/document cross-read. Inspected lines 1920-2225; uninspected lines 1-1919, 2226-2328. File: 86324 bytes, 2328 lines, SHA-256 78c267d6203423a0db0154599d94eab2440343481f841e61efbd0c6add8b0ef5. Static inspection only; not executed."
+  },
+  {
+    "path": "service/packages/mcp/src/index.ts",
+    "depth": "targeted",
+    "notes": "Round-two production/document cross-read. Inspected lines 330-385, 620-665, 850-940, 1035-1065, 1290-1365, 1395-1500; uninspected lines 1-329, 386-619, 666-849, 941-1034, 1066-1289, 1366-1394, 1501-1644. File: 67871 bytes, 1644 lines, SHA-256 1e63c4d55188dc290fbc8032fd5e57a0eb05f80ab2f53d8585bf9e572d21bd83. Static inspection only; not executed."
+  },
+  {
+    "path": "service/packages/mcp/src/policy/approval-broker.ts",
+    "depth": "targeted",
+    "notes": "Round-two production/document cross-read. Inspected lines 85-195; uninspected lines 1-84, 196-346. File: 12901 bytes, 346 lines, SHA-256 a88e11cf6c95d82d56d0504fa99884e5739bbb3a7c8406accc71b9c5d4143638. Static inspection only; not executed."
+  },
+  {
+    "path": "service/packages/mcp/src/policy/approval-gate.ts",
+    "depth": "full",
+    "notes": "Round-two production/document cross-read. Inspected lines 1-13; uninspected lines none. File: 537 bytes, 13 lines, SHA-256 228098d176d6be494ccf864477c943136060585a4b34eae2314c885c815cffa1. Static inspection only; not executed."
+  },
+  {
+    "path": "service/packages/mcp/src/policy/approval-prompt.ts",
+    "depth": "full",
+    "notes": "Round-two production/document cross-read. Inspected lines 1-99; uninspected lines none. File: 3624 bytes, 99 lines, SHA-256 5881d1de41f476c1a3cf7648c8649c3bc14ae384c6e0ef66f36a74790043d24c. Static inspection only; not executed."
+  },
+  {
+    "path": "service/packages/mcp/src/policy/operation-policy.ts",
+    "depth": "targeted",
+    "notes": "Round-two production/document cross-read. Inspected lines 35-58, 418-479; uninspected lines 1-34, 59-417, 480-508. File: 15242 bytes, 508 lines, SHA-256 2540155d9f41fcc3f4e3c745475503ec3962e72e51f835b014ee016be2d8d4b4. Static inspection only; not executed."
+  },
+  {
+    "path": "service/packages/mcp/src/portal/store.ts",
+    "depth": "targeted",
+    "notes": "Round-two production/document cross-read. Inspected lines 110-160; uninspected lines 1-109, 161-183. File: 6477 bytes, 183 lines, SHA-256 3ed91968039ad424d5a138dd0133196178d4229dc1376352034bb9045625ba23. Static inspection only; not executed."
+  },
+  {
+    "path": "service/packages/mcp/src/relay/relay.ts",
+    "depth": "targeted",
+    "notes": "Round-two production/document cross-read. Inspected lines 175-269, 345-390, 735-785; uninspected lines 1-174, 270-344, 391-734, 786-992. File: 38052 bytes, 992 lines, SHA-256 8a89bf5b70038ffde196531e4df9f037fe0eb3eba3aac5a7378ddf65212384ba. Static inspection only; not executed."
+  },
+  {
+    "path": "service/packages/mcp/src/tools/registry.ts",
+    "depth": "targeted",
+    "notes": "Round-two production/document cross-read. Inspected lines 275-312; uninspected lines 1-274, 313-352. File: 14636 bytes, 352 lines, SHA-256 e0116f7e72ae7e7be05aea2ba5e8a29d7780e729445786c6f7e2053a49a09a37. Static inspection only; not executed."
+  },
+  {
+    "path": "service/packages/mcp/src/tools/runtime-registry.ts",
+    "depth": "full",
+    "notes": "Round-two production/document cross-read. Inspected lines 1-274; uninspected lines none. File: 8609 bytes, 274 lines, SHA-256 8eeaba3cc042b6a8775cf56bd3554cfd915cee8297be0e953dd8bb0b62bc4d40. Static inspection only; not executed."
+  },
+  {
+    "path": "service/packages/mcp/src/tools/set-text.ts",
+    "depth": "full",
+    "notes": "Round-two production/document cross-read. Inspected lines 1-19; uninspected lines none. File: 717 bytes, 19 lines, SHA-256 268e7b7d01e3c9dd82c699805bd811baf3ac99b3e4a46cba6855ae8e1186ac33. Static inspection only; not executed."
+  },
+  {
+    "path": "service/packages/mcp/test/control/operation-evidence.test.ts",
+    "depth": "full",
+    "notes": "Assigned closure.platform test body; complete bounded reads. Inspected lines 1-184; uninspected lines none. File: 6429 bytes, 184 lines, SHA-256 7df410e608ff7e75ff430363702c583d6ab73f1a28c77794c0b4e7be13331bb0. Static inspection only; not executed."
+  },
+  {
+    "path": "service/packages/mcp/test/dispatch.test.ts",
+    "depth": "full",
+    "notes": "Assigned closure.platform test body; complete bounded reads. Inspected lines 1-493; uninspected lines none. File: 17839 bytes, 493 lines, SHA-256 cc00ed99b2848b95e7ae48cab91c60c0df56e4a786aae26904865501d077aa5c. Static inspection only; not executed."
+  },
+  {
+    "path": "service/packages/mcp/test/e2e/get-document.test.ts",
+    "depth": "full",
+    "notes": "Assigned closure.platform test body; complete bounded reads. Inspected lines 1-106; uninspected lines none. File: 2708 bytes, 106 lines, SHA-256 9db9a1dd468fd6051c689b210459176c1bf875c11bb393a5045a73735cd99add. Static inspection only; not executed."
+  },
+  {
+    "path": "service/packages/mcp/test/e2e/get-selection.test.ts",
+    "depth": "full",
+    "notes": "Assigned closure.platform test body; complete bounded reads. Inspected lines 1-96; uninspected lines none. File: 2515 bytes, 96 lines, SHA-256 4e3162eb383ed09c76a486164adbdb14b68ae3018384362ad448e4c2be4a4db5. Static inspection only; not executed."
+  },
+  {
+    "path": "service/packages/mcp/test/e2e/mcp-wire.test.ts",
+    "depth": "full",
+    "notes": "Assigned closure.platform test body; complete bounded reads. Inspected lines 1-1136; uninspected lines none. File: 45223 bytes, 1136 lines, SHA-256 ca5d35c8509c087a7f7ce0f9af196e0b10657438e99929a792d8efc72a8b6f66. Static inspection only; not executed. Truncated combined output repaired by separate full read of lines 867-1136."
+  },
+  {
+    "path": "service/packages/mcp/test/e2e/ping.test.ts",
+    "depth": "full",
+    "notes": "Assigned closure.platform test body; complete bounded reads. Inspected lines 1-97; uninspected lines none. File: 2550 bytes, 97 lines, SHA-256 60c3a2fb43b26ddc454606da7baf6665f1b7e8e26841f09754da5ba3f6ab51cc. Static inspection only; not executed."
+  },
+  {
+    "path": "service/packages/mcp/test/e2e/process-lifecycle.test.ts",
+    "depth": "full",
+    "notes": "Assigned closure.platform test body; complete bounded reads. Inspected lines 1-256; uninspected lines none. File: 11213 bytes, 256 lines, SHA-256 ae3d7b99b462269878312fc961cf84f65d87f13b02323d7b44499a36dd314285. Static inspection only; not executed."
+  },
+  {
+    "path": "service/packages/mcp/test/e2e/read-tools.test.ts",
+    "depth": "full",
+    "notes": "Assigned closure.platform test body; complete bounded reads. Inspected lines 1-656; uninspected lines none. File: 19912 bytes, 656 lines, SHA-256 7604d3af3fefbf026f0a49a35ef5d3b0dab679651b7454f1e8b885250c1b2187. Static inspection only; not executed."
+  },
+  {
+    "path": "service/packages/mcp/test/election/election.test.ts",
+    "depth": "full",
+    "notes": "Assigned closure.platform test body; complete bounded reads. Inspected lines 1-627; uninspected lines none. File: 23652 bytes, 627 lines, SHA-256 2caba67cf8572be7c15a8505b50577d9eb736fe7a30b831f7de0075e40155bdb. Static inspection only; not executed."
+  },
+  {
+    "path": "service/packages/mcp/test/election/leader-endpoints.test.ts",
+    "depth": "full",
+    "notes": "Assigned closure.platform test body; complete bounded reads. Inspected lines 1-717; uninspected lines none. File: 24357 bytes, 717 lines, SHA-256 6380f908735d173948141097be14d14bac6b5d0e5595a657dedaa59d2590c257. Static inspection only; not executed."
+  },
+  {
+    "path": "service/packages/mcp/test/execution/action-nonce.test.ts",
+    "depth": "full",
+    "notes": "Assigned closure.platform test body; complete bounded reads. Inspected lines 1-209; uninspected lines none. File: 8374 bytes, 209 lines, SHA-256 d6483c78e8043cc3e11986bcb2b27ad05fd857aeaaaea254f9f7de20d3280f23. Static inspection only; not executed."
+  },
+  {
+    "path": "service/packages/mcp/test/execution/approval-broker.test.ts",
+    "depth": "full",
+    "notes": "Assigned closure.platform test body; complete bounded reads. Inspected lines 1-157; uninspected lines none. File: 5758 bytes, 157 lines, SHA-256 79963f520253dd6dd04a5f27c9ac76b63c73109a4a31350b34e865145d554fa2. Static inspection only; not executed."
+  },
+  {
+    "path": "service/packages/mcp/test/execution/approval-plugin-port.test.ts",
+    "depth": "full",
+    "notes": "Assigned closure.platform test body; complete bounded reads. Inspected lines 1-60; uninspected lines none. File: 2166 bytes, 60 lines, SHA-256 bc9303ef33eace3aa01d53c649c1e687c4f35353657013f047ff84622b025030. Static inspection only; not executed."
+  },
+  {
+    "path": "service/packages/mcp/test/execution/boundary-limits.test.ts",
+    "depth": "full",
+    "notes": "Assigned closure.platform test body; complete bounded reads. Inspected lines 1-167; uninspected lines none. File: 5932 bytes, 167 lines, SHA-256 92f673ff1ba757ee9305c649c997b23203998ab79859bea3dfa39c7c0813dbad. Static inspection only; not executed."
+  },
+  {
+    "path": "service/packages/mcp/test/execution/control-tool-call.test.ts",
+    "depth": "full",
+    "notes": "Assigned closure.platform test body; complete bounded reads. Inspected lines 1-35; uninspected lines none. File: 1213 bytes, 35 lines, SHA-256 3c4fd2481dc754b2339f3275c7a92179c64abcc43e5c425145a0fd382629bc31. Static inspection only; not executed."
+  },
+  {
+    "path": "service/packages/mcp/test/execution/egress-manifest-store.test.ts",
+    "depth": "full",
+    "notes": "Assigned closure.platform test body; complete bounded reads. Inspected lines 1-476; uninspected lines none. File: 20938 bytes, 476 lines, SHA-256 41bd5d18603bcc18f0ba904f8dfaea67008d03c5b34b28c45f12969decc9dd1a. Static inspection only; not executed."
+  },
+  {
+    "path": "service/packages/mcp/test/execution/operation-evidence-receipt.test.ts",
+    "depth": "full",
+    "notes": "Assigned closure.platform test body; complete bounded reads. Inspected lines 1-776; uninspected lines none. File: 33530 bytes, 776 lines, SHA-256 6648f8eec8c45bc340f01546851b9673858727ecd759a2df3de4f06dd01cb66b. Static inspection only; not executed."
+  },
+  {
+    "path": "service/packages/mcp/test/execution/operation-id.test.ts",
+    "depth": "full",
+    "notes": "Assigned closure.platform test body; complete bounded reads. Inspected lines 1-100; uninspected lines none. File: 4403 bytes, 100 lines, SHA-256 2b9916d3f8f4458729573f81f4b9084d3cc3fb00d6aa0bc6df2dc0ceee522fe2. Static inspection only; not executed."
+  },
+  {
+    "path": "service/packages/mcp/test/execution/operation-journal.test.ts",
+    "depth": "full",
+    "notes": "Assigned closure.platform test body; complete bounded reads. Inspected lines 1-903; uninspected lines none. File: 36001 bytes, 903 lines, SHA-256 5f7240fb964adb25ff4ad8dee21ca4214172ce73be9c30b40d2f80ccfa114e6f. Static inspection only; not executed."
+  },
+  {
+    "path": "service/packages/mcp/test/execution/progress-framing.test.ts",
+    "depth": "full",
+    "notes": "Assigned closure.platform test body; complete bounded reads. Inspected lines 1-129; uninspected lines none. File: 4550 bytes, 129 lines, SHA-256 282514e4a124064ff348a2f3af76adfc99bd0d4b29488640a49b7ffc231db9d4. Static inspection only; not executed."
+  },
+  {
+    "path": "service/packages/mcp/test/execution/progress-transport.test.ts",
+    "depth": "full",
+    "notes": "Assigned closure.platform test body; complete bounded reads. Inspected lines 1-349; uninspected lines none. File: 12263 bytes, 349 lines, SHA-256 5c9b8075a068c5386d5c0c4b9f2143f04b49acb5a3e97b7b08459fac11844b29. Static inspection only; not executed."
+  },
+  {
+    "path": "service/packages/mcp/test/execution/resource-queue.test.ts",
+    "depth": "full",
+    "notes": "Assigned closure.platform test body; complete bounded reads. Inspected lines 1-231; uninspected lines none. File: 9010 bytes, 231 lines, SHA-256 df4e9cee308ee7e932edfeb82b6b27912c94cf557f77e45f61b391a57cd0a09d. Static inspection only; not executed."
+  },
+  {
+    "path": "service/packages/mcp/test/execution/runtime-authority.test.ts",
+    "depth": "full",
+    "notes": "Assigned closure.platform test body; complete bounded reads. Inspected lines 1-163; uninspected lines none. File: 6755 bytes, 163 lines, SHA-256 83cb689fe00db6c439976aa30783a8e2e0e5610ff2eb46e8203a6fad3fc186f0. Static inspection only; not executed."
+  },
+  {
+    "path": "service/packages/mcp/test/execution/service-operation-name.test.ts",
+    "depth": "full",
+    "notes": "Assigned closure.platform test body; complete bounded reads. Inspected lines 1-32; uninspected lines none. File: 931 bytes, 32 lines, SHA-256 9e7c2802b455aa95f0c3c3dacd633ff6c682ff2eac385825780cdebcc0a0d8e5. Static inspection only; not executed."
+  },
+  {
+    "path": "service/packages/mcp/test/execution/service-operation-registry.test.ts",
+    "depth": "full",
+    "notes": "Assigned closure.platform test body; complete bounded reads. Inspected lines 1-61; uninspected lines none. File: 1975 bytes, 61 lines, SHA-256 92600dfd0784d97d07c0c88a0564f285b7a46d90dcbc2cc4609ca59145c700a3. Static inspection only; not executed."
+  },
+  {
+    "path": "service/packages/mcp/test/execution/target-requirement.test.ts",
+    "depth": "full",
+    "notes": "Assigned closure.platform test body; complete bounded reads. Inspected lines 1-53; uninspected lines none. File: 1836 bytes, 53 lines, SHA-256 d2d15e2264ae8fb9c651e9df0426221a7774bb1b4d1ed1f5842098b890fe0750. Static inspection only; not executed."
+  },
+  {
+    "path": "service/packages/mcp/test/fs/local-tool-boundary.test.ts",
+    "depth": "full",
+    "notes": "Assigned closure.platform test body; complete bounded reads. Inspected lines 1-423; uninspected lines none. File: 16511 bytes, 423 lines, SHA-256 3e26e86725a83373c20b6e0f980b55aa64ebcea6644a87392f8a7e8aee1f7dda. Static inspection only; not executed."
+  },
+  {
+    "path": "service/packages/mcp/test/fs/operation-evidence-artifact-store.test.ts",
+    "depth": "full",
+    "notes": "Assigned closure.platform test body; complete bounded reads. Inspected lines 1-2397; uninspected lines none. File: 99279 bytes, 2397 lines, SHA-256 cf2ce5ac3aa48d2fd408acd405d86e37f3fe99181fc538cc287b0e5127e4f63c. Static inspection only; not executed."
+  },
+  {
+    "path": "service/packages/mcp/test/fs/runtime-paths.test.ts",
+    "depth": "full",
+    "notes": "Assigned closure.platform test body; complete bounded reads. Inspected lines 1-867; uninspected lines none. File: 31194 bytes, 867 lines, SHA-256 869ab07a2e144355107575fe5798e668fb1f58d7c324fecd0d3efeac9225b0dd. Static inspection only; not executed."
+  },
+  {
+    "path": "service/packages/mcp/test/fs/shared-dependency-boundary.test.ts",
+    "depth": "full",
+    "notes": "Assigned closure.platform test body; complete bounded reads. Inspected lines 1-72; uninspected lines none. File: 2702 bytes, 72 lines, SHA-256 1ea7bdba4a3f14d5d0c904e8e5b672c97531dc3667d99c41c9ef3fd114ad6b44. Static inspection only; not executed."
+  },
+  {
+    "path": "service/packages/mcp/test/fs/windows-boundary-probe-worker.test.ts",
+    "depth": "full",
+    "notes": "Assigned closure.platform test body; complete bounded reads. Inspected lines 1-527; uninspected lines none. File: 19124 bytes, 527 lines, SHA-256 21e1555289c20712f09a29199c1f07867ca8e091908eff98afa313221957f9c8. Static inspection only; not executed."
+  },
+  {
+    "path": "service/packages/mcp/test/lifecycle.test.ts",
+    "depth": "full",
+    "notes": "Assigned closure.platform test body; complete bounded reads. Inspected lines 1-156; uninspected lines none. File: 4983 bytes, 156 lines, SHA-256 98b02f1a587685d10df512f212ebf005f3771b1a718c4abc6b4160bcbb461984. Static inspection only; not executed."
+  },
+  {
+    "path": "service/packages/mcp/test/mapping-parity.test.ts",
+    "depth": "full",
+    "notes": "Assigned closure.platform test body; complete bounded reads. Inspected lines 1-64; uninspected lines none. File: 1910 bytes, 64 lines, SHA-256 20a8595ee45252f1ef5428fcec6a628d16da9aede56b6681acd2a249b772828f. Static inspection only; not executed."
+  },
+  {
+    "path": "service/packages/mcp/test/network/import-image-runtime.test.ts",
+    "depth": "full",
+    "notes": "Assigned closure.platform test body; complete bounded reads. Inspected lines 1-688; uninspected lines none. File: 22894 bytes, 688 lines, SHA-256 a556c3138d10a4f49bc51a035c2ac5e6dc6345e92526361b0784f6244d1a15b1. Static inspection only; not executed."
+  },
+  {
+    "path": "service/packages/mcp/test/policy/egress-config.test.ts",
+    "depth": "full",
+    "notes": "Assigned closure.platform test body; complete bounded reads. Inspected lines 1-215; uninspected lines none. File: 7346 bytes, 215 lines, SHA-256 cdd9eb5cdb0f5b5802700b2231cc7678d0fd8b4082171a19ba900f4a37937948. Static inspection only; not executed."
+  },
+  {
+    "path": "service/packages/mcp/test/policy/operation-policy.test.ts",
+    "depth": "full",
+    "notes": "Assigned closure.platform test body; complete bounded reads. Inspected lines 1-467; uninspected lines none. File: 18322 bytes, 467 lines, SHA-256 33a00d4c4a38991331662e7e589d02e81562e93c336a5286bb0bcbba98b914d6. Static inspection only; not executed."
+  },
+  {
+    "path": "service/packages/mcp/test/policy/result-egress-policy.test.ts",
+    "depth": "full",
+    "notes": "Assigned closure.platform test body; complete bounded reads. Inspected lines 1-417; uninspected lines none. File: 13294 bytes, 417 lines, SHA-256 412856449f27a5c42f6d985c6ad7fb97bc62f9006e54d16cefd35d0dea2c7683. Static inspection only; not executed."
+  },
+  {
+    "path": "service/packages/mcp/test/relay/session.test.ts",
+    "depth": "full",
+    "notes": "Assigned closure.platform test body; complete bounded reads. Inspected lines 1-90; uninspected lines none. File: 2910 bytes, 90 lines, SHA-256 72a9133ddc56e00b9a761979d000caa94a82e16c39ad94cecfcae67fea31bcd0. Static inspection only; not executed."
+  },
+  {
+    "path": "service/packages/mcp/test/security/follower-transport.test.ts",
+    "depth": "full",
+    "notes": "Assigned closure.platform test body; complete bounded reads. Inspected lines 1-1230; uninspected lines none. File: 46625 bytes, 1230 lines, SHA-256 155b95cbd15bd1518bacc1da0ab0d8b81447ccc02d6a20ba80b4e0be2ee1be5e. Static inspection only; not executed."
+  },
+  {
+    "path": "service/packages/mcp/test/security/pairing.test.ts",
+    "depth": "full",
+    "notes": "Assigned closure.platform test body; complete bounded reads. Inspected lines 1-1389; uninspected lines none. File: 52873 bytes, 1389 lines, SHA-256 75ba46eb2eb08d3ab284e0a9773b23e5e314891e9b9a33680d4d0e2fcff0e551. Static inspection only; not executed."
+  },
+  {
+    "path": "service/packages/mcp/test/security/token-rotation.test.ts",
+    "depth": "full",
+    "notes": "Assigned closure.platform test body; complete bounded reads. Inspected lines 1-286; uninspected lines none. File: 11173 bytes, 286 lines, SHA-256 95d50a8adb5085dd6bd1996af9db9e79e0d1b1369c3681063d01644897aee884. Static inspection only; not executed."
+  },
+  {
+    "path": "service/packages/plugin/src/code.ts",
+    "depth": "targeted",
+    "notes": "Round-two production/document cross-read. Inspected lines 110-220; uninspected lines 1-109, 221-227. File: 8760 bytes, 227 lines, SHA-256 ebb94862751f5423cec4e0a34f2c9413bc76ed5f0465605f0b4b40ceea3db3df. Static inspection only; not executed."
+  },
+  {
+    "path": "service/packages/plugin/src/dispatcher.ts",
+    "depth": "full",
+    "notes": "Round-two production/document cross-read. Inspected lines 1-108; uninspected lines none. File: 3667 bytes, 108 lines, SHA-256 71864208fbcedbbe3d8bf5b77845051cf61303c662e80193922d254dd71cc79a. Static inspection only; not executed."
+  },
+  {
+    "path": "service/packages/plugin/src/handlers/clone-node.ts",
+    "depth": "full",
+    "notes": "Round-two production/document cross-read. Inspected lines 1-27; uninspected lines none. File: 1136 bytes, 27 lines, SHA-256 f444c3b5e88bdea898edd30dfd13755b90a0bb62b6464faec9d66aaff92f5db0. Static inspection only; not executed."
+  },
+  {
+    "path": "service/packages/plugin/src/handlers/create-variable.ts",
+    "depth": "targeted",
+    "notes": "Round-two production/document cross-read. Inspected lines 70-100; uninspected lines 1-69, 101-134. File: 5983 bytes, 134 lines, SHA-256 d12c7bc882d5efc7928acfa3e5dd6303e5e4fd88335ab1e4eef89dd00e24b55f. Static inspection only; not executed."
+  },
+  {
+    "path": "service/packages/plugin/src/handlers/registry.ts",
+    "depth": "targeted",
+    "notes": "Round-two production/document cross-read. Inspected lines 120-158, 235-252; uninspected lines 1-119, 159-234, 253-253. File: 15136 bytes, 253 lines, SHA-256 1a00a4022b9e37e2ac8d5f24ecc3bf49c4ba86105588a27e926fb51f9fbca763. Static inspection only; not executed."
+  },
+  {
+    "path": "service/packages/plugin/src/handlers/set-text.ts",
+    "depth": "full",
+    "notes": "Round-two production/document cross-read. Inspected lines 1-30; uninspected lines none. File: 1196 bytes, 30 lines, SHA-256 fb2bb7378184be94cf1ae858dbe18e2b732dc234cc6a90d25ed72d5641dcbd76. Static inspection only; not executed."
+  },
+  {
+    "path": "service/packages/plugin/src/mutation.ts",
+    "depth": "targeted",
+    "notes": "Round-two production/document cross-read. Inspected lines 380-435; uninspected lines 1-379, 436-453. File: 13514 bytes, 453 lines, SHA-256 e342a822cce366f741700a6e3396c97be0b7335ead70dfce2d7bb080ae10a7b4. Static inspection only; not executed."
+  },
+  {
+    "path": "service/packages/plugin/ui/components/TabApprovals.vue",
+    "depth": "full",
+    "notes": "Round-two production/document cross-read. Inspected lines 1-56; uninspected lines none. File: 2228 bytes, 56 lines, SHA-256 887532470f3de755b7d0b384f8a0b0b1a45f50822ebe202a4306d715b136ce60. Static inspection only; not executed."
+  },
+  {
+    "path": "service/packages/plugin/ui/composables/useRelaySession.ts",
+    "depth": "targeted",
+    "notes": "Round-two production/document cross-read. Inspected lines 48-80, 275-295; uninspected lines 1-47, 81-274. File: 12758 bytes, 295 lines, SHA-256 7b92fd23c19dd2d4c78ab6a1bf5a962a538416d4b5ba7a0cb670be95d8911699. Static inspection only; not executed."
+  },
+  {
+    "path": "service/packages/plugin/ui/relay/client.ts",
+    "depth": "targeted",
+    "notes": "Round-two production/document cross-read. Inspected lines 900-935, 1080-1150, 1254-1278; uninspected lines 1-899, 936-1079, 1151-1253, 1279-1305. File: 49180 bytes, 1305 lines, SHA-256 f3857763258dbd26e129b512b219752a431cdad247fe7c2289510728c0d46e6b. Static inspection only; not executed."
+  },
+  {
+    "path": "service/packages/plugin/ui/sandbox/tool-bridge.ts",
+    "depth": "full",
+    "notes": "Round-two production/document cross-read. Inspected lines 1-162; uninspected lines none. File: 5102 bytes, 162 lines, SHA-256 67ddbf853afdd072fa3ba657a3ecaf2f991d2f6d09e03e4b454aa9b4c854e897. Static inspection only; not executed."
+  },
+  {
+    "path": "service/packages/shared/src/tool-budgets.ts",
+    "depth": "full",
+    "notes": "Round-two production/document cross-read. Inspected lines 1-66; uninspected lines none. File: 3204 bytes, 66 lines, SHA-256 7df74e54927d964f1362e5f6448536e33985c5e4f7bab6f930b62b8ef077d899. Static inspection only; not executed."
+  },
+  {
+    "path": "service/scripts/update-service-forks.mjs",
+    "depth": "targeted",
+    "notes": "Round-two production/document cross-read. Inspected lines 350-490, 530-558, 798-850; uninspected lines 1-349, 491-529, 559-797. File: 31822 bytes, 850 lines, SHA-256 a9b99bbf8996d059d3264e4ee5880da7fd9cacf3a39ed0edd83ac78abdfafdb0. Static inspection only; not executed."
+  },
+  {
+    "path": "docs/reviews/2026-09-30-full-review/round-2-closure-assignments.json",
+    "depth": "metadata",
+    "notes": "Metadata: parsed closure.platform assignment rows only; other closure sections not body-reviewed. File: 62300 bytes, 1937 lines. SHA-256 b13c40a7c51ab3ff5cca2ab362f476a292a199e26181798012e1f4fdc32118cb."
+  },
+  {
+    "path": "docs/reviews/2026-09-30-full-review/source-manifest.json",
+    "depth": "metadata",
+    "notes": "Metadata: parsed assigned path/hash index only; not a full body review. File: 340764 bytes, 6512 lines. SHA-256 7db5f318d79a9ae3f30ee508d7e11a00a6829cb7a886253a42cc4fc510613b31."
+  }
+]

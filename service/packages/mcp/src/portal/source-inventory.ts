@@ -3,8 +3,9 @@ import { createHash } from 'node:crypto';
 import { storedChecksum } from '@sfp/ir';
 import { PortalSourceInventorySchema, type PortalSourceInventory } from '@sfp/shared';
 
+import { cssImports, localCssImport } from '../fs/css-imports.js';
 import type { RepoReader } from '../fs/repo-walk.js';
-import { isPortableSourcePath } from './source-path-policy.js';
+import { isPortableSourcePath, portalSourceExclusion } from './source-path-policy.js';
 
 const DEFAULT_LIMITS = {
   maxFiles: 5000,
@@ -53,13 +54,44 @@ export const collectPortalSourceInventory = async (
     exclusions.push(...(walk.exclusions ?? []));
     issues.push(...(walk.issues ?? []));
     if (walk.truncated) issues.push({ code: 'SOURCE_INVENTORY_DISCOVERY_LIMIT' });
-    for (const path of walk.files.toSorted()) {
+    const pending = walk.files.toSorted();
+    const seen = new Set(pending);
+    for (let index = 0; index < pending.length; index++) {
+      const path = pending[index]!;
       currentPath = path;
       // eslint-disable-next-line no-await-in-loop -- bounded, retained-authority raw-byte reads
       const bytes = await sourceReader.readBytes(path);
       totalBytes += bytes.length;
       const classification = classifyPortalSourceBytes(bytes);
       files.push({ path, bytes: bytes.length, hash: storedChecksum(bytes), classification });
+      if (path.endsWith('.css') && classification === 'text')
+        for (const dependency of cssImports(
+          new TextDecoder('utf-8', { fatal: true }).decode(bytes),
+        )) {
+          const target =
+            dependency.specifier === null ? null : localCssImport(path, dependency.specifier);
+          if (target === null) {
+            if (dependency.specifier && /^[A-Za-z@][A-Za-z0-9@/_-]*$/u.test(dependency.specifier))
+              continue;
+            issues.push({ code: 'SOURCE_CSS_IMPORT_UNSUPPORTED', path });
+            continue;
+          }
+          const reason = portalSourceExclusion(target);
+          if (!isPortableSourcePath(target) || (reason && reason !== 'generated-output')) {
+            issues.push({
+              code: 'SOURCE_CSS_IMPORT_EXCLUDED',
+              path: isPortableSourcePath(target) ? target : path,
+            });
+            continue;
+          }
+          if (seen.has(target)) continue;
+          if (seen.size >= limits.maxFiles || ++scannedEntries > limits.maxScanEntries) {
+            issues.push({ code: 'SOURCE_INVENTORY_DISCOVERY_LIMIT', path: target });
+            continue;
+          }
+          seen.add(target);
+          pending.push(target);
+        }
     }
   } catch (cause) {
     const error = cause as { code?: unknown; path?: unknown };
@@ -75,6 +107,7 @@ export const collectPortalSourceInventory = async (
     });
   }
   exclusions.sort((a, b) => (a.path < b.path ? -1 : a.path > b.path ? 1 : 0));
+  files.sort((a, b) => (a.path < b.path ? -1 : a.path > b.path ? 1 : 0));
   const body = {
     schemaVersion: 1 as const,
     policyVersion: 'portal-source-v1' as const,

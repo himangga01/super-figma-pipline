@@ -23,7 +23,6 @@ import {
   type WorkspacePolicy,
 } from '@sfp/shared';
 import { PORTAL_TOOL_NAMES, type PortalToolName } from '@sfp/shared';
-import { firefox } from 'playwright';
 import { z } from 'zod';
 
 import pkg from '../package.json' with { type: 'json' };
@@ -117,18 +116,25 @@ import {
 } from './network/remote-image-fetcher.js';
 import { normalizeIdArgs } from './node-id.js';
 import { createApprovalBroker } from './policy/approval-broker.js';
+import { portalApprovalLabel } from './policy/approval-prompt.js';
 import { authorizeEgress, createEgressConfigStore } from './policy/policy-engine.js';
+import {
+  createNativeAttemptArchivePolicy,
+  createCorePreparationArchivePolicy,
+} from './portal/archive-eligibility.js';
 import { preparePortalCaptureAuthority } from './portal/capture-admission-runtime.js';
 import { createPortalCaptureRuntime } from './portal/capture-runtime.js';
 import {
   createPortalBindingResolver,
   type PortalCaptureAdmissionPorts,
 } from './portal/capture-source-admission.js';
+import { googleChromeExecutable } from './portal/chrome-runtime.js';
 import {
   createPortalProfileEndpoint,
   createPortalProfilePreparationEndpoint,
   registerPortalControlRoutes,
   registerPortalEnvironmentRoutes,
+  registerPortalArchiveRoutes,
 } from './portal/control.js';
 import { PortalCoordinator } from './portal/coordinator.js';
 import { ExistingChromeDesignCapture } from './portal/design-capture.js';
@@ -658,6 +664,9 @@ const initializeLeaderRuntime = async (resources: LeaderResources): Promise<Lead
       stateRoot,
       actorId: ownerActorId,
       externallyManagedRetention: true,
+      hasRetainedSettlementEvidence: async operationId =>
+        (await evidenceReceipts.get(ownerActorId, operationId)) !== null ||
+        (await egressManifests.hasFinalizer(ownerActorId, operationId)),
     });
     initializingAuthorities.set(generation, { operationJournal });
     const operationResolutionIntents = new OperationResolutionIntentStore({
@@ -689,6 +698,8 @@ const initializeLeaderRuntime = async (resources: LeaderResources): Promise<Lead
         });
     });
     const portalCapture = new ExistingChromeDesignCapture(stateRoot, statePermissions, portalStore);
+    const chromeExecutable = googleChromeExecutable();
+    const executionQueue = new FileExecutionQueue();
     const portalWork = new PortalNativeWork({
       stateRoot,
       leaderGeneration: generation,
@@ -697,11 +708,25 @@ const initializeLeaderRuntime = async (resources: LeaderResources): Promise<Lead
       permissions: statePermissions,
       designCapture: portalCapture,
       validatorModuleUrl: new URL('./portal-validation.mjs', import.meta.url).href,
-      firefoxExecutable: firefox.executablePath(),
+      ...(chromeExecutable ? { chromeExecutable } : {}),
+      environmentArchivePolicy: createNativeAttemptArchivePolicy({
+        store: portalStore,
+        queue: executionQueue,
+      }),
     });
-    const portalRecipes = new PortalCoreLifecycle(
-      new CorePreparations({ stateRoot, store: portalStore, permissions: statePermissions }),
-    );
+    const corePreparations: CorePreparations = new CorePreparations({
+      stateRoot,
+      store: portalStore,
+      permissions: statePermissions,
+      archivePolicy: createCorePreparationArchivePolicy({
+        store: portalStore,
+        queue: executionQueue,
+        releaseDependency: async (scope, preparationId, reference) => {
+          await corePreparations.setDependency(scope, preparationId, reference, false);
+        },
+      }),
+    });
+    const portalRecipes = new PortalCoreLifecycle(corePreparations);
     const portal = new PortalCoordinator(
       portalStore,
       workspacePolicy,
@@ -969,7 +994,7 @@ const initializeLeaderRuntime = async (resources: LeaderResources): Promise<Lead
     const executor = new OperationExecutor({
       issuer: operationIdIssuer,
       journal: operationJournal,
-      queue: new FileExecutionQueue(),
+      queue: executionQueue,
       runtimes,
       operations: serviceOperations,
       durability: {
@@ -1049,7 +1074,7 @@ const initializeLeaderRuntime = async (resources: LeaderResources): Promise<Lead
                 }
               : {}),
           },
-          approvalLabel: `Portal ${authority.scope}: ${authority.targetPath}; native execution, retained environment artifacts; ${authority.executionResources?.map(resource => resource.key).join(', ') ?? authority.resource.key}; same owner account, no OS sandbox`,
+          approvalLabel: portalApprovalLabel(authority),
         };
       },
       resolveWorkspaceContext: async workspaceId => {
@@ -1210,6 +1235,12 @@ const initializeLeaderRuntime = async (resources: LeaderResources): Promise<Lead
     registerRecipeEvidenceRoutes(typedControlRouter, resources.executionPlane);
     registerIdentityRoutes(typedControlRouter, resources.relay, targetResolver);
     registerPortalEnvironmentRoutes(typedControlRouter, portalWork, actionNonces);
+    registerPortalArchiveRoutes(
+      typedControlRouter,
+      portalWork.environments,
+      corePreparations,
+      actionNonces,
+    );
     registerPortalControlRoutes(
       typedControlRouter,
       createPortalProfileEndpoint({ store: portalStore, work: portalWork, nonces: actionNonces }),

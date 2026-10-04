@@ -16,6 +16,7 @@ export const createGroupNodesHandler =
     }
     const ids = p.nodeIds as readonly string[];
     const resolved = await Promise.all(ids.map(id => figmaCtx.getNodeByIdAsync(id)));
+    execution?.signal.throwIfAborted();
     const nodes = resolved.filter((n): n is SceneNode => n !== null && 'parent' in n);
     if (nodes.length === 0) throw new Error('group_nodes: no valid nodes to group');
 

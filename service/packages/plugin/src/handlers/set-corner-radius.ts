@@ -11,7 +11,7 @@ const PER_CORNER = [
 
 export const createSetCornerRadiusHandler =
   (figmaCtx: typeof figma): SandboxToolHandler =>
-  async params => {
+  async (params, execution) => {
     const p = (params ?? {}) as {
       nodeId?: unknown;
       radius?: unknown;
@@ -36,10 +36,14 @@ export const createSetCornerRadiusHandler =
       throw new TypeError('set_corner_radius: provide radius or at least one corner radius');
     }
     const node = await figmaCtx.getNodeByIdAsync(p.nodeId);
+    execution?.signal.throwIfAborted();
     if (node === null || !('cornerRadius' in node)) {
       throw new Error(`set_corner_radius: node ${p.nodeId} not found or has no cornerRadius`);
     }
-    if (typeof p.radius === 'number') (node as { cornerRadius: number }).cornerRadius = p.radius;
+    if (typeof p.radius === 'number') {
+      (node as { cornerRadius: number }).cornerRadius = p.radius;
+      execution?.recordOwnedWrite?.(node, ['cornerRadius', ...PER_CORNER]);
+    }
     // Per-corner radii live on RectangleCornerMixin (rects/frames/components/instances). Set them
     // after the uniform radius so a per-corner value overrides it; reject nodes that lack them.
     for (const c of corners) {
@@ -47,6 +51,7 @@ export const createSetCornerRadiusHandler =
         throw new Error(`set_corner_radius: node ${p.nodeId} does not support per-corner radii`);
       }
       (node as unknown as Record<string, number>)[c] = p[c] as number;
+      execution?.recordOwnedWrite?.(node, [c, 'cornerRadius']);
     }
     const result: MutateResult = { ok: true, nodeId: node.id };
     return result;

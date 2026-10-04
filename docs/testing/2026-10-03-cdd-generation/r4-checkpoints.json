@@ -1,0 +1,408 @@
+{
+  "recordedAt": "2026-10-03T15:21:12.854Z",
+  "planId": "sfp_portal1_eb0d555975576174686c1ba298445909",
+  "complete": true,
+  "liveVerified": true,
+  "designFingerprint": "sha256:988ca3cc45e4e91151067be8038a48fe4b29497251c6332a0d0d6c532d141f8f",
+  "currentCandidate": {
+    "hash": "sha256:41212a02ad6db957aad1e268dbb523367e93c82af52d111ecd58f99d4da5909c",
+    "files": 41
+  },
+  "attempts": [
+    {
+      "version": "v1",
+      "runId": "sfp_portal1_eb0d555975576174686c1ba298445909",
+      "candidateHash": "sha256:0b643545d98869f8237ad152c24c0b1cbb47725d40afb46411b3b635a1c21549",
+      "state": "blocked",
+      "issues": [
+        "PORTAL_RECIPE_CONSUMPTION_REQUIRED",
+        "PORTAL_CAPTURE_FRESHNESS_REQUIRED",
+        "PORTAL_OBSERVATION_RECEIPT_REQUIRED",
+        "RUNTIME_NOT_VERIFIED",
+        "LIVE_DESIGN_NOT_VERIFIED",
+        "REQUIRED_CHECK_NOT_PASSED",
+        "MISSING_REQUIRED_CHECK:interaction",
+        "MISSING_REQUIRED_CHECK:accessibility",
+        "MISSING_REQUIRED_CHECK:visual",
+        "MISSING_REQUIRED_CHECK:independence",
+        "REQUIREMENT_CHECK_MISSING:figma-account-session:interaction",
+        "REQUIREMENT_CHECK_MISSING:figma-account-session:accessibility",
+        "REQUIREMENT_CHECK_MISSING:figma-account-session:visual",
+        "REQUIREMENT_CHECK_MISSING:language-selection:interaction",
+        "REQUIREMENT_CHECK_MISSING:language-selection:accessibility",
+        "REQUIREMENT_CHECK_MISSING:language-selection:visual",
+        "REQUIREMENT_CHECK_MISSING:registration-demo:interaction",
+        "REQUIREMENT_CHECK_MISSING:registration-demo:accessibility",
+        "REQUIREMENT_CHECK_MISSING:registration-demo:visual",
+        "REQUIREMENT_CHECK_MISSING:frontend-presentation:interaction",
+        "REQUIREMENT_CHECK_MISSING:frontend-presentation:accessibility",
+        "REQUIREMENT_CHECK_MISSING:frontend-presentation:visual"
+      ],
+      "commands": [
+        {
+          "id": "lock",
+          "status": "passed",
+          "exitCode": 0,
+          "durationMs": 11601
+        },
+        {
+          "id": "install",
+          "status": "passed",
+          "exitCode": 0,
+          "durationMs": 6221
+        },
+        {
+          "id": "typecheck",
+          "status": "passed",
+          "exitCode": 0,
+          "durationMs": 3851
+        },
+        {
+          "id": "build",
+          "status": "passed",
+          "exitCode": 0,
+          "durationMs": 4154
+        },
+        {
+          "id": "preview-cdd",
+          "status": "failed",
+          "exitCode": 1,
+          "durationMs": 106643,
+          "output": "  ➜  Local:   http://127.0.0.1:[redacted environment]/\nPORTAL_PREVIEW_FAILED"
+        }
+      ],
+      "consumption": {
+        "total": 2110,
+        "passed": 2069
+      },
+      "screens": [
+        {
+          "id": "guide",
+          "ratio": 0.09884666921898928,
+          "failures": [
+            "VISUAL_MISMATCH"
+          ],
+          "workflows": []
+        },
+        {
+          "id": "mobile",
+          "ratio": 0.05565414776433099,
+          "failures": [
+            "PORTAL_CONSUMPTION_FAILED",
+            "VISUAL_MISMATCH"
+          ],
+          "workflows": []
+        },
+        {
+          "id": "desktop",
+          "ratio": 0.045603626892839165,
+          "failures": [
+            "PORTAL_CONSUMPTION_FAILED",
+            "VISUAL_MISMATCH"
+          ],
+          "workflows": [
+            {
+              "executedActions": 2,
+              "passed": true,
+              "requirementId": "figma-account-session"
+            },
+            {
+              "executedActions": 6,
+              "passed": true,
+              "requirementId": "registration-demo"
+            },
+            {
+              "executedActions": 2,
+              "passed": true,
+              "requirementId": "frontend-presentation"
+            },
+            {
+              "executedActions": 4,
+              "passed": true,
+              "requirementId": "language-selection"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "version": "v2",
+      "runId": "sfp_portal1_eb0d555975576174686c1ba298445909",
+      "candidateHash": "sha256:3e0fe11a0bc9ad70ced9c5ec95a169c56a0ab2d772241a852e741d657b3070c8",
+      "state": "blocked",
+      "issues": [
+        "PORTAL_RECIPE_CONSUMPTION_REQUIRED",
+        "PORTAL_CAPTURE_FRESHNESS_REQUIRED",
+        "PORTAL_OBSERVATION_RECEIPT_REQUIRED",
+        "RUNTIME_NOT_VERIFIED",
+        "LIVE_DESIGN_NOT_VERIFIED",
+        "REQUIRED_CHECK_NOT_PASSED",
+        "MISSING_REQUIRED_CHECK:build",
+        "MISSING_REQUIRED_CHECK:interaction",
+        "MISSING_REQUIRED_CHECK:accessibility",
+        "MISSING_REQUIRED_CHECK:visual",
+        "MISSING_REQUIRED_CHECK:independence",
+        "REQUIREMENT_CHECK_MISSING:figma-account-session:interaction",
+        "REQUIREMENT_CHECK_MISSING:figma-account-session:accessibility",
+        "REQUIREMENT_CHECK_MISSING:figma-account-session:visual",
+        "REQUIREMENT_CHECK_MISSING:language-selection:interaction",
+        "REQUIREMENT_CHECK_MISSING:language-selection:accessibility",
+        "REQUIREMENT_CHECK_MISSING:language-selection:visual",
+        "REQUIREMENT_CHECK_MISSING:registration-demo:interaction",
+        "REQUIREMENT_CHECK_MISSING:registration-demo:accessibility",
+        "REQUIREMENT_CHECK_MISSING:registration-demo:visual",
+        "REQUIREMENT_CHECK_MISSING:frontend-presentation:interaction",
+        "REQUIREMENT_CHECK_MISSING:frontend-presentation:accessibility",
+        "REQUIREMENT_CHECK_MISSING:frontend-presentation:visual"
+      ],
+      "commands": [
+        {
+          "id": "install",
+          "status": "passed",
+          "exitCode": 0,
+          "durationMs": 6623
+        },
+        {
+          "id": "typecheck",
+          "status": "passed",
+          "exitCode": 0,
+          "durationMs": 3993
+        },
+        {
+          "id": "independence",
+          "status": "failed",
+          "exitCode": 1,
+          "durationMs": 3597,
+          "output": "file:///C:/2026_project/super-figma-pipline/.worktrees/_cache/cdd-native-appdata/SuperFigmaPipeline/portal-attempt-70755e8cb4aa81bdf37ec699f0526071731b6cdd575579c2d41363f786f45fe4/work/scripts/check-independence.mjs:16\r\nconst config=ts.readConfigFile(resolve(root,'tsconfig.json'),ts.sys.readFile);\r\n                                                                    ^\r\n\r\nTypeError: Cannot read properties of undefined (reading 'readFile')\r\n    at file:///C:/2026_project/super-figma-pipline/.worktrees/_cache/cdd-native-appdata/SuperFigmaPipeline/portal-attempt-70755e8cb4aa81bdf37ec699f0526071731b6cdd575579c2d41363f786f45fe4/work/scripts/check-independence.mjs:16:69\r\n\r\nNode.js v24.21.0\r\n"
+        }
+      ],
+      "consumption": null
+    },
+    {
+      "version": "v3",
+      "runId": "sfp_portal1_eb0d555975576174686c1ba298445909",
+      "candidateHash": "sha256:8faa0da05a60e2e0359b8616fb522b70ed1e91b7b86ff6483e48bca07907f03d",
+      "state": "blocked",
+      "issues": [
+        "PORTAL_RECIPE_CONSUMPTION_REQUIRED",
+        "PORTAL_CAPTURE_FRESHNESS_REQUIRED",
+        "PORTAL_OBSERVATION_RECEIPT_REQUIRED",
+        "RUNTIME_NOT_VERIFIED",
+        "LIVE_DESIGN_NOT_VERIFIED",
+        "REQUIRED_CHECK_NOT_PASSED",
+        "MISSING_REQUIRED_CHECK:interaction",
+        "MISSING_REQUIRED_CHECK:accessibility",
+        "MISSING_REQUIRED_CHECK:visual",
+        "REQUIREMENT_CHECK_MISSING:figma-account-session:interaction",
+        "REQUIREMENT_CHECK_MISSING:figma-account-session:accessibility",
+        "REQUIREMENT_CHECK_MISSING:figma-account-session:visual",
+        "REQUIREMENT_CHECK_MISSING:language-selection:interaction",
+        "REQUIREMENT_CHECK_MISSING:language-selection:accessibility",
+        "REQUIREMENT_CHECK_MISSING:language-selection:visual",
+        "REQUIREMENT_CHECK_MISSING:registration-demo:interaction",
+        "REQUIREMENT_CHECK_MISSING:registration-demo:accessibility",
+        "REQUIREMENT_CHECK_MISSING:registration-demo:visual",
+        "REQUIREMENT_CHECK_MISSING:frontend-presentation:interaction",
+        "REQUIREMENT_CHECK_MISSING:frontend-presentation:accessibility",
+        "REQUIREMENT_CHECK_MISSING:frontend-presentation:visual"
+      ],
+      "commands": [
+        {
+          "id": "install",
+          "status": "passed",
+          "exitCode": 0,
+          "durationMs": 6220
+        },
+        {
+          "id": "typecheck",
+          "status": "passed",
+          "exitCode": 0,
+          "durationMs": 3887
+        },
+        {
+          "id": "independence",
+          "status": "passed",
+          "exitCode": 0,
+          "durationMs": 3727
+        },
+        {
+          "id": "build",
+          "status": "passed",
+          "exitCode": 0,
+          "durationMs": 4038
+        },
+        {
+          "id": "preview-cdd",
+          "status": "failed",
+          "exitCode": 1,
+          "durationMs": 106233,
+          "output": "  ➜  Local:   http://127.0.0.1:[redacted environment]/\nPORTAL_PREVIEW_FAILED"
+        }
+      ],
+      "consumption": {
+        "total": 2110,
+        "passed": 2110
+      },
+      "screens": [
+        {
+          "id": "guide",
+          "ratio": 0.08735324144971925,
+          "failures": [
+            "VISUAL_MISMATCH"
+          ],
+          "workflows": []
+        },
+        {
+          "id": "mobile",
+          "ratio": 0.051178918809480944,
+          "failures": [
+            "VISUAL_MISMATCH"
+          ],
+          "workflows": []
+        },
+        {
+          "id": "desktop",
+          "ratio": 0.043864893562087705,
+          "failures": [
+            "VISUAL_MISMATCH"
+          ],
+          "workflows": [
+            {
+              "executedActions": 2,
+              "passed": true,
+              "requirementId": "figma-account-session"
+            },
+            {
+              "executedActions": 6,
+              "passed": true,
+              "requirementId": "registration-demo"
+            },
+            {
+              "executedActions": 2,
+              "passed": true,
+              "requirementId": "frontend-presentation"
+            },
+            {
+              "executedActions": 4,
+              "passed": true,
+              "requirementId": "language-selection"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "version": "v4",
+      "runId": "sfp_portal1_eb0d555975576174686c1ba298445909",
+      "candidateHash": "sha256:41212a02ad6db957aad1e268dbb523367e93c82af52d111ecd58f99d4da5909c",
+      "state": "blocked",
+      "issues": [
+        "PORTAL_RECIPE_CONSUMPTION_REQUIRED",
+        "PORTAL_CAPTURE_FRESHNESS_REQUIRED",
+        "PORTAL_OBSERVATION_RECEIPT_REQUIRED",
+        "RUNTIME_NOT_VERIFIED",
+        "LIVE_DESIGN_NOT_VERIFIED",
+        "REQUIRED_CHECK_NOT_PASSED",
+        "MISSING_REQUIRED_CHECK:interaction",
+        "MISSING_REQUIRED_CHECK:accessibility",
+        "MISSING_REQUIRED_CHECK:visual",
+        "REQUIREMENT_CHECK_MISSING:figma-account-session:interaction",
+        "REQUIREMENT_CHECK_MISSING:figma-account-session:accessibility",
+        "REQUIREMENT_CHECK_MISSING:figma-account-session:visual",
+        "REQUIREMENT_CHECK_MISSING:language-selection:interaction",
+        "REQUIREMENT_CHECK_MISSING:language-selection:accessibility",
+        "REQUIREMENT_CHECK_MISSING:language-selection:visual",
+        "REQUIREMENT_CHECK_MISSING:registration-demo:interaction",
+        "REQUIREMENT_CHECK_MISSING:registration-demo:accessibility",
+        "REQUIREMENT_CHECK_MISSING:registration-demo:visual",
+        "REQUIREMENT_CHECK_MISSING:frontend-presentation:interaction",
+        "REQUIREMENT_CHECK_MISSING:frontend-presentation:accessibility",
+        "REQUIREMENT_CHECK_MISSING:frontend-presentation:visual"
+      ],
+      "commands": [
+        {
+          "id": "install",
+          "status": "passed",
+          "exitCode": 0,
+          "durationMs": 5845
+        },
+        {
+          "id": "typecheck",
+          "status": "passed",
+          "exitCode": 0,
+          "durationMs": 3837
+        },
+        {
+          "id": "independence",
+          "status": "passed",
+          "exitCode": 0,
+          "durationMs": 3731
+        },
+        {
+          "id": "build",
+          "status": "passed",
+          "exitCode": 0,
+          "durationMs": 4153
+        },
+        {
+          "id": "preview-cdd",
+          "status": "failed",
+          "exitCode": 1,
+          "durationMs": 107169,
+          "output": "  ➜  Local:   http://127.0.0.1:[redacted environment]/\nPORTAL_PREVIEW_FAILED"
+        }
+      ],
+      "consumption": {
+        "total": 2110,
+        "passed": 2110
+      },
+      "screens": [
+        {
+          "id": "guide",
+          "ratio": 0.07631444614599285,
+          "failures": [
+            "VISUAL_MISMATCH"
+          ],
+          "workflows": []
+        },
+        {
+          "id": "mobile",
+          "ratio": 0.057017951695753015,
+          "failures": [
+            "VISUAL_MISMATCH"
+          ],
+          "workflows": []
+        },
+        {
+          "id": "desktop",
+          "ratio": 0.032081445335192284,
+          "failures": [
+            "VISUAL_MISMATCH"
+          ],
+          "workflows": [
+            {
+              "executedActions": 2,
+              "passed": true,
+              "requirementId": "figma-account-session"
+            },
+            {
+              "executedActions": 6,
+              "passed": true,
+              "requirementId": "registration-demo"
+            },
+            {
+              "executedActions": 2,
+              "passed": true,
+              "requirementId": "frontend-presentation"
+            },
+            {
+              "executedActions": 4,
+              "passed": true,
+              "requirementId": "language-selection"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

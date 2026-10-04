@@ -37,7 +37,7 @@
     "safePath": {
       "type": "string",
       "minLength": 1,
-      "pattern": "^(?!service/)(?!/)(?!.*//)(?!.*(?:^|/)\\.{1,2}(?:/|$))(?!.*\\\\)(?!.*:)[^\\u0000]+$"
+      "pattern": "^(?!service/)(?!/)(?!.*//)(?!.*(?:^|/)\\.{1,2}(?:/|$))(?!.*\\\\)(?!.*:)(?!.*\\/$)[^\\u0000-\\u001f]+$"
     },
     "common": {
       "type": "object",
@@ -58,24 +58,8 @@
         "originCommit": { "type": "string", "pattern": "^[0-9a-f]{40}$" },
         "baseSha256": { "$ref": "#/$defs/sha256" },
         "transitionTask": {
-          "enum": [
-            "7A",
-            "7B",
-            "7C",
-            "8A",
-            "8B",
-            "9A",
-            "9B",
-            "9C",
-            "10",
-            "11",
-            "12A",
-            "12B",
-            "13",
-            "14",
-            "15",
-            "16"
-          ]
+          "type": "string",
+          "pattern": "^(?:7[ABC]|8[AB]|9[ABC]|10|11|12[AB]|13|14|15|16|review-\\d{4}-\\d{2}-\\d{2})$"
         },
         "reason": { "type": "string", "minLength": 1, "maxLength": 512 },
         "transition": { "enum": ["edit", "move", "delete"] }

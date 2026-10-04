@@ -47,6 +47,12 @@ describe('TabActivityRow', () => {
   });
 
   describe('status', () => {
+    it('shows uncertainty without a pending animation or a success glyph', () => {
+      const wrapper = mountRow({ status: 'outcome-unknown', error: 'Reconciliation required' });
+      expect(wrapper.html()).toContain('Outcome unknown');
+      expect(wrapper.find('.animate-breathe').exists()).toBe(false);
+      expect(wrapper.find('.lucide-check').exists()).toBe(false);
+    });
     it('renders a tick for a successful call', () => {
       const wrapper = mountRow({ status: 'ok' });
       expect(wrapper.html()).toContain('text-success');

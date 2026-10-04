@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 
 import { computeMetrics, dedupeStyles } from '../src/design-context-dedupe.js';
 import type { DesignContextNode } from '../src/design-context.js';
+import type { SerializedPaint } from '../src/serialized-node.js';
 
 const solid = (r: number, g: number, b: number, opacity = 1) => ({
   type: 'SOLID' as const,
@@ -19,6 +20,48 @@ const textNode = (id: string, family: string, style: string, size: number): Desi
 });
 
 describe('dedupeStyles', () => {
+  it.each<SerializedPaint>([
+    {
+      type: 'GRADIENT_LINEAR',
+      visible: true,
+      opacity: 1,
+      gradientTransform: [
+        [1, 0, 0],
+        [0, 1, 0],
+      ],
+      gradientStops: [{ position: 0, color: { r: 1, g: 0, b: 0, a: 0.4 } }],
+    },
+    { type: 'IMAGE', visible: true, opacity: 1, scaleMode: 'FILL' },
+    { type: 'VIDEO', visible: true, opacity: 1, scaleMode: 'FIT' },
+    {
+      type: 'PATTERN',
+      visible: true,
+      opacity: 1,
+      sourceNodeId: '1:4',
+      tileType: 'RECTANGULAR',
+      scalingFactor: 1,
+    },
+    { type: 'SHADER', visible: true, opacity: 1 },
+  ])('preserves independent $type opacity in style identity', paint => {
+    const { nodes, globalVars } = dedupeStyles(
+      [0.25, 0.75].map((opacity, index) => ({
+        id: String(index),
+        name: 'Paint',
+        type: 'RECTANGLE',
+        opacity: 0.6,
+        fills: [{ ...paint, opacity }],
+      })),
+    );
+    expect(nodes[0]!.fill).not.toBe(nodes[1]!.fill);
+    expect(nodes[0]!.opacity).toBe(0.6);
+    expect(globalVars.styles[nodes[0]!.fill!]).toMatchObject([{ opacity: 0.25 }]);
+    expect(globalVars.styles[nodes[1]!.fill!]).toMatchObject([{ opacity: 0.75 }]);
+    const expected =
+      paint.type === 'GRADIENT_LINEAR' ? [{ color: '#FF000066', position: 0 }] : undefined;
+    expect(
+      (globalVars.styles[nodes[0]!.fill!] as { gradientStops?: unknown }[])[0]!.gradientStops,
+    ).toEqual(expected);
+  });
   it('converts SOLID fills to hex and replaces them with a globalVars ref', () => {
     const n: DesignContextNode = {
       id: 'a',

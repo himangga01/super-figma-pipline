@@ -11,7 +11,7 @@ import { propertyDisplayName, resolveComponentOwner } from './component-property
  */
 export const createDeleteComponentPropertyHandler =
   (figmaCtx: typeof figma): SandboxToolHandler =>
-  async params => {
+  async (params, execution) => {
     const p = (params ?? {}) as { componentId?: unknown; propertyId?: unknown };
     if (typeof p.componentId !== 'string') {
       throw new TypeError('delete_component_property: componentId must be a string');
@@ -21,6 +21,7 @@ export const createDeleteComponentPropertyHandler =
     }
 
     const node = await figmaCtx.getNodeByIdAsync(p.componentId);
+    execution?.signal.throwIfAborted();
     if (node === null)
       throw new Error(`delete_component_property: node ${p.componentId} not found`);
     const owner = resolveComponentOwner('delete_component_property', node);

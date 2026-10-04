@@ -1,0 +1,43 @@
+{
+  "recordedAt": "2026-10-03T20:26:40.000Z",
+  "sourceHash": "sha256:d0b41396a9d90c74c6fc90d744ed121d7c3454cf1f6609ac54f8b94df5940618",
+  "sourceChecks": {
+    "attemptId": "935562ca-a6a9-45de-ac7c-89e294ac50fd",
+    "gates": 16,
+    "passed": 4692,
+    "failed": 0,
+    "skipped": 20,
+    "requiredChromePassed": 37,
+    "artifactContentPassed": 1
+  },
+  "daemon": {
+    "buildIdentityHash": "sha256:c1f50af0dc458c9b5a47ede23c12db94f0d7e0d65d13a8ffb7ad340817bb33a0",
+    "browserConnection": "awaiting-browser"
+  },
+  "cdd": {
+    "runId": "sfp_portal1_20709c4118cc341dda3ee3a07c441f6f",
+    "state": "blocked",
+    "appliedFiles": 44,
+    "appliedHash": "sha256:1497c7fbf1f10db883ab2aba11de0e03a05c5bf24468bdd2a7ac3bb892b66dfa",
+    "runtimeVerified": true,
+    "liveDesignVerified": false,
+    "recoveryIntervalElapsed": true,
+    "output": "C:/2026_project/super-figma-pipline/.worktrees/_cache/cdd-service-outputs/cdd-chrome-frontend"
+  },
+  "officialDesktopMcp": {
+    "endpoint": "http://127.0.0.1:3845/mcp",
+    "probe": "fetch failed"
+  },
+  "manualPrerequisites": [
+    "Allow the service connection in the existing Chrome security prompt.",
+    "Provide an available authenticated official Figma MCP connection; the Desktop MCP server remains unavailable."
+  ],
+  "continuation": [
+    "Read the canonical analysis and current CDD/collector records.",
+    "Preserve the applied output and expired R7 evidence; use a valid public workflow after Chrome admission.",
+    "Finish independent collector coverage and comparisons, Desktop and other case acceptance, then both eCommerce new-frontend paths."
+  ],
+  "mainIndexSha256": "21422fbf6f8d745a73347c7730c598f9b51e9862ce92b3da8fbb96158c135cb3",
+  "committed": false,
+  "released": false
+}

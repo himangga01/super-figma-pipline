@@ -1,0 +1,220 @@
+{
+  "recordedAt": "2026-10-03T20:05:53.710Z",
+  "planId": "sfp_portal1_20709c4118cc341dda3ee3a07c441f6f",
+  "complete": true,
+  "liveVerified": true,
+  "designFingerprint": "sha256:988ca3cc45e4e91151067be8038a48fe4b29497251c6332a0d0d6c532d141f8f",
+  "currentCandidate": {
+    "hash": "sha256:1497c7fbf1f10db883ab2aba11de0e03a05c5bf24468bdd2a7ac3bb892b66dfa",
+    "files": 44
+  },
+  "attempts": [
+    {
+      "version": "cdd-perceptual-v1",
+      "profileId": "cdd-perceptual-v1",
+      "runId": "sfp_portal1_20709c4118cc341dda3ee3a07c441f6f",
+      "candidateHash": "sha256:bb5ac31584663ae70e3733677587d52211ee8b376f89f1524432d9fc957769f8",
+      "state": "blocked",
+      "issues": [
+        "PORTAL_RECIPE_CONSUMPTION_REQUIRED",
+        "PORTAL_CAPTURE_FRESHNESS_REQUIRED",
+        "PORTAL_OBSERVATION_RECEIPT_REQUIRED",
+        "RUNTIME_NOT_VERIFIED",
+        "LIVE_DESIGN_NOT_VERIFIED",
+        "REQUIRED_CHECK_NOT_PASSED",
+        "MISSING_REQUIRED_CHECK:interaction",
+        "MISSING_REQUIRED_CHECK:accessibility",
+        "MISSING_REQUIRED_CHECK:visual",
+        "REQUIREMENT_CHECK_MISSING:figma-account-session:interaction",
+        "REQUIREMENT_CHECK_MISSING:figma-account-session:accessibility",
+        "REQUIREMENT_CHECK_MISSING:figma-account-session:visual",
+        "REQUIREMENT_CHECK_MISSING:language-selection:interaction",
+        "REQUIREMENT_CHECK_MISSING:language-selection:accessibility",
+        "REQUIREMENT_CHECK_MISSING:language-selection:visual",
+        "REQUIREMENT_CHECK_MISSING:registration-demo:interaction",
+        "REQUIREMENT_CHECK_MISSING:registration-demo:accessibility",
+        "REQUIREMENT_CHECK_MISSING:registration-demo:visual",
+        "REQUIREMENT_CHECK_MISSING:frontend-presentation:interaction",
+        "REQUIREMENT_CHECK_MISSING:frontend-presentation:accessibility",
+        "REQUIREMENT_CHECK_MISSING:frontend-presentation:visual"
+      ],
+      "commands": [
+        {
+          "id": "install",
+          "status": "passed",
+          "exitCode": 0,
+          "durationMs": 6677
+        },
+        {
+          "id": "typecheck",
+          "status": "passed",
+          "exitCode": 0,
+          "durationMs": 4195
+        },
+        {
+          "id": "independence",
+          "status": "passed",
+          "exitCode": 0,
+          "durationMs": 4309
+        },
+        {
+          "id": "build",
+          "status": "passed",
+          "exitCode": 0,
+          "durationMs": 4536
+        },
+        {
+          "id": "preview-cdd",
+          "status": "failed",
+          "exitCode": 1,
+          "durationMs": 107993,
+          "output": "  ➜  Local:   http://127.0.0.1:[redacted environment]/\nPORTAL_PREVIEW_FAILED"
+        }
+      ],
+      "consumption": {
+        "total": 2110,
+        "passed": 2110
+      },
+      "screens": [
+        {
+          "id": "guide",
+          "ratio": 0.008079696273608983,
+          "strictRatio": 0.043477220520673814,
+          "comparisonMode": "pixelmatch-7.2-v1",
+          "failures": [],
+          "workflows": []
+        },
+        {
+          "id": "mobile",
+          "ratio": 0.010080146562759051,
+          "strictRatio": 0.0373199538100448,
+          "comparisonMode": "pixelmatch-7.2-v1",
+          "failures": [
+            "VISUAL_MISMATCH"
+          ],
+          "workflows": []
+        },
+        {
+          "id": "desktop",
+          "ratio": 0.0035430221525115215,
+          "strictRatio": 0.015105800511211805,
+          "comparisonMode": "pixelmatch-7.2-v1",
+          "failures": [],
+          "workflows": [
+            {
+              "executedActions": 2,
+              "passed": true,
+              "requirementId": "figma-account-session"
+            },
+            {
+              "executedActions": 6,
+              "passed": true,
+              "requirementId": "registration-demo"
+            },
+            {
+              "executedActions": 2,
+              "passed": true,
+              "requirementId": "frontend-presentation"
+            },
+            {
+              "executedActions": 4,
+              "passed": true,
+              "requirementId": "language-selection"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "version": "cdd-perceptual-v2",
+      "profileId": "cdd-perceptual-v2",
+      "runId": "sfp_portal1_20709c4118cc341dda3ee3a07c441f6f",
+      "candidateHash": "sha256:1497c7fbf1f10db883ab2aba11de0e03a05c5bf24468bdd2a7ac3bb892b66dfa",
+      "state": "ready-to-apply",
+      "issues": [],
+      "commands": [
+        {
+          "id": "install",
+          "status": "passed",
+          "exitCode": 0,
+          "durationMs": 6544
+        },
+        {
+          "id": "typecheck",
+          "status": "passed",
+          "exitCode": 0,
+          "durationMs": 4390
+        },
+        {
+          "id": "independence",
+          "status": "passed",
+          "exitCode": 0,
+          "durationMs": 4100
+        },
+        {
+          "id": "build",
+          "status": "passed",
+          "exitCode": 0,
+          "durationMs": 4745
+        },
+        {
+          "id": "preview-cdd",
+          "status": "passed",
+          "exitCode": 0,
+          "durationMs": 108498
+        }
+      ],
+      "consumption": {
+        "total": 2110,
+        "passed": 2110
+      },
+      "screens": [
+        {
+          "id": "guide",
+          "ratio": 0.006628062787136294,
+          "strictRatio": 0.04456195763144461,
+          "comparisonMode": "pixelmatch-7.2-v1",
+          "failures": [],
+          "workflows": []
+        },
+        {
+          "id": "mobile",
+          "ratio": 0.009993095247987433,
+          "strictRatio": 0.038115945756479225,
+          "comparisonMode": "pixelmatch-7.2-v1",
+          "failures": [],
+          "workflows": []
+        },
+        {
+          "id": "desktop",
+          "ratio": 0.003784064650220105,
+          "strictRatio": 0.015883389489175476,
+          "comparisonMode": "pixelmatch-7.2-v1",
+          "failures": [],
+          "workflows": [
+            {
+              "executedActions": 2,
+              "passed": true,
+              "requirementId": "figma-account-session"
+            },
+            {
+              "executedActions": 6,
+              "passed": true,
+              "requirementId": "registration-demo"
+            },
+            {
+              "executedActions": 2,
+              "passed": true,
+              "requirementId": "frontend-presentation"
+            },
+            {
+              "executedActions": 4,
+              "passed": true,
+              "requirementId": "language-selection"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

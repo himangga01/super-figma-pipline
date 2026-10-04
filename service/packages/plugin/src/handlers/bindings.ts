@@ -5,6 +5,7 @@ import type {
   SerializedPaint,
 } from '@sfp/shared';
 
+import type { SandboxExecutionContext } from '../dispatcher.js';
 import { toFigmaEffect, toFigmaLayoutGrid } from './convert.js';
 import { toFigmaPaint } from './set-fills.js';
 
@@ -257,8 +258,10 @@ export const applyTextStyleBindings = async (
   style: TextStyle,
   bindings: TextStyleBindings,
   table: ReadonlyMap<string, Variable>,
+  execution?: Readonly<SandboxExecutionContext>,
 ): Promise<void> => {
   await preloadFaces(figmaCtx, style.fontName, bindings, table);
+  execution?.signal.throwIfAborted();
 
   const ordered = Object.entries(bindings).toSorted(([a], [b]) => {
     const rank = (field: string): number =>

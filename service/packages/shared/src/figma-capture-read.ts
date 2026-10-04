@@ -174,6 +174,7 @@ export async function readFigmaCapture(
     'maxLines',
     'paragraphSpacing',
     'paragraphIndent',
+    'textWrapStyle',
     'hyperlink',
     'fillStyleId',
     'strokeStyleId',
@@ -196,6 +197,25 @@ export async function readFigmaCapture(
     'booleanOperation',
     'arcData',
     'exportSettings',
+  ];
+  // The official Plugin API returns every requested segment property except optional bindings.
+  // Uniform node wrapping is usable only when that supported scalar was actually observed.
+  const textSegmentFields = [
+    'fontName',
+    'fontSize',
+    'fontWeight',
+    'fills',
+    'lineHeight',
+    'letterSpacing',
+    'listOptions',
+    'indentation',
+    'textWrapStyle',
+    'textDecoration',
+    'textCase',
+    'hyperlink',
+    'textStyleId',
+    'fillStyleId',
+    'boundVariables',
   ];
   const visit = async (node: CaptureNode, depth: number): Promise<CapturedNode | null> => {
     if (count >= q.maxNodes) {
@@ -264,23 +284,58 @@ export async function readFigmaCapture(
     if (node.type === 'TEXT' && typeof node.getStyledTextSegments === 'function') {
       try {
         out.textSegments = clone(
-          node.getStyledTextSegments([
-            'fontName',
-            'fontSize',
-            'fontWeight',
-            'fills',
-            'lineHeight',
-            'letterSpacing',
-            'textDecoration',
-            'textCase',
-            'hyperlink',
-            'textStyleId',
-            'fillStyleId',
-            'boundVariables',
-          ]),
+          node.getStyledTextSegments(textSegmentFields),
           12,
           node.id + '/textSegments',
         );
+        if (
+          !Array.isArray(out.textSegments) ||
+          (!out.textSegments.length && typeof out.characters === 'string' && out.characters.length)
+        ) {
+          warn('TEXT_SEGMENTS_INVALID', { nodeId: node.id });
+        } else {
+          for (const [segmentIndex, raw] of out.textSegments.entries()) {
+            if (!raw || typeof raw !== 'object' || Array.isArray(raw)) {
+              warn('TEXT_SEGMENTS_INVALID', { nodeId: node.id, segmentIndex });
+              continue;
+            }
+            const segment = raw as Record<string, unknown>;
+            for (const field of ['characters', 'start', 'end'])
+              if (!Object.hasOwn(segment, field))
+                warn('TEXT_SEGMENT_FIELD_MISSING', { nodeId: node.id, segmentIndex, field });
+            if (
+              typeof segment.characters !== 'string' ||
+              !Number.isInteger(segment.start) ||
+              !Number.isInteger(segment.end) ||
+              Number(segment.start) < 0 ||
+              Number(segment.end) < Number(segment.start) ||
+              Number(segment.end) - Number(segment.start) !== segment.characters.length ||
+              (typeof out.characters === 'string' &&
+                out.characters.slice(Number(segment.start), Number(segment.end)) !==
+                  segment.characters)
+            )
+              warn('TEXT_SEGMENT_RANGE_INVALID', { nodeId: node.id, segmentIndex });
+            if (
+              !(typeof segment.characters === 'string' && segment.characters.length) &&
+              !(Number(segment.end) > Number(segment.start))
+            )
+              continue;
+            for (const field of textSegmentFields) {
+              if (field === 'boundVariables' || Object.hasOwn(segment, field)) continue;
+              if (
+                field === 'textWrapStyle' &&
+                (out.textWrapStyle === 'AUTO' || out.textWrapStyle === 'BALANCE')
+              ) {
+                segment.textWrapStyle = out.textWrapStyle;
+                warn(
+                  'TEXT_SEGMENT_FIELD_RECOVERED',
+                  { nodeId: node.id, segmentIndex, field, source: 'node.textWrapStyle' },
+                  false,
+                );
+              } else warn('TEXT_SEGMENT_FIELD_MISSING', { nodeId: node.id, segmentIndex, field });
+            }
+          }
+        }
       } catch {
         warn('TEXT_SEGMENTS_UNAVAILABLE', { nodeId: node.id });
       }
@@ -394,7 +449,40 @@ export async function readFigmaCapture(
       for (const v of values.slice(offset, offset + 256)) {
         const out: Record<string, unknown> = Object.create(null);
         for (const field of fields) {
-          const value = clone(v[field], 12, name + '/' + v.id + '/' + field);
+          let observed = v[field];
+          if (
+            name === 'textStyles' &&
+            field === 'fontName' &&
+            observed === figma.mixed &&
+            typeof observed === 'symbol' &&
+            typeof figma.getStyleByIdAsync === 'function'
+          ) {
+            const refreshed = await figma.getStyleByIdAsync(v.id);
+            if (!refreshed || refreshed.id !== v.id || refreshed.type !== 'TEXT')
+              throw new Error('TEXT_STYLE_IDENTITY_CHANGED');
+            const font = refreshed.fontName;
+            if (
+              font &&
+              typeof font === 'object' &&
+              typeof font.family === 'string' &&
+              font.family &&
+              typeof font.style === 'string' &&
+              font.style
+            ) {
+              out.fontNameObservation = {
+                kind: 'symbol',
+                isMixed: true,
+                recovery: 'getStyleByIdAsync.fontName',
+              };
+              observed = font;
+            }
+          }
+          const value = clone(observed, 12, name + '/' + v.id + '/' + field);
+          if (field === 'fontName' && typeof observed === 'symbol')
+            out.fontNameObservation = {
+              kind: 'symbol',
+              isMixed: observed === figma.mixed,
+            };
           if (value !== undefined) out[rename[field] || field] = value;
         }
         rows.push(out);

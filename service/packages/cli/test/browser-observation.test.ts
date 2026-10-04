@@ -1,9 +1,8 @@
-import { existsSync } from 'node:fs';
-
-import { firefox, type Browser, type Page } from 'playwright';
+import { chromium, type Browser, type Page } from 'playwright';
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 
-import { requireFirefox } from '../../../test/support/required-suite.js';
+import { requireChrome } from '../../../test/support/required-suite.js';
+import { googleChromeExecutable } from '../../mcp/src/portal/chrome-runtime.js';
 import { observeFigmaPage } from '../src/browser-session.js';
 import { parseFigmaTarget } from '../src/figma-url.js';
 
@@ -11,21 +10,22 @@ const target = parseFigmaTarget('https://www.figma.com/design/4IBhv1d8hEclifZQrO
 const marker =
   '<input readonly tabindex="-1" aria-hidden="true" role="application" aria-label="Figma Design" style="position:absolute;top:-200px">';
 
-// Required suite 'firefox': a missing browser fails these tests unless SFP_ALLOW_SKIP=firefox.
+// Required suite 'chrome': a missing browser fails these tests unless SFP_ALLOW_SKIP=chrome.
 describe('Figma editor observation in a real browser', () => {
   let browser: Browser;
   let page: Page;
   beforeAll(async () => {
-    // Without Firefox, beforeEach fails or visibly skips every test; do not launch here.
-    if (!existsSync(firefox.executablePath())) return;
-    browser = await firefox.launch({ headless: true });
+    // Without Chrome, beforeEach fails or visibly skips every test; do not launch here.
+    const executablePath = googleChromeExecutable();
+    if (!executablePath) return;
+    browser = await chromium.launch({ channel: 'chrome', executablePath, headless: true });
     page = await browser.newPage();
     await page.route('**/*', route =>
       route.fulfill({ contentType: 'text/html', body: '<title>Figma fixture</title>' }),
     );
     await page.goto(target.url);
   });
-  beforeEach(context => requireFirefox(context, firefox.executablePath()));
+  beforeEach(context => requireChrome(context, googleChromeExecutable()));
   afterAll(async () => {
     await browser?.close();
   });

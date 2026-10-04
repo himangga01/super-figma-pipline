@@ -1,0 +1,67 @@
+{
+  "schemaVersion": 1,
+  "kind": "final-figma-preparation",
+  "recordedAt": "2026-10-01 21:20:17 UTC",
+  "target": {
+    "fileKey": "4IBhv1d8hEclifZQrOYxHS",
+    "pageId": "0:1"
+  },
+  "status": "preparation-only",
+  "serviceSource": "sha256:a9ad9f31481e7dfab611810e6c0da9c0d08a2c5db153aaa93ecd6f4b698f91e8",
+  "unchangedMainIndexSha256": "21422fbf6f8d745a73347c7730c598f9b51e9862ce92b3da8fbb96158c135cb3",
+  "chromeInventory": {
+    "path": "chrome-inventory.json",
+    "sha256": "ccee6840e958eba75a52d3f025f32ff9c4cb4f5930aec10efda5d1cfb855cd92",
+    "frames": 9,
+    "roots": 11,
+    "descendantCounts": {
+      "nodes": 3198,
+      "text": 868,
+      "reactions": 66
+    },
+    "fullCapture": false,
+    "fileKeyBinding": "requested-Chrome-tab-URL",
+    "pluginApiFileKeyObserved": false
+  },
+  "inventoryScript": {
+    "path": "read-chrome-inventory.js",
+    "sha256": "aa6ff44a0f85bba0c74177b7f8a7f2883ce9937c5f3d2f69e8026d7812890283",
+    "syntaxValid": true,
+    "initialInvalidScriptRejected": true
+  },
+  "serviceChromeAttachment": {
+    "command": "node packages/cli/dist/index.mjs chrome-tabs --url <owner-supplied final Figma URL>",
+    "cwd": ".worktrees/baseline/service",
+    "exitCode": 1,
+    "output": "CHROME_CONNECTION_REQUIRED: enable remote debugging in the existing Chrome at chrome://inspect/#remote-debugging, then allow its connection prompt",
+    "recording": "Transcribed from this turn's observed CLI tool result; not an execution receipt.",
+    "settingsAutomationReattempted": false
+  },
+  "officialMcp": {
+    "accountCheck": "whoami",
+    "plans": [
+      {
+        "tier": "starter",
+        "seat": "Full"
+      }
+    ],
+    "remainingQuotaObserved": false,
+    "newTargetDesignReadsExecuted": false,
+    "priorReadFailure": "../2026-10-02-figma-comparison/official-post-fix-attempt.json",
+    "serviceStandaloneCaptureAccepted": false
+  },
+  "documentationFormatCheck": {
+    "files": 4,
+    "exitCode": 0
+  },
+  "finalAcceptance": {
+    "priorWorkComplete": false,
+    "officialFrontendGenerated": false,
+    "chromeFrontendGenerated": false,
+    "candidateValidated": false,
+    "applied": false,
+    "appliedValidated": false,
+    "completed": false
+  },
+  "protectionBoundary": "Native work uses the same local Windows owner privileges; separate working copies and owned processes are not an operating-system filesystem, process or network sandbox."
+}

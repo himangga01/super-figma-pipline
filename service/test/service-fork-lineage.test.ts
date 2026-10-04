@@ -3,6 +3,7 @@ import { createHash } from 'node:crypto';
 import { mkdtemp, mkdir, readFile, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
+import { pathToFileURL } from 'node:url';
 
 import { afterEach, describe, expect, it } from 'vitest';
 
@@ -118,6 +119,269 @@ const fixture = async () => {
 };
 
 describe('service-fork lineage updater', () => {
+  it('reconciles reviewed package projections and root scripts without dropping lifecycle authority', async () => {
+    const setup = await fixture();
+    git(setup.root, 'commit', '-m', 'source');
+    const lockPath = join(setup.service, 'upstream-lock.json');
+    const lock = JSON.parse(await readFile(lockPath, 'utf8'));
+    const projection = {
+      name: 'fixture',
+      serviceScripts: { typecheck: 'old' },
+      excludedScriptAuthority: { postinstall: null },
+    };
+    const rootAuthority = {
+      packageManager: 'pnpm@11.24.0',
+      nodeEngine: '>=24 <25',
+      scripts: { typecheck: 'old' },
+      workspacePackageNames: [],
+      knipWorkspaces: [],
+    };
+    lock.packageAuthorities = [{ path: 'package.json', projection }];
+    lock.rootAuthority = rootAuthority;
+    lock.excludedUpstreamScriptInputs = ['postinstall'];
+    await writeFile(lockPath, JSON.stringify(lock));
+    const manifest = {
+      name: 'fixture',
+      packageManager: 'pnpm@11.24.0',
+      engines: { node: '>=24 <25' },
+      scripts: { typecheck: 'checked tools', 'typecheck:tools': 'tsc -p tsconfig.tools.json' },
+    };
+    await writeFile(join(setup.service, 'package.json'), JSON.stringify(manifest));
+    git(setup.root, 'add', '.');
+    git(setup.root, 'commit', '-m', 'committed manifest with stale projections');
+    const record = 'capabilities/reconciliations/task-7a.json';
+    await mkdir(join(setup.service, 'capabilities/reconciliations'), { recursive: true });
+    await writeFile(
+      join(setup.service, record),
+      JSON.stringify({
+        schemaVersion: 1,
+        slice: '7A',
+        baseline: {
+          headCommit: git(setup.root, 'rev-parse', 'HEAD').stdout.trim(),
+          authoritySha256: Object.fromEntries(
+            await Promise.all(
+              ['upstream-lock.json', 'vendor-map.json', 'vendor-rules.json'].map(async path => [
+                path,
+                sha256(await readFile(join(setup.service, path), 'utf8')),
+              ]),
+            ),
+          ),
+        },
+        entries: [
+          {
+            path: 'package.json',
+            sha256: sha256(JSON.stringify(manifest)),
+            reason: 'Reviewed tool checks',
+            priorClaims: [
+              { class: 'package', sha256: sha256(JSON.stringify(projection)) },
+              { class: 'root', sha256: sha256(JSON.stringify(rootAuthority)) },
+            ],
+          },
+        ],
+      }),
+    );
+    await writeFile(
+      join(setup.service, 'capabilities/task-7a-authority-classes.json'),
+      JSON.stringify({
+        schemaVersion: 1,
+        slice: '7A',
+        allowedPaths: [
+          `service/${record}`,
+          'service/capabilities/task-7a-authority-classes.json',
+          'service/package.json',
+        ],
+      }),
+    );
+    git(setup.root, 'add', 'service/capabilities');
+    const result = spawnSync(
+      process.execPath,
+      [
+        sourceScript,
+        '--slice',
+        '7A',
+        '--index',
+        'service/capabilities/change-manifests/task-7a.json',
+        '--reconcile',
+        `service/${record}`,
+      ],
+      {
+        cwd: setup.root,
+        encoding: 'utf8',
+        windowsHide: true,
+        env: hermeticGitEnvironment({ ...process.env, SFP_REPOSITORY_ROOT: setup.root }),
+      },
+    );
+    expect({ status: result.status, stderr: result.stderr }).toEqual({ status: 0, stderr: '' });
+    const refreshed = JSON.parse(await readFile(lockPath, 'utf8'));
+    expect(refreshed.rootAuthority.scripts).toEqual(manifest.scripts);
+    expect(refreshed.packageAuthorities[0].projection.serviceScripts).toEqual(manifest.scripts);
+    expect(refreshed.packageAuthorities[0].projection.excludedScriptAuthority).toEqual({
+      postinstall: null,
+    });
+    expect(refreshed.serviceForks).toEqual([]);
+  });
+  it.each([
+    'accepted',
+    'prior-claim',
+    'baseline',
+    'accepted-hash',
+    'out-of-scope',
+    'record-edit',
+    'extra-field',
+    'source-edit',
+  ])('reconciles committed drift only under the exact reviewed authority: %s', async mutation => {
+    const setup = await fixture();
+    git(setup.root, 'commit', '-m', 'reviewed service change with stale authority');
+    const reconciliationPath = 'capabilities/reconciliations/task-7a.json';
+    await mkdir(join(setup.service, 'capabilities/reconciliations'), { recursive: true });
+    const authoritySha256 = Object.fromEntries(
+      await Promise.all(
+        ['upstream-lock.json', 'vendor-map.json', 'vendor-rules.json'].map(async path => [
+          path,
+          createHash('sha256')
+            .update(await readFile(join(setup.service, path)))
+            .digest('hex'),
+        ]),
+      ),
+    );
+    await writeFile(
+      join(setup.service, reconciliationPath),
+      JSON.stringify({
+        schemaVersion: 1,
+        slice: '7A',
+        baseline: {
+          headCommit: git(setup.root, 'rev-parse', 'HEAD').stdout.trim(),
+          authoritySha256,
+        },
+        entries: [
+          {
+            path: setup.path,
+            sha256: sha256(setup.changed),
+            priorClaims: [{ class: 'vendor', sha256: sha256(setup.base) }],
+            reason: 'Previously reviewed and committed service correction',
+          },
+        ],
+      }),
+    );
+    await writeFile(
+      join(setup.service, 'capabilities/task-7a-authority-classes.json'),
+      JSON.stringify({
+        schemaVersion: 1,
+        slice: '7A',
+        allowedPaths: [
+          `service/${reconciliationPath}`,
+          `service/${setup.path}`,
+          'service/capabilities/task-7a-authority-classes.json',
+        ],
+      }),
+    );
+    git(setup.root, 'add', 'service/capabilities');
+    if (mutation !== 'accepted') {
+      const path = join(setup.service, reconciliationPath);
+      const review = JSON.parse(await readFile(path, 'utf8'));
+      if (mutation === 'prior-claim') review.entries[0].priorClaims = [];
+      if (mutation === 'baseline')
+        review.baseline.authoritySha256['upstream-lock.json'] = 'f'.repeat(64);
+      if (mutation === 'accepted-hash') review.entries[0].sha256 = 'f'.repeat(64);
+      if (mutation === 'out-of-scope') review.entries[0].path = 'packages/mcp/src/unreviewed.ts';
+      if (mutation === 'extra-field') review.extra = true;
+      if (mutation === 'source-edit')
+        await writeFile(join(setup.service, setup.path), 'independent newer source\n');
+      if (mutation === 'record-edit') await writeFile(path, `${JSON.stringify(review)}\n`);
+      else {
+        await writeFile(path, JSON.stringify(review));
+        git(setup.root, 'add', `service/${reconciliationPath}`);
+      }
+    }
+    const result = spawnSync(
+      process.execPath,
+      [
+        sourceScript,
+        '--slice',
+        '7A',
+        '--index',
+        'service/capabilities/change-manifests/task-7a.json',
+        '--reconcile',
+        `service/${reconciliationPath}`,
+      ],
+      {
+        cwd: setup.root,
+        encoding: 'utf8',
+        windowsHide: true,
+        env: hermeticGitEnvironment({ ...process.env, SFP_REPOSITORY_ROOT: setup.root }),
+      },
+    );
+    const accepted = mutation === 'accepted';
+    expect(result.status).toBe(accepted ? 0 : 1);
+    expect(result.stderr === '').toBe(accepted);
+    expect(result.stderr.includes('SERVICE_FORK_RECONCILIATION')).toBe(!accepted);
+    for (const [path, digest] of Object.entries(authoritySha256)) {
+      const observed = createHash('sha256')
+        .update(await readFile(join(setup.service, path)))
+        .digest('hex');
+      expect(observed === digest).toBe(!accepted);
+    }
+    const lock = JSON.parse(await readFile(join(setup.service, 'upstream-lock.json'), 'utf8'));
+    const expectedFork = expect.objectContaining({
+      originRepo: 'figwright',
+      originCommit: 'a'.repeat(40),
+      baseSha256: sha256(setup.base),
+      destination: setup.path,
+      transition: 'edit',
+      stagedSha256: sha256(setup.changed),
+    });
+    expect(lock.serviceForks ?? []).toEqual(accepted ? [expectedFork] : []);
+    expect(await readFile(join(setup.service, setup.path), 'utf8')).toBe(
+      mutation === 'source-edit' ? 'independent newer source\n' : setup.changed,
+    );
+  });
+  it.each(['upstream-lock.json', 'vendor-map.json', 'vendor-rules.json'])(
+    'preserves an independent %s edit after derivation before staging',
+    async authority => {
+      const setup = await fixture();
+      const target = join(setup.service, authority);
+      const original = await readFile(target, 'utf8');
+      const edited = `${original}\n`;
+      const preload = join(setup.root, 'edit-after-read.mjs');
+      await writeFile(
+        preload,
+        `
+        import fs from 'node:fs/promises';
+        import { syncBuiltinESMExports } from 'node:module';
+        const originalRead = fs.readFile;
+        let reads = 0;
+        fs.readFile = async (path, ...args) => {
+          if (String(path) === ${JSON.stringify(target)} && ++reads === 2) {
+            await fs.writeFile(path, ${JSON.stringify(edited)});
+          }
+          return originalRead(path, ...args);
+        };
+        syncBuiltinESMExports();
+      `,
+      );
+      const result = spawnSync(
+        process.execPath,
+        [
+          '--import',
+          pathToFileURL(preload).href,
+          sourceScript,
+          '--slice',
+          '7A',
+          '--index',
+          'service/capabilities/change-manifests/task-7a.json',
+        ],
+        {
+          cwd: setup.root,
+          encoding: 'utf8',
+          windowsHide: true,
+          env: hermeticGitEnvironment({ ...process.env, SFP_REPOSITORY_ROOT: setup.root }),
+        },
+      );
+      expect(result.status).toBe(1);
+      expect(result.stderr).toContain('SERVICE_FORK_TRANSACTION_CONFLICT');
+      expect(await readFile(target, 'utf8')).toBe(edited);
+    },
+  );
   it('moves one edited copy row to protected service-fork lineage without overwriting it', async () => {
     const setup = await fixture();
     const result = spawnSync(

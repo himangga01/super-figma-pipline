@@ -7,6 +7,8 @@ import {
   PortalCoreRecipeManifestSchema,
   SerializedPaintStyleSchema,
   SerializedVariableSchema,
+  PortalInteractionContractSchema,
+  type PortalInteractionContract,
   type DesignJson,
   type DesignObservation,
   type DesignCapabilityName,
@@ -38,9 +40,12 @@ export const CORE_RECIPE_CONTRACT_HASH = contentHash('sfp-core-recipe-contract-v
   // Existing binding/interaction schemas retain bounded observed JSON through custom codecs.
   page: PortalCoreRecipePageSchema.toJSONSchema({ unrepresentable: 'any' }),
   observedJsonCodec: 'bounded-design-json-v1',
+  interactionSelectionCodec: 'evidence-bound-incidental-exclusions-v1',
   manifest: PortalCoreRecipeManifestSchema.toJSONSchema(),
   limits: PORTAL_CORE_RECIPE_LIMITS,
-  algorithmVersion: 'core-derivation-qualified-source-v2',
+  // Required CSS/loader identities and mapping review row IDs changed in this revision.
+  // The contract hash fences old plans without rewriting their historical signed manifests.
+  algorithmVersion: 'core-derivation-qualified-source-v3',
 });
 const coreIds = [
   'ground-design',
@@ -80,6 +85,8 @@ export interface CoreRecipeBundle {
   contractHash: `sha256:${string}`;
   inputHash: `sha256:${string}`;
   observationHash: `sha256:${string}`;
+  interactionContractHash: `sha256:${string}` | null;
+  interactionSelectionHash: string | null;
   sources: Array<{
     sourceId: string;
     sourceHash: string;
@@ -134,6 +141,10 @@ function finalize(
   observationHash: `sha256:${string}`,
   observation: DesignObservation,
   applicability: Manifest['applicability'],
+  interactionBinding: Pick<
+    CoreRecipeBundle,
+    'interactionContractHash' | 'interactionSelectionHash'
+  >,
 ): { output: Manifest; pages: CoreRecipeBundle['pages'] } {
   const values = [...new Map(rows.values.map(row => [row.id, row])).values()].toSorted((a, b) =>
     a.id < b.id ? -1 : a.id > b.id ? 1 : 0,
@@ -185,6 +196,7 @@ function finalize(
     derivationVersion: 1,
     inputHash,
     observationHash,
+    ...interactionBinding,
     status: blockingIssueCount ? 'blocked' : 'ready',
     applicability: blockingIssueCount ? 'unresolved' : applicability,
     pages: pages.map(({ hash, page }) => ({
@@ -573,70 +585,95 @@ function deriveStyleAudit(rows: Rows, observation: DesignObservation) {
   }
 }
 
-function deriveInteractions(rows: Rows, observation: DesignObservation) {
+function deriveInteractions(
+  rows: Rows,
+  observation: DesignObservation,
+  contract?: PortalInteractionContract,
+) {
   const nodeIds = new Set(observation.nodes.map(node => node.id));
   for (const interaction of observation.interactions) {
     const temporal =
       object(interaction.trigger) &&
       ['AFTER_TIMEOUT', 'ON_MEDIA_HIT', 'ON_MEDIA_END'].includes(text(interaction.trigger.type));
-    const expectations = interaction.actions.map((raw, actionIndex) => {
-      const action = object(raw) ? text(raw.type) : 'unknown';
-      const navigation = object(raw) ? text(raw.navigation, '') : '';
-      const destinationId =
-        object(raw) && typeof raw.destinationId === 'string' ? raw.destinationId : null;
-      const needsDestination =
-        ['NAVIGATE', 'OPEN_OVERLAY', 'SWAP_OVERLAY', 'CHANGE_TO'].includes(action) ||
-        (action === 'NODE' && ['NAVIGATE', 'OVERLAY', 'SWAP', 'CHANGE_TO'].includes(navigation));
-      const supported =
-        [
-          'BACK',
-          'CLOSE',
-          'CLOSE_OVERLAY',
-          'NAVIGATE',
-          'OPEN_OVERLAY',
-          'SWAP_OVERLAY',
-          'CHANGE_TO',
-        ].includes(action) ||
-        (action === 'NODE' && ['NAVIGATE', 'OVERLAY', 'SWAP', 'CHANGE_TO'].includes(navigation));
-      const status =
-        !supported ||
-        !object(interaction.trigger) ||
-        ![
-          'ON_CLICK',
-          'ON_HOVER',
-          'ON_PRESS',
-          'ON_DRAG',
-          'AFTER_TIMEOUT',
-          'MOUSE_UP',
-          'MOUSE_DOWN',
-          'MOUSE_ENTER',
-          'MOUSE_LEAVE',
-          'ON_KEY_DOWN',
-        ].includes(text(interaction.trigger.type))
-          ? 'unsupported'
-          : needsDestination && (destinationId === null || !nodeIds.has(destinationId))
-            ? 'missing-destination'
-            : 'required';
-      if (status !== 'required')
-        rows.issue(
-          status === 'unsupported'
-            ? 'CORE_INTERACTION_UNSUPPORTED'
-            : 'CORE_INTERACTION_DESTINATION_MISSING',
+    // eslint-disable-next-line oxc/no-map-spread -- Retain immutable source rows and add reviewed proof only to derived expectations.
+    const expectations = (interaction.actions.length ? interaction.actions : [null]).map(
+      (raw, actionIndex) => {
+        const interactionId = contentHash('sfp-required-interaction-v1', {
+          reaction: interaction.id,
+          index: actionIndex,
+        });
+        const excluded = contract?.excludedInteractions?.find(value => value.id === interactionId);
+        const action = object(raw) ? text(raw.type) : 'unknown';
+        const navigation = object(raw) ? text(raw.navigation, '') : '';
+        const destinationId =
+          object(raw) && typeof raw.destinationId === 'string' ? raw.destinationId : null;
+        const needsDestination =
+          ['NAVIGATE', 'OPEN_OVERLAY', 'SWAP_OVERLAY', 'CHANGE_TO'].includes(action) ||
+          (action === 'NODE' && ['NAVIGATE', 'OVERLAY', 'SWAP', 'CHANGE_TO'].includes(navigation));
+        const supported =
+          [
+            'BACK',
+            'CLOSE',
+            'CLOSE_OVERLAY',
+            'NAVIGATE',
+            'OPEN_OVERLAY',
+            'SWAP_OVERLAY',
+            'CHANGE_TO',
+          ].includes(action) ||
+          (action === 'NODE' && ['NAVIGATE', 'OVERLAY', 'SWAP', 'CHANGE_TO'].includes(navigation));
+        const status = excluded
+          ? 'excluded'
+          : !supported ||
+              !object(interaction.trigger) ||
+              ![
+                'ON_CLICK',
+                'ON_HOVER',
+                'ON_PRESS',
+                'ON_DRAG',
+                'AFTER_TIMEOUT',
+                'MOUSE_UP',
+                'MOUSE_DOWN',
+                'MOUSE_ENTER',
+                'MOUSE_LEAVE',
+                'ON_KEY_DOWN',
+              ].includes(text(interaction.trigger.type))
+            ? 'unsupported'
+            : needsDestination && (destinationId === null || !nodeIds.has(destinationId))
+              ? 'missing-destination'
+              : 'required';
+        if (status !== 'required' && status !== 'excluded')
+          rows.issue(
+            status === 'unsupported'
+              ? 'CORE_INTERACTION_UNSUPPORTED'
+              : 'CORE_INTERACTION_DESTINATION_MISSING',
+            `${interaction.id}/${actionIndex}`,
+          );
+        rows.obligation(
+          excluded ? 'review-incidental-interaction' : 'implement-interaction',
           `${interaction.id}/${actionIndex}`,
+          excluded
+            ? excluded.exclusionReason
+            : 'Implement the source trigger/action and verify its required visible state and relevant service behavior.',
         );
-      rows.obligation(
-        'implement-interaction',
-        `${interaction.id}/${actionIndex}`,
-        'Implement the source trigger/action and verify its required visible state and relevant service behavior.',
-      );
-      return {
-        actionIndex,
-        action: navigation ? `${action}/${navigation}` : action,
-        destinationId,
-        status,
-        temporal: temporal || (object(raw) && raw.transition !== undefined),
-      } as const;
-    });
+        return {
+          actionIndex,
+          action: navigation ? `${action}/${navigation}` : action,
+          destinationId,
+          status,
+          temporal: temporal || (object(raw) && raw.transition !== undefined),
+          ...(excluded
+            ? {
+                exclusion: {
+                  interactionId,
+                  sourceHash: excluded.sourceHash,
+                  selectionHash: contract!.selectionHash!,
+                  reason: excluded.exclusionReason,
+                },
+              }
+            : {}),
+        } as const;
+      },
+    );
     if (!expectations.length) rows.issue('CORE_INTERACTION_ACTION_MISSING', interaction.id);
     rows.add({
       kind: 'interaction',
@@ -662,11 +699,50 @@ export function deriveCoreRecipeBundle(input: {
   requiredRootIds?: readonly string[];
   assets: readonly { record: Asset; bytes?: Uint8Array }[];
   sources?: readonly PreparedCoreRecipeSource[];
+  interactionContract?: PortalInteractionContract;
 }): CoreRecipeBundle {
   if (!['blank-frontend', 'reference-portal', 'legacy-portal'].includes(input.strategy))
     throw new Error('CORE_STRATEGY_INVALID');
   const observation = verifyCoreObservation(input.observation),
     observationHash = coreHash(observation);
+  const interactionContract =
+    input.interactionContract === undefined
+      ? undefined
+      : PortalInteractionContractSchema.parse(input.interactionContract);
+  if (interactionContract) {
+    const actions = observation.interactions.flatMap(reaction =>
+      (reaction.actions.length ? reaction.actions : [null]).map((_, index) => ({
+        id: contentHash('sfp-required-interaction-v1', { reaction: reaction.id, index }),
+        sourceHash: reaction.rawHash,
+        sourceNodeId: reaction.nodeId,
+      })),
+    );
+    const declared = [
+      ...interactionContract.interactions,
+      ...(interactionContract.excludedInteractions ?? []),
+    ];
+    if (
+      !interactionContract.selectionHash ||
+      actions.length !== declared.length ||
+      new Set(declared.map(value => value.id)).size !== declared.length ||
+      actions.some(
+        action =>
+          !declared.some(
+            value =>
+              value.id === action.id &&
+              value.sourceHash === action.sourceHash &&
+              value.sourceNodeId === action.sourceNodeId,
+          ),
+      )
+    )
+      throw new Error('CORE_INTERACTION_CONTRACT_SOURCE_MISMATCH');
+  }
+  const interactionBinding = {
+    interactionContractHash: interactionContract
+      ? contentHash('sfp-interaction-contract-v1', interactionContract)
+      : null,
+    interactionSelectionHash: interactionContract?.selectionHash ?? null,
+  };
   if (
     (input.requiredRootIds?.length ?? 0) > 100000 ||
     input.assets.length > 100000 ||
@@ -744,6 +820,7 @@ export function deriveCoreRecipeBundle(input: {
   const inputHash = coreHash({
     contractHash: CORE_RECIPE_CONTRACT_HASH,
     observationHash,
+    ...interactionBinding,
     strategy: input.strategy,
     roots: [...roots].toSorted(),
     sources: sourceDescriptors,
@@ -775,7 +852,11 @@ export function deriveCoreRecipeBundle(input: {
   if (!roots.size) outputs.get('ground-design')!.issue('CORE_CAPTURE_SCOPE_EMPTY', 'roots');
   deriveTokens(outputs.get('derive-tokens')!, observation);
   deriveStyleAudit(outputs.get('audit-styles')!, observation);
-  deriveInteractions(outputs.get('derive-interactions')!, observation);
+  deriveInteractions(outputs.get('derive-interactions')!, observation, interactionContract);
+  if (interactionContract && !interactionContract.complete)
+    outputs
+      .get('derive-interactions')!
+      .issue('CORE_INTERACTION_CONTRACT_INCOMPLETE', 'interaction-contract');
   for (const issue of observation.issues)
     for (const recipeId of ['ground-design', 'map-design', 'derive-tokens'] as const)
       outputs.get(recipeId)!.issue(`CORE_OBSERVATION_${issue.code}`, issue.scope);
@@ -1016,7 +1097,7 @@ export function deriveCoreRecipeBundle(input: {
         )
           maps.obligation(
             'reuse-review',
-            `${mappingKind}:${mappingId}`,
+            mappingRowId,
             'Resolve or construct the mapped source intent; candidate/name scores are not verified runtime use.',
             source.sourceId,
           );
@@ -1100,6 +1181,7 @@ export function deriveCoreRecipeBundle(input: {
       actualRows.length === 0 && !rows.values.some(row => row.kind === 'obligation')
         ? 'proved-empty'
         : 'applicable',
+      interactionBinding,
     );
     results.push({
       recipeId,
@@ -1120,6 +1202,7 @@ export function deriveCoreRecipeBundle(input: {
     contractHash: CORE_RECIPE_CONTRACT_HASH,
     inputHash,
     observationHash,
+    ...interactionBinding,
     sources: sourceDescriptors,
     results,
     pages,
@@ -1134,6 +1217,12 @@ export function verifyCoreRecipePages(
   const manifest = PortalCoreRecipeManifestSchema.parse(manifestInput);
   if (manifest.contractHash !== CORE_RECIPE_CONTRACT_HASH)
     throw new Error('CORE_CONTRACT_MISMATCH');
+  if (
+    manifest.interactionContractHash === undefined ||
+    manifest.interactionSelectionHash === undefined ||
+    (manifest.interactionContractHash === null) !== (manifest.interactionSelectionHash === null)
+  )
+    throw new Error('CORE_INTERACTION_BINDING_REQUIRED');
   const capabilities = requiredCapabilities[manifest.recipeId as (typeof coreIds)[number]];
   if (
     !capabilities ||
@@ -1170,6 +1259,21 @@ export function verifyCoreRecipePages(
         if (row.issue.blocking) blocking++;
       }
       if (row.kind === 'obligation') obligations++;
+      if (
+        row.kind === 'interaction' &&
+        row.expectations.some(
+          value =>
+            value.exclusion &&
+            (value.exclusion.selectionHash !== manifest.interactionSelectionHash ||
+              value.exclusion.sourceHash !== row.observation.rawHash ||
+              value.exclusion.interactionId !==
+                contentHash('sfp-required-interaction-v1', {
+                  reaction: row.observation.id,
+                  index: value.actionIndex,
+                })),
+        )
+      )
+        throw new Error('CORE_INTERACTION_EXCLUSION_BINDING_MISMATCH');
       if (row.kind === 'source-context') {
         const context = row.context;
         if (

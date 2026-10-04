@@ -70,6 +70,15 @@ const RowSchema = z
     reservedBytes: z.number().int().min(0).max(8_388_608),
     createdAt: z.iso.datetime(),
     releasedAt: z.iso.datetime().nullable(),
+    releaseAuthorization: z
+      .object({
+        protocol: z.literal('sfp-recipe-hold-release-v1'),
+        actorId: RecipeEvidenceBindingSchema.shape.actorId,
+        authSessionId: RecipeEvidenceBindingSchema.shape.authSessionId,
+        releasedAt: z.iso.datetime(),
+      })
+      .strict()
+      .optional(),
     verified: RecipeEvidenceVerifiedSchema.nullable(),
     dependencies: z
       .array(z.string().min(1).max(256))
@@ -96,6 +105,10 @@ const IndexSchema = z
         new Set(row.dependencies).size !== row.dependencies.length ||
         (row.state === 'released' &&
           (row.dependencies.length > 0 || row.reservedBytes !== 0 || row.releasedAt === null)) ||
+        (row.releaseAuthorization !== undefined &&
+          (row.state !== 'released' ||
+            row.releaseAuthorization.actorId !== row.binding.actorId ||
+            row.releaseAuthorization.releasedAt !== row.releasedAt)) ||
         (row.state === 'held' &&
           (row.releasedAt !== null ||
             (row.verified !== null
@@ -415,7 +428,12 @@ export class RecipeEvidenceHolds {
     input: unknown,
     signal?: Cancellation,
   ): Promise<RecipeEvidenceResult> {
-    const binding = this.scope(scope, input);
+    const binding = RecipeEvidenceBindingSchema.parse(input);
+    if (
+      binding.actorId !== scope.actor.actorId ||
+      binding.workspaceId !== scope.workspace.workspaceId
+    )
+      throw error('RECIPE_HOLD_SCOPE_MISMATCH');
     return await this.locked(async (index, save) => {
       const row = index.rows.find(item => item.key === stableKey(binding));
       if (!row) throw error('RECIPE_HOLD_NOT_FOUND');
@@ -431,6 +449,12 @@ export class RecipeEvidenceHolds {
         row.state = 'released';
         row.reservedBytes = 0;
         row.releasedAt = this.now();
+        row.releaseAuthorization = {
+          protocol: 'sfp-recipe-hold-release-v1',
+          actorId: scope.actor.actorId,
+          authSessionId: scope.actor.authSessionId,
+          releasedAt: row.releasedAt,
+        };
         await save();
       }
       return this.response(row);

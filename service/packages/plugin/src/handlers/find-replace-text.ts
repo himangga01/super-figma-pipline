@@ -16,7 +16,7 @@ const loadAllFonts = async (figmaCtx: typeof figma, text: TextNode): Promise<voi
 /** Replace a substring across all TEXT nodes under a scope (default current page). */
 export const createFindReplaceTextHandler =
   (figmaCtx: typeof figma): SandboxToolHandler =>
-  async params => {
+  async (params, execution) => {
     const p = (params ?? {}) as {
       find?: unknown;
       replace?: unknown;
@@ -32,6 +32,7 @@ export const createFindReplaceTextHandler =
     let root: BaseNode;
     if (typeof p.root === 'string') {
       const node = await figmaCtx.getNodeByIdAsync(p.root);
+      execution?.signal.throwIfAborted();
       if (node === null || !('findAllWithCriteria' in node)) {
         throw new Error(`find_replace_text: root ${p.root} not found or cannot be searched`);
       }
@@ -52,6 +53,7 @@ export const createFindReplaceTextHandler =
     });
     // Load every match's fonts up front so the mutation pass stays synchronous.
     await Promise.all(matches.map(text => loadAllFonts(figmaCtx, text)));
+    execution?.signal.throwIfAborted();
 
     const affected: string[] = [];
     for (const text of matches) {

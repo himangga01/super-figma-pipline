@@ -16,6 +16,20 @@ const profileWith = (
 });
 
 describe('token loader RepoReader authority', () => {
+  it('includes imported generated CSS tokens even when the entry declares its own properties', async () => {
+    const root = await mkdtemp(join(tmpdir(), 'tokens-css-closure-'));
+    try {
+      await mkdir(join(root, 'dist'));
+      await writeFile(join(root, 'entry.css'), '@import "./dist/tokens.css"; :root {--own: red;}');
+      await writeFile(join(root, 'dist/tokens.css'), ':root {--imported: blue;}');
+      const profile = await analyzeProject(root);
+      const loaded = await loadProjectTokens(root, profile, 'entry.css');
+      expect(loaded.tokens.map(token => token.name)).toEqual(['own', 'imported']);
+      expect(loaded.files).toEqual(['entry.css', 'dist/tokens.css']);
+    } finally {
+      await rm(root, { recursive: true, force: true });
+    }
+  });
   it('loads tokens only from the injected reader root', async () => {
     const declaredRoot = await mkdtemp(join(tmpdir(), 'tokens-declared-root-'));
     const authorityRoot = await mkdtemp(join(tmpdir(), 'tokens-authority-root-'));

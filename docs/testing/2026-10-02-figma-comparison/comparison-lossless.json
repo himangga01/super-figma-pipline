@@ -1,0 +1,792 @@
+{
+  "schemaVersion": 2,
+  "analysisDate": "2026-10-02",
+  "fileKey": "ly06O8jAcrd7oWmwhz5Vr6",
+  "pageNodeId": "1378:120",
+  "rootIds": [
+    "1381:541",
+    "1381:530"
+  ],
+  "primarySource": "Chrome Figma Web through Playwright remote control and Scripter UI; ASCII-escaped lossless JSON export",
+  "secondarySource": "Official Figma MCP use_figma read",
+  "nodeCount": 189,
+  "textNodeCount": 70,
+  "textSegmentCount": 70,
+  "nodeFieldPositions": 6426,
+  "nodeDifferenceCount": 0,
+  "textFieldPositions": 1400,
+  "textDifferenceCount": 70,
+  "treeMatches": true,
+  "fields": [
+    "id",
+    "name",
+    "type",
+    "x",
+    "y",
+    "width",
+    "height",
+    "rotation",
+    "visible",
+    "opacity",
+    "clipsContent",
+    "fills",
+    "strokes",
+    "strokeWeight",
+    "cornerRadius",
+    "layoutMode",
+    "itemSpacing",
+    "paddingTop",
+    "paddingRight",
+    "paddingBottom",
+    "paddingLeft",
+    "characters",
+    "fontSize",
+    "fontName",
+    "lineHeight",
+    "letterSpacing",
+    "textAlignHorizontal",
+    "boundVariables",
+    "effects",
+    "constraints",
+    "layoutSizingHorizontal",
+    "layoutSizingVertical",
+    "reactions"
+  ],
+  "segmentFields": [
+    "fontName",
+    "fontSize",
+    "fontWeight",
+    "fills",
+    "lineHeight",
+    "letterSpacing",
+    "listOptions",
+    "indentation",
+    "textWrapStyle",
+    "textDecoration",
+    "textCase",
+    "hyperlink",
+    "textStyleId",
+    "fillStyleId",
+    "boundVariables"
+  ],
+  "unicodePreserved": {
+    "lineSeparators": 33,
+    "wordJoiners": 8
+  },
+  "batches": [
+    {
+      "batch": 1,
+      "nodeCount": 50,
+      "comparedFields": 1700,
+      "officialNodeCount": 189,
+      "treeMatches": true,
+      "differenceCount": 0,
+      "differences": []
+    },
+    {
+      "batch": 2,
+      "nodeCount": 50,
+      "comparedFields": 1700,
+      "officialNodeCount": 189,
+      "treeMatches": true,
+      "differenceCount": 0,
+      "differences": []
+    },
+    {
+      "batch": 3,
+      "nodeCount": 50,
+      "comparedFields": 1700,
+      "officialNodeCount": 189,
+      "treeMatches": true,
+      "differenceCount": 0,
+      "differences": []
+    },
+    {
+      "batch": 4,
+      "nodeCount": 39,
+      "comparedFields": 1326,
+      "officialNodeCount": 189,
+      "treeMatches": true,
+      "differenceCount": 0,
+      "differences": []
+    },
+    {
+      "batch": 1,
+      "textNodes": 25,
+      "segments": 25,
+      "comparedFieldPositions": 500,
+      "officialTextNodes": 70,
+      "treeMatches": true,
+      "differenceCount": 25,
+      "differences": [
+        {
+          "id": "I1381:542;1381:190;1379:552",
+          "path": "segments/0/textWrapStyle",
+          "expectedPresent": true,
+          "actualPresent": false,
+          "expected": "AUTO",
+          "actual": null,
+          "nodeWrap": "AUTO"
+        },
+        {
+          "id": "I1381:542;1381:190;1379:554",
+          "path": "segments/0/textWrapStyle",
+          "expectedPresent": true,
+          "actualPresent": false,
+          "expected": "AUTO",
+          "actual": null,
+          "nodeWrap": "AUTO"
+        },
+        {
+          "id": "I1381:542;1381:190;1379:555",
+          "path": "segments/0/textWrapStyle",
+          "expectedPresent": true,
+          "actualPresent": false,
+          "expected": "AUTO",
+          "actual": null,
+          "nodeWrap": "AUTO"
+        },
+        {
+          "id": "I1381:542;1381:190;1379:556",
+          "path": "segments/0/textWrapStyle",
+          "expectedPresent": true,
+          "actualPresent": false,
+          "expected": "AUTO",
+          "actual": null,
+          "nodeWrap": "AUTO"
+        },
+        {
+          "id": "I1381:542;1381:190;1379:557",
+          "path": "segments/0/textWrapStyle",
+          "expectedPresent": true,
+          "actualPresent": false,
+          "expected": "AUTO",
+          "actual": null,
+          "nodeWrap": "AUTO"
+        },
+        {
+          "id": "I1381:542;1381:190;1379:558",
+          "path": "segments/0/textWrapStyle",
+          "expectedPresent": true,
+          "actualPresent": false,
+          "expected": "AUTO",
+          "actual": null,
+          "nodeWrap": "AUTO"
+        },
+        {
+          "id": "I1381:542;1381:190;1379:559",
+          "path": "segments/0/textWrapStyle",
+          "expectedPresent": true,
+          "actualPresent": false,
+          "expected": "AUTO",
+          "actual": null,
+          "nodeWrap": "AUTO"
+        },
+        {
+          "id": "I1381:542;1381:190;1379:560",
+          "path": "segments/0/textWrapStyle",
+          "expectedPresent": true,
+          "actualPresent": false,
+          "expected": "AUTO",
+          "actual": null,
+          "nodeWrap": "AUTO"
+        },
+        {
+          "id": "I1381:542;1381:190;1379:561",
+          "path": "segments/0/textWrapStyle",
+          "expectedPresent": true,
+          "actualPresent": false,
+          "expected": "AUTO",
+          "actual": null,
+          "nodeWrap": "AUTO"
+        },
+        {
+          "id": "I1381:542;1381:190;1379:562",
+          "path": "segments/0/textWrapStyle",
+          "expectedPresent": true,
+          "actualPresent": false,
+          "expected": "AUTO",
+          "actual": null,
+          "nodeWrap": "AUTO"
+        },
+        {
+          "id": "I1381:542;1381:190;1379:563",
+          "path": "segments/0/textWrapStyle",
+          "expectedPresent": true,
+          "actualPresent": false,
+          "expected": "AUTO",
+          "actual": null,
+          "nodeWrap": "AUTO"
+        },
+        {
+          "id": "I1381:542;1381:190;1379:564",
+          "path": "segments/0/textWrapStyle",
+          "expectedPresent": true,
+          "actualPresent": false,
+          "expected": "AUTO",
+          "actual": null,
+          "nodeWrap": "AUTO"
+        },
+        {
+          "id": "I1381:542;1381:190;1379:565",
+          "path": "segments/0/textWrapStyle",
+          "expectedPresent": true,
+          "actualPresent": false,
+          "expected": "AUTO",
+          "actual": null,
+          "nodeWrap": "AUTO"
+        },
+        {
+          "id": "I1381:542;1381:190;1379:566",
+          "path": "segments/0/textWrapStyle",
+          "expectedPresent": true,
+          "actualPresent": false,
+          "expected": "AUTO",
+          "actual": null,
+          "nodeWrap": "AUTO"
+        },
+        {
+          "id": "I1381:542;1381:190;1379:567",
+          "path": "segments/0/textWrapStyle",
+          "expectedPresent": true,
+          "actualPresent": false,
+          "expected": "AUTO",
+          "actual": null,
+          "nodeWrap": "AUTO"
+        },
+        {
+          "id": "I1381:542;1381:190;1379:568",
+          "path": "segments/0/textWrapStyle",
+          "expectedPresent": true,
+          "actualPresent": false,
+          "expected": "AUTO",
+          "actual": null,
+          "nodeWrap": "AUTO"
+        },
+        {
+          "id": "I1381:542;1381:190;1379:575",
+          "path": "segments/0/textWrapStyle",
+          "expectedPresent": true,
+          "actualPresent": false,
+          "expected": "AUTO",
+          "actual": null,
+          "nodeWrap": "AUTO"
+        },
+        {
+          "id": "I1381:542;1381:190;1379:580;1379:424",
+          "path": "segments/0/textWrapStyle",
+          "expectedPresent": true,
+          "actualPresent": false,
+          "expected": "AUTO",
+          "actual": null,
+          "nodeWrap": "AUTO"
+        },
+        {
+          "id": "I1381:542;1381:190;1379:576",
+          "path": "segments/0/textWrapStyle",
+          "expectedPresent": true,
+          "actualPresent": false,
+          "expected": "AUTO",
+          "actual": null,
+          "nodeWrap": "AUTO"
+        },
+        {
+          "id": "I1381:542;1381:247;1379:136;1378:215",
+          "path": "segments/0/textWrapStyle",
+          "expectedPresent": true,
+          "actualPresent": false,
+          "expected": "AUTO",
+          "actual": null,
+          "nodeWrap": "AUTO"
+        },
+        {
+          "id": "I1381:542;1381:247;1396:423;1379:424",
+          "path": "segments/0/textWrapStyle",
+          "expectedPresent": true,
+          "actualPresent": false,
+          "expected": "AUTO",
+          "actual": null,
+          "nodeWrap": "AUTO"
+        },
+        {
+          "id": "I1604:1325;1379:319",
+          "path": "segments/0/textWrapStyle",
+          "expectedPresent": true,
+          "actualPresent": false,
+          "expected": "AUTO",
+          "actual": null,
+          "nodeWrap": "AUTO"
+        },
+        {
+          "id": "I1604:1325;1379:320",
+          "path": "segments/0/textWrapStyle",
+          "expectedPresent": true,
+          "actualPresent": false,
+          "expected": "AUTO",
+          "actual": null,
+          "nodeWrap": "AUTO"
+        },
+        {
+          "id": "I1604:1325;1379:321",
+          "path": "segments/0/textWrapStyle",
+          "expectedPresent": true,
+          "actualPresent": false,
+          "expected": "AUTO",
+          "actual": null,
+          "nodeWrap": "AUTO"
+        },
+        {
+          "id": "I1604:1325;1379:329;1378:416;1378:230",
+          "path": "segments/0/textWrapStyle",
+          "expectedPresent": true,
+          "actualPresent": false,
+          "expected": "AUTO",
+          "actual": null,
+          "nodeWrap": "AUTO"
+        }
+      ]
+    },
+    {
+      "batch": 2,
+      "textNodes": 25,
+      "segments": 25,
+      "comparedFieldPositions": 500,
+      "officialTextNodes": 70,
+      "treeMatches": true,
+      "differenceCount": 25,
+      "differences": [
+        {
+          "id": "I1604:1325;1379:329;1378:421;1378:351",
+          "path": "segments/0/textWrapStyle",
+          "expectedPresent": true,
+          "actualPresent": false,
+          "expected": "AUTO",
+          "actual": null,
+          "nodeWrap": "AUTO"
+        },
+        {
+          "id": "I1604:1325;1379:325",
+          "path": "segments/0/textWrapStyle",
+          "expectedPresent": true,
+          "actualPresent": false,
+          "expected": "AUTO",
+          "actual": null,
+          "nodeWrap": "AUTO"
+        },
+        {
+          "id": "I1604:1348;1585:349;1379:357",
+          "path": "segments/0/textWrapStyle",
+          "expectedPresent": true,
+          "actualPresent": false,
+          "expected": "AUTO",
+          "actual": null,
+          "nodeWrap": "AUTO"
+        },
+        {
+          "id": "I1604:1348;1585:349;1379:358",
+          "path": "segments/0/textWrapStyle",
+          "expectedPresent": true,
+          "actualPresent": false,
+          "expected": "AUTO",
+          "actual": null,
+          "nodeWrap": "AUTO"
+        },
+        {
+          "id": "I1604:1348;1585:369;1379:416;1381:765",
+          "path": "segments/0/textWrapStyle",
+          "expectedPresent": true,
+          "actualPresent": false,
+          "expected": "AUTO",
+          "actual": null,
+          "nodeWrap": "AUTO"
+        },
+        {
+          "id": "I1604:1348;1585:369;1379:416;1381:766",
+          "path": "segments/0/textWrapStyle",
+          "expectedPresent": true,
+          "actualPresent": false,
+          "expected": "AUTO",
+          "actual": null,
+          "nodeWrap": "AUTO"
+        },
+        {
+          "id": "I1604:1348;1585:369;1379:418",
+          "path": "segments/0/textWrapStyle",
+          "expectedPresent": true,
+          "actualPresent": false,
+          "expected": "AUTO",
+          "actual": null,
+          "nodeWrap": "AUTO"
+        },
+        {
+          "id": "I1604:1348;1585:369;1379:419",
+          "path": "segments/0/textWrapStyle",
+          "expectedPresent": true,
+          "actualPresent": false,
+          "expected": "AUTO",
+          "actual": null,
+          "nodeWrap": "AUTO"
+        },
+        {
+          "id": "I1604:1348;1585:390;1379:357",
+          "path": "segments/0/textWrapStyle",
+          "expectedPresent": true,
+          "actualPresent": false,
+          "expected": "AUTO",
+          "actual": null,
+          "nodeWrap": "AUTO"
+        },
+        {
+          "id": "I1604:1348;1585:390;1379:358",
+          "path": "segments/0/textWrapStyle",
+          "expectedPresent": true,
+          "actualPresent": false,
+          "expected": "AUTO",
+          "actual": null,
+          "nodeWrap": "AUTO"
+        },
+        {
+          "id": "I1381:290;1379:457;1379:147;1378:215",
+          "path": "segments/0/textWrapStyle",
+          "expectedPresent": true,
+          "actualPresent": false,
+          "expected": "AUTO",
+          "actual": null,
+          "nodeWrap": "AUTO"
+        },
+        {
+          "id": "I1381:290;1379:457;1396:452;1508:437",
+          "path": "segments/0/textWrapStyle",
+          "expectedPresent": true,
+          "actualPresent": false,
+          "expected": "AUTO",
+          "actual": null,
+          "nodeWrap": "AUTO"
+        },
+        {
+          "id": "I1381:290;1379:619;1379:466",
+          "path": "segments/0/textWrapStyle",
+          "expectedPresent": true,
+          "actualPresent": false,
+          "expected": "AUTO",
+          "actual": null,
+          "nodeWrap": "AUTO"
+        },
+        {
+          "id": "I1381:290;1379:619;1379:468",
+          "path": "segments/0/textWrapStyle",
+          "expectedPresent": true,
+          "actualPresent": false,
+          "expected": "AUTO",
+          "actual": null,
+          "nodeWrap": "AUTO"
+        },
+        {
+          "id": "I1381:290;1379:619;1379:469",
+          "path": "segments/0/textWrapStyle",
+          "expectedPresent": true,
+          "actualPresent": false,
+          "expected": "AUTO",
+          "actual": null,
+          "nodeWrap": "AUTO"
+        },
+        {
+          "id": "I1381:290;1379:619;1379:470",
+          "path": "segments/0/textWrapStyle",
+          "expectedPresent": true,
+          "actualPresent": false,
+          "expected": "AUTO",
+          "actual": null,
+          "nodeWrap": "AUTO"
+        },
+        {
+          "id": "I1381:290;1379:619;1379:471",
+          "path": "segments/0/textWrapStyle",
+          "expectedPresent": true,
+          "actualPresent": false,
+          "expected": "AUTO",
+          "actual": null,
+          "nodeWrap": "AUTO"
+        },
+        {
+          "id": "I1381:290;1379:619;1379:472",
+          "path": "segments/0/textWrapStyle",
+          "expectedPresent": true,
+          "actualPresent": false,
+          "expected": "AUTO",
+          "actual": null,
+          "nodeWrap": "AUTO"
+        },
+        {
+          "id": "I1381:290;1379:619;1379:473",
+          "path": "segments/0/textWrapStyle",
+          "expectedPresent": true,
+          "actualPresent": false,
+          "expected": "AUTO",
+          "actual": null,
+          "nodeWrap": "AUTO"
+        },
+        {
+          "id": "I1381:290;1379:619;1379:474",
+          "path": "segments/0/textWrapStyle",
+          "expectedPresent": true,
+          "actualPresent": false,
+          "expected": "AUTO",
+          "actual": null,
+          "nodeWrap": "AUTO"
+        },
+        {
+          "id": "I1381:290;1379:619;1379:475",
+          "path": "segments/0/textWrapStyle",
+          "expectedPresent": true,
+          "actualPresent": false,
+          "expected": "AUTO",
+          "actual": null,
+          "nodeWrap": "AUTO"
+        },
+        {
+          "id": "I1381:290;1379:619;1379:476",
+          "path": "segments/0/textWrapStyle",
+          "expectedPresent": true,
+          "actualPresent": false,
+          "expected": "AUTO",
+          "actual": null,
+          "nodeWrap": "AUTO"
+        },
+        {
+          "id": "I1381:290;1379:619;1379:477",
+          "path": "segments/0/textWrapStyle",
+          "expectedPresent": true,
+          "actualPresent": false,
+          "expected": "AUTO",
+          "actual": null,
+          "nodeWrap": "AUTO"
+        },
+        {
+          "id": "I1381:290;1379:619;1379:478",
+          "path": "segments/0/textWrapStyle",
+          "expectedPresent": true,
+          "actualPresent": false,
+          "expected": "AUTO",
+          "actual": null,
+          "nodeWrap": "AUTO"
+        },
+        {
+          "id": "I1381:290;1379:619;1379:479",
+          "path": "segments/0/textWrapStyle",
+          "expectedPresent": true,
+          "actualPresent": false,
+          "expected": "AUTO",
+          "actual": null,
+          "nodeWrap": "AUTO"
+        }
+      ]
+    },
+    {
+      "batch": 3,
+      "textNodes": 20,
+      "segments": 20,
+      "comparedFieldPositions": 400,
+      "officialTextNodes": 70,
+      "treeMatches": true,
+      "differenceCount": 20,
+      "differences": [
+        {
+          "id": "I1381:290;1379:619;1379:480",
+          "path": "segments/0/textWrapStyle",
+          "expectedPresent": true,
+          "actualPresent": false,
+          "expected": "AUTO",
+          "actual": null,
+          "nodeWrap": "AUTO"
+        },
+        {
+          "id": "I1381:290;1379:619;1379:481",
+          "path": "segments/0/textWrapStyle",
+          "expectedPresent": true,
+          "actualPresent": false,
+          "expected": "AUTO",
+          "actual": null,
+          "nodeWrap": "AUTO"
+        },
+        {
+          "id": "I1381:290;1379:619;1379:482",
+          "path": "segments/0/textWrapStyle",
+          "expectedPresent": true,
+          "actualPresent": false,
+          "expected": "AUTO",
+          "actual": null,
+          "nodeWrap": "AUTO"
+        },
+        {
+          "id": "I1381:290;1379:619;1379:489",
+          "path": "segments/0/textWrapStyle",
+          "expectedPresent": true,
+          "actualPresent": false,
+          "expected": "AUTO",
+          "actual": null,
+          "nodeWrap": "AUTO"
+        },
+        {
+          "id": "I1381:290;1379:619;1379:490",
+          "path": "segments/0/textWrapStyle",
+          "expectedPresent": true,
+          "actualPresent": false,
+          "expected": "AUTO",
+          "actual": null,
+          "nodeWrap": "AUTO"
+        },
+        {
+          "id": "I1381:290;1379:619;1379:493;1508:437",
+          "path": "segments/0/textWrapStyle",
+          "expectedPresent": true,
+          "actualPresent": false,
+          "expected": "AUTO",
+          "actual": null,
+          "nodeWrap": "AUTO"
+        },
+        {
+          "id": "I1381:431;1379:243",
+          "path": "segments/0/textWrapStyle",
+          "expectedPresent": true,
+          "actualPresent": false,
+          "expected": "AUTO",
+          "actual": null,
+          "nodeWrap": "AUTO"
+        },
+        {
+          "id": "I1381:431;1379:244",
+          "path": "segments/0/textWrapStyle",
+          "expectedPresent": true,
+          "actualPresent": false,
+          "expected": "AUTO",
+          "actual": null,
+          "nodeWrap": "AUTO"
+        },
+        {
+          "id": "I1381:431;1379:245",
+          "path": "segments/0/textWrapStyle",
+          "expectedPresent": true,
+          "actualPresent": false,
+          "expected": "AUTO",
+          "actual": null,
+          "nodeWrap": "AUTO"
+        },
+        {
+          "id": "I1381:431;1379:265;1381:942",
+          "path": "segments/0/textWrapStyle",
+          "expectedPresent": true,
+          "actualPresent": false,
+          "expected": "AUTO",
+          "actual": null,
+          "nodeWrap": "AUTO"
+        },
+        {
+          "id": "I1381:431;1379:265;1378:464;1378:230",
+          "path": "segments/0/textWrapStyle",
+          "expectedPresent": true,
+          "actualPresent": false,
+          "expected": "AUTO",
+          "actual": null,
+          "nodeWrap": "AUTO"
+        },
+        {
+          "id": "I1381:431;1379:249",
+          "path": "segments/0/textWrapStyle",
+          "expectedPresent": true,
+          "actualPresent": false,
+          "expected": "AUTO",
+          "actual": null,
+          "nodeWrap": "AUTO"
+        },
+        {
+          "id": "I1585:527;1585:457;1379:236",
+          "path": "segments/0/textWrapStyle",
+          "expectedPresent": true,
+          "actualPresent": false,
+          "expected": "AUTO",
+          "actual": null,
+          "nodeWrap": "AUTO"
+        },
+        {
+          "id": "I1585:527;1585:457;1379:237",
+          "path": "segments/0/textWrapStyle",
+          "expectedPresent": true,
+          "actualPresent": false,
+          "expected": "AUTO",
+          "actual": null,
+          "nodeWrap": "AUTO"
+        },
+        {
+          "id": "I1585:527;1585:458;1379:236",
+          "path": "segments/0/textWrapStyle",
+          "expectedPresent": true,
+          "actualPresent": false,
+          "expected": "AUTO",
+          "actual": null,
+          "nodeWrap": "AUTO"
+        },
+        {
+          "id": "I1585:527;1585:458;1379:237",
+          "path": "segments/0/textWrapStyle",
+          "expectedPresent": true,
+          "actualPresent": false,
+          "expected": "AUTO",
+          "actual": null,
+          "nodeWrap": "AUTO"
+        },
+        {
+          "id": "I1585:527;1585:459;1379:236",
+          "path": "segments/0/textWrapStyle",
+          "expectedPresent": true,
+          "actualPresent": false,
+          "expected": "AUTO",
+          "actual": null,
+          "nodeWrap": "AUTO"
+        },
+        {
+          "id": "I1585:527;1585:459;1379:237",
+          "path": "segments/0/textWrapStyle",
+          "expectedPresent": true,
+          "actualPresent": false,
+          "expected": "AUTO",
+          "actual": null,
+          "nodeWrap": "AUTO"
+        },
+        {
+          "id": "I1585:527;1585:459;1379:240;1381:765",
+          "path": "segments/0/textWrapStyle",
+          "expectedPresent": true,
+          "actualPresent": false,
+          "expected": "AUTO",
+          "actual": null,
+          "nodeWrap": "AUTO"
+        },
+        {
+          "id": "I1585:527;1585:459;1379:240;1381:766",
+          "path": "segments/0/textWrapStyle",
+          "expectedPresent": true,
+          "actualPresent": false,
+          "expected": "AUTO",
+          "actual": null,
+          "nodeWrap": "AUTO"
+        }
+      ]
+    }
+  ],
+  "fullCapture": false,
+  "initialEvidenceSuperseded": {
+    "files": [
+      "initial-dom-chrome.json",
+      "initial-dom-comparison.json",
+      "initial-dom-chrome-text-ranges.json"
+    ],
+    "reason": "Rendered DOM serialization changed some U+2028 and U+FEFF characters. The initial exact-text claim is superseded by lossless recollection; preserved for audit."
+  },
+  "limits": [
+    "The official styled range API omitted textWrapStyle on all 70 ranges while its directly read node-level textWrapStyle was AUTO. Raw omissions remain recorded as differences.",
+    "Read calls were separate rather than an atomic cross-source snapshot.",
+    "Binary assets, catalogs, component APIs and prototype runtime behavior were not fully compared.",
+    "Service-owned direct CDP and generated frontend acceptance are not established."
+  ]
+}

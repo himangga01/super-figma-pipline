@@ -209,7 +209,26 @@ describe('bounded read-only Figma program', () => {
       fontName: Symbol('mixed'),
       fontSize: 32,
       getStyledTextSegments: () => [
-        { characters: 'Hello', fontName: { family: 'Poppins', style: 'Bold' } },
+        // This fixture asserts complete output, so its API row supplies every requested field.
+        {
+          characters: 'Hello',
+          start: 0,
+          end: 5,
+          fontName: { family: 'Poppins', style: 'Bold' },
+          fontSize: 32,
+          fontWeight: 700,
+          fills: [],
+          lineHeight: { unit: 'AUTO' },
+          letterSpacing: { unit: 'PIXELS', value: 0 },
+          listOptions: { type: 'NONE' },
+          indentation: 0,
+          textWrapStyle: 'AUTO',
+          textDecoration: 'NONE',
+          textCase: 'ORIGINAL',
+          hyperlink: null,
+          textStyleId: '',
+          fillStyleId: '',
+        },
       ],
     });
     const frame = Object.freeze({

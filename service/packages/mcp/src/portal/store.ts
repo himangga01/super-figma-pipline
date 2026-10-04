@@ -120,6 +120,23 @@ export class PortalStore {
         const path = authority.child(`${id}.json`),
           atomic = new AtomicFileStore({
             maxReplaceBytes: 33_554_432,
+            reclaimRetainedAfterPublish: true,
+            verifyRetainedForReclamation: async retainedBytes => {
+              const record = envelopeSchema.parse(
+                JSON.parse(new TextDecoder('utf-8', { fatal: true }).decode(retainedBytes)),
+              );
+              const { mac, ...retainedPayload } = record;
+              if (
+                record.kind !== kind ||
+                record.id !== id ||
+                !timingSafeEqual(
+                  Buffer.from(mac, 'hex'),
+                  Buffer.from(this.mac(retainedPayload), 'hex'),
+                )
+              ) {
+                throw portalError('PORTAL_RECORD_TAMPERED');
+              }
+            },
             ...(kind === 'recipe-holds'
               ? {
                   retainedReplaceLimits: {

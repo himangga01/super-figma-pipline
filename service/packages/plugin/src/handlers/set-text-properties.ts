@@ -12,7 +12,7 @@ import type { SandboxToolHandler } from '../dispatcher.js';
  */
 export const createSetTextPropertiesHandler =
   (figmaCtx: typeof figma): SandboxToolHandler =>
-  async params => {
+  async (params, execution) => {
     const p = (params ?? {}) as {
       nodeId?: unknown;
       fontName?: { family: string; style: string };
@@ -56,6 +56,8 @@ export const createSetTextPropertiesHandler =
     }
 
     const node = await figmaCtx.getNodeByIdAsync(p.nodeId);
+
+    execution?.signal.throwIfAborted();
     if (node === null || node.type !== 'TEXT') {
       throw new Error(`set_text_properties: node ${p.nodeId} is not a TEXT node`);
     }
@@ -80,25 +82,58 @@ export const createSetTextPropertiesHandler =
           : [text.fontName as FontName];
       if (p.fontName !== undefined) fonts.push(p.fontName);
       await Promise.all(fonts.map(font => figmaCtx.loadFontAsync(font)));
+      execution?.signal.throwIfAborted();
 
-      if (p.fontName !== undefined) text.fontName = p.fontName;
-      if (p.fontSize !== undefined) text.fontSize = p.fontSize as number;
-      if (p.lineHeight !== undefined) text.lineHeight = p.lineHeight as LineHeight;
-      if (p.letterSpacing !== undefined) text.letterSpacing = p.letterSpacing as LetterSpacing;
-      if (p.textCase !== undefined) text.textCase = p.textCase as TextNode['textCase'];
-      if (p.textDecoration !== undefined)
+      if (p.fontName !== undefined) {
+        text.fontName = p.fontName;
+        execution?.recordOwnedWrite?.(node, ['fontName']);
+      }
+      if (p.fontSize !== undefined) {
+        text.fontSize = p.fontSize as number;
+        execution?.recordOwnedWrite?.(node, ['fontSize']);
+      }
+      if (p.lineHeight !== undefined) {
+        text.lineHeight = p.lineHeight as LineHeight;
+        execution?.recordOwnedWrite?.(node, ['lineHeight']);
+      }
+      if (p.letterSpacing !== undefined) {
+        text.letterSpacing = p.letterSpacing as LetterSpacing;
+        execution?.recordOwnedWrite?.(node, ['letterSpacing']);
+      }
+      if (p.textCase !== undefined) {
+        text.textCase = p.textCase as TextNode['textCase'];
+        execution?.recordOwnedWrite?.(node, ['textCase']);
+      }
+      if (p.textDecoration !== undefined) {
         text.textDecoration = p.textDecoration as TextNode['textDecoration'];
-      if (p.paragraphSpacing !== undefined) text.paragraphSpacing = p.paragraphSpacing as number;
-      if (p.paragraphIndent !== undefined) text.paragraphIndent = p.paragraphIndent as number;
-      if (p.textWrapStyle !== undefined)
+        execution?.recordOwnedWrite?.(node, ['textDecoration']);
+      }
+      if (p.paragraphSpacing !== undefined) {
+        text.paragraphSpacing = p.paragraphSpacing as number;
+        execution?.recordOwnedWrite?.(node, ['paragraphSpacing']);
+      }
+      if (p.paragraphIndent !== undefined) {
+        text.paragraphIndent = p.paragraphIndent as number;
+        execution?.recordOwnedWrite?.(node, ['paragraphIndent']);
+      }
+      if (p.textWrapStyle !== undefined) {
         text.textWrapStyle = p.textWrapStyle as TextNode['textWrapStyle'];
+        execution?.recordOwnedWrite?.(node, ['textWrapStyle']);
+      }
     }
 
-    if (p.textAutoResize !== undefined)
+    if (p.textAutoResize !== undefined) {
       text.textAutoResize = p.textAutoResize as TextNode['textAutoResize'];
-    if (p.textTruncation !== undefined)
+      execution?.recordOwnedWrite?.(node, ['textAutoResize']);
+    }
+    if (p.textTruncation !== undefined) {
       text.textTruncation = p.textTruncation as TextNode['textTruncation'];
-    if (p.maxLines !== undefined) text.maxLines = p.maxLines as number | null;
+      execution?.recordOwnedWrite?.(node, ['textTruncation']);
+    }
+    if (p.maxLines !== undefined) {
+      text.maxLines = p.maxLines as number | null;
+      execution?.recordOwnedWrite?.(node, ['maxLines']);
+    }
 
     const result: MutateResult = { ok: true, nodeId: text.id };
     return result;

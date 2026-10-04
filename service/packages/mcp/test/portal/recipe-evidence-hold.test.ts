@@ -24,6 +24,7 @@ import { OperationEvidenceReceiptStore } from '../../src/execution/operation-evi
 import { OperationExecutor } from '../../src/execution/operation-executor.js';
 import { operationIdIssuerFromKey } from '../../src/execution/operation-id.js';
 import { OperationJournal } from '../../src/execution/operation-journal.js';
+import { runRetentionSweep } from '../../src/execution/retention-sweep.js';
 import { AtomicFileStore } from '../../src/fs/atomic-file.js';
 import { OperationEvidenceArtifactStore } from '../../src/fs/operation-evidence-artifact-store.js';
 import { createApprovalBroker } from '../../src/policy/approval-broker.js';
@@ -61,6 +62,7 @@ async function setup(
   limits?: Partial<Record<keyof typeof RECIPE_EVIDENCE_HOLD_LIMITS, number>>,
   failArtifactPublication = false,
   outputName = 'Frame',
+  journalNow?: () => number,
 ) {
   const fixture = await portalFixture();
   cleanup.push(fixture.cleanup);
@@ -69,6 +71,10 @@ async function setup(
     stateRoot: fixture.stateRoot,
     actorId: actor.actorId,
     externallyManagedRetention: true,
+    ...(journalNow ? { now: journalNow } : {}),
+    hasRetainedSettlementEvidence: async operationId =>
+      (await receipts.get(actor.actorId, operationId)) !== null ||
+      (await egress.hasFinalizer(actor.actorId, operationId)),
   });
   const receipts = new OperationEvidenceReceiptStore({
     stateRoot: fixture.stateRoot,
@@ -289,6 +295,85 @@ it('reserves capacity before effects, tightens to actual bytes and never evicts 
   await expect(state.holds.ensureHeld(state.scope, first)).rejects.toThrow('RECIPE_HOLD_RELEASED');
 });
 
+it('allows the same owner to release after session rotation without transferring consumption authority', async () => {
+  const state = await setup(),
+    binding = state.binding();
+  await state.holds.ensureHeld(state.scope, binding);
+  await state.execute(binding);
+  const rotated = {
+    ...state.scope,
+    actor: {
+      ...state.scope.actor,
+      authSessionId: `auth1_${'C'.repeat(43)}` as ActorContext['authSessionId'],
+    },
+  };
+  const restarted = state.second();
+  await expect(restarted.verifyHeld(rotated, binding)).rejects.toThrow(
+    'RECIPE_HOLD_SCOPE_MISMATCH',
+  );
+  await restarted.dependency(binding, 'portal:plan:required', true);
+  await expect(restarted.release(rotated, binding)).rejects.toThrow('RECIPE_HOLD_HAS_DEPENDENTS');
+  await restarted.dependency(binding, 'portal:plan:required', false);
+  await expect(
+    restarted.release(
+      {
+        ...rotated,
+        actor: { ...rotated.actor, actorId: `actor1_${'D'.repeat(43)}` as ActorContext['actorId'] },
+      },
+      binding,
+    ),
+  ).rejects.toThrow('RECIPE_HOLD_SCOPE_MISMATCH');
+  expect(await restarted.release(rotated, binding)).toMatchObject({ state: 'released', binding });
+  await expect(state.second().ensureHeld(rotated, binding)).rejects.toThrow(
+    'RECIPE_HOLD_SCOPE_MISMATCH',
+  );
+});
+
+it('keeps production settlement links across isolated evidence sweep failure and releases after both stores expire', async () => {
+  let clock = Date.now();
+  const state = await setup(undefined, false, 'Frame', () => clock),
+    binding = state.binding();
+  clock += 31 * 86_400_000;
+  await state.execute(binding);
+  const settledAt = state.journal.settledAt(binding.operationId)!;
+  expect(settledAt).toBe(clock);
+  await state.holds.withRetentionSweep(async scope => {
+    expect(await state.journal.purgeExpiredTombstones(clock, scope)).toBe(0);
+  });
+  clock += 30 * 86_400_000;
+  const errors: unknown[] = [];
+  await runRetentionSweep({
+    withRetentionBatch: work => state.holds.withRetentionSweep(work),
+    compactEvidence: async () => {
+      throw Error('interrupted evidence compaction');
+    },
+    drainCleanupIntents: async () => ({ results: [], next: null }),
+    listWorkspaces: async () => [],
+    scanWorkspace: async () => {
+      throw Error('unexpected workspace');
+    },
+    purgeExpiredTombstones: (now, scope) =>
+      state.journal.purgeExpiredTombstones(now, scope).then(() => undefined),
+    now: () => clock,
+    log: value => {
+      errors.push(value);
+    },
+  });
+  expect(errors.length).toBeGreaterThan(0);
+  expect(state.journal.settledAt(binding.operationId)).toBe(settledAt);
+  await state.holds.withRetentionSweep(async scope => {
+    const linkedAt = (operationId: string) => state.journal.settledAt(operationId);
+    await state.receipts.compact({ now: clock, linkedAt });
+    expect(await state.journal.purgeExpiredTombstones(clock, scope)).toBe(0);
+    await state.egress.compact({ now: clock, linkedAt });
+    expect(await state.journal.purgeExpiredTombstones(clock, scope)).toBe(1);
+  });
+  expect(await state.receipts.get(actor.actorId, binding.operationId)).toBeNull();
+  expect(await state.egress.hasFinalizer(actor.actorId, binding.operationId)).toBe(false);
+  expect(state.journal.settledAt(binding.operationId)).toBeNull();
+  expect(() => state.issuer.verify(actor.actorId, binding.operationId, clock)).toThrow('expired');
+});
+
 it('serializes cross-manager capacity and compaction with no check-then-hold window', async () => {
   const state = await setup({ activeGlobal: 1 }),
     a = state.binding('a'),
@@ -372,6 +457,14 @@ it('does not release pending or absent operations and rejects forged IDs before 
     state.holds.ensureHeld(state.scope, { ...binding, operationId: 'forged' }),
   ).rejects.toThrow('operation ID');
   await state.holds.ensureHeld(state.scope, binding);
+  await expect(
+    state
+      .second()
+      .release(
+        { ...state.scope, actor: { ...actor, authSessionId: `auth1_${'C'.repeat(43)}` } },
+        binding,
+      ),
+  ).rejects.toThrow('RECIPE_HOLD_OPERATION_UNSETTLED');
   await expect(state.holds.release(state.scope, binding)).rejects.toThrow(
     'RECIPE_HOLD_OPERATION_UNSETTLED',
   );
@@ -412,6 +505,7 @@ it('routes real HTTP hold/verify/release through the canonical admitted service 
     releasePort: () => {},
   });
   const approvals: string[] = [];
+  let principal = actor;
   const broker = createApprovalBroker({
     deliverPluginPrompt: async () => {
       throw Error('WRONG_APPROVAL_CHANNEL');
@@ -419,7 +513,7 @@ it('routes real HTTP hold/verify/release through the canonical admitted service 
     deliverControlPrompt: async prompt => {
       approvals.push(prompt.operationId);
       await broker.settleControl(
-        actor,
+        principal,
         {
           version: 1,
           type: 'approval.decision',
@@ -472,7 +566,7 @@ it('routes real HTTP hold/verify/release through the canonical admitted service 
     principalForRequest: async request => {
       if (request.headers.authorization !== 'Bearer fixture-owner')
         throw Error('FIXTURE_AUTH_REQUIRED');
-      return actor;
+      return principal;
     },
   });
   const server = createServer((request, response) => {
@@ -516,9 +610,38 @@ it('routes real HTTP hold/verify/release through the canonical admitted service 
     expect(verified.status).toBe(200);
     expect(RecipeEvidenceResultSchema.parse(verified.body).verified).not.toBeNull();
     await state.holds.dependency(binding, 'portal:required-result', true);
+    principal = { ...actor, authSessionId: `auth1_${'C'.repeat(43)}` };
+    expect((await call('verify')).body).toMatchObject({ code: 'RECIPE_HOLD_SCOPE_MISMATCH' });
     expect((await call('release')).body).toMatchObject({ code: 'RECIPE_HOLD_HAS_DEPENDENTS' });
     await state.holds.dependency(binding, 'portal:required-result', false);
-    expect(RecipeEvidenceResultSchema.parse((await call('release')).body).state).toBe('released');
+    const released = await call('release');
+    expect(RecipeEvidenceResultSchema.parse(released.body)).toMatchObject({
+      state: 'released',
+      binding,
+    });
+    expect(approvals).toContain(released.operationId);
+    const index = await state.store.get(
+      'recipe-holds',
+      'index',
+      z
+        .object({
+          rows: z.array(
+            z
+              .object({ binding: z.unknown(), releaseAuthorization: z.unknown().optional() })
+              .passthrough(),
+          ),
+        })
+        .passthrough(),
+    );
+    expect(
+      index?.rows.find(row => canonicalJson(row.binding) === canonicalJson(binding))
+        ?.releaseAuthorization,
+    ).toMatchObject({
+      protocol: 'sfp-recipe-hold-release-v1',
+      actorId: actor.actorId,
+      authSessionId: principal.authSessionId,
+    });
+    principal = actor;
     expect((await call('hold')).body).toMatchObject({ code: 'RECIPE_HOLD_RELEASED' });
     const small = { ...state.binding('small'), maxResultBytes: 1 };
     expect(RecipeEvidenceResultSchema.parse((await call('hold', small)).body).binding).toEqual(

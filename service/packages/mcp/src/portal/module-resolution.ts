@@ -3,12 +3,13 @@ import { posix } from 'node:path';
 
 import { parseSync } from 'oxc-parser';
 
+import { cssImports, localCssImport } from '../fs/css-imports.js';
 import { scanSfcScripts } from '../scan/sfc-blocks.js';
 
 export interface PortalModuleReference {
   from: string;
   offset: number;
-  kind: 'import' | 're-export' | 'dynamic-import' | 'require' | 'import-equals';
+  kind: 'import' | 're-export' | 'dynamic-import' | 'require' | 'import-equals' | 'css-import';
   specifier: string | null;
   status: 'resolved' | 'builtin' | 'external' | 'unresolved';
   /** Conservative source closure across supported condition branches, not a runtime trace. */
@@ -83,6 +84,26 @@ const boundName = (pattern: unknown, name: string): boolean => {
     if (value.type === 'AssignmentPattern') pending.push(value.left);
   }
   // Exhausted binding analysis cannot prove that the native binding is unshadowed.
+  return pending.length > 0;
+};
+const bindingMutated = (program: unknown, name: string): boolean => {
+  const pending: unknown[] = [program];
+  let count = 0;
+  while (pending.length && ++count <= 100000) {
+    const value = pending.pop();
+    if (Array.isArray(value)) {
+      pending.push(...value);
+      continue;
+    }
+    if (!object(value)) continue;
+    if (['AssignmentExpression', 'UpdateExpression'].includes(String(value.type))) {
+      let target = value.left ?? value.argument;
+      while (object(target) && target.type === 'MemberExpression') target = target.object;
+      if (boundName(target, name)) return true;
+    }
+    for (const child of Object.values(value))
+      if (object(child) || Array.isArray(child)) pending.push(child);
+  }
   return pending.length > 0;
 };
 
@@ -401,6 +422,101 @@ export const resolvePortalModules = (
   const resolve = (from: string, specifier: string): Resolution => {
     if (specifier.length > 2048 || specifier.includes('\\') || hasControl(specifier))
       return failed('unsupported-module-specifier');
+    if (specifier.includes('?')) {
+      const match = /^(.*\.svg)\?(react|component)$/u.exec(specifier);
+      if (!match) return failed('loader-query-unsupported');
+      const configPath = closest(
+        from,
+        entries
+          .map(([path]) => path)
+          .filter(path => /(?:^|\/)vite\.config\.[cm]?[jt]s$/u.test(path)),
+      );
+      const loader = match[2] === 'react' ? 'vite-plugin-svgr' : 'vite-svg-loader';
+      const pkgPath = closest(
+        from,
+        packages.map(pkg => pkg.path),
+      );
+      const pkg = packages.find(value => value.path === pkgPath);
+      const declared =
+        pkg &&
+        ['dependencies', 'devDependencies'].some(
+          key => object(pkg.value[key]) && typeof pkg.value[key][loader] === 'string',
+        );
+      if (!configPath || !declared)
+        return failed('svg-loader-configuration-required', [], pkgPath ? [pkgPath] : []);
+      const configuration = unique([configPath, pkgPath!]);
+      let configured = false;
+      try {
+        const parsed = parseSync(configPath, sources.get(configPath)!);
+        const program = parsed.program as unknown as { body: Record<string, unknown>[] };
+        const imported = program.body.find(
+          node => node.type === 'ImportDeclaration' && literal(node.source) === loader,
+        );
+        const binding =
+          imported &&
+          (imported.specifiers as Record<string, unknown>[]).find(
+            node => node.type === 'ImportDefaultSpecifier',
+          );
+        const name =
+          binding && object(binding.local) && typeof binding.local.name === 'string'
+            ? binding.local.name
+            : null;
+        const declaration = program.body.find(
+          node => node.type === 'ExportDefaultDeclaration',
+        )?.declaration;
+        let value = declaration;
+        if (object(value) && value.type === 'CallExpression') {
+          const callee = object(value.callee) ? value.callee.name : null;
+          const vite = program.body.find(
+            node => node.type === 'ImportDeclaration' && literal(node.source) === 'vite',
+          );
+          const helper =
+            vite &&
+            (vite.specifiers as Record<string, unknown>[]).some(
+              node =>
+                object(node.imported) &&
+                node.imported.name === 'defineConfig' &&
+                object(node.local) &&
+                node.local.name === callee,
+            );
+          value =
+            helper && typeof callee === 'string' && !bindingMutated(parsed.program, callee)
+              ? (value.arguments as unknown[])[0]
+              : null;
+        }
+        const property =
+          object(value) && value.type === 'ObjectExpression'
+            ? (value.properties as Record<string, unknown>[]).find(
+                node =>
+                  node.type === 'Property' &&
+                  !node.computed &&
+                  object(node.key) &&
+                  (node.key.name ?? node.key.value) === 'plugins',
+              )
+            : null;
+        const plugins = property?.value;
+        configured =
+          !parsed.errors.length &&
+          !!name &&
+          !bindingMutated(parsed.program, name) &&
+          object(plugins) &&
+          plugins.type === 'ArrayExpression' &&
+          (plugins.elements as unknown[]).some(
+            node =>
+              object(node) &&
+              node.type === 'CallExpression' &&
+              object(node.callee) &&
+              node.callee.type === 'Identifier' &&
+              node.callee.name === name &&
+              (node.arguments as unknown[]).length === 0,
+          );
+      } catch {
+        configured = false;
+      }
+      if (!configured) return failed('svg-loader-configuration-required', [], configuration);
+      const raw = resolve(from, match[1]!);
+      return { ...raw, configuration: unique([...raw.configuration, ...configuration]) };
+    }
     if (isBuiltin(specifier)) return { status: 'builtin', targets: [], configuration: [] };
     if (specifier.startsWith('.'))
       return fileResolution(posix.normalize(posix.join(posix.dirname(from), specifier)));
@@ -525,6 +641,28 @@ export const resolvePortalModules = (
   const references: PortalModuleReference[] = [];
   let totalBytes = 0;
   for (const [path, text] of entries) {
+    if (path.endsWith('.css')) {
+      for (const dependency of cssImports(text)) {
+        const target =
+          dependency.specifier === null ? null : localCssImport(path, dependency.specifier);
+        const resolution =
+          dependency.specifier === null
+            ? failed('css-import-syntax-unsupported')
+            : target === null
+              ? resolve(path, dependency.specifier)
+              : fileResolution(target);
+        references.push({
+          from: path,
+          offset: dependency.offset,
+          kind: 'css-import',
+          specifier: dependency.specifier,
+          ...resolution,
+        });
+        if (resolution.status === 'unresolved')
+          problem(`MODULE_UNRESOLVED:${path}:${dependency.offset}:${resolution.reason}`);
+      }
+      continue;
+    }
     if (!code.test(path)) continue;
     totalBytes += Buffer.byteLength(text);
     if (Buffer.byteLength(text) > 262_144 || totalBytes > 8_388_608) {

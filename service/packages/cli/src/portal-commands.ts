@@ -5,7 +5,7 @@ import { homedir } from 'node:os';
 import { basename, dirname, isAbsolute, join, relative, resolve, sep } from 'node:path';
 import { parseArgs } from 'node:util';
 
-import { PortalPlanArgsSchema } from '@sfp/shared';
+import { parseInvocationTargetSelector, PortalPlanArgsSchema } from '@sfp/shared';
 
 import {
   AtomicFileStore,
@@ -36,6 +36,8 @@ export const runPortalPlanCommand = async (
       url: { type: 'string' },
       workspace: { type: 'string' },
       'workspace-id': { type: 'string' },
+      'figma-session': { type: 'string' },
+      'figma-file-hash': { type: 'string' },
       args: { type: 'string' },
       'args-file': { type: 'string' },
       'design-artifact': { type: 'string' },
@@ -67,6 +69,26 @@ export const runPortalPlanCommand = async (
       ...(typeof request.design === 'object' && request.design ? request.design : {}),
       url: flags.url,
     };
+  if (flags['figma-session'] && flags['figma-file-hash'])
+    throw usage('Choose one Figma selector: --figma-session or --figma-file-hash');
+  const targetSelector = parseInvocationTargetSelector(
+    flags['figma-session'] !== undefined
+      ? { kind: 'session', sessionId: flags['figma-session'] }
+      : flags['figma-file-hash'] !== undefined
+        ? { kind: 'stable-file', fileIdentityHash: flags['figma-file-hash'] }
+        : { kind: 'none' },
+  );
+  const desktop =
+    typeof request.design === 'object' &&
+    request.design !== null &&
+    'source' in request.design &&
+    request.design.source === 'desktop';
+  if (desktop && targetSelector.kind === 'none')
+    throw usage('Retained Desktop planning requires an explicit Figma session or file identity');
+  if (!desktop && targetSelector.kind !== 'none')
+    throw usage(
+      'Figma session/file selectors apply only to the retained Desktop source; Chrome uses its explicit design URL',
+    );
   const legacy = request.case === 'legacy';
   if (flags.target && !legacy)
     throw usage('--target selects an existing legacy project; use --out for a new project');
@@ -194,7 +216,7 @@ export const runPortalPlanCommand = async (
         kind: 'tool',
         args: parsedRequest,
         workspaceId: workspaceId ?? null,
-        targetSelector: { kind: 'none' },
+        targetSelector,
         approve: flags.yes,
         captureResult: flags['capture-result'],
         timeoutMs: seconds * 1000,

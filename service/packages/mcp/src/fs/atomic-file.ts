@@ -1,6 +1,14 @@
 import { execFile, spawn } from 'node:child_process';
 import { createHash, randomBytes } from 'node:crypto';
-import { constants } from 'node:fs';
+import {
+  closeSync,
+  constants,
+  fstatSync,
+  lstatSync,
+  openSync,
+  readSync,
+  unlinkSync,
+} from 'node:fs';
 import {
   link,
   lstat,
@@ -1733,6 +1741,12 @@ export interface AtomicFileStoreOptions {
   afterReplaceQuarantineRenameBeforeFsync?: () => Promise<void>;
   afterReplaceQuarantineFsync?: () => Promise<void>;
   afterReplacePublishFsync?: () => Promise<void>;
+  /** Only callers whose published record supersedes the old recovery generation may opt in. */
+  reclaimRetainedAfterPublish?: boolean;
+  /** Authenticates historical metadata before migrating generations that lack cleanup intents. */
+  verifyRetainedForReclamation?: (bytes: Uint8Array) => Promise<void>;
+  afterReplaceCleanupIntentFsync?: () => Promise<void>;
+  afterReplaceRetainedUnlinkFsync?: () => Promise<void>;
   retainedReplaceLimits?: { maxRows: number; maxBytes: number; maxScanEntries: number };
   maxReplaceBytes?: number;
   beforeReplaceBodyRead?: (path: string) => Promise<void>;
@@ -2002,9 +2016,158 @@ export class AtomicFileStore implements AtomicWritePort {
     let outputMutated = false;
     try {
       return await withCanonicalPathMutex(target, async () => {
+        const cleanupIntent = join(directory, `.${basename(target)}.replace-cleanup`);
+        const resumeCleanup = async () => {
+          const intentIdentity = await lstatMaybeAtomic(cleanupIntent);
+          if (intentIdentity === null) return null;
+          const intentBytes = await readFileWithinLimit(cleanupIntent, 16_384, undefined, {
+            expectedIdentity: intentIdentity,
+            allowedLinks: [1],
+          });
+          const intent: unknown = JSON.parse(
+            new TextDecoder('utf-8', { fatal: true }).decode(intentBytes),
+          );
+          if (typeof intent !== 'object' || intent === null || Array.isArray(intent)) {
+            throw atomicError('TARGET_CHANGED', 'replacement cleanup intent is invalid');
+          }
+          const record = intent as Record<string, unknown>;
+          if (
+            record.version !== 1 ||
+            record.target !== basename(target) ||
+            typeof record.oldDigest64 !== 'string' ||
+            !/^[0-9a-f]{64}$/u.test(record.oldDigest64) ||
+            typeof record.newDigest64 !== 'string' ||
+            !/^[0-9a-f]{64}$/u.test(record.newDigest64) ||
+            typeof record.dev !== 'string' ||
+            typeof record.ino !== 'string' ||
+            !Number.isSafeInteger(record.bytes) ||
+            (record.bytes as number) < 0 ||
+            (record.bytes as number) > maxReplaceBytes
+          )
+            throw atomicError('TARGET_CHANGED', 'replacement cleanup intent binding is invalid');
+          const obsoletePath = join(
+            directory,
+            `.${basename(target)}.${record.oldDigest64}.${record.newDigest64}.replace-retained`,
+          );
+          const obsolete = await lstatMaybeAtomic(obsoletePath);
+          if (obsolete !== null) {
+            const owned = await verifyBytes(obsoletePath, record.oldDigest64, [1]);
+            if (
+              String(owned.identity.dev) !== record.dev ||
+              String(owned.identity.ino) !== record.ino ||
+              owned.bytes.byteLength !== record.bytes
+            ) {
+              throw atomicError(
+                'TARGET_CHANGED',
+                'replacement cleanup generation ownership changed',
+              );
+            }
+            // The durable intent plus the final descriptor read authorizes these exact bytes,
+            // never merely a pathname or unchanged inode. Same-owner syscall races remain.
+            const descriptor = openSync(obsoletePath, constants.O_RDONLY | constants.O_NOFOLLOW);
+            try {
+              const held = fstatSync(descriptor);
+              if (
+                !held.isFile() ||
+                held.nlink !== 1 ||
+                !sameIdentity(owned.identity, held) ||
+                held.size !== record.bytes
+              ) {
+                throw atomicError('TARGET_CHANGED', 'replacement cleanup descriptor changed');
+              }
+              const hash = createHash('sha256');
+              const chunk = Buffer.allocUnsafe(65_536);
+              let total = 0;
+              for (;;) {
+                const count = readSync(
+                  descriptor,
+                  chunk,
+                  0,
+                  Math.min(chunk.byteLength, (record.bytes as number) - total + 1),
+                  total,
+                );
+                if (count === 0) break;
+                total += count;
+                if (total > (record.bytes as number))
+                  throw atomicError('TARGET_CHANGED', 'replacement cleanup bytes grew');
+                hash.update(chunk.subarray(0, count));
+              }
+              const pathname = lstatSync(obsoletePath);
+              const after = fstatSync(descriptor);
+              if (
+                !pathname.isFile() ||
+                pathname.isSymbolicLink() ||
+                pathname.nlink !== 1 ||
+                after.nlink !== 1 ||
+                !sameIdentity(held, pathname) ||
+                !sameIdentity(held, after) ||
+                total !== record.bytes ||
+                hash.digest('hex') !== record.oldDigest64
+              ) {
+                throw atomicError(
+                  'TARGET_CHANGED',
+                  'replacement cleanup bytes changed before deletion',
+                );
+              }
+              unlinkSync(obsoletePath);
+            } finally {
+              closeSync(descriptor);
+            }
+            await fsyncDirectory(directory);
+            await this.options.afterReplaceRetainedUnlinkFsync?.();
+          }
+          const currentIntent = await readFileWithinLimit(cleanupIntent, 16_384, undefined, {
+            expectedIdentity: intentIdentity,
+            allowedLinks: [1],
+          });
+          if (!Buffer.from(currentIntent).equals(Buffer.from(intentBytes))) {
+            throw atomicError('TARGET_CHANGED', 'replacement cleanup intent changed');
+          }
+          await unlink(cleanupIntent);
+          await fsyncDirectory(directory);
+          return record;
+        };
+        const authorizeCleanup = async (
+          oldDigest64: string,
+          successorDigest64: string,
+          obsolete: Awaited<ReturnType<typeof inspectBytes>>,
+        ) => {
+          const intentBytes = Buffer.from(
+            `${JSON.stringify({
+              version: 1,
+              target: basename(target),
+              oldDigest64,
+              newDigest64: successorDigest64,
+              dev: String(obsolete.identity.dev),
+              ino: String(obsolete.identity.ino),
+              bytes: obsolete.bytes.byteLength,
+            })}\n`,
+          );
+          await new AtomicFileStore().createNew(cleanupIntent, intentBytes);
+          await this.options.afterReplaceCleanupIntentFsync?.();
+          await resumeCleanup();
+        };
+        // A durable intent authorizes only this exact obsolete inode and byte sequence. Legacy
+        // retained files without such proof remain recovery material and continue to count.
+        if (this.options.reclaimRetainedAfterPublish === true) {
+          const resumed = await resumeCleanup();
+          if (
+            resumed?.oldDigest64 === options.expectedDigest64 &&
+            resumed.newDigest64 === newDigest64
+          ) {
+            const current = await verifyBytes(target, newDigest64, [1]);
+            return Object.freeze({ path: target, bytes: current.bytes.byteLength });
+          }
+        }
         const retainedPrefix = `.${basename(target)}.`;
         const retainedSuffix = '.replace-retained';
         const retainedMetrics = { scannedEntries: 0, retainedRows: 0, retainedBytes: 0 };
+        const historical: Array<{
+          path: string;
+          oldDigest64: string;
+          newDigest64: string;
+          bytes: number;
+        }> = [];
         const directoryStream = await opendir(directory, { bufferSize: 1 });
         for await (const entry of directoryStream) {
           if (retainedMetrics.scannedEntries >= retainedLimits.maxScanEntries) {
@@ -2032,9 +2195,23 @@ export class AtomicFileStore implements AtomicWritePort {
           }
           retainedMetrics.retainedRows += 1;
           retainedMetrics.retainedBytes += metadata.size;
+          const binding = entry.name
+            .slice(retainedPrefix.length, -retainedSuffix.length)
+            .split('.');
+          if (binding.length === 2)
+            historical.push({
+              path,
+              oldDigest64: binding[0]!,
+              newDigest64: binding[1]!,
+              bytes: metadata.size,
+            });
           if (
-            retainedMetrics.retainedRows > retainedLimits.maxRows ||
-            retainedMetrics.retainedBytes > retainedLimits.maxBytes
+            (retainedMetrics.retainedRows > retainedLimits.maxRows ||
+              retainedMetrics.retainedBytes > retainedLimits.maxBytes) &&
+            !(
+              this.options.reclaimRetainedAfterPublish === true &&
+              this.options.verifyRetainedForReclamation !== undefined
+            )
           ) {
             throw Object.assign(
               atomicError(
@@ -2044,6 +2221,51 @@ export class AtomicFileStore implements AtomicWritePort {
               retainedMetrics,
             );
           }
+        }
+        if (
+          historical.length > 0 &&
+          (await lstatMaybeAtomic(target)) !== null &&
+          this.options.reclaimRetainedAfterPublish === true &&
+          this.options.verifyRetainedForReclamation !== undefined
+        ) {
+          const current = await inspectBytes(target, [1, 2]);
+          const publishedDigests = new Set([current.digest64]);
+          let changed = true;
+          while (changed) {
+            changed = false;
+            for (const generation of historical) {
+              if (
+                publishedDigests.has(generation.newDigest64) &&
+                !publishedDigests.has(generation.oldDigest64)
+              ) {
+                publishedDigests.add(generation.oldDigest64);
+                changed = true;
+              }
+            }
+          }
+          /* eslint-disable no-await-in-loop -- each authenticated historical generation has its own durable cleanup intent */
+          for (const generation of historical) {
+            if (generation.path === retained) continue;
+            if (!publishedDigests.has(generation.newDigest64)) continue;
+            const obsolete = await verifyBytes(generation.path, generation.oldDigest64, [1]);
+            await this.options.verifyRetainedForReclamation(obsolete.bytes);
+            await authorizeCleanup(generation.oldDigest64, generation.newDigest64, obsolete);
+            retainedMetrics.retainedRows -= 1;
+            retainedMetrics.retainedBytes -= generation.bytes;
+          }
+          /* eslint-enable no-await-in-loop */
+        }
+        if (
+          retainedMetrics.retainedRows > retainedLimits.maxRows ||
+          retainedMetrics.retainedBytes > retainedLimits.maxBytes
+        ) {
+          throw Object.assign(
+            atomicError(
+              'REPLACE_RETAINED_CAPACITY_EXCEEDED',
+              'unproved retained generations exceed capacity',
+            ),
+            retainedMetrics,
+          );
         }
         let retainedState = await lstatMaybeAtomic(retained);
         let temporaryState = await lstatMaybeAtomic(temporary);
@@ -2081,6 +2303,10 @@ export class AtomicFileStore implements AtomicWritePort {
             }
             await unlink(temporary);
             await fsyncDirectory(directory);
+          }
+          if (this.options.reclaimRetainedAfterPublish === true) {
+            const obsolete = await verifyBytes(retained, options.expectedDigest64, [1]);
+            await authorizeCleanup(options.expectedDigest64, newDigest64, obsolete);
           }
           return Object.freeze({ path: target, bytes: published.bytes.byteLength });
         };
@@ -2143,12 +2369,60 @@ export class AtomicFileStore implements AtomicWritePort {
           ) {
             throw atomicError('TARGET_CHANGED', 'replacement target changed before commit');
           }
+          await verifyBytes(target, options.expectedDigest64, [1]);
           await rename(target, retained);
           outputMutated = true;
           await this.options.afterReplaceQuarantineRenameBeforeFsync?.();
           await fsyncDirectory(directory);
           retainedState = await lstatMaybeAtomic(retained);
-          await verifyBytes(retained, options.expectedDigest64, [1]);
+          try {
+            await verifyBytes(retained, options.expectedDigest64, [1]);
+          } catch (conflict) {
+            // An in-place edit can race rename. Restore through an exclusive link only; an
+            // already published successor wins and the edited generation remains recoverable.
+            const moved = await lstatMaybeAtomic(retained);
+            if (
+              moved !== null &&
+              moved.isFile() &&
+              !moved.isSymbolicLink() &&
+              moved.nlink === 1 &&
+              sameIdentity(before.identity, moved)
+            ) {
+              try {
+                await link(retained, target);
+                await fsyncDirectory(directory);
+                const [restored, retainedNow] = await Promise.all([lstat(target), lstat(retained)]);
+                if (
+                  sameIdentity(moved, restored) &&
+                  sameIdentity(moved, retainedNow) &&
+                  restored.nlink === 2 &&
+                  retainedNow.nlink === 2
+                ) {
+                  await unlink(retained);
+                  await fsyncDirectory(directory);
+                }
+              } catch (restoreError) {
+                if ((restoreError as NodeJS.ErrnoException).code !== 'EEXIST') {
+                  throw Object.assign(
+                    atomicError(
+                      'TARGET_CHANGED',
+                      'edited replacement requires explicit recovery',
+                      conflict,
+                    ),
+                    { recoveryPath: retained, restorationError: restoreError },
+                  );
+                }
+              }
+            }
+            throw Object.assign(
+              atomicError(
+                'TARGET_CHANGED',
+                'edited replacement generation was preserved',
+                conflict,
+              ),
+              { recoveryPath: retained, visiblePath: target },
+            );
+          }
           await this.options.afterReplaceQuarantineFsync?.();
           try {
             await link(temporary, target);

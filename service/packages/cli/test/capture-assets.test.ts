@@ -26,6 +26,25 @@ async function makeFolder() {
 const target = parseFigmaTarget('https://www.figma.com/design/4IBhv1d8hEclifZQrOYxHS');
 const page = {} as Page;
 const image = (hash: string) => ({ type: 'IMAGE', imageHash: hash });
+it.each([
+  ['GIF87a-data', 'gif'],
+  ['GIF89a-data', 'gif'],
+  ['RIFFxxxxWEBPdata', 'webp'],
+  ['xxxxftypavif-data', 'avif'],
+  ['unknown-format', 'bin'],
+])('retains the original image bytes with a usable %s file suffix', async (content, extension) => {
+  const root = await makeFolder();
+  const bytes = Buffer.from(content);
+  spies.read.mockResolvedValue(bytes);
+  const result = await captureBrowserAssets(
+    page,
+    target,
+    [{ id: '1:1', name: 'Root', type: 'FRAME', fills: [image('original')] }],
+    root,
+  );
+  expect(result[1]?.path).toMatch(new RegExp('\\.' + extension + '$'));
+  expect(await readFile(join(root, result[1]!.path!))).toEqual(bytes);
+});
 it('fetches mixed text fill/stroke originals once but exports identical-byte roots separately', async () => {
   const root = await makeFolder();
   spies.read.mockResolvedValue(Buffer.from('same bytes'));

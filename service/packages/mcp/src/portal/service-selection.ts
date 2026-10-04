@@ -2,6 +2,8 @@ import { contentHash, type PortalPlan } from '@sfp/ir';
 import {
   PortalServiceSelectionSchema,
   PortalWorkflowCoverageSchema,
+  PortalInteractionContractSchema,
+  type PortalInteractionContract,
   type PortalPlanArgs,
   type PortalLayer,
 } from '@sfp/shared';
@@ -197,7 +199,12 @@ export const coverPortalWorkflows = (
   analysis: PortalWorkflowAnalysis,
   requirements: PortalPlanArgs['requirements'],
   decisions: PortalPlanArgs['workflowDecisions'],
+  verifiedInteractionContract?: PortalInteractionContract,
 ) => {
+  const contract =
+    verifiedInteractionContract === undefined
+      ? undefined
+      : PortalInteractionContractSchema.parse(verifiedInteractionContract);
   const remainingAnalysisIssues = analysis.issues.filter(
     issue =>
       !(
@@ -244,15 +251,40 @@ export const coverPortalWorkflows = (
         ? 'covered'
         : 'unresolved',
     });
+  const directlyRequiredEvidence = new Set(
+    analysis.candidates.flatMap(candidate => [
+      ...candidate.evidenceIds,
+      ...candidate.interactionIds,
+    ]),
+  );
   for (const interaction of analysis.unclassifiedInteractions) {
     const decision = decisions.find(item => item.evidenceId === interaction.evidenceId);
+    const nodeId = interaction.nodeId;
+    const excluded =
+      contract?.excludedInteractions?.filter(value => value.sourceNodeId === nodeId) ?? [];
+    const incidental =
+      !decision &&
+      nodeId !== undefined &&
+      contract?.selectionHash !== undefined &&
+      analysis.evidence.filter(value => value.nodeId === nodeId).length === 1 &&
+      excluded.length > 0 &&
+      !contract.interactions.some(value => value.sourceNodeId === nodeId) &&
+      !analysis.evidence.some(
+        value => value.nodeId === nodeId && directlyRequiredEvidence.has(value.id),
+      ) &&
+      !decisions.some(value =>
+        analysis.evidence.some(
+          evidence => evidence.id === value.evidenceId && evidence.nodeId === nodeId,
+        ),
+      );
     scopes.push({
       id: interaction.evidenceId,
       evidenceIds: [interaction.evidenceId],
       requirementIds: decision?.requirementIds ?? [],
-      status: decision ? 'covered' : 'unresolved',
+      status: decision || incidental ? 'covered' : 'unresolved',
     });
-    if (!decision) issues.push(`WORKFLOW_SCOPE_UNRESOLVED:${interaction.evidenceId}`);
+    if (!decision && !incidental)
+      issues.push(`WORKFLOW_SCOPE_UNRESOLVED:${interaction.evidenceId}`);
   }
   return PortalWorkflowCoverageSchema.parse({
     version: 1,

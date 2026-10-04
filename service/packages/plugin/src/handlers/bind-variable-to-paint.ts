@@ -10,7 +10,7 @@ import type { SandboxToolHandler } from '../dispatcher.js';
  */
 export const createBindVariableToPaintHandler =
   (figmaCtx: typeof figma): SandboxToolHandler =>
-  async params => {
+  async (params, execution) => {
     const p = (params ?? {}) as {
       nodeId?: unknown;
       target?: unknown;
@@ -26,6 +26,8 @@ export const createBindVariableToPaintHandler =
     }
 
     const node = await figmaCtx.getNodeByIdAsync(p.nodeId);
+
+    execution?.signal.throwIfAborted();
     if (node === null || !(target in node)) {
       throw new Error(`bind_variable_to_paint: node ${p.nodeId} not found or has no ${target}`);
     }
@@ -46,6 +48,7 @@ export const createBindVariableToPaintHandler =
     let variable: Variable | null = null;
     if (typeof p.variableId === 'string') {
       variable = await figmaCtx.variables.getVariableByIdAsync(p.variableId);
+      execution?.signal.throwIfAborted();
       if (variable === null)
         throw new Error(`bind_variable_to_paint: variable ${p.variableId} not found`);
     }

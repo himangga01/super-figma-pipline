@@ -4,7 +4,7 @@ import type { SandboxToolHandler } from '../dispatcher.js';
 
 export const createAddVariableModeHandler =
   (figmaCtx: typeof figma): SandboxToolHandler =>
-  async params => {
+  async (params, execution) => {
     const p = (params ?? {}) as { collectionId?: unknown; name?: unknown };
     if (typeof p.collectionId !== 'string') {
       throw new TypeError('add_variable_mode: collectionId must be a string');
@@ -12,6 +12,7 @@ export const createAddVariableModeHandler =
     if (typeof p.name !== 'string') throw new TypeError('add_variable_mode: name must be a string');
 
     const collection = await figmaCtx.variables.getVariableCollectionByIdAsync(p.collectionId);
+    execution?.signal.throwIfAborted();
     if (collection === null) {
       throw new Error(`add_variable_mode: collection ${p.collectionId} not found`);
     }

@@ -7,6 +7,29 @@ const withNode = (node: unknown): typeof figma =>
   ({ getNodeByIdAsync: async () => node }) as unknown as typeof figma;
 
 describe('remove_reactions handler', () => {
+  it('checks cancellation after awaited node lookup before clearing reactions', async () => {
+    const controller = new AbortController();
+    let writes = 0;
+    const node = {
+      id: '1:1',
+      async setReactionsAsync() {
+        writes++;
+      },
+    };
+    const host = {
+      getNodeByIdAsync: async () => {
+        controller.abort(new Error('cancelled'));
+        return node;
+      },
+    } as unknown as typeof figma;
+    await expect(
+      createRemoveReactionsHandler(host)(
+        { nodeId: node.id },
+        { signal: controller.signal, report: () => {} },
+      ),
+    ).rejects.toThrow('cancelled');
+    expect(writes).toBe(0);
+  });
   it('clears reactions by setting an empty array', async () => {
     const setReactionsAsync = vi.fn<() => Promise<void>>(async () => {});
     const node = { id: '1:1', setReactionsAsync };

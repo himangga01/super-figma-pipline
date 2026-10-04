@@ -4,7 +4,7 @@ import type { SandboxToolHandler } from '../dispatcher.js';
 
 export const createRenameVariableHandler =
   (figmaCtx: typeof figma): SandboxToolHandler =>
-  async params => {
+  async (params, execution) => {
     const p = (params ?? {}) as { variableId?: unknown; name?: unknown };
     if (typeof p.variableId !== 'string')
       throw new TypeError('rename_variable: variableId must be a string');
@@ -12,6 +12,7 @@ export const createRenameVariableHandler =
       throw new TypeError('rename_variable: name must be a non-empty string');
     }
     const variable = await figmaCtx.variables.getVariableByIdAsync(p.variableId);
+    execution?.signal.throwIfAborted();
     if (variable === null) throw new Error(`rename_variable: variable ${p.variableId} not found`);
     variable.name = p.name;
 

@@ -184,6 +184,7 @@ describe('canonical completed-result replay', () => {
       await durable.recover();
       let corruptRead = false;
       const journal: OperationJournalPort = {
+        list: options => durable.list(options),
         appendInitial: (...args) => durable.appendInitial(...args),
         transition: (...args) => durable.transition(...args),
         get: id => {

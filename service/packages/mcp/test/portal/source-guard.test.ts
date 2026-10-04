@@ -29,6 +29,6 @@ it.each([
   ['src/main.ts', 'import {serve} from "bun"; serve({fetch:()=>new Response("x")});'],
   ['src/main.ts', 'globalThis.Bun.serve({fetch:()=>new Response("x")});'],
   ['src/main.ts', 'export {createServer} from "node:http";'],
-])('rejects backend behavior or unread script context in C4: %s', (path, source) => {
+])('rejects backend behavior or unread script context case %# in C4: %s', (path, source) => {
   expect(() => assertFrontendSource(path, source)).toThrow(/PORTAL_/u);
 });

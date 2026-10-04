@@ -326,7 +326,15 @@ export function compileCoreConsumption(
         addRequirement(page, row, 'PORTAL_CONSUMPTION_STATE_NOT_BOUND');
         return null;
       }
-      return proposed;
+      // The proposal also contains its lookup nodeId. Emit only the observation scope;
+      // otherwise strict worker batches reject the additional declaration-only field.
+      return {
+        rootNodeId: proposed.rootNodeId,
+        route: proposed.route,
+        state: proposed.state,
+        selector: proposed.selector,
+        phase: proposed.phase,
+      };
     }
     if (hidden) {
       addRequirement(page, row, 'PORTAL_CONSUMPTION_VISIBLE_STATE_REQUIRED');
@@ -736,17 +744,46 @@ export function compileCoreConsumption(
         materialHash: row.material.hash,
       });
     } else if (row.kind === 'interaction') {
-      const required =
-        input.plan.interactionContract?.interactions.filter(
-          item => item.sourceNodeId === row.nodeId,
-        ) ?? [];
-      if (required.length !== row.expectations.length)
+      const contract = input.plan.interactionContract;
+      const ids: string[] = row.expectations.map(value =>
+        contentHash('sfp-required-interaction-v1', {
+          reaction: row.observation.id,
+          index: value.actionIndex,
+        }),
+      );
+      const required = contract?.interactions.filter(item => ids.includes(item.id)) ?? [];
+      const excluded = contract?.excludedInteractions?.filter(item => ids.includes(item.id)) ?? [];
+      if (
+        !contract ||
+        required.length + excluded.length !== row.expectations.length ||
+        row.expectations.length !== Math.max(1, row.observation.actions.length) ||
+        new Set(row.expectations.map(value => value.actionIndex)).size !==
+          row.expectations.length ||
+        [...required, ...excluded].some(
+          item => item.sourceHash !== row.observation.rawHash || item.sourceNodeId !== row.nodeId,
+        ) ||
+        row.expectations.some((value, index) => {
+          const exclusion = excluded.find(item => item.id === ids[index]);
+          return exclusion
+            ? value.status !== 'excluded' ||
+                canonicalJson(value.exclusion) !==
+                  canonicalJson({
+                    interactionId: exclusion.id,
+                    sourceHash: exclusion.sourceHash,
+                    selectionHash: contract.selectionHash,
+                    reason: exclusion.exclusionReason,
+                  })
+            : value.status !== 'required' || value.exclusion !== undefined;
+        })
+      )
         addRequirement(page, row, 'PORTAL_CONSUMPTION_INTERACTION_COVERAGE');
       entry.interactions.push(...required.map(item => item.id));
       entry.visualRoots.push(...required.map(item => item.rootNodeId));
       proof(entry, 'source-interaction', {
         rawHash: row.observation.rawHash,
         expectations: row.expectations,
+        selectionHash: contract?.selectionHash ?? null,
+        exclusions: excluded,
       });
     } else if (row.kind === 'source-context') {
       const profile = input.plan.profiles[row.context.sourceIndex];
@@ -850,8 +887,7 @@ export function compileCoreConsumption(
 /**
  * Validate actual observations independently; a worker-passed flag alone never supplies proof.
  *
- * @public Intentionally exported before it has a production caller: T14 of the 2026-09-27
- * prioritized fix plan (T14a refactors it, T14b wires the consumption receipt through it).
+ * The native receipt verifier uses this after authenticating the worker channel and batch.
  */
 export function verifyConsumptionObservations(
   batch: PortalConsumptionBatch,
@@ -860,7 +896,8 @@ export function verifyConsumptionObservations(
   const observations = z.array(PortalConsumptionObservationSchema).max(4096).parse(values);
   if (
     observations.length !== batch.checks.length ||
-    new Set(observations.map(value => value.checkId)).size !== observations.length
+    new Set(observations.map(value => value.checkId)).size !== observations.length ||
+    observations.some((value, index) => value.checkId !== batch.checks[index]!.checkId)
   )
     throw portalError('PORTAL_CONSUMPTION_OBSERVATION_SET');
   const result = new Map<string, PortalConsumptionObservation>();
@@ -874,13 +911,18 @@ export function verifyConsumptionObservations(
       !passed ||
       reason !== null ||
       !actual ||
+      actual.kind !== check.expectation.kind ||
       actualHash !== contentHash('sfp-portal-consumption-actual-v1', actual)
     )
       throw portalError('PORTAL_CONSUMPTION_OBSERVATION_FAILED');
     if (check.expectation.kind === 'property') {
       if (
         actual.value === null ||
-        !matchesConsumptionValue(check.expectation.value, actual.value) ||
+        !matchesConsumptionValue(
+          check.expectation.value,
+          actual.value,
+          check.expectation.property,
+        ) ||
         (check.expectation.value.kind === 'font' && actual.fontAvailable !== true)
       )
         throw portalError('PORTAL_CONSUMPTION_VALUE_MISMATCH');
@@ -920,10 +962,7 @@ export function consumptionBatch(
     checks,
   });
 }
-/**
- * @public Intentionally re-exported before it has an importer: T14b of the 2026-09-27 prioritized
- * fix plan binds the consumption receipt to this batch hash.
- */
+/** Bind the native consumption receipt to its approved batch. */
 export { consumptionBatchHash };
 
 /** Split only disjoint source roots; a single-root overflow is explicit and never truncated. */

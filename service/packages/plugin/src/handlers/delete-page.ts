@@ -5,11 +5,13 @@ import type { SandboxToolHandler } from '../dispatcher.js';
 /** Delete a page by id. The current page and the last remaining page cannot be removed. */
 export const createDeletePageHandler =
   (figmaCtx: typeof figma): SandboxToolHandler =>
-  async params => {
+  async (params, execution) => {
     const p = (params ?? {}) as { pageId?: unknown };
     if (typeof p.pageId !== 'string') throw new TypeError('delete_page: pageId must be a string');
 
     const node = await figmaCtx.getNodeByIdAsync(p.pageId);
+
+    execution?.signal.throwIfAborted();
     if (node === null || node.type !== 'PAGE') {
       throw new Error(`delete_page: page ${p.pageId} not found`);
     }

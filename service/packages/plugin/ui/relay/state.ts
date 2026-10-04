@@ -27,7 +27,7 @@ export type ToolHandler = (
 /** Most-recent tool calls kept in memory for the UI Activity tab. */
 export const ACTIVITY_LIMIT = 30;
 
-export type ActivityStatus = 'pending' | 'ok' | 'error';
+export type ActivityStatus = 'pending' | 'ok' | 'error' | 'cancelled' | 'outcome-unknown';
 
 export interface ActivityEntry {
   /** Request id of the originating tool call. */
@@ -70,6 +70,8 @@ export interface RelayClientState {
   reconnectCount: number;
   /** Total tool calls received this session (not capped by ACTIVITY_LIMIT). */
   totalCalls: number;
+  /** Live dispatches waiting for a result, independent of the capped history. */
+  activeCalls: number;
   /**
    * How many of those calls failed. Counted alongside `totalCalls` rather than derived from
    * `activity`, so the two stay comparable once the recent list is capped.
@@ -90,6 +92,7 @@ export const initialRelayState = (): RelayClientState => ({
   connectedAt: null,
   reconnectCount: 0,
   totalCalls: 0,
+  activeCalls: 0,
   failedCalls: 0,
   activity: [],
 });

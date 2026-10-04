@@ -1,3 +1,7 @@
+import { readFile } from 'node:fs/promises';
+import { join } from 'node:path';
+
+import { storedChecksum } from '@sfp/ir';
 import type { RuntimeExecutionScope } from '@sfp/shared';
 import { afterEach, expect, it, vi } from 'vitest';
 
@@ -101,6 +105,39 @@ async function fixture() {
   cleanups.unshift(() => capture.close());
   return { ...f, capture, url, node, figma, rows, actions };
 }
+async function imageTextFixture() {
+  const f = await fixture();
+  // This intentionally complete controlled getter supplies every requested supported run field.
+  const segment = {
+    start: 0,
+    end: 1,
+    characters: 'A',
+    fontName: { family: 'Inter', style: 'Regular' },
+    fontSize: 16,
+    fontWeight: 400,
+    fills: [{ type: 'IMAGE', imageHash: 'b'.repeat(40) }],
+    lineHeight: { unit: 'AUTO' },
+    letterSpacing: { unit: 'PIXELS', value: 0 },
+    listOptions: { type: 'NONE' },
+    indentation: 0,
+    textWrapStyle: 'AUTO',
+    textDecoration: 'NONE',
+    textCase: 'ORIGINAL',
+    hyperlink: null,
+    textStyleId: '',
+    fillStyleId: '',
+  };
+  Object.assign(f.node, {
+    type: 'TEXT',
+    characters: 'A',
+    strokes: [{ type: 'IMAGE', imageHash: 'a'.repeat(40) }],
+    getStyledTextSegments: () => [segment],
+  });
+  Object.defineProperty(f.figma, 'getImageByHash', {
+    value: () => ({ getBytesAsync: async () => new Uint8Array([7, 8, 9]) }),
+  });
+  return { ...f, segment };
+}
 it('captures through compiled plugin handlers and signed coherent storage with distinct child actions', async () => {
   const f = await fixture();
   const captured = await f.capture.capture('desktop-test', f.url, new AbortController().signal);
@@ -175,25 +212,54 @@ it('keeps separate root export queries even when their actual bytes are equal', 
   expect(pngs[0]?.sha256).toBe(pngs[1]?.sha256);
 });
 it('reads original image bytes referenced by strokes and styled text segments', async () => {
-  const f = await fixture();
-  Object.assign(f.node, {
-    type: 'TEXT',
-    strokes: [{ type: 'IMAGE', imageHash: 'a'.repeat(40) }],
-    getStyledTextSegments: () => [
-      { start: 0, end: 1, characters: 'A', fills: [{ type: 'IMAGE', imageHash: 'b'.repeat(40) }] },
-    ],
-  });
-  Object.defineProperty(f.figma, 'getImageByHash', {
-    value: () => ({ getBytesAsync: async () => new Uint8Array([7, 8, 9]) }),
-  });
+  const f = await imageTextFixture();
   const captured = await f.capture.capture('desktop-images', f.url, new AbortController().signal);
   requireCurrentPortalCapture(captured);
-  expect(
-    captured.assets.filter(asset => asset.query.kind === 'image').map(asset => asset.query),
-  ).toEqual([
+  const images = captured.assets.filter(asset => asset.query.kind === 'image');
+  expect(images.map(asset => asset.query)).toEqual([
     { kind: 'image', imageHash: 'a'.repeat(40) },
     { kind: 'image', imageHash: 'b'.repeat(40) },
   ]);
+  await Promise.all(
+    images.map(async asset => {
+      const bytes = await readFile(join(captured.assetRoot, asset.path!));
+      expect(bytes).toEqual(Buffer.from([7, 8, 9]));
+      expect(asset).toMatchObject({
+        status: 'captured',
+        bytes: 3,
+        sha256: storedChecksum(bytes),
+      });
+    }),
+  );
+});
+it('retains referenced image bytes while an omitted text run field blocks current capture', async () => {
+  const f = await imageTextFixture();
+  Reflect.deleteProperty(f.segment, 'textWrapStyle');
+  const captured = await f.capture.capture(
+    'desktop-images-partial',
+    f.url,
+    new AbortController().signal,
+  );
+  expect(captured.complete).toBe(false);
+  expect(() => requireCurrentPortalCapture(captured)).toThrow('PORTAL_CAPTURE_CURRENT_REQUIRED');
+  const raw = JSON.parse(captured.raw);
+  expect(raw.nodes[0].textSegments).toEqual([f.segment]);
+  expect(raw.warnings).toContainEqual({
+    code: 'TEXT_SEGMENT_FIELD_MISSING',
+    nodeId: '1:1',
+    segmentIndex: 0,
+    field: 'textWrapStyle',
+  });
+  const images = captured.assets.filter(asset => asset.query.kind === 'image');
+  expect(images.map(asset => asset.query)).toEqual([
+    { kind: 'image', imageHash: 'a'.repeat(40) },
+    { kind: 'image', imageHash: 'b'.repeat(40) },
+  ]);
+  await Promise.all(
+    images.map(async asset => {
+      expect(await readFile(join(captured.assetRoot, asset.path!))).toEqual(Buffer.from([7, 8, 9]));
+    }),
+  );
 });
 it('cancels a waiting plugin catalog read without continuing to export', async () => {
   const f = await fixture();

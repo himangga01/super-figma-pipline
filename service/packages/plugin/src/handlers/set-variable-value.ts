@@ -42,7 +42,7 @@ const coerceToResolvedType = (raw: unknown, resolvedType: VariableResolvedDataTy
 
 export const createSetVariableValueHandler =
   (figmaCtx: typeof figma): SandboxToolHandler =>
-  async params => {
+  async (params, execution) => {
     const p = (params ?? {}) as { variableId?: unknown; modeId?: unknown; value?: unknown };
     if (typeof p.variableId !== 'string') {
       throw new TypeError('set_variable_value: variableId must be a string');
@@ -52,6 +52,7 @@ export const createSetVariableValueHandler =
     if (p.value === undefined) throw new TypeError('set_variable_value: value is required');
 
     const variable = await figmaCtx.variables.getVariableByIdAsync(p.variableId);
+    execution?.signal.throwIfAborted();
     if (variable === null) {
       throw new Error(`set_variable_value: variable ${p.variableId} not found`);
     }

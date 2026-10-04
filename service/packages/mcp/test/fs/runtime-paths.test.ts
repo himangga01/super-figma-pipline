@@ -812,6 +812,34 @@ it.runIf(process.platform === 'win32')(
 );
 
 describe.runIf(process.platform === 'win32')('Windows state commands on this host', () => {
+  it('pins the host Security module when inherited module search paths contain a look-alike', async () => {
+    const planted = await temporaryRoot('sfp-planted-psmodule-');
+    const moduleRoot = join(planted, 'Microsoft.PowerShell.Security');
+    await mkdir(moduleRoot);
+    await writeFile(
+      join(moduleRoot, 'Microsoft.PowerShell.Security.psm1'),
+      "function Get-Acl { throw 'SFP_UNTRUSTED_SECURITY_MODULE' }; Export-ModuleMember -Function Get-Acl; throw 'SFP_UNTRUSTED_SECURITY_MODULE'",
+    );
+    await writeFile(
+      join(moduleRoot, 'Microsoft.PowerShell.Security.psd1'),
+      "@{RootModule='Microsoft.PowerShell.Security.psm1';ModuleVersion='1.0.0';FunctionsToExport=@('Get-Acl')}",
+    );
+    const product = await windowsProductState();
+    const command: StatePermissionCommandRunner = (file, args, options) =>
+      realWindowsCommand(file, args, {
+        environment: {
+          ...options?.environment,
+          PSModulePath: `${planted};${process.env.PSModulePath ?? ''}`,
+        },
+      });
+    const permissions = createStatePermissions(product.stateRoot, {
+      ...product.options,
+      command,
+    });
+    await permissions.ensureSecure(product.stateRoot);
+    await expect(permissions.verifySecure(product.stateRoot)).resolves.toBeUndefined();
+  }, 60_000);
+
   it('runs the fixed PowerShell probes against a Korean-named state root', async () => {
     const base = await temporaryRoot('강지혜-state-');
     const stateRoot = join(base, 'SuperFigmaPipeline');

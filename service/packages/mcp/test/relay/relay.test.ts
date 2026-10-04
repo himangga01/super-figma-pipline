@@ -1,5 +1,8 @@
+import { mkdtemp, rm } from 'node:fs/promises';
 import { createServer, type Server as HttpServer } from 'node:http';
 import type { AddressInfo } from 'node:net';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
 
 import {
   canonicalFileIdentityHash,
@@ -19,11 +22,21 @@ import {
   PROTOCOL_VERSION,
   type ResponseEnvelope,
   SystemMethod,
+  NO_CAPTURE_OPTIONS,
+  type RuntimeExecutionScope,
 } from '@sfp/shared';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { WebSocket } from 'ws';
 
+import { EgressManifestStore } from '../../src/execution/egress-manifest-store.js';
+import { FileExecutionQueue } from '../../src/execution/file-queue.js';
+import { createOperationEvidenceProjector } from '../../src/execution/operation-evidence-projector.js';
+import { OperationEvidenceReceiptStore } from '../../src/execution/operation-evidence-receipt-store.js';
+import { OperationExecutor } from '../../src/execution/operation-executor.js';
+import { operationIdIssuerFromKey } from '../../src/execution/operation-id.js';
+import { OperationJournal } from '../../src/execution/operation-journal.js';
 import { Relay } from '../../src/relay/relay.js';
+import { createBoundRuntimeRegistry } from '../../src/tools/runtime-registry.js';
 
 interface Bound {
   relay: Relay;
@@ -143,6 +156,117 @@ describe('Relay upgrade gating', () => {
 });
 
 describe('Relay hello loop', () => {
+  it('persists a real dispatched relay timeout as unknown and fences late-result retries', async () => {
+    const b = await startRelay();
+    const ws = await connect(b.port);
+    const sessionId = newId();
+    ws.send(
+      encodeEnvelope(
+        createRequest({
+          id: 'executor-hello',
+          sessionId,
+          method: SystemMethod.Hello,
+          params: helloParams(),
+        }),
+      ),
+    );
+    await nextMessage(ws);
+    const root = await mkdtemp(join(tmpdir(), 'sfp-relay-uncertain-'));
+    try {
+      const actorId = 'actor1_AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA' as const;
+      const journal = new OperationJournal({ stateRoot: root, actorId });
+      const egress = new EgressManifestStore({ stateRoot: root, actorId });
+      const receipts = new OperationEvidenceReceiptStore({ stateRoot: root, actorId });
+      await Promise.all([journal.recover(), egress.recover(Date.now()), receipts.recover()]);
+      const issuer = operationIdIssuerFromKey(Buffer.alloc(32, 73));
+      const first = issuer.issue(actorId, Date.now(), { nonce: 'SwAAAAAAAAAAAAAAAAAAAA' });
+      const second = issuer.issue(actorId, Date.now(), { nonce: 'TAAAAAAAAAAAAAAAAAAAAA' });
+      const scope: RuntimeExecutionScope = {
+        requestId: 'sfp_req1_AAAAAAAAAAAAAAAAAAAAAA',
+        leaderGeneration: 'generation-test',
+        actor: {
+          actorId,
+          authSessionId: 'auth1_AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA',
+          entryPath: 'mcp-direct',
+        },
+        workspace: { workspaceId: null, workspaceRoot: null },
+        target: {
+          sessionId,
+          pluginGeneration: 'plugin-generation-test',
+          fileIdentity: { kind: 'figma-file-key', value: 'file-key-test' },
+          fileExecutionKey: 'figma:file-key-test',
+        },
+        consent: {
+          mode: 'local-trusted',
+          consentId: null,
+          allowedClasses: ['public', 'project-code', 'design-text', 'design-image', 'secret'],
+        },
+      };
+      const executor = new OperationExecutor({
+        issuer,
+        journal,
+        queue: new FileExecutionQueue(),
+        runtimes: createBoundRuntimeRegistry(
+          {
+            execute: (_scope, method, args, signal, _reporter, action) =>
+              b.relay.sendRequest(method, args, 20, sessionId, undefined, {
+                signal,
+                operationId: action!.operationId,
+                actionNonce: action!.actionNonce,
+              }),
+          },
+          { execute: async () => ({}) },
+        ),
+        durability: {
+          egress,
+          receipts,
+          artifacts: { createNew: vi.fn<() => never>() },
+          projector: createOperationEvidenceProjector(),
+          nativeArtifacts: { createNativeManifest: vi.fn<() => never>() },
+        },
+      });
+      const dispatched = nextMessage(ws);
+      const pending = executor.invokeTool(
+        scope,
+        'set_text',
+        { nodeId: '1:1', characters: 'After' },
+        first,
+        NO_CAPTURE_OPTIONS,
+      );
+      const rejected = pending.catch(error => error as Error);
+      const request = decodeEnvelope(await dispatched) as import('@sfp/shared').RequestEnvelope;
+      const error = await rejected;
+      expect(journal.get(first)).toMatchObject({
+        status: 'outcome-unknown',
+        operationEvidenceReceiptHash: null,
+      });
+      expect(error).toMatchObject({ code: 'PLUGIN_OUTCOME_UNKNOWN', committed: true });
+      await expect(
+        egress.readVerifiedFinalizer(actorId, first, journal.get(first)!.finalEgressManifestHash),
+      ).resolves.toMatchObject({ finalStatus: 'outcome-unknown' });
+      ws.send(
+        encodeEnvelope(
+          createResponse({ id: request.id, sessionId, result: { ok: true, nodeId: '1:1' } }),
+        ),
+      );
+      await new Promise(resolve => setTimeout(resolve, 5));
+      expect(journal.get(first)?.status).toBe('outcome-unknown');
+      await expect(
+        executor.invokeTool(
+          scope,
+          'set_text',
+          { nodeId: '1:1', characters: 'Retry' },
+          second,
+          NO_CAPTURE_OPTIONS,
+        ),
+      ).rejects.toMatchObject({ code: 'OPERATION_RECONCILIATION_REQUIRED' });
+      expect(journal.get(second)?.status).toBe('rejected');
+    } finally {
+      ws.close();
+      await rm(root, { recursive: true, force: true });
+    }
+  });
+
   it('forwards only bound live progress and caps it before delivery', async () => {
     const { port, relay } = await startRelay();
     const socket = await connect(port);
@@ -491,6 +615,28 @@ describe('Relay hello loop', () => {
     ).rejects.toThrow(/timeout/i);
 
     expect(attributed).toMatch(/older than this server/i);
+    ws.close();
+  });
+
+  it('marks only dispatched effectful timeouts as uncertain effects', async () => {
+    const b = await startRelay();
+    await expect(b.relay.sendRequest('set_text', {}, 5)).rejects.not.toHaveProperty('committed');
+    const ws = await connect(b.port);
+    ws.send(
+      encodeEnvelope(
+        createRequest({
+          id: 'timeout-hello',
+          sessionId: newId(),
+          method: SystemMethod.Hello,
+          params: helloParams(),
+        }),
+      ),
+    );
+    await nextMessage(ws);
+    await expect(b.relay.sendRequest('get_pages', {}, 5)).rejects.not.toHaveProperty('committed');
+    await expect(
+      b.relay.sendRequest('set_text', { nodeId: '1:1', characters: 'After' }, 5),
+    ).rejects.toMatchObject({ code: 'PLUGIN_OUTCOME_UNKNOWN', committed: true });
     ws.close();
   });
 

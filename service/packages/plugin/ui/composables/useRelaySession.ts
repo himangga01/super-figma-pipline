@@ -279,7 +279,7 @@ export const useRelaySession = (appVersion: string): RelaySession => {
     context,
     // Derived here rather than in the panel: "the agent is working" is a fact about the session, and
     // more than one piece of chrome reads it.
-    busy: computed(() => state.value.activity.some(e => e.status === 'pending')),
+    busy: computed(() => state.value.activeCalls > 0),
     sessionId,
     pairing,
     approvals,

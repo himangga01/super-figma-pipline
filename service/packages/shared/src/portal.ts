@@ -8,7 +8,11 @@ import {
 import { PortalRecipeVerifiedConsumptionSchema } from './portal-recipes.js';
 export * from './portal-core-lifecycle.js';
 
-import { PortalInteractionContractSchema } from './portal-observations.js';
+import {
+  PortalInteractionContractSchema,
+  PortalInteractionScopeSchema,
+  PortalPixelComparisonModeSchema,
+} from './portal-observations.js';
 export * from './portal-observations.js';
 
 import {
@@ -371,6 +375,7 @@ export const PortalPlanArgsSchema = z
     services: z.array(PortalServiceSelectorSchema).max(32).default([]),
     sourceReviews: z.array(PortalSemanticReviewSchema).max(512).default([]),
     workflowDecisions: z.array(PortalWorkflowDecisionSchema).max(512).default([]),
+    interactionScope: PortalInteractionScopeSchema.optional(),
     requirements: z.array(PortalRequirementSchema).max(128).default([]),
     stack: z.enum(['auto', 'react-vite', 'vue-vite']).default('auto'),
   })
@@ -621,6 +626,59 @@ export const assertCurrentPortalSourceAuthority = (
 
 export const PortalAcceptanceSchema = z
   .object({
+    previewFeedback: z
+      .object({
+        version: z.literal(1),
+        artifactRoot: z.string().min(1).max(32768),
+        reports: z
+          .array(
+            z
+              .object({
+                commandId: z.string().min(1).max(64),
+                commandStatus: z.enum([
+                  'passed',
+                  'failed',
+                  'timed-out',
+                  'cancelled',
+                  'output-limit',
+                ]),
+                receiptHash: PortalHashSchema,
+                screens: z
+                  .array(
+                    z
+                      .object({
+                        observationId: z.string().min(1).max(64),
+                        rootNodeId: z.string().min(1).max(512),
+                        route: z.string().startsWith('/').max(2048),
+                        state: z.string().min(1).max(512),
+                        viewport: z
+                          .object({
+                            width: z.number().int().min(100).max(4096),
+                            height: z.number().int().min(100).max(4096),
+                          })
+                          .strict(),
+                        passed: z.boolean(),
+                        failures: z.array(z.string().max(2048)).max(512),
+                        differenceRatio: z.number().min(0).max(1),
+                        strictDifferenceRatio: z.number().min(0).max(1).optional(),
+                        comparisonMode: PortalPixelComparisonModeSchema.optional(),
+                        oracleHash: PortalHashSchema,
+                        actualHash: PortalHashSchema,
+                        actualPath: PortalPathSchema,
+                        diffPath: PortalPathSchema.nullable(),
+                        diffHash: PortalHashSchema.nullable().optional(),
+                      })
+                      .strict(),
+                  )
+                  .min(1)
+                  .max(16),
+              })
+              .strict(),
+          )
+          .max(32),
+      })
+      .strict()
+      .optional(),
     recipeConsumption: z.lazy(() => PortalRecipeVerifiedConsumptionSchema).optional(),
     observations: z
       .object({
@@ -811,6 +869,7 @@ export const PORTAL_INPUT_SCHEMAS = {
 } as const;
 
 export interface PortalAuthority {
+  runStateFence?: { version: number; leaseEpoch: number };
   captureSource?: PortalCaptureGrant;
   executionAuthorityHash?: `sha256:${string}`;
   executionResources?: Array<{ key: string; mode: 'read' | 'write' }>;
@@ -859,6 +918,8 @@ export const PortalCaptureFailureSchema = z
       'PORTAL_CAPTURE_ADMISSION_REQUIRED',
       'BROWSER_CONTENT_CHANGED',
       'CHROME_CONNECTION_REQUIRED',
+      'CHROME_INITIALIZATION_TIMEOUT',
+      'CHROME_SOURCE_BUSY',
       'FIGMA_TAB_NOT_FOUND',
       'CHROME_TARGET_AMBIGUOUS',
       'SCRIPTER_INSTALL_REQUIRED',
@@ -1035,6 +1096,10 @@ export const PortalNextResultSchema = PortalRunResultSchema.omit({ lease: true }
                 sha256: PortalHashSchema.optional(),
                 bytes: z.number().int().nonnegative().optional(),
                 reason: z.string().optional(),
+                exportedFrom: z
+                  .object({ nodeId: z.string().min(1).max(512), geometryHash: PortalHashSchema })
+                  .strict()
+                  .optional(),
               })
               .strict(),
           )
@@ -1047,12 +1112,37 @@ export const PortalNextResultSchema = PortalRunResultSchema.omit({ lease: true }
                 path: PortalPathSchema,
                 hash: PortalHashSchema,
                 data: z.string().max(6_990_508).optional(),
-                delivery: z.enum(['base64', 'inline-image']).default('base64'),
+                delivery: z
+                  .enum(['base64', 'inline-image', 'artifact-reference'])
+                  .default('base64'),
+                reference: z
+                  .object({
+                    kind: z.literal('portal-captured-asset'),
+                    planId: PortalIdSchema,
+                    captureHash: PortalHashSchema,
+                    assetManifestHash: PortalHashSchema,
+                    bytes: z.number().int().min(0).max(16_777_216),
+                  })
+                  .strict()
+                  .optional(),
               })
               .strict()
               .superRefine((value, ctx) => {
                 if (value.delivery === 'base64' && value.data === undefined)
                   ctx.addIssue({ code: 'custom', message: 'Base64 delivery requires asset bytes' });
+                if (
+                  value.delivery === 'artifact-reference' &&
+                  (!value.reference || value.data !== undefined)
+                )
+                  ctx.addIssue({
+                    code: 'custom',
+                    message: 'Artifact delivery requires a bound reference without inline bytes',
+                  });
+                if (value.delivery !== 'artifact-reference' && value.reference !== undefined)
+                  ctx.addIssue({
+                    code: 'custom',
+                    message: 'Inline delivery cannot carry an artifact reference',
+                  });
               }),
           )
           .max(8),

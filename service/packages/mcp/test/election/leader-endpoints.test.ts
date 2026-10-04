@@ -21,7 +21,11 @@ import { afterEach, describe, expect, it } from 'vitest';
 import { WebSocket } from 'ws';
 import { z } from 'zod';
 
-import { AuthenticatedControlRouter, createControlHttpHandler } from '../../src/control/router.js';
+import {
+  AuthenticatedControlRouter,
+  createControlHttpHandler,
+  createLazyControlHttpHandler,
+} from '../../src/control/router.js';
 import { ControlRouteRegistry } from '../../src/election/control-route-registry.js';
 import {
   ABDICATE_PATH,
@@ -657,6 +661,60 @@ describe('POST /abdicate', () => {
 });
 
 describe('typed authenticated control extension', () => {
+  it('keeps public liveness independent and authenticates readiness before recovery checks', async () => {
+    let checks = 0;
+    let repaired = false;
+    const extension = new ControlRouteRegistry();
+    extension.register(
+      '/control',
+      createLazyControlHttpHandler(async () => {
+        checks++;
+        if (!repaired) throw new Error('private integrity details');
+        return async () => false;
+      }),
+    );
+    const leader = await startLeader(5_000, { controlRoutes: extension });
+    const base = `http://127.0.0.1:${leader.port}`;
+    expect((await fetch(`${base}${PING_PATH}`)).status).toBe(200);
+    expect(checks).toBe(0);
+    const headers = {
+      authorization: `Bearer ${TEST_CONTROL_TOKEN}`,
+      'x-sfp-leader-generation': TEST_GENERATION,
+    };
+    expect((await fetch(`${base}/control/readiness`)).status).toBe(401);
+    expect(
+      (
+        await fetch(`${base}/control/readiness`, {
+          headers: { ...headers, 'x-sfp-leader-generation': 'foreign-generation' },
+        })
+      ).status,
+    ).toBe(401);
+    expect(
+      (
+        await fetch(`${base}/control/readiness`, {
+          headers: { ...headers, origin: 'https://evil.example' },
+        })
+      ).status,
+    ).toBe(403);
+    expect(checks).toBe(0);
+    const failed = await fetch(`${base}/control/readiness`, { headers });
+    expect(failed.status).toBe(503);
+    expect(await failed.json()).toEqual({
+      schemaVersion: 1,
+      scope: 'control-runtime',
+      status: 'not-ready',
+    });
+    expect((await fetch(`${base}${PING_PATH}`)).status).toBe(200);
+    repaired = true;
+    const ready = await fetch(`${base}/control/readiness`, { headers });
+    expect(ready.status).toBe(200);
+    expect(await ready.json()).toEqual({
+      schemaVersion: 1,
+      scope: 'control-runtime',
+      status: 'ready',
+    });
+    expect(checks).toBe(2);
+  });
   it('reaches sibling Task7 routes through the single frozen /control seam', async () => {
     const typed = new AuthenticatedControlRouter();
     typed.register({

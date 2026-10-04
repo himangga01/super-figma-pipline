@@ -21,7 +21,7 @@ describe('one-use local bootstrap', () => {
     'invalid',
     JSON.stringify({ pairCode: 'bad' }),
     JSON.stringify({ pairCode: 'SFP-ABCDEFGHIJ-12345678', controlToken: 'forbidden' }),
-  ])('rejects and removes malformed seeds', text => {
+  ])('rejects and removes malformed seed case %#', text => {
     const element = document.createElement('script');
     element.id = 'sfp-pair-bootstrap';
     element.textContent = text;

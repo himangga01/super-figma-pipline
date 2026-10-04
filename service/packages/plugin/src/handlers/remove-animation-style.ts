@@ -9,7 +9,7 @@ import { assertFigmaEditor, isMotionNode } from './motion-shared.js';
  */
 export const createRemoveAnimationStyleHandler =
   (figmaCtx: typeof figma): SandboxToolHandler =>
-  async params => {
+  async (params, execution) => {
     const p = (params ?? {}) as { nodeId?: unknown; animationStyleId?: unknown };
     if (typeof p.nodeId !== 'string') {
       throw new TypeError('remove_animation_style: nodeId must be a string');
@@ -19,6 +19,7 @@ export const createRemoveAnimationStyleHandler =
     }
     assertFigmaEditor(figmaCtx, 'remove_animation_style');
     const node = await figmaCtx.getNodeByIdAsync(p.nodeId);
+    execution?.signal.throwIfAborted();
     if (node === null || !isMotionNode(node)) {
       throw new Error(
         `remove_animation_style: node ${p.nodeId} not found or does not support Motion`,

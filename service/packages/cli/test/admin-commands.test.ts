@@ -1,15 +1,28 @@
-import { mkdtemp, realpath, rm } from 'node:fs/promises';
+import { mkdtemp, readFile, realpath, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
+import { contentHash } from '@sfp/ir';
 import { hashActionRequest } from '@sfp/shared';
 import { afterEach, expect, it, vi } from 'vitest';
 
+import { resolveDefaultStateRoot } from '../../mcp/src/runtime-paths.js';
+import { createStatePermissions } from '../../mcp/src/security/state-permissions.js';
 import { ALL_TOOL_SPECS } from '../../mcp/src/tools/registry.js';
 import { runAdminCommand } from '../src/admin-commands.js';
 import { ControlClient } from '../src/control-client.js';
 
-afterEach(() => vi.restoreAllMocks());
+afterEach(() => {
+  vi.restoreAllMocks();
+  vi.unstubAllEnvs();
+});
+const profileState = async (directory: string) => {
+  vi.stubEnv('LOCALAPPDATA', directory);
+  vi.stubEnv('XDG_STATE_HOME', directory);
+  const stateRoot = resolveDefaultStateRoot();
+  await createStatePermissions(stateRoot).ensureSecure(stateRoot);
+  return join(stateRoot, 'prepared-profiles');
+};
 it('lists workspace availability and rebinds a registration with a server-bound nonce', async () => {
   const directory = await mkdtemp(join(tmpdir(), 'sfp-cli-rebind-'));
   try {
@@ -216,37 +229,127 @@ const nativeProfileFixture = () => ({
     },
   ],
 });
-it('prepares a native profile without requesting a nonce and exposes no protected environment values', async () => {
-  const input = nativeProfileFixture(),
-    prepared = {
-      ...input,
-      native: {
-        ...input.native,
-        environment: {
-          ...input.native.environment,
-          SFP_PORTAL_VALIDATOR_URL: 'file:///fixture/validator.mjs',
-        },
-        externalArtifacts: [],
-        artifactAuthority: {
-          version: 1,
-          configurationHash: `sha256:${'a'.repeat(64)}`,
-          commandHash: `sha256:${'b'.repeat(64)}`,
-          artifacts: [],
-          executables: [],
-        },
-      },
-    };
-  const request = vi.spyOn(ControlClient.prototype, 'request').mockResolvedValue(prepared),
-    emit = vi.fn<(value: unknown) => void>();
-  await runAdminCommand(['portal', 'profile', '--args', JSON.stringify(input)], emit);
-  expect(request).toHaveBeenCalledTimes(1);
-  expect(request.mock.calls[0]!.slice(0, 2)).toEqual(['/control/portal/profiles/prepare', 'POST']);
-  expect(JSON.stringify(emit.mock.calls)).not.toContain('private-config-value');
-  expect(emit.mock.calls[0]![0]).toHaveProperty(
-    'preparation.artifactAuthority',
-    prepared.native.artifactAuthority,
-  );
+const preparedRecipeFixture = () => ({
+  version: 1,
+  targets: [],
+  components: [],
+  cssVariables: [],
+  assets: [],
+  catalogs: [],
+  reviews: [],
+  prepared: {
+    version: 'core-consumption-v1',
+    materialHash: `sha256:${'a'.repeat(64)}`,
+    compilationHash: `sha256:${'a'.repeat(64)}`,
+    contextHash: `sha256:${'a'.repeat(64)}`,
+    blueprintHash: `sha256:${'a'.repeat(64)}`,
+    candidateHash: `sha256:${'b'.repeat(64)}`,
+    declarationsHash: `sha256:${'a'.repeat(64)}`,
+    status: 'ready',
+    requirements: [],
+    pageCount: 1,
+    rowCount: 1,
+    checkCount: 0,
+  },
 });
+const environmentAuthorityFixture = () => ({
+  broker: {
+    path: process.execPath,
+    hash: `sha256:${'a'.repeat(64)}`,
+    identity: '1:2',
+    programHash: `sha256:${'a'.repeat(64)}`,
+  },
+  version: 1,
+  protocol: 'sfp-native-environment-v1',
+  ownerId: 'fixture-owner',
+  planId: `sfp_portal1_${'a'.repeat(32)}`,
+  sourceHash: `sha256:${'b'.repeat(64)}`,
+  profileId: 'native-fixture',
+  createdAt: 0,
+  expiresAt: 1,
+  namespace: '/fixture',
+  namespaceIdentity: '1:2',
+  configurationHash: `sha256:${'a'.repeat(64)}`,
+  disposition: 'retained-artifact',
+  grants: [
+    {
+      declaration: {
+        id: 'sqlite',
+        provider: 'owned-sqlite',
+        binding: 'DATABASE_URL',
+        actions: ['create'],
+      },
+      shared: null,
+    },
+  ],
+});
+it('prepares a native profile without requesting a nonce and exposes no protected environment values', async () => {
+  const directory = await mkdtemp(join(tmpdir(), 'sfp-profile-review-'));
+  try {
+    const preparedFolder = await profileState(directory);
+    const input = nativeProfileFixture(),
+      prepared = {
+        ...input,
+        preparedContractVersion: 2,
+        recipeUse: preparedRecipeFixture(),
+        native: {
+          ...input.native,
+          environmentAuthority: environmentAuthorityFixture(),
+          environment: {
+            ...input.native.environment,
+            SFP_PORTAL_VALIDATOR_URL: 'file:///fixture/validator.mjs',
+          },
+          externalArtifacts: [],
+          artifactAuthority: {
+            version: 1,
+            configurationHash: `sha256:${'a'.repeat(64)}`,
+            commandHash: `sha256:${'b'.repeat(64)}`,
+            artifacts: [],
+            executables: [],
+          },
+        },
+      };
+    const request = vi.spyOn(ControlClient.prototype, 'request').mockResolvedValue(prepared),
+      emit = vi.fn<(value: unknown) => void>();
+    const preparedFile = join(preparedFolder, 'prepared.json');
+    await runAdminCommand(
+      ['portal', 'profile', '--args', JSON.stringify(input), '--prepared-file', preparedFile],
+      emit,
+    );
+    expect(request).toHaveBeenCalledTimes(1);
+    expect(request.mock.calls[0]!.slice(0, 2)).toEqual([
+      '/control/portal/profiles/prepare',
+      'POST',
+    ]);
+    expect(JSON.stringify(emit.mock.calls)).not.toContain('private-config-value');
+    expect(emit.mock.calls[0]![0]).toHaveProperty('preparedFile', preparedFile);
+    expect(JSON.parse(await readFile(preparedFile, 'utf8'))).toMatchObject(prepared);
+    const saved = await readFile(preparedFile, 'utf8');
+    await expect(
+      runAdminCommand(
+        ['portal', 'profile', '--args', JSON.stringify(input), '--prepared-file', preparedFile],
+        emit,
+      ),
+    ).rejects.toMatchObject({ code: 'EEXIST' });
+    expect(await readFile(preparedFile, 'utf8')).toBe(saved);
+    await createStatePermissions(resolveDefaultStateRoot()).verifySecure(preparedFile);
+    await expect(
+      runAdminCommand(
+        [
+          'portal',
+          'profile',
+          '--args',
+          JSON.stringify(input),
+          '--prepared-file',
+          join(directory, 'outside.json'),
+        ],
+        emit,
+      ),
+    ).rejects.toMatchObject({ code: 'CLI_USAGE' });
+  } finally {
+    await rm(directory, { recursive: true, force: true });
+  }
+}, 60000);
 it('requires the reviewed preparation and registers its exact bytes without refreshing authority', async () => {
   const request = vi
     .spyOn(ControlClient.prototype, 'request')
@@ -262,8 +365,11 @@ it('requires the reviewed preparation and registers its exact bytes without refr
   expect(request).not.toHaveBeenCalled();
   const prepared = {
     ...raw,
+    preparedContractVersion: 2,
+    recipeUse: preparedRecipeFixture(),
     native: {
       ...raw.native,
+      environmentAuthority: environmentAuthorityFixture(),
       artifactAuthority: {
         version: 1,
         configurationHash: `sha256:${'a'.repeat(64)}`,
@@ -285,6 +391,90 @@ it('requires the reviewed preparation and registers its exact bytes without refr
     profile: { native: { artifactAuthority: prepared.native.artifactAuthority } },
   });
 });
+
+it('persists all prepared commands and manifest and registers the exact reviewed args-file body', async () => {
+  const directory = await mkdtemp(join(tmpdir(), 'sfp-profile-roundtrip-'));
+  try {
+    await profileState(directory);
+    const inputFile = join(directory, 'draft.json');
+    const raw = nativeProfileFixture();
+    await writeFile(inputFile, JSON.stringify(raw));
+    const hash = `sha256:${'a'.repeat(64)}`;
+    const prepared = {
+      ...raw,
+      preparedContractVersion: 2,
+      recipeUse: preparedRecipeFixture(),
+      observationManifest: {
+        version: 1,
+        captureFingerprint: hash,
+        scopeHash: hash,
+        interactionContractHash: hash,
+        screens: [
+          {
+            id: 'screen',
+            captureFingerprint: hash,
+            scopeHash: hash,
+            rootNodeId: '1:1',
+            route: '/',
+            state: 'source:1:1',
+            viewport: { width: 100, height: 100 },
+            deviceScaleFactor: 1,
+            assertionIds: [],
+            oracleHash: hash,
+          },
+        ],
+        assets: [],
+      },
+      native: {
+        ...raw.native,
+        environmentAuthority: environmentAuthorityFixture(),
+        commands: [
+          ...raw.native.commands,
+          { ...raw.native.commands[0]!, id: 'added-check', args: ['generated-check.mjs'] },
+        ],
+        artifactAuthority: {
+          version: 1,
+          configurationHash: hash,
+          commandHash: hash,
+          artifacts: [],
+          executables: [],
+        },
+      },
+    };
+    const request = vi
+      .spyOn(ControlClient.prototype, 'request')
+      .mockImplementation(async (path, _method, body) => {
+        if (path === '/control/portal/profiles/prepare') return prepared;
+        if (path === '/control/action-nonces') return { value: 'nonce-fixture' };
+        if (path === '/control/portal/profiles')
+          return { profileId: (body as { profile: typeof prepared }).profile.native.id };
+        throw Error('Unexpected route');
+      });
+    const output: unknown[] = [];
+    await runAdminCommand(['portal', 'profile', '--args-file', inputFile], value =>
+      output.push(value),
+    );
+    const review = output[0] as { preparedFile: string; commands: Array<{ id: string }> };
+    expect(review.commands.map(command => command.id)).toEqual(['check', 'added-check']);
+    expect(JSON.stringify(output)).not.toContain('private-config-value');
+    const persisted = JSON.parse(await readFile(review.preparedFile, 'utf8'));
+    expect(persisted).toMatchObject(prepared);
+    await runAdminCommand(
+      ['portal', 'profile', '--args-file', review.preparedFile, '--yes'],
+      value => output.push(value),
+    );
+    expect(request.mock.calls[1]![2]).toEqual({
+      action: 'portal.profile.register',
+      requestHash: hashActionRequest('portal.profile.register', {
+        planId: persisted.planId,
+        profileHash: contentHash('sfp-portal-profile-request-v1', persisted),
+      }),
+    });
+    expect(request.mock.calls[2]![2]).toEqual({ profile: persisted, actionNonce: 'nonce-fixture' });
+  } finally {
+    await rm(directory, { recursive: true, force: true });
+  }
+}, 60000);
 
 it.each([undefined, 'none', 'active'] as const)(
   'preserves %s CLI target intent for dynamically resolved portal validation',

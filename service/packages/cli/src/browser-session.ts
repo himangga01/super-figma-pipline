@@ -16,10 +16,12 @@ export interface ChromeSession {
   close(): Promise<void>;
 }
 
-/** Attach only. Never launch Chrome, create a tab, navigate an existing tab, or copy a profile. */
+/** Attach to existing Chrome. Creating a missing source tab requires an explicit owner request. */
 interface ChromeSessionOptions {
   url?: string;
   cdp?: string;
+  openIfMissing?: boolean;
+  connectionTimeoutMs?: number;
 }
 const chromeEndpoint = async (options: ChromeSessionOptions) =>
   options.cdp === undefined || options.cdp === 'chrome'
@@ -27,12 +29,23 @@ const chromeEndpoint = async (options: ChromeSessionOptions) =>
     : assertLoopbackCdp(options.cdp);
 const attachChrome = async (options: ChromeSessionOptions, timeout = 60_000): Promise<Browser> => {
   const endpoint = await chromeEndpoint(options);
-  return chromium.connectOverCDP(endpoint, { timeout, noDefaults: true }).catch(error => {
-    throw new Error(
-      'CHROME_CONNECTION_REQUIRED: enable remote debugging in the existing Chrome at chrome://inspect/#remote-debugging, then allow its connection prompt',
-      { cause: error },
-    );
-  });
+  return chromium
+    .connectOverCDP(endpoint, {
+      timeout: options.connectionTimeoutMs ?? timeout,
+      noDefaults: true,
+    })
+    .catch(error => {
+      const detail = error instanceof Error ? error.message : '';
+      if (detail.includes('<ws connected>') && /timeout/iu.test(detail))
+        throw new Error(
+          'CHROME_INITIALIZATION_TIMEOUT: Chrome accepted the connection but Playwright could not finish browser initialization',
+          { cause: error },
+        );
+      throw new Error(
+        'CHROME_CONNECTION_REQUIRED: enable remote debugging in the existing Chrome at chrome://inspect/#remote-debugging, then allow its connection prompt',
+        { cause: error },
+      );
+    });
 };
 const selectExistingFigma = async (
   browser: Browser,
@@ -51,6 +64,19 @@ const selectExistingFigma = async (
         return false;
       }
     });
+  if (matches.length === 0 && options.openIfMissing) {
+    if (!requested) throw new Error('FIGMA_URL_REQUIRED');
+    const contexts = browser.contexts();
+    if (contexts.length !== 1) throw new Error('CHROME_CONTEXT_AMBIGUOUS');
+    const created = await contexts[0]!.newPage();
+    try {
+      await created.goto(requested.url, { waitUntil: 'domcontentloaded', timeout: 60_000 });
+      return await selectExistingFigma(browser, { ...options, openIfMissing: false }, close);
+    } catch (error) {
+      await created.close().catch(() => {});
+      throw error;
+    }
+  }
   if (matches.length !== 1) {
     throw new Error(
       matches.length === 0
@@ -96,7 +122,35 @@ const selectExistingFigma = async (
 };
 
 export const openChromeSession = async (options: ChromeSessionOptions): Promise<ChromeSession> => {
+  if (options.openIfMissing && options.url === undefined) throw new Error('FIGMA_URL_REQUIRED');
   if (options.url !== undefined) parseFigmaTarget(options.url);
+  if (!options.openIfMissing) {
+    // Standalone collection needs the same selected-target attachment as portal capture.
+    // Its transport belongs to this invocation, so close both logical and physical sessions.
+    const connection = new ExistingChromeConnection();
+    try {
+      const session = await connection.open({
+        ...options,
+        connectionTimeoutMs: options.connectionTimeoutMs ?? 60_000,
+      });
+      let released = false;
+      return {
+        ...session,
+        close: async () => {
+          if (released) return;
+          released = true;
+          try {
+            await session.close();
+          } finally {
+            await connection.close();
+          }
+        },
+      };
+    } catch (error) {
+      await connection.close();
+      throw error;
+    }
+  }
   const browser = await attachChrome(options);
   try {
     return await selectExistingFigma(browser, options, () => browser.close());
@@ -106,46 +160,91 @@ export const openChromeSession = async (options: ChromeSessionOptions): Promise<
   }
 };
 
-/** Keep one owner-approved connection for the daemon lifetime, including missing-tab recovery. */
+/** Retain a healthy owner-approved connection; terminal remotes require a fresh private generation. */
 export class ExistingChromeConnection {
   private browser: Browser | null = null;
   private connecting: Promise<Browser> | null = null;
   private closed = false;
   private endpoint: string | null = null;
   private transport: RetainedChromeTransport | null = null;
-  state(): ReturnType<RetainedChromeTransport['state']> {
-    return this.closed
-      ? 'unavailable'
-      : (this.transport?.state() ?? (this.connecting ? 'awaiting-browser' : 'not-requested'));
+  private fileKey: string | null = null;
+  private activeSessions = 0;
+  state(): ReturnType<RetainedChromeTransport['state']> | 'initializing' {
+    if (this.closed) return 'unavailable';
+    const transport = this.transport?.state();
+    if (transport === 'connected')
+      return this.browser?.isConnected() ? 'connected' : 'initializing';
+    return transport ?? (this.connecting ? 'awaiting-browser' : 'not-requested');
   }
 
   async open(options: ChromeSessionOptions, signal?: AbortSignal): Promise<ChromeSession> {
     signal?.throwIfAborted();
     if (this.closed) throw new Error('CHROME_CONNECTION_CLOSED');
-    if (options.url !== undefined) parseFigmaTarget(options.url);
+    const requestedFileKey =
+      options.url === undefined ? null : parseFigmaTarget(options.url).fileKey;
     const endpoint = options.cdp ?? 'chrome';
     if (this.endpoint !== null && this.endpoint !== endpoint)
       throw new Error('CHROME_CONNECTION_ENDPOINT_CHANGED');
+    const changeFile = this.fileKey !== requestedFileKey;
+    if (changeFile && (this.connecting || this.activeSessions))
+      throw new Error('CHROME_SOURCE_BUSY: another source acquisition is active');
+    this.fileKey = requestedFileKey;
     this.endpoint = endpoint;
     if (this.browser?.isConnected() === false) this.browser = null;
-    if (!this.browser) {
+    if (
+      changeFile ||
+      this.connecting ||
+      !this.browser ||
+      this.transport?.state() === 'unavailable'
+    ) {
       if (!this.connecting) {
         const pending = (async () => {
-          this.transport ??= await createRetainedChromeTransport(await chromeEndpoint(options));
+          if (changeFile && this.browser) {
+            // Retain the approved remote socket while replacing only the local Playwright view.
+            await this.browser.close();
+            this.browser = null;
+          }
+          if (this.transport?.state() === 'unavailable') {
+            const obsolete = this.transport;
+            const staleBrowser = this.browser;
+            this.transport = null;
+            this.browser = null;
+            await obsolete.close();
+            if (staleBrowser) await staleBrowser.close();
+          }
+          this.transport ??= await createRetainedChromeTransport(await chromeEndpoint(options), {
+            matchesTarget: url => {
+              try {
+                const target = parseFigmaTarget(url);
+                return this.fileKey === null || target.fileKey === this.fileKey;
+              } catch {
+                return false;
+              }
+            },
+          });
           if (this.closed) {
             await this.transport.close();
             throw new Error('CHROME_CONNECTION_CLOSED');
           }
           try {
             return await chromium.connectOverCDP(this.transport.endpoint, {
-              timeout: 300_000,
+              timeout: options.connectionTimeoutMs ?? 300_000,
               noDefaults: true,
               headers: this.transport.headers,
             });
           } catch (cause) {
             // The authenticated local client may time out; the one Chrome permission request remains alive.
+            const targetFailure = ['FIGMA_TAB_NOT_FOUND', 'CHROME_TARGET_AMBIGUOUS'].find(
+              code => cause instanceof Error && cause.message.includes(code),
+            );
+            if (targetFailure) throw new Error(targetFailure, { cause });
+            const initializedTransport = this.transport.state() === 'connected';
+            if (initializedTransport)
+              console.error('[chrome] initialization incomplete', this.transport.diagnostics());
             throw new Error(
-              'CHROME_CONNECTION_REQUIRED: the existing Chrome connection is not ready',
+              initializedTransport
+                ? 'CHROME_INITIALIZATION_TIMEOUT: Chrome accepted the connection but Playwright could not finish browser initialization'
+                : 'CHROME_CONNECTION_REQUIRED: the existing Chrome connection is not ready',
               { cause },
             );
           }
@@ -168,11 +267,23 @@ export class ExistingChromeConnection {
     signal?.throwIfAborted();
     if (this.closed) throw new Error('CHROME_CONNECTION_CLOSED');
     // Capture completion releases its logical session, never the shared CDP transport.
-    return waitLogically(
-      selectExistingFigma(this.browser!, options, async () => {}),
-      signal,
-      session => session.close(),
-    );
+    this.activeSessions++;
+    let released = false;
+    const release = async () => {
+      if (released) return;
+      released = true;
+      this.activeSessions--;
+    };
+    try {
+      return await waitLogically(
+        selectExistingFigma(this.browser!, options, release),
+        signal,
+        session => session.close(),
+      );
+    } catch (error) {
+      await release();
+      throw error;
+    }
   }
 
   async close(): Promise<void> {

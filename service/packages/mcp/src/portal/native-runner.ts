@@ -12,6 +12,10 @@ import {
 } from '@sfp/shared';
 import { z } from 'zod';
 
+import {
+  withRetainedDirectoryChain,
+  withRetainedDirectoryDescendantChain,
+} from '../fs/atomic-file.js';
 import { RepoReader } from '../fs/repo-walk.js';
 import {
   NativeArtifactAuthoritySchema,
@@ -136,6 +140,8 @@ export interface NativeCommandResult {
   moduleEvidence?: NativeModuleEvidence;
   previewReceipt?: NativePreviewReceipt;
   commandHash: `sha256:${string}`;
+  /** Actual argv includes the admitted module guard; historical records may omit this binding. */
+  launchCommandHash?: `sha256:${string}`;
   status: 'passed' | 'failed' | 'timed-out' | 'cancelled' | 'output-limit';
   exitCode: number | null;
   signal: string | null;
@@ -311,6 +317,25 @@ export class NativePortalRunner {
       )
         throw portalError('PORTAL_PROFILE_CLOSURE_MEMBERSHIP_CHANGED');
       const privateHome = runtime?.privateHome ?? (await mkdtemp(join(root, '.sfp-native-home-')));
+      if (process.platform === 'win32') {
+        // Chrome resolves Windows known folders beneath USERPROFILE even when APPDATA is
+        // explicit. Missing directories make its default-profile safety check indeterminate.
+        await withRetainedDirectoryChain(
+          privateHome,
+          privateHome,
+          async homeAuthority => {
+            for (const name of ['Local', 'Roaming'])
+              await withRetainedDirectoryDescendantChain(
+                privateHome,
+                homeAuthority,
+                join(privateHome, 'AppData', name),
+                async authority => authority.verify(),
+                { createMissing: true, errorCode: 'PORTAL_NATIVE_PRIVATE_HOME_CHANGED' },
+              );
+          },
+          { errorCode: 'PORTAL_NATIVE_PRIVATE_HOME_CHANGED' },
+        );
+      }
       await writeFile(join(privateHome, 'npmrc'), '\n', { flag: 'wx', mode: 0o600 });
       await writeFile(join(privateHome, 'global-npmrc'), '\n', { flag: 'wx', mode: 0o600 });
       await writeFile(join(privateHome, 'gitconfig'), '\n', { flag: 'wx', mode: 0o600 });
@@ -429,8 +454,17 @@ export class NativePortalRunner {
             privateHome,
             runtime,
           );
-          if (previewChannel && result.status === 'passed')
-            result.previewReceipt = await previewChannel.finish();
+          result.launchCommandHash = result.commandHash;
+          result.commandHash = contentHash('sfp-native-command-v1', command);
+          if (previewChannel) {
+            try {
+              result.previewReceipt = await previewChannel.finish();
+            } catch (error) {
+              // A passed preview requires its authenticated channel. Failed runs may have no
+              // report (for example launch failure); stdout never substitutes for this receipt.
+              if (result.status === 'passed') throw error;
+            }
+          }
         } finally {
           previewChannel?.close();
         }
@@ -561,8 +595,9 @@ export class NativePortalRunner {
       ...environment,
       HOME: privateHome,
       USERPROFILE: privateHome,
-      APPDATA: privateHome,
-      LOCALAPPDATA: privateHome,
+      APPDATA: process.platform === 'win32' ? join(privateHome, 'AppData', 'Roaming') : privateHome,
+      LOCALAPPDATA:
+        process.platform === 'win32' ? join(privateHome, 'AppData', 'Local') : privateHome,
       XDG_CONFIG_HOME: privateHome,
       NPM_CONFIG_USERCONFIG: join(privateHome, 'npmrc'),
       NPM_CONFIG_GLOBALCONFIG: join(privateHome, 'global-npmrc'),

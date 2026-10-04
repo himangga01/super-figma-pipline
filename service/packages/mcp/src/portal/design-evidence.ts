@@ -1,5 +1,6 @@
 import { contentHash, storedChecksum, type PortalPlan } from '@sfp/ir';
-import type { WorkspacePolicy } from '@sfp/shared';
+import { PortalNextResultSchema, type WorkspacePolicy } from '@sfp/shared';
+import type { z } from 'zod';
 
 import { RepoReader } from '../fs/repo-walk.js';
 import { PortalCapturedDesignSchema } from './design-capture.js';
@@ -169,22 +170,40 @@ export const readPortalAssets = async (
   const reader = new RepoReader({
     rootDir: record.assetRoot,
     signal,
-    maxFileBytes: 5_242_880,
-    maxTotalBytes: 20_971_520,
+    maxFileBytes: 16_777_216,
+    maxTotalBytes: 134_217_728,
   });
-  const contents: Array<{ id: number; path: string; hash: string; data: string }> = [];
+  if (ids.length > 8 || ids.some(id => !Number.isSafeInteger(id) || id < 0))
+    throw portalError('PORTAL_ASSET_SELECTION_LIMIT');
+  const contents: NonNullable<z.infer<typeof PortalNextResultSchema>['assets']>['contents'] = [];
+  let inlineBytes = 0;
   for (const id of ids) {
     const asset = record.assets[id];
     if (!asset || asset.status !== 'captured' || !asset.path || !asset.sha256)
       throw portalError('PORTAL_ASSET_NOT_AVAILABLE');
     // eslint-disable-next-line no-await-in-loop -- bounded hash-bound artifact reads from the signed capture root
     const bytes = await reader.readBytes(asset.path);
-    if (storedChecksum(bytes) !== asset.sha256) throw portalError('PORTAL_ASSET_CHANGED');
+    if (storedChecksum(bytes) !== asset.sha256 || bytes.length !== asset.bytes)
+      throw portalError('PORTAL_ASSET_CHANGED');
+    const encodedBytes = 4 * Math.ceil(bytes.length / 3);
+    const inline = bytes.length <= 5_242_880 && inlineBytes + encodedBytes <= 6_990_508;
+    if (inline) inlineBytes += encodedBytes;
     contents.push({
       id,
       path: asset.path,
       hash: asset.sha256,
-      data: Buffer.from(bytes).toString('base64'),
+      ...(inline
+        ? { delivery: 'base64' as const, data: Buffer.from(bytes).toString('base64') }
+        : {
+            delivery: 'artifact-reference' as const,
+            reference: {
+              kind: 'portal-captured-asset' as const,
+              planId: plan.planId,
+              captureHash: plan.design.artifactHash!,
+              assetManifestHash: plan.design.assetManifestHash!,
+              bytes: bytes.length,
+            },
+          }),
     });
   }
   return {

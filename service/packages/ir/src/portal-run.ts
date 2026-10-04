@@ -120,6 +120,26 @@ export const PortalRunSchema = z
     createdAt: z.iso.datetime(),
     updatedAt: z.iso.datetime(),
     deadlineAt: z.number().int().positive(),
+    nativeBudget: z
+      .object({
+        version: z.literal(1),
+        effect: z
+          .object({
+            deadlineAt: z.number().int().positive(),
+            attempts: z.number().int().min(1).max(8),
+          })
+          .strict()
+          .optional(),
+        recovery: z
+          .object({
+            deadlineAt: z.number().int().positive(),
+            attempts: z.number().int().min(1).max(4),
+          })
+          .strict()
+          .optional(),
+      })
+      .strict()
+      .optional(),
     leaseEpoch: z.number().int().nonnegative(),
     lease: z
       .object({

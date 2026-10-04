@@ -19,6 +19,7 @@ export const createCreateEffectStyleHandler =
       p.effects as SerializedEffect[],
       'create_effect_style',
     );
+    execution?.signal.throwIfAborted();
 
     const style = figmaCtx.createEffectStyle();
     execution?.markMutated?.();

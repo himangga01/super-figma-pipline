@@ -26,6 +26,7 @@ import {
   type WebSocketCtor,
 } from '../../ui/relay/client.js';
 import { ACTIVITY_LIMIT } from '../../ui/relay/state.js';
+import { createToolBridge } from '../../ui/sandbox/tool-bridge.js';
 
 interface FakeSocket {
   url: string;
@@ -157,6 +158,49 @@ const createBoundRequest = (
   });
 
 describe('RelayClient', () => {
+  it('forwards an actual inner bridge timeout as an uncertain result and settles activity', async () => {
+    const { WS, sockets } = buildFakeFactory(sock => {
+      sock.fireOpen();
+      const request = decodeEnvelope(sock.sent[0]!) as RequestEnvelope;
+      sock.fireReceive(
+        createResponse({ id: request.id, sessionId: request.sessionId, result: helloResult() }),
+      );
+    });
+    const bridge = createToolBridge({
+      timeoutMs: 5,
+      postMessage: () => {},
+      subscribe: () => () => {},
+    });
+    const client = new RelayClient({
+      ports: [3055],
+      clientVersion: '0.1.0',
+      WS,
+      scheduleDispatch: run => {
+        run();
+        return () => {};
+      },
+    });
+    client.setToolHandler(bridge.handler);
+    await client.connect();
+    sockets[0]!.fireReceive(
+      createBoundRequest({
+        id: 'inner-timeout',
+        sessionId: client.sessionId,
+        method: 'set_text',
+        params: { nodeId: '1:1', characters: 'After' },
+      }),
+    );
+    await vi.waitFor(() => expect(client.getState().activeCalls).toBe(0));
+    expect(client.getState().activity[0]?.status).toBe('outcome-unknown');
+    expect(decodeEnvelope(sockets[0]!.sent.at(-1)!)).toMatchObject({
+      kind: 'err',
+      id: 'inner-timeout',
+      error: { code: 'PLUGIN_OUTCOME_UNKNOWN' },
+    });
+    bridge.dispose();
+    await client.disconnect();
+  });
+
   it('routes a bound approval prompt to the UI and returns its exact decision without sandbox execution', async () => {
     const { WS, sockets } = buildFakeFactory(sock => {
       sock.fireOpen();
@@ -945,6 +989,11 @@ describe('RelayClient', () => {
 
     await client.disconnect();
     expect(cancel).toHaveBeenCalledTimes(2);
+    expect(client.getState().activity.map(entry => entry.status)).toEqual([
+      'outcome-unknown',
+      'outcome-unknown',
+    ]);
+    expect(client.getState().activeCalls).toBe(0);
     expect(
       client.sendProgress(
         {
@@ -1052,6 +1101,8 @@ describe('RelayClient', () => {
 
     expect(cancel).toHaveBeenCalledOnce();
     expect(cancel).toHaveBeenCalledWith(context);
+    expect(client.getState().activity[0]?.status).toBe('outcome-unknown');
+    expect(client.getState().activeCalls).toBe(0);
     expect(
       liveSock!.sent.some(bytes => {
         const envelope = decodeEnvelope(bytes);

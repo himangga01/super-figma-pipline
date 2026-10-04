@@ -1,0 +1,602 @@
+[
+  {
+    "path": "service/packages/cli/test/admin-commands.test.ts",
+    "depth": "full",
+    "notes": "Complete assigned test body read statically, lines 1-332 (11271 bytes). Assertions, fixtures, deferred/error paths and cleanup reviewed; no runtime execution. closure.capture assignment."
+  },
+  {
+    "path": "service/packages/cli/test/asset-program.test.ts",
+    "depth": "full",
+    "notes": "Complete assigned test body read statically, lines 1-188 (6703 bytes). Assertions, fixtures, deferred/error paths and cleanup reviewed; no runtime execution. closure.capture assignment."
+  },
+  {
+    "path": "service/packages/cli/test/browser-observation.test.ts",
+    "depth": "full",
+    "notes": "Complete assigned test body read statically, lines 1-63 (2904 bytes). Assertions, fixtures, deferred/error paths and cleanup reviewed; no runtime execution. closure.capture assignment."
+  },
+  {
+    "path": "service/packages/cli/test/browser-session.test.ts",
+    "depth": "full",
+    "notes": "Complete assigned test body read statically, lines 1-220 (9508 bytes). Assertions, fixtures, deferred/error paths and cleanup reviewed; no runtime execution. closure.capture assignment."
+  },
+  {
+    "path": "service/packages/cli/test/control-client-http.test.ts",
+    "depth": "full",
+    "notes": "Complete assigned test body read statically, lines 1-60 (2494 bytes). Assertions, fixtures, deferred/error paths and cleanup reviewed; no runtime execution. closure.capture assignment."
+  },
+  {
+    "path": "service/packages/cli/test/desktop-reader.test.ts",
+    "depth": "full",
+    "notes": "Complete assigned test body read statically, lines 1-114 (4518 bytes). Assertions, fixtures, deferred/error paths and cleanup reviewed; no runtime execution. closure.capture assignment."
+  },
+  {
+    "path": "service/packages/cli/test/recipe-compositions.test.ts",
+    "depth": "full",
+    "notes": "Complete assigned test body read statically, lines 1-125 (4427 bytes). Assertions, fixtures, deferred/error paths and cleanup reviewed; no runtime execution. closure.capture assignment."
+  },
+  {
+    "path": "service/packages/cli/test/recipe-design-system.test.ts",
+    "depth": "full",
+    "notes": "Complete assigned test body read statically, lines 1-134 (5221 bytes). Assertions, fixtures, deferred/error paths and cleanup reviewed; no runtime execution. closure.capture assignment."
+  },
+  {
+    "path": "service/packages/cli/test/recipe-helpers.test.ts",
+    "depth": "full",
+    "notes": "Complete assigned test body read statically, lines 1-255 (8676 bytes). Assertions, fixtures, deferred/error paths and cleanup reviewed; no runtime execution. closure.capture assignment."
+  },
+  {
+    "path": "service/packages/cli/test/recipe-scene-compositions.test.ts",
+    "depth": "full",
+    "notes": "Complete assigned test body read statically, lines 1-255 (9003 bytes). Assertions, fixtures, deferred/error paths and cleanup reviewed; no runtime execution. closure.capture assignment."
+  },
+  {
+    "path": "service/packages/cli/test/scripter-catalogs.test.ts",
+    "depth": "full",
+    "notes": "Complete assigned test body read statically, lines 1-333 (13278 bytes). Assertions, fixtures, deferred/error paths and cleanup reviewed; no runtime execution. closure.capture assignment."
+  },
+  {
+    "path": "service/packages/cli/test/scripter-reader.test.ts",
+    "depth": "full",
+    "notes": "Complete assigned test body read statically, lines 1-305 (10715 bytes). Assertions, fixtures, deferred/error paths and cleanup reviewed; no runtime execution. closure.capture assignment."
+  },
+  {
+    "path": "service/packages/mcp/test/portal/capture-admission.test.ts",
+    "depth": "full",
+    "notes": "Complete assigned test body read statically, lines 1-196 (7377 bytes). Assertions, fixtures, deferred/error paths and cleanup reviewed; no runtime execution. closure.capture assignment."
+  },
+  {
+    "path": "service/packages/mcp/test/portal/capture-plane.test.ts",
+    "depth": "full",
+    "notes": "Complete assigned test body read statically, lines 1-376 (13993 bytes). Assertions, fixtures, deferred/error paths and cleanup reviewed; no runtime execution. closure.capture assignment."
+  },
+  {
+    "path": "service/packages/mcp/test/portal/capture-session.test.ts",
+    "depth": "full",
+    "notes": "Complete assigned test body read statically, lines 1-341 (11383 bytes). Assertions, fixtures, deferred/error paths and cleanup reviewed; no runtime execution. closure.capture assignment."
+  },
+  {
+    "path": "service/packages/plugin/test/auth/pair-exchange.test.ts",
+    "depth": "full",
+    "notes": "Complete assigned test body read statically, lines 1-324 (12089 bytes). Assertions, fixtures, deferred/error paths and cleanup reviewed; no runtime execution. closure.capture assignment."
+  },
+  {
+    "path": "service/packages/plugin/test/components/panel-status.test.ts",
+    "depth": "full",
+    "notes": "Complete assigned test body read statically, lines 1-86 (3275 bytes). Assertions, fixtures, deferred/error paths and cleanup reviewed; no runtime execution. closure.capture assignment."
+  },
+  {
+    "path": "service/packages/plugin/test/components/panel-tabs.test.ts",
+    "depth": "full",
+    "notes": "Complete assigned test body read statically, lines 1-60 (2422 bytes). Assertions, fixtures, deferred/error paths and cleanup reviewed; no runtime execution. closure.capture assignment."
+  },
+  {
+    "path": "service/packages/plugin/test/components/tab-activity-row.test.ts",
+    "depth": "full",
+    "notes": "Complete assigned test body read statically, lines 1-284 (10842 bytes). Assertions, fixtures, deferred/error paths and cleanup reviewed; no runtime execution. closure.capture assignment."
+  },
+  {
+    "path": "service/packages/plugin/test/components/tab-panels.test.ts",
+    "depth": "full",
+    "notes": "Complete assigned test body read statically, lines 1-256 (9002 bytes). Assertions, fixtures, deferred/error paths and cleanup reviewed; no runtime execution. closure.capture assignment."
+  },
+  {
+    "path": "service/packages/plugin/test/components/ui-primitives.test.ts",
+    "depth": "full",
+    "notes": "Complete assigned test body read statically, lines 1-184 (6656 bytes). Assertions, fixtures, deferred/error paths and cleanup reviewed; no runtime execution. closure.capture assignment."
+  },
+  {
+    "path": "service/packages/plugin/test/composables/use-approvals.test.ts",
+    "depth": "full",
+    "notes": "Complete assigned test body read statically, lines 1-58 (2301 bytes). Assertions, fixtures, deferred/error paths and cleanup reviewed; no runtime execution. closure.capture assignment."
+  },
+  {
+    "path": "service/packages/plugin/test/composables/use-panel-window.test.ts",
+    "depth": "full",
+    "notes": "Complete assigned test body read statically, lines 1-120 (3779 bytes). Assertions, fixtures, deferred/error paths and cleanup reviewed; no runtime execution. closure.capture assignment."
+  },
+  {
+    "path": "service/packages/plugin/test/composables/use-relay-session.test.ts",
+    "depth": "full",
+    "notes": "Complete assigned test body read statically, lines 1-586 (19736 bytes). Assertions, fixtures, deferred/error paths and cleanup reviewed; no runtime execution. closure.capture assignment."
+  },
+  {
+    "path": "service/packages/plugin/test/file-identity-bootstrap-hello.test.ts",
+    "depth": "full",
+    "notes": "Complete assigned test body read statically, lines 1-52 (1808 bytes). Assertions, fixtures, deferred/error paths and cleanup reviewed; no runtime execution. closure.capture assignment."
+  },
+  {
+    "path": "service/packages/plugin/test/file-identity.test.ts",
+    "depth": "full",
+    "notes": "Complete assigned test body read statically, lines 1-91 (3125 bytes). Assertions, fixtures, deferred/error paths and cleanup reviewed; no runtime execution. closure.capture assignment."
+  },
+  {
+    "path": "service/packages/plugin/test/handlers/apply-style-to-node.test.ts",
+    "depth": "full",
+    "notes": "Complete assigned test body read statically, lines 1-48 (1581 bytes). Assertions, fixtures, deferred/error paths and cleanup reviewed; no runtime execution. closure.capture assignment."
+  },
+  {
+    "path": "service/packages/plugin/test/handlers/batch.test.ts",
+    "depth": "full",
+    "notes": "Complete assigned test body read statically, lines 1-647 (24061 bytes). Assertions, fixtures, deferred/error paths and cleanup reviewed; no runtime execution. closure.capture assignment."
+  },
+  {
+    "path": "service/packages/plugin/test/handlers/bind-variable-to-node.test.ts",
+    "depth": "full",
+    "notes": "Complete assigned test body read statically, lines 1-80 (2979 bytes). Assertions, fixtures, deferred/error paths and cleanup reviewed; no runtime execution. closure.capture assignment."
+  },
+  {
+    "path": "service/packages/plugin/test/handlers/combine-as-variants.test.ts",
+    "depth": "full",
+    "notes": "Complete assigned test body read statically, lines 1-79 (2988 bytes). Assertions, fixtures, deferred/error paths and cleanup reviewed; no runtime execution. closure.capture assignment."
+  },
+  {
+    "path": "service/packages/plugin/test/handlers/create-ellipse.test.ts",
+    "depth": "full",
+    "notes": "Complete assigned test body read statically, lines 1-63 (1928 bytes). Assertions, fixtures, deferred/error paths and cleanup reviewed; no runtime execution. closure.capture assignment."
+  },
+  {
+    "path": "service/packages/plugin/test/handlers/create-frame.test.ts",
+    "depth": "full",
+    "notes": "Complete assigned test body read statically, lines 1-85 (2520 bytes). Assertions, fixtures, deferred/error paths and cleanup reviewed; no runtime execution. closure.capture assignment."
+  },
+  {
+    "path": "service/packages/plugin/test/handlers/create-grid-style.test.ts",
+    "depth": "full",
+    "notes": "Complete assigned test body read statically, lines 1-88 (2934 bytes). Assertions, fixtures, deferred/error paths and cleanup reviewed; no runtime execution. closure.capture assignment."
+  },
+  {
+    "path": "service/packages/plugin/test/handlers/create-paint-style.test.ts",
+    "depth": "full",
+    "notes": "Complete assigned test body read statically, lines 1-107 (3639 bytes). Assertions, fixtures, deferred/error paths and cleanup reviewed; no runtime execution. closure.capture assignment."
+  },
+  {
+    "path": "service/packages/plugin/test/handlers/create-text-style.test.ts",
+    "depth": "full",
+    "notes": "Complete assigned test body read statically, lines 1-251 (11019 bytes). Assertions, fixtures, deferred/error paths and cleanup reviewed; no runtime execution. closure.capture assignment."
+  },
+  {
+    "path": "service/packages/plugin/test/handlers/delete-page.test.ts",
+    "depth": "full",
+    "notes": "Complete assigned test body read statically, lines 1-41 (1701 bytes). Assertions, fixtures, deferred/error paths and cleanup reviewed; no runtime execution. closure.capture assignment."
+  },
+  {
+    "path": "service/packages/plugin/test/handlers/delete-style.test.ts",
+    "depth": "full",
+    "notes": "Complete assigned test body read statically, lines 1-24 (1053 bytes). Assertions, fixtures, deferred/error paths and cleanup reviewed; no runtime execution. closure.capture assignment."
+  },
+  {
+    "path": "service/packages/plugin/test/handlers/detach-instance.test.ts",
+    "depth": "full",
+    "notes": "Complete assigned test body read statically, lines 1-27 (1276 bytes). Assertions, fixtures, deferred/error paths and cleanup reviewed; no runtime execution. closure.capture assignment."
+  },
+  {
+    "path": "service/packages/plugin/test/handlers/export-video.test.ts",
+    "depth": "full",
+    "notes": "Complete assigned test body read statically, lines 1-125 (4064 bytes). Assertions, fixtures, deferred/error paths and cleanup reviewed; no runtime execution. closure.capture assignment."
+  },
+  {
+    "path": "service/packages/plugin/test/handlers/find-replace-text.test.ts",
+    "depth": "full",
+    "notes": "Complete assigned test body read statically, lines 1-39 (1726 bytes). Assertions, fixtures, deferred/error paths and cleanup reviewed; no runtime execution. closure.capture assignment."
+  },
+  {
+    "path": "service/packages/plugin/test/handlers/get-annotations.test.ts",
+    "depth": "full",
+    "notes": "Complete assigned test body read statically, lines 1-78 (3248 bytes). Assertions, fixtures, deferred/error paths and cleanup reviewed; no runtime execution. closure.capture assignment."
+  },
+  {
+    "path": "service/packages/plugin/test/handlers/get-document.test.ts",
+    "depth": "full",
+    "notes": "Complete assigned test body read statically, lines 1-57 (2095 bytes). Assertions, fixtures, deferred/error paths and cleanup reviewed; no runtime execution. closure.capture assignment."
+  },
+  {
+    "path": "service/packages/plugin/test/handlers/get-fonts.test.ts",
+    "depth": "full",
+    "notes": "Complete assigned test body read statically, lines 1-102 (4025 bytes). Assertions, fixtures, deferred/error paths and cleanup reviewed; no runtime execution. closure.capture assignment."
+  },
+  {
+    "path": "service/packages/plugin/test/handlers/get-selection.test.ts",
+    "depth": "full",
+    "notes": "Complete assigned test body read statically, lines 1-55 (1880 bytes). Assertions, fixtures, deferred/error paths and cleanup reviewed; no runtime execution. closure.capture assignment."
+  },
+  {
+    "path": "service/packages/plugin/test/handlers/get-viewport.test.ts",
+    "depth": "full",
+    "notes": "Complete assigned test body read statically, lines 1-22 (748 bytes). Assertions, fixtures, deferred/error paths and cleanup reviewed; no runtime execution. closure.capture assignment."
+  },
+  {
+    "path": "service/packages/plugin/test/handlers/import-library-variable.test.ts",
+    "depth": "full",
+    "notes": "Complete assigned test body read statically, lines 1-39 (1417 bytes). Assertions, fixtures, deferred/error paths and cleanup reviewed; no runtime execution. closure.capture assignment."
+  },
+  {
+    "path": "service/packages/plugin/test/handlers/import-svg.test.ts",
+    "depth": "full",
+    "notes": "Complete assigned test body read statically, lines 1-72 (2304 bytes). Assertions, fixtures, deferred/error paths and cleanup reviewed; no runtime execution. closure.capture assignment."
+  },
+  {
+    "path": "service/packages/plugin/test/handlers/list-files.test.ts",
+    "depth": "full",
+    "notes": "Complete assigned test body read statically, lines 1-29 (1002 bytes). Assertions, fixtures, deferred/error paths and cleanup reviewed; no runtime execution. closure.capture assignment."
+  },
+  {
+    "path": "service/packages/plugin/test/handlers/lock-nodes.test.ts",
+    "depth": "full",
+    "notes": "Complete assigned test body read statically, lines 1-34 (1412 bytes). Assertions, fixtures, deferred/error paths and cleanup reviewed; no runtime execution. closure.capture assignment."
+  },
+  {
+    "path": "service/packages/plugin/test/handlers/rename-node.test.ts",
+    "depth": "full",
+    "notes": "Complete assigned test body read statically, lines 1-24 (1154 bytes). Assertions, fixtures, deferred/error paths and cleanup reviewed; no runtime execution. closure.capture assignment."
+  },
+  {
+    "path": "service/packages/plugin/test/handlers/rename-page.test.ts",
+    "depth": "full",
+    "notes": "Complete assigned test body read statically, lines 1-29 (1098 bytes). Assertions, fixtures, deferred/error paths and cleanup reviewed; no runtime execution. closure.capture assignment."
+  },
+  {
+    "path": "service/packages/plugin/test/handlers/reorder-nodes.test.ts",
+    "depth": "full",
+    "notes": "Complete assigned test body read statically, lines 1-36 (1297 bytes). Assertions, fixtures, deferred/error paths and cleanup reviewed; no runtime execution. closure.capture assignment."
+  },
+  {
+    "path": "service/packages/plugin/test/handlers/resize-nodes.test.ts",
+    "depth": "full",
+    "notes": "Complete assigned test body read statically, lines 1-31 (1270 bytes). Assertions, fixtures, deferred/error paths and cleanup reviewed; no runtime execution. closure.capture assignment."
+  },
+  {
+    "path": "service/packages/plugin/test/handlers/rotate-nodes.test.ts",
+    "depth": "full",
+    "notes": "Complete assigned test body read statically, lines 1-27 (1124 bytes). Assertions, fixtures, deferred/error paths and cleanup reviewed; no runtime execution. closure.capture assignment."
+  },
+  {
+    "path": "service/packages/plugin/test/handlers/scan-nodes-by-types.test.ts",
+    "depth": "full",
+    "notes": "Complete assigned test body read statically, lines 1-45 (1511 bytes). Assertions, fixtures, deferred/error paths and cleanup reviewed; no runtime execution. closure.capture assignment."
+  },
+  {
+    "path": "service/packages/plugin/test/handlers/scan-text-nodes.test.ts",
+    "depth": "full",
+    "notes": "Complete assigned test body read statically, lines 1-62 (1839 bytes). Assertions, fixtures, deferred/error paths and cleanup reviewed; no runtime execution. closure.capture assignment."
+  },
+  {
+    "path": "service/packages/plugin/test/handlers/search-nodes.test.ts",
+    "depth": "full",
+    "notes": "Complete assigned test body read statically, lines 1-76 (2650 bytes). Assertions, fixtures, deferred/error paths and cleanup reviewed; no runtime execution. closure.capture assignment."
+  },
+  {
+    "path": "service/packages/plugin/test/handlers/set-constraints.test.ts",
+    "depth": "full",
+    "notes": "Complete assigned test body read statically, lines 1-33 (1384 bytes). Assertions, fixtures, deferred/error paths and cleanup reviewed; no runtime execution. closure.capture assignment."
+  },
+  {
+    "path": "service/packages/plugin/test/handlers/set-corner-radius.test.ts",
+    "depth": "full",
+    "notes": "Complete assigned test body read statically, lines 1-64 (2735 bytes). Assertions, fixtures, deferred/error paths and cleanup reviewed; no runtime execution. closure.capture assignment."
+  },
+  {
+    "path": "service/packages/plugin/test/handlers/set-fills.test.ts",
+    "depth": "full",
+    "notes": "Complete assigned test body read statically, lines 1-127 (4524 bytes). Assertions, fixtures, deferred/error paths and cleanup reviewed; no runtime execution. closure.capture assignment."
+  },
+  {
+    "path": "service/packages/plugin/test/handlers/set-instance-properties.test.ts",
+    "depth": "full",
+    "notes": "Complete assigned test body read statically, lines 1-49 (1942 bytes). Assertions, fixtures, deferred/error paths and cleanup reviewed; no runtime execution. closure.capture assignment."
+  },
+  {
+    "path": "service/packages/plugin/test/handlers/set-opacity.test.ts",
+    "depth": "full",
+    "notes": "Complete assigned test body read statically, lines 1-25 (1244 bytes). Assertions, fixtures, deferred/error paths and cleanup reviewed; no runtime execution. closure.capture assignment."
+  },
+  {
+    "path": "service/packages/plugin/test/handlers/set-strokes.test.ts",
+    "depth": "full",
+    "notes": "Complete assigned test body read statically, lines 1-106 (3901 bytes). Assertions, fixtures, deferred/error paths and cleanup reviewed; no runtime execution. closure.capture assignment."
+  },
+  {
+    "path": "service/packages/plugin/test/handlers/set-text-properties.test.ts",
+    "depth": "full",
+    "notes": "Complete assigned test body read statically, lines 1-178 (6233 bytes). Assertions, fixtures, deferred/error paths and cleanup reviewed; no runtime execution. closure.capture assignment."
+  },
+  {
+    "path": "service/packages/plugin/test/handlers/set-variable-code-syntax.test.ts",
+    "depth": "full",
+    "notes": "Complete assigned test body read statically, lines 1-87 (3386 bytes). Assertions, fixtures, deferred/error paths and cleanup reviewed; no runtime execution. closure.capture assignment."
+  },
+  {
+    "path": "service/packages/plugin/test/handlers/set-variable-value.test.ts",
+    "depth": "full",
+    "notes": "Complete assigned test body read statically, lines 1-148 (6425 bytes). Assertions, fixtures, deferred/error paths and cleanup reviewed; no runtime execution. closure.capture assignment."
+  },
+  {
+    "path": "service/packages/plugin/test/handlers/set-visible.test.ts",
+    "depth": "full",
+    "notes": "Complete assigned test body read statically, lines 1-24 (1192 bytes). Assertions, fixtures, deferred/error paths and cleanup reviewed; no runtime execution. closure.capture assignment."
+  },
+  {
+    "path": "service/packages/plugin/test/handlers/ungroup-nodes.test.ts",
+    "depth": "full",
+    "notes": "Complete assigned test body read statically, lines 1-29 (1155 bytes). Assertions, fixtures, deferred/error paths and cleanup reviewed; no runtime execution. closure.capture assignment."
+  },
+  {
+    "path": "service/packages/plugin/test/handlers/update-paint-style.test.ts",
+    "depth": "full",
+    "notes": "Complete assigned test body read statically, lines 1-86 (3343 bytes). Assertions, fixtures, deferred/error paths and cleanup reviewed; no runtime execution. closure.capture assignment."
+  },
+  {
+    "path": "service/packages/plugin/test/idempotency.test.ts",
+    "depth": "full",
+    "notes": "Complete assigned test body read statically, lines 1-140 (5542 bytes). Assertions, fixtures, deferred/error paths and cleanup reviewed; no runtime execution. closure.capture assignment."
+  },
+  {
+    "path": "service/packages/plugin/test/identity-bootstrap.test.ts",
+    "depth": "full",
+    "notes": "Complete assigned test body read statically, lines 1-46 (2013 bytes). Assertions, fixtures, deferred/error paths and cleanup reviewed; no runtime execution. closure.capture assignment."
+  },
+  {
+    "path": "service/packages/plugin/test/mutation.test.ts",
+    "depth": "full",
+    "notes": "Complete assigned test body read statically, lines 1-141 (5489 bytes). Assertions, fixtures, deferred/error paths and cleanup reviewed; no runtime execution. closure.capture assignment."
+  },
+  {
+    "path": "service/packages/plugin/test/protocol/editor-context.test.ts",
+    "depth": "full",
+    "notes": "Complete assigned test body read statically, lines 1-85 (3779 bytes). Assertions, fixtures, deferred/error paths and cleanup reviewed; no runtime execution. closure.capture assignment."
+  },
+  {
+    "path": "service/packages/plugin/test/protocol/panel-control.test.ts",
+    "depth": "full",
+    "notes": "Complete assigned test body read statically, lines 1-119 (4811 bytes). Assertions, fixtures, deferred/error paths and cleanup reviewed; no runtime execution. closure.capture assignment."
+  },
+  {
+    "path": "service/packages/plugin/test/relay/client.test.ts",
+    "depth": "full",
+    "notes": "Complete assigned test body read statically, lines 1-1418 (49239 bytes). Assertions, fixtures, deferred/error paths and cleanup reviewed; no runtime execution. closure.capture assignment."
+  },
+  {
+    "path": "service/packages/plugin/test/relay/payload.test.ts",
+    "depth": "full",
+    "notes": "Complete assigned test body read statically, lines 1-63 (3097 bytes). Assertions, fixtures, deferred/error paths and cleanup reviewed; no runtime execution. closure.capture assignment."
+  },
+  {
+    "path": "service/packages/plugin/test/relay/state.test.ts",
+    "depth": "full",
+    "notes": "Complete assigned test body read statically, lines 1-161 (5626 bytes). Assertions, fixtures, deferred/error paths and cleanup reviewed; no runtime execution. closure.capture assignment."
+  },
+  {
+    "path": "service/packages/plugin/test/reveal.test.ts",
+    "depth": "full",
+    "notes": "Complete assigned test body read statically, lines 1-219 (6920 bytes). Assertions, fixtures, deferred/error paths and cleanup reviewed; no runtime execution. closure.capture assignment."
+  },
+  {
+    "path": "service/packages/plugin/test/sandbox/commands.test.ts",
+    "depth": "full",
+    "notes": "Complete assigned test body read statically, lines 1-95 (2705 bytes). Assertions, fixtures, deferred/error paths and cleanup reviewed; no runtime execution. closure.capture assignment."
+  },
+  {
+    "path": "service/packages/plugin/test/sandbox/messaging.test.ts",
+    "depth": "full",
+    "notes": "Complete assigned test body read statically, lines 1-137 (4146 bytes). Assertions, fixtures, deferred/error paths and cleanup reviewed; no runtime execution. closure.capture assignment."
+  },
+  {
+    "path": "service/packages/plugin/test/sandbox/tool-bridge.test.ts",
+    "depth": "full",
+    "notes": "Complete assigned test body read statically, lines 1-205 (6547 bytes). Assertions, fixtures, deferred/error paths and cleanup reviewed; no runtime execution. closure.capture assignment."
+  },
+  {
+    "path": "service/packages/plugin/test/serializer.test.ts",
+    "depth": "full",
+    "notes": "Complete assigned test body read statically, lines 1-1536 (50172 bytes). Assertions, fixtures, deferred/error paths and cleanup reviewed; no runtime execution. closure.capture assignment."
+  },
+  {
+    "path": "service/packages/plugin/test/variable-binding-coverage.test.ts",
+    "depth": "full",
+    "notes": "Complete assigned test body read statically, lines 1-78 (4242 bytes). Assertions, fixtures, deferred/error paths and cleanup reviewed; no runtime execution. closure.capture assignment."
+  },
+  {
+    "path": "service/packages/plugin/src/serializer.ts",
+    "depth": "targeted",
+    "notes": "Production countercheck body ranges actually read: 135-230, 235-403, 482-724. Not read in this round: 1-134, 231-234, 404-481, 725-845. Total 845 lines. No runtime execution; round-one production census is separate."
+  },
+  {
+    "path": "service/packages/plugin/src/handlers/set-text-range.ts",
+    "depth": "full",
+    "notes": "Complete production body read statically, lines 1-158; independent capture/plugin/CLI counterchecks, no runtime execution."
+  },
+  {
+    "path": "service/packages/shared/src/figma-capture-read.ts",
+    "depth": "targeted",
+    "notes": "Production countercheck body ranges actually read: 98-248, 250-284, 430-471, 498-529. Not read in this round: 1-97, 249, 285-429, 472-497, 530-596. Total 596 lines. No runtime execution; round-one production census is separate."
+  },
+  {
+    "path": "service/packages/cli/src/read-program.ts",
+    "depth": "full",
+    "notes": "Complete production body read statically, lines 1-8; independent capture/plugin/CLI counterchecks, no runtime execution."
+  },
+  {
+    "path": "service/packages/plugin/src/handlers/portal-capture-read.ts",
+    "depth": "full",
+    "notes": "Complete production body read statically, lines 1-20; independent capture/plugin/CLI counterchecks, no runtime execution."
+  },
+  {
+    "path": "service/packages/mcp/src/portal/design-normalization.ts",
+    "depth": "targeted",
+    "notes": "Production countercheck body ranges actually read: 1-110, 290-319, 590-618. Not read in this round: 111-289, 320-589, 619-738. Total 738 lines. No runtime execution; round-one production census is separate."
+  },
+  {
+    "path": "service/packages/plugin/src/handlers/convert.ts",
+    "depth": "full",
+    "notes": "Complete production body read statically, lines 1-104; independent capture/plugin/CLI counterchecks, no runtime execution."
+  },
+  {
+    "path": "service/packages/plugin/src/handlers/get-reactions.ts",
+    "depth": "full",
+    "notes": "Complete production body read statically, lines 1-88; independent capture/plugin/CLI counterchecks, no runtime execution."
+  },
+  {
+    "path": "service/packages/plugin/src/handlers/set-reactions.ts",
+    "depth": "full",
+    "notes": "Complete production body read statically, lines 1-28; independent capture/plugin/CLI counterchecks, no runtime execution."
+  },
+  {
+    "path": "service/packages/mcp/src/tools/set-reactions.ts",
+    "depth": "full",
+    "notes": "Complete production body read statically, lines 1-38; independent capture/plugin/CLI counterchecks, no runtime execution."
+  },
+  {
+    "path": "service/packages/plugin/src/handlers/set-text.ts",
+    "depth": "full",
+    "notes": "Complete production body read statically, lines 1-30; independent capture/plugin/CLI counterchecks, no runtime execution."
+  },
+  {
+    "path": "service/packages/plugin/src/handlers/clone-node.ts",
+    "depth": "full",
+    "notes": "Complete production body read statically, lines 1-27; independent capture/plugin/CLI counterchecks, no runtime execution."
+  },
+  {
+    "path": "service/packages/plugin/src/cancellation.ts",
+    "depth": "full",
+    "notes": "Complete production body read statically, lines 1-24; independent capture/plugin/CLI counterchecks, no runtime execution."
+  },
+  {
+    "path": "service/packages/mcp/src/portal/chrome-transport.ts",
+    "depth": "full",
+    "notes": "Complete production body read statically, lines 1-227; independent capture/plugin/CLI counterchecks, no runtime execution."
+  },
+  {
+    "path": "service/packages/mcp/src/portal/design-evidence.ts",
+    "depth": "full",
+    "notes": "Complete production body read statically, lines 1-198; independent capture/plugin/CLI counterchecks, no runtime execution."
+  },
+  {
+    "path": "service/packages/cli/src/portal-commands.ts",
+    "depth": "full",
+    "notes": "Complete production body read statically, lines 1-211; independent capture/plugin/CLI counterchecks, no runtime execution."
+  },
+  {
+    "path": "service/packages/shared/src/design-context-dedupe.ts",
+    "depth": "full",
+    "notes": "Complete production body read statically, lines 1-274; independent capture/plugin/CLI counterchecks, no runtime execution."
+  },
+  {
+    "path": "service/packages/mcp/src/portal/interaction-evidence.ts",
+    "depth": "full",
+    "notes": "Complete production body read statically, lines 1-233; independent capture/plugin/CLI counterchecks, no runtime execution."
+  },
+  {
+    "path": "service/packages/mcp/src/portal/observation-manifest.ts",
+    "depth": "full",
+    "notes": "Complete production body read statically, lines 1-128; independent capture/plugin/CLI counterchecks, no runtime execution."
+  },
+  {
+    "path": "service/packages/plugin/src/handlers/batch.ts",
+    "depth": "full",
+    "notes": "Complete production body read statically, lines 1-516; independent capture/plugin/CLI counterchecks, no runtime execution."
+  },
+  {
+    "path": "service/packages/plugin/src/mutation.ts",
+    "depth": "targeted",
+    "notes": "Production countercheck body ranges actually read: 271-453. Not read in this round: 1-270. Total 453 lines. No runtime execution; round-one production census is separate."
+  },
+  {
+    "path": "service/packages/mcp/src/relay/relay.ts",
+    "depth": "targeted",
+    "notes": "Production countercheck body ranges actually read: 185-220, 750-780. Not read in this round: 1-184, 221-749, 781-992. Total 992 lines. No runtime execution; round-one production census is separate."
+  },
+  {
+    "path": "service/packages/mcp/src/execution/operation-executor.ts",
+    "depth": "targeted",
+    "notes": "Production countercheck body ranges actually read: 1700-1785. Not read in this round: 1-1699, 1786-2267. Total 2267 lines. No runtime execution; round-one production census is separate."
+  },
+  {
+    "path": "service/packages/plugin/src/handlers/get-design-context.ts",
+    "depth": "targeted",
+    "notes": "Production countercheck body ranges actually read: 770-792. Not read in this round: 1-769. Total 792 lines. No runtime execution; round-one production census is separate."
+  },
+  {
+    "path": "service/packages/plugin/ui/relay/client.ts",
+    "depth": "targeted",
+    "notes": "Production countercheck body ranges actually read: 900-935, 1095-1140, 1245-1280. Not read in this round: 1-899, 936-1094, 1141-1244, 1281-1305. Total 1305 lines. No runtime execution; round-one production census is separate."
+  },
+  {
+    "path": "service/packages/mcp/src/tools/paint-schema.ts",
+    "depth": "full",
+    "notes": "Complete production body read statically, lines 1-47; independent capture/plugin/CLI counterchecks, no runtime execution."
+  },
+  {
+    "path": "service/packages/plugin/src/handlers/rename-node.ts",
+    "depth": "full",
+    "notes": "Complete production body read statically, lines 1-18; independent capture/plugin/CLI counterchecks, no runtime execution."
+  },
+  {
+    "path": "service/packages/plugin/src/handlers/set-annotations.ts",
+    "depth": "full",
+    "notes": "Complete production body read statically, lines 1-140; independent capture/plugin/CLI counterchecks, no runtime execution."
+  },
+  {
+    "path": "service/packages/plugin/src/dispatcher.ts",
+    "depth": "full",
+    "notes": "Complete production body read statically, lines 1-108; independent capture/plugin/CLI counterchecks, no runtime execution."
+  },
+  {
+    "path": "service/packages/plugin/src/handlers/create-variable.ts",
+    "depth": "full",
+    "notes": "Complete production body read statically, lines 1-134; independent capture/plugin/CLI counterchecks, no runtime execution."
+  },
+  {
+    "path": "service/packages/cli/src/browser-session.ts",
+    "depth": "full",
+    "notes": "Complete production body read statically, lines 1-236; independent capture/plugin/CLI counterchecks, no runtime execution."
+  },
+  {
+    "path": "AGENTS.md",
+    "depth": "full",
+    "notes": "Complete document snapshot read, lines 1-8. Review-only instructions/dispositions/planned fixes; no implementation claim."
+  },
+  {
+    "path": "docs/reviews/2026-09-30-full-review/review-brief.md",
+    "depth": "full",
+    "notes": "Complete document snapshot read, lines 1-30. Review-only instructions/dispositions/planned fixes; no implementation claim."
+  },
+  {
+    "path": "docs/reviews/2026-09-30-full-review/round-1-main-disposition.md",
+    "depth": "full",
+    "notes": "Complete document snapshot read, lines 1-64. Review-only instructions/dispositions/planned fixes; no implementation claim."
+  },
+  {
+    "path": "docs/reviews/2026-09-30-full-review/main-verification-notes.md",
+    "depth": "full",
+    "notes": "Complete document snapshot read, lines 1-68. Review-only instructions/dispositions/planned fixes; no implementation claim. Appended notes through line 68 were reread."
+  },
+  {
+    "path": "docs/plans/2026-09-30-code-remediation-plan.md",
+    "depth": "full",
+    "notes": "Complete document snapshot read, lines 1-196. Review-only instructions/dispositions/planned fixes; no implementation claim. Revised M10-M13 and completion through line 196 were reread."
+  },
+  {
+    "path": "docs/reviews/2026-09-30-full-review/round-2-closure-assignments.json",
+    "depth": "metadata",
+    "notes": "Parsed closure.capture assignment and all 83 paths/line counts/byte counts; not a complete body review of other lane assignments. Compared complete read-range unions for every assigned file: no gaps."
+  }
+]

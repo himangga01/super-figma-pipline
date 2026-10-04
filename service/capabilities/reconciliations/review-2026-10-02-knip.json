@@ -1,0 +1,104 @@
+{
+  "schemaVersion": 1,
+  "slice": "review-2026-10-02",
+  "baseline": {
+    "headCommit": "db821db346e7cb5dd27e4df465b91bb106e2f2b3",
+    "authoritySha256": {
+      "upstream-lock.json": "985243b8fcc17e4e4b5dbb7a41eb3215d4e5f59775f2e01afe6b52e02f3a9f7c",
+      "vendor-map.json": "b3275c7d8b997d1cfe723d97594659f77d7b4361b824a790bcfdd7ff762589bd",
+      "vendor-rules.json": "a9e9098b4fc56525553182839e7a4a813a0fd6b24f8bf90c2330ce157e6ec097"
+    }
+  },
+  "entries": [
+    {
+      "path": "capabilities/task-review-2026-10-02-authority-classes.json",
+      "sha256": "7b761177521d5e1199ba7a91a291dc23918187717a99d1406a03caffd4eb8a4a",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "38bd97c0ec6770956749665e227fcd7614f54c9ccad5d8d59e5944d935004ab8"
+        },
+        {
+          "class": "protected",
+          "sha256": "38bd97c0ec6770956749665e227fcd7614f54c9ccad5d8d59e5944d935004ab8"
+        }
+      ],
+      "reason": "Reviewed owner repair of actual full gate Knip findings: remove the unused resource export and preserve native directory recovery behavior without duplicate exports; no verifier suppression."
+    },
+    {
+      "path": "packages/mcp/src/portal/native-directory-creation.ts",
+      "sha256": "ed112d6e3ef0d8ab83ad5142bfae123e74a020749dc500c315fbf2583011ee0e",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "474813f032bd54140a65d884ae64c7d32731bca3b2c2df1873b4c5c11e0b73a4"
+        },
+        {
+          "class": "protected",
+          "sha256": "474813f032bd54140a65d884ae64c7d32731bca3b2c2df1873b4c5c11e0b73a4"
+        }
+      ],
+      "reason": "Reviewed owner repair of actual full gate Knip findings: remove the unused resource export and preserve native directory recovery behavior without duplicate exports; no verifier suppression."
+    },
+    {
+      "path": "packages/mcp/src/portal/native-lifecycle.ts",
+      "sha256": "972a98614237cf669f3767ded1eef3b20740ac67c580f369733d565100304ddb",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "803e887bdf74d7204444a73056954326283f7f3797378a3a98964a7a837d1b02"
+        },
+        {
+          "class": "protected",
+          "sha256": "803e887bdf74d7204444a73056954326283f7f3797378a3a98964a7a837d1b02"
+        }
+      ],
+      "reason": "Reviewed owner repair of actual full gate Knip findings: remove the unused resource export and preserve native directory recovery behavior without duplicate exports; no verifier suppression."
+    },
+    {
+      "path": "packages/mcp/src/portal/native-work.ts",
+      "sha256": "8c5c85129fbfcf93bb6489c6963397a7d140a45bf0f37bc44f66ad9b1389a470",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "0f249a8f247e57a7ad1f2e702b2745d8d91e84da2981ea31af4d6a354432e007"
+        },
+        {
+          "class": "protected",
+          "sha256": "0f249a8f247e57a7ad1f2e702b2745d8d91e84da2981ea31af4d6a354432e007"
+        }
+      ],
+      "reason": "Reviewed owner repair of actual full gate Knip findings: remove the unused resource export and preserve native directory recovery behavior without duplicate exports; no verifier suppression."
+    },
+    {
+      "path": "packages/mcp/src/portal/recipes/core-preparation.ts",
+      "sha256": "3362222304762dc9b7c987fd50ffc02bddd1902b5aa114c6fe450b713110537f",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "e238f89a0994442bd344b8b0e588f364d002ca237e50cba0f77d5220b04b1688"
+        },
+        {
+          "class": "protected",
+          "sha256": "e238f89a0994442bd344b8b0e588f364d002ca237e50cba0f77d5220b04b1688"
+        }
+      ],
+      "reason": "Reviewed owner repair of actual full gate Knip findings: remove the unused resource export and preserve native directory recovery behavior without duplicate exports; no verifier suppression."
+    },
+    {
+      "path": "packages/mcp/test/portal/native-directory-creation.test.ts",
+      "sha256": "e7f85f5534613b2e2f15fc2228af3ea5fbc19d90994100aed60323ed0ca796ed",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "463478e418285ff39178f570faf8e0cb47c2fbe86c6bdc37eb4fc619d3ad0cc6"
+        },
+        {
+          "class": "protected",
+          "sha256": "463478e418285ff39178f570faf8e0cb47c2fbe86c6bdc37eb4fc619d3ad0cc6"
+        }
+      ],
+      "reason": "Reviewed owner repair of actual full gate Knip findings: remove the unused resource export and preserve native directory recovery behavior without duplicate exports; no verifier suppression."
+    }
+  ]
+}

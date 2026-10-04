@@ -25,6 +25,33 @@ const repository = async (members: Record<string, string | Buffer>) => {
 afterEach(async () => {
   for (const root of roots.splice(0)) await rm(root, { recursive: true, force: true });
 });
+it('binds required local CSS imports inside generated directories without indexing unrelated output', async () => {
+  const root = await repository({
+    'src/app.css': '@import "../dist/tokens.css"; :root {--own: red;}',
+    'dist/tokens.css': ':root {--imported: blue;}',
+    'dist/unused.css': ':root {--unused: green;}',
+  });
+  const first = await collectPortalSourceInventory(new RepoReader({ rootDir: root }));
+  expect(first.complete).toBe(true);
+  expect(first.files.map(file => file.path)).toEqual(['dist/tokens.css', 'src/app.css']);
+  const graph = await analyzeServiceGraph(new RepoReader({ rootDir: root }));
+  expect(graph.incomplete).toBe(false);
+  expect(graph.files.some(file => file.path === 'dist/tokens.css')).toBe(true);
+  await writeFile(join(root, 'dist/tokens.css'), ':root {--imported: purple;}');
+  const changed = await collectPortalSourceInventory(new RepoReader({ rootDir: root }));
+  expect(changed.hash).not.toBe(first.hash);
+});
+it('keeps unsupported and credential CSS dependencies explicitly incomplete', async () => {
+  for (const css of ['@import var(--stylesheet);', '@import "../secrets/tokens.css";']) {
+    const root = await repository({
+      'src/app.css': css,
+      'secrets/tokens.css': ':root {--secret: private;}',
+    });
+    const result = await collectPortalSourceInventory(new RepoReader({ rootDir: root }));
+    expect(result.complete).toBe(false);
+    expect(result.files.map(file => file.path)).not.toContain('secrets/tokens.css');
+  }
+});
 
 it('does not raise an explicit caller byte budget during isolated inventory reads', async () => {
   const root = await repository({ 'a.bin': 'aaa', 'b.bin': 'bbb' });

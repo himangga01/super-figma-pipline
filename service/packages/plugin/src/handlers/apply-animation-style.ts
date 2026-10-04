@@ -10,7 +10,7 @@ import { assertFigmaEditor, isMotionNode } from './motion-shared.js';
  */
 export const createApplyAnimationStyleHandler =
   (figmaCtx: typeof figma): SandboxToolHandler =>
-  async params => {
+  async (params, execution) => {
     const p = (params ?? {}) as { nodeId?: unknown; styleId?: unknown; config?: unknown };
     if (typeof p.nodeId !== 'string') {
       throw new TypeError('apply_animation_style: nodeId must be a string');
@@ -23,6 +23,7 @@ export const createApplyAnimationStyleHandler =
     }
     assertFigmaEditor(figmaCtx, 'apply_animation_style');
     const node = await figmaCtx.getNodeByIdAsync(p.nodeId);
+    execution?.signal.throwIfAborted();
     if (node === null || !isMotionNode(node)) {
       throw new Error(
         `apply_animation_style: node ${p.nodeId} not found or does not support Motion`,
@@ -32,6 +33,7 @@ export const createApplyAnimationStyleHandler =
       p.styleId,
       p.config as AnimationStyleConfiguration | undefined,
     );
+    execution?.recordOwnedWrite?.(node, ['animationStyles']);
     const result: ApplyAnimationStyleResult = { ok: true, nodeId: node.id, appliedStyleId };
     return result;
   };

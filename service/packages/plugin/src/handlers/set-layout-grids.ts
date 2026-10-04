@@ -12,7 +12,7 @@ import { toFigmaLayoutGridsBound } from './bindings.js';
  */
 export const createSetLayoutGridsHandler =
   (figmaCtx: typeof figma): SandboxToolHandler =>
-  async params => {
+  async (params, execution) => {
     const p = (params ?? {}) as { nodeId?: unknown; grids?: unknown };
     if (typeof p.nodeId !== 'string') {
       throw new TypeError('set_layout_grids: nodeId must be a string');
@@ -22,17 +22,22 @@ export const createSetLayoutGridsHandler =
     }
 
     const node = await figmaCtx.getNodeByIdAsync(p.nodeId);
+
+    execution?.signal.throwIfAborted();
     if (node === null || !('layoutGrids' in node)) {
       throw new Error(
         `set_layout_grids: node ${p.nodeId} not found or does not support layout grids`,
       );
     }
 
-    (node as BaseFrameMixin).layoutGrids = await toFigmaLayoutGridsBound(
+    const value = await toFigmaLayoutGridsBound(
       figmaCtx,
       p.grids as SerializedLayoutGrid[],
       'set_layout_grids',
     );
+    execution?.signal.throwIfAborted();
+    (node as BaseFrameMixin).layoutGrids = value;
+    execution?.markMutated?.();
 
     const result: MutateResult = { ok: true, nodeId: node.id };
     return result;

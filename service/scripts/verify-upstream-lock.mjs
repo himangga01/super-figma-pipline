@@ -4,6 +4,8 @@ import { lstat, readFile, readdir, stat } from 'node:fs/promises';
 import { dirname, join, posix, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
+import { validateLockSchema } from './upstream-lock-schema.mjs';
+
 const serviceRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const repositoryRoot = resolve(serviceRoot, '..');
 const lockPath = join(serviceRoot, 'upstream-lock.json');
@@ -84,6 +86,11 @@ const verifyLockV2Schema = async lock => {
     'upstream-lock-v2.schema.json contract is incomplete',
   );
   assertExactKeys(lock, expectedTopLevel, 'upstream-lock.json');
+  const schemaErrors = validateLockSchema(schema, lock);
+  assert(
+    schemaErrors.length === 0,
+    `upstream-lock.json schema mismatch: ${schemaErrors.join('; ')}`,
+  );
   assertExactKeys(lock.vendorMap, ['path', 'sha256', 'counts'], 'upstream-lock.json.vendorMap');
   assertExactKeys(
     lock.vendorMap.counts,

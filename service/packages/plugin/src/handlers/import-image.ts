@@ -1,6 +1,7 @@
 import type { CreateResult } from '@sfp/shared';
 
 import type { SandboxToolHandler } from '../dispatcher.js';
+import { CREATED_NODE_PROPERTY } from './batch-created.js';
 import { placeNode } from './place.js';
 
 const SCALE_MODES = ['FILL', 'FIT', 'CROP', 'TILE'] as const;
@@ -37,19 +38,33 @@ export const createImportImageHandler =
 
     const image = figmaCtx.createImage(figmaCtx.base64Decode(data));
     const size = await image.getSizeAsync();
+    execution?.signal.throwIfAborted();
 
     const rect = figmaCtx.createRectangle();
+    execution?.recordOwnedWrite?.(rect, [CREATED_NODE_PROPERTY]);
     execution?.markMutated?.();
-    if (typeof p.name === 'string') rect.name = p.name;
+    if (typeof p.name === 'string') {
+      rect.name = p.name;
+      execution?.recordOwnedWrite?.(rect, ['name']);
+    }
     rect.resize(
       typeof p.width === 'number' ? p.width : size.width,
       typeof p.height === 'number' ? p.height : size.height,
     );
-    if (typeof p.x === 'number') rect.x = p.x;
-    if (typeof p.y === 'number') rect.y = p.y;
+    execution?.recordOwnedWrite?.(rect, ['width', 'height']);
+    if (typeof p.x === 'number') {
+      rect.x = p.x;
+      execution?.recordOwnedWrite?.(rect, ['x']);
+    }
+    if (typeof p.y === 'number') {
+      rect.y = p.y;
+      execution?.recordOwnedWrite?.(rect, ['y']);
+    }
     rect.fills = [{ type: 'IMAGE', scaleMode, imageHash: image.hash }];
+    execution?.recordOwnedWrite?.(rect, ['fills']);
 
-    await placeNode(figmaCtx, rect, p.parentId, 'import_image');
+    await placeNode(figmaCtx, rect, p.parentId, 'import_image', execution);
+    execution?.signal.throwIfAborted();
 
     const result: CreateResult = { ok: true, nodeId: rect.id, name: rect.name, type: rect.type };
     return result;

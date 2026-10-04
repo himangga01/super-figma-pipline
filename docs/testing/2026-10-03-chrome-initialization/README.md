@@ -1,0 +1,50 @@
+# Chrome approval and Playwright initialization
+
+Date: October 3, 2026 (Asia/Seoul).
+
+## Executed observation
+
+The owner reported that Chrome access was allowed. The existing service daemon returned `browserConnection: connected`, but a fresh service-owned `portal plan` did not acquire the design. Plan `sfp_portal1_38a5dee1a689843973ab7ad4f22ddcf6` failed its connection stage after 300,009 ms. Its [recorded result](failed-plan.json) retains `complete: false`, `liveVerified: false` and blocked core recipes. A successful plan record is not successful collection or frontend acceptance.
+
+Inspection found that the status used the relay WebSocket state directly. An accepted socket could therefore appear connected before Playwright had initialized its browser object. The original failure category also always requested Chrome permission, including initialization failures after socket approval. These observations establish a diagnostic defect; they do not establish the underlying cause of the live initialization stall.
+
+A separate service CLI `chrome-tabs` request with a 30-second connection budget did not complete its new connection handshake. Its method-only protocol trace contained no sent CDP command. This was a distinct connection and does not prove that the already approved relay had lost permission. No Codex browser or external Figma connector was used.
+
+## Implemented repair
+
+- Report `initializing` when the remote socket is open but Playwright is not ready. Reserve `connected` for a live, initialized Playwright browser.
+- Preserve `CHROME_INITIALIZATION_TIMEOUT` as a public capture-error category when the approved transport fails browser initialization.
+- Retain bounded protocol-method diagnostics after the local caller disconnects: command/response counts, pending method names and reset count. Parameters, headers, URLs and response bodies are excluded. No arbitrary browser evaluation or automatic security approval was added.
+- Regenerate the public `portal_plan` and `portal_next` contracts for the additional diagnostic category.
+
+The patched daemon was built and started with build identity `sha256:9b66cc244327b721f3abe510f9726a37a9f44cd5478b3d59cbc7aded9f6f9bfb`. Its new source connection reported `awaiting-browser` at 14:33 KST. The owner was asked to allow this new connection because restarting the daemon creates another Chrome permission request. The source Chrome process and tabs were not closed. This historical daemon was later replaced by the builds described below.
+
+The second plan, `sfp_portal1_9755d6f181b0d77aa1f2474401f38ba0`, exhausted its 300,013 ms connection budget while the new connection still awaited browser admission. This is a distinct pending-permission outcome, not evidence that the patched initialization diagnostics resolved the first stall. The retained permission request survives the plan's logical timeout; do not restart the daemon merely because this plan ended.
+
+## Verification and limits
+
+The [initial focused run](initial-tests.json) recorded 35 passes and one failure: the new diagnostic test checked reset responses before the server had processed the disconnect. The test was corrected to wait for the actual terminal diagnostic observation. The [rerun](focused-tests.json) passed all 36 tests with no skips, including the installed-Chrome reconnect fixture. The [capture-error suite](capture-error-tests.json) passed four tests. CLI, MCP and shared-package typechecks, scoped lint and both executable builds passed. All four generated contract artifacts passed their consistency check after regeneration.
+
+The [source checkpoint](source-checkpoint.json) records matching main and native working-copy fingerprints at `sha256:f6d88cda8bcbcf299ad020c8b308f7ddea20d99d0e7540fc32f6f063f1a7b8dc`. This includes the regenerated contract metadata and additional capture-error test after the executable builds. Full source/package/release verification and upstream reconciliation have not been repeated for this checkpoint. The main Git index remains unchanged. Native validation runs with the Windows owner's filesystem and network privileges, not an OS sandbox.
+
+No fresh complete portal capture, generated frontend candidate, guarded application or applied frontend validation was obtained during this attempt. The previous [independent Chrome/Scripter comparison](../2026-10-02-chrome-parity/README.md) remains recorded evidence, not a substitute for this failed live portal capture. Finish the CDD workflow and earlier case/review gates first, then run the [final eCommerce acceptance](../2026-10-02-final-figma-preparation/README.md) with both service-owned acquisition methods and separate new frontend outputs.
+
+## Later continuation: selected-source attachment and typography
+
+After the next owner approval, plan `sfp_portal1_93adc86994d976f0591fc779728e47a2` again timed out after 300,021 ms. The diagnostic recorded 158 submitted CDP commands, 948 received responses/events, and outstanding page initialization methods. This demonstrated protocol exchange after approval rather than an unanswered browser permission request. Playwright's browser initialization awaited all attached pages.
+
+The relay now discovers the requested Figma file, requires exactly one matching page, and initializes that page. Its final implementation uses a flat `Target.attachToTarget` session, explicitly detaches only owned debugger sessions, and retires an unsettled attachment instead of replaying an unknown outcome. A source switch reuses the approved remote socket after releasing the previous local view. Switching while a source acquisition is active returns `CHROME_SOURCE_BUSY`. Nested iframe/worker attachment remains owned by the page session. Missing/ambiguous targets remain errors, and user tabs are not closed. The ordinary standalone CLI attachment path has not yet been migrated to this selected-source connection implementation.
+
+The earlier `Target.autoAttachRelated` version produced live plan `sfp_portal1_8e23b0b3e4d48bdc43e6a3b429aa402d`. The final flat-attachment version produced `sfp_portal1_d5713cc612b65417b72921ada6933d7c`. Both actually collected 192 nodes and all 25 requested assets, with `liveVerified: true`, but remained `complete: false`. Normalization identified 16 text-style font issues. The second capture recorded that these values were the actual `figma.mixed` symbol, not an arbitrary serialized string. [Figma's published TextStyle contract](https://developers.figma.com/docs/plugins/api/TextStyle/) declares a FontName object; the live source therefore differs from that documented shape. No cause for that API behavior has been established.
+
+An exact-ID `getStyleByIdAsync` reread was added, accepting a recovered font only when the style identity and TEXT type match. The actual subsequent capture, `sfp_portal1_ab22e4dc3e18aaf1925ae3d433c5a0ab`, still retained all 16 mixed values. The collected text nodes contain concrete effective fonts in their character segments. The normalizer is being extended to preserve a verified mixed catalog value while requiring a concrete node font or complete, contiguous, concrete-font segments for every affected text node in scope. It must not fill catalog values from the native collector or one consumer. Unverified sentinel strings and incomplete effective typography remain partial. A fresh signed capture with this normalization change is still required.
+
+Separate service-module diagnostic attempts exposed failures when reopening the existing Scripter UI. These are retained failures, not successful capture receipts. Plugin search now restores editor focus through the visible Main menu before its shortcut, with the Actions button as a secondary entry point. Portal snapshot failures retain editor diagnostics in the owned capture folder, so further diagnosis can use the daemon's connection. Diagnostic frame metadata omits URL query strings and data-URL contents. No Codex browser controller or Figma connector was used. Web documentation was read only to check the published API contract, not to collect acceptance data.
+
+The [scoped live observations](scoped-live-observations.json) distinguish the successful-but-partial captures from initialization and snapshot timeouts. The [scoped capture tests](scoped-capture-tests.json) record 129 passes with no failures or skips before the final typography-normalization change. Tests include installed Chrome with a confirmed out-of-process iframe, source switching, missing/ambiguous sources, incomplete attachments, Scripter entry points and capture coherence. An initial URL assertion and an invalid Vitest parameterized-context signature were corrected; their earlier results remain in the working-copy cache. Affected package typechecks and executable builds passed at the recorded checkpoints. Full verification, upstream reconciliation, case acceptance, FE generation/application and final eCommerce acceptance remain outstanding.
+
+## Later result: complete capture and real frontend validation
+
+The final mixed-style normalization was followed by actual complete live portal captures. Plan `sfp_portal1_25c270650d6073d96e916e13a988a041` collected 192 nodes and 25 assets with `complete: true`, `liveVerified: true`, no plan issues and seven ready core recipe declarations. This supersedes the earlier statement that a fresh normalized capture was pending. The source catalog still retains the 16 observed mixed font values.
+
+The [generation continuation](../2026-10-03-cdd-generation/README.md) records a submitted new 39-file frontend, actual service-owned npm provisioning, typecheck and build passes, and failed Chrome preview. Unicode line-break and dialog interaction repairs have been submitted as a new candidate. A separate false-positive text/focus validator defect was discovered and corrected with real negative Chrome checks. No complete frontend acceptance or application is claimed. After the service rebuild, a new source connection awaits manual Chrome approval; this is a new socket admission, not a claim that the earlier complete captures failed.

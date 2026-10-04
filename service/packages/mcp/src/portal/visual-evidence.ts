@@ -5,6 +5,7 @@ import { z } from 'zod';
 
 import {
   PortalObservationIdentitySchema,
+  PortalPixelComparisonModeSchema,
   type PortalObservationManifest,
   type PortalInteractionContract,
 } from '../../../shared/src/portal-observations.js';
@@ -17,7 +18,7 @@ import {
 import { sameObservationIdentity } from './observation-manifest.js';
 import { comparePortalPng } from './preview.js';
 const reportSchema = z.object({
-  browser: z.literal('firefox'),
+  browser: z.literal('chrome'),
   deviceScaleFactor: z.literal(1),
   manifestHash: PortalHashSchema,
   assets: z
@@ -43,6 +44,8 @@ const reportSchema = z.object({
         oracleHash: PortalHashSchema,
         actualHash: PortalHashSchema,
         actualPath: PortalPathSchema,
+        comparisonMode: PortalPixelComparisonModeSchema.optional(),
+        strictRatio: z.number().min(0).max(1).optional(),
         workflowReports: z
           .array(
             z
@@ -193,8 +196,15 @@ export async function verifyPortalVisualEvidence(
       ]);
       if (storedChecksum(left) !== oracle.sha256 || storedChecksum(right) !== screen.actualHash)
         return false;
-      const comparison = comparePortalPng(left, right);
+      if ((screen.comparisonMode ?? 'rgba-v1') !== (expected.comparisonMode ?? 'rgba-v1'))
+        return false;
+      const comparison = comparePortalPng(left, right, 12, expected.comparisonMode);
       if (!comparison.sameDimensions || comparison.ratio > 0.03) return false;
+      if (
+        expected.comparisonMode === 'pixelmatch-7.2-v1' &&
+        screen.strictRatio !== comparison.strictRatio
+      )
+        return false;
     }
     for (const expected of manifest.assets) {
       const asset = copiedAssets.find(value => value.nodeId === expected.rootNodeId),

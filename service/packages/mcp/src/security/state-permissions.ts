@@ -26,8 +26,11 @@ const WINDOWS_PROBE_PRELUDE = [
 ];
 const WINDOWS_ACL_PROBE_SCRIPT = [
   ...WINDOWS_PROBE_PRELUDE,
+  // Inherited module search paths can resolve a different PowerShell host's Security module.
+  // Use the fixed host module instead of permitting ambient search-path substitution.
+  "Import-Module -Name ($PSHOME+'\\Modules\\Microsoft.PowerShell.Security\\Microsoft.PowerShell.Security.psd1') -ErrorAction Stop",
   '$item=Get-Item -LiteralPath (ConvertFrom-SfpPath $env:SFP_STATE_ACL_TARGET_UTF16B64) -Force',
-  '$acl=Get-Acl -LiteralPath $item.FullName',
+  '$acl=Microsoft.PowerShell.Security\\Get-Acl -LiteralPath $item.FullName',
   '$w.Write(([ordered]@{pathUtf16B64=(ConvertTo-SfpPath $item.FullName);attributes=[int64]$item.Attributes;sddl=$acl.Sddl}|ConvertTo-Json -Compress))',
   '$w.Flush()',
 ].join(';');

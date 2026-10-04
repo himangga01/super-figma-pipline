@@ -5,7 +5,7 @@ import type { SandboxToolHandler } from '../dispatcher.js';
 /** Translate nodes by (dx, dy). Nodes without x/y (e.g. the page) are skipped. */
 export const createMoveNodesHandler =
   (figmaCtx: typeof figma): SandboxToolHandler =>
-  async params => {
+  async (params, execution) => {
     const p = (params ?? {}) as { nodeIds?: unknown; dx?: unknown; dy?: unknown };
     if (!Array.isArray(p.nodeIds) || p.nodeIds.some(id => typeof id !== 'string')) {
       throw new TypeError('move_nodes: nodeIds must be a string[]');
@@ -14,13 +14,16 @@ export const createMoveNodesHandler =
     const dy = typeof p.dy === 'number' ? p.dy : 0;
     const ids = p.nodeIds as readonly string[];
     const nodes = await Promise.all(ids.map(id => figmaCtx.getNodeByIdAsync(id)));
+    execution?.signal.throwIfAborted();
 
     const affected: string[] = [];
     nodes.forEach((node, i) => {
       if (node === null || !('x' in node) || !('y' in node)) return;
       const target = node as { x: number; y: number };
       target.x += dx;
+      execution?.recordOwnedWrite?.(node, ['x']);
       target.y += dy;
+      execution?.recordOwnedWrite?.(node, ['y']);
       affected.push(ids[i]!);
     });
 

@@ -1,5 +1,6 @@
-import { readdir, readFile, writeFile } from 'node:fs/promises';
-import { join, resolve } from 'node:path';
+import { mkdir, readFile, writeFile } from 'node:fs/promises';
+import { join } from 'node:path';
+import { pathToFileURL } from 'node:url';
 
 import { PortalPlanSchema, PortalRunSchema, contentHash, storedChecksum } from '@sfp/ir';
 import {
@@ -8,16 +9,18 @@ import {
   type ActorContext,
   type PortalToolName,
 } from '@sfp/shared';
-import { afterEach, describe, expect, it } from 'vitest';
-import type { z } from 'zod';
+import { afterEach, describe, expect, it, vi } from 'vitest';
+import { ZodError, type z } from 'zod';
 
+import { runAdminCommand } from '../../../cli/src/admin-commands.js';
+import { ControlClient } from '../../../cli/src/control-client.js';
 import { createActionNonceStore } from '../../src/control/action-nonce-store.js';
 import {
   createPortalProfileEndpoint,
   createPortalProfilePreparationEndpoint,
 } from '../../src/portal/control.js';
 import { PortalCoordinator } from '../../src/portal/coordinator.js';
-import { nativeExecutableHash } from '../../src/portal/native-runner.js';
+import { NativePortalRunner, nativeExecutableHash } from '../../src/portal/native-runner.js';
 import {
   PortalNativeProfileSchema,
   PortalNativeRegistrationSchema,
@@ -27,22 +30,24 @@ import {
 import { portalMaterialFiles } from '../../src/portal/profile-closure.js';
 import { PortalCoreLifecycle } from '../../src/portal/recipes/core-lifecycle.js';
 import { CorePreparations } from '../../src/portal/recipes/core-preparation.js';
+import { resolveDefaultStateRoot } from '../../src/runtime-paths.js';
+import { createStatePermissions } from '../../src/security/state-permissions.js';
 import { currentCaptureFixture } from './capture-fixture.js';
 import { portalFixture } from './fixtures.js';
 
 /*
- * T06a characterizations of findings K1 and SVC-1 (remediation plan section 3.1).
- * SVC-1 is fixed by task T13; K1 is fixed by task T14b. Each test asserts the current defective
- * outcome and must be flipped by the task named in its title.
+ * Public profile transport regressions for F01/M05 and retained K1 execution characterization.
  *
  * Harness: the in-process C4 harness of native-work.test.ts (portal_plan, portal_start,
  * portal_next and portal_submit through PortalCoordinator, then native work in a disposable work
  * copy). It uses the real signed PortalStore, the real control endpoints and one real `node`
- * child process started by NativePortalRunner with `windowsHide: true`. It has no live Figma
- * capture, no Firefox preview and no observation manifest.
+ * child process started by NativePortalRunner with `windowsHide: true`. Registration tests use
+ * hashed preview fixtures without launching Chrome or native commands; K1 executes Node only.
  */
 const cleanups: Array<() => Promise<void>> = [];
 afterEach(async () => {
+  vi.restoreAllMocks();
+  vi.unstubAllEnvs();
   for (const cleanup of cleanups.splice(0)) await cleanup();
 });
 const actor: ActorContext = {
@@ -135,7 +140,7 @@ const fixture = async () => {
   });
   const plan = (await value.store.get('plans', planned.planId, PortalPlanSchema))!;
   const run = (await value.store.get('runs', plan.planId, PortalRunSchema))!;
-  return { ...value, plan, run, work, invoke };
+  return { ...value, plan, run, work, invoke, capture };
 };
 /**
  * The `profileFixture` of native-work.test.ts, with a 60 s command timeout instead of 5 s: under
@@ -199,10 +204,189 @@ const registrationNonce = async (
     )
   ).value;
 
-describe('SVC-1 characterization (flip in T13)', () => {
-  it('SVC-1 characterization: registering the profile returned by portal.profile.prepare fails with PORTAL_PROFILE_PREPARATION_CHANGED (flip in T13)', async () => {
-    // SVC-1, fixed by T13. Seam: the real prepare and register control endpoints
-    // (control.ts:74-98 and 31-72) in front of assertPreparedProfile (native-work.ts:976-985).
+describe('Public prepared-profile transport', () => {
+  it('round trips a ready observation profile through CLI file review, nonce confirmation and signed registration without executing commands', async () => {
+    const value = await fixture();
+    const artifacts = join(value.root, 'profile-artifacts');
+    await mkdir(artifacts);
+    const chromeExecutable = join(artifacts, 'chrome.exe');
+    const validator = join(artifacts, 'validator.mjs');
+    await writeFile(chromeExecutable, 'Fixture hashed artifact; never executed.');
+    await writeFile(validator, 'export const fixture = true;');
+    const runner = new NativePortalRunner();
+    vi.spyOn(runner, 'execute').mockRejectedValue(Error('Registration executed a native command'));
+    const work = new PortalNativeWork({
+      ...value,
+      runner,
+      validatorModuleUrl: pathToFileURL(validator).href,
+      chromeExecutable,
+    });
+    cleanups.push(() => work.close());
+    const draft = await profileFixture(value);
+    const oracle = value.capture.captured.assets[0]!;
+    draft.native.commands[0]!.preview = {
+      protocol: 'sfp-owned-preview-v1',
+      spec: {
+        root: '.',
+        baseUrl: 'http://127.0.0.1:3456',
+        allowedOrigins: [],
+        assets: [],
+        screens: [
+          {
+            id: 'screen',
+            rootNodeId: '1:1',
+            state: 'source:1:1',
+            assertionIds: [],
+            workflowAssertions: [],
+            path: '/',
+            oraclePath: oracle.path!,
+            oracleHash: oracle.sha256!,
+            viewport: { width: 100, height: 100 },
+            fullPage: true,
+            maxDifferenceRatio: 0.01,
+            beforeActions: [],
+            actions: [],
+          },
+        ],
+      },
+    };
+    draft.assertions[0]!.check.kind = 'visual';
+    draft.recipeUse = {
+      version: 1,
+      targets: [
+        {
+          nodeId: '1:1',
+          rootNodeId: '1:1',
+          selector: '[data-sfp-node="1:1"]',
+          route: '/',
+          state: 'source:1:1',
+          phase: 'source',
+        },
+      ],
+      components: [],
+      cssVariables: [],
+      assets: [],
+      catalogs: [],
+      reviews: [],
+    };
+    const blocked = await work.prepareProfile(draft);
+    expect(
+      blocked.recipeUse!.prepared!.requirements.every(
+        row => row.code === 'PORTAL_CONSUMPTION_REVIEW_REQUIRED',
+      ),
+    ).toBe(true);
+    draft.recipeUse.reviews = blocked.recipeUse!.prepared!.requirements.map(row => ({
+      resultId: row.resultId,
+      rowIds: [row.rowId],
+      kind: 'strategy',
+      rationale: 'The reviewed fixture implements this retained strategy in its candidate source.',
+    }));
+    const { ownerId: _owner, ...publicDraft } = draft;
+    const nonces = createActionNonceStore({ leaderGeneration: 'public-profile-roundtrip' });
+    const prepare = createPortalProfilePreparationEndpoint({ store: value.store, work });
+    const register = createPortalProfileEndpoint({ store: value.store, work, nonces });
+    vi.stubEnv('LOCALAPPDATA', value.root);
+    vi.stubEnv('XDG_STATE_HOME', value.root);
+    await createStatePermissions(resolveDefaultStateRoot()).ensureSecure(resolveDefaultStateRoot());
+    vi.spyOn(ControlClient.prototype, 'request').mockImplementation(async (path, _method, body) => {
+      if (path === '/control/portal/profiles/prepare')
+        return prepare(actor, body, { aborted: false });
+      if (path === '/control/action-nonces') {
+        const request = body as { requestHash: `sha256:${string}` };
+        return nonces.issue(actor, 'portal.profile.register', request.requestHash);
+      }
+      if (path === '/control/portal/profiles') return register(actor, body, { aborted: false });
+      throw Error('Unexpected route');
+    });
+    const inputFile = join(value.root, 'draft-profile.json');
+    await writeFile(inputFile, JSON.stringify(publicDraft));
+    const review: unknown[] = [];
+    await runAdminCommand(['portal', 'profile', '--args-file', inputFile], output =>
+      review.push(output),
+    );
+    const { preparedFile } = review[0] as { preparedFile: string };
+    const prepared = JSON.parse(await readFile(preparedFile, 'utf8'));
+    expect(prepared.preparedContractVersion).toBe(2);
+    expect(prepared.observationManifest.screens[0].rootNodeId).toBe('1:1');
+    expect(prepared.recipeUse.prepared.status).toBe('ready');
+    await runAdminCommand(['portal', 'profile', '--args-file', preparedFile, '--yes'], output =>
+      review.push(output),
+    );
+    const result = review[1] as { recordId: string };
+    const stored = await value.store.get('profiles', result.recordId, PortalNativeProfileSchema);
+    expect(stored).toEqual({ ...prepared, ownerId: actor.actorId });
+    for (const omitted of [
+      'preparedContractVersion',
+      'recipeUse',
+      'observationManifest',
+    ] as const) {
+      const incomplete = structuredClone(prepared);
+      delete incomplete[omitted];
+      await expect(
+        register(
+          actor,
+          { profile: incomplete, actionNonce: await registrationNonce(nonces, prepared) },
+          { aborted: false },
+        ),
+      ).rejects.toThrow(ZodError);
+    }
+    // Old signed records stay readable, but cannot gain new execution under the prepared contract.
+    const legacy = { ...stored!, preparedContractVersion: undefined };
+    expect(PortalNativeProfileSchema.parse(legacy).native.id).toBe('node-frontend');
+    await expect(work.assertRecipeRegistration(legacy)).rejects.toMatchObject({
+      code: 'PORTAL_PROFILE_CONTRACT_STALE',
+    });
+    for (const [code, edit] of [
+      [
+        'ACTION_NONCE_INVALID',
+        (profile: typeof prepared) => {
+          profile.native.commands[0].timeoutMs++;
+        },
+      ],
+      [
+        'ACTION_NONCE_INVALID',
+        (profile: typeof prepared) => {
+          profile.native.environment.REVIEW_CHANGED = 'changed';
+        },
+      ],
+      [
+        'PORTAL_PROFILE_CLOSURE_INCOMPLETE',
+        (profile: typeof prepared) => {
+          profile.native.closure[0].hash = storedChecksum('changed');
+        },
+      ],
+      [
+        'ACTION_NONCE_INVALID',
+        (profile: typeof prepared) => {
+          profile.observationManifest.interactionContractHash = storedChecksum('changed');
+        },
+      ],
+      [
+        'ACTION_NONCE_INVALID',
+        (profile: typeof prepared) => {
+          profile.recipeUse.prepared.materialHash = storedChecksum('changed');
+        },
+      ],
+    ] as const) {
+      const changed = structuredClone(prepared);
+      edit(changed);
+      const nonce = await registrationNonce(nonces, prepared);
+      await expect(
+        register(actor, { profile: changed, actionNonce: nonce }, { aborted: false }),
+      ).rejects.toMatchObject({ code });
+    }
+    const stale = structuredClone(prepared);
+    stale.recipeUse.prepared.blueprintHash = storedChecksum('stale plan');
+    await expect(
+      register(
+        actor,
+        { profile: stale, actionNonce: await registrationNonce(nonces, stale) },
+        { aborted: false },
+      ),
+    ).rejects.toMatchObject({ code: 'PORTAL_PROFILE_PREPARATION_CHANGED' });
+  }, 120000);
+  it('preserves compiled recipe use through JSON and reaches its actual consumption gate', async () => {
+    // Transport must preserve blocked requirements instead of failing on a different body hash.
     const value = await fixture();
     const input = await profileFixture(value);
     const { ownerId: _ownerId, ...request } = input;
@@ -212,11 +396,9 @@ describe('SVC-1 characterization (flip in T13)', () => {
     });
     const prepared = await prepare(actor, request, { aborted: false });
 
-    // Registration re-runs prepareProfile and compares content hashes. That re-preparation always
-    // carries a compiled `recipeUse`; the prepare endpoint's output drops it (control.ts:89-97).
     const reprepared = await value.work.prepareProfile(input);
     expect(reprepared.recipeUse?.prepared?.version).toBe('core-consumption-v1');
-    expect(prepared).not.toHaveProperty('recipeUse');
+    expect(JSON.parse(JSON.stringify(prepared)).recipeUse).toEqual(reprepared.recipeUse);
 
     const nonces = createActionNonceStore({ leaderGeneration: 't06a-svc-1' });
     const register = createPortalProfileEndpoint({ store: value.store, work: value.work, nonces });
@@ -226,12 +408,9 @@ describe('SVC-1 characterization (flip in T13)', () => {
         { profile: prepared, actionNonce: await registrationNonce(nonces, prepared) },
         { aborted: false },
       ),
-    ).rejects.toMatchObject({ code: 'PORTAL_PROFILE_PREPARATION_CHANGED' });
+    ).rejects.toMatchObject({ code: 'PORTAL_CONSUMPTION_PREPARATION_REQUIRED' });
 
-    // `recipeUse` is the only difference. A caller that bypasses the endpoint to re-attach it
-    // passes the hash comparison and reaches the consumption gate (native-work.ts:791-795). This
-    // C4 profile has no preview command, so its consumption preparation is blocked and the second
-    // code of SVC-1 appears. The owner cannot see these requirements, because prepare drops them.
+    // This draft has no preview command, so consumption remains honestly blocked after transport.
     expect(reprepared.recipeUse?.prepared).toMatchObject({ status: 'blocked' });
     expect(
       [...new Set(reprepared.recipeUse?.prepared?.requirements.map(row => row.code))].toSorted(),
@@ -252,29 +431,25 @@ describe('SVC-1 characterization (flip in T13)', () => {
       ),
     ).rejects.toMatchObject({ code: 'PORTAL_CONSUMPTION_PREPARATION_REQUIRED' });
 
-    // Neither attempt stored a profile.
+    // Neither blocked attempt stored a profile.
     await expect(
       value.store.get('profiles', profileRecordId(reprepared), PortalNativeProfileSchema),
     ).resolves.toBeNull();
   }, 120_000);
 
-  it('SVC-1 characterization: the registration schema cannot carry the observationManifest that preparation adds (flip in T13)', () => {
-    // SVC-1, fixed by T13. For preview profiles, prepareProfile derives an observation manifest
-    // (native-work.ts:891-901, returned at 974) and the stored profile schema keeps it, but the
-    // strict registration schema has no such field (native-work.ts:164-175), so a prepared
-    // preview profile can never hash-match on registration.
+  it('carries the observation manifest in the public registration contract', () => {
     expect(Object.keys(PortalNativeProfileSchema.shape)).toContain('observationManifest');
-    expect(Object.keys(PortalNativeRegistrationSchema.shape)).not.toContain('observationManifest');
+    expect(Object.keys(PortalNativeRegistrationSchema.shape)).toContain('observationManifest');
     const parsed = PortalNativeRegistrationSchema.safeParse({ observationManifest: {} });
     expect(parsed.success).toBe(false);
-    expect(parsed.error?.issues).toContainEqual(
+    expect(parsed.error?.issues).not.toContainEqual(
       expect.objectContaining({ code: 'unrecognized_keys', keys: ['observationManifest'] }),
     );
   });
 });
 
-describe('K1 characterization (flip in T14b)', () => {
-  it('K1 characterization: native validation emits no recipeConsumption receipt and no consumption check, so the run blocks with PORTAL_RECIPE_CONSUMPTION_REQUIRED (flip in T14b)', async () => {
+describe('native consumption acceptance', () => {
+  it('records a required failed consumption check when preparation has no verified proof', async () => {
     // K1, fixed by T14b. Seam: the real portal_validate path through PortalCoordinator into the
     // report builder at native-work.ts:671-752. SVC-1 blocks every registration path, so the
     // test seeds the signed profile record exactly as registerProfile would write it
@@ -298,10 +473,16 @@ describe('K1 characterization (flip in T14b)', () => {
       expect.objectContaining({ id: 'native-command-sequence', status: 'passed' }),
     );
 
-    // Current behavior: the report carries no consumption evidence of any kind. T14b must add
-    // either a verified `recipeConsumption` receipt or a failed required `core-consumption` check.
+    // A successful build alone cannot attest consumption of the admitted design recipes.
     expect(report).not.toHaveProperty('recipeConsumption');
-    expect(report.checks.filter(check => /consumption/iu.test(check.id))).toEqual([]);
+    expect(report.checks).toContainEqual(
+      expect.objectContaining({
+        id: 'core-consumption',
+        required: true,
+        status: 'failed',
+        reason: 'PORTAL_CONSUMPTION_PREPARATION_REQUIRED',
+      }),
+    );
     expect(result.state).toBe('blocked');
     expect(result.issues).toContain('PORTAL_RECIPE_CONSUMPTION_REQUIRED');
 
@@ -311,19 +492,4 @@ describe('K1 characterization (flip in T14b)', () => {
     ) as { payload: { report: Record<string, unknown> } };
     expect(evidence.payload.report).not.toHaveProperty('recipeConsumption');
   }, 120_000);
-
-  it('K1 characterization: verifyConsumptionObservations has no production caller (flip in T14b)', async () => {
-    // K1, fixed by T14b, which must call it from validation after assertPreparedProfile.
-    const sourceRoot = resolve(import.meta.dirname, '../../src');
-    const entries = await readdir(sourceRoot, { recursive: true, withFileTypes: true });
-    const callers: string[] = [];
-    for (const entry of entries.filter(value => value.isFile() && value.name.endsWith('.ts'))) {
-      const path = join(entry.parentPath, entry.name);
-      const source = await readFile(path, 'utf8');
-      const calls = source.match(/verifyConsumptionObservations\s*\(/gu) ?? [];
-      const definitions = source.match(/function verifyConsumptionObservations\s*\(/gu) ?? [];
-      if (calls.length > definitions.length) callers.push(path);
-    }
-    expect(callers).toEqual([]);
-  });
 });

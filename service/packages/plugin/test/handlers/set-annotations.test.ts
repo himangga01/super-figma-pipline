@@ -292,6 +292,36 @@ it('unwinds repeated annotation writes through their actual intermediate preimag
   expect(f.node.annotations).toEqual([{ label: 'Existing' }]);
 });
 
+it('preserves a replacement node with the same id and annotation value during rollback', async () => {
+  const f = fixture();
+  const replacement = { ...f.node, annotations: [{ label: 'Desired' }] };
+  let current = f.node;
+  f.figmaCtx.getNodeByIdAsync = async () => current as unknown as BaseNode;
+  const batch = createBatchHandler(f.figmaCtx, {
+    set_annotations: f.handler,
+    rename_node: async () => {
+      current = replacement;
+      throw Error('Later operation failed');
+    },
+  });
+  await expect(
+    batch({
+      ops: [
+        {
+          tool: 'set_annotations',
+          params: {
+            nodeId: f.node.id,
+            expectedAnnotations: [{ label: 'Existing' }],
+            annotations: [{ label: 'Desired' }],
+          },
+        },
+        { tool: 'rename_node', params: { nodeId: f.node.id, name: 'Next' } },
+      ],
+    }),
+  ).rejects.toMatchObject({ code: 'BATCH_PARTIAL_CHANGE' });
+  expect(replacement.annotations).toEqual([{ label: 'Desired' }]);
+});
+
 it('restores a setter that mutates and then throws using the recorded failure outcome', async () => {
   const f = fixture();
   let annotations: readonly Annotation[] = [{ label: 'Existing' }];

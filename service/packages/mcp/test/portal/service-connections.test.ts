@@ -63,6 +63,46 @@ it('connects a literal web contract to its provider without adding an unrelated 
   expect(result.data.some(item => item.module === 'pg' && item.status === 'candidate')).toBe(true);
   expect(result.producers.every(item => item.evidence.hash.startsWith('sha256:'))).toBe(true);
 });
+it('recognizes qualified global fetch while preserving shadowed and mutated global uncertainty', () => {
+  const result = analyze({ 'web/main.ts': "globalThis.fetch('/api/items');" });
+  expect(result.clients.map(client => client.route)).toEqual(['/api/items']);
+  for (const code of [
+    "function request(globalThis) { globalThis.fetch('/api/items'); }",
+    "globalThis.fetch = other; globalThis.fetch('/api/items');",
+  ]) {
+    const unknown = analyze({ 'web/main.ts': code });
+    expect(unknown.clients).toEqual([]);
+    expect(unknown.issues.some(row => row.code === 'SHADOWED_HTTP_CLIENT')).toBe(true);
+  }
+});
+it('recognizes immutable global fetch aliases and keeps mutated aliases incomplete', () => {
+  const valid = analyze({
+    'web/main.ts': "const request = globalThis.fetch; request('/api/items');",
+  });
+  expect(valid.clients.map(client => client.route)).toEqual(['/api/items']);
+  const invalid = analyze({
+    'web/main.ts': "let request = globalThis.fetch; request = local; request('/api/items');",
+  });
+  expect(invalid.clients).toEqual([]);
+  expect(invalid.complete).toBe(false);
+  expect(invalid.issues.some(row => row.code === 'SHADOWED_HTTP_CLIENT')).toBe(true);
+});
+it('excludes proved intrinsic collection methods but retains constructor shadowing and mutation uncertainty', () => {
+  const known = analyze({
+    'web/main.ts':
+      "const cache = new Map(); cache.get('/key'); const keys = new Set(['x']); keys.delete('/key');",
+  });
+  expect(known.clients).toEqual([]);
+  expect(known.issues).toEqual([]);
+  for (const code of [
+    "function work(Map) { const cache = new Map(); cache.get('/key'); }",
+    "const cache = new Map(); cache.get = client; cache.get('/key');",
+  ]) {
+    expect(
+      analyze({ 'web/main.ts': code }).issues.some(row => row.code === 'UNKNOWN_HTTP_RECEIVER'),
+    ).toBe(true);
+  }
+});
 
 it('supports CJS routers and axios clients while ignoring arbitrary get methods', () => {
   const result = analyze({

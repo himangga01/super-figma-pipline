@@ -17,6 +17,7 @@ import { createSetFillsHandler } from '../../src/handlers/set-fills.js';
 import { createSetOpacityHandler } from '../../src/handlers/set-opacity.js';
 import { createSetStrokesHandler } from '../../src/handlers/set-strokes.js';
 import { createSetTextPropertiesHandler } from '../../src/handlers/set-text-properties.js';
+import { createSetTextHandler } from '../../src/handlers/set-text.js';
 import { createSetTimelineDurationHandler } from '../../src/handlers/set-timeline-duration.js';
 import { createIdempotencyCache, idempotent } from '../../src/idempotency.js';
 
@@ -58,6 +59,7 @@ const realWrites = (figmaCtx: typeof figma): SandboxHandlers => ({
   set_strokes: createSetStrokesHandler(figmaCtx),
   set_corner_radius: createSetCornerRadiusHandler(figmaCtx),
   set_text_properties: createSetTextPropertiesHandler(figmaCtx),
+  set_text: createSetTextHandler(figmaCtx),
   move_nodes: createMoveNodesHandler(figmaCtx),
   create_frame: createCreateFrameHandler(figmaCtx),
   create_component: createCreateComponentHandler(figmaCtx),
@@ -66,7 +68,356 @@ const realWrites = (figmaCtx: typeof figma): SandboxHandlers => ({
 
 const SOLID = (r: number): unknown => ({ type: 'SOLID', color: { r, g: 0, b: 0 } });
 
+/** Model native aggregate getters: writing a uniform value updates all individual values. */
+const nativeAggregate = (
+  node: Record<string, unknown>,
+  aggregate: string,
+  keys: string[],
+): Record<string, unknown> => {
+  const mixed = node[aggregate];
+  Object.defineProperty(node, aggregate, {
+    enumerable: true,
+    get() {
+      const values = keys.map(key => node[key]);
+      return values.every(v => v === values[0]) ? values[0] : mixed;
+    },
+    set(value: number) {
+      for (const key of keys) node[key] = value;
+    },
+  });
+  return node;
+};
+
 describe('batch handler', () => {
+  it('preserves a created node edited during awaited placement', async () => {
+    const { figmaCtx, store } = makeFigma({
+      '1:1': { id: '1:1', opacity: 1 },
+      P: { id: 'P', appendChild: () => {} },
+    });
+    const lookup = figmaCtx.getNodeByIdAsync;
+    figmaCtx.getNodeByIdAsync = async id => {
+      const created = [...store.values()].find(node => node.type === 'FRAME');
+      if (id === 'P' && created) created.name = 'manual during placement';
+      return lookup(id);
+    };
+    const apply = realWrites(figmaCtx);
+    apply.set_opacity = async () => {
+      throw new Error('later failure');
+    };
+    await expect(
+      createBatchHandler(
+        figmaCtx,
+        apply,
+      )({
+        ops: [
+          { tool: 'create_frame', params: { name: 'batch', parentId: 'P' } },
+          { tool: 'set_opacity', params: { nodeId: '1:1', opacity: 0.5 } },
+        ],
+      }),
+    ).rejects.toMatchObject({ code: 'BATCH_PARTIAL_CHANGE' });
+    expect([...store.values()].find(node => node.name === 'manual during placement')).toBeDefined();
+  });
+
+  it('preserves a manual owned-field edit during rollback font loading', async () => {
+    const target = {
+      id: '1:1',
+      type: 'TEXT',
+      characters: 'hello',
+      fontName: { family: 'Inter', style: 'Regular' },
+      fontSize: 12,
+      opacity: 1,
+    };
+    const { figmaCtx, loadFontAsync } = makeFigma({ '1:1': target });
+    let loads = 0;
+    loadFontAsync.mockImplementation(async () => {
+      if (++loads === 2) target.fontSize = 31;
+    });
+    const apply = realWrites(figmaCtx);
+    apply.set_opacity = async () => {
+      throw new Error('later failure');
+    };
+    await expect(
+      createBatchHandler(
+        figmaCtx,
+        apply,
+      )({
+        ops: [
+          { tool: 'set_text_properties', params: { nodeId: target.id, fontSize: 20 } },
+          { tool: 'set_opacity', params: { nodeId: target.id, opacity: 0.5 } },
+        ],
+      }),
+    ).rejects.toMatchObject({ code: 'BATCH_PARTIAL_CHANGE' });
+    expect(target.fontSize).toBe(31);
+  });
+
+  it('restores eligible nodes while preserving a conflicted node in a multi-node operation', async () => {
+    const a = { id: '1:1', x: 10, y: 20 },
+      b = { id: '1:2', x: 30, y: 40, opacity: 1 };
+    const { figmaCtx } = makeFigma({ '1:1': a, '1:2': b });
+    const apply = realWrites(figmaCtx);
+    apply.set_opacity = async () => {
+      a.x = 99;
+      throw new Error('later failure');
+    };
+    await expect(
+      createBatchHandler(
+        figmaCtx,
+        apply,
+      )({
+        ops: [
+          { tool: 'move_nodes', params: { nodeIds: [a.id, b.id], dx: 5, dy: 5 } },
+          { tool: 'set_opacity', params: { nodeId: b.id, opacity: 0.5 } },
+        ],
+      }),
+    ).rejects.toMatchObject({ code: 'BATCH_PARTIAL_CHANGE' });
+    expect(a).toMatchObject({ x: 99, y: 20 });
+    expect(b).toMatchObject({ x: 30, y: 40 });
+  });
+
+  it('rejects full-text replacement of distinct paragraph runs before effects', async () => {
+    const target = {
+      id: '1:1',
+      name: 'A',
+      type: 'TEXT',
+      characters: 'first\nsecond',
+      fontName: { family: 'Inter', style: 'Regular' },
+      getStyledTextSegments: () => [
+        {
+          start: 0,
+          end: 6,
+          characters: 'first\n',
+          listOptions: { type: 'ORDERED' },
+          indentation: 0,
+        },
+        {
+          start: 6,
+          end: 12,
+          characters: 'second',
+          listOptions: { type: 'UNORDERED' },
+          indentation: 2,
+        },
+      ],
+    };
+    const { figmaCtx } = makeFigma({ '1:1': target });
+    await expect(
+      createBatchHandler(
+        figmaCtx,
+        realWrites(figmaCtx),
+      )({
+        ops: [
+          { tool: 'rename_node', params: { nodeId: target.id, name: 'batch' } },
+          { tool: 'set_text', params: { nodeId: target.id, characters: 'new' } },
+        ],
+      }),
+    ).rejects.toThrow(/mixed typography/);
+    expect(target.name).toBe('A');
+    expect(target.characters).toBe('first\nsecond');
+  });
+
+  it('restores overlapping operations using their own immediate pre-state', async () => {
+    const target = { id: '1:1', name: 'A', opacity: 1 };
+    const { figmaCtx } = makeFigma({ '1:1': target });
+    const apply = realWrites(figmaCtx);
+    apply.set_opacity = async () => {
+      throw new Error('later failure');
+    };
+    await expect(
+      createBatchHandler(
+        figmaCtx,
+        apply,
+      )({
+        ops: [
+          { tool: 'rename_node', params: { nodeId: target.id, name: 'first' } },
+          { tool: 'rename_node', params: { nodeId: target.id, name: 'second' } },
+          { tool: 'set_opacity', params: { nodeId: target.id, opacity: 0.5 } },
+        ],
+      }),
+    ).rejects.toMatchObject({ code: 'BATCH_ROLLED_BACK' });
+    expect(target.name).toBe('A');
+  });
+
+  it('preserves a created node manually edited before rollback', async () => {
+    const { figmaCtx, store } = makeFigma({ '1:1': { id: '1:1', opacity: 1 } });
+    const apply = realWrites(figmaCtx);
+    apply.set_opacity = async () => {
+      const created = [...store.values()].find(node => node.type === 'FRAME')!;
+      created.name = 'manual';
+      throw new Error('later failure');
+    };
+    await expect(
+      createBatchHandler(
+        figmaCtx,
+        apply,
+      )({
+        ops: [
+          { tool: 'create_frame', params: { name: 'batch' } },
+          { tool: 'set_opacity', params: { nodeId: '1:1', opacity: 0.5 } },
+        ],
+      }),
+    ).rejects.toMatchObject({ code: 'BATCH_PARTIAL_CHANGE' });
+    expect([...store.values()].find(node => node.name === 'manual')).toBeDefined();
+  });
+
+  it('does not claim rollback when a created node silently survives remove', async () => {
+    const { figmaCtx, store } = makeFigma({ '1:1': { id: '1:1', opacity: 1 } });
+    const originalCreate = figmaCtx.createFrame;
+    figmaCtx.createFrame = () => {
+      const node = originalCreate();
+      node.remove = () => {};
+      return node;
+    };
+    const apply = realWrites(figmaCtx);
+    apply.set_opacity = async () => {
+      throw new Error('later failure');
+    };
+    await expect(
+      createBatchHandler(
+        figmaCtx,
+        apply,
+      )({
+        ops: [
+          { tool: 'create_frame', params: {} },
+          { tool: 'set_opacity', params: { nodeId: '1:1', opacity: 0.5 } },
+        ],
+      }),
+    ).rejects.toMatchObject({ code: 'BATCH_PARTIAL_CHANGE' });
+    expect(store.size).toBe(2);
+  });
+
+  it('preserves a manual edit to an owned field and reports a partial rollback', async () => {
+    const target = { id: '1:1', name: 'A', opacity: 1 };
+    const { figmaCtx } = makeFigma({ '1:1': target });
+    const apply = realWrites(figmaCtx);
+    apply.set_opacity = async () => {
+      target.name = 'manual';
+      throw new Error('later failure');
+    };
+    await expect(
+      createBatchHandler(
+        figmaCtx,
+        apply,
+      )({
+        ops: [
+          { tool: 'rename_node', params: { nodeId: target.id, name: 'batch' } },
+          { tool: 'set_opacity', params: { nodeId: target.id, opacity: 0.5 } },
+        ],
+      }),
+    ).rejects.toMatchObject({ code: 'BATCH_PARTIAL_CHANGE' });
+    expect(target.name).toBe('manual');
+  });
+
+  it('does not restore an unowned typography field changed while fonts load', async () => {
+    const target = {
+      id: '1:1',
+      type: 'TEXT',
+      characters: 'hello',
+      fontName: { family: 'Inter', style: 'Regular' },
+      fontSize: 12,
+      paragraphSpacing: 4,
+      opacity: 1,
+    };
+    const { figmaCtx, loadFontAsync } = makeFigma({ '1:1': target });
+    let loads = 0;
+    loadFontAsync.mockImplementation(async () => {
+      if (++loads === 2) target.paragraphSpacing = 23;
+    });
+    const apply = realWrites(figmaCtx);
+    apply.set_opacity = async () => {
+      throw new Error('later failure');
+    };
+    await expect(
+      createBatchHandler(
+        figmaCtx,
+        apply,
+      )({
+        ops: [
+          { tool: 'set_text_properties', params: { nodeId: target.id, fontSize: 20 } },
+          { tool: 'set_opacity', params: { nodeId: target.id, opacity: 0.5 } },
+        ],
+      }),
+    ).rejects.toMatchObject({ code: 'BATCH_ROLLED_BACK' });
+    expect(target.fontSize).toBe(12);
+    expect(target.paragraphSpacing).toBe(23);
+  });
+
+  it('verifies restored values instead of trusting a silent host setter', async () => {
+    let value = 'A';
+    const target = {
+      id: '1:1',
+      opacity: 1,
+      get name() {
+        return value;
+      },
+      set name(next: string) {
+        if (next !== 'A') value = next;
+      },
+    };
+    const { figmaCtx } = makeFigma({ '1:1': target });
+    const apply = realWrites(figmaCtx);
+    apply.set_opacity = async () => {
+      throw new Error('later failure');
+    };
+    await expect(
+      createBatchHandler(
+        figmaCtx,
+        apply,
+      )({
+        ops: [
+          { tool: 'rename_node', params: { nodeId: target.id, name: 'batch' } },
+          { tool: 'set_opacity', params: { nodeId: target.id, opacity: 0.5 } },
+        ],
+      }),
+    ).rejects.toMatchObject({ code: 'BATCH_PARTIAL_CHANGE' });
+    expect(value).toBe('batch');
+  });
+
+  it('rejects mixed typography before any earlier batch effect', async () => {
+    const target = {
+      id: '1:1',
+      type: 'TEXT',
+      characters: 'two runs',
+      fontName: { family: 'Inter', style: 'Regular' },
+      fontSize: Symbol('mixed'),
+      name: 'A',
+    };
+    const { figmaCtx } = makeFigma({ '1:1': target });
+    await expect(
+      createBatchHandler(
+        figmaCtx,
+        realWrites(figmaCtx),
+      )({
+        ops: [
+          { tool: 'rename_node', params: { nodeId: target.id, name: 'batch' } },
+          { tool: 'set_text_properties', params: { nodeId: target.id, fontSize: 20 } },
+        ],
+      }),
+    ).rejects.toThrow(/mixed typography/);
+    expect(target.name).toBe('A');
+  });
+
+  it('fences a replacement node with the same identity string', async () => {
+    const target = { id: '1:1', name: 'A', opacity: 1 };
+    const { figmaCtx, store } = makeFigma({ '1:1': target });
+    const replacement = { ...target, name: 'replacement' };
+    const apply = realWrites(figmaCtx);
+    apply.set_opacity = async () => {
+      store.set(target.id, replacement);
+      throw new Error('later failure');
+    };
+    await expect(
+      createBatchHandler(
+        figmaCtx,
+        apply,
+      )({
+        ops: [
+          { tool: 'rename_node', params: { nodeId: target.id, name: 'batch' } },
+          { tool: 'set_opacity', params: { nodeId: target.id, opacity: 0.5 } },
+        ],
+      }),
+    ).rejects.toMatchObject({ code: 'BATCH_PARTIAL_CHANGE' });
+    expect(replacement.name).toBe('replacement');
+  });
+
   it('restores the failing multi-property operation after a host setter partially succeeds', async () => {
     let valueY = 20;
     let fail = true;
@@ -273,14 +624,18 @@ describe('batch handler', () => {
     // Corners differ → the uniform cornerRadius getter is figma.mixed (a symbol the undo must
     // skip); the per-corner snapshot is what actually restores the node.
     const { figmaCtx, store } = makeFigma({
-      '1:1': {
-        id: '1:1',
-        cornerRadius: Symbol('mixed'),
-        topLeftRadius: 8,
-        topRightRadius: 0,
-        bottomRightRadius: 4,
-        bottomLeftRadius: 0,
-      },
+      '1:1': nativeAggregate(
+        {
+          id: '1:1',
+          cornerRadius: Symbol('mixed'),
+          topLeftRadius: 8,
+          topRightRadius: 0,
+          bottomRightRadius: 4,
+          bottomLeftRadius: 0,
+        },
+        'cornerRadius',
+        ['topLeftRadius', 'topRightRadius', 'bottomRightRadius', 'bottomLeftRadius'],
+      ),
       '1:2': { id: '1:2', fills: [] },
     });
     const handler = createBatchHandler(figmaCtx, realWrites(figmaCtx));
@@ -304,17 +659,21 @@ describe('batch handler', () => {
 
   it('restores strokeAlign / dashPattern / per-side weights on rollback', async () => {
     const { figmaCtx, store } = makeFigma({
-      '1:1': {
-        id: '1:1',
-        strokes: [SOLID(0.2)],
-        strokeWeight: Symbol('mixed'), // per-side weights differ
-        strokeAlign: 'INSIDE',
-        dashPattern: [4, 2],
-        strokeTopWeight: 1,
-        strokeRightWeight: 0,
-        strokeBottomWeight: 2,
-        strokeLeftWeight: 0,
-      },
+      '1:1': nativeAggregate(
+        {
+          id: '1:1',
+          strokes: [SOLID(0.2)],
+          strokeWeight: Symbol('mixed'), // per-side weights differ
+          strokeAlign: 'INSIDE',
+          dashPattern: [4, 2],
+          strokeTopWeight: 1,
+          strokeRightWeight: 0,
+          strokeBottomWeight: 2,
+          strokeLeftWeight: 0,
+        },
+        'strokeWeight',
+        ['strokeTopWeight', 'strokeRightWeight', 'strokeBottomWeight', 'strokeLeftWeight'],
+      ),
       '1:2': { id: '1:2', fills: [] },
     });
     const handler = createBatchHandler(figmaCtx, realWrites(figmaCtx));
@@ -515,6 +874,51 @@ const FAILING_FILL = {
 };
 
 describe('batch Motion inverses', () => {
+  it('preserves a manually changed timeline instead of overwriting its duration', async () => {
+    const { figmaCtx, store, addMotionNode } = makeMotionFigma();
+    const node = addMotionNode('1:1', { timelines: [{ id: 't1', duration: 1 }] });
+    store.set('F', { id: 'F', fills: [] });
+    const apply = motionWrites(figmaCtx);
+    apply.set_fills = async () => {
+      node.timelines[0]!.duration = 9;
+      throw new Error('later failure');
+    };
+    await expect(
+      createBatchHandler(
+        figmaCtx,
+        apply,
+      )({
+        ops: [
+          {
+            tool: 'set_timeline_duration',
+            params: { nodeId: node.id, timelineId: 't1', duration: 5 },
+          },
+          FAILING_FILL,
+        ],
+      }),
+    ).rejects.toMatchObject({ code: 'BATCH_PARTIAL_CHANGE' });
+    expect(node.timelines[0]!.duration).toBe(9);
+  });
+
+  it('verifies Motion restoration after a silent remove no-op', async () => {
+    const { figmaCtx, store, addMotionNode } = makeMotionFigma();
+    const node = addMotionNode('1:1');
+    store.set('F', { id: 'F', fills: [] });
+    node.removeAnimationStyle.mockImplementation(() => {});
+    await expect(
+      createBatchHandler(
+        figmaCtx,
+        motionWrites(figmaCtx),
+      )({
+        ops: [
+          { tool: 'apply_animation_style', params: { nodeId: node.id, styleId: 's1' } },
+          FAILING_FILL,
+        ],
+      }),
+    ).rejects.toMatchObject({ code: 'BATCH_PARTIAL_CHANGE' });
+    expect(node.animationStyles).toHaveLength(1);
+  });
+
   it('rolls back apply_animation_style by removing the applied style instance', async () => {
     const { figmaCtx, store, addMotionNode } = makeMotionFigma();
     const a = addMotionNode('1:1');

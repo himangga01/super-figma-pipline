@@ -14,6 +14,23 @@ import {
 } from '../../src/scan/scan.js';
 
 describe('extractReactComponents (pure)', () => {
+  it('keeps unresolved imported component annotations and named rest APIs incomplete', () => {
+    for (const code of [
+      'import type { Imported } from "./props"; export const Button: React.FC<Imported> = () => <i/>;',
+      'import type { Imported } from "./props"; export const Button: Component<Imported> = () => <i/>;',
+      'export const Button = ({ known, ...rest }) => <i/>;',
+    ]) {
+      const [component] = extractReactComponents('Button.tsx', code);
+      expect(component?.propsExtracted).toBe(false);
+    }
+    expect(
+      extractReactComponents('Button.tsx', 'export const Button = ({ known, ...rest }) => <i/>;')[0]
+        ?.propNames,
+    ).toEqual(['known']);
+    expect(
+      extractReactComponents('Button.tsx', 'export const Button = () => <i/>;')[0]?.propsExtracted,
+    ).toBe(true);
+  });
   it('finds named function + arrow components and their destructured props', () => {
     const code = `
       export function Button({ size, variant }) { return <button/>; }

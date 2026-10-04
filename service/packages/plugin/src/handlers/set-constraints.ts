@@ -6,7 +6,7 @@ const VALUES = new Set(['MIN', 'CENTER', 'MAX', 'STRETCH', 'SCALE']);
 
 export const createSetConstraintsHandler =
   (figmaCtx: typeof figma): SandboxToolHandler =>
-  async params => {
+  async (params, execution) => {
     const p = (params ?? {}) as { nodeId?: unknown; horizontal?: unknown; vertical?: unknown };
     if (typeof p.nodeId !== 'string')
       throw new TypeError('set_constraints: nodeId must be a string');
@@ -19,6 +19,7 @@ export const createSetConstraintsHandler =
       throw new TypeError('set_constraints: vertical must be MIN / CENTER / MAX / STRETCH / SCALE');
     }
     const node = await figmaCtx.getNodeByIdAsync(p.nodeId);
+    execution?.signal.throwIfAborted();
     if (node === null || !('constraints' in node)) {
       throw new Error(`set_constraints: node ${p.nodeId} not found or has no constraints`);
     }
@@ -26,6 +27,7 @@ export const createSetConstraintsHandler =
       horizontal: p.horizontal as ConstraintType,
       vertical: p.vertical as ConstraintType,
     };
+    execution?.recordOwnedWrite?.(node, ['constraints']);
     const result: MutateResult = { ok: true, nodeId: node.id };
     return result;
   };

@@ -14,7 +14,7 @@ import {
   type PortalRoutingBinding,
 } from './service-connections.js';
 import { classifyPortalSourceBytes, collectPortalSourceInventory } from './source-inventory.js';
-import { isPortalSourcePath } from './source-path-policy.js';
+import { isPortalSourcePath, portalSourceExclusion } from './source-path-policy.js';
 
 export { isPortalSourcePath } from './source-path-policy.js';
 
@@ -127,7 +127,11 @@ export const analyzeServiceGraph = async (
     path === 'portal.routes.json' ||
     path.endsWith('.mdx');
   const candidates = sourceInventory.files.filter(
-    member => isPortalSourcePath(member.path) && !lockfiles.test(member.path),
+    member =>
+      (isPortalSourcePath(member.path) ||
+        (member.path.endsWith('.css') &&
+          portalSourceExclusion(member.path) === 'generated-output')) &&
+      !lockfiles.test(member.path),
   );
   const texts = new Map<string, { text: string; bytes: number }>();
   const failed = new Set<string>();

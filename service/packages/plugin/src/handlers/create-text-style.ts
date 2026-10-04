@@ -38,12 +38,14 @@ export const createCreateTextStyleHandler =
       bindings === undefined
         ? undefined
         : await resolveTextStyleBindings(figmaCtx, bindings, 'create_text_style');
+    execution?.signal.throwIfAborted();
 
     let fontName: FontName | undefined;
     if (p.fontName !== undefined) {
       const fn = p.fontName as SerializedFontName;
       fontName = { family: fn.family, style: fn.style };
       await figmaCtx.loadFontAsync(fontName);
+      execution?.signal.throwIfAborted();
     }
 
     const style = figmaCtx.createTextStyle();
@@ -56,6 +58,7 @@ export const createCreateTextStyleHandler =
       // font on has none loaded. This load cannot fail on caller input: the face is either the one
       // hoisted above or Figma's own default for a fresh style.
       await figmaCtx.loadFontAsync(style.fontName);
+      execution?.signal.throwIfAborted();
       if (typeof p.fontSize === 'number') style.fontSize = p.fontSize;
       if (p.lineHeight !== undefined)
         style.lineHeight = toFigmaLineHeight(p.lineHeight as SerializedLineHeight);
@@ -68,7 +71,8 @@ export const createCreateTextStyleHandler =
       }
       if (typeof p.description === 'string') style.description = p.description;
       if (bindings !== undefined && table !== undefined) {
-        await applyTextStyleBindings(figmaCtx, style, bindings, table);
+        await applyTextStyleBindings(figmaCtx, style, bindings, table, execution);
+        execution?.signal.throwIfAborted();
       }
     } catch (error) {
       // What is left after both hoists: a binding's target FACE is only computable once the

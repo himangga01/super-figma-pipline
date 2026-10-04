@@ -114,13 +114,21 @@ function cssColor(input: string): number[] | null {
   return result.every(value => Number.isFinite(value) && value >= 0 && value <= 1) ? result : null;
 }
 /** Formatting normalization only; a wrong mode, opacity or unit remains a mismatch. */
-export function matchesConsumptionValue(expected: ConsumptionValue, actual: string): boolean {
+export function matchesConsumptionValue(
+  expected: ConsumptionValue,
+  actual: string,
+  property?: string,
+): boolean {
   if (expected.kind === 'text') return actual === expected.value;
   if (expected.kind === 'font') {
     const first = /^\s*(?:"([^"]*)"|'([^']*)'|([^,]+))/u.exec(actual);
     return !!first && (first[1] ?? first[2] ?? first[3])?.trim() === expected.value;
   }
   if (expected.kind === 'number') {
+    // Chrome serializes zero letter spacing as normal. Other normal-valued
+    // properties (especially line-height) do not have an equivalent zero value.
+    if (property === 'letter-spacing' && actual.trim() === 'normal')
+      return expected.unit === 'px' && expected.value === 0;
     const match = numericCss.exec(actual.trim());
     return (
       !!match &&

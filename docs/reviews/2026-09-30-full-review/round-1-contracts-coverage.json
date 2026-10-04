@@ -1,0 +1,1432 @@
+[
+  {
+    "path": "service/packages/ir/package.json",
+    "depth": "full",
+    "notes": "Assigned contracts lane; baseline db821db346e7cb5dd27e4df465b91bb106e2f2b3. Bytes: 382; lines: 20 (UTF-8); manifest hash match: True. Read complete file in bounded batches; inspected lines 1-20; no uninspected ranges. Static inspection only; no tests executed."
+  },
+  {
+    "path": "service/packages/ir/src/canonical-json.ts",
+    "depth": "full",
+    "notes": "Assigned contracts lane; baseline db821db346e7cb5dd27e4df465b91bb106e2f2b3. Bytes: 3344; lines: 106 (UTF-8); manifest hash match: True. Read complete file in bounded batches; inspected lines 1-106; no uninspected ranges. Static inspection only; no tests executed."
+  },
+  {
+    "path": "service/packages/ir/src/fidelity.ts",
+    "depth": "full",
+    "notes": "Assigned contracts lane; baseline db821db346e7cb5dd27e4df465b91bb106e2f2b3. Bytes: 1688; lines: 42 (UTF-8); manifest hash match: True. Read complete file in bounded batches; inspected lines 1-42; no uninspected ranges. Static inspection only; no tests executed."
+  },
+  {
+    "path": "service/packages/ir/src/grounding-graph-v1.ts",
+    "depth": "full",
+    "notes": "Assigned contracts lane; baseline db821db346e7cb5dd27e4df465b91bb106e2f2b3. Bytes: 6926; lines: 191 (UTF-8); manifest hash match: True. Read complete file in bounded batches; inspected lines 1-191; no uninspected ranges. Static inspection only; no tests executed."
+  },
+  {
+    "path": "service/packages/ir/src/index.ts",
+    "depth": "full",
+    "notes": "Assigned contracts lane; baseline db821db346e7cb5dd27e4df465b91bb106e2f2b3. Bytes: 337; lines: 8 (UTF-8); manifest hash match: True. Read complete file in bounded batches; inspected lines 1-8; no uninspected ranges. Static inspection only; no tests executed."
+  },
+  {
+    "path": "service/packages/ir/src/inspection-v1.ts",
+    "depth": "full",
+    "notes": "Assigned contracts lane; baseline db821db346e7cb5dd27e4df465b91bb106e2f2b3. Bytes: 2044; lines: 66 (UTF-8); manifest hash match: True. Read complete file in bounded batches; inspected lines 1-66; no uninspected ranges. Static inspection only; no tests executed."
+  },
+  {
+    "path": "service/packages/ir/src/portal-run.ts",
+    "depth": "full",
+    "notes": "Assigned contracts lane; baseline db821db346e7cb5dd27e4df465b91bb106e2f2b3. Bytes: 14141; lines: 384 (UTF-8); manifest hash match: True. Read complete file in bounded batches; inspected lines 1-384; no uninspected ranges. Static inspection only; no tests executed."
+  },
+  {
+    "path": "service/packages/ir/src/snapshot-storage.ts",
+    "depth": "full",
+    "notes": "Assigned contracts lane; baseline db821db346e7cb5dd27e4df465b91bb106e2f2b3. Bytes: 1338; lines: 37 (UTF-8); manifest hash match: True. Read complete file in bounded batches; inspected lines 1-37; no uninspected ranges. Static inspection only; no tests executed."
+  },
+  {
+    "path": "service/packages/ir/src/snapshot-v1.ts",
+    "depth": "full",
+    "notes": "Assigned contracts lane; baseline db821db346e7cb5dd27e4df465b91bb106e2f2b3. Bytes: 3701; lines: 98 (UTF-8); manifest hash match: True. Read complete file in bounded batches; inspected lines 1-98; no uninspected ranges. Static inspection only; no tests executed."
+  },
+  {
+    "path": "service/packages/ir/src/store.ts",
+    "depth": "full",
+    "notes": "Assigned contracts lane; baseline db821db346e7cb5dd27e4df465b91bb106e2f2b3. Bytes: 5462; lines: 142 (UTF-8); manifest hash match: True. Read complete file in bounded batches; inspected lines 1-142; no uninspected ranges. Static inspection only; no tests executed."
+  },
+  {
+    "path": "service/packages/ir/test/canonical-json.test.ts",
+    "depth": "full",
+    "notes": "Assigned contracts lane; baseline db821db346e7cb5dd27e4df465b91bb106e2f2b3. Bytes: 1436; lines: 39 (UTF-8); manifest hash match: True. Read complete file in bounded batches; inspected lines 1-39; no uninspected ranges. Static inspection only; no tests executed."
+  },
+  {
+    "path": "service/packages/ir/test/graph-fixture.ts",
+    "depth": "full",
+    "notes": "Assigned contracts lane; baseline db821db346e7cb5dd27e4df465b91bb106e2f2b3. Bytes: 2179; lines: 55 (UTF-8); manifest hash match: True. Read complete file in bounded batches; inspected lines 1-55; no uninspected ranges. Static inspection only; no tests executed."
+  },
+  {
+    "path": "service/packages/ir/test/grounding-graph.test.ts",
+    "depth": "full",
+    "notes": "Assigned contracts lane; baseline db821db346e7cb5dd27e4df465b91bb106e2f2b3. Bytes: 1192; lines: 31 (UTF-8); manifest hash match: True. Read complete file in bounded batches; inspected lines 1-31; no uninspected ranges. Static inspection only; no tests executed."
+  },
+  {
+    "path": "service/packages/ir/test/inspection-v1.test.ts",
+    "depth": "full",
+    "notes": "Assigned contracts lane; baseline db821db346e7cb5dd27e4df465b91bb106e2f2b3. Bytes: 951; lines: 30 (UTF-8); manifest hash match: True. Read complete file in bounded batches; inspected lines 1-30; no uninspected ranges. Static inspection only; no tests executed."
+  },
+  {
+    "path": "service/packages/ir/test/portal-candidate.test.ts",
+    "depth": "full",
+    "notes": "Assigned contracts lane; baseline db821db346e7cb5dd27e4df465b91bb106e2f2b3. Bytes: 2465; lines: 72 (UTF-8); manifest hash match: True. Read complete file in bounded batches; inspected lines 1-72; no uninspected ranges. Static inspection only; no tests executed."
+  },
+  {
+    "path": "service/packages/ir/test/portal-completion.characterization.test.ts",
+    "depth": "unreviewed",
+    "notes": "Assigned contracts lane; baseline db821db346e7cb5dd27e4df465b91bb106e2f2b3. Bytes: 7648; lines: 238 (UTF-8); manifest hash match: True. Test body deferred explicitly to round two. Code and prose uninspected: lines 1-238. Integrity metadata alone is not code inspection."
+  },
+  {
+    "path": "service/packages/ir/test/portal-completion.test.ts",
+    "depth": "unreviewed",
+    "notes": "Assigned contracts lane; baseline db821db346e7cb5dd27e4df465b91bb106e2f2b3. Bytes: 8848; lines: 273 (UTF-8); manifest hash match: True. Test body deferred explicitly to round two. Code and prose uninspected: lines 1-273. Integrity metadata alone is not code inspection."
+  },
+  {
+    "path": "service/packages/ir/test/snapshot-v1.test.ts",
+    "depth": "full",
+    "notes": "Assigned contracts lane; baseline db821db346e7cb5dd27e4df465b91bb106e2f2b3. Bytes: 4680; lines: 122 (UTF-8); manifest hash match: True. Read complete file in bounded batches; inspected lines 1-122; no uninspected ranges. Static inspection only; no tests executed."
+  },
+  {
+    "path": "service/packages/ir/tsconfig.json",
+    "depth": "full",
+    "notes": "Assigned contracts lane; baseline db821db346e7cb5dd27e4df465b91bb106e2f2b3. Bytes: 199; lines: 9 (UTF-8); manifest hash match: True. Read complete file in bounded batches; inspected lines 1-9; no uninspected ranges. Static inspection only; no tests executed."
+  },
+  {
+    "path": "service/packages/ir/vitest.config.ts",
+    "depth": "full",
+    "notes": "Assigned contracts lane; baseline db821db346e7cb5dd27e4df465b91bb106e2f2b3. Bytes: 180; lines: 9 (UTF-8); manifest hash match: True. Read complete file in bounded batches; inspected lines 1-9; no uninspected ranges. Static inspection only; no tests executed."
+  },
+  {
+    "path": "service/packages/mcp/src/portal/recipes/artifact-readback.ts",
+    "depth": "full",
+    "notes": "Assigned contracts lane; baseline db821db346e7cb5dd27e4df465b91bb106e2f2b3. Bytes: 3550; lines: 95 (UTF-8); manifest hash match: True. Read complete file in bounded batches; inspected lines 1-95; no uninspected ranges. Static inspection only; no tests executed."
+  },
+  {
+    "path": "service/packages/mcp/src/portal/recipes/consumption-components.ts",
+    "depth": "full",
+    "notes": "Assigned contracts lane; baseline db821db346e7cb5dd27e4df465b91bb106e2f2b3. Bytes: 19842; lines: 486 (UTF-8); manifest hash match: True. Read complete file in bounded batches; inspected lines 1-486; no uninspected ranges. Static inspection only; no tests executed."
+  },
+  {
+    "path": "service/packages/mcp/src/portal/recipes/consumption-input.ts",
+    "depth": "full",
+    "notes": "Assigned contracts lane; baseline db821db346e7cb5dd27e4df465b91bb106e2f2b3. Bytes: 11615; lines: 299 (UTF-8); manifest hash match: True. Read complete file in bounded batches; inspected lines 1-299; no uninspected ranges. Static inspection only; no tests executed."
+  },
+  {
+    "path": "service/packages/mcp/src/portal/recipes/consumption-values.ts",
+    "depth": "full",
+    "notes": "Assigned contracts lane; baseline db821db346e7cb5dd27e4df465b91bb106e2f2b3. Bytes: 5704; lines: 139 (UTF-8); manifest hash match: True. Read complete file in bounded batches; inspected lines 1-139; no uninspected ranges. Static inspection only; no tests executed."
+  },
+  {
+    "path": "service/packages/mcp/src/portal/recipes/core-consumption.ts",
+    "depth": "full",
+    "notes": "Assigned contracts lane; baseline db821db346e7cb5dd27e4df465b91bb106e2f2b3. Bytes: 39022; lines: 1011 (UTF-8); manifest hash match: True. Read complete file in bounded batches; inspected lines 1-1011; no uninspected ranges. Static inspection only; no tests executed."
+  },
+  {
+    "path": "service/packages/mcp/src/portal/recipes/core-derivation.ts",
+    "depth": "full",
+    "notes": "Assigned contracts lane; baseline db821db346e7cb5dd27e4df465b91bb106e2f2b3. Bytes: 48817; lines: 1247 (UTF-8); manifest hash match: True. Read complete file in bounded batches; inspected lines 1-1247; no uninspected ranges. Static inspection only; no tests executed."
+  },
+  {
+    "path": "service/packages/mcp/src/portal/recipes/core-lifecycle.ts",
+    "depth": "full",
+    "notes": "Assigned contracts lane; baseline db821db346e7cb5dd27e4df465b91bb106e2f2b3. Bytes: 18721; lines: 483 (UTF-8); manifest hash match: True. Read complete file in bounded batches; inspected lines 1-483; no uninspected ranges. Static inspection only; no tests executed."
+  },
+  {
+    "path": "service/packages/mcp/src/portal/recipes/core-preparation.ts",
+    "depth": "full",
+    "notes": "Assigned contracts lane; baseline db821db346e7cb5dd27e4df465b91bb106e2f2b3. Bytes: 25063; lines: 646 (UTF-8); manifest hash match: True. Read complete file in bounded batches; inspected lines 1-646; no uninspected ranges. Static inspection only; no tests executed."
+  },
+  {
+    "path": "service/packages/mcp/src/portal/recipes/core-source.ts",
+    "depth": "full",
+    "notes": "Assigned contracts lane; baseline db821db346e7cb5dd27e4df465b91bb106e2f2b3. Bytes: 17684; lines: 461 (UTF-8); manifest hash match: True. Read complete file in bounded batches; inspected lines 1-461; no uninspected ranges. Static inspection only; no tests executed."
+  },
+  {
+    "path": "service/packages/mcp/src/portal/recipes/definitions.ts",
+    "depth": "full",
+    "notes": "Assigned contracts lane; baseline db821db346e7cb5dd27e4df465b91bb106e2f2b3. Bytes: 17540; lines: 496 (UTF-8); manifest hash match: True. Read complete file in bounded batches; inspected lines 1-496; no uninspected ranges. Static inspection only; no tests executed."
+  },
+  {
+    "path": "service/packages/mcp/src/portal/recipes/evidence-contract.ts",
+    "depth": "full",
+    "notes": "Assigned contracts lane; baseline db821db346e7cb5dd27e4df465b91bb106e2f2b3. Bytes: 1902; lines: 54 (UTF-8); manifest hash match: True. Read complete file in bounded batches; inspected lines 1-54; no uninspected ranges. Static inspection only; no tests executed."
+  },
+  {
+    "path": "service/packages/mcp/src/portal/recipes/evidence-control.ts",
+    "depth": "full",
+    "notes": "Assigned contracts lane; baseline db821db346e7cb5dd27e4df465b91bb106e2f2b3. Bytes: 1747; lines: 45 (UTF-8); manifest hash match: True. Read complete file in bounded batches; inspected lines 1-45; no uninspected ranges. Static inspection only; no tests executed."
+  },
+  {
+    "path": "service/packages/mcp/src/portal/recipes/evidence-hold.ts",
+    "depth": "full",
+    "notes": "Assigned contracts lane; baseline db821db346e7cb5dd27e4df465b91bb106e2f2b3. Bytes: 19380; lines: 473 (UTF-8); manifest hash match: True. Read complete file in bounded batches; inspected lines 1-473; no uninspected ranges. Static inspection only; no tests executed."
+  },
+  {
+    "path": "service/packages/mcp/src/portal/recipes/evidence-operations.ts",
+    "depth": "full",
+    "notes": "Assigned contracts lane; baseline db821db346e7cb5dd27e4df465b91bb106e2f2b3. Bytes: 2251; lines: 58 (UTF-8); manifest hash match: True. Read complete file in bounded batches; inspected lines 1-58; no uninspected ranges. Static inspection only; no tests executed."
+  },
+  {
+    "path": "service/packages/mcp/src/portal/recipes/feature-inventory.ts",
+    "depth": "full",
+    "notes": "Assigned contracts lane; baseline db821db346e7cb5dd27e4df465b91bb106e2f2b3. Bytes: 12294; lines: 358 (UTF-8); manifest hash match: True. Read complete file in bounded batches; inspected lines 1-358; no uninspected ranges. Static inspection only; no tests executed."
+  },
+  {
+    "path": "service/packages/mcp/src/prompts/code-to-figma.ts",
+    "depth": "full",
+    "notes": "Assigned contracts lane; baseline db821db346e7cb5dd27e4df465b91bb106e2f2b3. Bytes: 7124; lines: 55 (UTF-8); manifest hash match: True. Read complete file in bounded batches; inspected lines 1-55; no uninspected ranges. Static inspection only; no tests executed."
+  },
+  {
+    "path": "service/packages/mcp/src/prompts/figma-to-code.ts",
+    "depth": "full",
+    "notes": "Assigned contracts lane; baseline db821db346e7cb5dd27e4df465b91bb106e2f2b3. Bytes: 26631; lines: 85 (UTF-8); manifest hash match: True. Read complete file in bounded batches; inspected lines 1-85; no uninspected ranges. Static inspection only; no tests executed."
+  },
+  {
+    "path": "service/packages/mcp/src/prompts/registry.ts",
+    "depth": "full",
+    "notes": "Assigned contracts lane; baseline db821db346e7cb5dd27e4df465b91bb106e2f2b3. Bytes: 2259; lines: 44 (UTF-8); manifest hash match: True. Read complete file in bounded batches; inspected lines 1-44; no uninspected ranges. Static inspection only; no tests executed."
+  },
+  {
+    "path": "service/packages/mcp/src/tools/add-component-property.ts",
+    "depth": "full",
+    "notes": "Assigned contracts lane; baseline db821db346e7cb5dd27e4df465b91bb106e2f2b3. Bytes: 1665; lines: 32 (UTF-8); manifest hash match: True. Read complete file in bounded batches; inspected lines 1-32; no uninspected ranges. Static inspection only; no tests executed."
+  },
+  {
+    "path": "service/packages/mcp/src/tools/add-page.ts",
+    "depth": "full",
+    "notes": "Assigned contracts lane; baseline db821db346e7cb5dd27e4df465b91bb106e2f2b3. Bytes: 398; lines: 14 (UTF-8); manifest hash match: True. Read complete file in bounded batches; inspected lines 1-14; no uninspected ranges. Static inspection only; no tests executed."
+  },
+  {
+    "path": "service/packages/mcp/src/tools/add-variable-mode.ts",
+    "depth": "full",
+    "notes": "Assigned contracts lane; baseline db821db346e7cb5dd27e4df465b91bb106e2f2b3. Bytes: 781; lines: 19 (UTF-8); manifest hash match: True. Read complete file in bounded batches; inspected lines 1-19; no uninspected ranges. Static inspection only; no tests executed."
+  },
+  {
+    "path": "service/packages/mcp/src/tools/analyze-project.ts",
+    "depth": "full",
+    "notes": "Assigned contracts lane; baseline db821db346e7cb5dd27e4df465b91bb106e2f2b3. Bytes: 2533; lines: 46 (UTF-8); manifest hash match: True. Read complete file in bounded batches; inspected lines 1-46; no uninspected ranges. Static inspection only; no tests executed."
+  },
+  {
+    "path": "service/packages/mcp/src/tools/annotations.ts",
+    "depth": "full",
+    "notes": "Assigned contracts lane; baseline db821db346e7cb5dd27e4df465b91bb106e2f2b3. Bytes: 1577; lines: 41 (UTF-8); manifest hash match: True. Read complete file in bounded batches; inspected lines 1-41; no uninspected ranges. Static inspection only; no tests executed."
+  },
+  {
+    "path": "service/packages/mcp/src/tools/apply-animation-style.ts",
+    "depth": "full",
+    "notes": "Assigned contracts lane; baseline db821db346e7cb5dd27e4df465b91bb106e2f2b3. Bytes: 1235; lines: 25 (UTF-8); manifest hash match: True. Read complete file in bounded batches; inspected lines 1-25; no uninspected ranges. Static inspection only; no tests executed."
+  },
+  {
+    "path": "service/packages/mcp/src/tools/apply-manual-keyframe-track.ts",
+    "depth": "full",
+    "notes": "Assigned contracts lane; baseline db821db346e7cb5dd27e4df465b91bb106e2f2b3. Bytes: 1096; lines: 22 (UTF-8); manifest hash match: True. Read complete file in bounded batches; inspected lines 1-22; no uninspected ranges. Static inspection only; no tests executed."
+  },
+  {
+    "path": "service/packages/mcp/src/tools/apply-style-to-node.ts",
+    "depth": "full",
+    "notes": "Assigned contracts lane; baseline db821db346e7cb5dd27e4df465b91bb106e2f2b3. Bytes: 639; lines: 18 (UTF-8); manifest hash match: True. Read complete file in bounded batches; inspected lines 1-18; no uninspected ranges. Static inspection only; no tests executed."
+  },
+  {
+    "path": "service/packages/mcp/src/tools/batch-rename-nodes.ts",
+    "depth": "full",
+    "notes": "Assigned contracts lane; baseline db821db346e7cb5dd27e4df465b91bb106e2f2b3. Bytes: 552; lines: 18 (UTF-8); manifest hash match: True. Read complete file in bounded batches; inspected lines 1-18; no uninspected ranges. Static inspection only; no tests executed."
+  },
+  {
+    "path": "service/packages/mcp/src/tools/batch.ts",
+    "depth": "full",
+    "notes": "Assigned contracts lane; baseline db821db346e7cb5dd27e4df465b91bb106e2f2b3. Bytes: 5834; lines: 157 (UTF-8); manifest hash match: True. Read complete file in bounded batches; inspected lines 1-157; no uninspected ranges. Static inspection only; no tests executed."
+  },
+  {
+    "path": "service/packages/mcp/src/tools/binary-payload.ts",
+    "depth": "full",
+    "notes": "Assigned contracts lane; baseline db821db346e7cb5dd27e4df465b91bb106e2f2b3. Bytes: 3286; lines: 78 (UTF-8); manifest hash match: True. Read complete file in bounded batches; inspected lines 1-78; no uninspected ranges. Static inspection only; no tests executed."
+  },
+  {
+    "path": "service/packages/mcp/src/tools/bind-component-property.ts",
+    "depth": "full",
+    "notes": "Assigned contracts lane; baseline db821db346e7cb5dd27e4df465b91bb106e2f2b3. Bytes: 1215; lines: 27 (UTF-8); manifest hash match: True. Read complete file in bounded batches; inspected lines 1-27; no uninspected ranges. Static inspection only; no tests executed."
+  },
+  {
+    "path": "service/packages/mcp/src/tools/bind-variable-to-node.ts",
+    "depth": "full",
+    "notes": "Assigned contracts lane; baseline db821db346e7cb5dd27e4df465b91bb106e2f2b3. Bytes: 989; lines: 24 (UTF-8); manifest hash match: True. Read complete file in bounded batches; inspected lines 1-24; no uninspected ranges. Static inspection only; no tests executed."
+  },
+  {
+    "path": "service/packages/mcp/src/tools/bind-variable-to-paint.ts",
+    "depth": "full",
+    "notes": "Assigned contracts lane; baseline db821db346e7cb5dd27e4df465b91bb106e2f2b3. Bytes: 1280; lines: 33 (UTF-8); manifest hash match: True. Read complete file in bounded batches; inspected lines 1-33; no uninspected ranges. Static inspection only; no tests executed."
+  },
+  {
+    "path": "service/packages/mcp/src/tools/binding-schema.ts",
+    "depth": "full",
+    "notes": "Assigned contracts lane; baseline db821db346e7cb5dd27e4df465b91bb106e2f2b3. Bytes: 1886; lines: 35 (UTF-8); manifest hash match: True. Read complete file in bounded batches; inspected lines 1-35; no uninspected ranges. Static inspection only; no tests executed."
+  },
+  {
+    "path": "service/packages/mcp/src/tools/clone-node.ts",
+    "depth": "full",
+    "notes": "Assigned contracts lane; baseline db821db346e7cb5dd27e4df465b91bb106e2f2b3. Bytes: 625; lines: 18 (UTF-8); manifest hash match: True. Read complete file in bounded batches; inspected lines 1-18; no uninspected ranges. Static inspection only; no tests executed."
+  },
+  {
+    "path": "service/packages/mcp/src/tools/combine-as-variants.ts",
+    "depth": "full",
+    "notes": "Assigned contracts lane; baseline db821db346e7cb5dd27e4df465b91bb106e2f2b3. Bytes: 1074; lines: 26 (UTF-8); manifest hash match: True. Read complete file in bounded batches; inspected lines 1-26; no uninspected ranges. Static inspection only; no tests executed."
+  },
+  {
+    "path": "service/packages/mcp/src/tools/component-map.ts",
+    "depth": "full",
+    "notes": "Assigned contracts lane; baseline db821db346e7cb5dd27e4df465b91bb106e2f2b3. Bytes: 5358; lines: 114 (UTF-8); manifest hash match: True. Read complete file in bounded batches; inspected lines 1-114; no uninspected ranges. Static inspection only; no tests executed."
+  },
+  {
+    "path": "service/packages/mcp/src/tools/create-component.ts",
+    "depth": "full",
+    "notes": "Assigned contracts lane; baseline db821db346e7cb5dd27e4df465b91bb106e2f2b3. Bytes: 1191; lines: 28 (UTF-8); manifest hash match: True. Read complete file in bounded batches; inspected lines 1-28; no uninspected ranges. Static inspection only; no tests executed."
+  },
+  {
+    "path": "service/packages/mcp/src/tools/create-effect-style.ts",
+    "depth": "full",
+    "notes": "Assigned contracts lane; baseline db821db346e7cb5dd27e4df465b91bb106e2f2b3. Bytes: 687; lines: 19 (UTF-8); manifest hash match: True. Read complete file in bounded batches; inspected lines 1-19; no uninspected ranges. Static inspection only; no tests executed."
+  },
+  {
+    "path": "service/packages/mcp/src/tools/create-ellipse.ts",
+    "depth": "full",
+    "notes": "Assigned contracts lane; baseline db821db346e7cb5dd27e4df465b91bb106e2f2b3. Bytes: 927; lines: 22 (UTF-8); manifest hash match: True. Read complete file in bounded batches; inspected lines 1-22; no uninspected ranges. Static inspection only; no tests executed."
+  },
+  {
+    "path": "service/packages/mcp/src/tools/create-frame.ts",
+    "depth": "full",
+    "notes": "Assigned contracts lane; baseline db821db346e7cb5dd27e4df465b91bb106e2f2b3. Bytes: 1063; lines: 26 (UTF-8); manifest hash match: True. Read complete file in bounded batches; inspected lines 1-26; no uninspected ranges. Static inspection only; no tests executed."
+  },
+  {
+    "path": "service/packages/mcp/src/tools/create-grid-style.ts",
+    "depth": "full",
+    "notes": "Assigned contracts lane; baseline db821db346e7cb5dd27e4df465b91bb106e2f2b3. Bytes: 760; lines: 20 (UTF-8); manifest hash match: True. Read complete file in bounded batches; inspected lines 1-20; no uninspected ranges. Static inspection only; no tests executed."
+  },
+  {
+    "path": "service/packages/mcp/src/tools/create-instance.ts",
+    "depth": "full",
+    "notes": "Assigned contracts lane; baseline db821db346e7cb5dd27e4df465b91bb106e2f2b3. Bytes: 1011; lines: 27 (UTF-8); manifest hash match: True. Read complete file in bounded batches; inspected lines 1-27; no uninspected ranges. Static inspection only; no tests executed."
+  },
+  {
+    "path": "service/packages/mcp/src/tools/create-paint-style.ts",
+    "depth": "full",
+    "notes": "Assigned contracts lane; baseline db821db346e7cb5dd27e4df465b91bb106e2f2b3. Bytes: 840; lines: 20 (UTF-8); manifest hash match: True. Read complete file in bounded batches; inspected lines 1-20; no uninspected ranges. Static inspection only; no tests executed."
+  },
+  {
+    "path": "service/packages/mcp/src/tools/create-rectangle.ts",
+    "depth": "full",
+    "notes": "Assigned contracts lane; baseline db821db346e7cb5dd27e4df465b91bb106e2f2b3. Bytes: 1007; lines: 23 (UTF-8); manifest hash match: True. Read complete file in bounded batches; inspected lines 1-23; no uninspected ranges. Static inspection only; no tests executed."
+  },
+  {
+    "path": "service/packages/mcp/src/tools/create-section.ts",
+    "depth": "full",
+    "notes": "Assigned contracts lane; baseline db821db346e7cb5dd27e4df465b91bb106e2f2b3. Bytes: 1016; lines: 23 (UTF-8); manifest hash match: True. Read complete file in bounded batches; inspected lines 1-23; no uninspected ranges. Static inspection only; no tests executed."
+  },
+  {
+    "path": "service/packages/mcp/src/tools/create-text-style.ts",
+    "depth": "full",
+    "notes": "Assigned contracts lane; baseline db821db346e7cb5dd27e4df465b91bb106e2f2b3. Bytes: 1550; lines: 34 (UTF-8); manifest hash match: True. Read complete file in bounded batches; inspected lines 1-34; no uninspected ranges. Static inspection only; no tests executed."
+  },
+  {
+    "path": "service/packages/mcp/src/tools/create-text.ts",
+    "depth": "full",
+    "notes": "Assigned contracts lane; baseline db821db346e7cb5dd27e4df465b91bb106e2f2b3. Bytes: 948; lines: 22 (UTF-8); manifest hash match: True. Read complete file in bounded batches; inspected lines 1-22; no uninspected ranges. Static inspection only; no tests executed."
+  },
+  {
+    "path": "service/packages/mcp/src/tools/create-variable-collection.ts",
+    "depth": "full",
+    "notes": "Assigned contracts lane; baseline db821db346e7cb5dd27e4df465b91bb106e2f2b3. Bytes: 648; lines: 17 (UTF-8); manifest hash match: True. Read complete file in bounded batches; inspected lines 1-17; no uninspected ranges. Static inspection only; no tests executed."
+  },
+  {
+    "path": "service/packages/mcp/src/tools/create-variable.ts",
+    "depth": "full",
+    "notes": "Assigned contracts lane; baseline db821db346e7cb5dd27e4df465b91bb106e2f2b3. Bytes: 1707; lines: 30 (UTF-8); manifest hash match: True. Read complete file in bounded batches; inspected lines 1-30; no uninspected ranges. Static inspection only; no tests executed."
+  },
+  {
+    "path": "service/packages/mcp/src/tools/delete-component-property.ts",
+    "depth": "full",
+    "notes": "Assigned contracts lane; baseline db821db346e7cb5dd27e4df465b91bb106e2f2b3. Bytes: 875; lines: 20 (UTF-8); manifest hash match: True. Read complete file in bounded batches; inspected lines 1-20; no uninspected ranges. Static inspection only; no tests executed."
+  },
+  {
+    "path": "service/packages/mcp/src/tools/delete-nodes.ts",
+    "depth": "full",
+    "notes": "Assigned contracts lane; baseline db821db346e7cb5dd27e4df465b91bb106e2f2b3. Bytes: 590; lines: 18 (UTF-8); manifest hash match: True. Read complete file in bounded batches; inspected lines 1-18; no uninspected ranges. Static inspection only; no tests executed."
+  },
+  {
+    "path": "service/packages/mcp/src/tools/delete-page.ts",
+    "depth": "full",
+    "notes": "Assigned contracts lane; baseline db821db346e7cb5dd27e4df465b91bb106e2f2b3. Bytes: 469; lines: 17 (UTF-8); manifest hash match: True. Read complete file in bounded batches; inspected lines 1-17; no uninspected ranges. Static inspection only; no tests executed."
+  },
+  {
+    "path": "service/packages/mcp/src/tools/delete-style.ts",
+    "depth": "full",
+    "notes": "Assigned contracts lane; baseline db821db346e7cb5dd27e4df465b91bb106e2f2b3. Bytes: 447; lines: 16 (UTF-8); manifest hash match: True. Read complete file in bounded batches; inspected lines 1-16; no uninspected ranges. Static inspection only; no tests executed."
+  },
+  {
+    "path": "service/packages/mcp/src/tools/delete-variable-collection.ts",
+    "depth": "full",
+    "notes": "Assigned contracts lane; baseline db821db346e7cb5dd27e4df465b91bb106e2f2b3. Bytes: 694; lines: 18 (UTF-8); manifest hash match: True. Read complete file in bounded batches; inspected lines 1-18; no uninspected ranges. Static inspection only; no tests executed."
+  },
+  {
+    "path": "service/packages/mcp/src/tools/delete-variable.ts",
+    "depth": "full",
+    "notes": "Assigned contracts lane; baseline db821db346e7cb5dd27e4df465b91bb106e2f2b3. Bytes: 600; lines: 18 (UTF-8); manifest hash match: True. Read complete file in bounded batches; inspected lines 1-18; no uninspected ranges. Static inspection only; no tests executed."
+  },
+  {
+    "path": "service/packages/mcp/src/tools/design-context-guard.ts",
+    "depth": "full",
+    "notes": "Assigned contracts lane; baseline db821db346e7cb5dd27e4df465b91bb106e2f2b3. Bytes: 15493; lines: 300 (UTF-8); manifest hash match: True. Read complete file in bounded batches; inspected lines 1-300; no uninspected ranges. Static inspection only; no tests executed."
+  },
+  {
+    "path": "service/packages/mcp/src/tools/design-diff.ts",
+    "depth": "full",
+    "notes": "Assigned contracts lane; baseline db821db346e7cb5dd27e4df465b91bb106e2f2b3. Bytes: 11257; lines: 304 (UTF-8); manifest hash match: True. Read complete file in bounded batches; inspected lines 1-304; no uninspected ranges. Static inspection only; no tests executed."
+  },
+  {
+    "path": "service/packages/mcp/src/tools/detach-instance.ts",
+    "depth": "full",
+    "notes": "Assigned contracts lane; baseline db821db346e7cb5dd27e4df465b91bb106e2f2b3. Bytes: 841; lines: 20 (UTF-8); manifest hash match: True. Read complete file in bounded batches; inspected lines 1-20; no uninspected ranges. Static inspection only; no tests executed."
+  },
+  {
+    "path": "service/packages/mcp/src/tools/edit-component-property.ts",
+    "depth": "full",
+    "notes": "Assigned contracts lane; baseline db821db346e7cb5dd27e4df465b91bb106e2f2b3. Bytes: 1408; lines: 29 (UTF-8); manifest hash match: True. Read complete file in bounded batches; inspected lines 1-29; no uninspected ranges. Static inspection only; no tests executed."
+  },
+  {
+    "path": "service/packages/mcp/src/tools/effect-schema.ts",
+    "depth": "full",
+    "notes": "Assigned contracts lane; baseline db821db346e7cb5dd27e4df465b91bb106e2f2b3. Bytes: 1296; lines: 30 (UTF-8); manifest hash match: True. Read complete file in bounded batches; inspected lines 1-30; no uninspected ranges. Static inspection only; no tests executed."
+  },
+  {
+    "path": "service/packages/mcp/src/tools/export-pdf.ts",
+    "depth": "full",
+    "notes": "Assigned contracts lane; baseline db821db346e7cb5dd27e4df465b91bb106e2f2b3. Bytes: 2833; lines: 67 (UTF-8); manifest hash match: True. Read complete file in bounded batches; inspected lines 1-67; no uninspected ranges. Static inspection only; no tests executed."
+  },
+  {
+    "path": "service/packages/mcp/src/tools/export-video.ts",
+    "depth": "full",
+    "notes": "Assigned contracts lane; baseline db821db346e7cb5dd27e4df465b91bb106e2f2b3. Bytes: 4036; lines: 98 (UTF-8); manifest hash match: True. Read complete file in bounded batches; inspected lines 1-98; no uninspected ranges. Static inspection only; no tests executed."
+  },
+  {
+    "path": "service/packages/mcp/src/tools/find-replace-text.ts",
+    "depth": "full",
+    "notes": "Assigned contracts lane; baseline db821db346e7cb5dd27e4df465b91bb106e2f2b3. Bytes: 873; lines: 20 (UTF-8); manifest hash match: True. Read complete file in bounded batches; inspected lines 1-20; no uninspected ranges. Static inspection only; no tests executed."
+  },
+  {
+    "path": "service/packages/mcp/src/tools/get-annotations.ts",
+    "depth": "full",
+    "notes": "Assigned contracts lane; baseline db821db346e7cb5dd27e4df465b91bb106e2f2b3. Bytes: 725; lines: 20 (UTF-8); manifest hash match: True. Read complete file in bounded batches; inspected lines 1-20; no uninspected ranges. Static inspection only; no tests executed."
+  },
+  {
+    "path": "service/packages/mcp/src/tools/get-component-api.ts",
+    "depth": "full",
+    "notes": "Assigned contracts lane; baseline db821db346e7cb5dd27e4df465b91bb106e2f2b3. Bytes: 1129; lines: 23 (UTF-8); manifest hash match: True. Read complete file in bounded batches; inspected lines 1-23; no uninspected ranges. Static inspection only; no tests executed."
+  },
+  {
+    "path": "service/packages/mcp/src/tools/get-design-context.ts",
+    "depth": "full",
+    "notes": "Assigned contracts lane; baseline db821db346e7cb5dd27e4df465b91bb106e2f2b3. Bytes: 4430; lines: 69 (UTF-8); manifest hash match: True. Read complete file in bounded batches; inspected lines 1-69; no uninspected ranges. Static inspection only; no tests executed."
+  },
+  {
+    "path": "service/packages/mcp/src/tools/get-document.ts",
+    "depth": "full",
+    "notes": "Assigned contracts lane; baseline db821db346e7cb5dd27e4df465b91bb106e2f2b3. Bytes: 424; lines: 13 (UTF-8); manifest hash match: True. Read complete file in bounded batches; inspected lines 1-13; no uninspected ranges. Static inspection only; no tests executed."
+  },
+  {
+    "path": "service/packages/mcp/src/tools/get-fonts.ts",
+    "depth": "full",
+    "notes": "Assigned contracts lane; baseline db821db346e7cb5dd27e4df465b91bb106e2f2b3. Bytes: 694; lines: 16 (UTF-8); manifest hash match: True. Read complete file in bounded batches; inspected lines 1-16; no uninspected ranges. Static inspection only; no tests executed."
+  },
+  {
+    "path": "service/packages/mcp/src/tools/get-local-components.ts",
+    "depth": "full",
+    "notes": "Assigned contracts lane; baseline db821db346e7cb5dd27e4df465b91bb106e2f2b3. Bytes: 861; lines: 21 (UTF-8); manifest hash match: True. Read complete file in bounded batches; inspected lines 1-21; no uninspected ranges. Static inspection only; no tests executed."
+  },
+  {
+    "path": "service/packages/mcp/src/tools/get-metadata.ts",
+    "depth": "full",
+    "notes": "Assigned contracts lane; baseline db821db346e7cb5dd27e4df465b91bb106e2f2b3. Bytes: 494; lines: 15 (UTF-8); manifest hash match: True. Read complete file in bounded batches; inspected lines 1-15; no uninspected ranges. Static inspection only; no tests executed."
+  },
+  {
+    "path": "service/packages/mcp/src/tools/get-motion-styles.ts",
+    "depth": "full",
+    "notes": "Assigned contracts lane; baseline db821db346e7cb5dd27e4df465b91bb106e2f2b3. Bytes: 664; lines: 16 (UTF-8); manifest hash match: True. Read complete file in bounded batches; inspected lines 1-16; no uninspected ranges. Static inspection only; no tests executed."
+  },
+  {
+    "path": "service/packages/mcp/src/tools/get-node-motion.ts",
+    "depth": "full",
+    "notes": "Assigned contracts lane; baseline db821db346e7cb5dd27e4df465b91bb106e2f2b3. Bytes: 1045; lines: 21 (UTF-8); manifest hash match: True. Read complete file in bounded batches; inspected lines 1-21; no uninspected ranges. Static inspection only; no tests executed."
+  },
+  {
+    "path": "service/packages/mcp/src/tools/get-node.ts",
+    "depth": "full",
+    "notes": "Assigned contracts lane; baseline db821db346e7cb5dd27e4df465b91bb106e2f2b3. Bytes: 889; lines: 20 (UTF-8); manifest hash match: True. Read complete file in bounded batches; inspected lines 1-20; no uninspected ranges. Static inspection only; no tests executed."
+  },
+  {
+    "path": "service/packages/mcp/src/tools/get-nodes-info.ts",
+    "depth": "full",
+    "notes": "Assigned contracts lane; baseline db821db346e7cb5dd27e4df465b91bb106e2f2b3. Bytes: 437; lines: 13 (UTF-8); manifest hash match: True. Read complete file in bounded batches; inspected lines 1-13; no uninspected ranges. Static inspection only; no tests executed."
+  },
+  {
+    "path": "service/packages/mcp/src/tools/get-pages.ts",
+    "depth": "full",
+    "notes": "Assigned contracts lane; baseline db821db346e7cb5dd27e4df465b91bb106e2f2b3. Bytes: 315; lines: 12 (UTF-8); manifest hash match: True. Read complete file in bounded batches; inspected lines 1-12; no uninspected ranges. Static inspection only; no tests executed."
+  },
+  {
+    "path": "service/packages/mcp/src/tools/get-reactions.ts",
+    "depth": "full",
+    "notes": "Assigned contracts lane; baseline db821db346e7cb5dd27e4df465b91bb106e2f2b3. Bytes: 590; lines: 15 (UTF-8); manifest hash match: True. Read complete file in bounded batches; inspected lines 1-15; no uninspected ranges. Static inspection only; no tests executed."
+  },
+  {
+    "path": "service/packages/mcp/src/tools/get-screenshot.ts",
+    "depth": "full",
+    "notes": "Assigned contracts lane; baseline db821db346e7cb5dd27e4df465b91bb106e2f2b3. Bytes: 10980; lines: 194 (UTF-8); manifest hash match: True. Read complete file in bounded batches; inspected lines 1-194; no uninspected ranges. Static inspection only; no tests executed."
+  },
+  {
+    "path": "service/packages/mcp/src/tools/get-selection.ts",
+    "depth": "full",
+    "notes": "Assigned contracts lane; baseline db821db346e7cb5dd27e4df465b91bb106e2f2b3. Bytes: 764; lines: 17 (UTF-8); manifest hash match: True. Read complete file in bounded batches; inspected lines 1-17; no uninspected ranges. Static inspection only; no tests executed."
+  },
+  {
+    "path": "service/packages/mcp/src/tools/get-styles.ts",
+    "depth": "full",
+    "notes": "Assigned contracts lane; baseline db821db346e7cb5dd27e4df465b91bb106e2f2b3. Bytes: 1149; lines: 21 (UTF-8); manifest hash match: True. Read complete file in bounded batches; inspected lines 1-21; no uninspected ranges. Static inspection only; no tests executed."
+  },
+  {
+    "path": "service/packages/mcp/src/tools/get-variable-defs.ts",
+    "depth": "full",
+    "notes": "Assigned contracts lane; baseline db821db346e7cb5dd27e4df465b91bb106e2f2b3. Bytes: 696; lines: 16 (UTF-8); manifest hash match: True. Read complete file in bounded batches; inspected lines 1-16; no uninspected ranges. Static inspection only; no tests executed."
+  },
+  {
+    "path": "service/packages/mcp/src/tools/get-viewport.ts",
+    "depth": "full",
+    "notes": "Assigned contracts lane; baseline db821db346e7cb5dd27e4df465b91bb106e2f2b3. Bytes: 428; lines: 14 (UTF-8); manifest hash match: True. Read complete file in bounded batches; inspected lines 1-14; no uninspected ranges. Static inspection only; no tests executed."
+  },
+  {
+    "path": "service/packages/mcp/src/tools/grid-schema.ts",
+    "depth": "full",
+    "notes": "Assigned contracts lane; baseline db821db346e7cb5dd27e4df465b91bb106e2f2b3. Bytes: 1454; lines: 28 (UTF-8); manifest hash match: True. Read complete file in bounded batches; inspected lines 1-28; no uninspected ranges. Static inspection only; no tests executed."
+  },
+  {
+    "path": "service/packages/mcp/src/tools/group-nodes.ts",
+    "depth": "full",
+    "notes": "Assigned contracts lane; baseline db821db346e7cb5dd27e4df465b91bb106e2f2b3. Bytes: 553; lines: 17 (UTF-8); manifest hash match: True. Read complete file in bounded batches; inspected lines 1-17; no uninspected ranges. Static inspection only; no tests executed."
+  },
+  {
+    "path": "service/packages/mcp/src/tools/icon-map.ts",
+    "depth": "full",
+    "notes": "Assigned contracts lane; baseline db821db346e7cb5dd27e4df465b91bb106e2f2b3. Bytes: 4735; lines: 110 (UTF-8); manifest hash match: True. Read complete file in bounded batches; inspected lines 1-110; no uninspected ranges. Static inspection only; no tests executed."
+  },
+  {
+    "path": "service/packages/mcp/src/tools/import-image.ts",
+    "depth": "full",
+    "notes": "Assigned contracts lane; baseline db821db346e7cb5dd27e4df465b91bb106e2f2b3. Bytes: 4929; lines: 137 (UTF-8); manifest hash match: True. Read complete file in bounded batches; inspected lines 1-137; no uninspected ranges. Static inspection only; no tests executed."
+  },
+  {
+    "path": "service/packages/mcp/src/tools/import-svg.ts",
+    "depth": "full",
+    "notes": "Assigned contracts lane; baseline db821db346e7cb5dd27e4df465b91bb106e2f2b3. Bytes: 1308; lines: 26 (UTF-8); manifest hash match: True. Read complete file in bounded batches; inspected lines 1-26; no uninspected ranges. Static inspection only; no tests executed."
+  },
+  {
+    "path": "service/packages/mcp/src/tools/list-files.ts",
+    "depth": "full",
+    "notes": "Assigned contracts lane; baseline db821db346e7cb5dd27e4df465b91bb106e2f2b3. Bytes: 472; lines: 14 (UTF-8); manifest hash match: True. Read complete file in bounded batches; inspected lines 1-14; no uninspected ranges. Static inspection only; no tests executed."
+  },
+  {
+    "path": "service/packages/mcp/src/tools/lock-nodes.ts",
+    "depth": "full",
+    "notes": "Assigned contracts lane; baseline db821db346e7cb5dd27e4df465b91bb106e2f2b3. Bytes: 654; lines: 18 (UTF-8); manifest hash match: True. Read complete file in bounded batches; inspected lines 1-18; no uninspected ranges. Static inspection only; no tests executed."
+  },
+  {
+    "path": "service/packages/mcp/src/tools/motion-schemas.ts",
+    "depth": "full",
+    "notes": "Assigned contracts lane; baseline db821db346e7cb5dd27e4df465b91bb106e2f2b3. Bytes: 7908; lines: 215 (UTF-8); manifest hash match: True. Read complete file in bounded batches; inspected lines 1-215; no uninspected ranges. Static inspection only; no tests executed."
+  },
+  {
+    "path": "service/packages/mcp/src/tools/move-nodes.ts",
+    "depth": "full",
+    "notes": "Assigned contracts lane; baseline db821db346e7cb5dd27e4df465b91bb106e2f2b3. Bytes: 570; lines: 17 (UTF-8); manifest hash match: True. Read complete file in bounded batches; inspected lines 1-17; no uninspected ranges. Static inspection only; no tests executed."
+  },
+  {
+    "path": "service/packages/mcp/src/tools/navigate-to-page.ts",
+    "depth": "full",
+    "notes": "Assigned contracts lane; baseline db821db346e7cb5dd27e4df465b91bb106e2f2b3. Bytes: 467; lines: 16 (UTF-8); manifest hash match: True. Read complete file in bounded batches; inspected lines 1-16; no uninspected ranges. Static inspection only; no tests executed."
+  },
+  {
+    "path": "service/packages/mcp/src/tools/paint-schema.ts",
+    "depth": "full",
+    "notes": "Assigned contracts lane; baseline db821db346e7cb5dd27e4df465b91bb106e2f2b3. Bytes: 1931; lines: 47 (UTF-8); manifest hash match: True. Read complete file in bounded batches; inspected lines 1-47; no uninspected ranges. Static inspection only; no tests executed."
+  },
+  {
+    "path": "service/packages/mcp/src/tools/ping.ts",
+    "depth": "full",
+    "notes": "Assigned contracts lane; baseline db821db346e7cb5dd27e4df465b91bb106e2f2b3. Bytes: 9095; lines: 237 (UTF-8); manifest hash match: True. Read complete file in bounded batches; inspected lines 1-237; no uninspected ranges. Static inspection only; no tests executed."
+  },
+  {
+    "path": "service/packages/mcp/src/tools/portal-capture.ts",
+    "depth": "full",
+    "notes": "Assigned contracts lane; baseline db821db346e7cb5dd27e4df465b91bb106e2f2b3. Bytes: 790; lines: 17 (UTF-8); manifest hash match: True. Read complete file in bounded batches; inspected lines 1-17; no uninspected ranges. Static inspection only; no tests executed."
+  },
+  {
+    "path": "service/packages/mcp/src/tools/portal.ts",
+    "depth": "full",
+    "notes": "Assigned contracts lane; baseline db821db346e7cb5dd27e4df465b91bb106e2f2b3. Bytes: 2498; lines: 31 (UTF-8); manifest hash match: True. Read complete file in bounded batches; inspected lines 1-31; no uninspected ranges. Static inspection only; no tests executed."
+  },
+  {
+    "path": "service/packages/mcp/src/tools/registry.ts",
+    "depth": "full",
+    "notes": "Assigned contracts lane; baseline db821db346e7cb5dd27e4df465b91bb106e2f2b3. Bytes: 14636; lines: 352 (UTF-8); manifest hash match: True. Read complete file in bounded batches; inspected lines 1-352; no uninspected ranges. Static inspection only; no tests executed."
+  },
+  {
+    "path": "service/packages/mcp/src/tools/remove-animation-style.ts",
+    "depth": "full",
+    "notes": "Assigned contracts lane; baseline db821db346e7cb5dd27e4df465b91bb106e2f2b3. Bytes: 848; lines: 22 (UTF-8); manifest hash match: True. Read complete file in bounded batches; inspected lines 1-22; no uninspected ranges. Static inspection only; no tests executed."
+  },
+  {
+    "path": "service/packages/mcp/src/tools/remove-manual-keyframe-track.ts",
+    "depth": "full",
+    "notes": "Assigned contracts lane; baseline db821db346e7cb5dd27e4df465b91bb106e2f2b3. Bytes: 775; lines: 20 (UTF-8); manifest hash match: True. Read complete file in bounded batches; inspected lines 1-20; no uninspected ranges. Static inspection only; no tests executed."
+  },
+  {
+    "path": "service/packages/mcp/src/tools/remove-reactions.ts",
+    "depth": "full",
+    "notes": "Assigned contracts lane; baseline db821db346e7cb5dd27e4df465b91bb106e2f2b3. Bytes: 703; lines: 19 (UTF-8); manifest hash match: True. Read complete file in bounded batches; inspected lines 1-19; no uninspected ranges. Static inspection only; no tests executed."
+  },
+  {
+    "path": "service/packages/mcp/src/tools/rename-node.ts",
+    "depth": "full",
+    "notes": "Assigned contracts lane; baseline db821db346e7cb5dd27e4df465b91bb106e2f2b3. Bytes: 621; lines: 18 (UTF-8); manifest hash match: True. Read complete file in bounded batches; inspected lines 1-18; no uninspected ranges. Static inspection only; no tests executed."
+  },
+  {
+    "path": "service/packages/mcp/src/tools/rename-page.ts",
+    "depth": "full",
+    "notes": "Assigned contracts lane; baseline db821db346e7cb5dd27e4df465b91bb106e2f2b3. Bytes: 616; lines: 18 (UTF-8); manifest hash match: True. Read complete file in bounded batches; inspected lines 1-18; no uninspected ranges. Static inspection only; no tests executed."
+  },
+  {
+    "path": "service/packages/mcp/src/tools/rename-variable.ts",
+    "depth": "full",
+    "notes": "Assigned contracts lane; baseline db821db346e7cb5dd27e4df465b91bb106e2f2b3. Bytes: 661; lines: 18 (UTF-8); manifest hash match: True. Read complete file in bounded batches; inspected lines 1-18; no uninspected ranges. Static inspection only; no tests executed."
+  },
+  {
+    "path": "service/packages/mcp/src/tools/reorder-nodes.ts",
+    "depth": "full",
+    "notes": "Assigned contracts lane; baseline db821db346e7cb5dd27e4df465b91bb106e2f2b3. Bytes: 579; lines: 17 (UTF-8); manifest hash match: True. Read complete file in bounded batches; inspected lines 1-17; no uninspected ranges. Static inspection only; no tests executed."
+  },
+  {
+    "path": "service/packages/mcp/src/tools/reparent-nodes.ts",
+    "depth": "full",
+    "notes": "Assigned contracts lane; baseline db821db346e7cb5dd27e4df465b91bb106e2f2b3. Bytes: 900; lines: 20 (UTF-8); manifest hash match: True. Read complete file in bounded batches; inspected lines 1-20; no uninspected ranges. Static inspection only; no tests executed."
+  },
+  {
+    "path": "service/packages/mcp/src/tools/resize-nodes.ts",
+    "depth": "full",
+    "notes": "Assigned contracts lane; baseline db821db346e7cb5dd27e4df465b91bb106e2f2b3. Bytes: 517; lines: 17 (UTF-8); manifest hash match: True. Read complete file in bounded batches; inspected lines 1-17; no uninspected ranges. Static inspection only; no tests executed."
+  },
+  {
+    "path": "service/packages/mcp/src/tools/rotate-nodes.ts",
+    "depth": "full",
+    "notes": "Assigned contracts lane; baseline db821db346e7cb5dd27e4df465b91bb106e2f2b3. Bytes: 507; lines: 16 (UTF-8); manifest hash match: True. Read complete file in bounded batches; inspected lines 1-16; no uninspected ranges. Static inspection only; no tests executed."
+  },
+  {
+    "path": "service/packages/mcp/src/tools/runtime-registry.ts",
+    "depth": "full",
+    "notes": "Assigned contracts lane; baseline db821db346e7cb5dd27e4df465b91bb106e2f2b3. Bytes: 8609; lines: 274 (UTF-8); manifest hash match: True. Read complete file in bounded batches; inspected lines 1-274; no uninspected ranges. Static inspection only; no tests executed."
+  },
+  {
+    "path": "service/packages/mcp/src/tools/safe-union.ts",
+    "depth": "full",
+    "notes": "Assigned contracts lane; baseline db821db346e7cb5dd27e4df465b91bb106e2f2b3. Bytes: 10232; lines: 261 (UTF-8); manifest hash match: True. Read complete file in bounded batches; inspected lines 1-261; no uninspected ranges. Static inspection only; no tests executed."
+  },
+  {
+    "path": "service/packages/mcp/src/tools/save-image-fills.ts",
+    "depth": "full",
+    "notes": "Assigned contracts lane; baseline db821db346e7cb5dd27e4df465b91bb106e2f2b3. Bytes: 7716; lines: 193 (UTF-8); manifest hash match: True. Read complete file in bounded batches; inspected lines 1-193; no uninspected ranges. Static inspection only; no tests executed."
+  },
+  {
+    "path": "service/packages/mcp/src/tools/save-screenshots.ts",
+    "depth": "full",
+    "notes": "Assigned contracts lane; baseline db821db346e7cb5dd27e4df465b91bb106e2f2b3. Bytes: 5976; lines: 156 (UTF-8); manifest hash match: True. Read complete file in bounded batches; inspected lines 1-156; no uninspected ranges. Static inspection only; no tests executed."
+  },
+  {
+    "path": "service/packages/mcp/src/tools/scan-components.ts",
+    "depth": "full",
+    "notes": "Assigned contracts lane; baseline db821db346e7cb5dd27e4df465b91bb106e2f2b3. Bytes: 2087; lines: 48 (UTF-8); manifest hash match: True. Read complete file in bounded batches; inspected lines 1-48; no uninspected ranges. Static inspection only; no tests executed."
+  },
+  {
+    "path": "service/packages/mcp/src/tools/scan-nodes-by-types.ts",
+    "depth": "full",
+    "notes": "Assigned contracts lane; baseline db821db346e7cb5dd27e4df465b91bb106e2f2b3. Bytes: 897; lines: 19 (UTF-8); manifest hash match: True. Read complete file in bounded batches; inspected lines 1-19; no uninspected ranges. Static inspection only; no tests executed."
+  },
+  {
+    "path": "service/packages/mcp/src/tools/scan-text-nodes.ts",
+    "depth": "full",
+    "notes": "Assigned contracts lane; baseline db821db346e7cb5dd27e4df465b91bb106e2f2b3. Bytes: 545; lines: 16 (UTF-8); manifest hash match: True. Read complete file in bounded batches; inspected lines 1-16; no uninspected ranges. Static inspection only; no tests executed."
+  },
+  {
+    "path": "service/packages/mcp/src/tools/search-nodes.ts",
+    "depth": "full",
+    "notes": "Assigned contracts lane; baseline db821db346e7cb5dd27e4df465b91bb106e2f2b3. Bytes: 822; lines: 19 (UTF-8); manifest hash match: True. Read complete file in bounded batches; inspected lines 1-19; no uninspected ranges. Static inspection only; no tests executed."
+  },
+  {
+    "path": "service/packages/mcp/src/tools/set-annotations.ts",
+    "depth": "full",
+    "notes": "Assigned contracts lane; baseline db821db346e7cb5dd27e4df465b91bb106e2f2b3. Bytes: 665; lines: 14 (UTF-8); manifest hash match: True. Read complete file in bounded batches; inspected lines 1-14; no uninspected ranges. Static inspection only; no tests executed."
+  },
+  {
+    "path": "service/packages/mcp/src/tools/set-arc.ts",
+    "depth": "full",
+    "notes": "Assigned contracts lane; baseline db821db346e7cb5dd27e4df465b91bb106e2f2b3. Bytes: 1198; lines: 28 (UTF-8); manifest hash match: True. Read complete file in bounded batches; inspected lines 1-28; no uninspected ranges. Static inspection only; no tests executed."
+  },
+  {
+    "path": "service/packages/mcp/src/tools/set-auto-layout.ts",
+    "depth": "full",
+    "notes": "Assigned contracts lane; baseline db821db346e7cb5dd27e4df465b91bb106e2f2b3. Bytes: 2703; lines: 64 (UTF-8); manifest hash match: True. Read complete file in bounded batches; inspected lines 1-64; no uninspected ranges. Static inspection only; no tests executed."
+  },
+  {
+    "path": "service/packages/mcp/src/tools/set-blend-mode.ts",
+    "depth": "full",
+    "notes": "Assigned contracts lane; baseline db821db346e7cb5dd27e4df465b91bb106e2f2b3. Bytes: 809; lines: 19 (UTF-8); manifest hash match: True. Read complete file in bounded batches; inspected lines 1-19; no uninspected ranges. Static inspection only; no tests executed."
+  },
+  {
+    "path": "service/packages/mcp/src/tools/set-constraints.ts",
+    "depth": "full",
+    "notes": "Assigned contracts lane; baseline db821db346e7cb5dd27e4df465b91bb106e2f2b3. Bytes: 1020; lines: 23 (UTF-8); manifest hash match: True. Read complete file in bounded batches; inspected lines 1-23; no uninspected ranges. Static inspection only; no tests executed."
+  },
+  {
+    "path": "service/packages/mcp/src/tools/set-corner-radius.ts",
+    "depth": "full",
+    "notes": "Assigned contracts lane; baseline db821db346e7cb5dd27e4df465b91bb106e2f2b3. Bytes: 1220; lines: 24 (UTF-8); manifest hash match: True. Read complete file in bounded batches; inspected lines 1-24; no uninspected ranges. Static inspection only; no tests executed."
+  },
+  {
+    "path": "service/packages/mcp/src/tools/set-effects.ts",
+    "depth": "full",
+    "notes": "Assigned contracts lane; baseline db821db346e7cb5dd27e4df465b91bb106e2f2b3. Bytes: 602; lines: 18 (UTF-8); manifest hash match: True. Read complete file in bounded batches; inspected lines 1-18; no uninspected ranges. Static inspection only; no tests executed."
+  },
+  {
+    "path": "service/packages/mcp/src/tools/set-fills.ts",
+    "depth": "full",
+    "notes": "Assigned contracts lane; baseline db821db346e7cb5dd27e4df465b91bb106e2f2b3. Bytes: 865; lines: 21 (UTF-8); manifest hash match: True. Read complete file in bounded batches; inspected lines 1-21; no uninspected ranges. Static inspection only; no tests executed."
+  },
+  {
+    "path": "service/packages/mcp/src/tools/set-instance-properties.ts",
+    "depth": "full",
+    "notes": "Assigned contracts lane; baseline db821db346e7cb5dd27e4df465b91bb106e2f2b3. Bytes: 1608; lines: 35 (UTF-8); manifest hash match: True. Read complete file in bounded batches; inspected lines 1-35; no uninspected ranges. Static inspection only; no tests executed."
+  },
+  {
+    "path": "service/packages/mcp/src/tools/set-layout-grids.ts",
+    "depth": "full",
+    "notes": "Assigned contracts lane; baseline db821db346e7cb5dd27e4df465b91bb106e2f2b3. Bytes: 1049; lines: 23 (UTF-8); manifest hash match: True. Read complete file in bounded batches; inspected lines 1-23; no uninspected ranges. Static inspection only; no tests executed."
+  },
+  {
+    "path": "service/packages/mcp/src/tools/set-layout-props.ts",
+    "depth": "full",
+    "notes": "Assigned contracts lane; baseline db821db346e7cb5dd27e4df465b91bb106e2f2b3. Bytes: 2866; lines: 70 (UTF-8); manifest hash match: True. Read complete file in bounded batches; inspected lines 1-70; no uninspected ranges. Static inspection only; no tests executed."
+  },
+  {
+    "path": "service/packages/mcp/src/tools/set-mask.ts",
+    "depth": "full",
+    "notes": "Assigned contracts lane; baseline db821db346e7cb5dd27e4df465b91bb106e2f2b3. Bytes: 762; lines: 22 (UTF-8); manifest hash match: True. Read complete file in bounded batches; inspected lines 1-22; no uninspected ranges. Static inspection only; no tests executed."
+  },
+  {
+    "path": "service/packages/mcp/src/tools/set-opacity.ts",
+    "depth": "full",
+    "notes": "Assigned contracts lane; baseline db821db346e7cb5dd27e4df465b91bb106e2f2b3. Bytes: 687; lines: 18 (UTF-8); manifest hash match: True. Read complete file in bounded batches; inspected lines 1-18; no uninspected ranges. Static inspection only; no tests executed."
+  },
+  {
+    "path": "service/packages/mcp/src/tools/set-position.ts",
+    "depth": "full",
+    "notes": "Assigned contracts lane; baseline db821db346e7cb5dd27e4df465b91bb106e2f2b3. Bytes: 1141; lines: 23 (UTF-8); manifest hash match: True. Read complete file in bounded batches; inspected lines 1-23; no uninspected ranges. Static inspection only; no tests executed."
+  },
+  {
+    "path": "service/packages/mcp/src/tools/set-reactions.ts",
+    "depth": "full",
+    "notes": "Assigned contracts lane; baseline db821db346e7cb5dd27e4df465b91bb106e2f2b3. Bytes: 1429; lines: 38 (UTF-8); manifest hash match: True. Read complete file in bounded batches; inspected lines 1-38; no uninspected ranges. Static inspection only; no tests executed."
+  },
+  {
+    "path": "service/packages/mcp/src/tools/set-strokes.ts",
+    "depth": "full",
+    "notes": "Assigned contracts lane; baseline db821db346e7cb5dd27e4df465b91bb106e2f2b3. Bytes: 1703; lines: 35 (UTF-8); manifest hash match: True. Read complete file in bounded batches; inspected lines 1-35; no uninspected ranges. Static inspection only; no tests executed."
+  },
+  {
+    "path": "service/packages/mcp/src/tools/set-text-properties.ts",
+    "depth": "full",
+    "notes": "Assigned contracts lane; baseline db821db346e7cb5dd27e4df465b91bb106e2f2b3. Bytes: 3187; lines: 74 (UTF-8); manifest hash match: True. Read complete file in bounded batches; inspected lines 1-74; no uninspected ranges. Static inspection only; no tests executed."
+  },
+  {
+    "path": "service/packages/mcp/src/tools/set-text-range.ts",
+    "depth": "full",
+    "notes": "Assigned contracts lane; baseline db821db346e7cb5dd27e4df465b91bb106e2f2b3. Bytes: 3995; lines: 79 (UTF-8); manifest hash match: True. Read complete file in bounded batches; inspected lines 1-79; no uninspected ranges. Static inspection only; no tests executed."
+  },
+  {
+    "path": "service/packages/mcp/src/tools/set-text.ts",
+    "depth": "full",
+    "notes": "Assigned contracts lane; baseline db821db346e7cb5dd27e4df465b91bb106e2f2b3. Bytes: 717; lines: 19 (UTF-8); manifest hash match: True. Read complete file in bounded batches; inspected lines 1-19; no uninspected ranges. Static inspection only; no tests executed."
+  },
+  {
+    "path": "service/packages/mcp/src/tools/set-timeline-duration.ts",
+    "depth": "full",
+    "notes": "Assigned contracts lane; baseline db821db346e7cb5dd27e4df465b91bb106e2f2b3. Bytes: 736; lines: 18 (UTF-8); manifest hash match: True. Read complete file in bounded batches; inspected lines 1-18; no uninspected ranges. Static inspection only; no tests executed."
+  },
+  {
+    "path": "service/packages/mcp/src/tools/set-variable-code-syntax.ts",
+    "depth": "full",
+    "notes": "Assigned contracts lane; baseline db821db346e7cb5dd27e4df465b91bb106e2f2b3. Bytes: 1696; lines: 34 (UTF-8); manifest hash match: True. Read complete file in bounded batches; inspected lines 1-34; no uninspected ranges. Static inspection only; no tests executed."
+  },
+  {
+    "path": "service/packages/mcp/src/tools/set-variable-value.ts",
+    "depth": "full",
+    "notes": "Assigned contracts lane; baseline db821db346e7cb5dd27e4df465b91bb106e2f2b3. Bytes: 2578; lines: 51 (UTF-8); manifest hash match: True. Read complete file in bounded batches; inspected lines 1-51; no uninspected ranges. Static inspection only; no tests executed."
+  },
+  {
+    "path": "service/packages/mcp/src/tools/set-visible.ts",
+    "depth": "full",
+    "notes": "Assigned contracts lane; baseline db821db346e7cb5dd27e4df465b91bb106e2f2b3. Bytes: 750; lines: 19 (UTF-8); manifest hash match: True. Read complete file in bounded batches; inspected lines 1-19; no uninspected ranges. Static inspection only; no tests executed."
+  },
+  {
+    "path": "service/packages/mcp/src/tools/skew-notice.ts",
+    "depth": "full",
+    "notes": "Assigned contracts lane; baseline db821db346e7cb5dd27e4df465b91bb106e2f2b3. Bytes: 5198; lines: 103 (UTF-8); manifest hash match: True. Read complete file in bounded batches; inspected lines 1-103; no uninspected ranges. Static inspection only; no tests executed."
+  },
+  {
+    "path": "service/packages/mcp/src/tools/spec.ts",
+    "depth": "full",
+    "notes": "Assigned contracts lane; baseline db821db346e7cb5dd27e4df465b91bb106e2f2b3. Bytes: 4136; lines: 72 (UTF-8); manifest hash match: True. Read complete file in bounded batches; inspected lines 1-72; no uninspected ranges. Static inspection only; no tests executed."
+  },
+  {
+    "path": "service/packages/mcp/src/tools/swap-component.ts",
+    "depth": "full",
+    "notes": "Assigned contracts lane; baseline db821db346e7cb5dd27e4df465b91bb106e2f2b3. Bytes: 712; lines: 18 (UTF-8); manifest hash match: True. Read complete file in bounded batches; inspected lines 1-18; no uninspected ranges. Static inspection only; no tests executed."
+  },
+  {
+    "path": "service/packages/mcp/src/tools/token-map.ts",
+    "depth": "full",
+    "notes": "Assigned contracts lane; baseline db821db346e7cb5dd27e4df465b91bb106e2f2b3. Bytes: 7166; lines: 154 (UTF-8); manifest hash match: True. Read complete file in bounded batches; inspected lines 1-154; no uninspected ranges. Static inspection only; no tests executed."
+  },
+  {
+    "path": "service/packages/mcp/src/tools/ungroup-nodes.ts",
+    "depth": "full",
+    "notes": "Assigned contracts lane; baseline db821db346e7cb5dd27e4df465b91bb106e2f2b3. Bytes: 626; lines: 18 (UTF-8); manifest hash match: True. Read complete file in bounded batches; inspected lines 1-18; no uninspected ranges. Static inspection only; no tests executed."
+  },
+  {
+    "path": "service/packages/mcp/src/tools/unlock-nodes.ts",
+    "depth": "full",
+    "notes": "Assigned contracts lane; baseline db821db346e7cb5dd27e4df465b91bb106e2f2b3. Bytes: 557; lines: 17 (UTF-8); manifest hash match: True. Read complete file in bounded batches; inspected lines 1-17; no uninspected ranges. Static inspection only; no tests executed."
+  },
+  {
+    "path": "service/packages/mcp/src/tools/update-effect-style.ts",
+    "depth": "full",
+    "notes": "Assigned contracts lane; baseline db821db346e7cb5dd27e4df465b91bb106e2f2b3. Bytes: 1199; lines: 25 (UTF-8); manifest hash match: True. Read complete file in bounded batches; inspected lines 1-25; no uninspected ranges. Static inspection only; no tests executed."
+  },
+  {
+    "path": "service/packages/mcp/src/tools/update-paint-style.ts",
+    "depth": "full",
+    "notes": "Assigned contracts lane; baseline db821db346e7cb5dd27e4df465b91bb106e2f2b3. Bytes: 931; lines: 22 (UTF-8); manifest hash match: True. Read complete file in bounded batches; inspected lines 1-22; no uninspected ranges. Static inspection only; no tests executed."
+  },
+  {
+    "path": "service/packages/mcp/src/tools/update-text-style.ts",
+    "depth": "full",
+    "notes": "Assigned contracts lane; baseline db821db346e7cb5dd27e4df465b91bb106e2f2b3. Bytes: 1581; lines: 35 (UTF-8); manifest hash match: True. Read complete file in bounded batches; inspected lines 1-35; no uninspected ranges. Static inspection only; no tests executed."
+  },
+  {
+    "path": "service/packages/mcp/test/portal/consumption-components.test.ts",
+    "depth": "unreviewed",
+    "notes": "Assigned contracts lane; baseline db821db346e7cb5dd27e4df465b91bb106e2f2b3. Bytes: 10842; lines: 281 (UTF-8); manifest hash match: True. Test body deferred explicitly to round two. Code and prose uninspected: lines 1-281. Integrity metadata alone is not code inspection."
+  },
+  {
+    "path": "service/packages/mcp/test/portal/consumption-input.test.ts",
+    "depth": "unreviewed",
+    "notes": "Assigned contracts lane; baseline db821db346e7cb5dd27e4df465b91bb106e2f2b3. Bytes: 8370; lines: 215 (UTF-8); manifest hash match: True. Test body deferred explicitly to round two. Code and prose uninspected: lines 1-215. Integrity metadata alone is not code inspection."
+  },
+  {
+    "path": "service/packages/mcp/test/portal/consumption-values.test.ts",
+    "depth": "unreviewed",
+    "notes": "Assigned contracts lane; baseline db821db346e7cb5dd27e4df465b91bb106e2f2b3. Bytes: 3182; lines: 74 (UTF-8); manifest hash match: True. Test body deferred explicitly to round two. Code and prose uninspected: lines 1-74. Integrity metadata alone is not code inspection."
+  },
+  {
+    "path": "service/packages/mcp/test/portal/core-coordinator.test.ts",
+    "depth": "unreviewed",
+    "notes": "Assigned contracts lane; baseline db821db346e7cb5dd27e4df465b91bb106e2f2b3. Bytes: 14168; lines: 356 (UTF-8); manifest hash match: True. Test body deferred explicitly to round two. Code and prose uninspected: lines 1-356. Integrity metadata alone is not code inspection."
+  },
+  {
+    "path": "service/packages/mcp/test/portal/core-lifecycle.test.ts",
+    "depth": "unreviewed",
+    "notes": "Assigned contracts lane; baseline db821db346e7cb5dd27e4df465b91bb106e2f2b3. Bytes: 10134; lines: 280 (UTF-8); manifest hash match: True. Test body deferred explicitly to round two. Code and prose uninspected: lines 1-280. Integrity metadata alone is not code inspection."
+  },
+  {
+    "path": "service/packages/mcp/test/portal/core-preparation.test.ts",
+    "depth": "unreviewed",
+    "notes": "Assigned contracts lane; baseline db821db346e7cb5dd27e4df465b91bb106e2f2b3. Bytes: 14091; lines: 359 (UTF-8); manifest hash match: True. Test body deferred explicitly to round two. Code and prose uninspected: lines 1-359. Integrity metadata alone is not code inspection."
+  },
+  {
+    "path": "service/packages/mcp/test/portal/core-recipes.test.ts",
+    "depth": "unreviewed",
+    "notes": "Assigned contracts lane; baseline db821db346e7cb5dd27e4df465b91bb106e2f2b3. Bytes: 57177; lines: 1536 (UTF-8); manifest hash match: True. Test body deferred explicitly to round two. Code and prose uninspected: lines 1-1536. Integrity metadata alone is not code inspection."
+  },
+  {
+    "path": "service/packages/mcp/test/portal/core-source.characterization.test.ts",
+    "depth": "unreviewed",
+    "notes": "Assigned contracts lane; baseline db821db346e7cb5dd27e4df465b91bb106e2f2b3. Bytes: 14649; lines: 319 (UTF-8); manifest hash match: True. Test body deferred explicitly to round two. Code and prose uninspected: lines 1-319. Integrity metadata alone is not code inspection."
+  },
+  {
+    "path": "service/packages/mcp/test/portal/recipe-artifact-readback.test.ts",
+    "depth": "unreviewed",
+    "notes": "Assigned contracts lane; baseline db821db346e7cb5dd27e4df465b91bb106e2f2b3. Bytes: 3749; lines: 96 (UTF-8); manifest hash match: True. Test body deferred explicitly to round two. Code and prose uninspected: lines 1-96. Integrity metadata alone is not code inspection."
+  },
+  {
+    "path": "service/packages/mcp/test/portal/recipe-definitions.test.ts",
+    "depth": "unreviewed",
+    "notes": "Assigned contracts lane; baseline db821db346e7cb5dd27e4df465b91bb106e2f2b3. Bytes: 15362; lines: 425 (UTF-8); manifest hash match: True. Test body deferred explicitly to round two. Code and prose uninspected: lines 1-425. Integrity metadata alone is not code inspection."
+  },
+  {
+    "path": "service/packages/mcp/test/portal/recipe-evidence-hold.test.ts",
+    "depth": "full",
+    "notes": "Assigned contracts lane; baseline db821db346e7cb5dd27e4df465b91bb106e2f2b3. Bytes: 31011; lines: 805 (UTF-8); manifest hash match: True. Read complete file in bounded batches; inspected lines 1-805; no uninspected ranges. Static inspection only; no tests executed."
+  },
+  {
+    "path": "service/packages/mcp/test/prompts/prompt-tool-names.test.ts",
+    "depth": "full",
+    "notes": "Assigned contracts lane; baseline db821db346e7cb5dd27e4df465b91bb106e2f2b3. Bytes: 1711; lines: 35 (UTF-8); manifest hash match: True. Read complete file in bounded batches; inspected lines 1-35; no uninspected ranges. Static inspection only; no tests executed."
+  },
+  {
+    "path": "service/packages/mcp/test/prompts/registry.test.ts",
+    "depth": "full",
+    "notes": "Assigned contracts lane; baseline db821db346e7cb5dd27e4df465b91bb106e2f2b3. Bytes: 2419; lines: 56 (UTF-8); manifest hash match: True. Read complete file in bounded batches; inspected lines 1-56; no uninspected ranges. Static inspection only; no tests executed."
+  },
+  {
+    "path": "service/packages/mcp/test/tools/binary-payload.test.ts",
+    "depth": "unreviewed",
+    "notes": "Assigned contracts lane; baseline db821db346e7cb5dd27e4df465b91bb106e2f2b3. Bytes: 3137; lines: 87 (UTF-8); manifest hash match: True. Test body deferred explicitly to round two. Code and prose uninspected: lines 1-87. Integrity metadata alone is not code inspection."
+  },
+  {
+    "path": "service/packages/mcp/test/tools/component-map.test.ts",
+    "depth": "unreviewed",
+    "notes": "Assigned contracts lane; baseline db821db346e7cb5dd27e4df465b91bb106e2f2b3. Bytes: 7713; lines: 187 (UTF-8); manifest hash match: True. Test body deferred explicitly to round two. Code and prose uninspected: lines 1-187. Integrity metadata alone is not code inspection."
+  },
+  {
+    "path": "service/packages/mcp/test/tools/design-context-guard.test.ts",
+    "depth": "unreviewed",
+    "notes": "Assigned contracts lane; baseline db821db346e7cb5dd27e4df465b91bb106e2f2b3. Bytes: 22909; lines: 598 (UTF-8); manifest hash match: True. Test body deferred explicitly to round two. Code and prose uninspected: lines 1-598. Integrity metadata alone is not code inspection."
+  },
+  {
+    "path": "service/packages/mcp/test/tools/design-diff.test.ts",
+    "depth": "unreviewed",
+    "notes": "Assigned contracts lane; baseline db821db346e7cb5dd27e4df465b91bb106e2f2b3. Bytes: 11027; lines: 266 (UTF-8); manifest hash match: True. Test body deferred explicitly to round two. Code and prose uninspected: lines 1-266. Integrity metadata alone is not code inspection."
+  },
+  {
+    "path": "service/packages/mcp/test/tools/export-pdf.test.ts",
+    "depth": "unreviewed",
+    "notes": "Assigned contracts lane; baseline db821db346e7cb5dd27e4df465b91bb106e2f2b3. Bytes: 4329; lines: 115 (UTF-8); manifest hash match: True. Test body deferred explicitly to round two. Code and prose uninspected: lines 1-115. Integrity metadata alone is not code inspection."
+  },
+  {
+    "path": "service/packages/mcp/test/tools/export-video.test.ts",
+    "depth": "unreviewed",
+    "notes": "Assigned contracts lane; baseline db821db346e7cb5dd27e4df465b91bb106e2f2b3. Bytes: 6108; lines: 183 (UTF-8); manifest hash match: True. Test body deferred explicitly to round two. Code and prose uninspected: lines 1-183. Integrity metadata alone is not code inspection."
+  },
+  {
+    "path": "service/packages/mcp/test/tools/get-document.test.ts",
+    "depth": "unreviewed",
+    "notes": "Assigned contracts lane; baseline db821db346e7cb5dd27e4df465b91bb106e2f2b3. Bytes: 884; lines: 26 (UTF-8); manifest hash match: True. Test body deferred explicitly to round two. Code and prose uninspected: lines 1-26. Integrity metadata alone is not code inspection."
+  },
+  {
+    "path": "service/packages/mcp/test/tools/get-screenshot.test.ts",
+    "depth": "unreviewed",
+    "notes": "Assigned contracts lane; baseline db821db346e7cb5dd27e4df465b91bb106e2f2b3. Bytes: 9255; lines: 211 (UTF-8); manifest hash match: True. Test body deferred explicitly to round two. Code and prose uninspected: lines 1-211. Integrity metadata alone is not code inspection."
+  },
+  {
+    "path": "service/packages/mcp/test/tools/get-selection.test.ts",
+    "depth": "unreviewed",
+    "notes": "Assigned contracts lane; baseline db821db346e7cb5dd27e4df465b91bb106e2f2b3. Bytes: 843; lines: 24 (UTF-8); manifest hash match: True. Test body deferred explicitly to round two. Code and prose uninspected: lines 1-24. Integrity metadata alone is not code inspection."
+  },
+  {
+    "path": "service/packages/mcp/test/tools/import-image.test.ts",
+    "depth": "unreviewed",
+    "notes": "Assigned contracts lane; baseline db821db346e7cb5dd27e4df465b91bb106e2f2b3. Bytes: 3329; lines: 97 (UTF-8); manifest hash match: True. Test body deferred explicitly to round two. Code and prose uninspected: lines 1-97. Integrity metadata alone is not code inspection."
+  },
+  {
+    "path": "service/packages/mcp/test/tools/layout-tier-coverage.test.ts",
+    "depth": "unreviewed",
+    "notes": "Assigned contracts lane; baseline db821db346e7cb5dd27e4df465b91bb106e2f2b3. Bytes: 5676; lines: 136 (UTF-8); manifest hash match: True. Test body deferred explicitly to round two. Code and prose uninspected: lines 1-136. Integrity metadata alone is not code inspection."
+  },
+  {
+    "path": "service/packages/mcp/test/tools/local-tools.test.ts",
+    "depth": "unreviewed",
+    "notes": "Assigned contracts lane; baseline db821db346e7cb5dd27e4df465b91bb106e2f2b3. Bytes: 5067; lines: 108 (UTF-8); manifest hash match: True. Test body deferred explicitly to round two. Code and prose uninspected: lines 1-108. Integrity metadata alone is not code inspection."
+  },
+  {
+    "path": "service/packages/mcp/test/tools/motion-schemas.test.ts",
+    "depth": "unreviewed",
+    "notes": "Assigned contracts lane; baseline db821db346e7cb5dd27e4df465b91bb106e2f2b3. Bytes: 3812; lines: 112 (UTF-8); manifest hash match: True. Test body deferred explicitly to round two. Code and prose uninspected: lines 1-112. Integrity metadata alone is not code inspection."
+  },
+  {
+    "path": "service/packages/mcp/test/tools/ping.test.ts",
+    "depth": "unreviewed",
+    "notes": "Assigned contracts lane; baseline db821db346e7cb5dd27e4df465b91bb106e2f2b3. Bytes: 9040; lines: 277 (UTF-8); manifest hash match: True. Test body deferred explicitly to round two. Code and prose uninspected: lines 1-277. Integrity metadata alone is not code inspection."
+  },
+  {
+    "path": "service/packages/mcp/test/tools/read-tools.test.ts",
+    "depth": "unreviewed",
+    "notes": "Assigned contracts lane; baseline db821db346e7cb5dd27e4df465b91bb106e2f2b3. Bytes: 8455; lines: 193 (UTF-8); manifest hash match: True. Test body deferred explicitly to round two. Code and prose uninspected: lines 1-193. Integrity metadata alone is not code inspection."
+  },
+  {
+    "path": "service/packages/mcp/test/tools/result-validation.test.ts",
+    "depth": "unreviewed",
+    "notes": "Assigned contracts lane; baseline db821db346e7cb5dd27e4df465b91bb106e2f2b3. Bytes: 5247; lines: 171 (UTF-8); manifest hash match: True. Test body deferred explicitly to round two. Code and prose uninspected: lines 1-171. Integrity metadata alone is not code inspection."
+  },
+  {
+    "path": "service/packages/mcp/test/tools/safe-union.test.ts",
+    "depth": "unreviewed",
+    "notes": "Assigned contracts lane; baseline db821db346e7cb5dd27e4df465b91bb106e2f2b3. Bytes: 8003; lines: 222 (UTF-8); manifest hash match: True. Test body deferred explicitly to round two. Code and prose uninspected: lines 1-222. Integrity metadata alone is not code inspection."
+  },
+  {
+    "path": "service/packages/mcp/test/tools/save-image-fills.test.ts",
+    "depth": "unreviewed",
+    "notes": "Assigned contracts lane; baseline db821db346e7cb5dd27e4df465b91bb106e2f2b3. Bytes: 9600; lines: 282 (UTF-8); manifest hash match: True. Test body deferred explicitly to round two. Code and prose uninspected: lines 1-282. Integrity metadata alone is not code inspection."
+  },
+  {
+    "path": "service/packages/mcp/test/tools/save-screenshots.test.ts",
+    "depth": "unreviewed",
+    "notes": "Assigned contracts lane; baseline db821db346e7cb5dd27e4df465b91bb106e2f2b3. Bytes: 8182; lines: 217 (UTF-8); manifest hash match: True. Test body deferred explicitly to round two. Code and prose uninspected: lines 1-217. Integrity metadata alone is not code inspection."
+  },
+  {
+    "path": "service/packages/mcp/test/tools/skew-notice.test.ts",
+    "depth": "unreviewed",
+    "notes": "Assigned contracts lane; baseline db821db346e7cb5dd27e4df465b91bb106e2f2b3. Bytes: 7250; lines: 205 (UTF-8); manifest hash match: True. Test body deferred explicitly to round two. Code and prose uninspected: lines 1-205. Integrity metadata alone is not code inspection."
+  },
+  {
+    "path": "service/packages/mcp/test/tools/token-map.test.ts",
+    "depth": "unreviewed",
+    "notes": "Assigned contracts lane; baseline db821db346e7cb5dd27e4df465b91bb106e2f2b3. Bytes: 19213; lines: 472 (UTF-8); manifest hash match: True. Test body deferred explicitly to round two. Code and prose uninspected: lines 1-472. Integrity metadata alone is not code inspection."
+  },
+  {
+    "path": "service/packages/mcp/test/tools/write-tools.test.ts",
+    "depth": "unreviewed",
+    "notes": "Assigned contracts lane; baseline db821db346e7cb5dd27e4df465b91bb106e2f2b3. Bytes: 13662; lines: 284 (UTF-8); manifest hash match: True. Test body deferred explicitly to round two. Code and prose uninspected: lines 1-284. Integrity metadata alone is not code inspection."
+  },
+  {
+    "path": "service/packages/shared/package.json",
+    "depth": "full",
+    "notes": "Assigned contracts lane; baseline db821db346e7cb5dd27e4df465b91bb106e2f2b3. Bytes: 387; lines: 20 (UTF-8); manifest hash match: True. Read complete file in bounded batches; inspected lines 1-20; no uninspected ranges. Static inspection only; no tests executed."
+  },
+  {
+    "path": "service/packages/shared/src/action-nonce.ts",
+    "depth": "full",
+    "notes": "Assigned contracts lane; baseline db821db346e7cb5dd27e4df465b91bb106e2f2b3. Bytes: 6129; lines: 174 (UTF-8); manifest hash match: True. Read complete file in bounded batches; inspected lines 1-174; no uninspected ranges. Static inspection only; no tests executed."
+  },
+  {
+    "path": "service/packages/shared/src/annotation-write.ts",
+    "depth": "full",
+    "notes": "Assigned contracts lane; baseline db821db346e7cb5dd27e4df465b91bb106e2f2b3. Bytes: 2216; lines: 90 (UTF-8); manifest hash match: True. Read complete file in bounded batches; inspected lines 1-90; no uninspected ranges. Static inspection only; no tests executed."
+  },
+  {
+    "path": "service/packages/shared/src/approval.ts",
+    "depth": "full",
+    "notes": "Assigned contracts lane; baseline db821db346e7cb5dd27e4df465b91bb106e2f2b3. Bytes: 3341; lines: 101 (UTF-8); manifest hash match: True. Read complete file in bounded batches; inspected lines 1-101; no uninspected ranges. Static inspection only; no tests executed."
+  },
+  {
+    "path": "service/packages/shared/src/auth.ts",
+    "depth": "full",
+    "notes": "Assigned contracts lane; baseline db821db346e7cb5dd27e4df465b91bb106e2f2b3. Bytes: 4167; lines: 120 (UTF-8); manifest hash match: True. Read complete file in bounded batches; inspected lines 1-120; no uninspected ranges. Static inspection only; no tests executed."
+  },
+  {
+    "path": "service/packages/shared/src/capability-manifest.ts",
+    "depth": "full",
+    "notes": "Assigned contracts lane; baseline db821db346e7cb5dd27e4df465b91bb106e2f2b3. Bytes: 6373; lines: 196 (UTF-8); manifest hash match: True. Read complete file in bounded batches; inspected lines 1-196; no uninspected ranges. Static inspection only; no tests executed."
+  },
+  {
+    "path": "service/packages/shared/src/codec.ts",
+    "depth": "full",
+    "notes": "Assigned contracts lane; baseline db821db346e7cb5dd27e4df465b91bb106e2f2b3. Bytes: 470; lines: 12 (UTF-8); manifest hash match: True. Read complete file in bounded batches; inspected lines 1-12; no uninspected ranges. Static inspection only; no tests executed."
+  },
+  {
+    "path": "service/packages/shared/src/components.ts",
+    "depth": "full",
+    "notes": "Assigned contracts lane; baseline db821db346e7cb5dd27e4df465b91bb106e2f2b3. Bytes: 2700; lines: 60 (UTF-8); manifest hash match: True. Read complete file in bounded batches; inspected lines 1-60; no uninspected ranges. Static inspection only; no tests executed."
+  },
+  {
+    "path": "service/packages/shared/src/config.ts",
+    "depth": "full",
+    "notes": "Assigned contracts lane; baseline db821db346e7cb5dd27e4df465b91bb106e2f2b3. Bytes: 4426; lines: 114 (UTF-8); manifest hash match: True. Read complete file in bounded batches; inspected lines 1-114; no uninspected ranges. Static inspection only; no tests executed."
+  },
+  {
+    "path": "service/packages/shared/src/control.ts",
+    "depth": "full",
+    "notes": "Assigned contracts lane; baseline db821db346e7cb5dd27e4df465b91bb106e2f2b3. Bytes: 3065; lines: 91 (UTF-8); manifest hash match: True. Read complete file in bounded batches; inspected lines 1-91; no uninspected ranges. Static inspection only; no tests executed."
+  },
+  {
+    "path": "service/packages/shared/src/design-context-dedupe.ts",
+    "depth": "full",
+    "notes": "Assigned contracts lane; baseline db821db346e7cb5dd27e4df465b91bb106e2f2b3. Bytes: 10465; lines: 274 (UTF-8); manifest hash match: True. Read complete file in bounded batches; inspected lines 1-274; no uninspected ranges. Static inspection only; no tests executed."
+  },
+  {
+    "path": "service/packages/shared/src/design-context.ts",
+    "depth": "full",
+    "notes": "Assigned contracts lane; baseline db821db346e7cb5dd27e4df465b91bb106e2f2b3. Bytes: 36061; lines: 755 (UTF-8); manifest hash match: True. Read complete file in bounded batches; inspected lines 1-755; no uninspected ranges. Static inspection only; no tests executed."
+  },
+  {
+    "path": "service/packages/shared/src/design-observation.ts",
+    "depth": "full",
+    "notes": "Assigned contracts lane; baseline db821db346e7cb5dd27e4df465b91bb106e2f2b3. Bytes: 14165; lines: 398 (UTF-8); manifest hash match: True. Read complete file in bounded batches; inspected lines 1-398; no uninspected ranges. Static inspection only; no tests executed."
+  },
+  {
+    "path": "service/packages/shared/src/document-binding.ts",
+    "depth": "full",
+    "notes": "Assigned contracts lane; baseline db821db346e7cb5dd27e4df465b91bb106e2f2b3. Bytes: 2130; lines: 64 (UTF-8); manifest hash match: True. Read complete file in bounded batches; inspected lines 1-64; no uninspected ranges. Static inspection only; no tests executed."
+  },
+  {
+    "path": "service/packages/shared/src/egress.ts",
+    "depth": "full",
+    "notes": "Assigned contracts lane; baseline db821db346e7cb5dd27e4df465b91bb106e2f2b3. Bytes: 15875; lines: 429 (UTF-8); manifest hash match: True. Read complete file in bounded batches; inspected lines 1-429; no uninspected ranges. Static inspection only; no tests executed."
+  },
+  {
+    "path": "service/packages/shared/src/envelope.ts",
+    "depth": "full",
+    "notes": "Assigned contracts lane; baseline db821db346e7cb5dd27e4df465b91bb106e2f2b3. Bytes: 5410; lines: 163 (UTF-8); manifest hash match: True. Read complete file in bounded batches; inspected lines 1-163; no uninspected ranges. Static inspection only; no tests executed."
+  },
+  {
+    "path": "service/packages/shared/src/figma-capture-assets.ts",
+    "depth": "full",
+    "notes": "Assigned contracts lane; baseline db821db346e7cb5dd27e4df465b91bb106e2f2b3. Bytes: 3335; lines: 103 (UTF-8); manifest hash match: True. Read complete file in bounded batches; inspected lines 1-103; no uninspected ranges. Static inspection only; no tests executed."
+  },
+  {
+    "path": "service/packages/shared/src/figma-capture-query.ts",
+    "depth": "full",
+    "notes": "Assigned contracts lane; baseline db821db346e7cb5dd27e4df465b91bb106e2f2b3. Bytes: 4494; lines: 129 (UTF-8); manifest hash match: True. Read complete file in bounded batches; inspected lines 1-129; no uninspected ranges. Static inspection only; no tests executed."
+  },
+  {
+    "path": "service/packages/shared/src/figma-capture-read.ts",
+    "depth": "full",
+    "notes": "Assigned contracts lane; baseline db821db346e7cb5dd27e4df465b91bb106e2f2b3. Bytes: 18678; lines: 596 (UTF-8); manifest hash match: True. Read complete file in bounded batches; inspected lines 1-596; no uninspected ranges. Static inspection only; no tests executed."
+  },
+  {
+    "path": "service/packages/shared/src/heartbeat.ts",
+    "depth": "full",
+    "notes": "Assigned contracts lane; baseline db821db346e7cb5dd27e4df465b91bb106e2f2b3. Bytes: 1577; lines: 60 (UTF-8); manifest hash match: True. Read complete file in bounded batches; inspected lines 1-60; no uninspected ranges. Static inspection only; no tests executed."
+  },
+  {
+    "path": "service/packages/shared/src/index.ts",
+    "depth": "full",
+    "notes": "Assigned contracts lane; baseline db821db346e7cb5dd27e4df465b91bb106e2f2b3. Bytes: 1103; lines: 33 (UTF-8); manifest hash match: True. Read complete file in bounded batches; inspected lines 1-33; no uninspected ranges. Static inspection only; no tests executed."
+  },
+  {
+    "path": "service/packages/shared/src/invocation.ts",
+    "depth": "full",
+    "notes": "Assigned contracts lane; baseline db821db346e7cb5dd27e4df465b91bb106e2f2b3. Bytes: 15255; lines: 401 (UTF-8); manifest hash match: True. Read complete file in bounded batches; inspected lines 1-401; no uninspected ranges. Static inspection only; no tests executed."
+  },
+  {
+    "path": "service/packages/shared/src/operations.ts",
+    "depth": "full",
+    "notes": "Assigned contracts lane; baseline db821db346e7cb5dd27e4df465b91bb106e2f2b3. Bytes: 37558; lines: 1061 (UTF-8); manifest hash match: True. Read complete file in bounded batches; inspected lines 1-1061; no uninspected ranges. Static inspection only; no tests executed."
+  },
+  {
+    "path": "service/packages/shared/src/portal-capture-source.ts",
+    "depth": "full",
+    "notes": "Assigned contracts lane; baseline db821db346e7cb5dd27e4df465b91bb106e2f2b3. Bytes: 1903; lines: 63 (UTF-8); manifest hash match: True. Read complete file in bounded batches; inspected lines 1-63; no uninspected ranges. Static inspection only; no tests executed."
+  },
+  {
+    "path": "service/packages/shared/src/portal-consumption.ts",
+    "depth": "full",
+    "notes": "Assigned contracts lane; baseline db821db346e7cb5dd27e4df465b91bb106e2f2b3. Bytes: 5126; lines: 172 (UTF-8); manifest hash match: True. Read complete file in bounded batches; inspected lines 1-172; no uninspected ranges. Static inspection only; no tests executed."
+  },
+  {
+    "path": "service/packages/shared/src/portal-core-lifecycle.ts",
+    "depth": "full",
+    "notes": "Assigned contracts lane; baseline db821db346e7cb5dd27e4df465b91bb106e2f2b3. Bytes: 6564; lines: 187 (UTF-8); manifest hash match: True. Read complete file in bounded batches; inspected lines 1-187; no uninspected ranges. Static inspection only; no tests executed."
+  },
+  {
+    "path": "service/packages/shared/src/portal-core-limits.ts",
+    "depth": "full",
+    "notes": "Assigned contracts lane; baseline db821db346e7cb5dd27e4df465b91bb106e2f2b3. Bytes: 475; lines: 20 (UTF-8); manifest hash match: True. Read complete file in bounded batches; inspected lines 1-20; no uninspected ranges. Static inspection only; no tests executed."
+  },
+  {
+    "path": "service/packages/shared/src/portal-observations.ts",
+    "depth": "full",
+    "notes": "Assigned contracts lane; baseline db821db346e7cb5dd27e4df465b91bb106e2f2b3. Bytes: 3539; lines: 109 (UTF-8); manifest hash match: True. Read complete file in bounded batches; inspected lines 1-109; no uninspected ranges. Static inspection only; no tests executed."
+  },
+  {
+    "path": "service/packages/shared/src/portal-recipe-use.ts",
+    "depth": "full",
+    "notes": "Assigned contracts lane; baseline db821db346e7cb5dd27e4df465b91bb106e2f2b3. Bytes: 3887; lines: 125 (UTF-8); manifest hash match: True. Read complete file in bounded batches; inspected lines 1-125; no uninspected ranges. Static inspection only; no tests executed."
+  },
+  {
+    "path": "service/packages/shared/src/portal-recipes.ts",
+    "depth": "full",
+    "notes": "Assigned contracts lane; baseline db821db346e7cb5dd27e4df465b91bb106e2f2b3. Bytes: 40433; lines: 1313 (UTF-8); manifest hash match: True. Read complete file in bounded batches; inspected lines 1-1313; no uninspected ranges. Static inspection only; no tests executed."
+  },
+  {
+    "path": "service/packages/shared/src/portal.ts",
+    "depth": "full",
+    "notes": "Assigned contracts lane; baseline db821db346e7cb5dd27e4df465b91bb106e2f2b3. Bytes: 38712; lines: 1152 (UTF-8); manifest hash match: True. Read complete file in bounded batches; inspected lines 1-1152; no uninspected ranges. Static inspection only; no tests executed."
+  },
+  {
+    "path": "service/packages/shared/src/progress.ts",
+    "depth": "full",
+    "notes": "Assigned contracts lane; baseline db821db346e7cb5dd27e4df465b91bb106e2f2b3. Bytes: 34096; lines: 882 (UTF-8); manifest hash match: True. Read complete file in bounded batches; inspected lines 1-882; no uninspected ranges. Static inspection only; no tests executed."
+  },
+  {
+    "path": "service/packages/shared/src/project-conventions.ts",
+    "depth": "full",
+    "notes": "Assigned contracts lane; baseline db821db346e7cb5dd27e4df465b91bb106e2f2b3. Bytes: 1888; lines: 49 (UTF-8); manifest hash match: True. Read complete file in bounded batches; inspected lines 1-49; no uninspected ranges. Static inspection only; no tests executed."
+  },
+  {
+    "path": "service/packages/shared/src/project-profile.ts",
+    "depth": "full",
+    "notes": "Assigned contracts lane; baseline db821db346e7cb5dd27e4df465b91bb106e2f2b3. Bytes: 1041; lines: 37 (UTF-8); manifest hash match: True. Read complete file in bounded batches; inspected lines 1-37; no uninspected ranges. Static inspection only; no tests executed."
+  },
+  {
+    "path": "service/packages/shared/src/protocol.ts",
+    "depth": "full",
+    "notes": "Assigned contracts lane; baseline db821db346e7cb5dd27e4df465b91bb106e2f2b3. Bytes: 1901; lines: 46 (UTF-8); manifest hash match: True. Read complete file in bounded batches; inspected lines 1-46; no uninspected ranges. Static inspection only; no tests executed."
+  },
+  {
+    "path": "service/packages/shared/src/queries.ts",
+    "depth": "full",
+    "notes": "Assigned contracts lane; baseline db821db346e7cb5dd27e4df465b91bb106e2f2b3. Bytes: 15777; lines: 340 (UTF-8); manifest hash match: True. Read complete file in bounded batches; inspected lines 1-340; no uninspected ranges. Static inspection only; no tests executed."
+  },
+  {
+    "path": "service/packages/shared/src/result-schemas.ts",
+    "depth": "full",
+    "notes": "Assigned contracts lane; baseline db821db346e7cb5dd27e4df465b91bb106e2f2b3. Bytes: 17602; lines: 462 (UTF-8); manifest hash match: True. Read complete file in bounded batches; inspected lines 1-462; no uninspected ranges. Static inspection only; no tests executed."
+  },
+  {
+    "path": "service/packages/shared/src/rpc.ts",
+    "depth": "full",
+    "notes": "Assigned contracts lane; baseline db821db346e7cb5dd27e4df465b91bb106e2f2b3. Bytes: 7933; lines: 219 (UTF-8); manifest hash match: True. Read complete file in bounded batches; inspected lines 1-219; no uninspected ranges. Static inspection only; no tests executed."
+  },
+  {
+    "path": "service/packages/shared/src/serialized-node.ts",
+    "depth": "full",
+    "notes": "Assigned contracts lane; baseline db821db346e7cb5dd27e4df465b91bb106e2f2b3. Bytes: 28212; lines: 655 (UTF-8); manifest hash match: True. Read complete file in bounded batches; inspected lines 1-655; no uninspected ranges. Static inspection only; no tests executed."
+  },
+  {
+    "path": "service/packages/shared/src/service-operations.ts",
+    "depth": "full",
+    "notes": "Assigned contracts lane; baseline db821db346e7cb5dd27e4df465b91bb106e2f2b3. Bytes: 2632; lines: 75 (UTF-8); manifest hash match: True. Read complete file in bounded batches; inspected lines 1-75; no uninspected ranges. Static inspection only; no tests executed."
+  },
+  {
+    "path": "service/packages/shared/src/styles.ts",
+    "depth": "full",
+    "notes": "Assigned contracts lane; baseline db821db346e7cb5dd27e4df465b91bb106e2f2b3. Bytes: 3105; lines: 75 (UTF-8); manifest hash match: True. Read complete file in bounded batches; inspected lines 1-75; no uninspected ranges. Static inspection only; no tests executed."
+  },
+  {
+    "path": "service/packages/shared/src/tool-budgets.ts",
+    "depth": "full",
+    "notes": "Assigned contracts lane; baseline db821db346e7cb5dd27e4df465b91bb106e2f2b3. Bytes: 3204; lines: 66 (UTF-8); manifest hash match: True. Read complete file in bounded batches; inspected lines 1-66; no uninspected ranges. Static inspection only; no tests executed."
+  },
+  {
+    "path": "service/packages/shared/src/union-tools.ts",
+    "depth": "full",
+    "notes": "Assigned contracts lane; baseline db821db346e7cb5dd27e4df465b91bb106e2f2b3. Bytes: 1926; lines: 69 (UTF-8); manifest hash match: True. Read complete file in bounded batches; inspected lines 1-69; no uninspected ranges. Static inspection only; no tests executed."
+  },
+  {
+    "path": "service/packages/shared/src/variables.ts",
+    "depth": "full",
+    "notes": "Assigned contracts lane; baseline db821db346e7cb5dd27e4df465b91bb106e2f2b3. Bytes: 4752; lines: 119 (UTF-8); manifest hash match: True. Read complete file in bounded batches; inspected lines 1-119; no uninspected ranges. Static inspection only; no tests executed."
+  },
+  {
+    "path": "service/packages/shared/src/version.ts",
+    "depth": "full",
+    "notes": "Assigned contracts lane; baseline db821db346e7cb5dd27e4df465b91bb106e2f2b3. Bytes: 10871; lines: 179 (UTF-8); manifest hash match: True. Read complete file in bounded batches; inspected lines 1-179; no uninspected ranges. Static inspection only; no tests executed."
+  },
+  {
+    "path": "service/packages/shared/src/writes.ts",
+    "depth": "full",
+    "notes": "Assigned contracts lane; baseline db821db346e7cb5dd27e4df465b91bb106e2f2b3. Bytes: 4175; lines: 112 (UTF-8); manifest hash match: True. Read complete file in bounded batches; inspected lines 1-112; no uninspected ranges. Static inspection only; no tests executed."
+  },
+  {
+    "path": "service/packages/shared/test/codec.test.ts",
+    "depth": "unreviewed",
+    "notes": "Assigned contracts lane; baseline db821db346e7cb5dd27e4df465b91bb106e2f2b3. Bytes: 1760; lines: 50 (UTF-8); manifest hash match: True. Test body deferred explicitly to round two. Code and prose uninspected: lines 1-50. Integrity metadata alone is not code inspection."
+  },
+  {
+    "path": "service/packages/shared/test/control-schema.test.ts",
+    "depth": "unreviewed",
+    "notes": "Assigned contracts lane; baseline db821db346e7cb5dd27e4df465b91bb106e2f2b3. Bytes: 3768; lines: 124 (UTF-8); manifest hash match: True. Test body deferred explicitly to round two. Code and prose uninspected: lines 1-124. Integrity metadata alone is not code inspection."
+  },
+  {
+    "path": "service/packages/shared/test/core-recipe-pages.test.ts",
+    "depth": "unreviewed",
+    "notes": "Assigned contracts lane; baseline db821db346e7cb5dd27e4df465b91bb106e2f2b3. Bytes: 3447; lines: 116 (UTF-8); manifest hash match: True. Test body deferred explicitly to round two. Code and prose uninspected: lines 1-116. Integrity metadata alone is not code inspection."
+  },
+  {
+    "path": "service/packages/shared/test/design-context-dedupe.test.ts",
+    "depth": "full",
+    "notes": "Assigned contracts lane; baseline db821db346e7cb5dd27e4df465b91bb106e2f2b3. Bytes: 12107; lines: 335 (UTF-8); manifest hash match: True. Read complete file in bounded batches; inspected lines 1-335; no uninspected ranges. Static inspection only; no tests executed."
+  },
+  {
+    "path": "service/packages/shared/test/design-observation.test.ts",
+    "depth": "unreviewed",
+    "notes": "Assigned contracts lane; baseline db821db346e7cb5dd27e4df465b91bb106e2f2b3. Bytes: 7486; lines: 236 (UTF-8); manifest hash match: True. Test body deferred explicitly to round two. Code and prose uninspected: lines 1-236. Integrity metadata alone is not code inspection."
+  },
+  {
+    "path": "service/packages/shared/test/envelope.test.ts",
+    "depth": "unreviewed",
+    "notes": "Assigned contracts lane; baseline db821db346e7cb5dd27e4df465b91bb106e2f2b3. Bytes: 2349; lines: 63 (UTF-8); manifest hash match: True. Test body deferred explicitly to round two. Code and prose uninspected: lines 1-63. Integrity metadata alone is not code inspection."
+  },
+  {
+    "path": "service/packages/shared/test/file-identity-hash.test.ts",
+    "depth": "unreviewed",
+    "notes": "Assigned contracts lane; baseline db821db346e7cb5dd27e4df465b91bb106e2f2b3. Bytes: 1792; lines: 48 (UTF-8); manifest hash match: True. Test body deferred explicitly to round two. Code and prose uninspected: lines 1-48. Integrity metadata alone is not code inspection."
+  },
+  {
+    "path": "service/packages/shared/test/heartbeat.test.ts",
+    "depth": "unreviewed",
+    "notes": "Assigned contracts lane; baseline db821db346e7cb5dd27e4df465b91bb106e2f2b3. Bytes: 2249; lines: 72 (UTF-8); manifest hash match: True. Test body deferred explicitly to round two. Code and prose uninspected: lines 1-72. Integrity metadata alone is not code inspection."
+  },
+  {
+    "path": "service/packages/shared/test/portal-recipes.test.ts",
+    "depth": "unreviewed",
+    "notes": "Assigned contracts lane; baseline db821db346e7cb5dd27e4df465b91bb106e2f2b3. Bytes: 11308; lines: 343 (UTF-8); manifest hash match: True. Test body deferred explicitly to round two. Code and prose uninspected: lines 1-343. Integrity metadata alone is not code inspection."
+  },
+  {
+    "path": "service/packages/shared/test/portal.test.ts",
+    "depth": "unreviewed",
+    "notes": "Assigned contracts lane; baseline db821db346e7cb5dd27e4df465b91bb106e2f2b3. Bytes: 3390; lines: 89 (UTF-8); manifest hash match: True. Test body deferred explicitly to round two. Code and prose uninspected: lines 1-89. Integrity metadata alone is not code inspection."
+  },
+  {
+    "path": "service/packages/shared/test/serialized-node.test.ts",
+    "depth": "unreviewed",
+    "notes": "Assigned contracts lane; baseline db821db346e7cb5dd27e4df465b91bb106e2f2b3. Bytes: 6681; lines: 221 (UTF-8); manifest hash match: True. Test body deferred explicitly to round two. Code and prose uninspected: lines 1-221. Integrity metadata alone is not code inspection."
+  },
+  {
+    "path": "service/packages/shared/test/tool-budgets.test.ts",
+    "depth": "unreviewed",
+    "notes": "Assigned contracts lane; baseline db821db346e7cb5dd27e4df465b91bb106e2f2b3. Bytes: 1770; lines: 47 (UTF-8); manifest hash match: True. Test body deferred explicitly to round two. Code and prose uninspected: lines 1-47. Integrity metadata alone is not code inspection."
+  },
+  {
+    "path": "service/packages/shared/test/version.test.ts",
+    "depth": "unreviewed",
+    "notes": "Assigned contracts lane; baseline db821db346e7cb5dd27e4df465b91bb106e2f2b3. Bytes: 6084; lines: 127 (UTF-8); manifest hash match: True. Test body deferred explicitly to round two. Code and prose uninspected: lines 1-127. Integrity metadata alone is not code inspection."
+  },
+  {
+    "path": "service/packages/shared/tsconfig.json",
+    "depth": "full",
+    "notes": "Assigned contracts lane; baseline db821db346e7cb5dd27e4df465b91bb106e2f2b3. Bytes: 176; lines: 8 (UTF-8); manifest hash match: True. Read complete file in bounded batches; inspected lines 1-8; no uninspected ranges. Static inspection only; no tests executed."
+  },
+  {
+    "path": "service/packages/shared/vitest.config.ts",
+    "depth": "full",
+    "notes": "Assigned contracts lane; baseline db821db346e7cb5dd27e4df465b91bb106e2f2b3. Bytes: 184; lines: 9 (UTF-8); manifest hash match: True. Read complete file in bounded batches; inspected lines 1-9; no uninspected ranges. Static inspection only; no tests executed."
+  },
+  {
+    "path": "AGENTS.md",
+    "depth": "full",
+    "notes": "Cross-lane complete body read. Bytes: 927; lines: 8 (UTF-8). Read complete lines 1-8; no uninspected ranges. Static only; no approval, browser or native operation executed."
+  },
+  {
+    "path": "docs/reviews/2026-09-30-full-review/review-brief.md",
+    "depth": "full",
+    "notes": "Cross-lane complete body read. Bytes: 3557; lines: 30 (UTF-8). Read complete lines 1-30; no uninspected ranges. Static only; no approval, browser or native operation executed."
+  },
+  {
+    "path": "docs/reviews/2026-09-30-full-review/source-manifest.json",
+    "depth": "metadata",
+    "notes": "Cross-lane metadata only. Bytes: 340764; lines: 6512 (UTF-8). Used assignment, baseline, size and hash records; not source inspection."
+  },
+  {
+    "path": "docs/reviews/2026-09-30-full-review/round-1-portal.md",
+    "depth": "targeted",
+    "notes": "Cross-lane static inspection. Bytes: 29479; lines: 128 (UTF-8). Inspected complete ranges: 1-35. Uninspected complete ranges: 36-128. Earlier search matches outside these conservatively recorded ranges do not count as complete range inspection. No runtime operation executed."
+  },
+  {
+    "path": "docs/plans/2026-09-27-code-remediation-plan.md",
+    "depth": "targeted",
+    "notes": "Cross-lane static inspection. Bytes: 64334; lines: 792 (UTF-8). Inspected complete ranges: 1-35. Uninspected complete ranges: 36-792. Earlier search matches outside these conservatively recorded ranges do not count as complete range inspection. No runtime operation executed."
+  },
+  {
+    "path": "docs/reviews/2026-09-15-recipe-retention/task-6c1-report.md",
+    "depth": "targeted",
+    "notes": "Cross-lane static inspection. Bytes: 13935; lines: 110 (UTF-8). Inspected complete ranges: 1-35. Uninspected complete ranges: 36-110. Earlier search matches outside these conservatively recorded ranges do not count as complete range inspection. No runtime operation executed."
+  },
+  {
+    "path": "docs/reviews/2026-09-15-recipe-retention/task-6c1-review.md",
+    "depth": "targeted",
+    "notes": "Cross-lane static inspection. Bytes: 9716; lines: 79 (UTF-8). Inspected complete ranges: 1-35. Uninspected complete ranges: 36-79. Earlier search matches outside these conservatively recorded ranges do not count as complete range inspection. No runtime operation executed."
+  },
+  {
+    "path": "service/packages/mcp/src/index.ts",
+    "depth": "targeted",
+    "notes": "Cross-lane static inspection. Bytes: 67871; lines: 1644 (UTF-8). Inspected complete ranges: 571-638, 767-822, 830-900, 1036-1057, 1380-1420. Uninspected complete ranges: 1-570, 639-766, 823-829, 901-1035, 1058-1379, 1421-1644. Earlier search matches outside these conservatively recorded ranges do not count as complete range inspection. No runtime operation executed."
+  },
+  {
+    "path": "service/packages/mcp/src/relay/relay.ts",
+    "depth": "targeted",
+    "notes": "Cross-lane static inspection. Bytes: 38052; lines: 992 (UTF-8). Inspected complete ranges: 1-35. Uninspected complete ranges: 36-992. Earlier search matches outside these conservatively recorded ranges do not count as complete range inspection. No runtime operation executed."
+  },
+  {
+    "path": "service/packages/mcp/test/plugin-contract.test.ts",
+    "depth": "full",
+    "notes": "Cross-lane complete body read. Bytes: 8941; lines: 167 (UTF-8). Read complete lines 1-167; no uninspected ranges. Static only; no approval, browser or native operation executed."
+  },
+  {
+    "path": "service/packages/plugin/src/handlers/get-design-context.ts",
+    "depth": "targeted",
+    "notes": "Cross-lane static inspection. Bytes: 37984; lines: 792 (UTF-8). Inspected complete ranges: 185-220, 480-510, 760-792. Uninspected complete ranges: 1-184, 221-479, 511-759. Earlier search matches outside these conservatively recorded ranges do not count as complete range inspection. No runtime operation executed."
+  },
+  {
+    "path": "service/scripts/update-contracts.mjs",
+    "depth": "targeted",
+    "notes": "Cross-lane static inspection. Bytes: 2834; lines: 73 (UTF-8). Inspected complete ranges: 1-35. Uninspected complete ranges: 36-73. Earlier search matches outside these conservatively recorded ranges do not count as complete range inspection. No runtime operation executed."
+  },
+  {
+    "path": "service/packages/mcp/src/security/principal-derivation.ts",
+    "depth": "full",
+    "notes": "Cross-lane complete body read. Bytes: 6785; lines: 197 (UTF-8). Read complete lines 1-197; no uninspected ranges. Static only; no approval, browser or native operation executed."
+  },
+  {
+    "path": "service/packages/mcp/package.json",
+    "depth": "full",
+    "notes": "Cross-lane complete body read. Bytes: 1163; lines: 50 (UTF-8). Read complete lines 1-50; no uninspected ranges. Static only; no approval, browser or native operation executed."
+  },
+  {
+    "path": "service/packages/plugin/ui/components/TabApprovals.vue",
+    "depth": "full",
+    "notes": "Cross-lane complete body read. Bytes: 2228; lines: 56 (UTF-8). Read complete lines 1-56; no uninspected ranges. Static only; no approval, browser or native operation executed."
+  },
+  {
+    "path": "service/packages/mcp/src/policy/approval-prompt.ts",
+    "depth": "full",
+    "notes": "Cross-lane complete body read. Bytes: 3624; lines: 99 (UTF-8). Read complete lines 1-99; no uninspected ranges. Static only; no approval, browser or native operation executed."
+  },
+  {
+    "path": "service/packages/mcp/src/policy/approval-gate.ts",
+    "depth": "full",
+    "notes": "Cross-lane complete body read. Bytes: 537; lines: 13 (UTF-8). Read complete lines 1-13; no uninspected ranges. Static only; no approval, browser or native operation executed."
+  },
+  {
+    "path": "service/packages/mcp/src/policy/approval-broker.ts",
+    "depth": "full",
+    "notes": "Cross-lane complete body read. Bytes: 12901; lines: 346 (UTF-8). Read complete lines 1-346; no uninspected ranges. Static only; no approval, browser or native operation executed."
+  },
+  {
+    "path": "service/packages/mcp/src/control/approval-endpoints.ts",
+    "depth": "full",
+    "notes": "Cross-lane complete body read. Bytes: 681; lines: 16 (UTF-8). Read complete lines 1-16; no uninspected ranges. Static only; no approval, browser or native operation executed."
+  },
+  {
+    "path": "service/packages/mcp/src/portal/capture-admission-runtime.ts",
+    "depth": "full",
+    "notes": "Cross-lane complete body read. Bytes: 1907; lines: 59 (UTF-8). Read complete lines 1-59; no uninspected ranges. Static only; no approval, browser or native operation executed."
+  },
+  {
+    "path": "service/packages/mcp/src/policy/operation-policy.ts",
+    "depth": "targeted",
+    "notes": "Cross-lane static inspection. Bytes: 15242; lines: 508 (UTF-8). Inspected complete ranges: 1-65, 386-479. Uninspected complete ranges: 66-385, 480-508. Earlier search matches outside these conservatively recorded ranges do not count as complete range inspection. No runtime operation executed."
+  },
+  {
+    "path": "service/packages/mcp/src/execution/mcp-invocation-adapter.ts",
+    "depth": "targeted",
+    "notes": "Cross-lane static inspection. Bytes: 3428; lines: 109 (UTF-8). Inspected complete ranges: 51-108. Uninspected complete ranges: 1-50, 109-109. Earlier search matches outside these conservatively recorded ranges do not count as complete range inspection. No runtime operation executed."
+  },
+  {
+    "path": "service/packages/mcp/src/portal/capture-source-admission.ts",
+    "depth": "targeted",
+    "notes": "Cross-lane static inspection. Bytes: 6910; lines: 192 (UTF-8). Inspected complete ranges: 35-130. Uninspected complete ranges: 1-34, 131-192. Earlier search matches outside these conservatively recorded ranges do not count as complete range inspection. No runtime operation executed."
+  },
+  {
+    "path": "service/packages/mcp/src/execution/execution-plane.ts",
+    "depth": "targeted",
+    "notes": "Cross-lane static inspection. Bytes: 50963; lines: 1395 (UTF-8). Inspected complete ranges: 684-718, 781-854. Uninspected complete ranges: 1-683, 719-780, 855-1395. Earlier search matches outside these conservatively recorded ranges do not count as complete range inspection. No runtime operation executed."
+  }
+]

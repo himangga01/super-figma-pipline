@@ -1,0 +1,85 @@
+{
+  "recordedAt": "2026-10-03T17:07:55.998Z",
+  "diagnosticOnly": true,
+  "acceptanceChanged": false,
+  "rows": [
+    {
+      "screen": "guide",
+      "width": 653,
+      "height": 192,
+      "strictRatio": 0.043477220520673814,
+      "diagnostics": [
+        {
+          "algorithm": "playwright-bundled-pixelmatch",
+          "threshold": 0,
+          "differingPixels": 3590,
+          "ratio": 0.028633869321082184
+        },
+        {
+          "algorithm": "playwright-bundled-pixelmatch",
+          "threshold": 0.05,
+          "differingPixels": 2173,
+          "ratio": 0.017331865747830525
+        },
+        {
+          "algorithm": "playwright-bundled-pixelmatch",
+          "threshold": 0.1,
+          "differingPixels": 1013,
+          "ratio": 0.008079696273608983
+        }
+      ]
+    },
+    {
+      "screen": "mobile",
+      "width": 497,
+      "height": 3051,
+      "strictRatio": 0.03789106319331921,
+      "diagnostics": [
+        {
+          "algorithm": "playwright-bundled-pixelmatch",
+          "threshold": 0,
+          "differingPixels": 255025,
+          "ratio": 0.16818379961842508
+        },
+        {
+          "algorithm": "playwright-bundled-pixelmatch",
+          "threshold": 0.05,
+          "differingPixels": 27333,
+          "ratio": 0.01802555747464136
+        },
+        {
+          "algorithm": "playwright-bundled-pixelmatch",
+          "threshold": 0.1,
+          "differingPixels": 16071,
+          "ratio": 0.010598497573444601
+        }
+      ]
+    },
+    {
+      "screen": "desktop",
+      "width": 1728,
+      "height": 2869,
+      "strictRatio": 0.015028747595626299,
+      "diagnostics": [
+        {
+          "algorithm": "playwright-bundled-pixelmatch",
+          "threshold": 0,
+          "differingPixels": 819712,
+          "ratio": 0.16534345429430825
+        },
+        {
+          "algorithm": "playwright-bundled-pixelmatch",
+          "threshold": 0.05,
+          "differingPixels": 29267,
+          "ratio": 0.0059034232472277084
+        },
+        {
+          "algorithm": "playwright-bundled-pixelmatch",
+          "threshold": 0.1,
+          "differingPixels": 18167,
+          "ratio": 0.0036644510927797786
+        }
+      ]
+    }
+  ]
+}

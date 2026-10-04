@@ -338,8 +338,21 @@ describe('leader-generation execution plane lifecycle', () => {
     });
     await expect(Promise.all([failed.get(), failed.get()])).rejects.toBe(failure);
     await expect(failed.get()).rejects.toBe(failure);
-    expect(failedRecoveries).toBe(1);
+    expect(failedRecoveries).toBe(2);
     expect(failed.peek()).toBeUndefined();
+  });
+  it('retries a corrected lazy runtime recovery while preserving its successful value', async () => {
+    let repaired = false;
+    const value = Object.freeze({ ready: true });
+    const boundary = createLazyLeaderRuntimeBoundary(async () => {
+      if (!repaired) throw new Error('recovery failed');
+      return value;
+    });
+    await expect(boundary.get()).rejects.toThrow('recovery failed');
+    repaired = true;
+    await expect(boundary.get()).resolves.toBe(value);
+    expect(boundary.peek()).toBe(value);
+    await expect(boundary.get()).resolves.toBe(value);
   });
   it('closes, fences, durably drains, destroys, and only then releases the port', async () => {
     const { plane, events } = harness();

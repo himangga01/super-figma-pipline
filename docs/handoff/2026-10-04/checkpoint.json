@@ -1,0 +1,60 @@
+{
+  "recordedAt": "2026-10-04T05:16:33.667Z",
+  "purpose": "Pre-reboot handoff; no new acceptance run, no reboot and no process shutdown requested by this script",
+  "head": "db821db346e7cb5dd27e4df465b91bb106e2f2b3",
+  "branch": "remediation/2026-09-27",
+  "source": {
+    "main": "sha256:d0b41396a9d90c74c6fc90d744ed121d7c3454cf1f6609ac54f8b94df5940618",
+    "workingCopy": "sha256:d0b41396a9d90c74c6fc90d744ed121d7c3454cf1f6609ac54f8b94df5940618"
+  },
+  "mainIndexSha256": "sha256:21422fbf6f8d745a73347c7730c598f9b51e9862ce92b3da8fbb96158c135cb3",
+  "workingTree": {
+    "porcelainEntries": 324,
+    "untrackedEntries": 75,
+    "indexChangedEntries": 0
+  },
+  "daemon": {
+    "available": true,
+    "buildIdentityHash": "sha256:c1f50af0dc458c9b5a47ede23c12db94f0d7e0d65d13a8ffb7ad340817bb33a0",
+    "browserConnection": "initializing",
+    "role": "leader",
+    "pairedPluginCount": 0
+  },
+  "run": {
+    "observed": false,
+    "code": "EGRESS_CONFIG_REQUIRED"
+  },
+  "frontend": {
+    "output": "C:\\2026_project\\super-figma-pipline\\.worktrees\\_cache\\cdd-service-outputs\\cdd-chrome-frontend",
+    "candidateHash": "sha256:1497c7fbf1f10db883ab2aba11de0e03a05c5bf24468bdd2a7ac3bb892b66dfa",
+    "files": 44,
+    "totalBytes": 19284689,
+    "everyFileMatchesManifest": true
+  },
+  "testsReexecuted": false,
+  "committed": false,
+  "pushed": false,
+  "egress": {
+    "mode": "external-model",
+    "allowedClasses": [
+      "public",
+      "project-code",
+      "design-text",
+      "design-image"
+    ],
+    "expiresAt": "2026-10-03T22:21:38.871Z",
+    "expired": true,
+    "renewedForHandoff": false,
+    "observedDuringHandoff": true
+  },
+  "frontendBackup": {
+    "recordedAt": "2026-10-04T05:17:58.6523186Z",
+    "archive": "cdd-frontend-source.zip",
+    "bytes": 18015536,
+    "sha256": "sha256:8a388f0cdb4cefc165d51111579c85a559560238151969dbde63735c927412a8",
+    "verifiedFiles": 44,
+    "everyFileMatchesCandidate": true,
+    "candidateHash": "sha256:1497c7fbf1f10db883ab2aba11de0e03a05c5bf24468bdd2a7ac3bb892b66dfa",
+    "containsOwnerState": false
+  }
+}

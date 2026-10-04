@@ -25,6 +25,8 @@ export const ActionNonceActionSchema = z.enum([
   'egress.reset',
   'portal.profile.register',
   'portal.environment.reconcile',
+  'portal.environment.archive',
+  'portal.core.archive',
 ]);
 export type ActionNonceAction = z.infer<typeof ActionNonceActionSchema>;
 
@@ -108,6 +110,20 @@ const byteSortedUniqueStrings = (values: readonly string[]): readonly string[] =
 };
 
 const semanticSchemas = {
+  'portal.environment.archive': z
+    .object({
+      attemptId: z.string().regex(/^[a-f0-9]{64}$/u),
+      receiptHash: PrefixedSha256Schema,
+      archiveHash: PrefixedSha256Schema,
+    })
+    .strict(),
+  'portal.core.archive': z
+    .object({
+      workspaceId: WorkspaceIdSchema,
+      preparationId: PrefixedSha256Schema,
+      archiveHash: PrefixedSha256Schema,
+    })
+    .strict(),
   'portal.environment.reconcile': z
     .object({ attemptId: z.string().regex(/^[a-f0-9]{64}$/u), receiptHash: PrefixedSha256Schema })
     .strict(),

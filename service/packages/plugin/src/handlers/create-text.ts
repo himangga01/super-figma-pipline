@@ -1,6 +1,7 @@
 import type { CreateResult } from '@sfp/shared';
 
 import type { SandboxToolHandler } from '../dispatcher.js';
+import { CREATED_NODE_PROPERTY } from './batch-created.js';
 import { placeNode } from './place.js';
 
 export const createCreateTextHandler =
@@ -18,14 +19,28 @@ export const createCreateTextHandler =
     }
 
     const text = figmaCtx.createText();
+    execution?.recordOwnedWrite?.(text, [CREATED_NODE_PROPERTY]);
     execution?.markMutated?.();
-    await figmaCtx.loadFontAsync(text.fontName as FontName); // default font must be loaded first
+    await figmaCtx.loadFontAsync(text.fontName as FontName);
+    execution?.signal.throwIfAborted(); // default font must be loaded first
+    execution?.signal.throwIfAborted();
     text.characters = p.characters;
-    if (typeof p.fontSize === 'number') text.fontSize = p.fontSize;
-    if (typeof p.x === 'number') text.x = p.x;
-    if (typeof p.y === 'number') text.y = p.y;
+    execution?.recordOwnedWrite?.(text, ['characters']);
+    if (typeof p.fontSize === 'number') {
+      text.fontSize = p.fontSize;
+      execution?.recordOwnedWrite?.(text, ['fontSize']);
+    }
+    if (typeof p.x === 'number') {
+      text.x = p.x;
+      execution?.recordOwnedWrite?.(text, ['x']);
+    }
+    if (typeof p.y === 'number') {
+      text.y = p.y;
+      execution?.recordOwnedWrite?.(text, ['y']);
+    }
 
-    await placeNode(figmaCtx, text, p.parentId, 'create_text');
+    await placeNode(figmaCtx, text, p.parentId, 'create_text', execution);
+    execution?.signal.throwIfAborted();
 
     const result: CreateResult = { ok: true, nodeId: text.id, name: text.name, type: text.type };
     return result;

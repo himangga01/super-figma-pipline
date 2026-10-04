@@ -4,6 +4,38 @@ import { resolvePortalModules } from '../../src/portal/module-resolution.js';
 
 const graph = (files: Record<string, string>, opaque: string[] = []) =>
   resolvePortalModules(new Map(Object.entries(files)), [...Object.keys(files), ...opaque]);
+it.each([
+  ['react', 'vite-plugin-svgr', 'svgr'],
+  ['component', 'vite-svg-loader', 'svgLoader'],
+] as const)('resolves SVG ?%s only with its configured Vite loader', (query, module, binding) => {
+  const files = {
+    'package.json': JSON.stringify({ dependencies: { [module]: '1', vite: '1' } }),
+    'vite.config.ts': `import {defineConfig} from 'vite'; import ${binding} from '${module}'; export default defineConfig({plugins: [${binding}()]});`,
+    'src/main.ts': `import Icon from './icon.svg?${query}';`,
+    'src/icon.svg': '<svg/>',
+  };
+  const valid = graph(files);
+  const reference = valid.references.find(ref => ref.from === 'src/main.ts')!;
+  expect(reference.status).toBe('resolved');
+  expect(reference.targets).toEqual(['src/icon.svg']);
+  expect(reference.configuration).toEqual(['package.json', 'vite.config.ts']);
+  for (const config of [
+    '',
+    `import ${binding} from '${module}'; ${binding}(); export default {plugins: []};`,
+    `import ${binding} from '${module}'; ${binding} = foreign; export default {plugins: [${binding}()]};`,
+  ]) {
+    expect(
+      graph({ ...files, 'vite.config.ts': config }).references.find(
+        ref => ref.from === 'src/main.ts',
+      )!.status,
+    ).toBe('unresolved');
+  }
+  expect(
+    graph({ ...files, 'src/main.ts': "import Icon from './icon.svg?unknown';" }).references.find(
+      ref => ref.from === 'src/main.ts',
+    )!.status,
+  ).toBe('unresolved');
+});
 
 it('resolves imports, CommonJS, literal dynamic imports and re-exports to source files', () => {
   const result = graph({

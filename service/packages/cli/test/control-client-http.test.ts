@@ -58,3 +58,41 @@ it('aborts an unresponsive request at the caller budget', async () => {
     client.request('/control/test', 'GET', undefined, { timeoutMs: 50 }),
   ).rejects.toMatchObject({ name: 'AbortError' });
 });
+
+it('reports the same operation public failure code without repeating its tool request', async () => {
+  const operationId = 'sfp_op1_fixture.' + 'A'.repeat(43);
+  let calls = 0;
+  const client = await fixture((request, response) => {
+    response.setHeader('Content-Type', 'application/json');
+    if (request.url === '/control/tools/call') {
+      calls++;
+      response.writeHead(500);
+      response.end(JSON.stringify({ code: 'INTERNAL_ERROR' }));
+    } else if (request.url === '/control/approvals') response.end('[]');
+    else
+      response.end(
+        JSON.stringify({
+          operationId,
+          status: 'failed',
+          errorCode: 'PORTAL_BINARY_SOURCE_FORBIDDEN',
+        }),
+      );
+  });
+  await expect(
+    client.invoke({
+      name: 'portal_submit',
+      kind: 'tool',
+      args: {},
+      workspaceId: null,
+      targetSelector: { kind: 'none' },
+      approve: false,
+      operationId,
+      emit: () => {},
+    }),
+  ).rejects.toMatchObject({
+    code: 'PORTAL_BINARY_SOURCE_FORBIDDEN',
+    operationId,
+    operationStatus: 'failed',
+  });
+  expect(calls).toBe(1);
+});

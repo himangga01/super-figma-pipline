@@ -1,0 +1,622 @@
+[
+  {
+    "path": ".github/workflows/service-ci.yml",
+    "depth": "full",
+    "notes": "Complete static read of lines 1-187; no unread body ranges. Inspected relevant callers/imports/test assumptions without executing repository code. Baseline-manifest SHA-256 matches."
+  },
+  {
+    "path": "service/.editorconfig",
+    "depth": "full",
+    "notes": "Complete static read of lines 1-11; no unread body ranges. Inspected relevant callers/imports/test assumptions without executing repository code. Baseline-manifest SHA-256 matches."
+  },
+  {
+    "path": "service/.gitattributes",
+    "depth": "full",
+    "notes": "Complete static read of lines 1-2; no unread body ranges. Inspected relevant callers/imports/test assumptions without executing repository code. Baseline-manifest SHA-256 matches."
+  },
+  {
+    "path": "service/.gitignore",
+    "depth": "full",
+    "notes": "Complete static read of lines 1-16; no unread body ranges. Inspected relevant callers/imports/test assumptions without executing repository code. Baseline-manifest SHA-256 matches."
+  },
+  {
+    "path": "service/.node-version",
+    "depth": "full",
+    "notes": "Complete static read of lines 1-1; no unread body ranges. Inspected relevant callers/imports/test assumptions without executing repository code. Baseline-manifest SHA-256 matches."
+  },
+  {
+    "path": "service/.npmrc",
+    "depth": "full",
+    "notes": "Complete static read of lines 1-1; no unread body ranges. Inspected relevant callers/imports/test assumptions without executing repository code. Baseline-manifest SHA-256 matches."
+  },
+  {
+    "path": "service/.oxfmtrc.json",
+    "depth": "full",
+    "notes": "Complete static read of lines 1-23; no unread body ranges. Inspected relevant callers/imports/test assumptions without executing repository code. Baseline-manifest SHA-256 matches."
+  },
+  {
+    "path": "service/.oxlintrc.json",
+    "depth": "full",
+    "notes": "Complete static read of lines 1-43; no unread body ranges. Inspected relevant callers/imports/test assumptions without executing repository code. Baseline-manifest SHA-256 matches."
+  },
+  {
+    "path": "service/LICENSE",
+    "depth": "full",
+    "notes": "Complete static read of lines 1-21; no unread body ranges. Inspected relevant callers/imports/test assumptions without executing repository code. Baseline-manifest SHA-256 matches."
+  },
+  {
+    "path": "service/PROVENANCE.md",
+    "depth": "full",
+    "notes": "Complete static read of lines 1-117; no unread body ranges. Inspected relevant callers/imports/test assumptions without executing repository code. Baseline-manifest SHA-256 matches."
+  },
+  {
+    "path": "service/README.md",
+    "depth": "full",
+    "notes": "Complete static read of lines 1-101; no unread body ranges. Inspected relevant callers/imports/test assumptions without executing repository code. Baseline-manifest SHA-256 matches."
+  },
+  {
+    "path": "service/SBOM.spdx.json",
+    "depth": "metadata",
+    "notes": "Parsed complete SPDX inventory: 51 unique package IDs, 51 resolvable DESCRIBES links, package/version agreement with notices; checked namespace against current pnpm-lock digest and found mismatch. Not a vulnerability audit or complete legal assessment. Metadata inspection covers the entire 781-line artifact; it is not a full semantic line-by-line read. Baseline-manifest SHA-256 matches."
+  },
+  {
+    "path": "service/THIRD_PARTY_NOTICES.md",
+    "depth": "metadata",
+    "notes": "Inspected all 45 package/version headings against parsed SBOM and inspected generation/packaging inclusion. Repeated license bodies not read line by line; no legal certification. Metadata inspection covers the entire 1996-line artifact; it is not a full semantic line-by-line read. Baseline-manifest SHA-256 matches."
+  },
+  {
+    "path": "service/capabilities/change-manifests/task-7a.json",
+    "depth": "metadata",
+    "notes": "Parsed entire historical manifest; checked schema/slice, four authority rows, unique change paths, A/M/D statuses and SHA-256/null shapes. These are historical staged evidence, not a current-source hash claim. No complete line-by-line semantic review. Metadata inspection covers the entire 302-line artifact; it is not a full semantic line-by-line read. Baseline-manifest SHA-256 matches."
+  },
+  {
+    "path": "service/capabilities/change-manifests/task-7b.json",
+    "depth": "metadata",
+    "notes": "Parsed entire historical manifest; checked schema/slice, four authority rows, unique change paths, A/M/D statuses and SHA-256/null shapes. These are historical staged evidence, not a current-source hash claim. No complete line-by-line semantic review. Metadata inspection covers the entire 252-line artifact; it is not a full semantic line-by-line read. Baseline-manifest SHA-256 matches."
+  },
+  {
+    "path": "service/capabilities/change-manifests/task-7c.json",
+    "depth": "metadata",
+    "notes": "Parsed entire historical manifest; checked schema/slice, four authority rows, unique change paths, A/M/D statuses and SHA-256/null shapes. These are historical staged evidence, not a current-source hash claim. No complete line-by-line semantic review. Metadata inspection covers the entire 252-line artifact; it is not a full semantic line-by-line read. Baseline-manifest SHA-256 matches."
+  },
+  {
+    "path": "service/capabilities/change-manifests/task-8a.json",
+    "depth": "metadata",
+    "notes": "Parsed entire historical manifest; checked schema/slice, four authority rows, unique change paths, A/M/D statuses and SHA-256/null shapes. These are historical staged evidence, not a current-source hash claim. No complete line-by-line semantic review. Metadata inspection covers the entire 347-line artifact; it is not a full semantic line-by-line read. Baseline-manifest SHA-256 matches."
+  },
+  {
+    "path": "service/capabilities/change-manifests/task-8b.json",
+    "depth": "metadata",
+    "notes": "Parsed entire historical manifest; checked schema/slice, four authority rows, unique change paths, A/M/D statuses and SHA-256/null shapes. These are historical staged evidence, not a current-source hash claim. No complete line-by-line semantic review. Metadata inspection covers the entire 112-line artifact; it is not a full semantic line-by-line read. Baseline-manifest SHA-256 matches."
+  },
+  {
+    "path": "service/capabilities/change-manifests/task-review-2026-09-05.json",
+    "depth": "metadata",
+    "notes": "Parsed entire historical manifest; checked schema/slice, four authority rows, unique change paths, A/M/D statuses and SHA-256/null shapes. These are historical staged evidence, not a current-source hash claim. No complete line-by-line semantic review. Metadata inspection covers the entire 477-line artifact; it is not a full semantic line-by-line read. Baseline-manifest SHA-256 matches."
+  },
+  {
+    "path": "service/capabilities/change-manifests/task-review-2026-09-06.json",
+    "depth": "metadata",
+    "notes": "Parsed entire historical manifest; checked schema/slice, four authority rows, unique change paths, A/M/D statuses and SHA-256/null shapes. These are historical staged evidence, not a current-source hash claim. No complete line-by-line semantic review. Metadata inspection covers the entire 1202-line artifact; it is not a full semantic line-by-line read. Baseline-manifest SHA-256 matches."
+  },
+  {
+    "path": "service/capabilities/change-manifests/task-review-2026-09-07.json",
+    "depth": "metadata",
+    "notes": "Parsed entire historical manifest; checked schema/slice, four authority rows, unique change paths, A/M/D statuses and SHA-256/null shapes. These are historical staged evidence, not a current-source hash claim. No complete line-by-line semantic review. Metadata inspection covers the entire 1222-line artifact; it is not a full semantic line-by-line read. Baseline-manifest SHA-256 matches."
+  },
+  {
+    "path": "service/capabilities/change-manifests/task-review-2026-09-08.json",
+    "depth": "metadata",
+    "notes": "Parsed entire historical manifest; checked schema/slice, four authority rows, unique change paths, A/M/D statuses and SHA-256/null shapes. These are historical staged evidence, not a current-source hash claim. No complete line-by-line semantic review. Metadata inspection covers the entire 1502-line artifact; it is not a full semantic line-by-line read. Baseline-manifest SHA-256 matches."
+  },
+  {
+    "path": "service/capabilities/change-manifests/task-review-2026-09-10.json",
+    "depth": "metadata",
+    "notes": "Parsed entire historical manifest; checked schema/slice, four authority rows, unique change paths, A/M/D statuses and SHA-256/null shapes. These are historical staged evidence, not a current-source hash claim. No complete line-by-line semantic review. Metadata inspection covers the entire 1592-line artifact; it is not a full semantic line-by-line read. Baseline-manifest SHA-256 matches."
+  },
+  {
+    "path": "service/capabilities/figmosha-feature-map.json",
+    "depth": "metadata",
+    "notes": "Parsed complete generated companion inventory; checked exact source-surface equality with union manifest, declared implementation/test existence and recorded cardinality. Upstream behavior parity not independently executed or certified. Metadata inspection covers the entire 263-line artifact; it is not a full semantic line-by-line read. Baseline-manifest SHA-256 matches."
+  },
+  {
+    "path": "service/capabilities/rust-tool-compat.json",
+    "depth": "metadata",
+    "notes": "Parsed complete generated companion inventory; checked exact source-surface equality with union manifest, declared implementation/test existence and recorded cardinality. Upstream behavior parity not independently executed or certified. Metadata inspection covers the entire 1657-line artifact; it is not a full semantic line-by-line read. Baseline-manifest SHA-256 matches."
+  },
+  {
+    "path": "service/capabilities/task-7a-authority-classes.json",
+    "depth": "metadata",
+    "notes": "Parsed complete slice authority inventory; checked schema/slice, path cardinality, duplicates and service-relative unsafe forms. No complete line-by-line semantic review of each historical allowlist choice. Metadata inspection covers the entire 74-line artifact; it is not a full semantic line-by-line read. Baseline-manifest SHA-256 matches."
+  },
+  {
+    "path": "service/capabilities/task-7b-authority-classes.json",
+    "depth": "metadata",
+    "notes": "Parsed complete slice authority inventory; checked schema/slice, path cardinality, duplicates and service-relative unsafe forms. No complete line-by-line semantic review of each historical allowlist choice. Metadata inspection covers the entire 60-line artifact; it is not a full semantic line-by-line read. Baseline-manifest SHA-256 matches."
+  },
+  {
+    "path": "service/capabilities/task-7c-authority-classes.json",
+    "depth": "metadata",
+    "notes": "Parsed complete slice authority inventory; checked schema/slice, path cardinality, duplicates and service-relative unsafe forms. No complete line-by-line semantic review of each historical allowlist choice. Metadata inspection covers the entire 73-line artifact; it is not a full semantic line-by-line read. Baseline-manifest SHA-256 matches."
+  },
+  {
+    "path": "service/capabilities/task-8a-authority-classes.json",
+    "depth": "metadata",
+    "notes": "Parsed complete slice authority inventory; checked schema/slice, path cardinality, duplicates and service-relative unsafe forms. No complete line-by-line semantic review of each historical allowlist choice. Metadata inspection covers the entire 77-line artifact; it is not a full semantic line-by-line read. Baseline-manifest SHA-256 matches."
+  },
+  {
+    "path": "service/capabilities/task-8a-direct-fs-importers.json",
+    "depth": "full",
+    "notes": "Complete static read of lines 1-41; no unread body ranges. Inspected relevant callers/imports/test assumptions without executing repository code. Baseline-manifest SHA-256 matches."
+  },
+  {
+    "path": "service/capabilities/task-8b-authority-classes.json",
+    "depth": "metadata",
+    "notes": "Parsed complete slice authority inventory; checked schema/slice, path cardinality, duplicates and service-relative unsafe forms. No complete line-by-line semantic review of each historical allowlist choice. Metadata inspection covers the entire 33-line artifact; it is not a full semantic line-by-line read. Baseline-manifest SHA-256 matches."
+  },
+  {
+    "path": "service/capabilities/task-review-2026-09-05-authority-classes.json",
+    "depth": "metadata",
+    "notes": "Parsed complete slice authority inventory; checked schema/slice, path cardinality, duplicates and service-relative unsafe forms. No complete line-by-line semantic review of each historical allowlist choice. Metadata inspection covers the entire 104-line artifact; it is not a full semantic line-by-line read. Baseline-manifest SHA-256 matches."
+  },
+  {
+    "path": "service/capabilities/task-review-2026-09-06-authority-classes.json",
+    "depth": "metadata",
+    "notes": "Parsed complete slice authority inventory; checked schema/slice, path cardinality, duplicates and service-relative unsafe forms. No complete line-by-line semantic review of each historical allowlist choice. Metadata inspection covers the entire 249-line artifact; it is not a full semantic line-by-line read. Baseline-manifest SHA-256 matches."
+  },
+  {
+    "path": "service/capabilities/task-review-2026-09-07-authority-classes.json",
+    "depth": "metadata",
+    "notes": "Parsed complete slice authority inventory; checked schema/slice, path cardinality, duplicates and service-relative unsafe forms. No complete line-by-line semantic review of each historical allowlist choice. Metadata inspection covers the entire 253-line artifact; it is not a full semantic line-by-line read. Baseline-manifest SHA-256 matches."
+  },
+  {
+    "path": "service/capabilities/task-review-2026-09-08-authority-classes.json",
+    "depth": "metadata",
+    "notes": "Parsed complete slice authority inventory; checked schema/slice, path cardinality, duplicates and service-relative unsafe forms. No complete line-by-line semantic review of each historical allowlist choice. Metadata inspection covers the entire 309-line artifact; it is not a full semantic line-by-line read. Baseline-manifest SHA-256 matches."
+  },
+  {
+    "path": "service/capabilities/task-review-2026-09-10-authority-classes.json",
+    "depth": "metadata",
+    "notes": "Parsed complete slice authority inventory; checked schema/slice, path cardinality, duplicates and service-relative unsafe forms. No complete line-by-line semantic review of each historical allowlist choice. Metadata inspection covers the entire 327-line artifact; it is not a full semantic line-by-line read. Baseline-manifest SHA-256 matches."
+  },
+  {
+    "path": "service/capabilities/union-manifest.json",
+    "depth": "metadata",
+    "notes": "Parsed complete catalog:128 unique canonical tools,114 lexical rows,20 helpers,12 parsers; exact equality with companion source surfaces and existence of all declared implementation/test paths. Inspected generator/contracts/tests; did not independently re-execute schema hashing or every upstream semantic contract. Metadata inspection covers the entire 4949-line artifact; it is not a full semantic line-by-line read. Baseline-manifest SHA-256 matches."
+  },
+  {
+    "path": "service/connect-desktop.ps1",
+    "depth": "full",
+    "notes": "Complete static read of lines 1-22; no unread body ranges. Inspected relevant callers/imports/test assumptions without executing repository code. Baseline-manifest SHA-256 matches."
+  },
+  {
+    "path": "service/docs/operations-ko.md",
+    "depth": "full",
+    "notes": "Complete static read of lines 1-50; no unread body ranges. Inspected relevant callers/imports/test assumptions without executing repository code. Baseline-manifest SHA-256 matches."
+  },
+  {
+    "path": "service/docs/portal-native.md",
+    "depth": "full",
+    "notes": "Complete static read of lines 1-107; no unread body ranges. Inspected relevant callers/imports/test assumptions without executing repository code. Baseline-manifest SHA-256 matches."
+  },
+  {
+    "path": "service/inspect-chrome.cmd",
+    "depth": "full",
+    "notes": "Complete static read of lines 1-5; no unread body ranges. Inspected relevant callers/imports/test assumptions without executing repository code. Baseline-manifest SHA-256 matches."
+  },
+  {
+    "path": "service/inspect-chrome.ps1",
+    "depth": "full",
+    "notes": "Complete static read of lines 1-23; no unread body ranges. Inspected relevant callers/imports/test assumptions without executing repository code. Baseline-manifest SHA-256 matches."
+  },
+  {
+    "path": "service/knip.json",
+    "depth": "full",
+    "notes": "Complete static read of lines 1-26; no unread body ranges. Inspected relevant callers/imports/test assumptions without executing repository code. Baseline-manifest SHA-256 matches."
+  },
+  {
+    "path": "service/licenses/figma-mcp-rust-LICENSE",
+    "depth": "full",
+    "notes": "Complete static read of lines 1-22; no unread body ranges. Inspected relevant callers/imports/test assumptions without executing repository code. Baseline-manifest SHA-256 matches."
+  },
+  {
+    "path": "service/licenses/figmosha2-LICENSE",
+    "depth": "full",
+    "notes": "Complete static read of lines 1-21; no unread body ranges. Inspected relevant callers/imports/test assumptions without executing repository code. Baseline-manifest SHA-256 matches."
+  },
+  {
+    "path": "service/licenses/figwright-LICENSE",
+    "depth": "full",
+    "notes": "Complete static read of lines 1-21; no unread body ranges. Inspected relevant callers/imports/test assumptions without executing repository code. Baseline-manifest SHA-256 matches."
+  },
+  {
+    "path": "service/package.json",
+    "depth": "full",
+    "notes": "Complete static read of lines 1-43; no unread body ranges. Inspected relevant callers/imports/test assumptions without executing repository code. Baseline-manifest SHA-256 matches."
+  },
+  {
+    "path": "service/packages/mcp/README.md",
+    "depth": "full",
+    "notes": "Complete static read of lines 1-16; no unread body ranges. Inspected relevant callers/imports/test assumptions without executing repository code. Baseline-manifest SHA-256 matches."
+  },
+  {
+    "path": "service/packages/mcp/package.json",
+    "depth": "full",
+    "notes": "Complete static read of lines 1-50; no unread body ranges. Inspected relevant callers/imports/test assumptions without executing repository code. Baseline-manifest SHA-256 matches."
+  },
+  {
+    "path": "service/packages/mcp/tsconfig.json",
+    "depth": "full",
+    "notes": "Complete static read of lines 1-9; no unread body ranges. Inspected relevant callers/imports/test assumptions without executing repository code. Baseline-manifest SHA-256 matches."
+  },
+  {
+    "path": "service/packages/mcp/tsdown.config.ts",
+    "depth": "full",
+    "notes": "Complete static read of lines 1-22; no unread body ranges. Inspected relevant callers/imports/test assumptions without executing repository code. Baseline-manifest SHA-256 matches."
+  },
+  {
+    "path": "service/packages/mcp/vitest.config.ts",
+    "depth": "full",
+    "notes": "Complete static read of lines 1-13; no unread body ranges. Inspected relevant callers/imports/test assumptions without executing repository code. Baseline-manifest SHA-256 matches."
+  },
+  {
+    "path": "service/pnpm-lock.yaml",
+    "depth": "metadata",
+    "notes": "Read importer/pin sections 1-290 and scanned complete file: 364 resolution records, all SHA-512 integrity; checked current SHA-256 and SBOM binding. Transitive resolution semantics 291-3627 not manually read line by line; no installation or vulnerability lookup. Metadata inspection covers the entire 3627-line artifact; it is not a full semantic line-by-line read. Baseline-manifest SHA-256 matches."
+  },
+  {
+    "path": "service/pnpm-workspace.yaml",
+    "depth": "full",
+    "notes": "Complete static read of lines 1-11; no unread body ranges. Inspected relevant callers/imports/test assumptions without executing repository code. Baseline-manifest SHA-256 matches."
+  },
+  {
+    "path": "service/schemas/upstream-lock-v2.schema.json",
+    "depth": "full",
+    "notes": "Complete static read of lines 1-135; no unread body ranges. Inspected relevant callers/imports/test assumptions without executing repository code. Baseline-manifest SHA-256 matches."
+  },
+  {
+    "path": "service/scripts/build-identity.mjs",
+    "depth": "full",
+    "notes": "Complete static read of lines 1-98; no unread body ranges. Inspected relevant callers/imports/test assumptions without executing repository code. Baseline-manifest SHA-256 matches."
+  },
+  {
+    "path": "service/scripts/build-server.mjs",
+    "depth": "full",
+    "notes": "Complete static read of lines 1-22; no unread body ranges. Inspected relevant callers/imports/test assumptions without executing repository code. Baseline-manifest SHA-256 matches."
+  },
+  {
+    "path": "service/scripts/check-test-report.mjs",
+    "depth": "full",
+    "notes": "Complete static read of lines 1-277; no unread body ranges. Inspected relevant callers/imports/test assumptions without executing repository code. Baseline-manifest SHA-256 matches."
+  },
+  {
+    "path": "service/scripts/contracts-lib.mjs",
+    "depth": "full",
+    "notes": "Complete static read of lines 1-421; no unread body ranges. Inspected relevant callers/imports/test assumptions without executing repository code. Baseline-manifest SHA-256 matches."
+  },
+  {
+    "path": "service/scripts/desktop-acceptance.mjs",
+    "depth": "full",
+    "notes": "Complete static read of lines 1-20; no unread body ranges. Inspected relevant callers/imports/test assumptions without executing repository code. Baseline-manifest SHA-256 matches."
+  },
+  {
+    "path": "service/scripts/generate-checksums.mjs",
+    "depth": "full",
+    "notes": "Complete static read of lines 1-9; no unread body ranges. Inspected relevant callers/imports/test assumptions without executing repository code. Baseline-manifest SHA-256 matches."
+  },
+  {
+    "path": "service/scripts/generate-notices.mjs",
+    "depth": "full",
+    "notes": "Complete static read of lines 1-23; no unread body ranges. Inspected relevant callers/imports/test assumptions without executing repository code. Baseline-manifest SHA-256 matches."
+  },
+  {
+    "path": "service/scripts/generate-sbom.mjs",
+    "depth": "full",
+    "notes": "Complete static read of lines 1-33; no unread body ranges. Inspected relevant callers/imports/test assumptions without executing repository code. Baseline-manifest SHA-256 matches."
+  },
+  {
+    "path": "service/scripts/graph-memory-child.mjs",
+    "depth": "full",
+    "notes": "Complete static read of lines 1-24; no unread body ranges. Inspected relevant callers/imports/test assumptions without executing repository code. Baseline-manifest SHA-256 matches."
+  },
+  {
+    "path": "service/scripts/hermetic-git.mjs",
+    "depth": "full",
+    "notes": "Complete static read of lines 1-147; no unread body ranges. Inspected relevant callers/imports/test assumptions without executing repository code. Baseline-manifest SHA-256 matches."
+  },
+  {
+    "path": "service/scripts/package-artifacts.mjs",
+    "depth": "full",
+    "notes": "Complete static read of lines 1-104; no unread body ranges. Inspected relevant callers/imports/test assumptions without executing repository code. Baseline-manifest SHA-256 matches."
+  },
+  {
+    "path": "service/scripts/package-manager-entry.mjs",
+    "depth": "full",
+    "notes": "Complete static read of lines 1-70; no unread body ranges. Inspected relevant callers/imports/test assumptions without executing repository code. Baseline-manifest SHA-256 matches."
+  },
+  {
+    "path": "service/scripts/register-source.mjs",
+    "depth": "full",
+    "notes": "Complete static read of lines 1-15; no unread body ranges. Inspected relevant callers/imports/test assumptions without executing repository code. Baseline-manifest SHA-256 matches."
+  },
+  {
+    "path": "service/scripts/release-common.mjs",
+    "depth": "full",
+    "notes": "Complete static read of lines 1-94; no unread body ranges. Inspected relevant callers/imports/test assumptions without executing repository code. Baseline-manifest SHA-256 matches."
+  },
+  {
+    "path": "service/scripts/run-source-checks.mjs",
+    "depth": "full",
+    "notes": "Complete static read of lines 1-157; no unread body ranges. Inspected relevant callers/imports/test assumptions without executing repository code. Baseline-manifest SHA-256 matches."
+  },
+  {
+    "path": "service/scripts/smoke-packed-mcp.mjs",
+    "depth": "full",
+    "notes": "Complete static read of lines 1-60; no unread body ranges. Inspected relevant callers/imports/test assumptions without executing repository code. Baseline-manifest SHA-256 matches."
+  },
+  {
+    "path": "service/scripts/smoke-runtime-entries.mjs",
+    "depth": "full",
+    "notes": "Complete static read of lines 1-128; no unread body ranges. Inspected relevant callers/imports/test assumptions without executing repository code. Baseline-manifest SHA-256 matches."
+  },
+  {
+    "path": "service/scripts/test-skip-census.mjs",
+    "depth": "full",
+    "notes": "Complete static read of lines 1-146; no unread body ranges. Inspected relevant callers/imports/test assumptions without executing repository code. Baseline-manifest SHA-256 matches."
+  },
+  {
+    "path": "service/scripts/update-contracts.mjs",
+    "depth": "full",
+    "notes": "Complete static read of lines 1-73; no unread body ranges. Inspected relevant callers/imports/test assumptions without executing repository code. Baseline-manifest SHA-256 matches."
+  },
+  {
+    "path": "service/scripts/update-portal-contracts.mjs",
+    "depth": "full",
+    "notes": "Complete static read of lines 1-51; no unread body ranges. Inspected relevant callers/imports/test assumptions without executing repository code. Baseline-manifest SHA-256 matches."
+  },
+  {
+    "path": "service/scripts/update-service-forks.mjs",
+    "depth": "full",
+    "notes": "Complete static read of lines 1-850; no unread body ranges. Inspected relevant callers/imports/test assumptions without executing repository code. Baseline-manifest SHA-256 matches."
+  },
+  {
+    "path": "service/scripts/update-target-contracts.mjs",
+    "depth": "full",
+    "notes": "Complete static read of lines 1-31; no unread body ranges. Inspected relevant callers/imports/test assumptions without executing repository code. Baseline-manifest SHA-256 matches."
+  },
+  {
+    "path": "service/scripts/vendor-upstreams.mjs",
+    "depth": "full",
+    "notes": "Complete static read of lines 1-743; no unread body ranges. Inspected relevant callers/imports/test assumptions without executing repository code. Baseline-manifest SHA-256 matches."
+  },
+  {
+    "path": "service/scripts/verify-artifacts.mjs",
+    "depth": "full",
+    "notes": "Complete static read of lines 1-84; no unread body ranges. Inspected relevant callers/imports/test assumptions without executing repository code. Baseline-manifest SHA-256 matches."
+  },
+  {
+    "path": "service/scripts/verify-graph-memory.mjs",
+    "depth": "full",
+    "notes": "Complete static read of lines 1-20; no unread body ranges. Inspected relevant callers/imports/test assumptions without executing repository code. Baseline-manifest SHA-256 matches."
+  },
+  {
+    "path": "service/scripts/verify-runtime-specifiers.mjs",
+    "depth": "full",
+    "notes": "Complete static read of lines 1-226; no unread body ranges. Inspected relevant callers/imports/test assumptions without executing repository code. Baseline-manifest SHA-256 matches."
+  },
+  {
+    "path": "service/scripts/verify-staged-change-manifest.mjs",
+    "depth": "full",
+    "notes": "Complete static read of lines 1-361; no unread body ranges. Inspected relevant callers/imports/test assumptions without executing repository code. Baseline-manifest SHA-256 matches."
+  },
+  {
+    "path": "service/scripts/verify-upstream-lock.mjs",
+    "depth": "full",
+    "notes": "Complete static read of lines 1-881; no unread body ranges. Inspected relevant callers/imports/test assumptions without executing repository code. Baseline-manifest SHA-256 matches."
+  },
+  {
+    "path": "service/skills/figma-build/SKILL.md",
+    "depth": "full",
+    "notes": "Complete static read of lines 1-95; no unread body ranges. Inspected relevant callers/imports/test assumptions without executing repository code. Baseline-manifest SHA-256 matches."
+  },
+  {
+    "path": "service/skills/figma-build/references/assemble-screens.md",
+    "depth": "full",
+    "notes": "Complete static read of lines 1-74; no unread body ranges. Inspected relevant callers/imports/test assumptions without executing repository code. Baseline-manifest SHA-256 matches."
+  },
+  {
+    "path": "service/skills/figma-build/references/author-design-system.md",
+    "depth": "full",
+    "notes": "Complete static read of lines 1-117; no unread body ranges. Inspected relevant callers/imports/test assumptions without executing repository code. Baseline-manifest SHA-256 matches."
+  },
+  {
+    "path": "service/skills/figma-build/references/motion.md",
+    "depth": "full",
+    "notes": "Complete static read of lines 1-86; no unread body ranges. Inspected relevant callers/imports/test assumptions without executing repository code. Baseline-manifest SHA-256 matches."
+  },
+  {
+    "path": "service/skills/figma-build/references/write-rules.md",
+    "depth": "full",
+    "notes": "Complete static read of lines 1-144; no unread body ranges. Inspected relevant callers/imports/test assumptions without executing repository code. Baseline-manifest SHA-256 matches."
+  },
+  {
+    "path": "service/skills/figma-codegen/SKILL.md",
+    "depth": "full",
+    "notes": "Complete static read of lines 1-211; no unread body ranges. Inspected relevant callers/imports/test assumptions without executing repository code. Baseline-manifest SHA-256 matches."
+  },
+  {
+    "path": "service/skills/figma-codegen/references/assets-and-icons.md",
+    "depth": "full",
+    "notes": "Complete static read of lines 1-72; no unread body ranges. Inspected relevant callers/imports/test assumptions without executing repository code. Baseline-manifest SHA-256 matches."
+  },
+  {
+    "path": "service/skills/figma-codegen/references/grounding.md",
+    "depth": "full",
+    "notes": "Complete static read of lines 1-276; no unread body ranges. Inspected relevant callers/imports/test assumptions without executing repository code. Baseline-manifest SHA-256 matches."
+  },
+  {
+    "path": "service/skills/figma-codegen/references/motion.md",
+    "depth": "full",
+    "notes": "Complete static read of lines 1-69; no unread body ranges. Inspected relevant callers/imports/test assumptions without executing repository code. Baseline-manifest SHA-256 matches."
+  },
+  {
+    "path": "service/skills/figma-codegen/references/responsive.md",
+    "depth": "full",
+    "notes": "Complete static read of lines 1-66; no unread body ranges. Inspected relevant callers/imports/test assumptions without executing repository code. Baseline-manifest SHA-256 matches."
+  },
+  {
+    "path": "service/skills/figma-codegen/references/stylesheets.md",
+    "depth": "full",
+    "notes": "Complete static read of lines 1-132; no unread body ranges. Inspected relevant callers/imports/test assumptions without executing repository code. Baseline-manifest SHA-256 matches."
+  },
+  {
+    "path": "service/skills/figma-codegen/references/verify.md",
+    "depth": "full",
+    "notes": "Complete static read of lines 1-16; no unread body ranges. Inspected relevant callers/imports/test assumptions without executing repository code. Baseline-manifest SHA-256 matches."
+  },
+  {
+    "path": "service/test/artifact-contents.test.ts",
+    "depth": "full",
+    "notes": "Complete static read of lines 1-12; no unread body ranges. Inspected relevant callers/imports/test assumptions without executing repository code. Baseline-manifest SHA-256 matches."
+  },
+  {
+    "path": "service/test/authority-class-transition.test.ts",
+    "depth": "full",
+    "notes": "Complete static read of lines 1-87; no unread body ranges. Inspected relevant callers/imports/test assumptions without executing repository code. Baseline-manifest SHA-256 matches."
+  },
+  {
+    "path": "service/test/bootstrap.test.ts",
+    "depth": "full",
+    "notes": "Complete static read of lines 1-30; no unread body ranges. Inspected relevant callers/imports/test assumptions without executing repository code. Baseline-manifest SHA-256 matches."
+  },
+  {
+    "path": "service/test/build-identity.test.ts",
+    "depth": "full",
+    "notes": "Complete static read of lines 1-210; no unread body ranges. Inspected relevant callers/imports/test assumptions without executing repository code. Baseline-manifest SHA-256 matches."
+  },
+  {
+    "path": "service/test/change-manifest.test.ts",
+    "depth": "full",
+    "notes": "Complete static read of lines 1-315; no unread body ranges. Inspected relevant callers/imports/test assumptions without executing repository code. Baseline-manifest SHA-256 matches."
+  },
+  {
+    "path": "service/test/check-test-report.test.ts",
+    "depth": "full",
+    "notes": "Complete static read of lines 1-186; no unread body ranges. Inspected relevant callers/imports/test assumptions without executing repository code. Baseline-manifest SHA-256 matches."
+  },
+  {
+    "path": "service/test/contract-drift.test.ts",
+    "depth": "full",
+    "notes": "Complete static read of lines 1-22; no unread body ranges. Inspected relevant callers/imports/test assumptions without executing repository code. Baseline-manifest SHA-256 matches."
+  },
+  {
+    "path": "service/test/docs-sync.test.ts",
+    "depth": "full",
+    "notes": "Complete static read of lines 1-31; no unread body ranges. Inspected relevant callers/imports/test assumptions without executing repository code. Baseline-manifest SHA-256 matches."
+  },
+  {
+    "path": "service/test/known-failures.json",
+    "depth": "metadata",
+    "notes": "Parsed all 90 unique entries; each has failureIncludes and existing test file. Checked owner/finding totals (T14b/K1=17,T13/SVC-1=13,T05a/K5=60), and absence of ledger rows for three Firefox suites. Did not execute individual failures. Metadata inspection covers the entire 726-line artifact; it is not a full semantic line-by-line read. Baseline-manifest SHA-256 matches."
+  },
+  {
+    "path": "service/test/package-artifacts-hermetic.test.ts",
+    "depth": "full",
+    "notes": "Complete static read of lines 1-242; no unread body ranges. Inspected relevant callers/imports/test assumptions without executing repository code. Baseline-manifest SHA-256 matches."
+  },
+  {
+    "path": "service/test/package-manager-entry.test.ts",
+    "depth": "full",
+    "notes": "Complete static read of lines 1-94; no unread body ranges. Inspected relevant callers/imports/test assumptions without executing repository code. Baseline-manifest SHA-256 matches."
+  },
+  {
+    "path": "service/test/service-fork-lineage.test.ts",
+    "depth": "full",
+    "notes": "Complete static read of lines 1-700; no unread body ranges. Inspected relevant callers/imports/test assumptions without executing repository code. Baseline-manifest SHA-256 matches."
+  },
+  {
+    "path": "service/test/spawn-hygiene.test.ts",
+    "depth": "full",
+    "notes": "Complete static read of lines 1-318; no unread body ranges. Inspected relevant callers/imports/test assumptions without executing repository code. Baseline-manifest SHA-256 matches."
+  },
+  {
+    "path": "service/test/support/required-suite.ts",
+    "depth": "full",
+    "notes": "Complete static read of lines 1-35; no unread body ranges. Inspected relevant callers/imports/test assumptions without executing repository code. Baseline-manifest SHA-256 matches."
+  },
+  {
+    "path": "service/test/task-8a-direct-fs-importers.test.ts",
+    "depth": "full",
+    "notes": "Complete static read of lines 1-180; no unread body ranges. Inspected relevant callers/imports/test assumptions without executing repository code. Baseline-manifest SHA-256 matches."
+  },
+  {
+    "path": "service/test/test-skip-census.test.ts",
+    "depth": "full",
+    "notes": "Complete static read of lines 1-143; no unread body ranges. Inspected relevant callers/imports/test assumptions without executing repository code. Baseline-manifest SHA-256 matches."
+  },
+  {
+    "path": "service/test/tool-contract.test.ts",
+    "depth": "full",
+    "notes": "Complete static read of lines 1-351; no unread body ranges. Inspected relevant callers/imports/test assumptions without executing repository code. Baseline-manifest SHA-256 matches."
+  },
+  {
+    "path": "service/test/tool-registry.test.ts",
+    "depth": "full",
+    "notes": "Complete static read of lines 1-92; no unread body ranges. Inspected relevant callers/imports/test assumptions without executing repository code. Baseline-manifest SHA-256 matches."
+  },
+  {
+    "path": "service/test/types/figma-plugin-globals.d.ts",
+    "depth": "full",
+    "notes": "Complete static read of lines 1-6; no unread body ranges. Inspected relevant callers/imports/test assumptions without executing repository code. Baseline-manifest SHA-256 matches."
+  },
+  {
+    "path": "service/test/upstream-parity.test.ts",
+    "depth": "full",
+    "notes": "Complete static read of lines 1-50; no unread body ranges. Inspected relevant callers/imports/test assumptions without executing repository code. Baseline-manifest SHA-256 matches."
+  },
+  {
+    "path": "service/test/vendor-upstreams.test.ts",
+    "depth": "full",
+    "notes": "Complete static read of lines 1-655; no unread body ranges. Inspected relevant callers/imports/test assumptions without executing repository code. Baseline-manifest SHA-256 matches."
+  },
+  {
+    "path": "service/tsconfig.base.json",
+    "depth": "full",
+    "notes": "Complete static read of lines 1-25; no unread body ranges. Inspected relevant callers/imports/test assumptions without executing repository code. Baseline-manifest SHA-256 matches."
+  },
+  {
+    "path": "service/tsconfig.json",
+    "depth": "full",
+    "notes": "Complete static read of lines 1-5; no unread body ranges. Inspected relevant callers/imports/test assumptions without executing repository code. Baseline-manifest SHA-256 matches."
+  },
+  {
+    "path": "service/tsconfig.tools.json",
+    "depth": "full",
+    "notes": "Complete static read of lines 1-18; no unread body ranges. Inspected relevant callers/imports/test assumptions without executing repository code. Baseline-manifest SHA-256 matches."
+  },
+  {
+    "path": "service/upstream-lock.json",
+    "depth": "metadata",
+    "notes": "Parsed all v2 authorities; inspected all 1,112 service/managed-owned hash rows (263 drift rows/149 unique paths), vendor-map digest/counts, 83 fork tasks (59 review slices), pinned commits/licenses and published schema divergence. Generated authority semantics not fully line-by-line read. Metadata inspection covers the entire 5912-line artifact; it is not a full semantic line-by-line read. Baseline-manifest SHA-256 matches."
+  },
+  {
+    "path": "service/vendor-allowed-figwright-strings.json",
+    "depth": "full",
+    "notes": "Complete static read of lines 1-96; no unread body ranges. Inspected relevant callers/imports/test assumptions without executing repository code. Baseline-manifest SHA-256 matches."
+  },
+  {
+    "path": "service/vendor-map.json",
+    "depth": "metadata",
+    "notes": "Parsed complete map; checked 333 unique-mode inventory rows (312 copy,2 merge,19 reference), digest/count agreement with lock and pinned origin. Did not independently reconstruct every upstream transformation. Metadata inspection covers the entire 3337-line artifact; it is not a full semantic line-by-line read. Baseline-manifest SHA-256 matches."
+  },
+  {
+    "path": "service/vendor-rules.json",
+    "depth": "metadata",
+    "notes": "Parsed complete rules; inspected copy/merge/reference boundary, pinned commit, exclusion/service-owned structure alongside updater/verifier implementations. Historical exclusion choices not individually re-derived from upstream. Metadata inspection covers the entire 915-line artifact; it is not a full semantic line-by-line read. Baseline-manifest SHA-256 matches."
+  },
+  {
+    "path": "service/vitest.config.ts",
+    "depth": "full",
+    "notes": "Complete static read of lines 1-53; no unread body ranges. Inspected relevant callers/imports/test assumptions without executing repository code. Baseline-manifest SHA-256 matches."
+  }
+]

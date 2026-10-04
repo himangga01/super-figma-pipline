@@ -1,11 +1,17 @@
-import { readFile, realpath } from 'node:fs/promises';
+import { randomBytes } from 'node:crypto';
+import { mkdir, open, readFile, realpath } from 'node:fs/promises';
+import { dirname, join, resolve } from 'node:path';
 import { parseArgs } from 'node:util';
 
 import { contentHash, GroundingRefreshArgsSchema, SnapshotCaptureArgsSchema } from '@sfp/ir';
 import { hashActionRequest, type InvocationTargetSelector } from '@sfp/shared';
 
 import { normalizeRemoteDomain } from '../../mcp/src/network/remote-domain-config-store.js';
-import { PortalNativeRegistrationSchema } from '../../mcp/src/portal/native-work.js';
+import {
+  PortalNativeRegistrationSchema,
+  PortalPreparedNativeProfileSchema,
+} from '../../mcp/src/portal/native-work.js';
+import { createStatePermissions } from '../../mcp/src/security/state-permissions.js';
 import { ALL_TOOL_SPECS } from '../../mcp/src/tools/registry.js';
 import { ControlClient } from './control-client.js';
 
@@ -52,6 +58,7 @@ export const runAdminCommand = async (
     options: {
       args: { type: 'string' },
       'args-file': { type: 'string' },
+      'prepared-file': { type: 'string' },
       workspace: { type: 'string' },
       'workspace-id': { type: 'string' },
       session: { type: 'string' },
@@ -89,6 +96,7 @@ export const runAdminCommand = async (
       : command === 'operations' && ['cancel', 'resolve'].includes(action ?? '')
         ? new Set(['args', 'args-file'])
         : new Set<string>();
+  if (command === 'portal' && action === 'profile') allowed.add('prepared-file');
   for (const token of parsed.tokens)
     if (token.kind === 'option' && !allowed.has(token.name))
       throw commandError(`--${token.name} is not supported by this command`);
@@ -119,13 +127,44 @@ export const runAdminCommand = async (
   if (command === 'portal' && action === 'profile') {
     if (value !== undefined)
       throw commandError('portal profile --args-file <reviewed-native-profile.json> --yes');
-    const profile = PortalNativeRegistrationSchema.parse(await jsonArgs(opts));
+    const rawProfile = await jsonArgs(opts);
     if (!opts.yes) {
-      const prepared = PortalNativeRegistrationSchema.parse(
+      const profile = PortalNativeRegistrationSchema.parse(rawProfile);
+      const folder = join(client.stateRoot, 'prepared-profiles');
+      const preparedFile = resolve(
+        opts['prepared-file'] ??
+          join(folder, `${profile.native.id}.${randomBytes(12).toString('hex')}.json`),
+      );
+      if (resolve(dirname(preparedFile)).toLowerCase() !== resolve(folder).toLowerCase())
+        throw commandError(`--prepared-file must be directly inside ${folder}`);
+      const prepared = PortalPreparedNativeProfileSchema.parse(
         await client.request('/control/portal/profiles/prepare', 'POST', profile),
       );
+      const permissions = createStatePermissions(client.stateRoot);
+      await permissions.verifySecure(client.stateRoot);
+      await mkdir(folder, { mode: 0o700 }).catch(error => {
+        if ((error as NodeJS.ErrnoException).code !== 'EEXIST') throw error;
+      });
+      await permissions.ensureSecure(folder);
+      const file = await open(preparedFile, 'wx', 0o600);
+      try {
+        // Apply/verify owner permissions before any protected configuration is written.
+        await permissions.ensureSecure(preparedFile);
+        await permissions.verifySecure(preparedFile);
+        await file.writeFile(`${JSON.stringify(prepared, null, 2)}\n`, 'utf8');
+        await file.sync();
+        const identity = await permissions.inspectSecure(preparedFile);
+        const held = await file.stat({ bigint: true });
+        if (identity.key !== `${held.dev}:${held.ino}:${held.birthtimeNs}`)
+          throw commandError('Prepared profile file identity changed');
+      } finally {
+        await file.close();
+      }
       emit({
         status: 'review-required',
+        preparedFile,
+        preparedContractVersion: prepared.preparedContractVersion,
+        profileHash: contentHash('sfp-portal-profile-request-v1', prepared),
         preparation: {
           environmentAuthority: prepared.native.environmentAuthority,
           artifactAuthority: prepared.native.artifactAuthority,
@@ -135,17 +174,17 @@ export const runAdminCommand = async (
               [
                 'SFP_FIGMA_ASSET_ROOT',
                 'SFP_PORTAL_VALIDATOR_URL',
-                'SFP_PORTAL_FIREFOX_EXECUTABLE',
+                'SFP_PORTAL_CHROME_EXECUTABLE',
               ].includes(key),
             ),
           ),
         },
-        profileId: profile.native.id,
-        planId: profile.planId,
-        sourceHash: profile.native.sourceHash,
+        profileId: prepared.native.id,
+        planId: prepared.planId,
+        sourceHash: prepared.native.sourceHash,
         executionMode: 'native-working-copy',
         isolation: 'local-owner-account-no-os-sandbox',
-        commands: profile.native.commands.map(step => ({
+        commands: prepared.native.commands.map(step => ({
           id: step.id,
           executable: step.executable,
           args: step.args,
@@ -153,14 +192,19 @@ export const runAdminCommand = async (
           timeoutMs: step.timeoutMs,
           allowLifecycleScripts: step.allowLifecycleScripts,
         })),
-        environmentNames: Object.keys(profile.native.environment),
+        environmentNames: Object.keys(prepared.native.environment),
+        consumption: prepared.recipeUse.prepared,
+        observationManifest: prepared.observationManifest,
         instruction:
-          'Review commands, source closure and preparation. Copy environmentAuthority, artifactAuthority and externalArtifacts into native, merge serviceEnvironment into environment in the input file, then register that exact profile with --yes. Registration does not run commands.',
+          'Review the complete prepared file, including commands, environment, source closure, observations and recipe use. Register that exact file using portal profile --args-file <preparedFile> --yes. Registration does not run commands.',
       });
       return true;
     }
-    if (!profile.native.artifactAuthority)
+    if (opts['prepared-file'] !== undefined)
+      throw commandError('--prepared-file is only supported while preparing a profile');
+    if (!PortalPreparedNativeProfileSchema.safeParse(rawProfile).success)
       throw commandError('Prepare and review this profile without --yes before registration.');
+    const profile = PortalPreparedNativeProfileSchema.parse(rawProfile);
     const semantic = {
       planId: profile.planId,
       profileHash: contentHash('sfp-portal-profile-request-v1', profile),

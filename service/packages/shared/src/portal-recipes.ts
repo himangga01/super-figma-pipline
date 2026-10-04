@@ -157,6 +157,8 @@ export const PortalRecipeInputContextSchema = bounded(
       captureHash: hash,
       assetManifestHash: hash,
       scopeHash: hash,
+      interactionContractHash: hash.nullable().optional(),
+      interactionSelectionHash: hash.nullable().optional(),
       sourceHashes: z
         .array(qualifiedSource)
         .max(9)
@@ -298,6 +300,7 @@ const obligation = z
       'resolve-capability',
       'supply-asset',
       'implement-interaction',
+      'review-incidental-interaction',
       'resolve-source',
     ]),
     itemId: coreId,
@@ -483,10 +486,23 @@ const coreRow = z.discriminatedUnion('kind', [
               actionIndex: z.number().int().nonnegative(),
               action: coreId,
               destinationId: coreId.nullable(),
-              status: z.enum(['required', 'unsupported', 'missing-destination']),
+              status: z.enum(['required', 'unsupported', 'missing-destination', 'excluded']),
               temporal: z.boolean(),
+              exclusion: z
+                .object({
+                  interactionId: hash,
+                  sourceHash: hash,
+                  selectionHash: hash,
+                  reason: z.string().trim().min(1).max(2048),
+                })
+                .strict()
+                .optional(),
             })
-            .strict(),
+            .strict()
+            .refine(
+              value => (value.status === 'excluded') === (value.exclusion !== undefined),
+              'CORE_INTERACTION_EXCLUSION_PROOF_REQUIRED',
+            ),
         )
         .max(4096),
     })
@@ -534,6 +550,8 @@ export const PortalCoreRecipeManifestSchema = z
     derivationVersion: z.literal(1),
     inputHash: hash,
     observationHash: hash,
+    interactionContractHash: hash.nullable().optional(),
+    interactionSelectionHash: hash.nullable().optional(),
     status: z.enum(['ready', 'blocked']),
     applicability: z.enum(['applicable', 'proved-empty', 'unresolved']),
     pages: z

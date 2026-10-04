@@ -478,6 +478,7 @@ it('inspects legacy partial recovery without mutating or promoting historical au
   await value.store.update('runs', planned.planId, PortalRunSchema, run => {
     delete run.sourceAuthorityVersion;
     run.state = state;
+    run.deadlineAt = Date.now() - 1;
     return run;
   });
   value.work.reconcile = vi.fn<NonNullable<PortalWorkPort['reconcile']>>(async () => ({
@@ -841,7 +842,7 @@ it('keeps document persistence, form failures and source integration evidence wh
   });
   await writeProject(join(form.workspaceRoot, 'reference'), {
     'package.json': '{"dependencies":{"nodemailer":"1"}}',
-    'main.ts': "import nodemailer from 'nodemailer'; export const mail=nodemailer;",
+    'main.ts': "\ufeffimport nodemailer from 'nodemailer'; export const mail=nodemailer;",
   });
   const integrated = await form.invoke('portal_plan', {
     case: 'new-reference',

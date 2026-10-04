@@ -1,0 +1,447 @@
+[
+    {
+        "path":  "service/packages/mcp/src/diff/baseline-identity.ts",
+        "depth":  "full",
+        "notes":  "Complete static read of the assigned runtime module and its local contracts/branches; no execution or changes. Current SHA-256 matches the baseline manifest."
+    },
+    {
+        "path":  "service/packages/mcp/src/diff/design-diff.ts",
+        "depth":  "full",
+        "notes":  "Complete static read of the assigned runtime module and its local contracts/branches; no execution or changes. Current SHA-256 matches the baseline manifest."
+    },
+    {
+        "path":  "service/packages/mcp/src/icons/repo-icons.ts",
+        "depth":  "full",
+        "notes":  "Complete static read of the assigned runtime module and its local contracts/branches; no execution or changes. Current SHA-256 matches the baseline manifest."
+    },
+    {
+        "path":  "service/packages/mcp/src/join/casefold.ts",
+        "depth":  "full",
+        "notes":  "Complete static read of the assigned runtime module and its local contracts/branches; no execution or changes. Current SHA-256 matches the baseline manifest."
+    },
+    {
+        "path":  "service/packages/mcp/src/join/component-map.ts",
+        "depth":  "full",
+        "notes":  "Complete static read of the assigned runtime module and its local contracts/branches; no execution or changes. Current SHA-256 matches the baseline manifest."
+    },
+    {
+        "path":  "service/packages/mcp/src/join/icon-map.ts",
+        "depth":  "full",
+        "notes":  "Complete static read of the assigned runtime module and its local contracts/branches; no execution or changes. Current SHA-256 matches the baseline manifest."
+    },
+    {
+        "path":  "service/packages/mcp/src/join/status.ts",
+        "depth":  "full",
+        "notes":  "Complete static read of the assigned runtime module and its local contracts/branches; no execution or changes. Current SHA-256 matches the baseline manifest."
+    },
+    {
+        "path":  "service/packages/mcp/src/join/token-map.ts",
+        "depth":  "full",
+        "notes":  "Complete static read of the assigned runtime module and its local contracts/branches; no execution or changes. Current SHA-256 matches the baseline manifest."
+    },
+    {
+        "path":  "service/packages/mcp/src/mapping/design-mapping.ts",
+        "depth":  "full",
+        "notes":  "Complete static read of the assigned runtime module and its local contracts/branches; no execution or changes. Current SHA-256 matches the baseline manifest."
+    },
+    {
+        "path":  "service/packages/mcp/src/mapping/mapping-overrides.ts",
+        "depth":  "full",
+        "notes":  "Complete static read of the assigned runtime module and its local contracts/branches; no execution or changes. Current SHA-256 matches the baseline manifest."
+    },
+    {
+        "path":  "service/packages/mcp/src/portal/module-resolution.ts",
+        "depth":  "full",
+        "notes":  "Complete static read of the assigned runtime module and its local contracts/branches; no execution or changes. Current SHA-256 matches the baseline manifest."
+    },
+    {
+        "path":  "service/packages/mcp/src/portal/service-connections.ts",
+        "depth":  "full",
+        "notes":  "Complete static read of the assigned runtime module and its local contracts/branches; no execution or changes. Current SHA-256 matches the baseline manifest."
+    },
+    {
+        "path":  "service/packages/mcp/src/portal/service-graph.ts",
+        "depth":  "full",
+        "notes":  "Complete static read of the assigned runtime module and its local contracts/branches; no execution or changes. Current SHA-256 matches the baseline manifest."
+    },
+    {
+        "path":  "service/packages/mcp/src/portal/service-selection.ts",
+        "depth":  "full",
+        "notes":  "Complete static read of the assigned runtime module and its local contracts/branches; no execution or changes. Current SHA-256 matches the baseline manifest."
+    },
+    {
+        "path":  "service/packages/mcp/src/portal/source-inventory.ts",
+        "depth":  "full",
+        "notes":  "Complete static read of the assigned runtime module and its local contracts/branches; no execution or changes. Current SHA-256 matches the baseline manifest."
+    },
+    {
+        "path":  "service/packages/mcp/src/portal/source-path-policy.ts",
+        "depth":  "full",
+        "notes":  "Complete static read of the assigned runtime module and its local contracts/branches; no execution or changes. Current SHA-256 matches the baseline manifest."
+    },
+    {
+        "path":  "service/packages/mcp/src/portal/workflow-requirements.ts",
+        "depth":  "full",
+        "notes":  "Complete static read of the assigned runtime module and its local contracts/branches; no execution or changes. Current SHA-256 matches the baseline manifest."
+    },
+    {
+        "path":  "service/packages/mcp/src/profile/conventions.ts",
+        "depth":  "full",
+        "notes":  "Complete static read of the assigned runtime module and its local contracts/branches; no execution or changes. Current SHA-256 matches the baseline manifest."
+    },
+    {
+        "path":  "service/packages/mcp/src/profile/profile.ts",
+        "depth":  "full",
+        "notes":  "Complete static read of the assigned runtime module and its local contracts/branches; no execution or changes. Current SHA-256 matches the baseline manifest."
+    },
+    {
+        "path":  "service/packages/mcp/src/scan/scan.ts",
+        "depth":  "full",
+        "notes":  "Complete static read of the assigned runtime module and its local contracts/branches; no execution or changes. Current SHA-256 matches the baseline manifest."
+    },
+    {
+        "path":  "service/packages/mcp/src/scan/sfc-blocks.ts",
+        "depth":  "full",
+        "notes":  "Complete static read of the assigned runtime module and its local contracts/branches; no execution or changes. Current SHA-256 matches the baseline manifest."
+    },
+    {
+        "path":  "service/packages/mcp/src/snapshot/build-grounding-graph.ts",
+        "depth":  "full",
+        "notes":  "Complete static read of the assigned runtime module and its local contracts/branches; no execution or changes. Current SHA-256 matches the baseline manifest."
+    },
+    {
+        "path":  "service/packages/mcp/src/snapshot/capture-snapshot.ts",
+        "depth":  "full",
+        "notes":  "Complete static read of the assigned runtime module and its local contracts/branches; no execution or changes. Current SHA-256 matches the baseline manifest."
+    },
+    {
+        "path":  "service/packages/mcp/src/snapshot/operations.ts",
+        "depth":  "full",
+        "notes":  "Complete static read of the assigned runtime module and its local contracts/branches; no execution or changes. Current SHA-256 matches the baseline manifest."
+    },
+    {
+        "path":  "service/packages/mcp/src/snapshot/refresh-grounding-graph.ts",
+        "depth":  "full",
+        "notes":  "Complete static read of the assigned runtime module and its local contracts/branches; no execution or changes. Current SHA-256 matches the baseline manifest."
+    },
+    {
+        "path":  "service/packages/mcp/src/snapshot/snapshot-operation-evidence.ts",
+        "depth":  "full",
+        "notes":  "Complete static read of the assigned runtime module and its local contracts/branches; no execution or changes. Current SHA-256 matches the baseline manifest."
+    },
+    {
+        "path":  "service/packages/mcp/src/snapshot/workspace-graph-storage.ts",
+        "depth":  "full",
+        "notes":  "Complete static read of the assigned runtime module and its local contracts/branches; no execution or changes. Current SHA-256 matches the baseline manifest."
+    },
+    {
+        "path":  "service/packages/mcp/src/snapshot/workspace-snapshot-storage.ts",
+        "depth":  "full",
+        "notes":  "Complete static read of the assigned runtime module and its local contracts/branches; no execution or changes. Current SHA-256 matches the baseline manifest."
+    },
+    {
+        "path":  "service/packages/mcp/src/tokens/css-scan.ts",
+        "depth":  "full",
+        "notes":  "Complete static read of the assigned runtime module and its local contracts/branches; no execution or changes. Current SHA-256 matches the baseline manifest."
+    },
+    {
+        "path":  "service/packages/mcp/src/tokens/figma-tokens.ts",
+        "depth":  "full",
+        "notes":  "Complete static read of the assigned runtime module and its local contracts/branches; no execution or changes. Current SHA-256 matches the baseline manifest."
+    },
+    {
+        "path":  "service/packages/mcp/src/tokens/generated-tokens.ts",
+        "depth":  "full",
+        "notes":  "Complete static read of the assigned runtime module and its local contracts/branches; no execution or changes. Current SHA-256 matches the baseline manifest."
+    },
+    {
+        "path":  "service/packages/mcp/src/tokens/hex.ts",
+        "depth":  "full",
+        "notes":  "Complete static read of the assigned runtime module and its local contracts/branches; no execution or changes. Current SHA-256 matches the baseline manifest."
+    },
+    {
+        "path":  "service/packages/mcp/src/tokens/js-config.ts",
+        "depth":  "full",
+        "notes":  "Complete static read of the assigned runtime module and its local contracts/branches; no execution or changes. Current SHA-256 matches the baseline manifest."
+    },
+    {
+        "path":  "service/packages/mcp/src/tokens/load.ts",
+        "depth":  "full",
+        "notes":  "Complete static read of the assigned runtime module and its local contracts/branches; no execution or changes. Current SHA-256 matches the baseline manifest."
+    },
+    {
+        "path":  "service/packages/mcp/src/tokens/repo-css.ts",
+        "depth":  "full",
+        "notes":  "Complete static read of the assigned runtime module and its local contracts/branches; no execution or changes. Current SHA-256 matches the baseline manifest."
+    },
+    {
+        "path":  "service/packages/mcp/src/tokens/repo-scss.ts",
+        "depth":  "full",
+        "notes":  "Complete static read of the assigned runtime module and its local contracts/branches; no execution or changes. Current SHA-256 matches the baseline manifest."
+    },
+    {
+        "path":  "service/packages/mcp/src/tokens/scss-file.ts",
+        "depth":  "full",
+        "notes":  "Complete static read of the assigned runtime module and its local contracts/branches; no execution or changes. Current SHA-256 matches the baseline manifest."
+    },
+    {
+        "path":  "service/packages/mcp/src/tokens/token-index.ts",
+        "depth":  "full",
+        "notes":  "Complete static read of the assigned runtime module and its local contracts/branches; no execution or changes. Current SHA-256 matches the baseline manifest."
+    },
+    {
+        "path":  "service/packages/mcp/src/tokens/tokens.ts",
+        "depth":  "full",
+        "notes":  "Complete static read of the assigned runtime module and its local contracts/branches; no execution or changes. Current SHA-256 matches the baseline manifest."
+    },
+    {
+        "path":  "service/packages/mcp/test/diff/design-diff.test.ts",
+        "depth":  "full",
+        "notes":  "Complete static read of setup, fixtures and assertions; not executed. Current SHA-256 matches the baseline manifest."
+    },
+    {
+        "path":  "service/packages/mcp/test/icons/repo-icons.test.ts",
+        "depth":  "full",
+        "notes":  "Complete static read of setup, fixtures and assertions; not executed. Current SHA-256 matches the baseline manifest."
+    },
+    {
+        "path":  "service/packages/mcp/test/join/casefold.test.ts",
+        "depth":  "full",
+        "notes":  "Complete static read of setup, fixtures and assertions; not executed. Current SHA-256 matches the baseline manifest."
+    },
+    {
+        "path":  "service/packages/mcp/test/join/component-map.test.ts",
+        "depth":  "full",
+        "notes":  "Complete static read of setup, fixtures and assertions; not executed. Current SHA-256 matches the baseline manifest."
+    },
+    {
+        "path":  "service/packages/mcp/test/join/icon-map.test.ts",
+        "depth":  "full",
+        "notes":  "Complete static read of setup, fixtures and assertions; not executed. Current SHA-256 matches the baseline manifest."
+    },
+    {
+        "path":  "service/packages/mcp/test/join/status.test.ts",
+        "depth":  "full",
+        "notes":  "Complete static read of setup, fixtures and assertions; not executed. Current SHA-256 matches the baseline manifest."
+    },
+    {
+        "path":  "service/packages/mcp/test/join/token-map.test.ts",
+        "depth":  "full",
+        "notes":  "Complete static read of setup, fixtures and assertions; not executed. Current SHA-256 matches the baseline manifest."
+    },
+    {
+        "path":  "service/packages/mcp/test/portal/module-resolution.test.ts",
+        "depth":  "full",
+        "notes":  "Complete static read of setup, fixtures and assertions; not executed. Current SHA-256 matches the baseline manifest."
+    },
+    {
+        "path":  "service/packages/mcp/test/portal/service-connections.test.ts",
+        "depth":  "full",
+        "notes":  "Complete static read of setup, fixtures and assertions; not executed. Current SHA-256 matches the baseline manifest."
+    },
+    {
+        "path":  "service/packages/mcp/test/portal/service-graph.characterization.test.ts",
+        "depth":  "full",
+        "notes":  "Complete static read of setup, fixtures and assertions; not executed. Current SHA-256 matches the baseline manifest."
+    },
+    {
+        "path":  "service/packages/mcp/test/portal/service-graph.test.ts",
+        "depth":  "full",
+        "notes":  "Complete static read of setup, fixtures and assertions; not executed. Current SHA-256 matches the baseline manifest."
+    },
+    {
+        "path":  "service/packages/mcp/test/portal/source-inventory.test.ts",
+        "depth":  "full",
+        "notes":  "Complete static read of setup, fixtures and assertions; not executed. Current SHA-256 matches the baseline manifest."
+    },
+    {
+        "path":  "service/packages/mcp/test/portal/workflow-requirements.test.ts",
+        "depth":  "full",
+        "notes":  "Complete static read of setup, fixtures and assertions; not executed. Current SHA-256 matches the baseline manifest."
+    },
+    {
+        "path":  "service/packages/mcp/test/profile/profile.test.ts",
+        "depth":  "full",
+        "notes":  "Complete static read of setup, fixtures and assertions; not executed. Current SHA-256 matches the baseline manifest."
+    },
+    {
+        "path":  "service/packages/mcp/test/profile/styling-cascade.test.ts",
+        "depth":  "full",
+        "notes":  "Complete static read of setup, fixtures and assertions; not executed. Current SHA-256 matches the baseline manifest."
+    },
+    {
+        "path":  "service/packages/mcp/test/profile/utility-first-single-source.test.ts",
+        "depth":  "full",
+        "notes":  "Complete static read of setup, fixtures and assertions; not executed. Current SHA-256 matches the baseline manifest."
+    },
+    {
+        "path":  "service/packages/mcp/test/scan/scan.test.ts",
+        "depth":  "full",
+        "notes":  "Complete static read of setup, fixtures and assertions; not executed. Current SHA-256 matches the baseline manifest."
+    },
+    {
+        "path":  "service/packages/mcp/test/scan/sfc-blocks.test.ts",
+        "depth":  "full",
+        "notes":  "Complete static read of setup, fixtures and assertions; not executed. Current SHA-256 matches the baseline manifest."
+    },
+    {
+        "path":  "service/packages/mcp/test/snapshot/service-operations.test.ts",
+        "depth":  "full",
+        "notes":  "Complete static read of setup, fixtures and assertions; not executed. Current SHA-256 matches the baseline manifest."
+    },
+    {
+        "path":  "service/packages/mcp/test/tokens/css-scan.test.ts",
+        "depth":  "full",
+        "notes":  "Complete static read of setup, fixtures and assertions; not executed. Current SHA-256 matches the baseline manifest."
+    },
+    {
+        "path":  "service/packages/mcp/test/tokens/figma-tokens.test.ts",
+        "depth":  "full",
+        "notes":  "Complete static read of setup, fixtures and assertions; not executed. Current SHA-256 matches the baseline manifest."
+    },
+    {
+        "path":  "service/packages/mcp/test/tokens/generated-tokens.test.ts",
+        "depth":  "full",
+        "notes":  "Complete static read of setup, fixtures and assertions; not executed. Current SHA-256 matches the baseline manifest."
+    },
+    {
+        "path":  "service/packages/mcp/test/tokens/js-config.test.ts",
+        "depth":  "full",
+        "notes":  "Complete static read of setup, fixtures and assertions; not executed. Current SHA-256 matches the baseline manifest."
+    },
+    {
+        "path":  "service/packages/mcp/test/tokens/load.test.ts",
+        "depth":  "full",
+        "notes":  "Complete static read of setup, fixtures and assertions; not executed. Current SHA-256 matches the baseline manifest."
+    },
+    {
+        "path":  "service/packages/mcp/test/tokens/repo-css.test.ts",
+        "depth":  "full",
+        "notes":  "Complete static read of setup, fixtures and assertions; not executed. Current SHA-256 matches the baseline manifest."
+    },
+    {
+        "path":  "service/packages/mcp/test/tokens/repo-scss.test.ts",
+        "depth":  "full",
+        "notes":  "Complete static read of setup, fixtures and assertions; not executed. Current SHA-256 matches the baseline manifest."
+    },
+    {
+        "path":  "service/packages/mcp/test/tokens/token-index.test.ts",
+        "depth":  "full",
+        "notes":  "Complete static read of setup, fixtures and assertions; not executed. Current SHA-256 matches the baseline manifest."
+    },
+    {
+        "path":  "service/packages/mcp/test/tokens/tokens.test.ts",
+        "depth":  "full",
+        "notes":  "Complete static read of setup, fixtures and assertions; not executed. Current SHA-256 matches the baseline manifest."
+    },
+    {
+        "path":  "AGENTS.md",
+        "depth":  "full",
+        "notes":  "Repository instructions read completely: English documents, no Superpowers/Docker, active case scope."
+    },
+    {
+        "path":  "docs/reviews/2026-09-30-full-review/review-brief.md",
+        "depth":  "full",
+        "notes":  "Complete review instructions, static-only restrictions, finding and coverage contracts."
+    },
+    {
+        "path":  "docs/reviews/2026-09-30-full-review/source-manifest.json",
+        "depth":  "metadata",
+        "notes":  "Parsed lane assignments; inspected all 67 analysis paths, sizes and SHA-256 fields; verified all assigned current file hashes. Other lane manifest rows not reviewed line by line."
+    },
+    {
+        "path":  "docs/plans/2026-09-07-portal-four-cases-plan.md",
+        "depth":  "targeted",
+        "notes":  "Read through line 120: authoritative case scope, whole-service learning, evidence levels and native acceptance requirements. Later plan sections not inspected fully."
+    },
+    {
+        "path":  "docs/plans/2026-09-27-code-remediation-plan.md",
+        "depth":  "targeted",
+        "notes":  "Historical SA-1 through SA-10, SVC-8, K16/K24 and WS-7 cross-references searched/read to distinguish current issues from history. Not a full plan review."
+    },
+    {
+        "path":  "docs/reviews/2026-09-27-remediation/T26-analysis-limits.md",
+        "depth":  "targeted",
+        "notes":  "Inspected results/design boundaries, changed-file/test evidence and stated open items for SA-1/2/3, SVC-8 and K24. Long combined read had omissions; no claim of complete report reading or executed acceptance."
+    },
+    {
+        "path":  "service/packages/mcp/src/portal/coordinator.ts",
+        "depth":  "targeted",
+        "notes":  "Read selected planning/source hint/coverage region around lines 730-970; searched source/currentness and start-gate consumers including 1110. Complete lease/submit/apply/validation/reconciliation paths not read."
+    },
+    {
+        "path":  "service/packages/mcp/src/portal/recipes/core-source.ts",
+        "depth":  "targeted",
+        "notes":  "Read preparation/selection/context/mapping region around lines 250-408 and searched calling contracts; whole capsule construction/currentness and read projection not reviewed."
+    },
+    {
+        "path":  "service/packages/mcp/src/portal/recipes/core-derivation.ts",
+        "depth":  "targeted",
+        "notes":  "Read initial contracts/Rows/finalize through roughly line 405 and source strategy/map derivation around lines 820-1090, with targeted assembly/duplicate-ID searches. Intervening design recipe derivation and full assembly not read."
+    },
+    {
+        "path":  "service/packages/mcp/test/portal/core-source.characterization.test.ts",
+        "depth":  "unreviewed",
+        "notes":  "Outside the assigned lane; path inventoried only. Named as an integration/runtime/contract gap for round-two and cross-lane reviewers; no content inspected in this lane."
+    },
+    {
+        "path":  "service/packages/mcp/test/portal/core-recipes.test.ts",
+        "depth":  "unreviewed",
+        "notes":  "Outside the assigned lane; path inventoried only. Named as an integration/runtime/contract gap for round-two and cross-lane reviewers; no content inspected in this lane."
+    },
+    {
+        "path":  "service/packages/mcp/test/portal/core-lifecycle.test.ts",
+        "depth":  "unreviewed",
+        "notes":  "Outside the assigned lane; path inventoried only. Named as an integration/runtime/contract gap for round-two and cross-lane reviewers; no content inspected in this lane."
+    },
+    {
+        "path":  "service/packages/mcp/test/portal/core-coordinator.test.ts",
+        "depth":  "unreviewed",
+        "notes":  "Outside the assigned lane; path inventoried only. Named as an integration/runtime/contract gap for round-two and cross-lane reviewers; no content inspected in this lane."
+    },
+    {
+        "path":  "service/packages/mcp/test/portal/coordinator.test.ts",
+        "depth":  "unreviewed",
+        "notes":  "Outside the assigned lane; path inventoried only. Named as an integration/runtime/contract gap for round-two and cross-lane reviewers; no content inspected in this lane."
+    },
+    {
+        "path":  "service/packages/mcp/test/portal/native-work.test.ts",
+        "depth":  "unreviewed",
+        "notes":  "Outside the assigned lane; path inventoried only. Named as an integration/runtime/contract gap for round-two and cross-lane reviewers; no content inspected in this lane."
+    },
+    {
+        "path":  "service/packages/mcp/test/portal/native-work.characterization.test.ts",
+        "depth":  "unreviewed",
+        "notes":  "Outside the assigned lane; path inventoried only. Named as an integration/runtime/contract gap for round-two and cross-lane reviewers; no content inspected in this lane."
+    },
+    {
+        "path":  "service/packages/mcp/src/portal/native-work.ts",
+        "depth":  "unreviewed",
+        "notes":  "Outside the assigned lane; path inventoried only. Named as an integration/runtime/contract gap for round-two and cross-lane reviewers; no content inspected in this lane."
+    },
+    {
+        "path":  "service/packages/mcp/src/portal/recipes/core-lifecycle.ts",
+        "depth":  "unreviewed",
+        "notes":  "Outside the assigned lane; path inventoried only. Named as an integration/runtime/contract gap for round-two and cross-lane reviewers; no content inspected in this lane."
+    },
+    {
+        "path":  "service/packages/ir/src/portal-run.ts",
+        "depth":  "unreviewed",
+        "notes":  "Outside the assigned lane; path inventoried only. Named as an integration/runtime/contract gap for round-two and cross-lane reviewers; no content inspected in this lane."
+    },
+    {
+        "path":  "service/packages/shared/src/portal.ts",
+        "depth":  "unreviewed",
+        "notes":  "Outside the assigned lane; path inventoried only. Named as an integration/runtime/contract gap for round-two and cross-lane reviewers; no content inspected in this lane."
+    },
+    {
+        "path":  "service/packages/shared/src/portal-core-lifecycle.ts",
+        "depth":  "unreviewed",
+        "notes":  "Outside the assigned lane; path inventoried only. Named as an integration/runtime/contract gap for round-two and cross-lane reviewers; no content inspected in this lane."
+    },
+    {
+        "path":  "service/packages/shared/src/design-observation.ts",
+        "depth":  "unreviewed",
+        "notes":  "Outside the assigned lane; path inventoried only. Named as an integration/runtime/contract gap for round-two and cross-lane reviewers; no content inspected in this lane."
+    }
+]

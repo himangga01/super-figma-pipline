@@ -33,7 +33,7 @@ export const ControlStatusV1Schema = z
     role: z.enum(['leader', 'follower', 'unknown', 'conflicted']),
     pairedPluginCount: z.number().int().nonnegative().safe(),
     browserConnection: z
-      .enum(['not-requested', 'awaiting-browser', 'connected', 'unavailable'])
+      .enum(['not-requested', 'awaiting-browser', 'initializing', 'connected', 'unavailable'])
       .optional(),
     activePlugin: z
       .object({

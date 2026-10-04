@@ -2,7 +2,7 @@ import { mkdir, mkdtemp, readFile, rm, stat, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os';
 import { isAbsolute, join, relative } from 'node:path';
 
-import { resolvePortalCase } from '@sfp/shared';
+import { resolvePortalCase, SESSION_ID_A } from '@sfp/shared';
 import { afterEach, expect, it, vi } from 'vitest';
 
 import { ControlClient } from '../src/control-client.js';
@@ -50,6 +50,42 @@ it('creates a concrete default output workspace for a new service without scanni
     kind: 'tool',
     targetSelector: { kind: 'none' },
   });
+});
+it('passes an explicit Figma session through the dedicated retained Desktop plan command', async () => {
+  const value = await fixture();
+  await value.run(['--args', '{"design":{"source":"desktop"}}', '--figma-session', SESSION_ID_A]);
+  expect(value.invoke.mock.calls[0]![0]).toMatchObject({
+    args: { design: { source: 'desktop' } },
+    targetSelector: { kind: 'session', sessionId: SESSION_ID_A },
+  });
+});
+it('passes an exact stable Figma file identity without changing the output-root selector', async () => {
+  const value = await fixture(),
+    identity = `sha256:${'a'.repeat(64)}`;
+  await value.run(['--args', '{"design":{"source":"desktop"}}', '--figma-file-hash', identity]);
+  expect(value.invoke.mock.calls[0]![0].targetSelector).toEqual({
+    kind: 'stable-file',
+    fileIdentityHash: identity,
+  });
+});
+it('rejects missing, contradictory and malformed retained Desktop selectors before filesystem or invocation effects', async () => {
+  const value = await fixture(),
+    args = ['--args', '{"design":{"source":"desktop"}}'];
+  await expect(value.run(args)).rejects.toThrow('explicit Figma');
+  await expect(value.run([...args, '--figma-session', 'wrong'])).rejects.toThrow('closed schema');
+  await expect(
+    value.run([
+      ...args,
+      '--figma-session',
+      SESSION_ID_A,
+      '--figma-file-hash',
+      `sha256:${'a'.repeat(64)}`,
+    ]),
+  ).rejects.toThrow('one Figma');
+  await expect(value.run(['--figma-session', SESSION_ID_A])).rejects.toThrow('Desktop');
+  expect(value.workspace).not.toHaveBeenCalled();
+  expect(value.invoke).not.toHaveBeenCalled();
+  await expect(stat(join(value.root, 'Projects'))).rejects.toMatchObject({ code: 'ENOENT' });
 });
 it('registers an existing legacy root and keeps its operational scope', async () => {
   const value = await fixture(),

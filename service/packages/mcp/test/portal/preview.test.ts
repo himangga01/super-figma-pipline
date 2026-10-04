@@ -5,10 +5,10 @@ import { isAbsolute, join, relative } from 'node:path';
 
 import pngModule from '@pdf-lib/upng';
 import { storedChecksum } from '@sfp/ir';
-import { firefox } from 'playwright';
 import { afterEach, expect, it } from 'vitest';
 
-import { requireFirefox } from '../../../../test/support/required-suite.js';
+import { requireChrome } from '../../../../test/support/required-suite.js';
+import { googleChromeExecutable } from '../../src/portal/chrome-runtime.js';
 import { assertNativePortalPreview, comparePortalPng } from '../../src/portal/preview.js';
 import { verifyPortalVisualEvidence } from '../../src/portal/visual-evidence.js';
 const png =
@@ -56,9 +56,70 @@ it('compares actual RGBA values and refuses malformed or oversized PNG inputs', 
   ]);
   expect(() => comparePortalPng(duplicate, red)).toThrow('PORTAL_PREVIEW_PNG_INVALID');
 });
-it('renders an owned local fixture in Firefox and rejects a real visual mismatch', async context => {
-  requireFirefox(context, firefox.executablePath());
-  const root = await mkdtemp(join(tmpdir(), 'sfp-firefox-preview-'));
+it('checks explicit contained text without relaxing exact text assertions in Chrome', async context => {
+  requireChrome(context, googleChromeExecutable());
+  const root = await mkdtemp(join(tmpdir(), 'sfp-contained-text-'));
+  roots.push(root);
+  const oracle = solid(0, 0, 255);
+  await writeFile(join(root, 'oracle.png'), oracle);
+  const server = createServer((_request, response) => {
+    response.writeHead(200, { 'content-type': 'text/html' });
+    response.end(
+      '<html lang="en"><head><title>Text assertion</title></head><body style="margin:0;background:white;color:black;font:24px Arial"><main>prefix <b>Ready</b> suffix</main></body></html>',
+    );
+  });
+  await new Promise<void>(done => server.listen(0, '127.0.0.1', done));
+  const address = server.address();
+  if (!address || typeof address === 'string') throw Error('Missing fixture server address');
+  try {
+    const result = await assertNativePortalPreview(
+      {
+        root,
+        baseUrl: `http://127.0.0.1:${address.port}`,
+        screens: [
+          { id: 'contained', kind: 'contains-text', value: 'Ready' },
+          { id: 'exact', kind: 'text', value: 'Ready' },
+          { id: 'missing', kind: 'contains-text', value: 'Missing' },
+          { id: 'focus', kind: 'focused', value: null },
+        ].map(({ id, kind, value }) => ({
+          id,
+          path: '/',
+          oraclePath: 'oracle.png',
+          oracleHash: storedChecksum(oracle),
+          viewport: { width: 100, height: 100 },
+          maxDifferenceRatio: 0,
+          actions: [
+            kind === 'focused' ? { kind, selector: 'main' } : { kind, selector: 'main', value },
+          ],
+        })),
+      },
+      undefined,
+      { emitReport: false, retainFailedReport: true },
+    );
+    expect(result.screens[0]!.failures).not.toContain('ACTION_STATE_MISMATCH:main');
+    expect(result.screens[1]!.failures).toContain('ACTION_STATE_MISMATCH:main');
+    expect(result.screens[2]!.failures).toContain('ACTION_STATE_MISMATCH:main');
+    expect(result.screens[3]!.failures).toContain('ACTION_STATE_MISMATCH:main');
+    for (const screen of result.screens) expect(screen.failures).toContain('VISUAL_MISMATCH');
+    const bytes = await readFile(join(root, '.sfp-native-preview/contained.actual.png'));
+    const pixels = new Uint8Array(
+      png.toRGBA8(
+        png.decode(bytes.buffer.slice(bytes.byteOffset, bytes.byteOffset + bytes.byteLength)),
+      )[0]!,
+    );
+    let fringes = 0;
+    for (let offset = 0; offset < pixels.length; offset += 4)
+      if (pixels[offset] !== pixels[offset + 1] || pixels[offset + 1] !== pixels[offset + 2])
+        fringes++;
+    expect(fringes).toBe(0);
+  } finally {
+    await new Promise<void>(done => server.close(() => done()));
+  }
+}, 60000);
+
+it('renders an owned local fixture in Chrome and rejects a real visual mismatch', async context => {
+  requireChrome(context, googleChromeExecutable());
+  const root = await mkdtemp(join(tmpdir(), 'sfp-chrome-preview-'));
   roots.push(root);
   const oracle = solid(0, 0, 255);
   await writeFile(join(root, 'oracle.png'), oracle);
@@ -85,7 +146,7 @@ it('renders an owned local fixture in Firefox and rejects a real visual mismatch
       baseUrl,
       screens: [{ ...screen, id: 'blue', path: '/blue' }],
     });
-    expect(result.browser).toBe('firefox');
+    expect(result.browser).toBe('chrome');
     expect(result.screens[0]).toMatchObject({ passed: true, ratio: 0 });
     const captured = {
       raw: '{}',
@@ -145,7 +206,7 @@ it('renders an owned local fixture in Firefox and rejects a real visual mismatch
 }, 30_000);
 
 it('captures a small real component in its hover state without shrinking the browser viewport', async context => {
-  requireFirefox(context, firefox.executablePath());
+  requireChrome(context, googleChromeExecutable());
   const root = await mkdtemp(join(tmpdir(), 'sfp-component-preview-'));
   roots.push(root);
   const oracle = solid(0, 0, 255, 50, 32);

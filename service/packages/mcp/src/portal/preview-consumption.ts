@@ -246,6 +246,8 @@ const OBSERVE_BODY = ` const roots=document.querySelectorAll('[data-sfp-root='+J
  }
  if(!element.isConnected||!root.contains(element)||document.querySelectorAll(input.selector).length!==1||document.querySelector(input.selector)!==element||!exposed(element))throw Error('PORTAL_CONSUMPTION_STATE_CHANGED');
  return {value,resourceUrl,fontAvailable,sourceNodeId,elementIdentity};});`;
+// Synchronize Chrome's lazy CSSOM attribute serialization before removing an originally absent
+// inline style, so observation restores its absence rather than leaving style="" behind.
 const PROBE_BODY = ` const root=document.querySelector('[data-sfp-root='+JSON.stringify(input.rootId)+']'),element=document.querySelector(input.selector);if(!root||!element||!root.contains(element)||elementIds.get(element)!==input.elementIdentity)throw Error('PORTAL_CONSUMPTION_SCOPE_MISMATCH');
  return preserveScroll(element,async()=>{
  const read=()=>getComputedStyle(element).getPropertyValue(input.property),before=read();const wait=()=>new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)));
@@ -253,7 +255,7 @@ const PROBE_BODY = ` const root=document.querySelector('[data-sfp-root='+JSON.st
  for(let depth=0;target&&depth<=64;depth++,target=target.parentElement){
   const oldStyle=target.getAttribute('style'),other=Array.from(target.style).filter(name=>name!==input.variable).map(name=>[name,target.style.getPropertyValue(name),target.style.getPropertyPriority(name)]),old=target.style.getPropertyValue(input.variable),oldPriority=target.style.getPropertyPriority(input.variable),had=Array.from(target.style).includes(input.variable),hadStyle=target.hasAttribute('style'),variableBefore=getComputedStyle(target).getPropertyValue(input.variable);if(variableBefore.length>16384)throw Error('PORTAL_CONSUMPTION_VALUE_LIMIT');let changed=before;
   try{target.style.setProperty(input.variable,input.sentinel,'important');await wait();changed=read();}
-  finally{if(had)target.style.setProperty(input.variable,old,oldPriority);else target.style.removeProperty(input.variable);if(!hadStyle&&target.style.length===0)target.removeAttribute('style');else{const currentOther=Array.from(target.style).filter(name=>name!==input.variable).map(name=>[name,target.style.getPropertyValue(name),target.style.getPropertyPriority(name)]);if(oldStyle!==null&&JSON.stringify(currentOther)===JSON.stringify(other))target.setAttribute('style',oldStyle)}let restored=read();for(let attempt=0;attempt<20&&restored!==before;attempt++){await new Promise(resolve=>setTimeout(resolve,25));restored=read();}if(target.style.getPropertyValue(input.variable)!==old||target.style.getPropertyPriority(input.variable)!==oldPriority||restored!==before)throw Error('PORTAL_CONSUMPTION_RESTORE_FAILED');}
+  finally{if(had)target.style.setProperty(input.variable,old,oldPriority);else target.style.removeProperty(input.variable);if(!hadStyle&&target.style.length===0){target.getAttribute('style');target.removeAttribute('style')}else{const currentOther=Array.from(target.style).filter(name=>name!==input.variable).map(name=>[name,target.style.getPropertyValue(name),target.style.getPropertyPriority(name)]);if(oldStyle!==null&&JSON.stringify(currentOther)===JSON.stringify(other))target.setAttribute('style',oldStyle)}let restored=read();for(let attempt=0;attempt<20&&restored!==before;attempt++){await new Promise(resolve=>setTimeout(resolve,25));restored=read();}if(target.style.getPropertyValue(input.variable)!==old||target.style.getPropertyPriority(input.variable)!==oldPriority||restored!==before)throw Error('PORTAL_CONSUMPTION_RESTORE_FAILED');}
   if(changed!==before)return {cssVariable:input.variable,ancestorDepth:depth,before,variableBefore,sentinel:input.sentinel,changed,restored:true};
   if(target===root)break;
  }
@@ -446,7 +448,11 @@ export async function observePortalConsumption(
       if (check.expectation.kind === 'property') {
         if (
           read.value === null ||
-          !matchesConsumptionValue(check.expectation.value, read.value) ||
+          !matchesConsumptionValue(
+            check.expectation.value,
+            read.value,
+            check.expectation.property,
+          ) ||
           (check.expectation.value.kind === 'font' && !read.fontAvailable)
         )
           throw Error('PORTAL_CONSUMPTION_PROPERTY_MISMATCH');

@@ -1,0 +1,572 @@
+[
+  {
+    "path": "AGENTS.md",
+    "depth": "full",
+    "notes": "Independent production/document/test cross-read. Static logic read 1-8 of 8 lines; 927 bytes. No unread body ranges. Current document SHA-256 b0bcfe10632125927fef73beb9ae1ceaf4607af15d1ae0b3b0c485fa888d0a8a; outside baseline manifest. Tests inspected only; no runtime execution."
+  },
+  {
+    "path": "docs/plans/2026-09-30-code-remediation-plan.md",
+    "depth": "full",
+    "notes": "Independent production/document/test cross-read. Static logic read 1-198 of 198 lines; 30973 bytes. No unread body ranges. Current document SHA-256 ad33c687beea058e665aee29e1a1898146d273dbc0b6a96ca2315fabe49d4318; outside baseline manifest. Tests inspected only; no runtime execution."
+  },
+  {
+    "path": "docs/reviews/2026-09-30-full-review/main-verification-notes.md",
+    "depth": "targeted",
+    "notes": "Independent production/document/test cross-read. Static logic read 1-70 of 80 lines; 22732 bytes. Unread body ranges: 71-80. Current document SHA-256 75f31d18c04f30fe3f223eb068021c00d60f18c80a79b47a9c1c6685e1cd5c1b; outside baseline manifest. Tests inspected only; no runtime execution."
+  },
+  {
+    "path": "docs/reviews/2026-09-30-full-review/review-brief.md",
+    "depth": "full",
+    "notes": "Independent production/document/test cross-read. Static logic read 1-32 of 32 lines; 4208 bytes. No unread body ranges. Current document SHA-256 122cddce2dd178092eb1ea62f0c8bfa732d4c536ea1f49e692a9b1093a3aeb36; outside baseline manifest. Tests inspected only; no runtime execution."
+  },
+  {
+    "path": "docs/reviews/2026-09-30-full-review/round-1-analysis.md",
+    "depth": "full",
+    "notes": "Independent production/document/test cross-read. Static logic read 1-138 of 138 lines; 25115 bytes. No unread body ranges. Current document SHA-256 404c269fe34c3a19d1342b764e2d3a4bc05a37faccd7d7ee260a3643a74b68aa; outside baseline manifest. Tests inspected only; no runtime execution."
+  },
+  {
+    "path": "docs/reviews/2026-09-30-full-review/round-1-main-disposition.md",
+    "depth": "full",
+    "notes": "Independent production/document/test cross-read. Static logic read 1-64 of 64 lines; 8955 bytes. No unread body ranges. Current document SHA-256 d1a025ee2bd4c8f519ece2ef0e68f5ec751effafdffe6331f95b073c0a9ae98f; outside baseline manifest. Tests inspected only; no runtime execution."
+  },
+  {
+    "path": "service/packages/cli/test/catalog-recipe.test.ts",
+    "depth": "full",
+    "notes": "Assigned closure.analysis test body. Static logic read 1-194 of 194 lines; 5608 bytes. No unread body ranges. SHA-256 matches source-manifest.json (0da6bea20473b3f70242714028e00c1a972a87a1b9d47701a02b8a8f6b6e9aa8). Tests inspected only; no runtime execution."
+  },
+  {
+    "path": "service/packages/cli/test/chrome-endpoint.test.ts",
+    "depth": "full",
+    "notes": "Assigned closure.analysis test body. Static logic read 1-45 of 45 lines; 1763 bytes. No unread body ranges. SHA-256 matches source-manifest.json (a60d626bd828e3f7322cd8e8059375264940d296d5b70353401ff50f59bf0b7d). Tests inspected only; no runtime execution."
+  },
+  {
+    "path": "service/packages/cli/test/project-inspector.test.ts",
+    "depth": "full",
+    "notes": "Assigned closure.analysis test body. Static logic read 1-84 of 84 lines; 3318 bytes. No unread body ranges. SHA-256 matches source-manifest.json (044fbed84904c54aacaca6e03356016ab4f070d5ed34c7a6b76132b00e4806eb). Tests inspected only; no runtime execution."
+  },
+  {
+    "path": "service/packages/cli/test/recipe-export-model.test.ts",
+    "depth": "full",
+    "notes": "Assigned closure.analysis test body. Static logic read 1-138 of 138 lines; 4806 bytes. No unread body ranges. SHA-256 matches source-manifest.json (3238173467875b49a5ef0588f87e19fd4be4b2afaca41706861d69da2ab26a70). Tests inspected only; no runtime execution."
+  },
+  {
+    "path": "service/packages/cli/test/recipe-retention-client.test.ts",
+    "depth": "full",
+    "notes": "Assigned closure.analysis test body. Static logic read 1-121 of 121 lines; 4248 bytes. No unread body ranges. SHA-256 matches source-manifest.json (81f309d5572559e1ce3d8ceb411c30745c7ace2170960b03a6b60e3b1636daf1). Tests inspected only; no runtime execution."
+  },
+  {
+    "path": "service/packages/cli/test/recipe-runner.test.ts",
+    "depth": "full",
+    "notes": "Assigned closure.analysis test body. Static logic read 1-1544 of 1544 lines; 62782 bytes. No unread body ranges. SHA-256 matches source-manifest.json (82c31dabe0d164f9c2b01f91b9b35074a8460d96941862c4cabeeecbe6fcfca1). Tests inspected only; no runtime execution."
+  },
+  {
+    "path": "service/packages/cli/test/style-recipe-model.test.ts",
+    "depth": "full",
+    "notes": "Assigned closure.analysis test body. Static logic read 1-203 of 203 lines; 6666 bytes. No unread body ranges. SHA-256 matches source-manifest.json (2c259c0bf218844bb2e1a59c167f7b5a67b0faba7724a0bbd991d48a896e1d8c). Tests inspected only; no runtime execution."
+  },
+  {
+    "path": "service/packages/mcp/src/index.ts",
+    "depth": "targeted",
+    "notes": "Independent production/document/test cross-read. Static logic read 540-560 of 1644 lines; 67871 bytes. Unread body ranges: 1-539, 561-1644. SHA-256 matches source-manifest.json (1e63c4d55188dc290fbc8032fd5e57a0eb05f80ab2f53d8585bf9e572d21bd83). Tests inspected only; no runtime execution."
+  },
+  {
+    "path": "service/packages/mcp/src/join/component-map.ts",
+    "depth": "targeted",
+    "notes": "Independent production/document/test cross-read. Static logic read 170-211, 275-320, 365-420 of 495 lines; 22270 bytes. Unread body ranges: 1-169, 212-274, 321-364, 421-495. SHA-256 matches source-manifest.json (139c5eea24d13e55a5dc31909b96312605089367491e682d805e394bfec99cd7). Tests inspected only; no runtime execution."
+  },
+  {
+    "path": "service/packages/mcp/src/mapping/design-mapping.ts",
+    "depth": "targeted",
+    "notes": "Independent production/document/test cross-read. Static logic read 270-315 of 315 lines; 10803 bytes. Unread body ranges: 1-269. SHA-256 matches source-manifest.json (8325ae9e7f583d700c94fae26138583d2f33c2144b64c8a43a366e9814526684). Tests inspected only; no runtime execution."
+  },
+  {
+    "path": "service/packages/mcp/src/portal/coordinator.ts",
+    "depth": "targeted",
+    "notes": "Independent production/document/test cross-read. Static logic read 605-655, 780-850 of 1662 lines; 67754 bytes. Unread body ranges: 1-604, 656-779, 851-1662. SHA-256 matches source-manifest.json (05fa3eec1f987d41769c72dd30c1d033adc19057f536d8f113bb7d19b306ce79). Tests inspected only; no runtime execution."
+  },
+  {
+    "path": "service/packages/mcp/src/portal/module-resolution.ts",
+    "depth": "targeted",
+    "notes": "Independent production/document/test cross-read. Static logic read 1-85, 290-335, 370-445, 510-580 of 689 lines; 27683 bytes. Unread body ranges: 86-289, 336-369, 446-509, 581-689. SHA-256 matches source-manifest.json (c7a139e228717427f10f4172299368f8ada6bf4be27128f3ac61b7322e7adaff). Tests inspected only; no runtime execution."
+  },
+  {
+    "path": "service/packages/mcp/src/portal/recipes/core-derivation.ts",
+    "depth": "targeted",
+    "notes": "Independent production/document/test cross-read. Static logic read 100-154, 950-1090 of 1247 lines; 48817 bytes. Unread body ranges: 1-99, 155-949, 1091-1247. SHA-256 matches source-manifest.json (3bfe821361cf4f01677ab30e5cb08b514b5fe67395b755b3eaf15b97690acaa6). Tests inspected only; no runtime execution."
+  },
+  {
+    "path": "service/packages/mcp/src/portal/recipes/core-preparation.ts",
+    "depth": "targeted",
+    "notes": "Independent production/document/test cross-read. Static logic read 300-345 of 646 lines; 25063 bytes. Unread body ranges: 1-299, 346-646. SHA-256 matches source-manifest.json (eac6fb0fd3831c94814822ffc789b96c51b35f01b2b306435c7a69addbf39715). Tests inspected only; no runtime execution."
+  },
+  {
+    "path": "service/packages/mcp/src/portal/recipes/core-source.ts",
+    "depth": "targeted",
+    "notes": "Independent production/document/test cross-read. Static logic read 235-280, 310-385 of 461 lines; 17684 bytes. Unread body ranges: 1-234, 281-309, 386-461. SHA-256 matches source-manifest.json (ed8eba6e98d31f3ff75034c61c17f6f2832e835873ab920afad94f97a44aabf2). Tests inspected only; no runtime execution."
+  },
+  {
+    "path": "service/packages/mcp/src/portal/service-connections.ts",
+    "depth": "targeted",
+    "notes": "Independent production/document/test cross-read. Static logic read 1-180, 450-760 of 947 lines; 35476 bytes. Unread body ranges: 181-449, 761-947. SHA-256 matches source-manifest.json (6858966a8d09e8fbf6f8385c573d225984f28194a3944805d4ce20f06a113dac). Tests inspected only; no runtime execution."
+  },
+  {
+    "path": "service/packages/mcp/src/portal/service-graph.ts",
+    "depth": "targeted",
+    "notes": "Independent production/document/test cross-read. Static logic read 190-270 of 728 lines; 28484 bytes. Unread body ranges: 1-189, 271-728. SHA-256 matches source-manifest.json (3a87b82af3a6d1c60a98ac53bf112482a46f9382c76cf1638abf95a9eed750e8). Tests inspected only; no runtime execution."
+  },
+  {
+    "path": "service/packages/mcp/src/portal/service-selection.ts",
+    "depth": "targeted",
+    "notes": "Independent production/document/test cross-read. Static logic read 1-160 of 267 lines; 9378 bytes. Unread body ranges: 161-267. SHA-256 matches source-manifest.json (71a5d6cb637761f96d137594aba676e72156daa7149a0ad4fd7dd3f8b7051b93). Tests inspected only; no runtime execution."
+  },
+  {
+    "path": "service/packages/mcp/src/portal/source-inventory.ts",
+    "depth": "targeted",
+    "notes": "Independent production/document/test cross-read. Static logic read 70-106 of 106 lines; 4124 bytes. Unread body ranges: 1-69. SHA-256 matches source-manifest.json (d4d79d5545dcdadd6c6f7a82b961574e5e0b98513afa84604540722d57acea83). Tests inspected only; no runtime execution."
+  },
+  {
+    "path": "service/packages/mcp/src/portal/source-path-policy.ts",
+    "depth": "full",
+    "notes": "Independent production/document/test cross-read. Static logic read 1-125 of 125 lines; 5444 bytes. No unread body ranges. SHA-256 matches source-manifest.json (0b25ec23aa4aeae25fc61c52b28de103b89a876c502b40f39a98f9b23ee73969). Tests inspected only; no runtime execution."
+  },
+  {
+    "path": "service/packages/mcp/src/portal/workflow-requirements.ts",
+    "depth": "targeted",
+    "notes": "Independent production/document/test cross-read. Static logic read 300-350 of 647 lines; 23832 bytes. Unread body ranges: 1-299, 351-647. SHA-256 matches source-manifest.json (f87961cffa6eb6a4c3c814f4eb1c5fb7d01cd27eafd0af6a37076def6015c6e7). Tests inspected only; no runtime execution."
+  },
+  {
+    "path": "service/packages/mcp/src/profile/profile.ts",
+    "depth": "targeted",
+    "notes": "Independent production/document/test cross-read. Static logic read 745-820 of 905 lines; 43184 bytes. Unread body ranges: 1-744, 821-905. SHA-256 matches source-manifest.json (197ab0c2310b8e570171647400842b96662d9317e4f7e31395b3585492f2e495). Tests inspected only; no runtime execution."
+  },
+  {
+    "path": "service/packages/mcp/src/scan/scan.ts",
+    "depth": "targeted",
+    "notes": "Independent production/document/test cross-read. Static logic read 1-115, 180-345 of 920 lines; 42682 bytes. Unread body ranges: 116-179, 346-920. SHA-256 matches source-manifest.json (fd4aa617c0c2936e3c6438429c9818d7b7892b8036484341cf6e62f7ea7a0a75). Tests inspected only; no runtime execution."
+  },
+  {
+    "path": "service/packages/mcp/src/tokens/load.ts",
+    "depth": "targeted",
+    "notes": "Independent production/document/test cross-read. Static logic read 250-315 of 487 lines; 25591 bytes. Unread body ranges: 1-249, 316-487. SHA-256 matches source-manifest.json (6692cd3367d4ded98f857118fe9e6cc0ea5bb5ecf3b14bd724b5b5a4aec7f93d). Tests inspected only; no runtime execution."
+  },
+  {
+    "path": "service/packages/mcp/src/tools/scan-components.ts",
+    "depth": "full",
+    "notes": "Independent production/document/test cross-read. Static logic read 1-48 of 48 lines; 2087 bytes. No unread body ranges. SHA-256 matches source-manifest.json (2752f38c7d26c83f887a8c3d703e592778d64f506fd6a81fa82d059d48aa322f). Tests inspected only; no runtime execution."
+  },
+  {
+    "path": "service/packages/mcp/test/portal/capture-coherence.test.ts",
+    "depth": "full",
+    "notes": "Assigned closure.analysis test body. Static logic read 1-246 of 246 lines; 8847 bytes. No unread body ranges. SHA-256 matches source-manifest.json (e602ea2902939ca1b628eaa4872cfdac3d1c68d1509289b9c69139893224436e). Tests inspected only; no runtime execution."
+  },
+  {
+    "path": "service/packages/mcp/test/portal/capture-continuation.test.ts",
+    "depth": "full",
+    "notes": "Assigned closure.analysis test body. Static logic read 1-110 of 110 lines; 4147 bytes. No unread body ranges. SHA-256 matches source-manifest.json (2768dbd75f8a69d3aa0fb154f53c35f000d49cf31cd7955cec9cf62cd0ea7435). Tests inspected only; no runtime execution."
+  },
+  {
+    "path": "service/packages/mcp/test/portal/capture-descriptor.test.ts",
+    "depth": "full",
+    "notes": "Assigned closure.analysis test body. Static logic read 1-76 of 76 lines; 3057 bytes. No unread body ranges. SHA-256 matches source-manifest.json (2b4f4edad848e3ebf749331d3817325d55e9f888468b447046dd070b562e3dc9). Tests inspected only; no runtime execution."
+  },
+  {
+    "path": "service/packages/mcp/test/portal/capture-failure.test.ts",
+    "depth": "full",
+    "notes": "Assigned closure.analysis test body. Static logic read 1-51 of 51 lines; 1757 bytes. No unread body ranges. SHA-256 matches source-manifest.json (5b329c0908a159edb19152b552fbd8e01adaee2ecca4f7f71b2604bebdf534b0). Tests inspected only; no runtime execution."
+  },
+  {
+    "path": "service/packages/mcp/test/portal/capture-fixture.ts",
+    "depth": "full",
+    "notes": "Assigned closure.analysis test body. Static logic read 1-149 of 149 lines; 5639 bytes. No unread body ranges. SHA-256 matches source-manifest.json (bcb71001a63a6c0a5065ed973ae45a2895f6430fa864b809687039dfedfc2c56). Tests inspected only; no runtime execution."
+  },
+  {
+    "path": "service/packages/mcp/test/portal/capture-flow.test.ts",
+    "depth": "full",
+    "notes": "Assigned closure.analysis test body. Static logic read 1-177 of 177 lines; 6292 bytes. No unread body ranges. SHA-256 matches source-manifest.json (650f5d152dfcffa2b976c9dbe72e096ee57573e6c6473b7ab3671f2fe34cb621). Tests inspected only; no runtime execution."
+  },
+  {
+    "path": "service/packages/mcp/test/portal/capture-native.test.ts",
+    "depth": "full",
+    "notes": "Assigned closure.analysis test body. Static logic read 1-113 of 113 lines; 3928 bytes. No unread body ranges. SHA-256 matches source-manifest.json (a47ddad20c737e133b6026b5457428641207f3958b67e2de472c7b5df05028db). Tests inspected only; no runtime execution."
+  },
+  {
+    "path": "service/packages/mcp/test/portal/design-normalization.test.ts",
+    "depth": "full",
+    "notes": "Assigned closure.analysis test body. Static logic read 1-573 of 573 lines; 20798 bytes. No unread body ranges. SHA-256 matches source-manifest.json (ec1a05caf90f8e6bfc93b05733ba27d791b89d6f9b1625328317c998fa2e07c4). Tests inspected only; no runtime execution."
+  },
+  {
+    "path": "service/packages/mcp/test/portal/desktop-capture.test.ts",
+    "depth": "full",
+    "notes": "Assigned closure.analysis test body. Static logic read 1-228 of 228 lines; 9337 bytes. No unread body ranges. SHA-256 matches source-manifest.json (46d480c0e509ed3058f9a6edca29f35ae3f72a071a054e9a5e971e7263cd08f8). Tests inspected only; no runtime execution."
+  },
+  {
+    "path": "service/packages/mcp/test/portal/observation-manifest.test.ts",
+    "depth": "full",
+    "notes": "Assigned closure.analysis test body. Static logic read 1-323 of 323 lines; 11227 bytes. No unread body ranges. SHA-256 matches source-manifest.json (ed3aed2f9acc03253dd6107a99c9785666dbe6abdbf027fcde9c5a0eb970ec57). Tests inspected only; no runtime execution."
+  },
+  {
+    "path": "service/packages/mcp/test/portal/service-connections.test.ts",
+    "depth": "targeted",
+    "notes": "Independent production/document/test cross-read. Static logic read 398-460 of 530 lines; 20847 bytes. Unread body ranges: 1-397, 461-530. SHA-256 matches source-manifest.json (ca081c5c0eee9901dd35e9143f2091374ec1d47de60ae6be20a5cba53d34f6c0). Tests inspected only; no runtime execution."
+  },
+  {
+    "path": "service/packages/mcp/test/portal/service-graph.test.ts",
+    "depth": "targeted",
+    "notes": "Independent production/document/test cross-read. Static logic read 336-413 of 421 lines; 19505 bytes. Unread body ranges: 1-335, 414-421. SHA-256 matches source-manifest.json (f1e3811add1865a20a1a3bf5c913004ddeb5ef961740b9cd25fb884777d2b7c8). Tests inspected only; no runtime execution."
+  },
+  {
+    "path": "service/packages/mcp/test/portal/source-inventory.test.ts",
+    "depth": "targeted",
+    "notes": "Independent production/document/test cross-read. Static logic read 275-339 of 446 lines; 18541 bytes. Unread body ranges: 1-274, 340-446. SHA-256 matches source-manifest.json (d27aee7a5522ba9790a2395a5d219716d14260fe6b22206f9953e0ee5b1e668a). Tests inspected only; no runtime execution."
+  },
+  {
+    "path": "service/packages/mcp/test/scan/scan.test.ts",
+    "depth": "targeted",
+    "notes": "Independent production/document/test cross-read. Static logic read 112-240 of 756 lines; 34622 bytes. Unread body ranges: 1-111, 241-756. SHA-256 matches source-manifest.json (b69d22668811bf2309cbffea52b8c5a800337e42f5edc89d4bfd8f1c8c6f9abb). Tests inspected only; no runtime execution."
+  },
+  {
+    "path": "service/packages/plugin/src/serializer.ts",
+    "depth": "targeted",
+    "notes": "Independent production/document/test cross-read. Static logic read 650-740 of 845 lines; 38052 bytes. Unread body ranges: 1-649, 741-845. SHA-256 matches source-manifest.json (235e3f9ffd06d853573ee3bb6303446aae6bbb725fd981ce286d78cd3ca4d5eb). Tests inspected only; no runtime execution."
+  },
+  {
+    "path": "service/packages/plugin/test/auth/resume-rotation.test.ts",
+    "depth": "full",
+    "notes": "Assigned closure.analysis test body. Static logic read 1-479 of 479 lines; 16770 bytes. No unread body ranges. SHA-256 matches source-manifest.json (db70e6d21e21ac03458f3d284d3e32f80a5a5344031a574051697555709ad7a6). Tests inspected only; no runtime execution."
+  },
+  {
+    "path": "service/packages/plugin/test/components/pairing-flow.test.ts",
+    "depth": "full",
+    "notes": "Assigned closure.analysis test body. Static logic read 1-450 of 450 lines; 14623 bytes. No unread body ranges. SHA-256 matches source-manifest.json (babff8af6f95e0a8da897fcb38d45e8d2a5438a99420c9b7bb3cf20a25b5d86b). Tests inspected only; no runtime execution."
+  },
+  {
+    "path": "service/packages/plugin/test/components/panel-background-button.test.ts",
+    "depth": "full",
+    "notes": "Assigned closure.analysis test body. Static logic read 1-39 of 39 lines; 1436 bytes. No unread body ranges. SHA-256 matches source-manifest.json (0ec584bd3b175bf1b87634f7ff46fe387ed589a14450adab28852bec33c8f6bf). Tests inspected only; no runtime execution."
+  },
+  {
+    "path": "service/packages/plugin/test/components/panel-chrome.test.ts",
+    "depth": "full",
+    "notes": "Assigned closure.analysis test body. Static logic read 1-152 of 152 lines; 5454 bytes. No unread body ranges. SHA-256 matches source-manifest.json (8c8b21b520bd497d2d3cb9e572eaf8af161ded3b81ba91565cd9965cc9da15b8). Tests inspected only; no runtime execution."
+  },
+  {
+    "path": "service/packages/plugin/test/components/panel-footer.test.ts",
+    "depth": "full",
+    "notes": "Assigned closure.analysis test body. Static logic read 1-38 of 38 lines; 1433 bytes. No unread body ranges. SHA-256 matches source-manifest.json (71e79205e05cb139af0cb372b10d9790da32cc6e369eeaeab1ca9ca60ad20f04). Tests inspected only; no runtime execution."
+  },
+  {
+    "path": "service/packages/plugin/test/components/ui-payload-block.test.ts",
+    "depth": "full",
+    "notes": "Assigned closure.analysis test body. Static logic read 1-108 of 108 lines; 3859 bytes. No unread body ranges. SHA-256 matches source-manifest.json (7b6e2d8dbcb0958a7b1b87e27c7c0dbd6662cc2d95830f1356ff7a7d45975ef9). Tests inspected only; no runtime execution."
+  },
+  {
+    "path": "service/packages/plugin/test/handlers/add-page.test.ts",
+    "depth": "full",
+    "notes": "Assigned closure.analysis test body. Static logic read 1-25 of 25 lines; 1085 bytes. No unread body ranges. SHA-256 matches source-manifest.json (5390e6473b2471864284fe7c5956e38ba231ab3d7d2b952b714cd74be885df12). Tests inspected only; no runtime execution."
+  },
+  {
+    "path": "service/packages/plugin/test/handlers/add-variable-mode.test.ts",
+    "depth": "full",
+    "notes": "Assigned closure.analysis test body. Static logic read 1-54 of 54 lines; 2374 bytes. No unread body ranges. SHA-256 matches source-manifest.json (2628d467a0b84c836af589428dad5dbea9b95f1e7441be4d4dbb22afa3645016). Tests inspected only; no runtime execution."
+  },
+  {
+    "path": "service/packages/plugin/test/handlers/batch-rename-nodes.test.ts",
+    "depth": "full",
+    "notes": "Assigned closure.analysis test body. Static logic read 1-33 of 33 lines; 1250 bytes. No unread body ranges. SHA-256 matches source-manifest.json (35acce2ceee7caf255d51739933becd61e9cedfa8a8c6a4761be47795faf4c22). Tests inspected only; no runtime execution."
+  },
+  {
+    "path": "service/packages/plugin/test/handlers/bind-variable-to-paint.test.ts",
+    "depth": "full",
+    "notes": "Assigned closure.analysis test body. Static logic read 1-117 of 117 lines; 4031 bytes. No unread body ranges. SHA-256 matches source-manifest.json (1096d4e976b6b3cb42456412eebb6e913917ae08aeab49e01d3d86dcd6c3e014). Tests inspected only; no runtime execution."
+  },
+  {
+    "path": "service/packages/plugin/test/handlers/bindings.test.ts",
+    "depth": "full",
+    "notes": "Assigned closure.analysis test body. Static logic read 1-287 of 287 lines; 10027 bytes. No unread body ranges. SHA-256 matches source-manifest.json (07e93fb104a4ca1b2546278ee0d9bf378f0d30fcaa7005d207f95e25ecdaf172). Tests inspected only; no runtime execution."
+  },
+  {
+    "path": "service/packages/plugin/test/handlers/component-property.test.ts",
+    "depth": "full",
+    "notes": "Assigned closure.analysis test body. Static logic read 1-270 of 270 lines; 10825 bytes. No unread body ranges. SHA-256 matches source-manifest.json (6396417380ea7f7437fa57d3918d4ca0ceb4cb08191af5f5e1f8bdd9aded5b17). Tests inspected only; no runtime execution."
+  },
+  {
+    "path": "service/packages/plugin/test/handlers/create-component.test.ts",
+    "depth": "full",
+    "notes": "Assigned closure.analysis test body. Static logic read 1-86 of 86 lines; 3191 bytes. No unread body ranges. SHA-256 matches source-manifest.json (713b6456e1b9adb882c0d0dc35a02f7dda1634b95a1abf928f615e8cd1b22200). Tests inspected only; no runtime execution."
+  },
+  {
+    "path": "service/packages/plugin/test/handlers/create-effect-style.test.ts",
+    "depth": "full",
+    "notes": "Assigned closure.analysis test body. Static logic read 1-92 of 92 lines; 3250 bytes. No unread body ranges. SHA-256 matches source-manifest.json (41e4e7efd942e40943c2292a442ffd1ef7fa73b390b26a3e0ba8aa5f9e22d62b). Tests inspected only; no runtime execution."
+  },
+  {
+    "path": "service/packages/plugin/test/handlers/create-instance.test.ts",
+    "depth": "full",
+    "notes": "Assigned closure.analysis test body. Static logic read 1-67 of 67 lines; 2874 bytes. No unread body ranges. SHA-256 matches source-manifest.json (b7cfbdaa71033faa66b822b696a84c13cd8ea63c8851bd82c40ec70993767698). Tests inspected only; no runtime execution."
+  },
+  {
+    "path": "service/packages/plugin/test/handlers/create-rectangle.test.ts",
+    "depth": "full",
+    "notes": "Assigned closure.analysis test body. Static logic read 1-63 of 63 lines; 1934 bytes. No unread body ranges. SHA-256 matches source-manifest.json (cf304b0e1d90500f9c6eb46e6ff6cfb2e46a99e68bb23784f7056627bf57a129). Tests inspected only; no runtime execution."
+  },
+  {
+    "path": "service/packages/plugin/test/handlers/create-section.test.ts",
+    "depth": "full",
+    "notes": "Assigned closure.analysis test body. Static logic read 1-46 of 46 lines; 1399 bytes. No unread body ranges. SHA-256 matches source-manifest.json (56a30f26e33a5a9b5325560ddad837e26d0c0d38b8ced0d083ebae9be038af60). Tests inspected only; no runtime execution."
+  },
+  {
+    "path": "service/packages/plugin/test/handlers/create-text.test.ts",
+    "depth": "full",
+    "notes": "Assigned closure.analysis test body. Static logic read 1-52 of 52 lines; 1835 bytes. No unread body ranges. SHA-256 matches source-manifest.json (cac7ca02f24be42e92bf2ed3731064439be36465ad3131e5b61610ed444f8323). Tests inspected only; no runtime execution."
+  },
+  {
+    "path": "service/packages/plugin/test/handlers/create-variable-collection.test.ts",
+    "depth": "full",
+    "notes": "Assigned closure.analysis test body. Static logic read 1-89 of 89 lines; 3549 bytes. No unread body ranges. SHA-256 matches source-manifest.json (b516111fb8753d390ffe65b59c8adae6efafc760bb9bc2c69cc30c752d3949c4). Tests inspected only; no runtime execution."
+  },
+  {
+    "path": "service/packages/plugin/test/handlers/create-variable.test.ts",
+    "depth": "full",
+    "notes": "Assigned closure.analysis test body. Static logic read 1-266 of 266 lines; 9913 bytes. No unread body ranges. SHA-256 matches source-manifest.json (e63aeaa5b3fa120ec90b524f2ea2cee9ff1bf0d96ccd101fb58669f2a4da247f). Tests inspected only; no runtime execution."
+  },
+  {
+    "path": "service/packages/plugin/test/handlers/delete-nodes.test.ts",
+    "depth": "full",
+    "notes": "Assigned closure.analysis test body. Static logic read 1-38 of 38 lines; 1602 bytes. No unread body ranges. SHA-256 matches source-manifest.json (1ad9dc80f13b7eab541f6fb17f80f1bb98b61147ffb09c5b7ba2c05cb4317d1a). Tests inspected only; no runtime execution."
+  },
+  {
+    "path": "service/packages/plugin/test/handlers/delete-variable-collection.test.ts",
+    "depth": "full",
+    "notes": "Assigned closure.analysis test body. Static logic read 1-28 of 28 lines; 1255 bytes. No unread body ranges. SHA-256 matches source-manifest.json (a33a235ec8f175bea240cfd223d32cf9c711c0d215c5dc454127b8adf2b67e86). Tests inspected only; no runtime execution."
+  },
+  {
+    "path": "service/packages/plugin/test/handlers/delete-variable.test.ts",
+    "depth": "full",
+    "notes": "Assigned closure.analysis test body. Static logic read 1-26 of 26 lines; 1144 bytes. No unread body ranges. SHA-256 matches source-manifest.json (5d95acb855a96e616658c3748186dbfc128ae22bbc0b2ac24f3b3d418dc1c0c5). Tests inspected only; no runtime execution."
+  },
+  {
+    "path": "service/packages/plugin/test/handlers/export-pdf.test.ts",
+    "depth": "full",
+    "notes": "Assigned closure.analysis test body. Static logic read 1-76 of 76 lines; 2953 bytes. No unread body ranges. SHA-256 matches source-manifest.json (b60cf5a8377bd07da17afec14423a11d3c975071ba768a5982c936a9f4b95891). Tests inspected only; no runtime execution."
+  },
+  {
+    "path": "service/packages/plugin/test/handlers/get-component-api.test.ts",
+    "depth": "full",
+    "notes": "Assigned closure.analysis test body. Static logic read 1-96 of 96 lines; 3551 bytes. No unread body ranges. SHA-256 matches source-manifest.json (33a64f98bbb7954987d33306510051d0f799fadcae094a35d9e871918c713061). Tests inspected only; no runtime execution."
+  },
+  {
+    "path": "service/packages/plugin/test/handlers/get-design-context.test.ts",
+    "depth": "full",
+    "notes": "Assigned closure.analysis test body. Static logic read 1-996 of 996 lines; 41125 bytes. No unread body ranges. SHA-256 matches source-manifest.json (2487458ca8b23268b9d579080ab8bdbf73d07669d0ef7a26ef3af24d3bff1f81). Tests inspected only; no runtime execution."
+  },
+  {
+    "path": "service/packages/plugin/test/handlers/get-local-components.test.ts",
+    "depth": "full",
+    "notes": "Assigned closure.analysis test body. Static logic read 1-96 of 96 lines; 3178 bytes. No unread body ranges. SHA-256 matches source-manifest.json (699170d886ef1d70123b548b0a435ef148dd62b80126f6ce30e7ddb56fc23b49). Tests inspected only; no runtime execution."
+  },
+  {
+    "path": "service/packages/plugin/test/handlers/get-metadata.test.ts",
+    "depth": "full",
+    "notes": "Assigned closure.analysis test body. Static logic read 1-76 of 76 lines; 2424 bytes. No unread body ranges. SHA-256 matches source-manifest.json (93fca9723a2d915797ab3c4ee3fdea9c3b32d645f95c7652d7f794333f7edd27). Tests inspected only; no runtime execution."
+  },
+  {
+    "path": "service/packages/plugin/test/handlers/get-node-motion.test.ts",
+    "depth": "full",
+    "notes": "Assigned closure.analysis test body. Static logic read 1-90 of 90 lines; 3715 bytes. No unread body ranges. SHA-256 matches source-manifest.json (2a458d12f8b12b60ae0f86169ca5098b9304426dae8d01732aa16e9dd064de10). Tests inspected only; no runtime execution."
+  },
+  {
+    "path": "service/packages/plugin/test/handlers/get-node.test.ts",
+    "depth": "full",
+    "notes": "Assigned closure.analysis test body. Static logic read 1-55 of 55 lines; 2117 bytes. No unread body ranges. SHA-256 matches source-manifest.json (7673327a0bf931d50b544c6b0c9df746e40c003940e70a1b90c081e90155fb5b). Tests inspected only; no runtime execution."
+  },
+  {
+    "path": "service/packages/plugin/test/handlers/get-nodes-info.test.ts",
+    "depth": "full",
+    "notes": "Assigned closure.analysis test body. Static logic read 1-52 of 52 lines; 1919 bytes. No unread body ranges. SHA-256 matches source-manifest.json (f969918f8f53e926ee018199e43cec93541f43302de83dfb370eba3803ae5f44). Tests inspected only; no runtime execution."
+  },
+  {
+    "path": "service/packages/plugin/test/handlers/get-pages.test.ts",
+    "depth": "full",
+    "notes": "Assigned closure.analysis test body. Static logic read 1-33 of 33 lines; 997 bytes. No unread body ranges. SHA-256 matches source-manifest.json (bbc0754bad7a75ddf356d7a623a9e73c28c54ddecfe5a001ffea02ce0e43ef07). Tests inspected only; no runtime execution."
+  },
+  {
+    "path": "service/packages/plugin/test/handlers/get-screenshot.test.ts",
+    "depth": "full",
+    "notes": "Assigned closure.analysis test body. Static logic read 1-328 of 328 lines; 13221 bytes. No unread body ranges. SHA-256 matches source-manifest.json (ef793faf8a1b01b57055e1bb737fd7cde4fa1d5c75ee418e189dfd1a04970697). Tests inspected only; no runtime execution."
+  },
+  {
+    "path": "service/packages/plugin/test/handlers/get-styles.test.ts",
+    "depth": "full",
+    "notes": "Assigned closure.analysis test body. Static logic read 1-389 of 389 lines; 13388 bytes. No unread body ranges. SHA-256 matches source-manifest.json (522b1c2ab6827840236265f386e11853881ddd479bfffe776f54c62708aa0c08). Tests inspected only; no runtime execution."
+  },
+  {
+    "path": "service/packages/plugin/test/handlers/get-variable-defs.test.ts",
+    "depth": "full",
+    "notes": "Assigned closure.analysis test body. Static logic read 1-209 of 209 lines; 6493 bytes. No unread body ranges. SHA-256 matches source-manifest.json (e6e30c5e865213cb71c0f688bd091fa9ba780e7cab1eada9203306952b75a700). Tests inspected only; no runtime execution."
+  },
+  {
+    "path": "service/packages/plugin/test/handlers/group-nodes.test.ts",
+    "depth": "full",
+    "notes": "Assigned closure.analysis test body. Static logic read 1-34 of 34 lines; 1416 bytes. No unread body ranges. SHA-256 matches source-manifest.json (301317dea7f36ef561afe442238ae2143d44d6e2f9bcfb618b28cd9a0dd547c8). Tests inspected only; no runtime execution."
+  },
+  {
+    "path": "service/packages/plugin/test/handlers/import-image.test.ts",
+    "depth": "full",
+    "notes": "Assigned closure.analysis test body. Static logic read 1-123 of 123 lines; 4082 bytes. No unread body ranges. SHA-256 matches source-manifest.json (90cb6995968848e5dc6f3862882ee29a0f59c281234f2fc96e9adbf9c7fb8d4f). Tests inspected only; no runtime execution."
+  },
+  {
+    "path": "service/packages/plugin/test/handlers/move-nodes.test.ts",
+    "depth": "full",
+    "notes": "Assigned closure.analysis test body. Static logic read 1-31 of 31 lines; 1199 bytes. No unread body ranges. SHA-256 matches source-manifest.json (f8de9a938e1db6011d5613b8b5ef37a8df96354e41f3c3ec4f58b69cae55012d). Tests inspected only; no runtime execution."
+  },
+  {
+    "path": "service/packages/plugin/test/handlers/navigate-to-page.test.ts",
+    "depth": "full",
+    "notes": "Assigned closure.analysis test body. Static logic read 1-28 of 28 lines; 1173 bytes. No unread body ranges. SHA-256 matches source-manifest.json (7dd5ec5fa973e735d188c916cbaf9edc373533702de8ec4120d6112b46ed953b). Tests inspected only; no runtime execution."
+  },
+  {
+    "path": "service/packages/plugin/test/handlers/projection-coverage.test.ts",
+    "depth": "full",
+    "notes": "Assigned closure.analysis test body. Static logic read 1-229 of 229 lines; 7957 bytes. No unread body ranges. SHA-256 matches source-manifest.json (43ce7114bb30964e93a564ce765d4264784697eba6e2cfbbb793bb4921446b4f). Tests inspected only; no runtime execution."
+  },
+  {
+    "path": "service/packages/plugin/test/handlers/remove-reactions.test.ts",
+    "depth": "full",
+    "notes": "Assigned closure.analysis test body. Static logic read 1-27 of 27 lines; 1096 bytes. No unread body ranges. SHA-256 matches source-manifest.json (a39746a3c6ab56f00c9d0a4140c3141bc4031bc1e9776d948c6bf7103f27dac7). Tests inspected only; no runtime execution."
+  },
+  {
+    "path": "service/packages/plugin/test/handlers/rename-variable.test.ts",
+    "depth": "full",
+    "notes": "Assigned closure.analysis test body. Static logic read 1-37 of 37 lines; 1312 bytes. No unread body ranges. SHA-256 matches source-manifest.json (ded1e3934372272b1375bad2293c876df25256117ca74abd6a18c857fc08fcb6). Tests inspected only; no runtime execution."
+  },
+  {
+    "path": "service/packages/plugin/test/handlers/reparent-nodes.test.ts",
+    "depth": "full",
+    "notes": "Assigned closure.analysis test body. Static logic read 1-44 of 44 lines; 1958 bytes. No unread body ranges. SHA-256 matches source-manifest.json (730c294be10682dd6b1e5f5a081c78a8a92e20094895b2728b90ae7aafaffe1b). Tests inspected only; no runtime execution."
+  },
+  {
+    "path": "service/packages/plugin/test/handlers/save-image-fills.test.ts",
+    "depth": "full",
+    "notes": "Assigned closure.analysis test body. Static logic read 1-180 of 180 lines; 6647 bytes. No unread body ranges. SHA-256 matches source-manifest.json (c2bc56e118c0ed0b2159d8c9265edd8132649fe9a1aa4da1419cf6fa9c1dd0d4). Tests inspected only; no runtime execution."
+  },
+  {
+    "path": "service/packages/plugin/test/handlers/set-annotations.test.ts",
+    "depth": "full",
+    "notes": "Assigned closure.analysis test body. Static logic read 1-321 of 321 lines; 11201 bytes. No unread body ranges. SHA-256 matches source-manifest.json (9869ff08a4c19d79a7be6efef965e23148e9ea7539e99a6bcf3904cb98d37285). Tests inspected only; no runtime execution."
+  },
+  {
+    "path": "service/packages/plugin/test/handlers/set-arc.test.ts",
+    "depth": "full",
+    "notes": "Assigned closure.analysis test body. Static logic read 1-42 of 42 lines; 2065 bytes. No unread body ranges. SHA-256 matches source-manifest.json (3320bec31b4a31730d57c691743c52afc1ba257cf1e3b4ac57b635c1a883fcef). Tests inspected only; no runtime execution."
+  },
+  {
+    "path": "service/packages/plugin/test/handlers/set-auto-layout.test.ts",
+    "depth": "full",
+    "notes": "Assigned closure.analysis test body. Static logic read 1-157 of 157 lines; 5978 bytes. No unread body ranges. SHA-256 matches source-manifest.json (978465f8ba9ca10a532714ed17a519d3927690c805858acf51f91674056909a4). Tests inspected only; no runtime execution."
+  },
+  {
+    "path": "service/packages/plugin/test/handlers/set-blend-mode.test.ts",
+    "depth": "full",
+    "notes": "Assigned closure.analysis test body. Static logic read 1-25 of 25 lines; 1118 bytes. No unread body ranges. SHA-256 matches source-manifest.json (e73f32f5031d8d88bc7298896f2da7c8f5c2397fa48826e9dcfb6755af10e2ab). Tests inspected only; no runtime execution."
+  },
+  {
+    "path": "service/packages/plugin/test/handlers/set-effects.test.ts",
+    "depth": "full",
+    "notes": "Assigned closure.analysis test body. Static logic read 1-74 of 74 lines; 2681 bytes. No unread body ranges. SHA-256 matches source-manifest.json (522659bf24289d8047d4526a73941554f7efada3a403e5d239fc1567b7a6166a). Tests inspected only; no runtime execution."
+  },
+  {
+    "path": "service/packages/plugin/test/handlers/set-layout-grids.test.ts",
+    "depth": "full",
+    "notes": "Assigned closure.analysis test body. Static logic read 1-132 of 132 lines; 4513 bytes. No unread body ranges. SHA-256 matches source-manifest.json (ab2bd9b2d0b8fbeec0fe7bb27f1199fccab27a66e6318a8f178313819b919712). Tests inspected only; no runtime execution."
+  },
+  {
+    "path": "service/packages/plugin/test/handlers/set-layout-props.test.ts",
+    "depth": "full",
+    "notes": "Assigned closure.analysis test body. Static logic read 1-141 of 141 lines; 4893 bytes. No unread body ranges. SHA-256 matches source-manifest.json (0c56feb358b6940d23abf514a67659749c175fd3fac4c63b2fd8251c66d54f42). Tests inspected only; no runtime execution."
+  },
+  {
+    "path": "service/packages/plugin/test/handlers/set-mask.test.ts",
+    "depth": "full",
+    "notes": "Assigned closure.analysis test body. Static logic read 1-37 of 37 lines; 1684 bytes. No unread body ranges. SHA-256 matches source-manifest.json (1dd31148878239b5373e0f276e754be4dd0b0eee9c7f159a5d11d58c80b92e60). Tests inspected only; no runtime execution."
+  },
+  {
+    "path": "service/packages/plugin/test/handlers/set-position.test.ts",
+    "depth": "full",
+    "notes": "Assigned closure.analysis test body. Static logic read 1-81 of 81 lines; 2802 bytes. No unread body ranges. SHA-256 matches source-manifest.json (89491787582b9c72b934691b4e5ac2343a8206eb84fbfd39da84c34c27f2c98e). Tests inspected only; no runtime execution."
+  },
+  {
+    "path": "service/packages/plugin/test/handlers/set-text-range.test.ts",
+    "depth": "full",
+    "notes": "Assigned closure.analysis test body. Static logic read 1-289 of 289 lines; 11274 bytes. No unread body ranges. SHA-256 matches source-manifest.json (be7b9c8a14ffc40aca1dbbef42e42d7a4fda5700bcb283441b141b0036ca4fc0). Tests inspected only; no runtime execution."
+  },
+  {
+    "path": "service/packages/plugin/test/handlers/swap-component.test.ts",
+    "depth": "full",
+    "notes": "Assigned closure.analysis test body. Static logic read 1-74 of 74 lines; 2990 bytes. No unread body ranges. SHA-256 matches source-manifest.json (3de3e1c14414593fcccc9a2df098580e390301f890818073e958ba606e38efc1). Tests inspected only; no runtime execution."
+  },
+  {
+    "path": "service/packages/plugin/test/handlers/update-effect-style.test.ts",
+    "depth": "full",
+    "notes": "Assigned closure.analysis test body. Static logic read 1-70 of 70 lines; 2648 bytes. No unread body ranges. SHA-256 matches source-manifest.json (9b5a02d4f463fcf8dd857d89b5d7d12db156d173c726fc25e179fac2b2b9027b). Tests inspected only; no runtime execution."
+  },
+  {
+    "path": "service/packages/plugin/test/handlers/update-text-style.test.ts",
+    "depth": "full",
+    "notes": "Assigned closure.analysis test body. Static logic read 1-166 of 166 lines; 6917 bytes. No unread body ranges. SHA-256 matches source-manifest.json (e38a86bf98caff4e22369c9975f851527f71824c9c835280e636f6ed345001ad). Tests inspected only; no runtime execution."
+  },
+  {
+    "path": "service/packages/plugin/test/lib/format.test.ts",
+    "depth": "full",
+    "notes": "Assigned closure.analysis test body. Static logic read 1-70 of 70 lines; 2510 bytes. No unread body ranges. SHA-256 matches source-manifest.json (79367db316b95cf5517ac57a12cfdd1101a7754dfd354b66cb362673bf677c7d). Tests inspected only; no runtime execution."
+  },
+  {
+    "path": "service/packages/plugin/test/panel.test.ts",
+    "depth": "full",
+    "notes": "Assigned closure.analysis test body. Static logic read 1-242 of 242 lines; 8522 bytes. No unread body ranges. SHA-256 matches source-manifest.json (039f065ca0584f7d8ca65f36c738f261bf2c08dbdb4c01e05c33a0d6faa5179d). Tests inspected only; no runtime execution."
+  },
+  {
+    "path": "service/packages/plugin/test/protocol/bridge.test.ts",
+    "depth": "full",
+    "notes": "Assigned closure.analysis test body. Static logic read 1-137 of 137 lines; 4889 bytes. No unread body ranges. SHA-256 matches source-manifest.json (65e990ce461d85965f8aec2da22baf3e4a24bfbd88830c323ed1e0a78629e1a8). Tests inspected only; no runtime execution."
+  },
+  {
+    "path": "service/packages/plugin/test/relay/bootstrap.test.ts",
+    "depth": "full",
+    "notes": "Assigned closure.analysis test body. Static logic read 1-33 of 33 lines; 1281 bytes. No unread body ranges. SHA-256 matches source-manifest.json (91dbf125ff5d93f62331f0a227dd628a65e0f115bab1678755dc273943ad7682). Tests inspected only; no runtime execution."
+  },
+  {
+    "path": "service/packages/plugin/test/relay/diagnostics.test.ts",
+    "depth": "full",
+    "notes": "Assigned closure.analysis test body. Static logic read 1-121 of 121 lines; 4310 bytes. No unread body ranges. SHA-256 matches source-manifest.json (3296d587dc070b03e8cc6d0f1fbf1c99fa638a4bf29b85bc5c02fc5810ba4581). Tests inspected only; no runtime execution."
+  },
+  {
+    "path": "service/packages/plugin/test/relay/node-ids.test.ts",
+    "depth": "full",
+    "notes": "Assigned closure.analysis test body. Static logic read 1-79 of 79 lines; 2984 bytes. No unread body ranges. SHA-256 matches source-manifest.json (dd3a052be7c3c1b2aed5225622a828be72a6cc8930d74268eef776e28555d1d3). Tests inspected only; no runtime execution."
+  },
+  {
+    "path": "service/packages/plugin/test/sandbox/startup.test.ts",
+    "depth": "full",
+    "notes": "Assigned closure.analysis test body. Static logic read 1-67 of 67 lines; 2171 bytes. No unread body ranges. SHA-256 matches source-manifest.json (62144e35f8da79e7b32e32cc1151fdb3e8a4b9f84a97a2a0c5c6e9c467c09b81). Tests inspected only; no runtime execution."
+  },
+  {
+    "path": "service/packages/plugin/test/traverse.test.ts",
+    "depth": "full",
+    "notes": "Assigned closure.analysis test body. Static logic read 1-68 of 68 lines; 2434 bytes. No unread body ranges. SHA-256 matches source-manifest.json (3742ba94d3c4874ac6c70efb37c03fac39a1ee62b5495461303c54d22e733d72). Tests inspected only; no runtime execution."
+  },
+  {
+    "path": "service/packages/shared/src/figma-capture-read.ts",
+    "depth": "targeted",
+    "notes": "Independent production/document/test cross-read. Static logic read 145-180, 243-287, 444-466 of 596 lines; 18678 bytes. Unread body ranges: 1-144, 181-242, 288-443, 467-596. SHA-256 matches source-manifest.json (1bfcf669cb074c4e42da0d02f2f8c6d99ca309e4133693f74a3b1d522fe14c3b). Tests inspected only; no runtime execution."
+  },
+  {
+    "path": "docs/reviews/2026-09-30-full-review/round-2-closure-assignments.json",
+    "depth": "metadata",
+    "notes": "Inspected closure.analysis path/byte/depth records: 82 unique assigned test files totaling 481119 bytes. Compared every assigned path with complete bounded body-read ranges. Other closure lane records not body-reviewed in this analysis assignment."
+  },
+  {
+    "path": "docs/reviews/2026-09-30-full-review/source-manifest.json",
+    "depth": "metadata",
+    "notes": "Inspected baseline manifest file/hash records for all production/test cross-reads. Read-only SHA-256 and byte metadata comparison found no source mismatch, including all 82 closure.analysis files. This is structured identity inspection, not a second full read of all manifest rows or represented source bodies."
+  }
+]

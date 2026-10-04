@@ -1,0 +1,28 @@
+﻿{
+    "name":  "Super Figma Pipeline",
+    "main":  "code.js",
+    "ui":  "index.html",
+    "allowedDomains":  [
+                           "http://127.0.0.1:3055",
+                           "ws://127.0.0.1:3055"
+                       ],
+    "requiresRemoteScripterUi":  false,
+    "files":  [
+                  {
+                      "name":  "manifest.json",
+                      "bytes":  561,
+                      "sha256":  "e6158b850de9221490036269f24fe1b06f2b70d16ff1c6e020c9a507767c77b9"
+                  },
+                  {
+                      "name":  "code.js",
+                      "bytes":  347479,
+                      "sha256":  "2892ef5174c5550f75c2aabc2e8de396e76a2aad6c1b85b3cc1c778ef2215de7"
+                  },
+                  {
+                      "name":  "index.html",
+                      "bytes":  375895,
+                      "sha256":  "f0ee21749f7a845c87b532b1077a91f57c875166cade75d57bddb180347bffa5"
+                  }
+              ],
+    "activated":  false
+}

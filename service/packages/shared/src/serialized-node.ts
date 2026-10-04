@@ -193,6 +193,8 @@ export const SerializedAutoLayoutSchema = z.object({
   itemSpacing: z.number().optional(),
   primaryAxisAlignItems: z.string().optional(),
   counterAxisAlignItems: z.string().optional(),
+  primaryAxisSizingMode: z.string().optional(),
+  counterAxisSizingMode: z.string().optional(),
   layoutWrap: z.string().optional(),
   // WRAP only: gap between wrapped lines (cross-axis) + how those lines distribute. Without these a
   // wrapping flex (tag cloud / chip group / gallery) keeps its primary `itemSpacing` but loses the

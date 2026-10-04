@@ -1,5 +1,6 @@
 import { execFileSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
+import { realpathSync } from 'node:fs';
 import { open, readFile, rename, unlink } from 'node:fs/promises';
 import { basename, dirname, join, posix, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -313,6 +314,190 @@ const upsertHashRow = (rows, path, hash) => {
   return retained.toSorted((left, right) => compareUtf8(left.path, right.path));
 };
 
+const reconcileDeclaredChanges = async (path, slice, originals, lock, vendorMap, changes) => {
+  if (!path.startsWith('service/capabilities/reconciliations/')) {
+    fail(
+      'SERVICE_FORK_RECONCILIATION_INVALID',
+      'reconciliation must be a service capability record',
+    );
+  }
+  const bytes = await readFile(resolve(repositoryRoot, ...path.split('/')));
+  if (!bytes.equals(stagedBytes(manifestServicePath(path)))) {
+    fail('SERVICE_FORK_RECONCILIATION_CONFLICT', 'review record differs from its index blob');
+  }
+  const review = JSON.parse(bytes.toString('utf8'));
+  const exact = (value, keys) =>
+    value !== null &&
+    typeof value === 'object' &&
+    !Array.isArray(value) &&
+    JSON.stringify(Object.keys(value).toSorted(compareUtf8)) ===
+      JSON.stringify(keys.toSorted(compareUtf8));
+  if (
+    !exact(review, ['schemaVersion', 'slice', 'baseline', 'entries']) ||
+    review.schemaVersion !== 1 ||
+    review.slice !== slice ||
+    !exact(review.baseline, ['headCommit', 'authoritySha256']) ||
+    !exact(review.baseline.authoritySha256, Object.keys(originals)) ||
+    !Array.isArray(review.entries) ||
+    review.entries.length === 0
+  ) {
+    fail('SERVICE_FORK_RECONCILIATION_INVALID', 'review record shape is invalid');
+  }
+  const head = execFileSync('git', ['-C', repositoryRoot, 'rev-parse', 'HEAD'], {
+    encoding: 'utf8',
+    windowsHide: true,
+  }).trim();
+  if (
+    head !== review.baseline.headCommit ||
+    Object.entries(originals).some(
+      ([name, contents]) => review.baseline.authoritySha256[name] !== sha256(contents),
+    )
+  ) {
+    fail(
+      'SERVICE_FORK_RECONCILIATION_CONFLICT',
+      'review baseline authority or source commit changed',
+    );
+  }
+  const authority = await readJson(
+    servicePath(`capabilities/task-${slice.toLowerCase()}-authority-classes.json`),
+  );
+  if (
+    authority.schemaVersion !== 1 ||
+    authority.slice !== slice ||
+    !Array.isArray(authority.allowedPaths)
+  ) {
+    fail('SERVICE_FORK_SLICE_AUTHORITY_INVALID', slice);
+  }
+  const allowed = new Set(authority.allowedPaths);
+  if (!allowed.has(path) || changes.some(change => !allowed.has(`service/${change.path}`))) {
+    fail(
+      'SERVICE_FORK_RECONCILIATION_INVALID',
+      'cached changes or review record exceed the reviewed scope',
+    );
+  }
+  const claimsFor = destination =>
+    [
+      ...lock.serviceFiles
+        .filter(row => row.path === destination)
+        .map(row => ({ class: 'protected', sha256: row.sha256 })),
+      ...lock.destinationClosure.serviceOwnedFiles
+        .filter(row => row.path === destination)
+        .map(row => ({ class: 'managed', sha256: row.sha256 })),
+      ...(lock.serviceForks ?? [])
+        .filter(
+          row =>
+            row.transition !== 'delete' && (row.destination ?? row.newDestination) === destination,
+        )
+        .map(row => ({ class: 'fork', sha256: row.stagedSha256 ?? row.newSha256 })),
+      ...vendorMap.files
+        .filter(row => row.mode !== 'referenceOnly' && row.destination === destination)
+        .map(row => ({ class: 'vendor', sha256: row.currentSha256 })),
+      ...(lock.packageAuthorities ?? [])
+        .filter(row => row.path === destination)
+        .map(row => ({ class: 'package', sha256: sha256(JSON.stringify(row.projection)) })),
+      ...(lock.manifestRequirements ?? [])
+        .filter(row => row.path === destination)
+        .map(row => ({ class: 'manifest', sha256: sha256(JSON.stringify(row)) })),
+      ...(destination === 'package.json' && lock.rootAuthority !== undefined
+        ? [{ class: 'root', sha256: sha256(JSON.stringify(lock.rootAuthority)) }]
+        : []),
+    ].toSorted(
+      (left, right) =>
+        compareUtf8(left.class, right.class) || compareUtf8(left.sha256, right.sha256),
+    );
+  const byPath = new Map(changes.map(change => [change.path, change]));
+  let previous = '';
+  const reviewed = new Map();
+  /* eslint-disable no-await-in-loop -- every reviewed path is independently bound before authority derivation */
+  for (const entry of review.entries) {
+    if (
+      !exact(entry, ['path', 'sha256', 'priorClaims', 'reason']) ||
+      !/^[0-9a-f]{64}$/.test(entry.sha256 ?? '') ||
+      !Array.isArray(entry.priorClaims) ||
+      typeof entry.reason !== 'string' ||
+      entry.reason.length === 0 ||
+      entry.reason.length > 512
+    ) {
+      fail('SERVICE_FORK_RECONCILIATION_INVALID', 'review entry shape is invalid');
+    }
+    safePath(entry.path);
+    if (
+      compareUtf8(previous, entry.path) >= 0 ||
+      !allowed.has(`service/${entry.path}`) ||
+      ['vendor-rules.json', 'vendor-map.json', 'upstream-lock.json'].includes(entry.path)
+    ) {
+      fail(
+        'SERVICE_FORK_RECONCILIATION_INVALID',
+        `unordered, duplicate, reserved or unreviewed path: ${entry.path}`,
+      );
+    }
+    previous = entry.path;
+    const claims = claimsFor(entry.path);
+    if (JSON.stringify(entry.priorClaims) !== JSON.stringify(claims)) {
+      fail('SERVICE_FORK_RECONCILIATION_CONFLICT', `prior authority classes differ: ${entry.path}`);
+    }
+    if (
+      sha256(await readFile(servicePath(entry.path))) !== entry.sha256 ||
+      sha256(stagedBytes(entry.path)) !== entry.sha256
+    ) {
+      fail(
+        'SERVICE_FORK_RECONCILIATION_CONFLICT',
+        `reviewed worktree or index bytes differ: ${entry.path}`,
+      );
+    }
+    const change = byPath.get(entry.path);
+    if (change?.status === 'D' || change?.status === 'R') {
+      fail(
+        'SERVICE_FORK_RECONCILIATION_INVALID',
+        `reconciliation cannot reinterpret a deletion or move: ${entry.path}`,
+      );
+    }
+    byPath.set(entry.path, { status: claims.length === 0 ? 'A' : 'M', path: entry.path });
+    reviewed.set(entry.path, { sha256: entry.sha256, bytes: stagedBytes(entry.path) });
+  }
+  /* eslint-enable no-await-in-loop */
+  for (const packageAuthority of lock.packageAuthorities ?? []) {
+    if (!reviewed.has(packageAuthority.path)) continue;
+    const manifest = JSON.parse(reviewed.get(packageAuthority.path).bytes.toString('utf8'));
+    packageAuthority.projection = Object.fromEntries(
+      Object.keys(packageAuthority.projection).map(field => [
+        field,
+        field === 'serviceScripts'
+          ? Object.fromEntries(
+              Object.entries(manifest.scripts ?? {}).filter(
+                ([name]) => !(lock.excludedUpstreamScriptInputs ?? []).includes(name),
+              ),
+            )
+          : field === 'excludedScriptAuthority'
+            ? Object.fromEntries(
+                Object.keys(packageAuthority.projection[field]).map(name => [
+                  name,
+                  manifest.scripts?.[name] ?? null,
+                ]),
+              )
+            : (manifest[field] ?? null),
+      ]),
+    );
+  }
+  if (reviewed.has('package.json') && lock.rootAuthority !== undefined) {
+    const manifest = JSON.parse(reviewed.get('package.json').bytes.toString('utf8'));
+    lock.rootAuthority = {
+      ...lock.rootAuthority,
+      packageManager: manifest.packageManager,
+      nodeEngine: manifest.engines?.node,
+      scripts: manifest.scripts,
+    };
+  }
+  if (reviewed.has('knip.json') && lock.rootAuthority !== undefined) {
+    const knip = JSON.parse(reviewed.get('knip.json').bytes.toString('utf8'));
+    lock.rootAuthority.knipWorkspaces = Object.keys(knip.workspaces);
+  }
+  return {
+    changes: [...byPath.values()].toSorted((left, right) => compareUtf8(left.path, right.path)),
+    reviewed,
+  };
+};
+
 const transactionPath = join(serviceRoot, '.service-fork-update.v1.json');
 const transactionPointerTemporary = `${transactionPath}.tmp`;
 
@@ -411,7 +596,7 @@ const applyAuthorityTransaction = async (transaction, crashAfterRenames = null) 
   await syncDirectory(serviceRoot);
 };
 
-const recoverAuthorityTransaction = async () => {
+export const recoverAuthorityTransaction = async () => {
   const pointer = await readOptionalBytes(transactionPath);
   if (pointer === null) return;
   let transaction;
@@ -424,7 +609,7 @@ const recoverAuthorityTransaction = async () => {
   await applyAuthorityTransaction(transaction);
 };
 
-const commitAuthorityTransaction = async targets => {
+export const commitAuthorityTransaction = async targets => {
   const sorted = targets.toSorted((left, right) => compareUtf8(left.path, right.path));
   const transactionId = sha256(
     Buffer.concat(
@@ -444,7 +629,10 @@ const commitAuthorityTransaction = async targets => {
   /* eslint-disable no-await-in-loop -- each prepared authority file is fsynced before pointer publication */
   for (const target of sorted) {
     const absoluteTarget = servicePath(target.path);
-    const oldContents = await readFile(absoluteTarget);
+    const currentContents = await readFile(absoluteTarget);
+    if (sha256(currentContents) !== target.oldSha256) {
+      fail('SERVICE_FORK_TRANSACTION_CONFLICT', `${target.path} changed since derivation read`);
+    }
     const temporaryPath = `.service-fork-update.${transactionId}.${basename(target.path)}.tmp`;
     const absoluteTemporary = servicePath(temporaryPath);
     const existingTemporary = await readOptionalBytes(absoluteTemporary);
@@ -462,7 +650,7 @@ const commitAuthorityTransaction = async targets => {
     transaction.targets.push({
       path: target.path,
       temporaryPath,
-      oldSha256: sha256(oldContents),
+      oldSha256: target.oldSha256,
       newSha256: sha256(target.contents),
     });
   }
@@ -505,10 +693,15 @@ const commitAuthorityTransaction = async targets => {
 
 const main = async () => {
   const args = process.argv.slice(2);
-  if (args.length !== 4 || args[0] !== '--slice' || args[2] !== '--index') {
+  if (
+    ![4, 6].includes(args.length) ||
+    args[0] !== '--slice' ||
+    args[2] !== '--index' ||
+    (args.length === 6 && args[4] !== '--reconcile')
+  ) {
     fail(
       'SERVICE_FORK_USAGE',
-      'usage: update-service-forks.mjs --slice <id> --index <repo-relative-path>',
+      'usage: update-service-forks.mjs --slice <id> --index <repo-relative-path> [--reconcile <review-record>]',
     );
   }
   const slice = /** @type {string} */ (args[1]);
@@ -543,11 +736,14 @@ const main = async () => {
   const rulesPath = servicePath('vendor-rules.json');
   const mapPath = servicePath('vendor-map.json');
   const lockPath = servicePath('upstream-lock.json');
-  const [rules, vendorMap, lock] = await Promise.all([
-    readJson(rulesPath),
-    readJson(mapPath),
-    readJson(lockPath),
+  const [rulesOriginal, mapOriginal, lockOriginal] = await Promise.all([
+    readFile(rulesPath),
+    readFile(mapPath),
+    readFile(lockPath),
   ]);
+  const rules = JSON.parse(rulesOriginal.toString('utf8'));
+  const vendorMap = JSON.parse(mapOriginal.toString('utf8'));
+  const lock = JSON.parse(lockOriginal.toString('utf8'));
   if (rules.schemaVersion !== 1 || vendorMap.schemaVersion !== 1) {
     fail('SERVICE_FORK_AUTHORITY_INVALID', 'vendor rules/map schema mismatch');
   }
@@ -560,7 +756,24 @@ const main = async () => {
   ) {
     fail('SERVICE_FORK_ORIGIN_UNPINNED', String(originRepo));
   }
-  const rawChanges = stagedChanges();
+  let rawChanges = stagedChanges();
+  let reviewed = new Map();
+  if (args.length === 6) {
+    const reconciliation = await reconcileDeclaredChanges(
+      safePath(args[5]),
+      slice,
+      {
+        'upstream-lock.json': lockOriginal,
+        'vendor-map.json': mapOriginal,
+        'vendor-rules.json': rulesOriginal,
+      },
+      lock,
+      vendorMap,
+      rawChanges,
+    );
+    rawChanges = reconciliation.changes;
+    reviewed = reconciliation.reviewed;
+  }
   const serviceForks = [...(lock.serviceForks ?? [])];
   let serviceFiles = [...(lock.serviceFiles ?? [])];
   let serviceOwnedFiles = [...(lock.destinationClosure?.serviceOwnedFiles ?? [])];
@@ -671,6 +884,12 @@ const main = async () => {
     }
     const bytes = change.status === 'D' ? null : stagedBytes(change.path);
     const stagedSha256 = bytes === null ? null : sha256(bytes);
+    if (reviewed.has(change.path) && reviewed.get(change.path).sha256 !== stagedSha256) {
+      fail(
+        'SERVICE_FORK_RECONCILIATION_CONFLICT',
+        `reviewed index bytes changed during derivation: ${change.path}`,
+      );
+    }
     const rowIndex = files.findIndex(row => row.destination === change.path);
     const existingForkIndex = serviceForks.findIndex(
       row =>
@@ -834,17 +1053,42 @@ const main = async () => {
     },
   };
   const lockBytes = await formattedJsonBytes(lockPath, lock);
+  /* eslint-disable no-await-in-loop -- the bounded reviewed snapshot is checked before authority publication */
+  for (const [path, entry] of reviewed) {
+    if (
+      sha256(await readFile(servicePath(path))) !== entry.sha256 ||
+      sha256(stagedBytes(path)) !== entry.sha256
+    ) {
+      fail(
+        'SERVICE_FORK_RECONCILIATION_CONFLICT',
+        `reviewed bytes changed before publication: ${path}`,
+      );
+    }
+  }
+  /* eslint-enable no-await-in-loop */
   await commitAuthorityTransaction([
-    { path: 'vendor-rules.json', contents: rulesBytes },
-    { path: 'vendor-map.json', contents: mapBytes },
-    { path: 'upstream-lock.json', contents: lockBytes },
+    { path: 'vendor-rules.json', contents: rulesBytes, oldSha256: sha256(rulesOriginal) },
+    { path: 'vendor-map.json', contents: mapBytes, oldSha256: sha256(mapOriginal) },
+    { path: 'upstream-lock.json', contents: lockBytes, oldSha256: sha256(lockOriginal) },
   ]);
   process.stdout.write(
     `service-forks=ok slice=${slice} changes=${changes.length} forks=${lock.serviceForks.length}\n`,
   );
 };
 
-main().catch(error => {
-  process.stderr.write(`${error instanceof Error ? error.message : String(error)}\n`);
-  process.exitCode = 1;
-});
+const invokedDirectly = () => {
+  try {
+    return (
+      process.argv[1] !== undefined &&
+      realpathSync.native(resolve(process.argv[1])) ===
+        realpathSync.native(fileURLToPath(import.meta.url))
+    );
+  } catch {
+    return false;
+  }
+};
+if (invokedDirectly())
+  main().catch(error => {
+    process.stderr.write(`${error instanceof Error ? error.message : String(error)}\n`);
+    process.exitCode = 1;
+  });

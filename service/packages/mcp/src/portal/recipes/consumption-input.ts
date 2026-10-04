@@ -15,6 +15,7 @@ import { RepoReader } from '../../fs/repo-walk.js';
 import { portalContentBytes } from '../content.js';
 import { PortalCapturedDesignSchema, assertPortalCaptureDescriptor } from '../design-capture.js';
 import { normalizeDesignObservation } from '../design-normalization.js';
+import { derivePortalInteractionContract } from '../interaction-evidence.js';
 import { PortalStore, portalError } from '../store.js';
 import { coreDeclarationsHash, PortalCoreLifecycle } from './core-lifecycle.js';
 import { coreHash } from './core-source.js';
@@ -94,6 +95,15 @@ export async function loadCoreConsumptionInput(
     captured.collectorEvidence,
   );
   const observationHash = coreHash(observation);
+  const interactionContract = derivePortalInteractionContract(
+    captured,
+    plan.requirements,
+    plan.workflowCoverage,
+    plan.request.interactionScope,
+  );
+  if (canonicalJson(interactionContract) !== canonicalJson(plan.interactionContract))
+    throw portalError('PORTAL_CONSUMPTION_INTERACTION_SELECTION_CHANGED');
+  const interactionContractHash = contentHash('sfp-interaction-contract-v1', interactionContract);
   const pages: ConsumptionPage[] = [];
   const kinds: Record<string, string> = {
     'ground-design': 'scope',
@@ -106,7 +116,12 @@ export async function loadCoreConsumptionInput(
   };
   const usedDeclarations = new Set<string>();
   for (const result of material.results) {
-    if (result.result.status !== 'succeeded' || result.manifest.observationHash !== observationHash)
+    if (
+      result.result.status !== 'succeeded' ||
+      result.manifest.observationHash !== observationHash ||
+      result.manifest.interactionContractHash !== interactionContractHash ||
+      result.manifest.interactionSelectionHash !== interactionContract.selectionHash
+    )
       throw portalError('PORTAL_CONSUMPTION_RESULT_CHANGED');
     const reference = plan.coreRecipes.requiredResults.find(
       row => row.resultId === result.result.resultId,

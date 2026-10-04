@@ -33,6 +33,73 @@ afterEach(async () =>
 );
 
 describe('native evidence export manifest port', () => {
+  it.each(['before-rename', 'after-quarantine', 'after-quarantine-with-successor'] as const)(
+    'preserves edited metadata during %s cleanup without deleting exported assets',
+    async boundary => {
+      const root = await mkdtemp(join(tmpdir(), 'sfp-native-edited-metadata-'));
+      roots.push(root);
+      await mkdir(join(root, 'assets'));
+      await writeFile(join(root, 'assets/a.png'), 'asset');
+      const workspaceId = '123e4567-e89b-42d3-a456-426614174000';
+      const context = Object.freeze({ operationId: 'operation-edited-metadata', workspaceId });
+      const projection = createOperationEvidenceProjector().project(
+        context,
+        'tool',
+        'export_pdf',
+        {},
+        { nodeId: '1:2', path: 'assets/a.png' },
+      );
+      if (projection.kind !== 'export-candidates') throw new Error('fixture projection failed');
+      const verified = verifyNativeEvidenceContext(context, projection);
+      let manifestPath = '';
+      let retainedPath = '';
+      const port = new NativeEvidenceArtifactPort({
+        workspacePolicy: {
+          resolveRoot: async () => root,
+          resolveRead: async (_workspace, relative) => join(root, relative),
+          resolveWrite: async (_workspace, relative) => ({
+            path: join(root, relative),
+            overwrites: false,
+          }),
+          assertWithinRoot: async () => undefined,
+        },
+        atomicFiles: new AtomicFileStore(),
+        beforeCleanupCommit: async () => {
+          if (boundary === 'before-rename') await writeFile(manifestPath, 'edited metadata');
+        },
+        afterNativeQuarantineFsync: async () => {
+          if (boundary === 'before-rename') return;
+          const directory = join(manifestPath, '..');
+          retainedPath = join(
+            directory,
+            (await readdir(directory)).find(name => name.endsWith('.retained'))!,
+          );
+          await writeFile(retainedPath, 'edited metadata');
+          if (boundary === 'after-quarantine-with-successor')
+            await writeFile(manifestPath, 'newer metadata', { flag: 'wx' });
+        },
+      });
+      const evidence = await port.createNativeManifest({ context: verified, projection });
+      manifestPath = join(root, evidence.manifestRelativePath);
+      await expect(
+        port.removeLinkedManifest({ context: verified, evidence }),
+      ).rejects.toMatchObject({ code: 'NATIVE_ARTIFACT_IDENTITY_MISMATCH' });
+      expect(await readFile(manifestPath, 'utf8')).toBe(
+        boundary === 'after-quarantine-with-successor' ? 'newer metadata' : 'edited metadata',
+      );
+      const recovered =
+        retainedPath === ''
+          ? null
+          : await readFile(retainedPath, 'utf8').catch((error: NodeJS.ErrnoException) => {
+              if (error.code === 'ENOENT') return null;
+              throw error;
+            });
+      expect(recovered).toBe(
+        boundary === 'after-quarantine-with-successor' ? 'edited metadata' : null,
+      );
+      expect(await readFile(join(root, 'assets/a.png'), 'utf8')).toBe('asset');
+    },
+  );
   it('creates no lock, directory, or manifest outside the workspace on first-use child replacement', async () => {
     const sandbox = await mkdtemp(join(tmpdir(), 'sfp-native-first-mutex-authority-'));
     roots.push(sandbox);

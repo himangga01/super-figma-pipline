@@ -17,7 +17,9 @@ lifting so you are not guessing from a screenshot. This file is the router; deep
 
 ## Portal scope and client driver
 
-Use Super Figma Pipeline's own tools. The official Figma MCP and Dev Mode are not prerequisites. Do not launch Chrome, create Chrome tabs/profiles, or use the built-in GPT browser for the Figma source.
+Use Super Figma Pipeline's own tools for every service test step. Do not use Codex browser control, CUA, the built-in GPT browser or the Codex Figma connector as a substitute. The official Figma MCP and Dev Mode are not prerequisites for Chrome collection; official MCP tests use the service's own official-server integration.
+
+Attach to the user's authorized existing Google Chrome. When the user requests opening the source, use the service's `chrome-open --url <figma-url>` or `chrome-inspect --open --url <figma-url>` command. It reuses a unique matching tab or opens the exact source through Playwright when absent. Do not launch another source browser, create a profile, navigate unrelated tabs or automate security approvals. Default capture remains attach-only.
 
 - C1 resolves to C3 when explicit service references exist and C4 otherwise.
 - C2 adapts a legacy service and implements every relevant service layer.
@@ -29,9 +31,11 @@ Start with `portal_plan` and `portal_start`. Use `portal_next` to claim/renew th
 
 Learn the relevant full service, including routes, DTOs, persistence, authentication/authorization, jobs, configuration and integrations. A frontend-only reference does not justify omitting required backend behavior. Read actual source beyond dependency names. Use explicit workflow requirements and native end-to-end checks.
 
-The coding agent authors the appropriate native validation profile from the actual repository toolchain and registers it through the owner CLI. Use `portal_validate`, repair from returned diagnostics, apply only a fully accepted candidate, and validate the applied result. Docker is prohibited; previews use headless Firefox. Read [native verification](references/verify.md).
+The coding agent authors the appropriate native validation profile from the actual repository toolchain and registers it through the owner CLI. Use `portal_validate`, repair from returned diagnostics, apply only a fully accepted candidate, and validate the applied result. Docker is prohibited; previews use headless Chrome. Read [native verification](references/verify.md).
 
 For Chrome captures, the portal work item already carries the raw design facts and exported assets. Use the detailed references below to interpret those facts; do not assume a paired plugin or official MCP is available. For paired Desktop/plugin workflows, the existing grounded tool sequence below remains useful.
+
+A text-style catalog may contain `fontName: "mixed"` with an observed Plugin API sentinel in `fontNameObservation`. Preserve that catalog value. Use the concrete font on the rendered text node or its complete, contiguous `textSegments`; do not invent a global catalog font from one consumer or copy a font from another collector. A referenced mixed style with missing effective font coverage remains incomplete. The sentinel observation alone does not supply live source or coherence evidence.
 
 ## Paired-plugin grounding workflow
 

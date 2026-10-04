@@ -5,7 +5,7 @@ import type { SandboxToolHandler } from '../dispatcher.js';
 /** Rename multiple nodes from a [{ nodeId, name }] list. Missing / malformed entries are skipped. */
 export const createBatchRenameNodesHandler =
   (figmaCtx: typeof figma): SandboxToolHandler =>
-  async params => {
+  async (params, execution) => {
     const p = (params ?? {}) as { renames?: unknown };
     if (!Array.isArray(p.renames))
       throw new TypeError('batch_rename_nodes: renames must be an array');
@@ -14,6 +14,7 @@ export const createBatchRenameNodesHandler =
         typeof r?.nodeId === 'string' && typeof r.name === 'string',
     );
     const nodes = await Promise.all(valid.map(r => figmaCtx.getNodeByIdAsync(r.nodeId)));
+    execution?.signal.throwIfAborted();
 
     const affected: string[] = [];
     nodes.forEach((node, i) => {

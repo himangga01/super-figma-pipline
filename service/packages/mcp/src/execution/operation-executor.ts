@@ -38,6 +38,7 @@ import {
   createOutputEgressManifest,
   createPreExecutionConsentManifest,
 } from '../policy/egress-policy.js';
+import { operationPolicyFor } from '../policy/operation-policy.js';
 import { evaluateOperationPolicy } from '../policy/policy-engine.js';
 import { resultEgressPolicyFor } from '../policy/result-egress-policy.js';
 import { ALL_TOOL_SPECS } from '../tools/registry.js';
@@ -81,6 +82,7 @@ export interface OperationJournalPort {
     options?: { expectedLeaderGeneration?: string; allowFenced?: boolean },
   ): Promise<OperationRecord>;
   get(operationId: string): OperationRecord | OperationTombstone | undefined;
+  list: OperationJournal['list'];
   transitionDemotion?(
     capability: LeaderDemotionCapability,
     operationId: string,
@@ -1248,6 +1250,9 @@ export class OperationExecutor {
                 ? { captureSource: scope.portalAuthority.captureSource }
                 : {}),
               candidateHash: scope.portalAuthority.candidateHash ?? null,
+              ...(scope.portalAuthority.runStateFence
+                ? { runStateFence: scope.portalAuthority.runStateFence }
+                : {}),
             }),
           );
     const fileExecutionKeyHash =
@@ -1560,6 +1565,32 @@ export class OperationExecutor {
             }
             throw cancellation.controller.signal.reason;
           }
+          try {
+            if (
+              prepared.fileExecutionKeyHash !== null &&
+              policyDecision.effects.some(effect =>
+                ['figma-write', 'figma-library-import', 'figma-ui'].includes(effect.type),
+              ) &&
+              this.hasUnresolvedFigmaEffect(prepared.fileExecutionKeyHash)
+            )
+              throw Object.assign(
+                new Error(
+                  'An earlier dispatched effect on this Figma file requires authorized operations.resolve before another mutation.',
+                ),
+                {
+                  code: 'OPERATION_RECONCILIATION_REQUIRED',
+                },
+              );
+          } catch (error) {
+            await this.performPreDispatchCancellation(
+              cancellation,
+              'queued',
+              String((error as { code?: unknown }).code ?? 'OPERATION_RECONCILIATION_UNAVAILABLE'),
+              undefined,
+              'admission-rejected',
+            );
+            throw error;
+          }
           await this.options.journal.transition(
             prepared.operationId,
             'dispatched',
@@ -1801,6 +1832,45 @@ export class OperationExecutor {
       });
   }
 
+  private hasUnresolvedFigmaEffect(fileHash: PrefixedSha256): boolean {
+    const journal = this.options.journal;
+    if (typeof journal.list !== 'function')
+      throw Object.assign(new Error('Durable unresolved-effect inspection is unavailable.'), {
+        code: 'OPERATION_RECONCILIATION_UNAVAILABLE',
+      });
+    let cursor: string | undefined;
+    do {
+      const page = journal.list({
+        ...(cursor === undefined ? {} : { cursor }),
+        status: 'outcome-unknown',
+      });
+      if (
+        page.rows.some(
+          record =>
+            record.fileExecutionKeyHash === fileHash &&
+            ('effectSummary' in record
+              ? record.effectSummary.some(effect =>
+                  ['figma-write', 'figma-library-import', 'figma-ui'].includes(effect),
+                )
+              : this.historicalUnknownMayChangeFigma(record.operationName)),
+        )
+      )
+        return true;
+      cursor = page.nextCursor ?? undefined;
+    } while (cursor !== undefined);
+    return false;
+  }
+
+  private historicalUnknownMayChangeFigma(name: string): boolean {
+    try {
+      return operationPolicyFor(name).possibleEffects.some(effect =>
+        ['figma-write', 'figma-library-import', 'figma-ui'].includes(effect.type),
+      );
+    } catch {
+      return true;
+    }
+  }
+
   private async prepareDurability(
     prepared: PreparedRuntimeInvocation,
     policyDecision: ReturnType<typeof evaluateOperationPolicy>,
@@ -2016,13 +2086,14 @@ export class OperationExecutor {
     currentStatus: 'pending-approval' | 'queued',
     errorCode: string,
     capability?: LeaderDemotionCapability,
+    reasonCode: 'cancelled' | 'admission-rejected' = 'cancelled',
   ): Promise<void> {
     await state.reservationPreparation;
     let finalEgressManifestHash: PrefixedSha256 | null = null;
     if (state.durability !== null && this.options.durability !== undefined) {
       const noOutput = createNoOutputEgressManifest({
         preExecutionManifestHash: state.durability.preManifest.manifestHash,
-        reasonCode: 'cancelled',
+        reasonCode,
       });
       const finalized = await this.options.durability.egress.finalize(
         state.durability.egressReservation,

@@ -11,6 +11,7 @@ import { FileExecutionQueue } from '../../src/execution/file-queue.js';
 import { NativeEnvironmentLifecycle } from '../../src/portal/native-lifecycle.js';
 import { nativeProcessControl } from '../../src/portal/native-process-control.js';
 import {
+  directoryIdentity,
   expandNativeEnvironment,
   observeSqlite,
   prepareNativeEnvironment,
@@ -470,7 +471,7 @@ it.runIf(process.platform === 'win32')(
 );
 
 it.runIf(process.platform === 'win32')(
-  'quarantines a real created directory when its identity persistence is interrupted',
+  'recovers a published directory from its durable staged identity after final identity persistence is interrupted',
   async () => {
     const f = await fixture(),
       grant = await prepareNativeEnvironment(profile(), f.stateRoot),
@@ -500,13 +501,20 @@ it.runIf(process.platform === 'win32')(
       record = await reconstructed.inspect(execution.attemptId, 'actor');
     expect(record.state).toBe('quarantined');
     expect(record.directoryIdentity).toBeNull();
-    await expect(
-      reconstructed.reconcile(
-        execution.attemptId,
-        'actor',
-        contentHash('sfp-native-lifecycle-receipt-v1', record),
-      ),
-    ).rejects.toThrow('PORTAL_ENVIRONMENT_DIRECTORY_CHANGED');
+    expect(record.directoryCreations?.[0]?.phase).toBe('identity-bound');
+    const identity = await directoryIdentity(execution.directory);
+    const recovered = await reconstructed.reconcile(
+      execution.attemptId,
+      'actor',
+      contentHash('sfp-native-lifecycle-receipt-v1', record),
+    );
+    expect(recovered.state).toBe('released');
+    expect(recovered.directoryIdentity).toBe(identity);
+    await reconstructed.verifyReceipt(
+      execution.attemptId,
+      'actor',
+      contentHash('sfp-native-lifecycle-receipt-v1', recovered),
+    );
   },
 );
 it.runIf(process.platform === 'win32')(

@@ -2,6 +2,7 @@ import { spawnSync } from 'node:child_process';
 import { mkdtemp, mkdir, readFile, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
+import { pathToFileURL } from 'node:url';
 
 import { afterEach, describe, expect, it } from 'vitest';
 
@@ -16,6 +17,83 @@ afterEach(async () => {
 const git = (root: string, ...args: string[]) => spawnHermeticGit(root, args);
 
 describe('closed staged change manifest', () => {
+  it.each(['upstream-lock.json', 'vendor-rules.json'])(
+    'preserves an independent %s edit while registering a generated manifest',
+    async authority => {
+      const root = await mkdtemp(join(tmpdir(), 'sfp-manifest-cas-'));
+      roots.push(root);
+      const service = join(root, 'service');
+      await mkdir(join(service, 'capabilities'), { recursive: true });
+      await writeFile(
+        join(service, 'capabilities/task-7a-authority-classes.json'),
+        JSON.stringify({
+          schemaVersion: 1,
+          slice: '7A',
+          allowedPaths: [
+            'service/capabilities/change-manifests/task-7a.json',
+            'service/example.ts',
+            'service/upstream-lock.json',
+            'service/vendor-map.json',
+            'service/vendor-rules.json',
+          ],
+        }),
+      );
+      await writeFile(join(service, 'example.ts'), 'base\n');
+      await writeFile(
+        join(service, 'upstream-lock.json'),
+        JSON.stringify({
+          schemaVersion: 2,
+          serviceFiles: [],
+          destinationClosure: { managedRoots: ['capabilities'], serviceOwnedFiles: [] },
+        }),
+      );
+      await writeFile(
+        join(service, 'vendor-rules.json'),
+        JSON.stringify({ schemaVersion: 1, exclude: [], serviceOwned: [] }),
+      );
+      await writeFile(
+        join(service, 'vendor-map.json'),
+        JSON.stringify({ schemaVersion: 1, files: [] }),
+      );
+      git(root, 'init');
+      git(root, 'config', 'user.email', 'test@example.com');
+      git(root, 'config', 'user.name', 'Test');
+      git(root, 'add', '.');
+      git(root, 'commit', '-m', 'base');
+      await writeFile(join(service, 'example.ts'), 'changed\n');
+      git(root, 'add', 'service/example.ts');
+      const target = join(service, authority);
+      const edited = `${await readFile(target, 'utf8')}\n`;
+      const preload = join(root, 'edit-authority.mjs');
+      await writeFile(
+        preload,
+        `
+        import fs from 'node:fs/promises'; import { syncBuiltinESMExports } from 'node:module';
+        const actual = fs.readFile; let changed = false;
+        fs.readFile = async (path, ...args) => {
+          const bytes = await actual(path, ...args);
+          if (!changed && String(path) === ${JSON.stringify(target)}) {
+            changed = true; await fs.writeFile(path, ${JSON.stringify(edited)});
+          }
+          return bytes;
+        }; syncBuiltinESMExports();
+      `,
+      );
+      const result = spawnSync(
+        process.execPath,
+        ['--import', pathToFileURL(preload).href, script, '--write', '--slice', '7A'],
+        {
+          cwd: root,
+          encoding: 'utf8',
+          windowsHide: true,
+          env: hermeticGitEnvironment({ ...process.env, SFP_REPOSITORY_ROOT: root }),
+        },
+      );
+      expect(result.status).toBe(1);
+      expect(result.stderr).toContain('SERVICE_FORK_TRANSACTION_CONFLICT');
+      expect(await readFile(target, 'utf8')).toBe(edited);
+    },
+  );
   it.each(['7A', 'review-2026-09-05'])(
     '%s writes index-blob rows, verifies the exact union, and rejects an unstaged service edit',
     async slice => {

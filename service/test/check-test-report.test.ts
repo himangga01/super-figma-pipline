@@ -36,6 +36,50 @@ const entry = (test: string, overrides: object = {}) => ({
 });
 
 describe('known-failure report check', () => {
+  const scope = {
+    schemaVersion: 1,
+    mode: 'focused',
+    runId: 'test-attempt',
+    sourceHash: `sha256:${'a'.repeat(64)}`,
+    command: ['pnpm', 'exec', 'vitest', 'run', 'test/required.test.ts'],
+    toolchain: { node: process.version },
+    files: [{ path: 'test/required.test.ts', tests: ['required case'] }],
+  };
+  it('rejects a report missing its independently declared focused file', () => {
+    const result = checkReport({ testResults: [] }, [], { scope });
+    expect(result.ok).toBe(false);
+  });
+  it('rejects empty assertions and duplicate declared file records', () => {
+    expect(
+      checkReport({ testResults: [file('test/required.test.ts', [])] }, [], { scope }).ok,
+    ).toBe(false);
+    const row = file('test/required.test.ts', [passed('required case')]);
+    expect(checkReport({ testResults: [row, row] }, [], { scope }).ok).toBe(false);
+  });
+  it('rejects a missing declared case even when another case in that file passed', () => {
+    expect(
+      checkReport({ testResults: [file('test/required.test.ts', [passed('different')])] }, [], {
+        scope,
+      }).ok,
+    ).toBe(false);
+  });
+  it('accepts a complete focused report without claiming the full browser matrix', () => {
+    expect(
+      checkReport({ testResults: [file('test/required.test.ts', [passed('required case')])] }, [], {
+        scope,
+      }).ok,
+    ).toBe(true);
+  });
+  it('rejects a declared command that does not select the declared focused file', () => {
+    const result = checkReport(
+      { testResults: [file('test/required.test.ts', [passed('required case')])] },
+      [],
+      {
+        scope: { ...scope, command: ['pnpm', 'exec', 'vitest', 'run', 'test/different.test.ts'] },
+      },
+    );
+    expect(result.ok).toBe(false);
+  });
   it('passes when every failure is ledgered and every ledgered test still fails', () => {
     const report = {
       testResults: [
@@ -169,12 +213,25 @@ describe('known-failure report check', () => {
     ).toThrow('service-relative POSIX path');
   });
 
+  it('accepts an empty valid ledger after every known defect is adjudicated', () => {
+    const ledger = parseLedger({ schemaVersion: 1, entries: [] });
+    expect(ledger).toEqual([]);
+    expect(
+      checkReport({ testResults: [file('test/verified.test.ts', [passed('verified')])] }, ledger)
+        .ok,
+    ).toBe(true);
+    expect(
+      checkReport({ testResults: [file('test/verified.test.ts', [failed('new failure')])] }, ledger)
+        .ok,
+    ).toBe(false);
+  });
+
   it('keeps the committed ledger valid, named and owned by fix-plan tasks', () => {
     const entries = parseLedger(
       JSON.parse(readFileSync(join(SERVICE_ROOT, 'test/known-failures.json'), 'utf8')),
     );
 
-    expect(entries.length).toBeGreaterThan(0);
+    expect(Array.isArray(entries)).toBe(true);
     for (const row of entries) {
       expect({ test: row.test, finding: row.finding, owner: row.owner }).toEqual({
         test: row.test,

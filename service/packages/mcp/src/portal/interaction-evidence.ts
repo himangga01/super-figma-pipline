@@ -4,7 +4,9 @@ import type { z } from 'zod';
 
 import {
   PortalInteractionContractSchema,
+  PortalInteractionScopeSchema,
   type PortalInteractionContract,
+  type PortalInteractionScope,
 } from '../../../shared/src/portal-observations.js';
 import {
   portalDesignFingerprint,
@@ -23,6 +25,7 @@ export function derivePortalInteractionContract(
   captured: PortalCapturedDesign,
   requirements: z.infer<typeof PortalRequirementSchema>[],
   coverage?: z.infer<typeof PortalWorkflowCoverageSchema>,
+  interactionScope?: PortalInteractionScope,
 ): PortalInteractionContract {
   requireCurrentPortalCapture(captured);
   const observed = normalizeDesignObservation(JSON.parse(captured.raw), captured.collectorEvidence);
@@ -192,6 +195,47 @@ export function derivePortalInteractionContract(
         ),
     )
     .map(value => value.id);
+  const selection =
+    interactionScope === undefined
+      ? {
+          version: 1 as const,
+          captureFingerprint: portalDesignFingerprint(captured),
+          exclusions: [],
+        }
+      : PortalInteractionScopeSchema.parse(interactionScope);
+  if (selection.captureFingerprint !== portalDesignFingerprint(captured))
+    throw new Error('PORTAL_INTERACTION_SELECTION_CAPTURE_CHANGED');
+  const excludedInteractions: NonNullable<PortalInteractionContract['excludedInteractions']> = [];
+  const directlyRequired = new Set(
+    (coverage?.scopes ?? [])
+      .filter(value => value.requirementIds.some(id => requiredIds.has(id)))
+      .flatMap(value => value.evidenceIds)
+      .flatMap(id => {
+        const value = evidence.get(id);
+        return value?.nodeId ? [value.nodeId] : [];
+      }),
+  );
+  for (const exclusion of selection.exclusions) {
+    const action = interactions.find(value => value.id === exclusion.interactionId);
+    if (!action || action.sourceHash !== exclusion.sourceHash)
+      throw new Error('PORTAL_INTERACTION_SELECTION_SOURCE_CHANGED');
+    if (directlyRequired.has(action.sourceNodeId))
+      throw new Error('PORTAL_REQUIRED_INTERACTION_EXCLUSION_FORBIDDEN');
+    excludedInteractions.push({
+      ...action,
+      required: false,
+      status: 'excluded',
+      exclusionReason: exclusion.reason,
+    });
+  }
+  const excludedIds = new Set(excludedInteractions.map(value => value.id));
+  const requiredInteractions = interactions.filter(value => !excludedIds.has(value.id));
+  const selectionHash = contentHash('sfp-portal-interaction-selection-v1', {
+    ...selection,
+    exclusions: [...selection.exclusions].toSorted((left, right) =>
+      left.interactionId.localeCompare(right.interactionId),
+    ),
+  });
   const workflows = workflowIds.map(id => {
     const scoped = [
       ...new Set(
@@ -220,14 +264,17 @@ export function derivePortalInteractionContract(
   return PortalInteractionContractSchema.parse({
     version: 1,
     captureFingerprint: portalDesignFingerprint(captured),
-    scopeHash: contentHash(
-      'sfp-observation-scope-v1',
-      observed.sourceBinding.status === 'observed' ? observed.sourceBinding.scopeId : null,
-    ),
-    interactions,
+    scopeHash: contentHash('sfp-observation-scope-v1', {
+      source: observed.sourceBinding.status === 'observed' ? observed.sourceBinding.scopeId : null,
+      selectionHash,
+    }),
+    interactions: requiredInteractions,
+    excludedInteractions,
+    selectionHash,
     workflowIds,
     workflows,
-    complete: issues.length === 0 && interactions.every(value => value.status === 'supported'),
+    complete:
+      issues.length === 0 && requiredInteractions.every(value => value.status === 'supported'),
     issues,
   });
 }

@@ -2,12 +2,36 @@ import { z } from 'zod';
 
 const hash = z.string().regex(/^sha256:[a-f0-9]{64}$/u);
 const id = z.string().min(1).max(512);
+export const PortalPixelComparisonModeSchema = z.enum(['rgba-v1', 'pixelmatch-7.2-v1']);
 const viewport = z
   .object({
     width: z.number().int().min(100).max(4096),
     height: z.number().int().min(100).max(4096),
   })
   .strict();
+export const PortalInteractionScopeSchema = z
+  .object({
+    version: z.literal(1),
+    captureFingerprint: hash,
+    exclusions: z
+      .array(
+        z
+          .object({
+            interactionId: hash,
+            sourceHash: hash,
+            reason: z.string().trim().min(1).max(2048),
+          })
+          .strict(),
+      )
+      .max(4096),
+  })
+  .strict()
+  .refine(
+    value =>
+      new Set(value.exclusions.map(row => row.interactionId)).size === value.exclusions.length,
+    'Duplicate interaction exclusion',
+  );
+export type PortalInteractionScope = z.infer<typeof PortalInteractionScopeSchema>;
 export const PortalRequiredInteractionSchema = z
   .object({
     id: hash,
@@ -44,12 +68,19 @@ export const PortalRequiredInteractionSchema = z
   })
   .strict();
 export type PortalRequiredInteraction = z.infer<typeof PortalRequiredInteractionSchema>;
+export const PortalExcludedInteractionSchema = PortalRequiredInteractionSchema.extend({
+  required: z.literal(false),
+  status: z.literal('excluded'),
+  exclusionReason: z.string().trim().min(1).max(2048),
+}).strict();
 export const PortalInteractionContractSchema = z
   .object({
     version: z.literal(1),
     captureFingerprint: hash,
     scopeHash: hash,
     interactions: z.array(PortalRequiredInteractionSchema).max(4096),
+    excludedInteractions: z.array(PortalExcludedInteractionSchema).max(4096).optional(),
+    selectionHash: hash.optional(),
     workflows: z
       .array(
         z.object({ id, nodeIds: z.array(id).max(10000), rootIds: z.array(id).max(256) }).strict(),
@@ -59,7 +90,25 @@ export const PortalInteractionContractSchema = z
     complete: z.boolean(),
     issues: z.array(z.string().max(512)).max(512),
   })
-  .strict();
+  .strict()
+  .superRefine((value, ctx) => {
+    const rows = [...value.interactions, ...(value.excludedInteractions ?? [])];
+    if (rows.length > 4096 || new Set(rows.map(row => row.id)).size !== rows.length)
+      ctx.addIssue({ code: 'custom', message: 'Duplicate or excessive interaction obligations' });
+    if ((value.excludedInteractions?.length ?? 0) && !value.selectionHash)
+      ctx.addIssue({
+        code: 'custom',
+        message: 'Interaction exclusions require a selection binding',
+      });
+    if (
+      value.complete &&
+      (value.issues.length || value.interactions.some(row => row.status !== 'supported'))
+    )
+      ctx.addIssue({
+        code: 'custom',
+        message: 'Incomplete required interactions cannot be complete',
+      });
+  });
 export type PortalInteractionContract = z.infer<typeof PortalInteractionContractSchema>;
 export const PortalObservationIdentitySchema = z
   .object({
@@ -73,6 +122,7 @@ export const PortalObservationIdentitySchema = z
     deviceScaleFactor: z.literal(1),
     assertionIds: z.array(hash).max(4096),
     oracleHash: hash,
+    comparisonMode: PortalPixelComparisonModeSchema.optional(),
   })
   .strict();
 export type PortalObservationIdentity = z.infer<typeof PortalObservationIdentitySchema>;

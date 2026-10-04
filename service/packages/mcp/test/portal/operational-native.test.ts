@@ -6,6 +6,8 @@ import { type ActorContext, type PortalToolName } from '@sfp/shared';
 import { afterEach, expect, it } from 'vitest';
 
 import { PortalCoordinator } from '../../src/portal/coordinator.js';
+import { verifyNativeOutputReceipts } from '../../src/portal/native-artifacts.js';
+import { verifyNativeModuleEvidence } from '../../src/portal/native-module-fence.js';
 import { NativePortalRunner, nativeExecutableHash } from '../../src/portal/native-runner.js';
 import { PortalNativeProfileSchema, PortalNativeWork } from '../../src/portal/native-work.js';
 import { PortalCoreLifecycle } from '../../src/portal/recipes/core-lifecycle.js';
@@ -70,7 +72,7 @@ console.log('real HTTP, authorization, user isolation, migration and SQLite rest
 `;
 
 it.each(['legacy', 'new-reference'] as const)(
-  'validates real native API/data/auth behavior for %s while keeping missing frontend acceptance incomplete',
+  'executes real native API/data/auth behavior for %s while refusing frontend-incomplete portal admission',
   async kind => {
     const value = await portalFixture();
     const source = join(value.workspaceRoot, kind === 'legacy' ? 'legacy' : 'reference');
@@ -100,12 +102,13 @@ it.each(['legacy', 'new-reference'] as const)(
         }
       }
     }
+    const runner = new Runner();
     const work = new PortalNativeWork({
       stateRoot: value.stateRoot,
       store: value.store,
       policy: value.policy,
       permissions: value.permissions,
-      runner: new Runner(),
+      runner,
     });
     cleanups.push(async () => {
       await work.close();
@@ -244,55 +247,126 @@ it.each(['legacy', 'new-reference'] as const)(
     });
     const plan = (await value.store.get('plans', planned.planId, PortalPlanSchema))!,
       run = (await value.store.get('runs', planned.planId, PortalRunSchema))!;
-    await work.registerProfile(
-      await work.prepareProfile(
-        PortalNativeProfileSchema.parse({
-          schemaVersion: 1,
-          sourceAuthorityVersion: 2,
-          ownerId: actor.actorId,
-          planId: plan.planId,
-          contextHash: plan.contextHash,
-          native: {
-            schemaVersion: 1,
-            sourceAuthorityVersion: 2,
-            id: 'native-operational',
-            executionMode: 'native-working-copy',
-            environmentKind: 'disposable-test',
-            sourceHash: run.candidateHash,
-            closure: [
-              ...files.map(file => ({ path: file.path, hash: storedChecksum(file.content) })),
-              ...(kind === 'legacy' ? [{ path: 'package.json', hash: storedChecksum('{}') }] : []),
-            ],
-            environment: {},
-            commands: [
-              {
-                id: 'journey',
-                produces: [{ path: 'test-orders.sqlite', kind: 'generated-output' }],
-                executable: process.execPath,
-                executableHash: await nativeExecutableHash(process.execPath),
-                args: ['check.mjs'],
-                timeoutMs: 10_000,
-              },
-            ],
+    const profile = PortalNativeProfileSchema.parse({
+      schemaVersion: 1,
+      sourceAuthorityVersion: 2,
+      ownerId: actor.actorId,
+      planId: plan.planId,
+      contextHash: plan.contextHash,
+      native: {
+        schemaVersion: 1,
+        sourceAuthorityVersion: 2,
+        id: 'native-operational',
+        executionMode: 'native-working-copy',
+        environmentKind: 'disposable-test',
+        sourceHash: run.candidateHash,
+        closure: [
+          ...files.map(file => ({ path: file.path, hash: storedChecksum(file.content) })),
+          ...(kind === 'legacy' ? [{ path: 'package.json', hash: storedChecksum('{}') }] : []),
+        ],
+        environment: {},
+        commands: [
+          {
+            id: 'journey',
+            produces: [{ path: 'test-orders.sqlite', kind: 'generated-output' }],
+            executable: process.execPath,
+            executableHash: await nativeExecutableHash(process.execPath),
+            args: ['check.mjs'],
+            timeoutMs: 10_000,
           },
-          assertions: ['api', 'persistence', 'authorization', 'migration'].map(checkKind => ({
-            commandId: 'journey',
-            check: { id: checkKind, kind: checkKind, requirementIds: ['orders'], required: true },
-          })),
-        }),
-      ),
-    );
-    const result = await invoke('portal_validate', {
-      runId: run.runId,
-      profileId: 'native-operational',
+        ],
+      },
+      assertions: ['api', 'persistence', 'authorization', 'migration'].map(checkKind => ({
+        commandId: 'journey',
+        check: { id: checkKind, kind: checkKind, requirementIds: ['orders'], required: true },
+      })),
     });
-    expect(result.state).toBe('blocked');
-    expect(result.validation.runtimeVerified).toBe(true);
-    for (const checkKind of ['api', 'persistence', 'authorization', 'migration'])
-      expect(result.validation.checks).toContainEqual(
-        expect.objectContaining({ kind: checkKind, status: 'passed' }),
-      );
-    expect(result.issues).toContain('MISSING_REQUIRED_CHECK:visual');
+    const blocked = await work.prepareProfile(profile);
+    expect(blocked.recipeUse!.prepared!.status).toBe('blocked');
+    expect(blocked.recipeUse!.prepared!.requirements).toContainEqual(
+      expect.objectContaining({ code: 'PORTAL_CONSUMPTION_OBSERVATION_REQUIRED' }),
+    );
+    const { prepared: _compiled, ...recipeUse } = blocked.recipeUse!;
+    profile.recipeUse = {
+      ...recipeUse,
+      reviews: blocked
+        .recipeUse!.prepared!.requirements.filter(
+          row => row.code === 'PORTAL_CONSUMPTION_REVIEW_REQUIRED',
+        )
+        .map(row => ({
+          resultId: row.resultId,
+          rowIds: [row.rowId],
+          kind: 'strategy',
+          rationale:
+            'This controlled fixture retains the exact source strategy and implements its HTTP, SQLite, authentication and authorization decisions in app.mjs and check.mjs; frontend observations remain required.',
+        })),
+    };
+    const prepared = await work.prepareProfile(profile);
+    expect(prepared.recipeUse!.prepared!.status).toBe('blocked');
+    expect(prepared.recipeUse!.prepared!.requirements.length).toBeGreaterThan(0);
+    expect([...new Set(prepared.recipeUse!.prepared!.requirements.map(row => row.code))]).toEqual([
+      'PORTAL_CONSUMPTION_OBSERVATION_REQUIRED',
+      'PORTAL_CONSUMPTION_ORACLE_REQUIRED',
+    ]);
+    expect(prepared.recipeUse!.reviews.length).toBeGreaterThan(0);
+    expect(
+      prepared.recipeUse!.reviews.every(
+        review => review.reviewerId === actor.actorId && review.bindingHash!.startsWith('sha256:'),
+      ),
+    ).toBe(true);
+    await expect(work.registerProfile(prepared)).rejects.toMatchObject({
+      code: 'PORTAL_CONSUMPTION_PREPARATION_REQUIRED',
+    });
+
+    // This lower-level runtime probe is intentionally separate from portal admission. It executes
+    // real reviewed Node code and verifies its module/output receipts, but cannot issue frontend
+    // acceptance or core-consumption proof without the missing source-bound observations.
+    const runtimeRoot = join(value.root, 'native-api-runtime');
+    await mkdir(runtimeRoot);
+    await Promise.all(
+      prepared.native.closure.map(async file => {
+        const candidate = files.find(candidateFile => candidateFile.path === file.path);
+        const bytes = candidate?.content ?? (await readFile(join(source, file.path), 'utf8'));
+        expect(storedChecksum(bytes)).toBe(file.hash);
+        await writeFile(join(runtimeRoot, file.path), bytes, { flag: 'wx' });
+      }),
+    );
+    const result = await runner.execute(
+      run.runId,
+      prepared.native,
+      runtimeRoot,
+      run.candidateHash!,
+      new AbortController().signal,
+      Date.now() + 30_000,
+    );
+    expect(result.isolation).toBe('local-owner-account-no-os-sandbox');
+    expect(result.commands).toHaveLength(1);
+    expect(result.commands[0]).toMatchObject({
+      commandId: 'journey',
+      status: 'passed',
+      exitCode: 0,
+      moduleEvidence: { protocol: 'sfp-native-module-fence-v1' },
+    });
+    expect(result.commands[0]!.output).toContain(
+      'real HTTP, authorization, user isolation, migration and SQLite restart persistence passed',
+    );
+    expect(result.commands[0]!.previewReceipt).toBeUndefined();
+    await verifyNativeModuleEvidence(result.commands[0]!.moduleEvidence!);
+    expect(result.outputReceipts).toContainEqual(
+      expect.objectContaining({ path: 'test-orders.sqlite', kind: 'generated-output' }),
+    );
+    await verifyNativeOutputReceipts(
+      runtimeRoot,
+      result.outputReceipts,
+      new AbortController().signal,
+    );
+    const unchanged = await value.store.get('runs', run.runId, PortalRunSchema);
+    expect(unchanged).toEqual(run);
+    expect(unchanged!.validation).toBeNull();
+    expect(unchanged!.lastValidation).toBeNull();
+    expect(unchanged!.appliedHash).toBeNull();
+    expect(unchanged!.state).not.toBe('completed');
+    expect(plan.requirements[0]!.layers).toEqual(request.requirements[0]!.layers);
     expect(await readFile(join(source, 'app.mjs'), 'utf8')).toBe(original);
     expect(referenceWasOffline).toBe(kind === 'new-reference');
   },

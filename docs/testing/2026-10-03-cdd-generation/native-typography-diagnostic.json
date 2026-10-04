@@ -1,0 +1,237 @@
+{
+  "definitions": [
+    {
+      "name": "FontMetaData",
+      "fields": [
+        "key",
+        "fontLineHeight",
+        "fontDigest",
+        "fontStyle",
+        "fontWeight"
+      ]
+    },
+    {
+      "name": "Baseline",
+      "fields": [
+        "position",
+        "width",
+        "lineY",
+        "lineHeight",
+        "lineAscent",
+        "ignoreLeadingTrim",
+        "firstCharacter",
+        "endCharacter"
+      ]
+    },
+    {
+      "name": "Glyph",
+      "fields": [
+        "commandsBlob",
+        "position",
+        "styleID",
+        "fontSize",
+        "firstCharacter",
+        "advance",
+        "emojiCodePoints",
+        "emojiImageSet",
+        "rotation"
+      ]
+    }
+  ],
+  "rows": [
+    {
+      "id": "1381:286",
+      "authoredFont": {
+        "family": "SpoqaHanSans",
+        "style": "Bold",
+        "postscript": "SpoqaHanSans-Bold"
+      },
+      "styleFont": {
+        "family": "Spoqa Han Sans Neo",
+        "style": "Bold",
+        "postscript": "SpoqaHanSansNeo-Bold"
+      },
+      "derivedKeys": [
+        "layoutSize",
+        "baselines",
+        "glyphs",
+        "fontMetaData",
+        "truncationStartIndex",
+        "truncatedHeight",
+        "derivedLines"
+      ],
+      "derivedFontMetaData": [
+        {
+          "key": {
+            "family": "Spoqa Han Sans Neo",
+            "style": "Bold",
+            "postscript": ""
+          },
+          "fontLineHeight": 1.2000000476837158,
+          "fontDigest": {
+            "bytes": 20,
+            "hashBytes": "64ad735e7e302fb1297257de0afdb5aa357223c6"
+          },
+          "fontStyle": "NORMAL",
+          "fontWeight": 700
+        }
+      ],
+      "baselines": [
+        {
+          "position": {
+            "x": 0,
+            "y": 43.400001525878906
+          },
+          "width": 132.42074584960938,
+          "lineY": 0.0000015258789289873675,
+          "lineHeight": 58,
+          "lineAscent": 43,
+          "firstCharacter": 0,
+          "endCharacter": 3
+        }
+      ],
+      "layoutSize": {
+        "x": 556,
+        "y": 58
+      },
+      "glyphs": [
+        {
+          "commandsBlob": 988,
+          "position": {
+            "x": 0,
+            "y": 43.400001525878906
+          },
+          "fontSize": 48,
+          "firstCharacter": 0,
+          "advance": 0.9200000166893005,
+          "rotation": 0
+        },
+        {
+          "commandsBlob": 18,
+          "position": {
+            "x": 44.13225173950195,
+            "y": 43.400001525878906
+          },
+          "fontSize": 48,
+          "firstCharacter": 1,
+          "advance": 0.9200000166893005,
+          "rotation": 0
+        },
+        {
+          "commandsBlob": 480,
+          "position": {
+            "x": 88.2645034790039,
+            "y": 43.400001525878906
+          },
+          "fontSize": 48,
+          "firstCharacter": 2,
+          "advance": 0.9200000166893005,
+          "rotation": 0
+        }
+      ]
+    },
+    {
+      "id": "1381:287",
+      "authoredFont": {
+        "family": "SpoqaHanSans",
+        "style": "Regular",
+        "postscript": "SpoqaHanSans-Regular"
+      },
+      "styleFont": {
+        "family": "Spoqa Han Sans Neo",
+        "style": "Regular",
+        "postscript": "SpoqaHanSansNeo-Regular"
+      },
+      "derivedKeys": [
+        "layoutSize",
+        "baselines",
+        "glyphs",
+        "fontMetaData",
+        "truncationStartIndex",
+        "truncatedHeight",
+        "derivedLines"
+      ],
+      "derivedFontMetaData": [
+        {
+          "key": {
+            "family": "Spoqa Han Sans Neo",
+            "style": "Regular",
+            "postscript": ""
+          },
+          "fontLineHeight": 1.2000000476837158,
+          "fontDigest": {
+            "bytes": 20,
+            "hashBytes": "17e62129084961c454d19e491fac29607961daae"
+          },
+          "fontStyle": "NORMAL",
+          "fontWeight": 400
+        }
+      ],
+      "baselines": [
+        {
+          "position": {
+            "x": 0,
+            "y": 18.899999618530273
+          },
+          "width": 593.8320922851562,
+          "lineY": -3.814697322468419e-7,
+          "lineHeight": 27,
+          "lineAscent": 16,
+          "firstCharacter": 0,
+          "endCharacter": 47
+        },
+        {
+          "position": {
+            "x": 0,
+            "y": 45.900001525878906
+          },
+          "width": 516.2177734375,
+          "lineY": 27.000001907348633,
+          "lineHeight": 27,
+          "lineAscent": 16,
+          "firstCharacter": 47,
+          "endCharacter": 85
+        }
+      ],
+      "layoutSize": {
+        "x": 593,
+        "y": 54
+      },
+      "glyphs": [
+        {
+          "commandsBlob": 90,
+          "position": {
+            "x": 0,
+            "y": 18.899999618530273
+          },
+          "fontSize": 18,
+          "firstCharacter": 0,
+          "advance": 0.9200000166893005,
+          "rotation": 0
+        },
+        {
+          "commandsBlob": 56,
+          "position": {
+            "x": 16.549592971801758,
+            "y": 18.899999618530273
+          },
+          "fontSize": 18,
+          "firstCharacter": 1,
+          "advance": 0.9200000166893005,
+          "rotation": 0
+        },
+        {
+          "commandsBlob": 72,
+          "position": {
+            "x": 33.099185943603516,
+            "y": 18.899999618530273
+          },
+          "fontSize": 18,
+          "firstCharacter": 2,
+          "advance": 0.9200000166893005,
+          "rotation": 0
+        }
+      ]
+    }
+  ]
+}

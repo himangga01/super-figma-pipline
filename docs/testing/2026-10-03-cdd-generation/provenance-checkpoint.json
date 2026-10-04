@@ -1,0 +1,22 @@
+{
+  "recordedAt": "2026-10-03T19:44:37.651Z",
+  "source": {
+    "recordedAt": "2026-10-03T19:43:34.781Z",
+    "main": "sha256:ba997a3b453a983b9665e25895bfecb443d1436483021b3807888018a085e33f",
+    "workingCopy": "sha256:ba997a3b453a983b9665e25895bfecb443d1436483021b3807888018a085e33f"
+  },
+  "reviewedChanges": 55,
+  "unchangedPriorAdditions": 57,
+  "rawChanges": 314,
+  "semanticChanges": 310,
+  "authorityPaths": 4,
+  "retainedForks": 178,
+  "pinnedUpstreams": 3,
+  "vendorRows": 238,
+  "upstreamMode": "offline",
+  "manifestVerified": true,
+  "mainIndexSha256": "21422fbf6f8d745a73347c7730c598f9b51e9862ce92b3da8fbb96158c135cb3",
+  "mainIndexChanged": false,
+  "fullSourceGateRerun": false,
+  "reviewPath": "service/capabilities/reconciliations/review-2026-10-04-cdd-runtime.json"
+}

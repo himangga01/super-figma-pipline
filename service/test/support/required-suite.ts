@@ -2,11 +2,11 @@
 // actionable message instead of skipping it silently. Setting SFP_ALLOW_SKIP=<suite> (a comma or
 // space separated list) turns the failure into a visible skip, which scripts/test-skip-census.mjs
 // then records. The suite ids and their files are registered in that script's REQUIRED_SUITES.
-import { existsSync } from 'node:fs';
-
 import type { TestContext } from 'vitest';
 
-export type RequiredSuite = 'firefox';
+import { googleChromeExecutable } from '../../packages/mcp/src/portal/chrome-runtime.js';
+
+export type RequiredSuite = 'chrome';
 
 const allowedSkipSuites = (): ReadonlySet<string> =>
   new Set((process.env.SFP_ALLOW_SKIP ?? '').split(/[\s,]+/u).filter(Boolean));
@@ -25,11 +25,14 @@ export const requireSuitePrerequisite = (
   );
 };
 
-/** Pass `firefox.executablePath()` from the calling package's own Playwright installation. */
-export const requireFirefox = (context: TestContext, executablePath: string): void =>
+/** Require installed Google Chrome; missing prerequisites never select another browser. */
+export const requireChrome = (
+  context: TestContext,
+  executablePath = googleChromeExecutable(),
+): void =>
   requireSuitePrerequisite(
     context,
-    'firefox',
-    existsSync(executablePath),
-    `Playwright Firefox is not installed at ${executablePath}. Install it into PLAYWRIGHT_BROWSERS_PATH with "corepack pnpm --filter @sfp/cli exec playwright install firefox".`,
+    'chrome',
+    Boolean(executablePath),
+    'Google Chrome stable is not installed. Install Google Chrome; CI can use "corepack pnpm --filter @sfp/cli exec playwright install chrome".',
   );

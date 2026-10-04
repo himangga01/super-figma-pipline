@@ -21,7 +21,7 @@ jobs:
         include:
           - os: windows-latest
             variant: default
-          # The owner's profile: TEMP, TMP, LOCALAPPDATA and the browser path contain Korean
+          # The owner's profile: TEMP, TMP and LOCALAPPDATA contain Korean
           # characters. Expected to fail until T01 (OPS-1, lease protocol v2) lands.
           - os: windows-latest
             variant: non-ascii-paths
@@ -62,34 +62,29 @@ jobs:
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
         with:
           node-version-file: service/.node-version
-      # Decision D4: Playwright's Firefox lives in a fixed PLAYWRIGHT_BROWSERS_PATH.
-      - name: Fix the Playwright browser location
-        if: matrix.variant != 'non-ascii-paths'
-        run: echo "PLAYWRIGHT_BROWSERS_PATH=${RUNNER_TEMP}/ms-playwright" >> "$GITHUB_ENV"
-      - name: Use Korean-character TEMP, TMP, LOCALAPPDATA and browser paths
+      # Chrome stable is installed in its native OS location; no bundled browser cache is used.
+      - name: Use Korean-character TEMP, TMP and LOCALAPPDATA paths
         if: matrix.variant == 'non-ascii-paths'
         shell: pwsh
         run: |
           $base = Join-Path $env:RUNNER_TEMP '사용자-한글경로'
           $temp = Join-Path $base 'Temp'
           $localAppData = Join-Path $base 'AppData\Local'
-          $browsers = Join-Path $localAppData 'ms-playwright'
-          New-Item -ItemType Directory -Force -Path $temp, $localAppData, $browsers | Out-Null
+          New-Item -ItemType Directory -Force -Path $temp, $localAppData | Out-Null
           @(
             "TEMP=$temp",
             "TMP=$temp",
-            "LOCALAPPDATA=$localAppData",
-            "PLAYWRIGHT_BROWSERS_PATH=$browsers"
+            "LOCALAPPDATA=$localAppData"
           ) | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
       - run: corepack enable
       - id: install
         run: corepack pnpm install --frozen-lockfile --ignore-scripts
-      - name: Install Playwright Firefox with system dependencies
+      - name: Install Google Chrome with system dependencies
         if: runner.os == 'Linux'
-        run: corepack pnpm --filter @sfp/cli exec playwright install --with-deps firefox
-      - name: Install Playwright Firefox
+        run: corepack pnpm --filter @sfp/cli exec playwright install --with-deps chrome
+      - name: Install Google Chrome
         if: runner.os == 'Windows'
-        run: corepack pnpm --filter @sfp/cli exec playwright install firefox
+        run: corepack pnpm --filter @sfp/cli exec playwright install chrome
       # Every gate below runs even when an earlier gate failed, so that each one reports.
       - name: Provenance lock (offline)
         if: ${{ !cancelled() && steps.install.outcome == 'success' }}
@@ -119,9 +114,13 @@ jobs:
         run: corepack pnpm build
       # The run may fail only on tests named in test/known-failures.json; the ledger step below
       # decides and also fails on unledgered, stale or differently failing tests.
+      - name: Declare full test scope
+        id: test-scope
+        if: ${{ !cancelled() && steps.install.outcome == 'success' }}
+        run: corepack pnpm exec node scripts/declare-test-scope.mjs --full --out "${RUNNER_TEMP}/test-scope.json"
       - name: Test
         id: test
-        if: ${{ !cancelled() && steps.install.outcome == 'success' }}
+        if: ${{ !cancelled() && steps.install.outcome == 'success' && steps.test-scope.outcome == 'success' }}
         continue-on-error: true
         shell: bash
         env:
@@ -131,11 +130,11 @@ jobs:
           corepack pnpm test 2>&1 | tee "${RUNNER_TEMP}/vitest.log"
       - name: Known-failure ledger
         if: ${{ !cancelled() && steps.install.outcome == 'success' }}
-        run: node scripts/check-test-report.mjs "${{ runner.temp }}/vitest-report.json" --log "${{ runner.temp }}/vitest.log"
-      # Lists every skipped test and fails when a required suite (for example Firefox) skipped.
+        run: node scripts/check-test-report.mjs "${{ runner.temp }}/vitest-report.json" --log "${{ runner.temp }}/vitest.log" --scope "${{ runner.temp }}/test-scope.json"
+      # Lists every skipped test and fails when a required suite (for example Chrome) skipped.
       - name: Test skip census
         if: ${{ !cancelled() && steps.install.outcome == 'success' }}
-        run: node scripts/test-skip-census.mjs "${RUNNER_TEMP}/vitest-report.json"
+        run: node scripts/test-skip-census.mjs "${RUNNER_TEMP}/vitest-report.json" --scope "${RUNNER_TEMP}/test-scope.json"
       - name: Graph memory
         if: ${{ !cancelled() && steps.install.outcome == 'success' }}
         run: node scripts/verify-graph-memory.mjs
@@ -177,6 +176,10 @@ jobs:
           node-version-file: service/.node-version
       - run: corepack enable
       - run: corepack pnpm install --frozen-lockfile --ignore-scripts
+      - name: Declare focused native acceptance scope
+        env:
+          SFP_NATIVE_VITE_ACCEPTANCE: "1"
+        run: corepack pnpm exec node scripts/declare-test-scope.mjs --file packages/mcp/test/portal/native-artifacts.test.ts --out "${RUNNER_TEMP}/native-vite-scope.json"
       - name: Native artifact suite with the React/Vite acceptance enabled
         env:
           SFP_NATIVE_VITE_ACCEPTANCE: "1"
@@ -184,4 +187,4 @@ jobs:
         run: corepack pnpm exec vitest run packages/mcp/test/portal/native-artifacts.test.ts
       - name: Every acceptance test ran
         if: ${{ !cancelled() }}
-        run: node scripts/test-skip-census.mjs "${RUNNER_TEMP}/native-vite-report.json" --forbid-skips
+        run: node scripts/test-skip-census.mjs "${RUNNER_TEMP}/native-vite-report.json" --scope "${RUNNER_TEMP}/native-vite-scope.json" --forbid-skips

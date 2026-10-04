@@ -6,7 +6,7 @@ import { assertFigmaEditor, isMotionNode } from './motion-shared.js';
 /** Set a Motion timeline's duration (seconds, > 0). timelineId comes from get_node_motion. */
 export const createSetTimelineDurationHandler =
   (figmaCtx: typeof figma): SandboxToolHandler =>
-  async params => {
+  async (params, execution) => {
     const p = (params ?? {}) as { nodeId?: unknown; timelineId?: unknown; duration?: unknown };
     if (typeof p.nodeId !== 'string') {
       throw new TypeError('set_timeline_duration: nodeId must be a string');
@@ -19,12 +19,14 @@ export const createSetTimelineDurationHandler =
     }
     assertFigmaEditor(figmaCtx, 'set_timeline_duration');
     const node = await figmaCtx.getNodeByIdAsync(p.nodeId);
+    execution?.signal.throwIfAborted();
     if (node === null || !isMotionNode(node)) {
       throw new Error(
         `set_timeline_duration: node ${p.nodeId} not found or does not support Motion`,
       );
     }
     node.setTimelineDuration(p.timelineId, p.duration);
+    execution?.recordOwnedWrite?.(node, ['timelines']);
     const result: MutateResult = { ok: true, nodeId: node.id };
     return result;
   };

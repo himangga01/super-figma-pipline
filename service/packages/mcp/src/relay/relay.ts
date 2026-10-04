@@ -31,9 +31,29 @@ import {
 } from '@sfp/shared';
 import { WebSocketServer, type WebSocket } from 'ws';
 
+import { operationPolicyFor } from '../policy/operation-policy.js';
 import { isAllowedHost, isAllowedWsOrigin } from '../security/local-access.js';
 import { WS_FRAME_MAX_BYTES } from '../security/request-limits.js';
 import { DEFAULT_DISCONNECT_GRACE_MS, type Session, SessionManager } from './session.js';
+
+const mayChangeFigma = (method: string): boolean => {
+  try {
+    return operationPolicyFor(method).possibleEffects.some(effect =>
+      ['figma-write', 'figma-library-import', 'figma-ui'].includes(effect.type),
+    );
+  } catch {
+    // Unclassified dispatched work cannot prove that no effect occurred.
+    return true;
+  }
+};
+
+const lostReply = (entry: Pending, message: string): Error =>
+  Object.assign(
+    new Error(message),
+    entry.dispatched && mayChangeFigma(entry.method)
+      ? { code: 'PLUGIN_OUTCOME_UNKNOWN', committed: true }
+      : {},
+  );
 
 export interface RelayAuthenticator {
   authenticateHello?(
@@ -157,8 +177,9 @@ export class Relay {
 
   async stop(): Promise<void> {
     for (const [, p] of this.pending) {
+      this.cancelDispatched(p, pendingCancellations.get(p)?.context);
       this.clearPending(p);
-      p.reject(new Error(`relay stopping (pending ${p.method})`));
+      p.reject(lostReply(p, `relay stopping (pending ${p.method})`));
     }
     this.pending.clear();
     this.sessions.clear();
@@ -203,6 +224,9 @@ export class Relay {
       return await new Promise<unknown>((resolve, reject) => {
         if (cancellation?.signal.aborted === true) return reject(cancellation.signal.reason);
         const timer = setTimeout(() => {
+          const timed = this.pending.get(id);
+          if (timed !== undefined)
+            this.cancelDispatched(timed, pendingCancellations.get(timed)?.context);
           // Attributed like any other outcome: the call reached a plugin, it just never answered.
           // An old plugin is a plausible cause rather than a bystander here — `get_design_context`
           // arms its pre-serialization bail with `budget`, one of the arguments such a plugin drops,
@@ -210,7 +234,11 @@ export class Relay {
           // this the agent reads a bare timeout and blames the size of the file.
           const pending = this.takePending(id);
           if (pending !== undefined) served.sessionId = pending.dispatchedToSessionId;
-          reject(new Error(`plugin request timeout (method=${method})`));
+          reject(
+            pending === undefined
+              ? new Error(`plugin request timeout (method=${method})`)
+              : lostReply(pending, `plugin request timeout (method=${method})`),
+          );
         }, timeoutMs);
         const entry: Pending = {
           resolve,
@@ -781,7 +809,8 @@ export class Relay {
         p.reject(
           Object.assign(new Error(`${env.error.code}: ${env.error.message}`), {
             code: env.error.code,
-            ...(['PLUGIN_PARTIAL_CHANGE', 'UNDO_FAILED'].includes(env.error.code)
+            ...(['PLUGIN_PARTIAL_CHANGE', 'UNDO_FAILED'].includes(env.error.code) ||
+            (env.error.code === 'PLUGIN_OUTCOME_UNKNOWN' && mayChangeFigma(p.method))
               ? { committed: true }
               : {}),
           }),
@@ -820,21 +849,7 @@ export class Relay {
     const listener = (): void => {
       const pending = this.takePending(id);
       if (pending === undefined) return;
-      const sessionId = pending.dispatchedToSessionId;
-      const session = sessionId === undefined ? undefined : this.sessions.get(sessionId);
-      if (session?.socket !== null && session?.socket !== undefined) {
-        session.socket.send(
-          encodeEnvelope({
-            v: PROTOCOL_VERSION,
-            kind: 'evt',
-            id: newId(),
-            sessionId: session.id,
-            ts: Date.now(),
-            method: SystemMethod.Cancel,
-            params: { operationId: context.operationId, actionNonce: context.actionNonce },
-          }),
-        );
-      }
+      this.cancelDispatched(pending, context);
       const reason = context.signal.reason;
       pending.reject(
         reason instanceof Error
@@ -845,6 +860,30 @@ export class Relay {
     pendingCancellations.set(entry, { context, listener });
     context.signal.addEventListener('abort', listener, { once: true });
     if (context.signal.aborted) listener();
+  }
+
+  private cancelDispatched(entry: Pending, context: RelayCancellation | undefined): void {
+    if (!entry.dispatched || context === undefined) return;
+    const session =
+      entry.dispatchedToSessionId === undefined
+        ? undefined
+        : this.sessions.get(entry.dispatchedToSessionId);
+    if (session?.socket === null || session?.socket === undefined) return;
+    try {
+      session.socket.send(
+        encodeEnvelope({
+          v: PROTOCOL_VERSION,
+          kind: 'evt',
+          id: newId(),
+          sessionId: session.id,
+          ts: Date.now(),
+          method: SystemMethod.Cancel,
+          params: { operationId: context.operationId, actionNonce: context.actionNonce },
+        }),
+      );
+    } catch {
+      // A failed cancellation delivery cannot prove that the dispatched effect stopped.
+    }
   }
 
   private createPluginRequest(

@@ -4,8 +4,9 @@ import { join } from 'node:path';
 
 import pngModule from '@pdf-lib/upng';
 import { storedChecksum } from '@sfp/ir';
-import { afterEach, expect, it } from 'vitest';
+import { afterEach, beforeEach, expect, it } from 'vitest';
 
+import { requireChrome } from '../../../../test/support/required-suite.js';
 import { derivePortalInteractionContract } from '../../src/portal/interaction-evidence.js';
 import { preparePortalObservationManifest } from '../../src/portal/observation-manifest.js';
 import { assertNativePortalPreview } from '../../src/portal/preview.js';
@@ -13,6 +14,7 @@ import { verifyPortalVisualEvidence } from '../../src/portal/visual-evidence.js'
 import { currentCaptureFixture } from './capture-fixture.js';
 import { portalFixture } from './fixtures.js';
 const cleanup: Array<() => Promise<void>> = [];
+beforeEach(context => requireChrome(context));
 afterEach(async () => {
   for (const fn of cleanup.splice(0)) await fn();
 });
@@ -85,6 +87,58 @@ const fixtures = async (reaction = false) => {
   const manifest = preparePortalObservationManifest(captured, contract, screens, []);
   return { ...f, captured, contract, screens, manifest };
 };
+it('binds the comparison mode before Chrome execution and rechecks both reported ratios', async () => {
+  const f = await fixtures();
+  const screens = f.screens.map(screen => ({
+    ...screen,
+    comparisonMode: 'pixelmatch-7.2-v1' as const,
+  }));
+  const manifest = preparePortalObservationManifest(f.captured, f.contract, screens, []);
+  const server = createServer((request, response) => {
+    response.setHeader('content-type', 'text/html');
+    response.end(
+      `<html lang="en"><head><title>Comparison mode</title></head><body style="margin:0;background:white"><main data-sfp-root="${request.url === '/0' ? '1:1' : '2:1'}" style="width:100px;height:100px"></main></body></html>`,
+    );
+  });
+  await new Promise<void>(done => server.listen(0, '127.0.0.1', done));
+  cleanup.unshift(() => new Promise<void>(done => server.close(() => done())));
+  const address = server.address();
+  if (!address || typeof address === 'string') throw Error('ADDRESS');
+  const spec = {
+    root: f.workspaceRoot,
+    baseUrl: `http://127.0.0.1:${address.port}`,
+    screens,
+    manifest,
+    interactionContract: f.contract,
+  };
+  await expect(assertNativePortalPreview({ ...spec, manifest: f.manifest })).rejects.toMatchObject({
+    code: 'PORTAL_PREVIEW_MANIFEST_CHANGED',
+  });
+  const report = await assertNativePortalPreview(spec, undefined, { emitReport: false });
+  expect(report.screens[0]).toMatchObject({
+    comparisonMode: 'pixelmatch-7.2-v1',
+    ratio: 0,
+    strictRatio: 0,
+  });
+  const verify = (value: unknown) =>
+    verifyPortalVisualEvidence(
+      f.captured,
+      'SFP_PREVIEW_REPORT:' + JSON.stringify(value),
+      f.workspaceRoot,
+      new AbortController().signal,
+      new Map(),
+      manifest,
+      f.contract,
+    );
+  expect(await verify(report)).toBe(true);
+  const changedMode = structuredClone(report);
+  changedMode.screens[0]!.comparisonMode = 'rgba-v1';
+  expect(await verify(changedMode)).toBe(false);
+  const changedRaw = structuredClone(report);
+  changedRaw.screens[0]!.strictRatio = 0.5;
+  expect(await verify(changedRaw)).toBe(false);
+}, 60000);
+
 it('requires two executions for two equal-byte roots; rejects duplicates and wrong root/route/state/viewport/assertions', async () => {
   const f = await fixtures();
   const server = createServer((request, response) => {
@@ -118,6 +172,7 @@ it('requires two executions for two equal-byte roots; rejects duplicates and wro
       f.contract,
     );
   expect(await verify(report)).toBe(true);
+  expect(await verify({ ...report, browser: 'other-browser' })).toBe(false);
   const actualPath = join(f.workspaceRoot, String(report.screens[0]!.actualPath));
   const actualBytes = await readFile(actualPath);
   await writeFile(actualPath, Buffer.from('tampered screenshot'));

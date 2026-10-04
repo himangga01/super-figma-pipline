@@ -27,6 +27,7 @@ import {
   type PortalCapturedDesign,
 } from '../design-capture.js';
 import { normalizeDesignObservation } from '../design-normalization.js';
+import { derivePortalInteractionContract } from '../interaction-evidence.js';
 import { collectPortalSourceInventory } from '../source-inventory.js';
 import { portalError } from '../store.js';
 import { CORE_RECIPE_CONTRACT_HASH, type deriveCoreRecipeBundle } from './core-derivation.js';
@@ -169,6 +170,14 @@ export class PortalCoreLifecycle {
       JSON.parse(captured.raw),
       captured.collectorEvidence,
     );
+    const interactionContract = derivePortalInteractionContract(
+      captured,
+      plan.requirements,
+      plan.workflowCoverage,
+      plan.request.interactionScope,
+    );
+    if (canonicalJson(interactionContract) !== canonicalJson(plan.interactionContract))
+      throw portalError('PORTAL_CORE_INTERACTION_SELECTION_CHANGED');
     const sources = plan.profiles.map(profile => {
       const root = authority.roots.find(
         candidate =>
@@ -225,6 +234,8 @@ export class PortalCoreLifecycle {
         authorityHash: authority.hash,
         captureHash: contentHash('sfp-portal-capture-descriptor-v2', plan.design.capture),
         assetManifestHash: contentHash('sfp-portal-design-assets-v1', captured.assets),
+        interactionContractHash: contentHash('sfp-interaction-contract-v1', interactionContract),
+        interactionSelectionHash: interactionContract.selectionHash!,
         scopeHash: contentHash('sfp-portal-core-admitted-scope-v1', {
           requirementsHash,
           contextHash: plan.contextHash,
@@ -236,7 +247,13 @@ export class PortalCoreLifecycle {
           graphHash: coreHash(profile.graph),
         })),
       },
-      { observation, strategy: plan.strategy, assets, sources: preparedSources },
+      {
+        observation,
+        strategy: plan.strategy,
+        assets,
+        sources: preparedSources,
+        interactionContract,
+      },
       requirementsHash,
       signal,
     );

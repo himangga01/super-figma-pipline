@@ -15,7 +15,7 @@ import { toFigmaLineHeight } from './convert.js';
 
 export const createUpdateTextStyleHandler =
   (figmaCtx: typeof figma): SandboxToolHandler =>
-  async params => {
+  async (params, execution) => {
     const p = (params ?? {}) as {
       styleId?: unknown;
       name?: unknown;
@@ -32,6 +32,7 @@ export const createUpdateTextStyleHandler =
     }
 
     const style = await figmaCtx.getStyleByIdAsync(p.styleId);
+    execution?.signal.throwIfAborted();
     if (style === null || style.type !== 'TEXT') {
       throw new Error(`update_text_style: text style ${p.styleId} not found`);
     }
@@ -41,6 +42,7 @@ export const createUpdateTextStyleHandler =
     if (p.fontName !== undefined) {
       const fn = p.fontName as SerializedFontName;
       await figmaCtx.loadFontAsync({ family: fn.family, style: fn.style });
+      execution?.signal.throwIfAborted();
       ts.fontName = { family: fn.family, style: fn.style };
     }
     // So must the style's CURRENT face, before any typography write — fontSize / lineHeight /
@@ -50,6 +52,7 @@ export const createUpdateTextStyleHandler =
     // update that touched only fontSize failed on any style the caller had not also re-fonted.
     // loadFontAsync is cached, so repeating it after the assignment above is free.
     await figmaCtx.loadFontAsync(ts.fontName);
+    execution?.signal.throwIfAborted();
     if (typeof p.fontSize === 'number') ts.fontSize = p.fontSize;
     if (p.lineHeight !== undefined)
       ts.lineHeight = toFigmaLineHeight(p.lineHeight as SerializedLineHeight);
@@ -65,7 +68,9 @@ export const createUpdateTextStyleHandler =
     if (p.boundVariables !== undefined) {
       const bindings = p.boundVariables as TextStyleBindings;
       const table = await resolveTextStyleBindings(figmaCtx, bindings, 'update_text_style');
-      await applyTextStyleBindings(figmaCtx, ts, bindings, table);
+      execution?.signal.throwIfAborted();
+      await applyTextStyleBindings(figmaCtx, ts, bindings, table, execution);
+      execution?.signal.throwIfAborted();
     }
 
     const result: StyleResult = { ok: true, styleId: ts.id, name: ts.name };

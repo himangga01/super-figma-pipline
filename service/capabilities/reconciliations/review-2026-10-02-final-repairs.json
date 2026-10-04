@@ -1,0 +1,146 @@
+{
+  "schemaVersion": 1,
+  "slice": "review-2026-10-02",
+  "baseline": {
+    "headCommit": "db821db346e7cb5dd27e4df465b91bb106e2f2b3",
+    "authoritySha256": {
+      "upstream-lock.json": "5dbdda39e785423013ec0e5e2a7212dd8b9ad1a0d48badfcbcafb96c665cd7d8",
+      "vendor-map.json": "b3275c7d8b997d1cfe723d97594659f77d7b4361b824a790bcfdd7ff762589bd",
+      "vendor-rules.json": "fc244ac3a4b34810a47164b886d64fe59fa19aea3fa6455d0d831c7090d1c7d0"
+    }
+  },
+  "entries": [
+    {
+      "path": "capabilities/task-review-2026-10-02-authority-classes.json",
+      "sha256": "a2efe51936aa6f2453fde5d29f8cda1a38458485df2c47ec2700647f031481d7",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "161de3a44242665c3b64503ede4c124acf08d1d2a4f7007e5112352b14d77b64"
+        },
+        {
+          "class": "protected",
+          "sha256": "161de3a44242665c3b64503ede4c124acf08d1d2a4f7007e5112352b14d77b64"
+        }
+      ],
+      "reason": "Reviewed failed attempt a3942 repairs: collect all registered skipped/todo cases independently; preserve strict unknown/duplicate/missing-case and Chrome skip rejection. Empty ledger still rejects new failures. Complete image fixture also rejects omitted fields. Legacy Windows probes pin the host Security module while retaining ACL guards. Accurate MCP README is bound to this new snapshot; preserve old failed evidence."
+    },
+    {
+      "path": "packages/mcp/README.md",
+      "sha256": "760298dd5ec71a1518c3081b20b9721e4237829f63c17c7401220d23d22daa22",
+      "priorClaims": [
+        {
+          "class": "fork",
+          "sha256": "649921ad47359cbfe1a2ec059f90c6dcc952e87c22dd694de6e4fa9f4d014dc3"
+        },
+        {
+          "class": "managed",
+          "sha256": "649921ad47359cbfe1a2ec059f90c6dcc952e87c22dd694de6e4fa9f4d014dc3"
+        },
+        {
+          "class": "protected",
+          "sha256": "649921ad47359cbfe1a2ec059f90c6dcc952e87c22dd694de6e4fa9f4d014dc3"
+        }
+      ],
+      "reason": "Reviewed failed attempt a3942 repairs: collect all registered skipped/todo cases independently; preserve strict unknown/duplicate/missing-case and Chrome skip rejection. Empty ledger still rejects new failures. Complete image fixture also rejects omitted fields. Legacy Windows probes pin the host Security module while retaining ACL guards. Accurate MCP README is bound to this new snapshot; preserve old failed evidence."
+    },
+    {
+      "path": "packages/mcp/src/security/state-permissions.ts",
+      "sha256": "67745843a60482db79f81ab8347ed4332d02a507d6f639de8fcc7ca5ec94d61c",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "c8576dd737248aee70a6544bc5e862ff24d3d336cc75ab66fb6c9c61a94dc5ee"
+        },
+        {
+          "class": "protected",
+          "sha256": "c8576dd737248aee70a6544bc5e862ff24d3d336cc75ab66fb6c9c61a94dc5ee"
+        }
+      ],
+      "reason": "Reviewed failed attempt a3942 repairs: collect all registered skipped/todo cases independently; preserve strict unknown/duplicate/missing-case and Chrome skip rejection. Empty ledger still rejects new failures. Complete image fixture also rejects omitted fields. Legacy Windows probes pin the host Security module while retaining ACL guards. Accurate MCP README is bound to this new snapshot; preserve old failed evidence."
+    },
+    {
+      "path": "packages/mcp/test/fs/runtime-paths.test.ts",
+      "sha256": "1c78f16614cd8e606c3fe6d457ba49adbb904fcb004937aedf9f0646b6991f19",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "869ab07a2e144355107575fe5798e668fb1f58d7c324fecd0d3efeac9225b0dd"
+        },
+        {
+          "class": "protected",
+          "sha256": "869ab07a2e144355107575fe5798e668fb1f58d7c324fecd0d3efeac9225b0dd"
+        }
+      ],
+      "reason": "Reviewed failed attempt a3942 repairs: collect all registered skipped/todo cases independently; preserve strict unknown/duplicate/missing-case and Chrome skip rejection. Empty ledger still rejects new failures. Complete image fixture also rejects omitted fields. Legacy Windows probes pin the host Security module while retaining ACL guards. Accurate MCP README is bound to this new snapshot; preserve old failed evidence."
+    },
+    {
+      "path": "packages/mcp/test/portal/desktop-capture.test.ts",
+      "sha256": "dffba4dd08c04e9d1dbc00cd280e7569017615d3c4d9c43cde24ca4d07e26c89",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "46d480c0e509ed3058f9a6edca29f35ae3f72a071a054e9a5e971e7263cd08f8"
+        },
+        {
+          "class": "protected",
+          "sha256": "46d480c0e509ed3058f9a6edca29f35ae3f72a071a054e9a5e971e7263cd08f8"
+        }
+      ],
+      "reason": "Reviewed failed attempt a3942 repairs: collect all registered skipped/todo cases independently; preserve strict unknown/duplicate/missing-case and Chrome skip rejection. Empty ledger still rejects new failures. Complete image fixture also rejects omitted fields. Legacy Windows probes pin the host Security module while retaining ACL guards. Accurate MCP README is bound to this new snapshot; preserve old failed evidence."
+    },
+    {
+      "path": "scripts/collect-test-registrations.mjs",
+      "sha256": "3b5e0e662b3f4e8881753fd9061b6683e77973288306e6dfb5521c6432ca8e9e",
+      "priorClaims": [],
+      "reason": "Reviewed failed attempt a3942 repairs: collect all registered skipped/todo cases independently; preserve strict unknown/duplicate/missing-case and Chrome skip rejection. Empty ledger still rejects new failures. Complete image fixture also rejects omitted fields. Legacy Windows probes pin the host Security module while retaining ACL guards. Accurate MCP README is bound to this new snapshot; preserve old failed evidence."
+    },
+    {
+      "path": "scripts/declare-test-scope.mjs",
+      "sha256": "57024e197b80da28c7022060fbf0976c3e5029ca6a87d92553f8eeb360f1b3fe",
+      "priorClaims": [
+        {
+          "class": "protected",
+          "sha256": "847fe12f4a1f15cab5491b6b6bc555b3254555f6295eb10fd89c8bb809780095"
+        }
+      ],
+      "reason": "Reviewed failed attempt a3942 repairs: collect all registered skipped/todo cases independently; preserve strict unknown/duplicate/missing-case and Chrome skip rejection. Empty ledger still rejects new failures. Complete image fixture also rejects omitted fields. Legacy Windows probes pin the host Security module while retaining ACL guards. Accurate MCP README is bound to this new snapshot; preserve old failed evidence."
+    },
+    {
+      "path": "test/check-test-report.test.ts",
+      "sha256": "687101aa0b700a92291f03a84fb8807ec93bea1f690b95433b9537526ff438dc",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "c4f849fe874a3c36d41f2d92a30a198061bcb7dcd1e7250d6c6f8eef508a000e"
+        },
+        {
+          "class": "protected",
+          "sha256": "c4f849fe874a3c36d41f2d92a30a198061bcb7dcd1e7250d6c6f8eef508a000e"
+        }
+      ],
+      "reason": "Reviewed failed attempt a3942 repairs: collect all registered skipped/todo cases independently; preserve strict unknown/duplicate/missing-case and Chrome skip rejection. Empty ledger still rejects new failures. Complete image fixture also rejects omitted fields. Legacy Windows probes pin the host Security module while retaining ACL guards. Accurate MCP README is bound to this new snapshot; preserve old failed evidence."
+    },
+    {
+      "path": "test/declare-test-scope.test.ts",
+      "sha256": "e97e1c33c8c46f64c41a6d469ac45928efffc2dcccce5b698c9131992aad43c1",
+      "priorClaims": [],
+      "reason": "Reviewed failed attempt a3942 repairs: collect all registered skipped/todo cases independently; preserve strict unknown/duplicate/missing-case and Chrome skip rejection. Empty ledger still rejects new failures. Complete image fixture also rejects omitted fields. Legacy Windows probes pin the host Security module while retaining ACL guards. Accurate MCP README is bound to this new snapshot; preserve old failed evidence."
+    },
+    {
+      "path": "test/source-check-attempt.test.ts",
+      "sha256": "efc387f94d06705fd87b4c1b0671a842f5cb57afa9a18da7b8bab75f7f9b43e5",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "b28068129a1fb44b368ac4521b698a872035df6c042fe27195c5a3269aeff44f"
+        },
+        {
+          "class": "protected",
+          "sha256": "b28068129a1fb44b368ac4521b698a872035df6c042fe27195c5a3269aeff44f"
+        }
+      ],
+      "reason": "Reviewed failed attempt a3942 repairs: collect all registered skipped/todo cases independently; preserve strict unknown/duplicate/missing-case and Chrome skip rejection. Empty ledger still rejects new failures. Complete image fixture also rejects omitted fields. Legacy Windows probes pin the host Security module while retaining ACL guards. Accurate MCP README is bound to this new snapshot; preserve old failed evidence."
+    }
+  ]
+}

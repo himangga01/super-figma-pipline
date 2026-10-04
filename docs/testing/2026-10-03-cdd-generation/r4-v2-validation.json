@@ -1,0 +1,212 @@
+{
+  "analysisHash": "sha256:276172a69787cb038ae950d4268f1688bd908db8c3a0e8c17507504c3d028645",
+  "capture": {
+    "freshDesignFingerprint": null,
+    "originalDescriptorHash": "sha256:e1b18decd781c8594ad6886dfc8279fb819c5900fb89608a9cbb4b79f0170276",
+    "version": 2
+  },
+  "checks": [
+    {
+      "id": "frontend-types",
+      "kind": "typecheck",
+      "required": true,
+      "requirementIds": [
+        "figma-account-session",
+        "language-selection",
+        "registration-demo",
+        "frontend-presentation"
+      ],
+      "status": "passed"
+    },
+    {
+      "id": "frontend-build",
+      "kind": "build",
+      "reason": "Native command build did not execute",
+      "required": true,
+      "requirementIds": [
+        "figma-account-session",
+        "language-selection",
+        "registration-demo",
+        "frontend-presentation"
+      ],
+      "status": "blocked"
+    },
+    {
+      "id": "frontend-independence",
+      "kind": "independence",
+      "reason": "Native command independence: failed",
+      "required": true,
+      "requirementIds": [
+        "figma-account-session",
+        "language-selection",
+        "registration-demo",
+        "frontend-presentation"
+      ],
+      "status": "failed"
+    },
+    {
+      "id": "visual-guide",
+      "kind": "visual",
+      "reason": "Native command preview-cdd did not execute",
+      "required": true,
+      "requirementIds": [
+        "frontend-presentation"
+      ],
+      "status": "blocked"
+    },
+    {
+      "id": "accessibility-guide",
+      "kind": "accessibility",
+      "reason": "Native command preview-cdd did not execute",
+      "required": true,
+      "requirementIds": [
+        "frontend-presentation"
+      ],
+      "status": "blocked"
+    },
+    {
+      "id": "visual-mobile",
+      "kind": "visual",
+      "reason": "Native command preview-cdd did not execute",
+      "required": true,
+      "requirementIds": [
+        "figma-account-session",
+        "language-selection",
+        "registration-demo",
+        "frontend-presentation"
+      ],
+      "status": "blocked"
+    },
+    {
+      "id": "accessibility-mobile",
+      "kind": "accessibility",
+      "reason": "Native command preview-cdd did not execute",
+      "required": true,
+      "requirementIds": [
+        "figma-account-session",
+        "language-selection",
+        "registration-demo",
+        "frontend-presentation"
+      ],
+      "status": "blocked"
+    },
+    {
+      "id": "visual-desktop",
+      "kind": "visual",
+      "reason": "Native command preview-cdd did not execute",
+      "required": true,
+      "requirementIds": [
+        "figma-account-session",
+        "language-selection",
+        "registration-demo",
+        "frontend-presentation"
+      ],
+      "status": "blocked"
+    },
+    {
+      "id": "accessibility-desktop",
+      "kind": "accessibility",
+      "reason": "Native command preview-cdd did not execute",
+      "required": true,
+      "requirementIds": [
+        "figma-account-session",
+        "language-selection",
+        "registration-demo",
+        "frontend-presentation"
+      ],
+      "status": "blocked"
+    },
+    {
+      "id": "journey-account",
+      "kind": "interaction",
+      "reason": "Native command preview-cdd did not execute",
+      "required": true,
+      "requirementIds": [
+        "figma-account-session"
+      ],
+      "status": "blocked"
+    },
+    {
+      "id": "journey-registration",
+      "kind": "interaction",
+      "reason": "Native command preview-cdd did not execute",
+      "required": true,
+      "requirementIds": [
+        "registration-demo"
+      ],
+      "status": "blocked"
+    },
+    {
+      "id": "journey-presentation",
+      "kind": "interaction",
+      "reason": "Native command preview-cdd did not execute",
+      "required": true,
+      "requirementIds": [
+        "frontend-presentation"
+      ],
+      "status": "blocked"
+    },
+    {
+      "id": "journey-language",
+      "kind": "interaction",
+      "reason": "Native command preview-cdd did not execute",
+      "required": true,
+      "requirementIds": [
+        "language-selection"
+      ],
+      "status": "blocked"
+    },
+    {
+      "id": "native-command-sequence",
+      "kind": "source-scope",
+      "reason": "Every approved native command must execute successfully.",
+      "required": true,
+      "requirementIds": [],
+      "status": "failed"
+    },
+    {
+      "id": "native-source-scope",
+      "kind": "source-scope",
+      "required": true,
+      "requirementIds": [],
+      "status": "passed"
+    },
+    {
+      "id": "core-consumption",
+      "kind": "source-scope",
+      "reason": "PORTAL_CONSUMPTION_VISUAL_PROOF_REQUIRED",
+      "required": true,
+      "requirementIds": [],
+      "status": "failed"
+    }
+  ],
+  "designHash": "sha256:b2e4cf27c7d656393231140508d76c1d955f8db17876a01c1cf0f40b12fe255f",
+  "environmentId": "70755e8cb4aa81bdf37ec699f0526071731b6cdd575579c2d41363f786f45fe4",
+  "evidencePaths": [
+    "portal/validation/6b2dff43e86207c017f98690d1af624c5247814030714b39c6a772da96081b03.json"
+  ],
+  "liveDesignVerified": false,
+  "nativeArtifactAuthority": {
+    "manifestHash": "sha256:1296889e2849f77df1d350108326c5a6f86e793e32d8791cb9930634ae55fd7e",
+    "moduleEvidenceHash": "sha256:f0479e1fea8fb7594ce9aa56e2553ff208851beec7494322e066370d92a6d529",
+    "moduleFenceProtocol": "sfp-native-module-fence-v1",
+    "outputReceiptHash": "sha256:f5c70ccc9e8a384d3c76752e9eb4ea57758c68f02873fce19114eb0c81f5a01d",
+    "version": 1
+  },
+  "nativeEnvironment": {
+    "attemptId": "70755e8cb4aa81bdf37ec699f0526071731b6cdd575579c2d41363f786f45fe4",
+    "disposition": "retained-artifact",
+    "executionHash": "sha256:3a33ffe77b03593da728e7a93948d6c3c6c1524efae02566811185f475d6d6da",
+    "receiptHash": "sha256:c96ee8440c9357fdee618f8f0a346bb04cd7e1c6fbfec92a1ecfb8d795b21981",
+    "target": "candidate",
+    "version": 1
+  },
+  "previewFeedback": {
+    "artifactRoot": "C:\\2026_project\\super-figma-pipline\\.worktrees\\_cache\\cdd-native-appdata\\SuperFigmaPipeline\\portal-attempt-70755e8cb4aa81bdf37ec699f0526071731b6cdd575579c2d41363f786f45fe4\\work",
+    "reports": [],
+    "version": 1
+  },
+  "runtimeVerified": false,
+  "sourceAuthorityVersion": 2,
+  "sourceHash": "sha256:3e0fe11a0bc9ad70ced9c5ec95a169c56a0ab2d772241a852e741d657b3070c8"
+}

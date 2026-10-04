@@ -3,9 +3,9 @@
   "dataLicense": "CC0-1.0",
   "SPDXID": "SPDXRef-DOCUMENT",
   "name": "Super Figma Pipeline installed production dependency inventory",
-  "documentNamespace": "https://super-figma-pipeline.local/spdx/505dbecccc138e31765d8a54f7fd7b01a99f8a61c749a8b953ab1cb5bccd9b8a",
+  "documentNamespace": "https://super-figma-pipeline.local/spdx/1e304bcc7e9935f013f2195737406ee679c5a112f5dcf02b21cc462b97dab7d8",
   "creationInfo": {
-    "created": "2026-09-04T22:43:25.000Z",
+    "created": "2026-09-27T14:52:28.000Z",
     "creators": ["Tool: sfp-generate-sbom"]
   },
   "documentComment": "Installed production dependencies, including bundled plugin/CLI dependencies. Platform optional packages absent on this builder are not represented. Exact resolution is pinned by pnpm-lock.yaml.",
@@ -67,6 +67,16 @@
       "downloadLocation": "https://registry.npmjs.org/@lucide/vue/-/vue-1.34.0.tgz",
       "filesAnalyzed": false,
       "licenseDeclared": "ISC",
+      "licenseConcluded": "NOASSERTION",
+      "copyrightText": "NOASSERTION"
+    },
+    {
+      "SPDXID": "SPDXRef-891117060de5969a66770f52",
+      "name": "@modelcontextprotocol/client",
+      "versionInfo": "2.0.0",
+      "downloadLocation": "https://registry.npmjs.org/@modelcontextprotocol/client/-/client-2.0.0.tgz",
+      "filesAnalyzed": false,
+      "licenseDeclared": "MIT",
       "licenseConcluded": "NOASSERTION",
       "copyrightText": "NOASSERTION"
     },
@@ -321,6 +331,16 @@
       "copyrightText": "NOASSERTION"
     },
     {
+      "SPDXID": "SPDXRef-50cb51119b3e7a0445ea15e1",
+      "name": "cross-spawn",
+      "versionInfo": "7.0.6",
+      "downloadLocation": "https://registry.npmjs.org/cross-spawn/-/cross-spawn-7.0.6.tgz",
+      "filesAnalyzed": false,
+      "licenseDeclared": "MIT",
+      "licenseConcluded": "NOASSERTION",
+      "copyrightText": "NOASSERTION"
+    },
+    {
       "SPDXID": "SPDXRef-d75166202534f28b8dff0ee3",
       "name": "csstype",
       "versionInfo": "3.2.3",
@@ -351,10 +371,60 @@
       "copyrightText": "NOASSERTION"
     },
     {
+      "SPDXID": "SPDXRef-20af37513d93868b6db0b04e",
+      "name": "eventsource-parser",
+      "versionInfo": "3.1.1",
+      "downloadLocation": "https://registry.npmjs.org/eventsource-parser/-/eventsource-parser-3.1.1.tgz",
+      "filesAnalyzed": false,
+      "licenseDeclared": "MIT",
+      "licenseConcluded": "NOASSERTION",
+      "copyrightText": "NOASSERTION"
+    },
+    {
+      "SPDXID": "SPDXRef-09407100555afb65a1bf8043",
+      "name": "eventsource",
+      "versionInfo": "3.0.7",
+      "downloadLocation": "https://registry.npmjs.org/eventsource/-/eventsource-3.0.7.tgz",
+      "filesAnalyzed": false,
+      "licenseDeclared": "MIT",
+      "licenseConcluded": "NOASSERTION",
+      "copyrightText": "NOASSERTION"
+    },
+    {
       "SPDXID": "SPDXRef-5327a0e07d206b3f195bb2a5",
       "name": "ignore",
       "versionInfo": "7.0.6",
       "downloadLocation": "https://registry.npmjs.org/ignore/-/ignore-7.0.6.tgz",
+      "filesAnalyzed": false,
+      "licenseDeclared": "MIT",
+      "licenseConcluded": "NOASSERTION",
+      "copyrightText": "NOASSERTION"
+    },
+    {
+      "SPDXID": "SPDXRef-2f62e711a6921973ef3f9650",
+      "name": "isexe",
+      "versionInfo": "2.0.0",
+      "downloadLocation": "https://registry.npmjs.org/isexe/-/isexe-2.0.0.tgz",
+      "filesAnalyzed": false,
+      "licenseDeclared": "ISC",
+      "licenseConcluded": "NOASSERTION",
+      "copyrightText": "NOASSERTION"
+    },
+    {
+      "SPDXID": "SPDXRef-012a933eb0430cdfec8cb22c",
+      "name": "jose",
+      "versionInfo": "6.2.12",
+      "downloadLocation": "https://registry.npmjs.org/jose/-/jose-6.2.12.tgz",
+      "filesAnalyzed": false,
+      "licenseDeclared": "MIT",
+      "licenseConcluded": "NOASSERTION",
+      "copyrightText": "NOASSERTION"
+    },
+    {
+      "SPDXID": "SPDXRef-0530e38d9f578e374a5a6508",
+      "name": "kiwi-schema",
+      "versionInfo": "0.5.0",
+      "downloadLocation": "https://registry.npmjs.org/kiwi-schema/-/kiwi-schema-0.5.0.tgz",
       "filesAnalyzed": false,
       "licenseDeclared": "MIT",
       "licenseConcluded": "NOASSERTION",
@@ -401,6 +471,16 @@
       "copyrightText": "NOASSERTION"
     },
     {
+      "SPDXID": "SPDXRef-e1a2a032096ace66b422351e",
+      "name": "path-key",
+      "versionInfo": "3.1.1",
+      "downloadLocation": "https://registry.npmjs.org/path-key/-/path-key-3.1.1.tgz",
+      "filesAnalyzed": false,
+      "licenseDeclared": "MIT",
+      "licenseConcluded": "NOASSERTION",
+      "copyrightText": "NOASSERTION"
+    },
+    {
       "SPDXID": "SPDXRef-0ae07beb90ec184d7ec88988",
       "name": "pdf-lib",
       "versionInfo": "1.17.1",
@@ -417,6 +497,26 @@
       "downloadLocation": "https://registry.npmjs.org/picocolors/-/picocolors-1.1.1.tgz",
       "filesAnalyzed": false,
       "licenseDeclared": "ISC",
+      "licenseConcluded": "NOASSERTION",
+      "copyrightText": "NOASSERTION"
+    },
+    {
+      "SPDXID": "SPDXRef-3a0c70c892662c62aee0558d",
+      "name": "pixelmatch",
+      "versionInfo": "7.2.0",
+      "downloadLocation": "https://registry.npmjs.org/pixelmatch/-/pixelmatch-7.2.0.tgz",
+      "filesAnalyzed": false,
+      "licenseDeclared": "ISC",
+      "licenseConcluded": "NOASSERTION",
+      "copyrightText": "NOASSERTION"
+    },
+    {
+      "SPDXID": "SPDXRef-560377ce6df233b2e39ef3d3",
+      "name": "pkce-challenge",
+      "versionInfo": "5.0.1",
+      "downloadLocation": "https://registry.npmjs.org/pkce-challenge/-/pkce-challenge-5.0.1.tgz",
+      "filesAnalyzed": false,
+      "licenseDeclared": "MIT",
       "licenseConcluded": "NOASSERTION",
       "copyrightText": "NOASSERTION"
     },
@@ -441,10 +541,40 @@
       "copyrightText": "NOASSERTION"
     },
     {
+      "SPDXID": "SPDXRef-c4a10d4036f34449b916c512",
+      "name": "pngjs",
+      "versionInfo": "7.0.0",
+      "downloadLocation": "https://registry.npmjs.org/pngjs/-/pngjs-7.0.0.tgz",
+      "filesAnalyzed": false,
+      "licenseDeclared": "MIT",
+      "licenseConcluded": "NOASSERTION",
+      "copyrightText": "NOASSERTION"
+    },
+    {
       "SPDXID": "SPDXRef-dd6223d49d4c2170a7d32e05",
       "name": "postcss",
       "versionInfo": "8.5.26",
       "downloadLocation": "https://registry.npmjs.org/postcss/-/postcss-8.5.26.tgz",
+      "filesAnalyzed": false,
+      "licenseDeclared": "MIT",
+      "licenseConcluded": "NOASSERTION",
+      "copyrightText": "NOASSERTION"
+    },
+    {
+      "SPDXID": "SPDXRef-a9cba97b71b818fb0a4978f8",
+      "name": "shebang-command",
+      "versionInfo": "2.0.0",
+      "downloadLocation": "https://registry.npmjs.org/shebang-command/-/shebang-command-2.0.0.tgz",
+      "filesAnalyzed": false,
+      "licenseDeclared": "MIT",
+      "licenseConcluded": "NOASSERTION",
+      "copyrightText": "NOASSERTION"
+    },
+    {
+      "SPDXID": "SPDXRef-849fb37298f1c4dcdeb6065e",
+      "name": "shebang-regex",
+      "versionInfo": "3.0.0",
+      "downloadLocation": "https://registry.npmjs.org/shebang-regex/-/shebang-regex-3.0.0.tgz",
       "filesAnalyzed": false,
       "licenseDeclared": "MIT",
       "licenseConcluded": "NOASSERTION",
@@ -501,6 +631,16 @@
       "copyrightText": "NOASSERTION"
     },
     {
+      "SPDXID": "SPDXRef-5a71f2b741944bf107d6e7f0",
+      "name": "which",
+      "versionInfo": "2.0.2",
+      "downloadLocation": "https://registry.npmjs.org/which/-/which-2.0.2.tgz",
+      "filesAnalyzed": false,
+      "licenseDeclared": "ISC",
+      "licenseConcluded": "NOASSERTION",
+      "copyrightText": "NOASSERTION"
+    },
+    {
       "SPDXID": "SPDXRef-d250ffc75a805ad5e5d7e509",
       "name": "ws",
       "versionInfo": "8.21.3",
@@ -551,6 +691,11 @@
       "spdxElementId": "SPDXRef-DOCUMENT",
       "relationshipType": "DESCRIBES",
       "relatedSpdxElement": "SPDXRef-f44ef3b161d4ac6ba562a49a"
+    },
+    {
+      "spdxElementId": "SPDXRef-DOCUMENT",
+      "relationshipType": "DESCRIBES",
+      "relatedSpdxElement": "SPDXRef-891117060de5969a66770f52"
     },
     {
       "spdxElementId": "SPDXRef-DOCUMENT",
@@ -680,6 +825,11 @@
     {
       "spdxElementId": "SPDXRef-DOCUMENT",
       "relationshipType": "DESCRIBES",
+      "relatedSpdxElement": "SPDXRef-50cb51119b3e7a0445ea15e1"
+    },
+    {
+      "spdxElementId": "SPDXRef-DOCUMENT",
+      "relationshipType": "DESCRIBES",
       "relatedSpdxElement": "SPDXRef-d75166202534f28b8dff0ee3"
     },
     {
@@ -695,7 +845,32 @@
     {
       "spdxElementId": "SPDXRef-DOCUMENT",
       "relationshipType": "DESCRIBES",
+      "relatedSpdxElement": "SPDXRef-20af37513d93868b6db0b04e"
+    },
+    {
+      "spdxElementId": "SPDXRef-DOCUMENT",
+      "relationshipType": "DESCRIBES",
+      "relatedSpdxElement": "SPDXRef-09407100555afb65a1bf8043"
+    },
+    {
+      "spdxElementId": "SPDXRef-DOCUMENT",
+      "relationshipType": "DESCRIBES",
       "relatedSpdxElement": "SPDXRef-5327a0e07d206b3f195bb2a5"
+    },
+    {
+      "spdxElementId": "SPDXRef-DOCUMENT",
+      "relationshipType": "DESCRIBES",
+      "relatedSpdxElement": "SPDXRef-2f62e711a6921973ef3f9650"
+    },
+    {
+      "spdxElementId": "SPDXRef-DOCUMENT",
+      "relationshipType": "DESCRIBES",
+      "relatedSpdxElement": "SPDXRef-012a933eb0430cdfec8cb22c"
+    },
+    {
+      "spdxElementId": "SPDXRef-DOCUMENT",
+      "relationshipType": "DESCRIBES",
+      "relatedSpdxElement": "SPDXRef-0530e38d9f578e374a5a6508"
     },
     {
       "spdxElementId": "SPDXRef-DOCUMENT",
@@ -720,12 +895,27 @@
     {
       "spdxElementId": "SPDXRef-DOCUMENT",
       "relationshipType": "DESCRIBES",
+      "relatedSpdxElement": "SPDXRef-e1a2a032096ace66b422351e"
+    },
+    {
+      "spdxElementId": "SPDXRef-DOCUMENT",
+      "relationshipType": "DESCRIBES",
       "relatedSpdxElement": "SPDXRef-0ae07beb90ec184d7ec88988"
     },
     {
       "spdxElementId": "SPDXRef-DOCUMENT",
       "relationshipType": "DESCRIBES",
       "relatedSpdxElement": "SPDXRef-7c5f372425355293c448d740"
+    },
+    {
+      "spdxElementId": "SPDXRef-DOCUMENT",
+      "relationshipType": "DESCRIBES",
+      "relatedSpdxElement": "SPDXRef-3a0c70c892662c62aee0558d"
+    },
+    {
+      "spdxElementId": "SPDXRef-DOCUMENT",
+      "relationshipType": "DESCRIBES",
+      "relatedSpdxElement": "SPDXRef-560377ce6df233b2e39ef3d3"
     },
     {
       "spdxElementId": "SPDXRef-DOCUMENT",
@@ -740,7 +930,22 @@
     {
       "spdxElementId": "SPDXRef-DOCUMENT",
       "relationshipType": "DESCRIBES",
+      "relatedSpdxElement": "SPDXRef-c4a10d4036f34449b916c512"
+    },
+    {
+      "spdxElementId": "SPDXRef-DOCUMENT",
+      "relationshipType": "DESCRIBES",
       "relatedSpdxElement": "SPDXRef-dd6223d49d4c2170a7d32e05"
+    },
+    {
+      "spdxElementId": "SPDXRef-DOCUMENT",
+      "relationshipType": "DESCRIBES",
+      "relatedSpdxElement": "SPDXRef-a9cba97b71b818fb0a4978f8"
+    },
+    {
+      "spdxElementId": "SPDXRef-DOCUMENT",
+      "relationshipType": "DESCRIBES",
+      "relatedSpdxElement": "SPDXRef-849fb37298f1c4dcdeb6065e"
     },
     {
       "spdxElementId": "SPDXRef-DOCUMENT",
@@ -766,6 +971,11 @@
       "spdxElementId": "SPDXRef-DOCUMENT",
       "relationshipType": "DESCRIBES",
       "relatedSpdxElement": "SPDXRef-63c0b36becdd01a591443cdb"
+    },
+    {
+      "spdxElementId": "SPDXRef-DOCUMENT",
+      "relationshipType": "DESCRIBES",
+      "relatedSpdxElement": "SPDXRef-5a71f2b741944bf107d6e7f0"
     },
     {
       "spdxElementId": "SPDXRef-DOCUMENT",

@@ -278,7 +278,34 @@ export class ControlClient {
     }
     if (input.signal?.aborted && !cancelled) await cancel().catch(() => undefined);
     const outcome = await result;
-    if ('error' in outcome) throw outcome.error;
+    if ('error' in outcome) {
+      if (
+        !input.signal?.aborted &&
+        (outcome.error as { code?: string }).code === 'INTERNAL_ERROR'
+      ) {
+        // The authenticated journal may retain a public tool code that the generic HTTP
+        // boundary does not expose. Read only this operation; never retry its effects.
+        const record = await this.request<{
+          operationId: string;
+          status: string;
+          errorCode: unknown;
+        }>(`/control/operations/${encodeURIComponent(operationId)}`).catch(() => null);
+        if (
+          record?.operationId === operationId &&
+          ['failed', 'pre-egress-rejected'].includes(record.status) &&
+          typeof record.errorCode === 'string' &&
+          /^(?:PORTAL|CHROME|SCRIPTER|FIGMA|EGRESS|APPROVAL)_[A-Z0-9_]{1,110}$/u.test(
+            record.errorCode,
+          )
+        )
+          throw Object.assign(new Error(record.errorCode, { cause: outcome.error }), {
+            code: record.errorCode,
+            operationId,
+            operationStatus: record.status,
+          });
+      }
+      throw outcome.error;
+    }
     return outcome.value;
   }
   async pairCode(): Promise<string> {

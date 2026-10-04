@@ -164,6 +164,15 @@ export const createNativeModuleFence = async (
     )
       throw portalError('PORTAL_ARTIFACT_CHANGED');
   }
+  const ownedChromeCleanup = profile.artifactAuthority!.ownedChromeCleanup;
+  if (ownedChromeCleanup) {
+    for (const expected of [ownedChromeCleanup.executable, ownedChromeCleanup.chromeExecutable]) {
+      const actual = await inventoryNativeArtifact(expected.root, signal, undefined, [], observed);
+      if (actual.hash !== expected.hash || actual.identity !== expected.identity) {
+        throw portalError('PORTAL_ARTIFACT_CHANGED');
+      }
+    }
+  }
   await inventoryNativeArtifact(preload, signal, undefined, [], observed);
   const files = [...new Map(observed.files.map(file => [key(file.path), file])).values()];
   const fileIndex = new Map(files.map(file => [key(file.path), file]));
@@ -197,6 +206,15 @@ export const createNativeModuleFence = async (
           protocol: directoryLease.protocol,
           executable: directoryLease.executable.root,
           args: directoryLease.args,
+        }
+      : null,
+    ownedChromeCleanup: ownedChromeCleanup
+      ? {
+          protocol: ownedChromeCleanup.protocol,
+          executable: ownedChromeCleanup.executable.root,
+          chromeExecutable: ownedChromeCleanup.chromeExecutable.root,
+          timeoutMs: ownedChromeCleanup.timeoutMs,
+          maxBuffer: ownedChromeCleanup.maxBuffer,
         }
       : null,
     files,

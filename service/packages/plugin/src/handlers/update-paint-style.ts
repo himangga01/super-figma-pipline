@@ -5,7 +5,7 @@ import { toFigmaPaintsBound } from './bindings.js';
 
 export const createUpdatePaintStyleHandler =
   (figmaCtx: typeof figma): SandboxToolHandler =>
-  async params => {
+  async (params, execution) => {
     const p = (params ?? {}) as {
       styleId?: unknown;
       name?: unknown;
@@ -17,17 +17,21 @@ export const createUpdatePaintStyleHandler =
     }
 
     const style = await figmaCtx.getStyleByIdAsync(p.styleId);
+    execution?.signal.throwIfAborted();
     if (style === null || style.type !== 'PAINT') {
       throw new Error(`update_paint_style: paint style ${p.styleId} not found`);
     }
     const ps = style as PaintStyle;
     if (typeof p.name === 'string') ps.name = p.name;
     if (Array.isArray(p.paints)) {
-      ps.paints = await toFigmaPaintsBound(
+      const resolvedEffectValue1 = await toFigmaPaintsBound(
         figmaCtx,
         p.paints as SerializedPaint[],
         'update_paint_style',
       );
+      execution?.signal.throwIfAborted();
+      ps.paints = resolvedEffectValue1;
+      execution?.markMutated?.();
     }
     if (typeof p.description === 'string') ps.description = p.description;
 

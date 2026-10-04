@@ -2,12 +2,47 @@
 import { lstat, realpath, readFile } from 'node:fs/promises';
 import { basename, dirname, isAbsolute, join, parse, relative, resolve, sep } from 'node:path';
 
-import { contentHash, storedChecksum } from '@sfp/ir';
+import { contentHash, storedChecksum, type PortalRun } from '@sfp/ir';
 import { z } from 'zod';
 
 import { withRetainedDirectoryChain } from '../fs/atomic-file.js';
 import { portalError } from './store.js';
 import { windowsJobProgramHash } from './windows-job.js';
+
+export type PortalApplyEffectDisposition =
+  | 'pre-effect-rejected'
+  | 'partial-or-committed'
+  | 'dispatched-outcome-unknown';
+export function withPortalApplyDisposition(
+  error: unknown,
+  disposition: PortalApplyEffectDisposition,
+) {
+  const failure = error instanceof Error ? error : portalError('PORTAL_APPLY_FAILED');
+  // Existing uncertain-commit proof can never be downgraded to a zero-effect claim.
+  const actual =
+    (error as { committed?: boolean } | null)?.committed === true &&
+    disposition === 'pre-effect-rejected'
+      ? 'partial-or-committed'
+      : disposition;
+  return Object.assign(failure, {
+    applyEffectDisposition: actual,
+    committed: actual !== 'pre-effect-rejected',
+  });
+}
+export const portalRunStateResource = (runId: string) => ({
+  key: `portal:state:${runId}`,
+  mode: 'write' as const,
+});
+/** Budgets are admitted and retained by the owner-bound coordinator before native dispatch. */
+export function portalNativeDeadline(
+  run: PortalRun,
+  target: 'candidate' | 'applied' | 'apply' | 'reconcile',
+): number {
+  if (target === 'candidate') return run.deadlineAt;
+  return (
+    run.nativeBudget?.recovery?.deadlineAt ?? run.nativeBudget?.effect?.deadlineAt ?? run.deadlineAt
+  );
+}
 
 const hash = z.string().regex(/^sha256:[a-f0-9]{64}$/u);
 const id = z.string().regex(/^[a-z][a-z0-9-]{0,63}$/u);
@@ -346,6 +381,7 @@ export function expandNativeEnvironment(
   }).slice(7);
   const directory = join(grant.namespace, `portal-attempt-${attemptId}`);
   const resources = [
+    portalRunStateResource(input.runId),
     { key: `portal:process:${input.runId}`, mode: 'write' as const },
     { key: input.repositoryKey, mode: 'read' as const },
   ];

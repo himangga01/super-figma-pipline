@@ -59,6 +59,7 @@ const mocks = vi.hoisted(() => {
     connectedAt: null,
     reconnectCount: 0,
     totalCalls: 0,
+    activeCalls: 0,
     failedCalls: 0,
     activity: [],
   };
@@ -520,7 +521,11 @@ describe('useRelaySession', () => {
     });
 
     const withActivity = (activity: ActivityEntry[]): void => {
-      mocks.getEmitState()?.({ ...mocks.baseState, activity });
+      mocks.getEmitState()?.({
+        ...mocks.baseState,
+        activity,
+        activeCalls: activity.filter(call => call.status === 'pending').length,
+      });
     };
 
     it('is quiet before anything has happened', () => {
@@ -551,6 +556,18 @@ describe('useRelaySession', () => {
 
       withActivity([entry('a', 'ok')]);
 
+      expect(session.busy.value).toBe(false);
+    });
+
+    it('uses live dispatches even when history is capped or contains a stale pending row', () => {
+      const session = withSession();
+      mocks.getEmitState()?.({ ...mocks.baseState, activity: [], activeCalls: 1 });
+      expect(session.busy.value).toBe(true);
+      mocks.getEmitState()?.({
+        ...mocks.baseState,
+        activity: [entry('stale', 'pending')],
+        activeCalls: 0,
+      });
       expect(session.busy.value).toBe(false);
     });
   });

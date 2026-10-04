@@ -16,6 +16,8 @@ export interface SandboxExecutionContext {
   readonly signal: Pick<AbortSignal, 'aborted' | 'reason' | 'throwIfAborted'>;
   report(progress: Readonly<SandboxProgress>): void;
   markMutated?(): void;
+  /** Capture the actual value immediately after a successful host write for a batch inverse. */
+  recordOwnedWrite?(node: Readonly<{ id: string }>, properties: readonly string[]): void;
 }
 export type SandboxToolHandler = (
   params: unknown,

@@ -9,6 +9,8 @@ import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { dirname, relative, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
+import { assertScopeBinding, checkTestScope } from './test-report-scope.mjs';
+
 /**
  * Suites that must run wherever `verify:source` or CI runs them. The files' tests call the
  * prerequisite helper in test/support/required-suite.ts, which fails them at run time with an
@@ -16,11 +18,16 @@ import { fileURLToPath } from 'node:url';
  */
 export const REQUIRED_SUITES = Object.freeze([
   Object.freeze({
-    id: 'firefox',
-    prerequisite: 'Playwright Firefox installed into PLAYWRIGHT_BROWSERS_PATH (decision D4)',
+    id: 'chrome',
+    prerequisite: 'Installed Google Chrome stable, launched with the chrome channel',
     files: Object.freeze([
       'packages/cli/test/browser-observation.test.ts',
+      'packages/cli/test/browser-session-reconnect.test.ts',
+      'packages/cli/test/figma-web-export.test.ts',
+      'packages/cli/test/scripter-ui.test.ts',
+      'packages/mcp/test/portal/observation-manifest.test.ts',
       'packages/mcp/test/portal/preview-consumption.test.ts',
+      'packages/mcp/test/portal/preview-interactions.test.ts',
       'packages/mcp/test/portal/preview-native.test.ts',
       'packages/mcp/test/portal/preview.test.ts',
     ]),
@@ -47,11 +54,16 @@ export const allowedSkipSuites = (value = process.env.SFP_ALLOW_SKIP) =>
 
 /**
  * @param {VitestJsonReport} report
- * @param {{ serviceRoot: string; allowed?: ReadonlySet<string>; forbidSkips?: boolean }} options
+ * @param {{
+ *   serviceRoot: string;
+ *   allowed?: ReadonlySet<string>;
+ *   forbidSkips?: boolean;
+ *   scope?: object;
+ * }} options
  */
 export const testSkipCensus = (
   report,
-  { serviceRoot, allowed = allowedSkipSuites(), forbidSkips = false },
+  { serviceRoot, allowed = allowedSkipSuites(), forbidSkips = false, scope },
 ) => {
   /** @type {Map<string, string>} */
   const suiteByFile = new Map(
@@ -77,6 +89,16 @@ export const testSkipCensus = (
     ...new Set(skipped.flatMap(row => (row.suite === null ? [] : [row.suite]))),
   ].toSorted();
   const blockedSuites = skippedSuites.filter(suite => !allowed.has(suite));
+  const scopeProblems =
+    scope === undefined
+      ? []
+      : checkTestScope(
+          report,
+          scope,
+          serviceRoot,
+          REQUIRED_SUITES.flatMap(suite => suite.files),
+        );
+  if (scopeProblems.length > 0) blockedSuites.push('(test scope incomplete)');
   if (forbidSkips && skipped.length > 0) blockedSuites.push('(any skipped test)');
   const known = /** @type {Set<string>} */ (new Set(REQUIRED_SUITES.map(suite => suite.id)));
   return {
@@ -85,6 +107,7 @@ export const testSkipCensus = (
     skippedSuites,
     blockedSuites,
     skipped,
+    scopeProblems,
   };
 };
 
@@ -93,8 +116,10 @@ const main = async args => {
   const [reportPath, ...rest] = args;
   let out;
   let forbidSkips = false;
+  let scopePath;
   for (let index = 0; index < rest.length; index += 1) {
     if (rest[index] === '--out') out = rest[++index];
+    else if (rest[index] === '--scope') scopePath = rest[++index];
     else if (rest[index] === '--forbid-skips') forbidSkips = true;
     else
       throw new Error(
@@ -107,7 +132,11 @@ const main = async args => {
     );
   const serviceRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..');
   const report = JSON.parse(await readFile(reportPath, 'utf8'));
-  const census = testSkipCensus(report, { serviceRoot, forbidSkips });
+  if (!scopePath)
+    throw new Error('TEST_SCOPE_REQUIRED: declare scope before collection and pass --scope <path>');
+  const scope = JSON.parse(await readFile(scopePath, 'utf8'));
+  await assertScopeBinding(scope, serviceRoot);
+  const census = testSkipCensus(report, { serviceRoot, forbidSkips, scope });
   if (out) {
     await mkdir(dirname(resolve(out)), { recursive: true });
     await writeFile(out, `${JSON.stringify(census, null, 2)}\n`);
@@ -124,6 +153,8 @@ const main = async args => {
   for (const suite of census.unknownAllowedSuites)
     process.stdout.write(`  warning: SFP_ALLOW_SKIP names unknown suite ${suite}\n`);
   if (census.blockedSuites.length > 0) {
+    for (const problem of census.scopeProblems)
+      process.stderr.write(`TEST_SCOPE_INCOMPLETE: ${problem}\n`);
     process.stderr.write(
       `REQUIRED_SUITE_SKIPPED: ${census.blockedSuites.join(', ')}. Install the prerequisite, or set SFP_ALLOW_SKIP=<suite> to accept the skip visibly.\n`,
     );

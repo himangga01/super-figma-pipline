@@ -6,7 +6,7 @@ import { assertFigmaEditor, assertKeyframeField, isMotionNode } from './motion-s
 /** Remove the manual keyframe track for a field on a node. Destructive: the track is discarded. */
 export const createRemoveManualKeyframeTrackHandler =
   (figmaCtx: typeof figma): SandboxToolHandler =>
-  async params => {
+  async (params, execution) => {
     const p = (params ?? {}) as { nodeId?: unknown; field?: unknown };
     if (typeof p.nodeId !== 'string') {
       throw new TypeError('remove_manual_keyframe_track: nodeId must be a string');
@@ -14,6 +14,7 @@ export const createRemoveManualKeyframeTrackHandler =
     assertKeyframeField(p.field, 'remove_manual_keyframe_track');
     assertFigmaEditor(figmaCtx, 'remove_manual_keyframe_track');
     const node = await figmaCtx.getNodeByIdAsync(p.nodeId);
+    execution?.signal.throwIfAborted();
     if (node === null || !isMotionNode(node)) {
       throw new Error(
         `remove_manual_keyframe_track: node ${p.nodeId} not found or does not support Motion`,

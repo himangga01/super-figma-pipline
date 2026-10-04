@@ -4,14 +4,16 @@ import { join } from 'node:path';
 
 import pngModule from '@pdf-lib/upng';
 import { storedChecksum } from '@sfp/ir';
-import { afterEach, expect, it } from 'vitest';
+import { afterEach, beforeEach, expect, it } from 'vitest';
 
+import { requireChrome } from '../../../../test/support/required-suite.js';
 import { derivePortalInteractionContract } from '../../src/portal/interaction-evidence.js';
 import { preparePortalObservationManifest } from '../../src/portal/observation-manifest.js';
 import { assertNativePortalPreview } from '../../src/portal/preview.js';
 import { currentCaptureFixture } from './capture-fixture.js';
 import { portalFixture } from './fixtures.js';
 const cleanups: Array<() => Promise<void>> = [];
+beforeEach(context => requireChrome(context));
 afterEach(async () => {
   for (const fn of cleanups.splice(0)) await fn();
 });

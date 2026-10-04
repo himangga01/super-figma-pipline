@@ -1,11 +1,22 @@
 import type { BatchResult } from '@sfp/shared';
 
-import type { SandboxHandlers, SandboxToolHandler } from '../dispatcher.js';
+import type {
+  SandboxExecutionContext,
+  SandboxHandlers,
+  SandboxToolHandler,
+} from '../dispatcher.js';
+import {
+  captureCreatedNode,
+  createdNodeStillOwned,
+  CREATED_NODE_PROPERTY,
+  observeCreatedFields,
+  type CreatedNodeSnapshot,
+} from './batch-created.js';
 import { assertFigmaEditor, isMotionNode, toPlainJson } from './motion-shared.js';
 import { annotationBatchInverse } from './set-annotations.js';
 
 /**
- * Atomic batch: apply several invertible write ops as a unit. Two phases —
+ * Apply supported invertible writes as one batch with verified, conflict-aware rollback.
  *
  * 1. Capture (read-only): resolve every op's target and snapshot what undo needs. Any failure here
  *    aborts before a single mutation, so a bad op id never leaves the document half-changed.
@@ -14,7 +25,8 @@ import { annotationBatchInverse } from './set-annotations.js';
  *    mutation logic — this module only adds the inverse (undo) for each invertible op.
  *
  * Only ops with a registered inverse are accepted; destructive ops (delete_*, ungroup, …) have no
- * faithful inverse and are rejected at validate time, keeping the all-or-nothing guarantee honest.
+ * faithful inverse and are rejected before effects. Unknown effects, conflicts and unverified
+ * restoration produce BATCH_PARTIAL_CHANGE, preserving concurrent edits.
  */
 
 /** Per-op inverse. `capture` runs before any mutation; `undo` restores the pre-op state on rollback. */
@@ -31,14 +43,79 @@ interface BatchInverse {
     captured: unknown,
     result: unknown,
     failure?: unknown,
+    owned?: OwnedWrites,
   ): Promise<void>;
 }
 
-/**
- * Restoring a `figma.mixed` (symbol) value would throw, so skip those — imperfect but never
- * crashes.
- */
+/** Mixed aggregates need a supported individual-field inverse; they cannot be assigned directly. */
 const restorable = (value: unknown): boolean => typeof value !== 'symbol';
+
+type OwnedWrites = ReadonlyMap<BaseNode, Record<string, unknown>>;
+interface NodeSnapshot {
+  id: string;
+  node: BaseNode;
+  snapshot: Record<string, unknown>;
+}
+const cloneValue = (value: unknown): unknown =>
+  typeof value === 'symbol' || value === undefined ? value : toPlainJson(value);
+const sameValue = (left: unknown, right: unknown): boolean =>
+  Object.is(left, right) ||
+  (typeof left === 'object' &&
+    left !== null &&
+    typeof right === 'object' &&
+    right !== null &&
+    JSON.stringify(left) === JSON.stringify(right));
+
+/** Restore only observed writes still owned by this operation, and verify the host's result. */
+const restoreOwned = (
+  node: BaseNode | null,
+  captured: NodeSnapshot,
+  owned: OwnedWrites | undefined,
+  failure: unknown,
+  write?: (snapshot: Record<string, unknown>) => void,
+): void => {
+  if (node !== captured.node) throw new Error(`node ${captured.id} identity changed`);
+  const bag = node as unknown as Record<string, unknown>;
+  const writes = owned?.get(node) ?? {};
+  const eligible: Record<string, unknown> = {};
+  const conflicts: string[] = [];
+  for (const [key, previous] of Object.entries(captured.snapshot)) {
+    if (!(key in writes)) {
+      if (failure !== undefined && !sameValue(bag[key], previous)) conflicts.push(key);
+      continue;
+    }
+    if (!sameValue(bag[key], writes[key])) {
+      conflicts.push(key);
+      continue;
+    }
+    // Mixed aggregate corner/stroke values are restored by their observed individual fields.
+    if (restorable(previous)) eligible[key] = cloneValue(previous);
+  }
+  if (write !== undefined) {
+    if (Object.keys(eligible).length > 0) {
+      const merged = Object.fromEntries(Object.keys(captured.snapshot).map(key => [key, bag[key]]));
+      write({ ...merged, ...eligible });
+    }
+  } else {
+    for (const [key, previous] of Object.entries(eligible)) {
+      // A prior restoration may update a coupled aggregate (uniform corner/stroke values).
+      if (!sameValue(bag[key], writes[key]) && !sameValue(bag[key], previous)) {
+        conflicts.push(key);
+        continue;
+      }
+      bag[key] = previous;
+    }
+  }
+  for (const key of Object.keys(eligible)) {
+    if (!sameValue(bag[key], captured.snapshot[key])) conflicts.push(key);
+  }
+  for (const [key, previous] of Object.entries(captured.snapshot)) {
+    if (typeof previous === 'symbol' && key in writes && !sameValue(bag[key], previous))
+      conflicts.push(key);
+  }
+  if (conflicts.length > 0)
+    throw new Error(`unverified or conflicting properties: ${conflicts.join(', ')}`);
+};
 
 /** Single-node op: snapshot the given properties and restore them on undo. props[0] is required. */
 const nodeProps = (tool: string, props: readonly string[]): BatchInverse => ({
@@ -51,17 +128,25 @@ const nodeProps = (tool: string, props: readonly string[]): BatchInverse => ({
     if (!(required in node)) throw new Error(`batch/${tool}: node ${id} has no ${required}`);
     const bag = node as unknown as Record<string, unknown>;
     const snapshot: Record<string, unknown> = {};
-    for (const k of props) if (k in node) snapshot[k] = bag[k];
-    return { id, snapshot };
-  },
-  async undo(figmaCtx, _params, captured) {
-    const { id, snapshot } = captured as { id: string; snapshot: Record<string, unknown> };
-    const node = await figmaCtx.getNodeByIdAsync(id);
-    if (node === null) return;
-    const bag = node as unknown as Record<string, unknown>;
-    for (const k of Object.keys(snapshot)) {
-      if (k in node && restorable(snapshot[k])) bag[k] = snapshot[k];
+    for (const k of props) if (k in node) snapshot[k] = cloneValue(bag[k]);
+    if (
+      props.some(k => typeof snapshot[k] === 'symbol') &&
+      !(
+        (typeof snapshot.cornerRadius === 'symbol' &&
+          props.slice(1).every(k => typeof snapshot[k] === 'number')) ||
+        (typeof snapshot.strokeWeight === 'symbol' &&
+          ['strokeTopWeight', 'strokeRightWeight', 'strokeBottomWeight', 'strokeLeftWeight'].every(
+            k => typeof snapshot[k] === 'number',
+          ))
+      )
+    ) {
+      throw new Error(`batch/${tool}: mixed property has no faithful inverse`);
     }
+    return { id, node, snapshot };
+  },
+  async undo(figmaCtx, _params, captured, _result, failure, owned) {
+    const snapshot = captured as NodeSnapshot;
+    restoreOwned(await figmaCtx.getNodeByIdAsync(snapshot.id), snapshot, owned, failure);
   },
 });
 
@@ -77,20 +162,32 @@ const nodesSnapshot = (
       throw new TypeError(`batch/${tool}: nodeIds must be a string[]`);
     }
     const nodes = await Promise.all((ids as string[]).map(id => figmaCtx.getNodeByIdAsync(id)));
-    const snaps: { id: string; snap: Record<string, unknown> }[] = [];
+    const snaps: NodeSnapshot[] = [];
     nodes.forEach((node, i) => {
       if (node === null) return;
       const snap = read(node as SceneNode);
-      if (snap !== null) snaps.push({ id: (ids as string[])[i]!, snap });
+      if (snap !== null)
+        snaps.push({
+          id: (ids as string[])[i]!,
+          node,
+          snapshot: cloneValue(snap) as Record<string, unknown>,
+        });
     });
     return snaps;
   },
-  async undo(figmaCtx, _params, captured) {
-    const snaps = captured as { id: string; snap: Record<string, unknown> }[];
+  async undo(figmaCtx, _params, captured, _result, failure, owned) {
+    const snaps = captured as NodeSnapshot[];
     const nodes = await Promise.all(snaps.map(s => figmaCtx.getNodeByIdAsync(s.id)));
+    const failures: unknown[] = [];
     nodes.forEach((node, i) => {
-      if (node !== null) write(node as SceneNode, snaps[i]!.snap);
+      try {
+        restoreOwned(node, snaps[i]!, owned, failure, snap => write(node as SceneNode, snap));
+      } catch (error) {
+        failures.push(error);
+      }
     });
+    if (failures.length > 0)
+      throw new AggregateError(failures, 'multi-node restoration was not verified');
   },
 });
 
@@ -106,13 +203,20 @@ const createInverse = (tool: string, hasParent = true): BatchInverse => ({
     }
     return null;
   },
-  async undo(figmaCtx, _params, _captured, result) {
+  async undo(figmaCtx, _params, _captured, result, _failure, owned) {
     const id = (result as { nodeId?: unknown } | null)?.nodeId;
     if (typeof id !== 'string') {
       throw new Error('creation failed before returning an identity; created node may remain');
     }
     const node = await figmaCtx.getNodeByIdAsync(id);
-    if (node !== null && 'remove' in node) (node as { remove(): void }).remove();
+    if (node === null) return;
+    const snapshot = owned?.get(node)?.[CREATED_NODE_PROPERTY] as CreatedNodeSnapshot | undefined;
+    if (snapshot === undefined || !createdNodeStillOwned(snapshot))
+      throw new Error('created node identity or state is no longer owned');
+    if (!('remove' in node)) throw new Error('created node cannot be removed');
+    (node as { remove(): void }).remove();
+    if ((await figmaCtx.getNodeByIdAsync(id)) !== null)
+      throw new Error('created node removal was not verified');
   },
 });
 
@@ -157,9 +261,8 @@ export const TEXT_PROPERTY_KEYS = [
 
 /**
  * Set_text_properties mutates typography, which Figma only allows with the node's fonts loaded — so
- * the undo must reload the captured fonts before restoring, exactly like setTextInverse. A per-run
- * `mixed` value (symbol) can't be restored node-level and is skipped; every other field
- * round-trips.
+ * the undo must reload the captured fonts before restoring, exactly like setTextInverse. Mixed
+ * typography is rejected during read-only preflight until an exact range inverse is supported.
  */
 const setTextPropertiesInverse: BatchInverse = {
   async capture(figmaCtx, params) {
@@ -172,28 +275,32 @@ const setTextPropertiesInverse: BatchInverse = {
       throw new Error(`batch/set_text_properties: node ${id} is not a TEXT node`);
     }
     const text = node as TextNode;
+    if (
+      TEXT_PROPERTY_KEYS.some(
+        k => typeof (text as unknown as Record<string, unknown>)[k] === 'symbol',
+      )
+    ) {
+      throw new Error(
+        'batch/set_text_properties: mixed typography has no faithful node-level inverse',
+      );
+    }
     const fonts =
       text.fontName === figmaCtx.mixed && text.characters.length > 0
         ? text.getRangeAllFontNames(0, text.characters.length)
         : [text.fontName as FontName];
     const bag = text as unknown as Record<string, unknown>;
     const snapshot: Record<string, unknown> = {};
-    for (const k of TEXT_PROPERTY_KEYS) if (k in text) snapshot[k] = bag[k];
-    return { id, snapshot, fonts };
+    for (const k of TEXT_PROPERTY_KEYS) if (k in text) snapshot[k] = cloneValue(bag[k]);
+    return { id, node, snapshot, fonts };
   },
-  async undo(figmaCtx, _params, captured) {
-    const { id, snapshot, fonts } = captured as {
-      id: string;
-      snapshot: Record<string, unknown>;
-      fonts: FontName[];
-    };
+  async undo(figmaCtx, _params, captured, _result, failure, owned) {
+    const snapshot = captured as NodeSnapshot & { fonts: FontName[] };
+    const { id, fonts } = snapshot;
     const node = await figmaCtx.getNodeByIdAsync(id);
-    if (node === null || node.type !== 'TEXT') return;
+    if (node !== snapshot.node || node.type !== 'TEXT')
+      throw new Error(`node ${id} identity changed`);
     await Promise.all(fonts.map(font => figmaCtx.loadFontAsync(font)));
-    const bag = node as unknown as Record<string, unknown>;
-    for (const k of TEXT_PROPERTY_KEYS) {
-      if (k in snapshot && k in node && restorable(snapshot[k])) bag[k] = snapshot[k];
-    }
+    restoreOwned(await figmaCtx.getNodeByIdAsync(id), snapshot, owned, failure);
   },
 };
 
@@ -207,22 +314,47 @@ const setTextInverse: BatchInverse = {
       throw new Error(`batch/set_text: node ${id} is not a TEXT node`);
     }
     const text = node as TextNode;
+    if (
+      TEXT_PROPERTY_KEYS.some(
+        k => typeof (text as unknown as Record<string, unknown>)[k] === 'symbol',
+      )
+    ) {
+      throw new Error('batch/set_text: mixed typography has no faithful node-level inverse');
+    }
+    if (typeof text.getStyledTextSegments === 'function' && text.characters.length > 0) {
+      const segments = text.getStyledTextSegments([
+        'fontName',
+        'fontSize',
+        'lineHeight',
+        'letterSpacing',
+        'textCase',
+        'textDecoration',
+        'fills',
+        'textStyleId',
+        'fillStyleId',
+        'listOptions',
+        'indentation',
+        'textWrapStyle',
+      ]);
+      // Replacing characters can flatten paragraph and style ranges. Without an exact range
+      // inverse, reject their loss before any batch effect.
+      if (segments.length > 1)
+        throw new Error('batch/set_text: mixed typography ranges have no faithful inverse');
+    }
     const fonts =
       text.fontName === figmaCtx.mixed && text.characters.length > 0
         ? text.getRangeAllFontNames(0, text.characters.length)
         : [text.fontName as FontName];
-    return { id, characters: text.characters, fonts };
+    return { id, node, snapshot: { characters: text.characters }, fonts };
   },
-  async undo(figmaCtx, _params, captured) {
-    const { id, characters, fonts } = captured as {
-      id: string;
-      characters: string;
-      fonts: FontName[];
-    };
+  async undo(figmaCtx, _params, captured, _result, failure, owned) {
+    const snapshot = captured as NodeSnapshot & { fonts: FontName[] };
+    const { id, fonts } = snapshot;
     const node = await figmaCtx.getNodeByIdAsync(id);
-    if (node === null || node.type !== 'TEXT') return;
+    if (node !== snapshot.node || node.type !== 'TEXT')
+      throw new Error(`node ${id} identity changed`);
     await Promise.all(fonts.map(font => figmaCtx.loadFontAsync(font)));
-    (node as TextNode).characters = characters;
+    restoreOwned(await figmaCtx.getNodeByIdAsync(id), snapshot, owned, failure);
   },
 };
 
@@ -246,13 +378,17 @@ const applyAnimationStyleInverse: BatchInverse = {
         `batch/apply_animation_style: node ${id} not found or does not support Motion`,
       );
     }
-    return null; // undo relies on the appliedStyleId in the apply result
+    return { id, node, snapshot: { animationStyles: cloneValue(node.animationStyles) } };
   },
-  async undo(figmaCtx, _params, _captured, result) {
+  async undo(figmaCtx, _params, captured, result, failure, owned) {
+    const snapshot = captured as NodeSnapshot;
     const r = result as { nodeId?: unknown; appliedStyleId?: unknown } | null;
-    if (typeof r?.nodeId !== 'string' || typeof r.appliedStyleId !== 'string') return;
-    const node = await figmaCtx.getNodeByIdAsync(r.nodeId);
-    if (node !== null && isMotionNode(node)) node.removeAnimationStyle(r.appliedStyleId);
+    const node = await figmaCtx.getNodeByIdAsync(snapshot.id);
+    restoreOwned(node, snapshot, owned, failure, () => {
+      if (node === null || !isMotionNode(node) || typeof r?.appliedStyleId !== 'string')
+        throw new Error('animation style identity is unknown');
+      node.removeAnimationStyle(r.appliedStyleId);
+    });
   },
 };
 
@@ -280,20 +416,24 @@ const applyManualKeyframeTrackInverse: BatchInverse = {
     // Deep-clone so the snapshot can't be mutated by the apply that follows.
     return {
       id: p.nodeId,
+      node,
+      snapshot: { manualKeyframeTracks: cloneValue(node.manualKeyframeTracks) },
       field: p.field,
       previous: previous === undefined ? null : toPlainJson(previous),
     };
   },
-  async undo(figmaCtx, _params, captured) {
+  async undo(figmaCtx, _params, captured, _result, failure, owned) {
     const { id, field, previous } = captured as {
       id: string;
       field: KeyframeField;
       previous: ManualKeyframeTrackInput | null;
     };
     const node = await figmaCtx.getNodeByIdAsync(id);
-    if (node === null || !isMotionNode(node)) return;
-    if (previous === null) node.removeManualKeyframeTrack(field);
-    else node.applyManualKeyframeTrack(field, previous);
+    restoreOwned(node, captured as NodeSnapshot, owned, failure, () => {
+      if (node === null || !isMotionNode(node)) throw new Error(`node ${id} has no Motion API`);
+      if (previous === null) node.removeManualKeyframeTrack(field);
+      else node.applyManualKeyframeTrack(field, previous);
+    });
   },
 };
 
@@ -319,17 +459,25 @@ const setTimelineDurationInverse: BatchInverse = {
         `batch/set_timeline_duration: timeline ${p.timelineId} not found on node ${p.nodeId}`,
       );
     }
-    return { id: p.nodeId, timelineId: p.timelineId, duration: timeline.duration };
+    return {
+      id: p.nodeId,
+      node,
+      snapshot: { timelines: cloneValue(node.timelines) },
+      timelineId: p.timelineId,
+      duration: timeline.duration,
+    };
   },
-  async undo(figmaCtx, _params, captured) {
+  async undo(figmaCtx, _params, captured, _result, failure, owned) {
     const { id, timelineId, duration } = captured as {
       id: string;
       timelineId: string;
       duration: number;
     };
     const node = await figmaCtx.getNodeByIdAsync(id);
-    if (node === null || !isMotionNode(node)) return;
-    node.setTimelineDuration(timelineId, duration);
+    restoreOwned(node, captured as NodeSnapshot, owned, failure, () => {
+      if (node === null || !isMotionNode(node)) throw new Error(`node ${id} has no Motion API`);
+      node.setTimelineDuration(timelineId, duration);
+    });
   },
 };
 
@@ -470,12 +618,37 @@ export const createBatchHandler =
 
     // Phase 2 — apply in order; roll back already-applied ops on the first failure.
     const results: unknown[] = [];
+    const ownership: Map<BaseNode, Record<string, unknown>>[] = [];
     /* eslint-disable no-await-in-loop -- apply order is significant and rollback needs partial results */
     for (let i = 0; i < ops.length; i += 1) {
       const op = ops[i]!;
+      const writes = new Map<BaseNode, Record<string, unknown>>();
+      ownership.push(writes);
+      const execution: Readonly<SandboxExecutionContext> = {
+        ...context,
+        signal: context?.signal ?? new AbortController().signal,
+        report: progress => context?.report(progress),
+        recordOwnedWrite(identity, properties) {
+          // Keep the dispatcher interface usable without Plugin API ambient types in MCP tests.
+          const node = identity as BaseNode;
+          const snapshot = writes.get(node) ?? {};
+          const bag = node as unknown as Record<string, unknown>;
+          if (properties.includes(CREATED_NODE_PROPERTY))
+            snapshot[CREATED_NODE_PROPERTY] = captureCreatedNode(node);
+          const created = snapshot[CREATED_NODE_PROPERTY] as CreatedNodeSnapshot | undefined;
+          if (created !== undefined) observeCreatedFields(created, properties);
+          for (const key of properties)
+            if (key !== 'parent' && key in node) snapshot[key] = cloneValue(bag[key]);
+          writes.set(node, snapshot);
+          context?.recordOwnedWrite?.(node, properties);
+        },
+      };
       try {
         context?.signal.throwIfAborted();
-        results.push(await apply[op.tool]!(op.params, context));
+        // Refresh each inverse at its apply boundary so overlapping operations unwind in order.
+        captured[i] = await INVERSES[op.tool]!.capture(figmaCtx, op.params);
+        execution.signal.throwIfAborted();
+        results.push(await apply[op.tool]!(op.params, execution));
       } catch (err) {
         // Unwind applied ops in reverse. Keep going even if one undo throws, but record which ones
         // failed so the error never claims a clean rollback that didn't happen.
@@ -490,6 +663,7 @@ export const createBatchHandler =
               captured[j],
               results[j],
               j === i ? err : undefined,
+              ownership[j],
             );
           } catch (undoErr) {
             const m = undoErr instanceof Error ? undoErr.message : String(undoErr);

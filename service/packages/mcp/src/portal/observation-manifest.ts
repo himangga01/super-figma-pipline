@@ -42,6 +42,7 @@ export type ObservationProposal = {
   viewport: { width: number; height: number };
   oracleHash: string;
   assertionIds: string[];
+  comparisonMode?: PortalObservationIdentity['comparisonMode'];
 };
 /** Prepared under owner authority, before execution. Root obligations never coalesce by PNG hash. */
 export function preparePortalObservationManifest(
@@ -109,6 +110,7 @@ export function preparePortalObservationManifest(
       deviceScaleFactor: 1,
       assertionIds: screen.assertionIds,
       oracleHash: screen.oracleHash,
+      ...(screen.comparisonMode ? { comparisonMode: screen.comparisonMode } : {}),
     })),
     assets: assets.map(asset => ({
       rootNodeId: asset.nodeId,

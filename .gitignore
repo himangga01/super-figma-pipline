@@ -6,6 +6,7 @@ code-kb/
 .worktrees/
 
 # Workspace-wide local artifacts
+/.cache/
 *.log
 .DS_Store
 Thumbs.db

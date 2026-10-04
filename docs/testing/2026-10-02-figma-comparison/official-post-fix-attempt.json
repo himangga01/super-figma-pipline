@@ -1,0 +1,12 @@
+{
+  "attemptedAt": "2026-10-02",
+  "tool": "official Figma MCP use_figma",
+  "fileKey": "ly06O8jAcrd7oWmwhz5Vr6",
+  "scope": "Patched compiled production reader; first 25 retained text nodes",
+  "status": "blocked",
+  "reason": "Starter plan MCP tool call limit",
+  "errorCode": "INVALID_ARGUMENT",
+  "readExecuted": false,
+  "postFixLiveComparisonAccepted": false,
+  "fullCapture": false
+}

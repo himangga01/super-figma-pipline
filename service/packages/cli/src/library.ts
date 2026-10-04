@@ -8,3 +8,15 @@ export {
 } from './scripter-reader.js';
 export { ControlClient } from './control-client.js';
 export { prepareDesktopPlugin } from './plugin-bootstrap.js';
+export {
+  OFFICIAL_FIGMA_REMOTE,
+  OFFICIAL_FIGMA_DESKTOP,
+  OFFICIAL_FIGMA_READ_TOOLS,
+  assertOfficialFigmaEndpoint,
+  officialFigmaConfiguration,
+  probeOfficialFigmaMcp,
+  readOfficialFigmaMcp,
+  type OfficialFigmaConnectionOptions,
+  type OfficialFigmaReadTool,
+  type OfficialFigmaTarget,
+} from '../../mcp/src/official-figma-mcp.js';

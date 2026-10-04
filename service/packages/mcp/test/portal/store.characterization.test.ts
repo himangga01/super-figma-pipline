@@ -10,15 +10,10 @@ import { AtomicFileStore } from '../../src/fs/atomic-file.js';
 import { portalFixture } from './fixtures.js';
 
 /*
- * T06a characterization of finding OPS-2 (remediation plan section 3.1). The fix is task T07.
- *
- * OPS-2: AtomicFileStore.replace keeps every previous generation of a file as a
- * `.replace-retained` sibling and never collects it (mcp/src/fs/atomic-file.ts:1825-1968). The
- * default capacity is 64 retained generations per directory scan (maxRows 64), and PortalStore
- * uses that default for every kind except `recipe-holds` and `environment-*`
- * (mcp/src/portal/store.ts:118-139). The 65th replacement of one record therefore fails. After
- * T07 gives PortalStore the `discard` retention mode, the 65th update must succeed, and these
- * tests must be flipped.
+ * OPS-2 originally reproduced exhaustion on the 65th signed-record replacement. M01 now
+ * reclaims obsolete PortalStore generations through byte-bound durable cleanup intents.
+ * Bare AtomicFileStore callers still retain recovery material unless they explicitly prove
+ * that a published successor makes it obsolete.
  */
 const cleanups: Array<() => Promise<void>> = [];
 afterEach(async () => {
@@ -28,9 +23,7 @@ const schema = z.object({ value: z.number().int() }).strict();
 const retainedNames = async (directory: string) =>
   (await readdir(directory)).filter(name => name.endsWith('.replace-retained'));
 
-it('OPS-2 characterization: the 65th PortalStore update of one run record fails with REPLACE_RETAINED_CAPACITY_EXCEEDED (flip in T07)', async () => {
-  // OPS-2, fixed by T07. Seam: the real signed PortalStore on a temporary state root; `runs` is
-  // the kind that holds portal runs, and it uses the default retained-generation limits.
+it('OPS-2 regression: the 65th signed PortalStore update succeeds with obsolete generations reclaimed', async () => {
   const fixture = await portalFixture();
   cleanups.push(fixture.cleanup);
   await fixture.store.create('runs', 'ops-2', { value: 0 }, schema);
@@ -38,27 +31,19 @@ it('OPS-2 characterization: the 65th PortalStore update of one run record fails 
     await fixture.store.update('runs', 'ops-2', schema, () => ({ value }));
   expect(await fixture.store.get('runs', 'ops-2', schema)).toEqual({ value: 64 });
   const directory = join(fixture.stateRoot, 'portal', 'runs');
-  // Every successful update left its previous generation behind.
-  expect(await retainedNames(directory)).toHaveLength(64);
+  expect(await retainedNames(directory)).toHaveLength(0);
 
-  // Current behavior: the 65th update fails before publishing anything.
   await expect(
     fixture.store.update('runs', 'ops-2', schema, () => ({ value: 65 })),
-  ).rejects.toMatchObject({
-    code: 'REPLACE_RETAINED_CAPACITY_EXCEEDED',
-    retainedRows: 64,
-  });
-  expect(await fixture.store.get('runs', 'ops-2', schema)).toEqual({ value: 64 });
-  expect(await retainedNames(directory)).toHaveLength(64);
-  // The record stays wedged: later updates fail the same way.
+  ).resolves.toEqual({ value: 65 });
+  expect(await fixture.store.get('runs', 'ops-2', schema)).toEqual({ value: 65 });
+  expect(await retainedNames(directory)).toHaveLength(0);
   await expect(
     fixture.store.update('runs', 'ops-2', schema, () => ({ value: 66 })),
-  ).rejects.toMatchObject({ code: 'REPLACE_RETAINED_CAPACITY_EXCEEDED' });
+  ).resolves.toEqual({ value: 66 });
 }, 120_000);
 
-it('OPS-2 characterization: a default AtomicFileStore replaces one file 64 times and fails the 65th with REPLACE_RETAINED_CAPACITY_EXCEEDED (flip in T07)', async () => {
-  // OPS-2, fixed by T07. Seam: the bare AtomicFileStore that PortalStore delegates to, with its
-  // default options. The control store differs only in allowing 65 retained generations.
+it('retains the default AtomicFileStore recovery budget until a caller authorizes obsolete-generation reclamation', async () => {
   const root = await mkdtemp(join(tmpdir(), 'sfp-ops2-characterization-'));
   cleanups.push(() => rm(root, { recursive: true, force: true }));
   const generation = (index: number) => Buffer.from(`generation ${index}\n`);

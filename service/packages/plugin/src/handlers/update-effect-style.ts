@@ -5,7 +5,7 @@ import { toFigmaEffectsBound } from './bindings.js';
 
 export const createUpdateEffectStyleHandler =
   (figmaCtx: typeof figma): SandboxToolHandler =>
-  async params => {
+  async (params, execution) => {
     const p = (params ?? {}) as {
       styleId?: unknown;
       name?: unknown;
@@ -17,17 +17,21 @@ export const createUpdateEffectStyleHandler =
     }
 
     const style = await figmaCtx.getStyleByIdAsync(p.styleId);
+    execution?.signal.throwIfAborted();
     if (style === null || style.type !== 'EFFECT') {
       throw new Error(`update_effect_style: effect style ${p.styleId} not found`);
     }
     const es = style as EffectStyle;
     if (typeof p.name === 'string') es.name = p.name;
     if (Array.isArray(p.effects)) {
-      es.effects = await toFigmaEffectsBound(
+      const resolvedEffectValue1 = await toFigmaEffectsBound(
         figmaCtx,
         p.effects as SerializedEffect[],
         'update_effect_style',
       );
+      execution?.signal.throwIfAborted();
+      es.effects = resolvedEffectValue1;
+      execution?.markMutated?.();
     }
     if (typeof p.description === 'string') es.description = p.description;
 

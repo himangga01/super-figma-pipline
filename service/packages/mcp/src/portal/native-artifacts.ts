@@ -11,6 +11,7 @@ import { z } from 'zod';
 
 import { windowsDirectoryLeaseInvocation } from '../fs/atomic-file.js';
 import { WINDOWS_DIRECTORY_LEASE_PROTOCOL } from '../fs/windows-directory-lease-broker.js';
+import { googleChromeExecutable } from './chrome-runtime.js';
 import {
   NATIVE_MODULE_FENCE_PROTOCOL,
   NATIVE_MODULE_FENCE_SOURCE,
@@ -71,6 +72,16 @@ export const NativeArtifactAuthoritySchema = z
         protocol: z.enum(['windows-directory-lease-v1', 'windows-directory-lease-v2']),
         executable: InventorySchema,
         args: z.array(z.string()).length(5),
+      })
+      .strict()
+      .optional(),
+    ownedChromeCleanup: z
+      .object({
+        protocol: z.literal('windows-owned-chrome-cleanup-v1'),
+        executable: InventorySchema,
+        chromeExecutable: InventorySchema,
+        timeoutMs: z.literal(5000),
+        maxBuffer: z.literal(65536),
       })
       .strict()
       .optional(),
@@ -269,7 +280,8 @@ const configuration = (environment: Record<string, string>) => ({
   },
   platform: process.platform,
   environment,
-  privateEnvironmentPolicy: 'native-private-home-v1',
+  privateEnvironmentPolicy: 'native-private-home-v2',
+  windowsKnownFolders: ['AppData/Local', 'AppData/Roaming'],
   replacements: [
     'HOME',
     'USERPROFILE',
@@ -401,8 +413,33 @@ export const prepareNativeArtifactAuthority = async (
           },
         ]
       : [];
+  let ownedChromeCleanup: NativeArtifactAuthority['ownedChromeCleanup'];
+  if (process.platform === 'win32' && profile.commands.some(command => command.preview)) {
+    const chrome = profile.environment.SFP_PORTAL_CHROME_EXECUTABLE ?? googleChromeExecutable();
+    if (!chrome || !isAbsolute(chrome) || basename(chrome).toLowerCase() !== 'chrome.exe') {
+      throw portalError('PORTAL_CHROME_RUNTIME_REQUIRED');
+    }
+    const browserDeclarations = declarations.filter(
+      declaration => declaration.kind === 'browser-runtime',
+    );
+    if (
+      browserDeclarations.length &&
+      browserDeclarations.filter(declaration => contains(declaration.root, chrome)).length !== 1
+    ) {
+      throw portalError('PORTAL_CHROME_RUNTIME_AUTHORITY_INVALID');
+    }
+    const system32 = dirname(dirname(dirname(windowsDirectoryLeaseInvocation().executable)));
+    ownedChromeCleanup = {
+      protocol: 'windows-owned-chrome-cleanup-v1',
+      executable: await inventoryNativeArtifact(join(system32, 'taskkill.exe'), signal),
+      chromeExecutable: await inventoryNativeArtifact(chrome, signal),
+      timeoutMs: 5000,
+      maxBuffer: 65536,
+    };
+  }
   return {
     version: 1,
+    ...(ownedChromeCleanup ? { ownedChromeCleanup } : {}),
     ...(process.platform === 'win32' && profile.commands.some(command => command.preview)
       ? {
           previewListener: {
@@ -445,6 +482,13 @@ export const verifyNativeArtifactAuthority = async (
   if (!profile.artifactAuthority) throw portalError('PORTAL_ARTIFACT_AUTHORITY_REQUIRED');
   if (profile.artifactAuthority.version !== 1)
     throw portalError('PORTAL_ARTIFACT_AUTHORITY_VERSION_UNSUPPORTED');
+  if (
+    process.platform === 'win32' &&
+    profile.commands.some(command => command.preview) &&
+    !profile.artifactAuthority.ownedChromeCleanup
+  ) {
+    throw portalError('PORTAL_ARTIFACT_REPREPARE_REQUIRED');
+  }
   if (
     profile.artifactAuthority.directoryLease !== undefined &&
     profile.artifactAuthority.directoryLease.protocol !== WINDOWS_DIRECTORY_LEASE_PROTOCOL
@@ -498,20 +542,80 @@ export const verifyNativeCommandInputs = async (
   if (/npm-cli\.(?:c?js|mjs)$/iu.test(basename(path))) {
     const index = args.indexOf(entry),
       tail = args.slice(index + 1);
+    const lockOnly = tail[0] === 'install' && tail.includes('--package-lock-only');
+    const packagePath = relative(root, resolve(root, command.cwd, 'package.json')).replaceAll(
+      '\\',
+      '/',
+    );
+    const lockPath = relative(root, resolve(root, command.cwd, 'package-lock.json')).replaceAll(
+      '\\',
+      '/',
+    );
+    const modulesPath = relative(root, resolve(root, command.cwd, 'node_modules')).replaceAll(
+      '\\',
+      '/',
+    );
     if (
       !['ci', 'install'].includes(tail[0] ?? '') ||
       !tail.includes('--ignore-scripts') ||
       tail
         .slice(1)
-        .some(arg => !['--ignore-scripts', '--offline', '--no-audit', '--no-fund'].includes(arg)) ||
+        .some(
+          arg =>
+            ![
+              '--ignore-scripts',
+              '--offline',
+              '--no-audit',
+              '--no-fund',
+              '--include=dev',
+              ...(lockOnly ? ['--package-lock-only'] : []),
+            ].includes(arg),
+        ) ||
       command.allowLifecycleScripts
     )
       throw portalError('PORTAL_NATIVE_PACKAGE_MANAGER_UNSUPPORTED');
+    if (!profile.closure.some(file => file.path === packagePath))
+      throw portalError('PORTAL_PROVISIONING_INPUTS_REQUIRED');
+    if (lockOnly) {
+      if (
+        profile.closure.some(file => file.path === lockPath) ||
+        command.produces?.length !== 1 ||
+        command.produces[0]?.path !== lockPath ||
+        command.produces[0]?.kind !== 'generated-output'
+      )
+        throw portalError('PORTAL_PROVISIONING_INPUTS_REQUIRED');
+      return;
+    }
+    // The runner revalidates every receipt before this gate. A generated lock must
+    // come from an earlier reviewed lock-only command, never a future or arbitrary writer.
+    const generatedLock = receipts.some(receipt => {
+      const producerIndex = profile.commands.findIndex(
+        value => value.id === receipt.producerCommandId,
+      );
+      const producer = profile.commands[producerIndex];
+      const producerEntry = producer?.args.find(argument => !argument.startsWith('-'));
+      return (
+        receipt.path === lockPath &&
+        receipt.kind === 'generated-output' &&
+        receipt.exitCode === 0 &&
+        producerIndex >= 0 &&
+        producerIndex < profile.commands.findIndex(value => value.id === command.id) &&
+        producer?.cwd === command.cwd &&
+        producerEntry !== undefined &&
+        resolve(root, producer.cwd, producerEntry) === path &&
+        producer.args[producer.args.indexOf(producerEntry) + 1] === 'install' &&
+        !producer.args.some(argument => ['-e', '--eval', '-p', '--print'].includes(argument)) &&
+        producer.args.includes('--package-lock-only') &&
+        producer.args.includes('--ignore-scripts') &&
+        producer.produces?.some(
+          output => output.path === lockPath && output.kind === 'generated-output',
+        )
+      );
+    });
     if (
-      !profile.closure.some(file => file.path === 'package-lock.json') ||
-      !profile.closure.some(file => file.path === 'package.json') ||
+      (!profile.closure.some(file => file.path === lockPath) && !generatedLock) ||
       !command.produces?.some(
-        output => output.path === 'node_modules' && output.kind === 'provisioned-dependencies',
+        output => output.path === modulesPath && output.kind === 'provisioned-dependencies',
       )
     )
       throw portalError('PORTAL_PROVISIONING_INPUTS_REQUIRED');
