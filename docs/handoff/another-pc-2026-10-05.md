@@ -36,7 +36,12 @@ At the owner's request, the work was merged into `main` with a merge commit and 
 
 - **Remote.** `remediation/2026-09-27` and `feat/super-figma-pipeline-v0.1` were deleted. Only `main` remains.
 - **Local, deleted.** `remediation/2026-09-27` and eight task branches: `rem/p0-baseline`, `rem/p0-wiring`, `rem/t01-lease-v2`, `rem/t03-t04-tooling`, `rem/t06a-repros`, `rem/t08-workspace-rows`, `rem/t09-retention-sweep` and `rem/t26-analysis-limits`.
-- **Local, still present on the old PC.** Five branches checked out in task worktrees: `rem/t07-replace-integrity` (`.worktrees/lane-a`), `rem/t14a-consumption-logic` (`lane-b`), `rem/t10-leader-health` (`lane-c`), `rem/t05a-provenance` (`lane-d`) and `rem/int-contracts-refresh` (`main-wiring`). Claude Code's automatic permission check denied removing those worktrees, so they await the owner's decision. Their commits are all in `main`.
+- **Local, worktree branches.** Five branches were checked out in task worktrees: `rem/t07-replace-integrity` (`.worktrees/lane-a`), `rem/t14a-consumption-logic` (`lane-b`), `rem/t10-leader-health` (`lane-c`), `rem/t05a-provenance` (`lane-d`) and `rem/int-contracts-refresh` (`main-wiring`). Their commits are all in `main`.
+  - Claude Code's automatic permission check denied the agent's attempt to remove those worktrees.
+  - The owner then ran the removal and `git branch -d` personally, and all five branches were deleted.
+  - Git left four `code-kb` junctions in the lane folders. The agent removed those links without recursion, so the 807 files in the real `code-kb` folder were unchanged, and then removed the empty lane folders.
+  - The empty `.worktrees/main-wiring` folder stays because another process holds it. It can be removed with `rmdir` after that process ends.
+  - Locally, only `main` and the detached `.worktrees/baseline` worktree remain.
 - **Uncommitted September 27 work.** `lane-a` (T07 replace integrity: 2 modified, 4 new files) and `lane-b` (T14a consumption logic: 5 modified, 2 new files) hold work that is in no commit. Before any cleanup it was copied to the old PC's ignored `.worktrees/_cache/wip-backup-20261005`. Each lane has `info.txt` (branch and base commit), `tracked.patch`, `paths.txt` and full file copies. The copies matched by SHA-256, and both patches apply cleanly to their base commits. This backup is local only and was not pushed.
 - **Recovery list.** Every branch tip before cleanup is in `branch-tips-before-cleanup.txt` in the same folder.
 
