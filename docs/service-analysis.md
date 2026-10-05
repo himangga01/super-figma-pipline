@@ -2,7 +2,7 @@
 
 Analysis date: October 4–5, 2026 (Asia/Seoul).
 Repository: `C:\2026_project\super-figma-pipline`.
-Current published Git baseline: `5b9343efc82ef47ba56f412acbd4eee5a328d335`. Earlier sections retain their historical pre-publication baselines.
+Current published Git baseline: `78af2b1adf4d3cd7c2ebda67afb0edee2f1a0b6f`, pushed on October 5 at the owner's request together with a handoff commit for [continuing on another PC](handoff/another-pc-2026-10-05.md). The service source fingerprint is `sha256:62023ddd...`. The previous baseline was `5b9343efc82ef47ba56f412acbd4eee5a328d335`. Earlier sections retain their historical pre-publication baselines.
 
 ## Current continuation at approximately 23:20 KST
 

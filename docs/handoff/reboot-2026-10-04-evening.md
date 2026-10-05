@@ -1,5 +1,7 @@
 # Reboot handoff: October 4 evening
 
+To continue on another PC, use the [October 5 handoff](another-pc-2026-10-05.md) for setup and operations. This record stays the evidence history.
+
 Prepared at approximately 21:35 KST on October 4, 2026, at the owner's request. This supersedes the operational state in the [earlier handoff](reboot-2026-10-04.md), preserving its historical evidence. No reboot, new commit or push was performed.
 
 Later continuation, approximately 21:44–23:25 KST, without a reboot: also read the [control diagnostics and review repairs](../testing/2026-10-04-ecommerce-parity/control-diagnostics/README.md) and the current section of the [service analysis](../service-analysis.md). The retained daemon described below was no longer running when work resumed.
