@@ -41,11 +41,17 @@ At the owner's request, the work was merged into `main` with a merge commit and 
   - The owner then ran the removal and `git branch -d` personally, and all five branches were deleted.
   - Git left four `code-kb` junctions in the lane folders. The agent removed those links without recursion, so the 807 files in the real `code-kb` folder were unchanged, and then removed the empty lane folders.
   - The empty `.worktrees/main-wiring` folder stays because another process holds it. It can be removed with `rmdir` after that process ends.
-  - Locally, only `main` and the detached `.worktrees/baseline` worktree remain.
+  - Locally, only `main` remains.
 - **Uncommitted September 27 work.** `lane-a` (T07 replace integrity: 2 modified, 4 new files) and `lane-b` (T14a consumption logic: 5 modified, 2 new files) hold work that is in no commit. Before any cleanup it was copied to the old PC's ignored `.worktrees/_cache/wip-backup-20261005`. Each lane has `info.txt` (branch and base commit), `tracked.patch`, `paths.txt` and full file copies. The copies matched by SHA-256, and both patches apply cleanly to their base commits. This backup is local only and was not pushed.
 - **Recovery list.** Every branch tip before cleanup is in `branch-tips-before-cleanup.txt` in the same folder.
 
-The `.worktrees/baseline` validation copy is detached (no branch) and was kept.
+The owner then also deleted the detached `.worktrees/baseline` validation copy, so the main checkout is now the only worktree. That copy's ignored contents are gone, including:
+
+- `node_modules` and `dist`;
+- the `.cache` helpers and alternate review indexes;
+- `artifacts/source-checks`, which held the `pending` pointer of interrupted check `1c7268c7...`.
+
+The four helpers listed in section 8 and the committed evidence records survive. To work on the old PC again, recreate the validation copy with the section 4 setup, as on a new PC. `.worktrees/_cache` still holds the private state, the live inputs, the pnpm shims and the September 27 WIP backup.
 
 ## 3. What Git does not carry
 
@@ -141,7 +147,7 @@ Stop-Process -Id <ProcessId>
 
 ## 6. Whole check: the first task, after the owner asks
 
-**State.** Whole check `1c7268c7-567a-488d-a78a-9cbcc6577ae5` at `62023ddd...` passed typecheck, lint, format, knip, contracts and build. Claude Code's memory reaper then stopped it at the test gate ([record](../testing/2026-10-04-ecommerce-parity/native-effects/interrupted-source-check.json)). Its `pending` pointer stays on the old PC.
+**State.** Whole check `1c7268c7-567a-488d-a78a-9cbcc6577ae5` at `62023ddd...` passed typecheck, lint, format, knip, contracts and build. Claude Code's memory reaper then stopped it at the test gate ([record](../testing/2026-10-04-ecommerce-parity/native-effects/interrupted-source-check.json)). Its `pending` pointer was deleted with the old validation copy; that committed record is now the only evidence.
 
 The last complete pass is `a59a6e15-5c33-472d-b947-a86d249124f8`, at the older source `ac67794d...` ([checkpoint](../testing/2026-10-04-ecommerce-parity/control-diagnostics/full-source-checkpoint.json)):
 
