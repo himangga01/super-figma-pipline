@@ -75,7 +75,7 @@ export const PreviewWorkerConfigSchema = z
     spec: NativePreviewSchema,
   })
   .strict();
-/** Runs as the broker's root. The application and Firefox inherit its Windows Job. */
+/** Runs as the broker's root. The application and Chrome inherit its Windows Job. */
 export async function runNativePreviewWorker(credentials: { pipe: string; token: string }) {
   if (
     !/^sfp-preview-[a-f0-9-]{36}$/u.test(credentials.pipe ?? '') ||
@@ -182,6 +182,7 @@ export async function runNativePreviewWorker(credentials: { pipe: string; token:
       assertRunning();
       const report = await assertNativePortalPreview(config.spec, controller.signal, {
         emitReport: false,
+        retainFailedReport: true,
       });
       controller.signal.throwIfAborted();
       await assertOwnedPreviewListener(app.pid, config.spec.baseUrl);
@@ -201,6 +202,8 @@ export async function runNativePreviewWorker(credentials: { pipe: string; token:
       await new Promise<void>((resolve, reject) =>
         socket.write(receipt + '\n', error => (error ? reject(error) : resolve())),
       );
+      // Preserve authenticated repair evidence, then keep the failed native command non-passing.
+      if (report.screens.some(screen => !screen.passed)) throw Error('PORTAL_PREVIEW_FAILED');
     } finally {
       clearTimeout(timeout);
     }

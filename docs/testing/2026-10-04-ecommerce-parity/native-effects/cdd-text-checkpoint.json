@@ -1,0 +1,17 @@
+{
+  "recordedAt": "2026-10-04T14:57:32.597Z",
+  "phase": "text-properties",
+  "nodeCount": 192,
+  "comparedPositions": 10638,
+  "rawDifferences": 77,
+  "unexplainedDifferences": 0,
+  "textPropertyDifferences": 0,
+  "unsupportedTextWarnings": 0,
+  "observedValues": {
+    "textCase:ORIGINAL": 72,
+    "textDecoration:NONE": 72,
+    "fontWeight:700": 26,
+    "fontWeight:400": 46
+  },
+  "fullCaptureAccepted": false
+}

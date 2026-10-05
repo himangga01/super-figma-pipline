@@ -1,0 +1,44 @@
+{
+  "recordedAt": "2026-10-04T13:59:53.773Z",
+  "purpose": "Preparation only; no generation, submission, application or frontend acceptance.",
+  "daemonBuild": "sha256:80b913fd3e526780c8f300247b73aeaaa3e6b169ba73c001f4dd47896c96a853",
+  "source": "sha256:206bd90046daeb35c3493ca1031ef16b905b3c5bea06479c76a023b5bd3201cf",
+  "chromeOpen": "attached-existing-chrome to the already open eCommerce tab at 22:55:29 KST; no tab created",
+  "operationDigest": "d0e53fd25a1ec1f3c99d7e7bc3e47f67989ecada9bebd1529c37619d240af65d",
+  "progress": [
+    {
+      "recordedAt": "2026-10-04T13:55:41.895Z",
+      "status": "accepted-locally"
+    },
+    {
+      "recordedAt": "2026-10-04T13:55:42.666Z",
+      "status": "approval-required"
+    },
+    {
+      "recordedAt": "2026-10-04T13:55:43.109Z",
+      "status": "pending-approval"
+    },
+    {
+      "recordedAt": "2026-10-04T13:55:43.747Z",
+      "status": "dispatched"
+    }
+  ],
+  "clientFailure": {
+    "recordedAt": "2026-10-04T13:57:04.052Z",
+    "message": "CONTROL_AUTH_UNAVAILABLE (500)",
+    "code": "CONTROL_AUTH_UNAVAILABLE",
+    "status": 500
+  },
+  "daemonDiagnostics": [
+    "[leader] control authorization unavailable (GET /control/approvals; StatePermissionError/STATE_ACL_COMMAND_FAILED <- Error/WINDOWS_BOUNDARY_TIMEOUT; 7502 ms)",
+    "[control] request failed (POST /control/tools/call; 500 code=OPERATION_OUTCOME_UNKNOWN; Error/OPERATION_OUTCOME_UNKNOWN; 82066 ms)"
+  ],
+  "publicStatus": "outcome-unknown",
+  "publicErrorCode": "OPERATION_CANCELLED_AFTER_DISPATCH",
+  "requirements": 5,
+  "workflowDecisions": 89,
+  "planProduced": false,
+  "targetCreated": false,
+  "replayed": false,
+  "established": "A read-only approvals poll failed control authorization after 7,502 ms because one Windows state boundary probe exceeded the probe worker request timeout (StatePermissionError STATE_ACL_COMMAND_FAILED <- WINDOWS_BOUNDARY_TIMEOUT). The client treated the failed poll as fatal, requested cancellation and abandoned the dispatched portal_plan, which then settled outcome-unknown."
+}

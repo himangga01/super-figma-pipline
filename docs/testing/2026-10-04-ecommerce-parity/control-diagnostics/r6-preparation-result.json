@@ -1,0 +1,80 @@
+{
+  "recordedAt": "2026-10-04T14:14:52.772Z",
+  "purpose": "Preparation only; no generation, submission, application or frontend acceptance.",
+  "daemonBuild": "sha256:29fd134fd09a2484ed9b477f725be94d021c4015b8ce46430de8253054cefe66",
+  "source": "sha256:ac67794db1460d34bd24435e2545faa6b3ae6d596be6cadce21b515c5ac2a099",
+  "planId": "sfp_portal1_709fa34d66dd3de4b68be30c3f5f5f66",
+  "operationDigest": "120691dc3f84b87d001473f9bdd7411dbe2e867acea5622584370197b3996c72",
+  "publicStatus": "succeeded",
+  "progress": [
+    {
+      "recordedAt": "2026-10-04T14:10:29.912Z",
+      "status": "accepted-locally"
+    },
+    {
+      "recordedAt": "2026-10-04T14:10:30.699Z",
+      "status": "approval-required"
+    },
+    {
+      "recordedAt": "2026-10-04T14:10:31.144Z",
+      "status": "pending-approval"
+    },
+    {
+      "recordedAt": "2026-10-04T14:10:31.827Z",
+      "status": "dispatched"
+    },
+    {
+      "recordedAt": "2026-10-04T14:12:47.740Z",
+      "status": "monitoring-delayed"
+    }
+  ],
+  "daemonDiagnostics": [
+    "[leader] control authorization busy (GET /control/approvals; StatePermissionError/STATE_ACL_COMMAND_FAILED <- Error/WINDOWS_BOUNDARY_TIMEOUT; 8580 ms)"
+  ],
+  "complete": true,
+  "liveVerified": true,
+  "workflowComplete": true,
+  "workflowIssues": 0,
+  "planIssues": 0,
+  "workflowScopes": {
+    "total": 92,
+    "resolved": 92
+  },
+  "workflowEvidence": 3198,
+  "workflowDecisions": 89,
+  "interactions": 66,
+  "requirements": [
+    {
+      "id": "figma-commerce-catalog",
+      "status": "confirmed"
+    },
+    {
+      "id": "figma-commerce-cart",
+      "status": "confirmed"
+    },
+    {
+      "id": "figma-commerce-checkout",
+      "status": "confirmed"
+    },
+    {
+      "id": "figma-contact-demo",
+      "status": "confirmed"
+    },
+    {
+      "id": "figma-content-navigation",
+      "status": "confirmed"
+    }
+  ],
+  "captureVersion": 2,
+  "captureSourceKind": "chrome",
+  "designFingerprint": "sha256:39b90a8c96c1360da4d8b8c777e99e7d34c71c921a7d9b966f3a8408ff1c2219",
+  "sameDesignFactsAsR2": {
+    "contentFingerprint": true,
+    "contractFingerprint": true,
+    "sourceFingerprint": true,
+    "assetFingerprint": true,
+    "designFingerprint": true
+  },
+  "targetCreated": false,
+  "established": "One read-only approvals poll again met a Windows state probe timeout during authorization; the daemon answered 503 CONTROL_AUTH_BUSY and the CLI recorded monitoring-delayed instead of cancelling. The dispatched portal_plan completed with a complete live-verified capture and complete workflow coverage."
+}

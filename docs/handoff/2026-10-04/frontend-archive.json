@@ -1,0 +1,10 @@
+{
+    "recordedAt":  "2026-10-04T05:17:58.6523186Z",
+    "archive":  "cdd-frontend-source.zip",
+    "bytes":  18015536,
+    "sha256":  "sha256:8a388f0cdb4cefc165d51111579c85a559560238151969dbde63735c927412a8",
+    "verifiedFiles":  44,
+    "everyFileMatchesCandidate":  true,
+    "candidateHash":  "sha256:1497c7fbf1f10db883ab2aba11de0e03a05c5bf24468bdd2a7ac3bb892b66dfa",
+    "containsOwnerState":  false
+}

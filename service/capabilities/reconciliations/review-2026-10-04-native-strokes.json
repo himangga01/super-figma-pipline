@@ -1,0 +1,62 @@
+{
+  "schemaVersion": 1,
+  "slice": "review-2026-10-04",
+  "baseline": {
+    "headCommit": "5b9343efc82ef47ba56f412acbd4eee5a328d335",
+    "authoritySha256": {
+      "upstream-lock.json": "274a3a131bafa073348624d351051da75dc12cf015f98a3c9d0b9feed4ed05de",
+      "vendor-map.json": "b3275c7d8b997d1cfe723d97594659f77d7b4361b824a790bcfdd7ff762589bd",
+      "vendor-rules.json": "17af2c5187e4c82d96f580f33aa3b4bb0b94ecc577d314d6a59f6d9fc9fec7c2"
+    }
+  },
+  "entries": [
+    {
+      "path": "capabilities/task-review-2026-10-04-authority-classes.json",
+      "sha256": "32f931e82fc287312cecabb83693b4b3ce32d77a77845f9bf545f497eadfa3e1",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "974a38f58e6e2e6507b57899e836dd57044b144e1e1302752b6dcec7abb8ac9f"
+        },
+        {
+          "class": "protected",
+          "sha256": "974a38f58e6e2e6507b57899e836dd57044b144e1e1302752b6dcec7abb8ac9f"
+        }
+      ],
+      "reason": "Report native stroke miter limits and dash patterns with Figma omitted defaults for stroke-capable nodes, and uniform side weights for frame, instance, component and rectangle types. Malformed values stay unknown. Side widths count as representation differences only when neither collector records stroke paints. Separate eCommerce and CDD comparisons keep zero unexplained differences. Two regressions failed first."
+    },
+    {
+      "path": "docs/portal-native.md",
+      "sha256": "5c663d4d54b2f63b9bcc8c9590f9f0d712cb391a7b8ae51a265e058a14a64294",
+      "priorClaims": [
+        {
+          "class": "protected",
+          "sha256": "fe57e29c906b1ce6a3043c7b3d60f43e2080b794fb06a1386b40af2cf651a677"
+        }
+      ],
+      "reason": "Report native stroke miter limits and dash patterns with Figma omitted defaults for stroke-capable nodes, and uniform side weights for frame, instance, component and rectangle types. Malformed values stay unknown. Side widths count as representation differences only when neither collector records stroke paints. Separate eCommerce and CDD comparisons keep zero unexplained differences. Two regressions failed first."
+    },
+    {
+      "path": "packages/cli/src/figma-native-nodes.ts",
+      "sha256": "3c49368b0f930cb82f4a56c8b6f1284fda6941a2d64e043f4fa6ee6e69ecb08b",
+      "priorClaims": [
+        {
+          "class": "protected",
+          "sha256": "179966453e31298376e1e4e5f1b2209d912414ed93041f669c18c96d4254c0a4"
+        }
+      ],
+      "reason": "Report native stroke miter limits and dash patterns with Figma omitted defaults for stroke-capable nodes, and uniform side weights for frame, instance, component and rectangle types. Malformed values stay unknown. Side widths count as representation differences only when neither collector records stroke paints. Separate eCommerce and CDD comparisons keep zero unexplained differences. Two regressions failed first."
+    },
+    {
+      "path": "packages/cli/test/figma-native-nodes.test.ts",
+      "sha256": "c8eea0aca475a90e78c336797da743abe488d67fde4487e5e415772379126cfc",
+      "priorClaims": [
+        {
+          "class": "protected",
+          "sha256": "144bd3b42853fb26118bd5e261f027702225c28720984f3fb1f2148dd2b21e75"
+        }
+      ],
+      "reason": "Report native stroke miter limits and dash patterns with Figma omitted defaults for stroke-capable nodes, and uniform side weights for frame, instance, component and rectangle types. Malformed values stay unknown. Side widths count as representation differences only when neither collector records stroke paints. Separate eCommerce and CDD comparisons keep zero unexplained differences. Two regressions failed first."
+    }
+  ]
+}

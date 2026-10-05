@@ -25,7 +25,7 @@ type Referencing = SceneNode & {
  */
 export const createBindComponentPropertyHandler =
   (figmaCtx: typeof figma): SandboxToolHandler =>
-  async params => {
+  async (params, execution) => {
     const p = (params ?? {}) as { nodeId?: unknown; propertyId?: unknown; field?: unknown };
     if (typeof p.nodeId !== 'string') {
       throw new TypeError('bind_component_property: nodeId must be a string');
@@ -41,6 +41,8 @@ export const createBindComponentPropertyHandler =
     const field = p.field as RefField;
 
     const node = await figmaCtx.getNodeByIdAsync(p.nodeId);
+
+    execution?.signal.throwIfAborted();
     if (node === null) throw new Error(`bind_component_property: node ${p.nodeId} not found`);
     // A field must fit the node it drives: characters only on TEXT, mainComponent only on an
     // INSTANCE; visible works on any layer.

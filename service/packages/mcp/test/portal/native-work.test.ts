@@ -1,3 +1,4 @@
+import { spawn } from 'node:child_process';
 import { existsSync } from 'node:fs';
 import { mkdir, readFile, writeFile, unlink, rename } from 'node:fs/promises';
 import { join, resolve as resolvePath } from 'node:path';
@@ -18,7 +19,8 @@ import {
   type PortalAcceptance,
   type PortalToolName,
 } from '@sfp/shared';
-import { afterEach, expect, it, vi } from 'vitest';
+import { build } from 'tsdown';
+import { afterEach, beforeAll, expect, it, vi } from 'vitest';
 import { z } from 'zod';
 
 import { createActionNonceStore } from '../../src/control/action-nonce-store.js';
@@ -39,7 +41,12 @@ import {
   prepareNativeEnvironment,
 } from '../../src/portal/native-resources.js';
 import { NativePortalRunner, nativeExecutableHash } from '../../src/portal/native-runner.js';
-import { PortalNativeWork, PortalNativeProfileSchema } from '../../src/portal/native-work.js';
+import {
+  PortalNativeWork,
+  PortalNativeProfileSchema,
+  PortalApplyJournalSchema,
+  PortalStoredValidationSchema,
+} from '../../src/portal/native-work.js';
 import { portalMaterialFiles } from '../../src/portal/profile-closure.js';
 import { PortalCoreLifecycle } from '../../src/portal/recipes/core-lifecycle.js';
 import { CorePreparations } from '../../src/portal/recipes/core-preparation.js';
@@ -48,6 +55,56 @@ import { currentCaptureFixture } from './capture-fixture.js';
 import { portalFixture } from './fixtures.js';
 
 const cleanups: Array<() => Promise<void>> = [];
+let creationWorker: string;
+beforeAll(async () => {
+  if (process.platform !== 'win32') return;
+  const folder = resolvePath('packages/mcp/.cache/apply-creation-worker');
+  await mkdir(folder, { recursive: true });
+  const entry = join(folder, 'entry.ts');
+  await writeFile(
+    entry,
+    `
+    import {readFile} from 'node:fs/promises';
+    import {PortalNativeWork} from ${JSON.stringify(resolvePath('packages/mcp/src/portal/native-work.ts'))};
+    import {PortalStore} from ${JSON.stringify(resolvePath('packages/mcp/src/portal/store.ts'))};
+    import {createWorkspaceConfigStore} from ${JSON.stringify(resolvePath('packages/mcp/src/fs/workspace-config-store.ts'))};
+    import {createWorkspacePolicy} from ${JSON.stringify(resolvePath('packages/mcp/src/fs/workspace-policy.ts'))};
+    import {fixturePermissions} from ${JSON.stringify(resolvePath('packages/mcp/test/portal/fixtures.ts'))};
+    const value = JSON.parse(await readFile(process.argv[2], 'utf8'));
+    const permissions = fixturePermissions(value.stateRoot);
+    const store = new PortalStore(value.stateRoot, Buffer.from(value.key, 'hex'), permissions);
+    const workspaces = createWorkspaceConfigStore(value.stateRoot, {hasUnsettled: async()=>false}, permissions);
+    const policy = createWorkspacePolicy(workspaces);
+    const update = store.update.bind(store);
+    store.update = async (...args) => {
+      const record = await update(...args);
+      if (args[0] === 'apply' && record.rootCreations?.some(row =>
+        row.path === value.authority.roots[0].path &&
+        (value.boundary === 'target-identity' ? !!record.targetIdentity : row.phase === value.boundary)))
+        process.exit(83);
+      return record;
+    };
+    const work = new PortalNativeWork({stateRoot:value.stateRoot, store, policy, permissions});
+    await work.apply(value.plan, value.run, value.files, value.authority, new AbortController().signal);
+    throw Error('apply creation boundary was not reached');
+  `,
+  );
+  await build({
+    cwd: resolvePath('packages/mcp'),
+    config: false,
+    entry: [entry],
+    outDir: folder,
+    format: 'esm',
+    platform: 'node',
+    target: 'node24',
+    dts: false,
+    clean: false,
+    fixedExtension: true,
+    deps: { alwaysBundle: ['@sfp/ir', '@sfp/shared'] },
+    logLevel: 'silent',
+  });
+  creationWorker = join(folder, 'entry.mjs');
+});
 afterEach(async () => {
   vi.restoreAllMocks();
   for (const cleanup of cleanups.splice(0)) await cleanup();
@@ -123,6 +180,173 @@ const actor: ActorContext = {
   authSessionId: `auth1_${'a'.repeat(43)}`,
   entryPath: 'control',
 };
+it
+  .runIf(process.platform === 'win32')
+  .each(['intent', 'identity-bound', 'published', 'target-identity'])(
+  'recovers the exact signed output creation after a real child exits at %s',
+  async boundary => {
+    const value = await fixture(),
+      authority = await authorityFixture(value);
+    value.run.validation = await acceptanceFixture(value);
+    const inputPath = join(value.root, 'creation-input.json');
+    await writeFile(
+      inputPath,
+      JSON.stringify({
+        stateRoot: value.stateRoot,
+        key: value.key.toString('hex'),
+        plan: value.plan,
+        run: value.run,
+        files: value.files,
+        authority,
+        boundary,
+      }),
+    );
+    const child = spawn(process.execPath, [creationWorker, inputPath], {
+      shell: false,
+      windowsHide: true,
+      stdio: ['ignore', 'pipe', 'pipe'],
+    });
+    let output = '';
+    child.stdout.on('data', data => {
+      output += String(data);
+    });
+    child.stderr.on('data', data => {
+      output += String(data);
+    });
+    const exitCode = await new Promise<number | null>((done, reject) => {
+      child.once('error', reject);
+      child.once('exit', done);
+    });
+    expect({ exitCode, output }).toEqual({ exitCode: 83, output: '' });
+    const before = await value.store.get('apply', value.run.runId, z.any());
+    expect(before.rootCreations).toHaveLength(1);
+    expect(before.files.every((row: { state: string }) => row.state === 'pending')).toBe(true);
+    const inspected = await value.work.reconcile(
+      value.plan,
+      value.run,
+      authority,
+      new AbortController().signal,
+    );
+    expect(inspected.state).toBe(boundary === 'intent' ? 'not-applied' : 'partial');
+    await value.work.apply(
+      value.plan,
+      value.run,
+      value.files,
+      authority,
+      new AbortController().signal,
+    );
+    const after = await value.store.get('apply', value.run.runId, z.any());
+    expect(after.rootCreations[0]).toMatchObject({
+      stagingPath: before.rootCreations[0].stagingPath,
+      phase: 'published',
+    });
+    expect(after.targetIdentity).toBe(after.rootCreations[0].identity);
+    expect(after.state).toBe('applied');
+    expect(await readFile(join(value.workspaceRoot, 'output/src/app.js'), 'utf8')).toBe(
+      value.files[0]!.content,
+    );
+  },
+  60000,
+);
+it('proves a fresh rejected apply has no source effects and keeps its journal absent', async () => {
+  const value = await fixture();
+  const authority = await resolvePortalAuthority(
+    value.policy,
+    value.workspaceId,
+    value.plan.request,
+    value.plan.planId,
+    value.plan.implementationScope,
+    value.plan,
+  );
+  value.run.validation = null;
+  await expect(
+    value.work.apply(value.plan, value.run, value.files, authority, new AbortController().signal),
+  ).rejects.toMatchObject({
+    code: 'PORTAL_VALIDATION_REQUIRED',
+    committed: false,
+    applyEffectDisposition: 'pre-effect-rejected',
+  });
+  expect(await value.store.get('apply', value.run.runId, z.unknown())).toBeNull();
+  expect(existsSync(join(value.workspaceRoot, 'output'))).toBe(false);
+});
+it('uses the admitted effect budget after the generation deadline expires', async () => {
+  const value = await fixture();
+  const authority = await resolvePortalAuthority(
+    value.policy,
+    value.workspaceId,
+    value.plan.request,
+    value.plan.planId,
+    value.plan.implementationScope,
+    value.plan,
+  );
+  value.run.deadlineAt = Date.now() - 1;
+  value.run.nativeBudget = { version: 1, effect: { deadlineAt: Date.now() + 60000, attempts: 1 } };
+  value.run.validation = null;
+  await expect(
+    value.work.apply(value.plan, value.run, value.files, authority, new AbortController().signal),
+  ).rejects.toMatchObject({
+    code: 'PORTAL_VALIDATION_REQUIRED',
+    applyEffectDisposition: 'pre-effect-rejected',
+  });
+});
+it.each(['cancelled', 'expired'] as const)(
+  'proves %s admission before a fresh apply has no effects',
+  async mode => {
+    const value = await fixture();
+    const authority = await authorityFixture(value);
+    const controller = new AbortController();
+    if (mode === 'cancelled')
+      controller.abort(Object.assign(new Error('cancelled'), { code: 'OPERATION_CANCELLED' }));
+    else value.run.deadlineAt = Date.now() - 1;
+    await expect(
+      value.work.apply(value.plan, value.run, value.files, authority, controller.signal),
+    ).rejects.toMatchObject({
+      code: mode === 'cancelled' ? 'OPERATION_CANCELLED' : 'PORTAL_BUDGET_EXHAUSTED',
+      committed: false,
+      applyEffectDisposition: 'pre-effect-rejected',
+    });
+    expect(await value.store.get('apply', value.run.runId, PortalApplyJournalSchema)).toBeNull();
+    expect(existsSync(join(value.workspaceRoot, 'output'))).toBe(false);
+  },
+  30_000,
+);
+it('keeps prior signed partial apply proof when a later invocation is cancelled before admission', async () => {
+  const value = await fixture();
+  const authority = await authorityFixture(value);
+  await value.store.create(
+    'apply',
+    value.run.runId,
+    {
+      schemaVersion: 1,
+      sourceAuthorityVersion: 2,
+      ownerId: value.plan.ownerId,
+      runId: value.run.runId,
+      candidateHash: value.run.candidateHash!,
+      authorityHash: authority.hash,
+      state: 'applying',
+      targetIdentity: null,
+      files: value.run.files.map((file, index) => ({
+        path: file.path,
+        before: file.baseHash,
+        after: file.contentHash,
+        state: index === 0 ? ('written' as const) : ('pending' as const),
+      })),
+    },
+    PortalApplyJournalSchema,
+  );
+  const controller = new AbortController();
+  controller.abort(Object.assign(new Error('cancelled'), { code: 'OPERATION_CANCELLED' }));
+  await expect(
+    value.work.apply(value.plan, value.run, value.files, authority, controller.signal),
+  ).rejects.toMatchObject({
+    code: 'OPERATION_CANCELLED',
+    committed: true,
+    applyEffectDisposition: 'partial-or-committed',
+  });
+  expect(
+    (await value.store.get('apply', value.run.runId, PortalApplyJournalSchema))?.files[0]?.state,
+  ).toBe('written');
+}, 30_000);
 const fixture = async (legacy = false, heavy = false, requireLive = false) => {
   const value = await portalFixture();
   const work = new PortalNativeWork({
@@ -324,13 +548,41 @@ const acceptanceFixture = async (
   plan.design.complete = true;
   return {
     sourceAuthorityVersion: 2,
+    recipeConsumption: {
+      recipeAuthorityVersion: 1,
+      ownerId: plan.ownerId,
+      workspaceId: plan.workspaceId,
+      contextHash: plan.coreRecipes!.contextHash!,
+      blueprintHash: plan.blueprintHash,
+      candidateHash: run.candidateHash!,
+      declarationsHash: run.coreDeclarationsHash!,
+      target: 'candidate',
+      verifierVersion: 'core-consumption-v1',
+      resultHashes: plan.coreRecipes!.requiredResults.map(row => row.resultHash),
+      findings: [
+        {
+          kind: 'runtime',
+          assertionId: 'publication-fixture',
+          observationId: 'fixture',
+          rootNodeId: '1:1',
+          route: '/',
+          stateId: 'source:1:1',
+          viewport: { width: 100, height: 100 },
+          expectedHash: storedChecksum('controlled publication fixture'),
+          actualHash: storedChecksum('controlled publication fixture'),
+          evidenceHash: storedChecksum('controlled publication fixture'),
+        },
+      ],
+    },
     observations: {
       version: 1,
       manifestHash: storedChecksum('fixture'),
       interactionContractHash: contentHash('sfp-interaction-contract-v1', plan.interactionContract),
       receiptHash: storedChecksum('fixture'),
       executedObservationIds: ['fixture'],
-      executedAssertionIds: plan.interactionContract!.interactions.map(value => value.id),
+      executedAssertionIds: plan.interactionContract!.interactions.map(
+        interaction => interaction.id,
+      ),
       executedWorkflowIds: plan.interactionContract!.workflowIds,
     },
     capture: {
@@ -445,7 +697,7 @@ it('executes an owner-bound native assertion in a separate work copy and keeps i
       },
     ],
   });
-  await value.work.registerProfile(await value.work.prepareProfile(profile));
+  await seedBlockedExecutionProfile(value, profile);
   const result = await value.invoke('portal_validate', { runId: value.run.runId });
   expect(result.state).toBe('blocked');
   expect(result.validation.checks).toContainEqual(
@@ -559,9 +811,40 @@ const authorityFixture = async (value: Awaited<ReturnType<typeof fixture>>) => (
   captureSource: value.capture.grant,
 });
 
+/** Isolate native staging/report guards below registration; this cannot prove public acceptance. */
+const seedBlockedExecutionProfile = async (
+  value: Awaited<ReturnType<typeof fixture>>,
+  input: Awaited<ReturnType<typeof profileFixture>>,
+  work = value.work,
+) => {
+  const profile = await work.prepareProfile(input);
+  expect(profile.recipeUse?.prepared?.status).toBe('blocked');
+  await expect(work.registerProfile(profile)).rejects.toMatchObject({
+    code: 'PORTAL_CONSUMPTION_PREPARATION_REQUIRED',
+  });
+  await value.store.create(
+    'profiles',
+    contentHash('sfp-portal-profile-key-v1', {
+      planId: profile.planId,
+      profileId: profile.native.id,
+      candidateHash: profile.native.sourceHash,
+    }).slice(7),
+    profile,
+    PortalNativeProfileSchema,
+  );
+  return profile;
+};
+
+/** Mirror the coordinator's signed transition after controlled publication-only acceptance. */
+const recordControlledApply = async (value: Awaited<ReturnType<typeof fixture>>) => {
+  value.run.appliedHash = value.run.candidateHash;
+  value.run.state = 'applied-awaiting-validation';
+  await value.store.update('runs', value.run.runId, PortalRunSchema, () => value.run);
+};
+
 it('stages all material legacy inputs while omitting excluded metadata and credentials', async () => {
   const value = await fixture(true);
-  await value.work.registerProfile(await value.work.prepareProfile(await profileFixture(value)));
+  await seedBlockedExecutionProfile(value, await profileFixture(value));
   const report = await value.work.validate(
     value.plan,
     value.run,
@@ -585,7 +868,7 @@ it.each(['change', 'add', 'remove'] as const)(
   'blocks %s of an original included input after planning',
   async mutation => {
     const value = await fixture(true);
-    await value.work.registerProfile(await value.work.prepareProfile(await profileFixture(value)));
+    await seedBlockedExecutionProfile(value, await profileFixture(value));
     if (mutation === 'remove') await unlink(join(value.workspaceRoot, 'output/schema.graphql'));
     else
       await writeFile(
@@ -621,7 +904,8 @@ it.each(['change', 'add', 'remove'] as const)(
       authority,
       new AbortController().signal,
     );
-    await value.work.registerProfile(await value.work.prepareProfile(await profileFixture(value)));
+    await recordControlledApply(value);
+    await seedBlockedExecutionProfile(value, await profileFixture(value));
     let reached!: () => void, release!: () => void;
     const atNative = new Promise<void>(resolve => {
       reached = resolve;
@@ -888,7 +1172,11 @@ it('accounts verified recovery backups separately from a material tree near the 
     encoding: 'utf8',
     artifact: { path: 'contents/large-fixture.json', hash: contentDigest, bytes: content.length },
   });
-  value.run.candidateHash = portalCandidateHash(value.run.files, value.plan, value.run.coreDeclarations);
+  value.run.candidateHash = portalCandidateHash(
+    value.run.files,
+    value.plan,
+    value.run.coreDeclarations,
+  );
   value.run.validation = await acceptanceFixture(value);
   expect(value.plan.profiles[0]!.graph.sourceInventory!.totalBytes).toBeGreaterThan(
     120 * 1024 * 1024,
@@ -934,7 +1222,7 @@ it('reports a replacement-row user edit as conflict while preserving its retaine
   expect(await readFile(join(value.workspaceRoot, 'output/src/app.js'), 'utf8')).toBe('user edit');
 }, 60000);
 
-it('prepares exact owner-scoped artifact authority and rejects a stale approved registration', async () => {
+it('prepares owner-scoped artifact authority and rejects stale approval and missing consumption', async () => {
   const value = await fixture();
   const input = await profileFixture(value);
   const { ownerId: _owner, ...raw } = input;
@@ -956,14 +1244,26 @@ it('prepares exact owner-scoped artifact authority and rejects a stale approved 
   await expect(
     register(actor, { profile: changed, actionNonce: nonce.value }, { aborted: false }),
   ).rejects.toMatchObject({ code: 'ACTION_NONCE_INVALID' });
-  const result = await register(actor, { profile, actionNonce: nonce.value }, { aborted: false });
-  expect(result.profileId).toBe(profile.native.id);
+  await expect(
+    register(actor, { profile, actionNonce: nonce.value }, { aborted: false }),
+  ).rejects.toMatchObject({ code: 'PORTAL_CONSUMPTION_PREPARATION_REQUIRED' });
+  expect(
+    await value.store.get(
+      'profiles',
+      contentHash('sfp-portal-profile-key-v1', {
+        planId: profile.planId,
+        profileId: profile.native.id,
+        candidateHash: profile.native.sourceHash,
+      }).slice(7),
+      PortalNativeProfileSchema,
+    ),
+  ).toBeNull();
 }, 60000);
 it('binds daemon-injected browser and effective configuration before approval', async () => {
   const value = await fixture();
   const browserRoot = join(value.workspaceRoot, 'browser');
   await mkdir(browserRoot);
-  const executable = join(browserRoot, 'firefox.exe');
+  const executable = join(browserRoot, 'chrome.exe');
   await writeFile(executable, 'browser-fixture');
   await writeFile(join(browserRoot, 'resources.bin'), 'resources');
   const work = new PortalNativeWork({
@@ -971,11 +1271,11 @@ it('binds daemon-injected browser and effective configuration before approval', 
     store: value.store,
     policy: value.policy,
     permissions: value.permissions,
-    firefoxExecutable: executable,
+    chromeExecutable: executable,
   });
   cleanups.push(() => work.close());
   const profile = await work.prepareProfile(await profileFixture(value));
-  expect(profile.native.environment.SFP_PORTAL_FIREFOX_EXECUTABLE).toBe(executable);
+  expect(profile.native.environment.SFP_PORTAL_CHROME_EXECUTABLE).toBe(executable);
   await writeFile(join(browserRoot, 'resources.bin'), 'replacement');
   await expect(work.registerProfile(profile)).rejects.toMatchObject({
     code: 'PORTAL_ARTIFACT_CHANGED',
@@ -1013,7 +1313,9 @@ it('prepares the actual installed validator bundle and pnpm-backed transitive pa
       artifact => artifact.declaration.kind === 'service-bundle',
     ),
   ).toBe(true);
-  await work.registerProfile(profile);
+  await expect(work.registerProfile(profile)).rejects.toMatchObject({
+    code: 'PORTAL_CONSUMPTION_PREPARATION_REQUIRED',
+  });
 }, 90000);
 it('refuses previously source-versioned acceptance without separate artifact authority', async () => {
   const value = await fixture();
@@ -1038,7 +1340,7 @@ it('keeps a failed unasserted native step from authorizing completion', async ()
     id: 'fails-after-assertion',
     args: ['-e', 'process.exit(9)'],
   });
-  await value.work.registerProfile(await value.work.prepareProfile(profile));
+  await seedBlockedExecutionProfile(value, profile);
   const result = await value.invoke('portal_validate', {
     runId: value.run.runId,
     profileId: profile.native.id,
@@ -1048,6 +1350,64 @@ it('keeps a failed unasserted native step from authorizing completion', async ()
   );
   expect(result.state).toBe('blocked');
 }, 60000);
+
+it.each(['source-unavailable', 'command-failed'] as const)(
+  'retains failed native feedback: %s',
+  async failure => {
+    const value = await fixture(false, false, true);
+    const capture = vi.fn<() => Promise<never>>(async () => {
+      throw Object.assign(new Error('Unavailable'), { code: 'CHROME_CONNECTION_REQUIRED' });
+    });
+    const work = new PortalNativeWork({
+      stateRoot: value.stateRoot,
+      store: value.store,
+      policy: value.policy,
+      permissions: value.permissions,
+      designCapture: { capture },
+    });
+    cleanups.unshift(() => work.close());
+    const profile = await profileFixture(value);
+    if (failure === 'command-failed')
+      profile.native.commands.push({
+        ...profile.native.commands[0]!,
+        id: 'failed-command',
+        args: ['-e', 'process.exit(9)'],
+      });
+    await seedBlockedExecutionProfile(value, profile, work);
+    const report = await work.validate(
+      value.plan,
+      value.run,
+      value.files,
+      new AbortController().signal,
+      'candidate',
+      'node-frontend',
+      await executionFixture(value, work, 'candidate'),
+    );
+    expect(report.liveDesignVerified).toBe(false);
+    expect(report.capture?.freshDesignFingerprint).toBeNull();
+    const failedCheck =
+      failure === 'source-unavailable'
+        ? { id: 'native-design-freshness', reason: 'PORTAL_LIVE_DESIGN_REFRESH_FAILED' }
+        : { id: 'native-command-sequence' };
+    expect(report.checks).toContainEqual(
+      expect.objectContaining({
+        ...failedCheck,
+        status: 'failed',
+        required: true,
+      }),
+    );
+    expect(capture).toHaveBeenCalledTimes(failure === 'source-unavailable' ? 1 : 0);
+    expect(report.evidencePaths).toHaveLength(1);
+    const evidenceId = report.evidencePaths[0]!.split('/').at(-1)!.replace('.json', '');
+    const stored = await value.store.get('validation', evidenceId, PortalStoredValidationSchema);
+    expect(stored?.commandEvidence).toMatchObject({
+      commands: expect.arrayContaining([
+        expect.objectContaining({ commandId: 'assert-source', status: 'passed' }),
+      ]),
+    });
+  },
+  60000,
+);
 
 it.each(['unchanged', 'changed'] as const)(
   'rechecks an admitted applied target after a suspended freshness capture: %s',
@@ -1086,7 +1446,8 @@ it.each(['unchanged', 'changed'] as const)(
       },
     });
     cleanups.unshift(() => work.close());
-    await work.registerProfile(await work.prepareProfile(await profileFixture(value)));
+    await recordControlledApply(value);
+    await seedBlockedExecutionProfile(value, await profileFixture(value), work);
     const outcome = work
       .validate(
         value.plan,
@@ -1165,7 +1526,7 @@ it('executes the actual bound validator import through native module evidence', 
     '-e',
     'import(process.env.SFP_PORTAL_VALIDATOR_URL).then(module=>{if(typeof module.assertNativePortalPreview!=="function")process.exit(1)})',
   ];
-  await work.registerProfile(await work.prepareProfile(profile));
+  await seedBlockedExecutionProfile(value, profile, work);
   const report = await work.validate(
     value.plan,
     value.run,
@@ -1183,7 +1544,7 @@ it('executes the actual bound validator import through native module evidence', 
 
 it('public portal_cancel settles a native validation still waiting in the executor queue', async () => {
   const value = await fixture();
-  await value.work.registerProfile(await value.work.prepareProfile(await profileFixture(value)));
+  await seedBlockedExecutionProfile(value, await profileFixture(value));
   const queue = new FileExecutionQueue(),
     issuer = operationIdIssuerFromKey(Buffer.alloc(32, 47));
   const journal = new OperationJournal({ stateRoot: value.stateRoot, actorId: actor.actorId });

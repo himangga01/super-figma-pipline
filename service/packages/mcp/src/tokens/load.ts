@@ -1,4 +1,6 @@
+import { cssImports, localCssImport } from '../fs/css-imports.js';
 import { RepoReader } from '../fs/repo-walk.js';
+import { isPortableSourcePath, portalSourceExclusion } from '../portal/source-path-policy.js';
 import { type ProjectProfile, readProjectDeps, type StylingSystem } from '../profile/profile.js';
 import { detectTokenBuildTool, findGeneratedStylesheets } from './generated-tokens.js';
 import { parseTailwindConfig, parseUnoConfig } from './js-config.js';
@@ -272,8 +274,52 @@ const readTokenSource = async (
       };
     }
     const tokens = parseCssCustomProperties(body);
+    const ownCount = tokens.length;
     reader.chargeParseResults(tokens.length);
-    if (tokens.length > 0) return { tokens, source: source.path, files: [source.path] };
+    const files = [source.path];
+    for (let index = 0; index < files.length; index++) {
+      const path = files[index]!;
+      // eslint-disable-next-line no-await-in-loop -- discover each bounded dependency before reading its imports
+      const css = index === 0 ? body : await reader.readText(path);
+      if (index) {
+        const imported = parseCssCustomProperties(css);
+        reader.chargeParseResults(imported.length);
+        tokens.push(...imported);
+      }
+      for (const dependency of cssImports(css)) {
+        if (dependency.specifier && /^[A-Za-z@][A-Za-z0-9@/_-]*$/u.test(dependency.specifier))
+          continue;
+        const target =
+          dependency.specifier === null ? null : localCssImport(path, dependency.specifier);
+        const exclusion = target === null ? undefined : portalSourceExclusion(target);
+        if (
+          !target ||
+          !isPortableSourcePath(target) ||
+          (exclusion && exclusion !== 'generated-output')
+        )
+          throw Object.assign(new Error('Required CSS token dependency is unsupported'), {
+            code: 'TOKEN_CSS_IMPORT_UNSUPPORTED',
+          });
+        if (!files.includes(target)) {
+          if (files.length >= 200)
+            throw Object.assign(new Error('CSS token dependency limit'), {
+              code: 'TOKEN_CSS_IMPORT_LIMIT',
+            });
+          files.push(target);
+        }
+      }
+    }
+    if (tokens.length > 0)
+      return {
+        tokens,
+        source: source.path,
+        files,
+        ...(ownCount === 0
+          ? {
+              note: `${source.path} declares no custom properties; loaded its required CSS imports: ${listFiles(files.slice(1))}`,
+            }
+          : {}),
+      };
     // The detected entry declares nothing, so it is not where the tokens live. Tailwind v4's
     // commonest real layout does exactly this — `app.css` holds `@import "tailwindcss"` and pulls
     // the `@theme` block in from a partial — and the entry scan stops at the first file carrying

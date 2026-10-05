@@ -4,6 +4,8 @@ import { lstat, readFile, readdir, stat } from 'node:fs/promises';
 import { dirname, join, posix, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
+import { validateLockSchema } from './upstream-lock-schema.mjs';
+
 const serviceRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const repositoryRoot = resolve(serviceRoot, '..');
 const lockPath = join(serviceRoot, 'upstream-lock.json');
@@ -31,6 +33,7 @@ class VerificationError extends Error {
   }
 }
 
+/** @type {(condition: unknown, message: string) => asserts condition} */
 const assert = (condition, message) => {
   if (!condition) throw new Error(message);
 };
@@ -83,6 +86,11 @@ const verifyLockV2Schema = async lock => {
     'upstream-lock-v2.schema.json contract is incomplete',
   );
   assertExactKeys(lock, expectedTopLevel, 'upstream-lock.json');
+  const schemaErrors = validateLockSchema(schema, lock);
+  assert(
+    schemaErrors.length === 0,
+    `upstream-lock.json schema mismatch: ${schemaErrors.join('; ')}`,
+  );
   assertExactKeys(lock.vendorMap, ['path', 'sha256', 'counts'], 'upstream-lock.json.vendorMap');
   assertExactKeys(
     lock.vendorMap.counts,
@@ -188,11 +196,13 @@ const gitText = (root, ...args) =>
   execFileSync('git', ['-C', root, ...args], {
     encoding: 'utf8',
     maxBuffer: 64 * 1024 * 1024,
+    windowsHide: true,
   }).trim();
 
 const gitBytes = (root, ...args) =>
   execFileSync('git', ['-C', root, ...args], {
     maxBuffer: 64 * 1024 * 1024,
+    windowsHide: true,
   });
 
 const globToRegExp = glob => {
@@ -861,7 +871,11 @@ const main = async () => {
   await verifyManifestContracts(lock);
   await verifyLicenseCopies(lock);
   if (mode === '--with-upstreams') {
-    await verifyWithUpstreams(lock, vendorMap, resolve(process.cwd(), upstreamsArgument));
+    await verifyWithUpstreams(
+      lock,
+      vendorMap,
+      resolve(process.cwd(), /** @type {string} */ (upstreamsArgument)),
+    );
   }
   console.log(
     `upstream-lock=ok mode=${mode.slice(2)} upstreams=${lock.upstreams.length} vendorRows=${vendorMap.files.length}`,

@@ -1,10 +1,10 @@
 # Super Figma Pipeline
 
-[English](README.md) | [한국어](README.ko.md)
+[Current overview](README.md) | [Compatibility overview path](README.ko.md)
 
-A local Figma-to-application pipeline for reading designs without Figma Dev Mode or the official Figma MCP, analyzing service code, and helping a coding agent implement the design in the target application.
+A local Figma-to-application pipeline that collects design facts through Chrome and Playwright, supports Figma's official MCP servers, analyzes service code, and helps a coding agent implement the target application.
 
-**Status: development in progress, updated September 21, 2026.** Capture, source analysis, portal orchestration, and native validation have implementations and targeted tests. Full acceptance across all four cases and final release verification remain unfinished.
+**Status: development in progress, updated October 2, 2026.** Capture, official MCP reads, source analysis, portal orchestration and Chrome validation have implementations and focused tests. Full acceptance across all four cases and final release verification remain unfinished. See the [current service analysis](docs/service-analysis.md).
 
 ## How it works
 
@@ -69,6 +69,10 @@ node packages/cli/dist/index.mjs chrome-inspect --url "https://www.figma.com/des
 
 Figma Desktop is optional for the Chrome route. The Desktop route requires importing and running the generated development plugin once, then pairing it; installing or opening the Figma app alone is insufficient. Neither route requires Dev Mode or the official Figma MCP.
 
+Official Figma MCP integration accepts only `https://mcp.figma.com/mcp` and Figma's local `http://127.0.0.1:3845/mcp`. Use `figma-mcp config`, `figma-mcp probe`, or `figma-mcp read --url <Figma-node-URL>` through the built CLI. Remote reads require externally authorized OAuth credentials; `--oauth-token-env` names their environment variable without persisting or printing its value. The supported read tools are metadata, variable definitions, screenshots and Code Connect maps. These supplemental reads return `fullCapture: false` and do not replace primary Chrome collection or frontend acceptance.
+
+For the requested atomic-design file, the [October 2 comparison](docs/testing/2026-10-02-figma-comparison/README.md) records 189 nodes and 6,426 matching field positions between Chrome Web and official MCP. Its stated field boundary does not establish full mixed-text, asset or generated-frontend acceptance.
+
 ## Current progress and remaining work
 
 The latest fixes prevent variable creation after cancellation during asynchronous preflight, and restore document/nested scroll positions after browser property inspection. Related validation passed **37 tests**, MCP/plugin type checks, and lint. These are targeted results, not full release acceptance. See the [fix report](docs/reviews/2026-09-21-cancellation-and-scroll-fixes.md).
@@ -88,7 +92,7 @@ The [active scope plan](docs/plans/2026-09-07-portal-four-cases-plan.md), [remai
 
 Native validation runs under the local owner account in a separate working directory. File hashes, reviewed execution profiles, deadlines, and owned process cleanup do **not** provide an OS filesystem or network sandbox.
 
-Application previews use headless Firefox; Chrome is the Figma source. Source checks, live design capture, UI comparison, and real API/data/authentication workflows are separate acceptance evidence. A successful build or mocked API test does not establish complete C2/C3 behavior. Other host platforms have not received final native acceptance.
+This is a Chrome-only service. Figma capture uses the existing Chrome session; application previews use installed Google Chrome stable in a separate owned headless session with a temporary profile, explicitly selecting Playwright's `chrome` channel. A missing Chrome installation blocks previews. Source checks, live design capture, UI comparison, and real API/data/authentication workflows are separate acceptance evidence. A successful build or mocked API test does not establish complete C2/C3 behavior. Other host platforms have not received final native acceptance.
 
 ## Repository and upstreams
 

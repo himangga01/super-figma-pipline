@@ -1,0 +1,938 @@
+{
+  "appliedHash": "sha256:1497c7fbf1f10db883ab2aba11de0e03a05c5bf24468bdd2a7ac3bb892b66dfa",
+  "candidateHash": "sha256:1497c7fbf1f10db883ab2aba11de0e03a05c5bf24468bdd2a7ac3bb892b66dfa",
+  "coreDeclarationCount": 7,
+  "coreDeclarationsHash": "sha256:c7614da7759ab63b2b1d1b6a89b8d497bc27925ad5e21aaab9a9bc9fcc390318",
+  "coreRecipes": {
+    "bindingHash": "sha256:349cfc2f17257c45540b7f756fcd8d7fc3be4e45f98ec5dc9f263405153c0e10",
+    "code": null,
+    "contextHash": "sha256:f78b34cf36cf3ce6439bd7663f94607b1ad85822080dd2b80b39cd69fe0284ea",
+    "contractHash": "sha256:7ac25a5a931ae55bd9fdaeaa2a26cf712b09532919e884655d6d42c7b3b20126",
+    "inputHash": "sha256:a62691221e752380d99d851e8d8359bcc9bbfd61ebb468eee28538649d2f20ba",
+    "preparationId": "sha256:67576af0b989fb7c134964c1d0b5f8d3005bd0dd8dd3a89acd3b07aa66bb5c54",
+    "recipeAuthorityVersion": 1,
+    "requiredResults": [
+      {
+        "definitionHash": "sha256:a35ca8863f77796df58b5ea9e0a71f8c1194039fad956b803341a4f3799a2d4d",
+        "recipeId": "audit-styles",
+        "resultHash": "sha256:1c76b1cae37d455ad366609b6d4a7521483ef8e5eb9a784146b4734c4f125449",
+        "resultId": "sha256:a893b0a603161f04211dfd6e3a18ae417f1926675cd0b77576595ba4a8851dc3"
+      },
+      {
+        "definitionHash": "sha256:22521fba8e5b99ddf8377429c9dc7511ce69603f9052b3c81bf2d370a26e9e59",
+        "recipeId": "derive-interactions",
+        "resultHash": "sha256:5e38bef0a098113b22ba509f34f124043e79ad1cc5af6ba91a861207866826cd",
+        "resultId": "sha256:7aaa0c419a496b240c432b0c53f0fbb8e7d80ac8d2d41538d4f6c0d73e9b4948"
+      },
+      {
+        "definitionHash": "sha256:a3112c8b49d859e3046ddd959e1c00c9cf2c8b2da3c2b77a1f260f304836399f",
+        "recipeId": "derive-tokens",
+        "resultHash": "sha256:a02103e357e6d733bf12d5cc495f8b779549cf8771e80d0e5d32007fa4720d4a",
+        "resultId": "sha256:d3352aca5105950b08c1ae93a37f738f5f579ba077bbf44fa7233b184844f4bc"
+      },
+      {
+        "definitionHash": "sha256:85cb3080db050aa97ee4a3e039b0d0e650b0d62e30f5f19dcbee2dccfda31c11",
+        "recipeId": "ground-design",
+        "resultHash": "sha256:f897f5e66c4f0a90ded2a0563b36b689167db84ecd5676d02c3ca7558cfbcea2",
+        "resultId": "sha256:be6125ad768d189ebe0daf685a7910aa06373246a93855ded280fa7a344c17d4"
+      },
+      {
+        "definitionHash": "sha256:7eb711590bfed97de7daaadb4bf4857462843bdc047b51fc9e6d286e78c2374e",
+        "recipeId": "map-design",
+        "resultHash": "sha256:fae70b684f0009b5decf4fbdbde5dd0e221a2a39ba387ef2c880f9816b1ab163",
+        "resultId": "sha256:2126873ffde984fd9b39fe1c2464ae393eb0350684451193be4638aeda088718"
+      },
+      {
+        "definitionHash": "sha256:421aa8eb5299b3c566ef5b657a070cd91fc4dfc8b10e8ea043e1320fe3975ab0",
+        "recipeId": "plan-design-implementation",
+        "resultHash": "sha256:e5537a678ffedafcf3a2ef6f461149cee0c285b9ad792809513440a7fa728e9c",
+        "resultId": "sha256:6c9ff5ebc9bc2a1cce3859914287224650d7fca276d0985ad5e0f2298285bce1"
+      },
+      {
+        "definitionHash": "sha256:8c5f66986e708be3b9d3cfb750ba01864af71059e921fb8b88f1fd8feb32a248",
+        "recipeId": "resolve-assets",
+        "resultHash": "sha256:8ea494aed629347f67244933ee5cf0fa21cc064fb3caf9df8402d0bc56e81ccd",
+        "resultId": "sha256:99cbe76265d7af5a3c0164d6896c203108c86f255ab9a87c13452b87e361a7d0"
+      }
+    ],
+    "requirementsHash": "sha256:444ec8b0b196dff87102941469c2beb98b61eba10349ab498e30ccb64fe5de9c",
+    "status": "ready",
+    "workItemCount": 7,
+    "workItemsHash": "sha256:86a44ec2f3c7891df778e858c9dd968a1c18b180421c0087771d3034033a3f3c"
+  },
+  "files": [
+    {
+      "action": "create",
+      "contentHash": "sha256:a8531e6eef7b9f97ed42e023e2278435a4fac367244f1c8aa6c5618515a61d51",
+      "path": "public/assets/3-a8531e6eef7b9f97.png"
+    },
+    {
+      "action": "create",
+      "contentHash": "sha256:bedd9dc953baee11a59713738fb46564cba0b453214972a594d1d036c3522792",
+      "path": "public/assets/4-bedd9dc953baee11.gif"
+    },
+    {
+      "action": "create",
+      "contentHash": "sha256:e63569265e06a20d76b399119472cb7e4cb09d7d2c91d37d0039a988c672fa06",
+      "path": "public/assets/5-e63569265e06a20d.png"
+    },
+    {
+      "action": "create",
+      "contentHash": "sha256:fecb683d52e9353a412069840698ed3b947f3cc3abb1fd7746f753a7391ae0ec",
+      "path": "public/assets/6-fecb683d52e9353a.png"
+    },
+    {
+      "action": "create",
+      "contentHash": "sha256:fe367e9bab425d73f79db41b623638053e6bc0771b9e62b463a45753ca24f349",
+      "path": "public/assets/7-fe367e9bab425d73.png"
+    },
+    {
+      "action": "create",
+      "contentHash": "sha256:e4a2c4f4ecbceaebec5d11fe56c7e8013365bcada907fa4af2357655ab98a2f3",
+      "path": "public/assets/8-e4a2c4f4ecbceaeb.png"
+    },
+    {
+      "action": "create",
+      "contentHash": "sha256:4f99e4c2ed1c2b7de72f47102c64d601567f8efaad5944a08c86786cad4050e6",
+      "path": "public/assets/9-4f99e4c2ed1c2b7d.gif"
+    },
+    {
+      "action": "create",
+      "contentHash": "sha256:3388ddf75bdd0ed3399ff04a24513be791bb3c9e245510534e43c9007b2ab1d6",
+      "path": "public/assets/10-3388ddf75bdd0ed3.png"
+    },
+    {
+      "action": "create",
+      "contentHash": "sha256:1974c87502444cbbad937599d30b9c053cbcaa343b9a3cd6563a6286d4f49629",
+      "path": "public/assets/11-1974c87502444cbb.gif"
+    },
+    {
+      "action": "create",
+      "contentHash": "sha256:8a4b79c6f2903c67362127f91716e7bfd68b3fb3700593a678eb0c635ac8b4d5",
+      "path": "public/assets/12-8a4b79c6f2903c67.png"
+    },
+    {
+      "action": "create",
+      "contentHash": "sha256:0e30fe10f8522b9b060124e3b56fcc4c60ef56629c3555b2c9f8a760f59f3d96",
+      "path": "public/assets/13-0e30fe10f8522b9b.svg"
+    },
+    {
+      "action": "create",
+      "contentHash": "sha256:81c1fea81f5a768a0d9fe084167595e35bfb5e1f29a67c3c5a9cfc334a490b81",
+      "path": "public/assets/14-81c1fea81f5a768a.svg"
+    },
+    {
+      "action": "create",
+      "contentHash": "sha256:b1e7f25958f29bafd7a405ae9ae0a163a3eb82b9a0b77f80869784e2dd75e72d",
+      "path": "public/assets/15-b1e7f25958f29baf.svg"
+    },
+    {
+      "action": "create",
+      "contentHash": "sha256:81c1fea81f5a768a0d9fe084167595e35bfb5e1f29a67c3c5a9cfc334a490b81",
+      "path": "public/assets/16-81c1fea81f5a768a.svg"
+    },
+    {
+      "action": "create",
+      "contentHash": "sha256:b1e7f25958f29bafd7a405ae9ae0a163a3eb82b9a0b77f80869784e2dd75e72d",
+      "path": "public/assets/17-b1e7f25958f29baf.svg"
+    },
+    {
+      "action": "create",
+      "contentHash": "sha256:529b9b8b337284e6fe49b9f765cdac84ff7c23f0864a99e2ec2dbb573ab78cd8",
+      "path": "public/assets/18-529b9b8b337284e6.svg"
+    },
+    {
+      "action": "create",
+      "contentHash": "sha256:3e05462a217a5052917144d74426a12fef8b3777a9ad9e8ff21fa15475186fd9",
+      "path": "public/assets/19-3e05462a217a5052.svg"
+    },
+    {
+      "action": "create",
+      "contentHash": "sha256:85b0b33164445af8fc253da7be7967ca38adc08c9dbba8d762cd4873284eb6e8",
+      "path": "public/assets/20-85b0b33164445af8.svg"
+    },
+    {
+      "action": "create",
+      "contentHash": "sha256:776c16afb099987486f05eb0673da6952026f6546eb48b08b7758c62b7b3b6e2",
+      "path": "public/assets/21-776c16afb0999874.svg"
+    },
+    {
+      "action": "create",
+      "contentHash": "sha256:3e05462a217a5052917144d74426a12fef8b3777a9ad9e8ff21fa15475186fd9",
+      "path": "public/assets/22-3e05462a217a5052.svg"
+    },
+    {
+      "action": "create",
+      "contentHash": "sha256:85b0b33164445af8fc253da7be7967ca38adc08c9dbba8d762cd4873284eb6e8",
+      "path": "public/assets/23-85b0b33164445af8.svg"
+    },
+    {
+      "action": "create",
+      "contentHash": "sha256:529b9b8b337284e6fe49b9f765cdac84ff7c23f0864a99e2ec2dbb573ab78cd8",
+      "path": "public/assets/24-529b9b8b337284e6.svg"
+    },
+    {
+      "action": "create",
+      "contentHash": "sha256:6eecdbe6517a2bc867a4508c57828ea651ec5cff1f1074416dfe615b3011c492",
+      "path": "font-sources.json"
+    },
+    {
+      "action": "create",
+      "contentHash": "sha256:d69d5f46f5f6fa22c01a21a22be36b07157845421dc8eb4b74e53be1907845c6",
+      "path": "index.html"
+    },
+    {
+      "action": "create",
+      "contentHash": "sha256:4adaf453bcf0127b3e5dbfa9935a709ddf61d4341b9eff9ffe58afb239342fa0",
+      "path": "package-lock.json"
+    },
+    {
+      "action": "create",
+      "contentHash": "sha256:0711f4dd231e31b6ad4576bdeeb40da64355a5913c72b23cbd14d2d0b764767b",
+      "path": "package.json"
+    },
+    {
+      "action": "create",
+      "contentHash": "sha256:279753543734e7a1846e3cb3f80d4dcdcc91f49c436411adaba82e3913c61cde",
+      "path": "public/fonts/LICENSE"
+    },
+    {
+      "action": "create",
+      "contentHash": "sha256:1016efb1b1a04c59d7b7d5927878c2e444e25ddbb2df6435168aecb24164723f",
+      "path": "public/fonts/SpoqaHanSansNeo-Bold.otf"
+    },
+    {
+      "action": "create",
+      "contentHash": "sha256:c85faa3fa812cae9fad6eadc662b0e68c84f010b61c5c0ebc769a7b43e0fcd4d",
+      "path": "public/fonts/SpoqaHanSansNeo-Bold.woff2"
+    },
+    {
+      "action": "create",
+      "contentHash": "sha256:cd299687ead5c64fcbefa697191a7dcc643a61febcf2c1a3b824b21facab1f56",
+      "path": "public/fonts/SpoqaHanSansNeo-Regular.otf"
+    },
+    {
+      "action": "create",
+      "contentHash": "sha256:4249bafc6673772edd9f3ed64589496ffbbd084a81dd85d6e170058fad86d117",
+      "path": "public/fonts/SpoqaHanSansNeo-Regular.woff2"
+    },
+    {
+      "action": "create",
+      "contentHash": "sha256:6ff03d9590967ac30d1974872b8b51ed7abe34b5fa963c1f72ca8258e52654a6",
+      "path": "public/fonts/upstream.css"
+    },
+    {
+      "action": "create",
+      "contentHash": "sha256:05159fdfda92e0167493c62d631e99573295d62521a4d09a17508426120a8cfc",
+      "path": "scripts/check-independence.mjs"
+    },
+    {
+      "action": "create",
+      "contentHash": "sha256:257e4a27aa4c03cc7b0072c2f24f5ffd7dd66313b4b29650065a94af6740bf96",
+      "path": "src/App.tsx"
+    },
+    {
+      "action": "create",
+      "contentHash": "sha256:24a382df5eefe81f0c248a73b39d63b5ea24b5668b89e30c5225c69d94b538cf",
+      "path": "src/core-materials.json"
+    },
+    {
+      "action": "create",
+      "contentHash": "sha256:ac8c00964e87e9b963dda87952f62682bc427d141265ebb48071cd7ce818a341",
+      "path": "src/design-1381-285.json"
+    },
+    {
+      "action": "create",
+      "contentHash": "sha256:74a484827cada5129e3d4b6210d37b7186b2a02414a1a5b77c3d7cd1c539e8a2",
+      "path": "src/design-1381-530.json"
+    },
+    {
+      "action": "create",
+      "contentHash": "sha256:6c967c97a7bef26ee3cd0ffc276a2d56a31082a1f6b832b21c281aa6f53ff8ce",
+      "path": "src/design-1381-541.json"
+    },
+    {
+      "action": "create",
+      "contentHash": "sha256:d54232f1d2b52ad3e1993befb130625474b7895bd0bda21df64c1cdf0e198c8d",
+      "path": "src/design-materials.json"
+    },
+    {
+      "action": "create",
+      "contentHash": "sha256:7e8d9e72e1c9e5dabe84f2061f6f0a249d5614666f454b46d17d09674680c1d2",
+      "path": "src/main.tsx"
+    },
+    {
+      "action": "create",
+      "contentHash": "sha256:c42513349eed8e82620354108c38ba1f922a3abfd32d7a0a9cd42d76bb7eccad",
+      "path": "src/native-text-layout.json"
+    },
+    {
+      "action": "create",
+      "contentHash": "sha256:e90411358333a35397672d5dde215d0f52ac2f25a0a7b208e7354989d77a9170",
+      "path": "src/style.css"
+    },
+    {
+      "action": "create",
+      "contentHash": "sha256:ff17c1b9c211b93a739a2cb8049a0e068b61fda7a9e0a30229207cb87893d1c6",
+      "path": "tsconfig.json"
+    },
+    {
+      "action": "create",
+      "contentHash": "sha256:9eb78c37181164eddf1281f2626807e5d82729b89707490f9934ec2d7fc59df8",
+      "path": "README.md"
+    }
+  ],
+  "generationAttempts": 2,
+  "issues": [
+    "PORTAL_CAPTURE_FRESHNESS_REQUIRED",
+    "LIVE_DESIGN_NOT_VERIFIED",
+    "REQUIRED_CHECK_NOT_PASSED"
+  ],
+  "lastValidation": {
+    "analysisHash": "sha256:276172a69787cb038ae950d4268f1688bd908db8c3a0e8c17507504c3d028645",
+    "capture": {
+      "freshDesignFingerprint": null,
+      "originalDescriptorHash": "sha256:f15ace5f917d020698ab7d9862b505677f046217cc6a7afa1ac1082969caad50",
+      "version": 2
+    },
+    "checks": [
+      {
+        "id": "frontend-types",
+        "kind": "typecheck",
+        "required": true,
+        "requirementIds": [
+          "figma-account-session",
+          "language-selection",
+          "registration-demo",
+          "frontend-presentation"
+        ],
+        "status": "passed"
+      },
+      {
+        "id": "frontend-build",
+        "kind": "build",
+        "required": true,
+        "requirementIds": [
+          "figma-account-session",
+          "language-selection",
+          "registration-demo",
+          "frontend-presentation"
+        ],
+        "status": "passed"
+      },
+      {
+        "id": "frontend-independence",
+        "kind": "independence",
+        "required": true,
+        "requirementIds": [
+          "figma-account-session",
+          "language-selection",
+          "registration-demo",
+          "frontend-presentation"
+        ],
+        "status": "passed"
+      },
+      {
+        "id": "visual-guide",
+        "kind": "visual",
+        "reason": "Native command preview-cdd: failed",
+        "required": true,
+        "requirementIds": [
+          "frontend-presentation"
+        ],
+        "status": "failed"
+      },
+      {
+        "id": "accessibility-guide",
+        "kind": "accessibility",
+        "reason": "Native command preview-cdd: failed",
+        "required": true,
+        "requirementIds": [
+          "frontend-presentation"
+        ],
+        "status": "failed"
+      },
+      {
+        "id": "visual-mobile",
+        "kind": "visual",
+        "reason": "Native command preview-cdd: failed",
+        "required": true,
+        "requirementIds": [
+          "figma-account-session",
+          "language-selection",
+          "registration-demo",
+          "frontend-presentation"
+        ],
+        "status": "failed"
+      },
+      {
+        "id": "accessibility-mobile",
+        "kind": "accessibility",
+        "reason": "Native command preview-cdd: failed",
+        "required": true,
+        "requirementIds": [
+          "figma-account-session",
+          "language-selection",
+          "registration-demo",
+          "frontend-presentation"
+        ],
+        "status": "failed"
+      },
+      {
+        "id": "visual-desktop",
+        "kind": "visual",
+        "reason": "Native command preview-cdd: failed",
+        "required": true,
+        "requirementIds": [
+          "figma-account-session",
+          "language-selection",
+          "registration-demo",
+          "frontend-presentation"
+        ],
+        "status": "failed"
+      },
+      {
+        "id": "accessibility-desktop",
+        "kind": "accessibility",
+        "reason": "Native command preview-cdd: failed",
+        "required": true,
+        "requirementIds": [
+          "figma-account-session",
+          "language-selection",
+          "registration-demo",
+          "frontend-presentation"
+        ],
+        "status": "failed"
+      },
+      {
+        "id": "journey-account",
+        "kind": "interaction",
+        "reason": "Native command preview-cdd: failed",
+        "required": true,
+        "requirementIds": [
+          "figma-account-session"
+        ],
+        "status": "failed"
+      },
+      {
+        "id": "journey-registration",
+        "kind": "interaction",
+        "reason": "Native command preview-cdd: failed",
+        "required": true,
+        "requirementIds": [
+          "registration-demo"
+        ],
+        "status": "failed"
+      },
+      {
+        "id": "journey-presentation",
+        "kind": "interaction",
+        "reason": "Native command preview-cdd: failed",
+        "required": true,
+        "requirementIds": [
+          "frontend-presentation"
+        ],
+        "status": "failed"
+      },
+      {
+        "id": "journey-language",
+        "kind": "interaction",
+        "reason": "Native command preview-cdd: failed",
+        "required": true,
+        "requirementIds": [
+          "language-selection"
+        ],
+        "status": "failed"
+      },
+      {
+        "id": "native-command-sequence",
+        "kind": "source-scope",
+        "reason": "Every approved native command must execute successfully.",
+        "required": true,
+        "requirementIds": [],
+        "status": "failed"
+      },
+      {
+        "id": "native-source-scope",
+        "kind": "source-scope",
+        "required": true,
+        "requirementIds": [],
+        "status": "passed"
+      },
+      {
+        "id": "core-consumption",
+        "kind": "source-scope",
+        "reason": "PORTAL_CONSUMPTION_VISUAL_PROOF_REQUIRED",
+        "required": true,
+        "requirementIds": [],
+        "status": "failed"
+      }
+    ],
+    "designHash": "sha256:74e864371987626d7821b8db9cd4555b92437916e6a1a66374b14292facab968",
+    "environmentId": "8f2dd6407d31cc34c245f56503e5202506ebf5aef0935eaad8c8e374c25298c5",
+    "evidencePaths": [
+      "portal/validation/61c3bc13faa0fcc23c3f77b38c98b2b96d88a7d84bbdf8ff19ff222a7ce33ffb.json"
+    ],
+    "liveDesignVerified": false,
+    "nativeArtifactAuthority": {
+      "manifestHash": "sha256:16a2c09e21321d5a79b1961a725ac898dcb719f73574284d76d6715ccbf28493",
+      "moduleEvidenceHash": "sha256:fab0e268afe9a1586cdd7fbc618d9d63d80671d2d657ad4fbf6a53d73f451520",
+      "moduleFenceProtocol": "sfp-native-module-fence-v1",
+      "outputReceiptHash": "sha256:8a2773efe23b544730910fcf2967ec85d131acc9ccd846facee1dcd5735d7c40",
+      "version": 1
+    },
+    "nativeEnvironment": {
+      "attemptId": "8f2dd6407d31cc34c245f56503e5202506ebf5aef0935eaad8c8e374c25298c5",
+      "disposition": "retained-artifact",
+      "executionHash": "sha256:db6ac8ea20111c61f0f9356422a3ffd24e739d45f86007037100916bbf0ba571",
+      "receiptHash": "sha256:67cee7f8d5d1beee6644ea434048581852d6a8876412b806a5ab8037c0af01b7",
+      "target": "candidate",
+      "version": 1
+    },
+    "previewFeedback": {
+      "artifactRoot": "C:\\2026_project\\super-figma-pipline\\.worktrees\\_cache\\cdd-native-appdata\\SuperFigmaPipeline\\portal-attempt-8f2dd6407d31cc34c245f56503e5202506ebf5aef0935eaad8c8e374c25298c5\\work",
+      "reports": [
+        {
+          "commandId": "preview-cdd",
+          "commandStatus": "failed",
+          "receiptHash": "sha256:16997b2f63f67073e2070de9bfdeaaa21a13b653ad332fe076e220c6e81d5d1f",
+          "screens": [
+            {
+              "actualHash": "sha256:2393e925ab141bfec16249be43a71ef6d209f9374629e00afcdc51bceb8f3ca0",
+              "actualPath": ".sfp-native-preview/preview-cdd/guide.actual.png",
+              "comparisonMode": "pixelmatch-7.2-v1",
+              "diffHash": "sha256:7d5b6e27baf3eb0b342bc4882a51ccbfa8243d95511dac026295db6d86ef0ee9",
+              "diffPath": ".sfp-native-preview/preview-cdd/guide.diff.png",
+              "differenceRatio": 0.008079696273608983,
+              "failures": [],
+              "observationId": "guide",
+              "oracleHash": "sha256:3362ed1186379f9d655103c6a11360ff3d2aaebfe3a36bcd2cb093c0e9a31ba2",
+              "passed": true,
+              "rootNodeId": "1381:285",
+              "route": "/guide",
+              "state": "source:1381:285",
+              "strictDifferenceRatio": 0.043477220520673814,
+              "viewport": {
+                "height": 192,
+                "width": 653
+              }
+            },
+            {
+              "actualHash": "sha256:57b0d9903c7bfb34fbdc838798a2332db53a978c8f54c74f69dbc5bab29de15e",
+              "actualPath": ".sfp-native-preview/preview-cdd/mobile.actual.png",
+              "comparisonMode": "pixelmatch-7.2-v1",
+              "diffHash": "sha256:a64943025688f3c080f2dd49d51dc6ef3f0b4b3a7067349309498b8ffa813e18",
+              "diffPath": ".sfp-native-preview/preview-cdd/mobile.diff.png",
+              "differenceRatio": 0.010080146562759051,
+              "failures": [
+                "VISUAL_MISMATCH"
+              ],
+              "observationId": "mobile",
+              "oracleHash": "sha256:6607d7d405fa700054dfbb5f586b3329b768f366b93506990cf8f259f4c332d6",
+              "passed": false,
+              "rootNodeId": "1381:530",
+              "route": "/",
+              "state": "source:1381:530",
+              "strictDifferenceRatio": 0.0373199538100448,
+              "viewport": {
+                "height": 800,
+                "width": 497
+              }
+            },
+            {
+              "actualHash": "sha256:9ff2fd23a8b2aa7935fea8c5ea16ca9c3e9ce985726ef6ed44315f2bd6cabe5f",
+              "actualPath": ".sfp-native-preview/preview-cdd/desktop.actual.png",
+              "comparisonMode": "pixelmatch-7.2-v1",
+              "diffHash": "sha256:baaee13b28c1d01acc62832704a5a558acc07ba31851567a973bf9b8a867e1dc",
+              "diffPath": ".sfp-native-preview/preview-cdd/desktop.diff.png",
+              "differenceRatio": 0.0035430221525115215,
+              "failures": [],
+              "observationId": "desktop",
+              "oracleHash": "sha256:7af46399edbc1528768198686132bfe4272f1126a597a942cce771aeff0fda2c",
+              "passed": true,
+              "rootNodeId": "1381:541",
+              "route": "/",
+              "state": "source:1381:541",
+              "strictDifferenceRatio": 0.015105800511211805,
+              "viewport": {
+                "height": 1117,
+                "width": 1728
+              }
+            }
+          ]
+        }
+      ],
+      "version": 1
+    },
+    "runtimeVerified": false,
+    "sourceAuthorityVersion": 2,
+    "sourceHash": "sha256:bb5ac31584663ae70e3733677587d52211ee8b376f89f1524432d9fc957769f8"
+  },
+  "lease": null,
+  "planId": "sfp_portal1_20709c4118cc341dda3ee3a07c441f6f",
+  "runId": "sfp_portal1_20709c4118cc341dda3ee3a07c441f6f",
+  "sourceAuthorityStatus": "current",
+  "sourceAuthorityVersion": 2,
+  "state": "blocked",
+  "validation": {
+    "analysisHash": "sha256:276172a69787cb038ae950d4268f1688bd908db8c3a0e8c17507504c3d028645",
+    "capture": {
+      "freshDesignFingerprint": null,
+      "originalDescriptorHash": "sha256:f15ace5f917d020698ab7d9862b505677f046217cc6a7afa1ac1082969caad50",
+      "version": 2
+    },
+    "checks": [
+      {
+        "id": "frontend-types",
+        "kind": "typecheck",
+        "required": true,
+        "requirementIds": [
+          "figma-account-session",
+          "language-selection",
+          "registration-demo",
+          "frontend-presentation"
+        ],
+        "status": "passed"
+      },
+      {
+        "id": "frontend-build",
+        "kind": "build",
+        "required": true,
+        "requirementIds": [
+          "figma-account-session",
+          "language-selection",
+          "registration-demo",
+          "frontend-presentation"
+        ],
+        "status": "passed"
+      },
+      {
+        "id": "frontend-independence",
+        "kind": "independence",
+        "required": true,
+        "requirementIds": [
+          "figma-account-session",
+          "language-selection",
+          "registration-demo",
+          "frontend-presentation"
+        ],
+        "status": "passed"
+      },
+      {
+        "id": "visual-guide",
+        "kind": "visual",
+        "required": true,
+        "requirementIds": [
+          "frontend-presentation"
+        ],
+        "status": "passed"
+      },
+      {
+        "id": "accessibility-guide",
+        "kind": "accessibility",
+        "required": true,
+        "requirementIds": [
+          "frontend-presentation"
+        ],
+        "status": "passed"
+      },
+      {
+        "id": "visual-mobile",
+        "kind": "visual",
+        "required": true,
+        "requirementIds": [
+          "figma-account-session",
+          "language-selection",
+          "registration-demo",
+          "frontend-presentation"
+        ],
+        "status": "passed"
+      },
+      {
+        "id": "accessibility-mobile",
+        "kind": "accessibility",
+        "required": true,
+        "requirementIds": [
+          "figma-account-session",
+          "language-selection",
+          "registration-demo",
+          "frontend-presentation"
+        ],
+        "status": "passed"
+      },
+      {
+        "id": "visual-desktop",
+        "kind": "visual",
+        "required": true,
+        "requirementIds": [
+          "figma-account-session",
+          "language-selection",
+          "registration-demo",
+          "frontend-presentation"
+        ],
+        "status": "passed"
+      },
+      {
+        "id": "accessibility-desktop",
+        "kind": "accessibility",
+        "required": true,
+        "requirementIds": [
+          "figma-account-session",
+          "language-selection",
+          "registration-demo",
+          "frontend-presentation"
+        ],
+        "status": "passed"
+      },
+      {
+        "id": "journey-account",
+        "kind": "interaction",
+        "required": true,
+        "requirementIds": [
+          "figma-account-session"
+        ],
+        "status": "passed"
+      },
+      {
+        "id": "journey-registration",
+        "kind": "interaction",
+        "required": true,
+        "requirementIds": [
+          "registration-demo"
+        ],
+        "status": "passed"
+      },
+      {
+        "id": "journey-presentation",
+        "kind": "interaction",
+        "required": true,
+        "requirementIds": [
+          "frontend-presentation"
+        ],
+        "status": "passed"
+      },
+      {
+        "id": "journey-language",
+        "kind": "interaction",
+        "required": true,
+        "requirementIds": [
+          "language-selection"
+        ],
+        "status": "passed"
+      },
+      {
+        "id": "native-command-sequence",
+        "kind": "source-scope",
+        "reason": "Every approved native command must execute successfully.",
+        "required": true,
+        "requirementIds": [],
+        "status": "passed"
+      },
+      {
+        "id": "native-source-scope",
+        "kind": "source-scope",
+        "required": true,
+        "requirementIds": [],
+        "status": "passed"
+      },
+      {
+        "id": "native-design-freshness",
+        "kind": "source-scope",
+        "reason": "PORTAL_LIVE_DESIGN_REFRESH_FAILED",
+        "required": true,
+        "requirementIds": [],
+        "status": "failed"
+      },
+      {
+        "id": "core-consumption",
+        "kind": "source-scope",
+        "required": true,
+        "requirementIds": [],
+        "status": "passed"
+      }
+    ],
+    "designHash": "sha256:74e864371987626d7821b8db9cd4555b92437916e6a1a66374b14292facab968",
+    "environmentId": "ba5c4f624e52461cb5d7e4aa8aa824f48e9812ffb3d25e84818b6c99fa1d0bc9",
+    "evidencePaths": [
+      "portal/validation/eec0f84adaf5bd2fe252be9730aa763a40f0d2038925cb683b49b88befc72433.json"
+    ],
+    "liveDesignVerified": false,
+    "nativeArtifactAuthority": {
+      "manifestHash": "sha256:e52fee82fbc53117fc4fde671f0f939cd65b25d9a18fb74519cd5fd0030bbe8c",
+      "moduleEvidenceHash": "sha256:05f83b47747fe788388d30e878b2b0cef386b190918c99eb5548f7da4e48a856",
+      "moduleFenceProtocol": "sfp-native-module-fence-v1",
+      "outputReceiptHash": "sha256:a9331b7bb8e3792c47ce485a83dbdede1e7373546c3a0c6fc27cda1167dcc9d4",
+      "version": 1
+    },
+    "nativeEnvironment": {
+      "attemptId": "ba5c4f624e52461cb5d7e4aa8aa824f48e9812ffb3d25e84818b6c99fa1d0bc9",
+      "disposition": "retained-artifact",
+      "executionHash": "sha256:af2bcc7d2d790403216668b7a182f8daea25710a6e59866c5b26ca3dad105c11",
+      "receiptHash": "sha256:a0a734668011bf6e156230119cca3657f635f22fa4e4bc80635a30ebb4cf9846",
+      "target": "applied",
+      "version": 1
+    },
+    "observations": {
+      "executedAssertionIds": [],
+      "executedObservationIds": [
+        "guide",
+        "mobile",
+        "desktop"
+      ],
+      "executedWorkflowIds": [
+        "figma-account-session",
+        "language-selection",
+        "registration-demo",
+        "frontend-presentation"
+      ],
+      "interactionContractHash": "sha256:85a02481cc06a2a856b78957e4cabb354bd4dc33e85a9b0964826df7f9139cff",
+      "manifestHash": "sha256:79cd57d68b0b91bef058a326678cd70e1135d660442b8362a1e2b30046942af4",
+      "receiptHash": "sha256:e1591baeb1b56a0be265a88b942a5f1f5f5bc63cc5ebc05bd430bc9e8bfa9420",
+      "version": 1
+    },
+    "previewFeedback": {
+      "artifactRoot": "C:\\2026_project\\super-figma-pipline\\.worktrees\\_cache\\cdd-native-appdata\\SuperFigmaPipeline\\portal-attempt-ba5c4f624e52461cb5d7e4aa8aa824f48e9812ffb3d25e84818b6c99fa1d0bc9\\work",
+      "reports": [
+        {
+          "commandId": "preview-cdd",
+          "commandStatus": "passed",
+          "receiptHash": "sha256:3c6f7e7228146657cd13638a88d636cefe3b948064f1e30ef60dfa43ef1b068b",
+          "screens": [
+            {
+              "actualHash": "sha256:3829b45afe23e03f58643d2441987b112bf6fa1fbaf64541da22eacfe8a78222",
+              "actualPath": ".sfp-native-preview/preview-cdd/guide.actual.png",
+              "comparisonMode": "pixelmatch-7.2-v1",
+              "diffHash": "sha256:2e6fdc58fbd129af922464bd7464887e470a0f98104d2609ebe367101bb43ec3",
+              "diffPath": ".sfp-native-preview/preview-cdd/guide.diff.png",
+              "differenceRatio": 0.006628062787136294,
+              "failures": [],
+              "observationId": "guide",
+              "oracleHash": "sha256:3362ed1186379f9d655103c6a11360ff3d2aaebfe3a36bcd2cb093c0e9a31ba2",
+              "passed": true,
+              "rootNodeId": "1381:285",
+              "route": "/guide",
+              "state": "source:1381:285",
+              "strictDifferenceRatio": 0.04456195763144461,
+              "viewport": {
+                "height": 192,
+                "width": 653
+              }
+            },
+            {
+              "actualHash": "sha256:04686cfca4fa08ec63eadd65f62e1bf7b224822e47685a9db9ed79e6878fb4c3",
+              "actualPath": ".sfp-native-preview/preview-cdd/mobile.actual.png",
+              "comparisonMode": "pixelmatch-7.2-v1",
+              "diffHash": "sha256:f5e602459fd72a8e5f88aa996ff94496ce8ad93032df23b9c3f43a7c7b17ee35",
+              "diffPath": ".sfp-native-preview/preview-cdd/mobile.diff.png",
+              "differenceRatio": 0.009993095247987433,
+              "failures": [],
+              "observationId": "mobile",
+              "oracleHash": "sha256:6607d7d405fa700054dfbb5f586b3329b768f366b93506990cf8f259f4c332d6",
+              "passed": true,
+              "rootNodeId": "1381:530",
+              "route": "/",
+              "state": "source:1381:530",
+              "strictDifferenceRatio": 0.038115945756479225,
+              "viewport": {
+                "height": 800,
+                "width": 497
+              }
+            },
+            {
+              "actualHash": "sha256:88dd03b17e7cd140ea078ed79812e20ccbda038eae5bbf7a3c0ea51a77371008",
+              "actualPath": ".sfp-native-preview/preview-cdd/desktop.actual.png",
+              "comparisonMode": "pixelmatch-7.2-v1",
+              "diffHash": "sha256:ad1121d947ea43e2367a158699954bb3de527c3aa59ac1dfd91b60f7ba48a83b",
+              "diffPath": ".sfp-native-preview/preview-cdd/desktop.diff.png",
+              "differenceRatio": 0.003784468068626312,
+              "failures": [],
+              "observationId": "desktop",
+              "oracleHash": "sha256:7af46399edbc1528768198686132bfe4272f1126a597a942cce771aeff0fda2c",
+              "passed": true,
+              "rootNodeId": "1381:541",
+              "route": "/",
+              "state": "source:1381:541",
+              "strictDifferenceRatio": 0.015883389489175476,
+              "viewport": {
+                "height": 1117,
+                "width": 1728
+              }
+            }
+          ]
+        }
+      ],
+      "version": 1
+    },
+    "recipeConsumption": {
+      "blueprintHash": "sha256:d52e40a79e51ff41b68ba2aeee562706b189ef5e5f8f852f48097df460f32267",
+      "candidateHash": "sha256:1497c7fbf1f10db883ab2aba11de0e03a05c5bf24468bdd2a7ac3bb892b66dfa",
+      "contextHash": "sha256:f78b34cf36cf3ce6439bd7663f94607b1ad85822080dd2b80b39cd69fe0284ea",
+      "declarationsHash": "sha256:c7614da7759ab63b2b1d1b6a89b8d497bc27925ad5e21aaab9a9bc9fcc390318",
+      "findings": [
+        {
+          "actualHash": "sha256:3829b45afe23e03f58643d2441987b112bf6fa1fbaf64541da22eacfe8a78222",
+          "assertionId": "core-consumption",
+          "evidenceHash": "sha256:d61917ae306091c5197732ef601c259855377e53dcda016baea3bad05b307db5",
+          "expectedHash": "sha256:3362ed1186379f9d655103c6a11360ff3d2aaebfe3a36bcd2cb093c0e9a31ba2",
+          "kind": "runtime",
+          "observationId": "guide",
+          "rootNodeId": "1381:285",
+          "route": "/guide",
+          "stateId": "source:1381:285",
+          "viewport": {
+            "height": 192,
+            "width": 653
+          }
+        },
+        {
+          "actualHash": "sha256:04686cfca4fa08ec63eadd65f62e1bf7b224822e47685a9db9ed79e6878fb4c3",
+          "assertionId": "core-consumption",
+          "evidenceHash": "sha256:d61917ae306091c5197732ef601c259855377e53dcda016baea3bad05b307db5",
+          "expectedHash": "sha256:6607d7d405fa700054dfbb5f586b3329b768f366b93506990cf8f259f4c332d6",
+          "kind": "runtime",
+          "observationId": "mobile",
+          "rootNodeId": "1381:530",
+          "route": "/",
+          "stateId": "source:1381:530",
+          "viewport": {
+            "height": 800,
+            "width": 497
+          }
+        },
+        {
+          "actualHash": "sha256:88dd03b17e7cd140ea078ed79812e20ccbda038eae5bbf7a3c0ea51a77371008",
+          "assertionId": "core-consumption",
+          "evidenceHash": "sha256:d61917ae306091c5197732ef601c259855377e53dcda016baea3bad05b307db5",
+          "expectedHash": "sha256:7af46399edbc1528768198686132bfe4272f1126a597a942cce771aeff0fda2c",
+          "kind": "runtime",
+          "observationId": "desktop",
+          "rootNodeId": "1381:541",
+          "route": "/",
+          "stateId": "source:1381:541",
+          "viewport": {
+            "height": 1117,
+            "width": 1728
+          }
+        }
+      ],
+      "ownerId": "actor1_yHqo80GCozgWc3Frz7gDVRZ5PxlqyhX3OXMZSid2XJ4",
+      "recipeAuthorityVersion": 1,
+      "resultHashes": [
+        "sha256:1c76b1cae37d455ad366609b6d4a7521483ef8e5eb9a784146b4734c4f125449",
+        "sha256:5e38bef0a098113b22ba509f34f124043e79ad1cc5af6ba91a861207866826cd",
+        "sha256:a02103e357e6d733bf12d5cc495f8b779549cf8771e80d0e5d32007fa4720d4a",
+        "sha256:f897f5e66c4f0a90ded2a0563b36b689167db84ecd5676d02c3ca7558cfbcea2",
+        "sha256:fae70b684f0009b5decf4fbdbde5dd0e221a2a39ba387ef2c880f9816b1ab163",
+        "sha256:e5537a678ffedafcf3a2ef6f461149cee0c285b9ad792809513440a7fa728e9c",
+        "sha256:8ea494aed629347f67244933ee5cf0fa21cc064fb3caf9df8402d0bc56e81ccd"
+      ],
+      "target": "applied",
+      "verifierVersion": "core-consumption-v1",
+      "workspaceId": "5431a527-2323-47d8-b4c6-73a0b0894aaa"
+    },
+    "runtimeVerified": true,
+    "sourceAuthorityVersion": 2,
+    "sourceHash": "sha256:1497c7fbf1f10db883ab2aba11de0e03a05c5bf24468bdd2a7ac3bb892b66dfa"
+  },
+  "version": 26
+}

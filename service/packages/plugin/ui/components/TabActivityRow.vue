@@ -15,6 +15,8 @@ const STATUS_COLOR = {
   pending: 'text-warning',
   ok: 'text-success',
   error: 'text-danger',
+  cancelled: 'text-muted',
+  'outcome-unknown': 'text-warning',
 } satisfies Record<ActivityStatus, string>;
 
 /** A call slow enough to be worth noticing gets warm-toned rather than muted. */
@@ -75,6 +77,11 @@ const durationTone = computed(() =>
         <span
           class="grid size-3 shrink-0 place-items-center"
           :class="[STATUS_COLOR[entry.status], entry.status === 'pending' ? 'animate-breathe' : '']"
+          :aria-label="
+            entry.status === 'outcome-unknown'
+              ? 'Outcome unknown — reconcile before retrying'
+              : entry.status
+          "
         >
           <Check v-if="entry.status === 'ok'" class="size-3" />
           <X v-else-if="entry.status === 'error'" class="size-3" />
@@ -155,7 +162,13 @@ const durationTone = computed(() =>
                line. The message can be long, so it wraps and scrolls rather than stretching the
                panel. -->
           <div v-if="entry.error">
-            <UiSectionHeading class="mb-1">Error</UiSectionHeading>
+            <UiSectionHeading class="mb-1">{{
+              entry.status === 'outcome-unknown'
+                ? 'Outcome unknown'
+                : entry.status === 'cancelled'
+                  ? 'Cancelled'
+                  : 'Error'
+            }}</UiSectionHeading>
             <p
               class="max-h-40 overflow-auto rounded-md bg-raised p-2 font-mono text-meta leading-snug wrap-break-word text-danger"
             >

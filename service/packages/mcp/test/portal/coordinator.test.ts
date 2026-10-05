@@ -79,12 +79,12 @@ const setup = async (
   };
   return { ...fixture, work, coordinator, invoke, capture };
 };
-it('accepts a multi-screen candidate above 32 MiB and rejects growth beyond 64 MiB', async () => {
+it('preserves large original image sets within 96 MiB and rejects excess candidate bytes', async () => {
   const value = await setup();
   const plan = await value.invoke('portal_plan', { case: 'new-blank' });
   await value.invoke('portal_start', { planId: plan.planId });
   const next = await value.invoke('portal_next', { runId: plan.planId });
-  // Seed durable size accounting to exercise the aggregate boundary without allocating 64 MiB.
+  // Exercise durable aggregate accounting without allocating the complete captured image set.
   const seed = (total: number) =>
     value.store.update('runs', plan.planId, PortalRunSchema, run => ({
       ...run,
@@ -97,7 +97,7 @@ it('accepts a multi-screen candidate above 32 MiB and rejects growth beyond 64 M
         artifact: {
           path: `contents/photo-${index}.json`,
           hash: storedChecksum(`photo-${index}`),
-          bytes: total / 8,
+          bytes: Math.floor(total / 8) + (index < total % 8 ? 1 : 0),
         },
       })),
     }));
@@ -118,12 +118,20 @@ it('accepts a multi-screen candidate above 32 MiB and rejects growth beyond 64 M
       },
     ],
   };
-  await seed(40 * 1024 * 1024);
+  // The complete eCommerce capture contains 89,090,574 bytes of original images.
+  await seed(89_090_574);
   expect((await value.invoke('portal_submit', args)).state).toBe('generating');
-  await seed(64 * 1024 * 1024);
+  await seed(96 * 1024 * 1024 - Buffer.byteLength(content));
+  expect((await value.invoke('portal_submit', args)).state).toBe('generating');
+  await seed(96 * 1024 * 1024);
   await expect(value.invoke('portal_submit', args)).rejects.toMatchObject({
     code: 'PORTAL_CANDIDATE_LIMIT',
   });
+  const retained = await value.store.get('runs', plan.planId, PortalRunSchema);
+  expect(retained!.files).toHaveLength(8);
+  expect(retained!.files.reduce((total, file) => total + file.artifact.bytes, 0)).toBe(
+    96 * 1024 * 1024,
+  );
 }, 60_000);
 it('returns evidence without a lease for a draft operational blueprint and starts its confirmed replacement', async () => {
   const value = await setup();
@@ -478,6 +486,7 @@ it('inspects legacy partial recovery without mutating or promoting historical au
   await value.store.update('runs', planned.planId, PortalRunSchema, run => {
     delete run.sourceAuthorityVersion;
     run.state = state;
+    run.deadlineAt = Date.now() - 1;
     return run;
   });
   value.work.reconcile = vi.fn<NonNullable<PortalWorkPort['reconcile']>>(async () => ({
@@ -841,7 +850,7 @@ it('keeps document persistence, form failures and source integration evidence wh
   });
   await writeProject(join(form.workspaceRoot, 'reference'), {
     'package.json': '{"dependencies":{"nodemailer":"1"}}',
-    'main.ts': "import nodemailer from 'nodemailer'; export const mail=nodemailer;",
+    'main.ts': "\ufeffimport nodemailer from 'nodemailer'; export const mail=nodemailer;",
   });
   const integrated = await form.invoke('portal_plan', {
     case: 'new-reference',

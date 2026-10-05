@@ -13,7 +13,7 @@ import type { SandboxToolHandler } from '../dispatcher.js';
  */
 export const createSetPositionHandler =
   (figmaCtx: typeof figma): SandboxToolHandler =>
-  async params => {
+  async (params, execution) => {
     const p = (params ?? {}) as { nodeId?: unknown; x?: unknown; y?: unknown };
     if (typeof p.nodeId !== 'string') throw new TypeError('set_position: nodeId must be a string');
     if (p.x !== undefined && typeof p.x !== 'number')
@@ -22,6 +22,8 @@ export const createSetPositionHandler =
       throw new TypeError('set_position: y must be a number');
 
     const node = await figmaCtx.getNodeByIdAsync(p.nodeId);
+
+    execution?.signal.throwIfAborted();
     if (node === null) throw new Error(`set_position: node ${p.nodeId} not found`);
     if (!('x' in node) || !('y' in node)) {
       throw new Error(`set_position: node ${p.nodeId} has no position`);

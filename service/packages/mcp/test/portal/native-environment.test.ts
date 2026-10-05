@@ -11,6 +11,7 @@ import { FileExecutionQueue } from '../../src/execution/file-queue.js';
 import { NativeEnvironmentLifecycle } from '../../src/portal/native-lifecycle.js';
 import { nativeProcessControl } from '../../src/portal/native-process-control.js';
 import {
+  directoryIdentity,
   expandNativeEnvironment,
   observeSqlite,
   prepareNativeEnvironment,
@@ -205,6 +206,8 @@ it.runIf(process.platform === 'win32')(
       controller.signal,
     );
     const script = join(f.workspaceRoot, 'run.cjs');
+    // spawn-hygiene-exempt: workload fixture that models a descendant outliving its root inside the
+    // Windows job; the broker that starts the root runs with windowsHide.
     await writeFile(
       script,
       `require('node:fs').writeFileSync(${JSON.stringify(marker)},'ok');require('node:child_process').spawn(process.execPath,['-e','setInterval(()=>{},1000)'],{stdio:'ignore'}).unref();`,
@@ -255,7 +258,16 @@ it.runIf(process.platform === 'win32')(
 
 it
   .runIf(process.platform === 'win32')
-  .each(['failed', 'timeout', 'cancelled', 'before-permit', 'parent-eof'] as const)(
+  .each([
+    'failed',
+    'timeout',
+    'cancelled',
+    'before-permit',
+    'parent-eof',
+    'exit-race-1',
+    'exit-race-2',
+    'exit-race-3',
+  ] as const)(
   'releases only after real broker tree-stop proof for %s commands',
   async mode => {
     const f = await fixture(),
@@ -276,7 +288,9 @@ it
     const source =
       mode === 'failed'
         ? 'process.exit(7)'
-        : `require('node:fs').writeFileSync(${JSON.stringify(marker)},'started');setInterval(()=>{},1000);`;
+        : mode.startsWith('exit-race')
+          ? 'for(let i=0;i<16;i++)require("node:child_process").spawn(process.execPath,["-e","setTimeout(()=>{},20)"],{stdio:"ignore",windowsHide:true}).unref();'
+          : `require('node:fs').writeFileSync(${JSON.stringify(marker)},'started');setInterval(()=>{},1000);`;
     const script = join(f.workspaceRoot, 'process.cjs');
     await writeFile(script, source);
     const broker = windowsJobCommand(
@@ -317,7 +331,15 @@ it
         else controller.abort();
       }
       const code = await closed;
-      expect(code).toBe(mode === 'failed' ? 7 : mode === 'before-permit' ? 125 : 124);
+      expect(code).toBe(
+        mode === 'failed'
+          ? 7
+          : mode === 'before-permit'
+            ? 125
+            : mode.startsWith('exit-race')
+              ? 0
+              : 124,
+      );
       await control.finish();
       const markerExists = await readFile(marker).then(
         () => true,
@@ -468,7 +490,7 @@ it.runIf(process.platform === 'win32')(
 );
 
 it.runIf(process.platform === 'win32')(
-  'quarantines a real created directory when its identity persistence is interrupted',
+  'recovers a published directory from its durable staged identity after final identity persistence is interrupted',
   async () => {
     const f = await fixture(),
       grant = await prepareNativeEnvironment(profile(), f.stateRoot),
@@ -498,13 +520,20 @@ it.runIf(process.platform === 'win32')(
       record = await reconstructed.inspect(execution.attemptId, 'actor');
     expect(record.state).toBe('quarantined');
     expect(record.directoryIdentity).toBeNull();
-    await expect(
-      reconstructed.reconcile(
-        execution.attemptId,
-        'actor',
-        contentHash('sfp-native-lifecycle-receipt-v1', record),
-      ),
-    ).rejects.toThrow('PORTAL_ENVIRONMENT_DIRECTORY_CHANGED');
+    expect(record.directoryCreations?.[0]?.phase).toBe('identity-bound');
+    const identity = await directoryIdentity(execution.directory);
+    const recovered = await reconstructed.reconcile(
+      execution.attemptId,
+      'actor',
+      contentHash('sfp-native-lifecycle-receipt-v1', record),
+    );
+    expect(recovered.state).toBe('released');
+    expect(recovered.directoryIdentity).toBe(identity);
+    await reconstructed.verifyReceipt(
+      execution.attemptId,
+      'actor',
+      contentHash('sfp-native-lifecycle-receipt-v1', recovered),
+    );
   },
 );
 it.runIf(process.platform === 'win32')(

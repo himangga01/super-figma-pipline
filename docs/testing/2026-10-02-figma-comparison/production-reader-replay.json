@@ -1,0 +1,28 @@
+{
+  "schemaVersion": 1,
+  "executedAt": "2026-10-01T19:51:00.282Z",
+  "kind": "recorded-value-replay",
+  "liveCapture": false,
+  "fullCapture": false,
+  "sourcePath": "service/packages/shared/src/figma-capture-read.ts",
+  "sourceSha256": "d01c262ca8b19794c1b9bd385637d0b034f387aedb119beeb830949f26b5d9cd",
+  "chromeCaptureSha256": "eac16e65aaaac8d760fad76c10029a257a678410e6e78398572efec69b0902b5",
+  "comparisonSha256": "a7b4c807a20718dac0b4c83b988b4742419c8c92590a866ca582b5c43fb5d09d",
+  "textNodes": 70,
+  "recordedOfficialSegmentOmissions": 70,
+  "nodeWrapValues": [
+    "AUTO"
+  ],
+  "recoveredWithExactProvenance": 70,
+  "remainingTextDifferences": 0,
+  "valueTruncated": false,
+  "unicodeCodeUnitsPreserved": {
+    "U2028": 33,
+    "UFEFF": 8
+  },
+  "limits": [
+    "The API surface is reconstructed from the recorded bounded comparison and matching Chrome values.",
+    "This executes the current production reader on retained facts; it is not a new official MCP or Chrome request.",
+    "Only text values and recovery provenance are asserted; catalogs, assets, component APIs, full capture and frontend acceptance are excluded."
+  ]
+}

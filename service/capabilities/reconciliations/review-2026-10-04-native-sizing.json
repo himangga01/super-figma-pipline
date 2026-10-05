@@ -1,0 +1,84 @@
+{
+  "schemaVersion": 1,
+  "slice": "review-2026-10-04",
+  "baseline": {
+    "headCommit": "5b9343efc82ef47ba56f412acbd4eee5a328d335",
+    "authoritySha256": {
+      "upstream-lock.json": "71ea2c18e2079055c2226d85fa02af06affd0df5a0ef5a80cee293272e63b3f4",
+      "vendor-map.json": "b3275c7d8b997d1cfe723d97594659f77d7b4361b824a790bcfdd7ff762589bd",
+      "vendor-rules.json": "4378d029e1c05143d79ba7e6b4abf7b8a9b7563d9a18d31d8e291d6716112894"
+    }
+  },
+  "entries": [
+    {
+      "path": "capabilities/task-review-2026-10-04-authority-classes.json",
+      "sha256": "425958ac796f59be244111bb044efd18da9f71af60d9ba96b5ec10f0078c3812",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "32f931e82fc287312cecabb83693b4b3ce32d77a77845f9bf545f497eadfa3e1"
+        },
+        {
+          "class": "protected",
+          "sha256": "32f931e82fc287312cecabb83693b4b3ce32d77a77845f9bf545f497eadfa3e1"
+        }
+      ],
+      "reason": "Derive Plugin API layout sizing (FIXED, HUG, FILL) from decoded native layout fields of each node and its parent, after the tree is complete. Hidden and absolutely positioned children do not take part in auto layout; unknown container layouts and text resize modes stay unknown. Separate eCommerce and CDD comparisons add 6,396 and 384 sizing positions with zero differences. Regressions failed first."
+    },
+    {
+      "path": "docs/portal-native.md",
+      "sha256": "11b1d17fd59c0f9dca1b5b4f45a2cadddd3265d817e9c5e4297c2147792f4d1b",
+      "priorClaims": [
+        {
+          "class": "protected",
+          "sha256": "5c663d4d54b2f63b9bcc8c9590f9f0d712cb391a7b8ae51a265e058a14a64294"
+        }
+      ],
+      "reason": "Derive Plugin API layout sizing (FIXED, HUG, FILL) from decoded native layout fields of each node and its parent, after the tree is complete. Hidden and absolutely positioned children do not take part in auto layout; unknown container layouts and text resize modes stay unknown. Separate eCommerce and CDD comparisons add 6,396 and 384 sizing positions with zero differences. Regressions failed first."
+    },
+    {
+      "path": "packages/cli/src/figma-native-layout.ts",
+      "sha256": "223e500abbdc79b3f7da34f818088a13ce2e8979e678b6ab8d6a154d6a41a109",
+      "priorClaims": [
+        {
+          "class": "protected",
+          "sha256": "d34085b33438383f6cfc0971a084df1a821976bf7b59dab437ecc1f982dd9aee"
+        }
+      ],
+      "reason": "Derive Plugin API layout sizing (FIXED, HUG, FILL) from decoded native layout fields of each node and its parent, after the tree is complete. Hidden and absolutely positioned children do not take part in auto layout; unknown container layouts and text resize modes stay unknown. Separate eCommerce and CDD comparisons add 6,396 and 384 sizing positions with zero differences. Regressions failed first."
+    },
+    {
+      "path": "packages/cli/src/figma-native-nodes.ts",
+      "sha256": "0145d69d7a90d7cc335931233953d99ce8843478f195bd11e58ca73fb784f99b",
+      "priorClaims": [
+        {
+          "class": "protected",
+          "sha256": "3c49368b0f930cb82f4a56c8b6f1284fda6941a2d64e043f4fa6ee6e69ecb08b"
+        }
+      ],
+      "reason": "Derive Plugin API layout sizing (FIXED, HUG, FILL) from decoded native layout fields of each node and its parent, after the tree is complete. Hidden and absolutely positioned children do not take part in auto layout; unknown container layouts and text resize modes stay unknown. Separate eCommerce and CDD comparisons add 6,396 and 384 sizing positions with zero differences. Regressions failed first."
+    },
+    {
+      "path": "packages/cli/test/figma-native-layout.test.ts",
+      "sha256": "d47c7af5982e9b08777808e2f385073d5b45795d0ce31731643d0a0c4f58b16a",
+      "priorClaims": [
+        {
+          "class": "protected",
+          "sha256": "d17f6b32f3cb6131ba230ba6a0d3c0e3f2bdcdb798a68f23299bde83c445fd0c"
+        }
+      ],
+      "reason": "Derive Plugin API layout sizing (FIXED, HUG, FILL) from decoded native layout fields of each node and its parent, after the tree is complete. Hidden and absolutely positioned children do not take part in auto layout; unknown container layouts and text resize modes stay unknown. Separate eCommerce and CDD comparisons add 6,396 and 384 sizing positions with zero differences. Regressions failed first."
+    },
+    {
+      "path": "packages/cli/test/figma-native-nodes.test.ts",
+      "sha256": "db13af445e3874018641d2ba8af8e9c73ffd408d0993f58e3f3f1bb05078fc8f",
+      "priorClaims": [
+        {
+          "class": "protected",
+          "sha256": "c8eea0aca475a90e78c336797da743abe488d67fde4487e5e415772379126cfc"
+        }
+      ],
+      "reason": "Derive Plugin API layout sizing (FIXED, HUG, FILL) from decoded native layout fields of each node and its parent, after the tree is complete. Hidden and absolutely positioned children do not take part in auto layout; unknown container layouts and text resize modes stay unknown. Separate eCommerce and CDD comparisons add 6,396 and 384 sizing positions with zero differences. Regressions failed first."
+    }
+  ]
+}

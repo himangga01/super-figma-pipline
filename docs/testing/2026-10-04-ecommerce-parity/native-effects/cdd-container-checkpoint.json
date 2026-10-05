@@ -1,0 +1,13 @@
+{
+  "recordedAt": "2026-10-04T15:01:21.772Z",
+  "phase": "container-properties",
+  "nodeCount": 192,
+  "comparedPositions": 11244,
+  "rawDifferences": 77,
+  "unexplainedDifferences": 0,
+  "containerDifferences": 0,
+  "unsupportedContainerWarnings": 0,
+  "layoutGrids": 0,
+  "scrollingContainers": 2,
+  "fullCaptureAccepted": false
+}

@@ -15,6 +15,7 @@ import { RepoReader } from '../../fs/repo-walk.js';
 import { portalContentBytes } from '../content.js';
 import { PortalCapturedDesignSchema, assertPortalCaptureDescriptor } from '../design-capture.js';
 import { normalizeDesignObservation } from '../design-normalization.js';
+import { derivePortalInteractionContract } from '../interaction-evidence.js';
 import { PortalStore, portalError } from '../store.js';
 import { coreDeclarationsHash, PortalCoreLifecycle } from './core-lifecycle.js';
 import { coreHash } from './core-source.js';
@@ -38,11 +39,18 @@ export interface ConsumptionPage {
 /** Read only material that the current signed candidate actually declares; not arbitrary paths. */
 export async function loadCoreConsumptionInput(
   dependencies: {
-    store: PortalStore; lifecycle: PortalCoreLifecycle; policy: WorkspacePolicy;
+    store: PortalStore;
+    lifecycle: PortalCoreLifecycle;
+    policy: WorkspacePolicy;
     /** Trusted NativeWork guard: signed apply journal, actual target identity and complete bytes. */
-    verifyAppliedTarget?(plan:PortalPlan,run:PortalRun,signal:AbortSignal):Promise<void>;
+    verifyAppliedTarget?(plan: PortalPlan, run: PortalRun, signal: AbortSignal): Promise<void>;
   },
-  request: { ownerId: string; planId: string; candidateHash: string; target?:'candidate'|'applied' },
+  request: {
+    ownerId: string;
+    planId: string;
+    candidateHash: string;
+    target?: 'candidate' | 'applied';
+  },
   signal?: AbortSignal,
 ) {
   const plan = await dependencies.store.get('plans', request.planId, PortalPlanSchema);
@@ -66,11 +74,11 @@ export async function loadCoreConsumptionInput(
     portalCandidateHash(run.files, plan, run.coreDeclarations) !== request.candidateHash
   )
     throw portalError('PORTAL_CONSUMPTION_CANDIDATE_CHANGED');
-  const applied=request.target==='applied';
-  if(applied){
-    if(run.appliedHash!==request.candidateHash || !dependencies.verifyAppliedTarget)
+  const applied = request.target === 'applied';
+  if (applied) {
+    if (run.appliedHash !== request.candidateHash || !dependencies.verifyAppliedTarget)
       throw portalError('PORTAL_CONSUMPTION_APPLIED_AUTHORITY_REQUIRED');
-    await dependencies.verifyAppliedTarget(plan,run,signal??new AbortController().signal);
+    await dependencies.verifyAppliedTarget(plan, run, signal ?? new AbortController().signal);
   }
   const declarations = run.coreDeclarations ?? [];
   if (!run.coreDeclarationsHash || coreDeclarationsHash(declarations) !== run.coreDeclarationsHash)
@@ -87,6 +95,15 @@ export async function loadCoreConsumptionInput(
     captured.collectorEvidence,
   );
   const observationHash = coreHash(observation);
+  const interactionContract = derivePortalInteractionContract(
+    captured,
+    plan.requirements,
+    plan.workflowCoverage,
+    plan.request.interactionScope,
+  );
+  if (canonicalJson(interactionContract) !== canonicalJson(plan.interactionContract))
+    throw portalError('PORTAL_CONSUMPTION_INTERACTION_SELECTION_CHANGED');
+  const interactionContractHash = contentHash('sfp-interaction-contract-v1', interactionContract);
   const pages: ConsumptionPage[] = [];
   const kinds: Record<string, string> = {
     'ground-design': 'scope',
@@ -99,7 +116,12 @@ export async function loadCoreConsumptionInput(
   };
   const usedDeclarations = new Set<string>();
   for (const result of material.results) {
-    if (result.result.status !== 'succeeded' || result.manifest.observationHash !== observationHash)
+    if (
+      result.result.status !== 'succeeded' ||
+      result.manifest.observationHash !== observationHash ||
+      result.manifest.interactionContractHash !== interactionContractHash ||
+      result.manifest.interactionSelectionHash !== interactionContract.selectionHash
+    )
       throw portalError('PORTAL_CONSUMPTION_RESULT_CHANGED');
     const reference = plan.coreRecipes.requiredResults.find(
       row => row.resultId === result.result.resultId,
@@ -196,14 +218,24 @@ export async function loadCoreConsumptionInput(
   }
   // The original target inventory is intentionally replaced after an approved apply. Its complete
   // applied bytes are checked by the actual journal/root guard; reference snapshots stay unchanged.
-  await dependencies.lifecycle.assertSourcesCurrent(applied
-    ? {...plan,profiles:plan.profiles.filter(profile=>profile.role==='reference')}
-    : plan, dependencies.policy, signal);
-  if(applied)await dependencies.verifyAppliedTarget!(plan,run,signal??new AbortController().signal);
-  const current=await dependencies.store.get('runs',request.planId,PortalRunSchema);
-  if(!current || current.ownerId!==request.ownerId || current.state==='cancelled' ||
-      current.candidateHash!==run.candidateHash || current.coreDeclarationsHash!==run.coreDeclarationsHash ||
-      canonicalJson(current.coreRecipes)!==canonicalJson(run.coreRecipes))
+  await dependencies.lifecycle.assertSourcesCurrent(
+    applied
+      ? { ...plan, profiles: plan.profiles.filter(profile => profile.role === 'reference') }
+      : plan,
+    dependencies.policy,
+    signal,
+  );
+  if (applied)
+    await dependencies.verifyAppliedTarget!(plan, run, signal ?? new AbortController().signal);
+  const current = await dependencies.store.get('runs', request.planId, PortalRunSchema);
+  if (
+    !current ||
+    current.ownerId !== request.ownerId ||
+    current.state === 'cancelled' ||
+    current.candidateHash !== run.candidateHash ||
+    current.coreDeclarationsHash !== run.coreDeclarationsHash ||
+    canonicalJson(current.coreRecipes) !== canonicalJson(run.coreRecipes)
+  )
     throw portalError('PORTAL_CONSUMPTION_CANDIDATE_CHANGED');
   signal?.throwIfAborted();
   return {

@@ -1,0 +1,14 @@
+{
+  "recordedAt": "2026-10-04T15:01:21.607Z",
+  "purpose": "All native-module suites after effects, strokes, sizing, text and container conversion",
+  "command": "vitest run packages/cli/test/figma-native-*.test.ts (10 files)",
+  "files": 10,
+  "numTotalTests": 67,
+  "numPassedTests": 67,
+  "numFailedTests": 0,
+  "numPendingTests": 0,
+  "numTodoTests": 0,
+  "success": true,
+  "failed": [],
+  "selected": []
+}

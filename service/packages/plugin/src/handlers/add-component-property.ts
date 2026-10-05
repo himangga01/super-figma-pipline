@@ -15,7 +15,7 @@ import {
  */
 export const createAddComponentPropertyHandler =
   (figmaCtx: typeof figma): SandboxToolHandler =>
-  async params => {
+  async (params, execution) => {
     const p = (params ?? {}) as {
       componentId?: unknown;
       name?: unknown;
@@ -57,6 +57,7 @@ export const createAddComponentPropertyHandler =
     }
 
     const node = await figmaCtx.getNodeByIdAsync(p.componentId);
+    execution?.signal.throwIfAborted();
     if (node === null) throw new Error(`add_component_property: node ${p.componentId} not found`);
     const owner = resolveComponentOwner('add_component_property', node);
 

@@ -1,0 +1,103 @@
+{
+  "schemaVersion": 1,
+  "status": "superseded",
+  "supersededBy": "comparison-lossless.json",
+  "supersessionReason": "Recollection preserves U+2028 and U+FEFF instead of rendered DOM whitespace; expanded text range comparison records missing official properties.",
+  "analysisDate": "2026-10-02",
+  "fileKey": "ly06O8jAcrd7oWmwhz5Vr6",
+  "pageNodeId": "1378:120",
+  "rootIds": [
+    "1381:541",
+    "1381:530"
+  ],
+  "primarySource": "Chrome web Figma read through Playwright remote control and the existing Scripter UI",
+  "secondarySource": "Official Figma MCP use_figma read",
+  "sourceUrl": "https://www.figma.com/design/ly06O8jAcrd7oWmwhz5Vr6/CDD-%E2%8C%81-ATOMIC-DESIGN--Share---Copy-?node-id=1378-120",
+  "nodeCount": 189,
+  "textNodeCount": 70,
+  "fields": [
+    "id",
+    "name",
+    "type",
+    "x",
+    "y",
+    "width",
+    "height",
+    "rotation",
+    "visible",
+    "opacity",
+    "clipsContent",
+    "fills",
+    "strokes",
+    "strokeWeight",
+    "cornerRadius",
+    "layoutMode",
+    "itemSpacing",
+    "paddingTop",
+    "paddingRight",
+    "paddingBottom",
+    "paddingLeft",
+    "characters",
+    "fontSize",
+    "fontName",
+    "lineHeight",
+    "letterSpacing",
+    "textAlignHorizontal",
+    "boundVariables",
+    "effects",
+    "constraints",
+    "layoutSizingHorizontal",
+    "layoutSizingVertical",
+    "reactions"
+  ],
+  "comparedFieldPositions": 6426,
+  "treeMatches": true,
+  "differenceCount": 0,
+  "batches": [
+    {
+      "batch": 1,
+      "nodeCount": 50,
+      "comparedFields": 1700,
+      "treeMatches": true,
+      "officialNodeCount": 189,
+      "differenceCount": 0,
+      "differences": []
+    },
+    {
+      "batch": 2,
+      "nodeCount": 50,
+      "comparedFields": 1700,
+      "treeMatches": true,
+      "officialNodeCount": 189,
+      "differenceCount": 0,
+      "differences": []
+    },
+    {
+      "batch": 3,
+      "nodeCount": 50,
+      "comparedFields": 1700,
+      "treeMatches": true,
+      "officialNodeCount": 189,
+      "differenceCount": 0,
+      "differences": []
+    },
+    {
+      "batch": 4,
+      "nodeCount": 39,
+      "comparedFields": 1326,
+      "treeMatches": true,
+      "officialNodeCount": 189,
+      "differenceCount": 0,
+      "differences": []
+    }
+  ],
+  "fullCapture": false,
+  "limits": [
+    "Only the two Home roots and the recorded 33 node properties plus parent identity were compared.",
+    "Mixed text ranges, complete component APIs, variables/styles catalogs, binary assets and prototype workflows were not accepted by this comparison.",
+    "Official reads occurred in four bounded batches; this was not an atomic cross-source snapshot.",
+    "The service-owned direct CDP connection remains pending browser remote-debugging admission; this comparison used the existing Chrome extension's Playwright remote control.",
+    "This comparison does not establish generated frontend visual or end-to-end portal acceptance."
+  ],
+  "chromeSha256": "sha256:d63f470a6d354620d63d8ac516d97adffb32cd8a475647d9ce778d1459c57fc5"
+}

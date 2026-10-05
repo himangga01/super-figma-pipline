@@ -222,7 +222,12 @@ const propsOfFunction = (fn: any, table: TypeTable): PropsResult => {
     return annotated.extracted ? annotated : { names: destructured, extracted: false };
   }
   if (p0.type === 'ObjectPattern')
-    return destructured.length > 0 ? { names: destructured, extracted: true } : UNKNOWN_PROPS;
+    return destructured.length > 0
+      ? {
+          names: destructured,
+          extracted: !(p0.properties ?? []).some((pr: any) => pr.type === 'RestElement'),
+        }
+      : UNKNOWN_PROPS;
   return UNKNOWN_PROPS;
 };
 
@@ -270,17 +275,17 @@ const COMPONENT_TYPE_WRAPPERS = new Set([
  * = (props) => …` puts the prop type on the variable, so a parameter-only read finds nothing.
  * Handles both the bare (`FC`) and namespaced (`React.FC`) spellings.
  */
-const propsFromComponentType = (declId: any, table: TypeTable): PropsResult => {
+const propsFromComponentType = (declId: any, table: TypeTable): PropsResult | null => {
   const ref = declId?.typeAnnotation?.typeAnnotation;
-  if (ref?.type !== 'TSTypeReference') return UNKNOWN_PROPS;
+  if (ref?.type !== 'TSTypeReference') return null;
   // `React.FC` parses as a TSQualifiedName; its `right` is the member being referenced.
   const name =
     ref.typeName?.type === 'TSQualifiedName' ? ref.typeName.right?.name : ref.typeName?.name;
-  if (typeof name !== 'string' || !COMPONENT_TYPE_WRAPPERS.has(name)) return UNKNOWN_PROPS;
+  if (typeof name !== 'string' || !COMPONENT_TYPE_WRAPPERS.has(name)) return null;
   const arg0 = ref.typeArguments?.params?.[0];
   // A bare `FC` declares nothing, so it must not short-circuit the parameter read — `const B: FC =
   // ({ size }) => …` still names its props in the pattern.
-  if (arg0 == null) return UNKNOWN_PROPS;
+  if (arg0 == null) return null;
   const names = resolveTypeMembers(arg0, table);
   return names === null ? UNKNOWN_PROPS : { names, extracted: true };
 };
@@ -331,7 +336,13 @@ const candidateOfDeclaration = (
       // The binding's `FC<Props>` annotation is the component's declared public contract, so it
       // wins when present — a body that ignores a prop (`FC<Props> = () => …`) doesn't remove it.
       const fromType = propsFromComponentType(decl?.id, table);
-      const props = fromType.extracted ? fromType : propsOfFunction(fn, table);
+      const functionProps = propsOfFunction(fn, table);
+      const props =
+        fromType === null
+          ? functionProps
+          : fromType.extracted
+            ? fromType
+            : { names: functionProps.names, extracted: false };
       return { name: decl?.id?.name ?? null, props, exportKind };
     }
   }

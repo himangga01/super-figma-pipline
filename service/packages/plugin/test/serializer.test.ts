@@ -1,4 +1,4 @@
-import { MIXED } from '@sfp/shared';
+import { MIXED, SerializedAutoLayoutSchema } from '@sfp/shared';
 import { describe, expect, it, vi } from 'vitest';
 
 import {
@@ -604,7 +604,7 @@ describe('serializeFlat — strokes / effects / auto layout', () => {
 });
 
 describe('serializeFlat — layout sizing / constraints / clipsContent', () => {
-  it('captures auto-layout child sizing only when the parent is auto-layout', () => {
+  it('captures auto-layout child sizing when the parent is auto-layout', () => {
     const out = serializeFlatSync(
       fake({
         parent: { id: '1:1', layoutMode: 'HORIZONTAL' },
@@ -621,6 +621,41 @@ describe('serializeFlat — layout sizing / constraints / clipsContent', () => {
     expect(out.layoutAlign).toBe('STRETCH');
     expect(out.layoutPositioning).toBeUndefined(); // AUTO is the default, omitted
     expect(out.constraints).toBeUndefined();
+  });
+
+  it('preserves a top-level frame own sizing and auto-layout axes through schema decoding', () => {
+    const out = serializeFlatSync(
+      fake({
+        type: 'FRAME',
+        parent: null,
+        layoutMode: 'HORIZONTAL',
+        layoutSizingHorizontal: 'HUG',
+        layoutSizingVertical: 'FIXED',
+        primaryAxisSizingMode: 'AUTO',
+        counterAxisSizingMode: 'FIXED',
+        paddingTop: 0,
+        paddingBottom: 0,
+        paddingLeft: 0,
+        paddingRight: 0,
+      }),
+    );
+    expect(out.layoutSizingHorizontal).toBe('HUG');
+    expect(out.layoutSizingVertical).toBe('FIXED');
+    expect(SerializedAutoLayoutSchema.parse(out.layout)).toMatchObject({
+      primaryAxisSizingMode: 'AUTO',
+      counterAxisSizingMode: 'FIXED',
+    });
+  });
+
+  it('retains constraints of an absolutely positioned auto-layout child', () => {
+    const out = serializeFlatSync(
+      fake({
+        parent: { id: '1:1', layoutMode: 'HORIZONTAL' },
+        layoutPositioning: 'ABSOLUTE',
+        constraints: { horizontal: 'STRETCH', vertical: 'MAX' },
+      }),
+    );
+    expect(out.constraints).toEqual({ horizontal: 'STRETCH', vertical: 'MAX' });
   });
 
   it('captures min/max size bounds, omitting unset (null) ones', () => {
@@ -1049,12 +1084,12 @@ describe('serializeFlat — typography', () => {
     expect(out.segments?.[0]?.indentation).toBe(1);
   });
 
-  it('skips the list probe entirely for single-line text (the hot-path perf gate)', () => {
+  it('preserves a one-item single-line list through the structural probe', () => {
     let probed = false;
     const out = serializeFlatSync(
       fake({
         type: 'TEXT',
-        characters: 'Buy now', // no newline → can't be a list → never probed
+        characters: 'Buy now',
         fontSize: 14,
         fontName: { family: 'Inter', style: 'Regular' },
         textCase: 'ORIGINAL',
@@ -1063,12 +1098,76 @@ describe('serializeFlat — typography', () => {
           probed = true;
           return { type: 'UNORDERED' };
         },
-        getStyledTextSegments: () => [],
+        getStyledTextSegments: () => [
+          {
+            start: 0,
+            end: 7,
+            characters: 'Buy now',
+            fontName: { family: 'Inter', style: 'Regular' },
+            fontSize: 14,
+            fills: [],
+            textDecoration: 'NONE',
+            textCase: 'ORIGINAL',
+            listOptions: { type: 'UNORDERED' },
+            indentation: 1,
+          },
+        ],
       }),
     );
-    expect(probed).toBe(false);
-    expect(out.segments).toBeUndefined();
+    expect(probed).toBe(true);
+    expect(out.segments).toMatchObject([
+      { characters: 'Buy now', listOptions: 'UNORDERED', indentation: 1 },
+    ]);
   });
+
+  it.each(['lineHeight', 'letterSpacing'])(
+    'expands segments when only %s differs between runs',
+    field => {
+      const runs = [
+        {
+          characters: 'A',
+          start: 0,
+          end: 1,
+          fontName: { family: 'Inter', style: 'Regular' },
+          fontSize: 14,
+          fills: [],
+          textCase: 'ORIGINAL',
+          textDecoration: 'NONE',
+          lineHeight: { unit: 'PIXELS', value: 18 },
+          letterSpacing: { unit: 'PIXELS', value: 1 },
+        },
+        {
+          characters: 'B',
+          start: 1,
+          end: 2,
+          fontName: { family: 'Inter', style: 'Regular' },
+          fontSize: 14,
+          fills: [],
+          textCase: 'ORIGINAL',
+          textDecoration: 'NONE',
+          lineHeight: { unit: 'PIXELS', value: 24 },
+          letterSpacing: { unit: 'PIXELS', value: 2 },
+        },
+      ];
+      const out = serializeFlatSync(
+        fake({
+          type: 'TEXT',
+          characters: 'AB',
+          fontName: { family: 'Inter', style: 'Regular' },
+          fontSize: 14,
+          fills: [],
+          textCase: 'ORIGINAL',
+          textDecoration: 'NONE',
+          [field]: Symbol('mixed'),
+          getStyledTextSegments: () => runs,
+        }),
+      );
+      expect(out.segments).toHaveLength(2);
+      expect(out.segments?.map(run => run[field as 'lineHeight' | 'letterSpacing'])).toEqual(
+        runs.map(run => run[field as 'lineHeight' | 'letterSpacing']),
+      );
+    },
+  );
 
   it('probes multi-line text but expands no segments when it is not a list (NONE)', () => {
     let probed = false;

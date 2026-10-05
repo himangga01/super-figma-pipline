@@ -1,0 +1,297 @@
+{
+  "recordedAt": "2026-10-03T19:51:15.969Z",
+  "diagnosticOnly": true,
+  "sourceCapturedDate": "2026-10-02",
+  "sourceHash": "sha256:ca1dca0ab07b4ab659c34fb3b678eec45aee9879e8d8ef7553d051d864f0a8d5",
+  "activeStyleCounts": {
+    "EFFECT": 1,
+    "FILL": 39,
+    "TEXT": 16
+  },
+  "softDeletedExcluded": 27,
+  "activeStyles": [
+    {
+      "nativeRecordId": "1:88",
+      "name": "Shadow/100",
+      "type": "EFFECT"
+    },
+    {
+      "nativeRecordId": "1378:135",
+      "name": "Primary/100",
+      "type": "FILL"
+    },
+    {
+      "nativeRecordId": "1378:136",
+      "name": "Primary/200",
+      "type": "FILL"
+    },
+    {
+      "nativeRecordId": "1378:137",
+      "name": "Primary/300",
+      "type": "FILL"
+    },
+    {
+      "nativeRecordId": "1378:138",
+      "name": "Primary/400",
+      "type": "FILL"
+    },
+    {
+      "nativeRecordId": "1378:139",
+      "name": "Primary/500",
+      "type": "FILL"
+    },
+    {
+      "nativeRecordId": "1378:140",
+      "name": "Primary/600",
+      "type": "FILL"
+    },
+    {
+      "nativeRecordId": "1378:141",
+      "name": "Primary/700",
+      "type": "FILL"
+    },
+    {
+      "nativeRecordId": "1378:142",
+      "name": "Primary/800",
+      "type": "FILL"
+    },
+    {
+      "nativeRecordId": "1378:143",
+      "name": "Primary/900",
+      "type": "FILL"
+    },
+    {
+      "nativeRecordId": "1378:144",
+      "name": "Accent/100",
+      "type": "FILL"
+    },
+    {
+      "nativeRecordId": "1378:145",
+      "name": "Accent/200",
+      "type": "FILL"
+    },
+    {
+      "nativeRecordId": "1378:146",
+      "name": "Accent/300",
+      "type": "FILL"
+    },
+    {
+      "nativeRecordId": "1378:147",
+      "name": "Accent/400",
+      "type": "FILL"
+    },
+    {
+      "nativeRecordId": "1378:148",
+      "name": "Accent/500",
+      "type": "FILL"
+    },
+    {
+      "nativeRecordId": "1378:149",
+      "name": "Accent/600",
+      "type": "FILL"
+    },
+    {
+      "nativeRecordId": "1378:150",
+      "name": "Accent/700",
+      "type": "FILL"
+    },
+    {
+      "nativeRecordId": "1378:151",
+      "name": "Accent/800",
+      "type": "FILL"
+    },
+    {
+      "nativeRecordId": "1378:152",
+      "name": "Accent/900",
+      "type": "FILL"
+    },
+    {
+      "nativeRecordId": "1378:153",
+      "name": "Secondary/100",
+      "type": "FILL"
+    },
+    {
+      "nativeRecordId": "1378:154",
+      "name": "Secondary/200",
+      "type": "FILL"
+    },
+    {
+      "nativeRecordId": "1378:155",
+      "name": "Secondary/300",
+      "type": "FILL"
+    },
+    {
+      "nativeRecordId": "1378:156",
+      "name": "Secondary/400",
+      "type": "FILL"
+    },
+    {
+      "nativeRecordId": "1378:157",
+      "name": "Secondary/500",
+      "type": "FILL"
+    },
+    {
+      "nativeRecordId": "1378:158",
+      "name": "Secondary/600",
+      "type": "FILL"
+    },
+    {
+      "nativeRecordId": "1378:159",
+      "name": "Secondary/700",
+      "type": "FILL"
+    },
+    {
+      "nativeRecordId": "1378:160",
+      "name": "Secondary/800",
+      "type": "FILL"
+    },
+    {
+      "nativeRecordId": "1378:161",
+      "name": "Secondary/900",
+      "type": "FILL"
+    },
+    {
+      "nativeRecordId": "1378:162",
+      "name": "White",
+      "type": "FILL"
+    },
+    {
+      "nativeRecordId": "1378:163",
+      "name": "Black",
+      "type": "FILL"
+    },
+    {
+      "nativeRecordId": "1378:164",
+      "name": "Gray/100",
+      "type": "FILL"
+    },
+    {
+      "nativeRecordId": "1378:165",
+      "name": "Gray/200",
+      "type": "FILL"
+    },
+    {
+      "nativeRecordId": "1378:166",
+      "name": "Gray/300",
+      "type": "FILL"
+    },
+    {
+      "nativeRecordId": "1378:167",
+      "name": "Gray/400",
+      "type": "FILL"
+    },
+    {
+      "nativeRecordId": "1378:168",
+      "name": "Gray/500",
+      "type": "FILL"
+    },
+    {
+      "nativeRecordId": "1378:169",
+      "name": "Gray/600",
+      "type": "FILL"
+    },
+    {
+      "nativeRecordId": "1378:170",
+      "name": "Gray/700",
+      "type": "FILL"
+    },
+    {
+      "nativeRecordId": "1378:171",
+      "name": "Gray/800",
+      "type": "FILL"
+    },
+    {
+      "nativeRecordId": "1378:172",
+      "name": "Gray/900",
+      "type": "FILL"
+    },
+    {
+      "nativeRecordId": "1378:179",
+      "name": "Text/normal",
+      "type": "TEXT"
+    },
+    {
+      "nativeRecordId": "1378:181",
+      "name": "Text/small",
+      "type": "TEXT"
+    },
+    {
+      "nativeRecordId": "1378:183",
+      "name": "Text/x-small",
+      "type": "TEXT"
+    },
+    {
+      "nativeRecordId": "1378:186",
+      "name": "Text/large",
+      "type": "TEXT"
+    },
+    {
+      "nativeRecordId": "1378:187",
+      "name": "Text/x-large",
+      "type": "TEXT"
+    },
+    {
+      "nativeRecordId": "1378:191",
+      "name": "Title/x-large",
+      "type": "TEXT"
+    },
+    {
+      "nativeRecordId": "1378:198",
+      "name": "Title/x-small",
+      "type": "TEXT"
+    },
+    {
+      "nativeRecordId": "1378:200",
+      "name": "Title/small",
+      "type": "TEXT"
+    },
+    {
+      "nativeRecordId": "1378:202",
+      "name": "Title/normal",
+      "type": "TEXT"
+    },
+    {
+      "nativeRecordId": "1378:205",
+      "name": "Title/large",
+      "type": "TEXT"
+    },
+    {
+      "nativeRecordId": "1378:208",
+      "name": "Title/2x-large",
+      "type": "TEXT"
+    },
+    {
+      "nativeRecordId": "1378:386",
+      "name": "Text/x-small (bold)",
+      "type": "TEXT"
+    },
+    {
+      "nativeRecordId": "1378:387",
+      "name": "Text/small (bold)",
+      "type": "TEXT"
+    },
+    {
+      "nativeRecordId": "1378:388",
+      "name": "Text/normal (bold)",
+      "type": "TEXT"
+    },
+    {
+      "nativeRecordId": "1378:389",
+      "name": "Text/large (bold)",
+      "type": "TEXT"
+    },
+    {
+      "nativeRecordId": "1378:390",
+      "name": "Text/x-large (bold)",
+      "type": "TEXT"
+    },
+    {
+      "nativeRecordId": "1381:1096",
+      "name": "Gradients/100",
+      "type": "FILL"
+    }
+  ],
+  "currentProductionLimit": "normalizeFigmaNativeNodes does not yet expose these catalogs; fullCaptureAccepted remains false.",
+  "identityLimit": "Native style GUIDs are distinct from the Plugin API opaque style keys. Catalog counts alone do not establish value or identity equivalence.",
+  "freshnessLimit": "This is an existing recorded document, not a new live export."
+}

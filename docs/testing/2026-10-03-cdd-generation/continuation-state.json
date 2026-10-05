@@ -1,0 +1,24 @@
+{
+  "recordedAt": "2026-10-03T12:28:27+00:00",
+  "daemonBuildIdentityHash": "sha256:3dd3609eb8b5942072cf73f1e815a43a81f0505592ed390a5b779463f5751d0a",
+  "browserConnection": "awaiting-browser",
+  "newPlanAttempt": {
+    "status": "failed",
+    "errorCode": "PORTAL_WORKFLOW_DECISION_NOT_BOUND",
+    "planReturned": false,
+    "designCaptured": false
+  },
+  "lastCandidate": {
+    "runId": "sfp_portal1_25c270650d6073d96e916e13a988a041",
+    "hash": "sha256:71859de6883d6d558b5c3b54af82f8865a57eaa4267c03449fcb15cf6369bd3b",
+    "files": 39,
+    "submitted": true,
+    "nativeAccepted": false,
+    "applied": false
+  },
+  "officialMcpProbes": {
+    "remote": "FIGMA_MCP_AUTH_REQUIRED",
+    "local": "fetch failed",
+    "authenticatedRead": false
+  }
+}

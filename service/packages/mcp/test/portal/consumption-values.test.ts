@@ -72,3 +72,12 @@ it('keeps numeric opacity tolerance at one thousandth', () => {
   expect(matchesConsumptionValue(opacity, '0.4011')).toBe(false);
   expect(matchesConsumptionValue(opacity, '0.41')).toBe(false);
 });
+
+it('recognizes Chrome normal serialization only for exactly zero pixel letter spacing', () => {
+  const zero = { kind: 'number', value: 0, unit: 'px' } as const;
+  expect(matchesConsumptionValue(zero, 'normal', 'letter-spacing')).toBe(true);
+  expect(matchesConsumptionValue({ ...zero, value: 0.01 }, 'normal', 'letter-spacing')).toBe(false);
+  expect(matchesConsumptionValue({ ...zero, unit: '' }, 'normal', 'letter-spacing')).toBe(false);
+  expect(matchesConsumptionValue(zero, 'normal', 'line-height')).toBe(false);
+  expect(matchesConsumptionValue(zero, 'normal')).toBe(false);
+});

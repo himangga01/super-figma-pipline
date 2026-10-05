@@ -6,14 +6,15 @@ import { join, resolve } from 'node:path';
 
 import { afterEach, describe, expect, it } from 'vitest';
 
+import { hermeticGitEnvironment, spawnHermeticGit } from '../scripts/hermetic-git.mjs';
+
 const updater = resolve(import.meta.dirname, '..', 'scripts', 'update-service-forks.mjs');
 const roots: string[] = [];
 afterEach(async () => {
   await Promise.all(roots.splice(0).map(root => rm(root, { recursive: true, force: true })));
 });
 const sha256 = (value: string) => createHash('sha256').update(value).digest('hex');
-const git = (root: string, ...args: string[]) =>
-  spawnSync('git', ['-C', root, ...args], { encoding: 'utf8' });
+const git = (root: string, ...args: string[]) => spawnHermeticGit(root, args);
 
 describe('class-aware authority refresh', () => {
   it('refreshes service-owned source hashes without inventing service-fork lineage', async () => {
@@ -67,7 +68,12 @@ describe('class-aware authority refresh', () => {
     const result = spawnSync(
       process.execPath,
       [updater, '--slice', '7A', '--index', 'service/capabilities/change-manifests/task-7a.json'],
-      { cwd: root, encoding: 'utf8', env: { ...process.env, SFP_REPOSITORY_ROOT: root } },
+      {
+        cwd: root,
+        encoding: 'utf8',
+        env: hermeticGitEnvironment({ ...process.env, SFP_REPOSITORY_ROOT: root }),
+        windowsHide: true,
+      },
     );
     expect({ status: result.status, stderr: result.stderr }).toEqual({ status: 0, stderr: '' });
     const lock = JSON.parse(await readFile(join(service, 'upstream-lock.json'), 'utf8'));

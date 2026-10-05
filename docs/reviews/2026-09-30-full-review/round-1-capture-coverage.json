@@ -1,0 +1,2057 @@
+[
+  {
+    "path": "service/packages/cli/package.json",
+    "depth": "full",
+    "notes": "Assigned capture lane. Read complete body, lines 1-39. Static production/configuration/protocol/UI review; no execution."
+  },
+  {
+    "path": "service/packages/cli/src/admin-commands.ts",
+    "depth": "full",
+    "notes": "Assigned capture lane. Read complete body, lines 1-412. Static production/configuration/protocol/UI review; no execution."
+  },
+  {
+    "path": "service/packages/cli/src/artifacts.ts",
+    "depth": "full",
+    "notes": "Assigned capture lane. Read complete body, lines 1-65. Static production/configuration/protocol/UI review; no execution."
+  },
+  {
+    "path": "service/packages/cli/src/asset-program.ts",
+    "depth": "full",
+    "notes": "Assigned capture lane. Read complete body, lines 1-39. Static production/configuration/protocol/UI review; no execution."
+  },
+  {
+    "path": "service/packages/cli/src/browser-session.ts",
+    "depth": "full",
+    "notes": "Assigned capture lane. Read complete body, lines 1-236. Static production/configuration/protocol/UI review; no execution."
+  },
+  {
+    "path": "service/packages/cli/src/capture-assets.ts",
+    "depth": "full",
+    "notes": "Assigned capture lane. Read complete body, lines 1-215. Static production/configuration/protocol/UI review; no execution."
+  },
+  {
+    "path": "service/packages/cli/src/catalog-recipe.ts",
+    "depth": "full",
+    "notes": "Assigned capture lane. Read complete body, lines 1-597. Static production/configuration/protocol/UI review; no execution."
+  },
+  {
+    "path": "service/packages/cli/src/chrome-endpoint.ts",
+    "depth": "full",
+    "notes": "Assigned capture lane. Read complete body, lines 1-62. Static production/configuration/protocol/UI review; no execution."
+  },
+  {
+    "path": "service/packages/cli/src/commands.ts",
+    "depth": "full",
+    "notes": "Assigned capture lane. Read complete body, lines 1-376. Static production/configuration/protocol/UI review; no execution."
+  },
+  {
+    "path": "service/packages/cli/src/control-client.ts",
+    "depth": "full",
+    "notes": "Assigned capture lane. Read complete body, lines 1-383. Static production/configuration/protocol/UI review; no execution."
+  },
+  {
+    "path": "service/packages/cli/src/control-recipe-client.ts",
+    "depth": "full",
+    "notes": "Assigned capture lane. Read complete body, lines 1-352. Static production/configuration/protocol/UI review; no execution."
+  },
+  {
+    "path": "service/packages/cli/src/desktop-reader.ts",
+    "depth": "full",
+    "notes": "Assigned capture lane. Read complete body, lines 1-104. Static production/configuration/protocol/UI review; no execution."
+  },
+  {
+    "path": "service/packages/cli/src/figma-url.ts",
+    "depth": "full",
+    "notes": "Assigned capture lane. Read complete body, lines 1-52. Static production/configuration/protocol/UI review; no execution."
+  },
+  {
+    "path": "service/packages/cli/src/index.ts",
+    "depth": "full",
+    "notes": "Assigned capture lane. Read complete body, lines 1-13. Static production/configuration/protocol/UI review; no execution."
+  },
+  {
+    "path": "service/packages/cli/src/library.ts",
+    "depth": "full",
+    "notes": "Assigned capture lane. Read complete body, lines 1-10. Static production/configuration/protocol/UI review; no execution."
+  },
+  {
+    "path": "service/packages/cli/src/logical-wait.ts",
+    "depth": "full",
+    "notes": "Assigned capture lane. Read complete body, lines 1-33. Static production/configuration/protocol/UI review; no execution."
+  },
+  {
+    "path": "service/packages/cli/src/plugin-bootstrap.ts",
+    "depth": "full",
+    "notes": "Assigned capture lane. Read complete body, lines 1-50. Static production/configuration/protocol/UI review; no execution."
+  },
+  {
+    "path": "service/packages/cli/src/portal-commands.ts",
+    "depth": "full",
+    "notes": "Assigned capture lane. Read complete body, lines 1-211. Static production/configuration/protocol/UI review; no execution."
+  },
+  {
+    "path": "service/packages/cli/src/project-inspector.ts",
+    "depth": "full",
+    "notes": "Assigned capture lane. Read complete body, lines 1-98. Static production/configuration/protocol/UI review; no execution."
+  },
+  {
+    "path": "service/packages/cli/src/read-program.ts",
+    "depth": "full",
+    "notes": "Assigned capture lane. Read complete body, lines 1-8. Static production/configuration/protocol/UI review; no execution."
+  },
+  {
+    "path": "service/packages/cli/src/recipe-checkpoint.ts",
+    "depth": "full",
+    "notes": "Assigned capture lane. Read complete body, lines 1-183. Static production/configuration/protocol/UI review; no execution."
+  },
+  {
+    "path": "service/packages/cli/src/recipe-compositions.ts",
+    "depth": "full",
+    "notes": "Assigned capture lane. Read complete body, lines 1-583. Static production/configuration/protocol/UI review; no execution."
+  },
+  {
+    "path": "service/packages/cli/src/recipe-design-system.ts",
+    "depth": "full",
+    "notes": "Assigned capture lane. Read complete body, lines 1-300. Static production/configuration/protocol/UI review; no execution."
+  },
+  {
+    "path": "service/packages/cli/src/recipe-export-model.ts",
+    "depth": "full",
+    "notes": "Assigned capture lane. Read complete body, lines 1-188. Static production/configuration/protocol/UI review; no execution."
+  },
+  {
+    "path": "service/packages/cli/src/recipe-helpers.ts",
+    "depth": "full",
+    "notes": "Assigned capture lane. Read complete body, lines 1-403. Static production/configuration/protocol/UI review; no execution."
+  },
+  {
+    "path": "service/packages/cli/src/recipe-plan.ts",
+    "depth": "full",
+    "notes": "Assigned capture lane. Read complete body, lines 1-409. Static production/configuration/protocol/UI review; no execution."
+  },
+  {
+    "path": "service/packages/cli/src/recipe-runner.ts",
+    "depth": "full",
+    "notes": "Assigned capture lane. Read complete body, lines 1-219. Static production/configuration/protocol/UI review; no execution."
+  },
+  {
+    "path": "service/packages/cli/src/recipe-scene-compositions.ts",
+    "depth": "full",
+    "notes": "Assigned capture lane. Read complete body, lines 1-424. Static production/configuration/protocol/UI review; no execution."
+  },
+  {
+    "path": "service/packages/cli/src/scripter-bridge.ts",
+    "depth": "full",
+    "notes": "Assigned capture lane. Read complete body, lines 1-226. Static production/configuration/protocol/UI review; no execution."
+  },
+  {
+    "path": "service/packages/cli/src/scripter-reader.ts",
+    "depth": "full",
+    "notes": "Assigned capture lane. Read complete body, lines 1-3. Static production/configuration/protocol/UI review; no execution."
+  },
+  {
+    "path": "service/packages/cli/src/server-session.ts",
+    "depth": "full",
+    "notes": "Assigned capture lane. Read complete body, lines 1-70. Static production/configuration/protocol/UI review; no execution."
+  },
+  {
+    "path": "service/packages/cli/src/snapshot-reader.ts",
+    "depth": "full",
+    "notes": "Assigned capture lane. Read complete body, lines 1-513. Static production/configuration/protocol/UI review; no execution."
+  },
+  {
+    "path": "service/packages/cli/src/style-recipe-model.ts",
+    "depth": "full",
+    "notes": "Assigned capture lane. Read complete body, lines 1-224. Static production/configuration/protocol/UI review; no execution."
+  },
+  {
+    "path": "service/packages/cli/src/vector-export-source.ts",
+    "depth": "full",
+    "notes": "Assigned capture lane. Read complete body, lines 1-52. Static production/configuration/protocol/UI review; no execution."
+  },
+  {
+    "path": "service/packages/cli/test/admin-commands.test.ts",
+    "depth": "unreviewed",
+    "notes": "Assigned capture lane. No source-body inspection in round one; line count only. Round-two closure required: lines 1-332. Not executed."
+  },
+  {
+    "path": "service/packages/cli/test/asset-program.test.ts",
+    "depth": "unreviewed",
+    "notes": "Assigned capture lane. No source-body inspection in round one; line count only. Round-two closure required: lines 1-188. Not executed."
+  },
+  {
+    "path": "service/packages/cli/test/browser-observation.test.ts",
+    "depth": "unreviewed",
+    "notes": "Assigned capture lane. No source-body inspection in round one; line count only. Round-two closure required: lines 1-63. Not executed."
+  },
+  {
+    "path": "service/packages/cli/test/browser-session.test.ts",
+    "depth": "unreviewed",
+    "notes": "Assigned capture lane. No source-body inspection in round one; line count only. Round-two closure required: lines 1-220. Not executed."
+  },
+  {
+    "path": "service/packages/cli/test/capture-assets.test.ts",
+    "depth": "full",
+    "notes": "Assigned capture lane. Read complete body, lines 1-99. Inspected test assertions; not executed."
+  },
+  {
+    "path": "service/packages/cli/test/catalog-recipe.test.ts",
+    "depth": "unreviewed",
+    "notes": "Assigned capture lane. No source-body inspection in round one; line count only. Round-two closure required: lines 1-194. Not executed."
+  },
+  {
+    "path": "service/packages/cli/test/chrome-endpoint.test.ts",
+    "depth": "unreviewed",
+    "notes": "Assigned capture lane. No source-body inspection in round one; line count only. Round-two closure required: lines 1-45. Not executed."
+  },
+  {
+    "path": "service/packages/cli/test/control-client-http.test.ts",
+    "depth": "unreviewed",
+    "notes": "Assigned capture lane. No source-body inspection in round one; line count only. Round-two closure required: lines 1-60. Not executed."
+  },
+  {
+    "path": "service/packages/cli/test/desktop-reader.test.ts",
+    "depth": "unreviewed",
+    "notes": "Assigned capture lane. No source-body inspection in round one; line count only. Round-two closure required: lines 1-114. Not executed."
+  },
+  {
+    "path": "service/packages/cli/test/portal-commands.test.ts",
+    "depth": "full",
+    "notes": "Assigned capture lane. Read complete body, lines 1-106. Inspected test assertions; not executed."
+  },
+  {
+    "path": "service/packages/cli/test/project-inspector.test.ts",
+    "depth": "unreviewed",
+    "notes": "Assigned capture lane. No source-body inspection in round one; line count only. Round-two closure required: lines 1-84. Not executed."
+  },
+  {
+    "path": "service/packages/cli/test/recipe-compositions.test.ts",
+    "depth": "unreviewed",
+    "notes": "Assigned capture lane. No source-body inspection in round one; line count only. Round-two closure required: lines 1-125. Not executed."
+  },
+  {
+    "path": "service/packages/cli/test/recipe-design-system.test.ts",
+    "depth": "unreviewed",
+    "notes": "Assigned capture lane. No source-body inspection in round one; line count only. Round-two closure required: lines 1-134. Not executed."
+  },
+  {
+    "path": "service/packages/cli/test/recipe-export-model.test.ts",
+    "depth": "unreviewed",
+    "notes": "Assigned capture lane. No source-body inspection in round one; line count only. Round-two closure required: lines 1-138. Not executed."
+  },
+  {
+    "path": "service/packages/cli/test/recipe-helpers.test.ts",
+    "depth": "unreviewed",
+    "notes": "Assigned capture lane. No source-body inspection in round one; line count only. Round-two closure required: lines 1-255. Not executed."
+  },
+  {
+    "path": "service/packages/cli/test/recipe-retention-client.test.ts",
+    "depth": "unreviewed",
+    "notes": "Assigned capture lane. No source-body inspection in round one; line count only. Round-two closure required: lines 1-121. Not executed."
+  },
+  {
+    "path": "service/packages/cli/test/recipe-runner.test.ts",
+    "depth": "unreviewed",
+    "notes": "Assigned capture lane. No source-body inspection in round one; line count only. Round-two closure required: lines 1-1544. Not executed."
+  },
+  {
+    "path": "service/packages/cli/test/recipe-scene-compositions.test.ts",
+    "depth": "unreviewed",
+    "notes": "Assigned capture lane. No source-body inspection in round one; line count only. Round-two closure required: lines 1-255. Not executed."
+  },
+  {
+    "path": "service/packages/cli/test/scripter-catalogs.test.ts",
+    "depth": "unreviewed",
+    "notes": "Assigned capture lane. No source-body inspection in round one; line count only. Round-two closure required: lines 1-333. Not executed."
+  },
+  {
+    "path": "service/packages/cli/test/scripter-reader.test.ts",
+    "depth": "unreviewed",
+    "notes": "Assigned capture lane. No source-body inspection in round one; line count only. Round-two closure required: lines 1-305. Not executed."
+  },
+  {
+    "path": "service/packages/cli/test/style-recipe-model.test.ts",
+    "depth": "unreviewed",
+    "notes": "Assigned capture lane. No source-body inspection in round one; line count only. Round-two closure required: lines 1-203. Not executed."
+  },
+  {
+    "path": "service/packages/cli/tsconfig.json",
+    "depth": "full",
+    "notes": "Assigned capture lane. Read complete body, lines 1-10. Static production/configuration/protocol/UI review; no execution."
+  },
+  {
+    "path": "service/packages/cli/tsdown.config.ts",
+    "depth": "full",
+    "notes": "Assigned capture lane. Read complete body, lines 1-18. Static production/configuration/protocol/UI review; no execution."
+  },
+  {
+    "path": "service/packages/cli/vitest.config.ts",
+    "depth": "full",
+    "notes": "Assigned capture lane. Read complete body, lines 1-9. Static production/configuration/protocol/UI review; no execution."
+  },
+  {
+    "path": "service/packages/mcp/src/portal/capture-admission-runtime.ts",
+    "depth": "full",
+    "notes": "Assigned capture lane. Read complete body, lines 1-59. Static production/configuration/protocol/UI review; no execution."
+  },
+  {
+    "path": "service/packages/mcp/src/portal/capture-failure.ts",
+    "depth": "full",
+    "notes": "Assigned capture lane. Read complete body, lines 1-77. Static production/configuration/protocol/UI review; no execution."
+  },
+  {
+    "path": "service/packages/mcp/src/portal/capture-runtime.ts",
+    "depth": "full",
+    "notes": "Assigned capture lane. Read complete body, lines 1-49. Static production/configuration/protocol/UI review; no execution."
+  },
+  {
+    "path": "service/packages/mcp/src/portal/capture-source-admission.ts",
+    "depth": "full",
+    "notes": "Assigned capture lane. Read complete body, lines 1-192. Static production/configuration/protocol/UI review; no execution."
+  },
+  {
+    "path": "service/packages/mcp/src/portal/chrome-transport.ts",
+    "depth": "full",
+    "notes": "Assigned capture lane. Read complete body, lines 1-227. Static production/configuration/protocol/UI review; no execution."
+  },
+  {
+    "path": "service/packages/mcp/src/portal/design-capture.ts",
+    "depth": "full",
+    "notes": "Assigned capture lane. Read complete body, lines 1-801. Static production/configuration/protocol/UI review; no execution."
+  },
+  {
+    "path": "service/packages/mcp/src/portal/design-evidence.ts",
+    "depth": "full",
+    "notes": "Assigned capture lane. Read complete body, lines 1-198. Static production/configuration/protocol/UI review; no execution."
+  },
+  {
+    "path": "service/packages/mcp/src/portal/design-normalization.ts",
+    "depth": "full",
+    "notes": "Assigned capture lane. Read complete body, lines 1-738. Static production/configuration/protocol/UI review; no execution."
+  },
+  {
+    "path": "service/packages/mcp/src/portal/desktop-capture.ts",
+    "depth": "full",
+    "notes": "Assigned capture lane. Read complete body, lines 1-159. Static production/configuration/protocol/UI review; no execution."
+  },
+  {
+    "path": "service/packages/mcp/src/portal/interaction-evidence.ts",
+    "depth": "full",
+    "notes": "Assigned capture lane. Read complete body, lines 1-233. Static production/configuration/protocol/UI review; no execution."
+  },
+  {
+    "path": "service/packages/mcp/src/portal/observation-manifest.ts",
+    "depth": "full",
+    "notes": "Assigned capture lane. Read complete body, lines 1-128. Static production/configuration/protocol/UI review; no execution."
+  },
+  {
+    "path": "service/packages/mcp/test/portal/capture-admission.test.ts",
+    "depth": "unreviewed",
+    "notes": "Assigned capture lane. No source-body inspection in round one; line count only. Round-two closure required: lines 1-196. Not executed."
+  },
+  {
+    "path": "service/packages/mcp/test/portal/capture-coherence.test.ts",
+    "depth": "unreviewed",
+    "notes": "Assigned capture lane. No source-body inspection in round one; line count only. Round-two closure required: lines 1-246. Not executed."
+  },
+  {
+    "path": "service/packages/mcp/test/portal/capture-continuation.test.ts",
+    "depth": "unreviewed",
+    "notes": "Assigned capture lane. No source-body inspection in round one; line count only. Round-two closure required: lines 1-110. Not executed."
+  },
+  {
+    "path": "service/packages/mcp/test/portal/capture-descriptor.test.ts",
+    "depth": "unreviewed",
+    "notes": "Assigned capture lane. No source-body inspection in round one; line count only. Round-two closure required: lines 1-76. Not executed."
+  },
+  {
+    "path": "service/packages/mcp/test/portal/capture-failure.test.ts",
+    "depth": "unreviewed",
+    "notes": "Assigned capture lane. No source-body inspection in round one; line count only. Round-two closure required: lines 1-51. Not executed."
+  },
+  {
+    "path": "service/packages/mcp/test/portal/capture-fixture.ts",
+    "depth": "unreviewed",
+    "notes": "Assigned capture lane. No source-body inspection in round one; line count only. Round-two closure required: lines 1-149. Not executed."
+  },
+  {
+    "path": "service/packages/mcp/test/portal/capture-flow.test.ts",
+    "depth": "unreviewed",
+    "notes": "Assigned capture lane. No source-body inspection in round one; line count only. Round-two closure required: lines 1-177. Not executed."
+  },
+  {
+    "path": "service/packages/mcp/test/portal/capture-native.test.ts",
+    "depth": "unreviewed",
+    "notes": "Assigned capture lane. No source-body inspection in round one; line count only. Round-two closure required: lines 1-113. Not executed."
+  },
+  {
+    "path": "service/packages/mcp/test/portal/capture-plane.test.ts",
+    "depth": "unreviewed",
+    "notes": "Assigned capture lane. No source-body inspection in round one; line count only. Round-two closure required: lines 1-376. Not executed."
+  },
+  {
+    "path": "service/packages/mcp/test/portal/capture-session.test.ts",
+    "depth": "unreviewed",
+    "notes": "Assigned capture lane. No source-body inspection in round one; line count only. Round-two closure required: lines 1-341. Not executed."
+  },
+  {
+    "path": "service/packages/mcp/test/portal/chrome-transport.test.ts",
+    "depth": "full",
+    "notes": "Assigned capture lane. Read complete body, lines 1-164. Inspected test assertions; not executed."
+  },
+  {
+    "path": "service/packages/mcp/test/portal/design-evidence.test.ts",
+    "depth": "full",
+    "notes": "Assigned capture lane. Read complete body, lines 1-251. Inspected test assertions; not executed."
+  },
+  {
+    "path": "service/packages/mcp/test/portal/design-normalization.test.ts",
+    "depth": "unreviewed",
+    "notes": "Assigned capture lane. No source-body inspection in round one; line count only. Round-two closure required: lines 1-573. Not executed."
+  },
+  {
+    "path": "service/packages/mcp/test/portal/desktop-capture.test.ts",
+    "depth": "unreviewed",
+    "notes": "Assigned capture lane. No source-body inspection in round one; line count only. Round-two closure required: lines 1-228. Not executed."
+  },
+  {
+    "path": "service/packages/mcp/test/portal/interaction-evidence.test.ts",
+    "depth": "full",
+    "notes": "Assigned capture lane. Read complete body, lines 1-83. Inspected test assertions; not executed."
+  },
+  {
+    "path": "service/packages/mcp/test/portal/observation-manifest.test.ts",
+    "depth": "unreviewed",
+    "notes": "Assigned capture lane. No source-body inspection in round one; line count only. Round-two closure required: lines 1-323. Not executed."
+  },
+  {
+    "path": "service/packages/plugin/manifest.json",
+    "depth": "full",
+    "notes": "Assigned capture lane. Read complete body, lines 1-14. Static production/configuration/protocol/UI review; no execution."
+  },
+  {
+    "path": "service/packages/plugin/package.json",
+    "depth": "full",
+    "notes": "Assigned capture lane. Read complete body, lines 1-31. Static production/configuration/protocol/UI review; no execution."
+  },
+  {
+    "path": "service/packages/plugin/protocol/bridge.ts",
+    "depth": "full",
+    "notes": "Assigned capture lane. Read complete body, lines 1-223. Static production/configuration/protocol/UI review; no execution."
+  },
+  {
+    "path": "service/packages/plugin/protocol/editor-context.ts",
+    "depth": "full",
+    "notes": "Assigned capture lane. Read complete body, lines 1-86. Static production/configuration/protocol/UI review; no execution."
+  },
+  {
+    "path": "service/packages/plugin/protocol/identity-seed.ts",
+    "depth": "full",
+    "notes": "Assigned capture lane. Read complete body, lines 1-11. Static production/configuration/protocol/UI review; no execution."
+  },
+  {
+    "path": "service/packages/plugin/protocol/panel-control.ts",
+    "depth": "full",
+    "notes": "Assigned capture lane. Read complete body, lines 1-147. Static production/configuration/protocol/UI review; no execution."
+  },
+  {
+    "path": "service/packages/plugin/src/cancellation.ts",
+    "depth": "full",
+    "notes": "Assigned capture lane. Read complete body, lines 1-24. Static production/configuration/protocol/UI review; no execution."
+  },
+  {
+    "path": "service/packages/plugin/src/code.ts",
+    "depth": "full",
+    "notes": "Assigned capture lane. Read complete body, lines 1-227. Static production/configuration/protocol/UI review; no execution."
+  },
+  {
+    "path": "service/packages/plugin/src/dispatcher.ts",
+    "depth": "full",
+    "notes": "Assigned capture lane. Read complete body, lines 1-108. Static production/configuration/protocol/UI review; no execution."
+  },
+  {
+    "path": "service/packages/plugin/src/file-identity.ts",
+    "depth": "full",
+    "notes": "Assigned capture lane. Read complete body, lines 1-87. Static production/configuration/protocol/UI review; no execution."
+  },
+  {
+    "path": "service/packages/plugin/src/handlers/add-component-property.ts",
+    "depth": "full",
+    "notes": "Assigned capture lane. Read complete body, lines 1-81. Static production/configuration/protocol/UI review; no execution."
+  },
+  {
+    "path": "service/packages/plugin/src/handlers/add-page.ts",
+    "depth": "full",
+    "notes": "Assigned capture lane. Read complete body, lines 1-17. Static production/configuration/protocol/UI review; no execution."
+  },
+  {
+    "path": "service/packages/plugin/src/handlers/add-variable-mode.ts",
+    "depth": "full",
+    "notes": "Assigned capture lane. Read complete body, lines 1-40. Static production/configuration/protocol/UI review; no execution."
+  },
+  {
+    "path": "service/packages/plugin/src/handlers/apply-animation-style.ts",
+    "depth": "full",
+    "notes": "Assigned capture lane. Read complete body, lines 1-37. Static production/configuration/protocol/UI review; no execution."
+  },
+  {
+    "path": "service/packages/plugin/src/handlers/apply-manual-keyframe-track.ts",
+    "depth": "full",
+    "notes": "Assigned capture lane. Read complete body, lines 1-33. Static production/configuration/protocol/UI review; no execution."
+  },
+  {
+    "path": "service/packages/plugin/src/handlers/apply-style-to-node.ts",
+    "depth": "full",
+    "notes": "Assigned capture lane. Read complete body, lines 1-43. Static production/configuration/protocol/UI review; no execution."
+  },
+  {
+    "path": "service/packages/plugin/src/handlers/batch-rename-nodes.ts",
+    "depth": "full",
+    "notes": "Assigned capture lane. Read complete body, lines 1-27. Static production/configuration/protocol/UI review; no execution."
+  },
+  {
+    "path": "service/packages/plugin/src/handlers/batch.ts",
+    "depth": "full",
+    "notes": "Assigned capture lane. Read complete body, lines 1-516. Static production/configuration/protocol/UI review; no execution."
+  },
+  {
+    "path": "service/packages/plugin/src/handlers/bind-component-property.ts",
+    "depth": "full",
+    "notes": "Assigned capture lane. Read complete body, lines 1-99. Static production/configuration/protocol/UI review; no execution."
+  },
+  {
+    "path": "service/packages/plugin/src/handlers/bind-variable-to-node.ts",
+    "depth": "full",
+    "notes": "Assigned capture lane. Read complete body, lines 1-41. Static production/configuration/protocol/UI review; no execution."
+  },
+  {
+    "path": "service/packages/plugin/src/handlers/bind-variable-to-paint.ts",
+    "depth": "full",
+    "notes": "Assigned capture lane. Read complete body, lines 1-60. Static production/configuration/protocol/UI review; no execution."
+  },
+  {
+    "path": "service/packages/plugin/src/handlers/bindings.ts",
+    "depth": "full",
+    "notes": "Assigned capture lane. Read complete body, lines 1-274. Static production/configuration/protocol/UI review; no execution."
+  },
+  {
+    "path": "service/packages/plugin/src/handlers/clone-node.ts",
+    "depth": "full",
+    "notes": "Assigned capture lane. Read complete body, lines 1-27. Static production/configuration/protocol/UI review; no execution."
+  },
+  {
+    "path": "service/packages/plugin/src/handlers/combine-as-variants.ts",
+    "depth": "full",
+    "notes": "Assigned capture lane. Read complete body, lines 1-55. Static production/configuration/protocol/UI review; no execution."
+  },
+  {
+    "path": "service/packages/plugin/src/handlers/component-property.ts",
+    "depth": "full",
+    "notes": "Assigned capture lane. Read complete body, lines 1-67. Static production/configuration/protocol/UI review; no execution."
+  },
+  {
+    "path": "service/packages/plugin/src/handlers/convert.ts",
+    "depth": "full",
+    "notes": "Assigned capture lane. Read complete body, lines 1-104. Static production/configuration/protocol/UI review; no execution."
+  },
+  {
+    "path": "service/packages/plugin/src/handlers/create-component.ts",
+    "depth": "full",
+    "notes": "Assigned capture lane. Read complete body, lines 1-66. Static production/configuration/protocol/UI review; no execution."
+  },
+  {
+    "path": "service/packages/plugin/src/handlers/create-effect-style.ts",
+    "depth": "full",
+    "notes": "Assigned capture lane. Read complete body, lines 1-31. Static production/configuration/protocol/UI review; no execution."
+  },
+  {
+    "path": "service/packages/plugin/src/handlers/create-ellipse.ts",
+    "depth": "full",
+    "notes": "Assigned capture lane. Read complete body, lines 1-36. Static production/configuration/protocol/UI review; no execution."
+  },
+  {
+    "path": "service/packages/plugin/src/handlers/create-frame.ts",
+    "depth": "full",
+    "notes": "Assigned capture lane. Read complete body, lines 1-31. Static production/configuration/protocol/UI review; no execution."
+  },
+  {
+    "path": "service/packages/plugin/src/handlers/create-grid-style.ts",
+    "depth": "full",
+    "notes": "Assigned capture lane. Read complete body, lines 1-29. Static production/configuration/protocol/UI review; no execution."
+  },
+  {
+    "path": "service/packages/plugin/src/handlers/create-instance.ts",
+    "depth": "full",
+    "notes": "Assigned capture lane. Read complete body, lines 1-58. Static production/configuration/protocol/UI review; no execution."
+  },
+  {
+    "path": "service/packages/plugin/src/handlers/create-paint-style.ts",
+    "depth": "full",
+    "notes": "Assigned capture lane. Read complete body, lines 1-31. Static production/configuration/protocol/UI review; no execution."
+  },
+  {
+    "path": "service/packages/plugin/src/handlers/create-rectangle.ts",
+    "depth": "full",
+    "notes": "Assigned capture lane. Read complete body, lines 1-29. Static production/configuration/protocol/UI review; no execution."
+  },
+  {
+    "path": "service/packages/plugin/src/handlers/create-section.ts",
+    "depth": "full",
+    "notes": "Assigned capture lane. Read complete body, lines 1-37. Static production/configuration/protocol/UI review; no execution."
+  },
+  {
+    "path": "service/packages/plugin/src/handlers/create-text-style.ts",
+    "depth": "full",
+    "notes": "Assigned capture lane. Read complete body, lines 1-83. Static production/configuration/protocol/UI review; no execution."
+  },
+  {
+    "path": "service/packages/plugin/src/handlers/create-text.ts",
+    "depth": "full",
+    "notes": "Assigned capture lane. Read complete body, lines 1-32. Static production/configuration/protocol/UI review; no execution."
+  },
+  {
+    "path": "service/packages/plugin/src/handlers/create-variable-collection.ts",
+    "depth": "full",
+    "notes": "Assigned capture lane. Read complete body, lines 1-60. Static production/configuration/protocol/UI review; no execution."
+  },
+  {
+    "path": "service/packages/plugin/src/handlers/create-variable.ts",
+    "depth": "full",
+    "notes": "Assigned capture lane. Read complete body, lines 1-134. Static production/configuration/protocol/UI review; no execution."
+  },
+  {
+    "path": "service/packages/plugin/src/handlers/delete-component-property.ts",
+    "depth": "full",
+    "notes": "Assigned capture lane. Read complete body, lines 1-49. Static production/configuration/protocol/UI review; no execution."
+  },
+  {
+    "path": "service/packages/plugin/src/handlers/delete-nodes.ts",
+    "depth": "full",
+    "notes": "Assigned capture lane. Read complete body, lines 1-30. Static production/configuration/protocol/UI review; no execution."
+  },
+  {
+    "path": "service/packages/plugin/src/handlers/delete-page.ts",
+    "depth": "full",
+    "notes": "Assigned capture lane. Read complete body, lines 1-26. Static production/configuration/protocol/UI review; no execution."
+  },
+  {
+    "path": "service/packages/plugin/src/handlers/delete-style.ts",
+    "depth": "full",
+    "notes": "Assigned capture lane. Read complete body, lines 1-19. Static production/configuration/protocol/UI review; no execution."
+  },
+  {
+    "path": "service/packages/plugin/src/handlers/delete-variable-collection.ts",
+    "depth": "full",
+    "notes": "Assigned capture lane. Read complete body, lines 1-22. Static production/configuration/protocol/UI review; no execution."
+  },
+  {
+    "path": "service/packages/plugin/src/handlers/delete-variable.ts",
+    "depth": "full",
+    "notes": "Assigned capture lane. Read complete body, lines 1-20. Static production/configuration/protocol/UI review; no execution."
+  },
+  {
+    "path": "service/packages/plugin/src/handlers/detach-instance.ts",
+    "depth": "full",
+    "notes": "Assigned capture lane. Read complete body, lines 1-22. Static production/configuration/protocol/UI review; no execution."
+  },
+  {
+    "path": "service/packages/plugin/src/handlers/edit-component-property.ts",
+    "depth": "full",
+    "notes": "Assigned capture lane. Read complete body, lines 1-70. Static production/configuration/protocol/UI review; no execution."
+  },
+  {
+    "path": "service/packages/plugin/src/handlers/export-pdf.ts",
+    "depth": "full",
+    "notes": "Assigned capture lane. Read complete body, lines 1-41. Static production/configuration/protocol/UI review; no execution."
+  },
+  {
+    "path": "service/packages/plugin/src/handlers/export-video.ts",
+    "depth": "full",
+    "notes": "Assigned capture lane. Read complete body, lines 1-81. Static production/configuration/protocol/UI review; no execution."
+  },
+  {
+    "path": "service/packages/plugin/src/handlers/find-replace-text.ts",
+    "depth": "full",
+    "notes": "Assigned capture lane. Read complete body, lines 1-66. Static production/configuration/protocol/UI review; no execution."
+  },
+  {
+    "path": "service/packages/plugin/src/handlers/get-annotations.ts",
+    "depth": "full",
+    "notes": "Assigned capture lane. Read complete body, lines 1-40. Static production/configuration/protocol/UI review; no execution."
+  },
+  {
+    "path": "service/packages/plugin/src/handlers/get-component-api.ts",
+    "depth": "full",
+    "notes": "Assigned capture lane. Read complete body, lines 1-74. Static production/configuration/protocol/UI review; no execution."
+  },
+  {
+    "path": "service/packages/plugin/src/handlers/get-design-context.ts",
+    "depth": "full",
+    "notes": "Assigned capture lane. Read complete body, lines 1-792. Static production/configuration/protocol/UI review; no execution."
+  },
+  {
+    "path": "service/packages/plugin/src/handlers/get-document.ts",
+    "depth": "full",
+    "notes": "Assigned capture lane. Read complete body, lines 1-16. Static production/configuration/protocol/UI review; no execution."
+  },
+  {
+    "path": "service/packages/plugin/src/handlers/get-fonts.ts",
+    "depth": "full",
+    "notes": "Assigned capture lane. Read complete body, lines 1-73. Static production/configuration/protocol/UI review; no execution."
+  },
+  {
+    "path": "service/packages/plugin/src/handlers/get-local-components.ts",
+    "depth": "full",
+    "notes": "Assigned capture lane. Read complete body, lines 1-80. Static production/configuration/protocol/UI review; no execution."
+  },
+  {
+    "path": "service/packages/plugin/src/handlers/get-metadata.ts",
+    "depth": "full",
+    "notes": "Assigned capture lane. Read complete body, lines 1-17. Static production/configuration/protocol/UI review; no execution."
+  },
+  {
+    "path": "service/packages/plugin/src/handlers/get-motion-styles.ts",
+    "depth": "full",
+    "notes": "Assigned capture lane. Read complete body, lines 1-19. Static production/configuration/protocol/UI review; no execution."
+  },
+  {
+    "path": "service/packages/plugin/src/handlers/get-node-motion.ts",
+    "depth": "full",
+    "notes": "Assigned capture lane. Read complete body, lines 1-35. Static production/configuration/protocol/UI review; no execution."
+  },
+  {
+    "path": "service/packages/plugin/src/handlers/get-node.ts",
+    "depth": "full",
+    "notes": "Assigned capture lane. Read complete body, lines 1-21. Static production/configuration/protocol/UI review; no execution."
+  },
+  {
+    "path": "service/packages/plugin/src/handlers/get-nodes-info.ts",
+    "depth": "full",
+    "notes": "Assigned capture lane. Read complete body, lines 1-25. Static production/configuration/protocol/UI review; no execution."
+  },
+  {
+    "path": "service/packages/plugin/src/handlers/get-pages.ts",
+    "depth": "full",
+    "notes": "Assigned capture lane. Read complete body, lines 1-12. Static production/configuration/protocol/UI review; no execution."
+  },
+  {
+    "path": "service/packages/plugin/src/handlers/get-reactions.ts",
+    "depth": "full",
+    "notes": "Assigned capture lane. Read complete body, lines 1-88. Static production/configuration/protocol/UI review; no execution."
+  },
+  {
+    "path": "service/packages/plugin/src/handlers/get-screenshot.ts",
+    "depth": "full",
+    "notes": "Assigned capture lane. Read complete body, lines 1-216. Static production/configuration/protocol/UI review; no execution."
+  },
+  {
+    "path": "service/packages/plugin/src/handlers/get-selection.ts",
+    "depth": "full",
+    "notes": "Assigned capture lane. Read complete body, lines 1-16. Static production/configuration/protocol/UI review; no execution."
+  },
+  {
+    "path": "service/packages/plugin/src/handlers/get-styles.ts",
+    "depth": "full",
+    "notes": "Assigned capture lane. Read complete body, lines 1-143. Static production/configuration/protocol/UI review; no execution."
+  },
+  {
+    "path": "service/packages/plugin/src/handlers/get-variable-defs.ts",
+    "depth": "full",
+    "notes": "Assigned capture lane. Read complete body, lines 1-81. Static production/configuration/protocol/UI review; no execution."
+  },
+  {
+    "path": "service/packages/plugin/src/handlers/get-viewport.ts",
+    "depth": "full",
+    "notes": "Assigned capture lane. Read complete body, lines 1-15. Static production/configuration/protocol/UI review; no execution."
+  },
+  {
+    "path": "service/packages/plugin/src/handlers/group-nodes.ts",
+    "depth": "full",
+    "notes": "Assigned capture lane. Read complete body, lines 1-32. Static production/configuration/protocol/UI review; no execution."
+  },
+  {
+    "path": "service/packages/plugin/src/handlers/import-image.ts",
+    "depth": "full",
+    "notes": "Assigned capture lane. Read complete body, lines 1-56. Static production/configuration/protocol/UI review; no execution."
+  },
+  {
+    "path": "service/packages/plugin/src/handlers/import-library-variable.ts",
+    "depth": "full",
+    "notes": "Assigned capture lane. Read complete body, lines 1-23. Static production/configuration/protocol/UI review; no execution."
+  },
+  {
+    "path": "service/packages/plugin/src/handlers/import-svg.ts",
+    "depth": "full",
+    "notes": "Assigned capture lane. Read complete body, lines 1-43. Static production/configuration/protocol/UI review; no execution."
+  },
+  {
+    "path": "service/packages/plugin/src/handlers/list-files.ts",
+    "depth": "full",
+    "notes": "Assigned capture lane. Read complete body, lines 1-18. Static production/configuration/protocol/UI review; no execution."
+  },
+  {
+    "path": "service/packages/plugin/src/handlers/lock-nodes.ts",
+    "depth": "full",
+    "notes": "Assigned capture lane. Read complete body, lines 1-27. Static production/configuration/protocol/UI review; no execution."
+  },
+  {
+    "path": "service/packages/plugin/src/handlers/motion-shared.ts",
+    "depth": "full",
+    "notes": "Assigned capture lane. Read complete body, lines 1-65. Static production/configuration/protocol/UI review; no execution."
+  },
+  {
+    "path": "service/packages/plugin/src/handlers/move-nodes.ts",
+    "depth": "full",
+    "notes": "Assigned capture lane. Read complete body, lines 1-29. Static production/configuration/protocol/UI review; no execution."
+  },
+  {
+    "path": "service/packages/plugin/src/handlers/navigate-to-page.ts",
+    "depth": "full",
+    "notes": "Assigned capture lane. Read complete body, lines 1-21. Static production/configuration/protocol/UI review; no execution."
+  },
+  {
+    "path": "service/packages/plugin/src/handlers/ping.ts",
+    "depth": "full",
+    "notes": "Assigned capture lane. Read complete body, lines 1-12. Static production/configuration/protocol/UI review; no execution."
+  },
+  {
+    "path": "service/packages/plugin/src/handlers/place.ts",
+    "depth": "full",
+    "notes": "Assigned capture lane. Read complete body, lines 1-21. Static production/configuration/protocol/UI review; no execution."
+  },
+  {
+    "path": "service/packages/plugin/src/handlers/portal-capture-asset.ts",
+    "depth": "full",
+    "notes": "Assigned capture lane. Read complete body, lines 1-15. Static production/configuration/protocol/UI review; no execution."
+  },
+  {
+    "path": "service/packages/plugin/src/handlers/portal-capture-read.ts",
+    "depth": "full",
+    "notes": "Assigned capture lane. Read complete body, lines 1-20. Static production/configuration/protocol/UI review; no execution."
+  },
+  {
+    "path": "service/packages/plugin/src/handlers/registry.ts",
+    "depth": "full",
+    "notes": "Assigned capture lane. Read complete body, lines 1-253. Static production/configuration/protocol/UI review; no execution."
+  },
+  {
+    "path": "service/packages/plugin/src/handlers/remove-animation-style.ts",
+    "depth": "full",
+    "notes": "Assigned capture lane. Read complete body, lines 1-36. Static production/configuration/protocol/UI review; no execution."
+  },
+  {
+    "path": "service/packages/plugin/src/handlers/remove-manual-keyframe-track.ts",
+    "depth": "full",
+    "notes": "Assigned capture lane. Read complete body, lines 1-25. Static production/configuration/protocol/UI review; no execution."
+  },
+  {
+    "path": "service/packages/plugin/src/handlers/remove-reactions.ts",
+    "depth": "full",
+    "notes": "Assigned capture lane. Read complete body, lines 1-24. Static production/configuration/protocol/UI review; no execution."
+  },
+  {
+    "path": "service/packages/plugin/src/handlers/rename-node.ts",
+    "depth": "full",
+    "notes": "Assigned capture lane. Read complete body, lines 1-18. Static production/configuration/protocol/UI review; no execution."
+  },
+  {
+    "path": "service/packages/plugin/src/handlers/rename-page.ts",
+    "depth": "full",
+    "notes": "Assigned capture lane. Read complete body, lines 1-21. Static production/configuration/protocol/UI review; no execution."
+  },
+  {
+    "path": "service/packages/plugin/src/handlers/rename-variable.ts",
+    "depth": "full",
+    "notes": "Assigned capture lane. Read complete body, lines 1-20. Static production/configuration/protocol/UI review; no execution."
+  },
+  {
+    "path": "service/packages/plugin/src/handlers/reorder-nodes.ts",
+    "depth": "full",
+    "notes": "Assigned capture lane. Read complete body, lines 1-29. Static production/configuration/protocol/UI review; no execution."
+  },
+  {
+    "path": "service/packages/plugin/src/handlers/reparent-nodes.ts",
+    "depth": "full",
+    "notes": "Assigned capture lane. Read complete body, lines 1-38. Static production/configuration/protocol/UI review; no execution."
+  },
+  {
+    "path": "service/packages/plugin/src/handlers/resize-nodes.ts",
+    "depth": "full",
+    "notes": "Assigned capture lane. Read complete body, lines 1-34. Static production/configuration/protocol/UI review; no execution."
+  },
+  {
+    "path": "service/packages/plugin/src/handlers/rotate-nodes.ts",
+    "depth": "full",
+    "notes": "Assigned capture lane. Read complete body, lines 1-28. Static production/configuration/protocol/UI review; no execution."
+  },
+  {
+    "path": "service/packages/plugin/src/handlers/save-image-fills.ts",
+    "depth": "full",
+    "notes": "Assigned capture lane. Read complete body, lines 1-101. Static production/configuration/protocol/UI review; no execution."
+  },
+  {
+    "path": "service/packages/plugin/src/handlers/scan-nodes-by-types.ts",
+    "depth": "full",
+    "notes": "Assigned capture lane. Read complete body, lines 1-28. Static production/configuration/protocol/UI review; no execution."
+  },
+  {
+    "path": "service/packages/plugin/src/handlers/scan-text-nodes.ts",
+    "depth": "full",
+    "notes": "Assigned capture lane. Read complete body, lines 1-20. Static production/configuration/protocol/UI review; no execution."
+  },
+  {
+    "path": "service/packages/plugin/src/handlers/search-nodes.ts",
+    "depth": "full",
+    "notes": "Assigned capture lane. Read complete body, lines 1-34. Static production/configuration/protocol/UI review; no execution."
+  },
+  {
+    "path": "service/packages/plugin/src/handlers/set-annotations.ts",
+    "depth": "full",
+    "notes": "Assigned capture lane. Read complete body, lines 1-140. Static production/configuration/protocol/UI review; no execution."
+  },
+  {
+    "path": "service/packages/plugin/src/handlers/set-arc.ts",
+    "depth": "full",
+    "notes": "Assigned capture lane. Read complete body, lines 1-51. Static production/configuration/protocol/UI review; no execution."
+  },
+  {
+    "path": "service/packages/plugin/src/handlers/set-auto-layout.ts",
+    "depth": "full",
+    "notes": "Assigned capture lane. Read complete body, lines 1-101. Static production/configuration/protocol/UI review; no execution."
+  },
+  {
+    "path": "service/packages/plugin/src/handlers/set-blend-mode.ts",
+    "depth": "full",
+    "notes": "Assigned capture lane. Read complete body, lines 1-20. Static production/configuration/protocol/UI review; no execution."
+  },
+  {
+    "path": "service/packages/plugin/src/handlers/set-constraints.ts",
+    "depth": "full",
+    "notes": "Assigned capture lane. Read complete body, lines 1-31. Static production/configuration/protocol/UI review; no execution."
+  },
+  {
+    "path": "service/packages/plugin/src/handlers/set-corner-radius.ts",
+    "depth": "full",
+    "notes": "Assigned capture lane. Read complete body, lines 1-53. Static production/configuration/protocol/UI review; no execution."
+  },
+  {
+    "path": "service/packages/plugin/src/handlers/set-effects.ts",
+    "depth": "full",
+    "notes": "Assigned capture lane. Read complete body, lines 1-25. Static production/configuration/protocol/UI review; no execution."
+  },
+  {
+    "path": "service/packages/plugin/src/handlers/set-fills.ts",
+    "depth": "full",
+    "notes": "Assigned capture lane. Read complete body, lines 1-65. Static production/configuration/protocol/UI review; no execution."
+  },
+  {
+    "path": "service/packages/plugin/src/handlers/set-instance-properties.ts",
+    "depth": "full",
+    "notes": "Assigned capture lane. Read complete body, lines 1-37. Static production/configuration/protocol/UI review; no execution."
+  },
+  {
+    "path": "service/packages/plugin/src/handlers/set-layout-grids.ts",
+    "depth": "full",
+    "notes": "Assigned capture lane. Read complete body, lines 1-39. Static production/configuration/protocol/UI review; no execution."
+  },
+  {
+    "path": "service/packages/plugin/src/handlers/set-layout-props.ts",
+    "depth": "full",
+    "notes": "Assigned capture lane. Read complete body, lines 1-109. Static production/configuration/protocol/UI review; no execution."
+  },
+  {
+    "path": "service/packages/plugin/src/handlers/set-mask.ts",
+    "depth": "full",
+    "notes": "Assigned capture lane. Read complete body, lines 1-22. Static production/configuration/protocol/UI review; no execution."
+  },
+  {
+    "path": "service/packages/plugin/src/handlers/set-opacity.ts",
+    "depth": "full",
+    "notes": "Assigned capture lane. Read complete body, lines 1-20. Static production/configuration/protocol/UI review; no execution."
+  },
+  {
+    "path": "service/packages/plugin/src/handlers/set-position.ts",
+    "depth": "full",
+    "notes": "Assigned capture lane. Read complete body, lines 1-52. Static production/configuration/protocol/UI review; no execution."
+  },
+  {
+    "path": "service/packages/plugin/src/handlers/set-reactions.ts",
+    "depth": "full",
+    "notes": "Assigned capture lane. Read complete body, lines 1-28. Static production/configuration/protocol/UI review; no execution."
+  },
+  {
+    "path": "service/packages/plugin/src/handlers/set-strokes.ts",
+    "depth": "full",
+    "notes": "Assigned capture lane. Read complete body, lines 1-69. Static production/configuration/protocol/UI review; no execution."
+  },
+  {
+    "path": "service/packages/plugin/src/handlers/set-text-properties.ts",
+    "depth": "full",
+    "notes": "Assigned capture lane. Read complete body, lines 1-105. Static production/configuration/protocol/UI review; no execution."
+  },
+  {
+    "path": "service/packages/plugin/src/handlers/set-text-range.ts",
+    "depth": "full",
+    "notes": "Assigned capture lane. Read complete body, lines 1-158. Static production/configuration/protocol/UI review; no execution."
+  },
+  {
+    "path": "service/packages/plugin/src/handlers/set-text.ts",
+    "depth": "full",
+    "notes": "Assigned capture lane. Read complete body, lines 1-30. Static production/configuration/protocol/UI review; no execution."
+  },
+  {
+    "path": "service/packages/plugin/src/handlers/set-timeline-duration.ts",
+    "depth": "full",
+    "notes": "Assigned capture lane. Read complete body, lines 1-30. Static production/configuration/protocol/UI review; no execution."
+  },
+  {
+    "path": "service/packages/plugin/src/handlers/set-variable-code-syntax.ts",
+    "depth": "full",
+    "notes": "Assigned capture lane. Read complete body, lines 1-58. Static production/configuration/protocol/UI review; no execution."
+  },
+  {
+    "path": "service/packages/plugin/src/handlers/set-variable-value.ts",
+    "depth": "full",
+    "notes": "Assigned capture lane. Read complete body, lines 1-63. Static production/configuration/protocol/UI review; no execution."
+  },
+  {
+    "path": "service/packages/plugin/src/handlers/set-visible.ts",
+    "depth": "full",
+    "notes": "Assigned capture lane. Read complete body, lines 1-19. Static production/configuration/protocol/UI review; no execution."
+  },
+  {
+    "path": "service/packages/plugin/src/handlers/swap-component.ts",
+    "depth": "full",
+    "notes": "Assigned capture lane. Read complete body, lines 1-50. Static production/configuration/protocol/UI review; no execution."
+  },
+  {
+    "path": "service/packages/plugin/src/handlers/ungroup-nodes.ts",
+    "depth": "full",
+    "notes": "Assigned capture lane. Read complete body, lines 1-25. Static production/configuration/protocol/UI review; no execution."
+  },
+  {
+    "path": "service/packages/plugin/src/handlers/update-effect-style.ts",
+    "depth": "full",
+    "notes": "Assigned capture lane. Read complete body, lines 1-36. Static production/configuration/protocol/UI review; no execution."
+  },
+  {
+    "path": "service/packages/plugin/src/handlers/update-paint-style.ts",
+    "depth": "full",
+    "notes": "Assigned capture lane. Read complete body, lines 1-36. Static production/configuration/protocol/UI review; no execution."
+  },
+  {
+    "path": "service/packages/plugin/src/handlers/update-text-style.ts",
+    "depth": "full",
+    "notes": "Assigned capture lane. Read complete body, lines 1-73. Static production/configuration/protocol/UI review; no execution."
+  },
+  {
+    "path": "service/packages/plugin/src/idempotency.ts",
+    "depth": "full",
+    "notes": "Assigned capture lane. Read complete body, lines 1-83. Static production/configuration/protocol/UI review; no execution."
+  },
+  {
+    "path": "service/packages/plugin/src/identity-bootstrap.ts",
+    "depth": "full",
+    "notes": "Assigned capture lane. Read complete body, lines 1-106. Static production/configuration/protocol/UI review; no execution."
+  },
+  {
+    "path": "service/packages/plugin/src/mutation.ts",
+    "depth": "full",
+    "notes": "Assigned capture lane. Read complete body, lines 1-453. Static production/configuration/protocol/UI review; no execution."
+  },
+  {
+    "path": "service/packages/plugin/src/panel.ts",
+    "depth": "full",
+    "notes": "Assigned capture lane. Read complete body, lines 1-100. Static production/configuration/protocol/UI review; no execution."
+  },
+  {
+    "path": "service/packages/plugin/src/reveal.ts",
+    "depth": "full",
+    "notes": "Assigned capture lane. Read complete body, lines 1-74. Static production/configuration/protocol/UI review; no execution."
+  },
+  {
+    "path": "service/packages/plugin/src/serializer.ts",
+    "depth": "full",
+    "notes": "Assigned capture lane. Read complete body, lines 1-845. Static production/configuration/protocol/UI review; no execution."
+  },
+  {
+    "path": "service/packages/plugin/src/traverse.ts",
+    "depth": "full",
+    "notes": "Assigned capture lane. Read complete body, lines 1-40. Static production/configuration/protocol/UI review; no execution."
+  },
+  {
+    "path": "service/packages/plugin/test/auth/pair-exchange.test.ts",
+    "depth": "unreviewed",
+    "notes": "Assigned capture lane. No source-body inspection in round one; line count only. Round-two closure required: lines 1-324. Not executed."
+  },
+  {
+    "path": "service/packages/plugin/test/auth/resume-rotation.test.ts",
+    "depth": "unreviewed",
+    "notes": "Assigned capture lane. No source-body inspection in round one; line count only. Round-two closure required: lines 1-479. Not executed."
+  },
+  {
+    "path": "service/packages/plugin/test/components/pairing-flow.test.ts",
+    "depth": "unreviewed",
+    "notes": "Assigned capture lane. No source-body inspection in round one; line count only. Round-two closure required: lines 1-450. Not executed."
+  },
+  {
+    "path": "service/packages/plugin/test/components/panel-background-button.test.ts",
+    "depth": "unreviewed",
+    "notes": "Assigned capture lane. No source-body inspection in round one; line count only. Round-two closure required: lines 1-39. Not executed."
+  },
+  {
+    "path": "service/packages/plugin/test/components/panel-chrome.test.ts",
+    "depth": "unreviewed",
+    "notes": "Assigned capture lane. No source-body inspection in round one; line count only. Round-two closure required: lines 1-152. Not executed."
+  },
+  {
+    "path": "service/packages/plugin/test/components/panel-footer.test.ts",
+    "depth": "unreviewed",
+    "notes": "Assigned capture lane. No source-body inspection in round one; line count only. Round-two closure required: lines 1-38. Not executed."
+  },
+  {
+    "path": "service/packages/plugin/test/components/panel-status.test.ts",
+    "depth": "unreviewed",
+    "notes": "Assigned capture lane. No source-body inspection in round one; line count only. Round-two closure required: lines 1-86. Not executed."
+  },
+  {
+    "path": "service/packages/plugin/test/components/panel-tabs.test.ts",
+    "depth": "unreviewed",
+    "notes": "Assigned capture lane. No source-body inspection in round one; line count only. Round-two closure required: lines 1-60. Not executed."
+  },
+  {
+    "path": "service/packages/plugin/test/components/tab-activity-row.test.ts",
+    "depth": "unreviewed",
+    "notes": "Assigned capture lane. No source-body inspection in round one; line count only. Round-two closure required: lines 1-284. Not executed."
+  },
+  {
+    "path": "service/packages/plugin/test/components/tab-panels.test.ts",
+    "depth": "unreviewed",
+    "notes": "Assigned capture lane. No source-body inspection in round one; line count only. Round-two closure required: lines 1-256. Not executed."
+  },
+  {
+    "path": "service/packages/plugin/test/components/ui-payload-block.test.ts",
+    "depth": "unreviewed",
+    "notes": "Assigned capture lane. No source-body inspection in round one; line count only. Round-two closure required: lines 1-108. Not executed."
+  },
+  {
+    "path": "service/packages/plugin/test/components/ui-primitives.test.ts",
+    "depth": "unreviewed",
+    "notes": "Assigned capture lane. No source-body inspection in round one; line count only. Round-two closure required: lines 1-184. Not executed."
+  },
+  {
+    "path": "service/packages/plugin/test/composables/use-approvals.test.ts",
+    "depth": "unreviewed",
+    "notes": "Assigned capture lane. No source-body inspection in round one; line count only. Round-two closure required: lines 1-58. Not executed."
+  },
+  {
+    "path": "service/packages/plugin/test/composables/use-panel-window.test.ts",
+    "depth": "unreviewed",
+    "notes": "Assigned capture lane. No source-body inspection in round one; line count only. Round-two closure required: lines 1-120. Not executed."
+  },
+  {
+    "path": "service/packages/plugin/test/composables/use-relay-session.test.ts",
+    "depth": "targeted",
+    "notes": "Assigned capture lane. Searched busy/activity assertions; grep-only inspection, no closed full interval. Round-two closure required: lines 1-586. Not executed."
+  },
+  {
+    "path": "service/packages/plugin/test/dispatcher.test.ts",
+    "depth": "full",
+    "notes": "Assigned capture lane. Read complete body, lines 1-180. Inspected test assertions; not executed."
+  },
+  {
+    "path": "service/packages/plugin/test/file-identity-bootstrap-hello.test.ts",
+    "depth": "unreviewed",
+    "notes": "Assigned capture lane. No source-body inspection in round one; line count only. Round-two closure required: lines 1-52. Not executed."
+  },
+  {
+    "path": "service/packages/plugin/test/file-identity.test.ts",
+    "depth": "unreviewed",
+    "notes": "Assigned capture lane. No source-body inspection in round one; line count only. Round-two closure required: lines 1-91. Not executed."
+  },
+  {
+    "path": "service/packages/plugin/test/handlers/add-page.test.ts",
+    "depth": "unreviewed",
+    "notes": "Assigned capture lane. No source-body inspection in round one; line count only. Round-two closure required: lines 1-25. Not executed."
+  },
+  {
+    "path": "service/packages/plugin/test/handlers/add-variable-mode.test.ts",
+    "depth": "unreviewed",
+    "notes": "Assigned capture lane. No source-body inspection in round one; line count only. Round-two closure required: lines 1-54. Not executed."
+  },
+  {
+    "path": "service/packages/plugin/test/handlers/apply-style-to-node.test.ts",
+    "depth": "unreviewed",
+    "notes": "Assigned capture lane. No source-body inspection in round one; line count only. Round-two closure required: lines 1-48. Not executed."
+  },
+  {
+    "path": "service/packages/plugin/test/handlers/batch-rename-nodes.test.ts",
+    "depth": "unreviewed",
+    "notes": "Assigned capture lane. No source-body inspection in round one; line count only. Round-two closure required: lines 1-33. Not executed."
+  },
+  {
+    "path": "service/packages/plugin/test/handlers/batch.test.ts",
+    "depth": "targeted",
+    "notes": "Assigned capture lane. Read typography rollback and property-list guard; rg also inspected mixed/rollback references. Read lines 351-424. Round-two closure required: lines 1-350, 425-647. Not executed."
+  },
+  {
+    "path": "service/packages/plugin/test/handlers/bind-variable-to-node.test.ts",
+    "depth": "unreviewed",
+    "notes": "Assigned capture lane. No source-body inspection in round one; line count only. Round-two closure required: lines 1-80. Not executed."
+  },
+  {
+    "path": "service/packages/plugin/test/handlers/bind-variable-to-paint.test.ts",
+    "depth": "unreviewed",
+    "notes": "Assigned capture lane. No source-body inspection in round one; line count only. Round-two closure required: lines 1-117. Not executed."
+  },
+  {
+    "path": "service/packages/plugin/test/handlers/bindings.test.ts",
+    "depth": "unreviewed",
+    "notes": "Assigned capture lane. No source-body inspection in round one; line count only. Round-two closure required: lines 1-287. Not executed."
+  },
+  {
+    "path": "service/packages/plugin/test/handlers/clone-node.test.ts",
+    "depth": "full",
+    "notes": "Assigned capture lane. Read complete body, lines 1-33. Inspected test assertions; not executed."
+  },
+  {
+    "path": "service/packages/plugin/test/handlers/combine-as-variants.test.ts",
+    "depth": "unreviewed",
+    "notes": "Assigned capture lane. No source-body inspection in round one; line count only. Round-two closure required: lines 1-79. Not executed."
+  },
+  {
+    "path": "service/packages/plugin/test/handlers/component-property.test.ts",
+    "depth": "unreviewed",
+    "notes": "Assigned capture lane. No source-body inspection in round one; line count only. Round-two closure required: lines 1-270. Not executed."
+  },
+  {
+    "path": "service/packages/plugin/test/handlers/create-component.test.ts",
+    "depth": "unreviewed",
+    "notes": "Assigned capture lane. No source-body inspection in round one; line count only. Round-two closure required: lines 1-86. Not executed."
+  },
+  {
+    "path": "service/packages/plugin/test/handlers/create-effect-style.test.ts",
+    "depth": "unreviewed",
+    "notes": "Assigned capture lane. No source-body inspection in round one; line count only. Round-two closure required: lines 1-92. Not executed."
+  },
+  {
+    "path": "service/packages/plugin/test/handlers/create-ellipse.test.ts",
+    "depth": "unreviewed",
+    "notes": "Assigned capture lane. No source-body inspection in round one; line count only. Round-two closure required: lines 1-63. Not executed."
+  },
+  {
+    "path": "service/packages/plugin/test/handlers/create-frame.test.ts",
+    "depth": "unreviewed",
+    "notes": "Assigned capture lane. No source-body inspection in round one; line count only. Round-two closure required: lines 1-85. Not executed."
+  },
+  {
+    "path": "service/packages/plugin/test/handlers/create-grid-style.test.ts",
+    "depth": "unreviewed",
+    "notes": "Assigned capture lane. No source-body inspection in round one; line count only. Round-two closure required: lines 1-88. Not executed."
+  },
+  {
+    "path": "service/packages/plugin/test/handlers/create-instance.test.ts",
+    "depth": "unreviewed",
+    "notes": "Assigned capture lane. No source-body inspection in round one; line count only. Round-two closure required: lines 1-67. Not executed."
+  },
+  {
+    "path": "service/packages/plugin/test/handlers/create-paint-style.test.ts",
+    "depth": "unreviewed",
+    "notes": "Assigned capture lane. No source-body inspection in round one; line count only. Round-two closure required: lines 1-107. Not executed."
+  },
+  {
+    "path": "service/packages/plugin/test/handlers/create-rectangle.test.ts",
+    "depth": "unreviewed",
+    "notes": "Assigned capture lane. No source-body inspection in round one; line count only. Round-two closure required: lines 1-63. Not executed."
+  },
+  {
+    "path": "service/packages/plugin/test/handlers/create-section.test.ts",
+    "depth": "unreviewed",
+    "notes": "Assigned capture lane. No source-body inspection in round one; line count only. Round-two closure required: lines 1-46. Not executed."
+  },
+  {
+    "path": "service/packages/plugin/test/handlers/create-text-style.test.ts",
+    "depth": "unreviewed",
+    "notes": "Assigned capture lane. No source-body inspection in round one; line count only. Round-two closure required: lines 1-251. Not executed."
+  },
+  {
+    "path": "service/packages/plugin/test/handlers/create-text.test.ts",
+    "depth": "unreviewed",
+    "notes": "Assigned capture lane. No source-body inspection in round one; line count only. Round-two closure required: lines 1-52. Not executed."
+  },
+  {
+    "path": "service/packages/plugin/test/handlers/create-variable-collection.test.ts",
+    "depth": "unreviewed",
+    "notes": "Assigned capture lane. No source-body inspection in round one; line count only. Round-two closure required: lines 1-89. Not executed."
+  },
+  {
+    "path": "service/packages/plugin/test/handlers/create-variable.test.ts",
+    "depth": "unreviewed",
+    "notes": "Assigned capture lane. No source-body inspection in round one; line count only. Round-two closure required: lines 1-266. Not executed."
+  },
+  {
+    "path": "service/packages/plugin/test/handlers/delete-nodes.test.ts",
+    "depth": "unreviewed",
+    "notes": "Assigned capture lane. No source-body inspection in round one; line count only. Round-two closure required: lines 1-38. Not executed."
+  },
+  {
+    "path": "service/packages/plugin/test/handlers/delete-page.test.ts",
+    "depth": "unreviewed",
+    "notes": "Assigned capture lane. No source-body inspection in round one; line count only. Round-two closure required: lines 1-41. Not executed."
+  },
+  {
+    "path": "service/packages/plugin/test/handlers/delete-style.test.ts",
+    "depth": "unreviewed",
+    "notes": "Assigned capture lane. No source-body inspection in round one; line count only. Round-two closure required: lines 1-24. Not executed."
+  },
+  {
+    "path": "service/packages/plugin/test/handlers/delete-variable-collection.test.ts",
+    "depth": "unreviewed",
+    "notes": "Assigned capture lane. No source-body inspection in round one; line count only. Round-two closure required: lines 1-28. Not executed."
+  },
+  {
+    "path": "service/packages/plugin/test/handlers/delete-variable.test.ts",
+    "depth": "unreviewed",
+    "notes": "Assigned capture lane. No source-body inspection in round one; line count only. Round-two closure required: lines 1-26. Not executed."
+  },
+  {
+    "path": "service/packages/plugin/test/handlers/detach-instance.test.ts",
+    "depth": "unreviewed",
+    "notes": "Assigned capture lane. No source-body inspection in round one; line count only. Round-two closure required: lines 1-27. Not executed."
+  },
+  {
+    "path": "service/packages/plugin/test/handlers/export-pdf.test.ts",
+    "depth": "unreviewed",
+    "notes": "Assigned capture lane. No source-body inspection in round one; line count only. Round-two closure required: lines 1-76. Not executed."
+  },
+  {
+    "path": "service/packages/plugin/test/handlers/export-video.test.ts",
+    "depth": "unreviewed",
+    "notes": "Assigned capture lane. No source-body inspection in round one; line count only. Round-two closure required: lines 1-125. Not executed."
+  },
+  {
+    "path": "service/packages/plugin/test/handlers/find-replace-text.test.ts",
+    "depth": "unreviewed",
+    "notes": "Assigned capture lane. No source-body inspection in round one; line count only. Round-two closure required: lines 1-39. Not executed."
+  },
+  {
+    "path": "service/packages/plugin/test/handlers/get-annotations.test.ts",
+    "depth": "unreviewed",
+    "notes": "Assigned capture lane. No source-body inspection in round one; line count only. Round-two closure required: lines 1-78. Not executed."
+  },
+  {
+    "path": "service/packages/plugin/test/handlers/get-component-api.test.ts",
+    "depth": "unreviewed",
+    "notes": "Assigned capture lane. No source-body inspection in round one; line count only. Round-two closure required: lines 1-96. Not executed."
+  },
+  {
+    "path": "service/packages/plugin/test/handlers/get-design-context.test.ts",
+    "depth": "unreviewed",
+    "notes": "Assigned capture lane. No source-body inspection in round one; line count only. Round-two closure required: lines 1-996. Not executed."
+  },
+  {
+    "path": "service/packages/plugin/test/handlers/get-document.test.ts",
+    "depth": "unreviewed",
+    "notes": "Assigned capture lane. No source-body inspection in round one; line count only. Round-two closure required: lines 1-57. Not executed."
+  },
+  {
+    "path": "service/packages/plugin/test/handlers/get-fonts.test.ts",
+    "depth": "unreviewed",
+    "notes": "Assigned capture lane. No source-body inspection in round one; line count only. Round-two closure required: lines 1-102. Not executed."
+  },
+  {
+    "path": "service/packages/plugin/test/handlers/get-local-components.test.ts",
+    "depth": "unreviewed",
+    "notes": "Assigned capture lane. No source-body inspection in round one; line count only. Round-two closure required: lines 1-96. Not executed."
+  },
+  {
+    "path": "service/packages/plugin/test/handlers/get-metadata.test.ts",
+    "depth": "unreviewed",
+    "notes": "Assigned capture lane. No source-body inspection in round one; line count only. Round-two closure required: lines 1-76. Not executed."
+  },
+  {
+    "path": "service/packages/plugin/test/handlers/get-node-motion.test.ts",
+    "depth": "unreviewed",
+    "notes": "Assigned capture lane. No source-body inspection in round one; line count only. Round-two closure required: lines 1-90. Not executed."
+  },
+  {
+    "path": "service/packages/plugin/test/handlers/get-node.test.ts",
+    "depth": "unreviewed",
+    "notes": "Assigned capture lane. No source-body inspection in round one; line count only. Round-two closure required: lines 1-55. Not executed."
+  },
+  {
+    "path": "service/packages/plugin/test/handlers/get-nodes-info.test.ts",
+    "depth": "unreviewed",
+    "notes": "Assigned capture lane. No source-body inspection in round one; line count only. Round-two closure required: lines 1-52. Not executed."
+  },
+  {
+    "path": "service/packages/plugin/test/handlers/get-pages.test.ts",
+    "depth": "unreviewed",
+    "notes": "Assigned capture lane. No source-body inspection in round one; line count only. Round-two closure required: lines 1-33. Not executed."
+  },
+  {
+    "path": "service/packages/plugin/test/handlers/get-reactions.test.ts",
+    "depth": "full",
+    "notes": "Assigned capture lane. Read complete body, lines 1-117. Inspected test assertions; not executed."
+  },
+  {
+    "path": "service/packages/plugin/test/handlers/get-screenshot.test.ts",
+    "depth": "unreviewed",
+    "notes": "Assigned capture lane. No source-body inspection in round one; line count only. Round-two closure required: lines 1-328. Not executed."
+  },
+  {
+    "path": "service/packages/plugin/test/handlers/get-selection.test.ts",
+    "depth": "unreviewed",
+    "notes": "Assigned capture lane. No source-body inspection in round one; line count only. Round-two closure required: lines 1-55. Not executed."
+  },
+  {
+    "path": "service/packages/plugin/test/handlers/get-styles.test.ts",
+    "depth": "unreviewed",
+    "notes": "Assigned capture lane. No source-body inspection in round one; line count only. Round-two closure required: lines 1-389. Not executed."
+  },
+  {
+    "path": "service/packages/plugin/test/handlers/get-variable-defs.test.ts",
+    "depth": "unreviewed",
+    "notes": "Assigned capture lane. No source-body inspection in round one; line count only. Round-two closure required: lines 1-209. Not executed."
+  },
+  {
+    "path": "service/packages/plugin/test/handlers/get-viewport.test.ts",
+    "depth": "unreviewed",
+    "notes": "Assigned capture lane. No source-body inspection in round one; line count only. Round-two closure required: lines 1-22. Not executed."
+  },
+  {
+    "path": "service/packages/plugin/test/handlers/group-nodes.test.ts",
+    "depth": "unreviewed",
+    "notes": "Assigned capture lane. No source-body inspection in round one; line count only. Round-two closure required: lines 1-34. Not executed."
+  },
+  {
+    "path": "service/packages/plugin/test/handlers/import-image.test.ts",
+    "depth": "unreviewed",
+    "notes": "Assigned capture lane. No source-body inspection in round one; line count only. Round-two closure required: lines 1-123. Not executed."
+  },
+  {
+    "path": "service/packages/plugin/test/handlers/import-library-variable.test.ts",
+    "depth": "unreviewed",
+    "notes": "Assigned capture lane. No source-body inspection in round one; line count only. Round-two closure required: lines 1-39. Not executed."
+  },
+  {
+    "path": "service/packages/plugin/test/handlers/import-svg.test.ts",
+    "depth": "unreviewed",
+    "notes": "Assigned capture lane. No source-body inspection in round one; line count only. Round-two closure required: lines 1-72. Not executed."
+  },
+  {
+    "path": "service/packages/plugin/test/handlers/list-files.test.ts",
+    "depth": "unreviewed",
+    "notes": "Assigned capture lane. No source-body inspection in round one; line count only. Round-two closure required: lines 1-29. Not executed."
+  },
+  {
+    "path": "service/packages/plugin/test/handlers/lock-nodes.test.ts",
+    "depth": "unreviewed",
+    "notes": "Assigned capture lane. No source-body inspection in round one; line count only. Round-two closure required: lines 1-34. Not executed."
+  },
+  {
+    "path": "service/packages/plugin/test/handlers/move-nodes.test.ts",
+    "depth": "unreviewed",
+    "notes": "Assigned capture lane. No source-body inspection in round one; line count only. Round-two closure required: lines 1-31. Not executed."
+  },
+  {
+    "path": "service/packages/plugin/test/handlers/navigate-to-page.test.ts",
+    "depth": "unreviewed",
+    "notes": "Assigned capture lane. No source-body inspection in round one; line count only. Round-two closure required: lines 1-28. Not executed."
+  },
+  {
+    "path": "service/packages/plugin/test/handlers/projection-coverage.test.ts",
+    "depth": "unreviewed",
+    "notes": "Assigned capture lane. No source-body inspection in round one; line count only. Round-two closure required: lines 1-229. Not executed."
+  },
+  {
+    "path": "service/packages/plugin/test/handlers/remove-reactions.test.ts",
+    "depth": "unreviewed",
+    "notes": "Assigned capture lane. No source-body inspection in round one; line count only. Round-two closure required: lines 1-27. Not executed."
+  },
+  {
+    "path": "service/packages/plugin/test/handlers/rename-node.test.ts",
+    "depth": "unreviewed",
+    "notes": "Assigned capture lane. No source-body inspection in round one; line count only. Round-two closure required: lines 1-24. Not executed."
+  },
+  {
+    "path": "service/packages/plugin/test/handlers/rename-page.test.ts",
+    "depth": "unreviewed",
+    "notes": "Assigned capture lane. No source-body inspection in round one; line count only. Round-two closure required: lines 1-29. Not executed."
+  },
+  {
+    "path": "service/packages/plugin/test/handlers/rename-variable.test.ts",
+    "depth": "unreviewed",
+    "notes": "Assigned capture lane. No source-body inspection in round one; line count only. Round-two closure required: lines 1-37. Not executed."
+  },
+  {
+    "path": "service/packages/plugin/test/handlers/reorder-nodes.test.ts",
+    "depth": "unreviewed",
+    "notes": "Assigned capture lane. No source-body inspection in round one; line count only. Round-two closure required: lines 1-36. Not executed."
+  },
+  {
+    "path": "service/packages/plugin/test/handlers/reparent-nodes.test.ts",
+    "depth": "unreviewed",
+    "notes": "Assigned capture lane. No source-body inspection in round one; line count only. Round-two closure required: lines 1-44. Not executed."
+  },
+  {
+    "path": "service/packages/plugin/test/handlers/resize-nodes.test.ts",
+    "depth": "unreviewed",
+    "notes": "Assigned capture lane. No source-body inspection in round one; line count only. Round-two closure required: lines 1-31. Not executed."
+  },
+  {
+    "path": "service/packages/plugin/test/handlers/rotate-nodes.test.ts",
+    "depth": "unreviewed",
+    "notes": "Assigned capture lane. No source-body inspection in round one; line count only. Round-two closure required: lines 1-27. Not executed."
+  },
+  {
+    "path": "service/packages/plugin/test/handlers/save-image-fills.test.ts",
+    "depth": "unreviewed",
+    "notes": "Assigned capture lane. No source-body inspection in round one; line count only. Round-two closure required: lines 1-180. Not executed."
+  },
+  {
+    "path": "service/packages/plugin/test/handlers/scan-nodes-by-types.test.ts",
+    "depth": "unreviewed",
+    "notes": "Assigned capture lane. No source-body inspection in round one; line count only. Round-two closure required: lines 1-45. Not executed."
+  },
+  {
+    "path": "service/packages/plugin/test/handlers/scan-text-nodes.test.ts",
+    "depth": "unreviewed",
+    "notes": "Assigned capture lane. No source-body inspection in round one; line count only. Round-two closure required: lines 1-62. Not executed."
+  },
+  {
+    "path": "service/packages/plugin/test/handlers/search-nodes.test.ts",
+    "depth": "unreviewed",
+    "notes": "Assigned capture lane. No source-body inspection in round one; line count only. Round-two closure required: lines 1-76. Not executed."
+  },
+  {
+    "path": "service/packages/plugin/test/handlers/set-annotations.test.ts",
+    "depth": "unreviewed",
+    "notes": "Assigned capture lane. No source-body inspection in round one; line count only. Round-two closure required: lines 1-321. Not executed."
+  },
+  {
+    "path": "service/packages/plugin/test/handlers/set-arc.test.ts",
+    "depth": "unreviewed",
+    "notes": "Assigned capture lane. No source-body inspection in round one; line count only. Round-two closure required: lines 1-42. Not executed."
+  },
+  {
+    "path": "service/packages/plugin/test/handlers/set-auto-layout.test.ts",
+    "depth": "unreviewed",
+    "notes": "Assigned capture lane. No source-body inspection in round one; line count only. Round-two closure required: lines 1-157. Not executed."
+  },
+  {
+    "path": "service/packages/plugin/test/handlers/set-blend-mode.test.ts",
+    "depth": "unreviewed",
+    "notes": "Assigned capture lane. No source-body inspection in round one; line count only. Round-two closure required: lines 1-25. Not executed."
+  },
+  {
+    "path": "service/packages/plugin/test/handlers/set-constraints.test.ts",
+    "depth": "unreviewed",
+    "notes": "Assigned capture lane. No source-body inspection in round one; line count only. Round-two closure required: lines 1-33. Not executed."
+  },
+  {
+    "path": "service/packages/plugin/test/handlers/set-corner-radius.test.ts",
+    "depth": "unreviewed",
+    "notes": "Assigned capture lane. No source-body inspection in round one; line count only. Round-two closure required: lines 1-64. Not executed."
+  },
+  {
+    "path": "service/packages/plugin/test/handlers/set-effects.test.ts",
+    "depth": "unreviewed",
+    "notes": "Assigned capture lane. No source-body inspection in round one; line count only. Round-two closure required: lines 1-74. Not executed."
+  },
+  {
+    "path": "service/packages/plugin/test/handlers/set-fills.test.ts",
+    "depth": "unreviewed",
+    "notes": "Assigned capture lane. No source-body inspection in round one; line count only. Round-two closure required: lines 1-127. Not executed."
+  },
+  {
+    "path": "service/packages/plugin/test/handlers/set-instance-properties.test.ts",
+    "depth": "unreviewed",
+    "notes": "Assigned capture lane. No source-body inspection in round one; line count only. Round-two closure required: lines 1-49. Not executed."
+  },
+  {
+    "path": "service/packages/plugin/test/handlers/set-layout-grids.test.ts",
+    "depth": "unreviewed",
+    "notes": "Assigned capture lane. No source-body inspection in round one; line count only. Round-two closure required: lines 1-132. Not executed."
+  },
+  {
+    "path": "service/packages/plugin/test/handlers/set-layout-props.test.ts",
+    "depth": "unreviewed",
+    "notes": "Assigned capture lane. No source-body inspection in round one; line count only. Round-two closure required: lines 1-141. Not executed."
+  },
+  {
+    "path": "service/packages/plugin/test/handlers/set-mask.test.ts",
+    "depth": "unreviewed",
+    "notes": "Assigned capture lane. No source-body inspection in round one; line count only. Round-two closure required: lines 1-37. Not executed."
+  },
+  {
+    "path": "service/packages/plugin/test/handlers/set-opacity.test.ts",
+    "depth": "unreviewed",
+    "notes": "Assigned capture lane. No source-body inspection in round one; line count only. Round-two closure required: lines 1-25. Not executed."
+  },
+  {
+    "path": "service/packages/plugin/test/handlers/set-position.test.ts",
+    "depth": "unreviewed",
+    "notes": "Assigned capture lane. No source-body inspection in round one; line count only. Round-two closure required: lines 1-81. Not executed."
+  },
+  {
+    "path": "service/packages/plugin/test/handlers/set-reactions.test.ts",
+    "depth": "full",
+    "notes": "Assigned capture lane. Read complete body, lines 1-45. Inspected test assertions; not executed."
+  },
+  {
+    "path": "service/packages/plugin/test/handlers/set-strokes.test.ts",
+    "depth": "unreviewed",
+    "notes": "Assigned capture lane. No source-body inspection in round one; line count only. Round-two closure required: lines 1-106. Not executed."
+  },
+  {
+    "path": "service/packages/plugin/test/handlers/set-text-properties.test.ts",
+    "depth": "unreviewed",
+    "notes": "Assigned capture lane. No source-body inspection in round one; line count only. Round-two closure required: lines 1-178. Not executed."
+  },
+  {
+    "path": "service/packages/plugin/test/handlers/set-text-range.test.ts",
+    "depth": "unreviewed",
+    "notes": "Assigned capture lane. No source-body inspection in round one; line count only. Round-two closure required: lines 1-289. Not executed."
+  },
+  {
+    "path": "service/packages/plugin/test/handlers/set-text.test.ts",
+    "depth": "full",
+    "notes": "Assigned capture lane. Read complete body, lines 1-60. Inspected test assertions; not executed."
+  },
+  {
+    "path": "service/packages/plugin/test/handlers/set-variable-code-syntax.test.ts",
+    "depth": "unreviewed",
+    "notes": "Assigned capture lane. No source-body inspection in round one; line count only. Round-two closure required: lines 1-87. Not executed."
+  },
+  {
+    "path": "service/packages/plugin/test/handlers/set-variable-value.test.ts",
+    "depth": "unreviewed",
+    "notes": "Assigned capture lane. No source-body inspection in round one; line count only. Round-two closure required: lines 1-148. Not executed."
+  },
+  {
+    "path": "service/packages/plugin/test/handlers/set-visible.test.ts",
+    "depth": "unreviewed",
+    "notes": "Assigned capture lane. No source-body inspection in round one; line count only. Round-two closure required: lines 1-24. Not executed."
+  },
+  {
+    "path": "service/packages/plugin/test/handlers/swap-component.test.ts",
+    "depth": "unreviewed",
+    "notes": "Assigned capture lane. No source-body inspection in round one; line count only. Round-two closure required: lines 1-74. Not executed."
+  },
+  {
+    "path": "service/packages/plugin/test/handlers/ungroup-nodes.test.ts",
+    "depth": "unreviewed",
+    "notes": "Assigned capture lane. No source-body inspection in round one; line count only. Round-two closure required: lines 1-29. Not executed."
+  },
+  {
+    "path": "service/packages/plugin/test/handlers/update-effect-style.test.ts",
+    "depth": "unreviewed",
+    "notes": "Assigned capture lane. No source-body inspection in round one; line count only. Round-two closure required: lines 1-70. Not executed."
+  },
+  {
+    "path": "service/packages/plugin/test/handlers/update-paint-style.test.ts",
+    "depth": "unreviewed",
+    "notes": "Assigned capture lane. No source-body inspection in round one; line count only. Round-two closure required: lines 1-86. Not executed."
+  },
+  {
+    "path": "service/packages/plugin/test/handlers/update-text-style.test.ts",
+    "depth": "unreviewed",
+    "notes": "Assigned capture lane. No source-body inspection in round one; line count only. Round-two closure required: lines 1-166. Not executed."
+  },
+  {
+    "path": "service/packages/plugin/test/idempotency.test.ts",
+    "depth": "unreviewed",
+    "notes": "Assigned capture lane. No source-body inspection in round one; line count only. Round-two closure required: lines 1-140. Not executed."
+  },
+  {
+    "path": "service/packages/plugin/test/identity-bootstrap.test.ts",
+    "depth": "unreviewed",
+    "notes": "Assigned capture lane. No source-body inspection in round one; line count only. Round-two closure required: lines 1-46. Not executed."
+  },
+  {
+    "path": "service/packages/plugin/test/lib/format.test.ts",
+    "depth": "unreviewed",
+    "notes": "Assigned capture lane. No source-body inspection in round one; line count only. Round-two closure required: lines 1-70. Not executed."
+  },
+  {
+    "path": "service/packages/plugin/test/mutation.test.ts",
+    "depth": "unreviewed",
+    "notes": "Assigned capture lane. No source-body inspection in round one; line count only. Round-two closure required: lines 1-141. Not executed."
+  },
+  {
+    "path": "service/packages/plugin/test/panel.test.ts",
+    "depth": "unreviewed",
+    "notes": "Assigned capture lane. No source-body inspection in round one; line count only. Round-two closure required: lines 1-242. Not executed."
+  },
+  {
+    "path": "service/packages/plugin/test/protocol/bridge.test.ts",
+    "depth": "unreviewed",
+    "notes": "Assigned capture lane. No source-body inspection in round one; line count only. Round-two closure required: lines 1-137. Not executed."
+  },
+  {
+    "path": "service/packages/plugin/test/protocol/editor-context.test.ts",
+    "depth": "unreviewed",
+    "notes": "Assigned capture lane. No source-body inspection in round one; line count only. Round-two closure required: lines 1-85. Not executed."
+  },
+  {
+    "path": "service/packages/plugin/test/protocol/panel-control.test.ts",
+    "depth": "unreviewed",
+    "notes": "Assigned capture lane. No source-body inspection in round one; line count only. Round-two closure required: lines 1-119. Not executed."
+  },
+  {
+    "path": "service/packages/plugin/test/protocol/progress-cancel.test.ts",
+    "depth": "full",
+    "notes": "Assigned capture lane. Read complete body, lines 1-58. Inspected test assertions; not executed."
+  },
+  {
+    "path": "service/packages/plugin/test/relay/bootstrap.test.ts",
+    "depth": "unreviewed",
+    "notes": "Assigned capture lane. No source-body inspection in round one; line count only. Round-two closure required: lines 1-33. Not executed."
+  },
+  {
+    "path": "service/packages/plugin/test/relay/client.test.ts",
+    "depth": "targeted",
+    "notes": "Assigned capture lane. Read exact operation-bound cancellation/late reply tests; broader body unread. Read lines 1000-1061. Round-two closure required: lines 1-999, 1062-1418. Not executed."
+  },
+  {
+    "path": "service/packages/plugin/test/relay/diagnostics.test.ts",
+    "depth": "unreviewed",
+    "notes": "Assigned capture lane. No source-body inspection in round one; line count only. Round-two closure required: lines 1-121. Not executed."
+  },
+  {
+    "path": "service/packages/plugin/test/relay/node-ids.test.ts",
+    "depth": "unreviewed",
+    "notes": "Assigned capture lane. No source-body inspection in round one; line count only. Round-two closure required: lines 1-79. Not executed."
+  },
+  {
+    "path": "service/packages/plugin/test/relay/payload.test.ts",
+    "depth": "unreviewed",
+    "notes": "Assigned capture lane. No source-body inspection in round one; line count only. Round-two closure required: lines 1-63. Not executed."
+  },
+  {
+    "path": "service/packages/plugin/test/relay/state.test.ts",
+    "depth": "unreviewed",
+    "notes": "Assigned capture lane. No source-body inspection in round one; line count only. Round-two closure required: lines 1-161. Not executed."
+  },
+  {
+    "path": "service/packages/plugin/test/reveal.test.ts",
+    "depth": "unreviewed",
+    "notes": "Assigned capture lane. No source-body inspection in round one; line count only. Round-two closure required: lines 1-219. Not executed."
+  },
+  {
+    "path": "service/packages/plugin/test/sandbox/commands.test.ts",
+    "depth": "unreviewed",
+    "notes": "Assigned capture lane. No source-body inspection in round one; line count only. Round-two closure required: lines 1-95. Not executed."
+  },
+  {
+    "path": "service/packages/plugin/test/sandbox/messaging.test.ts",
+    "depth": "unreviewed",
+    "notes": "Assigned capture lane. No source-body inspection in round one; line count only. Round-two closure required: lines 1-137. Not executed."
+  },
+  {
+    "path": "service/packages/plugin/test/sandbox/startup.test.ts",
+    "depth": "unreviewed",
+    "notes": "Assigned capture lane. No source-body inspection in round one; line count only. Round-two closure required: lines 1-67. Not executed."
+  },
+  {
+    "path": "service/packages/plugin/test/sandbox/tool-bridge.test.ts",
+    "depth": "unreviewed",
+    "notes": "Assigned capture lane. No source-body inspection in round one; line count only. Round-two closure required: lines 1-205. Not executed."
+  },
+  {
+    "path": "service/packages/plugin/test/serializer.test.ts",
+    "depth": "unreviewed",
+    "notes": "Assigned capture lane. No source-body inspection in round one; line count only. Round-two closure required: lines 1-1536. Not executed."
+  },
+  {
+    "path": "service/packages/plugin/test/traverse.test.ts",
+    "depth": "unreviewed",
+    "notes": "Assigned capture lane. No source-body inspection in round one; line count only. Round-two closure required: lines 1-68. Not executed."
+  },
+  {
+    "path": "service/packages/plugin/test/variable-binding-coverage.test.ts",
+    "depth": "unreviewed",
+    "notes": "Assigned capture lane. No source-body inspection in round one; line count only. Round-two closure required: lines 1-78. Not executed."
+  },
+  {
+    "path": "service/packages/plugin/tsconfig.json",
+    "depth": "full",
+    "notes": "Assigned capture lane. Read complete body, lines 1-23. Static production/configuration/protocol/UI review; no execution."
+  },
+  {
+    "path": "service/packages/plugin/ui/App.vue",
+    "depth": "full",
+    "notes": "Assigned capture lane. Read complete body, lines 1-168. Static production/configuration/protocol/UI review; no execution."
+  },
+  {
+    "path": "service/packages/plugin/ui/components/DocumentBinding.vue",
+    "depth": "full",
+    "notes": "Assigned capture lane. Read complete body, lines 1-39. Static production/configuration/protocol/UI review; no execution."
+  },
+  {
+    "path": "service/packages/plugin/ui/components/PanelBackgroundButton.vue",
+    "depth": "full",
+    "notes": "Assigned capture lane. Read complete body, lines 1-39. Static production/configuration/protocol/UI review; no execution."
+  },
+  {
+    "path": "service/packages/plugin/ui/components/PanelFooter.vue",
+    "depth": "full",
+    "notes": "Assigned capture lane. Read complete body, lines 1-21. Static production/configuration/protocol/UI review; no execution."
+  },
+  {
+    "path": "service/packages/plugin/ui/components/PanelGrip.vue",
+    "depth": "full",
+    "notes": "Assigned capture lane. Read complete body, lines 1-53. Static production/configuration/protocol/UI review; no execution."
+  },
+  {
+    "path": "service/packages/plugin/ui/components/PanelStatus.vue",
+    "depth": "full",
+    "notes": "Assigned capture lane. Read complete body, lines 1-59. Static production/configuration/protocol/UI review; no execution."
+  },
+  {
+    "path": "service/packages/plugin/ui/components/PanelTabs.vue",
+    "depth": "full",
+    "notes": "Assigned capture lane. Read complete body, lines 1-36. Static production/configuration/protocol/UI review; no execution."
+  },
+  {
+    "path": "service/packages/plugin/ui/components/TabActivity.vue",
+    "depth": "full",
+    "notes": "Assigned capture lane. Read complete body, lines 1-35. Static production/configuration/protocol/UI review; no execution."
+  },
+  {
+    "path": "service/packages/plugin/ui/components/TabActivityRow.vue",
+    "depth": "full",
+    "notes": "Assigned capture lane. Read complete body, lines 1-186. Static production/configuration/protocol/UI review; no execution."
+  },
+  {
+    "path": "service/packages/plugin/ui/components/TabApprovals.vue",
+    "depth": "full",
+    "notes": "Assigned capture lane. Read complete body, lines 1-56. Static production/configuration/protocol/UI review; no execution."
+  },
+  {
+    "path": "service/packages/plugin/ui/components/TabContext.vue",
+    "depth": "full",
+    "notes": "Assigned capture lane. Read complete body, lines 1-76. Static production/configuration/protocol/UI review; no execution."
+  },
+  {
+    "path": "service/packages/plugin/ui/components/TabDebug.vue",
+    "depth": "full",
+    "notes": "Assigned capture lane. Read complete body, lines 1-99. Static production/configuration/protocol/UI review; no execution."
+  },
+  {
+    "path": "service/packages/plugin/ui/components/TabPairing.vue",
+    "depth": "full",
+    "notes": "Assigned capture lane. Read complete body, lines 1-205. Static production/configuration/protocol/UI review; no execution."
+  },
+  {
+    "path": "service/packages/plugin/ui/components/UiCopyButton.vue",
+    "depth": "full",
+    "notes": "Assigned capture lane. Read complete body, lines 1-41. Static production/configuration/protocol/UI review; no execution."
+  },
+  {
+    "path": "service/packages/plugin/ui/components/UiMetaRow.vue",
+    "depth": "full",
+    "notes": "Assigned capture lane. Read complete body, lines 1-39. Static production/configuration/protocol/UI review; no execution."
+  },
+  {
+    "path": "service/packages/plugin/ui/components/UiPayloadBlock.vue",
+    "depth": "full",
+    "notes": "Assigned capture lane. Read complete body, lines 1-38. Static production/configuration/protocol/UI review; no execution."
+  },
+  {
+    "path": "service/packages/plugin/ui/components/UiSection.vue",
+    "depth": "full",
+    "notes": "Assigned capture lane. Read complete body, lines 1-23. Static production/configuration/protocol/UI review; no execution."
+  },
+  {
+    "path": "service/packages/plugin/ui/components/UiSectionHeading.vue",
+    "depth": "full",
+    "notes": "Assigned capture lane. Read complete body, lines 1-10. Static production/configuration/protocol/UI review; no execution."
+  },
+  {
+    "path": "service/packages/plugin/ui/composables/useApprovals.ts",
+    "depth": "full",
+    "notes": "Assigned capture lane. Read complete body, lines 1-79. Static production/configuration/protocol/UI review; no execution."
+  },
+  {
+    "path": "service/packages/plugin/ui/composables/useCopyToClipboard.ts",
+    "depth": "full",
+    "notes": "Assigned capture lane. Read complete body, lines 1-9. Static production/configuration/protocol/UI review; no execution."
+  },
+  {
+    "path": "service/packages/plugin/ui/composables/useDocumentBinding.ts",
+    "depth": "full",
+    "notes": "Assigned capture lane. Read complete body, lines 1-93. Static production/configuration/protocol/UI review; no execution."
+  },
+  {
+    "path": "service/packages/plugin/ui/composables/usePairing.ts",
+    "depth": "full",
+    "notes": "Assigned capture lane. Read complete body, lines 1-396. Static production/configuration/protocol/UI review; no execution."
+  },
+  {
+    "path": "service/packages/plugin/ui/composables/usePanelWindow.ts",
+    "depth": "full",
+    "notes": "Assigned capture lane. Read complete body, lines 1-41. Static production/configuration/protocol/UI review; no execution."
+  },
+  {
+    "path": "service/packages/plugin/ui/composables/useRelaySession.ts",
+    "depth": "full",
+    "notes": "Assigned capture lane. Read complete body, lines 1-295. Static production/configuration/protocol/UI review; no execution."
+  },
+  {
+    "path": "service/packages/plugin/ui/composables/useSharedNow.ts",
+    "depth": "full",
+    "notes": "Assigned capture lane. Read complete body, lines 1-10. Static production/configuration/protocol/UI review; no execution."
+  },
+  {
+    "path": "service/packages/plugin/ui/env.d.ts",
+    "depth": "full",
+    "notes": "Assigned capture lane. Read complete body, lines 1-5. Static production/configuration/protocol/UI review; no execution."
+  },
+  {
+    "path": "service/packages/plugin/ui/index.html",
+    "depth": "full",
+    "notes": "Assigned capture lane. Read complete body, lines 1-12. Static production/configuration/protocol/UI review; no execution."
+  },
+  {
+    "path": "service/packages/plugin/ui/lib/format.ts",
+    "depth": "full",
+    "notes": "Assigned capture lane. Read complete body, lines 1-32. Static production/configuration/protocol/UI review; no execution."
+  },
+  {
+    "path": "service/packages/plugin/ui/lib/tabs.ts",
+    "depth": "full",
+    "notes": "Assigned capture lane. Read complete body, lines 1-10. Static production/configuration/protocol/UI review; no execution."
+  },
+  {
+    "path": "service/packages/plugin/ui/main.ts",
+    "depth": "full",
+    "notes": "Assigned capture lane. Read complete body, lines 1-29. Static production/configuration/protocol/UI review; no execution."
+  },
+  {
+    "path": "service/packages/plugin/ui/relay/bootstrap.ts",
+    "depth": "full",
+    "notes": "Assigned capture lane. Read complete body, lines 1-24. Static production/configuration/protocol/UI review; no execution."
+  },
+  {
+    "path": "service/packages/plugin/ui/relay/client.ts",
+    "depth": "full",
+    "notes": "Assigned capture lane. Read complete body, lines 1-1305. Static production/configuration/protocol/UI review; no execution."
+  },
+  {
+    "path": "service/packages/plugin/ui/relay/diagnostics.ts",
+    "depth": "full",
+    "notes": "Assigned capture lane. Read complete body, lines 1-85. Static production/configuration/protocol/UI review; no execution."
+  },
+  {
+    "path": "service/packages/plugin/ui/relay/node-ids.ts",
+    "depth": "full",
+    "notes": "Assigned capture lane. Read complete body, lines 1-52. Static production/configuration/protocol/UI review; no execution."
+  },
+  {
+    "path": "service/packages/plugin/ui/relay/payload.ts",
+    "depth": "full",
+    "notes": "Assigned capture lane. Read complete body, lines 1-80. Static production/configuration/protocol/UI review; no execution."
+  },
+  {
+    "path": "service/packages/plugin/ui/relay/state.ts",
+    "depth": "full",
+    "notes": "Assigned capture lane. Read complete body, lines 1-162. Static production/configuration/protocol/UI review; no execution."
+  },
+  {
+    "path": "service/packages/plugin/ui/sandbox/commands.ts",
+    "depth": "full",
+    "notes": "Assigned capture lane. Read complete body, lines 1-46. Static production/configuration/protocol/UI review; no execution."
+  },
+  {
+    "path": "service/packages/plugin/ui/sandbox/messaging.ts",
+    "depth": "full",
+    "notes": "Assigned capture lane. Read complete body, lines 1-74. Static production/configuration/protocol/UI review; no execution."
+  },
+  {
+    "path": "service/packages/plugin/ui/sandbox/tool-bridge.ts",
+    "depth": "full",
+    "notes": "Assigned capture lane. Read complete body, lines 1-162. Static production/configuration/protocol/UI review; no execution."
+  },
+  {
+    "path": "service/packages/plugin/ui/style.css",
+    "depth": "full",
+    "notes": "Assigned capture lane. Read complete body, lines 1-163. Static production/configuration/protocol/UI review; no execution."
+  },
+  {
+    "path": "service/packages/plugin/vite.config.main.ts",
+    "depth": "full",
+    "notes": "Assigned capture lane. Read complete body, lines 1-20. Static production/configuration/protocol/UI review; no execution."
+  },
+  {
+    "path": "service/packages/plugin/vite.config.ts",
+    "depth": "full",
+    "notes": "Assigned capture lane. Read complete body, lines 1-22. Static production/configuration/protocol/UI review; no execution."
+  },
+  {
+    "path": "service/packages/plugin/vitest.config.ts",
+    "depth": "full",
+    "notes": "Assigned capture lane. Read complete body, lines 1-12. Static production/configuration/protocol/UI review; no execution."
+  },
+  {
+    "path": "AGENTS.md",
+    "depth": "full",
+    "notes": "Repository instructions read completely; English Markdown, static review, no Docker/Superpowers respected."
+  },
+  {
+    "path": "docs/reviews/2026-09-30-full-review/review-brief.md",
+    "depth": "full",
+    "notes": "Complete authority, baseline, coverage and finding-format instructions read."
+  },
+  {
+    "path": "docs/reviews/2026-09-30-full-review/source-manifest.json",
+    "depth": "metadata",
+    "notes": "Capture assignment inventory parsed completely: 399 paths, baseline/branch and bound metadata. Full manifest initially exceeded output; no source-body coverage inferred from hashes."
+  },
+  {
+    "path": "docs/plans/2026-09-07-portal-four-cases-plan.md",
+    "depth": "targeted",
+    "notes": "Active case scope and supersession provisions inspected. Whole document not reviewed; no full interval asserted after initial truncated combined output."
+  },
+  {
+    "path": "docs/plans/2026-09-27-code-remediation-plan.md",
+    "depth": "targeted",
+    "notes": "Prior finding table lines 170-226 read, plus targeted SVC-2/SVC-5/SVC-10/K19/FID/SEC references. Historical comparison only; remainder not fully reviewed."
+  },
+  {
+    "path": "docs/plans/2026-09-27-prioritized-fix-plan.md",
+    "depth": "targeted",
+    "notes": "Targeted T18/T24 and integrated-task relation lookups; no full-document review."
+  },
+  {
+    "path": "service/packages/shared/src/figma-capture-assets.ts",
+    "depth": "full",
+    "notes": "Complete closed capture/export/chunk program read; exact original-image 16 MiB, chunk and PNG/SVG limits traced."
+  },
+  {
+    "path": "service/packages/shared/src/figma-capture-read.ts",
+    "depth": "targeted",
+    "notes": "Read lines 1-325, covering closed node fields, property limits, text segment collection and beginning traversal. Remaining lines 326-end not fully read. Generic serializer counterevidence traced at 114-126 and 264-280."
+  },
+  {
+    "path": "service/packages/shared/src/portal.ts",
+    "depth": "targeted",
+    "notes": "Source-choice, freshness, portal plan and asset-request schema lookups around lines 85,360,744; grep-only elsewhere. Whole schema file not reviewed."
+  },
+  {
+    "path": "service/packages/shared/src/queries.ts",
+    "depth": "targeted",
+    "notes": "Read lines 258-290 completely: catchall JSON trigger/action/reaction schemas; remainder unreviewed by this lane."
+  },
+  {
+    "path": "service/packages/mcp/src/portal/coordinator.ts",
+    "depth": "targeted",
+    "notes": "Read capture selection lines 180-220 and original asset-copy submission lines 1376-1424; additional targeted scope/gate lookups. Whole coordinator body belongs to portal lane and is not full here."
+  },
+  {
+    "path": "service/packages/mcp/src/tools/set-reactions.ts",
+    "depth": "full",
+    "notes": "Complete public loose schema and round-trip description read; conversion asymmetry traced."
+  }
+]

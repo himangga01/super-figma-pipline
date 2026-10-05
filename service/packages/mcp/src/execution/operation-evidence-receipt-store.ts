@@ -66,7 +66,24 @@ const cleanupHash = (value: unknown): PrefixedSha256 =>
     .digest('hex')}`;
 const exactKeys = (value: object, expected: readonly string[]): boolean =>
   JSON.stringify(Object.keys(value).toSorted()) === JSON.stringify([...expected].toSorted());
+const codeUnitOrder = (left: string, right: string): number =>
+  left < right ? -1 : left > right ? 1 : 0;
 
+/** Failed attempts after which a cleanup intent is quarantined instead of retried again. */
+export const CLEANUP_INTENT_MAX_ATTEMPTS = 3;
+const CLEANUP_ATTEMPTS_HARD_LIMIT = 1_000;
+const CLEANUP_ERROR_CODE = /^[A-Z][A-Z0-9_]{0,95}$/u;
+/** Only a well-formed error code is persisted or reported; messages can name private paths. */
+const cleanupErrorCode = (error: unknown): string => {
+  const code = (error as { code?: unknown } | null | undefined)?.code;
+  return typeof code === 'string' && CLEANUP_ERROR_CODE.test(code) ? code : 'CLEANUP_FAILED';
+};
+
+/**
+ * V1 rows open (`add`) and complete (`done`) an intent. v2 rows, added by T09, record one failed
+ * attempt (`failed`) or end an intent that failed CLEANUP_INTENT_MAX_ATTEMPTS times (`quarantine`).
+ * Builds before T09 reject a v2 row as corrupt, so a downgrade fails closed.
+ */
 interface CleanupIntentRowV1 {
   schemaVersion: 1;
   kind: 'add' | 'done';
@@ -74,6 +91,47 @@ interface CleanupIntentRowV1 {
   receipt: OperationEvidenceReceiptV1 | null;
   previousRecordHash: PrefixedSha256 | null;
   recordHash: PrefixedSha256;
+}
+interface CleanupIntentRowV2 {
+  schemaVersion: 2;
+  kind: 'failed' | 'quarantine';
+  operationId: string;
+  receipt: null;
+  attempts: number;
+  errorCode: string;
+  previousRecordHash: PrefixedSha256 | null;
+  recordHash: PrefixedSha256;
+}
+type CleanupIntentRow = CleanupIntentRowV1 | CleanupIntentRowV2;
+type CleanupIntentRowInput =
+  | { kind: 'add'; operationId: string; receipt: Readonly<OperationEvidenceReceiptV1> }
+  | { kind: 'done'; operationId: string; receipt: null }
+  | Pick<CleanupIntentRowV2, 'kind' | 'operationId' | 'attempts' | 'errorCode'>;
+const CLEANUP_ROW_V1_KEYS = [
+  'schemaVersion',
+  'kind',
+  'operationId',
+  'receipt',
+  'previousRecordHash',
+  'recordHash',
+] as const;
+const CLEANUP_ROW_V2_KEYS = [...CLEANUP_ROW_V1_KEYS, 'attempts', 'errorCode'] as const;
+
+/** A drain callback's decision; returning nothing means the cleanup finished. */
+export type CleanupIntentDecision = Readonly<
+  { outcome: 'done' } | { outcome: 'deferred'; reasonCode: string }
+>;
+export type CleanupDrainResult = Readonly<
+  { operationId: string; workspaceId: string | null } & (
+    | { outcome: 'done' }
+    | { outcome: 'deferred'; reasonCode: string }
+    | { outcome: 'failed' | 'quarantined'; errorCode: string; attempts: number }
+  )
+>;
+export interface CleanupDrainReport {
+  readonly results: readonly CleanupDrainResult[];
+  /** The last visited operation ID when more intents follow it; null once every one was visited. */
+  readonly next: string | null;
 }
 
 interface EvidenceLimits {
@@ -166,6 +224,8 @@ export class OperationEvidenceReceiptStore implements OperationEvidenceReceiptSt
   private activeBytes = 0;
   private recovered = false;
   private readonly pendingArtifactCleanup = new Map<string, OperationEvidenceReceiptV1>();
+  /** Failed attempts of each pending intent, from its durable `failed` rows. */
+  private readonly cleanupFailures = new Map<string, number>();
   private previousCleanupHash: PrefixedSha256 | null = null;
   private cleanupBytes = 0;
   private reservationLogBytes = 0;
@@ -453,23 +513,36 @@ export class OperationEvidenceReceiptStore implements OperationEvidenceReceiptSt
       projectedCleanupBytes += Buffer.byteLength(`${canonicalJson(row)}\n`, 'utf8');
       projectedCleanupHash = row.recordHash;
     }
+    // Each new intent must fit its longest path to a terminal row: the failed rows and the
+    // quarantine row with the longest error code. That row is longer than a `done` row.
+    const longestErrorCode = 'X'.repeat(96);
     for (const receipt of expired) {
-      const withoutHash = {
-        schemaVersion: 1 as const,
-        kind: 'done' as const,
-        operationId: receipt.operationId,
-        receipt: null,
-        previousRecordHash: projectedCleanupHash,
-      };
-      const row = { ...withoutHash, recordHash: cleanupHash(withoutHash) };
-      projectedCleanupBytes += Buffer.byteLength(`${canonicalJson(row)}\n`, 'utf8');
-      projectedCleanupHash = row.recordHash;
+      for (let attempts = 1; attempts <= CLEANUP_INTENT_MAX_ATTEMPTS; attempts += 1) {
+        const withoutHash = {
+          schemaVersion: 2 as const,
+          kind:
+            attempts < CLEANUP_INTENT_MAX_ATTEMPTS ? ('failed' as const) : ('quarantine' as const),
+          operationId: receipt.operationId,
+          receipt: null,
+          attempts,
+          errorCode: longestErrorCode,
+          previousRecordHash: projectedCleanupHash,
+        };
+        const row = { ...withoutHash, recordHash: cleanupHash(withoutHash) };
+        projectedCleanupBytes += Buffer.byteLength(`${canonicalJson(row)}\n`, 'utf8');
+        projectedCleanupHash = row.recordHash;
+      }
     }
     if (projectedCleanupBytes > this.limits.maxBytesPerActor) {
       throw receiptError('EVIDENCE_CAPACITY_EXCEEDED', 'cleanup intent capacity is full');
     }
     /* eslint-disable no-await-in-loop -- intents must fsync before receipt removal publication */
-    for (const receipt of expired) await this.appendCleanupIntentUnlocked('add', receipt);
+    for (const receipt of expired)
+      await this.appendCleanupRowUnlocked({
+        kind: 'add',
+        operationId: receipt.operationId,
+        receipt,
+      });
     /* eslint-enable no-await-in-loop */
     let previousReceiptHash: PrefixedSha256 | null = null;
     const rechained = retained.map(receipt => {
@@ -528,20 +601,66 @@ export class OperationEvidenceReceiptStore implements OperationEvidenceReceiptSt
     return expired;
   }
 
+  /**
+   * Drains pending cleanup intents in operation-ID code-unit order: at most `limit` of them, after
+   * the `after` cursor. Each intent is isolated (LC-1). A callback failure is recorded as a durable
+   * `failed` row and the drain goes on; the CLEANUP_INTENT_MAX_ATTEMPTS-th failure writes a
+   * terminal `quarantine` row instead. A deferred intent stays pending and writes no row. Only a
+   * failure of the store itself rejects the drain.
+   */
   async drainPendingArtifactCleanup(
-    removeArtifacts: (receipt: Readonly<OperationEvidenceReceiptV1>) => Promise<void>,
-  ): Promise<void> {
-    const pending = await this.exclusive(async () =>
-      [...this.pendingArtifactCleanup.values()]
-        .filter(receipt => !this.receipts.has(receipt.operationId))
-        .toSorted((left, right) => left.operationId.localeCompare(right.operationId)),
-    );
-    /* eslint-disable no-await-in-loop -- each durable done row follows successful artifact cleanup */
-    for (const receipt of pending) {
-      await removeArtifacts(receipt);
+    cleanup: (
+      receipt: Readonly<OperationEvidenceReceiptV1>,
+    ) => Promise<CleanupIntentDecision | void>,
+    options: Readonly<{ after?: string | null; limit?: number }> = {},
+  ): Promise<CleanupDrainReport> {
+    const limit = options.limit ?? Number.MAX_SAFE_INTEGER;
+    if (!Number.isSafeInteger(limit) || limit < 1) {
+      throw receiptError('EVIDENCE_CLEANUP_BATCH_INVALID', 'cleanup drain batch size is invalid');
+    }
+    const after = options.after ?? null;
+    const { batch, more } = await this.exclusive(async () => {
+      const candidates = [...this.pendingArtifactCleanup.values()]
+        .filter(
+          receipt =>
+            !this.receipts.has(receipt.operationId) &&
+            (after === null || codeUnitOrder(receipt.operationId, after) > 0),
+        )
+        .toSorted((left, right) => codeUnitOrder(left.operationId, right.operationId));
+      return { batch: candidates.slice(0, limit), more: candidates.length > limit };
+    });
+    const results: CleanupDrainResult[] = [];
+    /* eslint-disable no-await-in-loop -- each durable row follows that intent's own cleanup */
+    for (const receipt of batch) {
+      const identity = { operationId: receipt.operationId, workspaceId: receipt.workspaceId };
+      let decision: CleanupIntentDecision | undefined;
+      try {
+        decision = (await cleanup(receipt)) as CleanupIntentDecision | undefined;
+      } catch (error) {
+        results.push({
+          ...identity,
+          ...(await this.recordCleanupFailure(receipt.operationId, cleanupErrorCode(error))),
+        });
+        continue;
+      }
+      if (decision?.outcome === 'deferred') {
+        results.push({
+          ...identity,
+          outcome: 'deferred',
+          reasonCode: CLEANUP_ERROR_CODE.test(decision.reasonCode)
+            ? decision.reasonCode
+            : 'CLEANUP_DEFERRED',
+        });
+        continue;
+      }
       await this.completeCleanupIntent(receipt.operationId);
+      results.push({ ...identity, outcome: 'done' });
     }
     /* eslint-enable no-await-in-loop */
+    return Object.freeze({
+      results: Object.freeze(results),
+      next: more ? (batch.at(-1)?.operationId ?? null) : null,
+    });
   }
 
   async releaseWithoutReceipt(reservationId: string): Promise<void> {
@@ -805,6 +924,7 @@ export class OperationEvidenceReceiptStore implements OperationEvidenceReceiptSt
       throw receiptError('EVIDENCE_RECEIPT_CORRUPT', 'cleanup intent log is truncated');
     }
     this.pendingArtifactCleanup.clear();
+    this.cleanupFailures.clear();
     this.previousCleanupHash = null;
     for (const line of bytes.toString('utf8').split('\n').filter(Boolean)) {
       let untrusted: unknown;
@@ -816,19 +936,24 @@ export class OperationEvidenceReceiptStore implements OperationEvidenceReceiptSt
       if (typeof untrusted !== 'object' || untrusted === null || Array.isArray(untrusted)) {
         throw receiptError('EVIDENCE_RECEIPT_CORRUPT', 'cleanup intent row is invalid');
       }
-      const row = untrusted as CleanupIntentRowV1;
+      const row = untrusted as CleanupIntentRow;
       const { recordHash, ...withoutHash } = row;
+      const versioned =
+        (row.schemaVersion === 1 &&
+          exactKeys(row, CLEANUP_ROW_V1_KEYS) &&
+          (row.kind === 'add' || row.kind === 'done')) ||
+        (row.schemaVersion === 2 &&
+          exactKeys(row, CLEANUP_ROW_V2_KEYS) &&
+          (row.kind === 'failed' || row.kind === 'quarantine') &&
+          row.receipt === null &&
+          Number.isSafeInteger(row.attempts) &&
+          row.attempts >= 1 &&
+          row.attempts <= CLEANUP_ATTEMPTS_HARD_LIMIT &&
+          typeof row.errorCode === 'string' &&
+          CLEANUP_ERROR_CODE.test(row.errorCode));
       if (
-        !exactKeys(row, [
-          'schemaVersion',
-          'kind',
-          'operationId',
-          'receipt',
-          'previousRecordHash',
-          'recordHash',
-        ]) ||
-        row.schemaVersion !== 1 ||
-        !['add', 'done'].includes(row.kind) ||
+        !versioned ||
+        typeof row.operationId !== 'string' ||
         row.operationId.length < 1 ||
         row.operationId.length > 384 ||
         row.previousRecordHash !== this.previousCleanupHash ||
@@ -836,7 +961,20 @@ export class OperationEvidenceReceiptStore implements OperationEvidenceReceiptSt
       ) {
         throw receiptError('EVIDENCE_RECEIPT_CORRUPT', 'cleanup intent chain is invalid');
       }
-      if (row.kind === 'add') {
+      if (row.schemaVersion === 2) {
+        // A failure or quarantine continues the failure count of a pending intent, one at a time.
+        if (
+          !this.pendingArtifactCleanup.has(row.operationId) ||
+          row.attempts !== (this.cleanupFailures.get(row.operationId) ?? 0) + 1
+        ) {
+          throw receiptError('EVIDENCE_RECEIPT_CORRUPT', 'cleanup failure is invalid');
+        }
+        if (row.kind === 'failed') this.cleanupFailures.set(row.operationId, row.attempts);
+        else {
+          this.pendingArtifactCleanup.delete(row.operationId);
+          this.cleanupFailures.delete(row.operationId);
+        }
+      } else if (row.kind === 'add') {
         const parsed = OperationEvidenceReceiptV1Schema.safeParse(row.receipt);
         if (!parsed.success || parsed.data.operationId !== row.operationId) {
           throw receiptError('EVIDENCE_RECEIPT_CORRUPT', 'cleanup intent receipt is invalid');
@@ -853,29 +991,38 @@ export class OperationEvidenceReceiptStore implements OperationEvidenceReceiptSt
         if (row.receipt !== null || !this.pendingArtifactCleanup.delete(row.operationId)) {
           throw receiptError('EVIDENCE_RECEIPT_CORRUPT', 'cleanup completion is invalid');
         }
+        this.cleanupFailures.delete(row.operationId);
       }
       this.previousCleanupHash = recordHash;
     }
     this.cleanupBytes = bytes.byteLength;
   }
 
-  private async appendCleanupIntentUnlocked(
-    kind: 'add' | 'done',
-    receipt: Readonly<OperationEvidenceReceiptV1>,
-  ): Promise<void> {
+  private async appendCleanupRowUnlocked(input: CleanupIntentRowInput): Promise<void> {
     if (
-      kind === 'add' &&
-      this.pendingArtifactCleanup.get(receipt.operationId)?.contentHash === receipt.contentHash
+      input.kind === 'add' &&
+      this.pendingArtifactCleanup.get(input.operationId)?.contentHash === input.receipt.contentHash
     ) {
       return;
     }
-    const withoutHash = {
-      schemaVersion: 1 as const,
-      kind,
-      operationId: receipt.operationId,
-      receipt: kind === 'add' ? receipt : null,
-      previousRecordHash: this.previousCleanupHash,
-    };
+    const withoutHash =
+      input.kind === 'add' || input.kind === 'done'
+        ? {
+            schemaVersion: 1 as const,
+            kind: input.kind,
+            operationId: input.operationId,
+            receipt: input.kind === 'add' ? input.receipt : null,
+            previousRecordHash: this.previousCleanupHash,
+          }
+        : {
+            schemaVersion: 2 as const,
+            kind: input.kind,
+            operationId: input.operationId,
+            receipt: null,
+            attempts: input.attempts,
+            errorCode: input.errorCode,
+            previousRecordHash: this.previousCleanupHash,
+          };
     const row = { ...withoutHash, recordHash: cleanupHash(withoutHash) };
     const serialized = `${canonicalJson(row)}\n`;
     const rowBytes = Buffer.byteLength(serialized, 'utf8');
@@ -891,31 +1038,73 @@ export class OperationEvidenceReceiptStore implements OperationEvidenceReceiptSt
     }
     this.previousCleanupHash = row.recordHash;
     this.cleanupBytes += rowBytes;
-    if (kind === 'add') this.pendingArtifactCleanup.set(receipt.operationId, receipt);
-    else this.pendingArtifactCleanup.delete(receipt.operationId);
+    if (input.kind === 'add') {
+      this.pendingArtifactCleanup.set(input.operationId, input.receipt);
+    } else if (input.kind === 'failed') {
+      this.cleanupFailures.set(input.operationId, input.attempts);
+    } else {
+      this.pendingArtifactCleanup.delete(input.operationId);
+      this.cleanupFailures.delete(input.operationId);
+    }
+  }
+
+  /**
+   * Truncates the cleanup log once no intent is pending. `done` and `quarantine` rows are both
+   * terminal, so a quarantined intent never holds truncation back; its rows are dropped with the
+   * rest of the log. Its evidence stays on disk for the orphan scans and the owner.
+   */
+  private async truncateSettledCleanupLogUnlocked(): Promise<void> {
+    if (this.pendingArtifactCleanup.size !== 0) return;
+    const handle = await open(this.cleanupIntentPath, 'w', 0o600);
+    try {
+      await handle.sync();
+    } finally {
+      await handle.close();
+    }
+    this.cleanupFailures.clear();
+    this.previousCleanupHash = null;
+    this.cleanupBytes = 0;
   }
 
   private async completeCleanupIntent(operationId: string): Promise<void> {
     return this.exclusive(async () => {
-      const receipt = this.pendingArtifactCleanup.get(operationId);
-      if (receipt === undefined) return;
+      if (!this.pendingArtifactCleanup.has(operationId)) return;
       if (this.receipts.has(operationId)) {
         throw receiptError(
           'EVIDENCE_RECEIPT_CORRUPT',
           'selected receipt still links pending artifact cleanup',
         );
       }
-      await this.appendCleanupIntentUnlocked('done', receipt);
-      if (this.pendingArtifactCleanup.size === 0) {
-        const handle = await open(this.cleanupIntentPath, 'w', 0o600);
-        try {
-          await handle.sync();
-        } finally {
-          await handle.close();
-        }
-        this.previousCleanupHash = null;
-        this.cleanupBytes = 0;
+      await this.appendCleanupRowUnlocked({ kind: 'done', operationId, receipt: null });
+      await this.truncateSettledCleanupLogUnlocked();
+    });
+  }
+
+  /** Records one failed attempt, or the terminal quarantine at the last allowed attempt. */
+  private async recordCleanupFailure(
+    operationId: string,
+    errorCode: string,
+  ): Promise<{ outcome: 'failed' | 'quarantined'; errorCode: string; attempts: number }> {
+    return this.exclusive(async () => {
+      const previous = this.cleanupFailures.get(operationId) ?? 0;
+      // Another store instance ended the intent meanwhile: its failure no longer counts.
+      if (!this.pendingArtifactCleanup.has(operationId)) {
+        return { outcome: 'failed', errorCode, attempts: previous };
       }
+      if (this.receipts.has(operationId)) {
+        throw receiptError(
+          'EVIDENCE_RECEIPT_CORRUPT',
+          'selected receipt still links pending artifact cleanup',
+        );
+      }
+      const attempts = previous + 1;
+      if (attempts < CLEANUP_INTENT_MAX_ATTEMPTS) {
+        await this.appendCleanupRowUnlocked({ kind: 'failed', operationId, attempts, errorCode });
+        return { outcome: 'failed', errorCode, attempts };
+      }
+      await this.appendCleanupRowUnlocked({ kind: 'quarantine', operationId, attempts, errorCode });
+      await this.truncateSettledCleanupLogUnlocked();
+      return { outcome: 'quarantined', errorCode, attempts };
     });
   }
 

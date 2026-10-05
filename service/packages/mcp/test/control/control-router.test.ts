@@ -1,5 +1,5 @@
 import { hashActionRequest, type ActorContext } from '@sfp/shared';
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { z } from 'zod';
 
 import { createActionNonceStore } from '../../src/control/action-nonce-store.js';
@@ -10,6 +10,7 @@ import {
   createControlHttpHandler,
   createLazyControlHttpHandler,
 } from '../../src/control/router.js';
+import { GenerationRuntimeLifecycleRegistry } from '../../src/execution/execution-plane.js';
 
 const principal = Object.freeze({
   actorId: `actor1_${'A'.repeat(43)}`,
@@ -18,6 +19,42 @@ const principal = Object.freeze({
 }) satisfies Readonly<ActorContext>;
 
 describe('authenticated control router', () => {
+  it.each([
+    ['/control/portal/profiles/prepare', 150_000],
+    ['/control/portal/profiles', 150_000],
+    ['/control/ordinary-admin', 30_000],
+  ])(
+    'bounds the HTTP deadline for %s without changing ordinary admin routes',
+    async (path, expected) => {
+      const router = new AuthenticatedControlRouter();
+      let observedSignal: Readonly<{ aborted: boolean }> | undefined;
+      router.register({
+        id: 'deadline.fixture',
+        method: 'POST',
+        path,
+        routeClass: 'admin',
+        inputSchema: z.object({}).strict(),
+        outputSchema: z.literal('ready'),
+        handle: async (_actor, _input, signal) => {
+          observedSignal = signal;
+          return 'ready' as const;
+        },
+      });
+      router.freeze();
+      const timeout = vi.spyOn(AbortSignal, 'timeout');
+      try {
+        const result = await callHttpHandler(
+          createControlHttpHandler({ router, principalForRequest: async () => principal }),
+          { method: 'POST', url: path, body: '{}' },
+        );
+        expect(result).toEqual({ status: 200, body: '"ready"' });
+        expect(timeout).toHaveBeenCalledWith(expected);
+        expect(observedSignal?.aborted).toBe(false);
+      } finally {
+        timeout.mockRestore();
+      }
+    },
+  );
   it('returns a retryable absence while an accepted operation has not reached the journal', async () => {
     const router = new AuthenticatedControlRouter();
     router.register({
@@ -37,6 +74,52 @@ describe('authenticated control router', () => {
       { method: 'GET', url: '/control/operations/accepted-operation' },
     );
     expect(observed).toEqual({ status: 404, body: '{"code":"OPERATION_NOT_FOUND"}' });
+  });
+  it('logs one bounded diagnostic for a server failure whose public code the CLI cannot read', async () => {
+    const router = new AuthenticatedControlRouter();
+    router.register({
+      id: 'operation.status',
+      method: 'GET',
+      path: '/control/operations/:operationId',
+      routeClass: 'admin',
+      inputSchema: z.object({ operationId: z.string() }).strict(),
+      outputSchema: z.literal('ready'),
+      handle: async (_principal, input) => {
+        if (input.operationId === 'absent') {
+          throw Object.assign(new Error('operation was not found'), {
+            code: 'OPERATION_NOT_FOUND',
+          });
+        }
+        throw new DOMException('private timeout detail', 'TimeoutError');
+      },
+    });
+    router.freeze();
+    const lines: string[] = [];
+    const handler = createControlHttpHandler({
+      router,
+      principalForRequest: async () => principal,
+      log: line => lines.push(line),
+    });
+
+    expect(
+      await callHttpHandler(handler, { method: 'GET', url: '/control/operations/absent' }),
+    ).toEqual({
+      status: 404,
+      body: '{"code":"OPERATION_NOT_FOUND"}',
+    });
+    expect(lines).toEqual([]);
+    expect(
+      await callHttpHandler(handler, {
+        method: 'GET',
+        url: '/control/operations/sfp_op1_privateId',
+      }),
+    ).toEqual({ status: 500, body: '{"code":"23"}' });
+    expect(lines).toEqual([
+      expect.stringMatching(
+        /^\[control\] request failed \(GET \/control\/operations\/:param; 500 code=23; TimeoutError\/#23; \d+ ms\)$/u,
+      ),
+    ]);
+    for (const hidden of ['private', 'sfp_op1']) expect(lines[0]).not.toContain(hidden);
   });
   it('rejects ambiguous dynamic siblings regardless of parameter names', () => {
     const router = new AuthenticatedControlRouter();
@@ -176,6 +259,85 @@ describe('authenticated control router', () => {
     expect(initializations).toBe(0);
     await Promise.all([lazy({} as never, {} as never), lazy({} as never, {} as never)]);
     expect(initializations).toBe(1);
+  });
+
+  it('retries a repaired initialization after concurrent callers share the rejected attempt', async () => {
+    let attempts = 0;
+    let release!: () => void;
+    const blocked = new Promise<void>(resolve => {
+      release = resolve;
+    });
+    let repaired = false;
+    const failure = Object.assign(new Error('state integrity failed'), { code: 'STATE_CORRUPT' });
+    const lazy = createLazyControlHttpHandler(async () => {
+      attempts++;
+      await blocked;
+      if (!repaired) throw failure;
+      return async () => true;
+    });
+    const first = lazy({} as never, {} as never).catch(error => error);
+    const concurrent = lazy({} as never, {} as never).catch(error => error);
+    expect(attempts).toBe(1);
+    release();
+    expect(await Promise.all([first, concurrent])).toEqual([failure, failure]);
+    repaired = true;
+    await expect(lazy({} as never, {} as never)).resolves.toBe(true);
+    await expect(lazy({} as never, {} as never)).resolves.toBe(true);
+    expect(attempts).toBe(2);
+  });
+
+  it('adopts a runtime initialized through MCP after the control attempt rejected', async () => {
+    const runtimes = new GenerationRuntimeLifecycleRegistry<{
+      controlHandler: () => Promise<boolean>;
+      close(): Promise<void>;
+    }>();
+    const runtime = { controlHandler: async () => true, close: async () => {} };
+    let repaired = false;
+    let attempts = 0;
+    const initialize = () =>
+      runtimes.initialize('owned-generation', async () => {
+        attempts++;
+        if (!repaired) throw new Error('temporary recovery failure');
+        return runtime;
+      });
+    const lazy = createLazyControlHttpHandler(async () => (await initialize()).controlHandler);
+    await expect(lazy({} as never, {} as never)).rejects.toThrow('temporary recovery failure');
+    repaired = true;
+    await expect(initialize()).resolves.toBe(runtime);
+    await expect(lazy({} as never, {} as never)).resolves.toBe(true);
+    expect(attempts).toBe(2);
+  });
+
+  it('reruns integrity checks and keeps unrepaired corruption rejected', async () => {
+    let checks = 0;
+    const corrupt = Object.assign(new Error('private integrity details'), {
+      code: 'STATE_CORRUPT',
+    });
+    const lazy = createLazyControlHttpHandler(async () => {
+      checks++;
+      throw corrupt;
+    });
+    await expect(lazy({} as never, {} as never)).rejects.toBe(corrupt);
+    await expect(lazy({} as never, {} as never)).rejects.toBe(corrupt);
+    expect(checks).toBe(2);
+  });
+
+  it('exposes bounded control readiness only after successful initialization', async () => {
+    let repaired = false;
+    const lazy = createLazyControlHttpHandler(async () => {
+      if (!repaired) throw new Error('private recovery details');
+      return async () => false;
+    });
+    const input = { method: 'GET', url: '/control/readiness' };
+    expect(await callHttpHandler(lazy, input)).toEqual({
+      status: 503,
+      body: '{"schemaVersion":1,"scope":"control-runtime","status":"not-ready"}',
+    });
+    repaired = true;
+    expect(await callHttpHandler(lazy, input)).toEqual({
+      status: 200,
+      body: '{"schemaVersion":1,"scope":"control-runtime","status":"ready"}',
+    });
   });
 
   it('prefers an exact sibling over an earlier dynamic route', async () => {

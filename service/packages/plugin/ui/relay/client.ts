@@ -205,6 +205,7 @@ export class RelayClient {
   >();
   private readonly progressRates = new Map<string, { startedAt: number; count: number }>();
   private readonly queuedDispatches = new Map<string, () => void>();
+  private readonly activeCalls = new Set<string>();
 
   constructor(opts: RelayClientOptions) {
     this.sessionIdValue = opts.sessionId ?? newId();
@@ -927,7 +928,14 @@ export class RelayClient {
           this.progressRates.delete(pending.context.requestId);
           return;
         }
-        this.toolCancelHandler?.(pending.context);
+        this.settle(pending.context.requestId, 'outcome-unknown', {
+          error: 'Cancelled after dispatch; reconcile the document before retrying.',
+        });
+        try {
+          this.toolCancelHandler?.(pending.context);
+        } catch {
+          // The cancelled activity remains settled even if the sandbox transport fails.
+        }
         return;
       }
       if (env.kind === 'req' && env.method === SystemMethod.Approval) {
@@ -1092,15 +1100,17 @@ export class RelayClient {
     context: RelayToolExecutionContext,
     controller: AbortController,
   ): Promise<void> {
-    this.update(
-      recordCallStart(this.state, {
+    this.activeCalls.add(id);
+    this.update({
+      ...recordCallStart(this.state, {
         id,
         method,
         startedAt: Date.now(),
         ...(method.startsWith('$identity.') ? {} : { request: summarizePayload(params) }),
         nodeIds: extractNodeIds(params),
       }),
-    );
+      activeCalls: this.activeCalls.size,
+    });
     const handler = this.toolHandler;
     if (handler === null) {
       const message = `no tool handler registered (method=${method})`;
@@ -1131,14 +1141,18 @@ export class RelayClient {
       if (controller.signal.aborted) return;
       const message = err instanceof Error ? err.message : String(err);
       this.opts.log(`[relay-client] tool handler threw for ${method}: ${message}`);
-      this.settle(id, 'error', { error: message });
       const code =
         typeof err === 'object' &&
         err !== null &&
         'code' in err &&
-        ['PLUGIN_PARTIAL_CHANGE', 'UNDO_FAILED'].includes(String(err.code))
+        ['PLUGIN_PARTIAL_CHANGE', 'UNDO_FAILED', 'PLUGIN_OUTCOME_UNKNOWN'].includes(
+          String(err.code),
+        )
           ? String(err.code)
           : ErrorCode.Internal;
+      this.settle(id, code === 'PLUGIN_OUTCOME_UNKNOWN' ? 'outcome-unknown' : 'error', {
+        error: message,
+      });
       ws.send(encodeEnvelope(createError({ id, sessionId, code, message })));
       this.heartbeat?.notifyReceived();
     } finally {
@@ -1155,7 +1169,11 @@ export class RelayClient {
     status: ActivityStatus,
     outcome: Omit<Parameters<typeof recordCallEnd>[1], 'id' | 'status' | 'settledAt'>,
   ): void {
-    this.update(recordCallEnd(this.state, { id, status, settledAt: Date.now(), ...outcome }));
+    if (!this.activeCalls.delete(id)) return;
+    this.update({
+      ...recordCallEnd(this.state, { id, status, settledAt: Date.now(), ...outcome }),
+      activeCalls: this.activeCalls.size,
+    });
   }
 
   private async runReconnectLoop(): Promise<void> {
@@ -1265,6 +1283,9 @@ export class RelayClient {
     for (const [requestId, pending] of this.pendingTools) {
       if (!pending.controller.signal.aborted) pending.controller.abort();
       if (!queued.has(requestId)) {
+        this.settle(requestId, 'outcome-unknown', {
+          error: 'Connection ended after dispatch; reconcile the document before retrying.',
+        });
         try {
           this.toolCancelHandler?.(pending.context);
         } catch {

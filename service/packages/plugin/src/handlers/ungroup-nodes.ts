@@ -5,13 +5,14 @@ import type { SandboxToolHandler } from '../dispatcher.js';
 /** Ungroup GROUP nodes; non-groups are skipped. Returns the ids of the children promoted out. */
 export const createUngroupNodesHandler =
   (figmaCtx: typeof figma): SandboxToolHandler =>
-  async params => {
+  async (params, execution) => {
     const p = (params ?? {}) as { nodeIds?: unknown };
     if (!Array.isArray(p.nodeIds) || p.nodeIds.some(id => typeof id !== 'string')) {
       throw new TypeError('ungroup_nodes: nodeIds must be a string[]');
     }
     const ids = p.nodeIds as readonly string[];
     const nodes = await Promise.all(ids.map(id => figmaCtx.getNodeByIdAsync(id)));
+    execution?.signal.throwIfAborted();
 
     const affected: string[] = [];
     for (const node of nodes) {

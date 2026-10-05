@@ -31,6 +31,8 @@ export interface OperationJournalOptions {
   actorId: OperationRecord['actorId'];
   /** Recipe evidence requires explicit purge under the complete locked retention snapshot. */
   externallyManagedRetention?: boolean;
+  /** Keep settlement linkage if either authenticated evidence store still retains this operation. */
+  hasRetainedSettlementEvidence?: (operationId: string) => boolean | Promise<boolean>;
   now?: () => number;
   capacity?: { maxRows: number; maxBytes: number; compactAtRows: number; compactAtBytes: number };
   tombstoneCapacity?: { maxRows: number; maxBytes: number };
@@ -1549,12 +1551,23 @@ export class OperationJournal {
   ): Promise<number> {
     if (this.options.externallyManagedRetention && scope === undefined) return 0;
     if (scope !== undefined) assertOperationRetentionScope(scope);
-    let removed = 0;
+    const expired: string[] = [];
     for (const [operationId, tombstone] of this.tombstones) {
       if (now < tombstone.expiresAt || scope?.isHeld(operationId)) continue;
-      this.tombstones.delete(operationId);
-      removed += 1;
+      // expiresAt remains the original operation-ID horizon. Settlement proof has its own
+      // evidence horizon and never grants dispatch or replay authority.
+      const settledAt = this.settledAt(operationId);
+      if (settledAt === null || now < settledAt + 2_592_000_000) continue;
+      if (
+        this.options.hasRetainedSettlementEvidence &&
+        // eslint-disable-next-line no-await-in-loop -- check every authenticated dependency before mutation
+        (await this.options.hasRetainedSettlementEvidence(operationId))
+      )
+        continue;
+      expired.push(operationId);
     }
+    const removed = expired.length;
+    for (const operationId of expired) this.tombstones.delete(operationId);
     if (removed > 0) await this.rewriteTombstonesUnlocked();
     if (removed > 0) {
       this.operationOrder = this.operationOrder.filter(

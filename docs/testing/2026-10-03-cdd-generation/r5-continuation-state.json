@@ -1,0 +1,31 @@
+{
+  "recordedAt": "2026-10-04T00:22:00+09:00",
+  "daemonBuildIdentityHash": "sha256:b9293a3876651fe9edc9334c7bbaf4035499a06758d29f7b8a187b7a9f8a9578",
+  "browserConnection": "awaiting-browser",
+  "nextContextFolder": ".worktrees/_cache/cdd-codegen-context-20261004-r5",
+  "newPlanAttempt": {
+    "status": "failed",
+    "errorCode": "PORTAL_WORKFLOW_DECISION_NOT_BOUND",
+    "planReturned": false
+  },
+  "lastSubmittedCandidate": {
+    "runId": "sfp_portal1_eb0d555975576174686c1ba298445909",
+    "hash": "sha256:41212a02ad6db957aad1e268dbb523367e93c82af52d111ecd58f99d4da5909c",
+    "files": 41,
+    "nativeAccepted": false,
+    "applied": false,
+    "designObservationsPassed": 2110,
+    "designObservationsTotal": 2110,
+    "configuredWorkflowsPassed": 4,
+    "configuredWorkflowsTotal": 4,
+    "strictVisualRatios": {
+      "guide": 0.07631444614599285,
+      "mobile": 0.057017951695753015,
+      "desktop": 0.032081445335192284
+    },
+    "maximumVisualRatio": 0.01
+  },
+  "unsubmittedAuthoringChange": "geometricPrecision for source text and canvas font measurement",
+  "officialMcpAuthenticatedRead": false,
+  "finalEcommerceAcceptanceRun": false
+}

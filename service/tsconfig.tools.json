@@ -1,0 +1,18 @@
+{
+  "extends": "./tsconfig.base.json",
+  "compilerOptions": {
+    "noEmit": true,
+    "allowJs": true,
+    "checkJs": true,
+    "allowImportingTsExtensions": true,
+    "noImplicitAny": false,
+    "lib": ["ES2024"],
+    "types": ["node"]
+  },
+  "include": [
+    "scripts/**/*.mjs",
+    "test/**/*.ts",
+    "packages/plugin/node_modules/@figma/plugin-typings/plugin-api.d.ts"
+  ],
+  "exclude": ["node_modules", "dist"]
+}

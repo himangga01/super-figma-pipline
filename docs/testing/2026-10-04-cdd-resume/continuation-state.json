@@ -1,0 +1,45 @@
+{
+  "recordedAt": "2026-10-04T10:33:20.719Z",
+  "head": "5b9343efc82ef47ba56f412acbd4eee5a328d335",
+  "source": {
+    "main": "sha256:170487cf0d214cf755cbdd223e2a6eb4e2778ec06f5ef27b38bed87a893a8bb2",
+    "workingCopy": "sha256:170487cf0d214cf755cbdd223e2a6eb4e2778ec06f5ef27b38bed87a893a8bb2"
+  },
+  "mainIndexHash": "5a79352238185329aee8c904a5158b713ba9645d7af966917d09c2930652500a",
+  "sourceVerified": {
+    "attempt": "c5a36f06-ab1f-4d47-8ff4-2222abc985a0",
+    "passed": 4717,
+    "failed": 0,
+    "skipped": 20,
+    "requiredChromePassed": 37,
+    "requiredChromeSkipped": 0,
+    "gates": 16
+  },
+  "daemon": {
+    "buildIdentityHash": "sha256:b667c982ef8c2981af40e53d1ba87b38b0df2d4f04a03ef57458b37926f5a75f",
+    "port": 3055,
+    "browserConnection": "awaiting-browser",
+    "pairedPluginCount": 0
+  },
+  "ecommercePreparation": {
+    "context": "../../_cache/ecommerce-service-context-20261004-prep",
+    "planId": "sfp_portal1_a59a9126725435235f0a8daa281cee2c",
+    "complete": false,
+    "liveVerified": false,
+    "issues": [
+      "CHROME_CONNECTION_REQUIRED",
+      "DESIGN_CAPTURE_REQUIRED",
+      "LIVE_DESIGN_VERIFICATION_REQUIRED",
+      "WORKFLOW_ANALYSIS:DESIGN_MISSING:",
+      "PORTAL_CAPTURE_CURRENT_REQUIRED",
+      "PORTAL_CAPTURE_CURRENT_REQUIRED"
+    ],
+    "generationStarted": false,
+    "targetExists": false
+  },
+  "officialMcp": {
+    "localProbe": "fetch failed",
+    "authenticatedDesignRead": false
+  },
+  "newCommitOrPush": false
+}

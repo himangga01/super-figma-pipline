@@ -165,6 +165,8 @@ const serializeAutoLayout = (node: SceneNode): SerializedAutoLayout => {
     itemSpacing: number;
     primaryAxisAlignItems: string;
     counterAxisAlignItems: string;
+    primaryAxisSizingMode?: string;
+    counterAxisSizingMode?: string;
     layoutWrap?: string;
     counterAxisSpacing?: number | null;
     counterAxisAlignContent?: string;
@@ -204,6 +206,10 @@ const serializeAutoLayout = (node: SceneNode): SerializedAutoLayout => {
     primaryAxisAlignItems: n.primaryAxisAlignItems,
     counterAxisAlignItems: n.counterAxisAlignItems,
   };
+  if (typeof n.primaryAxisSizingMode === 'string')
+    out.primaryAxisSizingMode = n.primaryAxisSizingMode;
+  if (typeof n.counterAxisSizingMode === 'string')
+    out.counterAxisSizingMode = n.counterAxisSizingMode;
   if (typeof n.layoutWrap === 'string') out.layoutWrap = n.layoutWrap;
   // WRAP cross-axis: the row gap (counterAxisSpacing, null when content-distributed) and the line
   // distribution (counterAxisAlignContent). Only meaningful when wrapping; emit non-default values so
@@ -543,13 +549,13 @@ const enrichWithMixins = (node: SceneNode, base: SerializedNode): SerializedNode
     out.layout = serializeAutoLayout(node);
   }
 
-  // How the node sizes/positions in its parent (only valid for auto-layout children); otherwise
-  // fall back to absolute-positioning constraints.
+  // A node carries its own sizing even when it is a top-level frame.
+  const sizingH = (node as { layoutSizingHorizontal?: unknown }).layoutSizingHorizontal;
+  if (typeof sizingH === 'string') out.layoutSizingHorizontal = sizingH;
+  const sizingV = (node as { layoutSizingVertical?: unknown }).layoutSizingVertical;
+  if (typeof sizingV === 'string') out.layoutSizingVertical = sizingV;
+  // Parent-dependent growth, alignment and grid placement remain scoped to auto-layout children.
   if (isAutoLayoutParent(node)) {
-    const sizingH = (node as { layoutSizingHorizontal?: unknown }).layoutSizingHorizontal;
-    if (typeof sizingH === 'string') out.layoutSizingHorizontal = sizingH;
-    const sizingV = (node as { layoutSizingVertical?: unknown }).layoutSizingVertical;
-    if (typeof sizingV === 'string') out.layoutSizingVertical = sizingV;
     const grow = (node as { layoutGrow?: unknown }).layoutGrow;
     if (typeof grow === 'number' && grow !== 0) out.layoutGrow = grow;
     const align = (node as { layoutAlign?: unknown }).layoutAlign;
@@ -567,7 +573,11 @@ const enrichWithMixins = (node: SceneNode, base: SerializedNode): SerializedNode
       const gc = serializeGridChild(node);
       if (gc !== undefined) out.gridChild = gc;
     }
-  } else if ('constraints' in node) {
+  }
+  if (
+    (!isAutoLayoutParent(node) || out.layoutPositioning === 'ABSOLUTE') &&
+    'constraints' in node
+  ) {
     const c = (node as { constraints?: unknown }).constraints;
     if (typeof c === 'object' && c !== null && 'horizontal' in c && 'vertical' in c) {
       out.constraints = {
@@ -681,13 +691,10 @@ const enrichWithMixins = (node: SceneNode, base: SerializedNode): SerializedNode
     // A list carries no node-level accessor, so probe (a cheap range read) to know whether the text is
     // bulleted/numbered — a uniform list has uniform style and wouldn't trip the style-mix test, yet
     // its <ol>/<ul> structure must survive; segments (split on listOptions/indentation) recover it.
-    // Gate the probe on a hard line break: a list is inherently multi-line (one paragraph per item),
-    // so single-line text (the bulk of nodes — labels, buttons, headings) can't be a meaningful list
-    // and skips the probe entirely. This keeps the hot path free of a per-text-node call while still
-    // catching every real list. (A one-item single-line list is missed, as it already was on main.)
+    // Single-item lists are valid, so every nonempty text node needs the structural probe.
     const chars = typeof text.characters === 'string' ? text.characters : '';
     let hasList = false;
-    if (chars.includes('\n') && typeof text.getRangeListOptions === 'function') {
+    if (chars.length > 0 && typeof text.getRangeListOptions === 'function') {
       const lo = text.getRangeListOptions(0, chars.length);
       hasList =
         typeof lo === 'symbol' || (typeof lo === 'object' && lo !== null && lo.type !== 'NONE');
@@ -698,6 +705,8 @@ const enrichWithMixins = (node: SceneNode, base: SerializedNode): SerializedNode
       out.fontSize === MIXED ||
       out.fontName === MIXED ||
       out.fills === MIXED ||
+      typeof text.lineHeight === 'symbol' ||
+      typeof text.letterSpacing === 'symbol' ||
       out.textCase === MIXED ||
       out.textDecoration === MIXED ||
       linkMixed ||

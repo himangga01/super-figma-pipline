@@ -77,7 +77,7 @@ const moduleSpecifierLiterals = sourceFile => {
       literals.push(node.argument.literal);
     } else if (
       ts.isCallExpression(node) &&
-      node.arguments.length > 0 &&
+      node.arguments[0] !== undefined &&
       ts.isStringLiteralLike(node.arguments[0]) &&
       (node.expression.kind === ts.SyntaxKind.ImportKeyword ||
         (ts.isIdentifier(node.expression) && node.expression.text === 'require'))
@@ -142,7 +142,7 @@ const collectRawEntries = async paths => {
         const pathEntries = [];
         const lines = contents.split('\n');
         for (let lineIndex = 0; lineIndex < lines.length; lineIndex += 1) {
-          for (const match of lines[lineIndex].matchAll(rawMatcher)) {
+          for (const match of /** @type {string} */ (lines[lineIndex]).matchAll(rawMatcher)) {
             pathEntries.push({
               path: relativeServicePath(path),
               line: lineIndex + 1,

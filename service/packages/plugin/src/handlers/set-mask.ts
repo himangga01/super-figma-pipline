@@ -4,11 +4,12 @@ import type { SandboxToolHandler } from '../dispatcher.js';
 
 export const createSetMaskHandler =
   (figmaCtx: typeof figma): SandboxToolHandler =>
-  async params => {
+  async (params, execution) => {
     const p = (params ?? {}) as { nodeId?: unknown; isMask?: unknown; maskType?: unknown };
     if (typeof p.nodeId !== 'string') throw new TypeError('set_mask: nodeId must be a string');
     if (typeof p.isMask !== 'boolean') throw new TypeError('set_mask: isMask must be a boolean');
     const node = await figmaCtx.getNodeByIdAsync(p.nodeId);
+    execution?.signal.throwIfAborted();
     if (node === null || !('isMask' in node)) {
       throw new Error(`set_mask: node ${p.nodeId} not found or cannot be a mask`);
     }

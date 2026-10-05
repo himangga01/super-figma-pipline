@@ -1,0 +1,22 @@
+{
+  "recordedAt": "2026-10-04T14:44:29.088Z",
+  "phase": "effects",
+  "nodeCount": 3198,
+  "expectedNodes": 3198,
+  "missingNodes": 0,
+  "extraNodes": 0,
+  "comparedPositions": 127932,
+  "rawDifferences": 408,
+  "unexplainedDifferences": 0,
+  "effectsCompared": true,
+  "effectDifferences": 0,
+  "nodesWithEffects": 10,
+  "effectEntries": 10,
+  "effectTypes": {
+    "LAYER_BLUR": 6,
+    "BACKGROUND_BLUR": 2,
+    "DROP_SHADOW": 2
+  },
+  "unsupportedEffectNodes": 0,
+  "fullCaptureAccepted": false
+}

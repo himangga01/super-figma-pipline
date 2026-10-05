@@ -1,0 +1,379 @@
+{
+  "recordedAt": "2026-10-03T12:23:19.692Z",
+  "planId": "sfp_portal1_25c270650d6073d96e916e13a988a041",
+  "contextHash": "sha256:5604fa6d0122c2d0f59cc14538affda88dca011ee5304aaf07a47388d6332566",
+  "blueprintHash": "sha256:e00fb89ee8d07d1549d47dbadbc1991a101a85c14e70c6142682b6144fe75b46",
+  "design": {
+    "artifactHash": "sha256:cc91611ab712005f3a38b722bbeabb5de359d257fcc3ab9c135920291e6686ac",
+    "artifactPath": "portal/designs/sfp_portal1_25c270650d6073d96e916e13a988a041.json",
+    "assetManifestHash": "sha256:c5bc3c8127384eb60b34e93f452fce32fe32a145561a290411e2723fe6737278",
+    "capture": {
+      "admission": {
+        "binding": "selected-page-after-approved-connection",
+        "fileKeyHash": "sha256:b2ef8cd5e6a2dad955c16e621201cfb498d2c563242b77a6d3fab41d79bb0caf",
+        "kind": "chrome",
+        "phase": "requested-source",
+        "requestedNodeId": "1378:120",
+        "url": "https://www.figma.com/design/ly06O8jAcrd7oWmwhz5Vr6?node-id=1378-120",
+        "version": 1
+      },
+      "assetFingerprint": "sha256:e84d50ed66de625a73025a5f6889bbc4d186461d75efb288ac77a048d69131b1",
+      "assetManifestHash": "sha256:c5bc3c8127384eb60b34e93f452fce32fe32a145561a290411e2723fe6737278",
+      "contentFingerprint": "sha256:c8e5742637442ff4da0868a150d838042eaf526a03b7de20f5be125347f56ff3",
+      "contractFingerprint": "sha256:b49d67b83b36f4a088cce2771ecb0025e4f8c5c46e05a5e9345b43a3fc34d274",
+      "designFingerprint": "sha256:988ca3cc45e4e91151067be8038a48fe4b29497251c6332a0d0d6c532d141f8f",
+      "evidenceHash": "sha256:2f7027228161024adbd70afb80a47fda54598f473f77a197360e75abca1c6ef9",
+      "rawHash": "sha256:cc91611ab712005f3a38b722bbeabb5de359d257fcc3ab9c135920291e6686ac",
+      "source": {
+        "bindingMethod": "file-key",
+        "fileKeyHash": "sha256:b2ef8cd5e6a2dad955c16e621201cfb498d2c563242b77a6d3fab41d79bb0caf",
+        "kind": "chrome",
+        "requestedNodeId": "1378:120",
+        "scopeId": "{\"requestedNodeId\":\"1378:120\",\"pageId\":\"1378:120\",\"scopeNodeId\":\"1378:120\"}",
+        "url": "https://www.figma.com/design/ly06O8jAcrd7oWmwhz5Vr6?node-id=1378-120"
+      },
+      "sourceFingerprint": "sha256:22abb8ecc9c8db34404a88cf2fc62ce7b6a40f25e573779e9c5545e882d82779",
+      "version": 2
+    },
+    "complete": true,
+    "fileKey": "ly06O8jAcrd7oWmwhz5Vr6",
+    "liveVerified": true,
+    "nodeId": "1378:120",
+    "storage": "owner-state",
+    "url": "https://www.figma.com/design/ly06O8jAcrd7oWmwhz5Vr6?node-id=1378-120"
+  },
+  "issues": [],
+  "requirements": [
+    {
+      "description": "Open and dismiss an accessible sign-in dialog, validate input and show an explicit local demo outcome without requesting a real account password.",
+      "id": "figma-account-session",
+      "layers": [
+        "frontend"
+      ],
+      "required": true,
+      "workflow": {
+        "apiContracts": [],
+        "dataContracts": [],
+        "decisions": [
+          {
+            "action": "implement",
+            "evidence": "Owner requested a new frontend without reference code. Implement the captured CDD UI with local demo behavior only; no backend, account creation, payment or streaming service is claimed.",
+            "layer": "frontend"
+          }
+        ],
+        "roles": [
+          "visitor"
+        ],
+        "routes": [
+          "/"
+        ],
+        "states": [
+          "closed",
+          "open",
+          "invalid-email",
+          "demo-confirmed",
+          "observed-design"
+        ],
+        "status": "confirmed"
+      }
+    },
+    {
+      "description": "Keep header and footer language controls synchronized; select Korean or English, update visible copy and retain the locale preference across reload.",
+      "id": "language-selection",
+      "layers": [
+        "frontend"
+      ],
+      "required": true,
+      "workflow": {
+        "apiContracts": [],
+        "dataContracts": [
+          "Only locale is persisted under cdd.locale; membership inputs stay in memory."
+        ],
+        "decisions": [
+          {
+            "action": "implement",
+            "evidence": "Owner requested a new frontend without reference code. Implement the captured CDD UI with local demo behavior only; no backend, account creation, payment or streaming service is claimed.",
+            "layer": "frontend"
+          }
+        ],
+        "roles": [
+          "visitor"
+        ],
+        "routes": [
+          "/"
+        ],
+        "states": [
+          "ko",
+          "en"
+        ],
+        "status": "confirmed"
+      }
+    },
+    {
+      "description": "Validate the captured trial email form on desktop and mobile, focus the invalid field, and show a dismissible local confirmation without sending email or creating an account.",
+      "id": "registration-demo",
+      "layers": [
+        "frontend"
+      ],
+      "required": true,
+      "workflow": {
+        "apiContracts": [],
+        "dataContracts": [],
+        "decisions": [
+          {
+            "action": "implement",
+            "evidence": "Owner requested a new frontend without reference code. Implement the captured CDD UI with local demo behavior only; no backend, account creation, payment or streaming service is claimed.",
+            "layer": "frontend"
+          }
+        ],
+        "roles": [
+          "visitor"
+        ],
+        "routes": [
+          "/"
+        ],
+        "states": [
+          "empty",
+          "invalid",
+          "valid",
+          "confirmed",
+          "dismissed"
+        ],
+        "status": "confirmed"
+      }
+    },
+    {
+      "description": "Implement all three captured roots as real text, images and interactive DOM. Provide responsive home content, keyboard navigation, original captured assets and an informational footer dialog. Render the GUIDE separately.",
+      "id": "frontend-presentation",
+      "layers": [
+        "frontend"
+      ],
+      "required": true,
+      "workflow": {
+        "apiContracts": [],
+        "dataContracts": [],
+        "decisions": [
+          {
+            "action": "implement",
+            "evidence": "Owner requested a new frontend without reference code. Implement the captured CDD UI with local demo behavior only; no backend, account creation, payment or streaming service is claimed.",
+            "layer": "frontend"
+          }
+        ],
+        "roles": [
+          "visitor"
+        ],
+        "routes": [
+          "/",
+          "/guide"
+        ],
+        "states": [
+          "home-desktop",
+          "home-mobile",
+          "guide",
+          "footer-info-open"
+        ],
+        "status": "confirmed"
+      }
+    }
+  ],
+  "state": "candidate-ready",
+  "candidateHash": "sha256:71859de6883d6d558b5c3b54af82f8865a57eaa4267c03449fcb15cf6369bd3b",
+  "files": [
+    {
+      "action": "create",
+      "contentHash": "sha256:a8531e6eef7b9f97ed42e023e2278435a4fac367244f1c8aa6c5618515a61d51",
+      "path": "public/assets/3-a8531e6eef7b9f97.png"
+    },
+    {
+      "action": "create",
+      "contentHash": "sha256:bedd9dc953baee11a59713738fb46564cba0b453214972a594d1d036c3522792",
+      "path": "public/assets/4-bedd9dc953baee11.gif"
+    },
+    {
+      "action": "create",
+      "contentHash": "sha256:e63569265e06a20d76b399119472cb7e4cb09d7d2c91d37d0039a988c672fa06",
+      "path": "public/assets/5-e63569265e06a20d.png"
+    },
+    {
+      "action": "create",
+      "contentHash": "sha256:fecb683d52e9353a412069840698ed3b947f3cc3abb1fd7746f753a7391ae0ec",
+      "path": "public/assets/6-fecb683d52e9353a.png"
+    },
+    {
+      "action": "create",
+      "contentHash": "sha256:fe367e9bab425d73f79db41b623638053e6bc0771b9e62b463a45753ca24f349",
+      "path": "public/assets/7-fe367e9bab425d73.png"
+    },
+    {
+      "action": "create",
+      "contentHash": "sha256:e4a2c4f4ecbceaebec5d11fe56c7e8013365bcada907fa4af2357655ab98a2f3",
+      "path": "public/assets/8-e4a2c4f4ecbceaeb.png"
+    },
+    {
+      "action": "create",
+      "contentHash": "sha256:4f99e4c2ed1c2b7de72f47102c64d601567f8efaad5944a08c86786cad4050e6",
+      "path": "public/assets/9-4f99e4c2ed1c2b7d.gif"
+    },
+    {
+      "action": "create",
+      "contentHash": "sha256:3388ddf75bdd0ed3399ff04a24513be791bb3c9e245510534e43c9007b2ab1d6",
+      "path": "public/assets/10-3388ddf75bdd0ed3.png"
+    },
+    {
+      "action": "create",
+      "contentHash": "sha256:1974c87502444cbbad937599d30b9c053cbcaa343b9a3cd6563a6286d4f49629",
+      "path": "public/assets/11-1974c87502444cbb.gif"
+    },
+    {
+      "action": "create",
+      "contentHash": "sha256:8a4b79c6f2903c67362127f91716e7bfd68b3fb3700593a678eb0c635ac8b4d5",
+      "path": "public/assets/12-8a4b79c6f2903c67.png"
+    },
+    {
+      "action": "create",
+      "contentHash": "sha256:0e30fe10f8522b9b060124e3b56fcc4c60ef56629c3555b2c9f8a760f59f3d96",
+      "path": "public/assets/13-0e30fe10f8522b9b.svg"
+    },
+    {
+      "action": "create",
+      "contentHash": "sha256:81c1fea81f5a768a0d9fe084167595e35bfb5e1f29a67c3c5a9cfc334a490b81",
+      "path": "public/assets/14-81c1fea81f5a768a.svg"
+    },
+    {
+      "action": "create",
+      "contentHash": "sha256:b1e7f25958f29bafd7a405ae9ae0a163a3eb82b9a0b77f80869784e2dd75e72d",
+      "path": "public/assets/15-b1e7f25958f29baf.svg"
+    },
+    {
+      "action": "create",
+      "contentHash": "sha256:81c1fea81f5a768a0d9fe084167595e35bfb5e1f29a67c3c5a9cfc334a490b81",
+      "path": "public/assets/16-81c1fea81f5a768a.svg"
+    },
+    {
+      "action": "create",
+      "contentHash": "sha256:b1e7f25958f29bafd7a405ae9ae0a163a3eb82b9a0b77f80869784e2dd75e72d",
+      "path": "public/assets/17-b1e7f25958f29baf.svg"
+    },
+    {
+      "action": "create",
+      "contentHash": "sha256:529b9b8b337284e6fe49b9f765cdac84ff7c23f0864a99e2ec2dbb573ab78cd8",
+      "path": "public/assets/18-529b9b8b337284e6.svg"
+    },
+    {
+      "action": "create",
+      "contentHash": "sha256:3e05462a217a5052917144d74426a12fef8b3777a9ad9e8ff21fa15475186fd9",
+      "path": "public/assets/19-3e05462a217a5052.svg"
+    },
+    {
+      "action": "create",
+      "contentHash": "sha256:85b0b33164445af8fc253da7be7967ca38adc08c9dbba8d762cd4873284eb6e8",
+      "path": "public/assets/20-85b0b33164445af8.svg"
+    },
+    {
+      "action": "create",
+      "contentHash": "sha256:776c16afb099987486f05eb0673da6952026f6546eb48b08b7758c62b7b3b6e2",
+      "path": "public/assets/21-776c16afb0999874.svg"
+    },
+    {
+      "action": "create",
+      "contentHash": "sha256:3e05462a217a5052917144d74426a12fef8b3777a9ad9e8ff21fa15475186fd9",
+      "path": "public/assets/22-3e05462a217a5052.svg"
+    },
+    {
+      "action": "create",
+      "contentHash": "sha256:85b0b33164445af8fc253da7be7967ca38adc08c9dbba8d762cd4873284eb6e8",
+      "path": "public/assets/23-85b0b33164445af8.svg"
+    },
+    {
+      "action": "create",
+      "contentHash": "sha256:529b9b8b337284e6fe49b9f765cdac84ff7c23f0864a99e2ec2dbb573ab78cd8",
+      "path": "public/assets/24-529b9b8b337284e6.svg"
+    },
+    {
+      "action": "create",
+      "contentHash": "sha256:f9fffecaaa2c649a1beb478105a1b3efc76064e614e2a0b51122d598ffd5aba4",
+      "path": "font-sources.json"
+    },
+    {
+      "action": "create",
+      "contentHash": "sha256:d69d5f46f5f6fa22c01a21a22be36b07157845421dc8eb4b74e53be1907845c6",
+      "path": "index.html"
+    },
+    {
+      "action": "create",
+      "contentHash": "sha256:0711f4dd231e31b6ad4576bdeeb40da64355a5913c72b23cbd14d2d0b764767b",
+      "path": "package.json"
+    },
+    {
+      "action": "create",
+      "contentHash": "sha256:279753543734e7a1846e3cb3f80d4dcdcc91f49c436411adaba82e3913c61cde",
+      "path": "public/fonts/LICENSE"
+    },
+    {
+      "action": "create",
+      "contentHash": "sha256:c85faa3fa812cae9fad6eadc662b0e68c84f010b61c5c0ebc769a7b43e0fcd4d",
+      "path": "public/fonts/SpoqaHanSansNeo-Bold.woff2"
+    },
+    {
+      "action": "create",
+      "contentHash": "sha256:4249bafc6673772edd9f3ed64589496ffbbd084a81dd85d6e170058fad86d117",
+      "path": "public/fonts/SpoqaHanSansNeo-Regular.woff2"
+    },
+    {
+      "action": "create",
+      "contentHash": "sha256:6ff03d9590967ac30d1974872b8b51ed7abe34b5fa963c1f72ca8258e52654a6",
+      "path": "public/fonts/upstream.css"
+    },
+    {
+      "action": "create",
+      "contentHash": "sha256:3eeedcdab54a5cada888feccf05e3ec7f93d8b023fad5257c1fbdd15caf51ee1",
+      "path": "src/App.tsx"
+    },
+    {
+      "action": "create",
+      "contentHash": "sha256:6d1e896b3f83eb485523587c2a7e3d8ca1e5c60051e60fe11ee022a772ec0369",
+      "path": "src/core-materials.json"
+    },
+    {
+      "action": "create",
+      "contentHash": "sha256:ac8c00964e87e9b963dda87952f62682bc427d141265ebb48071cd7ce818a341",
+      "path": "src/design-1381-285.json"
+    },
+    {
+      "action": "create",
+      "contentHash": "sha256:74a484827cada5129e3d4b6210d37b7186b2a02414a1a5b77c3d7cd1c539e8a2",
+      "path": "src/design-1381-530.json"
+    },
+    {
+      "action": "create",
+      "contentHash": "sha256:6c967c97a7bef26ee3cd0ffc276a2d56a31082a1f6b832b21c281aa6f53ff8ce",
+      "path": "src/design-1381-541.json"
+    },
+    {
+      "action": "create",
+      "contentHash": "sha256:d54232f1d2b52ad3e1993befb130625474b7895bd0bda21df64c1cdf0e198c8d",
+      "path": "src/design-materials.json"
+    },
+    {
+      "action": "create",
+      "contentHash": "sha256:7e8d9e72e1c9e5dabe84f2061f6f0a249d5614666f454b46d17d09674680c1d2",
+      "path": "src/main.tsx"
+    },
+    {
+      "action": "create",
+      "contentHash": "sha256:f0a1c769db4b41371c8b80eaaaf593ca9ed326ed65a0719f1907198be570818b",
+      "path": "src/style.css"
+    },
+    {
+      "action": "create",
+      "contentHash": "sha256:ff17c1b9c211b93a739a2cb8049a0e068b61fda7a9e0a30229207cb87893d1c6",
+      "path": "tsconfig.json"
+    },
+    {
+      "action": "create",
+      "contentHash": "sha256:4105eb1642b07c0d6f11185c79d8f4f24b9dd1eab14e9237f2f246e1bba9485d",
+      "path": "README.md"
+    }
+  ],
+  "coreDeclarationCount": 7
+}

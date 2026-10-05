@@ -1,0 +1,3323 @@
+diff --git a/AGENTS.md b/AGENTS.md
+index 9a49444..3a271dd 100644
+--- a/AGENTS.md
++++ b/AGENTS.md
+@@ -28,7 +28,10 @@
+ 
+ ## Reboot handoff
+ 
++- For the latest reboot request, read [docs/handoff/reboot-2026-10-04-evening.md](docs/handoff/reboot-2026-10-04-evening.md) first. It supersedes the earlier runtime state, preserves the R8/frontend and source-change backups, records the interrupted current-source whole check, and identifies the unresolved R3/R4 control failures. Never treat a pending pointer from the stopped check as a pass or replay an unknown-outcome operation automatically.
+ - Before resuming after the planned reboot, read [docs/handoff/reboot-2026-10-04.md](docs/handoff/reboot-2026-10-04.md). It records the verified source baseline, generated frontend backup, private state locations, expired egress/run budgets and restart sequence. Recheck live connections after restart and preserve the existing applied output. Continue to use `docs/service-analysis.md` as the canonical analysis authority.
++- For the later October 4 continuation, also read [docs/testing/2026-10-04-cdd-resume/README.md](docs/testing/2026-10-04-cdd-resume/README.md). It records fresh R8 evidence and subsequent repairs after the published reboot baseline. Update that execution record and the canonical analysis after new results; retain earlier failed runs and distinct source fingerprints.
++- Also read [docs/testing/2026-10-04-ecommerce-parity/README.md](docs/testing/2026-10-04-ecommerce-parity/README.md) for the later complete eCommerce preparation and independent field comparison. Keep bounded field parity distinct from complete independent acquisition and final frontend acceptance.
+ 
+ ## Additional final acceptance
+ 
+diff --git a/docs/handoff/reboot-2026-10-04.md b/docs/handoff/reboot-2026-10-04.md
+index 295af33..f8506b2 100644
+--- a/docs/handoff/reboot-2026-10-04.md
++++ b/docs/handoff/reboot-2026-10-04.md
+@@ -1,5 +1,6 @@
+ # Reboot handoff — October 4, 2026
+ 
++Latest continuation: read [the evening reboot handoff](reboot-2026-10-04-evening.md) first for the owner's later reboot request. The runtime, verification and remaining-work observations below remain the earlier historical checkpoint.
+ Prepared at approximately 14:20 KST (Asia/Seoul), at the owner's request to record work before reboot. This handoff records existing work; it does not start another acceptance run or perform the reboot.
+ 
+ Publication update: the owner subsequently explicitly requested a Git commit and push. The repository branch `remediation/2026-09-27` is the publication target. Statements below about the unchanged index, uncommitted work and absence of a commit describe the earlier reboot checkpoint, not the later publication request. Use the current Git log and remote branch to identify the published commit; preserve the recorded pre-publication hashes as historical evidence.
+diff --git a/docs/service-analysis.md b/docs/service-analysis.md
+index 7f101a5..35030a8 100644
+--- a/docs/service-analysis.md
++++ b/docs/service-analysis.md
+@@ -2,7 +2,51 @@
+ 
+ Analysis date: October 4, 2026 (Asia/Seoul).
+ Repository: `C:\2026_project\super-figma-pipline`.
+-Git baseline: `db821db346e7cb5dd27e4df465b91bb106e2f2b3`.
++Current published Git baseline: `5b9343efc82ef47ba56f412acbd4eee5a328d335`. Earlier sections retain their historical pre-publication baselines.
++
++## Current reboot checkpoint at approximately 21:35 KST
++
++The owner requested reboot preparation. [The evening handoff](handoff/reboot-2026-10-04-evening.md) is the current restart authority, with source/output backups, preserved private-state locations, connection/budget checks and concrete continuation steps. Main and native sources match at `sha256:fc47c9f0f64114d700e4da3d026c2070925842f8d5ea433ddb929824c5f43263`; the owner index remains unchanged and no new commit/push was made.
++
++The [latest completed whole check](testing/2026-10-04-ecommerce-parity/native-behavior/full-source-checkpoint.json), source `e2755bc7...`, passed all 16 gates: 4,748 passed, zero failed, 20 existing skips and all 37 mandatory Chrome cases passed. Its separate artifact-content case passed. A subsequent [control GET recovery repair](testing/2026-10-04-ecommerce-parity/control-poll/README.md) passed eleven real-HTTP cases and affected static/build/provenance checks. The newer whole check `b4a7a8fa...` reached tests but was intentionally stopped for reboot preparation after verifying its exact controller identity. Its stored pointer remains pending; the attempt is interrupted, not passed. Fresh whole verification is required after restart.
++
++CDD R8 remains completed for its recorded Chrome/Scripter C4 scope; all 44 applied files were rehashed and backed up. Complete eCommerce R2 collection and expanded independent comparisons remain preserved. R3 and R4 preparation requests ended `outcome-unknown` after cancellation, first after a connection reset and then a separate HTTP 500. The read-reset behavior is repaired; **the HTTP 500 cause is unresolved**. No eCommerce frontend was generated or applied, and the proposed 89 workflow mappings are not accepted as resolved. Preserve both operation records and do not automatically replay them.
++
++At 21:33 KST, the retained earlier daemon still reported Chrome connected and zero paired Desktop plugins. Official MCP remained unavailable locally at its last probe. The external-model egress scope expires October 5 at 00:24:12 KST. Recheck all connections after reboot. Complete independent exports/semantics/admission, official MCP, Desktop, relevant C1–C3 cases, review gates and final dual-path eCommerce frontend acceptance remain open.
++
++## Earlier October 4 continuation after Chrome approval
++
++The retained service Chrome connection is **connected**, freshly checked around 21:00 KST. The [collection record](testing/2026-10-04-ecommerce-parity/README.md) supersedes the pending-browser and partial eCommerce observations below. Public preparation captured all 3,198 nodes, 11 roots and 283 assets with complete ordered reobservation. A separate native export supplied independent input. The [latest layout/prototype repairs](testing/2026-10-04-ecommerce-parity/native-behavior/README.md) expand comparison to 124,734 eCommerce positions, including 66 click-navigation actions, with zero unexplained differences and 408 mixed-font representations retained. All 868 font ranges and 52 original images match. CDD compares 8,778 positions with zero unexplained differences and its 73 known representations retained. Actual differences in instance action fragments and placement constraints were repaired without copying reference facts.
++
++This is not complete independent capture or final eCommerce acceptance: native SVG/root-PNG exports, effects and other unobserved node/catalog/variable/prototype semantics and portal admission remain open. The eCommerce plan still has 89 workflow issues. Its original images exposed a candidate-capacity failure; the cap is now 96 MiB with unchanged per-file/submission limits and 128 MiB working-copy bounds. Rejection and exact-boundary behavior were tested, but the new cap has not yet been exercised by a live eCommerce candidate. No eCommerce frontend has been generated or applied. Official MCP still needs a usable service-owned authenticated connection; the latest local probe failed to connect. The owner was asked to enable the Desktop MCP server. Preserve the approved daemon and completed CDD output; the daemon still runs the earlier build until the next necessary verified runtime update.
++
++That revision matched at `sha256:e2755bc7404ed946ada53c70be0777beed46e68ab52cb09786f2a695d2fcc983` in both working copies. Forty-six native tests and 65 capacity/source-evidence cases passed (one existing conditional skip in the latter). Whole attempt `1dac9a33-07f8-44fd-83b0-65026f8ac713` subsequently passed all 16 gates with 4,748 passing tests and the separate artifact-content case. The preceding [full source pass](testing/2026-10-04-ecommerce-parity/full-source-checkpoint.json), source `e7333e49...`, passed all 16 gates at 20:52 KST with 4,729 passes. Both have zero failures, 20 existing skips and all 37 mandatory Chrome cases passing. The [CDD R8 result](testing/2026-10-03-cdd-generation/r8-applied-checkpoint.json) retains its recorded source, candidate and profile; other acceptance paths remain separate obligations.
++
++## Earlier October 4 continuation before the latest approval
++
++CDD Chrome/Scripter run R8 is **completed**: 44 new frontend files were applied with the submitted hash, and applied runtime, configured visual/interaction checks and final live source freshness all passed. The [actual applied checkpoint](testing/2026-10-03-cdd-generation/r8-applied-checkpoint.json) is the authority for this bounded C4 result. Official MCP, the independent collector, Desktop, other case/review gates and final eCommerce frontend acceptance remain separate obligations.
++
++Subsequent work repaired explicit Chrome source opening and obtained a real 99,302,063-byte eCommerce native export. The service normalizer expands 3,198 nodes across 11 roots. A separate Chrome/Scripter read also obtained 3,198 nodes but exhausted the budget for final reobservation and left 226 assets pending. The [opening record](testing/2026-10-04-cdd-resume/chrome-opening/README.md) and [capacity/comparison record](testing/2026-10-04-cdd-resume/capture-budget/README.md) distinguish completed preparation from incomplete capture and unexecuted frontend generation. Partial parity has 33 missing and 33 extra IDs, 1,537 property differences, nine differing font ranges and a style-name ambiguity. These require investigation against fresh complete inputs; they are not repaired by substituting one collector's facts into the other.
++
++The latest implemented changes reserve separate bounded collection/reobservation capacity, reject invalid batch parameters before connecting, and make a credential-timeout regression deterministic without changing production authentication. A subsequent full run passed 4,713 cases but failed a native cleanup check. A [Windows job-drain race](testing/2026-10-04-cdd-resume/windows-drain/README.md) was then reproduced in three real cases and repaired without weakening bounded polling or empty-job proof. All three regressions and 44 expanded native/Chrome cases passed, with one existing conditional skip in the expanded command. Matching current main/native source: `sha256:170487cf0d214cf755cbdd223e2a6eb4e2778ec06f5ef27b38bed87a893a8bb2`. Bounded provenance checks pass.
++
++At approximately 19:23 KST, fresh [full-source attempt `c5a36f06...`](testing/2026-10-04-cdd-resume/windows-drain/full-source-checkpoint.json) passed all 16 source/package gates at that unchanged source: 4,717 passed, zero failed and 20 existing skips across 4,737 cases. All 37 mandatory Chrome cases passed with no skips or overrides. The [separate artifact-content case](testing/2026-10-04-cdd-resume/windows-drain/artifact-contents-checkpoint.json) also passed. This is current local verification, not completion of the remaining live acquisition, case and final eCommerce obligations.
++
++The earlier [complete local verification](testing/2026-10-04-cdd-resume/full-source-checkpoint.json) passed all 16 gates with 4,707 passes, zero failures, 20 existing skips and all 37 required Chrome cases passing at source `0465c261...`; its separate artifact-content case passed too. The later source `2900ff9b...` failed two full-suite tests. Pairing timeout reproduced in isolation and its test timing was repaired. Native producer output failed only in that full run, then passed unchanged in isolation and the expanded suite; its cause remains unestablished, and command diagnostics were added. No failure waiver or skip override was introduced. These dated results must not be interchanged.
++
++After verification, the old daemon was stopped and the tested runtime started with build identity `sha256:b667c982ef8c2981af40e53d1ba87b38b0df2d4f04a03ef57458b37926f5a75f`. Public eCommerce preparation-only plan `sfp_portal1_a59a9126725435235f0a8daa281cee2c` returned incomplete because Chrome was not admitted. It used no references and a separate unused target; no `portal_run`, frontend submission or application was requested, and the target directory does not exist. The [current continuation state](testing/2026-10-04-cdd-resume/continuation-state.json) records the retained `awaiting-browser` connection after that logical attempt ended. Preserve the updated daemon and retry a fresh public plan after manual admission. The local official MCP probe again could not connect; the remote endpoint previously required authentication. User setup questions remain pending. Neither endpoint has yet supplied an authenticated service-owned design read, and no current quota claim is made. The new source changes are not committed or pushed.
++
++## Earlier October 4 post-reboot continuation at 17:49 KST
++
++The [resume record](testing/2026-10-04-cdd-resume/README.md) supersedes the earlier pending-browser and R7-only status. The service opened CDD through its own Chrome CLI, observed the approved connection and captured a fresh R8 plan. Candidate `e424d2ee...` contains 44 new frontend files without reference frontend code. Its second candidate validation passed, and guarded application completed with the exact candidate hash. At approximately 17:49 KST, [applied validation](testing/2026-10-03-cdd-generation/r8-applied-checkpoint.json) returned **`completed`**, no issues, and both runtime and live-design verification true. Build, typecheck, compiler-graph independence, the three configured perceptual visual checks, basic-DOM accessibility, four workflows, 2,110 consumption observations and final source freshness passed. This completes this CDD C4 run through Chrome/Scripter; the other required acquisition paths and acceptance obligations remain open. The existing R7 frontend remains preserved.
++
++A reproduced source-freshness failure involved unchanged design facts and only a minute PNG re-export difference. The implemented `same-facts-png-quantization-v1` proof retains original hashes and requires unchanged non-PNG assets, exact source facts, identical PNG dimensions/alpha, maximum RGB delta one and at most 0.01% changed pixels. The [R8 evidence](testing/2026-10-03-cdd-generation/r8-checkpoints.json) preserves the failed first attempt and successful repaired candidate. Twelve focused tests, seventeen integration tests, four selected native feedback tests, affected typechecks, lint/format, workspace build and generated contracts passed before the later native style change. The 17:28 source fingerprint `3d24d6f...` is preserved in its checkpoint. These new uncommitted changes are not covered by the earlier full-source result; full source/package checks remain outstanding.
++
++Fresh plugin-free Chrome export and comparison cover 192 nodes and 6,006 positions, with 72 matching font ranges, ten matching original images and 73 documented representation differences. The newly implemented native style converter now exposes 56 styles independently, preserving native identities and unknown fields. Its actual service CLI comparison covers 114 positions with 17 retained differences and 238 unobserved top-level properties; no duplicate names were silently paired. Eleven focused native cases and CLI typecheck/lint/format passed. The [latest provenance checkpoint](testing/2026-10-04-cdd-resume/native-style-provenance.json) records matching main/native sources at `sha256:0465c2612f8f2f7ab955e3e5debc28d533ce4c5a6d212d938122a64808c5c9ac`, verified alternate-index change manifest, three verified upstreams and 238 vendor rows. Full source checks remain pending; the earlier complete test result does not cover these changes.
++
++Complete native acquisition remains false. Official MCP probes still require local server activation or remote authentication. Independent collector completion, Desktop live pairing, remaining complete-portal cases/reviews and the final eCommerce dual-path new-frontend test remain required in the recorded order.
++
++## Historical pre-reboot checkpoint
+ 
+ Publication note: the owner later explicitly requested committing and pushing the accumulated implementation, acceptance evidence and reboot handoff on `remediation/2026-09-27`. The no-commit/index-preservation observations below refer to their recorded checkpoints. Publication does not turn the outstanding live acceptance work into a completed result.
+ 
+diff --git a/docs/testing/2026-10-02-chrome-parity/README.md b/docs/testing/2026-10-02-chrome-parity/README.md
+index 107c718..f97e2d4 100644
+--- a/docs/testing/2026-10-02-chrome-parity/README.md
++++ b/docs/testing/2026-10-02-chrome-parity/README.md
+@@ -6,6 +6,16 @@ Later evidence: the [October 3 approval follow-up](../2026-10-03-chrome-initiali
+ 
+ ## October 4 continuation
+ 
++Latest reboot state is in [the evening handoff](../../handoff/reboot-2026-10-04-evening.md). The native-behavior revision passed all 16 gates with 4,748 passing tests. A later control-repair whole check was interrupted for reboot preparation; R3/R4 preparation remains unsuccessful. Preserve the bounded comparison results below separately from those failures and from unexecuted final frontend acceptance.
++
++Latest evidence is [complete eCommerce collection](../2026-10-04-ecommerce-parity/README.md) and [subsequent layout/prototype comparison](../2026-10-04-ecommerce-parity/native-behavior/README.md). Both independently acquired inputs contain 3,198 nodes. Comparison now covers 124,734 positions and 66 click-navigation actions with zero unexplained differences, retaining 408 mixed-font representations. All 868 font ranges and 52 original images match. Fourteen styles pair without ambiguity, but 55 style properties and other node semantics remain unobserved. CDD compares 8,778 positions with its 73 known representations retained. Full native acquisition/admission and final eCommerce acceptance remain incomplete. Chrome remains connected. Initial field repairs passed all source/package gates with 4,729 passing tests; whole checks for newer changes are running.
++
++### Earlier October 4 observations
++
++Latest eCommerce preparation is in the [scoped-opening record](../2026-10-04-cdd-resume/chrome-opening/README.md) and [capacity/parity record](../2026-10-04-cdd-resume/capture-budget/README.md). The service independently exported a new native file and expanded 3,198 nodes. A separate 3,198-node Scripter read lacked its final complete reread. Their partial comparison retains 33 missing/extra IDs, 1,537 property differences and a style-name ambiguity. No complete same-scope parity or new eCommerce frontend acceptance is claimed. CDD R8's separate Chrome/Scripter generation/apply/applied run has completed.
++
++The later [post-reboot resume](../2026-10-04-cdd-resume/README.md) includes a fresh plugin-free native export at 16:29 KST and a new comparison against R8: 192 nodes, 6,006 positions, 72 matching font ranges, ten matching original images and 73 retained representation differences. This supersedes the no-new-export statement below for the earlier morning continuation. The new native style converter exposes 56 styles; its actual comparison covers 114 positions, retaining 17 differences and 238 unobserved top-level properties. Eleven native tests pass. The earlier statement that production normalization exposes no catalog is superseded by this partial implementation, not by a complete parity claim. Full capture acceptance is still false; complete catalogs, remaining semantics, independent PNG/SVG assets and portal admission remain open. R8 has passed candidate runtime and source freshness checks and guarded application; applied validation is underway.
++
+ The [CDD generation record](../2026-10-03-cdd-generation/README.md) now contains repeated live Chrome/Scripter capture, native text-layout supplementation, a passing candidate, guarded application and passing applied runtime checks. The final applied source-freshness check failed while the repaired daemon awaited manual Chrome admission, so complete CDD acceptance is still not claimed. The other acquisition methods and final eCommerce obligations remain open.
+ 
+ The standalone attach-only CLI now scopes its Playwright view to the selected Figma file, including nested frames, and releases its private transport without closing source tabs. A real-Chrome regression failed before this repair and all 29 related cases passed afterward. Explicit missing-tab opening still uses the prior direct path. No new live plugin-free export was executed during this continuation; the October 2 recorded `.fig` remains supplemental.
+diff --git a/docs/testing/2026-10-02-final-figma-preparation/README.md b/docs/testing/2026-10-02-final-figma-preparation/README.md
+index 864a43f..684b5d4 100644
+--- a/docs/testing/2026-10-02-final-figma-preparation/README.md
++++ b/docs/testing/2026-10-02-final-figma-preparation/README.md
+@@ -4,6 +4,12 @@ Date: October 2, 2026 (Asia/Seoul). Git baseline: `db821db346e7cb5dd27e4df465b91
+ 
+ Status: **preparation only; final acceptance has not run**. The owner's latest request adds this final test after the previously requested implementation and acceptance work. It does not replace the earlier Figma test, the complete C1–C4 matrix, or final review requirements.
+ 
++Reboot update at 21:35 KST: [the evening handoff](../../handoff/reboot-2026-10-04-evening.md) is the current restart record. Native-behavior source checks passed with 4,748 tests; the later control-repair whole check was interrupted at the owner's reboot request. R3/R4 workflow preparation ended with unknown outcomes, including an unresolved HTTP 500. The earlier R2 complete capture remains preserved, and neither final frontend has been generated. Earlier in-progress statements below describe their original checkpoints.
++
++Latest October 4 state: the service Chrome connection remains connected. [Complete collection](../2026-10-04-ecommerce-parity/README.md) records all 3,198 nodes, 11 roots and 283 assets with reobservation. [Layout/prototype repairs](../2026-10-04-ecommerce-parity/native-behavior/README.md) expand comparison to 124,734 positions, including 66 click-navigation actions, with zero unexplained differences in that scope and 408 mixed-font representations retained. The observed image-capacity gap is repaired in code and bounded tests; its live candidate path is not executed. The preceding full checks passed 4,729 cases; whole checks for newer changes are running. Workflow scope, complete independent acquisition and usable official MCP remain open. Neither final frontend output has been generated or accepted.
++
++October 4 continuation: the [CDD resume record](../2026-10-04-cdd-resume/README.md) confirms that service-owned Chrome connection, live capture and native export now work for the first test file. R8 completed candidate validation, guarded application and applied validation, including final source freshness. The earlier direct-attachment blocker below is historical, not the current CDD state. The owner reconfirmed that both test URLs remain required. A later read-only eCommerce opening attempt failed during unscoped Playwright initialization despite the accepted Chrome socket; selected-target discovery then confirmed the requested tab was absent. The [attempt record](../2026-10-04-cdd-resume/ecommerce-open-attempt.json) remains failed evidence and the explicit opening path requires repair. This final eCommerce acceptance is still unexecuted. The latest actual service MCP probes report local endpoint unavailability and remote authentication required; the historical external-connector quota observation does not establish the current service client's quota.
++
+ ## Requested target and execution order
+ 
+ Use the [latest owner-supplied eCommerce design](https://www.figma.com/design/4IBhv1d8hEclifZQrOYxHS/eCommerce-Website-%257C-Web-Page-Design-%257C-UI-KIT-%257C-Interior-Landing-Page--Community-?node-id=0-1&p=f&t=c2F58xJ9xKBzBiOB-0): file `4IBhv1d8hEclifZQrOYxHS`, page `0:1`. Generate new frontend code without an existing/reference frontend repository. Test both official Figma MCP acquisition and unofficial Figma Web acquisition through Chrome, Playwright and authorized remote control.
+@@ -43,7 +49,7 @@ The [preparation proof](preparation-proof.json) records the observed scope, inve
+ 
+ Raw names, including trailing spaces and page emoji, remain unchanged in the JSON. All nine frames were visible and had `clipsContent: true`. This inventory contains no mobile frame root; responsive expectations beyond these observed desktop roots must be explicitly derived and labeled. Cart Sidebar is a full 1440-pixel frame and cannot be accepted as a tiny decorative primitive.
+ 
+-The CLI inspection default is 2,000 nodes. A whole-page inspection must use a reviewed budget sufficient for at least the observed 3,198 descendants and any additionally required scope; truncation remains a failure. This is a CLI default observation, not a claim that every service capture path shares that limit. Discover complete screen, overlay, component, asset and interaction obligations before accepting a narrower scope. The 66 reaction entries have only been counted; their triggers, actions, destinations and behavior are still uninspected.
++The CLI's 2,000-node setting is a per-query batch limit, not a whole-page limit. Its snapshot reader continues across roots and partial subtrees. Do not pass 6,000 to `--max-nodes`; that exceeds the query schema. The [October 4 continuation](../2026-10-04-cdd-resume/capture-budget/README.md) records a real 3,198-node collection that remained incomplete because its final reread exhausted the byte budget, plus the subsequent bounded two-pass repair. Truncation remains a failure. Discover complete screen, overlay, component, asset and interaction obligations before accepting a narrower scope. The 66 historical reaction entries have only been counted; their triggers, actions, destinations and behavior still require acceptance.
+ 
+ The first local script had an invalid nested string escape. A repeated Monaco `fill` then accumulated code and produced a duplicate lexical declaration. Those local preparation failures remain in [the initial script](initial-invalid-escaping.js) and [the DOM output](scripter-output.txt). A separate empty local script with a corrected ASCII escape expression produced the recorded inventory. These are preparation-tool failures, not service regressions or frontend test results.
+ 
+diff --git a/docs/testing/2026-10-03-cdd-generation/README.md b/docs/testing/2026-10-03-cdd-generation/README.md
+index ee60123..244a754 100644
+--- a/docs/testing/2026-10-03-cdd-generation/README.md
++++ b/docs/testing/2026-10-03-cdd-generation/README.md
+@@ -2,7 +2,11 @@
+ 
+ Dates: October 3–4, 2026 (Asia/Seoul). Baseline commit: `db821db346e7cb5dd27e4df465b91bb106e2f2b3`, branch `remediation/2026-09-27`, substantial existing and continuing uncommitted changes.
+ 
+-## Current continuation at 05:22 KST on October 4
++## Current continuation at 17:49 KST on October 4
++
++The [post-reboot resume record](../2026-10-04-cdd-resume/README.md) records fresh Chrome connection, native export, R8 candidate validation and the PNG freshness repair. The [R8 checkpoints](r8-checkpoints.json) preserve v1's freshness failure and v2's actual candidate pass. Its 44-file candidate was applied to a separate new output with the same hash. [Applied validation](r8-applied-checkpoint.json) subsequently returned **`completed`**, no issues, and both runtime and live-design verification true. Every configured required check passed, including the final source reread. Independent collector completion, official MCP, Desktop, other case/review gates and final eCommerce acceptance remain outstanding. New source changes have passed bounded provenance verification; complete source/package checks are running. The earlier R7 evidence and source results below remain historical.
++
++## Historical continuation at 05:22 KST on October 4
+ 
+ All 16 local source/package gates now pass at `sha256:d0b41396a9d90c74c6fc90d744ed121d7c3454cf1f6609ac54f8b94df5940618`. The [complete checkpoint](full-source-checkpoint.json) records 423 files and 4,712 cases: 4,692 passed, zero failed, 20 existing skips. All 37 mandatory Chrome cases in nine files passed with zero skips and no override. The [report](full-source-report.json), [scope](full-source-scope.json), [tests](full-source-tests.json) and [census](full-source-skips.json) preserve the current evidence. The separately declared [artifact-content case](artifact-contents-checkpoint.json) also passed at the same fingerprint. Fresh archives/checksums and independent installed runtime were verified. These results are local source/package verification, not complete live product acceptance or release authorization.
+ 
+diff --git a/service/capabilities/union-manifest.json b/service/capabilities/union-manifest.json
+index 14bcd15..ad78f23 100644
+--- a/service/capabilities/union-manifest.json
++++ b/service/capabilities/union-manifest.json
+@@ -2816,7 +2816,7 @@
+           "schemaHash": "c405d38b4b44164ae727bef89354e65dc63d4f2007d89e812641166a658aa68e"
+         }
+       ],
+-      "targetContractHash": "b459027627a52750b3e775474864baa2762de9f2f5c6b22f500f80a97daf39a1",
++      "targetContractHash": "92a16cdb2540aab8a082823a75fffc93cabb676ba907a60512c20d914941ddb3",
+       "disposition": "adapter",
+       "registration": "advertised",
+       "availability": ["registered-workspace", "authenticated-owner"],
+@@ -2835,7 +2835,7 @@
+           "schemaHash": "67338fa38cd6bcd944ca13e9a9e218f441ded5edc6ee6128135e14866b297893"
+         }
+       ],
+-      "targetContractHash": "21a3cfc1d972d4de80daf0a641b94abb00677e322fc3064831c02bb03af8939b",
++      "targetContractHash": "e730f090bfccb72e93dc263f93a394adfd9153e4d91fa5329b114a51aff4af3d",
+       "disposition": "adapter",
+       "registration": "advertised",
+       "availability": ["registered-workspace", "authenticated-owner"],
+@@ -2854,7 +2854,7 @@
+           "schemaHash": "a11f9fd25b6cc706f5a9ed39dac1fc2a2525d94894cc17d40d40faddfd0b25c5"
+         }
+       ],
+-      "targetContractHash": "980bdc916ed424146f46d3a0edc988085a21b6f2ee2b3c0cd8d2d4f76c50233b",
++      "targetContractHash": "269268dfd66a874a77bc32775b17117a84e4cc99f94ed38cc57f4d0c5eae0d4c",
+       "disposition": "adapter",
+       "registration": "advertised",
+       "availability": ["registered-workspace", "authenticated-owner"],
+@@ -2873,7 +2873,7 @@
+           "schemaHash": "3a62b8bb9ff1cd7bc298c94f70ab776c6ed6c5abed2b50bc8ddb923254b1400a"
+         }
+       ],
+-      "targetContractHash": "467d835f24d4afdcdfeae34b3399654c75962fd32d383a60ac0e4042faa9507e",
++      "targetContractHash": "07f09047c76a39d83a05b258439f62c580aab6755b1540ef9b872e5075da6a30",
+       "disposition": "adapter",
+       "registration": "advertised",
+       "availability": [
+@@ -2896,7 +2896,7 @@
+           "schemaHash": "0b3a47befbc98a6e2313481f0965b586eef63a132a041dab75705a4834a1cc27"
+         }
+       ],
+-      "targetContractHash": "8a4d99ad8457506c03a45a19b96185d02f8d7cb79810175ff279e33e0b12f0ae",
++      "targetContractHash": "f1685d58be398cff42903f9f9ef77cfb4ff77bd0802e0e5e876d58b715b6ee89",
+       "disposition": "adapter",
+       "registration": "advertised",
+       "availability": [
+@@ -2920,7 +2920,7 @@
+           "schemaHash": "2500ed2a0aa9df2e3c768a88b1e2693457f7a05322c61ffa3304dda35158e055"
+         }
+       ],
+-      "targetContractHash": "940a1f3730b614cc76070589cc63e42b2060f99fb20d3a77a6295da9647ef86b",
++      "targetContractHash": "786dcc3d98a23af58247a01387862e2c5e0becdc0b6c224f4f5bec635322804a",
+       "disposition": "adapter",
+       "registration": "advertised",
+       "availability": ["registered-workspace", "authenticated-owner"],
+@@ -2939,7 +2939,7 @@
+           "schemaHash": "803ff6e81b35ddf953c7ced8d1a56f45832386d8d2fc230a4bd8895c14a9c5b6"
+         }
+       ],
+-      "targetContractHash": "fbe2b317ad9168a16a27ca81964f1bf1bf8a0025975dff6eca4b2e1ec4329f97",
++      "targetContractHash": "751110a112c7c636c062ccdb613578076634f5328b040af8f6936a12aac0fa9c",
+       "disposition": "adapter",
+       "registration": "advertised",
+       "availability": ["registered-workspace", "authenticated-owner"],
+@@ -2958,7 +2958,7 @@
+           "schemaHash": "3a62b8bb9ff1cd7bc298c94f70ab776c6ed6c5abed2b50bc8ddb923254b1400a"
+         }
+       ],
+-      "targetContractHash": "467d835f24d4afdcdfeae34b3399654c75962fd32d383a60ac0e4042faa9507e",
++      "targetContractHash": "07f09047c76a39d83a05b258439f62c580aab6755b1540ef9b872e5075da6a30",
+       "disposition": "adapter",
+       "registration": "advertised",
+       "availability": ["registered-workspace", "authenticated-owner"],
+diff --git a/service/docs/portal-native.md b/service/docs/portal-native.md
+index cc3cf87..01809cd 100644
+--- a/service/docs/portal-native.md
++++ b/service/docs/portal-native.md
+@@ -10,8 +10,18 @@ Small non-interactive primitive roots (up to 512 px, excluding frames/text and g
+ 
+ Exercise this workflow exclusively through the service's own CLI, MCP tools, collectors and validators. Codex browser control and external connectors do not establish service acceptance. Official Figma MCP tests must invoke the service's official-server integration.
+ 
++The CLI retries a bodyless control GET once after a transport connection reset, preserving the original deadline, credentials and cumulative response-byte budget. Structured HTTP failures and aborted requests are not retried. Tool submissions, approval decisions and other mutations are never replayed. A failed read retry retains the existing explicit cancellation/unknown-outcome path.
++
+ After the user enables Chrome remote debugging and permits the service connection, `chrome-open --url <figma-url>` opens a missing source tab through the service's Playwright connection. `chrome-inspect --open --url <figma-url>` combines explicit source opening with collection. Both reuse an existing unique matching tab, preserve unrelated tabs and never launch another source browser or profile. Without the explicit open request, collection remains attach-only. Browser security approvals stay with the user.
+ 
++Source opening now selects the requested target before Playwright initializes pages. If that target is absent, the explicitly authorized operation creates a blank tab in the unambiguous normal Chrome context, attaches only that tab and permits one navigation to the exact requested Figma URL. Other navigation and target-creation requests remain rejected. Unknown creation outcomes are not replayed, and ambiguous source tabs or browser contexts remain errors. Detaching leaves source tabs open for the owner.
++
++The CLI's `--max-nodes` is a per-query batch limit from 1 to 2,000, not the maximum whole-page node count. Snapshot collection continues through bounded roots and subtrees. Invalid batch parameters are rejected before opening a browser connection. Initial collection and its ordered verification pass each have a 12,000,000-byte accepted-response budget, with at most 24,000,000 accepted bytes across both passes. The overall 256-call limit, deadline, per-query limits and exact reobservation comparisons remain enforced; exceeding either pass's limit leaves explicit incomplete coverage.
++
++The independent `chrome-export`/`chrome-compare` path reads a native document without Scripter. Its normalizer preserves instance override keys, versioned imported style references, float32 transforms, independent corner/border values, automatic line height and crop transforms. Bounded vector-network decoding reconstructs unstyled missing fill paths from recorded vertices, tangents and loops. Character-style tables supply independent font runs, including recorded effective weight evidence. Comparisons retain original values: known six-significant-digit API path serialization is checked without rewriting decoded paths, and a mixed API font marker can be explained only by matching complete font runs. Native library keys disambiguate styles before unique-name pairing. This partial path still reports `fullCaptureAccepted: false`; matching the declared fields does not establish unexamined properties, complete catalogs, independent exported oracles or portal admission.
++
++Native comparison also covers supported automatic-layout fields, asymmetric padding, bounds, masks and placement constraints. Instances retain their own placement constraints. Unsupported legacy/grid layout forms remain unknown. The closed single-action click-navigation form is decoded from recorded prototype interactions, including instance fragments merged by interaction ID and deletion markers. Other triggers/actions, transitions and multi-action forms remain explicitly unsupported. This bounded support does not imply complete prototype semantics.
++
+ Only C4 is frontend-only. C2 and C3 retain every relevant service layer. Do not use the pipeline's three foundation upstreams as implicit service references.
+ 
+ 1. Run `portal plan` with the requested case and explicit legacy/reference paths. Use the known Figma binding unless the user selects another design. A missing new-project directory is normal.
+@@ -25,7 +35,7 @@ A submission contains `runId`, `leaseId`, `leaseEpoch`, `contextHash`, `blueprin
+ 
+ Inline submitted files share a one-MiB decoded byte budget per submission. The schema allows the corresponding Base64 encoding overhead for binary files; this does not increase the decoded budget. Larger captured originals use verified asset references.
+ 
+-A candidate may contain up to 300 files and 64 MiB of decoded source/assets. Each captured-asset submission still has a 32 MiB read budget and a 16 MiB per-file limit. The aggregate candidate cap accommodates multi-screen original imagery while remaining below the native working-copy reader's 128 MiB limit. It is a resource limit, not a security sandbox.
++A candidate may contain up to 300 files and 96 MiB of decoded source/assets. Each captured-asset submission still has a 32 MiB read budget and a 16 MiB per-file limit. The aggregate cap accommodates the observed 89,090,574-byte eCommerce original image set, leaving room for source files and fonts, while remaining below the native working-copy reader's 128 MiB limit. Native environment and preparation archive indexes have separate metadata-retention budgets; those limits are unchanged. This is a resource limit, not a security sandbox.
+ 
+ Inferred operational workflows are drafts. `portal_start` returns `needs-input` until each required workflow has a confirmed blueprint. `portal_next` still returns source/design evidence and the draft requirements, but no coding lease. Refine the requirements and call `portal_plan` again with the same case, design, target and references. Each workflow needs `workflow.status: "confirmed"`, roles, states, routes, applicable API/data contracts, and one `present`, `extend` or `implement` decision with evidence for every required layer. Start the new plan; its blueprint hash fences older candidates. Every workflow must pass its own required checks, including a real service journey where applicable.
+ 
+@@ -87,6 +97,8 @@ The helper launches installed Google Chrome stable through Playwright's `chrome`
+ 
+ Native visual artifacts are saved under `.sfp-native-preview` in the working copy. Command evidence records their paths and hashes. Failed command logs are returned to the next coding lease for repairs. A live design is recaptured after native validation and compared against its original content/assets before the live gate can pass.
+ 
++Source freshness also records a narrow `same-facts-png-quantization-v1` re-export proof when Figma produces slightly different PNG bytes from unchanged design data. The original and fresh content, contract, source and source-scope identities must match exactly. Every asset remains independently hash-verified; original image and SVG bytes must match. Only PNG exports may differ, with identical dimensions/alpha, at most one RGB level of change and no more than 0.01% changed pixels. The report preserves both distinct capture fingerprints, the complete asset-hash correspondence and measured raster differences. Receipt verification recomputes both asset fingerprints and design fingerprints from that evidence. This fixed source policy is separate from the frontend visual comparison mode and does not change its allowed difference ratio.
++
+ The daemon independently rechecks screenshot bytes against every captured root PNG. Screens may be split across multiple successful visual commands; their combined evidence must cover the captured roots. An arbitrary local baseline or an exit code alone cannot pass this gate. Standalone pinned JSON remains useful design evidence but is incomplete without a bound usable asset manifest. Original asset reads are capped at 16 MiB; large selections use immutable capture references instead of exceeding the bounded inline response.
+ 
+ Captures beyond one 256-asset or 64 MB batch continue pending exports within the same overall capture deadline and retain signed progress. A later capture of the unchanged tree reuses byte-verified images and vectors. Completed prior captures refresh every root PNG to detect rendering changes during live revalidation. Exact existing asset bytes recover safely after an interrupted progress write. Partial or unavailable captures remain incomplete.
+@@ -101,6 +113,8 @@ Run applied validation after application. C2/C3 require all relevant API, persis
+ 
+ Windows native commands use a fixed trusted broker and an unnamed Job Object with kill-on-close. The broker watches the owning daemon's input pipe and its own deadline. Linux/macOS use owned process groups. These mechanisms manage child lifetimes; they are not a security sandbox. Unknown cleanup cannot be reported as successful completion. No Docker, Podman or VM substitute is used.
+ 
++Windows cleanup rechecks job membership within its existing bounded polling loop when a termination request loses a race with natural exit or an earlier termination request. A failed termination call alone is not cleanup proof. The broker emits its authenticated stop receipt only after observing that its job contains no process other than itself, and still waits for the owner's durable acknowledgment. Persistent members, failed job queries and missing stop receipts remain failures.
++
+ For interrupted application, first inspect:
+ 
+ ```powershell
+diff --git a/service/packages/cli/src/artifacts.ts b/service/packages/cli/src/artifacts.ts
+index 8ad9a73..987f426 100644
+--- a/service/packages/cli/src/artifacts.ts
++++ b/service/packages/cli/src/artifacts.ts
+@@ -33,6 +33,7 @@ export const writeCapture = async (
+     | 'web-ui.json'
+     | 'native-summary.json'
+     | 'native-design.json'
++    | 'native-styles.json'
+     | 'capture-comparison.json'
+     | 'desktop.json'
+     | 'project.json'
+diff --git a/service/packages/cli/src/browser-session.ts b/service/packages/cli/src/browser-session.ts
+index 65cd36e..654823d 100644
+--- a/service/packages/cli/src/browser-session.ts
++++ b/service/packages/cli/src/browser-session.ts
+@@ -27,26 +27,6 @@ const chromeEndpoint = async (options: ChromeSessionOptions) =>
+   options.cdp === undefined || options.cdp === 'chrome'
+     ? await resolveExistingChromeEndpoint()
+     : assertLoopbackCdp(options.cdp);
+-const attachChrome = async (options: ChromeSessionOptions, timeout = 60_000): Promise<Browser> => {
+-  const endpoint = await chromeEndpoint(options);
+-  return chromium
+-    .connectOverCDP(endpoint, {
+-      timeout: options.connectionTimeoutMs ?? timeout,
+-      noDefaults: true,
+-    })
+-    .catch(error => {
+-      const detail = error instanceof Error ? error.message : '';
+-      if (detail.includes('<ws connected>') && /timeout/iu.test(detail))
+-        throw new Error(
+-          'CHROME_INITIALIZATION_TIMEOUT: Chrome accepted the connection but Playwright could not finish browser initialization',
+-          { cause: error },
+-        );
+-      throw new Error(
+-        'CHROME_CONNECTION_REQUIRED: enable remote debugging in the existing Chrome at chrome://inspect/#remote-debugging, then allow its connection prompt',
+-        { cause: error },
+-      );
+-    });
+-};
+ const selectExistingFigma = async (
+   browser: Browser,
+   options: ChromeSessionOptions,
+@@ -64,19 +44,6 @@ const selectExistingFigma = async (
+         return false;
+       }
+     });
+-  if (matches.length === 0 && options.openIfMissing) {
+-    if (!requested) throw new Error('FIGMA_URL_REQUIRED');
+-    const contexts = browser.contexts();
+-    if (contexts.length !== 1) throw new Error('CHROME_CONTEXT_AMBIGUOUS');
+-    const created = await contexts[0]!.newPage();
+-    try {
+-      await created.goto(requested.url, { waitUntil: 'domcontentloaded', timeout: 60_000 });
+-      return await selectExistingFigma(browser, { ...options, openIfMissing: false }, close);
+-    } catch (error) {
+-      await created.close().catch(() => {});
+-      throw error;
+-    }
+-  }
+   if (matches.length !== 1) {
+     throw new Error(
+       matches.length === 0
+@@ -124,38 +91,29 @@ const selectExistingFigma = async (
+ export const openChromeSession = async (options: ChromeSessionOptions): Promise<ChromeSession> => {
+   if (options.openIfMissing && options.url === undefined) throw new Error('FIGMA_URL_REQUIRED');
+   if (options.url !== undefined) parseFigmaTarget(options.url);
+-  if (!options.openIfMissing) {
+-    // Standalone collection needs the same selected-target attachment as portal capture.
+-    // Its transport belongs to this invocation, so close both logical and physical sessions.
+-    const connection = new ExistingChromeConnection();
+-    try {
+-      const session = await connection.open({
+-        ...options,
+-        connectionTimeoutMs: options.connectionTimeoutMs ?? 60_000,
+-      });
+-      let released = false;
+-      return {
+-        ...session,
+-        close: async () => {
+-          if (released) return;
+-          released = true;
+-          try {
+-            await session.close();
+-          } finally {
+-            await connection.close();
+-          }
+-        },
+-      };
+-    } catch (error) {
+-      await connection.close();
+-      throw error;
+-    }
+-  }
+-  const browser = await attachChrome(options);
++  // Standalone collection needs the same selected-target attachment as portal capture.
++  // Its transport belongs to this invocation, so close both logical and physical sessions.
++  const connection = new ExistingChromeConnection();
+   try {
+-    return await selectExistingFigma(browser, options, () => browser.close());
++    const session = await connection.open({
++      ...options,
++      connectionTimeoutMs: options.connectionTimeoutMs ?? 60_000,
++    });
++    let released = false;
++    return {
++      ...session,
++      close: async () => {
++        if (released) return;
++        released = true;
++        try {
++          await session.close();
++        } finally {
++          await connection.close();
++        }
++      },
++    };
+   } catch (error) {
+-    await browser.close();
++    await connection.close();
+     throw error;
+   }
+ };
+@@ -168,6 +126,7 @@ export class ExistingChromeConnection {
+   private endpoint: string | null = null;
+   private transport: RetainedChromeTransport | null = null;
+   private fileKey: string | null = null;
++  private openTargetUrl: string | null = null;
+   private activeSessions = 0;
+   state(): ReturnType<RetainedChromeTransport['state']> | 'initializing' {
+     if (this.closed) return 'unavailable';
+@@ -189,6 +148,8 @@ export class ExistingChromeConnection {
+     if (changeFile && (this.connecting || this.activeSessions))
+       throw new Error('CHROME_SOURCE_BUSY: another source acquisition is active');
+     this.fileKey = requestedFileKey;
++    this.openTargetUrl =
++      options.openIfMissing && options.url ? parseFigmaTarget(options.url).url : null;
+     this.endpoint = endpoint;
+     if (this.browser?.isConnected() === false) this.browser = null;
+     if (
+@@ -213,6 +174,7 @@ export class ExistingChromeConnection {
+             if (staleBrowser) await staleBrowser.close();
+           }
+           this.transport ??= await createRetainedChromeTransport(await chromeEndpoint(options), {
++            missingTargetUrl: () => this.openTargetUrl,
+             matchesTarget: url => {
+               try {
+                 const target = parseFigmaTarget(url);
+@@ -234,9 +196,12 @@ export class ExistingChromeConnection {
+             });
+           } catch (cause) {
+             // The authenticated local client may time out; the one Chrome permission request remains alive.
+-            const targetFailure = ['FIGMA_TAB_NOT_FOUND', 'CHROME_TARGET_AMBIGUOUS'].find(
+-              code => cause instanceof Error && cause.message.includes(code),
+-            );
++            const targetFailure = [
++              'FIGMA_TAB_NOT_FOUND',
++              'CHROME_TARGET_AMBIGUOUS',
++              'CHROME_CONTEXT_AMBIGUOUS',
++              'FIGMA_URL_INVALID',
++            ].find(code => cause instanceof Error && cause.message.includes(code));
+             if (targetFailure) throw new Error(targetFailure, { cause });
+             const initializedTransport = this.transport.state() === 'connected';
+             if (initializedTransport)
+@@ -266,6 +231,28 @@ export class ExistingChromeConnection {
+     }
+     signal?.throwIfAborted();
+     if (this.closed) throw new Error('CHROME_CONNECTION_CLOSED');
++    if (this.openTargetUrl) {
++      const pages = this.browser!.contexts().flatMap(context => context.pages());
++      if (pages.length !== 1) throw new Error('CHROME_TARGET_AMBIGUOUS');
++      if (pages[0]!.url() === 'about:blank')
++        await pages[0]!.goto(this.openTargetUrl, {
++          waitUntil: 'domcontentloaded',
++          timeout: 60_000,
++        });
++      await pages[0]!.waitForURL(
++        url => {
++          try {
++            return parseFigmaTarget(url.href).fileKey === requestedFileKey;
++          } catch {
++            return false;
++          }
++        },
++        {
++          waitUntil: 'domcontentloaded',
++          timeout: Math.min(options.connectionTimeoutMs ?? 60_000, 60_000),
++        },
++      );
++    }
+     // Capture completion releases its logical session, never the shared CDP transport.
+     this.activeSessions++;
+     let released = false;
+diff --git a/service/packages/cli/src/commands.ts b/service/packages/cli/src/commands.ts
+index 48522c1..be705be 100644
+--- a/service/packages/cli/src/commands.ts
++++ b/service/packages/cli/src/commands.ts
+@@ -13,12 +13,14 @@ import { assertDesktopTarget, readDesktopDesign } from './desktop-reader.js';
+ import { compareNativeImageAssets } from './figma-native-assets.js';
+ import { decodeFigmaNativeDocument, selectFigmaNativeNodes } from './figma-native-document.js';
+ import { normalizeFigmaNativeNodes, compareFigmaCaptureNodes } from './figma-native-nodes.js';
++import { normalizeFigmaNativeStyles, compareFigmaStyleCatalogs } from './figma-native-styles.js';
+ import { parseFigmaTarget } from './figma-url.js';
+ import { exportFigmaWebDocument } from './figma-web-export.js';
+ import { runOfficialFigmaMcpCommand } from './official-figma-mcp-command.js';
+ import { prepareDesktopPlugin } from './plugin-bootstrap.js';
+ import { runPortalPlanCommand } from './portal-commands.js';
+ import { inspectProject } from './project-inspector.js';
++import { BrowserReadQuerySchema } from './read-program.js';
+ import { readScripterSnapshot } from './scripter-reader.js';
+ import { ensureLocalServer } from './server-session.js';
+ 
+@@ -63,12 +65,18 @@ export const runCommand = async (args: string[], emit: (value: unknown) => void)
+   const command = parsed.positionals[0] ?? 'help';
+   const opts = parsed.values;
+   const precise = opts.scripter === true && !opts['ui-only'];
++  if (precise && ['chrome-inspect', 'connect'].includes(command))
++    BrowserReadQuerySchema.parse({
++      nodeId: opts['node-id'] ?? null,
++      depth: Number(opts.depth),
++      maxNodes: Number(opts['max-nodes']),
++    });
+   if (command === 'help') {
+     emit({
+       commands: [
+         'connect --url <figma-url> --allow-model-data [--workspace <path>] [--keep-open]',
+         'desktop-prepare: prepare the bundled local Figma Desktop development plugin for manual import',
+-        'chrome-inspect --url <figma-url> [--open] [--workspace <path>] [--cdp http://127.0.0.1:9222] [--scripter] [--out <folder>]',
++        'chrome-inspect --url <figma-url> [--open] [--workspace <path>] [--cdp http://127.0.0.1:9222] [--scripter] [--out <folder>]: --max-nodes is a 1..2000 per-query batch limit; snapshots continue across batches',
+         'chrome-open --url <figma-url>: open a missing Figma tab through Playwright in the existing authorized Chrome',
+         'chrome-tabs --url <figma-url>',
+         'chrome-export --url <figma-url> [--open] [--out <folder>]: collect a native Figma Web document without Scripter',
+@@ -115,10 +123,22 @@ export const runCommand = async (args: string[], emit: (value: unknown) => void)
+       if (!opts.reference) throw new Error('FIGMA_COMPARISON_REFERENCE_REQUIRED');
+       const reference = JSON.parse(
+         (await readFileWithinLimit(resolve(opts.reference), 16_777_216)).toString('utf8'),
+-      ) as { nodes?: unknown };
++      ) as { nodes?: unknown; styles?: unknown };
+       if (!Array.isArray(reference.nodes)) throw new Error('FIGMA_COMPARISON_REFERENCE_INVALID');
+       const native = normalizeFigmaNativeNodes(decoded.message, target.nodeId);
+       const comparison = compareFigmaCaptureNodes(native.nodes, reference.nodes);
++      const nativeStyles = normalizeFigmaNativeStyles(decoded.message);
++      if (
++        reference.styles !== undefined &&
++        (reference.styles === null ||
++          typeof reference.styles !== 'object' ||
++          Array.isArray(reference.styles))
++      )
++        throw new Error('FIGMA_STYLE_REFERENCE_INVALID');
++      const styles =
++        reference.styles === undefined
++          ? undefined
++          : compareFigmaStyleCatalogs(nativeStyles, reference.styles as Record<string, unknown>);
+       const assets = opts['reference-assets']
+         ? compareNativeImageAssets(
+             decoded.files,
+@@ -134,9 +154,11 @@ export const runCommand = async (args: string[], emit: (value: unknown) => void)
+         target.fileKey,
+       );
+       await writeCapture(folder, 'native-design.json', native);
++      await writeCapture(folder, 'native-styles.json', nativeStyles);
+       await writeCapture(folder, 'capture-comparison.json', {
+         ...comparison,
+         ...(assets ? { assets } : {}),
++        ...(styles ? { styles } : {}),
+       });
+       emit({
+         status: 'capture-values-compared',
+@@ -150,6 +172,12 @@ export const runCommand = async (args: string[], emit: (value: unknown) => void)
+         matchingFontRanges: comparison.fontRangeEvidence.filter(row => row.matches).length,
+         differingFontRanges: comparison.fontRangeEvidence.filter(row => !row.matches).length,
+         matchingImages: assets?.images.filter(row => row.status === 'match').length,
++        styleCatalogs: Object.fromEntries(
++          Object.entries(nativeStyles.catalogs).map(([kind, rows]) => [kind, rows.length]),
++        ),
++        comparedStylePositions: styles?.comparedPositions,
++        styleDifferences: styles?.differences.length,
++        ambiguousStyleNames: styles?.ambiguous.length,
+         fullCaptureAccepted: false,
+       });
+       return;
+diff --git a/service/packages/cli/src/control-client.ts b/service/packages/cli/src/control-client.ts
+index 22bfe80..9ad3650 100644
+--- a/service/packages/cli/src/control-client.ts
++++ b/service/packages/cli/src/control-client.ts
+@@ -16,13 +16,15 @@ import { resolveDefaultStateRoot } from '../../mcp/src/runtime-paths.js';
+ import { createFollowerAuth } from '../../mcp/src/security/follower-auth.js';
+ import { createStatePermissions } from '../../mcp/src/security/state-permissions.js';
+ 
+-const readResponse = async (response: IncomingMessage): Promise<string> => {
++const readResponse = async (
++  response: IncomingMessage,
++  budget: { bytes: number },
++): Promise<string> => {
+   const chunks: Uint8Array[] = [];
+-  let bytes = 0;
+   for await (const chunk of response) {
+     const data = Buffer.from(chunk);
+-    bytes += data.byteLength;
+-    if (bytes > 33_554_432) {
++    budget.bytes += data.byteLength;
++    if (budget.bytes > 33_554_432) {
+       response.destroy();
+       throw new Error('CONTROL_RESPONSE_TOO_LARGE');
+     }
+@@ -91,41 +93,59 @@ export class ControlClient {
+       AbortSignal.timeout(options.timeoutMs ?? 180_000),
+       ...(options.signal === undefined ? [] : [options.signal]),
+     ]);
+-    // Native HTTP honors this operation's budget instead of fetch's fixed five-minute header limit.
+-    const response = await new Promise<IncomingMessage>((resolveResponse, reject) => {
+-      const request = httpRequest(
+-        `${this.baseUrl}${path}`,
+-        {
+-          method,
+-          signal,
+-          headers: {
+-            authorization: credential.value,
+-            'x-sfp-leader-generation': credential.generation,
+-            'content-type': 'application/json',
+-          },
+-        },
+-        resolveResponse,
+-      );
+-      request.once('error', reject);
+-      request.end(body === undefined ? undefined : JSON.stringify(body));
+-    });
+-    const text = await readResponse(response);
+-    const status = response.statusCode ?? 500;
+-    if (status < 200 || status >= 300) {
+-      let code = 'CONTROL_REQUEST_FAILED';
++    const responseBudget = { bytes: 0 };
++    // A transient read reset must not cancel a still-running tool. Mutations are never replayed.
++    for (let attempt = 0; ; attempt++) {
+       try {
+-        const parsed = JSON.parse(text) as { code?: unknown };
+-        if (typeof parsed.code === 'string' && /^[A-Z][A-Z0-9_]{0,127}$/u.test(parsed.code))
+-          code = parsed.code;
+-      } catch {
+-        /* non-JSON errors remain bounded and opaque */
++        // Native HTTP honors this operation's original budget across the single read retry.
++        // eslint-disable-next-line no-await-in-loop -- bounded retry of read-only transport resets
++        const response = await new Promise<IncomingMessage>((resolveResponse, reject) => {
++          const request = httpRequest(
++            `${this.baseUrl}${path}`,
++            {
++              method,
++              signal,
++              headers: {
++                authorization: credential.value,
++                'x-sfp-leader-generation': credential.generation,
++                'content-type': 'application/json',
++              },
++            },
++            resolveResponse,
++          );
++          request.once('error', reject);
++          request.end(body === undefined ? undefined : JSON.stringify(body));
++        });
++        // eslint-disable-next-line no-await-in-loop -- separate response bytes under one cumulative budget
++        const text = await readResponse(response, responseBudget);
++        const status = response.statusCode ?? 500;
++        if (status < 200 || status >= 300) {
++          let code = 'CONTROL_REQUEST_FAILED';
++          try {
++            const parsed = JSON.parse(text) as { code?: unknown };
++            if (typeof parsed.code === 'string' && /^[A-Z][A-Z0-9_]{0,127}$/u.test(parsed.code))
++              code = parsed.code;
++          } catch {
++            /* non-JSON errors remain bounded and opaque */
++          }
++          throw Object.assign(new Error(`${code} (${status})`), {
++            code,
++            status,
++          });
++        }
++        return (text.length === 0 ? undefined : JSON.parse(text)) as T;
++      } catch (error) {
++        if (
++          attempt !== 0 ||
++          method !== 'GET' ||
++          body !== undefined ||
++          signal.aborted ||
++          (error as { status?: unknown } | null)?.status !== undefined ||
++          (error as { code?: unknown } | null)?.code !== 'ECONNRESET'
++        )
++          throw error;
+       }
+-      throw Object.assign(new Error(`${code} (${status})`), {
+-        code,
+-        status,
+-      });
+     }
+-    return (text.length === 0 ? undefined : JSON.parse(text)) as T;
+   }
+   async status() {
+     return ControlStatusV1Schema.parse(await this.request('/control/status'));
+diff --git a/service/packages/cli/src/figma-native-geometry.ts b/service/packages/cli/src/figma-native-geometry.ts
+index d48c9fa..604eaeb 100644
+--- a/service/packages/cli/src/figma-native-geometry.ts
++++ b/service/packages/cli/src/figma-native-geometry.ts
+@@ -16,7 +16,7 @@ export function decodeNativePath(bytes: Uint8Array): string {
+       const value = buffer.readFloatLE(cursor);
+       cursor += 4;
+       if (!Number.isFinite(value)) throw new Error('FIGMA_NATIVE_PATH_VALUE_INVALID');
+-      values.push(Number(value.toPrecision(6)));
++      values.push(value);
+     }
+     paths.push(commands[opcode]! + values.join(' '));
+   }
+@@ -26,15 +26,17 @@ export function decodeNativePath(bytes: Uint8Array): string {
+ export function readNativeGeometry(value: unknown, blobs: unknown) {
+   if (!Array.isArray(value)) return [];
+   if (!Array.isArray(blobs)) throw new Error('FIGMA_NATIVE_BLOBS_MISSING');
+-  return value.map(row => {
+-    const bytes = blobs[row.commandsBlob]?.bytes;
+-    if (!Number.isSafeInteger(row.commandsBlob) || !(bytes instanceof Uint8Array))
+-      throw new Error('FIGMA_NATIVE_GEOMETRY_MISSING');
+-    const windingRule = row.windingRule === 'ODD' ? 'EVENODD' : (row.windingRule ?? 'NONZERO');
+-    if (!['NONZERO', 'EVENODD'].includes(windingRule))
+-      throw new Error('FIGMA_NATIVE_WINDING_UNSUPPORTED');
+-    return { windingRule, data: decodeNativePath(bytes) };
+-  });
++  return value
++    .map(row => {
++      const bytes = blobs[row.commandsBlob]?.bytes;
++      if (!Number.isSafeInteger(row.commandsBlob) || !(bytes instanceof Uint8Array))
++        throw new Error('FIGMA_NATIVE_GEOMETRY_MISSING');
++      const windingRule = row.windingRule === 'ODD' ? 'EVENODD' : (row.windingRule ?? 'NONZERO');
++      if (!['NONZERO', 'EVENODD'].includes(windingRule))
++        throw new Error('FIGMA_NATIVE_WINDING_UNSUPPORTED');
++      return { windingRule, data: decodeNativePath(bytes) };
++    })
++    .filter(row => row.data.length > 0);
+ }
+ 
+ type Point = [number, number];
+@@ -47,6 +49,15 @@ interface Edge {
+ const near = (left: number, right: number) =>
+   Math.abs(left - right) <= Math.max(0.0001, Math.abs(right) * 0.000001);
+ const samePoint = (a: Point, b: Point) => near(a[0], b[0]) && near(a[1], b[1]);
++/** Match the observed six-significant-digit API path serialization; keep decoded paths unchanged. */
++const serializedCoordinate = (value: number) => {
++  if (!Number.isFinite(value) || value === 0) return value;
++  const scale = 10 ** (5 - Math.floor(Math.log10(Math.abs(value))));
++  const scaled = Math.abs(value) * scale,
++    floor = Math.floor(scaled);
++  const rounded = scaled - floor === 0.5 ? floor + (floor % 2) : Math.round(scaled);
++  return (Math.sign(value) * rounded) / scale;
++};
+ const joinLines = (a: Edge, b: Edge) => {
+   if (a.kind !== 'L' || b.kind !== 'L' || !samePoint(a.to, b.from)) return false;
+   const x = a.to[0] - a.from[0],
+@@ -58,7 +69,10 @@ const joinLines = (a: Edge, b: Edge) => {
+     x * u + y * v >= -1e-8
+   );
+ };
+-const pathEdges = (text: string): Array<{ closed: boolean; edges: Edge[] }> | null => {
++const pathEdges = (
++  text: string,
++  serialized = false,
++): Array<{ closed: boolean; edges: Edge[] }> | null => {
+   const expression = /[MLQCZ]|[-+]?(?:\d*\.)?\d+(?:e[-+]?\d+)?/gu;
+   if (text.replace(expression, '').replace(/[\s,]/gu, '') !== '') return null;
+   const tokens = text.match(expression) ?? [],
+@@ -81,7 +95,11 @@ const pathEdges = (text: string): Array<{ closed: boolean; edges: Edge[] }> | nu
+     if (edges.length) paths.push({ closed, edges });
+     edges = [];
+   };
+-  const point = (): Point => [Number(tokens[cursor++]), Number(tokens[cursor++])];
++  const coordinate = () => {
++    const value = Number(tokens[cursor++]);
++    return serialized ? serializedCoordinate(value) : value;
++  };
++  const point = (): Point => [coordinate(), coordinate()];
+   while (cursor < tokens.length) {
+     const kind = tokens[cursor++];
+     if (kind === 'Z') {
+@@ -140,7 +158,11 @@ export function equalNativeGeometry(actual: unknown, expected: unknown): boolean
+       typeof reference.data !== 'string'
+     )
+       return false;
+-    const a = pathEdges(path.data),
++    const numbers = reference.data.match(/[-+]?(?:\d*\.)?\d+(?:e[-+]?\d+)?/gu)?.map(Number) ?? [];
++    const serialized = numbers.every(
++      (value: number) => Number.isFinite(value) && serializedCoordinate(value) === value,
++    );
++    const a = pathEdges(path.data, serialized),
+       e = pathEdges(reference.data);
+     return (
+       a !== null &&
+diff --git a/service/packages/cli/src/figma-native-nodes.ts b/service/packages/cli/src/figma-native-nodes.ts
+index fe6c9d5..0233863 100644
+--- a/service/packages/cli/src/figma-native-nodes.ts
++++ b/service/packages/cli/src/figma-native-nodes.ts
+@@ -1,7 +1,11 @@
+ import { nativeNodeId, selectFigmaNativeNodes } from './figma-native-document.js';
++import { readNativeFontRanges } from './figma-native-font-ranges.js';
+ import { readNativeGeometry, equalNativeGeometry } from './figma-native-geometry.js';
++import { normalizeNativeLayout, NATIVE_LAYOUT_FIELDS } from './figma-native-layout.js';
+ import { normalizeNativePaints } from './figma-native-paints.js';
++import { mergeNativeReactions, readNativeReactions } from './figma-native-reactions.js';
+ import { readNativeTextLayout } from './figma-native-text-layout.js';
++import { readNativeVectorGeometry } from './figma-native-vector-network.js';
+ 
+ type Row = Record<string, unknown>;
+ type Matrix = [[number, number, number], [number, number, number]];
+@@ -15,6 +19,15 @@ interface InstanceContext {
+ const object = (value: unknown): Row =>
+   value && typeof value === 'object' && !Array.isArray(value) ? (value as Row) : {};
+ const rows = (value: unknown): Row[] => (Array.isArray(value) ? value.map(object) : []);
++const contiguousFontRanges = (ranges: Row[]) =>
++  ranges[0]?.start === 0 &&
++  ranges.every(
++    (range, index) =>
++      Number.isInteger(range.start) &&
++      Number.isInteger(range.end) &&
++      Number(range.end) > Number(range.start) &&
++      (index === 0 || range.start === ranges[index - 1]!.end),
++  );
+ const pathOf = (value: unknown): string[] =>
+   rows(object(value).guidPath && object(object(value).guidPath).guids)
+     .map(nativeNodeId)
+@@ -52,23 +65,32 @@ const matrix = (value: unknown): Matrix => {
+ };
+ const multiply = (a: Matrix, b: Matrix): Matrix => [
+   [
+-    a[0][0] * b[0][0] + a[0][1] * b[1][0],
+-    a[0][0] * b[0][1] + a[0][1] * b[1][1],
+-    a[0][0] * b[0][2] + a[0][1] * b[1][2] + a[0][2],
++    Math.fround(a[0][0] * b[0][0] + a[0][1] * b[1][0]),
++    Math.fround(a[0][0] * b[0][1] + a[0][1] * b[1][1]),
++    Math.fround(a[0][0] * b[0][2] + a[0][1] * b[1][2] + a[0][2]),
+   ],
+   [
+-    a[1][0] * b[0][0] + a[1][1] * b[1][0],
+-    a[1][0] * b[0][1] + a[1][1] * b[1][1],
+-    a[1][0] * b[0][2] + a[1][1] * b[1][2] + a[1][2],
++    Math.fround(a[1][0] * b[0][0] + a[1][1] * b[1][0]),
++    Math.fround(a[1][0] * b[0][1] + a[1][1] * b[1][1]),
++    Math.fround(a[1][0] * b[0][2] + a[1][1] * b[1][2] + a[1][2]),
+   ],
+ ];
+ 
++const assignNode = (target: Row, update: Row | undefined) => {
++  if (!update) return target;
++  const reactions = Object.hasOwn(update, 'prototypeInteractions')
++    ? mergeNativeReactions(target.prototypeInteractions, update.prototypeInteractions)
++    : target.prototypeInteractions;
++  Object.assign(target, update);
++  if (reactions !== undefined) target.prototypeInteractions = reactions;
++  return target;
++};
+ const overlays = (input: Row, path: string[], contexts: InstanceContext[]) => {
+   const result: Row = Object.assign(Object.create(null), input);
+   // Outer instance overrides take precedence over defaults of nested component instances.
+   for (const context of contexts.toReversed()) {
+     const key = path.slice(context.path.length).join(';');
+-    Object.assign(result, context.overrides.get(key), context.derived.get(key));
++    assignNode(assignNode(result, context.overrides.get(key)), context.derived.get(key));
+   }
+   return result;
+ };
+@@ -77,11 +99,18 @@ const overlays = (input: Row, path: string[], contexts: InstanceContext[]) => {
+ export function normalizeFigmaNativeNodes(message: Row, nodeId: string | null) {
+   const all = rows(message.nodeChanges),
+     byId = new Map<string, Row>(),
++    stylesByKey = new Map<string, Row[]>(),
+     children = new Map<string, Row[]>();
+   for (const node of all) {
+     const id = nativeNodeId(node.guid);
+     if (!id) continue;
+     byId.set(id, node);
++    if (node.styleType && typeof node.key === 'string' && node.isSoftDeleted !== true) {
++      const key = `${String(node.styleType)}\0${node.key}`;
++      const matches = stylesByKey.get(key) ?? [];
++      matches.push(node);
++      stylesByKey.set(key, matches);
++    }
+     const parent = nativeNodeId(object(node.parentIndex).guid);
+     if (parent) {
+       const list = children.get(parent) ?? [];
+@@ -97,7 +126,24 @@ export function normalizeFigmaNativeNodes(message: Row, nodeId: string | null) {
+     });
+   const root = selectFigmaNativeNodes(message, nodeId)[0]!;
+   let count = 0;
++  const expandedIds = new Set<string>();
+   const warnings: Array<{ code: string; nodeId: string; detail?: string }> = [];
++  const resolveStyle = (value: unknown, kind: string, ownerId: string): Row | undefined => {
++    const reference = object(value),
++      asset = object(reference.assetRef);
++    const guid = nativeNodeId(reference.guid);
++    let style: Row | undefined;
++    if (guid) style = byId.get(guid);
++    else if (typeof asset.key === 'string') {
++      const matches = (stylesByKey.get(`${kind}\0${asset.key}`) ?? []).filter(
++        row => asset.version === undefined || row.version === asset.version,
++      );
++      if (matches.length === 1) style = matches[0];
++    } else return undefined;
++    if (style?.styleType === kind) return style;
++    warnings.push({ code: 'NATIVE_STYLE_UNAVAILABLE', nodeId: ownerId, detail: kind });
++    return undefined;
++  };
+   const visit = (
+     input: Row,
+     prefix: string[],
+@@ -108,14 +154,19 @@ export function normalizeFigmaNativeNodes(message: Row, nodeId: string | null) {
+   ): Row => {
+     if (++count > 100_000 || depth > 128) throw new Error('FIGMA_NATIVE_EXPANSION_LIMIT');
+     const guid = nativeNodeId(input.guid)!;
+-    const path = [...prefix, guid],
++    const instanceKey = prefix.length ? (nativeNodeId(input.overrideKey) ?? guid) : guid;
++    const path = [...prefix, instanceKey],
+       id = prefix.length ? `I${path.join(';')}` : guid;
++    if (expandedIds.has(id)) throw new Error('FIGMA_NATIVE_NODE_ID_DUPLICATE');
++    expandedIds.add(id);
+     let node = overlays(input, path, contexts);
+     let childRecords = children.get(guid) ?? [],
+       childPrefix = prefix,
+       childContexts = contexts;
+     if (node.type === 'INSTANCE') {
+       const placementAlign = node.stackChildAlignSelf;
++      const placementHorizontal = node.horizontalConstraint;
++      const placementVertical = node.verticalConstraint;
+       const symbol = object(node.symbolData);
+       const componentId = nativeNodeId(node.overriddenSymbolID) ?? nativeNodeId(symbol.symbolID);
+       const component = componentId ? byId.get(componentId) : undefined;
+@@ -128,18 +179,19 @@ export function normalizeFigmaNativeNodes(message: Row, nodeId: string | null) {
+           rows(node.derivedSymbolData).map(row => [pathOf(row).join(';'), row]),
+         );
+         node = overlays(
+-          {
+-            ...component,
+-            ...node,
+-            ...overrides.get(componentId!),
+-            ...derived.get(componentId!),
+-            type: 'INSTANCE',
+-            guid: input.guid,
+-          },
++          [
++            component,
++            node,
++            overrides.get(componentId!),
++            derived.get(componentId!),
++            { type: 'INSTANCE', guid: input.guid },
++          ].reduce<Row>(assignNode, {}),
+           path,
+           contexts,
+         );
+         node.stackChildAlignSelf = placementAlign;
++        node.horizontalConstraint = placementHorizontal;
++        node.verticalConstraint = placementVertical;
+         childRecords = children.get(componentId!) ?? [];
+         childPrefix = path;
+         const scale = typeof symbol.uniformScaleFactor === 'number' ? symbol.uniformScaleFactor : 1;
+@@ -147,8 +199,10 @@ export function normalizeFigmaNativeNodes(message: Row, nodeId: string | null) {
+         childContexts = [...contexts, { path, overrides, derived, scale }];
+       }
+     }
+-    const textStyleId = nativeNodeId(object(node.styleIdForText).guid);
+-    const textStyle = textStyleId ? byId.get(textStyleId) : undefined;
++    const textStyle =
++      node.type === 'TEXT' && node.isOverrideOverTextStyle !== true
++        ? resolveStyle(node.styleIdForText, 'TEXT', id)
++        : undefined;
+     if (node.type === 'TEXT' && textStyle && node.isOverrideOverTextStyle !== true) {
+       node = { ...node };
+       for (const field of [
+@@ -195,12 +249,27 @@ export function normalizeFigmaNativeNodes(message: Row, nodeId: string | null) {
+       layoutGrow: node.stackChildPrimaryGrow ?? 0,
+       layoutAlign: node.stackChildAlignSelf ?? 'INHERIT',
+     };
++    const reactions = Object.keys(node).some(key => key.startsWith('transition'))
++      ? null
++      : readNativeReactions(node.prototypeInteractions);
++    if (reactions === null) warnings.push({ code: 'NATIVE_REACTIONS_UNSUPPORTED', nodeId: id });
++    else result.reactions = reactions;
++    const nativeLayout = normalizeNativeLayout(
++      node,
++      ['FRAME', 'INSTANCE', 'COMPONENT', 'COMPONENT_SET'].includes(String(result.type)),
++    );
++    Object.assign(result, nativeLayout.values);
++    if (nativeLayout.unknown.length)
++      warnings.push({
++        code: 'NATIVE_LAYOUT_UNSUPPORTED',
++        nodeId: id,
++        detail: nativeLayout.unknown.join(','),
++      });
+     for (const [field, binding, output] of [
+       ['fillPaints', 'styleIdForFill', 'fills'],
+       ['strokePaints', 'styleIdForStrokeFill', 'strokes'],
+     ] as const) {
+-      const styleId = nativeNodeId(object(node[binding]).guid);
+-      const stylePaints = styleId ? byId.get(styleId)?.fillPaints : undefined;
++      const stylePaints = resolveStyle(node[binding], 'FILL', id)?.fillPaints;
+       const originals = rows(node[field]);
+       const paints = Array.isArray(stylePaints) ? stylePaints : originals;
+       result[output] = normalizeNativePaints(paints);
+@@ -220,16 +289,20 @@ export function normalizeFigmaNativeNodes(message: Row, nodeId: string | null) {
+       const xs = corners.map(p => p[0]!),
+         ys = corners.map(p => p[1]!);
+       result.absoluteBoundingBox = {
+-        x: Math.min(...xs),
+-        y: Math.min(...ys),
+-        width: Math.max(...xs) - Math.min(...xs),
+-        height: Math.max(...ys) - Math.min(...ys),
++        x: Math.fround(Math.min(...xs)),
++        y: Math.fround(Math.min(...ys)),
++        width: Math.fround(Math.max(...xs) - Math.min(...xs)),
++        height: Math.fround(Math.max(...ys) - Math.min(...ys)),
+       };
+     }
+     for (const field of properties) if (node[field] !== undefined) result[field] = node[field];
+     if (node.type !== 'TEXT') {
+       result.fillGeometry = readNativeGeometry(node.fillGeometry, message.blobs);
+       result.strokeGeometry = readNativeGeometry(node.strokeGeometry, message.blobs);
++      if ((result.fillGeometry as unknown[]).length === 0 && node.type === 'VECTOR') {
++        const geometry = readNativeVectorGeometry(node.vectorData, message.blobs, node.size);
++        if (geometry) result.fillGeometry = geometry;
++      }
+       if (
+         (result.fillGeometry as unknown[]).length === 0 &&
+         ['FRAME', 'INSTANCE', 'COMPONENT', 'RECTANGLE'].includes(String(result.type)) &&
+@@ -240,8 +313,8 @@ export function normalizeFigmaNativeNodes(message: Row, nodeId: string | null) {
+           corner => Number(node[`rectangle${corner}CornerRadius`] ?? 0) === 0,
+         )
+       ) {
+-        const width = Number(result.width.toPrecision(6)),
+-          height = Number(result.height.toPrecision(6));
++        const width = result.width,
++          height = result.height;
+         result.fillGeometry = [
+           {
+             windingRule: 'NONZERO',
+@@ -250,7 +323,8 @@ export function normalizeFigmaNativeNodes(message: Row, nodeId: string | null) {
+         ];
+       }
+     }
+-    if (result.type === 'VECTOR') result.cornerRadius = node.cornerRadius ?? 0;
++    if (['VECTOR', 'ELLIPSE'].includes(String(result.type)))
++      result.cornerRadius = node.cornerRadius ?? 0;
+     if (
+       ['FRAME', 'INSTANCE', 'COMPONENT', 'RECTANGLE', 'COMPONENT_SET'].includes(String(result.type))
+     ) {
+@@ -261,6 +335,23 @@ export function normalizeFigmaNativeNodes(message: Row, nodeId: string | null) {
+           ? (node[`rectangle${corner}CornerRadius`] ?? 0)
+           : result.cornerRadius;
+       }
++      if (node.rectangleCornerRadiiIndependent) {
++        const radii = [
++          'topLeftRadius',
++          'topRightRadius',
++          'bottomLeftRadius',
++          'bottomRightRadius',
++        ].map(key => result[key]);
++        result.cornerRadius = new Set(radii).size === 1 ? radii[0] : 'mixed';
++      }
++    }
++    if (node.borderStrokeWeightsIndependent) {
++      const weights = ['Top', 'Right', 'Bottom', 'Left'].map(side => {
++        const value = node[`border${side}Weight`] ?? 0;
++        result[`stroke${side}Weight`] = value;
++        return value;
++      });
++      result.strokeWeight = new Set(weights).size === 1 ? weights[0] : 'mixed';
+     }
+     if (node.type === 'TEXT') {
+       result.paragraphSpacing = node.paragraphSpacing ?? 0;
+@@ -277,28 +368,18 @@ export function normalizeFigmaNativeNodes(message: Row, nodeId: string | null) {
+     if (node.fontName !== undefined) {
+       const font = object(node.fontName);
+       result.fontName = { family: font.family, style: font.style };
+-      const text = object(node.textData);
+-      const styleIds = Array.isArray(text.characterStyleIDs) ? text.characterStyleIDs : null;
+-      if (
+-        typeof text.characters === 'string' &&
+-        (text.characterStyleIDs === undefined ||
+-          (styleIds !== null &&
+-            (styleIds.length === 0 || styleIds.length === text.characters.length) &&
+-            styleIds.every(styleId => styleId === 0))) &&
+-        (text.styleOverrideTable === undefined ||
+-          (Array.isArray(text.styleOverrideTable) && text.styleOverrideTable.length === 0))
+-      )
+-        result.resolvedFontRanges = [
+-          { start: 0, end: text.characters.length, fontName: result.fontName },
+-        ];
++      const fontRanges = readNativeFontRanges(node, result.fontName);
++      if (fontRanges) result.resolvedFontRanges = fontRanges;
+     }
+     for (const field of ['lineHeight', 'letterSpacing'] as const) {
+       const value = object(node[field]);
+       if (value.units && typeof value.value === 'number')
+         result[field] =
+-          value.units === 'RAW'
+-            ? { unit: 'PERCENT', value: value.value * 100 }
+-            : { unit: value.units === 'PIXELS' ? 'PIXELS' : value.units, value: value.value };
++          field === 'lineHeight' && value.units === 'PERCENT' && value.value === 100
++            ? { unit: 'AUTO' }
++            : value.units === 'RAW'
++              ? { unit: 'PERCENT', value: value.value * 100 }
++              : { unit: value.units === 'PIXELS' ? 'PIXELS' : value.units, value: value.value };
+     }
+     if (childRecords.length) {
+       result.children = childRecords.map(child =>
+@@ -381,6 +462,8 @@ export function compareFigmaCaptureNodes(actual: Row[], expected: Row[]) {
+     'strokes',
+     'fillGeometry',
+     'strokeGeometry',
++    'reactions',
++    ...NATIVE_LAYOUT_FIELDS,
+   ];
+   const differences: Array<{
+     nodeId: string;
+@@ -406,26 +489,46 @@ export function compareFigmaCaptureNodes(actual: Row[], expected: Row[]) {
+   };
+   let compared = 0;
+   const fontRangeEvidence: Array<{ nodeId: string; matches: boolean }> = [];
++  const sameFont = (native: Row, reference: Row) => {
++    if (equal(reference.fontName, native.fontName)) return true;
++    const expectedFont = object(reference.fontName),
++      axes = object(expectedFont.variationSettings);
++    const { variationSettings: _axes, ...namedFont } = expectedFont;
++    return (
++      typeof native.nativeFontWeight === 'number' &&
++      Object.keys(axes).length === 1 &&
++      axes.wght === native.nativeFontWeight &&
++      equal(namedFont, native.fontName)
++    );
++  };
++  const sameFontRanges = (native: Row[], reference: Row[]) => {
++    if (
++      !contiguousFontRanges(native) ||
++      !contiguousFontRanges(reference) ||
++      native.at(-1)!.end !== reference.at(-1)!.end
++    )
++      return false;
++    let n = 0,
++      r = 0;
++    while (n < native.length && r < reference.length) {
++      const nativeRange = native[n]!,
++        referenceRange = reference[r]!;
++      if (!sameFont(nativeRange, referenceRange)) return false;
++      const end = Math.min(Number(nativeRange.end), Number(referenceRange.end));
++      if (nativeRange.end === end) n++;
++      if (referenceRange.end === end) r++;
++    }
++    return n === native.length && r === reference.length;
++  };
+   for (const [id, reference] of e) {
+     const observed = a.get(id);
+     if (!observed) continue;
+     const nativeRanges = rows(observed.resolvedFontRanges),
+       pluginRanges = rows(reference.textSegments);
+-    if (nativeRanges.length === 1 && pluginRanges.length > 0) {
+-      const native = nativeRanges[0]!;
++    if (nativeRanges.length > 0 && pluginRanges.length > 0) {
+       fontRangeEvidence.push({
+         nodeId: id,
+-        matches:
+-          pluginRanges[0]!.start === native.start &&
+-          pluginRanges[pluginRanges.length - 1]!.end === native.end &&
+-          pluginRanges.every(
+-            (range, index) =>
+-              Number.isInteger(range.start) &&
+-              Number.isInteger(range.end) &&
+-              range.start === (index === 0 ? native.start : pluginRanges[index - 1]!.end) &&
+-              Number(range.end) >= Number(range.start) &&
+-              equal(range.fontName, native.fontName),
+-          ),
++        matches: sameFontRanges(nativeRanges, pluginRanges),
+       });
+     }
+     for (const field of fields) {
+@@ -453,7 +556,7 @@ export function compareFigmaCaptureNodes(actual: Row[], expected: Row[]) {
+         {
+           nodeId: difference.nodeId,
+           field: difference.field,
+-          reason: 'Uniform resolved font ranges match; node-level font representation differs.',
++          reason: 'Resolved font ranges match; node-level font representation differs.',
+         },
+       ];
+     const observed = a.get(difference.nodeId)!,
+diff --git a/service/packages/cli/src/figma-native-paints.ts b/service/packages/cli/src/figma-native-paints.ts
+index fc8506e..4291481 100644
+--- a/service/packages/cli/src/figma-native-paints.ts
++++ b/service/packages/cli/src/figma-native-paints.ts
+@@ -34,9 +34,10 @@ export function normalizeNativePaints(value: unknown): Row[] {
+     } else if (paint.type === 'IMAGE') {
+       const image = object(paint.animatedImage ?? paint.image),
+         filters = object(paint.imageFilters ?? paint.filters);
+-      result.scaleMode = paint.imageScaleMode ?? 'FILL';
++      result.scaleMode =
++        paint.imageScaleMode === 'STRETCH' ? 'CROP' : (paint.imageScaleMode ?? 'FILL');
+       result.scalingFactor = paint.scale ?? 0.5;
+-      result.rotation = paint.rotation ?? 0;
++      if (result.scaleMode !== 'CROP') result.rotation = paint.rotation ?? 0;
+       result.imageTransform = transform(paint.transform);
+       result.filters = Object.fromEntries(
+         ['exposure', 'contrast', 'saturation', 'temperature', 'tint', 'highlights', 'shadows'].map(
+diff --git a/service/packages/cli/src/snapshot-reader.ts b/service/packages/cli/src/snapshot-reader.ts
+index 874635e..a509f23 100644
+--- a/service/packages/cli/src/snapshot-reader.ts
++++ b/service/packages/cli/src/snapshot-reader.ts
+@@ -54,14 +54,17 @@ export const readDesignSnapshot = async (
+     valueTruncated = false;
+   const observations: Array<{ args: Partial<Query>; hash: string }> = [];
+   let rechecking = false;
++  let phaseBytes = 0;
++  const phaseByteLimit = 12_000_000;
+   const read = async (args: Partial<Query>) => {
+     options.signal?.throwIfAborted();
+     if (Date.now() >= (options.deadlineAt ?? Infinity)) throw new Error('SNAPSHOT_READ_BUDGET');
+-    if (calls >= 256 || bytes >= 12_000_000) throw new Error('SNAPSHOT_READ_BUDGET');
++    if (calls >= 256 || phaseBytes >= phaseByteLimit) throw new Error('SNAPSHOT_READ_BUDGET');
+     calls++;
+     const result = await readQuery({ ...query, ...args });
+     const size = Buffer.byteLength(JSON.stringify(result));
+-    if (bytes + size > 12_000_000) throw new Error('SNAPSHOT_READ_BUDGET');
++    if (phaseBytes + size > phaseByteLimit) throw new Error('SNAPSHOT_READ_BUDGET');
++    phaseBytes += size;
+     bytes += size;
+     valueTruncated ||= result.valueTruncated;
+     if (!rechecking) {
+@@ -417,6 +420,8 @@ export const readDesignSnapshot = async (
+     .map(issue => issue.id);
+   let reobserved = false;
+   rechecking = true;
++  // A complete bounded first pass must retain capacity for its equally bounded verification pass.
++  phaseBytes = 0;
+   try {
+     for (const observed of observations) {
+       // eslint-disable-next-line no-await-in-loop -- a final ordered pass checks all earlier successful scopes
+@@ -495,7 +500,7 @@ export const readDesignSnapshot = async (
+               : 'partial',
+         unresolvedVariableIds,
+       },
+-      limits: { calls: 256, bytes: 12000000 },
++      limits: { calls: 256, bytes: phaseByteLimit * 2, bytesPerPass: phaseByteLimit },
+     },
+     nodeCount: countNodes(nodes),
+     sectionCount: nodes.length,
+diff --git a/service/packages/cli/test/browser-session-reconnect.test.ts b/service/packages/cli/test/browser-session-reconnect.test.ts
+index 5d7d88d..638c735 100644
+--- a/service/packages/cli/test/browser-session-reconnect.test.ts
++++ b/service/packages/cli/test/browser-session-reconnect.test.ts
+@@ -84,6 +84,7 @@ it('reattaches to restarted installed Chrome through fresh discovery without res
+     const addedUrl = 'https://www.figma.com/design/explicitOpenFixtureKey/Owned?node-id=0-1';
+     const opened = await openChromeSession({ url: addedUrl, openIfMissing: true });
+     expect(opened.target.fileKey).toBe('explicitOpenFixtureKey');
++    expect(opened.context.pages()).toHaveLength(1);
+     expect(await opened.page.title()).toBe('Owned reconnect fixture');
+     expect(context!.pages()).toHaveLength(2);
+     expect(second.page.url()).toBe(targetUrl);
+diff --git a/service/packages/cli/test/browser-source-open.test.ts b/service/packages/cli/test/browser-source-open.test.ts
+index c3e20bc..21409cc 100644
+--- a/service/packages/cli/test/browser-source-open.test.ts
++++ b/service/packages/cli/test/browser-source-open.test.ts
+@@ -4,6 +4,8 @@ import { beforeEach, expect, it, vi } from 'vitest';
+ const mocks = vi.hoisted(() => ({
+   connect: vi.fn<(...args: unknown[]) => Promise<unknown>>(),
+   launch: vi.fn<() => void>(),
++  createTarget: vi.fn<(url: string) => void>(),
++  transport: vi.fn<(...args: unknown[]) => Promise<unknown>>(),
+ }));
+ vi.mock('playwright', () => ({
+   chromium: { connectOverCDP: mocks.connect, launch: mocks.launch },
+@@ -12,13 +14,7 @@ vi.mock('../src/chrome-endpoint.js', () => ({
+   resolveExistingChromeEndpoint: async () => 'chrome',
+ }));
+ vi.mock('../../mcp/src/portal/chrome-transport.js', () => ({
+-  createRetainedChromeTransport: async () => ({
+-    endpoint: 'chrome',
+-    headers: { Authorization: 'fixture-private-transport' },
+-    state: () => 'connected',
+-    diagnostics: () => ({ sent: 1, received: 0, pendingMethods: [], pendingResets: 0 }),
+-    close: async () => {},
+-  }),
++  createRetainedChromeTransport: (...args: unknown[]) => mocks.transport(...args),
+ }));
+ import { openChromeSession } from '../src/browser-session.js';
+ import { runCommand } from '../src/commands.js';
+@@ -27,8 +23,22 @@ const url = 'https://www.figma.com/design/4IBhv1d8hEclifZQrOYxHS/Example?node-id
+ const canonicalUrl = 'https://www.figma.com/design/4IBhv1d8hEclifZQrOYxHS?node-id=0-1';
+ const setup = (urls: string[]) => {
+   const pages: Page[] = [];
++  let selected: Page[] = [];
++  let contextCount = 1;
++  let navigationFailure = false;
++  let scope: { matchesTarget(url: string): boolean; missingTargetUrl?(): string | null };
++  mocks.transport.mockImplementation(async (_endpoint, input) => {
++    scope = input as typeof scope;
++    return {
++      endpoint: 'chrome',
++      headers: { Authorization: 'fixture-private-transport' },
++      state: () => 'connected',
++      diagnostics: () => ({ sent: 1, received: 0, pendingMethods: [], pendingResets: 0 }),
++      close: async () => {},
++    };
++  });
+   const context = {
+-    pages: () => pages,
++    pages: () => selected,
+     newCDPSession: async () => ({
+       send: vi.fn<(...args: unknown[]) => Promise<void>>(),
+       detach: vi.fn<() => Promise<void>>(),
+@@ -42,8 +52,12 @@ const setup = (urls: string[]) => {
+       title: async () => 'Figma source',
+       context: () => context,
+       goto: vi.fn<(destination: string) => Promise<void>>(async destination => {
++        if (navigationFailure) throw new Error('navigation failed');
+         current = destination;
+       }),
++      waitForURL: async (matches: (url: URL) => boolean) => {
++        if (!matches(new URL(current))) throw new Error('Unexpected source URL');
++      },
+       close: vi.fn<() => Promise<void>>(async () => {
+         pages.splice(pages.indexOf(page as unknown as Page), 1);
+       }),
+@@ -57,8 +71,28 @@ const setup = (urls: string[]) => {
+     close: vi.fn<() => Promise<void>>(async () => {}),
+     isConnected: () => true,
+   };
+-  mocks.connect.mockResolvedValue(browser as unknown as Browser);
+-  return { browser, context, pages };
++  mocks.connect.mockImplementation(async () => {
++    selected = pages.filter(page => scope.matchesTarget(page.url()));
++    if (selected.length > 1) throw new Error('CHROME_TARGET_AMBIGUOUS');
++    if (!selected.length) {
++      if (!scope.missingTargetUrl?.()) throw new Error('FIGMA_TAB_NOT_FOUND');
++      if (contextCount !== 1) throw new Error('CHROME_CONTEXT_AMBIGUOUS');
++      mocks.createTarget('about:blank');
++      selected = [makePage('about:blank') as unknown as Page];
++    }
++    return browser as unknown as Browser;
++  });
++  return {
++    browser,
++    context,
++    pages,
++    setContextCount: (count: number) => {
++      contextCount = count;
++    },
++    failNavigation: () => {
++      navigationFailure = true;
++    },
++  };
+ };
+ 
+ beforeEach(() => vi.clearAllMocks());
+@@ -68,7 +102,8 @@ it('opens the requested source through the service CLI in existing Chrome withou
+   const unrelated = fixture.pages[0]!;
+   const emit = vi.fn<(value: unknown) => void>();
+   await runCommand(['chrome-open', '--url', url], emit);
+-  expect(fixture.context.newPage).toHaveBeenCalledOnce();
++  expect(mocks.createTarget).toHaveBeenCalledWith('about:blank');
++  expect(fixture.context.newPage).not.toHaveBeenCalled();
+   expect(fixture.pages[1]!.goto).toHaveBeenCalledWith(canonicalUrl, {
+     waitUntil: 'domcontentloaded',
+     timeout: 60_000,
+@@ -87,6 +122,7 @@ it('reuses the unique existing source without navigating or creating a duplicate
+   const session = await openChromeSession({ url, openIfMissing: true });
+   expect(session.page).toBe(fixture.pages[0]);
+   expect(fixture.context.newPage).not.toHaveBeenCalled();
++  expect(mocks.createTarget).not.toHaveBeenCalled();
+   expect(session.page.goto).not.toHaveBeenCalled();
+   await session.close();
+ });
+@@ -115,26 +151,36 @@ it('requires an explicit valid Figma URL before connecting', async () => {
+   expect(mocks.connect).not.toHaveBeenCalled();
+ });
+ 
++it('rejects invalid capture batch limits before requesting a Chrome connection', async () => {
++  setup([]);
++  await expect(
++    runCommand(
++      ['chrome-inspect', '--url', url, '--max-nodes', '6000'],
++      vi.fn<(value: unknown) => void>(),
++    ),
++  ).rejects.toThrow('2000');
++  expect(mocks.connect).not.toHaveBeenCalled();
++  expect(mocks.transport).not.toHaveBeenCalled();
++});
++
+ it('does not guess a browser context for a new source tab', async () => {
+   const fixture = setup([]);
+-  fixture.browser.contexts = () => [fixture.context, fixture.context];
++  fixture.setContextCount(2);
+   await expect(openChromeSession({ url, openIfMissing: true })).rejects.toThrow(
+     'CHROME_CONTEXT_AMBIGUOUS',
+   );
+   expect(fixture.context.newPage).not.toHaveBeenCalled();
++  expect(mocks.createTarget).not.toHaveBeenCalled();
+ });
+ 
+-it('closes only its newly created tab when navigation fails', async () => {
++it('does not replay failed source navigation or close unrelated tabs', async () => {
+   const fixture = setup(['https://example.com/']);
+-  const created = {
+-    goto: vi.fn<() => Promise<void>>().mockRejectedValue(new Error('navigation failed')),
+-    close: vi.fn<() => Promise<void>>().mockResolvedValue(undefined),
+-  };
+-  vi.mocked(fixture.context.newPage).mockResolvedValueOnce(created as unknown as Page);
++  fixture.failNavigation();
+   await expect(openChromeSession({ url, openIfMissing: true })).rejects.toThrow(
+     'navigation failed',
+   );
+-  expect(created.close).toHaveBeenCalledOnce();
++  expect(fixture.pages[1]!.goto).toHaveBeenCalledOnce();
++  expect(mocks.createTarget).toHaveBeenCalledOnce();
+   expect(fixture.pages[0]!.close).not.toHaveBeenCalled();
+   expect(fixture.browser.close).toHaveBeenCalledOnce();
+ });
+diff --git a/service/packages/cli/test/control-client-http.test.ts b/service/packages/cli/test/control-client-http.test.ts
+index 0ca13fa..003a369 100644
+--- a/service/packages/cli/test/control-client-http.test.ts
++++ b/service/packages/cli/test/control-client-http.test.ts
+@@ -42,15 +42,22 @@ it('uses the reviewed control credential and accepts a delayed chunked response'
+     await client.request('/control/test', 'POST', { example: true }, { timeoutMs: 1000 }),
+   ).toEqual({ state: 'ready' });
+ });
+-it('preserves structured control errors instead of retrying or following redirects', async () => {
++it.each([
++  { status: 404, code: 'OPERATION_NOT_FOUND' },
++  { status: 401, code: 'AUTH_FAILED' },
++  { status: 503, code: 'ECONNRESET' },
++])('preserves structured $status control errors without retrying', async ({ status, code }) => {
++  let calls = 0;
+   const client = await fixture((_request, response) => {
+-    response.writeHead(404);
+-    response.end('{"code":"OPERATION_NOT_FOUND"}');
++    calls++;
++    response.writeHead(status);
++    response.end(JSON.stringify({ code }));
+   });
+   await expect(client.request('/control/test')).rejects.toMatchObject({
+-    code: 'OPERATION_NOT_FOUND',
+-    status: 404,
++    code,
++    status,
+   });
++  expect(calls).toBe(1);
+ });
+ it('aborts an unresponsive request at the caller budget', async () => {
+   const client = await fixture(() => {});
+@@ -96,3 +103,95 @@ it('reports the same operation public failure code without repeating its tool re
+   });
+   expect(calls).toBe(1);
+ });
++
++it('recovers one reset during read-only operation polling without cancelling or repeating a tool', async () => {
++  const operationId = 'sfp_op1_fixture.' + 'A'.repeat(43);
++  let toolCalls = 0,
++    approvalReads = 0,
++    cancellations = 0;
++  let toolResponse: ServerResponse | undefined;
++  const client = await fixture((request, response) => {
++    if (request.url === '/control/tools/call') {
++      toolCalls++;
++      toolResponse = response;
++    } else if (request.url === '/control/approvals') {
++      if (++approvalReads === 1) request.socket.destroy();
++      else response.end('[]');
++    } else if (request.url?.endsWith('/cancel')) {
++      cancellations++;
++      response.end('{}');
++    } else {
++      response.end(JSON.stringify({ operationId, status: 'succeeded' }));
++      toolResponse!.end(JSON.stringify({ planId: 'fixture-plan' }));
++    }
++  });
++  await expect(
++    client.invoke({
++      name: 'portal_plan',
++      kind: 'tool',
++      args: {},
++      workspaceId: null,
++      targetSelector: { kind: 'none' },
++      approve: false,
++      operationId,
++      timeoutMs: 2000,
++      emit: () => {},
++    }),
++  ).resolves.toEqual({ planId: 'fixture-plan' });
++  expect({ toolCalls, approvalReads, cancellations }).toEqual({
++    toolCalls: 1,
++    approvalReads: 2,
++    cancellations: 0,
++  });
++});
++
++it('bounds reset recovery to one read retry and never repeats a mutating request', async () => {
++  const calls = { GET: 0, POST: 0 };
++  const client = await fixture(request => {
++    calls[request.method as keyof typeof calls]++;
++    request.socket.destroy();
++  });
++  await expect(client.request('/control/test')).rejects.toMatchObject({ code: 'ECONNRESET' });
++  await expect(client.request('/control/test', 'POST', {})).rejects.toMatchObject({
++    code: 'ECONNRESET',
++  });
++  expect(calls).toEqual({ GET: 2, POST: 1 });
++});
++
++it('restarts a truncated read response without mixing bytes from the two responses', async () => {
++  let calls = 0;
++  const client = await fixture((_request, response) => {
++    if (++calls === 1) {
++      response.writeHead(200, { 'content-type': 'application/json' });
++      response.flushHeaders();
++      response.write('{"partial":');
++      setTimeout(() => response.destroy(), 10);
++    } else response.end('{"complete":true}');
++  });
++  await expect(client.request('/control/test')).resolves.toEqual({ complete: true });
++  expect(calls).toBe(2);
++});
++
++it('retains the original caller deadline across a read retry', async () => {
++  let calls = 0;
++  const client = await fixture(request => {
++    if (++calls === 1) request.socket.destroy();
++  });
++  await expect(
++    client.request('/control/test', 'GET', undefined, { timeoutMs: 80 }),
++  ).rejects.toMatchObject({ name: 'AbortError' });
++  expect(calls).toBe(2);
++});
++
++it('keeps the cumulative response-byte cap across a truncated read and retry', async () => {
++  let calls = 0;
++  const body = ' '.repeat(20 * 1024 * 1024);
++  const client = await fixture((_request, response) => {
++    if (++calls === 1) {
++      response.writeHead(200);
++      response.write(body, () => setTimeout(() => response.destroy(), 20));
++    } else response.end(JSON.stringify({ body }));
++  });
++  await expect(client.request('/control/test')).rejects.toThrow('CONTROL_RESPONSE_TOO_LARGE');
++  expect(calls).toBe(2);
++});
+diff --git a/service/packages/cli/test/figma-native-geometry.test.ts b/service/packages/cli/test/figma-native-geometry.test.ts
+index 3848631..80b7934 100644
+--- a/service/packages/cli/test/figma-native-geometry.test.ts
++++ b/service/packages/cli/test/figma-native-geometry.test.ts
+@@ -1,6 +1,19 @@
+ import { expect, it } from 'vitest';
+ 
+-import { decodeNativePath, equalNativeGeometry } from '../src/figma-native-geometry.js';
++import {
++  decodeNativePath,
++  equalNativeGeometry,
++  readNativeGeometry,
++} from '../src/figma-native-geometry.js';
++
++it('preserves decoded float32 coordinates and omits truly empty path blobs', () => {
++  const bytes = Buffer.alloc(9);
++  bytes[0] = 1;
++  bytes.writeFloatLE(20.78125, 1);
++  bytes.writeFloatLE(3.515625, 5);
++  expect(decodeNativePath(bytes)).toBe('M20.78125 3.515625');
++  expect(readNativeGeometry([{ commandsBlob: 0 }], [{ bytes: new Uint8Array() }])).toEqual([]);
++});
+ 
+ it('decodes bounded binary path commands and rejects malformed operations', () => {
+   const bytes = Buffer.alloc(19);
+@@ -34,3 +47,13 @@ it('compares equivalent closed contours without suppressing changed geometry or
+   expect(equalNativeGeometry(path('M0 0 L1 0 L1 1 Z'), path('M0 0 L2 0 L1 1 Z'))).toBe(false);
+   expect(equalNativeGeometry(path('M0 0 X1 0 Z'), path('M0 0 X1 0 Z'))).toBe(false);
+ });
++
++it('compares known API path serialization without changing decoded coordinates or hiding larger changes', () => {
++  const path = (value: string) => [
++    { windingRule: 'NONZERO', data: `M0 0 L${value} 0 L${value} 1 Z` },
++  ];
++  expect(equalNativeGeometry(path('1240.0145263671875'), path('1240.01'))).toBe(true);
++  expect(equalNativeGeometry(path('20.78125'), path('20.7812'))).toBe(true);
++  expect(equalNativeGeometry(path('1240.016'), path('1240.01'))).toBe(false);
++  expect(equalNativeGeometry(path('1000004'), path('1000000.001'))).toBe(false);
++});
+diff --git a/service/packages/cli/test/figma-native-nodes.test.ts b/service/packages/cli/test/figma-native-nodes.test.ts
+index eb8865b..5444f2e 100644
+--- a/service/packages/cli/test/figma-native-nodes.test.ts
++++ b/service/packages/cli/test/figma-native-nodes.test.ts
+@@ -7,7 +7,14 @@ it('expands instance IDs and resolves bound text styles and scale without a refe
+   const message = {
+     nodeChanges: [
+       { guid: guid(0, 1), type: 'CANVAS', name: 'Page' },
+-      { guid: guid(2, 1), type: 'SYMBOL', name: 'Master', stackChildAlignSelf: 'CENTER' },
++      {
++        guid: guid(2, 1),
++        type: 'SYMBOL',
++        name: 'Master',
++        stackChildAlignSelf: 'CENTER',
++        horizontalConstraint: 'MAX',
++        verticalConstraint: 'CENTER',
++      },
+       {
+         guid: guid(2, 2),
+         parentIndex: { guid: guid(2, 1), position: '!' },
+@@ -31,6 +38,7 @@ it('expands instance IDs and resolves bound text styles and scale without a refe
+         parentIndex: { guid: guid(0, 1), position: '!' },
+         type: 'INSTANCE',
+         name: 'Card',
++        horizontalConstraint: 'SCALE',
+         symbolData: { symbolID: guid(2, 1), uniformScaleFactor: 0.5 },
+         transform: { m00: 1, m11: 1, m02: 10, m12: 20 },
+       },
+@@ -44,6 +52,7 @@ it('expands instance IDs and resolves bound text styles and scale without a refe
+     type: 'INSTANCE',
+     name: 'Card',
+     layoutAlign: 'INHERIT',
++    constraints: { horizontal: 'SCALE', vertical: 'MIN' },
+     children: [
+       {
+         id: 'I1:1;2:2',
+@@ -69,3 +78,200 @@ it('reports missing nodes and properties without treating a partial comparison a
+   expect(report.differences.map(row => row.field)).toEqual(['width', 'fontSize']);
+   expect(report.fullCaptureAccepted).toBe(false);
+ });
++
++it('uses native override identities inside instances while preserving standalone component IDs', () => {
++  const guid = (sessionID: number, localID: number) => ({ sessionID, localID });
++  const message = {
++    nodeChanges: [
++      { guid: guid(0, 1), type: 'CANVAS', name: 'Page' },
++      { guid: guid(2, 1), type: 'SYMBOL', name: 'Master' },
++      {
++        guid: guid(2, 2),
++        overrideKey: guid(9, 8),
++        parentIndex: { guid: guid(2, 1) },
++        type: 'VECTOR',
++        name: 'Shape',
++        strokeWeight: 1,
++      },
++      {
++        guid: guid(1, 1),
++        parentIndex: { guid: guid(0, 1) },
++        type: 'INSTANCE',
++        name: 'Instance',
++        symbolData: {
++          symbolID: guid(2, 1),
++          symbolOverrides: [{ guidPath: { guids: [guid(9, 8)] }, strokeWeight: 3 }],
++        },
++        derivedSymbolData: [
++          {
++            guidPath: { guids: [guid(9, 8)] },
++            transform: { m02: 4, m12: 6 },
++            size: { x: 2, y: 3 },
++          },
++        ],
++      },
++    ],
++  };
++  const instance = normalizeFigmaNativeNodes(message, '0:1');
++  expect(instance.nodes[0]).toMatchObject({
++    childIds: ['I1:1;9:8'],
++    children: [{ id: 'I1:1;9:8', x: 4, y: 6, width: 2, height: 3, strokeWeight: 3 }],
++  });
++  const component = normalizeFigmaNativeNodes(message, '2:1');
++  expect(component.nodes[0]).toMatchObject({
++    childIds: ['2:2'],
++    children: [{ id: '2:2', strokeWeight: 1 }],
++  });
++  message.nodeChanges.push({
++    guid: guid(2, 3),
++    overrideKey: guid(9, 8),
++    parentIndex: { guid: guid(2, 1) },
++    type: 'VECTOR',
++    name: 'Collision',
++    strokeWeight: 1,
++  });
++  expect(() => normalizeFigmaNativeNodes(message, '0:1')).toThrow('FIGMA_NATIVE_NODE_ID_DUPLICATE');
++});
++
++it('preserves native float32 placement, automatic line height and independent edge values', () => {
++  const guid = (localID: number) => ({ sessionID: 1, localID });
++  const message = {
++    nodeChanges: [
++      { guid: guid(0), type: 'CANVAS', name: 'Page' },
++      {
++        guid: guid(1),
++        parentIndex: { guid: guid(0) },
++        type: 'FRAME',
++        name: 'Frame',
++        transform: { m02: 10000 },
++        size: { x: 100, y: 100 },
++      },
++      {
++        guid: guid(2),
++        parentIndex: { guid: guid(1) },
++        type: 'TEXT',
++        name: 'Auto',
++        transform: { m02: Math.fround(0.1) },
++        size: { x: 20, y: 30 },
++        lineHeight: { units: 'PERCENT', value: 100 },
++        letterSpacing: { units: 'PERCENT', value: 100 },
++      },
++      {
++        guid: guid(3),
++        parentIndex: { guid: guid(1) },
++        type: 'TEXT',
++        name: 'Explicit',
++        lineHeight: { units: 'RAW', value: 1 },
++      },
++      {
++        guid: guid(4),
++        parentIndex: { guid: guid(1) },
++        type: 'ROUNDED_RECTANGLE',
++        name: 'Rounded',
++        rectangleCornerRadiiIndependent: true,
++        rectangleTopLeftCornerRadius: 10,
++        rectangleTopRightCornerRadius: 10,
++        rectangleBottomLeftCornerRadius: 10,
++        rectangleBottomRightCornerRadius: 10,
++      },
++      {
++        guid: guid(5),
++        parentIndex: { guid: guid(1) },
++        type: 'FRAME',
++        name: 'Mixed',
++        rectangleCornerRadiiIndependent: true,
++        rectangleTopLeftCornerRadius: 10,
++        borderStrokeWeightsIndependent: true,
++        borderTopWeight: 1,
++        strokeWeight: 1,
++      },
++      { guid: guid(6), parentIndex: { guid: guid(1) }, type: 'ELLIPSE', name: 'Round' },
++    ],
++  };
++  const children = normalizeFigmaNativeNodes(message, '1:0').nodes[0]!.children as Array<
++    Record<string, unknown>
++  >;
++  expect(children[0]).toMatchObject({
++    absoluteTransform: [
++      [1, 0, Math.fround(10000 + Math.fround(0.1))],
++      [0, 1, 0],
++    ],
++    lineHeight: { unit: 'AUTO' },
++    letterSpacing: { unit: 'PERCENT', value: 100 },
++  });
++  expect(children[1]).toMatchObject({ lineHeight: { unit: 'PERCENT', value: 100 } });
++  expect(children[2]).toMatchObject({ cornerRadius: 10, topLeftRadius: 10, bottomRightRadius: 10 });
++  expect(children[3]).toMatchObject({
++    cornerRadius: 'mixed',
++    strokeWeight: 'mixed',
++    strokeTopWeight: 1,
++    strokeBottomWeight: 0,
++  });
++  expect(children[4]).toMatchObject({ cornerRadius: 0 });
++});
++
++it('resolves imported style keys at their recorded version without borrowing reference paints', () => {
++  const guid = (localID: number) => ({ sessionID: 1, localID });
++  const paint = (r: number) => [{ type: 'SOLID', color: { r, g: 0, b: 0, a: 1 } }];
++  const message = {
++    nodeChanges: [
++      { guid: guid(0), type: 'CANVAS', name: 'Page' },
++      {
++        guid: guid(1),
++        parentIndex: { guid: guid(0) },
++        type: 'VECTOR',
++        name: 'Shape',
++        fillPaints: paint(0),
++        styleIdForFill: { assetRef: { key: 'fixture-key', version: '2:3' } },
++      },
++      {
++        guid: guid(8),
++        type: 'RECTANGLE',
++        name: 'Remote',
++        styleType: 'FILL',
++        key: 'fixture-key',
++        version: '2:3',
++        fillPaints: paint(1),
++      },
++    ],
++  };
++  expect(normalizeFigmaNativeNodes(message, '1:0').nodes[0]?.fills).toMatchObject([
++    { color: { r: 1, g: 0, b: 0 } },
++  ]);
++  message.nodeChanges[2]!.version = '2:4';
++  const stale = normalizeFigmaNativeNodes(message, '1:0');
++  expect(stale.nodes[0]?.fills).toMatchObject([{ color: { r: 0, g: 0, b: 0 } }]);
++  expect(stale.warnings).toContainEqual({
++    code: 'NATIVE_STYLE_UNAVAILABLE',
++    nodeId: '1:1',
++    detail: 'FILL',
++  });
++});
++
++it('compares an explicit default weight axis only with independent native weight evidence', () => {
++  const fontName = { family: 'Example', style: 'Bold' };
++  const actual = [
++    {
++      id: '1:1',
++      fontName,
++      resolvedFontRanges: [{ start: 0, end: 1, fontName, nativeFontWeight: 700 }],
++    },
++  ];
++  const reference = (axes: Record<string, number>) => [
++    {
++      id: '1:1',
++      fontName: 'mixed',
++      textSegments: [{ start: 0, end: 1, fontName: { ...fontName, variationSettings: axes } }],
++    },
++  ];
++  const equal = compareFigmaCaptureNodes(actual, reference({ wght: 700 }));
++  expect(equal.fontRangeEvidence).toEqual([{ nodeId: '1:1', matches: true }]);
++  expect(equal.differences).toHaveLength(1);
++  expect(
++    compareFigmaCaptureNodes(actual, reference({ wght: 600 })).fontRangeEvidence[0]?.matches,
++  ).toBe(false);
++  expect(
++    compareFigmaCaptureNodes(actual, reference({ wght: 700, wdth: 80 })).fontRangeEvidence[0]
++      ?.matches,
++  ).toBe(false);
++});
+diff --git a/service/packages/cli/test/figma-native-paints.test.ts b/service/packages/cli/test/figma-native-paints.test.ts
+index 03b8919..9542c4f 100644
+--- a/service/packages/cli/test/figma-native-paints.test.ts
++++ b/service/packages/cli/test/figma-native-paints.test.ts
+@@ -2,6 +2,25 @@ import { expect, it } from 'vitest';
+ 
+ import { normalizeNativePaints } from '../src/figma-native-paints.js';
+ 
++it('maps native stretch image transforms to crop without inventing a separate rotation', () => {
++  const result = normalizeNativePaints([
++    {
++      type: 'IMAGE',
++      imageScaleMode: 'STRETCH',
++      image: { hash: new Uint8Array(20) },
++      transform: { m00: 0.5, m11: 0.75, m02: 0.1 },
++    },
++  ]);
++  expect(result[0]).toMatchObject({
++    scaleMode: 'CROP',
++    imageTransform: [
++      [0.5, 0, 0.1],
++      [0, 0.75, 0],
++    ],
++  });
++  expect(result[0]).not.toHaveProperty('rotation');
++});
++
+ it('preserves solid alpha and gradient transforms and selects the actual animated image reference', () => {
+   const paints = normalizeNativePaints([
+     { type: 'SOLID', opacity: 0.5, color: { r: 1, g: 0, b: 0, a: 0.5 } },
+diff --git a/service/packages/cli/test/scripter-catalogs.test.ts b/service/packages/cli/test/scripter-catalogs.test.ts
+index 7be1123..a40838c 100644
+--- a/service/packages/cli/test/scripter-catalogs.test.ts
++++ b/service/packages/cli/test/scripter-catalogs.test.ts
+@@ -183,6 +183,42 @@ it('keeps bounded reads incomplete when there is no budget for a full second pas
+     expect.arrayContaining([expect.objectContaining({ reason: 'REOBSERVATION_BUDGET' })]),
+   );
+ });
++
++const readByteBudgetFixture = async (roots: number) => {
++  const { figma, page, target } = fixture();
++  figma.currentPage.children = Array.from({ length: roots }, (_, root) => ({
++    id: `1:${root}`,
++    name: 'Frame',
++    type: 'FRAME',
++    characters: '',
++    children: Array.from({ length: 10 }, (_child, child) => ({
++      id: `2:${root * 10 + child}`,
++      name: 'Text',
++      type: 'TEXT',
++      characters: 'x'.repeat(20_000),
++    })),
++  }));
++  figma.getNodeByIdAsync = async (id?: string) =>
++    figma.currentPage.children.find(node => node.id === id)!;
++  return readScripterSnapshot(page, target, {});
++};
++it('reserves bounded reobservation capacity for a complete first pass', async () => {
++  const result = await readByteBudgetFixture(40);
++  expect(result.capture.bytes).toBeLessThanOrEqual(24_000_000);
++  expect(result.nodeCount).toBe(440);
++  expect(result.capture.bytes).toBeGreaterThan(12_000_000);
++  expect(result.observation.reobserved).toBe(true);
++  expect(result.observation.readComplete).toBe(true);
++  expect(result.truncated).toBe(false);
++});
++it('keeps an oversized first pass incomplete under its original byte limit', async () => {
++  const result = await readByteBudgetFixture(70);
++  expect(result.capture.bytes).toBeLessThanOrEqual(24_000_000);
++  expect(result.observation.readComplete).toBe(false);
++  expect(result.pendingScopes).toEqual(
++    expect.arrayContaining([expect.objectContaining({ reason: 'SNAPSHOT_READ_BUDGET' })]),
++  );
++});
+ it('keeps content hashes independent of capture timestamps', async () => {
+   const { page, target } = fixture(1);
+   const first = await readScripterSnapshot(page, target, {});
+diff --git a/service/packages/ir/src/portal-run.ts b/service/packages/ir/src/portal-run.ts
+index 9460c19..5e4e9e1 100644
+--- a/service/packages/ir/src/portal-run.ts
++++ b/service/packages/ir/src/portal-run.ts
+@@ -29,6 +29,7 @@ import {
+ import { z } from 'zod';
+ 
+ import { contentHash } from './canonical-json.js';
++import { portalCaptureFreshnessMatches } from './capture-freshness.js';
+ 
+ export const PortalRepositoryGrantSchema = z
+   .object({
+@@ -267,8 +268,7 @@ export const portalCompletionIssues = (
+     issues.push('PORTAL_CAPTURE_RECEIPT_REQUIRED');
+   if (
+     plan.request.design.freshness === 'require-live' &&
+-    (!plan.design.capture ||
+-      report.capture?.freshDesignFingerprint !== plan.design.capture.designFingerprint)
++    !portalCaptureFreshnessMatches(plan.design.capture, report.capture)
+   )
+     issues.push('PORTAL_CAPTURE_FRESHNESS_REQUIRED');
+   try {
+diff --git a/service/packages/mcp/src/portal/chrome-transport.ts b/service/packages/mcp/src/portal/chrome-transport.ts
+index 138de57..fba5dd6 100644
+--- a/service/packages/mcp/src/portal/chrome-transport.ts
++++ b/service/packages/mcp/src/portal/chrome-transport.ts
+@@ -31,7 +31,7 @@ const forbidden = new Set([
+ /** Keep the Chrome permission handshake independent of a single Playwright caller's timeout. */
+ export const createRetainedChromeTransport = async (
+   remoteEndpoint: string,
+-  scope?: { matchesTarget(url: string): boolean },
++  scope?: { matchesTarget(url: string): boolean; missingTargetUrl?(): string | null },
+ ): Promise<RetainedChromeTransport> => {
+   const url = new URL(remoteEndpoint);
+   if (
+@@ -69,10 +69,13 @@ export const createRetainedChromeTransport = async (
+       method: string;
+       scopedAttach?: { waitForDebuggerOnStart: boolean };
+       scopedRoot?: boolean;
++      scopedNavigationUrl?: string;
++      scopedOpen?: { phase: 'contexts' | 'create'; url: string };
+     }
+   >();
+   const resets = new Set<number>();
+   const ownedAttachments = new Set<string>();
++  const sourceNavigations = new Map<string, string>();
+   const pendingMethods = () =>
+     [...new Set([...pending.values()].map(item => item.method))].slice(0, 32);
+   const flush = () => {
+@@ -88,15 +91,18 @@ export const createRetainedChromeTransport = async (
+ 
+   const clearClient = (socket: WebSocket) => {
+     if (client !== socket) return;
+-    const attachmentUnsettled = [...pending.values()].some(request => request.scopedRoot);
++    const attachmentUnsettled = [...pending.values()].some(
++      request => request.scopedRoot || request.scopedOpen?.phase === 'create',
++    );
+     client = null;
+     queued = [];
+     queuedBytes = 0;
+     lastPendingMethods = pendingMethods();
+     pending.clear();
++    sourceNavigations.clear();
+     if (attachmentUnsettled) {
+-      // The root attachment may have taken effect. Closing this CDP connection detaches
+-      // only its debugger sessions; never replay an attachment with an unknown outcome.
++      // An attachment or authorized source opening may have taken effect. Retire this
++      // connection rather than replaying an operation with an unknown outcome.
+       remote?.terminate();
+       failed = true;
+       return;
+@@ -176,6 +182,71 @@ export const createRetainedChromeTransport = async (
+               return;
+             }
+             ownedAttachments.add(sessionId);
++            if (request.scopedNavigationUrl)
++              sourceNavigations.set(sessionId, request.scopedNavigationUrl);
++          }
++          if (
++            request?.scopedOpen &&
++            request.owner === client &&
++            client?.readyState === WebSocket.OPEN &&
++            !message.error
++          ) {
++            const opening = request.scopedOpen;
++            const result = message.result as
++              | { browserContextIds?: unknown; targetId?: unknown }
++              | undefined;
++            if (opening.phase === 'contexts') {
++              // The normal profile is the only unambiguous creation destination.
++              if (
++                !Array.isArray(result?.browserContextIds) ||
++                result.browserContextIds.length !== 0
++              ) {
++                client.send(
++                  JSON.stringify({
++                    id: request.originalId,
++                    error: { code: -32000, message: 'CHROME_CONTEXT_AMBIGUOUS' },
++                  }),
++                );
++                return;
++              }
++              const id = ++sequence;
++              pending.set(id, {
++                owner: client,
++                originalId: request.originalId,
++                method: 'Target.createTarget',
++                scopedOpen: { phase: 'create', url: opening.url },
++              });
++              sent++;
++              remote!.send(
++                JSON.stringify({
++                  id,
++                  method: 'Target.createTarget',
++                  params: { url: 'about:blank', newWindow: false },
++                }),
++              );
++              return;
++            }
++            if (typeof result?.targetId !== 'string') {
++              fail();
++              return;
++            }
++            const id = ++sequence;
++            pending.set(id, {
++              owner: client,
++              originalId: request.originalId,
++              method: 'Target.attachToTarget',
++              scopedRoot: true,
++              scopedNavigationUrl: opening.url,
++            });
++            sent++;
++            remote!.send(
++              JSON.stringify({
++                id,
++                method: 'Target.attachToTarget',
++                params: { targetId: result.targetId, flatten: true },
++              }),
++            );
++            return;
+           }
+           if (
+             request?.scopedAttach &&
+@@ -193,6 +264,35 @@ export const createRetainedChromeTransport = async (
+                   typeof target.url === 'string' &&
+                   scope!.matchesTarget(target.url),
+               ) ?? [];
++            const openingUrl = targets.length === 0 ? scope?.missingTargetUrl?.() : null;
++            if (openingUrl) {
++              const source = new URL(openingUrl);
++              if (
++                source.protocol !== 'https:' ||
++                !['www.figma.com', 'figma.com'].includes(source.hostname) ||
++                source.username ||
++                source.password ||
++                !scope!.matchesTarget(openingUrl)
++              ) {
++                client.send(
++                  JSON.stringify({
++                    id: request.originalId,
++                    error: { code: -32000, message: 'FIGMA_URL_INVALID' },
++                  }),
++                );
++                return;
++              }
++              const id = ++sequence;
++              pending.set(id, {
++                owner: client,
++                originalId: request.originalId,
++                method: 'Target.getBrowserContexts',
++                scopedOpen: { phase: 'contexts', url: openingUrl },
++              });
++              sent++;
++              remote!.send(JSON.stringify({ id, method: 'Target.getBrowserContexts' }));
++              return;
++            }
+             if (targets.length !== 1 || typeof targets[0]!.targetId !== 'string') {
+               client.send(
+                 JSON.stringify({
+@@ -249,7 +349,14 @@ export const createRetainedChromeTransport = async (
+           socket.close(1008);
+           return;
+         }
+-        if (forbidden.has(message.method)) {
++        const sourceNavigation =
++          message.method === 'Page.navigate' &&
++          typeof message.sessionId === 'string' &&
++          sourceNavigations.has(message.sessionId) &&
++          sourceNavigations.get(message.sessionId) ===
++            (message.params as { url?: unknown } | undefined)?.url;
++        if (sourceNavigation) sourceNavigations.delete(message.sessionId as string);
++        if (forbidden.has(message.method) && !sourceNavigation) {
+           socket.send(
+             JSON.stringify({
+               id: message.id,
+diff --git a/service/packages/mcp/src/portal/coordinator.ts b/service/packages/mcp/src/portal/coordinator.ts
+index 8b82a11..3ab464f 100644
+--- a/service/packages/mcp/src/portal/coordinator.ts
++++ b/service/packages/mcp/src/portal/coordinator.ts
+@@ -1587,7 +1587,7 @@ export class PortalCoordinator {
+       }
+       if (
+         run.files.length > 300 ||
+-        run.files.reduce((sum, file) => sum + file.artifact.bytes, 0) > 67_108_864
++        run.files.reduce((sum, file) => sum + file.artifact.bytes, 0) > 100_663_296
+       )
+         throw portalError('PORTAL_CANDIDATE_LIMIT');
+       if (!this.recipes || !plan.coreRecipes) throw portalError('PORTAL_CORE_REPLAN_REQUIRED');
+diff --git a/service/packages/mcp/src/portal/native-work.ts b/service/packages/mcp/src/portal/native-work.ts
+index 2d14d42..5f5b221 100644
+--- a/service/packages/mcp/src/portal/native-work.ts
++++ b/service/packages/mcp/src/portal/native-work.ts
+@@ -43,6 +43,7 @@ import {
+   type BoundStatePermissions,
+ } from '../security/state-permissions.js';
+ import { resolvePortalAuthority, rootIdentity, type PortalAuthority } from './authority.js';
++import { provePortalPngReexport } from './capture-freshness.js';
+ import { portalContentBytes, type PortalFileContent } from './content.js';
+ import type { PortalWorkPort } from './coordinator.js';
+ import {
+@@ -778,6 +779,7 @@ export class PortalNativeWork implements PortalWorkPort {
+       assertPortalCaptureDescriptor(captured, plan.design.capture);
+       let liveDesignVerified = false;
+       let freshDesignFingerprint: string | null = null;
++      let reexport: NonNullable<PortalAcceptance['capture']>['reexport'];
+       const scopedCapture =
+         capture ??
+         (prepared?.captureSource?.kind === 'chrome' ? this.options.designCapture : undefined);
+@@ -822,6 +824,26 @@ export class PortalNativeWork implements PortalWorkPort {
+           liveDesignVerified =
+             JSON.stringify(fresh.source) === JSON.stringify(plan.design.capture!.source) &&
+             portalDesignFingerprint(refreshed) === portalDesignFingerprint(captured);
++          if (
++            !liveDesignVerified &&
++            JSON.stringify(fresh.source) === JSON.stringify(plan.design.capture!.source)
++          ) {
++            reexport =
++              (await provePortalPngReexport(captured, refreshed, fresh, signal)) ?? undefined;
++            liveDesignVerified = reexport !== undefined;
++          }
++          checks.push({
++            id: 'native-design-freshness',
++            kind: 'source-scope',
++            requirementIds: [],
++            required: true,
++            status: liveDesignVerified ? 'passed' : 'failed',
++            reason: liveDesignVerified
++              ? reexport
++                ? 'SAME_FACTS_BOUNDED_PNG_REEXPORT'
++                : 'EXACT_CAPTURE_FINGERPRINT'
++              : 'PORTAL_LIVE_DESIGN_CHANGED',
++          });
+         }
+       }
+       await this.assertPreparedProfile(profile);
+@@ -884,6 +906,7 @@ export class PortalNativeWork implements PortalWorkPort {
+             plan.design.capture,
+           ),
+           freshDesignFingerprint,
++          ...(reexport ? { reexport } : {}),
+         },
+         nativeEnvironment: {
+           version: 1,
+diff --git a/service/packages/mcp/src/portal/preview.ts b/service/packages/mcp/src/portal/preview.ts
+index 90e27ee..c00a7ad 100644
+--- a/service/packages/mcp/src/portal/preview.ts
++++ b/service/packages/mcp/src/portal/preview.ts
+@@ -78,6 +78,38 @@ const decoded = (bytes: Uint8Array) => {
+   return { width, height, rgba: new Uint8Array(png.toRGBA8(image)[0]!) };
+ };
+ 
++/** Record exact RGBA differences for the separately bounded source re-export policy. */
++export const comparePortalPngReexport = (expected: Uint8Array, actual: Uint8Array) => {
++  const left = decoded(expected),
++    right = decoded(actual);
++  if (left.width !== right.width || left.height !== right.height) return null;
++  let changedPixels = 0,
++    maxRgbDelta = 0,
++    alphaChanged = false;
++  for (let at = 0; at < left.rgba.length; at += 4) {
++    let changed = false;
++    for (let channel = 0; channel < 3; channel++) {
++      const delta = Math.abs(left.rgba[at + channel]! - right.rgba[at + channel]!);
++      maxRgbDelta = Math.max(maxRgbDelta, delta);
++      changed ||= delta !== 0;
++    }
++    if (left.rgba[at + 3] !== right.rgba[at + 3]) {
++      changed = true;
++      alphaChanged = true;
++    }
++    if (changed) changedPixels++;
++  }
++  return {
++    width: left.width,
++    height: left.height,
++    changedPixels,
++    maxRgbDelta,
++    alphaChanged,
++    originalPixelsHash: storedChecksum(left.rgba),
++    freshPixelsHash: storedChecksum(right.rgba),
++  };
++};
++
+ export const comparePortalPng = (
+   expected: Uint8Array,
+   actual: Uint8Array,
+diff --git a/service/packages/mcp/src/portal/windows-job.ts b/service/packages/mcp/src/portal/windows-job.ts
+index 92ed811..73833bc 100644
+--- a/service/packages/mcp/src/portal/windows-job.ts
++++ b/service/packages/mcp/src/portal/windows-job.ts
+@@ -53,7 +53,10 @@ public static class SfpNativeJob {
+           if(handle==IntPtr.Zero)continue;
+           try { bool member; if(!IsProcessInJob(handle,job,out member))return false;
+             // A recycled PID belonging to another job is never terminated.
+-            if(member && !TerminateProcess(handle,125))return false;
++            // A member can exit after enumeration, or already be terminating from the prior pass.
++            // Failure is not stop proof. Requery within the existing bound and require a job
++            // containing only this broker before emitting STOPPED; persistent live members fail.
++            if(member)TerminateProcess(handle,125);
+           } finally {CloseHandle(handle);}
+         }
+         if(!others)return true;
+diff --git a/service/packages/mcp/test/portal/chrome-transport.test.ts b/service/packages/mcp/test/portal/chrome-transport.test.ts
+index 92f2587..2d7bff2 100644
+--- a/service/packages/mcp/test/portal/chrome-transport.test.ts
++++ b/service/packages/mcp/test/portal/chrome-transport.test.ts
+@@ -16,6 +16,7 @@ const fakeChrome = async (
+   initiallyAllowed = true,
+   unansweredMethod?: string,
+   targetInfos: object[] = [],
++  browserContextIds: string[] = [],
+ ) => {
+   const server = createServer();
+   const sockets = new WebSocketServer({ noServer: true });
+@@ -55,9 +56,13 @@ const fakeChrome = async (
+               ? { product: 'FixtureChrome' }
+               : message.method === 'Target.getTargets'
+                 ? { targetInfos }
+-                : message.method === 'Target.attachToTarget'
+-                  ? { sessionId: 'owned-source-session' }
+-                  : {},
++                : message.method === 'Target.getBrowserContexts'
++                  ? { browserContextIds }
++                  : message.method === 'Target.createTarget'
++                    ? { targetId: 'created-source' }
++                    : message.method === 'Target.attachToTarget'
++                      ? { sessionId: 'owned-source-session' }
++                      : {},
+         }),
+       );
+     }),
+@@ -145,6 +150,95 @@ it('initializes only the selected page and preserves nested target attachment',
+   });
+ });
+ 
++it('opens only the authorized missing source and grants exactly one matching navigation', async () => {
++  const sourceUrl = 'https://www.figma.com/design/openFixtureKey?node-id=0-1';
++  const chrome = await fakeChrome();
++  const bridge = await createRetainedChromeTransport(chrome.endpoint, {
++    matchesTarget: url => url === sourceUrl,
++    missingTargetUrl: () => sourceUrl,
++  });
++  cleanups.push(() => bridge.close());
++  const client = await clientFor(bridge.endpoint, bridge.headers);
++  expect(
++    await reply(client, { id: 1, method: 'Target.setAutoAttach', params: { autoAttach: true } }),
++  ).toEqual({ id: 1, result: { sessionId: 'owned-source-session' } });
++  expect(chrome.commands.map(command => command.method)).toEqual([
++    'Target.getTargets',
++    'Target.getBrowserContexts',
++    'Target.createTarget',
++    'Target.attachToTarget',
++  ]);
++  expect(chrome.commands[2]?.params).toEqual({ url: 'about:blank', newWindow: false });
++  expect(chrome.commands[3]?.params).toEqual({ targetId: 'created-source', flatten: true });
++  const navigate = (id: number, url?: string, sessionId = 'owned-source-session') =>
++    reply(client, { id, method: 'Page.navigate', sessionId, params: { url } });
++  expect(await navigate(2, sourceUrl, 'unrelated-session')).toHaveProperty('error');
++  expect(await navigate(3, 'https://example.test/')).toHaveProperty('error');
++  expect(await navigate(4, undefined)).toHaveProperty('error');
++  expect(await navigate(5, sourceUrl)).toEqual({
++    id: 5,
++    sessionId: 'owned-source-session',
++    result: {},
++  });
++  expect(await navigate(6, sourceUrl)).toHaveProperty('error');
++  expect(
++    await reply(client, { id: 7, method: 'Target.createTarget', params: { url: sourceUrl } }),
++  ).toHaveProperty('error');
++  expect(chrome.commands.filter(command => command.method === 'Page.navigate')).toHaveLength(1);
++});
++
++it('does not guess among browser contexts when a missing source is requested', async () => {
++  const chrome = await fakeChrome(true, undefined, [], ['other-context']);
++  const bridge = await createRetainedChromeTransport(chrome.endpoint, {
++    matchesTarget: () => true,
++    missingTargetUrl: () => 'https://www.figma.com/design/openFixtureKey',
++  });
++  cleanups.push(() => bridge.close());
++  const client = await clientFor(bridge.endpoint, bridge.headers);
++  expect(
++    await reply(client, { id: 1, method: 'Target.setAutoAttach', params: { autoAttach: true } }),
++  ).toMatchObject({ error: { message: 'CHROME_CONTEXT_AMBIGUOUS' } });
++  expect(chrome.commands.map(command => command.method)).toEqual([
++    'Target.getTargets',
++    'Target.getBrowserContexts',
++  ]);
++});
++
++it('does not create a missing source outside the bound Figma destination', async () => {
++  const chrome = await fakeChrome();
++  const bridge = await createRetainedChromeTransport(chrome.endpoint, {
++    matchesTarget: () => true,
++    missingTargetUrl: () => 'https://example.test/other',
++  });
++  cleanups.push(() => bridge.close());
++  const client = await clientFor(bridge.endpoint, bridge.headers);
++  expect(
++    await reply(client, { id: 1, method: 'Target.setAutoAttach', params: { autoAttach: true } }),
++  ).toMatchObject({ error: { message: 'FIGMA_URL_INVALID' } });
++  expect(chrome.commands.map(command => command.method)).toEqual(['Target.getTargets']);
++});
++
++it('retires an unknown source creation outcome without replaying it', async () => {
++  const chrome = await fakeChrome(true, 'Target.createTarget');
++  const bridge = await createRetainedChromeTransport(chrome.endpoint, {
++    matchesTarget: () => true,
++    missingTargetUrl: () => 'https://www.figma.com/design/openFixtureKey',
++  });
++  cleanups.push(() => bridge.close());
++  const client = await clientFor(bridge.endpoint, bridge.headers);
++  client.send(
++    JSON.stringify({ id: 1, method: 'Target.setAutoAttach', params: { autoAttach: true } }),
++  );
++  await vi.waitFor(() =>
++    expect(chrome.commands.some(command => command.method === 'Target.createTarget')).toBe(true),
++  );
++  client.close();
++  await vi.waitFor(() => expect(bridge.state()).toBe('unavailable'));
++  expect(chrome.commands.filter(command => command.method === 'Target.createTarget')).toHaveLength(
++    1,
++  );
++});
++
+ it.each([0, 2])('does not attach any page when the selected target count is %i', async count => {
+   const chrome = await fakeChrome(
+     true,
+diff --git a/service/packages/mcp/test/portal/coordinator.test.ts b/service/packages/mcp/test/portal/coordinator.test.ts
+index 3a78c20..13e86fa 100644
+--- a/service/packages/mcp/test/portal/coordinator.test.ts
++++ b/service/packages/mcp/test/portal/coordinator.test.ts
+@@ -79,12 +79,12 @@ const setup = async (
+   };
+   return { ...fixture, work, coordinator, invoke, capture };
+ };
+-it('accepts a multi-screen candidate above 32 MiB and rejects growth beyond 64 MiB', async () => {
++it('preserves large original image sets within 96 MiB and rejects excess candidate bytes', async () => {
+   const value = await setup();
+   const plan = await value.invoke('portal_plan', { case: 'new-blank' });
+   await value.invoke('portal_start', { planId: plan.planId });
+   const next = await value.invoke('portal_next', { runId: plan.planId });
+-  // Seed durable size accounting to exercise the aggregate boundary without allocating 64 MiB.
++  // Exercise durable aggregate accounting without allocating the complete captured image set.
+   const seed = (total: number) =>
+     value.store.update('runs', plan.planId, PortalRunSchema, run => ({
+       ...run,
+@@ -97,7 +97,7 @@ it('accepts a multi-screen candidate above 32 MiB and rejects growth beyond 64 M
+         artifact: {
+           path: `contents/photo-${index}.json`,
+           hash: storedChecksum(`photo-${index}`),
+-          bytes: total / 8,
++          bytes: Math.floor(total / 8) + (index < total % 8 ? 1 : 0),
+         },
+       })),
+     }));
+@@ -118,12 +118,20 @@ it('accepts a multi-screen candidate above 32 MiB and rejects growth beyond 64 M
+       },
+     ],
+   };
+-  await seed(40 * 1024 * 1024);
++  // The complete eCommerce capture contains 89,090,574 bytes of original images.
++  await seed(89_090_574);
+   expect((await value.invoke('portal_submit', args)).state).toBe('generating');
+-  await seed(64 * 1024 * 1024);
++  await seed(96 * 1024 * 1024 - Buffer.byteLength(content));
++  expect((await value.invoke('portal_submit', args)).state).toBe('generating');
++  await seed(96 * 1024 * 1024);
+   await expect(value.invoke('portal_submit', args)).rejects.toMatchObject({
+     code: 'PORTAL_CANDIDATE_LIMIT',
+   });
++  const retained = await value.store.get('runs', plan.planId, PortalRunSchema);
++  expect(retained!.files).toHaveLength(8);
++  expect(retained!.files.reduce((total, file) => total + file.artifact.bytes, 0)).toBe(
++    96 * 1024 * 1024,
++  );
+ }, 60_000);
+ it('returns evidence without a lease for a draft operational blueprint and starts its confirmed replacement', async () => {
+   const value = await setup();
+diff --git a/service/packages/mcp/test/portal/native-artifacts.test.ts b/service/packages/mcp/test/portal/native-artifacts.test.ts
+index a84590d..c454e3d 100644
+--- a/service/packages/mcp/test/portal/native-artifacts.test.ts
++++ b/service/packages/mcp/test/portal/native-artifacts.test.ts
+@@ -206,6 +206,8 @@ it('records and verifies producer outputs before dependent commands and acceptan
+   });
+   value.profile.artifactAuthority = await prepareNativeArtifactAuthority(value.profile);
+   const result = await value.run();
++  const failed = result.commands.filter(command => command.status !== 'passed');
++  if (failed.length) throw new Error('Native producer fixture failed: ' + JSON.stringify(failed));
+   expect(result.commands.map(command => command.status)).toEqual(['passed', 'passed']);
+   expect(result.outputReceipts).toHaveLength(1);
+   await mkdir(join(value.root, 'node_modules', 'new'));
+diff --git a/service/packages/mcp/test/portal/native-environment.test.ts b/service/packages/mcp/test/portal/native-environment.test.ts
+index 473819f..cd94df5 100644
+--- a/service/packages/mcp/test/portal/native-environment.test.ts
++++ b/service/packages/mcp/test/portal/native-environment.test.ts
+@@ -258,7 +258,16 @@ it.runIf(process.platform === 'win32')(
+ 
+ it
+   .runIf(process.platform === 'win32')
+-  .each(['failed', 'timeout', 'cancelled', 'before-permit', 'parent-eof'] as const)(
++  .each([
++    'failed',
++    'timeout',
++    'cancelled',
++    'before-permit',
++    'parent-eof',
++    'exit-race-1',
++    'exit-race-2',
++    'exit-race-3',
++  ] as const)(
+   'releases only after real broker tree-stop proof for %s commands',
+   async mode => {
+     const f = await fixture(),
+@@ -279,7 +288,9 @@ it
+     const source =
+       mode === 'failed'
+         ? 'process.exit(7)'
+-        : `require('node:fs').writeFileSync(${JSON.stringify(marker)},'started');setInterval(()=>{},1000);`;
++        : mode.startsWith('exit-race')
++          ? 'for(let i=0;i<16;i++)require("node:child_process").spawn(process.execPath,["-e","setTimeout(()=>{},20)"],{stdio:"ignore",windowsHide:true}).unref();'
++          : `require('node:fs').writeFileSync(${JSON.stringify(marker)},'started');setInterval(()=>{},1000);`;
+     const script = join(f.workspaceRoot, 'process.cjs');
+     await writeFile(script, source);
+     const broker = windowsJobCommand(
+@@ -320,7 +331,15 @@ it
+         else controller.abort();
+       }
+       const code = await closed;
+-      expect(code).toBe(mode === 'failed' ? 7 : mode === 'before-permit' ? 125 : 124);
++      expect(code).toBe(
++        mode === 'failed'
++          ? 7
++          : mode === 'before-permit'
++            ? 125
++            : mode.startsWith('exit-race')
++              ? 0
++              : 124,
++      );
+       await control.finish();
+       const markerExists = await readFile(marker).then(
+         () => true,
+diff --git a/service/packages/mcp/test/security/pairing.test.ts b/service/packages/mcp/test/security/pairing.test.ts
+index 14cf74c..fb7cb2e 100644
+--- a/service/packages/mcp/test/security/pairing.test.ts
++++ b/service/packages/mcp/test/security/pairing.test.ts
+@@ -13,7 +13,7 @@ import {
+   newId,
+   SystemMethod,
+ } from '@sfp/shared';
+-import { afterEach, describe, expect, it } from 'vitest';
++import { afterEach, describe, expect, it, vi } from 'vitest';
+ import { WebSocket } from 'ws';
+ 
+ import { Relay } from '../../src/relay/relay.js';
+@@ -28,6 +28,7 @@ import {
+ 
+ const roots: string[] = [];
+ const servers: { http: Server; relay: Relay }[] = [];
++const barrierReleases: Array<() => void> = [];
+ 
+ const secureTestRoot = async (): Promise<{
+   stateRoot: string;
+@@ -75,6 +76,8 @@ const openManager = async (
+ };
+ 
+ afterEach(async () => {
++  for (const release of barrierReleases.splice(0)) release();
++  vi.useRealTimers();
+   await Promise.all(
+     servers.splice(0).map(async ({ http, relay }) => {
+       await relay.stop();
+@@ -1035,6 +1038,7 @@ describe('ticket and resume authentication', () => {
+       const commitPublishBarrier = new Promise<void>(resolve => {
+         releaseCommit = resolve;
+       });
++      barrierReleases.push(releaseCommit);
+       let publishCalls = 0;
+       const manager = await createPairingManager({
+         stateRoot,
+@@ -1047,6 +1051,7 @@ describe('ticket and resume authentication', () => {
+           }
+         },
+       });
++      if (terminalCause === 'timeout') vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout'] });
+       const { port, relay } = await startRelay(manager, undefined, helloTimeoutMs);
+       const socket = await connect(port);
+       const request = createRequest({
+@@ -1064,6 +1069,7 @@ describe('ticket and resume authentication', () => {
+ 
+       if (terminalCause === 'extra-frame') socket.send(Buffer.from([0]));
+       if (terminalCause === 'socket-close') socket.terminate();
++      if (terminalCause === 'timeout') await vi.advanceTimersByTimeAsync(helloTimeoutMs!);
+       const closeCode = await close;
+       expect(closeCode).toBe(expectedCloseCode);
+       releaseCommit();
+diff --git a/service/packages/shared/src/portal-capture-source.ts b/service/packages/shared/src/portal-capture-source.ts
+index 371df29..d626e7b 100644
+--- a/service/packages/shared/src/portal-capture-source.ts
++++ b/service/packages/shared/src/portal-capture-source.ts
+@@ -61,3 +61,70 @@ export const PortalCaptureDescriptorSchema = z
+   })
+   .strict();
+ export type PortalCaptureDescriptor = z.infer<typeof PortalCaptureDescriptorSchema>;
++
++/** Narrow export-noise policy; independent of frontend visual comparison thresholds. */
++export const PortalPngReexportComparisonSchema = z
++  .object({
++    width: z.number().int().min(1).max(8192),
++    height: z.number().int().min(1).max(16384),
++    changedPixels: z.number().int().min(0),
++    maxRgbDelta: z.number().int().min(0).max(1),
++    alphaChanged: z.literal(false),
++    originalPixelsHash: hash,
++    freshPixelsHash: hash,
++  })
++  .strict()
++  .refine(
++    value =>
++      value.width * value.height <= 20_000_000 &&
++      value.changedPixels <= Math.floor((value.width * value.height) / 10_000) &&
++      (value.changedPixels === 0) === (value.originalPixelsHash === value.freshPixelsHash) &&
++      (value.changedPixels === 0) === (value.maxRgbDelta === 0),
++    'PORTAL_PNG_REEXPORT_LIMIT',
++  );
++
++export const PortalCaptureReexportProofSchema = z
++  .object({
++    version: z.literal(1),
++    policy: z.literal('same-facts-png-quantization-v1'),
++    freshDescriptor: PortalCaptureDescriptorSchema,
++    assets: z
++      .array(
++        z
++          .object({
++            query: z.union([
++              z.object({ kind: z.literal('png'), nodeId: id }).strict(),
++              z.object({ kind: z.literal('svg'), nodeId: id }).strict(),
++              z
++                .object({
++                  kind: z.literal('image'),
++                  imageHash: z.string().regex(/^[a-f0-9]{40}$/u),
++                })
++                .strict(),
++            ]),
++            originalHash: hash,
++            originalBytes: z.number().int().min(1).max(16_777_216),
++            freshHash: hash,
++            freshBytes: z.number().int().min(1).max(16_777_216),
++            exportedFrom: z.object({ nodeId: id, geometryHash: hash }).strict().nullable(),
++            png: PortalPngReexportComparisonSchema.optional(),
++          })
++          .strict(),
++      )
++      .min(1)
++      .max(4096),
++  })
++  .strict()
++  .refine(value => {
++    const queries = value.assets.map(asset => JSON.stringify(asset.query));
++    return (
++      new Set(queries).size === queries.length &&
++      value.assets.some(asset => asset.originalHash !== asset.freshHash) &&
++      value.assets.every(asset =>
++        asset.originalHash === asset.freshHash
++          ? asset.originalBytes === asset.freshBytes && asset.png === undefined
++          : asset.query.kind === 'png' && asset.png !== undefined,
++      )
++    );
++  }, 'PORTAL_CAPTURE_REEXPORT_PROOF_INVALID');
++export type PortalCaptureReexportProof = z.infer<typeof PortalCaptureReexportProofSchema>;
+diff --git a/service/packages/shared/src/portal.ts b/service/packages/shared/src/portal.ts
+index 7321a6a..ff97d06 100644
+--- a/service/packages/shared/src/portal.ts
++++ b/service/packages/shared/src/portal.ts
+@@ -18,6 +18,7 @@ export * from './portal-observations.js';
+ import {
+   PortalCaptureSourceSchema,
+   PortalCaptureDescriptorSchema,
++  PortalCaptureReexportProofSchema,
+   type PortalCaptureGrant,
+ } from './portal-capture-source.js';
+ import { ProjectProfileSchema } from './project-profile.js';
+@@ -697,6 +698,7 @@ export const PortalAcceptanceSchema = z
+         version: z.literal(2),
+         originalDescriptorHash: PortalHashSchema,
+         freshDesignFingerprint: PortalHashSchema.nullable(),
++        reexport: PortalCaptureReexportProofSchema.optional(),
+       })
+       .strict()
+       .optional(),
+diff --git a/service/upstream-lock.json b/service/upstream-lock.json
+index 11903a3..05b79d8 100644
+--- a/service/upstream-lock.json
++++ b/service/upstream-lock.json
+@@ -76,6 +76,10 @@
+         "path": "capabilities/change-manifests/task-review-2026-10-02.json",
+         "sha256": "a54c127a33e4c1bffe8b500a96f853e2542486ec1dbd850387a8708098b8bc2e"
+       },
++      {
++        "path": "capabilities/change-manifests/task-review-2026-10-04.json",
++        "sha256": "90b1d291e61d936d74498accfe0851914ee6598ff663db2392c301a989ebf1cf"
++      },
+       {
+         "path": "capabilities/figmosha-feature-map.json",
+         "sha256": "ce423b9ed67c825a84e5b2500124a305ca5b5119e5e07f8a79aabca05a49d862"
+@@ -112,14 +116,46 @@
+         "path": "capabilities/reconciliations/review-2026-10-02.json",
+         "sha256": "10f96bcb4820b3d3fc6f112db333b27d54920ccb5a3c9fefa2476da33f8e9f3d"
+       },
++      {
++        "path": "capabilities/reconciliations/review-2026-10-04-capture-budget.json",
++        "sha256": "a65c54396735a907925dc6053f5b9c137801d5eb92ca0fabea0a9526c240fa6a"
++      },
+       {
+         "path": "capabilities/reconciliations/review-2026-10-04-cdd-runtime.json",
+         "sha256": "1f58e1e9d8a1c5a6216ffa4a007673f76a55d53d773d9a67b66cff84118902cc"
+       },
++      {
++        "path": "capabilities/reconciliations/review-2026-10-04-chrome-opening.json",
++        "sha256": "0c799966222daba8ee588450858646c0255f13e51c1a9903531f77507c09ccdc"
++      },
++      {
++        "path": "capabilities/reconciliations/review-2026-10-04-control-poll.json",
++        "sha256": "006793d8107a2e0bc4ca061fce570861bbaa26c252daddadbcc22be9a9d98769"
++      },
++      {
++        "path": "capabilities/reconciliations/review-2026-10-04-native-behavior.json",
++        "sha256": "cee8cd4c9684d476fa1fcaef6aff1fe2cf41ddc7e642e877a7713820337c8fec"
++      },
++      {
++        "path": "capabilities/reconciliations/review-2026-10-04-native-field-parity.json",
++        "sha256": "27e4d9bbd3d3401c50b63721c55b74508942b59ca49bda3808ac9955d3888870"
++      },
++      {
++        "path": "capabilities/reconciliations/review-2026-10-04-native-styles.json",
++        "sha256": "bd86566fb8127b85bdd214fc00928c1845926e90a8641e833d32f5fde5ddbf4a"
++      },
++      {
++        "path": "capabilities/reconciliations/review-2026-10-04-png-reexport.json",
++        "sha256": "35b18505bbd115ab4c6e1cdbf22bc42bd4677884355ff2b6ae9628c704dfe03a"
++      },
+       {
+         "path": "capabilities/reconciliations/review-2026-10-04-required-chrome.json",
+         "sha256": "7de9064a76ca3b29481d854dc5da7bfa972108ea01b775906019e29f11d49480"
+       },
++      {
++        "path": "capabilities/reconciliations/review-2026-10-04-windows-drain.json",
++        "sha256": "48e5adcbf8ded03642a943bb5b7db0054fe1a8735dedfefb117b7251afa45139"
++      },
+       {
+         "path": "capabilities/rust-tool-compat.json",
+         "sha256": "a13fc9633b0406946b78f800135d1420d00de0da77cd27f4f62a4334dd70615a"
+@@ -172,9 +208,13 @@
+         "path": "capabilities/task-review-2026-10-02-authority-classes.json",
+         "sha256": "379057c1eaa1e7433d9814c526c59b7e2a2c110df933f7acf396ae4836373641"
+       },
++      {
++        "path": "capabilities/task-review-2026-10-04-authority-classes.json",
++        "sha256": "8fefb7a5d205664d66ff3763cb86faf92dcd9d67f5138483c2c20bd453b54b27"
++      },
+       {
+         "path": "capabilities/union-manifest.json",
+-        "sha256": "a859a83d5db6d640ea5fc79239053945cbe9bb059d4dec0189dd599c9fd00eb4"
++        "sha256": "f52f4cdab4a4363523b42e8ceb3c67c7c08f6fa630df1612c7e2ff069c0ded85"
+       },
+       {
+         "path": "packages/mcp/README.md",
+@@ -520,6 +560,10 @@
+         "path": "packages/mcp/src/portal/capture-failure.ts",
+         "sha256": "398ff45e5f9b7870404204bf90483153f253a7b7cb51587724ee1be8a5c805f0"
+       },
++      {
++        "path": "packages/mcp/src/portal/capture-freshness.ts",
++        "sha256": "8885eeb376a0099ab357325c442e634695eb40c9aaef77210ce092db031d078e"
++      },
+       {
+         "path": "packages/mcp/src/portal/capture-runtime.ts",
+         "sha256": "02c59cf19028097f6ac700cf895092932631d80c1b666a445c72e80aa2191bab"
+@@ -534,7 +578,7 @@
+       },
+       {
+         "path": "packages/mcp/src/portal/chrome-transport.ts",
+-        "sha256": "d5f07afa1c393c49686ca2da83d266c4c15bfa11165755341b6ab49e4b05c4f9"
++        "sha256": "2abeb0726ef7b94040d45c048f5c6ea959960d7d72cb1d03dd229e8787f4df97"
+       },
+       {
+         "path": "packages/mcp/src/portal/content.ts",
+@@ -546,7 +590,7 @@
+       },
+       {
+         "path": "packages/mcp/src/portal/coordinator.ts",
+-        "sha256": "0301de688d63884ed0fff66d566bfeb36f7a1b62f7a0cc1453ccdfedc005a776"
++        "sha256": "669cdfed433186444838be3819ba4dba7789833b2a1515f7184ebee6ce5a6d6d"
+       },
+       {
+         "path": "packages/mcp/src/portal/design-capture.ts",
+@@ -606,7 +650,7 @@
+       },
+       {
+         "path": "packages/mcp/src/portal/native-work.ts",
+-        "sha256": "a01ac0222dc823c940d68530101c3081110e84a1bd4a8898715cc5533a21989f"
++        "sha256": "ee6af25547649f3daa30176d8ec0780bdd6d24b1da17901b74bdf9dcd81ae122"
+       },
+       {
+         "path": "packages/mcp/src/portal/observation-manifest.ts",
+@@ -642,7 +686,7 @@
+       },
+       {
+         "path": "packages/mcp/src/portal/preview.ts",
+-        "sha256": "e4868718d6e86242e728834c5ba2a861729e4674f8ad827547de237ae4682f8a"
++        "sha256": "ed2a361fb8f261051f9e2836f264a1f6c56b5bd6ddcfd06f9bd7472160cf47f4"
+       },
+       {
+         "path": "packages/mcp/src/portal/profile-closure.ts",
+@@ -750,7 +794,7 @@
+       },
+       {
+         "path": "packages/mcp/src/portal/windows-job.ts",
+-        "sha256": "86ace3d85fd7b494f2555bfb1fcafcc38e2b237776e8884a8bdb488834d90435"
++        "sha256": "33771c8ff15187400566c14e86728721c22e63ada22053631b031f01af79aec6"
+       },
+       {
+         "path": "packages/mcp/src/portal/workflow-requirements.ts",
+@@ -1784,6 +1828,10 @@
+         "path": "packages/mcp/test/portal/capture-plane.test.ts",
+         "sha256": "b01e8a09a70a9e714d6da72d758093317b3bc99261e16d619197fd33a81a6735"
+       },
++      {
++        "path": "packages/mcp/test/portal/capture-reexport.test.ts",
++        "sha256": "2e124c80613b2067133a37454ec7b6d35dbb4073a683213ee8ee9d77f12e14aa"
++      },
+       {
+         "path": "packages/mcp/test/portal/capture-session.test.ts",
+         "sha256": "3bc8c791787125a50ba561eea40f3b0f60b14df5e3d8edfba159aad553d77a25"
+@@ -1794,7 +1842,7 @@
+       },
+       {
+         "path": "packages/mcp/test/portal/chrome-transport.test.ts",
+-        "sha256": "31421b7d55a9b4d891281f597f59c2c088415a835211600a5098cad336b57662"
++        "sha256": "1c690199a9513a1087e7e1a5fec5349da43168e6529517994952e7a984e58fdb"
+       },
+       {
+         "path": "packages/mcp/test/portal/consumption-components.test.ts",
+@@ -1818,7 +1866,7 @@
+       },
+       {
+         "path": "packages/mcp/test/portal/coordinator.test.ts",
+-        "sha256": "3a13ca5ab42543cde4e759ca832bf426bb5cbebebe0b006dd623894b760f4860"
++        "sha256": "f3e521e3ecfacdbee33f6c5585375180cb60d4a0027e419020d9168497f52568"
+       },
+       {
+         "path": "packages/mcp/test/portal/core-coordinator.test.ts",
+@@ -1874,7 +1922,7 @@
+       },
+       {
+         "path": "packages/mcp/test/portal/native-artifacts.test.ts",
+-        "sha256": "2178da75626df9b50ecbcb82e188e9dd259ad465bd36d8accb7908f2abd484ab"
++        "sha256": "d007a000b6cc2b8a4fcfa27e498dd692581ab4a35c67cc20f6517780108bbaa2"
+       },
+       {
+         "path": "packages/mcp/test/portal/native-directory-creation.test.ts",
+@@ -1882,7 +1930,7 @@
+       },
+       {
+         "path": "packages/mcp/test/portal/native-environment.test.ts",
+-        "sha256": "937f3954c75f11738e152153022aa6962d371d7877c416e13d62b4a6122d26e3"
++        "sha256": "5ad222219f5765c40ef29c7b990192298ceaaa66b27c0cd90fd8b128f3a5b2ce"
+       },
+       {
+         "path": "packages/mcp/test/portal/native-lifecycle-archive.test.ts",
+@@ -2034,7 +2082,7 @@
+       },
+       {
+         "path": "packages/mcp/test/security/pairing.test.ts",
+-        "sha256": "75ba46eb2eb08d3ab284e0a9773b23e5e314891e9b9a33680d4d0e2fcff0e551"
++        "sha256": "6bbc21364c8870aeb29a0b54786c15f9ed0e5077e5d33046c3a0ffbc8c101885"
+       },
+       {
+         "path": "packages/mcp/test/security/pna.test.ts",
+@@ -2846,7 +2894,7 @@
+       },
+       {
+         "path": "packages/shared/src/portal-capture-source.ts",
+-        "sha256": "b47ab38481fd10a3064680ae03d35939f9515003b568f2511f30f3a160be0d2a"
++        "sha256": "87bf640ab374220f586a4079a798780a2ee0a04da695f96f8e3a2d10b1986d43"
+       },
+       {
+         "path": "packages/shared/src/portal-consumption.ts",
+@@ -2874,7 +2922,7 @@
+       },
+       {
+         "path": "packages/shared/src/portal.ts",
+-        "sha256": "3964232d01a1f67c390a8b209a104cafc01165d38d21db037ef8101d1260fa42"
++        "sha256": "81cfc66c697a52e59f65a64ee828bf5c351efd297b750995799387ed48b9fc0a"
+       },
+       {
+         "path": "packages/shared/src/progress.ts",
+@@ -3155,6 +3203,10 @@
+       "path": "capabilities/change-manifests/task-review-2026-10-02.json",
+       "sha256": "a54c127a33e4c1bffe8b500a96f853e2542486ec1dbd850387a8708098b8bc2e"
+     },
++    {
++      "path": "capabilities/change-manifests/task-review-2026-10-04.json",
++      "sha256": "90b1d291e61d936d74498accfe0851914ee6598ff663db2392c301a989ebf1cf"
++    },
+     {
+       "path": "capabilities/figmosha-feature-map.json",
+       "sha256": "ce423b9ed67c825a84e5b2500124a305ca5b5119e5e07f8a79aabca05a49d862"
+@@ -3191,14 +3243,46 @@
+       "path": "capabilities/reconciliations/review-2026-10-02.json",
+       "sha256": "10f96bcb4820b3d3fc6f112db333b27d54920ccb5a3c9fefa2476da33f8e9f3d"
+     },
++    {
++      "path": "capabilities/reconciliations/review-2026-10-04-capture-budget.json",
++      "sha256": "a65c54396735a907925dc6053f5b9c137801d5eb92ca0fabea0a9526c240fa6a"
++    },
+     {
+       "path": "capabilities/reconciliations/review-2026-10-04-cdd-runtime.json",
+       "sha256": "1f58e1e9d8a1c5a6216ffa4a007673f76a55d53d773d9a67b66cff84118902cc"
+     },
++    {
++      "path": "capabilities/reconciliations/review-2026-10-04-chrome-opening.json",
++      "sha256": "0c799966222daba8ee588450858646c0255f13e51c1a9903531f77507c09ccdc"
++    },
++    {
++      "path": "capabilities/reconciliations/review-2026-10-04-control-poll.json",
++      "sha256": "006793d8107a2e0bc4ca061fce570861bbaa26c252daddadbcc22be9a9d98769"
++    },
++    {
++      "path": "capabilities/reconciliations/review-2026-10-04-native-behavior.json",
++      "sha256": "cee8cd4c9684d476fa1fcaef6aff1fe2cf41ddc7e642e877a7713820337c8fec"
++    },
++    {
++      "path": "capabilities/reconciliations/review-2026-10-04-native-field-parity.json",
++      "sha256": "27e4d9bbd3d3401c50b63721c55b74508942b59ca49bda3808ac9955d3888870"
++    },
++    {
++      "path": "capabilities/reconciliations/review-2026-10-04-native-styles.json",
++      "sha256": "bd86566fb8127b85bdd214fc00928c1845926e90a8641e833d32f5fde5ddbf4a"
++    },
++    {
++      "path": "capabilities/reconciliations/review-2026-10-04-png-reexport.json",
++      "sha256": "35b18505bbd115ab4c6e1cdbf22bc42bd4677884355ff2b6ae9628c704dfe03a"
++    },
+     {
+       "path": "capabilities/reconciliations/review-2026-10-04-required-chrome.json",
+       "sha256": "7de9064a76ca3b29481d854dc5da7bfa972108ea01b775906019e29f11d49480"
+     },
++    {
++      "path": "capabilities/reconciliations/review-2026-10-04-windows-drain.json",
++      "sha256": "48e5adcbf8ded03642a943bb5b7db0054fe1a8735dedfefb117b7251afa45139"
++    },
+     {
+       "path": "capabilities/rust-tool-compat.json",
+       "sha256": "a13fc9633b0406946b78f800135d1420d00de0da77cd27f4f62a4334dd70615a"
+@@ -3251,9 +3335,13 @@
+       "path": "capabilities/task-review-2026-10-02-authority-classes.json",
+       "sha256": "379057c1eaa1e7433d9814c526c59b7e2a2c110df933f7acf396ae4836373641"
+     },
++    {
++      "path": "capabilities/task-review-2026-10-04-authority-classes.json",
++      "sha256": "8fefb7a5d205664d66ff3763cb86faf92dcd9d67f5138483c2c20bd453b54b27"
++    },
+     {
+       "path": "capabilities/union-manifest.json",
+-      "sha256": "a859a83d5db6d640ea5fc79239053945cbe9bb059d4dec0189dd599c9fd00eb4"
++      "sha256": "f52f4cdab4a4363523b42e8ceb3c67c7c08f6fa630df1612c7e2ff069c0ded85"
+     },
+     {
+       "path": "connect-desktop.ps1",
+@@ -3265,7 +3353,7 @@
+     },
+     {
+       "path": "docs/portal-native.md",
+-      "sha256": "a2d92b41ec9a1d0bb8c967d8ec2ac04357543c742b2c39263e5879af04915aa9"
++      "sha256": "f7f2d29c3628e140bac9fb0c1a90fa6bb10802b0227ade4f095ff895aa6e9f7b"
+     },
+     {
+       "path": "docs/reviews/2026-10-02-lossless-design-inverses.md",
+@@ -3309,7 +3397,7 @@
+     },
+     {
+       "path": "packages/cli/src/artifacts.ts",
+-      "sha256": "95cbb9674e9ef3f954cc8b1a4f78782eda2a41a7b920fae09cabf368785dbc56"
++      "sha256": "9cecb4078cf727cb626183010a6d20070ce2fb012d963c1fed08b26feebe990b"
+     },
+     {
+       "path": "packages/cli/src/asset-program.ts",
+@@ -3317,7 +3405,7 @@
+     },
+     {
+       "path": "packages/cli/src/browser-session.ts",
+-      "sha256": "c580ab7f99ded47985c295043f0bfd196768f19e45b453ec8dd794bca6b4c933"
++      "sha256": "b1282a5bb45a79c5c4f2751c6db41d22b30c6ba7770dd09ac2359c8edcdcf552"
+     },
+     {
+       "path": "packages/cli/src/capture-assets.ts",
+@@ -3333,11 +3421,11 @@
+     },
+     {
+       "path": "packages/cli/src/commands.ts",
+-      "sha256": "512cf0159de9c4ec5f9580e31206a52b9985b5965afa6d6f3316f11ee272da78"
++      "sha256": "eed08366911ac7355f2ad00f16eba14bc258e829ce31c53f567d1e49d5aa9978"
+     },
+     {
+       "path": "packages/cli/src/control-client.ts",
+-      "sha256": "044df5131d1c66faaadc38e77bd01667acb001db526aab6bee375286d7575bd3"
++      "sha256": "669b0381db8641d7d278aeaf1f1e4a0ad39e2842844207e648c24e499df867fa"
+     },
+     {
+       "path": "packages/cli/src/desktop-reader.ts",
+@@ -3351,22 +3439,42 @@
+       "path": "packages/cli/src/figma-native-document.ts",
+       "sha256": "e864db52674c282d4cedd461ab21ded084f12b730927da25048624265275154d"
+     },
++    {
++      "path": "packages/cli/src/figma-native-font-ranges.ts",
++      "sha256": "ff768838e272ad821262bc646123546b83d092584af21bd37622a1bd33414b64"
++    },
+     {
+       "path": "packages/cli/src/figma-native-geometry.ts",
+-      "sha256": "76e6579bcd0cf69b9af8c8f30f917a94af9d75dee0615040ec31a2f0e71d9a52"
++      "sha256": "8051a12b23d9e2bcb662625fcbb2613bb956076bdc2148c2abb4809ad9f903ee"
++    },
++    {
++      "path": "packages/cli/src/figma-native-layout.ts",
++      "sha256": "d34085b33438383f6cfc0971a084df1a821976bf7b59dab437ecc1f982dd9aee"
+     },
+     {
+       "path": "packages/cli/src/figma-native-nodes.ts",
+-      "sha256": "262b7eacaf4ca3fb36b438e1632b247ca666e3356fb6f1546657e371e5952046"
++      "sha256": "9d9853197b3925e0e0a6ad30c61323704c11cfa67ecafeaa8502775a92f8e818"
+     },
+     {
+       "path": "packages/cli/src/figma-native-paints.ts",
+-      "sha256": "8629fb930c061900e41217548725109ffa83f2f4ad50d6860577d7710d1bad07"
++      "sha256": "0da009e0ced459a51b66211331655df2fcafc4f2ee2bbd9d3f2d393f09163d97"
++    },
++    {
++      "path": "packages/cli/src/figma-native-reactions.ts",
++      "sha256": "ca1228ad1ea9287b2bde7189f0ec5daf260af58404ac6ad46f49b220fa80c400"
++    },
++    {
++      "path": "packages/cli/src/figma-native-styles.ts",
++      "sha256": "750a50fa1bdf7dd0ae5cfc132ddcdb064a0b82483fe8232e4eb3ff1539e24845"
+     },
+     {
+       "path": "packages/cli/src/figma-native-text-layout.ts",
+       "sha256": "0f611e5aee8f09f608eaaba474384deaa3f234e952cc21149a2374790ba1ee32"
+     },
++    {
++      "path": "packages/cli/src/figma-native-vector-network.ts",
++      "sha256": "b7ca1e6c023c31cda882491e1495bcb392f5c5e633d3e1a89305dcf573bd622c"
++    },
+     {
+       "path": "packages/cli/src/figma-url.ts",
+       "sha256": "5efd26f37e4e4667918535db915075babab6f2c5a5d547770f544da1b689dfb9"
+@@ -3417,7 +3525,7 @@
+     },
+     {
+       "path": "packages/cli/src/snapshot-reader.ts",
+-      "sha256": "35c66f589330b9fdf8b429ce59153a6f36e86f522557e90e1908c4431c696150"
++      "sha256": "2fff5a6656260ebb2d922f319ab1f4b4a90d006cfa2f815104f84460fa0689c7"
+     },
+     {
+       "path": "packages/cli/src/vector-export-source.ts",
+@@ -3437,7 +3545,7 @@
+     },
+     {
+       "path": "packages/cli/test/browser-session-reconnect.test.ts",
+-      "sha256": "4e32a4c0e0400afcf38f47bae0f8cbc3c13dece61b1c1494ac2d28d237586d54"
++      "sha256": "af71db371f58968a5ef89721cfe164e7658d18d413e191b2c84d6e363fd00131"
+     },
+     {
+       "path": "packages/cli/test/browser-session.test.ts",
+@@ -3445,7 +3553,7 @@
+     },
+     {
+       "path": "packages/cli/test/browser-source-open.test.ts",
+-      "sha256": "182cdc369ffa7aeaca45b8a3bd4bfb0fb4b9bd8ab49ba0999e90fa2a5ec24ffe"
++      "sha256": "6d15987dad37a295e4e7cc35fc552da84dcec153c604f19ecfccd6f0bb74ac66"
+     },
+     {
+       "path": "packages/cli/test/capture-assets.test.ts",
+@@ -3457,7 +3565,7 @@
+     },
+     {
+       "path": "packages/cli/test/control-client-http.test.ts",
+-      "sha256": "c957e024d1b6490d4a16c76b61911fca3ea4daa8d29384343fb6270f7125c472"
++      "sha256": "daf99c365774fc502f99a5f65cc635ab01ecc752ed1792ee184cf514a7afe6b8"
+     },
+     {
+       "path": "packages/cli/test/desktop-reader.test.ts",
+@@ -3471,22 +3579,42 @@
+       "path": "packages/cli/test/figma-native-document.test.ts",
+       "sha256": "77db930ec79bd20857d424c5209383e6c35326f7365df2f1d9131f29d677199c"
+     },
++    {
++      "path": "packages/cli/test/figma-native-font-ranges.test.ts",
++      "sha256": "c36c15310e3d0177d3e3d7ddbc77f2e8b6cb4c9084a532059cbc16833cc17676"
++    },
+     {
+       "path": "packages/cli/test/figma-native-geometry.test.ts",
+-      "sha256": "4fafc3efb793c219cc09d57813a98bdf1ce82246b48c0b9c3e1f5d45e5ed9ba2"
++      "sha256": "8357dc100bce52077cb68d7dd13216ecb9754882fd7195408098795d511cf9a4"
++    },
++    {
++      "path": "packages/cli/test/figma-native-layout.test.ts",
++      "sha256": "d17f6b32f3cb6131ba230ba6a0d3c0e3f2bdcdb798a68f23299bde83c445fd0c"
+     },
+     {
+       "path": "packages/cli/test/figma-native-nodes.test.ts",
+-      "sha256": "cbf9eb5a8ad9b7537448e336c8790db8a26c819554fdd2f80e6ffb523add970e"
++      "sha256": "df87061ef1251a5542f0d5a13bee19e2909ed219a6890cecd082b360b8bca8be"
+     },
+     {
+       "path": "packages/cli/test/figma-native-paints.test.ts",
+-      "sha256": "e9d49cc4b52a36aa74abc25b41dfd2b371e5b7169205e71532b552d9c82b9567"
++      "sha256": "7d2c815492610580f44c35df116a8a240402f2cb6609a10ec1a40f1053d14509"
++    },
++    {
++      "path": "packages/cli/test/figma-native-reactions.test.ts",
++      "sha256": "15f86617230799c000d24d5a3a1edae1ab463c0df25105ac376d00f72dfb5903"
++    },
++    {
++      "path": "packages/cli/test/figma-native-styles.test.ts",
++      "sha256": "4dcf8cf7e160cc6a8851d9c2ce08623aa52d3b9aead7e08d95220fb73e2da1ad"
+     },
+     {
+       "path": "packages/cli/test/figma-native-text-layout.test.ts",
+       "sha256": "f757a4a6fc228d61b2645713813e4e8623ac068945505f2463ae6ac56f3df0ec"
+     },
++    {
++      "path": "packages/cli/test/figma-native-vector-network.test.ts",
++      "sha256": "d264537e0f6b369d58223e15fa0b559a4fbb879ab7ce90f5253f889efa40cb43"
++    },
+     {
+       "path": "packages/cli/test/figma-web-export.test.ts",
+       "sha256": "dca0ab353059c513e51bedf91733353204daf005c48b0072105dd90af37f30d1"
+@@ -3505,7 +3633,7 @@
+     },
+     {
+       "path": "packages/cli/test/scripter-catalogs.test.ts",
+-      "sha256": "20e5a261bdbbb18f49435999a6cca038fc5de01f3f05e50c2e21971b8752753b"
++      "sha256": "44faf8b7fa420beddefe2c5ed1c30985751a1dd5335e570ad65fdb5129259170"
+     },
+     {
+       "path": "packages/cli/test/scripter-reader.test.ts",
+@@ -3539,6 +3667,10 @@
+       "path": "packages/ir/src/canonical-json.ts",
+       "sha256": "4ca7ea6df2ca8f630efc1879d502e5cdc28dc12e1dac825b036d0a81ce41725b"
+     },
++    {
++      "path": "packages/ir/src/capture-freshness.ts",
++      "sha256": "f0f0440c0e1bbf5c5f87444520cda9e5dcf22d8f588d535b4a5ff139b9b53b3b"
++    },
+     {
+       "path": "packages/ir/src/fidelity.ts",
+       "sha256": "b44ebf5d855d6f3d0667b9e7d33fc2457bdc4ee907d9e7cf151106441713ef97"
+@@ -3557,7 +3689,7 @@
+     },
+     {
+       "path": "packages/ir/src/portal-run.ts",
+-      "sha256": "42fdca179a436a3e5c16b28177bd2ea0e8dec7552e4c4581a93ca1a1050bd408"
++      "sha256": "7bff2d15d7c8d23dba490a5846e66c457ebffb0cc83f7f6f91237e5ac7de5941"
+     },
+     {
+       "path": "packages/ir/src/snapshot-storage.ts",
+@@ -3575,6 +3707,10 @@
+       "path": "packages/ir/test/canonical-json.test.ts",
+       "sha256": "021dfb21e093c452a8f4434c7d318bdba8485a07a4a5f506ae7f1388898a49cb"
+     },
++    {
++      "path": "packages/ir/test/capture-freshness.test.ts",
++      "sha256": "db938957ad39ea86d30c7bfb48530a9aee7b8c52035f6b43df66037124f2fa9a"
++    },
+     {
+       "path": "packages/ir/test/graph-fixture.ts",
+       "sha256": "021ddf83ad30e3fbd1a1508e77cc3555e5b3c58aa29fe7d9516f9e2f49a72f09"
+@@ -3951,6 +4087,10 @@
+       "path": "packages/mcp/src/portal/capture-failure.ts",
+       "sha256": "398ff45e5f9b7870404204bf90483153f253a7b7cb51587724ee1be8a5c805f0"
+     },
++    {
++      "path": "packages/mcp/src/portal/capture-freshness.ts",
++      "sha256": "8885eeb376a0099ab357325c442e634695eb40c9aaef77210ce092db031d078e"
++    },
+     {
+       "path": "packages/mcp/src/portal/capture-runtime.ts",
+       "sha256": "02c59cf19028097f6ac700cf895092932631d80c1b666a445c72e80aa2191bab"
+@@ -3965,7 +4105,7 @@
+     },
+     {
+       "path": "packages/mcp/src/portal/chrome-transport.ts",
+-      "sha256": "d5f07afa1c393c49686ca2da83d266c4c15bfa11165755341b6ab49e4b05c4f9"
++      "sha256": "2abeb0726ef7b94040d45c048f5c6ea959960d7d72cb1d03dd229e8787f4df97"
+     },
+     {
+       "path": "packages/mcp/src/portal/content.ts",
+@@ -3977,7 +4117,7 @@
+     },
+     {
+       "path": "packages/mcp/src/portal/coordinator.ts",
+-      "sha256": "0301de688d63884ed0fff66d566bfeb36f7a1b62f7a0cc1453ccdfedc005a776"
++      "sha256": "669cdfed433186444838be3819ba4dba7789833b2a1515f7184ebee6ce5a6d6d"
+     },
+     {
+       "path": "packages/mcp/src/portal/design-capture.ts",
+@@ -4037,7 +4177,7 @@
+     },
+     {
+       "path": "packages/mcp/src/portal/native-work.ts",
+-      "sha256": "a01ac0222dc823c940d68530101c3081110e84a1bd4a8898715cc5533a21989f"
++      "sha256": "ee6af25547649f3daa30176d8ec0780bdd6d24b1da17901b74bdf9dcd81ae122"
+     },
+     {
+       "path": "packages/mcp/src/portal/observation-manifest.ts",
+@@ -4073,7 +4213,7 @@
+     },
+     {
+       "path": "packages/mcp/src/portal/preview.ts",
+-      "sha256": "e4868718d6e86242e728834c5ba2a861729e4674f8ad827547de237ae4682f8a"
++      "sha256": "ed2a361fb8f261051f9e2836f264a1f6c56b5bd6ddcfd06f9bd7472160cf47f4"
+     },
+     {
+       "path": "packages/mcp/src/portal/profile-closure.ts",
+@@ -4181,7 +4321,7 @@
+     },
+     {
+       "path": "packages/mcp/src/portal/windows-job.ts",
+-      "sha256": "86ace3d85fd7b494f2555bfb1fcafcc38e2b237776e8884a8bdb488834d90435"
++      "sha256": "33771c8ff15187400566c14e86728721c22e63ada22053631b031f01af79aec6"
+     },
+     {
+       "path": "packages/mcp/src/portal/workflow-requirements.ts",
+@@ -5215,6 +5355,10 @@
+       "path": "packages/mcp/test/portal/capture-plane.test.ts",
+       "sha256": "b01e8a09a70a9e714d6da72d758093317b3bc99261e16d619197fd33a81a6735"
+     },
++    {
++      "path": "packages/mcp/test/portal/capture-reexport.test.ts",
++      "sha256": "2e124c80613b2067133a37454ec7b6d35dbb4073a683213ee8ee9d77f12e14aa"
++    },
+     {
+       "path": "packages/mcp/test/portal/capture-session.test.ts",
+       "sha256": "3bc8c791787125a50ba561eea40f3b0f60b14df5e3d8edfba159aad553d77a25"
+@@ -5225,7 +5369,7 @@
+     },
+     {
+       "path": "packages/mcp/test/portal/chrome-transport.test.ts",
+-      "sha256": "31421b7d55a9b4d891281f597f59c2c088415a835211600a5098cad336b57662"
++      "sha256": "1c690199a9513a1087e7e1a5fec5349da43168e6529517994952e7a984e58fdb"
+     },
+     {
+       "path": "packages/mcp/test/portal/consumption-components.test.ts",
+@@ -5249,7 +5393,7 @@
+     },
+     {
+       "path": "packages/mcp/test/portal/coordinator.test.ts",
+-      "sha256": "3a13ca5ab42543cde4e759ca832bf426bb5cbebebe0b006dd623894b760f4860"
++      "sha256": "f3e521e3ecfacdbee33f6c5585375180cb60d4a0027e419020d9168497f52568"
+     },
+     {
+       "path": "packages/mcp/test/portal/core-coordinator.test.ts",
+@@ -5305,7 +5449,7 @@
+     },
+     {
+       "path": "packages/mcp/test/portal/native-artifacts.test.ts",
+-      "sha256": "2178da75626df9b50ecbcb82e188e9dd259ad465bd36d8accb7908f2abd484ab"
++      "sha256": "d007a000b6cc2b8a4fcfa27e498dd692581ab4a35c67cc20f6517780108bbaa2"
+     },
+     {
+       "path": "packages/mcp/test/portal/native-directory-creation.test.ts",
+@@ -5313,7 +5457,7 @@
+     },
+     {
+       "path": "packages/mcp/test/portal/native-environment.test.ts",
+-      "sha256": "937f3954c75f11738e152153022aa6962d371d7877c416e13d62b4a6122d26e3"
++      "sha256": "5ad222219f5765c40ef29c7b990192298ceaaa66b27c0cd90fd8b128f3a5b2ce"
+     },
+     {
+       "path": "packages/mcp/test/portal/native-lifecycle-archive.test.ts",
+@@ -5465,7 +5609,7 @@
+     },
+     {
+       "path": "packages/mcp/test/security/pairing.test.ts",
+-      "sha256": "75ba46eb2eb08d3ab284e0a9773b23e5e314891e9b9a33680d4d0e2fcff0e551"
++      "sha256": "6bbc21364c8870aeb29a0b54786c15f9ed0e5077e5d33046c3a0ffbc8c101885"
+     },
+     {
+       "path": "packages/mcp/test/security/pna.test.ts",
+@@ -6317,7 +6461,7 @@
+     },
+     {
+       "path": "packages/shared/src/portal-capture-source.ts",
+-      "sha256": "b47ab38481fd10a3064680ae03d35939f9515003b568f2511f30f3a160be0d2a"
++      "sha256": "87bf640ab374220f586a4079a798780a2ee0a04da695f96f8e3a2d10b1986d43"
+     },
+     {
+       "path": "packages/shared/src/portal-consumption.ts",
+@@ -6345,7 +6489,7 @@
+     },
+     {
+       "path": "packages/shared/src/portal.ts",
+-      "sha256": "3964232d01a1f67c390a8b209a104cafc01165d38d21db037ef8101d1260fa42"
++      "sha256": "81cfc66c697a52e59f65a64ee828bf5c351efd297b750995799387ed48b9fc0a"
+     },
+     {
+       "path": "packages/shared/src/progress.ts",
+@@ -6677,7 +6821,7 @@
+     },
+     {
+       "path": "vendor-rules.json",
+-      "sha256": "6ceac7426f8756ee2e073cd76e9b3209ad178a1b8c94d07c7c7a89e6f230c767"
++      "sha256": "2cd28d3b2144cd0c547780257f97d06364347037e087136418e5efa62c3dd010"
+     },
+     {
+       "path": "vitest.config.ts",
+diff --git a/service/vendor-rules.json b/service/vendor-rules.json
+index 1b810fc..ac49251 100644
+--- a/service/vendor-rules.json
++++ b/service/vendor-rules.json
+@@ -61,6 +61,7 @@
+     "capabilities/change-manifests/task-review-2026-09-08.json",
+     "capabilities/change-manifests/task-review-2026-09-10.json",
+     "capabilities/change-manifests/task-review-2026-10-02.json",
++    "capabilities/change-manifests/task-review-2026-10-04.json",
+     "capabilities/figmosha-feature-map.json",
+     "capabilities/reconciliations/review-2026-10-02-final-repairs.json",
+     "capabilities/reconciliations/review-2026-10-02-fixtures.json",
+@@ -70,8 +71,16 @@
+     "capabilities/reconciliations/review-2026-10-02-service-owned-resume.json",
+     "capabilities/reconciliations/review-2026-10-02-title-repair.json",
+     "capabilities/reconciliations/review-2026-10-02.json",
++    "capabilities/reconciliations/review-2026-10-04-capture-budget.json",
+     "capabilities/reconciliations/review-2026-10-04-cdd-runtime.json",
++    "capabilities/reconciliations/review-2026-10-04-chrome-opening.json",
++    "capabilities/reconciliations/review-2026-10-04-control-poll.json",
++    "capabilities/reconciliations/review-2026-10-04-native-behavior.json",
++    "capabilities/reconciliations/review-2026-10-04-native-field-parity.json",
++    "capabilities/reconciliations/review-2026-10-04-native-styles.json",
++    "capabilities/reconciliations/review-2026-10-04-png-reexport.json",
+     "capabilities/reconciliations/review-2026-10-04-required-chrome.json",
++    "capabilities/reconciliations/review-2026-10-04-windows-drain.json",
+     "capabilities/task-7a-authority-classes.json",
+     "capabilities/task-7b-authority-classes.json",
+     "capabilities/task-7c-authority-classes.json",
+@@ -84,6 +93,7 @@
+     "capabilities/task-review-2026-09-08-authority-classes.json",
+     "capabilities/task-review-2026-09-10-authority-classes.json",
+     "capabilities/task-review-2026-10-02-authority-classes.json",
++    "capabilities/task-review-2026-10-04-authority-classes.json",
+     "capabilities/union-manifest.json",
+     "package.json",
+     "packages/mcp/README.md",
+@@ -174,6 +184,7 @@
+     "packages/mcp/src/portal/authority.ts",
+     "packages/mcp/src/portal/capture-admission-runtime.ts",
+     "packages/mcp/src/portal/capture-failure.ts",
++    "packages/mcp/src/portal/capture-freshness.ts",
+     "packages/mcp/src/portal/capture-runtime.ts",
+     "packages/mcp/src/portal/capture-source-admission.ts",
+     "packages/mcp/src/portal/chrome-runtime.ts",
+@@ -487,6 +498,7 @@
+     "packages/mcp/test/portal/capture-flow.test.ts",
+     "packages/mcp/test/portal/capture-native.test.ts",
+     "packages/mcp/test/portal/capture-plane.test.ts",
++    "packages/mcp/test/portal/capture-reexport.test.ts",
+     "packages/mcp/test/portal/capture-session.test.ts",
+     "packages/mcp/test/portal/chrome-runtime.test.ts",
+     "packages/mcp/test/portal/chrome-transport.test.ts",
+@@ -550,6 +562,7 @@
+     "packages/mcp/test/scan/scan.test.ts",
+     "packages/mcp/test/security/**",
+     "packages/mcp/test/security/control-auth.test.ts",
++    "packages/mcp/test/security/pairing.test.ts",
+     "packages/mcp/test/set-annotations.test.ts",
+     "packages/mcp/test/snapshot/service-operations.test.ts",
+     "packages/mcp/test/tokens/figma-tokens.test.ts",
+@@ -817,6 +830,7 @@
+     "capabilities/change-manifests/task-review-2026-09-08.json",
+     "capabilities/change-manifests/task-review-2026-09-10.json",
+     "capabilities/change-manifests/task-review-2026-10-02.json",
++    "capabilities/change-manifests/task-review-2026-10-04.json",
+     "capabilities/figmosha-feature-map.json",
+     "capabilities/reconciliations/review-2026-10-02-final-repairs.json",
+     "capabilities/reconciliations/review-2026-10-02-fixtures.json",
+@@ -826,8 +840,16 @@
+     "capabilities/reconciliations/review-2026-10-02-service-owned-resume.json",
+     "capabilities/reconciliations/review-2026-10-02-title-repair.json",
+     "capabilities/reconciliations/review-2026-10-02.json",
++    "capabilities/reconciliations/review-2026-10-04-capture-budget.json",
+     "capabilities/reconciliations/review-2026-10-04-cdd-runtime.json",
++    "capabilities/reconciliations/review-2026-10-04-chrome-opening.json",
++    "capabilities/reconciliations/review-2026-10-04-control-poll.json",
++    "capabilities/reconciliations/review-2026-10-04-native-behavior.json",
++    "capabilities/reconciliations/review-2026-10-04-native-field-parity.json",
++    "capabilities/reconciliations/review-2026-10-04-native-styles.json",
++    "capabilities/reconciliations/review-2026-10-04-png-reexport.json",
+     "capabilities/reconciliations/review-2026-10-04-required-chrome.json",
++    "capabilities/reconciliations/review-2026-10-04-windows-drain.json",
+     "capabilities/task-7a-authority-classes.json",
+     "capabilities/task-7b-authority-classes.json",
+     "capabilities/task-7c-authority-classes.json",
+@@ -840,6 +862,7 @@
+     "capabilities/task-review-2026-09-08-authority-classes.json",
+     "capabilities/task-review-2026-09-10-authority-classes.json",
+     "capabilities/task-review-2026-10-02-authority-classes.json",
++    "capabilities/task-review-2026-10-04-authority-classes.json",
+     "capabilities/union-manifest.json",
+     "package.json",
+     "packages/mcp/README.md",
+@@ -925,6 +948,7 @@
+     "packages/mcp/src/portal/authority.ts",
+     "packages/mcp/src/portal/capture-admission-runtime.ts",
+     "packages/mcp/src/portal/capture-failure.ts",
++    "packages/mcp/src/portal/capture-freshness.ts",
+     "packages/mcp/src/portal/capture-runtime.ts",
+     "packages/mcp/src/portal/capture-source-admission.ts",
+     "packages/mcp/src/portal/chrome-runtime.ts",
+@@ -1135,6 +1159,7 @@
+     "packages/mcp/test/portal/capture-flow.test.ts",
+     "packages/mcp/test/portal/capture-native.test.ts",
+     "packages/mcp/test/portal/capture-plane.test.ts",
++    "packages/mcp/test/portal/capture-reexport.test.ts",
+     "packages/mcp/test/portal/capture-session.test.ts",
+     "packages/mcp/test/portal/chrome-runtime.test.ts",
+     "packages/mcp/test/portal/chrome-transport.test.ts",
+@@ -1196,6 +1221,7 @@
+     "packages/mcp/test/relay/session.test.ts",
+     "packages/mcp/test/scan/scan.test.ts",
+     "packages/mcp/test/security/control-auth.test.ts",
++    "packages/mcp/test/security/pairing.test.ts",
+     "packages/mcp/test/set-annotations.test.ts",
+     "packages/mcp/test/snapshot/service-operations.test.ts",
+     "packages/mcp/test/tokens/figma-tokens.test.ts",

@@ -1,0 +1,230 @@
+{
+  "recordedAt": "2026-10-04T08:15:29.605Z",
+  "runId": "sfp_portal1_6e77baedbfa0c9c948a44811d8d80d26",
+  "originalContentHash": "sha256:c8e5742637442ff4da0868a150d838042eaf526a03b7de20f5be125347f56ff3",
+  "observations": [
+    {
+      "beforeHash": "sha256:c8e5742637442ff4da0868a150d838042eaf526a03b7de20f5be125347f56ff3",
+      "afterHash": "sha256:c8e5742637442ff4da0868a150d838042eaf526a03b7de20f5be125347f56ff3",
+      "capturedAt": "2026-10-04T07:40:17.768Z",
+      "outcome": "observed",
+      "assets": 25
+    },
+    {
+      "beforeHash": "sha256:c8e5742637442ff4da0868a150d838042eaf526a03b7de20f5be125347f56ff3",
+      "afterHash": "sha256:c8e5742637442ff4da0868a150d838042eaf526a03b7de20f5be125347f56ff3",
+      "capturedAt": "2026-10-04T07:26:49.314Z",
+      "outcome": "observed",
+      "assets": 25
+    }
+  ],
+  "differences": [
+    {
+      "query": {
+        "kind": "png",
+        "nodeId": "1381:530"
+      },
+      "originalBytes": 587489,
+      "freshBytes": 587483,
+      "exactPixels": false,
+      "originalPixelHash": "4bcf46e436c68233d95d4e7ab4530fc2afaa9c525ea78a7bf6e6db8fc60e3483",
+      "freshPixelHash": "44db2d8328dd2d8dd582666405012e19886c035c570b3470c6d7c97ab809411b",
+      "changedPixels": 31,
+      "maxChannelDelta": 1,
+      "examples": [
+        {
+          "x": 113,
+          "y": 377,
+          "before": [
+            4,
+            4,
+            3,
+            255
+          ],
+          "after": [
+            4,
+            4,
+            4,
+            255
+          ]
+        },
+        {
+          "x": 115,
+          "y": 377,
+          "before": [
+            6,
+            4,
+            3,
+            255
+          ],
+          "after": [
+            6,
+            5,
+            4,
+            255
+          ]
+        },
+        {
+          "x": 129,
+          "y": 377,
+          "before": [
+            15,
+            13,
+            12,
+            255
+          ],
+          "after": [
+            15,
+            14,
+            13,
+            255
+          ]
+        },
+        {
+          "x": 140,
+          "y": 377,
+          "before": [
+            14,
+            14,
+            14,
+            255
+          ],
+          "after": [
+            15,
+            15,
+            14,
+            255
+          ]
+        },
+        {
+          "x": 142,
+          "y": 377,
+          "before": [
+            14,
+            16,
+            16,
+            255
+          ],
+          "after": [
+            15,
+            16,
+            16,
+            255
+          ]
+        },
+        {
+          "x": 144,
+          "y": 377,
+          "before": [
+            13,
+            14,
+            14,
+            255
+          ],
+          "after": [
+            13,
+            14,
+            15,
+            255
+          ]
+        },
+        {
+          "x": 145,
+          "y": 377,
+          "before": [
+            10,
+            12,
+            12,
+            255
+          ],
+          "after": [
+            11,
+            12,
+            13,
+            255
+          ]
+        },
+        {
+          "x": 146,
+          "y": 377,
+          "before": [
+            9,
+            11,
+            11,
+            255
+          ],
+          "after": [
+            10,
+            11,
+            11,
+            255
+          ]
+        },
+        {
+          "x": 147,
+          "y": 377,
+          "before": [
+            9,
+            11,
+            11,
+            255
+          ],
+          "after": [
+            10,
+            11,
+            11,
+            255
+          ]
+        },
+        {
+          "x": 148,
+          "y": 377,
+          "before": [
+            9,
+            10,
+            11,
+            255
+          ],
+          "after": [
+            9,
+            11,
+            11,
+            255
+          ]
+        },
+        {
+          "x": 174,
+          "y": 377,
+          "before": [
+            12,
+            14,
+            14,
+            255
+          ],
+          "after": [
+            13,
+            14,
+            14,
+            255
+          ]
+        },
+        {
+          "x": 175,
+          "y": 377,
+          "before": [
+            13,
+            15,
+            14,
+            255
+          ],
+          "after": [
+            13,
+            15,
+            15,
+            255
+          ]
+        }
+      ]
+    }
+  ]
+}

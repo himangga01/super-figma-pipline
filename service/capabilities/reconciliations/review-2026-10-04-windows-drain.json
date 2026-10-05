@@ -1,0 +1,70 @@
+{
+  "schemaVersion": 1,
+  "slice": "review-2026-10-04",
+  "baseline": {
+    "headCommit": "5b9343efc82ef47ba56f412acbd4eee5a328d335",
+    "authoritySha256": {
+      "upstream-lock.json": "0bbac6b2b524605ca4f6f68ce26abe044787d6503f8d2cc44778901468e77417",
+      "vendor-map.json": "b3275c7d8b997d1cfe723d97594659f77d7b4361b824a790bcfdd7ff762589bd",
+      "vendor-rules.json": "669eb2f350419a1c8035f74991df69e2128d294f25600b651e2180735a3f7121"
+    }
+  },
+  "entries": [
+    {
+      "path": "capabilities/task-review-2026-10-04-authority-classes.json",
+      "sha256": "bb6c941d2784e5f3cdb853e23a049dc2de2784f3f95d8936528d915fe9bf861b",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "cf8efe788f047d03c02fce64881aca225248dc384bfa2dcf686c0e6d31c18eb2"
+        },
+        {
+          "class": "protected",
+          "sha256": "cf8efe788f047d03c02fce64881aca225248dc384bfa2dcf686c0e6d31c18eb2"
+        }
+      ],
+      "reason": "Extend the exact October4 review scope for the reproduced Windows job-drain race. Preserve all prior review records, original upstream lineage and the owner index."
+    },
+    {
+      "path": "docs/portal-native.md",
+      "sha256": "c44a2c4723b3fcd64b670b3042fe088b06c8151065cc84401cf3491971dd60dc",
+      "priorClaims": [
+        {
+          "class": "protected",
+          "sha256": "97c1257e62ace291fd804a2dbe4119565aa35aeed795d39f3d2bf4beeca22b71"
+        }
+      ],
+      "reason": "Retain bounded job-membership polling when TerminateProcess loses a race with natural exit or a previous termination. Only a subsequent observation of the broker alone permits STOPPED; live members, failed queries and missing durable receipts remain failures. Three real child-process churn cases failed before this change and passed afterward, followed by the expanded native and Chrome checks. No timeout or proof requirement was weakened."
+    },
+    {
+      "path": "packages/mcp/src/portal/windows-job.ts",
+      "sha256": "33771c8ff15187400566c14e86728721c22e63ada22053631b031f01af79aec6",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "86ace3d85fd7b494f2555bfb1fcafcc38e2b237776e8884a8bdb488834d90435"
+        },
+        {
+          "class": "protected",
+          "sha256": "86ace3d85fd7b494f2555bfb1fcafcc38e2b237776e8884a8bdb488834d90435"
+        }
+      ],
+      "reason": "Retain bounded job-membership polling when TerminateProcess loses a race with natural exit or a previous termination. Only a subsequent observation of the broker alone permits STOPPED; live members, failed queries and missing durable receipts remain failures. Three real child-process churn cases failed before this change and passed afterward, followed by the expanded native and Chrome checks. No timeout or proof requirement was weakened."
+    },
+    {
+      "path": "packages/mcp/test/portal/native-environment.test.ts",
+      "sha256": "5ad222219f5765c40ef29c7b990192298ceaaa66b27c0cd90fd8b128f3a5b2ce",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "937f3954c75f11738e152153022aa6962d371d7877c416e13d62b4a6122d26e3"
+        },
+        {
+          "class": "protected",
+          "sha256": "937f3954c75f11738e152153022aa6962d371d7877c416e13d62b4a6122d26e3"
+        }
+      ],
+      "reason": "Retain bounded job-membership polling when TerminateProcess loses a race with natural exit or a previous termination. Only a subsequent observation of the broker alone permits STOPPED; live members, failed queries and missing durable receipts remain failures. Three real child-process churn cases failed before this change and passed afterward, followed by the expanded native and Chrome checks. No timeout or proof requirement was weakened."
+    }
+  ]
+}

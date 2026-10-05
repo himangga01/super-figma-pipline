@@ -101,7 +101,7 @@ describe('Task 8A direct project-filesystem importer authority', () => {
       const { stdout: parentSource } = await execFileAsync(
         'git',
         ['show', `${RED_BASE}:${repoPath}`],
-        { cwd: repoRoot, encoding: 'utf8' },
+        { cwd: repoRoot, encoding: 'utf8', windowsHide: true },
       );
       expect(importSpecifiers(repoPath, parentSource)).toContain(row.legacyImport);
       const workingSource = await readFile(join(serviceRoot, row.source), 'utf8');

@@ -1,0 +1,220 @@
+{
+  "recordedAt": "2026-10-04T08:42:03.449Z",
+  "nativeFileSha256": "8f469617efaa5b4806f0673df12f5f701c90f7098d4c045748f55819ed56b0b1",
+  "collector": "service CLI built in a separate output directory while native acceptance retains its original bundle",
+  "pairs": 56,
+  "ambiguous": [],
+  "missing": [],
+  "extra": [],
+  "comparedPositions": 114,
+  "differences": [
+    {
+      "kind": "texts",
+      "name": "Text/normal",
+      "field": "fontName",
+      "actual": {
+        "family": "Spoqa Han Sans Neo",
+        "style": "Regular"
+      },
+      "expected": "mixed"
+    },
+    {
+      "kind": "texts",
+      "name": "Text/small",
+      "field": "fontName",
+      "actual": {
+        "family": "Spoqa Han Sans Neo",
+        "style": "Regular"
+      },
+      "expected": "mixed"
+    },
+    {
+      "kind": "texts",
+      "name": "Text/x-small",
+      "field": "fontName",
+      "actual": {
+        "family": "Spoqa Han Sans Neo",
+        "style": "Regular"
+      },
+      "expected": "mixed"
+    },
+    {
+      "kind": "texts",
+      "name": "Text/large",
+      "field": "fontName",
+      "actual": {
+        "family": "Spoqa Han Sans Neo",
+        "style": "Regular"
+      },
+      "expected": "mixed"
+    },
+    {
+      "kind": "texts",
+      "name": "Text/x-large",
+      "field": "fontName",
+      "actual": {
+        "family": "Spoqa Han Sans Neo",
+        "style": "Regular"
+      },
+      "expected": "mixed"
+    },
+    {
+      "kind": "texts",
+      "name": "Title/x-large",
+      "field": "fontName",
+      "actual": {
+        "family": "Spoqa Han Sans Neo",
+        "style": "Bold"
+      },
+      "expected": "mixed"
+    },
+    {
+      "kind": "texts",
+      "name": "Title/x-small",
+      "field": "fontName",
+      "actual": {
+        "family": "Spoqa Han Sans Neo",
+        "style": "Bold"
+      },
+      "expected": "mixed"
+    },
+    {
+      "kind": "texts",
+      "name": "Title/small",
+      "field": "fontName",
+      "actual": {
+        "family": "Spoqa Han Sans Neo",
+        "style": "Bold"
+      },
+      "expected": "mixed"
+    },
+    {
+      "kind": "texts",
+      "name": "Title/normal",
+      "field": "fontName",
+      "actual": {
+        "family": "Spoqa Han Sans Neo",
+        "style": "Bold"
+      },
+      "expected": "mixed"
+    },
+    {
+      "kind": "texts",
+      "name": "Title/large",
+      "field": "fontName",
+      "actual": {
+        "family": "Spoqa Han Sans Neo",
+        "style": "Bold"
+      },
+      "expected": "mixed"
+    },
+    {
+      "kind": "texts",
+      "name": "Title/2x-large",
+      "field": "fontName",
+      "actual": {
+        "family": "Spoqa Han Sans Neo",
+        "style": "Bold"
+      },
+      "expected": "mixed"
+    },
+    {
+      "kind": "texts",
+      "name": "Text/x-small (bold)",
+      "field": "fontName",
+      "actual": {
+        "family": "Spoqa Han Sans Neo",
+        "style": "Bold"
+      },
+      "expected": "mixed"
+    },
+    {
+      "kind": "texts",
+      "name": "Text/small (bold)",
+      "field": "fontName",
+      "actual": {
+        "family": "Spoqa Han Sans Neo",
+        "style": "Bold"
+      },
+      "expected": "mixed"
+    },
+    {
+      "kind": "texts",
+      "name": "Text/normal (bold)",
+      "field": "fontName",
+      "actual": {
+        "family": "Spoqa Han Sans Neo",
+        "style": "Bold"
+      },
+      "expected": "mixed"
+    },
+    {
+      "kind": "texts",
+      "name": "Text/large (bold)",
+      "field": "fontName",
+      "actual": {
+        "family": "Spoqa Han Sans Neo",
+        "style": "Bold"
+      },
+      "expected": "mixed"
+    },
+    {
+      "kind": "texts",
+      "name": "Text/x-large (bold)",
+      "field": "fontName",
+      "actual": {
+        "family": "Spoqa Han Sans Neo",
+        "style": "Bold"
+      },
+      "expected": "mixed"
+    },
+    {
+      "kind": "effects",
+      "name": "Shadow/100",
+      "field": "effects",
+      "actual": [
+        {
+          "type": "DROP_SHADOW",
+          "visible": true,
+          "radius": 6,
+          "color": {
+            "r": 0,
+            "g": 0,
+            "b": 0,
+            "a": 0.550000011920929
+          },
+          "offset": {
+            "x": 0,
+            "y": 2
+          },
+          "spread": 0,
+          "blendMode": "NORMAL",
+          "showShadowBehindNode": true
+        }
+      ],
+      "expected": [
+        {
+          "type": "DROP_SHADOW",
+          "visible": true,
+          "radius": 6,
+          "boundVariables": {},
+          "color": {
+            "r": 0,
+            "g": 0,
+            "b": 0,
+            "a": 0.550000011920929
+          },
+          "offset": {
+            "x": 0,
+            "y": 2
+          },
+          "spread": 0,
+          "blendMode": "NORMAL",
+          "showShadowBehindNode": true
+        }
+      ]
+    }
+  ],
+  "unobservedFields": 238,
+  "fullCaptureAccepted": false
+}

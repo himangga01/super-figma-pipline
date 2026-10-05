@@ -114,7 +114,11 @@ export const createToolBridge = (opts: ToolBridgeOptions = {}): ToolBridge => {
       const timer = setTimeout(() => {
         pending.delete(id);
         if (binding !== undefined) postCancellation(id, binding);
-        reject(new Error(`sandbox tool timeout (method=${method})`));
+        reject(
+          Object.assign(new Error(`sandbox tool timeout (method=${method})`), {
+            code: 'PLUGIN_OUTCOME_UNKNOWN',
+          }),
+        );
       }, timeoutMs);
       pending.set(id, {
         resolve,
@@ -148,7 +152,11 @@ export const createToolBridge = (opts: ToolBridgeOptions = {}): ToolBridge => {
     for (const [id, entry] of pending) {
       clearTimeout(entry.timer);
       if (entry.binding !== undefined) postCancellation(id, entry.binding);
-      entry.reject(new Error('tool bridge disposed'));
+      entry.reject(
+        Object.assign(new Error('tool bridge disposed'), {
+          code: 'PLUGIN_OUTCOME_UNKNOWN',
+        }),
+      );
     }
     pending.clear();
   };

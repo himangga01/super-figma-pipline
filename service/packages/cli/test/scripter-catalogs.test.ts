@@ -35,6 +35,61 @@ const fixture = (count = 0) => {
   const page = { url: () => target.url, frames: () => [frame] } as unknown as Page;
   return { figma, node, frame, page, target };
 };
+it('records whether a symbolic font value is the actual mixed sentinel without logging symbol descriptions', async () => {
+  const { figma } = fixture();
+  const mixed = Symbol('mixed');
+  Object.assign(figma, {
+    mixed,
+    getLocalTextStylesAsync: async () => [
+      { id: 'known', name: 'Known', fontSize: 16, fontName: mixed },
+      { id: 'unknown', name: 'Unknown', fontSize: 16, fontName: Symbol('private-description') },
+      { id: 'plain', name: 'Plain', fontSize: 16, fontName: { family: 'Inter', style: 'Regular' } },
+    ],
+  });
+  const raw = JSON.parse(
+    await runInNewContext(createFigmaReadProgram({ mode: 'tokens' }), { figma }),
+  );
+  expect(raw.styles.texts[0].fontNameObservation).toEqual({ kind: 'symbol', isMixed: true });
+  expect(raw.styles.texts[1].fontNameObservation).toEqual({ kind: 'symbol', isMixed: false });
+  expect(raw.styles.texts[2].fontName).toEqual({ family: 'Inter', style: 'Regular' });
+  expect(raw.styles.texts[2]).not.toHaveProperty('fontNameObservation');
+  expect(JSON.stringify(raw)).not.toContain('private-description');
+});
+it.each([true, false])(
+  'checks the exact style identity before recovering a symbolic font (valid=%s)',
+  async valid => {
+    const { figma } = fixture();
+    const mixed = Symbol('mixed');
+    Object.assign(figma, {
+      mixed,
+      getLocalTextStylesAsync: async () => [
+        { id: 'known', name: 'Known', fontSize: 16, fontName: mixed },
+      ],
+      getStyleByIdAsync: async () => ({
+        id: valid ? 'known' : 'unrelated',
+        type: 'TEXT',
+        fontName: { family: 'Inter', style: 'Regular' },
+      }),
+    });
+    const raw = JSON.parse(
+      await runInNewContext(createFigmaReadProgram({ mode: 'tokens' }), { figma }),
+    );
+    expect(raw.styles.texts[0]?.fontName).toEqual(
+      valid ? { family: 'Inter', style: 'Regular' } : undefined,
+    );
+    expect(raw.styles.texts[0]?.fontNameObservation).toEqual(
+      valid
+        ? {
+            kind: 'symbol',
+            isMixed: true,
+            recovery: 'getStyleByIdAsync.fontName',
+          }
+        : undefined,
+    );
+    expect(raw.catalogs.textStyles.state).toBe(valid ? 'complete' : 'failed');
+    expect(raw.styles.texts).toHaveLength(valid ? 1 : 0);
+  },
+);
 it('delivers all independent style pages through the actual parser with zero variables', async () => {
   const { page, target } = fixture(513);
   const result = await readScripterSnapshot(page, target, {});
@@ -126,6 +181,42 @@ it('keeps bounded reads incomplete when there is no budget for a full second pas
   expect(result.observation.reobserved).toBe(false);
   expect(result.pendingScopes).toEqual(
     expect.arrayContaining([expect.objectContaining({ reason: 'REOBSERVATION_BUDGET' })]),
+  );
+});
+
+const readByteBudgetFixture = async (roots: number) => {
+  const { figma, page, target } = fixture();
+  figma.currentPage.children = Array.from({ length: roots }, (_, root) => ({
+    id: `1:${root}`,
+    name: 'Frame',
+    type: 'FRAME',
+    characters: '',
+    children: Array.from({ length: 10 }, (_child, child) => ({
+      id: `2:${root * 10 + child}`,
+      name: 'Text',
+      type: 'TEXT',
+      characters: 'x'.repeat(20_000),
+    })),
+  }));
+  figma.getNodeByIdAsync = async (id?: string) =>
+    figma.currentPage.children.find(node => node.id === id)!;
+  return readScripterSnapshot(page, target, {});
+};
+it('reserves bounded reobservation capacity for a complete first pass', async () => {
+  const result = await readByteBudgetFixture(40);
+  expect(result.capture.bytes).toBeLessThanOrEqual(24_000_000);
+  expect(result.nodeCount).toBe(440);
+  expect(result.capture.bytes).toBeGreaterThan(12_000_000);
+  expect(result.observation.reobserved).toBe(true);
+  expect(result.observation.readComplete).toBe(true);
+  expect(result.truncated).toBe(false);
+});
+it('keeps an oversized first pass incomplete under its original byte limit', async () => {
+  const result = await readByteBudgetFixture(70);
+  expect(result.capture.bytes).toBeLessThanOrEqual(24_000_000);
+  expect(result.observation.readComplete).toBe(false);
+  expect(result.pendingScopes).toEqual(
+    expect.arrayContaining([expect.objectContaining({ reason: 'SNAPSHOT_READ_BUDGET' })]),
   );
 });
 it('keeps content hashes independent of capture timestamps', async () => {
@@ -280,6 +371,22 @@ it('reads referenced remote variables, collections and mixed-text style dependen
   Object.assign(node, {
     getStyledTextSegments: () => [
       {
+        // A complete remote dependency read still requires complete source typography.
+        characters: 'before',
+        start: 0,
+        end: 6,
+        fontName: { family: 'Inter', style: 'Regular' },
+        fontSize: 16,
+        fontWeight: 400,
+        lineHeight: { unit: 'AUTO' },
+        letterSpacing: { unit: 'PIXELS', value: 0 },
+        listOptions: { type: 'NONE' },
+        indentation: 0,
+        textWrapStyle: 'AUTO',
+        textDecoration: 'NONE',
+        textCase: 'ORIGINAL',
+        hyperlink: null,
+        fillStyleId: '',
         textStyleId: 'remoteStyle',
         fills: [],
         boundVariables: { fontSize: { type: 'VARIABLE_ALIAS', id: 'remote' } },

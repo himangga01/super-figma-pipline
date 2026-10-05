@@ -1584,10 +1584,18 @@ export class OperationEvidenceArtifactStore implements OperationEvidenceArtifact
       .split('/')
       .slice(0, -1)
       .join('/');
-    const operationDirectory = await this.dependencies.workspacePolicy.resolveRead(
-      input.workspaceId,
-      workspacePolicyPath(operationRelativePath),
-    );
+    let operationDirectory: string;
+    try {
+      operationDirectory = await this.dependencies.workspacePolicy.resolveRead(
+        input.workspaceId,
+        workspacePolicyPath(operationRelativePath),
+      );
+    } catch (error) {
+      // The policy proved the fixed operation directory absent inside the verified root, for
+      // example after the owner deleted `.sfp`: nothing linked remains to remove (LC-1, T09).
+      if ((error as { code?: unknown }).code === 'WORKSPACE_PATH_NOT_FOUND') return;
+      throw error;
+    }
     await this.dependencies.workspacePolicy.assertWithinRoot(
       input.workspaceId,
       workspacePolicyPath(operationRelativePath),

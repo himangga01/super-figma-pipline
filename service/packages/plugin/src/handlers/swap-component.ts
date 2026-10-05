@@ -8,7 +8,7 @@ import type { SandboxToolHandler } from '../dispatcher.js';
  */
 export const createSwapComponentHandler =
   (figmaCtx: typeof figma): SandboxToolHandler =>
-  async params => {
+  async (params, execution) => {
     const p = (params ?? {}) as {
       instanceId?: unknown;
       componentId?: unknown;
@@ -29,15 +29,20 @@ export const createSwapComponentHandler =
     }
 
     const instance = await figmaCtx.getNodeByIdAsync(p.instanceId);
+    execution?.signal.throwIfAborted();
     if (instance === null || instance.type !== 'INSTANCE') {
       throw new Error(`swap_component: node ${p.instanceId} is not an INSTANCE`);
     }
 
     let component: ComponentNode;
     if (componentKey !== undefined) {
-      component = await figmaCtx.importComponentByKeyAsync(componentKey);
+      const resolvedEffectValue1 = await figmaCtx.importComponentByKeyAsync(componentKey);
+      component = resolvedEffectValue1;
+      execution?.markMutated?.();
+      execution?.signal.throwIfAborted();
     } else {
       const node = await figmaCtx.getNodeByIdAsync(p.componentId as string);
+      execution?.signal.throwIfAborted();
       if (node === null || node.type !== 'COMPONENT') {
         throw new Error(`swap_component: component ${String(p.componentId)} not found`);
       }

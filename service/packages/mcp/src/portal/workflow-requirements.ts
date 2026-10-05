@@ -24,6 +24,8 @@ export interface PortalWorkflowSourceHint {
   path: string;
   hash: string;
   text: string;
+  /** Original verified bytes, supplied by the repository reader when text decoding removes BOM. */
+  bytes?: Uint8Array;
   designNodeIds: readonly string[];
   /** Candidate rationale, not semantic proof, owner review admission or permission. */
   rationale?: string;
@@ -75,7 +77,8 @@ type Observation = {
 };
 const object = (value: unknown): value is Node =>
   value !== null && typeof value === 'object' && !Array.isArray(value);
-const digest = (value: string) => `sha256:${createHash('sha256').update(value).digest('hex')}`;
+const digest = (value: string | Uint8Array) =>
+  `sha256:${createHash('sha256').update(value).digest('hex')}`;
 const bounded = (value: number | undefined, fallback: number) =>
   Number.isInteger(value ?? fallback) && (value ?? fallback) > 0
     ? Math.min(value ?? fallback, fallback)
@@ -309,9 +312,10 @@ export const analyzePortalWorkflows = (
   if ((options.sourceHints?.length ?? 0) > 256) issue('SOURCE_HINT_LIMIT');
   let sourceBytes = 0;
   for (const hint of (options.sourceHints ?? []).slice(0, 256)) {
-    sourceBytes += Buffer.byteLength(hint.text);
+    const byteLength = hint.bytes?.byteLength ?? Buffer.byteLength(hint.text);
+    sourceBytes += byteLength;
     if (
-      Buffer.byteLength(hint.text) > 262_144 ||
+      byteLength > 262_144 ||
       sourceBytes > 8_388_608 ||
       hint.designNodeIds.length > 128 ||
       hint.designNodeIds.some(id => !short(id)) ||
@@ -323,7 +327,14 @@ export const analyzePortalWorkflows = (
       issue('SOURCE_HINT_LIMIT');
       continue;
     }
-    if (digest(hint.text) !== hint.hash) {
+    let verified = digest(hint.bytes ?? hint.text) === hint.hash;
+    try {
+      if (hint.bytes)
+        verified &&= new TextDecoder('utf-8', { fatal: true }).decode(hint.bytes) === hint.text;
+    } catch {
+      verified = false;
+    }
+    if (!verified) {
       issue('SOURCE_HASH_MISMATCH');
       continue;
     }

@@ -1,0 +1,16 @@
+{
+  "context": "../../_cache/ecommerce-service-context-20261004-prep",
+  "planId": "sfp_portal1_a59a9126725435235f0a8daa281cee2c",
+  "complete": false,
+  "liveVerified": false,
+  "issues": [
+    "CHROME_CONNECTION_REQUIRED",
+    "DESIGN_CAPTURE_REQUIRED",
+    "LIVE_DESIGN_VERIFICATION_REQUIRED",
+    "WORKFLOW_ANALYSIS:DESIGN_MISSING:",
+    "PORTAL_CAPTURE_CURRENT_REQUIRED",
+    "PORTAL_CAPTURE_CURRENT_REQUIRED"
+  ],
+  "generationStarted": false,
+  "targetExists": false
+}

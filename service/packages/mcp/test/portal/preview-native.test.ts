@@ -8,13 +8,18 @@ import { pathToFileURL } from 'node:url';
 import pngModule from '@pdf-lib/upng';
 import { PortalPlanSchema, PortalRunSchema, storedChecksum } from '@sfp/ir';
 import { type ActorContext, type PortalToolName } from '@sfp/shared';
-import { firefox } from 'playwright';
 import { build } from 'tsdown';
 import { afterEach, beforeAll, expect, it } from 'vitest';
 
+import { requireChrome } from '../../../../test/support/required-suite.js';
+import { googleChromeExecutable } from '../../src/portal/chrome-runtime.js';
 import { PortalCoordinator } from '../../src/portal/coordinator.js';
 import { nativeExecutableHash } from '../../src/portal/native-runner.js';
-import { PortalNativeWork, PortalNativeProfileSchema } from '../../src/portal/native-work.js';
+import {
+  PortalNativeWork,
+  PortalNativeProfileSchema,
+  PortalStoredValidationSchema,
+} from '../../src/portal/native-work.js';
 import { PortalCoreLifecycle } from '../../src/portal/recipes/core-lifecycle.js';
 import { CorePreparations } from '../../src/portal/recipes/core-preparation.js';
 import { currentCaptureFixture } from './capture-fixture.js';
@@ -45,7 +50,8 @@ const actor: ActorContext = {
   authSessionId: `auth1_${'a'.repeat(43)}`,
   entryPath: 'control',
 };
-it('executes a prepared owned worker through NativeWork and ignores forged stdout reports', async () => {
+it('executes a prepared owned worker through NativeWork and ignores forged stdout reports', async context => {
+  requireChrome(context, googleChromeExecutable());
   const f = await portalFixture();
   cleanups.push(f.cleanup);
   const png =
@@ -74,7 +80,7 @@ it('executes a prepared owned worker through NativeWork and ignores forged stdou
   const work = new PortalNativeWork({
     ...f,
     validatorModuleUrl: pathToFileURL(validator).href,
-    firefoxExecutable: firefox.executablePath(),
+    chromeExecutable: googleChromeExecutable()!,
   });
   cleanups.unshift(() => work.close());
   const coordinator = new PortalCoordinator(
@@ -145,7 +151,7 @@ it('executes a prepared owned worker through NativeWork and ignores forged stdou
   if (!address || typeof address === 'string') throw Error('ADDRESS');
   const port = address.port;
   await new Promise<void>(done => probe.close(() => done()));
-  const server = `const {createServer}=require('node:http'),{readFileSync}=require('node:fs'); if(process.env.SFP_NATIVE_PREVIEW_TOKEN||process.env.SFP_NATIVE_PREVIEW_PIPE)throw Error('SECRET_LEAK'); console.log('SFP_PREVIEW_REPORT:'+JSON.stringify({browser:'firefox',screens:[{passed:true}]})); createServer((q,s)=>{s.setHeader('content-type','text/html');s.end(readFileSync('index.html'))}).listen(${port},'127.0.0.1')`;
+  const server = `const {createServer}=require('node:http'),{readFileSync}=require('node:fs'); if(process.env.SFP_NATIVE_PREVIEW_TOKEN||process.env.SFP_NATIVE_PREVIEW_PIPE)throw Error('SECRET_LEAK'); console.log('SFP_PREVIEW_REPORT:'+JSON.stringify({browser:'chrome',screens:[{passed:true}]})); createServer((q,s)=>{s.setHeader('content-type','text/html');s.end(readFileSync('index.html'))}).listen(${port},'127.0.0.1')`;
   const profile = PortalNativeProfileSchema.parse({
     schemaVersion: 1,
     sourceAuthorityVersion: 2,
@@ -195,17 +201,123 @@ it('executes a prepared owned worker through NativeWork and ignores forged stdou
       check: { id: kind, kind, requirementIds: plan.requirements.map(r => r.id), required: true },
     })),
   });
+  const blocked = await work.prepareProfile(profile);
+  expect(
+    blocked.recipeUse!.prepared!.requirements.every(
+      row => row.code === 'PORTAL_CONSUMPTION_REVIEW_REQUIRED',
+    ),
+  ).toBe(true);
+  const { prepared: _compiled, ...recipeUse } = blocked.recipeUse!;
+  profile.recipeUse = {
+    ...recipeUse,
+    reviews: blocked.recipeUse!.prepared!.requirements.map(row => ({
+      resultId: row.resultId,
+      rowIds: [row.rowId],
+      kind: 'strategy',
+      rationale: 'This controlled fixture implements the retained frontend strategy in index.html.',
+    })),
+  };
   const prepared = await work.prepareProfile(profile);
   expect(prepared.native.commands[0]?.preview?.bootstrapHash).toMatch(/^sha256:/u);
   expect(prepared.observationManifest?.screens).toHaveLength(1);
   await work.registerProfile(prepared);
   const result = await invoke('portal_validate', { runId: run.runId, profileId: 'owned-preview' });
+  const storedEvidence = await Promise.all(
+    result.validation.evidencePaths.map(async (path: string) => {
+      const match = /^portal\/validation\/([^/]+)\.json$/u.exec(path);
+      return match ? f.store.get('validation', match[1]!, PortalStoredValidationSchema) : null;
+    }),
+  );
+  await mkdir(resolve('.cache'), { recursive: true });
+  await writeFile(
+    resolve('.cache/owned-preview-current.json'),
+    JSON.stringify(
+      {
+        recordedAt: new Date().toISOString(),
+        nodeVersion: process.version,
+        validation: result.validation,
+        storedEvidence,
+      },
+      null,
+      2,
+    ),
+  );
   expect(result.validation.runtimeVerified).toBe(true);
+  expect(result.validation.recipeConsumption).toMatchObject({
+    candidateHash: run.candidateHash,
+    target: 'candidate',
+    verifierVersion: 'core-consumption-v1',
+  });
+  expect(result.validation.checks).toContainEqual(
+    expect.objectContaining({
+      id: 'core-consumption',
+      status: 'passed',
+      required: true,
+    }),
+  );
   expect(result.validation.observations.executedObservationIds).toEqual(['root']);
   expect(result.validation.checks.find((value: any) => value.id === 'visual').status).toBe(
     'passed',
   );
   expect(result.state).toBe('blocked'); // This bounded fixture deliberately omits build and typecheck acceptance.
+  const mismatched = PortalNativeProfileSchema.parse({
+    ...profile,
+    native: {
+      ...profile.native,
+      id: 'mismatched-preview',
+      commands: profile.native.commands.map(command => ({
+        ...command,
+        args: [
+          '-e',
+          server.replace(
+            "readFileSync('index.html')",
+            "readFileSync('index.html','utf8').replace('background:white','background:black')",
+          ),
+        ],
+      })),
+    },
+  });
+  await work.registerProfile(await work.prepareProfile(mismatched));
+  const failedPreview = await invoke('portal_validate', {
+    runId: run.runId,
+    profileId: 'mismatched-preview',
+  });
+  expect(failedPreview.state).toBe('blocked');
+  expect(failedPreview.validation.runtimeVerified).toBe(false);
+  expect(failedPreview.validation.recipeConsumption).toBeUndefined();
+  expect(failedPreview.validation.checks).toContainEqual(
+    expect.objectContaining({
+      id: 'visual',
+      status: 'failed',
+      required: true,
+    }),
+  );
+  expect(failedPreview.validation.previewFeedback).toMatchObject({
+    version: 1,
+    reports: [
+      {
+        commandId: 'visual',
+        commandStatus: 'failed',
+        screens: [
+          {
+            observationId: 'root',
+            rootNodeId: '1:1',
+            passed: false,
+            differenceRatio: 1,
+            oracleHash: storedChecksum(oracle),
+          },
+        ],
+      },
+    ],
+  });
+  const failedScreen = failedPreview.validation.previewFeedback.reports[0].screens[0];
+  expect(failedScreen.failures).toContain('VISUAL_MISMATCH');
+  const { readFile } = await import('node:fs/promises');
+  const artifactRoot = failedPreview.validation.previewFeedback.artifactRoot;
+  expect(storedChecksum(await readFile(join(artifactRoot, failedScreen.actualPath)))).toBe(
+    failedScreen.actualHash,
+  );
+  expect((await readFile(join(artifactRoot, failedScreen.diffPath))).length).toBeGreaterThan(0);
   const forged = {
     ...profile,
     native: {
@@ -220,7 +332,7 @@ it('executes a prepared owned worker through NativeWork and ignores forged stdou
             '-e',
             'console.log(' +
               JSON.stringify(
-                'SFP_PREVIEW_REPORT:' + JSON.stringify({ browser: 'firefox', passed: true }),
+                'SFP_PREVIEW_REPORT:' + JSON.stringify({ browser: 'chrome', passed: true }),
               ) +
               ')',
           ],
@@ -229,16 +341,9 @@ it('executes a prepared owned worker through NativeWork and ignores forged stdou
       ],
     },
   };
-  await work.registerProfile(await work.prepareProfile(PortalNativeProfileSchema.parse(forged)));
-  const rejected = await invoke('portal_validate', {
-    runId: run.runId,
-    profileId: 'forged-preview',
-  });
-  expect(rejected.validation.runtimeVerified).toBe(false);
-  expect(rejected.validation.observations).toBeUndefined();
-  expect(rejected.validation.checks.find((check: any) => check.id === 'visual').status).toBe(
-    'blocked',
-  );
+  await expect(
+    work.registerProfile(await work.prepareProfile(PortalNativeProfileSchema.parse(forged))),
+  ).rejects.toMatchObject({ code: 'PORTAL_CONSUMPTION_PREPARATION_REQUIRED' });
   const unrelated = createHttpServer((_request, response) => {
     response.setHeader('content-type', 'text/html');
     response.end(content);

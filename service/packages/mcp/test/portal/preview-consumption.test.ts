@@ -1,16 +1,18 @@
-import { mkdir, writeFile } from 'node:fs/promises';
+import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { createServer } from 'node:http';
 import { join } from 'node:path';
 
 import pngModule from '@pdf-lib/upng';
 import { storedChecksum } from '@sfp/ir';
-import { firefox } from 'playwright';
-import { afterEach, expect, it } from 'vitest';
+import { chromium } from 'playwright';
+import { afterEach, beforeEach, expect, it } from 'vitest';
 
+import { requireChrome } from '../../../../test/support/required-suite.js';
 import {
   PortalConsumptionBatchSchema,
   type PortalConsumptionCheck,
 } from '../../../shared/src/portal-consumption.js';
+import { googleChromeExecutable } from '../../src/portal/chrome-runtime.js';
 import { derivePortalInteractionContract } from '../../src/portal/interaction-evidence.js';
 import { preparePortalObservationManifest } from '../../src/portal/observation-manifest.js';
 import {
@@ -23,6 +25,9 @@ import { assertNativePortalPreview } from '../../src/portal/preview.js';
 import { currentCaptureFixture } from './capture-fixture.js';
 import { portalFixture } from './fixtures.js';
 const cleanups: Array<() => Promise<void>> = [];
+// Required suite 'chrome': every test in this file is gated, including the one pure check, so a
+// missing browser fails the file unless SFP_ALLOW_SKIP=chrome.
+beforeEach(context => requireChrome(context, googleChromeExecutable()));
 afterEach(async () => {
   for (const cleanup of cleanups.splice(0)) await cleanup();
 });
@@ -73,7 +78,13 @@ const fixture = async (html: string, assets: Record<string, Buffer> = {}) => {
   if (!address || typeof address === 'string') throw Error('ADDRESS');
   const url = `http://127.0.0.1:${address.port}`;
   await preparePortalConsumptionObserver();
-  const browser = await firefox.launch({ headless: true });
+  const executablePath = googleChromeExecutable();
+  if (!executablePath) throw Error('PORTAL_CHROME_REQUIRED');
+  const browser = await chromium.launch({
+    channel: 'chrome',
+    executablePath,
+    headless: true,
+  });
   const context = await browser.newContext({
     viewport: { width: 400, height: 400 },
     serviceWorkers: 'block',
@@ -486,6 +497,70 @@ it('runs the complete approved batch in real preview and omits consumption proof
       { emitReport: false },
     ),
   ).rejects.toThrow(/NS_ERROR|ERR_|ORIGIN_MISMATCH/iu);
+}, 30000);
+
+it('retains real failed screenshot and diff evidence for the owned worker without accepting the preview', async () => {
+  const f = await fixture(
+    '<html lang="en"><head><title>Mismatch</title></head><body style="margin:0;background:black"><main data-sfp-root="1:1" style="width:100px;height:100px"></main></body></html>',
+  );
+  const state = await portalFixture();
+  cleanups.push(state.cleanup);
+  const png =
+    'encode' in pngModule
+      ? pngModule
+      : (pngModule as unknown as { default: typeof pngModule }).default;
+  const oracle = Buffer.from(
+    png.encode([new Uint8Array(100 * 100 * 4).fill(255).buffer], 100, 100, 0),
+  );
+  const assets = join(state.root, 'assets');
+  await mkdir(assets);
+  await writeFile(join(assets, 'root.png'), oracle);
+  const captured = await currentCaptureFixture(state, {
+    assetRoot: assets,
+    assets: [
+      {
+        query: { kind: 'png', nodeId: '1:1' },
+        status: 'captured',
+        path: 'root.png',
+        sha256: storedChecksum(oracle),
+        bytes: oracle.length,
+      },
+    ],
+  });
+  const contract = derivePortalInteractionContract(captured.captured, []);
+  const screen = {
+    id: 'root',
+    rootNodeId: '1:1',
+    state: 'source:1:1',
+    path: '/',
+    viewport: { width: 100, height: 100 },
+    oraclePath: 'root.png',
+    oracleRoot: assets,
+    oracleHash: storedChecksum(oracle),
+    assertionIds: [],
+  };
+  const manifest = preparePortalObservationManifest(captured.captured, contract, [screen], []);
+  const report = await assertNativePortalPreview(
+    {
+      root: state.workspaceRoot,
+      baseUrl: f.url,
+      manifest,
+      interactionContract: contract,
+      screens: [screen],
+    },
+    undefined,
+    { emitReport: false, retainFailedReport: true },
+  );
+  expect(report.screens[0]).toMatchObject({ passed: false, ratio: 1 });
+  expect(report.screens[0]!.failures).toContain('VISUAL_MISMATCH');
+  const actualPath = report.screens[0]!.actualPath;
+  const diffPath = report.screens[0]!.diffPath;
+  if (typeof actualPath !== 'string' || typeof diffPath !== 'string')
+    throw Error('Missing retained pixel paths');
+  expect(storedChecksum(await readFile(join(state.workspaceRoot, actualPath)))).toBe(
+    report.screens[0]!.actualHash,
+  );
+  expect((await readFile(join(state.workspaceRoot, diffPath))).length).toBeGreaterThan(0);
 }, 30000);
 
 it('does not claim an unavailable first font or a covered/unrelated component as consumed', async () => {

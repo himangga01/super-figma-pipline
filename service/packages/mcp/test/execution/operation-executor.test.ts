@@ -86,6 +86,72 @@ const createRoot = async () => {
 };
 
 describe('idempotent journaled operation executor', () => {
+  it('fences a later mutation after an uncertain effect across executor restart while admitting reads', async () => {
+    const root = await createRoot();
+    const issuer = operationIdIssuerFromKey(Buffer.alloc(32, 72));
+    const first = issuer.issue(actorId, fixedNow, { nonce: 'SAAAAAAAAAAAAAAAAAAAAA' });
+    const second = issuer.issue(actorId, fixedNow, { nonce: 'SQAAAAAAAAAAAAAAAAAAAA' });
+    const read = issuer.issue(actorId, fixedNow, { nonce: 'SgAAAAAAAAAAAAAAAAAAAA' });
+    const journal = new OperationJournal({ stateRoot: root, actorId, now: () => fixedNow });
+    await journal.recover();
+    const runtime = vi.fn<PinnedPluginRuntimePort['execute']>(async () => {
+      throw Object.assign(new Error('sandbox timed out after dispatch'), {
+        code: 'PLUGIN_OUTCOME_UNKNOWN',
+        committed: true,
+      });
+    });
+    const options = {
+      issuer,
+      journal,
+      queue: new FileExecutionQueue(),
+      runtimes: createBoundRuntimeRegistry({ execute: runtime }, { execute: async () => ({}) }),
+      now: () => fixedNow,
+    };
+    await expect(
+      new OperationExecutor(options).invokeTool(
+        scope(),
+        'create_text',
+        { characters: 'A' },
+        first,
+        NO_CAPTURE_OPTIONS,
+      ),
+    ).rejects.toMatchObject({ committed: true });
+    await journal.recover();
+    runtime.mockResolvedValue({ ok: true, nodeId: '1:2', name: 'Text', type: 'TEXT' });
+    const restarted = new OperationExecutor(options);
+    await expect(
+      restarted.invokeTool(scope(), 'create_text', { characters: 'B' }, second, NO_CAPTURE_OPTIONS),
+    ).rejects.toMatchObject({ code: 'OPERATION_RECONCILIATION_REQUIRED' });
+    expect(runtime).toHaveBeenCalledTimes(1);
+    runtime.mockResolvedValue({ pages: [] });
+    await expect(
+      restarted.invokeTool(scope(), 'get_pages', {}, read, NO_CAPTURE_OPTIONS),
+    ).resolves.toEqual({ pages: [] });
+    const missingInspection = issuer.issue(actorId, fixedNow, { nonce: 'TQAAAAAAAAAAAAAAAAAAAA' });
+    const unavailable = new OperationExecutor({
+      ...options,
+      journal: {
+        appendInitial: (...args: Parameters<OperationJournalPort['appendInitial']>) =>
+          journal.appendInitial(...args),
+        transition: (...args: Parameters<OperationJournalPort['transition']>) =>
+          journal.transition(...args),
+        get: (id: string) => journal.get(id),
+        list: undefined,
+      } as unknown as OperationJournalPort,
+    });
+    await expect(
+      unavailable.invokeTool(
+        scope(),
+        'create_text',
+        { characters: 'C' },
+        missingInspection,
+        NO_CAPTURE_OPTIONS,
+      ),
+    ).rejects.toMatchObject({ code: 'OPERATION_RECONCILIATION_UNAVAILABLE' });
+    expect(journal.get(missingInspection)?.status).toBe('rejected');
+    expect(runtime).toHaveBeenCalledTimes(2);
+  });
+
   it('persists a strict no-artifact receipt for a workspace-bound tool result', async () => {
     const root = await createRoot();
     const issuer = operationIdIssuerFromKey(Buffer.alloc(32, 62));
@@ -135,7 +201,7 @@ describe('idempotent journaled operation executor', () => {
     });
   });
   it.each([`sfp_op1_${'A'.repeat(332)}.${'A'.repeat(43)}`, '\u0001'.repeat(384)])(
-    'rejects forged 384-byte operation authority through the executor before runtime or evidence IO',
+    'rejects forged 384-byte operation authority case %# through the executor before runtime or evidence IO',
     async forgedOperationId => {
       const root = await createRoot();
       const issuer = operationIdIssuerFromKey(Buffer.alloc(32, 61));
@@ -506,6 +572,7 @@ describe('idempotent journaled operation executor', () => {
     await durable.recover();
     const events: string[] = [];
     const journal: OperationJournalPort = {
+      list: options => durable.list(options),
       appendInitial: (...args) => durable.appendInitial(...args),
       get: id => durable.get(id),
       transition: async (id, status, patch) => {
@@ -643,6 +710,7 @@ describe('idempotent journaled operation executor', () => {
     const durable = new OperationJournal({ stateRoot: root, actorId, now: () => fixedNow });
     await durable.recover();
     const journal: OperationJournalPort = {
+      list: options => durable.list(options),
       appendInitial: (...args) => durable.appendInitial(...args),
       get: id => durable.get(id),
       transition: async (id, status, patch) => {
@@ -1076,6 +1144,7 @@ describe('idempotent journaled operation executor', () => {
     });
     await journal.recover();
     const journalPort: OperationJournalPort = {
+      list: options => journal.list(options),
       appendInitial: (...args) => journal.appendInitial(...args),
       transition: (...args) => journal.transition(...args),
       transitionDemotion: async (...args) => {
@@ -1178,6 +1247,7 @@ describe('idempotent journaled operation executor', () => {
     await durable.recover();
     const events: string[] = [];
     const journal: OperationJournalPort = {
+      list: options => durable.list(options),
       appendInitial: async (...args) => {
         const row = await durable.appendInitial(...args);
         events.push('queued-fsync');

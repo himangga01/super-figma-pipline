@@ -1,0 +1,352 @@
+{
+  "analysisHash": "sha256:276172a69787cb038ae950d4268f1688bd908db8c3a0e8c17507504c3d028645",
+  "capture": {
+    "freshDesignFingerprint": "sha256:988ca3cc45e4e91151067be8038a48fe4b29497251c6332a0d0d6c532d141f8f",
+    "originalDescriptorHash": "sha256:f15ace5f917d020698ab7d9862b505677f046217cc6a7afa1ac1082969caad50",
+    "version": 2
+  },
+  "checks": [
+    {
+      "id": "frontend-types",
+      "kind": "typecheck",
+      "required": true,
+      "requirementIds": [
+        "figma-account-session",
+        "language-selection",
+        "registration-demo",
+        "frontend-presentation"
+      ],
+      "status": "passed"
+    },
+    {
+      "id": "frontend-build",
+      "kind": "build",
+      "required": true,
+      "requirementIds": [
+        "figma-account-session",
+        "language-selection",
+        "registration-demo",
+        "frontend-presentation"
+      ],
+      "status": "passed"
+    },
+    {
+      "id": "frontend-independence",
+      "kind": "independence",
+      "required": true,
+      "requirementIds": [
+        "figma-account-session",
+        "language-selection",
+        "registration-demo",
+        "frontend-presentation"
+      ],
+      "status": "passed"
+    },
+    {
+      "id": "visual-guide",
+      "kind": "visual",
+      "required": true,
+      "requirementIds": [
+        "frontend-presentation"
+      ],
+      "status": "passed"
+    },
+    {
+      "id": "accessibility-guide",
+      "kind": "accessibility",
+      "required": true,
+      "requirementIds": [
+        "frontend-presentation"
+      ],
+      "status": "passed"
+    },
+    {
+      "id": "visual-mobile",
+      "kind": "visual",
+      "required": true,
+      "requirementIds": [
+        "figma-account-session",
+        "language-selection",
+        "registration-demo",
+        "frontend-presentation"
+      ],
+      "status": "passed"
+    },
+    {
+      "id": "accessibility-mobile",
+      "kind": "accessibility",
+      "required": true,
+      "requirementIds": [
+        "figma-account-session",
+        "language-selection",
+        "registration-demo",
+        "frontend-presentation"
+      ],
+      "status": "passed"
+    },
+    {
+      "id": "visual-desktop",
+      "kind": "visual",
+      "required": true,
+      "requirementIds": [
+        "figma-account-session",
+        "language-selection",
+        "registration-demo",
+        "frontend-presentation"
+      ],
+      "status": "passed"
+    },
+    {
+      "id": "accessibility-desktop",
+      "kind": "accessibility",
+      "required": true,
+      "requirementIds": [
+        "figma-account-session",
+        "language-selection",
+        "registration-demo",
+        "frontend-presentation"
+      ],
+      "status": "passed"
+    },
+    {
+      "id": "journey-account",
+      "kind": "interaction",
+      "required": true,
+      "requirementIds": [
+        "figma-account-session"
+      ],
+      "status": "passed"
+    },
+    {
+      "id": "journey-registration",
+      "kind": "interaction",
+      "required": true,
+      "requirementIds": [
+        "registration-demo"
+      ],
+      "status": "passed"
+    },
+    {
+      "id": "journey-presentation",
+      "kind": "interaction",
+      "required": true,
+      "requirementIds": [
+        "frontend-presentation"
+      ],
+      "status": "passed"
+    },
+    {
+      "id": "journey-language",
+      "kind": "interaction",
+      "required": true,
+      "requirementIds": [
+        "language-selection"
+      ],
+      "status": "passed"
+    },
+    {
+      "id": "native-command-sequence",
+      "kind": "source-scope",
+      "reason": "Every approved native command must execute successfully.",
+      "required": true,
+      "requirementIds": [],
+      "status": "passed"
+    },
+    {
+      "id": "native-source-scope",
+      "kind": "source-scope",
+      "required": true,
+      "requirementIds": [],
+      "status": "passed"
+    },
+    {
+      "id": "core-consumption",
+      "kind": "source-scope",
+      "required": true,
+      "requirementIds": [],
+      "status": "passed"
+    }
+  ],
+  "designHash": "sha256:74e864371987626d7821b8db9cd4555b92437916e6a1a66374b14292facab968",
+  "environmentId": "6e97547d372de6894ce5c83c0c28f0f9cc15db894aed9ae7f08c5c76e7a6a8b3",
+  "evidencePaths": [
+    "portal/validation/fde0c8c74d6367a7f7c508294f1974c09531bcf9c293e90e2ec40294b8f2c4c6.json"
+  ],
+  "liveDesignVerified": true,
+  "nativeArtifactAuthority": {
+    "manifestHash": "sha256:553bb5a51f9686830acd5fd0bffcce47ebf8f0f1b1a319e45f1db853b97dafc4",
+    "moduleEvidenceHash": "sha256:5fffc115343bb6a606199078030a61186f12a5c192acd77a79e867c32760771e",
+    "moduleFenceProtocol": "sfp-native-module-fence-v1",
+    "outputReceiptHash": "sha256:bdfb8467892428d866ffd1cbae0a8569e160a164f64bc1d45dcee9445da6de7a",
+    "version": 1
+  },
+  "nativeEnvironment": {
+    "attemptId": "6e97547d372de6894ce5c83c0c28f0f9cc15db894aed9ae7f08c5c76e7a6a8b3",
+    "disposition": "retained-artifact",
+    "executionHash": "sha256:8b8be51759329bdac114c3b46bca97328d65113020a1081190e695e496abdb67",
+    "receiptHash": "sha256:42284a8ba8597a09e2f5e0750ba5c7c23bb900418038d58710fc4526bc387a72",
+    "target": "candidate",
+    "version": 1
+  },
+  "observations": {
+    "executedAssertionIds": [],
+    "executedObservationIds": [
+      "guide",
+      "mobile",
+      "desktop"
+    ],
+    "executedWorkflowIds": [
+      "figma-account-session",
+      "language-selection",
+      "registration-demo",
+      "frontend-presentation"
+    ],
+    "interactionContractHash": "sha256:85a02481cc06a2a856b78957e4cabb354bd4dc33e85a9b0964826df7f9139cff",
+    "manifestHash": "sha256:79cd57d68b0b91bef058a326678cd70e1135d660442b8362a1e2b30046942af4",
+    "receiptHash": "sha256:a56f9f1c53079acab4863f75319953670211f9268a448a33d17d029f6fb72e06",
+    "version": 1
+  },
+  "previewFeedback": {
+    "artifactRoot": "C:\\2026_project\\super-figma-pipline\\.worktrees\\_cache\\cdd-native-appdata\\SuperFigmaPipeline\\portal-attempt-6e97547d372de6894ce5c83c0c28f0f9cc15db894aed9ae7f08c5c76e7a6a8b3\\work",
+    "reports": [
+      {
+        "commandId": "preview-cdd",
+        "commandStatus": "passed",
+        "receiptHash": "sha256:2998a5f9d98692e4abf28aa2a2fd734740e570a3ba283eda8b2a37ed4d07d42f",
+        "screens": [
+          {
+            "actualHash": "sha256:3829b45afe23e03f58643d2441987b112bf6fa1fbaf64541da22eacfe8a78222",
+            "actualPath": ".sfp-native-preview/preview-cdd/guide.actual.png",
+            "comparisonMode": "pixelmatch-7.2-v1",
+            "diffHash": "sha256:2e6fdc58fbd129af922464bd7464887e470a0f98104d2609ebe367101bb43ec3",
+            "diffPath": ".sfp-native-preview/preview-cdd/guide.diff.png",
+            "differenceRatio": 0.006628062787136294,
+            "failures": [],
+            "observationId": "guide",
+            "oracleHash": "sha256:3362ed1186379f9d655103c6a11360ff3d2aaebfe3a36bcd2cb093c0e9a31ba2",
+            "passed": true,
+            "rootNodeId": "1381:285",
+            "route": "/guide",
+            "state": "source:1381:285",
+            "strictDifferenceRatio": 0.04456195763144461,
+            "viewport": {
+              "height": 192,
+              "width": 653
+            }
+          },
+          {
+            "actualHash": "sha256:04686cfca4fa08ec63eadd65f62e1bf7b224822e47685a9db9ed79e6878fb4c3",
+            "actualPath": ".sfp-native-preview/preview-cdd/mobile.actual.png",
+            "comparisonMode": "pixelmatch-7.2-v1",
+            "diffHash": "sha256:f5e602459fd72a8e5f88aa996ff94496ce8ad93032df23b9c3f43a7c7b17ee35",
+            "diffPath": ".sfp-native-preview/preview-cdd/mobile.diff.png",
+            "differenceRatio": 0.009993095247987433,
+            "failures": [],
+            "observationId": "mobile",
+            "oracleHash": "sha256:6607d7d405fa700054dfbb5f586b3329b768f366b93506990cf8f259f4c332d6",
+            "passed": true,
+            "rootNodeId": "1381:530",
+            "route": "/",
+            "state": "source:1381:530",
+            "strictDifferenceRatio": 0.038115945756479225,
+            "viewport": {
+              "height": 800,
+              "width": 497
+            }
+          },
+          {
+            "actualHash": "sha256:5c39a556183f9f52483f080627f4a5c7a707d378b0e69683cfc1e28441a1863f",
+            "actualPath": ".sfp-native-preview/preview-cdd/desktop.actual.png",
+            "comparisonMode": "pixelmatch-7.2-v1",
+            "diffHash": "sha256:58b59d5928c1d9e5587b4a9ca8980ce6aa6fe8e3f4303afcb6e340e276c1c483",
+            "diffPath": ".sfp-native-preview/preview-cdd/desktop.diff.png",
+            "differenceRatio": 0.003784064650220105,
+            "failures": [],
+            "observationId": "desktop",
+            "oracleHash": "sha256:7af46399edbc1528768198686132bfe4272f1126a597a942cce771aeff0fda2c",
+            "passed": true,
+            "rootNodeId": "1381:541",
+            "route": "/",
+            "state": "source:1381:541",
+            "strictDifferenceRatio": 0.015883389489175476,
+            "viewport": {
+              "height": 1117,
+              "width": 1728
+            }
+          }
+        ]
+      }
+    ],
+    "version": 1
+  },
+  "recipeConsumption": {
+    "blueprintHash": "sha256:d52e40a79e51ff41b68ba2aeee562706b189ef5e5f8f852f48097df460f32267",
+    "candidateHash": "sha256:1497c7fbf1f10db883ab2aba11de0e03a05c5bf24468bdd2a7ac3bb892b66dfa",
+    "contextHash": "sha256:f78b34cf36cf3ce6439bd7663f94607b1ad85822080dd2b80b39cd69fe0284ea",
+    "declarationsHash": "sha256:c7614da7759ab63b2b1d1b6a89b8d497bc27925ad5e21aaab9a9bc9fcc390318",
+    "findings": [
+      {
+        "actualHash": "sha256:3829b45afe23e03f58643d2441987b112bf6fa1fbaf64541da22eacfe8a78222",
+        "assertionId": "core-consumption",
+        "evidenceHash": "sha256:4e17aaeb9d4c6889ff048c183a3b7ca6f6d6dd28e281c52f5c8b97a48bb3ee83",
+        "expectedHash": "sha256:3362ed1186379f9d655103c6a11360ff3d2aaebfe3a36bcd2cb093c0e9a31ba2",
+        "kind": "runtime",
+        "observationId": "guide",
+        "rootNodeId": "1381:285",
+        "route": "/guide",
+        "stateId": "source:1381:285",
+        "viewport": {
+          "height": 192,
+          "width": 653
+        }
+      },
+      {
+        "actualHash": "sha256:04686cfca4fa08ec63eadd65f62e1bf7b224822e47685a9db9ed79e6878fb4c3",
+        "assertionId": "core-consumption",
+        "evidenceHash": "sha256:4e17aaeb9d4c6889ff048c183a3b7ca6f6d6dd28e281c52f5c8b97a48bb3ee83",
+        "expectedHash": "sha256:6607d7d405fa700054dfbb5f586b3329b768f366b93506990cf8f259f4c332d6",
+        "kind": "runtime",
+        "observationId": "mobile",
+        "rootNodeId": "1381:530",
+        "route": "/",
+        "stateId": "source:1381:530",
+        "viewport": {
+          "height": 800,
+          "width": 497
+        }
+      },
+      {
+        "actualHash": "sha256:5c39a556183f9f52483f080627f4a5c7a707d378b0e69683cfc1e28441a1863f",
+        "assertionId": "core-consumption",
+        "evidenceHash": "sha256:4e17aaeb9d4c6889ff048c183a3b7ca6f6d6dd28e281c52f5c8b97a48bb3ee83",
+        "expectedHash": "sha256:7af46399edbc1528768198686132bfe4272f1126a597a942cce771aeff0fda2c",
+        "kind": "runtime",
+        "observationId": "desktop",
+        "rootNodeId": "1381:541",
+        "route": "/",
+        "stateId": "source:1381:541",
+        "viewport": {
+          "height": 1117,
+          "width": 1728
+        }
+      }
+    ],
+    "ownerId": "actor1_yHqo80GCozgWc3Frz7gDVRZ5PxlqyhX3OXMZSid2XJ4",
+    "recipeAuthorityVersion": 1,
+    "resultHashes": [
+      "sha256:1c76b1cae37d455ad366609b6d4a7521483ef8e5eb9a784146b4734c4f125449",
+      "sha256:5e38bef0a098113b22ba509f34f124043e79ad1cc5af6ba91a861207866826cd",
+      "sha256:a02103e357e6d733bf12d5cc495f8b779549cf8771e80d0e5d32007fa4720d4a",
+      "sha256:f897f5e66c4f0a90ded2a0563b36b689167db84ecd5676d02c3ca7558cfbcea2",
+      "sha256:fae70b684f0009b5decf4fbdbde5dd0e221a2a39ba387ef2c880f9816b1ab163",
+      "sha256:e5537a678ffedafcf3a2ef6f461149cee0c285b9ad792809513440a7fa728e9c",
+      "sha256:8ea494aed629347f67244933ee5cf0fa21cc064fb3caf9df8402d0bc56e81ccd"
+    ],
+    "target": "candidate",
+    "verifierVersion": "core-consumption-v1",
+    "workspaceId": "5431a527-2323-47d8-b4c6-73a0b0894aaa"
+  },
+  "runtimeVerified": true,
+  "sourceAuthorityVersion": 2,
+  "sourceHash": "sha256:1497c7fbf1f10db883ab2aba11de0e03a05c5bf24468bdd2a7ac3bb892b66dfa"
+}

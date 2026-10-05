@@ -33,20 +33,41 @@ export const openScripter = async (page: Page, target: Readonly<FigmaTarget>): P
   const existing = scripterFrames(page);
   if (existing.length === 1) return existing[0]!;
   if (existing.length > 1) throw new Error('SCRIPTER_FRAME_AMBIGUOUS');
-  await page.keyboard.press('Control+/');
   const search = page
     .getByRole('searchbox')
     .or(page.getByRole('combobox'))
     .or(page.getByPlaceholder(/search|검색/iu))
     .filter({ visible: true })
     .first();
+  if (!(await search.isVisible())) {
+    const mainMenu = page
+      .getByRole('button', { name: /^Main menu$|^메인 메뉴$/u })
+      .filter({ visible: true });
+    if ((await mainMenu.count()) === 1) {
+      // A running plugin can own keyboard focus and cover the bottom Actions button.
+      await mainMenu.click();
+      await page.keyboard.press('Escape');
+      await page.keyboard.press('Control+/');
+    } else {
+      const actions = page
+        .getByRole('button', { name: /^Actions$|^액션$/u })
+        .filter({ visible: true });
+      if ((await actions.count()) === 1) await actions.click();
+      else await page.keyboard.press('Control+/');
+    }
+  }
   await search.fill('Scripter', { timeout: 8_000 });
   const community = page.getByRole('button', {
     name: /Search plugins.*Scripter|Scripter.*플러그인/iu,
   });
   const item = page
     .getByRole('button')
-    .filter({ has: page.locator('img[src*="resource_id=757836922707087381"]') });
+    .filter({
+      has: page.locator(
+        'img[src*="resource_id=757836922707087381"], img[src^="https://s3-alpha-sig.figma.com/plugins/757836922707087381/"]',
+      ),
+    })
+    .filter({ visible: true });
   let searchedCommunity = false;
   for (let attempt = 0; attempt < 30; attempt += 1) {
     // eslint-disable-next-line no-await-in-loop -- observe before one fixed plugin action

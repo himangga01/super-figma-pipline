@@ -480,6 +480,73 @@ describe('owner-state operation journal', () => {
     expect(journal.get('op-purge')).toBeUndefined();
   });
 
+  it('retains long-running settlement links until both evidence stores have reclaimed them', async () => {
+    const root = await createRoot();
+    const issuedAt = record('op-long-settlement').issuedAt;
+    let clock = issuedAt;
+    let retained = true;
+    const options = {
+      stateRoot: root,
+      actorId,
+      now: () => clock,
+      hasRetainedSettlementEvidence: async () => retained,
+    };
+    const journal = new OperationJournal(options);
+    await journal.recover();
+    await journal.appendInitial(record('op-long-settlement'), 'queued');
+    await journal.transition('op-long-settlement', 'dispatched');
+    clock += 31 * 86_400_000;
+    await journal.transition('op-long-settlement', 'succeeded', {
+      resultHash: hash('e'),
+      resultBytes: 1,
+    });
+    const settledAt = clock;
+    await expect(journal.purgeExpiredTombstones()).resolves.toBe(0);
+    expect(journal.get('op-long-settlement')).toMatchObject({
+      expiresAt: issuedAt + 2_592_000_000,
+    });
+    const restarted = new OperationJournal(options);
+    await restarted.recover();
+    expect(restarted.settledAt('op-long-settlement')).toBe(settledAt);
+    retained = false;
+    clock = settledAt + 2_592_000_000 - 1;
+    await expect(restarted.purgeExpiredTombstones()).resolves.toBe(0);
+    retained = true;
+    clock += 1;
+    await expect(restarted.purgeExpiredTombstones()).resolves.toBe(0);
+    const unavailable = new OperationJournal({
+      ...options,
+      hasRetainedSettlementEvidence: async () => {
+        throw Error('evidence store unavailable');
+      },
+    });
+    await expect(unavailable.recover()).rejects.toThrow('evidence store unavailable');
+    expect(restarted.settledAt('op-long-settlement')).toBe(settledAt);
+    retained = false;
+    await expect(restarted.purgeExpiredTombstones()).resolves.toBe(1);
+  });
+
+  it('never ages an unresolved outcome-unknown file-effect fence into a tombstone', async () => {
+    const root = await createRoot();
+    let clock = record('op-unresolved-retention').issuedAt;
+    const journal = new OperationJournal({ stateRoot: root, actorId, now: () => clock });
+    await journal.recover();
+    await journal.appendInitial(record('op-unresolved-retention'), 'queued');
+    await journal.transition('op-unresolved-retention', 'dispatched');
+    await journal.transition('op-unresolved-retention', 'outcome-unknown');
+    clock += 90 * 86_400_000;
+    await expect(journal.purgeExpiredTombstones()).resolves.toBe(0);
+    const restarted = new OperationJournal({ stateRoot: root, actorId, now: () => clock });
+    await restarted.recover();
+    expect(restarted.list({ status: 'outcome-unknown' }).rows).toEqual([
+      expect.objectContaining({
+        operationId: 'op-unresolved-retention',
+        effectSummary: ['figma-write'],
+        fileExecutionKeyHash: record('op-unresolved-retention').fileExecutionKeyHash,
+      }),
+    ]);
+  });
+
   it('rejects hash-valid sequence jumps and bounds operation listing to 1000 rows', async () => {
     const root = await createRoot();
     const journal = new OperationJournal({ stateRoot: root, actorId });

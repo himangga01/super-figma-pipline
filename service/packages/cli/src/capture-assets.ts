@@ -183,7 +183,15 @@ export const captureDesignAssets = async (
             ? 'png'
             : bytes[0] === 255 && bytes[1] === 216
               ? 'jpg'
-              : 'bin'
+              : ['GIF87a', 'GIF89a'].includes(bytes.toString('ascii', 0, 6))
+                ? 'gif'
+                : bytes.toString('ascii', 0, 4) === 'RIFF' &&
+                    bytes.toString('ascii', 8, 12) === 'WEBP'
+                  ? 'webp'
+                  : bytes.toString('ascii', 4, 8) === 'ftyp' &&
+                      ['avif', 'avis'].includes(bytes.toString('ascii', 8, 12))
+                    ? 'avif'
+                    : 'bin'
           : query.kind;
       const path = `assets/${index}-${digest.slice(0, 16)}.${suffix}`;
       // eslint-disable-next-line no-await-in-loop -- create only after the exact asset is verified

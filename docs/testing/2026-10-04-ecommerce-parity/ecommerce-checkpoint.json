@@ -1,0 +1,24 @@
+{
+  "recordedAt": "2026-10-04T11:30:01.227Z",
+  "nodeCount": 3198,
+  "expectedNodes": 3198,
+  "missingNodes": 0,
+  "extraNodes": 0,
+  "comparedPositions": 88993,
+  "rawDifferences": 408,
+  "unexplainedDifferences": 0,
+  "fontRanges": 868,
+  "matchingFontRanges": 868,
+  "stylePairs": 14,
+  "styleKeyMatches": 13,
+  "styleDifferences": 0,
+  "styleAmbiguities": [],
+  "extraStyles": [
+    {
+      "kind": "paints",
+      "name": "Main"
+    }
+  ],
+  "unobservedStyleProperties": 55,
+  "fullCaptureAccepted": false
+}

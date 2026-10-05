@@ -4,7 +4,7 @@ import type { SandboxToolHandler } from '../dispatcher.js';
 
 export const createBindVariableToNodeHandler =
   (figmaCtx: typeof figma): SandboxToolHandler =>
-  async params => {
+  async (params, execution) => {
     const p = (params ?? {}) as { nodeId?: unknown; field?: unknown; variableId?: unknown };
     if (typeof p.nodeId !== 'string')
       throw new TypeError('bind_variable_to_node: nodeId must be a string');
@@ -22,6 +22,8 @@ export const createBindVariableToNodeHandler =
     }
 
     const node = await figmaCtx.getNodeByIdAsync(p.nodeId);
+
+    execution?.signal.throwIfAborted();
     if (node === null) throw new Error(`bind_variable_to_node: node ${p.nodeId} not found`);
     if (typeof (node as { setBoundVariable?: unknown }).setBoundVariable !== 'function') {
       throw new Error(`bind_variable_to_node: node ${p.nodeId} cannot bind variables`);
@@ -31,6 +33,7 @@ export const createBindVariableToNodeHandler =
     let variable: Variable | null = null;
     if (typeof p.variableId === 'string') {
       variable = await figmaCtx.variables.getVariableByIdAsync(p.variableId);
+      execution?.signal.throwIfAborted();
       if (variable === null)
         throw new Error(`bind_variable_to_node: variable ${p.variableId} not found`);
     }

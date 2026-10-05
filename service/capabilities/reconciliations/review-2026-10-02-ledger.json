@@ -1,0 +1,44 @@
+{
+  "schemaVersion": 1,
+  "slice": "review-2026-10-02",
+  "baseline": {
+    "headCommit": "db821db346e7cb5dd27e4df465b91bb106e2f2b3",
+    "authoritySha256": {
+      "upstream-lock.json": "3ca418633f10971b8a22d0e505363a165f453c618ac4c7d09069ec5b7622cbb6",
+      "vendor-map.json": "b3275c7d8b997d1cfe723d97594659f77d7b4361b824a790bcfdd7ff762589bd",
+      "vendor-rules.json": "60ca4bd745fd3d9d8ee021c76410e386ef48a281eef47b3c4b488901843a0b4a"
+    }
+  },
+  "entries": [
+    {
+      "path": "capabilities/task-review-2026-10-02-authority-classes.json",
+      "sha256": "161de3a44242665c3b64503ede4c124acf08d1d2a4f7007e5112352b14d77b64",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "fc9e50488744b8f1cdf994f9d460e9f8681dc32e7e2876463bf49231c8cf656e"
+        },
+        {
+          "class": "protected",
+          "sha256": "fc9e50488744b8f1cdf994f9d460e9f8681dc32e7e2876463bf49231c8cf656e"
+        }
+      ],
+      "reason": "Reviewed removal of obsolete known failures only after independently declared actual file runs proved exact entries passing; retired or replaced fixture titles are separately documented and not claimed as executed historical cases."
+    },
+    {
+      "path": "test/known-failures.json",
+      "sha256": "52c2b80488da61923f6a71a86fcdd185aa8fe012fecf9f2d3500365ebdc17cae",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "99f690a1ca388d02e61f0d75e768233fc8ab63f6736fa2822c88ede3d5653908"
+        },
+        {
+          "class": "protected",
+          "sha256": "99f690a1ca388d02e61f0d75e768233fc8ab63f6736fa2822c88ede3d5653908"
+        }
+      ],
+      "reason": "Reviewed removal of obsolete known failures only after independently declared actual file runs proved exact entries passing; retired or replaced fixture titles are separately documented and not claimed as executed historical cases."
+    }
+  ]
+}

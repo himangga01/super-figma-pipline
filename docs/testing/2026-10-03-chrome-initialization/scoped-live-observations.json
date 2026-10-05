@@ -1,0 +1,746 @@
+{
+  "recordedAt": "2026-10-03T08:31:56.404Z",
+  "observations": [
+    {
+      "log": "cdd-live-portal-plan-approved-20261003-1629.log",
+      "planId": "sfp_portal1_93adc86994d976f0591fc779728e47a2",
+      "design": {
+        "artifactHash": null,
+        "artifactPath": null,
+        "assetManifestHash": null,
+        "captureFailure": {
+          "code": "CHROME_INITIALIZATION_TIMEOUT",
+          "elapsedMs": 300021,
+          "stage": "connection",
+          "type": "error"
+        },
+        "complete": false,
+        "fileKey": "ly06O8jAcrd7oWmwhz5Vr6",
+        "liveVerified": false,
+        "nodeId": "1378:120",
+        "storage": "workspace",
+        "url": "https://www.figma.com/design/ly06O8jAcrd7oWmwhz5Vr6?node-id=1378-120"
+      },
+      "issues": [
+        "CHROME_INITIALIZATION_TIMEOUT",
+        "DESIGN_CAPTURE_REQUIRED",
+        "LIVE_DESIGN_VERIFICATION_REQUIRED",
+        "WORKFLOW_ANALYSIS:DESIGN_MISSING:",
+        "PORTAL_CAPTURE_CURRENT_REQUIRED",
+        "PORTAL_CAPTURE_CURRENT_REQUIRED"
+      ]
+    },
+    {
+      "log": "cdd-live-portal-plan-scoped-20261003-1645.log",
+      "planId": "sfp_portal1_8e23b0b3e4d48bdc43e6a3b429aa402d",
+      "design": {
+        "artifactHash": "sha256:ffc4fd7b1fbaf27b8e3cba39aaecdccbce7e97a66ae1cd83856c3339d65e40d8",
+        "artifactPath": "portal/designs/sfp_portal1_8e23b0b3e4d48bdc43e6a3b429aa402d.json",
+        "assetManifestHash": "sha256:96d2152abcf49213cd779972d8549b4438f13acb25f8867701d1a63662774972",
+        "complete": false,
+        "fileKey": "ly06O8jAcrd7oWmwhz5Vr6",
+        "liveVerified": true,
+        "nodeId": "1378:120",
+        "storage": "owner-state",
+        "url": "https://www.figma.com/design/ly06O8jAcrd7oWmwhz5Vr6?node-id=1378-120"
+      },
+      "issues": [
+        "DESIGN_CAPTURE_PARTIAL",
+        "WORKFLOW_SCOPE_UNRESOLVED:design-4bfd338819e4f15c407a35b54a381a5666077fb972223022be959c0e2df499d4",
+        "WORKFLOW_SCOPE_UNRESOLVED:design-b0fd91c384113d31d598a536c72772989154639bafa27f2c0cded119936af522",
+        "WORKFLOW_SCOPE_UNRESOLVED:design-da2363d08b5a4d00701a5e4e56180f3e8f07a7a1f62f17723fd5bab1cc0b1e45",
+        "WORKFLOW_SCOPE_UNRESOLVED:design-deec40eccede4ba1d46bd807df4c58dc1c45648be3633010654e254a62d2b223",
+        "WORKFLOW_SCOPE_UNRESOLVED:design-6e1258ba4ca5a5b0fbbf67cf69f232a6c395385dcb0014e4959762aa70bf0d27",
+        "WORKFLOW_SCOPE_UNRESOLVED:design-ad6c2f98f5ef4d94ec21475123b37204aa436f8e6a84fb92c475519e34e4a465",
+        "WORKFLOW_SCOPE_UNRESOLVED:design-1b5cca3b2f87bfcc2c7c31dd739616fc5c3a292bff93827e8909fca058cdaefa",
+        "WORKFLOW_SCOPE_UNRESOLVED:design-7f96ccfef1e0a23c278fe1854f65441cdc80b4b2376eaeb03cd742fc32cd61cb",
+        "PORTAL_CAPTURE_CURRENT_REQUIRED",
+        "PORTAL_CAPTURE_CURRENT_REQUIRED"
+      ],
+      "capture": {
+        "nodeCount": 192,
+        "truncated": false,
+        "warnings": [],
+        "capturedAt": "2026-10-03T07:45:18.149Z",
+        "assetCount": 25,
+        "capturedAssets": 25,
+        "assetFingerprint": "sha256:e84d50ed66de625a73025a5f6889bbc4d186461d75efb288ac77a048d69131b1",
+        "normalizationIssues": [
+          {
+            "code": "MALFORMED",
+            "scope": "textStyles/S:b9930c72d819868b239ad8f835592103a70046c6,"
+          },
+          {
+            "code": "MALFORMED",
+            "scope": "textStyles/S:f44beb6696a077a0bd60b64eaf34c356dc35e1cd,"
+          },
+          {
+            "code": "MALFORMED",
+            "scope": "textStyles/S:21c9613e164a199639c9a8e9c80d087a5cccbd1d,"
+          },
+          {
+            "code": "MALFORMED",
+            "scope": "textStyles/S:24047faccb6e4cefc9ff62a57ade5eaf06aa0bc1,"
+          },
+          {
+            "code": "MALFORMED",
+            "scope": "textStyles/S:31f1e1f691357f2e7efed5cbc21f7f5bb409d8e9,"
+          },
+          {
+            "code": "MALFORMED",
+            "scope": "textStyles/S:9f1d7adc70f88c967d0ec4ec30575d8679992536,"
+          },
+          {
+            "code": "MALFORMED",
+            "scope": "textStyles/S:0429bab05ffff22c7ea99e183b8d4d24a9d8aa78,"
+          },
+          {
+            "code": "MALFORMED",
+            "scope": "textStyles/S:410a4b8f56fc31c2b2337c6c050b5b0591fcedc1,"
+          },
+          {
+            "code": "MALFORMED",
+            "scope": "textStyles/S:3f18c22f61f41e7eb264e9a0c985cfa6d9305a32,"
+          },
+          {
+            "code": "MALFORMED",
+            "scope": "textStyles/S:b9be7d233aadc336ab0a20bb8d8d7978b5be8111,"
+          },
+          {
+            "code": "MALFORMED",
+            "scope": "textStyles/S:c5777b2006175337a3235d951e2f2a0a45162445,"
+          },
+          {
+            "code": "MALFORMED",
+            "scope": "textStyles/S:3f37d7913841d8cdc5e53b4e36a043a8894bb774,"
+          },
+          {
+            "code": "MALFORMED",
+            "scope": "textStyles/S:ba9048cab8a0a92351ac91e30a754060d5d7b30a,"
+          },
+          {
+            "code": "MALFORMED",
+            "scope": "textStyles/S:23cfc2005366364152f357f091fefb7e0dc29395,"
+          },
+          {
+            "code": "MALFORMED",
+            "scope": "textStyles/S:d3ac9e9425eed420b1dc8f10507fc05ee135c601,"
+          },
+          {
+            "code": "MALFORMED",
+            "scope": "textStyles/S:77346953d561bc59cacf2b3591e074f55ba8be0a,"
+          }
+        ],
+        "textStyles": [
+          {
+            "id": "S:b9930c72d819868b239ad8f835592103a70046c6,",
+            "name": "Title/x-small",
+            "fontName": "mixed"
+          },
+          {
+            "id": "S:f44beb6696a077a0bd60b64eaf34c356dc35e1cd,",
+            "name": "Title/small",
+            "fontName": "mixed"
+          },
+          {
+            "id": "S:21c9613e164a199639c9a8e9c80d087a5cccbd1d,",
+            "name": "Title/normal",
+            "fontName": "mixed"
+          },
+          {
+            "id": "S:24047faccb6e4cefc9ff62a57ade5eaf06aa0bc1,",
+            "name": "Title/large",
+            "fontName": "mixed"
+          },
+          {
+            "id": "S:31f1e1f691357f2e7efed5cbc21f7f5bb409d8e9,",
+            "name": "Title/x-large",
+            "fontName": "mixed"
+          },
+          {
+            "id": "S:9f1d7adc70f88c967d0ec4ec30575d8679992536,",
+            "name": "Title/2x-large",
+            "fontName": "mixed"
+          },
+          {
+            "id": "S:0429bab05ffff22c7ea99e183b8d4d24a9d8aa78,",
+            "name": "Text/x-small",
+            "fontName": "mixed"
+          },
+          {
+            "id": "S:410a4b8f56fc31c2b2337c6c050b5b0591fcedc1,",
+            "name": "Text/small",
+            "fontName": "mixed"
+          },
+          {
+            "id": "S:3f18c22f61f41e7eb264e9a0c985cfa6d9305a32,",
+            "name": "Text/normal",
+            "fontName": "mixed"
+          },
+          {
+            "id": "S:b9be7d233aadc336ab0a20bb8d8d7978b5be8111,",
+            "name": "Text/large",
+            "fontName": "mixed"
+          },
+          {
+            "id": "S:c5777b2006175337a3235d951e2f2a0a45162445,",
+            "name": "Text/x-large",
+            "fontName": "mixed"
+          },
+          {
+            "id": "S:3f37d7913841d8cdc5e53b4e36a043a8894bb774,",
+            "name": "Text/x-small (bold)",
+            "fontName": "mixed"
+          },
+          {
+            "id": "S:ba9048cab8a0a92351ac91e30a754060d5d7b30a,",
+            "name": "Text/small (bold)",
+            "fontName": "mixed"
+          },
+          {
+            "id": "S:23cfc2005366364152f357f091fefb7e0dc29395,",
+            "name": "Text/normal (bold)",
+            "fontName": "mixed"
+          },
+          {
+            "id": "S:d3ac9e9425eed420b1dc8f10507fc05ee135c601,",
+            "name": "Text/large (bold)",
+            "fontName": "mixed"
+          },
+          {
+            "id": "S:77346953d561bc59cacf2b3591e074f55ba8be0a,",
+            "name": "Text/x-large (bold)",
+            "fontName": "mixed"
+          }
+        ]
+      }
+    },
+    {
+      "log": "cdd-live-portal-plan-font-diagnostic-20261003.log",
+      "planId": "sfp_portal1_d5713cc612b65417b72921ada6933d7c",
+      "design": {
+        "artifactHash": "sha256:092631ca0b99a86cdff2009da4d477cd1a386b73a5be430bd826b851c18917ae",
+        "artifactPath": "portal/designs/sfp_portal1_d5713cc612b65417b72921ada6933d7c.json",
+        "assetManifestHash": "sha256:96d2152abcf49213cd779972d8549b4438f13acb25f8867701d1a63662774972",
+        "complete": false,
+        "fileKey": "ly06O8jAcrd7oWmwhz5Vr6",
+        "liveVerified": true,
+        "nodeId": "1378:120",
+        "storage": "owner-state",
+        "url": "https://www.figma.com/design/ly06O8jAcrd7oWmwhz5Vr6?node-id=1378-120"
+      },
+      "issues": [
+        "DESIGN_CAPTURE_PARTIAL",
+        "WORKFLOW_SCOPE_UNRESOLVED:design-4bfd338819e4f15c407a35b54a381a5666077fb972223022be959c0e2df499d4",
+        "WORKFLOW_SCOPE_UNRESOLVED:design-b0fd91c384113d31d598a536c72772989154639bafa27f2c0cded119936af522",
+        "WORKFLOW_SCOPE_UNRESOLVED:design-da2363d08b5a4d00701a5e4e56180f3e8f07a7a1f62f17723fd5bab1cc0b1e45",
+        "WORKFLOW_SCOPE_UNRESOLVED:design-deec40eccede4ba1d46bd807df4c58dc1c45648be3633010654e254a62d2b223",
+        "WORKFLOW_SCOPE_UNRESOLVED:design-6e1258ba4ca5a5b0fbbf67cf69f232a6c395385dcb0014e4959762aa70bf0d27",
+        "WORKFLOW_SCOPE_UNRESOLVED:design-ad6c2f98f5ef4d94ec21475123b37204aa436f8e6a84fb92c475519e34e4a465",
+        "WORKFLOW_SCOPE_UNRESOLVED:design-1b5cca3b2f87bfcc2c7c31dd739616fc5c3a292bff93827e8909fca058cdaefa",
+        "WORKFLOW_SCOPE_UNRESOLVED:design-7f96ccfef1e0a23c278fe1854f65441cdc80b4b2376eaeb03cd742fc32cd61cb",
+        "PORTAL_CAPTURE_CURRENT_REQUIRED",
+        "PORTAL_CAPTURE_CURRENT_REQUIRED"
+      ],
+      "capture": {
+        "nodeCount": 192,
+        "truncated": false,
+        "warnings": [],
+        "capturedAt": "2026-10-03T08:15:32.013Z",
+        "assetCount": 25,
+        "capturedAssets": 25,
+        "assetFingerprint": "sha256:e84d50ed66de625a73025a5f6889bbc4d186461d75efb288ac77a048d69131b1",
+        "normalizationIssues": [
+          {
+            "code": "MALFORMED",
+            "scope": "textStyles/S:b9930c72d819868b239ad8f835592103a70046c6,"
+          },
+          {
+            "code": "MALFORMED",
+            "scope": "textStyles/S:f44beb6696a077a0bd60b64eaf34c356dc35e1cd,"
+          },
+          {
+            "code": "MALFORMED",
+            "scope": "textStyles/S:21c9613e164a199639c9a8e9c80d087a5cccbd1d,"
+          },
+          {
+            "code": "MALFORMED",
+            "scope": "textStyles/S:24047faccb6e4cefc9ff62a57ade5eaf06aa0bc1,"
+          },
+          {
+            "code": "MALFORMED",
+            "scope": "textStyles/S:31f1e1f691357f2e7efed5cbc21f7f5bb409d8e9,"
+          },
+          {
+            "code": "MALFORMED",
+            "scope": "textStyles/S:9f1d7adc70f88c967d0ec4ec30575d8679992536,"
+          },
+          {
+            "code": "MALFORMED",
+            "scope": "textStyles/S:0429bab05ffff22c7ea99e183b8d4d24a9d8aa78,"
+          },
+          {
+            "code": "MALFORMED",
+            "scope": "textStyles/S:410a4b8f56fc31c2b2337c6c050b5b0591fcedc1,"
+          },
+          {
+            "code": "MALFORMED",
+            "scope": "textStyles/S:3f18c22f61f41e7eb264e9a0c985cfa6d9305a32,"
+          },
+          {
+            "code": "MALFORMED",
+            "scope": "textStyles/S:b9be7d233aadc336ab0a20bb8d8d7978b5be8111,"
+          },
+          {
+            "code": "MALFORMED",
+            "scope": "textStyles/S:c5777b2006175337a3235d951e2f2a0a45162445,"
+          },
+          {
+            "code": "MALFORMED",
+            "scope": "textStyles/S:3f37d7913841d8cdc5e53b4e36a043a8894bb774,"
+          },
+          {
+            "code": "MALFORMED",
+            "scope": "textStyles/S:ba9048cab8a0a92351ac91e30a754060d5d7b30a,"
+          },
+          {
+            "code": "MALFORMED",
+            "scope": "textStyles/S:23cfc2005366364152f357f091fefb7e0dc29395,"
+          },
+          {
+            "code": "MALFORMED",
+            "scope": "textStyles/S:d3ac9e9425eed420b1dc8f10507fc05ee135c601,"
+          },
+          {
+            "code": "MALFORMED",
+            "scope": "textStyles/S:77346953d561bc59cacf2b3591e074f55ba8be0a,"
+          }
+        ],
+        "textStyles": [
+          {
+            "id": "S:b9930c72d819868b239ad8f835592103a70046c6,",
+            "name": "Title/x-small",
+            "fontName": "mixed",
+            "fontNameObservation": {
+              "kind": "symbol",
+              "isMixed": true
+            }
+          },
+          {
+            "id": "S:f44beb6696a077a0bd60b64eaf34c356dc35e1cd,",
+            "name": "Title/small",
+            "fontName": "mixed",
+            "fontNameObservation": {
+              "kind": "symbol",
+              "isMixed": true
+            }
+          },
+          {
+            "id": "S:21c9613e164a199639c9a8e9c80d087a5cccbd1d,",
+            "name": "Title/normal",
+            "fontName": "mixed",
+            "fontNameObservation": {
+              "kind": "symbol",
+              "isMixed": true
+            }
+          },
+          {
+            "id": "S:24047faccb6e4cefc9ff62a57ade5eaf06aa0bc1,",
+            "name": "Title/large",
+            "fontName": "mixed",
+            "fontNameObservation": {
+              "kind": "symbol",
+              "isMixed": true
+            }
+          },
+          {
+            "id": "S:31f1e1f691357f2e7efed5cbc21f7f5bb409d8e9,",
+            "name": "Title/x-large",
+            "fontName": "mixed",
+            "fontNameObservation": {
+              "kind": "symbol",
+              "isMixed": true
+            }
+          },
+          {
+            "id": "S:9f1d7adc70f88c967d0ec4ec30575d8679992536,",
+            "name": "Title/2x-large",
+            "fontName": "mixed",
+            "fontNameObservation": {
+              "kind": "symbol",
+              "isMixed": true
+            }
+          },
+          {
+            "id": "S:0429bab05ffff22c7ea99e183b8d4d24a9d8aa78,",
+            "name": "Text/x-small",
+            "fontName": "mixed",
+            "fontNameObservation": {
+              "kind": "symbol",
+              "isMixed": true
+            }
+          },
+          {
+            "id": "S:410a4b8f56fc31c2b2337c6c050b5b0591fcedc1,",
+            "name": "Text/small",
+            "fontName": "mixed",
+            "fontNameObservation": {
+              "kind": "symbol",
+              "isMixed": true
+            }
+          },
+          {
+            "id": "S:3f18c22f61f41e7eb264e9a0c985cfa6d9305a32,",
+            "name": "Text/normal",
+            "fontName": "mixed",
+            "fontNameObservation": {
+              "kind": "symbol",
+              "isMixed": true
+            }
+          },
+          {
+            "id": "S:b9be7d233aadc336ab0a20bb8d8d7978b5be8111,",
+            "name": "Text/large",
+            "fontName": "mixed",
+            "fontNameObservation": {
+              "kind": "symbol",
+              "isMixed": true
+            }
+          },
+          {
+            "id": "S:c5777b2006175337a3235d951e2f2a0a45162445,",
+            "name": "Text/x-large",
+            "fontName": "mixed",
+            "fontNameObservation": {
+              "kind": "symbol",
+              "isMixed": true
+            }
+          },
+          {
+            "id": "S:3f37d7913841d8cdc5e53b4e36a043a8894bb774,",
+            "name": "Text/x-small (bold)",
+            "fontName": "mixed",
+            "fontNameObservation": {
+              "kind": "symbol",
+              "isMixed": true
+            }
+          },
+          {
+            "id": "S:ba9048cab8a0a92351ac91e30a754060d5d7b30a,",
+            "name": "Text/small (bold)",
+            "fontName": "mixed",
+            "fontNameObservation": {
+              "kind": "symbol",
+              "isMixed": true
+            }
+          },
+          {
+            "id": "S:23cfc2005366364152f357f091fefb7e0dc29395,",
+            "name": "Text/normal (bold)",
+            "fontName": "mixed",
+            "fontNameObservation": {
+              "kind": "symbol",
+              "isMixed": true
+            }
+          },
+          {
+            "id": "S:d3ac9e9425eed420b1dc8f10507fc05ee135c601,",
+            "name": "Text/large (bold)",
+            "fontName": "mixed",
+            "fontNameObservation": {
+              "kind": "symbol",
+              "isMixed": true
+            }
+          },
+          {
+            "id": "S:77346953d561bc59cacf2b3591e074f55ba8be0a,",
+            "name": "Text/x-large (bold)",
+            "fontName": "mixed",
+            "fontNameObservation": {
+              "kind": "symbol",
+              "isMixed": true
+            }
+          }
+        ]
+      }
+    },
+    {
+      "log": "cdd-live-portal-plan-font-refresh-20261003.log",
+      "planId": "sfp_portal1_3a78be356d8245059b3756774973679d",
+      "design": {
+        "artifactHash": null,
+        "artifactPath": null,
+        "assetManifestHash": null,
+        "captureFailure": {
+          "code": "DESIGN_CAPTURE_FAILED",
+          "elapsedMs": 30034,
+          "stage": "snapshot",
+          "type": "timeout-error"
+        },
+        "complete": false,
+        "fileKey": "ly06O8jAcrd7oWmwhz5Vr6",
+        "liveVerified": false,
+        "nodeId": "1378:120",
+        "storage": "workspace",
+        "url": "https://www.figma.com/design/ly06O8jAcrd7oWmwhz5Vr6?node-id=1378-120"
+      },
+      "issues": [
+        "DESIGN_CAPTURE_FAILED",
+        "DESIGN_CAPTURE_REQUIRED",
+        "LIVE_DESIGN_VERIFICATION_REQUIRED",
+        "WORKFLOW_ANALYSIS:DESIGN_MISSING:",
+        "PORTAL_CAPTURE_CURRENT_REQUIRED",
+        "PORTAL_CAPTURE_CURRENT_REQUIRED"
+      ]
+    },
+    {
+      "log": "cdd-live-portal-plan-ui-recovery-20261003.log",
+      "planId": "sfp_portal1_ab22e4dc3e18aaf1925ae3d433c5a0ab",
+      "design": {
+        "artifactHash": "sha256:0c3f7d42b8b75ca61d2d125c7c2f8e4ad5bc0001b00087d00453e672686cff3f",
+        "artifactPath": "portal/designs/sfp_portal1_ab22e4dc3e18aaf1925ae3d433c5a0ab.json",
+        "assetManifestHash": "sha256:96d2152abcf49213cd779972d8549b4438f13acb25f8867701d1a63662774972",
+        "complete": false,
+        "fileKey": "ly06O8jAcrd7oWmwhz5Vr6",
+        "liveVerified": true,
+        "nodeId": "1378:120",
+        "storage": "owner-state",
+        "url": "https://www.figma.com/design/ly06O8jAcrd7oWmwhz5Vr6?node-id=1378-120"
+      },
+      "issues": [
+        "DESIGN_CAPTURE_PARTIAL",
+        "WORKFLOW_SCOPE_UNRESOLVED:design-4bfd338819e4f15c407a35b54a381a5666077fb972223022be959c0e2df499d4",
+        "WORKFLOW_SCOPE_UNRESOLVED:design-b0fd91c384113d31d598a536c72772989154639bafa27f2c0cded119936af522",
+        "WORKFLOW_SCOPE_UNRESOLVED:design-da2363d08b5a4d00701a5e4e56180f3e8f07a7a1f62f17723fd5bab1cc0b1e45",
+        "WORKFLOW_SCOPE_UNRESOLVED:design-deec40eccede4ba1d46bd807df4c58dc1c45648be3633010654e254a62d2b223",
+        "WORKFLOW_SCOPE_UNRESOLVED:design-6e1258ba4ca5a5b0fbbf67cf69f232a6c395385dcb0014e4959762aa70bf0d27",
+        "WORKFLOW_SCOPE_UNRESOLVED:design-ad6c2f98f5ef4d94ec21475123b37204aa436f8e6a84fb92c475519e34e4a465",
+        "WORKFLOW_SCOPE_UNRESOLVED:design-1b5cca3b2f87bfcc2c7c31dd739616fc5c3a292bff93827e8909fca058cdaefa",
+        "WORKFLOW_SCOPE_UNRESOLVED:design-7f96ccfef1e0a23c278fe1854f65441cdc80b4b2376eaeb03cd742fc32cd61cb",
+        "PORTAL_CAPTURE_CURRENT_REQUIRED",
+        "PORTAL_CAPTURE_CURRENT_REQUIRED"
+      ],
+      "capture": {
+        "nodeCount": 192,
+        "truncated": false,
+        "warnings": [],
+        "capturedAt": "2026-10-03T08:31:10.751Z",
+        "assetCount": 25,
+        "capturedAssets": 25,
+        "assetFingerprint": "sha256:e84d50ed66de625a73025a5f6889bbc4d186461d75efb288ac77a048d69131b1",
+        "normalizationIssues": [
+          {
+            "code": "MALFORMED",
+            "scope": "textStyles/S:b9930c72d819868b239ad8f835592103a70046c6,"
+          },
+          {
+            "code": "MALFORMED",
+            "scope": "textStyles/S:f44beb6696a077a0bd60b64eaf34c356dc35e1cd,"
+          },
+          {
+            "code": "MALFORMED",
+            "scope": "textStyles/S:21c9613e164a199639c9a8e9c80d087a5cccbd1d,"
+          },
+          {
+            "code": "MALFORMED",
+            "scope": "textStyles/S:24047faccb6e4cefc9ff62a57ade5eaf06aa0bc1,"
+          },
+          {
+            "code": "MALFORMED",
+            "scope": "textStyles/S:31f1e1f691357f2e7efed5cbc21f7f5bb409d8e9,"
+          },
+          {
+            "code": "MALFORMED",
+            "scope": "textStyles/S:9f1d7adc70f88c967d0ec4ec30575d8679992536,"
+          },
+          {
+            "code": "MALFORMED",
+            "scope": "textStyles/S:0429bab05ffff22c7ea99e183b8d4d24a9d8aa78,"
+          },
+          {
+            "code": "MALFORMED",
+            "scope": "textStyles/S:410a4b8f56fc31c2b2337c6c050b5b0591fcedc1,"
+          },
+          {
+            "code": "MALFORMED",
+            "scope": "textStyles/S:3f18c22f61f41e7eb264e9a0c985cfa6d9305a32,"
+          },
+          {
+            "code": "MALFORMED",
+            "scope": "textStyles/S:b9be7d233aadc336ab0a20bb8d8d7978b5be8111,"
+          },
+          {
+            "code": "MALFORMED",
+            "scope": "textStyles/S:c5777b2006175337a3235d951e2f2a0a45162445,"
+          },
+          {
+            "code": "MALFORMED",
+            "scope": "textStyles/S:3f37d7913841d8cdc5e53b4e36a043a8894bb774,"
+          },
+          {
+            "code": "MALFORMED",
+            "scope": "textStyles/S:ba9048cab8a0a92351ac91e30a754060d5d7b30a,"
+          },
+          {
+            "code": "MALFORMED",
+            "scope": "textStyles/S:23cfc2005366364152f357f091fefb7e0dc29395,"
+          },
+          {
+            "code": "MALFORMED",
+            "scope": "textStyles/S:d3ac9e9425eed420b1dc8f10507fc05ee135c601,"
+          },
+          {
+            "code": "MALFORMED",
+            "scope": "textStyles/S:77346953d561bc59cacf2b3591e074f55ba8be0a,"
+          }
+        ],
+        "textStyles": [
+          {
+            "id": "S:b9930c72d819868b239ad8f835592103a70046c6,",
+            "name": "Title/x-small",
+            "fontName": "mixed",
+            "fontNameObservation": {
+              "kind": "symbol",
+              "isMixed": true
+            }
+          },
+          {
+            "id": "S:f44beb6696a077a0bd60b64eaf34c356dc35e1cd,",
+            "name": "Title/small",
+            "fontName": "mixed",
+            "fontNameObservation": {
+              "kind": "symbol",
+              "isMixed": true
+            }
+          },
+          {
+            "id": "S:21c9613e164a199639c9a8e9c80d087a5cccbd1d,",
+            "name": "Title/normal",
+            "fontName": "mixed",
+            "fontNameObservation": {
+              "kind": "symbol",
+              "isMixed": true
+            }
+          },
+          {
+            "id": "S:24047faccb6e4cefc9ff62a57ade5eaf06aa0bc1,",
+            "name": "Title/large",
+            "fontName": "mixed",
+            "fontNameObservation": {
+              "kind": "symbol",
+              "isMixed": true
+            }
+          },
+          {
+            "id": "S:31f1e1f691357f2e7efed5cbc21f7f5bb409d8e9,",
+            "name": "Title/x-large",
+            "fontName": "mixed",
+            "fontNameObservation": {
+              "kind": "symbol",
+              "isMixed": true
+            }
+          },
+          {
+            "id": "S:9f1d7adc70f88c967d0ec4ec30575d8679992536,",
+            "name": "Title/2x-large",
+            "fontName": "mixed",
+            "fontNameObservation": {
+              "kind": "symbol",
+              "isMixed": true
+            }
+          },
+          {
+            "id": "S:0429bab05ffff22c7ea99e183b8d4d24a9d8aa78,",
+            "name": "Text/x-small",
+            "fontName": "mixed",
+            "fontNameObservation": {
+              "kind": "symbol",
+              "isMixed": true
+            }
+          },
+          {
+            "id": "S:410a4b8f56fc31c2b2337c6c050b5b0591fcedc1,",
+            "name": "Text/small",
+            "fontName": "mixed",
+            "fontNameObservation": {
+              "kind": "symbol",
+              "isMixed": true
+            }
+          },
+          {
+            "id": "S:3f18c22f61f41e7eb264e9a0c985cfa6d9305a32,",
+            "name": "Text/normal",
+            "fontName": "mixed",
+            "fontNameObservation": {
+              "kind": "symbol",
+              "isMixed": true
+            }
+          },
+          {
+            "id": "S:b9be7d233aadc336ab0a20bb8d8d7978b5be8111,",
+            "name": "Text/large",
+            "fontName": "mixed",
+            "fontNameObservation": {
+              "kind": "symbol",
+              "isMixed": true
+            }
+          },
+          {
+            "id": "S:c5777b2006175337a3235d951e2f2a0a45162445,",
+            "name": "Text/x-large",
+            "fontName": "mixed",
+            "fontNameObservation": {
+              "kind": "symbol",
+              "isMixed": true
+            }
+          },
+          {
+            "id": "S:3f37d7913841d8cdc5e53b4e36a043a8894bb774,",
+            "name": "Text/x-small (bold)",
+            "fontName": "mixed",
+            "fontNameObservation": {
+              "kind": "symbol",
+              "isMixed": true
+            }
+          },
+          {
+            "id": "S:ba9048cab8a0a92351ac91e30a754060d5d7b30a,",
+            "name": "Text/small (bold)",
+            "fontName": "mixed",
+            "fontNameObservation": {
+              "kind": "symbol",
+              "isMixed": true
+            }
+          },
+          {
+            "id": "S:23cfc2005366364152f357f091fefb7e0dc29395,",
+            "name": "Text/normal (bold)",
+            "fontName": "mixed",
+            "fontNameObservation": {
+              "kind": "symbol",
+              "isMixed": true
+            }
+          },
+          {
+            "id": "S:d3ac9e9425eed420b1dc8f10507fc05ee135c601,",
+            "name": "Text/large (bold)",
+            "fontName": "mixed",
+            "fontNameObservation": {
+              "kind": "symbol",
+              "isMixed": true
+            }
+          },
+          {
+            "id": "S:77346953d561bc59cacf2b3591e074f55ba8be0a,",
+            "name": "Text/x-large (bold)",
+            "fontName": "mixed",
+            "fontNameObservation": {
+              "kind": "symbol",
+              "isMixed": true
+            }
+          }
+        ]
+      }
+    }
+  ]
+}

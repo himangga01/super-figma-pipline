@@ -1,0 +1,1937 @@
+{
+  "baseline": "db821db346e7cb5dd27e4df465b91bb106e2f2b3",
+  "instructions": "Read every listed closure file completely, recording actual bounded reads. Round-two production counterchecks are additional targeted/full entries, not a claim to reread the entire lane. Metadata files require concrete integrity/contract consistency inspection. No runtime execution.",
+  "closure": {
+    "capture": [
+      {
+        "path": "service/packages/cli/test/admin-commands.test.ts",
+        "bytes": 11271,
+        "primaryLane": "capture",
+        "roundOneDepth": "unreviewed"
+      },
+      {
+        "path": "service/packages/cli/test/asset-program.test.ts",
+        "bytes": 6703,
+        "primaryLane": "capture",
+        "roundOneDepth": "unreviewed"
+      },
+      {
+        "path": "service/packages/cli/test/browser-observation.test.ts",
+        "bytes": 2904,
+        "primaryLane": "capture",
+        "roundOneDepth": "unreviewed"
+      },
+      {
+        "path": "service/packages/cli/test/browser-session.test.ts",
+        "bytes": 9508,
+        "primaryLane": "capture",
+        "roundOneDepth": "unreviewed"
+      },
+      {
+        "path": "service/packages/cli/test/control-client-http.test.ts",
+        "bytes": 2494,
+        "primaryLane": "capture",
+        "roundOneDepth": "unreviewed"
+      },
+      {
+        "path": "service/packages/cli/test/desktop-reader.test.ts",
+        "bytes": 4518,
+        "primaryLane": "capture",
+        "roundOneDepth": "unreviewed"
+      },
+      {
+        "path": "service/packages/cli/test/recipe-compositions.test.ts",
+        "bytes": 4427,
+        "primaryLane": "capture",
+        "roundOneDepth": "unreviewed"
+      },
+      {
+        "path": "service/packages/cli/test/recipe-design-system.test.ts",
+        "bytes": 5221,
+        "primaryLane": "capture",
+        "roundOneDepth": "unreviewed"
+      },
+      {
+        "path": "service/packages/cli/test/recipe-helpers.test.ts",
+        "bytes": 8676,
+        "primaryLane": "capture",
+        "roundOneDepth": "unreviewed"
+      },
+      {
+        "path": "service/packages/cli/test/recipe-scene-compositions.test.ts",
+        "bytes": 9003,
+        "primaryLane": "capture",
+        "roundOneDepth": "unreviewed"
+      },
+      {
+        "path": "service/packages/cli/test/scripter-catalogs.test.ts",
+        "bytes": 13278,
+        "primaryLane": "capture",
+        "roundOneDepth": "unreviewed"
+      },
+      {
+        "path": "service/packages/cli/test/scripter-reader.test.ts",
+        "bytes": 10715,
+        "primaryLane": "capture",
+        "roundOneDepth": "unreviewed"
+      },
+      {
+        "path": "service/packages/mcp/test/portal/capture-admission.test.ts",
+        "bytes": 7377,
+        "primaryLane": "capture",
+        "roundOneDepth": "unreviewed"
+      },
+      {
+        "path": "service/packages/mcp/test/portal/capture-plane.test.ts",
+        "bytes": 13993,
+        "primaryLane": "capture",
+        "roundOneDepth": "unreviewed"
+      },
+      {
+        "path": "service/packages/mcp/test/portal/capture-session.test.ts",
+        "bytes": 11383,
+        "primaryLane": "capture",
+        "roundOneDepth": "unreviewed"
+      },
+      {
+        "path": "service/packages/plugin/test/auth/pair-exchange.test.ts",
+        "bytes": 12089,
+        "primaryLane": "capture",
+        "roundOneDepth": "unreviewed"
+      },
+      {
+        "path": "service/packages/plugin/test/components/panel-status.test.ts",
+        "bytes": 3275,
+        "primaryLane": "capture",
+        "roundOneDepth": "unreviewed"
+      },
+      {
+        "path": "service/packages/plugin/test/components/panel-tabs.test.ts",
+        "bytes": 2422,
+        "primaryLane": "capture",
+        "roundOneDepth": "unreviewed"
+      },
+      {
+        "path": "service/packages/plugin/test/components/tab-activity-row.test.ts",
+        "bytes": 10842,
+        "primaryLane": "capture",
+        "roundOneDepth": "unreviewed"
+      },
+      {
+        "path": "service/packages/plugin/test/components/tab-panels.test.ts",
+        "bytes": 9002,
+        "primaryLane": "capture",
+        "roundOneDepth": "unreviewed"
+      },
+      {
+        "path": "service/packages/plugin/test/components/ui-primitives.test.ts",
+        "bytes": 6656,
+        "primaryLane": "capture",
+        "roundOneDepth": "unreviewed"
+      },
+      {
+        "path": "service/packages/plugin/test/composables/use-approvals.test.ts",
+        "bytes": 2301,
+        "primaryLane": "capture",
+        "roundOneDepth": "unreviewed"
+      },
+      {
+        "path": "service/packages/plugin/test/composables/use-panel-window.test.ts",
+        "bytes": 3779,
+        "primaryLane": "capture",
+        "roundOneDepth": "unreviewed"
+      },
+      {
+        "path": "service/packages/plugin/test/composables/use-relay-session.test.ts",
+        "bytes": 19736,
+        "primaryLane": "capture",
+        "roundOneDepth": "targeted"
+      },
+      {
+        "path": "service/packages/plugin/test/file-identity-bootstrap-hello.test.ts",
+        "bytes": 1808,
+        "primaryLane": "capture",
+        "roundOneDepth": "unreviewed"
+      },
+      {
+        "path": "service/packages/plugin/test/file-identity.test.ts",
+        "bytes": 3125,
+        "primaryLane": "capture",
+        "roundOneDepth": "unreviewed"
+      },
+      {
+        "path": "service/packages/plugin/test/handlers/apply-style-to-node.test.ts",
+        "bytes": 1581,
+        "primaryLane": "capture",
+        "roundOneDepth": "unreviewed"
+      },
+      {
+        "path": "service/packages/plugin/test/handlers/batch.test.ts",
+        "bytes": 24061,
+        "primaryLane": "capture",
+        "roundOneDepth": "targeted"
+      },
+      {
+        "path": "service/packages/plugin/test/handlers/bind-variable-to-node.test.ts",
+        "bytes": 2979,
+        "primaryLane": "capture",
+        "roundOneDepth": "unreviewed"
+      },
+      {
+        "path": "service/packages/plugin/test/handlers/combine-as-variants.test.ts",
+        "bytes": 2988,
+        "primaryLane": "capture",
+        "roundOneDepth": "unreviewed"
+      },
+      {
+        "path": "service/packages/plugin/test/handlers/create-ellipse.test.ts",
+        "bytes": 1928,
+        "primaryLane": "capture",
+        "roundOneDepth": "unreviewed"
+      },
+      {
+        "path": "service/packages/plugin/test/handlers/create-frame.test.ts",
+        "bytes": 2520,
+        "primaryLane": "capture",
+        "roundOneDepth": "unreviewed"
+      },
+      {
+        "path": "service/packages/plugin/test/handlers/create-grid-style.test.ts",
+        "bytes": 2934,
+        "primaryLane": "capture",
+        "roundOneDepth": "unreviewed"
+      },
+      {
+        "path": "service/packages/plugin/test/handlers/create-paint-style.test.ts",
+        "bytes": 3639,
+        "primaryLane": "capture",
+        "roundOneDepth": "unreviewed"
+      },
+      {
+        "path": "service/packages/plugin/test/handlers/create-text-style.test.ts",
+        "bytes": 11019,
+        "primaryLane": "capture",
+        "roundOneDepth": "unreviewed"
+      },
+      {
+        "path": "service/packages/plugin/test/handlers/delete-page.test.ts",
+        "bytes": 1701,
+        "primaryLane": "capture",
+        "roundOneDepth": "unreviewed"
+      },
+      {
+        "path": "service/packages/plugin/test/handlers/delete-style.test.ts",
+        "bytes": 1053,
+        "primaryLane": "capture",
+        "roundOneDepth": "unreviewed"
+      },
+      {
+        "path": "service/packages/plugin/test/handlers/detach-instance.test.ts",
+        "bytes": 1276,
+        "primaryLane": "capture",
+        "roundOneDepth": "unreviewed"
+      },
+      {
+        "path": "service/packages/plugin/test/handlers/export-video.test.ts",
+        "bytes": 4064,
+        "primaryLane": "capture",
+        "roundOneDepth": "unreviewed"
+      },
+      {
+        "path": "service/packages/plugin/test/handlers/find-replace-text.test.ts",
+        "bytes": 1726,
+        "primaryLane": "capture",
+        "roundOneDepth": "unreviewed"
+      },
+      {
+        "path": "service/packages/plugin/test/handlers/get-annotations.test.ts",
+        "bytes": 3248,
+        "primaryLane": "capture",
+        "roundOneDepth": "unreviewed"
+      },
+      {
+        "path": "service/packages/plugin/test/handlers/get-document.test.ts",
+        "bytes": 2095,
+        "primaryLane": "capture",
+        "roundOneDepth": "unreviewed"
+      },
+      {
+        "path": "service/packages/plugin/test/handlers/get-fonts.test.ts",
+        "bytes": 4025,
+        "primaryLane": "capture",
+        "roundOneDepth": "unreviewed"
+      },
+      {
+        "path": "service/packages/plugin/test/handlers/get-selection.test.ts",
+        "bytes": 1880,
+        "primaryLane": "capture",
+        "roundOneDepth": "unreviewed"
+      },
+      {
+        "path": "service/packages/plugin/test/handlers/get-viewport.test.ts",
+        "bytes": 748,
+        "primaryLane": "capture",
+        "roundOneDepth": "unreviewed"
+      },
+      {
+        "path": "service/packages/plugin/test/handlers/import-library-variable.test.ts",
+        "bytes": 1417,
+        "primaryLane": "capture",
+        "roundOneDepth": "unreviewed"
+      },
+      {
+        "path": "service/packages/plugin/test/handlers/import-svg.test.ts",
+        "bytes": 2304,
+        "primaryLane": "capture",
+        "roundOneDepth": "unreviewed"
+      },
+      {
+        "path": "service/packages/plugin/test/handlers/list-files.test.ts",
+        "bytes": 1002,
+        "primaryLane": "capture",
+        "roundOneDepth": "unreviewed"
+      },
+      {
+        "path": "service/packages/plugin/test/handlers/lock-nodes.test.ts",
+        "bytes": 1412,
+        "primaryLane": "capture",
+        "roundOneDepth": "unreviewed"
+      },
+      {
+        "path": "service/packages/plugin/test/handlers/rename-node.test.ts",
+        "bytes": 1154,
+        "primaryLane": "capture",
+        "roundOneDepth": "unreviewed"
+      },
+      {
+        "path": "service/packages/plugin/test/handlers/rename-page.test.ts",
+        "bytes": 1098,
+        "primaryLane": "capture",
+        "roundOneDepth": "unreviewed"
+      },
+      {
+        "path": "service/packages/plugin/test/handlers/reorder-nodes.test.ts",
+        "bytes": 1297,
+        "primaryLane": "capture",
+        "roundOneDepth": "unreviewed"
+      },
+      {
+        "path": "service/packages/plugin/test/handlers/resize-nodes.test.ts",
+        "bytes": 1270,
+        "primaryLane": "capture",
+        "roundOneDepth": "unreviewed"
+      },
+      {
+        "path": "service/packages/plugin/test/handlers/rotate-nodes.test.ts",
+        "bytes": 1124,
+        "primaryLane": "capture",
+        "roundOneDepth": "unreviewed"
+      },
+      {
+        "path": "service/packages/plugin/test/handlers/scan-nodes-by-types.test.ts",
+        "bytes": 1511,
+        "primaryLane": "capture",
+        "roundOneDepth": "unreviewed"
+      },
+      {
+        "path": "service/packages/plugin/test/handlers/scan-text-nodes.test.ts",
+        "bytes": 1839,
+        "primaryLane": "capture",
+        "roundOneDepth": "unreviewed"
+      },
+      {
+        "path": "service/packages/plugin/test/handlers/search-nodes.test.ts",
+        "bytes": 2650,
+        "primaryLane": "capture",
+        "roundOneDepth": "unreviewed"
+      },
+      {
+        "path": "service/packages/plugin/test/handlers/set-constraints.test.ts",
+        "bytes": 1384,
+        "primaryLane": "capture",
+        "roundOneDepth": "unreviewed"
+      },
+      {
+        "path": "service/packages/plugin/test/handlers/set-corner-radius.test.ts",
+        "bytes": 2735,
+        "primaryLane": "capture",
+        "roundOneDepth": "unreviewed"
+      },
+      {
+        "path": "service/packages/plugin/test/handlers/set-fills.test.ts",
+        "bytes": 4524,
+        "primaryLane": "capture",
+        "roundOneDepth": "unreviewed"
+      },
+      {
+        "path": "service/packages/plugin/test/handlers/set-instance-properties.test.ts",
+        "bytes": 1942,
+        "primaryLane": "capture",
+        "roundOneDepth": "unreviewed"
+      },
+      {
+        "path": "service/packages/plugin/test/handlers/set-opacity.test.ts",
+        "bytes": 1244,
+        "primaryLane": "capture",
+        "roundOneDepth": "unreviewed"
+      },
+      {
+        "path": "service/packages/plugin/test/handlers/set-strokes.test.ts",
+        "bytes": 3901,
+        "primaryLane": "capture",
+        "roundOneDepth": "unreviewed"
+      },
+      {
+        "path": "service/packages/plugin/test/handlers/set-text-properties.test.ts",
+        "bytes": 6233,
+        "primaryLane": "capture",
+        "roundOneDepth": "unreviewed"
+      },
+      {
+        "path": "service/packages/plugin/test/handlers/set-variable-code-syntax.test.ts",
+        "bytes": 3386,
+        "primaryLane": "capture",
+        "roundOneDepth": "unreviewed"
+      },
+      {
+        "path": "service/packages/plugin/test/handlers/set-variable-value.test.ts",
+        "bytes": 6425,
+        "primaryLane": "capture",
+        "roundOneDepth": "unreviewed"
+      },
+      {
+        "path": "service/packages/plugin/test/handlers/set-visible.test.ts",
+        "bytes": 1192,
+        "primaryLane": "capture",
+        "roundOneDepth": "unreviewed"
+      },
+      {
+        "path": "service/packages/plugin/test/handlers/ungroup-nodes.test.ts",
+        "bytes": 1155,
+        "primaryLane": "capture",
+        "roundOneDepth": "unreviewed"
+      },
+      {
+        "path": "service/packages/plugin/test/handlers/update-paint-style.test.ts",
+        "bytes": 3343,
+        "primaryLane": "capture",
+        "roundOneDepth": "unreviewed"
+      },
+      {
+        "path": "service/packages/plugin/test/idempotency.test.ts",
+        "bytes": 5542,
+        "primaryLane": "capture",
+        "roundOneDepth": "unreviewed"
+      },
+      {
+        "path": "service/packages/plugin/test/identity-bootstrap.test.ts",
+        "bytes": 2013,
+        "primaryLane": "capture",
+        "roundOneDepth": "unreviewed"
+      },
+      {
+        "path": "service/packages/plugin/test/mutation.test.ts",
+        "bytes": 5489,
+        "primaryLane": "capture",
+        "roundOneDepth": "unreviewed"
+      },
+      {
+        "path": "service/packages/plugin/test/protocol/editor-context.test.ts",
+        "bytes": 3779,
+        "primaryLane": "capture",
+        "roundOneDepth": "unreviewed"
+      },
+      {
+        "path": "service/packages/plugin/test/protocol/panel-control.test.ts",
+        "bytes": 4811,
+        "primaryLane": "capture",
+        "roundOneDepth": "unreviewed"
+      },
+      {
+        "path": "service/packages/plugin/test/relay/client.test.ts",
+        "bytes": 49239,
+        "primaryLane": "capture",
+        "roundOneDepth": "targeted"
+      },
+      {
+        "path": "service/packages/plugin/test/relay/payload.test.ts",
+        "bytes": 3097,
+        "primaryLane": "capture",
+        "roundOneDepth": "unreviewed"
+      },
+      {
+        "path": "service/packages/plugin/test/relay/state.test.ts",
+        "bytes": 5626,
+        "primaryLane": "capture",
+        "roundOneDepth": "unreviewed"
+      },
+      {
+        "path": "service/packages/plugin/test/reveal.test.ts",
+        "bytes": 6920,
+        "primaryLane": "capture",
+        "roundOneDepth": "unreviewed"
+      },
+      {
+        "path": "service/packages/plugin/test/sandbox/commands.test.ts",
+        "bytes": 2705,
+        "primaryLane": "capture",
+        "roundOneDepth": "unreviewed"
+      },
+      {
+        "path": "service/packages/plugin/test/sandbox/messaging.test.ts",
+        "bytes": 4146,
+        "primaryLane": "capture",
+        "roundOneDepth": "unreviewed"
+      },
+      {
+        "path": "service/packages/plugin/test/sandbox/tool-bridge.test.ts",
+        "bytes": 6547,
+        "primaryLane": "capture",
+        "roundOneDepth": "unreviewed"
+      },
+      {
+        "path": "service/packages/plugin/test/serializer.test.ts",
+        "bytes": 50172,
+        "primaryLane": "capture",
+        "roundOneDepth": "unreviewed"
+      },
+      {
+        "path": "service/packages/plugin/test/variable-binding-coverage.test.ts",
+        "bytes": 4242,
+        "primaryLane": "capture",
+        "roundOneDepth": "unreviewed"
+      }
+    ],
+    "analysis": [
+      {
+        "path": "service/packages/cli/test/catalog-recipe.test.ts",
+        "bytes": 5608,
+        "primaryLane": "capture",
+        "roundOneDepth": "unreviewed"
+      },
+      {
+        "path": "service/packages/cli/test/chrome-endpoint.test.ts",
+        "bytes": 1763,
+        "primaryLane": "capture",
+        "roundOneDepth": "unreviewed"
+      },
+      {
+        "path": "service/packages/cli/test/project-inspector.test.ts",
+        "bytes": 3318,
+        "primaryLane": "capture",
+        "roundOneDepth": "unreviewed"
+      },
+      {
+        "path": "service/packages/cli/test/recipe-export-model.test.ts",
+        "bytes": 4806,
+        "primaryLane": "capture",
+        "roundOneDepth": "unreviewed"
+      },
+      {
+        "path": "service/packages/cli/test/recipe-retention-client.test.ts",
+        "bytes": 4248,
+        "primaryLane": "capture",
+        "roundOneDepth": "unreviewed"
+      },
+      {
+        "path": "service/packages/cli/test/recipe-runner.test.ts",
+        "bytes": 62782,
+        "primaryLane": "capture",
+        "roundOneDepth": "unreviewed"
+      },
+      {
+        "path": "service/packages/cli/test/style-recipe-model.test.ts",
+        "bytes": 6666,
+        "primaryLane": "capture",
+        "roundOneDepth": "unreviewed"
+      },
+      {
+        "path": "service/packages/mcp/test/portal/capture-coherence.test.ts",
+        "bytes": 8847,
+        "primaryLane": "capture",
+        "roundOneDepth": "unreviewed"
+      },
+      {
+        "path": "service/packages/mcp/test/portal/capture-continuation.test.ts",
+        "bytes": 4147,
+        "primaryLane": "capture",
+        "roundOneDepth": "unreviewed"
+      },
+      {
+        "path": "service/packages/mcp/test/portal/capture-descriptor.test.ts",
+        "bytes": 3057,
+        "primaryLane": "capture",
+        "roundOneDepth": "unreviewed"
+      },
+      {
+        "path": "service/packages/mcp/test/portal/capture-failure.test.ts",
+        "bytes": 1757,
+        "primaryLane": "capture",
+        "roundOneDepth": "unreviewed"
+      },
+      {
+        "path": "service/packages/mcp/test/portal/capture-fixture.ts",
+        "bytes": 5639,
+        "primaryLane": "capture",
+        "roundOneDepth": "unreviewed"
+      },
+      {
+        "path": "service/packages/mcp/test/portal/capture-flow.test.ts",
+        "bytes": 6292,
+        "primaryLane": "capture",
+        "roundOneDepth": "unreviewed"
+      },
+      {
+        "path": "service/packages/mcp/test/portal/capture-native.test.ts",
+        "bytes": 3928,
+        "primaryLane": "capture",
+        "roundOneDepth": "unreviewed"
+      },
+      {
+        "path": "service/packages/mcp/test/portal/design-normalization.test.ts",
+        "bytes": 20798,
+        "primaryLane": "capture",
+        "roundOneDepth": "unreviewed"
+      },
+      {
+        "path": "service/packages/mcp/test/portal/desktop-capture.test.ts",
+        "bytes": 9337,
+        "primaryLane": "capture",
+        "roundOneDepth": "unreviewed"
+      },
+      {
+        "path": "service/packages/mcp/test/portal/observation-manifest.test.ts",
+        "bytes": 11227,
+        "primaryLane": "capture",
+        "roundOneDepth": "unreviewed"
+      },
+      {
+        "path": "service/packages/plugin/test/auth/resume-rotation.test.ts",
+        "bytes": 16770,
+        "primaryLane": "capture",
+        "roundOneDepth": "unreviewed"
+      },
+      {
+        "path": "service/packages/plugin/test/components/pairing-flow.test.ts",
+        "bytes": 14623,
+        "primaryLane": "capture",
+        "roundOneDepth": "unreviewed"
+      },
+      {
+        "path": "service/packages/plugin/test/components/panel-background-button.test.ts",
+        "bytes": 1436,
+        "primaryLane": "capture",
+        "roundOneDepth": "unreviewed"
+      },
+      {
+        "path": "service/packages/plugin/test/components/panel-chrome.test.ts",
+        "bytes": 5454,
+        "primaryLane": "capture",
+        "roundOneDepth": "unreviewed"
+      },
+      {
+        "path": "service/packages/plugin/test/components/panel-footer.test.ts",
+        "bytes": 1433,
+        "primaryLane": "capture",
+        "roundOneDepth": "unreviewed"
+      },
+      {
+        "path": "service/packages/plugin/test/components/ui-payload-block.test.ts",
+        "bytes": 3859,
+        "primaryLane": "capture",
+        "roundOneDepth": "unreviewed"
+      },
+      {
+        "path": "service/packages/plugin/test/handlers/add-page.test.ts",
+        "bytes": 1085,
+        "primaryLane": "capture",
+        "roundOneDepth": "unreviewed"
+      },
+      {
+        "path": "service/packages/plugin/test/handlers/add-variable-mode.test.ts",
+        "bytes": 2374,
+        "primaryLane": "capture",
+        "roundOneDepth": "unreviewed"
+      },
+      {
+        "path": "service/packages/plugin/test/handlers/batch-rename-nodes.test.ts",
+        "bytes": 1250,
+        "primaryLane": "capture",
+        "roundOneDepth": "unreviewed"
+      },
+      {
+        "path": "service/packages/plugin/test/handlers/bind-variable-to-paint.test.ts",
+        "bytes": 4031,
+        "primaryLane": "capture",
+        "roundOneDepth": "unreviewed"
+      },
+      {
+        "path": "service/packages/plugin/test/handlers/bindings.test.ts",
+        "bytes": 10027,
+        "primaryLane": "capture",
+        "roundOneDepth": "unreviewed"
+      },
+      {
+        "path": "service/packages/plugin/test/handlers/component-property.test.ts",
+        "bytes": 10825,
+        "primaryLane": "capture",
+        "roundOneDepth": "unreviewed"
+      },
+      {
+        "path": "service/packages/plugin/test/handlers/create-component.test.ts",
+        "bytes": 3191,
+        "primaryLane": "capture",
+        "roundOneDepth": "unreviewed"
+      },
+      {
+        "path": "service/packages/plugin/test/handlers/create-effect-style.test.ts",
+        "bytes": 3250,
+        "primaryLane": "capture",
+        "roundOneDepth": "unreviewed"
+      },
+      {
+        "path": "service/packages/plugin/test/handlers/create-instance.test.ts",
+        "bytes": 2874,
+        "primaryLane": "capture",
+        "roundOneDepth": "unreviewed"
+      },
+      {
+        "path": "service/packages/plugin/test/handlers/create-rectangle.test.ts",
+        "bytes": 1934,
+        "primaryLane": "capture",
+        "roundOneDepth": "unreviewed"
+      },
+      {
+        "path": "service/packages/plugin/test/handlers/create-section.test.ts",
+        "bytes": 1399,
+        "primaryLane": "capture",
+        "roundOneDepth": "unreviewed"
+      },
+      {
+        "path": "service/packages/plugin/test/handlers/create-text.test.ts",
+        "bytes": 1835,
+        "primaryLane": "capture",
+        "roundOneDepth": "unreviewed"
+      },
+      {
+        "path": "service/packages/plugin/test/handlers/create-variable-collection.test.ts",
+        "bytes": 3549,
+        "primaryLane": "capture",
+        "roundOneDepth": "unreviewed"
+      },
+      {
+        "path": "service/packages/plugin/test/handlers/create-variable.test.ts",
+        "bytes": 9913,
+        "primaryLane": "capture",
+        "roundOneDepth": "unreviewed"
+      },
+      {
+        "path": "service/packages/plugin/test/handlers/delete-nodes.test.ts",
+        "bytes": 1602,
+        "primaryLane": "capture",
+        "roundOneDepth": "unreviewed"
+      },
+      {
+        "path": "service/packages/plugin/test/handlers/delete-variable-collection.test.ts",
+        "bytes": 1255,
+        "primaryLane": "capture",
+        "roundOneDepth": "unreviewed"
+      },
+      {
+        "path": "service/packages/plugin/test/handlers/delete-variable.test.ts",
+        "bytes": 1144,
+        "primaryLane": "capture",
+        "roundOneDepth": "unreviewed"
+      },
+      {
+        "path": "service/packages/plugin/test/handlers/export-pdf.test.ts",
+        "bytes": 2953,
+        "primaryLane": "capture",
+        "roundOneDepth": "unreviewed"
+      },
+      {
+        "path": "service/packages/plugin/test/handlers/get-component-api.test.ts",
+        "bytes": 3551,
+        "primaryLane": "capture",
+        "roundOneDepth": "unreviewed"
+      },
+      {
+        "path": "service/packages/plugin/test/handlers/get-design-context.test.ts",
+        "bytes": 41125,
+        "primaryLane": "capture",
+        "roundOneDepth": "unreviewed"
+      },
+      {
+        "path": "service/packages/plugin/test/handlers/get-local-components.test.ts",
+        "bytes": 3178,
+        "primaryLane": "capture",
+        "roundOneDepth": "unreviewed"
+      },
+      {
+        "path": "service/packages/plugin/test/handlers/get-metadata.test.ts",
+        "bytes": 2424,
+        "primaryLane": "capture",
+        "roundOneDepth": "unreviewed"
+      },
+      {
+        "path": "service/packages/plugin/test/handlers/get-node-motion.test.ts",
+        "bytes": 3715,
+        "primaryLane": "capture",
+        "roundOneDepth": "unreviewed"
+      },
+      {
+        "path": "service/packages/plugin/test/handlers/get-node.test.ts",
+        "bytes": 2117,
+        "primaryLane": "capture",
+        "roundOneDepth": "unreviewed"
+      },
+      {
+        "path": "service/packages/plugin/test/handlers/get-nodes-info.test.ts",
+        "bytes": 1919,
+        "primaryLane": "capture",
+        "roundOneDepth": "unreviewed"
+      },
+      {
+        "path": "service/packages/plugin/test/handlers/get-pages.test.ts",
+        "bytes": 997,
+        "primaryLane": "capture",
+        "roundOneDepth": "unreviewed"
+      },
+      {
+        "path": "service/packages/plugin/test/handlers/get-screenshot.test.ts",
+        "bytes": 13221,
+        "primaryLane": "capture",
+        "roundOneDepth": "unreviewed"
+      },
+      {
+        "path": "service/packages/plugin/test/handlers/get-styles.test.ts",
+        "bytes": 13388,
+        "primaryLane": "capture",
+        "roundOneDepth": "unreviewed"
+      },
+      {
+        "path": "service/packages/plugin/test/handlers/get-variable-defs.test.ts",
+        "bytes": 6493,
+        "primaryLane": "capture",
+        "roundOneDepth": "unreviewed"
+      },
+      {
+        "path": "service/packages/plugin/test/handlers/group-nodes.test.ts",
+        "bytes": 1416,
+        "primaryLane": "capture",
+        "roundOneDepth": "unreviewed"
+      },
+      {
+        "path": "service/packages/plugin/test/handlers/import-image.test.ts",
+        "bytes": 4082,
+        "primaryLane": "capture",
+        "roundOneDepth": "unreviewed"
+      },
+      {
+        "path": "service/packages/plugin/test/handlers/move-nodes.test.ts",
+        "bytes": 1199,
+        "primaryLane": "capture",
+        "roundOneDepth": "unreviewed"
+      },
+      {
+        "path": "service/packages/plugin/test/handlers/navigate-to-page.test.ts",
+        "bytes": 1173,
+        "primaryLane": "capture",
+        "roundOneDepth": "unreviewed"
+      },
+      {
+        "path": "service/packages/plugin/test/handlers/projection-coverage.test.ts",
+        "bytes": 7957,
+        "primaryLane": "capture",
+        "roundOneDepth": "unreviewed"
+      },
+      {
+        "path": "service/packages/plugin/test/handlers/remove-reactions.test.ts",
+        "bytes": 1096,
+        "primaryLane": "capture",
+        "roundOneDepth": "unreviewed"
+      },
+      {
+        "path": "service/packages/plugin/test/handlers/rename-variable.test.ts",
+        "bytes": 1312,
+        "primaryLane": "capture",
+        "roundOneDepth": "unreviewed"
+      },
+      {
+        "path": "service/packages/plugin/test/handlers/reparent-nodes.test.ts",
+        "bytes": 1958,
+        "primaryLane": "capture",
+        "roundOneDepth": "unreviewed"
+      },
+      {
+        "path": "service/packages/plugin/test/handlers/save-image-fills.test.ts",
+        "bytes": 6647,
+        "primaryLane": "capture",
+        "roundOneDepth": "unreviewed"
+      },
+      {
+        "path": "service/packages/plugin/test/handlers/set-annotations.test.ts",
+        "bytes": 11201,
+        "primaryLane": "capture",
+        "roundOneDepth": "unreviewed"
+      },
+      {
+        "path": "service/packages/plugin/test/handlers/set-arc.test.ts",
+        "bytes": 2065,
+        "primaryLane": "capture",
+        "roundOneDepth": "unreviewed"
+      },
+      {
+        "path": "service/packages/plugin/test/handlers/set-auto-layout.test.ts",
+        "bytes": 5978,
+        "primaryLane": "capture",
+        "roundOneDepth": "unreviewed"
+      },
+      {
+        "path": "service/packages/plugin/test/handlers/set-blend-mode.test.ts",
+        "bytes": 1118,
+        "primaryLane": "capture",
+        "roundOneDepth": "unreviewed"
+      },
+      {
+        "path": "service/packages/plugin/test/handlers/set-effects.test.ts",
+        "bytes": 2681,
+        "primaryLane": "capture",
+        "roundOneDepth": "unreviewed"
+      },
+      {
+        "path": "service/packages/plugin/test/handlers/set-layout-grids.test.ts",
+        "bytes": 4513,
+        "primaryLane": "capture",
+        "roundOneDepth": "unreviewed"
+      },
+      {
+        "path": "service/packages/plugin/test/handlers/set-layout-props.test.ts",
+        "bytes": 4893,
+        "primaryLane": "capture",
+        "roundOneDepth": "unreviewed"
+      },
+      {
+        "path": "service/packages/plugin/test/handlers/set-mask.test.ts",
+        "bytes": 1684,
+        "primaryLane": "capture",
+        "roundOneDepth": "unreviewed"
+      },
+      {
+        "path": "service/packages/plugin/test/handlers/set-position.test.ts",
+        "bytes": 2802,
+        "primaryLane": "capture",
+        "roundOneDepth": "unreviewed"
+      },
+      {
+        "path": "service/packages/plugin/test/handlers/set-text-range.test.ts",
+        "bytes": 11274,
+        "primaryLane": "capture",
+        "roundOneDepth": "unreviewed"
+      },
+      {
+        "path": "service/packages/plugin/test/handlers/swap-component.test.ts",
+        "bytes": 2990,
+        "primaryLane": "capture",
+        "roundOneDepth": "unreviewed"
+      },
+      {
+        "path": "service/packages/plugin/test/handlers/update-effect-style.test.ts",
+        "bytes": 2648,
+        "primaryLane": "capture",
+        "roundOneDepth": "unreviewed"
+      },
+      {
+        "path": "service/packages/plugin/test/handlers/update-text-style.test.ts",
+        "bytes": 6917,
+        "primaryLane": "capture",
+        "roundOneDepth": "unreviewed"
+      },
+      {
+        "path": "service/packages/plugin/test/lib/format.test.ts",
+        "bytes": 2510,
+        "primaryLane": "capture",
+        "roundOneDepth": "unreviewed"
+      },
+      {
+        "path": "service/packages/plugin/test/panel.test.ts",
+        "bytes": 8522,
+        "primaryLane": "capture",
+        "roundOneDepth": "unreviewed"
+      },
+      {
+        "path": "service/packages/plugin/test/protocol/bridge.test.ts",
+        "bytes": 4889,
+        "primaryLane": "capture",
+        "roundOneDepth": "unreviewed"
+      },
+      {
+        "path": "service/packages/plugin/test/relay/bootstrap.test.ts",
+        "bytes": 1281,
+        "primaryLane": "capture",
+        "roundOneDepth": "unreviewed"
+      },
+      {
+        "path": "service/packages/plugin/test/relay/diagnostics.test.ts",
+        "bytes": 4310,
+        "primaryLane": "capture",
+        "roundOneDepth": "unreviewed"
+      },
+      {
+        "path": "service/packages/plugin/test/relay/node-ids.test.ts",
+        "bytes": 2984,
+        "primaryLane": "capture",
+        "roundOneDepth": "unreviewed"
+      },
+      {
+        "path": "service/packages/plugin/test/sandbox/startup.test.ts",
+        "bytes": 2171,
+        "primaryLane": "capture",
+        "roundOneDepth": "unreviewed"
+      },
+      {
+        "path": "service/packages/plugin/test/traverse.test.ts",
+        "bytes": 2434,
+        "primaryLane": "capture",
+        "roundOneDepth": "unreviewed"
+      }
+    ],
+    "platform": [
+      {
+        "path": "service/packages/mcp/test/control/operation-evidence.test.ts",
+        "bytes": 6429,
+        "primaryLane": "platform",
+        "roundOneDepth": "targeted"
+      },
+      {
+        "path": "service/packages/mcp/test/dispatch.test.ts",
+        "bytes": 17839,
+        "primaryLane": "platform",
+        "roundOneDepth": "targeted"
+      },
+      {
+        "path": "service/packages/mcp/test/e2e/get-document.test.ts",
+        "bytes": 2708,
+        "primaryLane": "platform",
+        "roundOneDepth": "targeted"
+      },
+      {
+        "path": "service/packages/mcp/test/e2e/get-selection.test.ts",
+        "bytes": 2515,
+        "primaryLane": "platform",
+        "roundOneDepth": "targeted"
+      },
+      {
+        "path": "service/packages/mcp/test/e2e/mcp-wire.test.ts",
+        "bytes": 45223,
+        "primaryLane": "platform",
+        "roundOneDepth": "targeted"
+      },
+      {
+        "path": "service/packages/mcp/test/e2e/ping.test.ts",
+        "bytes": 2550,
+        "primaryLane": "platform",
+        "roundOneDepth": "targeted"
+      },
+      {
+        "path": "service/packages/mcp/test/e2e/process-lifecycle.test.ts",
+        "bytes": 11213,
+        "primaryLane": "platform",
+        "roundOneDepth": "targeted"
+      },
+      {
+        "path": "service/packages/mcp/test/e2e/read-tools.test.ts",
+        "bytes": 19912,
+        "primaryLane": "platform",
+        "roundOneDepth": "targeted"
+      },
+      {
+        "path": "service/packages/mcp/test/election/election.test.ts",
+        "bytes": 23652,
+        "primaryLane": "platform",
+        "roundOneDepth": "targeted"
+      },
+      {
+        "path": "service/packages/mcp/test/election/leader-endpoints.test.ts",
+        "bytes": 24357,
+        "primaryLane": "platform",
+        "roundOneDepth": "targeted"
+      },
+      {
+        "path": "service/packages/mcp/test/execution/action-nonce.test.ts",
+        "bytes": 8374,
+        "primaryLane": "platform",
+        "roundOneDepth": "targeted"
+      },
+      {
+        "path": "service/packages/mcp/test/execution/approval-broker.test.ts",
+        "bytes": 5758,
+        "primaryLane": "platform",
+        "roundOneDepth": "targeted"
+      },
+      {
+        "path": "service/packages/mcp/test/execution/approval-plugin-port.test.ts",
+        "bytes": 2166,
+        "primaryLane": "platform",
+        "roundOneDepth": "targeted"
+      },
+      {
+        "path": "service/packages/mcp/test/execution/boundary-limits.test.ts",
+        "bytes": 5932,
+        "primaryLane": "platform",
+        "roundOneDepth": "targeted"
+      },
+      {
+        "path": "service/packages/mcp/test/execution/control-tool-call.test.ts",
+        "bytes": 1213,
+        "primaryLane": "platform",
+        "roundOneDepth": "targeted"
+      },
+      {
+        "path": "service/packages/mcp/test/execution/egress-manifest-store.test.ts",
+        "bytes": 20938,
+        "primaryLane": "platform",
+        "roundOneDepth": "targeted"
+      },
+      {
+        "path": "service/packages/mcp/test/execution/operation-evidence-receipt.test.ts",
+        "bytes": 33530,
+        "primaryLane": "platform",
+        "roundOneDepth": "targeted"
+      },
+      {
+        "path": "service/packages/mcp/test/execution/operation-id.test.ts",
+        "bytes": 4403,
+        "primaryLane": "platform",
+        "roundOneDepth": "targeted"
+      },
+      {
+        "path": "service/packages/mcp/test/execution/operation-journal.test.ts",
+        "bytes": 36001,
+        "primaryLane": "platform",
+        "roundOneDepth": "targeted"
+      },
+      {
+        "path": "service/packages/mcp/test/execution/progress-framing.test.ts",
+        "bytes": 4550,
+        "primaryLane": "platform",
+        "roundOneDepth": "targeted"
+      },
+      {
+        "path": "service/packages/mcp/test/execution/progress-transport.test.ts",
+        "bytes": 12263,
+        "primaryLane": "platform",
+        "roundOneDepth": "targeted"
+      },
+      {
+        "path": "service/packages/mcp/test/execution/resource-queue.test.ts",
+        "bytes": 9010,
+        "primaryLane": "platform",
+        "roundOneDepth": "targeted"
+      },
+      {
+        "path": "service/packages/mcp/test/execution/runtime-authority.test.ts",
+        "bytes": 6755,
+        "primaryLane": "platform",
+        "roundOneDepth": "targeted"
+      },
+      {
+        "path": "service/packages/mcp/test/execution/service-operation-name.test.ts",
+        "bytes": 931,
+        "primaryLane": "platform",
+        "roundOneDepth": "targeted"
+      },
+      {
+        "path": "service/packages/mcp/test/execution/service-operation-registry.test.ts",
+        "bytes": 1975,
+        "primaryLane": "platform",
+        "roundOneDepth": "targeted"
+      },
+      {
+        "path": "service/packages/mcp/test/execution/target-requirement.test.ts",
+        "bytes": 1836,
+        "primaryLane": "platform",
+        "roundOneDepth": "targeted"
+      },
+      {
+        "path": "service/packages/mcp/test/fs/local-tool-boundary.test.ts",
+        "bytes": 16511,
+        "primaryLane": "platform",
+        "roundOneDepth": "targeted"
+      },
+      {
+        "path": "service/packages/mcp/test/fs/operation-evidence-artifact-store.test.ts",
+        "bytes": 99279,
+        "primaryLane": "platform",
+        "roundOneDepth": "targeted"
+      },
+      {
+        "path": "service/packages/mcp/test/fs/runtime-paths.test.ts",
+        "bytes": 31194,
+        "primaryLane": "platform",
+        "roundOneDepth": "targeted"
+      },
+      {
+        "path": "service/packages/mcp/test/fs/shared-dependency-boundary.test.ts",
+        "bytes": 2702,
+        "primaryLane": "platform",
+        "roundOneDepth": "targeted"
+      },
+      {
+        "path": "service/packages/mcp/test/fs/windows-boundary-probe-worker.test.ts",
+        "bytes": 19124,
+        "primaryLane": "platform",
+        "roundOneDepth": "targeted"
+      },
+      {
+        "path": "service/packages/mcp/test/lifecycle.test.ts",
+        "bytes": 4983,
+        "primaryLane": "platform",
+        "roundOneDepth": "targeted"
+      },
+      {
+        "path": "service/packages/mcp/test/mapping-parity.test.ts",
+        "bytes": 1910,
+        "primaryLane": "platform",
+        "roundOneDepth": "targeted"
+      },
+      {
+        "path": "service/packages/mcp/test/network/import-image-runtime.test.ts",
+        "bytes": 22894,
+        "primaryLane": "platform",
+        "roundOneDepth": "targeted"
+      },
+      {
+        "path": "service/packages/mcp/test/policy/egress-config.test.ts",
+        "bytes": 7346,
+        "primaryLane": "platform",
+        "roundOneDepth": "targeted"
+      },
+      {
+        "path": "service/packages/mcp/test/policy/operation-policy.test.ts",
+        "bytes": 18322,
+        "primaryLane": "platform",
+        "roundOneDepth": "targeted"
+      },
+      {
+        "path": "service/packages/mcp/test/policy/result-egress-policy.test.ts",
+        "bytes": 13294,
+        "primaryLane": "platform",
+        "roundOneDepth": "targeted"
+      },
+      {
+        "path": "service/packages/mcp/test/relay/session.test.ts",
+        "bytes": 2910,
+        "primaryLane": "platform",
+        "roundOneDepth": "targeted"
+      },
+      {
+        "path": "service/packages/mcp/test/security/follower-transport.test.ts",
+        "bytes": 46625,
+        "primaryLane": "platform",
+        "roundOneDepth": "targeted"
+      },
+      {
+        "path": "service/packages/mcp/test/security/pairing.test.ts",
+        "bytes": 52873,
+        "primaryLane": "platform",
+        "roundOneDepth": "targeted"
+      },
+      {
+        "path": "service/packages/mcp/test/security/token-rotation.test.ts",
+        "bytes": 11173,
+        "primaryLane": "platform",
+        "roundOneDepth": "targeted"
+      }
+    ],
+    "portal": [
+      {
+        "path": "service/packages/mcp/test/control/admin-audit.test.ts",
+        "bytes": 34401,
+        "primaryLane": "platform",
+        "roundOneDepth": "targeted"
+      },
+      {
+        "path": "service/packages/mcp/test/control/control-router.test.ts",
+        "bytes": 23007,
+        "primaryLane": "platform",
+        "roundOneDepth": "targeted"
+      },
+      {
+        "path": "service/packages/mcp/test/control/egress-control.test.ts",
+        "bytes": 9187,
+        "primaryLane": "platform",
+        "roundOneDepth": "targeted"
+      },
+      {
+        "path": "service/packages/mcp/test/e2e/packed-operation-evidence.test.ts",
+        "bytes": 48638,
+        "primaryLane": "platform",
+        "roundOneDepth": "targeted"
+      },
+      {
+        "path": "service/packages/mcp/test/election/control-route-registry.test.ts",
+        "bytes": 6004,
+        "primaryLane": "platform",
+        "roundOneDepth": "targeted"
+      },
+      {
+        "path": "service/packages/mcp/test/election/follower.test.ts",
+        "bytes": 16704,
+        "primaryLane": "platform",
+        "roundOneDepth": "targeted"
+      },
+      {
+        "path": "service/packages/mcp/test/election/leader-lock.test.ts",
+        "bytes": 16631,
+        "primaryLane": "platform",
+        "roundOneDepth": "targeted"
+      },
+      {
+        "path": "service/packages/mcp/test/election/node.test.ts",
+        "bytes": 9843,
+        "primaryLane": "platform",
+        "roundOneDepth": "targeted"
+      },
+      {
+        "path": "service/packages/mcp/test/execution/approval-routing-matrix.test.ts",
+        "bytes": 1609,
+        "primaryLane": "platform",
+        "roundOneDepth": "targeted"
+      },
+      {
+        "path": "service/packages/mcp/test/execution/completed-result-replay.test.ts",
+        "bytes": 8521,
+        "primaryLane": "platform",
+        "roundOneDepth": "targeted"
+      },
+      {
+        "path": "service/packages/mcp/test/execution/egress-finalizer.test.ts",
+        "bytes": 18164,
+        "primaryLane": "platform",
+        "roundOneDepth": "targeted"
+      },
+      {
+        "path": "service/packages/mcp/test/execution/egress-policy.test.ts",
+        "bytes": 2673,
+        "primaryLane": "platform",
+        "roundOneDepth": "targeted"
+      },
+      {
+        "path": "service/packages/mcp/test/execution/execution-plane-lifecycle.test.ts",
+        "bytes": 45676,
+        "primaryLane": "platform",
+        "roundOneDepth": "targeted"
+      },
+      {
+        "path": "service/packages/mcp/test/execution/follower-invocation-client.test.ts",
+        "bytes": 19467,
+        "primaryLane": "platform",
+        "roundOneDepth": "targeted"
+      },
+      {
+        "path": "service/packages/mcp/test/execution/follower-stream.test.ts",
+        "bytes": 8309,
+        "primaryLane": "platform",
+        "roundOneDepth": "targeted"
+      },
+      {
+        "path": "service/packages/mcp/test/execution/identity-bootstrap-coordinator.test.ts",
+        "bytes": 6735,
+        "primaryLane": "platform",
+        "roundOneDepth": "targeted"
+      },
+      {
+        "path": "service/packages/mcp/test/execution/invocation-boundary.test.ts",
+        "bytes": 4659,
+        "primaryLane": "platform",
+        "roundOneDepth": "targeted"
+      },
+      {
+        "path": "service/packages/mcp/test/execution/mcp-selector-synthesis.test.ts",
+        "bytes": 2391,
+        "primaryLane": "platform",
+        "roundOneDepth": "targeted"
+      },
+      {
+        "path": "service/packages/mcp/test/execution/no-direct-relay.test.ts",
+        "bytes": 1627,
+        "primaryLane": "platform",
+        "roundOneDepth": "targeted"
+      },
+      {
+        "path": "service/packages/mcp/test/execution/operation-evidence-projector.test.ts",
+        "bytes": 2442,
+        "primaryLane": "platform",
+        "roundOneDepth": "targeted"
+      },
+      {
+        "path": "service/packages/mcp/test/execution/operation-executor.test.ts",
+        "bytes": 84805,
+        "primaryLane": "platform",
+        "roundOneDepth": "targeted"
+      },
+      {
+        "path": "service/packages/mcp/test/execution/operation-resolution.test.ts",
+        "bytes": 2810,
+        "primaryLane": "platform",
+        "roundOneDepth": "targeted"
+      },
+      {
+        "path": "service/packages/mcp/test/execution/plugin-progress-adapter.test.ts",
+        "bytes": 2793,
+        "primaryLane": "platform",
+        "roundOneDepth": "targeted"
+      },
+      {
+        "path": "service/packages/mcp/test/execution/policy-context.test.ts",
+        "bytes": 5676,
+        "primaryLane": "platform",
+        "roundOneDepth": "targeted"
+      },
+      {
+        "path": "service/packages/mcp/test/execution/target-resolution.test.ts",
+        "bytes": 2530,
+        "primaryLane": "platform",
+        "roundOneDepth": "targeted"
+      },
+      {
+        "path": "service/packages/mcp/test/execution/workspace-endpoints.test.ts",
+        "bytes": 15360,
+        "primaryLane": "platform",
+        "roundOneDepth": "targeted"
+      },
+      {
+        "path": "service/packages/mcp/test/fs/repo-walk.test.ts",
+        "bytes": 11181,
+        "primaryLane": "platform",
+        "roundOneDepth": "targeted"
+      },
+      {
+        "path": "service/packages/mcp/test/fs/workspace-policy.test.ts",
+        "bytes": 21099,
+        "primaryLane": "platform",
+        "roundOneDepth": "targeted"
+      },
+      {
+        "path": "service/packages/mcp/test/local-access.test.ts",
+        "bytes": 4399,
+        "primaryLane": "platform",
+        "roundOneDepth": "targeted"
+      },
+      {
+        "path": "service/packages/mcp/test/mapping-consumers.test.ts",
+        "bytes": 26081,
+        "primaryLane": "platform",
+        "roundOneDepth": "targeted"
+      },
+      {
+        "path": "service/packages/mcp/test/network/dns-pinning.test.ts",
+        "bytes": 5024,
+        "primaryLane": "platform",
+        "roundOneDepth": "targeted"
+      },
+      {
+        "path": "service/packages/mcp/test/network/remote-domain-config.test.ts",
+        "bytes": 31218,
+        "primaryLane": "platform",
+        "roundOneDepth": "targeted"
+      },
+      {
+        "path": "service/packages/mcp/test/network/remote-image-fetcher.test.ts",
+        "bytes": 54768,
+        "primaryLane": "platform",
+        "roundOneDepth": "targeted"
+      },
+      {
+        "path": "service/packages/mcp/test/no-binary-sources.test.ts",
+        "bytes": 1907,
+        "primaryLane": "platform",
+        "roundOneDepth": "targeted"
+      },
+      {
+        "path": "service/packages/mcp/test/node-id.test.ts",
+        "bytes": 5824,
+        "primaryLane": "platform",
+        "roundOneDepth": "targeted"
+      },
+      {
+        "path": "service/packages/mcp/test/relay/relay.test.ts",
+        "bytes": 42131,
+        "primaryLane": "platform",
+        "roundOneDepth": "targeted"
+      },
+      {
+        "path": "service/packages/mcp/test/security/control-auth.test.ts",
+        "bytes": 24046,
+        "primaryLane": "platform",
+        "roundOneDepth": "targeted"
+      },
+      {
+        "path": "service/packages/mcp/test/security/pna.test.ts",
+        "bytes": 11690,
+        "primaryLane": "platform",
+        "roundOneDepth": "targeted"
+      },
+      {
+        "path": "service/packages/mcp/test/security/request-limits.test.ts",
+        "bytes": 20593,
+        "primaryLane": "platform",
+        "roundOneDepth": "targeted"
+      },
+      {
+        "path": "service/packages/mcp/test/set-annotations.test.ts",
+        "bytes": 1948,
+        "primaryLane": "platform",
+        "roundOneDepth": "targeted"
+      }
+    ],
+    "contracts": [
+      {
+        "path": "service/packages/ir/test/portal-completion.characterization.test.ts",
+        "bytes": 7648,
+        "primaryLane": "contracts",
+        "roundOneDepth": "unreviewed"
+      },
+      {
+        "path": "service/packages/ir/test/portal-completion.test.ts",
+        "bytes": 8848,
+        "primaryLane": "contracts",
+        "roundOneDepth": "unreviewed"
+      },
+      {
+        "path": "service/packages/mcp/test/portal/consumption-components.test.ts",
+        "bytes": 10842,
+        "primaryLane": "contracts",
+        "roundOneDepth": "unreviewed"
+      },
+      {
+        "path": "service/packages/mcp/test/portal/consumption-input.test.ts",
+        "bytes": 8370,
+        "primaryLane": "contracts",
+        "roundOneDepth": "unreviewed"
+      },
+      {
+        "path": "service/packages/mcp/test/portal/consumption-values.test.ts",
+        "bytes": 3182,
+        "primaryLane": "contracts",
+        "roundOneDepth": "unreviewed"
+      },
+      {
+        "path": "service/packages/mcp/test/portal/core-coordinator.test.ts",
+        "bytes": 14168,
+        "primaryLane": "contracts",
+        "roundOneDepth": "unreviewed"
+      },
+      {
+        "path": "service/packages/mcp/test/portal/core-lifecycle.test.ts",
+        "bytes": 10134,
+        "primaryLane": "contracts",
+        "roundOneDepth": "unreviewed"
+      },
+      {
+        "path": "service/packages/mcp/test/portal/core-preparation.test.ts",
+        "bytes": 14091,
+        "primaryLane": "contracts",
+        "roundOneDepth": "unreviewed"
+      },
+      {
+        "path": "service/packages/mcp/test/portal/core-recipes.test.ts",
+        "bytes": 57177,
+        "primaryLane": "contracts",
+        "roundOneDepth": "unreviewed"
+      },
+      {
+        "path": "service/packages/mcp/test/portal/core-source.characterization.test.ts",
+        "bytes": 14649,
+        "primaryLane": "contracts",
+        "roundOneDepth": "unreviewed"
+      },
+      {
+        "path": "service/packages/mcp/test/portal/recipe-artifact-readback.test.ts",
+        "bytes": 3749,
+        "primaryLane": "contracts",
+        "roundOneDepth": "unreviewed"
+      },
+      {
+        "path": "service/packages/mcp/test/portal/recipe-definitions.test.ts",
+        "bytes": 15362,
+        "primaryLane": "contracts",
+        "roundOneDepth": "unreviewed"
+      },
+      {
+        "path": "service/packages/mcp/test/tools/binary-payload.test.ts",
+        "bytes": 3137,
+        "primaryLane": "contracts",
+        "roundOneDepth": "unreviewed"
+      },
+      {
+        "path": "service/packages/mcp/test/tools/component-map.test.ts",
+        "bytes": 7713,
+        "primaryLane": "contracts",
+        "roundOneDepth": "unreviewed"
+      },
+      {
+        "path": "service/packages/mcp/test/tools/design-context-guard.test.ts",
+        "bytes": 22909,
+        "primaryLane": "contracts",
+        "roundOneDepth": "unreviewed"
+      },
+      {
+        "path": "service/packages/mcp/test/tools/design-diff.test.ts",
+        "bytes": 11027,
+        "primaryLane": "contracts",
+        "roundOneDepth": "unreviewed"
+      },
+      {
+        "path": "service/packages/mcp/test/tools/export-pdf.test.ts",
+        "bytes": 4329,
+        "primaryLane": "contracts",
+        "roundOneDepth": "unreviewed"
+      },
+      {
+        "path": "service/packages/mcp/test/tools/export-video.test.ts",
+        "bytes": 6108,
+        "primaryLane": "contracts",
+        "roundOneDepth": "unreviewed"
+      },
+      {
+        "path": "service/packages/mcp/test/tools/get-document.test.ts",
+        "bytes": 884,
+        "primaryLane": "contracts",
+        "roundOneDepth": "unreviewed"
+      },
+      {
+        "path": "service/packages/mcp/test/tools/get-screenshot.test.ts",
+        "bytes": 9255,
+        "primaryLane": "contracts",
+        "roundOneDepth": "unreviewed"
+      },
+      {
+        "path": "service/packages/mcp/test/tools/get-selection.test.ts",
+        "bytes": 843,
+        "primaryLane": "contracts",
+        "roundOneDepth": "unreviewed"
+      },
+      {
+        "path": "service/packages/mcp/test/tools/import-image.test.ts",
+        "bytes": 3329,
+        "primaryLane": "contracts",
+        "roundOneDepth": "unreviewed"
+      },
+      {
+        "path": "service/packages/mcp/test/tools/layout-tier-coverage.test.ts",
+        "bytes": 5676,
+        "primaryLane": "contracts",
+        "roundOneDepth": "unreviewed"
+      },
+      {
+        "path": "service/packages/mcp/test/tools/local-tools.test.ts",
+        "bytes": 5067,
+        "primaryLane": "contracts",
+        "roundOneDepth": "unreviewed"
+      },
+      {
+        "path": "service/packages/mcp/test/tools/motion-schemas.test.ts",
+        "bytes": 3812,
+        "primaryLane": "contracts",
+        "roundOneDepth": "unreviewed"
+      },
+      {
+        "path": "service/packages/mcp/test/tools/ping.test.ts",
+        "bytes": 9040,
+        "primaryLane": "contracts",
+        "roundOneDepth": "unreviewed"
+      },
+      {
+        "path": "service/packages/mcp/test/tools/read-tools.test.ts",
+        "bytes": 8455,
+        "primaryLane": "contracts",
+        "roundOneDepth": "unreviewed"
+      },
+      {
+        "path": "service/packages/mcp/test/tools/result-validation.test.ts",
+        "bytes": 5247,
+        "primaryLane": "contracts",
+        "roundOneDepth": "unreviewed"
+      },
+      {
+        "path": "service/packages/mcp/test/tools/safe-union.test.ts",
+        "bytes": 8003,
+        "primaryLane": "contracts",
+        "roundOneDepth": "unreviewed"
+      },
+      {
+        "path": "service/packages/mcp/test/tools/save-image-fills.test.ts",
+        "bytes": 9600,
+        "primaryLane": "contracts",
+        "roundOneDepth": "unreviewed"
+      },
+      {
+        "path": "service/packages/mcp/test/tools/save-screenshots.test.ts",
+        "bytes": 8182,
+        "primaryLane": "contracts",
+        "roundOneDepth": "unreviewed"
+      },
+      {
+        "path": "service/packages/mcp/test/tools/skew-notice.test.ts",
+        "bytes": 7250,
+        "primaryLane": "contracts",
+        "roundOneDepth": "unreviewed"
+      },
+      {
+        "path": "service/packages/mcp/test/tools/token-map.test.ts",
+        "bytes": 19213,
+        "primaryLane": "contracts",
+        "roundOneDepth": "unreviewed"
+      },
+      {
+        "path": "service/packages/mcp/test/tools/write-tools.test.ts",
+        "bytes": 13662,
+        "primaryLane": "contracts",
+        "roundOneDepth": "unreviewed"
+      },
+      {
+        "path": "service/packages/shared/test/codec.test.ts",
+        "bytes": 1760,
+        "primaryLane": "contracts",
+        "roundOneDepth": "unreviewed"
+      },
+      {
+        "path": "service/packages/shared/test/control-schema.test.ts",
+        "bytes": 3768,
+        "primaryLane": "contracts",
+        "roundOneDepth": "unreviewed"
+      },
+      {
+        "path": "service/packages/shared/test/core-recipe-pages.test.ts",
+        "bytes": 3447,
+        "primaryLane": "contracts",
+        "roundOneDepth": "unreviewed"
+      },
+      {
+        "path": "service/packages/shared/test/design-observation.test.ts",
+        "bytes": 7486,
+        "primaryLane": "contracts",
+        "roundOneDepth": "unreviewed"
+      },
+      {
+        "path": "service/packages/shared/test/envelope.test.ts",
+        "bytes": 2349,
+        "primaryLane": "contracts",
+        "roundOneDepth": "unreviewed"
+      },
+      {
+        "path": "service/packages/shared/test/file-identity-hash.test.ts",
+        "bytes": 1792,
+        "primaryLane": "contracts",
+        "roundOneDepth": "unreviewed"
+      },
+      {
+        "path": "service/packages/shared/test/heartbeat.test.ts",
+        "bytes": 2249,
+        "primaryLane": "contracts",
+        "roundOneDepth": "unreviewed"
+      },
+      {
+        "path": "service/packages/shared/test/portal-recipes.test.ts",
+        "bytes": 11308,
+        "primaryLane": "contracts",
+        "roundOneDepth": "unreviewed"
+      },
+      {
+        "path": "service/packages/shared/test/portal.test.ts",
+        "bytes": 3390,
+        "primaryLane": "contracts",
+        "roundOneDepth": "unreviewed"
+      },
+      {
+        "path": "service/packages/shared/test/serialized-node.test.ts",
+        "bytes": 6681,
+        "primaryLane": "contracts",
+        "roundOneDepth": "unreviewed"
+      },
+      {
+        "path": "service/packages/shared/test/tool-budgets.test.ts",
+        "bytes": 1770,
+        "primaryLane": "contracts",
+        "roundOneDepth": "unreviewed"
+      },
+      {
+        "path": "service/packages/shared/test/version.test.ts",
+        "bytes": 6084,
+        "primaryLane": "contracts",
+        "roundOneDepth": "unreviewed"
+      }
+    ],
+    "verification": []
+  },
+  "metadataRecheck": [
+    {
+      "path": "service/SBOM.spdx.json",
+      "bytes": 26959,
+      "primaryLane": "verification"
+    },
+    {
+      "path": "service/THIRD_PARTY_NOTICES.md",
+      "bytes": 102743,
+      "primaryLane": "verification"
+    },
+    {
+      "path": "service/capabilities/change-manifests/task-7a.json",
+      "bytes": 11071,
+      "primaryLane": "verification"
+    },
+    {
+      "path": "service/capabilities/change-manifests/task-7b.json",
+      "bytes": 9262,
+      "primaryLane": "verification"
+    },
+    {
+      "path": "service/capabilities/change-manifests/task-7c.json",
+      "bytes": 9402,
+      "primaryLane": "verification"
+    },
+    {
+      "path": "service/capabilities/change-manifests/task-8a.json",
+      "bytes": 12542,
+      "primaryLane": "verification"
+    },
+    {
+      "path": "service/capabilities/change-manifests/task-8b.json",
+      "bytes": 4008,
+      "primaryLane": "verification"
+    },
+    {
+      "path": "service/capabilities/change-manifests/task-review-2026-09-05.json",
+      "bytes": 16907,
+      "primaryLane": "verification"
+    },
+    {
+      "path": "service/capabilities/change-manifests/task-review-2026-09-06.json",
+      "bytes": 43459,
+      "primaryLane": "verification"
+    },
+    {
+      "path": "service/capabilities/change-manifests/task-review-2026-09-07.json",
+      "bytes": 44197,
+      "primaryLane": "verification"
+    },
+    {
+      "path": "service/capabilities/change-manifests/task-review-2026-09-08.json",
+      "bytes": 54446,
+      "primaryLane": "verification"
+    },
+    {
+      "path": "service/capabilities/change-manifests/task-review-2026-09-10.json",
+      "bytes": 57857,
+      "primaryLane": "verification"
+    },
+    {
+      "path": "service/capabilities/figmosha-feature-map.json",
+      "bytes": 8757,
+      "primaryLane": "verification"
+    },
+    {
+      "path": "service/capabilities/rust-tool-compat.json",
+      "bytes": 49873,
+      "primaryLane": "verification"
+    },
+    {
+      "path": "service/capabilities/task-7a-authority-classes.json",
+      "bytes": 4026,
+      "primaryLane": "verification"
+    },
+    {
+      "path": "service/capabilities/task-7b-authority-classes.json",
+      "bytes": 3249,
+      "primaryLane": "verification"
+    },
+    {
+      "path": "service/capabilities/task-7c-authority-classes.json",
+      "bytes": 4107,
+      "primaryLane": "verification"
+    },
+    {
+      "path": "service/capabilities/task-8a-authority-classes.json",
+      "bytes": 4199,
+      "primaryLane": "verification"
+    },
+    {
+      "path": "service/capabilities/task-8b-authority-classes.json",
+      "bytes": 1609,
+      "primaryLane": "verification"
+    },
+    {
+      "path": "service/capabilities/task-review-2026-09-05-authority-classes.json",
+      "bytes": 5294,
+      "primaryLane": "verification"
+    },
+    {
+      "path": "service/capabilities/task-review-2026-09-06-authority-classes.json",
+      "bytes": 13505,
+      "primaryLane": "verification"
+    },
+    {
+      "path": "service/capabilities/task-review-2026-09-07-authority-classes.json",
+      "bytes": 13799,
+      "primaryLane": "verification"
+    },
+    {
+      "path": "service/capabilities/task-review-2026-09-08-authority-classes.json",
+      "bytes": 17004,
+      "primaryLane": "verification"
+    },
+    {
+      "path": "service/capabilities/task-review-2026-09-10-authority-classes.json",
+      "bytes": 18283,
+      "primaryLane": "verification"
+    },
+    {
+      "path": "service/capabilities/union-manifest.json",
+      "bytes": 183483,
+      "primaryLane": "verification"
+    },
+    {
+      "path": "service/packages/mcp/test/plugin-contract.json",
+      "bytes": 19471,
+      "primaryLane": "platform"
+    },
+    {
+      "path": "service/packages/mcp/test/portal/fixtures/native-vite-lock.json",
+      "bytes": 29033,
+      "primaryLane": "portal"
+    },
+    {
+      "path": "service/pnpm-lock.yaml",
+      "bytes": 120366,
+      "primaryLane": "verification"
+    },
+    {
+      "path": "service/test/known-failures.json",
+      "bytes": 42208,
+      "primaryLane": "verification"
+    },
+    {
+      "path": "service/upstream-lock.json",
+      "bytes": 240753,
+      "primaryLane": "verification"
+    },
+    {
+      "path": "service/vendor-map.json",
+      "bytes": 164616,
+      "primaryLane": "verification"
+    },
+    {
+      "path": "service/vendor-rules.json",
+      "bytes": 45678,
+      "primaryLane": "verification"
+    }
+  ],
+  "roundOneDepth": {
+    "full": 760,
+    "metadata": 32,
+    "unreviewed": 208,
+    "targeted": 84
+  }
+}

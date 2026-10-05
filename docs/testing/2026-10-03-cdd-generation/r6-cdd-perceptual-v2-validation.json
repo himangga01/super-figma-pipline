@@ -1,0 +1,280 @@
+{
+  "analysisHash": "sha256:276172a69787cb038ae950d4268f1688bd908db8c3a0e8c17507504c3d028645",
+  "capture": {
+    "freshDesignFingerprint": null,
+    "originalDescriptorHash": "sha256:0b339d1f4ee98c8e1bc1c56f3acf56a707b584c978b97c0c30ca44b7059b1708",
+    "version": 2
+  },
+  "checks": [
+    {
+      "id": "frontend-types",
+      "kind": "typecheck",
+      "required": true,
+      "requirementIds": [
+        "figma-account-session",
+        "language-selection",
+        "registration-demo",
+        "frontend-presentation"
+      ],
+      "status": "passed"
+    },
+    {
+      "id": "frontend-build",
+      "kind": "build",
+      "required": true,
+      "requirementIds": [
+        "figma-account-session",
+        "language-selection",
+        "registration-demo",
+        "frontend-presentation"
+      ],
+      "status": "passed"
+    },
+    {
+      "id": "frontend-independence",
+      "kind": "independence",
+      "required": true,
+      "requirementIds": [
+        "figma-account-session",
+        "language-selection",
+        "registration-demo",
+        "frontend-presentation"
+      ],
+      "status": "passed"
+    },
+    {
+      "id": "visual-guide",
+      "kind": "visual",
+      "reason": "Native command preview-cdd: failed",
+      "required": true,
+      "requirementIds": [
+        "frontend-presentation"
+      ],
+      "status": "failed"
+    },
+    {
+      "id": "accessibility-guide",
+      "kind": "accessibility",
+      "reason": "Native command preview-cdd: failed",
+      "required": true,
+      "requirementIds": [
+        "frontend-presentation"
+      ],
+      "status": "failed"
+    },
+    {
+      "id": "visual-mobile",
+      "kind": "visual",
+      "reason": "Native command preview-cdd: failed",
+      "required": true,
+      "requirementIds": [
+        "figma-account-session",
+        "language-selection",
+        "registration-demo",
+        "frontend-presentation"
+      ],
+      "status": "failed"
+    },
+    {
+      "id": "accessibility-mobile",
+      "kind": "accessibility",
+      "reason": "Native command preview-cdd: failed",
+      "required": true,
+      "requirementIds": [
+        "figma-account-session",
+        "language-selection",
+        "registration-demo",
+        "frontend-presentation"
+      ],
+      "status": "failed"
+    },
+    {
+      "id": "visual-desktop",
+      "kind": "visual",
+      "reason": "Native command preview-cdd: failed",
+      "required": true,
+      "requirementIds": [
+        "figma-account-session",
+        "language-selection",
+        "registration-demo",
+        "frontend-presentation"
+      ],
+      "status": "failed"
+    },
+    {
+      "id": "accessibility-desktop",
+      "kind": "accessibility",
+      "reason": "Native command preview-cdd: failed",
+      "required": true,
+      "requirementIds": [
+        "figma-account-session",
+        "language-selection",
+        "registration-demo",
+        "frontend-presentation"
+      ],
+      "status": "failed"
+    },
+    {
+      "id": "journey-account",
+      "kind": "interaction",
+      "reason": "Native command preview-cdd: failed",
+      "required": true,
+      "requirementIds": [
+        "figma-account-session"
+      ],
+      "status": "failed"
+    },
+    {
+      "id": "journey-registration",
+      "kind": "interaction",
+      "reason": "Native command preview-cdd: failed",
+      "required": true,
+      "requirementIds": [
+        "registration-demo"
+      ],
+      "status": "failed"
+    },
+    {
+      "id": "journey-presentation",
+      "kind": "interaction",
+      "reason": "Native command preview-cdd: failed",
+      "required": true,
+      "requirementIds": [
+        "frontend-presentation"
+      ],
+      "status": "failed"
+    },
+    {
+      "id": "journey-language",
+      "kind": "interaction",
+      "reason": "Native command preview-cdd: failed",
+      "required": true,
+      "requirementIds": [
+        "language-selection"
+      ],
+      "status": "failed"
+    },
+    {
+      "id": "native-command-sequence",
+      "kind": "source-scope",
+      "reason": "Every approved native command must execute successfully.",
+      "required": true,
+      "requirementIds": [],
+      "status": "failed"
+    },
+    {
+      "id": "native-source-scope",
+      "kind": "source-scope",
+      "required": true,
+      "requirementIds": [],
+      "status": "passed"
+    },
+    {
+      "id": "core-consumption",
+      "kind": "source-scope",
+      "reason": "PORTAL_CONSUMPTION_VISUAL_PROOF_REQUIRED",
+      "required": true,
+      "requirementIds": [],
+      "status": "failed"
+    }
+  ],
+  "designHash": "sha256:1cdc614f8457ce0fd9e3736162e20c606181fb082b45a1f2477b4c801b8b214a",
+  "environmentId": "af76623d9d9d2cccbfcba854ab2f8b1995cc481806fcd235630693d4f3194c56",
+  "evidencePaths": [
+    "portal/validation/b4814e3d5eda42447b6f4ddd044c2ee0a7f779af9022e024c2427640280012b0.json"
+  ],
+  "liveDesignVerified": false,
+  "nativeArtifactAuthority": {
+    "manifestHash": "sha256:f2ebbc8eb950e50e462f7f9348678477e545a8b6703d8c0b675186f61a222c5d",
+    "moduleEvidenceHash": "sha256:bb08cef2bbe393f678a35aff4b97965a483c091b4cea788594da9ecbef4b9448",
+    "moduleFenceProtocol": "sfp-native-module-fence-v1",
+    "outputReceiptHash": "sha256:ef4910b41a14e7bc24bd6a6e05948c179536a25267724bcc64793ef8ffa6e104",
+    "version": 1
+  },
+  "nativeEnvironment": {
+    "attemptId": "af76623d9d9d2cccbfcba854ab2f8b1995cc481806fcd235630693d4f3194c56",
+    "disposition": "retained-artifact",
+    "executionHash": "sha256:196c8f627207745a9fc1a61e2fd5730cc745a8c62ba6eda4d33a07a9e8e5d958",
+    "receiptHash": "sha256:d4204c3424420ef6521f3f2ac738ca241aa1ec37229505f9716adc68ad87dca4",
+    "target": "candidate",
+    "version": 1
+  },
+  "previewFeedback": {
+    "artifactRoot": "C:\\2026_project\\super-figma-pipline\\.worktrees\\_cache\\cdd-native-appdata\\SuperFigmaPipeline\\portal-attempt-af76623d9d9d2cccbfcba854ab2f8b1995cc481806fcd235630693d4f3194c56\\work",
+    "reports": [
+      {
+        "commandId": "preview-cdd",
+        "commandStatus": "failed",
+        "receiptHash": "sha256:c6b009375f97cf0693c3da4f4883924a47b436955abadae27e2369e92f990bcf",
+        "screens": [
+          {
+            "actualHash": "sha256:2393e925ab141bfec16249be43a71ef6d209f9374629e00afcdc51bceb8f3ca0",
+            "actualPath": ".sfp-native-preview/preview-cdd/guide.actual.png",
+            "comparisonMode": "pixelmatch-7.2-v1",
+            "diffHash": "sha256:7d5b6e27baf3eb0b342bc4882a51ccbfa8243d95511dac026295db6d86ef0ee9",
+            "diffPath": ".sfp-native-preview/preview-cdd/guide.diff.png",
+            "differenceRatio": 0.008079696273608983,
+            "failures": [],
+            "observationId": "guide",
+            "oracleHash": "sha256:3362ed1186379f9d655103c6a11360ff3d2aaebfe3a36bcd2cb093c0e9a31ba2",
+            "passed": true,
+            "rootNodeId": "1381:285",
+            "route": "/guide",
+            "state": "source:1381:285",
+            "strictDifferenceRatio": 0.043477220520673814,
+            "viewport": {
+              "height": 192,
+              "width": 653
+            }
+          },
+          {
+            "actualHash": "sha256:b5d191ca66a246d36bbc97c4029fb0e0e745753a1b4ad256b390d35c73691f32",
+            "actualPath": ".sfp-native-preview/preview-cdd/mobile.actual.png",
+            "comparisonMode": "pixelmatch-7.2-v1",
+            "diffHash": "sha256:f6ae3e53d88a8cac7ffdd285cf6d1539b4f51f58ab8946af43f2c8bea8774a62",
+            "diffPath": ".sfp-native-preview/preview-cdd/mobile.diff.png",
+            "differenceRatio": 0.010450114650538432,
+            "failures": [
+              "VISUAL_MISMATCH"
+            ],
+            "observationId": "mobile",
+            "oracleHash": "sha256:6607d7d405fa700054dfbb5f586b3329b768f366b93506990cf8f259f4c332d6",
+            "passed": false,
+            "rootNodeId": "1381:530",
+            "route": "/",
+            "state": "source:1381:530",
+            "strictDifferenceRatio": 0.03781324459375064,
+            "viewport": {
+              "height": 800,
+              "width": 497
+            }
+          },
+          {
+            "actualHash": "sha256:805d4120eeba5eb549f21d26c99f7154054106ad4953cafdd8aea13f086b0e00",
+            "actualPath": ".sfp-native-preview/preview-cdd/desktop.actual.png",
+            "comparisonMode": "pixelmatch-7.2-v1",
+            "diffHash": "sha256:30288e1630b0763317a4c307f3ee9ea2858e8e6a344adc01252613ea83289dad",
+            "diffPath": ".sfp-native-preview/preview-cdd/desktop.diff.png",
+            "differenceRatio": 0.003664047674373572,
+            "failures": [],
+            "observationId": "desktop",
+            "oracleHash": "sha256:7af46399edbc1528768198686132bfe4272f1126a597a942cce771aeff0fda2c",
+            "passed": true,
+            "rootNodeId": "1381:541",
+            "route": "/",
+            "state": "source:1381:541",
+            "strictDifferenceRatio": 0.015028545886423196,
+            "viewport": {
+              "height": 1117,
+              "width": 1728
+            }
+          }
+        ]
+      }
+    ],
+    "version": 1
+  },
+  "runtimeVerified": false,
+  "sourceAuthorityVersion": 2,
+  "sourceHash": "sha256:95445ad4fbfd915e9674b8365a2049af634348e2d6ad281a3d114239bdcb018c"
+}

@@ -26,6 +26,7 @@ const state: RelayClientState = {
   connectedAt: Date.now(),
   reconnectCount: 0,
   totalCalls: 0,
+  activeCalls: 0,
   failedCalls: 0,
   activity: [],
 };

@@ -1,3 +1,4 @@
+import { createHash } from 'node:crypto';
 import { mkdtemp, readFile, readdir, rm, stat, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
@@ -523,5 +524,253 @@ describe('operation evidence receipt store', () => {
     expect((await stat(limited.cleanupIntentPath)).size).toBe(0);
     await expect(limited.get(actorId, 'operation-cap-a')).resolves.toBeDefined();
     await expect(limited.get(actorId, 'operation-cap-b')).resolves.toBeDefined();
+  });
+});
+
+describe('isolated cleanup intent drain (T09, LC-1)', () => {
+  const completedAt = 1_724_803_200_000;
+  const expiredStore = async (prefix: string, operationIds: readonly string[]) => {
+    const stateRoot = await mkdtemp(join(tmpdir(), prefix));
+    roots.push(stateRoot);
+    const store = new OperationEvidenceReceiptStore({ stateRoot, actorId });
+    await store.recover();
+    for (const operationId of operationIds) {
+      const reservation = await store.reserveBeforeRuntime(actorId, operationId, 1);
+      await store.prepareAndFsync(
+        reservation.reservationId,
+        receiptInput(operationId, new Date(completedAt).toISOString()),
+      );
+    }
+    await store.compact({
+      now: completedAt + 2_592_000_000,
+      linkedAt: operationId => (operationIds.includes(operationId) ? completedAt : null),
+    });
+    return { stateRoot, store };
+  };
+  const rowsOf = async (path: string) =>
+    (await readFile(path, 'utf8'))
+      .split('\n')
+      .filter(Boolean)
+      .map(line => JSON.parse(line) as Record<string, unknown>);
+
+  it('drains later intents past a failing one, counts failures durably and ends the third failure with a terminal versioned quarantine row', async () => {
+    const { stateRoot, store } = await expiredStore('sfp-receipt-isolated-drain-', [
+      'operation-1-failing',
+      'operation-2',
+      'operation-3',
+    ]);
+    const attempted: string[] = [];
+    const cleanup = async (receipt: { operationId: string }) => {
+      attempted.push(receipt.operationId);
+      if (receipt.operationId === 'operation-1-failing')
+        throw Object.assign(new Error('artifact is busy'), { code: 'EBUSY' });
+    };
+
+    await expect(store.drainPendingArtifactCleanup(cleanup)).resolves.toEqual({
+      results: [
+        {
+          operationId: 'operation-1-failing',
+          workspaceId: null,
+          outcome: 'failed',
+          errorCode: 'EBUSY',
+          attempts: 1,
+        },
+        { operationId: 'operation-2', workspaceId: null, outcome: 'done' },
+        { operationId: 'operation-3', workspaceId: null, outcome: 'done' },
+      ],
+      next: null,
+    });
+    // The failing intent is still pending, so the log is not truncated yet.
+    expect((await rowsOf(store.cleanupIntentPath)).map(row => [row.kind, row.operationId])).toEqual(
+      [
+        ['add', 'operation-1-failing'],
+        ['add', 'operation-2'],
+        ['add', 'operation-3'],
+        ['failed', 'operation-1-failing'],
+        ['done', 'operation-2'],
+        ['done', 'operation-3'],
+      ],
+    );
+    // An error without a well-formed code is recorded with a fixed code, never its message.
+    const second = await store.drainPendingArtifactCleanup(async () => {
+      throw new Error('C:\\private\\path is locked');
+    });
+    expect(second.results).toEqual([
+      {
+        operationId: 'operation-1-failing',
+        workspaceId: null,
+        outcome: 'failed',
+        errorCode: 'CLEANUP_FAILED',
+        attempts: 2,
+      },
+    ]);
+    expect(await readFile(store.cleanupIntentPath, 'utf8')).not.toContain('private');
+
+    // The count survives a restart, and the third failure is terminal.
+    const restarted = new OperationEvidenceReceiptStore({ stateRoot, actorId });
+    await restarted.recover();
+    const rowsBefore = await rowsOf(restarted.cleanupIntentPath);
+    expect(rowsBefore.at(-1)).toMatchObject({
+      schemaVersion: 2,
+      kind: 'failed',
+      operationId: 'operation-1-failing',
+      receipt: null,
+      attempts: 2,
+      errorCode: 'CLEANUP_FAILED',
+    });
+    await expect(restarted.drainPendingArtifactCleanup(cleanup)).resolves.toEqual({
+      results: [
+        {
+          operationId: 'operation-1-failing',
+          workspaceId: null,
+          outcome: 'quarantined',
+          errorCode: 'EBUSY',
+          attempts: 3,
+        },
+      ],
+      next: null,
+    });
+    // Nothing is pending after the quarantine, so the log is truncated like after a last `done`.
+    expect((await stat(restarted.cleanupIntentPath)).size).toBe(0);
+    const again = new OperationEvidenceReceiptStore({ stateRoot, actorId });
+    await again.recover();
+    await expect(again.drainPendingArtifactCleanup(cleanup)).resolves.toEqual({
+      results: [],
+      next: null,
+    });
+    expect(attempted.filter(id => id === 'operation-1-failing')).toHaveLength(2);
+  });
+
+  it('keeps a deferred intent pending without writing a row and drains bounded batches after a cursor in code-unit order', async () => {
+    // Code-unit order puts upper case before lower case, unlike localeCompare.
+    const { stateRoot, store } = await expiredStore('sfp-receipt-batched-drain-', [
+      'a-operation',
+      'B-operation',
+      'C-operation',
+    ]);
+    const bytesBefore = (await stat(store.cleanupIntentPath)).size;
+    const deferEverything = async () => ({
+      outcome: 'deferred' as const,
+      reasonCode: 'WORKSPACE_ROOT_MISSING',
+    });
+    await expect(store.drainPendingArtifactCleanup(deferEverything, { limit: 2 })).resolves.toEqual(
+      {
+        results: [
+          {
+            operationId: 'B-operation',
+            workspaceId: null,
+            outcome: 'deferred',
+            reasonCode: 'WORKSPACE_ROOT_MISSING',
+          },
+          {
+            operationId: 'C-operation',
+            workspaceId: null,
+            outcome: 'deferred',
+            reasonCode: 'WORKSPACE_ROOT_MISSING',
+          },
+        ],
+        next: 'C-operation',
+      },
+    );
+    await expect(
+      store.drainPendingArtifactCleanup(deferEverything, { after: 'C-operation', limit: 2 }),
+    ).resolves.toMatchObject({ results: [{ operationId: 'a-operation' }], next: null });
+    expect((await stat(store.cleanupIntentPath)).size).toBe(bytesBefore);
+
+    const restarted = new OperationEvidenceReceiptStore({ stateRoot, actorId });
+    await restarted.recover();
+    const drained = await restarted.drainPendingArtifactCleanup(async () => ({ outcome: 'done' }));
+    expect(drained.results.map(row => [row.operationId, row.outcome])).toEqual([
+      ['B-operation', 'done'],
+      ['C-operation', 'done'],
+      ['a-operation', 'done'],
+    ]);
+    expect((await stat(restarted.cleanupIntentPath)).size).toBe(0);
+    await expect(
+      restarted.drainPendingArtifactCleanup(async () => undefined, { limit: 0 }),
+    ).rejects.toMatchObject({ code: 'EVIDENCE_CLEANUP_BATCH_INVALID' });
+  });
+
+  it('rejects versioned cleanup rows that do not continue their pending intent', async () => {
+    const zero = Buffer.from([0]);
+    const canonical = (value: unknown): string => {
+      if (Array.isArray(value)) return `[${value.map(canonical).join(',')}]`;
+      if (typeof value === 'object' && value !== null)
+        return `{${Object.entries(value)
+          .filter(([, child]) => child !== undefined)
+          .toSorted(([left], [right]) => Buffer.compare(Buffer.from(left), Buffer.from(right)))
+          .map(([key, child]) => `${JSON.stringify(key)}:${canonical(child)}`)
+          .join(',')}}`;
+      return JSON.stringify(value);
+    };
+    const chained = (previousRecordHash: unknown, row: Record<string, unknown>) => {
+      const withoutHash = { ...row, previousRecordHash };
+      const recordHash = `sha256:${createHash('sha256')
+        .update('sfp-operation-evidence-cleanup-intent-v1', 'utf8')
+        .update(zero)
+        .update(canonical(withoutHash), 'utf8')
+        .digest('hex')}`;
+      return `${canonical({ ...withoutHash, recordHash })}\n`;
+    };
+    const failed = (operationId: string, attempts: number) => ({
+      schemaVersion: 2,
+      kind: 'failed',
+      operationId,
+      receipt: null,
+      attempts,
+      errorCode: 'EBUSY',
+    });
+    const invalidTails = [
+      // skips the first attempt
+      failed('operation-row', 2),
+      // a failure for an intent that is not pending
+      failed('operation-unknown', 1),
+      // terminal quarantine for an intent that is not pending
+      { ...failed('operation-unknown', 1), kind: 'quarantine' },
+      // a versioned kind under the v1 schema
+      { ...failed('operation-row', 1), schemaVersion: 1 },
+      // an unknown versioned kind
+      { ...failed('operation-row', 1), kind: 'retry' },
+      // a free-text error instead of a code
+      { ...failed('operation-row', 1), errorCode: 'artifact at C:\\x is busy' },
+      // an extra field
+      { ...failed('operation-row', 1), message: 'busy' },
+    ];
+    const outcomes: unknown[] = [];
+    for (const tail of invalidTails) {
+      const { stateRoot, store } = await expiredStore('sfp-receipt-cleanup-v2-', ['operation-row']);
+      const [added] = await rowsOf(store.cleanupIntentPath);
+      await writeFile(
+        store.cleanupIntentPath,
+        `${await readFile(store.cleanupIntentPath, 'utf8')}${chained(added!.recordHash, tail)}`,
+      );
+      const restarted = new OperationEvidenceReceiptStore({ stateRoot, actorId });
+      outcomes.push(
+        await restarted.recover().then(
+          () => ({ tail, accepted: true }),
+          (error: { code?: unknown }) => ({ tail, rejected: error.code }),
+        ),
+      );
+    }
+    expect(outcomes).toEqual(
+      invalidTails.map(tail => ({ tail, rejected: 'EVIDENCE_RECEIPT_CORRUPT' })),
+    );
+    // The well-formed first failure is accepted, so the rejections above are about the rows.
+    const { stateRoot, store } = await expiredStore('sfp-receipt-cleanup-v2-', ['operation-row']);
+    const [added] = await rowsOf(store.cleanupIntentPath);
+    await writeFile(
+      store.cleanupIntentPath,
+      `${await readFile(store.cleanupIntentPath, 'utf8')}${chained(
+        added!.recordHash,
+        failed('operation-row', 1),
+      )}`,
+    );
+    const accepted = new OperationEvidenceReceiptStore({ stateRoot, actorId });
+    await accepted.recover();
+    await expect(
+      accepted.drainPendingArtifactCleanup(async () => {
+        throw Object.assign(new Error('busy'), { code: 'EBUSY' });
+      }),
+    ).resolves.toMatchObject({ results: [{ outcome: 'failed', attempts: 2 }] });
   });
 });

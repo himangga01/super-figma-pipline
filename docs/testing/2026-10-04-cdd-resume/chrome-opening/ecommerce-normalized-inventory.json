@@ -1,0 +1,113 @@
+{
+  "recordedAt": "2026-10-04T09:24:15.868Z",
+  "source": "service native decoder/normalizer on the service-exported file",
+  "fileKey": "4IBhv1d8hEclifZQrOYxHS",
+  "nodeId": "0:1",
+  "inputSha256": "03709732d9d3b7424d47d45f75c974be9f1d0c2df4544f82669f325b97e4ffe1",
+  "inputBytes": 99302063,
+  "formatVersion": 106,
+  "rawRecords": 1298,
+  "expandedNodes": 3198,
+  "roots": [
+    {
+      "id": "63:107",
+      "name": "Contact",
+      "type": "FRAME",
+      "width": 1440,
+      "height": 2365,
+      "descendantsIncludingRoot": 133
+    },
+    {
+      "id": "71:2",
+      "name": "Blog ",
+      "type": "FRAME",
+      "width": 1440,
+      "height": 3981,
+      "descendantsIncludingRoot": 215
+    },
+    {
+      "id": "117:334",
+      "name": "Group 158",
+      "type": "GROUP",
+      "width": 280,
+      "height": 177,
+      "descendantsIncludingRoot": 2
+    },
+    {
+      "id": "117:336",
+      "name": "Home",
+      "type": "FRAME",
+      "width": 1440,
+      "height": 4835,
+      "descendantsIncludingRoot": 555
+    },
+    {
+      "id": "117:538",
+      "name": "Shop ",
+      "type": "FRAME",
+      "width": 1440,
+      "height": 3474,
+      "descendantsIncludingRoot": 951
+    },
+    {
+      "id": "117:640",
+      "name": "Meubel House_Logos-05",
+      "type": "RECTANGLE",
+      "width": 50,
+      "height": 32,
+      "descendantsIncludingRoot": 1
+    },
+    {
+      "id": "117:641",
+      "name": "Product Comparison",
+      "type": "FRAME",
+      "width": 1440,
+      "height": 3998,
+      "descendantsIncludingRoot": 226
+    },
+    {
+      "id": "117:818",
+      "name": "Single Product",
+      "type": "FRAME",
+      "width": 1440,
+      "height": 3107,
+      "descendantsIncludingRoot": 391
+    },
+    {
+      "id": "117:960",
+      "name": "Cart Sidebar",
+      "type": "FRAME",
+      "width": 1440,
+      "height": 3107,
+      "descendantsIncludingRoot": 432
+    },
+    {
+      "id": "117:1143",
+      "name": "Checkout",
+      "type": "FRAME",
+      "width": 1440,
+      "height": 3070,
+      "descendantsIncludingRoot": 165
+    },
+    {
+      "id": "117:1259",
+      "name": "Cart",
+      "type": "FRAME",
+      "width": 1440,
+      "height": 1796,
+      "descendantsIncludingRoot": 127
+    }
+  ],
+  "warnings": [],
+  "styleCounts": {
+    "paints": 15,
+    "texts": 0,
+    "effects": 0,
+    "grids": 0
+  },
+  "unsupportedStyles": [],
+  "fullCaptureAccepted": false,
+  "limitations": [
+    "Native property conversion is under comparison; unconverted paints, text ranges, catalogs, prototype semantics and oracle exports remain required."
+  ]
+}

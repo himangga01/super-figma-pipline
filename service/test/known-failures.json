@@ -1,0 +1,5 @@
+{
+  "schemaVersion": 1,
+  "description": "Known-defect test failures that scripts/check-test-report.mjs tolerates in a full Vitest JSON report. Each entry names one failing test, the finding that causes it and the fix-plan task that must remove the entry. A ledgered test that passes is reported as STALE and fails the check.",
+  "entries": []
+}

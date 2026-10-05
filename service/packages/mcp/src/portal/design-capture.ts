@@ -16,6 +16,7 @@ import { z } from 'zod';
 import { AssetQuerySchema } from '../../../cli/src/asset-program.js';
 import { ExistingChromeConnection, observeFigmaPage } from '../../../cli/src/browser-session.js';
 import { captureBrowserAssets } from '../../../cli/src/capture-assets.js';
+import { retainChromeFailure } from '../../../cli/src/chrome-diagnostics.js';
 import type { FigmaTarget } from '../../../cli/src/figma-url.js';
 import { parseFigmaTarget } from '../../../cli/src/figma-url.js';
 import { waitLogically } from '../../../cli/src/logical-wait.js';
@@ -265,6 +266,7 @@ export interface PortalCaptureSession {
   read(options: {
     signal: AbortSignal;
     deadlineAt: number;
+    diagnosticsFolder?: string;
   }): ReturnType<typeof readScripterSnapshot>;
   assets(
     nodes: Awaited<ReturnType<typeof readScripterSnapshot>>['nodes'],
@@ -357,7 +359,7 @@ export class CoherentDesignCapture implements PortalDesignCapturePort {
         const folder = await newFolder();
         try {
           enter('snapshot');
-          const snapshot = await session.read({ signal, deadlineAt });
+          const snapshot = await session.read({ signal, deadlineAt, diagnosticsFolder: folder });
           const raw = JSON.stringify(snapshot);
           const before = normalizeDesignObservation(snapshot);
           const attemptId = randomUUID();
@@ -443,7 +445,11 @@ export class CoherentDesignCapture implements PortalDesignCapturePort {
             }),
           );
           enter('snapshot');
-          const afterSnapshot = await session.read({ signal, deadlineAt });
+          const afterSnapshot = await session.read({
+            signal,
+            deadlineAt,
+            diagnosticsFolder: folder,
+          });
           const after = normalizeDesignObservation(afterSnapshot);
           const changed =
             before.contentHash !== after.contentHash ||
@@ -642,13 +648,20 @@ export class ExistingChromeDesignCapture extends CoherentDesignCapture {
               if ((await observeFigmaPage(session.page, session.target)).status !== 'ready')
                 throw portalError('PORTAL_CHROME_DESIGN_CHANGED');
             },
-            read: options =>
-              readScripterSnapshot(
-                session.page,
-                session.target,
-                { nodeId: session.target.nodeId, depth: 40, maxNodes: 2000 },
-                options,
-              ),
+            read: async options => {
+              try {
+                return await readScripterSnapshot(
+                  session.page,
+                  session.target,
+                  { nodeId: session.target.nodeId, depth: 40, maxNodes: 2000 },
+                  options,
+                );
+              } catch (error) {
+                if (options.diagnosticsFolder)
+                  await retainChromeFailure(session.page, options.diagnosticsFolder, error);
+                throw error;
+              }
+            },
             assets: (nodes, folder, options) =>
               captureBrowserAssets(session.page, session.target, nodes, folder, options),
             close: () => session.close(),

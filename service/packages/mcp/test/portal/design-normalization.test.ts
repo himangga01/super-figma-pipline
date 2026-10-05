@@ -47,6 +47,57 @@ const desktop = () => ({
 });
 
 describe('capture observation normalization', () => {
+  it.each(['complete', 'gap', 'unknown-font', 'unverified-sentinel'] as const)(
+    'preserves a mixed catalog font and checks effective typography (%s)',
+    state => {
+      const raw = {
+        source: 'figma-plugin-api-via-scripter',
+        nodes: [
+          {
+            id: 'text',
+            type: 'TEXT',
+            characters: 'Hello',
+            textStyleId: 's',
+            fontName: 'mixed',
+            textSegments: [
+              {
+                start: state === 'gap' ? 1 : 0,
+                end: 5,
+                characters: 'Hello',
+                fontName:
+                  state === 'unknown-font' ? 'mixed' : { family: 'Inter', style: 'Regular' },
+              },
+            ],
+          },
+        ],
+        styles: {
+          paints: [],
+          effects: [],
+          grids: [],
+          texts: [
+            {
+              id: 's',
+              fontName: 'mixed',
+              fontSize: 16,
+              ...(state === 'unverified-sentinel'
+                ? {}
+                : { fontNameObservation: { kind: 'symbol', isMixed: true } }),
+            },
+          ],
+        },
+      };
+      const observed = normalizeDesignObservation(raw);
+      expect(observed.catalogs.textStyles[0]?.fontName).toBe('mixed');
+      expect(observed.raw).toEqual(raw);
+      expect(observed.issues.map(issue => issue.code)).toEqual(
+        state === 'complete'
+          ? []
+          : [state === 'unverified-sentinel' ? 'MALFORMED' : 'SOURCE_PARTIAL'],
+      );
+      expect(observed.coherence.status).toBe('unverified');
+    },
+  );
+
   it.each([
     ['FLOAT', { bogus: 'value' }],
     ['FLOAT', '8'],
@@ -57,7 +108,7 @@ describe('capture observation normalization', () => {
     ['EASING', { type: 'CUSTOM_SPRING', easingFunctionSpring: { bounce: 'wrong' } }],
     ['EASING', { type: 'CUSTOM_CUBIC_BEZIER' }],
     ['EASING', { type: 'FUTURE_UNKNOWN' }],
-  ])('retains malformed %s values as unresolved', (resolvedType, value) => {
+  ])('retains malformed %s case %# as unresolved', (resolvedType, value) => {
     const raw = {
       ...chrome(),
       tokens: [
@@ -87,7 +138,7 @@ describe('capture observation normalization', () => {
     ['BOOLEAN', false],
     ['STRING', 'literal'],
     ['FLOAT', -1.25],
-  ])('preserves legitimate %s values without value coercion', (resolvedType, value) => {
+  ])('preserves legitimate %s case %# without value coercion', (resolvedType, value) => {
     const observed = normalizeDesignObservation({
       ...chrome(),
       tokens: [

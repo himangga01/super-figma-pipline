@@ -4,13 +4,14 @@ import type { SandboxToolHandler } from '../dispatcher.js';
 
 export const createDeleteVariableCollectionHandler =
   (figmaCtx: typeof figma): SandboxToolHandler =>
-  async params => {
+  async (params, execution) => {
     const p = (params ?? {}) as { collectionId?: unknown };
     if (typeof p.collectionId !== 'string') {
       throw new TypeError('delete_variable_collection: collectionId must be a string');
     }
 
     const collection = await figmaCtx.variables.getVariableCollectionByIdAsync(p.collectionId);
+    execution?.signal.throwIfAborted();
     if (collection === null) {
       throw new Error(`delete_variable_collection: collection ${p.collectionId} not found`);
     }

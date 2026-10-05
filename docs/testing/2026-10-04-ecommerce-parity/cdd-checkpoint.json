@@ -1,0 +1,19 @@
+{
+  "recordedAt": "2026-10-04T11:30:01.230Z",
+  "nodeCount": 192,
+  "expectedNodes": 192,
+  "missingNodes": 0,
+  "extraNodes": 0,
+  "comparedPositions": 6006,
+  "rawDifferences": 73,
+  "unexplainedDifferences": 0,
+  "fontRanges": 72,
+  "matchingFontRanges": 72,
+  "stylePairs": 56,
+  "styleKeyMatches": 0,
+  "styleDifferences": 17,
+  "styleAmbiguities": [],
+  "extraStyles": [],
+  "unobservedStyleProperties": 238,
+  "fullCaptureAccepted": false
+}

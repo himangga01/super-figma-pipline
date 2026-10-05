@@ -7,6 +7,10 @@ import { afterEach, expect, it } from 'vitest';
 import { RepoReader } from '../../src/fs/repo-walk.js';
 import { analyzeServiceGraph } from '../../src/portal/service-graph.js';
 import { collectPortalSourceInventory } from '../../src/portal/source-inventory.js';
+import {
+  escapePortalSourcePath,
+  isPortableSourcePath,
+} from '../../src/portal/source-path-policy.js';
 
 const roots: string[] = [];
 const repository = async (members: Record<string, string | Buffer>) => {
@@ -20,6 +24,33 @@ const repository = async (members: Record<string, string | Buffer>) => {
 };
 afterEach(async () => {
   for (const root of roots.splice(0)) await rm(root, { recursive: true, force: true });
+});
+it('binds required local CSS imports inside generated directories without indexing unrelated output', async () => {
+  const root = await repository({
+    'src/app.css': '@import "../dist/tokens.css"; :root {--own: red;}',
+    'dist/tokens.css': ':root {--imported: blue;}',
+    'dist/unused.css': ':root {--unused: green;}',
+  });
+  const first = await collectPortalSourceInventory(new RepoReader({ rootDir: root }));
+  expect(first.complete).toBe(true);
+  expect(first.files.map(file => file.path)).toEqual(['dist/tokens.css', 'src/app.css']);
+  const graph = await analyzeServiceGraph(new RepoReader({ rootDir: root }));
+  expect(graph.incomplete).toBe(false);
+  expect(graph.files.some(file => file.path === 'dist/tokens.css')).toBe(true);
+  await writeFile(join(root, 'dist/tokens.css'), ':root {--imported: purple;}');
+  const changed = await collectPortalSourceInventory(new RepoReader({ rootDir: root }));
+  expect(changed.hash).not.toBe(first.hash);
+});
+it('keeps unsupported and credential CSS dependencies explicitly incomplete', async () => {
+  for (const css of ['@import var(--stylesheet);', '@import "../secrets/tokens.css";']) {
+    const root = await repository({
+      'src/app.css': css,
+      'secrets/tokens.css': ':root {--secret: private;}',
+    });
+    const result = await collectPortalSourceInventory(new RepoReader({ rootDir: root }));
+    expect(result.complete).toBe(false);
+    expect(result.files.map(file => file.path)).not.toContain('secrets/tokens.css');
+  }
 });
 
 it('does not raise an explicit caller byte budget during isolated inventory reads', async () => {
@@ -266,4 +297,177 @@ it('rejects unsafe real source paths and portable normalization collisions', asy
   const result = await collectPortalSourceInventory(new RepoReader({ rootDir: root }));
   expect(result.complete).toBe(false);
   expect(result.issues[0]?.code).toBe('REPO_SOURCE_PATH_UNSAFE');
+});
+
+it('records generated-output directories as hashed exclusions and names an NFD path while the scan continues (SVC-8)', async () => {
+  const root = await repository({
+    'package.json': '{"name":"generated-output"}',
+    'src/index.ts': 'export const index = 1;',
+    'src/zeta.ts': 'export const zeta = 1;',
+    'src/build/tool.ts': 'export const tool = 1;',
+    'z-last/file.ts': 'export const last = 1;',
+    'coverage/lcov.info': 'TN:',
+    '.next/cache/entry': 'cache',
+    'services/api/target/debug/app': 'binary',
+    'services/api/__pycache__/main.cpython-313.pyc': 'bytecode',
+    'services/api/main.py': 'print("api")',
+  });
+  // A 6,000-file generated `dist/` is more than the 5,000-file inventory cap.
+  await mkdir(join(root, 'dist'));
+  for (let start = 0; start < 6000; start += 500)
+    await Promise.all(
+      Array.from({ length: 500 }, (_, offset) =>
+        writeFile(join(root, 'dist', `chunk-${String(start + offset).padStart(4, '0')}.js`), 'x'),
+      ),
+    );
+  const directories: string[] = [];
+  const opened: string[] = [];
+  const reader = () =>
+    new RepoReader({
+      rootDir: root,
+      beforeDirectoryOpen: async path => {
+        directories.push(path);
+      },
+      beforeFileOpen: async path => {
+        opened.push(path);
+      },
+    });
+  const complete = await collectPortalSourceInventory(reader());
+  expect(complete).toMatchObject({ complete: true, issues: [] });
+  expect(complete.files.map(file => file.path)).toEqual([
+    'package.json',
+    'services/api/main.py',
+    'src/index.ts',
+    'src/zeta.ts',
+    'z-last/file.ts',
+  ]);
+  expect(complete.exclusions).toEqual([
+    { path: '.next', kind: 'directory', reason: 'generated-output' },
+    { path: 'coverage', kind: 'directory', reason: 'generated-output' },
+    { path: 'dist', kind: 'directory', reason: 'generated-output' },
+    { path: 'services/api/__pycache__', kind: 'directory', reason: 'generated-output' },
+    { path: 'services/api/target', kind: 'directory', reason: 'generated-output' },
+    { path: 'src/build', kind: 'directory', reason: 'generated-output' },
+  ]);
+  // Excluded directories are never opened or counted entry by entry.
+  expect(complete.scannedEntries).toBeLessThan(20);
+  for (const excluded of ['dist', 'coverage', '.next', 'src/build', 'services/api/target'])
+    expect(directories).not.toContain(excluded);
+  expect(opened.map(path => path.slice(root.length + 1).replaceAll('\\', '/')).toSorted()).toEqual(
+    complete.files.map(file => file.path),
+  );
+  // The exclusion decision is part of the inventory identity; generated bytes are not.
+  await writeFile(join(root, 'dist', 'chunk-0000.js'), 'rebuilt');
+  expect((await collectPortalSourceInventory(reader())).hash).toBe(complete.hash);
+  await rm(join(root, 'coverage'), { recursive: true });
+  const withoutCoverage = await collectPortalSourceInventory(reader());
+  expect(withoutCoverage.hash).not.toBe(complete.hash);
+
+  // An NFD file name is named with an escaped, portable rendering; the scan does not stop there.
+  await writeFile(join(root, 'src', 'café.ts'), 'export const cafe = 1;');
+  const named = await collectPortalSourceInventory(reader());
+  expect(named.complete).toBe(false);
+  expect(named.issues).toEqual([{ code: 'REPO_SOURCE_PATH_UNSAFE', path: 'src/cafe%CC%81.ts' }]);
+  expect(named.files.map(file => file.path)).toEqual(withoutCoverage.files.map(file => file.path));
+  expect(named.exclusions).toEqual(withoutCoverage.exclusions);
+}, 120_000);
+
+it('excludes only credential formats and names and never opens them (K24)', async () => {
+  const credentials = [
+    '.env',
+    '.env.local',
+    '.env.production',
+    'apps/api/.env.development.local',
+    '.npmrc',
+    '.netrc',
+    'id_rsa',
+    'id_ed25519.pub',
+    'certs/server.pem',
+    'certs/server.key',
+    'certs/client.pfx',
+    'certs/client.p12',
+    'config/credentials.json',
+    'config/credentials.yml',
+    'config/credentials.xml',
+    'config/secrets.yaml',
+    'config/secret.json',
+    'credentials',
+    'secrets/db_password.txt',
+    '.aws/credentials',
+    '.ssh/config',
+  ];
+  const ordinary = [
+    '.env.example',
+    '.env.sample',
+    '.env.template',
+    'apps/api/.env.local.example',
+    'src/credentials.ts',
+    'src/secret.ts',
+    'src/secrets.ts',
+    'src/credentials/CredentialsForm.tsx',
+    'config/credentials.example.json',
+    'docs/secrets.md',
+  ];
+  const root = await repository(
+    Object.fromEntries([
+      ...credentials.map(path => [path, `credential value for ${path}`]),
+      ...ordinary.map(path => [path, `public ${path}`]),
+    ]),
+  );
+  const opened: string[] = [];
+  const directories: string[] = [];
+  const inventory = await collectPortalSourceInventory(
+    new RepoReader({
+      rootDir: root,
+      beforeFileOpen: async path => {
+        opened.push(path);
+      },
+      beforeDirectoryOpen: async path => {
+        directories.push(path);
+      },
+    }),
+  );
+  expect(inventory.complete).toBe(true);
+  expect(inventory.files.map(file => file.path)).toEqual(ordinary.toSorted());
+  expect(inventory.exclusions).toEqual(
+    [
+      ...credentials
+        .filter(path => !/^(?:\.aws|\.ssh|secrets)\//u.test(path))
+        .map(path => ({ path, kind: 'file', reason: 'credentials' })),
+      { path: '.aws', kind: 'directory', reason: 'credentials' },
+      { path: '.ssh', kind: 'directory', reason: 'credentials' },
+      { path: 'secrets', kind: 'directory', reason: 'credentials' },
+    ].toSorted((a, b) => (a.path < b.path ? -1 : a.path > b.path ? 1 : 0)),
+  );
+  expect(opened.map(path => path.slice(root.length + 1).replaceAll('\\', '/')).toSorted()).toEqual(
+    ordinary.toSorted(),
+  );
+  for (const directory of ['.aws', '.ssh', 'secrets']) expect(directories).not.toContain(directory);
+  expect(JSON.stringify(inventory)).not.toContain('credential value');
+});
+
+it('renders unsafe paths with an injective escape that is itself a portable path', () => {
+  const cases: Array<[string, string]> = [
+    ['src/café.ts', 'src/cafe%CC%81.ts'],
+    ['src/100%.ts', 'src/100%25.ts'],
+    ['src/a:b.ts', 'src/a%3Ab.ts'],
+    ['src/what?.ts', 'src/what%3F.ts'],
+    ['src/trailing.', 'src/trailing%2E'],
+    ['src/trailing ', 'src/trailing%20'],
+    ['src/con.ts', 'src/%63on.ts'],
+    ['src/LPT1', 'src/%4CPT1'],
+    ['src/line\nbreak.ts', 'src/line%0Abreak.ts'],
+    ['src/back\\slash.ts', 'src/back%5Cslash.ts'],
+    ['src/lone\ud800.ts', 'src/lone%ED%A0%80.ts'],
+    ['한/file.ts', '%E1%84%92%E1%85%A1%E1%86%AB/file.ts'],
+    ['한글/파일.ts', '한글/파일.ts'],
+  ];
+  for (const [path, escaped] of cases) {
+    expect(escapePortalSourcePath(path)).toBe(escaped);
+    expect(isPortableSourcePath(escapePortalSourcePath(path))).toBe(true);
+  }
+  expect(new Set(cases.map(([path]) => escapePortalSourcePath(path))).size).toBe(cases.length);
+  // An already portable path is named verbatim, and `%` alone forces escaping of its segment.
+  expect(escapePortalSourcePath('src/app.ts')).toBe('src/app.ts');
+  expect(escapePortalSourcePath('src/%41.ts')).not.toBe(escapePortalSourcePath('src/A.ts'));
 });

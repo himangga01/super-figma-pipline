@@ -1,0 +1,364 @@
+{
+  "recordedAt": "2026-10-04T11:50:48.113Z",
+  "purpose": "Coverage inventory only; property presence does not establish semantic equality.",
+  "referenceNodeCount": 3198,
+  "nativeNodeCount": 3198,
+  "fields": {
+    "collectorCapabilities": {
+      "referenceNodes": 3198,
+      "nativePresent": 0
+    },
+    "effects": {
+      "referenceNodes": 3198,
+      "nativePresent": 0
+    },
+    "absoluteRenderBounds": {
+      "referenceNodes": 3198,
+      "nativePresent": 0
+    },
+    "layoutSizingHorizontal": {
+      "referenceNodes": 3198,
+      "nativePresent": 0
+    },
+    "layoutSizingVertical": {
+      "referenceNodes": 3198,
+      "nativePresent": 0
+    },
+    "layoutPositioning": {
+      "referenceNodes": 3198,
+      "nativePresent": 0
+    },
+    "minWidth": {
+      "referenceNodes": 3198,
+      "nativePresent": 0
+    },
+    "maxWidth": {
+      "referenceNodes": 3198,
+      "nativePresent": 0
+    },
+    "minHeight": {
+      "referenceNodes": 3198,
+      "nativePresent": 0
+    },
+    "maxHeight": {
+      "referenceNodes": 3198,
+      "nativePresent": 0
+    },
+    "gridRowAnchorIndex": {
+      "referenceNodes": 3198,
+      "nativePresent": 0
+    },
+    "gridColumnAnchorIndex": {
+      "referenceNodes": 3198,
+      "nativePresent": 0
+    },
+    "gridRowSpan": {
+      "referenceNodes": 3198,
+      "nativePresent": 0
+    },
+    "gridColumnSpan": {
+      "referenceNodes": 3198,
+      "nativePresent": 0
+    },
+    "gridChildHorizontalAlign": {
+      "referenceNodes": 3198,
+      "nativePresent": 0
+    },
+    "gridChildVerticalAlign": {
+      "referenceNodes": 3198,
+      "nativePresent": 0
+    },
+    "isMask": {
+      "referenceNodes": 3198,
+      "nativePresent": 0
+    },
+    "maskType": {
+      "referenceNodes": 3198,
+      "nativePresent": 0
+    },
+    "effectStyleId": {
+      "referenceNodes": 3198,
+      "nativePresent": 0
+    },
+    "boundVariables": {
+      "referenceNodes": 3198,
+      "nativePresent": 0
+    },
+    "explicitVariableModes": {
+      "referenceNodes": 3198,
+      "nativePresent": 0
+    },
+    "resolvedVariableModes": {
+      "referenceNodes": 3198,
+      "nativePresent": 0
+    },
+    "reactions": {
+      "referenceNodes": 3198,
+      "nativePresent": 0
+    },
+    "exportSettings": {
+      "referenceNodes": 3198,
+      "nativePresent": 0
+    },
+    "targetAspectRatio": {
+      "referenceNodes": 3147,
+      "nativePresent": 0
+    },
+    "strokeMiterLimit": {
+      "referenceNodes": 2429,
+      "nativePresent": 0
+    },
+    "dashPattern": {
+      "referenceNodes": 2429,
+      "nativePresent": 0
+    },
+    "constraints": {
+      "referenceNodes": 2429,
+      "nativePresent": 0
+    },
+    "fillStyleId": {
+      "referenceNodes": 2429,
+      "nativePresent": 0
+    },
+    "strokeStyleId": {
+      "referenceNodes": 2429,
+      "nativePresent": 0
+    },
+    "annotations": {
+      "referenceNodes": 2429,
+      "nativePresent": 0
+    },
+    "cornerSmoothing": {
+      "referenceNodes": 1510,
+      "nativePresent": 0
+    },
+    "strokeTopWeight": {
+      "referenceNodes": 1217,
+      "nativePresent": 9
+    },
+    "strokeRightWeight": {
+      "referenceNodes": 1217,
+      "nativePresent": 9
+    },
+    "strokeBottomWeight": {
+      "referenceNodes": 1217,
+      "nativePresent": 9
+    },
+    "strokeLeftWeight": {
+      "referenceNodes": 1217,
+      "nativePresent": 9
+    },
+    "geometrySource": {
+      "referenceNodes": 868,
+      "nativePresent": 0
+    },
+    "fontWeight": {
+      "referenceNodes": 868,
+      "nativePresent": 0
+    },
+    "textCase": {
+      "referenceNodes": 868,
+      "nativePresent": 0
+    },
+    "textDecoration": {
+      "referenceNodes": 868,
+      "nativePresent": 0
+    },
+    "textTruncation": {
+      "referenceNodes": 868,
+      "nativePresent": 0
+    },
+    "maxLines": {
+      "referenceNodes": 868,
+      "nativePresent": 0
+    },
+    "textWrapStyle": {
+      "referenceNodes": 868,
+      "nativePresent": 0
+    },
+    "hyperlink": {
+      "referenceNodes": 868,
+      "nativePresent": 0
+    },
+    "textStyleId": {
+      "referenceNodes": 868,
+      "nativePresent": 0
+    },
+    "layoutMode": {
+      "referenceNodes": 552,
+      "nativePresent": 0
+    },
+    "layoutWrap": {
+      "referenceNodes": 552,
+      "nativePresent": 0
+    },
+    "primaryAxisAlignItems": {
+      "referenceNodes": 552,
+      "nativePresent": 0
+    },
+    "counterAxisAlignItems": {
+      "referenceNodes": 552,
+      "nativePresent": 0
+    },
+    "primaryAxisSizingMode": {
+      "referenceNodes": 552,
+      "nativePresent": 0
+    },
+    "counterAxisSizingMode": {
+      "referenceNodes": 552,
+      "nativePresent": 0
+    },
+    "paddingTop": {
+      "referenceNodes": 552,
+      "nativePresent": 0
+    },
+    "paddingRight": {
+      "referenceNodes": 552,
+      "nativePresent": 0
+    },
+    "paddingBottom": {
+      "referenceNodes": 552,
+      "nativePresent": 0
+    },
+    "paddingLeft": {
+      "referenceNodes": 552,
+      "nativePresent": 0
+    },
+    "itemSpacing": {
+      "referenceNodes": 552,
+      "nativePresent": 0
+    },
+    "counterAxisSpacing": {
+      "referenceNodes": 552,
+      "nativePresent": 0
+    },
+    "counterAxisAlignContent": {
+      "referenceNodes": 552,
+      "nativePresent": 0
+    },
+    "itemReverseZIndex": {
+      "referenceNodes": 552,
+      "nativePresent": 0
+    },
+    "strokesIncludedInLayout": {
+      "referenceNodes": 552,
+      "nativePresent": 0
+    },
+    "layoutGrids": {
+      "referenceNodes": 552,
+      "nativePresent": 0
+    },
+    "gridRowCount": {
+      "referenceNodes": 552,
+      "nativePresent": 0
+    },
+    "gridColumnCount": {
+      "referenceNodes": 552,
+      "nativePresent": 0
+    },
+    "gridRowGap": {
+      "referenceNodes": 552,
+      "nativePresent": 0
+    },
+    "gridColumnGap": {
+      "referenceNodes": 552,
+      "nativePresent": 0
+    },
+    "gridRowSizes": {
+      "referenceNodes": 552,
+      "nativePresent": 0
+    },
+    "gridColumnSizes": {
+      "referenceNodes": 552,
+      "nativePresent": 0
+    },
+    "numberOfFixedChildren": {
+      "referenceNodes": 552,
+      "nativePresent": 0
+    },
+    "overflowDirection": {
+      "referenceNodes": 552,
+      "nativePresent": 0
+    },
+    "gridStyleId": {
+      "referenceNodes": 552,
+      "nativePresent": 0
+    },
+    "vectorPaths": {
+      "referenceNodes": 220,
+      "nativePresent": 0
+    },
+    "vectorNetwork": {
+      "referenceNodes": 220,
+      "nativePresent": 0
+    },
+    "variantProperties": {
+      "referenceNodes": 83,
+      "nativePresent": 0
+    },
+    "componentProperties": {
+      "referenceNodes": 80,
+      "nativePresent": 0
+    },
+    "mainComponent": {
+      "referenceNodes": 80,
+      "nativePresent": 0
+    },
+    "componentApi": {
+      "referenceNodes": 80,
+      "nativePresent": 0
+    },
+    "arcData": {
+      "referenceNodes": 73,
+      "nativePresent": 0
+    },
+    "componentPropertyDefinitions": {
+      "referenceNodes": 3,
+      "nativePresent": 0
+    },
+    "description": {
+      "referenceNodes": 3,
+      "nativePresent": 0
+    }
+  },
+  "nativeWarnings": [
+    {
+      "code": "NATIVE_STYLE_UNAVAILABLE",
+      "nodeId": "I117:451;117:414",
+      "detail": "FILL"
+    },
+    {
+      "code": "NATIVE_STYLE_UNAVAILABLE",
+      "nodeId": "I117:580;117:414",
+      "detail": "FILL"
+    },
+    {
+      "code": "NATIVE_STYLE_UNAVAILABLE",
+      "nodeId": "I117:585;117:414",
+      "detail": "FILL"
+    },
+    {
+      "code": "NATIVE_STYLE_UNAVAILABLE",
+      "nodeId": "I117:590;117:414",
+      "detail": "FILL"
+    },
+    {
+      "code": "NATIVE_STYLE_UNAVAILABLE",
+      "nodeId": "I117:595;117:414",
+      "detail": "FILL"
+    },
+    {
+      "code": "NATIVE_STYLE_UNAVAILABLE",
+      "nodeId": "I117:955;117:414",
+      "detail": "FILL"
+    },
+    {
+      "code": "NATIVE_STYLE_UNAVAILABLE",
+      "nodeId": "I117:1093;117:414",
+      "detail": "FILL"
+    }
+  ],
+  "nativeLimitations": [
+    "Native property conversion is under comparison; unconverted paints, text ranges, catalogs, prototype semantics and oracle exports remain required."
+  ]
+}

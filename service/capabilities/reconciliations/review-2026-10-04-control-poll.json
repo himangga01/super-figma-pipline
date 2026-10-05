@@ -1,0 +1,62 @@
+{
+  "schemaVersion": 1,
+  "slice": "review-2026-10-04",
+  "baseline": {
+    "headCommit": "5b9343efc82ef47ba56f412acbd4eee5a328d335",
+    "authoritySha256": {
+      "upstream-lock.json": "11e0cd400c4f17767f1cfa81609c055f23f0fe1cf53129ced998eadd11975e94",
+      "vendor-map.json": "b3275c7d8b997d1cfe723d97594659f77d7b4361b824a790bcfdd7ff762589bd",
+      "vendor-rules.json": "cbc91a5e7ad0f72d078889f33fde64edd88f50c43e4f063fb27e9b5636e9e1f8"
+    }
+  },
+  "entries": [
+    {
+      "path": "capabilities/task-review-2026-10-04-authority-classes.json",
+      "sha256": "8fefb7a5d205664d66ff3763cb86faf92dcd9d67f5138483c2c20bd453b54b27",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "2650d4ed97fcba58518159e80d491c5ab354697959aeea26cc7e25f7a3e58b60"
+        },
+        {
+          "class": "protected",
+          "sha256": "2650d4ed97fcba58518159e80d491c5ab354697959aeea26cc7e25f7a3e58b60"
+        }
+      ],
+      "reason": "Repair a reproduced control-read reset that cancelled an in-flight preparation operation. Retry only a bodyless GET transport reset once under the same signal, credentials and cumulative 32 MiB response budget. Never retry mutations, structured HTTP errors or cancellation. Eleven real-HTTP cases cover successful recovery, exact request counts, interrupted bodies, bounded failures, auth errors and aggregate resource limits. Preserve the failed public operation and owner index."
+    },
+    {
+      "path": "docs/portal-native.md",
+      "sha256": "f7f2d29c3628e140bac9fb0c1a90fa6bb10802b0227ade4f095ff895aa6e9f7b",
+      "priorClaims": [
+        {
+          "class": "protected",
+          "sha256": "08206a4c7412b08559304f8af659f3c240136f98ebd45feb63992323789a646c"
+        }
+      ],
+      "reason": "Repair a reproduced control-read reset that cancelled an in-flight preparation operation. Retry only a bodyless GET transport reset once under the same signal, credentials and cumulative 32 MiB response budget. Never retry mutations, structured HTTP errors or cancellation. Eleven real-HTTP cases cover successful recovery, exact request counts, interrupted bodies, bounded failures, auth errors and aggregate resource limits. Preserve the failed public operation and owner index."
+    },
+    {
+      "path": "packages/cli/src/control-client.ts",
+      "sha256": "669b0381db8641d7d278aeaf1f1e4a0ad39e2842844207e648c24e499df867fa",
+      "priorClaims": [
+        {
+          "class": "protected",
+          "sha256": "044df5131d1c66faaadc38e77bd01667acb001db526aab6bee375286d7575bd3"
+        }
+      ],
+      "reason": "Repair a reproduced control-read reset that cancelled an in-flight preparation operation. Retry only a bodyless GET transport reset once under the same signal, credentials and cumulative 32 MiB response budget. Never retry mutations, structured HTTP errors or cancellation. Eleven real-HTTP cases cover successful recovery, exact request counts, interrupted bodies, bounded failures, auth errors and aggregate resource limits. Preserve the failed public operation and owner index."
+    },
+    {
+      "path": "packages/cli/test/control-client-http.test.ts",
+      "sha256": "daf99c365774fc502f99a5f65cc635ab01ecc752ed1792ee184cf514a7afe6b8",
+      "priorClaims": [
+        {
+          "class": "protected",
+          "sha256": "c957e024d1b6490d4a16c76b61911fca3ea4daa8d29384343fb6270f7125c472"
+        }
+      ],
+      "reason": "Repair a reproduced control-read reset that cancelled an in-flight preparation operation. Retry only a bodyless GET transport reset once under the same signal, credentials and cumulative 32 MiB response budget. Never retry mutations, structured HTTP errors or cancellation. Eleven real-HTTP cases cover successful recovery, exact request counts, interrupted bodies, bounded failures, auth errors and aggregate resource limits. Preserve the failed public operation and owner index."
+    }
+  ]
+}

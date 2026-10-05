@@ -4,7 +4,7 @@ import type { SandboxToolHandler } from '../dispatcher.js';
 
 export const createImportLibraryVariableHandler =
   (host: typeof figma): SandboxToolHandler =>
-  async params => {
+  async (params, execution) => {
     const { key } = ImportLibraryVariableArgsSchema.parse(params);
     if (
       host.editorType !== 'figma' ||
@@ -12,6 +12,8 @@ export const createImportLibraryVariableHandler =
     )
       throw new Error('LIBRARY_VARIABLE_IMPORT_UNAVAILABLE');
     const variable = await host.variables.importVariableByKeyAsync(key);
+    execution?.markMutated?.();
+    execution?.signal.throwIfAborted();
     return ImportLibraryVariableResultSchema.parse({
       ok: true,
       id: variable.id,

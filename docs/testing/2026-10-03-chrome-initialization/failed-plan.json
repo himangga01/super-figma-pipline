@@ -1,0 +1,87 @@
+{
+  "analysisVersion": 2,
+  "blueprintHash": "sha256:9e00a6008c23f530c3c669a6a9a0720b1de3dbec81f5c443b34c533935827bc9",
+  "contextHash": "sha256:2ed6b46af006f633e1eec43f0f93079aa3e10a152497749fa0e750216b427344",
+  "coreRecipes": {
+    "bindingHash": "sha256:e5d6817a676c170824f0174ad1705f345ca9807e22b75a897b0b859df0baaf95",
+    "code": "PORTAL_CAPTURE_CURRENT_REQUIRED",
+    "contextHash": null,
+    "contractHash": "sha256:7ac25a5a931ae55bd9fdaeaa2a26cf712b09532919e884655d6d42c7b3b20126",
+    "inputHash": null,
+    "preparationId": null,
+    "recipeAuthorityVersion": 1,
+    "requiredResults": [],
+    "requirementsHash": "sha256:38408a0a2bb250a3ef6986c3ba343ac4d71d8fa1dc7556f2d7a86804c572bf0a",
+    "status": "blocked",
+    "workItemCount": 0,
+    "workItemsHash": null
+  },
+  "design": {
+    "artifactHash": null,
+    "artifactPath": null,
+    "assetManifestHash": null,
+    "captureFailure": {
+      "code": "CHROME_CONNECTION_REQUIRED",
+      "elapsedMs": 300009,
+      "stage": "connection",
+      "type": "error"
+    },
+    "complete": false,
+    "fileKey": "ly06O8jAcrd7oWmwhz5Vr6",
+    "liveVerified": false,
+    "nodeId": "1378:120",
+    "storage": "workspace",
+    "url": "https://www.figma.com/design/ly06O8jAcrd7oWmwhz5Vr6?node-id=1378-120"
+  },
+  "implementationScope": "frontend-only",
+  "issues": [
+    "CHROME_CONNECTION_REQUIRED",
+    "DESIGN_CAPTURE_REQUIRED",
+    "LIVE_DESIGN_VERIFICATION_REQUIRED",
+    "WORKFLOW_ANALYSIS:DESIGN_MISSING:",
+    "PORTAL_CAPTURE_CURRENT_REQUIRED",
+    "PORTAL_CAPTURE_CURRENT_REQUIRED"
+  ],
+  "planId": "sfp_portal1_38a5dee1a689843973ab7ad4f22ddcf6",
+  "requestedCase": "new-blank",
+  "requiredLayers": [
+    "frontend"
+  ],
+  "requirements": [
+    {
+      "description": "Implement the selected Figma frontend with functional local state",
+      "id": "portal-experience",
+      "layers": [
+        "frontend"
+      ],
+      "required": true
+    }
+  ],
+  "selectedClosure": {
+    "closure": [],
+    "complete": true,
+    "connections": [],
+    "hash": "sha256:570ca057f6472f0f04c3411be1c32cc9dd417b9d160c85b4a1bc2fa6720ebe3a",
+    "issues": [],
+    "reviews": [],
+    "selected": [],
+    "version": 2
+  },
+  "serviceSelection": [],
+  "services": [],
+  "sourceAuthorityVersion": 2,
+  "stack": "react-vite",
+  "strategy": "blank-frontend",
+  "targetPath": "cdd-chrome-frontend",
+  "workflowCoverage": {
+    "analysisHash": "sha256:49bd5a25f9249a595ff7d110fa2483cd78577ad2aae906451513ac5ef743cd24",
+    "complete": false,
+    "decisions": [],
+    "evidence": [],
+    "issues": [
+      "WORKFLOW_ANALYSIS:DESIGN_MISSING:"
+    ],
+    "scopes": [],
+    "version": 1
+  }
+}

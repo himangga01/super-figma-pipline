@@ -11,6 +11,32 @@ const deferred = <T>() => {
 };
 
 describe('per-file execution queue', () => {
+  it('retains an active writer grant after abort until its callback actually settles', async () => {
+    const queue = new FileExecutionQueue();
+    const controller = new AbortController();
+    const release = deferred<void>();
+    const events: string[] = [];
+    const active = queue.runResources(
+      [{ key: 'figma:file-a', mode: 'write' }],
+      async () => {
+        events.push('active');
+        await release.promise;
+        events.push('settled');
+      },
+      controller.signal,
+    );
+    await Promise.resolve();
+    controller.abort();
+    const next = queue.runResources([{ key: 'figma:file-a', mode: 'write' }], async () => {
+      events.push('next');
+    });
+    await Promise.resolve();
+    expect(events).toEqual(['active']);
+    release.resolve();
+    await Promise.all([active, next]);
+    expect(events).toEqual(['active', 'settled', 'next']);
+  });
+
   it('keeps portal status/cancel independent from a long native run and unrelated null-target work', async () => {
     const queue = new FileExecutionQueue();
     const release = deferred<void>();

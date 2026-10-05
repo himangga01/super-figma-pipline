@@ -250,9 +250,17 @@ export function normalizeDesignObservation(
       if (!Array.isArray(style[field]) || style[field].some(entry => !jsonObject(entry)))
         issue('MALFORMED', `${name}/${pointer(style.id as string)}`, name);
   }
-  for (const style of catalogs.textStyles)
-    if (!jsonObject(style.fontName) || typeof style.fontSize !== 'number')
+  const observedMixedFontStyles = new Set<string>();
+  for (const style of catalogs.textStyles) {
+    const observedMixed =
+      style.fontName === 'mixed' &&
+      jsonObject(style.fontNameObservation) &&
+      style.fontNameObservation.kind === 'symbol' &&
+      style.fontNameObservation.isMixed === true;
+    if (observedMixed) observedMixedFontStyles.add(style.id as string);
+    if ((!jsonObject(style.fontName) && !observedMixed) || typeof style.fontSize !== 'number')
       issue('MALFORMED', `textStyles/${pointer(style.id as string)}`, 'textStyles');
+  }
   for (const row of rows(variableRows, 'variables')) {
     const collectionId = row.collectionId ?? row.variableCollectionId;
     if (
@@ -327,6 +335,55 @@ export function normalizeDesignObservation(
   }
   if (raw.truncated === true || document.sectionPlan !== undefined)
     issue('SOURCE_PARTIAL', 'tree', 'tree');
+  // Some live TextStyle getters return the actual figma.mixed sentinel. Retain that
+  // observed value; never invent a catalog font from a consumer or another collector.
+  // A referenced mixed style is usable only when this scope's effective fonts are known.
+  const concreteFont = (value: DesignJson | undefined) =>
+    jsonObject(value) &&
+    typeof value.family === 'string' &&
+    value.family.length > 0 &&
+    typeof value.style === 'string' &&
+    value.style.length > 0;
+  for (const node of nodes) {
+    const properties = node.properties;
+    if (
+      properties.type !== 'TEXT' ||
+      typeof properties.characters !== 'string' ||
+      !properties.characters.length
+    )
+      continue;
+    const characters = properties.characters;
+    const segments = properties.textSegments;
+    const affected =
+      observedMixedFontStyles.has(String(properties.textStyleId)) ||
+      (Array.isArray(segments) &&
+        segments.some(
+          segment =>
+            jsonObject(segment) && observedMixedFontStyles.has(String(segment.textStyleId)),
+        ));
+    if (!affected || concreteFont(properties.fontName)) continue;
+    let end = 0;
+    const covered =
+      Array.isArray(segments) &&
+      segments.length > 0 &&
+      segments.every(segment => {
+        if (
+          !jsonObject(segment) ||
+          segment.start !== end ||
+          typeof segment.end !== 'number' ||
+          !Number.isInteger(segment.end) ||
+          segment.end <= end ||
+          segment.end > characters.length ||
+          segment.characters !== characters.slice(end, segment.end) ||
+          !concreteFont(segment.fontName)
+        )
+          return false;
+        end = segment.end;
+        return true;
+      }) &&
+      end === characters.length;
+    if (!covered) issue('SOURCE_PARTIAL', `tree/${pointer(node.id)}/fontName`, 'tree');
+  }
   // Value loss may affect any catalog; an unfinished tree alone does not invalidate an
   // independently observed complete catalog and its exact enumeration count.
   if (raw.valueTruncated === true) {

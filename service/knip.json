@@ -1,10 +1,10 @@
 {
   "$schema": "./node_modules/knip/schema.json",
   "ignoreExportsUsedInFile": true,
-  "ignoreBinaries": ["icacls.exe"],
   "workspaces": {
     ".": {
-      "project": ["*.{ts,js}"]
+      "project": ["*.{ts,js}"],
+      "entry": ["scripts/contracts-lib.mjs"]
     },
     "packages/shared": {
       "project": ["src/**/*.ts"]

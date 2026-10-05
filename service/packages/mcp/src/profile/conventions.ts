@@ -2,6 +2,7 @@ import { createHash } from 'node:crypto';
 
 import {
   CONVENTION_CATEGORIES,
+  CONVENTION_EVIDENCE_SAMPLE_SIZE,
   type ConventionEvidence,
   type ProjectConventions,
 } from '@sfp/shared';
@@ -46,6 +47,30 @@ const CALLS: Readonly<Record<string, Category>> = {
   createRouter: 'routing',
 };
 
+/** 1-based line of `offset`: one more than the newlines strictly before it. */
+const lineIndex = (source: string) => {
+  let newlines: number[] | undefined;
+  return (offset: number): number => {
+    if (newlines === undefined) {
+      newlines = [];
+      for (let index = source.indexOf('\n'); index >= 0; index = source.indexOf('\n', index + 1))
+        newlines.push(index);
+    }
+    let low = 0,
+      high = newlines.length;
+    while (low < high) {
+      const middle = (low + high) >>> 1;
+      if (newlines[middle]! < offset) low = middle + 1;
+      else high = middle;
+    }
+    return low + 1;
+  };
+};
+
+/**
+ * Evidence is a bounded sample with exact counts. Only an unread effective input marks the analysis
+ * `truncated`, and every such input is named in `unreadFiles`.
+ */
 const inspect = async (reader: RepoReader): Promise<ProjectConventions> => {
   const categories = Object.fromEntries(
     CONVENTION_CATEGORIES.map(key => [
@@ -53,6 +78,7 @@ const inspect = async (reader: RepoReader): Promise<ProjectConventions> => {
       {
         status: 'not-observed',
         evidence: [] as ConventionEvidence[],
+        count: 0,
       },
     ]),
   ) as ProjectConventions['categories'];
@@ -63,39 +89,55 @@ const inspect = async (reader: RepoReader): Promise<ProjectConventions> => {
   const unreadFiles: ProjectConventions['unreadFiles'] = [];
   let inspectedFiles = 0,
     bytes = 0,
-    truncated = walk.truncated;
+    truncated = false;
+  const unread = (filePath: string, reason: string) => {
+    unreadFiles.push({ filePath, reason });
+    truncated = true;
+  };
+  // Discovery stopped at its cap: files after the listed ones under this root were not read.
+  if (walk.truncated) unread('.', 'DISCOVERY_LIMIT');
   for (const filePath of walk.files) {
     if (/\.d\.[cm]?ts$/u.test(filePath)) continue;
-    // eslint-disable-next-line no-await-in-loop -- metadata and reads share the operation's retained authority
-    const metadata = await reader.metadata(filePath);
-    if (metadata.size > 262_144 || bytes + metadata.size > 8_000_000) {
-      unreadFiles.push({ filePath, reason: 'SOURCE_SIZE_LIMIT' });
-      truncated = true;
+    let source: string;
+    try {
+      // eslint-disable-next-line no-await-in-loop -- metadata and reads share the operation's retained authority
+      const metadata = await reader.metadata(filePath);
+      if (metadata.size > 262_144 || bytes + metadata.size > 8_000_000) {
+        unread(filePath, 'SOURCE_SIZE_LIMIT');
+        continue;
+      }
+      // eslint-disable-next-line no-await-in-loop -- bounded AST reads must not multiply the operation byte budget
+      source = await reader.readText(filePath, 262_144);
+    } catch (cause) {
+      const code = (cause as { code?: unknown } | null)?.code;
+      if (code === 'ABORT_ERR') throw cause;
+      // A file that cannot be read within the retained authority or byte budget is unread input.
+      unread(
+        filePath,
+        typeof code === 'string' && code ? code.slice(0, 128) : 'SOURCE_READ_FAILED',
+      );
       continue;
     }
-    // eslint-disable-next-line no-await-in-loop -- bounded AST reads must not multiply the operation byte budget
-    const source = await reader.readText(filePath, 262_144);
     bytes += Buffer.byteLength(source);
     inspectedFiles++;
     const sourceHash = `sha256:${createHash('sha256').update(source).digest('hex')}` as const;
+    const lineOf = lineIndex(source);
+    const seen = new Set<string>();
     const add = (
       category: Category,
-      signal: string,
+      rawSignal: string,
       offset: number,
       kind: ConventionEvidence['kind'],
     ) => {
-      const list = categories[category].evidence;
-      if (list.length >= 32) {
-        truncated = true;
-        return;
-      }
-      const line = source.slice(0, Math.max(0, offset)).split('\n').length;
-      if (
-        !list.some(
-          item => item.filePath === filePath && item.line === line && item.signal === signal,
-        )
-      )
-        list.push({ filePath, line, signal: signal.slice(0, 256), kind, sourceHash });
+      const line = lineOf(Math.max(0, offset)),
+        signal = rawSignal.slice(0, 256),
+        key = JSON.stringify([category, line, signal]);
+      if (seen.has(key)) return;
+      seen.add(key);
+      const entry = categories[category];
+      entry.count = (entry.count ?? 0) + 1;
+      if (entry.evidence.length < CONVENTION_EVIDENCE_SAMPLE_SIZE)
+        entry.evidence.push({ filePath, line, signal, kind, sourceHash });
     };
     if (
       /(?:^|\/)(?:pages|routes)\/|(?:^|\/)app\/.*(?:page|layout|route)\.[cm]?[jt]sx?$/u.test(
@@ -111,15 +153,11 @@ const inspect = async (reader: RepoReader): Promise<ProjectConventions> => {
       ? scanSfcScripts(source, { templateIsBlock: filePath.endsWith('.vue') })
       : null;
     const blocks = sfc === null ? [{ body: source, lang: null, external: false }] : sfc.blocks;
-    if (sfc?.unterminated) {
-      unreadFiles.push({ filePath, reason: 'SFC_UNTERMINATED' });
-      truncated = true;
-    }
+    if (sfc?.unterminated) unread(filePath, 'SFC_UNTERMINATED');
     let from = 0;
     for (const block of blocks) {
       if (block.external || (sfc !== null && block.lang === null)) {
-        unreadFiles.push({ filePath, reason: 'SCRIPT_UNSUPPORTED' });
-        truncated = true;
+        unread(filePath, 'SCRIPT_UNSUPPORTED');
         continue;
       }
       const offset = sfc === null ? 0 : Math.max(0, source.indexOf(block.body, from));
@@ -128,20 +166,15 @@ const inspect = async (reader: RepoReader): Promise<ProjectConventions> => {
       try {
         parsed = parseSync(sfc === null ? filePath : `script.${block.lang}`, block.body);
       } catch {
-        unreadFiles.push({ filePath, reason: 'PARSE_FAILED' });
-        truncated = true;
+        unread(filePath, 'PARSE_FAILED');
         continue;
       }
-      if (parsed.errors.length > 0) {
-        unreadFiles.push({ filePath, reason: 'PARSE_FAILED' });
-        truncated = true;
-      }
+      if (parsed.errors.length > 0) unread(filePath, 'PARSE_FAILED');
       const queue: unknown[] = [parsed.program];
       let visited = 0;
       while (queue.length > 0) {
         if (++visited > 50_000) {
-          truncated = true;
-          unreadFiles.push({ filePath, reason: 'AST_LIMIT' });
+          unread(filePath, 'AST_LIMIT');
           break;
         }
         const node = queue.pop();
@@ -188,13 +221,13 @@ const inspect = async (reader: RepoReader): Promise<ProjectConventions> => {
       }
     }
   }
+  // A full sample is still `observed`; only unread input leaves an unobserved category open.
   for (const category of CONVENTION_CATEGORIES)
-    categories[category].status =
-      categories[category].evidence.length > 0
-        ? 'observed'
-        : truncated
-          ? 'incomplete'
-          : 'not-observed';
+    categories[category].status = categories[category].count
+      ? 'observed'
+      : truncated
+        ? 'incomplete'
+        : 'not-observed';
   return {
     schemaVersion: 1,
     categories,

@@ -1,0 +1,115 @@
+{
+  "schemaVersion": 1,
+  "slice": "review-2026-10-02",
+  "baseline": {
+    "headCommit": "db821db346e7cb5dd27e4df465b91bb106e2f2b3",
+    "authoritySha256": {
+      "upstream-lock.json": "b70a487605c84d82162b809854fab27b1cfb5ee4437820d4e64c94481fc0cfa0",
+      "vendor-map.json": "b3275c7d8b997d1cfe723d97594659f77d7b4361b824a790bcfdd7ff762589bd",
+      "vendor-rules.json": "a4d54ae4433a84808aa5d8e0f029699e4a785366107d573d6649a2231556829c"
+    }
+  },
+  "entries": [
+    {
+      "path": "capabilities/task-review-2026-10-02-authority-classes.json",
+      "sha256": "38bd97c0ec6770956749665e227fcd7614f54c9ccad5d8d59e5944d935004ab8",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "ebf54501a8cee8d4d3fbf0ec5175a8b9ff6053fcbf703e15521dcdcac9646b3d"
+        },
+        {
+          "class": "protected",
+          "sha256": "ebf54501a8cee8d4d3fbf0ec5175a8b9ff6053fcbf703e15521dcdcac9646b3d"
+        }
+      ],
+      "reason": "Reviewed minimal parameterized test title disambiguation after the actual full collection rejected duplicate names; 157 focused tests pass and strict duplicate-result rejection remains unchanged."
+    },
+    {
+      "path": "packages/cli/test/text-segment-capture.test.ts",
+      "sha256": "6cfb1373cd10e42a5baea6dc4002cb92c19231dddc00d85bdfbd7da07e7384c8",
+      "priorClaims": [
+        {
+          "class": "protected",
+          "sha256": "6ede2672fe22d9fb6a5e88508275498f1d162e5cdcbca1eb6e104166fcae7471"
+        }
+      ],
+      "reason": "Reviewed minimal parameterized test title disambiguation after the actual full collection rejected duplicate names; 157 focused tests pass and strict duplicate-result rejection remains unchanged."
+    },
+    {
+      "path": "packages/mcp/test/execution/operation-executor.test.ts",
+      "sha256": "56b3e852a69762da05903383fde98ae3b6af192d1707d57e76842740a5500815",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "b747cbb1c6648123e2c94f0055978408748d4d5b8ca31fe5c6a95e2133787625"
+        },
+        {
+          "class": "protected",
+          "sha256": "b747cbb1c6648123e2c94f0055978408748d4d5b8ca31fe5c6a95e2133787625"
+        }
+      ],
+      "reason": "Reviewed minimal parameterized test title disambiguation after the actual full collection rejected duplicate names; 157 focused tests pass and strict duplicate-result rejection remains unchanged."
+    },
+    {
+      "path": "packages/mcp/test/portal/chrome-runtime.test.ts",
+      "sha256": "5b11c1c11f5c254866669528b855d5adc7e0381380127007399f019f1da7a601",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "eb0fc97af736ac97c9b17aa9c1cf5d7ed148b7c49054e3b1cd9998533ed20450"
+        },
+        {
+          "class": "protected",
+          "sha256": "eb0fc97af736ac97c9b17aa9c1cf5d7ed148b7c49054e3b1cd9998533ed20450"
+        }
+      ],
+      "reason": "Reviewed minimal parameterized test title disambiguation after the actual full collection rejected duplicate names; 157 focused tests pass and strict duplicate-result rejection remains unchanged."
+    },
+    {
+      "path": "packages/mcp/test/portal/design-normalization.test.ts",
+      "sha256": "cf126f02abce7237d4881e629c7c3085dc383996b87bd86e741add5782ec103e",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "ec1a05caf90f8e6bfc93b05733ba27d791b89d6f9b1625328317c998fa2e07c4"
+        },
+        {
+          "class": "protected",
+          "sha256": "ec1a05caf90f8e6bfc93b05733ba27d791b89d6f9b1625328317c998fa2e07c4"
+        }
+      ],
+      "reason": "Reviewed minimal parameterized test title disambiguation after the actual full collection rejected duplicate names; 157 focused tests pass and strict duplicate-result rejection remains unchanged."
+    },
+    {
+      "path": "packages/mcp/test/portal/source-guard.test.ts",
+      "sha256": "82655f733e439c6df37c3ec7a0cc61dc5ba341bba2332e5754cb963179ae8d5a",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "cb2528465ea3f92d1fa107ff019833e884919705b3f048e2a6440fe6f9078ce0"
+        },
+        {
+          "class": "protected",
+          "sha256": "cb2528465ea3f92d1fa107ff019833e884919705b3f048e2a6440fe6f9078ce0"
+        }
+      ],
+      "reason": "Reviewed minimal parameterized test title disambiguation after the actual full collection rejected duplicate names; 157 focused tests pass and strict duplicate-result rejection remains unchanged."
+    },
+    {
+      "path": "packages/plugin/test/relay/bootstrap.test.ts",
+      "sha256": "a2c0ad3dd38747e9853396f0683c37937205d07e92fa4dfa8704e79e321c93c7",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "91dbf125ff5d93f62331f0a227dd628a65e0f115bab1678755dc273943ad7682"
+        },
+        {
+          "class": "protected",
+          "sha256": "91dbf125ff5d93f62331f0a227dd628a65e0f115bab1678755dc273943ad7682"
+        }
+      ],
+      "reason": "Reviewed minimal parameterized test title disambiguation after the actual full collection rejected duplicate names; 157 focused tests pass and strict duplicate-result rejection remains unchanged."
+    }
+  ]
+}

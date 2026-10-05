@@ -1,0 +1,15 @@
+{
+  "recordedAt": "2026-10-04T14:49:31.869Z",
+  "phase": "strokes",
+  "nodeCount": 3198,
+  "expectedNodes": 3198,
+  "missingNodes": 0,
+  "extraNodes": 0,
+  "comparedPositions": 137658,
+  "rawDifferences": 408,
+  "explainedRepresentationDifferences": 408,
+  "unexplainedDifferences": 0,
+  "strokeDetailDifferences": 0,
+  "unsupportedStrokeWarnings": 0,
+  "fullCaptureAccepted": false
+}

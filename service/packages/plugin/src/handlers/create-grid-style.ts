@@ -17,6 +17,7 @@ export const createCreateGridStyleHandler =
       p.grids as SerializedLayoutGrid[],
       'create_grid_style',
     );
+    execution?.signal.throwIfAborted();
 
     const style = figmaCtx.createGridStyle();
     execution?.markMutated?.();

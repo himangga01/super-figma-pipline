@@ -19,13 +19,10 @@ import {
   type ProgressReporter,
   type RuntimeExecutionScope,
   type ToolName,
-  type OperationEvidenceReceiptV1,
   type ProgressEvent,
-  type VerifiedNativeEvidenceContextV1,
   type WorkspacePolicy,
 } from '@sfp/shared';
 import { PORTAL_TOOL_NAMES, type PortalToolName } from '@sfp/shared';
-import { firefox } from 'playwright';
 import { z } from 'zod';
 
 import pkg from '../package.json' with { type: 'json' };
@@ -84,10 +81,7 @@ import {
 import { McpInvocationAdapter } from './execution/mcp-invocation-adapter.js';
 import { createMcpWorkspaceBinding } from './execution/mcp-workspace-binding.js';
 import { NativeEvidenceArtifactPort } from './execution/native-evidence-artifact-port.js';
-import {
-  createOperationEvidenceProjector,
-  nativeEvidenceContextHash,
-} from './execution/operation-evidence-projector.js';
+import { createOperationEvidenceProjector } from './execution/operation-evidence-projector.js';
 import { OperationEvidenceReceiptStore } from './execution/operation-evidence-receipt-store.js';
 import {
   DurableOperationFinalizer,
@@ -97,6 +91,12 @@ import {
 import { loadOrCreateOperationIdIssuer } from './execution/operation-id.js';
 import { JournalWorkspaceUsageGuard, OperationJournal } from './execution/operation-journal.js';
 import { OperationResolutionIntentStore } from './execution/operation-resolution-intent.js';
+import {
+  cleanupRetainedEvidence,
+  runRetentionSweep,
+  scheduleRetentionSweeps,
+  type RetentionSchedule,
+} from './execution/retention-sweep.js';
 import { TargetResolver } from './execution/target-resolver.js';
 import { AtomicFileStore, WorkspaceAtomicFileStore } from './fs/atomic-file.js';
 import {
@@ -116,18 +116,25 @@ import {
 } from './network/remote-image-fetcher.js';
 import { normalizeIdArgs } from './node-id.js';
 import { createApprovalBroker } from './policy/approval-broker.js';
+import { portalApprovalLabel } from './policy/approval-prompt.js';
 import { authorizeEgress, createEgressConfigStore } from './policy/policy-engine.js';
+import {
+  createNativeAttemptArchivePolicy,
+  createCorePreparationArchivePolicy,
+} from './portal/archive-eligibility.js';
 import { preparePortalCaptureAuthority } from './portal/capture-admission-runtime.js';
 import { createPortalCaptureRuntime } from './portal/capture-runtime.js';
 import {
   createPortalBindingResolver,
   type PortalCaptureAdmissionPorts,
 } from './portal/capture-source-admission.js';
+import { googleChromeExecutable } from './portal/chrome-runtime.js';
 import {
   createPortalProfileEndpoint,
   createPortalProfilePreparationEndpoint,
   registerPortalControlRoutes,
   registerPortalEnvironmentRoutes,
+  registerPortalArchiveRoutes,
 } from './portal/control.js';
 import { PortalCoordinator } from './portal/coordinator.js';
 import { ExistingChromeDesignCapture } from './portal/design-capture.js';
@@ -234,7 +241,7 @@ interface LeaderRuntime {
   operationJournal: OperationJournal;
   egressManifests: EgressManifestStore;
   evidenceReceipts: OperationEvidenceReceiptStore;
-  retentionTimer: NodeJS.Timeout;
+  retentionSchedule: RetentionSchedule;
   executor: OperationExecutor;
   close(): Promise<void>;
 }
@@ -657,6 +664,9 @@ const initializeLeaderRuntime = async (resources: LeaderResources): Promise<Lead
       stateRoot,
       actorId: ownerActorId,
       externallyManagedRetention: true,
+      hasRetainedSettlementEvidence: async operationId =>
+        (await evidenceReceipts.get(ownerActorId, operationId)) !== null ||
+        (await egressManifests.hasFinalizer(ownerActorId, operationId)),
     });
     initializingAuthorities.set(generation, { operationJournal });
     const operationResolutionIntents = new OperationResolutionIntentStore({
@@ -688,6 +698,8 @@ const initializeLeaderRuntime = async (resources: LeaderResources): Promise<Lead
         });
     });
     const portalCapture = new ExistingChromeDesignCapture(stateRoot, statePermissions, portalStore);
+    const chromeExecutable = googleChromeExecutable();
+    const executionQueue = new FileExecutionQueue();
     const portalWork = new PortalNativeWork({
       stateRoot,
       leaderGeneration: generation,
@@ -696,11 +708,25 @@ const initializeLeaderRuntime = async (resources: LeaderResources): Promise<Lead
       permissions: statePermissions,
       designCapture: portalCapture,
       validatorModuleUrl: new URL('./portal-validation.mjs', import.meta.url).href,
-      firefoxExecutable: firefox.executablePath(),
+      ...(chromeExecutable ? { chromeExecutable } : {}),
+      environmentArchivePolicy: createNativeAttemptArchivePolicy({
+        store: portalStore,
+        queue: executionQueue,
+      }),
     });
-    const portalRecipes = new PortalCoreLifecycle(
-      new CorePreparations({ stateRoot, store: portalStore, permissions: statePermissions }),
-    );
+    const corePreparations: CorePreparations = new CorePreparations({
+      stateRoot,
+      store: portalStore,
+      permissions: statePermissions,
+      archivePolicy: createCorePreparationArchivePolicy({
+        store: portalStore,
+        queue: executionQueue,
+        releaseDependency: async (scope, preparationId, reference) => {
+          await corePreparations.setDependency(scope, preparationId, reference, false);
+        },
+      }),
+    });
+    const portalRecipes = new PortalCoreLifecycle(corePreparations);
     const portal = new PortalCoordinator(
       portalStore,
       workspacePolicy,
@@ -844,43 +870,6 @@ const initializeLeaderRuntime = async (resources: LeaderResources): Promise<Lead
         })),
     };
     const targetResolver = new TargetResolver(targetSessions);
-    const removeRetainedArtifacts = async (
-      receipt: Readonly<OperationEvidenceReceiptV1>,
-    ): Promise<void> => {
-      if (receipt.workspaceId === null) {
-        if (receipt.resultArtifact !== null || receipt.nativeEvidence.kind !== 'no-artifact') {
-          throw Object.assign(new Error('retained evidence lacks a workspace binding'), {
-            code: 'EVIDENCE_ARTIFACT_IDENTITY_MISMATCH',
-          });
-        }
-        return;
-      }
-      if (receipt.resultArtifact !== null) {
-        await artifacts.removeLinked({
-          workspaceId: receipt.workspaceId,
-          operationId: receipt.operationId,
-          artifact: receipt.resultArtifact,
-        });
-      }
-      if (receipt.nativeEvidence.kind === 'export') {
-        const base = Object.freeze({
-          operationId: receipt.operationId,
-          workspaceId: receipt.workspaceId,
-        });
-        const context = Object.freeze({
-          ...base,
-          contextHash: nativeEvidenceContextHash(base),
-        }) as VerifiedNativeEvidenceContextV1;
-        await nativeArtifacts.removeLinkedManifest({
-          context,
-          evidence: receipt.nativeEvidence,
-        });
-      } else if (receipt.nativeEvidence.kind !== 'no-artifact') {
-        throw Object.assign(new Error('native evidence cleanup requires manual verification'), {
-          code: 'NATIVE_ARTIFACT_IDENTITY_MISMATCH',
-        });
-      }
-    };
     const operationEvidenceEndpoint = createOperationEvidenceEndpoint({
       operations: operationJournal,
       receipts: evidenceReceipts,
@@ -898,40 +887,48 @@ const initializeLeaderRuntime = async (resources: LeaderResources): Promise<Lead
         (await evidenceReceipts.get(actorId, operationId)) !== null ||
         (await egressManifests.hasFinalizer(actorId, operationId)),
     });
-    const retention = new GenerationRetentionCoordinator(() =>
-      recipeEvidenceHolds.withRetentionSweep(async retentionScope => {
-        const { isHeld } = retentionScope;
-        const now = Date.now();
-        const linkedAt = (operationId: string): number | null =>
-          isHeld(operationId) ? null : operationJournal.settledAt(operationId);
-        await evidenceReceipts.compact({ now, linkedAt });
-        await egressManifests.compact({ now, linkedAt });
-        await evidenceReceipts.drainPendingArtifactCleanup(async receipt => {
-          if (isHeld(receipt.operationId))
-            throw Object.assign(new Error('Held evidence has a pending cleanup intent'), {
-              code: 'RECIPE_HOLD_RETENTION_CONFLICT',
-            });
-          await removeRetainedArtifacts(receipt);
-        });
-        const hasLinkedEvidence = async (operationId: string): Promise<boolean> => {
-          if (isHeld(operationId)) return true;
-          const operation = operationJournal.get(operationId);
-          return (
-            (operation !== undefined &&
-              ['pending-approval', 'queued', 'dispatched', 'outcome-unknown'].includes(
-                operation.status,
-              )) ||
-            (operation !== undefined &&
-              'preExecutionConsentManifestHash' in operation &&
-              operation.preExecutionConsentManifestHash !== null) ||
-            (operation?.operationEvidenceReceiptHash ?? null) !== null ||
-            (operation?.finalEgressManifestHash ?? null) !== null ||
-            (await evidenceReceipts.get(ownerActorId, operationId)) !== null ||
-            (await egressManifests.hasFinalizer(ownerActorId, operationId))
+    // LC-1 (T09): the sweep is scheduled after initialization and never fails it. Each batch takes
+    // the recipe-hold lock on its own, and every cleanup intent and workspace scan is isolated.
+    const retention = new GenerationRetentionCoordinator(sweepSignal =>
+      runRetentionSweep({
+        signal: sweepSignal,
+        log,
+        now: Date.now,
+        withRetentionBatch: work => recipeEvidenceHolds.withRetentionSweep(work),
+        compactEvidence: async (now, { isHeld }) => {
+          const linkedAt = (operationId: string): number | null =>
+            isHeld(operationId) ? null : operationJournal.settledAt(operationId);
+          await evidenceReceipts.compact({ now, linkedAt });
+          await egressManifests.compact({ now, linkedAt });
+        },
+        drainCleanupIntents: async ({ isHeld }, batch) => {
+          const workspaces = await workspaceStore.list();
+          return evidenceReceipts.drainPendingArtifactCleanup(
+            receipt =>
+              cleanupRetainedEvidence(receipt, { isHeld, workspaces, artifacts, nativeArtifacts }),
+            batch,
           );
-        };
-        /* eslint-disable no-await-in-loop -- each workspace orphan set is identity-verified */
-        for (const workspace of await workspaceStore.list()) {
+        },
+        // Unavailable and legacy-unbound registrations are logged and skipped (LC-2, T08).
+        listWorkspaces: () => workspaceStore.list(),
+        scanWorkspace: async (workspace, { isHeld }) => {
+          const hasLinkedEvidence = async (operationId: string): Promise<boolean> => {
+            if (isHeld(operationId)) return true;
+            const operation = operationJournal.get(operationId);
+            return (
+              (operation !== undefined &&
+                ['pending-approval', 'queued', 'dispatched', 'outcome-unknown'].includes(
+                  operation.status,
+                )) ||
+              (operation !== undefined &&
+                'preExecutionConsentManifestHash' in operation &&
+                operation.preExecutionConsentManifestHash !== null) ||
+              (operation?.operationEvidenceReceiptHash ?? null) !== null ||
+              (operation?.finalEgressManifestHash ?? null) !== null ||
+              (await evidenceReceipts.get(ownerActorId, operationId)) !== null ||
+              (await egressManifests.hasFinalizer(ownerActorId, operationId))
+            );
+          };
           const orphanState = await artifacts.discoverAndCleanupOrphans({
             workspaceId: workspace.workspaceId,
             hasLinkedEvidence,
@@ -950,13 +947,12 @@ const initializeLeaderRuntime = async (resources: LeaderResources): Promise<Lead
               `[retention] workspace ${workspace.workspaceId} native evidence requires manual cleanup (${nativeOrphanState.errorCode}; scanned=${nativeOrphanState.scannedEntries}; rows=${nativeOrphanState.retainedRows}; bytes=${nativeOrphanState.retainedBytes})`,
             );
           }
-        }
-        /* eslint-enable no-await-in-loop */
-        await operationJournal.purgeExpiredTombstones(now, retentionScope);
+        },
+        purgeExpiredTombstones: async (now, retentionScope) => {
+          await operationJournal.purgeExpiredTombstones(now, retentionScope);
+        },
       }),
     );
-    await retention.sweep();
-    assertInitializationActive();
     const pluginPort = createPinnedPluginPort(resources);
     const snapshotOperations = createSnapshotOperations({
       workspacePolicy,
@@ -998,7 +994,7 @@ const initializeLeaderRuntime = async (resources: LeaderResources): Promise<Lead
     const executor = new OperationExecutor({
       issuer: operationIdIssuer,
       journal: operationJournal,
-      queue: new FileExecutionQueue(),
+      queue: executionQueue,
       runtimes,
       operations: serviceOperations,
       durability: {
@@ -1078,7 +1074,7 @@ const initializeLeaderRuntime = async (resources: LeaderResources): Promise<Lead
                 }
               : {}),
           },
-          approvalLabel: `Portal ${authority.scope}: ${authority.targetPath}; native execution, retained environment artifacts; ${authority.executionResources?.map(resource => resource.key).join(', ') ?? authority.resource.key}; same owner account, no OS sandbox`,
+          approvalLabel: portalApprovalLabel(authority),
         };
       },
       resolveWorkspaceContext: async workspaceId => {
@@ -1239,6 +1235,12 @@ const initializeLeaderRuntime = async (resources: LeaderResources): Promise<Lead
     registerRecipeEvidenceRoutes(typedControlRouter, resources.executionPlane);
     registerIdentityRoutes(typedControlRouter, resources.relay, targetResolver);
     registerPortalEnvironmentRoutes(typedControlRouter, portalWork, actionNonces);
+    registerPortalArchiveRoutes(
+      typedControlRouter,
+      portalWork.environments,
+      corePreparations,
+      actionNonces,
+    );
     registerPortalControlRoutes(
       typedControlRouter,
       createPortalProfileEndpoint({ store: portalStore, work: portalWork, nonces: actionNonces }),
@@ -1259,6 +1261,7 @@ const initializeLeaderRuntime = async (resources: LeaderResources): Promise<Lead
           entryPath: 'control' as const,
         });
       },
+      log,
     });
     const mcpAdapter = new McpInvocationAdapter({
       role: 'leader',
@@ -1301,13 +1304,8 @@ const initializeLeaderRuntime = async (resources: LeaderResources): Promise<Lead
         code: 'LEADER_GENERATION_CLOSED',
       });
     }
-    const retentionTimer = setInterval(() => {
-      void retention.sweep().catch(error => {
-        const errorType = error instanceof Error ? error.name : 'NonError';
-        log(`[retention] evidence cleanup failed closed (${errorType})`);
-      });
-    }, 86_400_000);
-    retentionTimer.unref();
+    // Initialization is complete: only now start the startup sweep and the daily sweeps (LC-1).
+    const retentionSchedule = scheduleRetentionSweeps(retention, log);
     const runtime: LeaderRuntime = {
       generation,
       plane: resources.executionPlane,
@@ -1321,13 +1319,13 @@ const initializeLeaderRuntime = async (resources: LeaderResources): Promise<Lead
       operationJournal,
       egressManifests,
       evidenceReceipts,
-      retentionTimer,
+      retentionSchedule,
       executor,
       close: async () => {
         await portalCapture.close();
         await portalWork.close();
         resources.relay.setDocumentBindingHandler(null);
-        clearInterval(retentionTimer);
+        retentionSchedule.stop();
         approvalBroker.dispose();
         await retention.close();
         await Promise.allSettled([

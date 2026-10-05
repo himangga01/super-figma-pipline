@@ -11,7 +11,7 @@ import { assertFigmaEditor, assertKeyframeField, isMotionNode } from './motion-s
  */
 export const createApplyManualKeyframeTrackHandler =
   (figmaCtx: typeof figma): SandboxToolHandler =>
-  async params => {
+  async (params, execution) => {
     const p = (params ?? {}) as { nodeId?: unknown; field?: unknown; track?: unknown };
     if (typeof p.nodeId !== 'string') {
       throw new TypeError('apply_manual_keyframe_track: nodeId must be a string');
@@ -22,12 +22,14 @@ export const createApplyManualKeyframeTrackHandler =
     }
     assertFigmaEditor(figmaCtx, 'apply_manual_keyframe_track');
     const node = await figmaCtx.getNodeByIdAsync(p.nodeId);
+    execution?.signal.throwIfAborted();
     if (node === null || !isMotionNode(node)) {
       throw new Error(
         `apply_manual_keyframe_track: node ${p.nodeId} not found or does not support Motion`,
       );
     }
     node.applyManualKeyframeTrack(p.field as KeyframeField, p.track as ManualKeyframeTrackInput);
+    execution?.recordOwnedWrite?.(node, ['manualKeyframeTracks']);
     const result: MutateResult = { ok: true, nodeId: node.id };
     return result;
   };

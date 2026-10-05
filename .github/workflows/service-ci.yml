@@ -4,23 +4,42 @@ on:
     paths: ["service/**", ".github/workflows/service-ci.yml"]
   pull_request:
     paths: ["service/**", ".github/workflows/service-ci.yml"]
+  schedule:
+    # Nightly native React/Vite acceptance (03:17 KST).
+    - cron: "17 18 * * *"
+  workflow_dispatch:
 permissions:
   contents: read
 jobs:
   verify:
+    # The nightly schedule runs only the native acceptance job below; workflow_dispatch runs both.
+    if: github.event_name != 'schedule'
+    name: verify (${{ matrix.os }}, ${{ matrix.variant }})
     strategy:
       fail-fast: false
       matrix:
-        os: [windows-latest, ubuntu-latest]
+        include:
+          - os: windows-latest
+            variant: default
+          # The owner's profile: TEMP, TMP and LOCALAPPDATA contain Korean
+          # characters. Expected to fail until T01 (OPS-1, lease protocol v2) lands.
+          - os: windows-latest
+            variant: non-ascii-paths
+          # Informational until P7: a failure here does not fail the workflow.
+          - os: ubuntu-latest
+            variant: default
     runs-on: ${{ matrix.os }}
-    timeout-minutes: 35
+    continue-on-error: ${{ matrix.os == 'ubuntu-latest' }}
+    timeout-minutes: 60
     defaults:
       run:
         working-directory: service
         shell: bash
     steps:
+      # Full history: root tests read pinned historical blobs with `git show`.
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
         with:
+          fetch-depth: 0
           persist-credentials: false
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
         with:
@@ -42,15 +61,130 @@ jobs:
           persist-credentials: false
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
         with:
-          node-version: 24.19.0
+          node-version-file: service/.node-version
+      # Chrome stable is installed in its native OS location; no bundled browser cache is used.
+      - name: Use Korean-character TEMP, TMP and LOCALAPPDATA paths
+        if: matrix.variant == 'non-ascii-paths'
+        shell: pwsh
+        run: |
+          $base = Join-Path $env:RUNNER_TEMP '사용자-한글경로'
+          $temp = Join-Path $base 'Temp'
+          $localAppData = Join-Path $base 'AppData\Local'
+          New-Item -ItemType Directory -Force -Path $temp, $localAppData | Out-Null
+          @(
+            "TEMP=$temp",
+            "TMP=$temp",
+            "LOCALAPPDATA=$localAppData"
+          ) | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
       - run: corepack enable
-      - run: corepack pnpm install --frozen-lockfile
-      - run: node scripts/verify-upstream-lock.mjs --offline
-      - run: corepack pnpm verify
-      - run: node scripts/verify-graph-memory.mjs
-      - run: node scripts/generate-sbom.mjs
-      - run: node scripts/generate-notices.mjs
-      - run: node scripts/package-artifacts.mjs
-      - run: node scripts/generate-checksums.mjs
-      - run: corepack pnpm test:artifacts
-      - run: node scripts/smoke-packed-mcp.mjs
+      - id: install
+        run: corepack pnpm install --frozen-lockfile --ignore-scripts
+      - name: Install Google Chrome with system dependencies
+        if: runner.os == 'Linux'
+        run: corepack pnpm --filter @sfp/cli exec playwright install --with-deps chrome
+      - name: Install Google Chrome
+        if: runner.os == 'Windows'
+        run: corepack pnpm --filter @sfp/cli exec playwright install chrome
+      # Every gate below runs even when an earlier gate failed, so that each one reports.
+      - name: Provenance lock (offline)
+        if: ${{ !cancelled() && steps.install.outcome == 'success' }}
+        run: node scripts/verify-upstream-lock.mjs --offline
+      - name: Provenance lock (with upstreams)
+        if: ${{ !cancelled() && steps.install.outcome == 'success' }}
+        run: node scripts/verify-upstream-lock.mjs --with-upstreams ../code-kb
+      - name: Typecheck (packages, scripts and root tests)
+        if: ${{ !cancelled() && steps.install.outcome == 'success' }}
+        run: corepack pnpm typecheck
+      - name: Lint
+        if: ${{ !cancelled() && steps.install.outcome == 'success' }}
+        run: corepack pnpm lint
+      - name: Format
+        if: ${{ !cancelled() && steps.install.outcome == 'success' }}
+        run: corepack pnpm format:check
+      - name: Knip
+        if: ${{ !cancelled() && steps.install.outcome == 'success' }}
+        run: corepack pnpm knip
+      # Generated tool-contract artifacts (union manifest, plugin contract, README counts) must be
+      # current: the check regenerates in memory and fails on any difference.
+      - name: Tool-contract drift
+        if: ${{ !cancelled() && steps.install.outcome == 'success' }}
+        run: corepack pnpm contracts:update --check
+      - name: Build
+        if: ${{ !cancelled() && steps.install.outcome == 'success' }}
+        run: corepack pnpm build
+      # The run may fail only on tests named in test/known-failures.json; the ledger step below
+      # decides and also fails on unledgered, stale or differently failing tests.
+      - name: Declare full test scope
+        id: test-scope
+        if: ${{ !cancelled() && steps.install.outcome == 'success' }}
+        run: corepack pnpm exec node scripts/declare-test-scope.mjs --full --out "${RUNNER_TEMP}/test-scope.json"
+      - name: Test
+        id: test
+        if: ${{ !cancelled() && steps.install.outcome == 'success' && steps.test-scope.outcome == 'success' }}
+        continue-on-error: true
+        shell: bash
+        env:
+          SFP_VITEST_JSON_REPORT: ${{ runner.temp }}/vitest-report.json
+        run: |
+          set -o pipefail
+          corepack pnpm test 2>&1 | tee "${RUNNER_TEMP}/vitest.log"
+      - name: Known-failure ledger
+        if: ${{ !cancelled() && steps.install.outcome == 'success' }}
+        run: node scripts/check-test-report.mjs "${{ runner.temp }}/vitest-report.json" --log "${{ runner.temp }}/vitest.log" --scope "${{ runner.temp }}/test-scope.json"
+      # Lists every skipped test and fails when a required suite (for example Chrome) skipped.
+      - name: Test skip census
+        if: ${{ !cancelled() && steps.install.outcome == 'success' }}
+        run: node scripts/test-skip-census.mjs "${RUNNER_TEMP}/vitest-report.json" --scope "${RUNNER_TEMP}/test-scope.json"
+      - name: Graph memory
+        if: ${{ !cancelled() && steps.install.outcome == 'success' }}
+        run: node scripts/verify-graph-memory.mjs
+      - name: SBOM
+        if: ${{ !cancelled() && steps.install.outcome == 'success' }}
+        run: node scripts/generate-sbom.mjs
+      - name: Third-party notices
+        if: ${{ !cancelled() && steps.install.outcome == 'success' }}
+        run: node scripts/generate-notices.mjs
+      - name: Package artifacts
+        if: ${{ !cancelled() && steps.install.outcome == 'success' }}
+        run: node scripts/package-artifacts.mjs
+      - name: Checksums
+        if: ${{ !cancelled() && steps.install.outcome == 'success' }}
+        run: node scripts/generate-checksums.mjs
+      - name: Artifact contents
+        if: ${{ !cancelled() && steps.install.outcome == 'success' }}
+        run: corepack pnpm test:artifacts
+      - name: Isolated packed runtime
+        if: ${{ !cancelled() && steps.install.outcome == 'success' }}
+        run: node scripts/smoke-packed-mcp.mjs
+
+  native-vite-acceptance:
+    # Provisions the locked React/Vite preset from the npm registry through the native runner.
+    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+    runs-on: windows-latest
+    timeout-minutes: 45
+    defaults:
+      run:
+        working-directory: service
+        shell: bash
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version-file: service/.node-version
+      - run: corepack enable
+      - run: corepack pnpm install --frozen-lockfile --ignore-scripts
+      - name: Declare focused native acceptance scope
+        env:
+          SFP_NATIVE_VITE_ACCEPTANCE: "1"
+        run: corepack pnpm exec node scripts/declare-test-scope.mjs --file packages/mcp/test/portal/native-artifacts.test.ts --out "${RUNNER_TEMP}/native-vite-scope.json"
+      - name: Native artifact suite with the React/Vite acceptance enabled
+        env:
+          SFP_NATIVE_VITE_ACCEPTANCE: "1"
+          SFP_VITEST_JSON_REPORT: ${{ runner.temp }}/native-vite-report.json
+        run: corepack pnpm exec vitest run packages/mcp/test/portal/native-artifacts.test.ts
+      - name: Every acceptance test ran
+        if: ${{ !cancelled() }}
+        run: node scripts/test-skip-census.mjs "${RUNNER_TEMP}/native-vite-report.json" --scope "${RUNNER_TEMP}/native-vite-scope.json" --forbid-skips

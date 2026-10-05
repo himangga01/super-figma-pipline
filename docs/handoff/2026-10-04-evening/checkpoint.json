@@ -1,0 +1,53 @@
+{
+  "recordedAt": "2026-10-04T12:33:35.048Z",
+  "publishedBaseline": "5b9343efc82ef47ba56f412acbd4eee5a328d335",
+  "branch": "remediation/2026-09-27",
+  "source": {
+    "main": "sha256:fc47c9f0f64114d700e4da3d026c2070925842f8d5ea433ddb929824c5f43263",
+    "native": "sha256:fc47c9f0f64114d700e4da3d026c2070925842f8d5ea433ddb929824c5f43263"
+  },
+  "indexSha256": "5a79352238185329aee8c904a5158b713ba9645d7af966917d09c2930652500a",
+  "currentVerification": {
+    "attemptId": "b4a7a8fa-cec6-4a0a-bc3a-b3d0c491298a",
+    "sourceHash": "sha256:fc47c9f0f64114d700e4da3d026c2070925842f8d5ea433ddb929824c5f43263",
+    "storedStatus": "pending",
+    "observedOutcome": "interrupted for owner-requested reboot preparation",
+    "controllerPid": 19576,
+    "controllerStartedAt": "2026-10-04T21:28:00+09:00",
+    "stoppedOwnedTree": true,
+    "staticAndBuildCompleted": true,
+    "wholeSuiteCompleted": false,
+    "artifactCaseRunForThisSource": false
+  },
+  "lastFullPass": {
+    "attemptId": "1dac9a33-07f8-44fd-83b0-65026f8ac713",
+    "sourceHash": "sha256:e2755bc7404ed946ada53c70be0777beed46e68ab52cb09786f2a695d2fcc983",
+    "checks": 16,
+    "passed": 4748,
+    "failed": 0,
+    "skipped": 20,
+    "requiredChromePassed": 37,
+    "requiredChromeSkipped": 0,
+    "separateArtifactCase": "passed"
+  },
+  "latestRepair": {
+    "purpose": "bounded bodyless GET recovery after ECONNRESET; no mutation replay",
+    "testsPassed": 11,
+    "failed": 0,
+    "skipped": 0,
+    "cliTypecheck": "passed",
+    "scopedLintAndFormat": "passed",
+    "cliBuild": "passed",
+    "provenance": "verified in separate review index",
+    "pendingWholeVerification": true
+  },
+  "appliedCdd": {
+    "path": "C:\\2026_project\\super-figma-pipline\\.worktrees\\_cache\\cdd-service-outputs\\cdd-chrome-frontend-r8",
+    "files": 44,
+    "bytes": 19284760,
+    "candidateHash": "sha256:e424d2eeaea2faec441255fe558b9b8ca77f0dc695503822d3f8cdf721152848",
+    "recordedRunState": "completed",
+    "freshFileHashesVerified": true
+  },
+  "newCommitOrPush": false
+}

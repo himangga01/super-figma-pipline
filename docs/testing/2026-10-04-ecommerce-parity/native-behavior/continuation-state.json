@@ -1,0 +1,40 @@
+{
+  "recordedAt": "2026-10-04T12:18:06.369Z",
+  "daemon": {
+    "buildIdentityHash": "sha256:b667c982ef8c2981af40e53d1ba87b38b0df2d4f04a03ef57458b37926f5a75f",
+    "browserConnection": "connected",
+    "pairedPluginCount": 0,
+    "observedAt": "2026-10-04T12:12:46+00:00",
+    "healthyRetainedProcess": true
+  },
+  "officialMcp": {
+    "endpoint": "http://127.0.0.1:3845/mcp",
+    "latestObservedResult": "fetch failed",
+    "testedThrough": "service CLI figma-mcp probe",
+    "authenticatedRead": false,
+    "quotaConclusion": null
+  },
+  "sourceChecks": {
+    "schemaVersion": 1,
+    "attemptId": "1dac9a33-07f8-44fd-83b0-65026f8ac713",
+    "status": "pending",
+    "sourceHash": "sha256:e2755bc7404ed946ada53c70be0777beed46e68ab52cb09786f2a695d2fcc983",
+    "folder": "source-checks/1dac9a33-07f8-44fd-83b0-65026f8ac713",
+    "report": "source-checks/1dac9a33-07f8-44fd-83b0-65026f8ac713/report.json",
+    "reportSha256": "19fc166601092c010ce56b545d4bfcc186c954a49c09b902e49b620b394033e9",
+    "updatedAt": "2026-10-04T12:08:56.905Z"
+  },
+  "ecommercePreparation": {
+    "context": ".worktrees/_cache/ecommerce-service-context-20261004-prep-r3",
+    "state": "public portal_plan running",
+    "requirements": 5,
+    "explicitScopeDecisions": 89,
+    "referenceFrontendCode": false,
+    "frontendGenerationStarted": false
+  },
+  "sourceRuntimeLimit": "The retained daemon predates the new candidate-capacity code. Rebuild/test evidence does not update an already running process.",
+  "permissionBoundary": "Browser approvals remain manual; keep the healthy approved daemon until a runtime update is necessary.",
+  "supersededAt": "2026-10-04T12:39:30.340Z",
+  "supersededBy": "docs/handoff/reboot-2026-10-04-evening.md",
+  "historicalOnly": true
+}

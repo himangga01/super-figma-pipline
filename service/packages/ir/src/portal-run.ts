@@ -29,6 +29,7 @@ import {
 import { z } from 'zod';
 
 import { contentHash } from './canonical-json.js';
+import { portalCaptureFreshnessMatches } from './capture-freshness.js';
 
 export const PortalRepositoryGrantSchema = z
   .object({
@@ -120,6 +121,26 @@ export const PortalRunSchema = z
     createdAt: z.iso.datetime(),
     updatedAt: z.iso.datetime(),
     deadlineAt: z.number().int().positive(),
+    nativeBudget: z
+      .object({
+        version: z.literal(1),
+        effect: z
+          .object({
+            deadlineAt: z.number().int().positive(),
+            attempts: z.number().int().min(1).max(8),
+          })
+          .strict()
+          .optional(),
+        recovery: z
+          .object({
+            deadlineAt: z.number().int().positive(),
+            attempts: z.number().int().min(1).max(4),
+          })
+          .strict()
+          .optional(),
+      })
+      .strict()
+      .optional(),
     leaseEpoch: z.number().int().nonnegative(),
     lease: z
       .object({
@@ -150,12 +171,19 @@ export const portalCandidateHash = (
   plan: Pick<PortalPlan, 'contextHash' | 'blueprintHash' | 'coreRecipes'>,
   declarations?: unknown,
 ): `sha256:${string}` => {
-  if(plan.coreRecipes && declarations===undefined)
+  if (plan.coreRecipes && declarations === undefined)
     throw new Error('PORTAL_CORE_DECLARATIONS_REQUIRED');
   return contentHash(plan.coreRecipes ? 'sfp-portal-candidate-v2' : 'sfp-portal-candidate-v1', {
     contextHash: plan.contextHash,
     blueprintHash: plan.blueprintHash,
-    ...(plan.coreRecipes ? {declarationsHash:contentHash('sfp-portal-core-declarations-v1',canonicalCoreDeclarations(declarations))} : {}),
+    ...(plan.coreRecipes
+      ? {
+          declarationsHash: contentHash(
+            'sfp-portal-core-declarations-v1',
+            canonicalCoreDeclarations(declarations),
+          ),
+        }
+      : {}),
     files: files
       .map(file => ({
         path: file.path,
@@ -240,8 +268,7 @@ export const portalCompletionIssues = (
     issues.push('PORTAL_CAPTURE_RECEIPT_REQUIRED');
   if (
     plan.request.design.freshness === 'require-live' &&
-    (!plan.design.capture ||
-      report.capture?.freshDesignFingerprint !== plan.design.capture.designFingerprint)
+    !portalCaptureFreshnessMatches(plan.design.capture, report.capture)
   )
     issues.push('PORTAL_CAPTURE_FRESHNESS_REQUIRED');
   try {

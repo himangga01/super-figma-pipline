@@ -6,6 +6,7 @@ import { serializeAnnotation } from '../serializer.js';
 type AnnotationNode = BaseNode & AnnotationsMixin;
 interface WriteOutcome {
   nodeId: string;
+  node: BaseNode;
   before: readonly Annotation[];
   after: readonly Annotation[] | null;
 }
@@ -41,7 +42,7 @@ export const annotationBatchInverse = {
     const node = await figmaCtx.getNodeByIdAsync(request.nodeId);
     if (!node || !('annotations' in node) || !Array.isArray(node.annotations))
       throw Error('ANNOTATION_NODE_UNSUPPORTED');
-    return { nodeId: node.id };
+    return { nodeId: node.id, node };
   },
   async undo(
     figmaCtx: typeof figma,
@@ -59,6 +60,8 @@ export const annotationBatchInverse = {
     if (outcome.nodeId !== (captured as { nodeId: string }).nodeId)
       throw Error('ANNOTATION_ROLLBACK_IDENTITY_MISMATCH');
     const node = await figmaCtx.getNodeByIdAsync(outcome.nodeId);
+    if (node !== (captured as { node: BaseNode }).node || node !== outcome.node)
+      throw Error('ANNOTATION_ROLLBACK_IDENTITY_MISMATCH');
     if (!node || !('annotations' in node) || !Array.isArray(node.annotations))
       throw Error('ANNOTATION_ROLLBACK_NODE_UNAVAILABLE');
     const annotated = node as AnnotationNode;
@@ -123,7 +126,7 @@ export const createSetAnnotationsHandler =
       )
         throw Error('ANNOTATION_READBACK_MISMATCH');
       const result: MutateResult = { ok: true, nodeId: node.id };
-      outcomes.set(result, { nodeId: node.id, before, after: snapshot(annotated) });
+      outcomes.set(result, { nodeId: node.id, node, before, after: snapshot(annotated) });
       return result;
     } catch (cause) {
       const error =
@@ -134,7 +137,7 @@ export const createSetAnnotationsHandler =
       } catch {
         /* Unknown current state must not be overwritten. */
       }
-      outcomes.set(error, { nodeId: node.id, before, after });
+      outcomes.set(error, { nodeId: node.id, node, before, after });
       throw error;
     }
   };

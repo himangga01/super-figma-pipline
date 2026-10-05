@@ -11,7 +11,7 @@ import type { SandboxToolHandler } from '../dispatcher.js';
  */
 export const createSetInstancePropertiesHandler =
   (figmaCtx: typeof figma): SandboxToolHandler =>
-  async params => {
+  async (params, execution) => {
     const p = (params ?? {}) as { instanceId?: unknown; properties?: unknown };
     if (typeof p.instanceId !== 'string') {
       throw new TypeError('set_instance_properties: instanceId must be a string');
@@ -24,6 +24,8 @@ export const createSetInstancePropertiesHandler =
     }
 
     const node = await figmaCtx.getNodeByIdAsync(p.instanceId);
+
+    execution?.signal.throwIfAborted();
     if (node === null || node.type !== 'INSTANCE') {
       throw new Error(`set_instance_properties: node ${p.instanceId} is not an INSTANCE`);
     }

@@ -10,7 +10,7 @@ type Platform = (typeof PLATFORMS)[number];
 
 export const createSetVariableCodeSyntaxHandler =
   (figmaCtx: typeof figma): SandboxToolHandler =>
-  async params => {
+  async (params, execution) => {
     const p = (params ?? {}) as { variableId?: unknown; codeSyntax?: unknown };
     if (typeof p.variableId !== 'string') {
       throw new TypeError('set_variable_code_syntax: variableId must be a string');
@@ -40,6 +40,7 @@ export const createSetVariableCodeSyntaxHandler =
     }
 
     const variable = await figmaCtx.variables.getVariableByIdAsync(p.variableId);
+    execution?.signal.throwIfAborted();
     if (variable === null) {
       throw new Error(`set_variable_code_syntax: variable ${p.variableId} not found`);
     }

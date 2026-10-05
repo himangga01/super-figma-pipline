@@ -15,6 +15,7 @@ export const ACTION_NONCE_MAX_BYTES_PER_ACTOR = 524_288 as const;
 
 export const ActionNonceActionSchema = z.enum([
   'workspace.add',
+  'workspace.rebind',
   'workspace.remove',
   'workspace.set-default',
   'operation.resolve',
@@ -24,6 +25,8 @@ export const ActionNonceActionSchema = z.enum([
   'egress.reset',
   'portal.profile.register',
   'portal.environment.reconcile',
+  'portal.environment.archive',
+  'portal.core.archive',
 ]);
 export type ActionNonceAction = z.infer<typeof ActionNonceActionSchema>;
 
@@ -34,14 +37,23 @@ const WorkspaceAddNonceRequestSchema = z
     registrationPath: z.string().min(1).max(32_768),
   })
   .strict();
+const WorkspaceRebindNonceRequestSchema = z
+  .object({
+    action: z.literal('workspace.rebind'),
+    requestHash: PrefixedSha256Schema,
+    registrationPath: z.string().min(1).max(32_768),
+    workspaceId: WorkspaceIdSchema,
+  })
+  .strict();
 const OtherNonceRequestSchema = z
   .object({
-    action: ActionNonceActionSchema.exclude(['workspace.add']),
+    action: ActionNonceActionSchema.exclude(['workspace.add', 'workspace.rebind']),
     requestHash: PrefixedSha256Schema,
   })
   .strict();
 export const ActionNonceIssueRequestV1Schema = z.discriminatedUnion('action', [
   WorkspaceAddNonceRequestSchema,
+  WorkspaceRebindNonceRequestSchema,
   OtherNonceRequestSchema,
 ]);
 export type ActionNonceIssueRequestV1 = z.infer<typeof ActionNonceIssueRequestV1Schema>;
@@ -98,6 +110,20 @@ const byteSortedUniqueStrings = (values: readonly string[]): readonly string[] =
 };
 
 const semanticSchemas = {
+  'portal.environment.archive': z
+    .object({
+      attemptId: z.string().regex(/^[a-f0-9]{64}$/u),
+      receiptHash: PrefixedSha256Schema,
+      archiveHash: PrefixedSha256Schema,
+    })
+    .strict(),
+  'portal.core.archive': z
+    .object({
+      workspaceId: WorkspaceIdSchema,
+      preparationId: PrefixedSha256Schema,
+      archiveHash: PrefixedSha256Schema,
+    })
+    .strict(),
   'portal.environment.reconcile': z
     .object({ attemptId: z.string().regex(/^[a-f0-9]{64}$/u), receiptHash: PrefixedSha256Schema })
     .strict(),
@@ -108,6 +134,9 @@ const semanticSchemas = {
     })
     .strict(),
   'workspace.add': z.object({ realPath: z.string().min(1).max(32_768) }).strict(),
+  'workspace.rebind': z
+    .object({ workspaceId: WorkspaceIdSchema, realPath: z.string().min(1).max(32_768) })
+    .strict(),
   'workspace.remove': z.object({ workspaceId: WorkspaceIdSchema }).strict(),
   'workspace.set-default': z.object({ workspaceId: WorkspaceIdSchema.nullable() }).strict(),
   'operation.resolve': z

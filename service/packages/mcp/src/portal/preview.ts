@@ -5,7 +5,8 @@ import { inflateSync } from 'node:zlib';
 import pngModule from '@pdf-lib/upng';
 import { contentHash, storedChecksum } from '@sfp/ir';
 import { PortalHashSchema, PortalPathSchema } from '@sfp/shared';
-import { firefox, type Page } from 'playwright';
+import pixelmatch from 'pixelmatch';
+import { chromium, type Page } from 'playwright';
 import { z } from 'zod';
 
 import {
@@ -16,12 +17,14 @@ import {
 import {
   PortalObservationManifestSchema,
   PortalInteractionContractSchema,
+  PortalPixelComparisonModeSchema,
 } from '../../../shared/src/portal-observations.js';
 import {
   AtomicFileStore,
   readFileWithinLimit,
   withRetainedDirectoryChain,
 } from '../fs/atomic-file.js';
+import { googleChromeExecutable } from './chrome-runtime.js';
 import {
   PortalConsumptionResources,
   consumptionBatchHash,
@@ -75,7 +78,45 @@ const decoded = (bytes: Uint8Array) => {
   return { width, height, rgba: new Uint8Array(png.toRGBA8(image)[0]!) };
 };
 
-export const comparePortalPng = (expected: Uint8Array, actual: Uint8Array, tolerance = 12) => {
+/** Record exact RGBA differences for the separately bounded source re-export policy. */
+export const comparePortalPngReexport = (expected: Uint8Array, actual: Uint8Array) => {
+  const left = decoded(expected),
+    right = decoded(actual);
+  if (left.width !== right.width || left.height !== right.height) return null;
+  let changedPixels = 0,
+    maxRgbDelta = 0,
+    alphaChanged = false;
+  for (let at = 0; at < left.rgba.length; at += 4) {
+    let changed = false;
+    for (let channel = 0; channel < 3; channel++) {
+      const delta = Math.abs(left.rgba[at + channel]! - right.rgba[at + channel]!);
+      maxRgbDelta = Math.max(maxRgbDelta, delta);
+      changed ||= delta !== 0;
+    }
+    if (left.rgba[at + 3] !== right.rgba[at + 3]) {
+      changed = true;
+      alphaChanged = true;
+    }
+    if (changed) changedPixels++;
+  }
+  return {
+    width: left.width,
+    height: left.height,
+    changedPixels,
+    maxRgbDelta,
+    alphaChanged,
+    originalPixelsHash: storedChecksum(left.rgba),
+    freshPixelsHash: storedChecksum(right.rgba),
+  };
+};
+
+export const comparePortalPng = (
+  expected: Uint8Array,
+  actual: Uint8Array,
+  tolerance = 12,
+  comparisonMode: z.infer<typeof PortalPixelComparisonModeSchema> = 'rgba-v1',
+) => {
+  PortalPixelComparisonModeSchema.parse(comparisonMode);
   const left = decoded(expected),
     right = decoded(actual);
   if (left.width !== right.width || left.height !== right.height)
@@ -87,10 +128,22 @@ export const comparePortalPng = (expected: Uint8Array, actual: Uint8Array, toler
       actualHeight: right.height,
       differingPixels: left.width * left.height,
       ratio: 1,
+      strictRatio: 1,
+      comparisonMode,
       diff: null,
     };
   const diff = new Uint8Array(left.rgba.length);
-  let changed = 0;
+  const perceptualMask =
+    comparisonMode === 'pixelmatch-7.2-v1' ? new Uint8Array(diff.length) : null;
+  if (perceptualMask)
+    pixelmatch(left.rgba, right.rgba, perceptualMask, left.width, left.height, {
+      threshold: 0.1,
+      includeAA: false,
+      checkerboard: false,
+      diffMask: true,
+    });
+  let changed = 0,
+    strictChanged = 0;
   for (let at = 0; at < diff.length; at += 4) {
     // Composite transparent pixels onto the same white page before comparing RGB channels.
     let different = false;
@@ -99,6 +152,8 @@ export const comparePortalPng = (expected: Uint8Array, actual: Uint8Array, toler
       const b = (right.rgba[at + channel]! * right.rgba[at + 3]!) / 255 + 255 - right.rgba[at + 3]!;
       if (Math.abs(a - b) > tolerance) different = true;
     }
+    if (different) strictChanged++;
+    if (perceptualMask) different = perceptualMask[at + 3] !== 0;
     if (different) {
       changed++;
       diff[at] = 255;
@@ -119,6 +174,8 @@ export const comparePortalPng = (expected: Uint8Array, actual: Uint8Array, toler
     actualHeight: right.height,
     differingPixels: changed,
     ratio: changed / (left.width * left.height),
+    strictRatio: strictChanged / (left.width * left.height),
+    comparisonMode,
     diff: new Uint8Array(png.encode([diff.buffer], left.width, left.height, 0)),
   };
 };
@@ -132,6 +189,13 @@ export const ActionSchema = z.discriminatedUnion('kind', [
     .object({ kind: z.literal('press'), selector: z.string().min(1), key: z.string().min(1) })
     .strict(),
   z.object({ kind: z.literal('text'), selector: z.string().min(1), value: z.string() }).strict(),
+  z
+    .object({
+      kind: z.literal('contains-text'),
+      selector: z.string().min(1),
+      value: z.string().min(1),
+    })
+    .strict(),
   z.object({ kind: z.literal('visible'), selector: z.string().min(1) }).strict(),
   z.object({ kind: z.literal('hidden'), selector: z.string().min(1) }).strict(),
   z.object({ kind: z.literal('focused'), selector: z.string().min(1) }).strict(),
@@ -164,12 +228,15 @@ const runActions = async (
         else if (action.kind === 'hidden') await locator.waitFor({ state: 'hidden' });
         else
           await page.waitForFunction(
-            '({ selector, kind, value }) => { const element = document.querySelector(selector); return kind === "focused" ? element !== null && element === document.activeElement : element?.textContent?.trim() === value; }',
-            {
-              selector: action.selector,
-              kind: action.kind,
-              value: action.kind === 'text' ? action.value : null,
-            },
+            '(() => { const {selector,kind,value} = ' +
+              JSON.stringify({
+                selector: action.selector,
+                kind: action.kind,
+                value:
+                  action.kind === 'text' || action.kind === 'contains-text' ? action.value : null,
+              }) +
+              '; const element = document.querySelector(selector); return kind === "focused" ? element !== null && element === document.activeElement : kind === "contains-text" ? element?.textContent?.includes(value) === true : element?.textContent?.trim() === value; })()',
+            undefined,
             { timeout: 5000 },
           );
       } catch {
@@ -236,6 +303,7 @@ export const NativePreviewSchema = z
             fullPage: z.boolean().default(true),
             captureSelector: z.string().min(1).max(2048).optional(),
             maxDifferenceRatio: z.number().min(0).max(0.03).default(0.01),
+            comparisonMode: PortalPixelComparisonModeSchema.optional(),
             beforeActions: z.array(ActionSchema).max(128).default([]),
             actions: z.array(ActionSchema).max(128).default([]),
           })
@@ -279,7 +347,7 @@ export const NativePreviewSchema = z
 export const assertNativePortalPreview = async (
   input: unknown,
   signal?: AbortSignal,
-  options: { emitReport?: boolean } = {},
+  options: { emitReport?: boolean; retainFailedReport?: boolean } = {},
 ) => {
   signal = signal
     ? AbortSignal.any([signal, AbortSignal.timeout(300000)])
@@ -287,7 +355,8 @@ export const assertNativePortalPreview = async (
   const spec = NativePreviewSchema.parse(input),
     root = resolve(spec.root),
     folder = join(root, spec.outputDirectory ?? '.sfp-native-preview');
-  const executablePath = process.env.SFP_PORTAL_FIREFOX_EXECUTABLE;
+  const executablePath = process.env.SFP_PORTAL_CHROME_EXECUTABLE ?? googleChromeExecutable();
+  if (!executablePath) throw portalError('PORTAL_CHROME_REQUIRED');
   signal?.throwIfAborted();
   await preparePortalConsumptionObserver();
   const consumptionResources = spec.consumption
@@ -300,10 +369,14 @@ export const assertNativePortalPreview = async (
     if (consumptionBytes > 4194304) throw portalError('PORTAL_CONSUMPTION_REPORT_CAPACITY');
     consumptionObservations.push(...observed);
   };
-  const browser = await firefox.launch({
+  const browser = await chromium.launch({
+    channel: 'chrome',
+    executablePath,
     headless: true,
+    // Figma PNG exports use grayscale text. Remove platform LCD color fringes
+    // from the owned comparison session without changing the source browser.
+    args: ['--disable-lcd-text', '--font-render-hinting=none'],
     timeout: 30000,
-    ...(executablePath ? { executablePath } : {}),
   });
   const abort = () => {
     void browser.close().catch(() => {});
@@ -336,6 +409,7 @@ export const assertNativePortalPreview = async (
           expected.state !== screen.state ||
           JSON.stringify(expected.viewport) !== JSON.stringify(screen.viewport) ||
           expected.oracleHash !== screen.oracleHash ||
+          (expected.comparisonMode ?? 'rgba-v1') !== (screen.comparisonMode ?? 'rgba-v1') ||
           JSON.stringify(expected.assertionIds) !== JSON.stringify(screen.assertionIds))
       )
         throw portalError('PORTAL_PREVIEW_MANIFEST_CHANGED');
@@ -368,7 +442,7 @@ export const assertNativePortalPreview = async (
               : route.continue()
             : route.abort('blockedbyclient');
         });
-        // eslint-disable-next-line no-await-in-loop -- a fresh preview page is Firefox, never a new Chrome tab
+        // eslint-disable-next-line no-await-in-loop -- each page belongs to the owned preview Chrome session
         const page = await context.newPage();
         page.on('pageerror', () => failures.push('UNHANDLED_PAGE_ERROR'));
         page.on('requestfailed', request => {
@@ -435,7 +509,7 @@ export const assertNativePortalPreview = async (
         const oracle = await readFileWithinLimit(join(oracleRoot, screen.oraclePath), 16_777_216);
         if (storedChecksum(oracle) !== screen.oracleHash)
           throw portalError('PORTAL_PREVIEW_ORACLE_CHANGED');
-        const comparison = comparePortalPng(oracle, actual);
+        const comparison = comparePortalPng(oracle, actual, 12, screen.comparisonMode);
         // eslint-disable-next-line no-await-in-loop -- immutable evidence for this private working copy
         await withRetainedDirectoryChain(
           root,
@@ -471,7 +545,7 @@ export const assertNativePortalPreview = async (
               ['click', 'fill', 'select', 'press'].includes(value.kind),
             ) ||
             !workflow.actions.some(value =>
-              ['text', 'visible', 'hidden', 'focused'].includes(value.kind),
+              ['text', 'contains-text', 'visible', 'hidden', 'focused'].includes(value.kind),
             )
           )
             throw portalError('PORTAL_PREVIEW_WORKFLOW_BINDING_REQUIRED');
@@ -482,14 +556,14 @@ export const assertNativePortalPreview = async (
           }
           await page.goto(new URL(screen.path, spec.baseUrl).href, { waitUntil: 'networkidle' });
           const stateActions = workflow.actions.filter(action =>
-            ['text', 'visible', 'hidden', 'focused'].includes(action.kind),
+            ['text', 'contains-text', 'visible', 'hidden', 'focused'].includes(action.kind),
           );
           const observeStates = async () => {
             const states: unknown[] = [];
             for (const action of stateActions) {
               const locator = page.locator(action.selector);
               states.push(
-                action.kind === 'text'
+                action.kind === 'text' || action.kind === 'contains-text'
                   ? await locator.textContent().catch(() => null)
                   : action.kind === 'focused'
                     ? await page.evaluate(
@@ -543,8 +617,11 @@ export const assertNativePortalPreview = async (
           ...(expected ? { observation: expected, interactionReports, workflowReports } : {}),
           captureSelector: screen.captureSelector ?? null,
           ratio: comparison.ratio,
+          strictRatio: comparison.strictRatio,
+          comparisonMode: comparison.comparisonMode,
           oracleHash: screen.oracleHash,
           actualHash: storedChecksum(actual),
+          diffHash: comparison.diff ? storedChecksum(comparison.diff) : null,
           actualPath: `${spec.outputDirectory ?? '.sfp-native-preview'}/${screen.id}.actual.png`,
           diffPath: comparison.diff
             ? `${spec.outputDirectory ?? '.sfp-native-preview'}/${screen.id}.diff.png`
@@ -586,7 +663,9 @@ export const assertNativePortalPreview = async (
       ? PortalConsumptionReportSchema.parse({
           version: 1,
           batchHash: consumptionBatchHash(spec.consumption),
-          observations: consumptionObservations,
+          observations: spec.consumption.checks.map(check =>
+            consumptionObservations.find(value => value.checkId === check.checkId)!,
+          ),
         })
       : undefined;
     const report = {
@@ -594,8 +673,9 @@ export const assertNativePortalPreview = async (
       ...(spec.manifest
         ? { manifestHash: contentHash('sfp-observation-manifest-v1', spec.manifest) }
         : {}),
-      browser: 'firefox',
+      browser: 'chrome',
       browserVersion: browser.version(),
+      textRendering: { requestedLcdText: false, requestedFontHinting: 'none' },
       deviceScaleFactor: 1,
       locale: 'en-US',
       timezone: 'UTC',
@@ -604,7 +684,7 @@ export const assertNativePortalPreview = async (
     };
     if (options.emitReport !== false)
       process.stdout.write(`SFP_PREVIEW_REPORT:${JSON.stringify(report)}\n`);
-    if (reports.some(screenReport => screenReport.passed !== true))
+    if (!options.retainFailedReport && reports.some(screenReport => screenReport.passed !== true))
       throw portalError('PORTAL_PREVIEW_FAILED');
     return report;
   } finally {

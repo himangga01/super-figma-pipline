@@ -3,7 +3,13 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
 import { storedChecksum, contentHash, canonicalJson } from '@sfp/ir';
-import { type DesignObservation, type DesignJson } from '@sfp/shared';
+import {
+  PORTAL_CORE_RECIPE_LIMITS,
+  PortalCoreRecipePageSchema,
+  PortalCoreRecipeManifestSchema,
+  type DesignObservation,
+  type DesignJson,
+} from '@sfp/shared';
 import { afterEach, expect, it } from 'vitest';
 
 import { RepoReader } from '../../src/fs/repo-walk.js';
@@ -514,6 +520,47 @@ it('uses canonical mappings from actual bounded source bytes, retaining source-q
     'CORE_SOURCE_CAPSULE_INVALID',
   );
 });
+it('gives same-source same-name component mappings distinct stable review obligations', async () => {
+  const observation = observed(
+    raw({
+      nodes: Array.from(['main-a', 'main-b'], (id, index) => ({
+        ...root,
+        id: '1:' + (index + 2),
+        type: 'INSTANCE',
+        name: 'Button',
+        mainComponent: { id, name: 'Button', key: '' },
+        componentApi: { properties: {} },
+        componentProperties: {},
+      })),
+    }),
+  );
+  const source = await prepareCoreRecipeSource({
+    sourceId: hash,
+    reader: await repository(),
+    observation,
+  });
+  const bundle = derive(observation, {
+    strategy: 'reference-portal',
+    sources: [source],
+    assets: [asset(), asset('1:3')],
+  });
+  const mappings = rows(bundle, 'map-design').filter(
+    row => row.kind === 'mapping' && row.mappingKind === 'component',
+  );
+  expect(mappings).toHaveLength(2);
+  const obligations = rows(bundle, 'map-design').filter(
+    row => row.kind === 'obligation' && row.obligation.kind === 'reuse-review',
+  );
+  expect(obligations).toHaveLength(2);
+  expect(new Set(obligations.map(row => row.id)).size).toBe(2);
+  expect(
+    derive(observation, {
+      strategy: 'reference-portal',
+      sources: [source],
+      assets: [asset(), asset('1:3')],
+    }).pages,
+  ).toEqual(bundle.pages);
+});
 
 it('retains deterministic source-bound page and manifest hashes without claiming runtime use', () => {
   const observation = observed(raw());
@@ -533,6 +580,26 @@ it('retains deterministic source-bound page and manifest hashes without claiming
   expect(materialValues).toContainEqual(
     expect.objectContaining({ layers: ['frontend', 'configuration'] } as unknown as DesignJson),
   );
+});
+
+it('keeps historical manifests readable but rejects the prior derivation identity for adoption', () => {
+  const bundle = derive(observed(raw()));
+  const output = result(bundle, 'ground-design');
+  const legacyHash = contentHash('sfp-core-recipe-contract-v1', {
+    page: PortalCoreRecipePageSchema.toJSONSchema({ unrepresentable: 'any' }),
+    observedJsonCodec: 'bounded-design-json-v1',
+    manifest: PortalCoreRecipeManifestSchema.toJSONSchema(),
+    limits: PORTAL_CORE_RECIPE_LIMITS,
+    algorithmVersion: 'core-derivation-qualified-source-v2',
+  });
+  const legacy = { ...output, contractHash: legacyHash };
+  expect(() => PortalCoreRecipeManifestSchema.parse(legacy)).not.toThrow();
+  expect(() =>
+    verifyCoreRecipePages(
+      legacy,
+      bundle.pages.filter(value => value.page.recipeId === 'ground-design'),
+    ),
+  ).toThrow('CORE_CONTRACT_MISMATCH');
 });
 
 it('recounts page obligations/issues and checks material hashes before result-store adoption', () => {
@@ -1272,7 +1339,7 @@ it('unsupported imported-theme values remain unmapped obligations without a gues
       row =>
         row.kind === 'obligation' &&
         row.obligation.kind === 'reuse-review' &&
-        row.obligation.itemId === 'token:v',
+        row.obligation.itemId === mapping!.id,
     ),
   ).toBe(true);
 });

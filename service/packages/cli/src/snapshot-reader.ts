@@ -54,14 +54,17 @@ export const readDesignSnapshot = async (
     valueTruncated = false;
   const observations: Array<{ args: Partial<Query>; hash: string }> = [];
   let rechecking = false;
+  let phaseBytes = 0;
+  const phaseByteLimit = 12_000_000;
   const read = async (args: Partial<Query>) => {
     options.signal?.throwIfAborted();
     if (Date.now() >= (options.deadlineAt ?? Infinity)) throw new Error('SNAPSHOT_READ_BUDGET');
-    if (calls >= 256 || bytes >= 12_000_000) throw new Error('SNAPSHOT_READ_BUDGET');
+    if (calls >= 256 || phaseBytes >= phaseByteLimit) throw new Error('SNAPSHOT_READ_BUDGET');
     calls++;
     const result = await readQuery({ ...query, ...args });
     const size = Buffer.byteLength(JSON.stringify(result));
-    if (bytes + size > 12_000_000) throw new Error('SNAPSHOT_READ_BUDGET');
+    if (phaseBytes + size > phaseByteLimit) throw new Error('SNAPSHOT_READ_BUDGET');
+    phaseBytes += size;
     bytes += size;
     valueTruncated ||= result.valueTruncated;
     if (!rechecking) {
@@ -417,6 +420,8 @@ export const readDesignSnapshot = async (
     .map(issue => issue.id);
   let reobserved = false;
   rechecking = true;
+  // A complete bounded first pass must retain capacity for its equally bounded verification pass.
+  phaseBytes = 0;
   try {
     for (const observed of observations) {
       // eslint-disable-next-line no-await-in-loop -- a final ordered pass checks all earlier successful scopes
@@ -495,7 +500,7 @@ export const readDesignSnapshot = async (
               : 'partial',
         unresolvedVariableIds,
       },
-      limits: { calls: 256, bytes: 12000000 },
+      limits: { calls: 256, bytes: phaseByteLimit * 2, bytesPerPass: phaseByteLimit },
     },
     nodeCount: countNodes(nodes),
     sectionCount: nodes.length,

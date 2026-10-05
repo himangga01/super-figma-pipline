@@ -8,12 +8,35 @@ import {
   type InvocationEffectV1,
   type ResolvedInvocationScope,
   type ToolName,
+  type PortalAuthority,
   ServiceOperationNameSchema,
 } from '@sfp/shared';
 
 import type { ApprovalChannel } from './approval-gate.js';
 
 export const APPROVAL_TTL_MS = 120_000 as const;
+
+/** Keep the display bounded while binding the complete target and resource scope. */
+export const portalApprovalLabel = (
+  authority: Pick<PortalAuthority, 'scope' | 'targetPath' | 'resource' | 'executionResources'>,
+): string => {
+  const resources = authority.executionResources ?? [authority.resource];
+  const binding = hashCanonicalJson('sfp-portal-approval-label-v1', {
+    scope: authority.scope,
+    targetPath: authority.targetPath,
+    resources,
+  });
+  const prefix = `Portal ${authority.scope}: `;
+  const suffix = `; native execution, retained artifacts; same owner account, no OS sandbox; ${binding}`;
+  const budget = 256 - prefix.length - suffix.length;
+  let target = '';
+  for (const character of authority.targetPath) {
+    if (target.length + character.length > budget - 1) break;
+    target += character;
+  }
+  if (target !== authority.targetPath) target += '…';
+  return prefix + target + suffix;
+};
 
 const summarizeEffect = (effect: InvocationEffectV1): string => {
   switch (effect.type) {

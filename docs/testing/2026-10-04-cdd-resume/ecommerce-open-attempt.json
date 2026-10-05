@@ -1,0 +1,25 @@
+{
+  "recordedAt": "2026-10-04T09:00:29.369Z",
+  "purpose": "Read-only preparation after CDD Chrome/Scripter completion; final eCommerce frontend acceptance has not started",
+  "fileKey": "4IBhv1d8hEclifZQrOYxHS",
+  "nodeId": "0:1",
+  "sourceUrl": "https://www.figma.com/design/4IBhv1d8hEclifZQrOYxHS?node-id=0-1",
+  "attempts": [
+    {
+      "command": "service CLI chrome-open --url <sourceUrl> --wait 300",
+      "build": "separate native-styles CLI output",
+      "result": "CHROME_INITIALIZATION_TIMEOUT",
+      "meaning": "Chrome accepted the socket; unscoped Playwright initialization did not complete. No successful source opening is established."
+    },
+    {
+      "command": "service CLI chrome-tabs --url <sourceUrl> --wait 60",
+      "build": "normal CLI output from current source checks",
+      "result": "FIGMA_TAB_NOT_FOUND",
+      "meaning": "Selected-target attachment worked, but the requested source tab was absent."
+    }
+  ],
+  "diagnosis": "The explicit missing-tab path still initializes unselected tabs before creating the requested source. Scoped missing-target creation remains to be implemented and tested.",
+  "completeCapture": false,
+  "generatedFrontend": false,
+  "externalControllerUsed": false
+}

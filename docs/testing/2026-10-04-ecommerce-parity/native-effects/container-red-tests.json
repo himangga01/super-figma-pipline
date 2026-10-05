@@ -1,0 +1,27 @@
+{
+  "recordedAt": "2026-10-04T15:00:04.066Z",
+  "purpose": "Expected failures before native container and grid conversion",
+  "command": "vitest run packages/cli/test/figma-native-layout.test.ts",
+  "files": 1,
+  "numTotalTests": 15,
+  "numPassedTests": 13,
+  "numFailedTests": 2,
+  "numPendingTests": 0,
+  "numTodoTests": 0,
+  "success": false,
+  "failed": [
+    {
+      "file": "packages/cli/test/figma-native-layout.test.ts",
+      "title": "reports container and corner fields with omitted defaults only for their Plugin API types",
+      "status": "failed",
+      "message": "TypeError: (0 , __vite_ssr_import_1__.nativeContainerProperties) is not a function"
+    },
+    {
+      "file": "packages/cli/test/figma-native-layout.test.ts",
+      "title": "converts native layout grids and leaves unobserved grid forms unknown",
+      "status": "failed",
+      "message": "TypeError: (0 , __vite_ssr_import_1__.nativeContainerProperties) is not a function"
+    }
+  ],
+  "selected": []
+}

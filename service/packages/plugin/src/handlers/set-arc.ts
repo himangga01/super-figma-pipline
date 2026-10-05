@@ -4,7 +4,7 @@ import type { SandboxToolHandler } from '../dispatcher.js';
 
 export const createSetArcHandler =
   (figmaCtx: typeof figma): SandboxToolHandler =>
-  async params => {
+  async (params, execution) => {
     const p = (params ?? {}) as {
       nodeId?: unknown;
       startingAngle?: unknown;
@@ -34,6 +34,7 @@ export const createSetArcHandler =
       );
     }
     const node = await figmaCtx.getNodeByIdAsync(p.nodeId);
+    execution?.signal.throwIfAborted();
     if (node === null || !('arcData' in node)) {
       throw new Error(`set_arc: node ${p.nodeId} not found or is not an ellipse`);
     }
@@ -46,6 +47,7 @@ export const createSetArcHandler =
       endingAngle: typeof p.endingAngle === 'number' ? p.endingAngle : current.endingAngle,
       innerRadius: typeof p.innerRadius === 'number' ? p.innerRadius : current.innerRadius,
     };
+    execution?.recordOwnedWrite?.(node, ['arcData']);
     const result: MutateResult = { ok: true, nodeId: node.id };
     return result;
   };

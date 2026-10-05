@@ -1,0 +1,3525 @@
+{
+  "rootIds": [
+    "1381:541",
+    "1381:530"
+  ],
+  "fields": [
+    "fontName",
+    "fontSize",
+    "fontWeight",
+    "fills",
+    "lineHeight",
+    "letterSpacing",
+    "listOptions",
+    "indentation",
+    "textWrapStyle",
+    "textDecoration",
+    "textCase",
+    "hyperlink",
+    "textStyleId",
+    "fillStyleId",
+    "boundVariables"
+  ],
+  "rows": [
+    {
+      "id": "I1381:542;1381:190;1379:552",
+      "characters": "질문이 있으신가요? 문의 전화: 00-308-321-0058",
+      "segments": [
+        {
+          "characters": "질문이 있으신가요? 문의 전화: 00-308-321-0058",
+          "start": 0,
+          "end": 33,
+          "fontSize": 20,
+          "fontName": {
+            "family": "Spoqa Han Sans Neo",
+            "style": "Bold"
+          },
+          "fontWeight": 700,
+          "textDecoration": "NONE",
+          "textCase": "ORIGINAL",
+          "lineHeight": {
+            "unit": "PERCENT",
+            "value": 150
+          },
+          "letterSpacing": {
+            "unit": "PERCENT",
+            "value": -0.05000000074505806
+          },
+          "fills": [
+            {
+              "type": "SOLID",
+              "visible": true,
+              "opacity": 1,
+              "blendMode": "NORMAL",
+              "color": {
+                "r": 0.7835294008255005,
+                "g": 0.7835294008255005,
+                "b": 0.7835294008255005
+              },
+              "boundVariables": {}
+            }
+          ],
+          "textStyleId": "S:77346953d561bc59cacf2b3591e074f55ba8be0a,",
+          "fillStyleId": "S:1b4646e7bd23c9d8581fd690bd8ec513a7e6257b,",
+          "listOptions": {
+            "type": "NONE"
+          },
+          "indentation": 0,
+          "hyperlink": null,
+          "boundVariables": {},
+          "textWrapStyle": "AUTO"
+        }
+      ]
+    },
+    {
+      "id": "I1381:542;1381:190;1379:554",
+      "characters": "자주 묻는 질문",
+      "segments": [
+        {
+          "characters": "자주 묻는 질문",
+          "start": 0,
+          "end": 8,
+          "fontSize": 16,
+          "fontName": {
+            "family": "Spoqa Han Sans Neo",
+            "style": "Regular"
+          },
+          "fontWeight": 400,
+          "textDecoration": "NONE",
+          "textCase": "ORIGINAL",
+          "lineHeight": {
+            "unit": "PERCENT",
+            "value": 120.00000476837158
+          },
+          "letterSpacing": {
+            "unit": "PERCENT",
+            "value": 0
+          },
+          "fills": [
+            {
+              "type": "SOLID",
+              "visible": true,
+              "opacity": 1,
+              "blendMode": "NORMAL",
+              "color": {
+                "r": 0.6752941012382507,
+                "g": 0.6752941012382507,
+                "b": 0.6752941012382507
+              },
+              "boundVariables": {}
+            }
+          ],
+          "textStyleId": "",
+          "fillStyleId": "S:fdd2bce13099d7465a2469395230573f32a8ceb5,",
+          "listOptions": {
+            "type": "NONE"
+          },
+          "indentation": 0,
+          "hyperlink": null,
+          "boundVariables": {},
+          "textWrapStyle": "AUTO"
+        }
+      ]
+    },
+    {
+      "id": "I1381:542;1381:190;1379:555",
+      "characters": "고객센터",
+      "segments": [
+        {
+          "characters": "고객센터",
+          "start": 0,
+          "end": 4,
+          "fontSize": 16,
+          "fontName": {
+            "family": "Spoqa Han Sans Neo",
+            "style": "Regular"
+          },
+          "fontWeight": 400,
+          "textDecoration": "NONE",
+          "textCase": "ORIGINAL",
+          "lineHeight": {
+            "unit": "PERCENT",
+            "value": 120.00000476837158
+          },
+          "letterSpacing": {
+            "unit": "PERCENT",
+            "value": 0
+          },
+          "fills": [
+            {
+              "type": "SOLID",
+              "visible": true,
+              "opacity": 1,
+              "blendMode": "NORMAL",
+              "color": {
+                "r": 0.6752941012382507,
+                "g": 0.6752941012382507,
+                "b": 0.6752941012382507
+              },
+              "boundVariables": {}
+            }
+          ],
+          "textStyleId": "",
+          "fillStyleId": "S:fdd2bce13099d7465a2469395230573f32a8ceb5,",
+          "listOptions": {
+            "type": "NONE"
+          },
+          "indentation": 0,
+          "hyperlink": null,
+          "boundVariables": {},
+          "textWrapStyle": "AUTO"
+        }
+      ]
+    },
+    {
+      "id": "I1381:542;1381:190;1379:556",
+      "characters": "계정",
+      "segments": [
+        {
+          "characters": "계정",
+          "start": 0,
+          "end": 2,
+          "fontSize": 16,
+          "fontName": {
+            "family": "Spoqa Han Sans Neo",
+            "style": "Regular"
+          },
+          "fontWeight": 400,
+          "textDecoration": "NONE",
+          "textCase": "ORIGINAL",
+          "lineHeight": {
+            "unit": "PERCENT",
+            "value": 120.00000476837158
+          },
+          "letterSpacing": {
+            "unit": "PERCENT",
+            "value": 0
+          },
+          "fills": [
+            {
+              "type": "SOLID",
+              "visible": true,
+              "opacity": 1,
+              "blendMode": "NORMAL",
+              "color": {
+                "r": 0.6752941012382507,
+                "g": 0.6752941012382507,
+                "b": 0.6752941012382507
+              },
+              "boundVariables": {}
+            }
+          ],
+          "textStyleId": "",
+          "fillStyleId": "S:fdd2bce13099d7465a2469395230573f32a8ceb5,",
+          "listOptions": {
+            "type": "NONE"
+          },
+          "indentation": 0,
+          "hyperlink": null,
+          "boundVariables": {},
+          "textWrapStyle": "AUTO"
+        }
+      ]
+    },
+    {
+      "id": "I1381:542;1381:190;1379:557",
+      "characters": "미디어 센터",
+      "segments": [
+        {
+          "characters": "미디어 센터",
+          "start": 0,
+          "end": 6,
+          "fontSize": 16,
+          "fontName": {
+            "family": "Spoqa Han Sans Neo",
+            "style": "Regular"
+          },
+          "fontWeight": 400,
+          "textDecoration": "NONE",
+          "textCase": "ORIGINAL",
+          "lineHeight": {
+            "unit": "PERCENT",
+            "value": 120.00000476837158
+          },
+          "letterSpacing": {
+            "unit": "PERCENT",
+            "value": 0
+          },
+          "fills": [
+            {
+              "type": "SOLID",
+              "visible": true,
+              "opacity": 1,
+              "blendMode": "NORMAL",
+              "color": {
+                "r": 0.6752941012382507,
+                "g": 0.6752941012382507,
+                "b": 0.6752941012382507
+              },
+              "boundVariables": {}
+            }
+          ],
+          "textStyleId": "",
+          "fillStyleId": "S:fdd2bce13099d7465a2469395230573f32a8ceb5,",
+          "listOptions": {
+            "type": "NONE"
+          },
+          "indentation": 0,
+          "hyperlink": null,
+          "boundVariables": {},
+          "textWrapStyle": "AUTO"
+        }
+      ]
+    },
+    {
+      "id": "I1381:542;1381:190;1379:558",
+      "characters": "투자 정보(IR)",
+      "segments": [
+        {
+          "characters": "투자 정보(IR)",
+          "start": 0,
+          "end": 9,
+          "fontSize": 16,
+          "fontName": {
+            "family": "Spoqa Han Sans Neo",
+            "style": "Regular"
+          },
+          "fontWeight": 400,
+          "textDecoration": "NONE",
+          "textCase": "ORIGINAL",
+          "lineHeight": {
+            "unit": "PERCENT",
+            "value": 120.00000476837158
+          },
+          "letterSpacing": {
+            "unit": "PERCENT",
+            "value": 0
+          },
+          "fills": [
+            {
+              "type": "SOLID",
+              "visible": true,
+              "opacity": 1,
+              "blendMode": "NORMAL",
+              "color": {
+                "r": 0.6752941012382507,
+                "g": 0.6752941012382507,
+                "b": 0.6752941012382507
+              },
+              "boundVariables": {}
+            }
+          ],
+          "textStyleId": "",
+          "fillStyleId": "S:fdd2bce13099d7465a2469395230573f32a8ceb5,",
+          "listOptions": {
+            "type": "NONE"
+          },
+          "indentation": 0,
+          "hyperlink": null,
+          "boundVariables": {},
+          "textWrapStyle": "AUTO"
+        }
+      ]
+    },
+    {
+      "id": "I1381:542;1381:190;1379:559",
+      "characters": "입사 정보",
+      "segments": [
+        {
+          "characters": "입사 정보",
+          "start": 0,
+          "end": 5,
+          "fontSize": 16,
+          "fontName": {
+            "family": "Spoqa Han Sans Neo",
+            "style": "Regular"
+          },
+          "fontWeight": 400,
+          "textDecoration": "NONE",
+          "textCase": "ORIGINAL",
+          "lineHeight": {
+            "unit": "PERCENT",
+            "value": 120.00000476837158
+          },
+          "letterSpacing": {
+            "unit": "PERCENT",
+            "value": 0
+          },
+          "fills": [
+            {
+              "type": "SOLID",
+              "visible": true,
+              "opacity": 1,
+              "blendMode": "NORMAL",
+              "color": {
+                "r": 0.6752941012382507,
+                "g": 0.6752941012382507,
+                "b": 0.6752941012382507
+              },
+              "boundVariables": {}
+            }
+          ],
+          "textStyleId": "",
+          "fillStyleId": "S:fdd2bce13099d7465a2469395230573f32a8ceb5,",
+          "listOptions": {
+            "type": "NONE"
+          },
+          "indentation": 0,
+          "hyperlink": null,
+          "boundVariables": {},
+          "textWrapStyle": "AUTO"
+        }
+      ]
+    },
+    {
+      "id": "I1381:542;1381:190;1379:560",
+      "characters": "Netflix 지원 디바이스",
+      "segments": [
+        {
+          "characters": "Netflix 지원 디바이스",
+          "start": 0,
+          "end": 15,
+          "fontSize": 16,
+          "fontName": {
+            "family": "Spoqa Han Sans Neo",
+            "style": "Regular"
+          },
+          "fontWeight": 400,
+          "textDecoration": "NONE",
+          "textCase": "ORIGINAL",
+          "lineHeight": {
+            "unit": "PERCENT",
+            "value": 120.00000476837158
+          },
+          "letterSpacing": {
+            "unit": "PERCENT",
+            "value": 0
+          },
+          "fills": [
+            {
+              "type": "SOLID",
+              "visible": true,
+              "opacity": 1,
+              "blendMode": "NORMAL",
+              "color": {
+                "r": 0.6752941012382507,
+                "g": 0.6752941012382507,
+                "b": 0.6752941012382507
+              },
+              "boundVariables": {}
+            }
+          ],
+          "textStyleId": "",
+          "fillStyleId": "S:fdd2bce13099d7465a2469395230573f32a8ceb5,",
+          "listOptions": {
+            "type": "NONE"
+          },
+          "indentation": 0,
+          "hyperlink": null,
+          "boundVariables": {},
+          "textWrapStyle": "AUTO"
+        }
+      ]
+    },
+    {
+      "id": "I1381:542;1381:190;1379:561",
+      "characters": "이용 약관",
+      "segments": [
+        {
+          "characters": "이용 약관",
+          "start": 0,
+          "end": 5,
+          "fontSize": 16,
+          "fontName": {
+            "family": "Spoqa Han Sans Neo",
+            "style": "Regular"
+          },
+          "fontWeight": 400,
+          "textDecoration": "NONE",
+          "textCase": "ORIGINAL",
+          "lineHeight": {
+            "unit": "PERCENT",
+            "value": 120.00000476837158
+          },
+          "letterSpacing": {
+            "unit": "PERCENT",
+            "value": 0
+          },
+          "fills": [
+            {
+              "type": "SOLID",
+              "visible": true,
+              "opacity": 1,
+              "blendMode": "NORMAL",
+              "color": {
+                "r": 0.6752941012382507,
+                "g": 0.6752941012382507,
+                "b": 0.6752941012382507
+              },
+              "boundVariables": {}
+            }
+          ],
+          "textStyleId": "",
+          "fillStyleId": "S:fdd2bce13099d7465a2469395230573f32a8ceb5,",
+          "listOptions": {
+            "type": "NONE"
+          },
+          "indentation": 0,
+          "hyperlink": null,
+          "boundVariables": {},
+          "textWrapStyle": "AUTO"
+        }
+      ]
+    },
+    {
+      "id": "I1381:542;1381:190;1379:562",
+      "characters": "개인정보",
+      "segments": [
+        {
+          "characters": "개인정보",
+          "start": 0,
+          "end": 4,
+          "fontSize": 16,
+          "fontName": {
+            "family": "Spoqa Han Sans Neo",
+            "style": "Regular"
+          },
+          "fontWeight": 400,
+          "textDecoration": "NONE",
+          "textCase": "ORIGINAL",
+          "lineHeight": {
+            "unit": "PERCENT",
+            "value": 120.00000476837158
+          },
+          "letterSpacing": {
+            "unit": "PERCENT",
+            "value": 0
+          },
+          "fills": [
+            {
+              "type": "SOLID",
+              "visible": true,
+              "opacity": 1,
+              "blendMode": "NORMAL",
+              "color": {
+                "r": 0.6752941012382507,
+                "g": 0.6752941012382507,
+                "b": 0.6752941012382507
+              },
+              "boundVariables": {}
+            }
+          ],
+          "textStyleId": "",
+          "fillStyleId": "S:fdd2bce13099d7465a2469395230573f32a8ceb5,",
+          "listOptions": {
+            "type": "NONE"
+          },
+          "indentation": 0,
+          "hyperlink": null,
+          "boundVariables": {},
+          "textWrapStyle": "AUTO"
+        }
+      ]
+    },
+    {
+      "id": "I1381:542;1381:190;1379:563",
+      "characters": "쿠키 설정",
+      "segments": [
+        {
+          "characters": "쿠키 설정",
+          "start": 0,
+          "end": 5,
+          "fontSize": 16,
+          "fontName": {
+            "family": "Spoqa Han Sans Neo",
+            "style": "Regular"
+          },
+          "fontWeight": 400,
+          "textDecoration": "NONE",
+          "textCase": "ORIGINAL",
+          "lineHeight": {
+            "unit": "PERCENT",
+            "value": 120.00000476837158
+          },
+          "letterSpacing": {
+            "unit": "PERCENT",
+            "value": 0
+          },
+          "fills": [
+            {
+              "type": "SOLID",
+              "visible": true,
+              "opacity": 1,
+              "blendMode": "NORMAL",
+              "color": {
+                "r": 0.6752941012382507,
+                "g": 0.6752941012382507,
+                "b": 0.6752941012382507
+              },
+              "boundVariables": {}
+            }
+          ],
+          "textStyleId": "",
+          "fillStyleId": "S:fdd2bce13099d7465a2469395230573f32a8ceb5,",
+          "listOptions": {
+            "type": "NONE"
+          },
+          "indentation": 0,
+          "hyperlink": null,
+          "boundVariables": {},
+          "textWrapStyle": "AUTO"
+        }
+      ]
+    },
+    {
+      "id": "I1381:542;1381:190;1379:564",
+      "characters": "회사 정보",
+      "segments": [
+        {
+          "characters": "회사 정보",
+          "start": 0,
+          "end": 5,
+          "fontSize": 16,
+          "fontName": {
+            "family": "Spoqa Han Sans Neo",
+            "style": "Regular"
+          },
+          "fontWeight": 400,
+          "textDecoration": "NONE",
+          "textCase": "ORIGINAL",
+          "lineHeight": {
+            "unit": "PERCENT",
+            "value": 120.00000476837158
+          },
+          "letterSpacing": {
+            "unit": "PERCENT",
+            "value": 0
+          },
+          "fills": [
+            {
+              "type": "SOLID",
+              "visible": true,
+              "opacity": 1,
+              "blendMode": "NORMAL",
+              "color": {
+                "r": 0.6752941012382507,
+                "g": 0.6752941012382507,
+                "b": 0.6752941012382507
+              },
+              "boundVariables": {}
+            }
+          ],
+          "textStyleId": "",
+          "fillStyleId": "S:fdd2bce13099d7465a2469395230573f32a8ceb5,",
+          "listOptions": {
+            "type": "NONE"
+          },
+          "indentation": 0,
+          "hyperlink": null,
+          "boundVariables": {},
+          "textWrapStyle": "AUTO"
+        }
+      ]
+    },
+    {
+      "id": "I1381:542;1381:190;1379:565",
+      "characters": "문의하기",
+      "segments": [
+        {
+          "characters": "문의하기",
+          "start": 0,
+          "end": 4,
+          "fontSize": 16,
+          "fontName": {
+            "family": "Spoqa Han Sans Neo",
+            "style": "Regular"
+          },
+          "fontWeight": 400,
+          "textDecoration": "NONE",
+          "textCase": "ORIGINAL",
+          "lineHeight": {
+            "unit": "PERCENT",
+            "value": 120.00000476837158
+          },
+          "letterSpacing": {
+            "unit": "PERCENT",
+            "value": 0
+          },
+          "fills": [
+            {
+              "type": "SOLID",
+              "visible": true,
+              "opacity": 1,
+              "blendMode": "NORMAL",
+              "color": {
+                "r": 0.6752941012382507,
+                "g": 0.6752941012382507,
+                "b": 0.6752941012382507
+              },
+              "boundVariables": {}
+            }
+          ],
+          "textStyleId": "",
+          "fillStyleId": "S:fdd2bce13099d7465a2469395230573f32a8ceb5,",
+          "listOptions": {
+            "type": "NONE"
+          },
+          "indentation": 0,
+          "hyperlink": null,
+          "boundVariables": {},
+          "textWrapStyle": "AUTO"
+        }
+      ]
+    },
+    {
+      "id": "I1381:542;1381:190;1379:566",
+      "characters": "속도 테스트",
+      "segments": [
+        {
+          "characters": "속도 테스트",
+          "start": 0,
+          "end": 6,
+          "fontSize": 16,
+          "fontName": {
+            "family": "Spoqa Han Sans Neo",
+            "style": "Regular"
+          },
+          "fontWeight": 400,
+          "textDecoration": "NONE",
+          "textCase": "ORIGINAL",
+          "lineHeight": {
+            "unit": "PERCENT",
+            "value": 120.00000476837158
+          },
+          "letterSpacing": {
+            "unit": "PERCENT",
+            "value": 0
+          },
+          "fills": [
+            {
+              "type": "SOLID",
+              "visible": true,
+              "opacity": 1,
+              "blendMode": "NORMAL",
+              "color": {
+                "r": 0.6752941012382507,
+                "g": 0.6752941012382507,
+                "b": 0.6752941012382507
+              },
+              "boundVariables": {}
+            }
+          ],
+          "textStyleId": "",
+          "fillStyleId": "S:fdd2bce13099d7465a2469395230573f32a8ceb5,",
+          "listOptions": {
+            "type": "NONE"
+          },
+          "indentation": 0,
+          "hyperlink": null,
+          "boundVariables": {},
+          "textWrapStyle": "AUTO"
+        }
+      ]
+    },
+    {
+      "id": "I1381:542;1381:190;1379:567",
+      "characters": "법적 고지",
+      "segments": [
+        {
+          "characters": "법적 고지",
+          "start": 0,
+          "end": 5,
+          "fontSize": 16,
+          "fontName": {
+            "family": "Spoqa Han Sans Neo",
+            "style": "Regular"
+          },
+          "fontWeight": 400,
+          "textDecoration": "NONE",
+          "textCase": "ORIGINAL",
+          "lineHeight": {
+            "unit": "PERCENT",
+            "value": 120.00000476837158
+          },
+          "letterSpacing": {
+            "unit": "PERCENT",
+            "value": 0
+          },
+          "fills": [
+            {
+              "type": "SOLID",
+              "visible": true,
+              "opacity": 1,
+              "blendMode": "NORMAL",
+              "color": {
+                "r": 0.6752941012382507,
+                "g": 0.6752941012382507,
+                "b": 0.6752941012382507
+              },
+              "boundVariables": {}
+            }
+          ],
+          "textStyleId": "",
+          "fillStyleId": "S:fdd2bce13099d7465a2469395230573f32a8ceb5,",
+          "listOptions": {
+            "type": "NONE"
+          },
+          "indentation": 0,
+          "hyperlink": null,
+          "boundVariables": {},
+          "textWrapStyle": "AUTO"
+        }
+      ]
+    },
+    {
+      "id": "I1381:542;1381:190;1379:568",
+      "characters": "Netflix 오리지널",
+      "segments": [
+        {
+          "characters": "Netflix 오리지널",
+          "start": 0,
+          "end": 12,
+          "fontSize": 16,
+          "fontName": {
+            "family": "Spoqa Han Sans Neo",
+            "style": "Regular"
+          },
+          "fontWeight": 400,
+          "textDecoration": "NONE",
+          "textCase": "ORIGINAL",
+          "lineHeight": {
+            "unit": "PERCENT",
+            "value": 120.00000476837158
+          },
+          "letterSpacing": {
+            "unit": "PERCENT",
+            "value": 0
+          },
+          "fills": [
+            {
+              "type": "SOLID",
+              "visible": true,
+              "opacity": 1,
+              "blendMode": "NORMAL",
+              "color": {
+                "r": 0.6752941012382507,
+                "g": 0.6752941012382507,
+                "b": 0.6752941012382507
+              },
+              "boundVariables": {}
+            }
+          ],
+          "textStyleId": "",
+          "fillStyleId": "S:fdd2bce13099d7465a2469395230573f32a8ceb5,",
+          "listOptions": {
+            "type": "NONE"
+          },
+          "indentation": 0,
+          "hyperlink": null,
+          "boundVariables": {},
+          "textWrapStyle": "AUTO"
+        }
+      ]
+    },
+    {
+      "id": "I1381:542;1381:190;1379:575",
+      "characters": "Netflix 대한민국",
+      "segments": [
+        {
+          "characters": "Netflix 대한민국",
+          "start": 0,
+          "end": 12,
+          "fontSize": 22,
+          "fontName": {
+            "family": "Spoqa Han Sans Neo",
+            "style": "Bold"
+          },
+          "fontWeight": 700,
+          "textDecoration": "NONE",
+          "textCase": "ORIGINAL",
+          "lineHeight": {
+            "unit": "PERCENT",
+            "value": 120.00000476837158
+          },
+          "letterSpacing": {
+            "unit": "PERCENT",
+            "value": 0
+          },
+          "fills": [
+            {
+              "type": "SOLID",
+              "visible": true,
+              "opacity": 1,
+              "blendMode": "NORMAL",
+              "color": {
+                "r": 0.6752941012382507,
+                "g": 0.6752941012382507,
+                "b": 0.6752941012382507
+              },
+              "boundVariables": {}
+            }
+          ],
+          "textStyleId": "S:b9930c72d819868b239ad8f835592103a70046c6,",
+          "fillStyleId": "S:fdd2bce13099d7465a2469395230573f32a8ceb5,",
+          "listOptions": {
+            "type": "NONE"
+          },
+          "indentation": 0,
+          "hyperlink": null,
+          "boundVariables": {},
+          "textWrapStyle": "AUTO"
+        }
+      ]
+    },
+    {
+      "id": "I1381:542;1381:190;1379:580;1379:424",
+      "characters": "한국어",
+      "segments": [
+        {
+          "characters": "한국어",
+          "start": 0,
+          "end": 3,
+          "fontSize": 16,
+          "fontName": {
+            "family": "Spoqa Han Sans Neo",
+            "style": "Regular"
+          },
+          "fontWeight": 400,
+          "textDecoration": "NONE",
+          "textCase": "ORIGINAL",
+          "lineHeight": {
+            "unit": "PERCENT",
+            "value": 150
+          },
+          "letterSpacing": {
+            "unit": "PERCENT",
+            "value": -0.05000000074505806
+          },
+          "fills": [
+            {
+              "type": "SOLID",
+              "visible": true,
+              "opacity": 1,
+              "blendMode": "NORMAL",
+              "color": {
+                "r": 0.4588235318660736,
+                "g": 0.4588235318660736,
+                "b": 0.4588235318660736
+              },
+              "boundVariables": {}
+            }
+          ],
+          "textStyleId": "S:3f18c22f61f41e7eb264e9a0c985cfa6d9305a32,",
+          "fillStyleId": "S:3a99a77972b533a1036b1f47e266976c0a3ad90b,",
+          "listOptions": {
+            "type": "NONE"
+          },
+          "indentation": 0,
+          "hyperlink": null,
+          "boundVariables": {},
+          "textWrapStyle": "AUTO"
+        }
+      ]
+    },
+    {
+      "id": "I1381:542;1381:190;1379:576",
+      "characters": "넷플릭스서비시스코리아 유한회사  통신판매업신고번호: 제2018-서울종로-0426호  전화번호: 00-308-321-0058 대표: 레지널드 숀 톰프슨 이메일 주소: korea@netflix.com 주소: 대한민국 서울특별시 종로구 우정국로 26, 센트로폴리스 A동 20층 우편번호 03161 사업자 등록번호: 165-87-00119 클라우드 호스팅: Amazon Web Services Inc. 공정거래위원회 웹사이트",
+      "segments": [
+        {
+          "characters": "넷플릭스서비시스코리아 유한회사  통신판매업신고번호: 제2018-서울종로-0426호  전화번호: 00-308-321-0058 대표: 레지널드 숀 톰프슨 이메일 주소: korea@netflix.com 주소: 대한민국 서울특별시 종로구 우정국로 26, 센트로폴리스 A동 20층 우편번호 03161 사업자 등록번호: 165-87-00119 클라우드 호스팅: Amazon Web Services Inc. 공정거래위원회 웹사이트",
+          "start": 0,
+          "end": 233,
+          "fontSize": 16,
+          "fontName": {
+            "family": "Spoqa Han Sans Neo",
+            "style": "Bold"
+          },
+          "fontWeight": 700,
+          "textDecoration": "NONE",
+          "textCase": "ORIGINAL",
+          "lineHeight": {
+            "unit": "PERCENT",
+            "value": 150
+          },
+          "letterSpacing": {
+            "unit": "PERCENT",
+            "value": -0.05000000074505806
+          },
+          "fills": [
+            {
+              "type": "SOLID",
+              "visible": true,
+              "opacity": 1,
+              "blendMode": "NORMAL",
+              "color": {
+                "r": 0.567058801651001,
+                "g": 0.567058801651001,
+                "b": 0.567058801651001
+              },
+              "boundVariables": {}
+            }
+          ],
+          "textStyleId": "S:23cfc2005366364152f357f091fefb7e0dc29395,",
+          "fillStyleId": "S:2d5b43f5081f0738a01107e088dcac135cd00663,",
+          "listOptions": {
+            "type": "NONE"
+          },
+          "indentation": 0,
+          "hyperlink": null,
+          "boundVariables": {},
+          "textWrapStyle": "AUTO"
+        }
+      ]
+    },
+    {
+      "id": "I1381:542;1381:247;1379:136;1378:215",
+      "characters": "로그인",
+      "segments": [
+        {
+          "characters": "로그인",
+          "start": 0,
+          "end": 3,
+          "fontSize": 16,
+          "fontName": {
+            "family": "Spoqa Han Sans Neo",
+            "style": "Bold"
+          },
+          "fontWeight": 700,
+          "textDecoration": "NONE",
+          "textCase": "ORIGINAL",
+          "lineHeight": {
+            "unit": "PERCENT",
+            "value": 150
+          },
+          "letterSpacing": {
+            "unit": "PERCENT",
+            "value": -0.05000000074505806
+          },
+          "fills": [
+            {
+              "type": "SOLID",
+              "visible": true,
+              "opacity": 1,
+              "blendMode": "NORMAL",
+              "color": {
+                "r": 0.9960784316062927,
+                "g": 0.9960784316062927,
+                "b": 0.9960784316062927
+              },
+              "boundVariables": {}
+            }
+          ],
+          "textStyleId": "S:23cfc2005366364152f357f091fefb7e0dc29395,",
+          "fillStyleId": "S:444077c2de68a4c1580097841df4410876df4e00,",
+          "listOptions": {
+            "type": "NONE"
+          },
+          "indentation": 0,
+          "hyperlink": null,
+          "boundVariables": {},
+          "textWrapStyle": "AUTO"
+        }
+      ]
+    },
+    {
+      "id": "I1381:542;1381:247;1396:423;1379:424",
+      "characters": "한국어",
+      "segments": [
+        {
+          "characters": "한국어",
+          "start": 0,
+          "end": 3,
+          "fontSize": 16,
+          "fontName": {
+            "family": "Spoqa Han Sans Neo",
+            "style": "Regular"
+          },
+          "fontWeight": 400,
+          "textDecoration": "NONE",
+          "textCase": "ORIGINAL",
+          "lineHeight": {
+            "unit": "PERCENT",
+            "value": 150
+          },
+          "letterSpacing": {
+            "unit": "PERCENT",
+            "value": -0.05000000074505806
+          },
+          "fills": [
+            {
+              "type": "SOLID",
+              "visible": true,
+              "opacity": 1,
+              "blendMode": "NORMAL",
+              "color": {
+                "r": 0.4588235318660736,
+                "g": 0.4588235318660736,
+                "b": 0.4588235318660736
+              },
+              "boundVariables": {}
+            }
+          ],
+          "textStyleId": "S:3f18c22f61f41e7eb264e9a0c985cfa6d9305a32,",
+          "fillStyleId": "S:3a99a77972b533a1036b1f47e266976c0a3ad90b,",
+          "listOptions": {
+            "type": "NONE"
+          },
+          "indentation": 0,
+          "hyperlink": null,
+          "boundVariables": {},
+          "textWrapStyle": "AUTO"
+        }
+      ]
+    },
+    {
+      "id": "I1604:1325;1379:319",
+      "characters": "영화, TV 프﻿로﻿그﻿램﻿을  무제한으로.",
+      "segments": [
+        {
+          "characters": "영화, TV 프﻿로﻿그﻿램﻿을  무제한으로.",
+          "start": 0,
+          "end": 24,
+          "fontSize": 60,
+          "fontName": {
+            "family": "Spoqa Han Sans Neo",
+            "style": "Bold"
+          },
+          "fontWeight": 700,
+          "textDecoration": "NONE",
+          "textCase": "ORIGINAL",
+          "lineHeight": {
+            "unit": "PERCENT",
+            "value": 120.00000476837158
+          },
+          "letterSpacing": {
+            "unit": "PERCENT",
+            "value": -0.05000000074505806
+          },
+          "fills": [
+            {
+              "type": "SOLID",
+              "visible": true,
+              "opacity": 1,
+              "blendMode": "NORMAL",
+              "color": {
+                "r": 0.9960784316062927,
+                "g": 0.9960784316062927,
+                "b": 0.9960784316062927
+              },
+              "boundVariables": {}
+            }
+          ],
+          "textStyleId": "S:9f1d7adc70f88c967d0ec4ec30575d8679992536,",
+          "fillStyleId": "S:444077c2de68a4c1580097841df4410876df4e00,",
+          "listOptions": {
+            "type": "NONE"
+          },
+          "indentation": 0,
+          "hyperlink": null,
+          "boundVariables": {},
+          "textWrapStyle": "AUTO"
+        }
+      ]
+    },
+    {
+      "id": "I1604:1325;1379:320",
+      "characters": "다양한 디바이스에서 시청하세요. 언제든 해지하실 수 있습니다.",
+      "segments": [
+        {
+          "characters": "다양한 디바이스에서 시청하세요. 언제든 해지하실 수 있습니다.",
+          "start": 0,
+          "end": 34,
+          "fontSize": 20,
+          "fontName": {
+            "family": "Spoqa Han Sans Neo",
+            "style": "Bold"
+          },
+          "fontWeight": 700,
+          "textDecoration": "NONE",
+          "textCase": "ORIGINAL",
+          "lineHeight": {
+            "unit": "PERCENT",
+            "value": 150
+          },
+          "letterSpacing": {
+            "unit": "PERCENT",
+            "value": -0.05000000074505806
+          },
+          "fills": [
+            {
+              "type": "SOLID",
+              "visible": true,
+              "opacity": 1,
+              "blendMode": "NORMAL",
+              "color": {
+                "r": 0.8917647004127502,
+                "g": 0.8917647004127502,
+                "b": 0.8917647004127502
+              },
+              "boundVariables": {}
+            }
+          ],
+          "textStyleId": "S:77346953d561bc59cacf2b3591e074f55ba8be0a,",
+          "fillStyleId": "S:53a0a7098a659fe00bbc3d049229543bf5fbae12,",
+          "listOptions": {
+            "type": "NONE"
+          },
+          "indentation": 0,
+          "hyperlink": null,
+          "boundVariables": {},
+          "textWrapStyle": "AUTO"
+        }
+      ]
+    },
+    {
+      "id": "I1604:1325;1379:321",
+      "characters": "시청할 준비가 되셨나요? 멤버십을 등록하거나  재시작하려면 이메일 주소를 입력하세요.",
+      "segments": [
+        {
+          "characters": "시청할 준비가 되셨나요? 멤버십을 등록하거나  재시작하려면 이메일 주소를 입력하세요.",
+          "start": 0,
+          "end": 47,
+          "fontSize": 16,
+          "fontName": {
+            "family": "Spoqa Han Sans Neo",
+            "style": "Bold"
+          },
+          "fontWeight": 700,
+          "textDecoration": "NONE",
+          "textCase": "ORIGINAL",
+          "lineHeight": {
+            "unit": "PERCENT",
+            "value": 150
+          },
+          "letterSpacing": {
+            "unit": "PERCENT",
+            "value": -0.05000000074505806
+          },
+          "fills": [
+            {
+              "type": "SOLID",
+              "visible": true,
+              "opacity": 1,
+              "blendMode": "NORMAL",
+              "color": {
+                "r": 0.6752941012382507,
+                "g": 0.6752941012382507,
+                "b": 0.6752941012382507
+              },
+              "boundVariables": {}
+            }
+          ],
+          "textStyleId": "S:23cfc2005366364152f357f091fefb7e0dc29395,",
+          "fillStyleId": "S:fdd2bce13099d7465a2469395230573f32a8ceb5,",
+          "listOptions": {
+            "type": "NONE"
+          },
+          "indentation": 0,
+          "hyperlink": null,
+          "boundVariables": {},
+          "textWrapStyle": "AUTO"
+        }
+      ]
+    },
+    {
+      "id": "I1604:1325;1379:329;1378:416;1378:230",
+      "characters": "30일 무료 이용",
+      "segments": [
+        {
+          "characters": "30일 무료 이용",
+          "start": 0,
+          "end": 9,
+          "fontSize": 22,
+          "fontName": {
+            "family": "Spoqa Han Sans Neo",
+            "style": "Bold"
+          },
+          "fontWeight": 700,
+          "textDecoration": "NONE",
+          "textCase": "ORIGINAL",
+          "lineHeight": {
+            "unit": "PERCENT",
+            "value": 120.00000476837158
+          },
+          "letterSpacing": {
+            "unit": "PERCENT",
+            "value": 0
+          },
+          "fills": [
+            {
+              "type": "SOLID",
+              "visible": true,
+              "opacity": 1,
+              "blendMode": "NORMAL",
+              "color": {
+                "r": 0.9960784316062927,
+                "g": 0.9960784316062927,
+                "b": 0.9960784316062927
+              },
+              "boundVariables": {}
+            }
+          ],
+          "textStyleId": "S:b9930c72d819868b239ad8f835592103a70046c6,",
+          "fillStyleId": "S:444077c2de68a4c1580097841df4410876df4e00,",
+          "listOptions": {
+            "type": "NONE"
+          },
+          "indentation": 0,
+          "hyperlink": null,
+          "boundVariables": {},
+          "textWrapStyle": "AUTO"
+        }
+      ]
+    },
+    {
+      "id": "I1604:1325;1379:329;1378:421;1378:351",
+      "characters": "이메일 주소",
+      "segments": [
+        {
+          "characters": "이메일 주소",
+          "start": 0,
+          "end": 6,
+          "fontSize": 16,
+          "fontName": {
+            "family": "Spoqa Han Sans Neo",
+            "style": "Regular"
+          },
+          "fontWeight": 400,
+          "textDecoration": "NONE",
+          "textCase": "ORIGINAL",
+          "lineHeight": {
+            "unit": "PERCENT",
+            "value": 150
+          },
+          "letterSpacing": {
+            "unit": "PERCENT",
+            "value": -0.05000000074505806
+          },
+          "fills": [
+            {
+              "type": "SOLID",
+              "visible": true,
+              "opacity": 1,
+              "blendMode": "NORMAL",
+              "color": {
+                "r": 0.4588235318660736,
+                "g": 0.4588235318660736,
+                "b": 0.4588235318660736
+              },
+              "boundVariables": {}
+            }
+          ],
+          "textStyleId": "S:3f18c22f61f41e7eb264e9a0c985cfa6d9305a32,",
+          "fillStyleId": "S:3a99a77972b533a1036b1f47e266976c0a3ad90b,",
+          "listOptions": {
+            "type": "NONE"
+          },
+          "indentation": 0,
+          "hyperlink": null,
+          "boundVariables": {},
+          "textWrapStyle": "AUTO"
+        }
+      ]
+    },
+    {
+      "id": "I1604:1325;1379:325",
+      "characters": "신규 회원만 이 프로모션을 이용하실 수 있습니다.",
+      "segments": [
+        {
+          "characters": "신규 회원만 이 프로모션을 이용하실 수 있습니다.",
+          "start": 0,
+          "end": 27,
+          "fontSize": 16,
+          "fontName": {
+            "family": "Spoqa Han Sans Neo",
+            "style": "Bold"
+          },
+          "fontWeight": 700,
+          "textDecoration": "NONE",
+          "textCase": "ORIGINAL",
+          "lineHeight": {
+            "unit": "PERCENT",
+            "value": 150
+          },
+          "letterSpacing": {
+            "unit": "PERCENT",
+            "value": -0.05000000074505806
+          },
+          "fills": [
+            {
+              "type": "SOLID",
+              "visible": true,
+              "opacity": 1,
+              "blendMode": "NORMAL",
+              "color": {
+                "r": 0.567058801651001,
+                "g": 0.567058801651001,
+                "b": 0.567058801651001
+              },
+              "boundVariables": {}
+            }
+          ],
+          "textStyleId": "S:23cfc2005366364152f357f091fefb7e0dc29395,",
+          "fillStyleId": "S:2d5b43f5081f0738a01107e088dcac135cd00663,",
+          "listOptions": {
+            "type": "NONE"
+          },
+          "indentation": 0,
+          "hyperlink": null,
+          "boundVariables": {},
+          "textWrapStyle": "AUTO"
+        }
+      ]
+    },
+    {
+      "id": "I1604:1348;1585:349;1379:357",
+      "characters": "TV로 즐기세요.",
+      "segments": [
+        {
+          "characters": "TV로 즐기세요.",
+          "start": 0,
+          "end": 9,
+          "fontSize": 48,
+          "fontName": {
+            "family": "Spoqa Han Sans Neo",
+            "style": "Bold"
+          },
+          "fontWeight": 700,
+          "textDecoration": "NONE",
+          "textCase": "ORIGINAL",
+          "lineHeight": {
+            "unit": "PERCENT",
+            "value": 120.00000476837158
+          },
+          "letterSpacing": {
+            "unit": "PERCENT",
+            "value": -0.05000000074505806
+          },
+          "fills": [
+            {
+              "type": "SOLID",
+              "visible": true,
+              "opacity": 1,
+              "blendMode": "NORMAL",
+              "color": {
+                "r": 0.9960784316062927,
+                "g": 0.9960784316062927,
+                "b": 0.9960784316062927
+              },
+              "boundVariables": {}
+            }
+          ],
+          "textStyleId": "S:31f1e1f691357f2e7efed5cbc21f7f5bb409d8e9,",
+          "fillStyleId": "S:444077c2de68a4c1580097841df4410876df4e00,",
+          "listOptions": {
+            "type": "NONE"
+          },
+          "indentation": 0,
+          "hyperlink": null,
+          "boundVariables": {},
+          "textWrapStyle": "AUTO"
+        }
+      ]
+    },
+    {
+      "id": "I1604:1348;1585:349;1379:358",
+      "characters": "스마트 TV, PlayStation, Xbox, Chromecast, Apple TV, 블루레이 플레이어 등 다양한  디바이스에서 시청하세요.",
+      "segments": [
+        {
+          "characters": "스마트 TV, PlayStation, Xbox, Chromecast, Apple TV, 블루레이 플레이어 등 다양한  디바이스에서 시청하세요.",
+          "start": 0,
+          "end": 79,
+          "fontSize": 20,
+          "fontName": {
+            "family": "Spoqa Han Sans Neo",
+            "style": "Regular"
+          },
+          "fontWeight": 400,
+          "textDecoration": "NONE",
+          "textCase": "ORIGINAL",
+          "lineHeight": {
+            "unit": "PERCENT",
+            "value": 150
+          },
+          "letterSpacing": {
+            "unit": "PERCENT",
+            "value": -0.05000000074505806
+          },
+          "fills": [
+            {
+              "type": "SOLID",
+              "visible": true,
+              "opacity": 1,
+              "blendMode": "NORMAL",
+              "color": {
+                "r": 0.6752941012382507,
+                "g": 0.6752941012382507,
+                "b": 0.6752941012382507
+              },
+              "boundVariables": {}
+            }
+          ],
+          "textStyleId": "S:c5777b2006175337a3235d951e2f2a0a45162445,",
+          "fillStyleId": "S:fdd2bce13099d7465a2469395230573f32a8ceb5,",
+          "listOptions": {
+            "type": "NONE"
+          },
+          "indentation": 0,
+          "hyperlink": null,
+          "boundVariables": {},
+          "textWrapStyle": "AUTO"
+        }
+      ]
+    },
+    {
+      "id": "I1604:1348;1585:369;1379:416;1381:765",
+      "characters": "기묘한 이야기",
+      "segments": [
+        {
+          "characters": "기묘한 이야기",
+          "start": 0,
+          "end": 7,
+          "fontSize": 20,
+          "fontName": {
+            "family": "Spoqa Han Sans Neo",
+            "style": "Bold"
+          },
+          "fontWeight": 700,
+          "textDecoration": "NONE",
+          "textCase": "ORIGINAL",
+          "lineHeight": {
+            "unit": "PERCENT",
+            "value": 150
+          },
+          "letterSpacing": {
+            "unit": "PERCENT",
+            "value": -0.05000000074505806
+          },
+          "fills": [
+            {
+              "type": "SOLID",
+              "visible": true,
+              "opacity": 1,
+              "blendMode": "NORMAL",
+              "color": {
+                "r": 0.9960784316062927,
+                "g": 0.9960784316062927,
+                "b": 0.9960784316062927
+              },
+              "boundVariables": {}
+            }
+          ],
+          "textStyleId": "S:77346953d561bc59cacf2b3591e074f55ba8be0a,",
+          "fillStyleId": "S:444077c2de68a4c1580097841df4410876df4e00,",
+          "listOptions": {
+            "type": "NONE"
+          },
+          "indentation": 0,
+          "hyperlink": null,
+          "boundVariables": {},
+          "textWrapStyle": "AUTO"
+        }
+      ]
+    },
+    {
+      "id": "I1604:1348;1585:369;1379:416;1381:766",
+      "characters": "저장 중...",
+      "segments": [
+        {
+          "characters": "저장 중...",
+          "start": 0,
+          "end": 7,
+          "fontSize": 18,
+          "fontName": {
+            "family": "Spoqa Han Sans Neo",
+            "style": "Bold"
+          },
+          "fontWeight": 700,
+          "textDecoration": "NONE",
+          "textCase": "ORIGINAL",
+          "lineHeight": {
+            "unit": "PERCENT",
+            "value": 150
+          },
+          "letterSpacing": {
+            "unit": "PERCENT",
+            "value": -0.05000000074505806
+          },
+          "fills": [
+            {
+              "type": "SOLID",
+              "visible": true,
+              "opacity": 1,
+              "blendMode": "NORMAL",
+              "color": {
+                "r": 0,
+                "g": 0.4431372582912445,
+                "b": 0.9215686321258545
+              },
+              "boundVariables": {}
+            }
+          ],
+          "textStyleId": "S:d3ac9e9425eed420b1dc8f10507fc05ee135c601,",
+          "fillStyleId": "S:4e7e6906872137969226b4bcf877d10ee9b807e7,",
+          "listOptions": {
+            "type": "NONE"
+          },
+          "indentation": 0,
+          "hyperlink": null,
+          "boundVariables": {},
+          "textWrapStyle": "AUTO"
+        }
+      ]
+    },
+    {
+      "id": "I1604:1348;1585:369;1379:418",
+      "characters": "즐겨 보는 콘텐츠를 저장해  오프라인으로 시청하세요.",
+      "segments": [
+        {
+          "characters": "즐겨 보는 콘텐츠를 저장해  오프라인으로 시청하세요.",
+          "start": 0,
+          "end": 29,
+          "fontSize": 48,
+          "fontName": {
+            "family": "Spoqa Han Sans Neo",
+            "style": "Bold"
+          },
+          "fontWeight": 700,
+          "textDecoration": "NONE",
+          "textCase": "ORIGINAL",
+          "lineHeight": {
+            "unit": "PERCENT",
+            "value": 120.00000476837158
+          },
+          "letterSpacing": {
+            "unit": "PERCENT",
+            "value": -0.05000000074505806
+          },
+          "fills": [
+            {
+              "type": "SOLID",
+              "visible": true,
+              "opacity": 1,
+              "blendMode": "NORMAL",
+              "color": {
+                "r": 0.9960784316062927,
+                "g": 0.9960784316062927,
+                "b": 0.9960784316062927
+              },
+              "boundVariables": {}
+            }
+          ],
+          "textStyleId": "S:31f1e1f691357f2e7efed5cbc21f7f5bb409d8e9,",
+          "fillStyleId": "S:444077c2de68a4c1580097841df4410876df4e00,",
+          "listOptions": {
+            "type": "NONE"
+          },
+          "indentation": 0,
+          "hyperlink": null,
+          "boundVariables": {},
+          "textWrapStyle": "AUTO"
+        }
+      ]
+    },
+    {
+      "id": "I1604:1348;1585:369;1379:419",
+      "characters": "간편하게 저장하고 빈틈없이 즐겨보세요.",
+      "segments": [
+        {
+          "characters": "간편하게 저장하고 빈틈없이 즐겨보세요.",
+          "start": 0,
+          "end": 21,
+          "fontSize": 20,
+          "fontName": {
+            "family": "Spoqa Han Sans Neo",
+            "style": "Regular"
+          },
+          "fontWeight": 400,
+          "textDecoration": "NONE",
+          "textCase": "ORIGINAL",
+          "lineHeight": {
+            "unit": "PERCENT",
+            "value": 150
+          },
+          "letterSpacing": {
+            "unit": "PERCENT",
+            "value": -0.05000000074505806
+          },
+          "fills": [
+            {
+              "type": "SOLID",
+              "visible": true,
+              "opacity": 1,
+              "blendMode": "NORMAL",
+              "color": {
+                "r": 0.6752941012382507,
+                "g": 0.6752941012382507,
+                "b": 0.6752941012382507
+              },
+              "boundVariables": {}
+            }
+          ],
+          "textStyleId": "S:c5777b2006175337a3235d951e2f2a0a45162445,",
+          "fillStyleId": "S:fdd2bce13099d7465a2469395230573f32a8ceb5,",
+          "listOptions": {
+            "type": "NONE"
+          },
+          "indentation": 0,
+          "hyperlink": null,
+          "boundVariables": {},
+          "textWrapStyle": "AUTO"
+        }
+      ]
+    },
+    {
+      "id": "I1604:1348;1585:390;1379:357",
+      "characters": "다양한 디바이스에서  시청하세요.",
+      "segments": [
+        {
+          "characters": "다양한 디바이스에서  시청하세요.",
+          "start": 0,
+          "end": 18,
+          "fontSize": 48,
+          "fontName": {
+            "family": "Spoqa Han Sans Neo",
+            "style": "Bold"
+          },
+          "fontWeight": 700,
+          "textDecoration": "NONE",
+          "textCase": "ORIGINAL",
+          "lineHeight": {
+            "unit": "PERCENT",
+            "value": 120.00000476837158
+          },
+          "letterSpacing": {
+            "unit": "PERCENT",
+            "value": -0.05000000074505806
+          },
+          "fills": [
+            {
+              "type": "SOLID",
+              "visible": true,
+              "opacity": 1,
+              "blendMode": "NORMAL",
+              "color": {
+                "r": 0.9960784316062927,
+                "g": 0.9960784316062927,
+                "b": 0.9960784316062927
+              },
+              "boundVariables": {}
+            }
+          ],
+          "textStyleId": "S:31f1e1f691357f2e7efed5cbc21f7f5bb409d8e9,",
+          "fillStyleId": "S:444077c2de68a4c1580097841df4410876df4e00,",
+          "listOptions": {
+            "type": "NONE"
+          },
+          "indentation": 0,
+          "hyperlink": null,
+          "boundVariables": {},
+          "textWrapStyle": "AUTO"
+        }
+      ]
+    },
+    {
+      "id": "I1604:1348;1585:390;1379:358",
+      "characters": "각종 영화와 TV 프로그램을 스마트폰, 태블릿,  노트북, TV에서 무제한으로 스트리밍하세요.  추가 요금이 전혀 없습니다.",
+      "segments": [
+        {
+          "characters": "각종 영화와 TV 프로그램을 스마트폰, 태블릿,  노트북, TV에서 무제한으로 스트리밍하세요.  추가 요금이 전혀 없습니다.",
+          "start": 0,
+          "end": 69,
+          "fontSize": 20,
+          "fontName": {
+            "family": "Spoqa Han Sans Neo",
+            "style": "Regular"
+          },
+          "fontWeight": 400,
+          "textDecoration": "NONE",
+          "textCase": "ORIGINAL",
+          "lineHeight": {
+            "unit": "PERCENT",
+            "value": 150
+          },
+          "letterSpacing": {
+            "unit": "PERCENT",
+            "value": -0.05000000074505806
+          },
+          "fills": [
+            {
+              "type": "SOLID",
+              "visible": true,
+              "opacity": 1,
+              "blendMode": "NORMAL",
+              "color": {
+                "r": 0.6752941012382507,
+                "g": 0.6752941012382507,
+                "b": 0.6752941012382507
+              },
+              "boundVariables": {}
+            }
+          ],
+          "textStyleId": "S:c5777b2006175337a3235d951e2f2a0a45162445,",
+          "fillStyleId": "S:fdd2bce13099d7465a2469395230573f32a8ceb5,",
+          "listOptions": {
+            "type": "NONE"
+          },
+          "indentation": 0,
+          "hyperlink": null,
+          "boundVariables": {},
+          "textWrapStyle": "AUTO"
+        }
+      ]
+    },
+    {
+      "id": "I1381:290;1379:457;1379:147;1378:215",
+      "characters": "로그인",
+      "segments": [
+        {
+          "characters": "로그인",
+          "start": 0,
+          "end": 3,
+          "fontSize": 12,
+          "fontName": {
+            "family": "Spoqa Han Sans Neo",
+            "style": "Bold"
+          },
+          "fontWeight": 700,
+          "textDecoration": "NONE",
+          "textCase": "ORIGINAL",
+          "lineHeight": {
+            "unit": "PERCENT",
+            "value": 150
+          },
+          "letterSpacing": {
+            "unit": "PERCENT",
+            "value": -0.05000000074505806
+          },
+          "fills": [
+            {
+              "type": "SOLID",
+              "visible": true,
+              "opacity": 1,
+              "blendMode": "NORMAL",
+              "color": {
+                "r": 0.9960784316062927,
+                "g": 0.9960784316062927,
+                "b": 0.9960784316062927
+              },
+              "boundVariables": {}
+            }
+          ],
+          "textStyleId": "S:3f37d7913841d8cdc5e53b4e36a043a8894bb774,",
+          "fillStyleId": "S:444077c2de68a4c1580097841df4410876df4e00,",
+          "listOptions": {
+            "type": "NONE"
+          },
+          "indentation": 0,
+          "hyperlink": null,
+          "boundVariables": {},
+          "textWrapStyle": "AUTO"
+        }
+      ]
+    },
+    {
+      "id": "I1381:290;1379:457;1396:452;1508:437",
+      "characters": "한국어",
+      "segments": [
+        {
+          "characters": "한국어",
+          "start": 0,
+          "end": 3,
+          "fontSize": 12,
+          "fontName": {
+            "family": "Spoqa Han Sans Neo",
+            "style": "Regular"
+          },
+          "fontWeight": 400,
+          "textDecoration": "NONE",
+          "textCase": "ORIGINAL",
+          "lineHeight": {
+            "unit": "PERCENT",
+            "value": 150
+          },
+          "letterSpacing": {
+            "unit": "PERCENT",
+            "value": -0.05000000074505806
+          },
+          "fills": [
+            {
+              "type": "SOLID",
+              "visible": true,
+              "opacity": 1,
+              "blendMode": "NORMAL",
+              "color": {
+                "r": 0.4588235318660736,
+                "g": 0.4588235318660736,
+                "b": 0.4588235318660736
+              },
+              "boundVariables": {}
+            }
+          ],
+          "textStyleId": "S:0429bab05ffff22c7ea99e183b8d4d24a9d8aa78,",
+          "fillStyleId": "S:3a99a77972b533a1036b1f47e266976c0a3ad90b,",
+          "listOptions": {
+            "type": "NONE"
+          },
+          "indentation": 0,
+          "hyperlink": null,
+          "boundVariables": {},
+          "textWrapStyle": "AUTO"
+        }
+      ]
+    },
+    {
+      "id": "I1381:290;1379:619;1379:466",
+      "characters": "질문이 있으신가요?  문의 전화: 00-308-321-0058",
+      "segments": [
+        {
+          "characters": "질문이 있으신가요?  문의 전화: 00-308-321-0058",
+          "start": 0,
+          "end": 34,
+          "fontSize": 20,
+          "fontName": {
+            "family": "Spoqa Han Sans Neo",
+            "style": "Bold"
+          },
+          "fontWeight": 700,
+          "textDecoration": "NONE",
+          "textCase": "ORIGINAL",
+          "lineHeight": {
+            "unit": "PERCENT",
+            "value": 150
+          },
+          "letterSpacing": {
+            "unit": "PERCENT",
+            "value": -0.05000000074505806
+          },
+          "fills": [
+            {
+              "type": "SOLID",
+              "visible": true,
+              "opacity": 1,
+              "blendMode": "NORMAL",
+              "color": {
+                "r": 0.7835294008255005,
+                "g": 0.7835294008255005,
+                "b": 0.7835294008255005
+              },
+              "boundVariables": {}
+            }
+          ],
+          "textStyleId": "S:77346953d561bc59cacf2b3591e074f55ba8be0a,",
+          "fillStyleId": "S:1b4646e7bd23c9d8581fd690bd8ec513a7e6257b,",
+          "listOptions": {
+            "type": "NONE"
+          },
+          "indentation": 0,
+          "hyperlink": null,
+          "boundVariables": {},
+          "textWrapStyle": "AUTO"
+        }
+      ]
+    },
+    {
+      "id": "I1381:290;1379:619;1379:468",
+      "characters": "자주 묻는 질문",
+      "segments": [
+        {
+          "characters": "자주 묻는 질문",
+          "start": 0,
+          "end": 8,
+          "fontSize": 14,
+          "fontName": {
+            "family": "Spoqa Han Sans Neo",
+            "style": "Regular"
+          },
+          "fontWeight": 400,
+          "textDecoration": "NONE",
+          "textCase": "ORIGINAL",
+          "lineHeight": {
+            "unit": "PERCENT",
+            "value": 150
+          },
+          "letterSpacing": {
+            "unit": "PERCENT",
+            "value": -0.05000000074505806
+          },
+          "fills": [
+            {
+              "type": "SOLID",
+              "visible": true,
+              "opacity": 1,
+              "blendMode": "NORMAL",
+              "color": {
+                "r": 0.6752941012382507,
+                "g": 0.6752941012382507,
+                "b": 0.6752941012382507
+              },
+              "boundVariables": {}
+            }
+          ],
+          "textStyleId": "S:410a4b8f56fc31c2b2337c6c050b5b0591fcedc1,",
+          "fillStyleId": "S:fdd2bce13099d7465a2469395230573f32a8ceb5,",
+          "listOptions": {
+            "type": "NONE"
+          },
+          "indentation": 0,
+          "hyperlink": null,
+          "boundVariables": {},
+          "textWrapStyle": "AUTO"
+        }
+      ]
+    },
+    {
+      "id": "I1381:290;1379:619;1379:469",
+      "characters": "고객센터",
+      "segments": [
+        {
+          "characters": "고객센터",
+          "start": 0,
+          "end": 4,
+          "fontSize": 14,
+          "fontName": {
+            "family": "Spoqa Han Sans Neo",
+            "style": "Regular"
+          },
+          "fontWeight": 400,
+          "textDecoration": "NONE",
+          "textCase": "ORIGINAL",
+          "lineHeight": {
+            "unit": "PERCENT",
+            "value": 150
+          },
+          "letterSpacing": {
+            "unit": "PERCENT",
+            "value": -0.05000000074505806
+          },
+          "fills": [
+            {
+              "type": "SOLID",
+              "visible": true,
+              "opacity": 1,
+              "blendMode": "NORMAL",
+              "color": {
+                "r": 0.6752941012382507,
+                "g": 0.6752941012382507,
+                "b": 0.6752941012382507
+              },
+              "boundVariables": {}
+            }
+          ],
+          "textStyleId": "S:410a4b8f56fc31c2b2337c6c050b5b0591fcedc1,",
+          "fillStyleId": "S:fdd2bce13099d7465a2469395230573f32a8ceb5,",
+          "listOptions": {
+            "type": "NONE"
+          },
+          "indentation": 0,
+          "hyperlink": null,
+          "boundVariables": {},
+          "textWrapStyle": "AUTO"
+        }
+      ]
+    },
+    {
+      "id": "I1381:290;1379:619;1379:470",
+      "characters": "계정",
+      "segments": [
+        {
+          "characters": "계정",
+          "start": 0,
+          "end": 2,
+          "fontSize": 14,
+          "fontName": {
+            "family": "Spoqa Han Sans Neo",
+            "style": "Regular"
+          },
+          "fontWeight": 400,
+          "textDecoration": "NONE",
+          "textCase": "ORIGINAL",
+          "lineHeight": {
+            "unit": "PERCENT",
+            "value": 150
+          },
+          "letterSpacing": {
+            "unit": "PERCENT",
+            "value": -0.05000000074505806
+          },
+          "fills": [
+            {
+              "type": "SOLID",
+              "visible": true,
+              "opacity": 1,
+              "blendMode": "NORMAL",
+              "color": {
+                "r": 0.6752941012382507,
+                "g": 0.6752941012382507,
+                "b": 0.6752941012382507
+              },
+              "boundVariables": {}
+            }
+          ],
+          "textStyleId": "S:410a4b8f56fc31c2b2337c6c050b5b0591fcedc1,",
+          "fillStyleId": "S:fdd2bce13099d7465a2469395230573f32a8ceb5,",
+          "listOptions": {
+            "type": "NONE"
+          },
+          "indentation": 0,
+          "hyperlink": null,
+          "boundVariables": {},
+          "textWrapStyle": "AUTO"
+        }
+      ]
+    },
+    {
+      "id": "I1381:290;1379:619;1379:471",
+      "characters": "미디어 센터",
+      "segments": [
+        {
+          "characters": "미디어 센터",
+          "start": 0,
+          "end": 6,
+          "fontSize": 14,
+          "fontName": {
+            "family": "Spoqa Han Sans Neo",
+            "style": "Regular"
+          },
+          "fontWeight": 400,
+          "textDecoration": "NONE",
+          "textCase": "ORIGINAL",
+          "lineHeight": {
+            "unit": "PERCENT",
+            "value": 150
+          },
+          "letterSpacing": {
+            "unit": "PERCENT",
+            "value": -0.05000000074505806
+          },
+          "fills": [
+            {
+              "type": "SOLID",
+              "visible": true,
+              "opacity": 1,
+              "blendMode": "NORMAL",
+              "color": {
+                "r": 0.6752941012382507,
+                "g": 0.6752941012382507,
+                "b": 0.6752941012382507
+              },
+              "boundVariables": {}
+            }
+          ],
+          "textStyleId": "S:410a4b8f56fc31c2b2337c6c050b5b0591fcedc1,",
+          "fillStyleId": "S:fdd2bce13099d7465a2469395230573f32a8ceb5,",
+          "listOptions": {
+            "type": "NONE"
+          },
+          "indentation": 0,
+          "hyperlink": null,
+          "boundVariables": {},
+          "textWrapStyle": "AUTO"
+        }
+      ]
+    },
+    {
+      "id": "I1381:290;1379:619;1379:472",
+      "characters": "투자 정보(IR)",
+      "segments": [
+        {
+          "characters": "투자 정보(IR)",
+          "start": 0,
+          "end": 9,
+          "fontSize": 14,
+          "fontName": {
+            "family": "Spoqa Han Sans Neo",
+            "style": "Regular"
+          },
+          "fontWeight": 400,
+          "textDecoration": "NONE",
+          "textCase": "ORIGINAL",
+          "lineHeight": {
+            "unit": "PERCENT",
+            "value": 150
+          },
+          "letterSpacing": {
+            "unit": "PERCENT",
+            "value": -0.05000000074505806
+          },
+          "fills": [
+            {
+              "type": "SOLID",
+              "visible": true,
+              "opacity": 1,
+              "blendMode": "NORMAL",
+              "color": {
+                "r": 0.6752941012382507,
+                "g": 0.6752941012382507,
+                "b": 0.6752941012382507
+              },
+              "boundVariables": {}
+            }
+          ],
+          "textStyleId": "S:410a4b8f56fc31c2b2337c6c050b5b0591fcedc1,",
+          "fillStyleId": "S:fdd2bce13099d7465a2469395230573f32a8ceb5,",
+          "listOptions": {
+            "type": "NONE"
+          },
+          "indentation": 0,
+          "hyperlink": null,
+          "boundVariables": {},
+          "textWrapStyle": "AUTO"
+        }
+      ]
+    },
+    {
+      "id": "I1381:290;1379:619;1379:473",
+      "characters": "입사 정보",
+      "segments": [
+        {
+          "characters": "입사 정보",
+          "start": 0,
+          "end": 5,
+          "fontSize": 14,
+          "fontName": {
+            "family": "Spoqa Han Sans Neo",
+            "style": "Regular"
+          },
+          "fontWeight": 400,
+          "textDecoration": "NONE",
+          "textCase": "ORIGINAL",
+          "lineHeight": {
+            "unit": "PERCENT",
+            "value": 150
+          },
+          "letterSpacing": {
+            "unit": "PERCENT",
+            "value": -0.05000000074505806
+          },
+          "fills": [
+            {
+              "type": "SOLID",
+              "visible": true,
+              "opacity": 1,
+              "blendMode": "NORMAL",
+              "color": {
+                "r": 0.6752941012382507,
+                "g": 0.6752941012382507,
+                "b": 0.6752941012382507
+              },
+              "boundVariables": {}
+            }
+          ],
+          "textStyleId": "S:410a4b8f56fc31c2b2337c6c050b5b0591fcedc1,",
+          "fillStyleId": "S:fdd2bce13099d7465a2469395230573f32a8ceb5,",
+          "listOptions": {
+            "type": "NONE"
+          },
+          "indentation": 0,
+          "hyperlink": null,
+          "boundVariables": {},
+          "textWrapStyle": "AUTO"
+        }
+      ]
+    },
+    {
+      "id": "I1381:290;1379:619;1379:474",
+      "characters": "Netflix 지원 디바이스",
+      "segments": [
+        {
+          "characters": "Netflix 지원 디바이스",
+          "start": 0,
+          "end": 15,
+          "fontSize": 14,
+          "fontName": {
+            "family": "Spoqa Han Sans Neo",
+            "style": "Regular"
+          },
+          "fontWeight": 400,
+          "textDecoration": "NONE",
+          "textCase": "ORIGINAL",
+          "lineHeight": {
+            "unit": "PERCENT",
+            "value": 150
+          },
+          "letterSpacing": {
+            "unit": "PERCENT",
+            "value": -0.05000000074505806
+          },
+          "fills": [
+            {
+              "type": "SOLID",
+              "visible": true,
+              "opacity": 1,
+              "blendMode": "NORMAL",
+              "color": {
+                "r": 0.6752941012382507,
+                "g": 0.6752941012382507,
+                "b": 0.6752941012382507
+              },
+              "boundVariables": {}
+            }
+          ],
+          "textStyleId": "S:410a4b8f56fc31c2b2337c6c050b5b0591fcedc1,",
+          "fillStyleId": "S:fdd2bce13099d7465a2469395230573f32a8ceb5,",
+          "listOptions": {
+            "type": "NONE"
+          },
+          "indentation": 0,
+          "hyperlink": null,
+          "boundVariables": {},
+          "textWrapStyle": "AUTO"
+        }
+      ]
+    },
+    {
+      "id": "I1381:290;1379:619;1379:475",
+      "characters": "이용 약관",
+      "segments": [
+        {
+          "characters": "이용 약관",
+          "start": 0,
+          "end": 5,
+          "fontSize": 14,
+          "fontName": {
+            "family": "Spoqa Han Sans Neo",
+            "style": "Regular"
+          },
+          "fontWeight": 400,
+          "textDecoration": "NONE",
+          "textCase": "ORIGINAL",
+          "lineHeight": {
+            "unit": "PERCENT",
+            "value": 150
+          },
+          "letterSpacing": {
+            "unit": "PERCENT",
+            "value": -0.05000000074505806
+          },
+          "fills": [
+            {
+              "type": "SOLID",
+              "visible": true,
+              "opacity": 1,
+              "blendMode": "NORMAL",
+              "color": {
+                "r": 0.6752941012382507,
+                "g": 0.6752941012382507,
+                "b": 0.6752941012382507
+              },
+              "boundVariables": {}
+            }
+          ],
+          "textStyleId": "S:410a4b8f56fc31c2b2337c6c050b5b0591fcedc1,",
+          "fillStyleId": "S:fdd2bce13099d7465a2469395230573f32a8ceb5,",
+          "listOptions": {
+            "type": "NONE"
+          },
+          "indentation": 0,
+          "hyperlink": null,
+          "boundVariables": {},
+          "textWrapStyle": "AUTO"
+        }
+      ]
+    },
+    {
+      "id": "I1381:290;1379:619;1379:476",
+      "characters": "Netflix 오리지널",
+      "segments": [
+        {
+          "characters": "Netflix 오리지널",
+          "start": 0,
+          "end": 12,
+          "fontSize": 14,
+          "fontName": {
+            "family": "Spoqa Han Sans Neo",
+            "style": "Regular"
+          },
+          "fontWeight": 400,
+          "textDecoration": "NONE",
+          "textCase": "ORIGINAL",
+          "lineHeight": {
+            "unit": "PERCENT",
+            "value": 150
+          },
+          "letterSpacing": {
+            "unit": "PERCENT",
+            "value": -0.05000000074505806
+          },
+          "fills": [
+            {
+              "type": "SOLID",
+              "visible": true,
+              "opacity": 1,
+              "blendMode": "NORMAL",
+              "color": {
+                "r": 0.6752941012382507,
+                "g": 0.6752941012382507,
+                "b": 0.6752941012382507
+              },
+              "boundVariables": {}
+            }
+          ],
+          "textStyleId": "S:410a4b8f56fc31c2b2337c6c050b5b0591fcedc1,",
+          "fillStyleId": "S:fdd2bce13099d7465a2469395230573f32a8ceb5,",
+          "listOptions": {
+            "type": "NONE"
+          },
+          "indentation": 0,
+          "hyperlink": null,
+          "boundVariables": {},
+          "textWrapStyle": "AUTO"
+        }
+      ]
+    },
+    {
+      "id": "I1381:290;1379:619;1379:477",
+      "characters": "속도 테스트",
+      "segments": [
+        {
+          "characters": "속도 테스트",
+          "start": 0,
+          "end": 6,
+          "fontSize": 14,
+          "fontName": {
+            "family": "Spoqa Han Sans Neo",
+            "style": "Regular"
+          },
+          "fontWeight": 400,
+          "textDecoration": "NONE",
+          "textCase": "ORIGINAL",
+          "lineHeight": {
+            "unit": "PERCENT",
+            "value": 150
+          },
+          "letterSpacing": {
+            "unit": "PERCENT",
+            "value": -0.05000000074505806
+          },
+          "fills": [
+            {
+              "type": "SOLID",
+              "visible": true,
+              "opacity": 1,
+              "blendMode": "NORMAL",
+              "color": {
+                "r": 0.6752941012382507,
+                "g": 0.6752941012382507,
+                "b": 0.6752941012382507
+              },
+              "boundVariables": {}
+            }
+          ],
+          "textStyleId": "S:410a4b8f56fc31c2b2337c6c050b5b0591fcedc1,",
+          "fillStyleId": "S:fdd2bce13099d7465a2469395230573f32a8ceb5,",
+          "listOptions": {
+            "type": "NONE"
+          },
+          "indentation": 0,
+          "hyperlink": null,
+          "boundVariables": {},
+          "textWrapStyle": "AUTO"
+        }
+      ]
+    },
+    {
+      "id": "I1381:290;1379:619;1379:478",
+      "characters": "법적 고지",
+      "segments": [
+        {
+          "characters": "법적 고지",
+          "start": 0,
+          "end": 5,
+          "fontSize": 14,
+          "fontName": {
+            "family": "Spoqa Han Sans Neo",
+            "style": "Regular"
+          },
+          "fontWeight": 400,
+          "textDecoration": "NONE",
+          "textCase": "ORIGINAL",
+          "lineHeight": {
+            "unit": "PERCENT",
+            "value": 150
+          },
+          "letterSpacing": {
+            "unit": "PERCENT",
+            "value": -0.05000000074505806
+          },
+          "fills": [
+            {
+              "type": "SOLID",
+              "visible": true,
+              "opacity": 1,
+              "blendMode": "NORMAL",
+              "color": {
+                "r": 0.6752941012382507,
+                "g": 0.6752941012382507,
+                "b": 0.6752941012382507
+              },
+              "boundVariables": {}
+            }
+          ],
+          "textStyleId": "S:410a4b8f56fc31c2b2337c6c050b5b0591fcedc1,",
+          "fillStyleId": "S:fdd2bce13099d7465a2469395230573f32a8ceb5,",
+          "listOptions": {
+            "type": "NONE"
+          },
+          "indentation": 0,
+          "hyperlink": null,
+          "boundVariables": {},
+          "textWrapStyle": "AUTO"
+        }
+      ]
+    },
+    {
+      "id": "I1381:290;1379:619;1379:479",
+      "characters": "회사 정보",
+      "segments": [
+        {
+          "characters": "회사 정보",
+          "start": 0,
+          "end": 5,
+          "fontSize": 14,
+          "fontName": {
+            "family": "Spoqa Han Sans Neo",
+            "style": "Regular"
+          },
+          "fontWeight": 400,
+          "textDecoration": "NONE",
+          "textCase": "ORIGINAL",
+          "lineHeight": {
+            "unit": "PERCENT",
+            "value": 150
+          },
+          "letterSpacing": {
+            "unit": "PERCENT",
+            "value": -0.05000000074505806
+          },
+          "fills": [
+            {
+              "type": "SOLID",
+              "visible": true,
+              "opacity": 1,
+              "blendMode": "NORMAL",
+              "color": {
+                "r": 0.6752941012382507,
+                "g": 0.6752941012382507,
+                "b": 0.6752941012382507
+              },
+              "boundVariables": {}
+            }
+          ],
+          "textStyleId": "S:410a4b8f56fc31c2b2337c6c050b5b0591fcedc1,",
+          "fillStyleId": "S:fdd2bce13099d7465a2469395230573f32a8ceb5,",
+          "listOptions": {
+            "type": "NONE"
+          },
+          "indentation": 0,
+          "hyperlink": null,
+          "boundVariables": {},
+          "textWrapStyle": "AUTO"
+        }
+      ]
+    },
+    {
+      "id": "I1381:290;1379:619;1379:480",
+      "characters": "문의하기",
+      "segments": [
+        {
+          "characters": "문의하기",
+          "start": 0,
+          "end": 4,
+          "fontSize": 14,
+          "fontName": {
+            "family": "Spoqa Han Sans Neo",
+            "style": "Regular"
+          },
+          "fontWeight": 400,
+          "textDecoration": "NONE",
+          "textCase": "ORIGINAL",
+          "lineHeight": {
+            "unit": "PERCENT",
+            "value": 150
+          },
+          "letterSpacing": {
+            "unit": "PERCENT",
+            "value": -0.05000000074505806
+          },
+          "fills": [
+            {
+              "type": "SOLID",
+              "visible": true,
+              "opacity": 1,
+              "blendMode": "NORMAL",
+              "color": {
+                "r": 0.6752941012382507,
+                "g": 0.6752941012382507,
+                "b": 0.6752941012382507
+              },
+              "boundVariables": {}
+            }
+          ],
+          "textStyleId": "S:410a4b8f56fc31c2b2337c6c050b5b0591fcedc1,",
+          "fillStyleId": "S:fdd2bce13099d7465a2469395230573f32a8ceb5,",
+          "listOptions": {
+            "type": "NONE"
+          },
+          "indentation": 0,
+          "hyperlink": null,
+          "boundVariables": {},
+          "textWrapStyle": "AUTO"
+        }
+      ]
+    },
+    {
+      "id": "I1381:290;1379:619;1379:481",
+      "characters": "개인정보",
+      "segments": [
+        {
+          "characters": "개인정보",
+          "start": 0,
+          "end": 4,
+          "fontSize": 14,
+          "fontName": {
+            "family": "Spoqa Han Sans Neo",
+            "style": "Regular"
+          },
+          "fontWeight": 400,
+          "textDecoration": "NONE",
+          "textCase": "ORIGINAL",
+          "lineHeight": {
+            "unit": "PERCENT",
+            "value": 150
+          },
+          "letterSpacing": {
+            "unit": "PERCENT",
+            "value": -0.05000000074505806
+          },
+          "fills": [
+            {
+              "type": "SOLID",
+              "visible": true,
+              "opacity": 1,
+              "blendMode": "NORMAL",
+              "color": {
+                "r": 0.6752941012382507,
+                "g": 0.6752941012382507,
+                "b": 0.6752941012382507
+              },
+              "boundVariables": {}
+            }
+          ],
+          "textStyleId": "S:410a4b8f56fc31c2b2337c6c050b5b0591fcedc1,",
+          "fillStyleId": "S:fdd2bce13099d7465a2469395230573f32a8ceb5,",
+          "listOptions": {
+            "type": "NONE"
+          },
+          "indentation": 0,
+          "hyperlink": null,
+          "boundVariables": {},
+          "textWrapStyle": "AUTO"
+        }
+      ]
+    },
+    {
+      "id": "I1381:290;1379:619;1379:482",
+      "characters": "쿠키 설정",
+      "segments": [
+        {
+          "characters": "쿠키 설정",
+          "start": 0,
+          "end": 5,
+          "fontSize": 14,
+          "fontName": {
+            "family": "Spoqa Han Sans Neo",
+            "style": "Regular"
+          },
+          "fontWeight": 400,
+          "textDecoration": "NONE",
+          "textCase": "ORIGINAL",
+          "lineHeight": {
+            "unit": "PERCENT",
+            "value": 150
+          },
+          "letterSpacing": {
+            "unit": "PERCENT",
+            "value": -0.05000000074505806
+          },
+          "fills": [
+            {
+              "type": "SOLID",
+              "visible": true,
+              "opacity": 1,
+              "blendMode": "NORMAL",
+              "color": {
+                "r": 0.6752941012382507,
+                "g": 0.6752941012382507,
+                "b": 0.6752941012382507
+              },
+              "boundVariables": {}
+            }
+          ],
+          "textStyleId": "S:410a4b8f56fc31c2b2337c6c050b5b0591fcedc1,",
+          "fillStyleId": "S:fdd2bce13099d7465a2469395230573f32a8ceb5,",
+          "listOptions": {
+            "type": "NONE"
+          },
+          "indentation": 0,
+          "hyperlink": null,
+          "boundVariables": {},
+          "textWrapStyle": "AUTO"
+        }
+      ]
+    },
+    {
+      "id": "I1381:290;1379:619;1379:489",
+      "characters": "Netflix 대한민국",
+      "segments": [
+        {
+          "characters": "Netflix 대한민국",
+          "start": 0,
+          "end": 12,
+          "fontSize": 20,
+          "fontName": {
+            "family": "Spoqa Han Sans Neo",
+            "style": "Bold"
+          },
+          "fontWeight": 700,
+          "textDecoration": "NONE",
+          "textCase": "ORIGINAL",
+          "lineHeight": {
+            "unit": "PERCENT",
+            "value": 150
+          },
+          "letterSpacing": {
+            "unit": "PERCENT",
+            "value": -0.05000000074505806
+          },
+          "fills": [
+            {
+              "type": "SOLID",
+              "visible": true,
+              "opacity": 1,
+              "blendMode": "NORMAL",
+              "color": {
+                "r": 0.6752941012382507,
+                "g": 0.6752941012382507,
+                "b": 0.6752941012382507
+              },
+              "boundVariables": {}
+            }
+          ],
+          "textStyleId": "S:77346953d561bc59cacf2b3591e074f55ba8be0a,",
+          "fillStyleId": "S:fdd2bce13099d7465a2469395230573f32a8ceb5,",
+          "listOptions": {
+            "type": "NONE"
+          },
+          "indentation": 0,
+          "hyperlink": null,
+          "boundVariables": {},
+          "textWrapStyle": "AUTO"
+        }
+      ]
+    },
+    {
+      "id": "I1381:290;1379:619;1379:490",
+      "characters": "넷플릭스서비시스코리아 유한회사  통신판매업신고번호: 제2018-서울종로-0426호  전화번호: 00-308-321-0058 대표: 레지널드 숀 톰프슨 이메일 주소: korea@netflix.com 주소: 대한민국 서울특별시 종로구 우정국로 26, 센트로 폴리스 A동 20층 우편번호 03161 사업자 등록번호: 165-87-00119 클라우드 호스팅: Amazon Web Services Inc. 공정거래위원회 웹사이트",
+      "segments": [
+        {
+          "characters": "넷플릭스서비시스코리아 유한회사  통신판매업신고번호: 제2018-서울종로-0426호  전화번호: 00-308-321-0058 대표: 레지널드 숀 톰프슨 이메일 주소: korea@netflix.com 주소: 대한민국 서울특별시 종로구 우정국로 26, 센트로 폴리스 A동 20층 우편번호 03161 사업자 등록번호: 165-87-00119 클라우드 호스팅: Amazon Web Services Inc. 공정거래위원회 웹사이트",
+          "start": 0,
+          "end": 234,
+          "fontSize": 14,
+          "fontName": {
+            "family": "Spoqa Han Sans Neo",
+            "style": "Regular"
+          },
+          "fontWeight": 400,
+          "textDecoration": "NONE",
+          "textCase": "ORIGINAL",
+          "lineHeight": {
+            "unit": "PERCENT",
+            "value": 150
+          },
+          "letterSpacing": {
+            "unit": "PERCENT",
+            "value": -0.05000000074505806
+          },
+          "fills": [
+            {
+              "type": "SOLID",
+              "visible": true,
+              "opacity": 1,
+              "blendMode": "NORMAL",
+              "color": {
+                "r": 0.567058801651001,
+                "g": 0.567058801651001,
+                "b": 0.567058801651001
+              },
+              "boundVariables": {}
+            }
+          ],
+          "textStyleId": "S:410a4b8f56fc31c2b2337c6c050b5b0591fcedc1,",
+          "fillStyleId": "S:2d5b43f5081f0738a01107e088dcac135cd00663,",
+          "listOptions": {
+            "type": "NONE"
+          },
+          "indentation": 0,
+          "hyperlink": null,
+          "boundVariables": {},
+          "textWrapStyle": "AUTO"
+        }
+      ]
+    },
+    {
+      "id": "I1381:290;1379:619;1379:493;1508:437",
+      "characters": "한국어",
+      "segments": [
+        {
+          "characters": "한국어",
+          "start": 0,
+          "end": 3,
+          "fontSize": 12,
+          "fontName": {
+            "family": "Spoqa Han Sans Neo",
+            "style": "Regular"
+          },
+          "fontWeight": 400,
+          "textDecoration": "NONE",
+          "textCase": "ORIGINAL",
+          "lineHeight": {
+            "unit": "PERCENT",
+            "value": 150
+          },
+          "letterSpacing": {
+            "unit": "PERCENT",
+            "value": -0.05000000074505806
+          },
+          "fills": [
+            {
+              "type": "SOLID",
+              "visible": true,
+              "opacity": 1,
+              "blendMode": "NORMAL",
+              "color": {
+                "r": 0.4588235318660736,
+                "g": 0.4588235318660736,
+                "b": 0.4588235318660736
+              },
+              "boundVariables": {}
+            }
+          ],
+          "textStyleId": "S:0429bab05ffff22c7ea99e183b8d4d24a9d8aa78,",
+          "fillStyleId": "S:3a99a77972b533a1036b1f47e266976c0a3ad90b,",
+          "listOptions": {
+            "type": "NONE"
+          },
+          "indentation": 0,
+          "hyperlink": null,
+          "boundVariables": {},
+          "textWrapStyle": "AUTO"
+        }
+      ]
+    },
+    {
+      "id": "I1381:431;1379:243",
+      "characters": "영화, TV 프﻿로﻿그﻿램﻿을  무제한으로.",
+      "segments": [
+        {
+          "characters": "영화, TV 프﻿로﻿그﻿램﻿을  무제한으로.",
+          "start": 0,
+          "end": 24,
+          "fontSize": 34,
+          "fontName": {
+            "family": "Spoqa Han Sans Neo",
+            "style": "Bold"
+          },
+          "fontWeight": 700,
+          "textDecoration": "NONE",
+          "textCase": "ORIGINAL",
+          "lineHeight": {
+            "unit": "PERCENT",
+            "value": 120.00000476837158
+          },
+          "letterSpacing": {
+            "unit": "PERCENT",
+            "value": 0
+          },
+          "fills": [
+            {
+              "type": "SOLID",
+              "visible": true,
+              "opacity": 1,
+              "blendMode": "NORMAL",
+              "color": {
+                "r": 0.9960784316062927,
+                "g": 0.9960784316062927,
+                "b": 0.9960784316062927
+              },
+              "boundVariables": {}
+            }
+          ],
+          "textStyleId": "S:24047faccb6e4cefc9ff62a57ade5eaf06aa0bc1,",
+          "fillStyleId": "S:444077c2de68a4c1580097841df4410876df4e00,",
+          "listOptions": {
+            "type": "NONE"
+          },
+          "indentation": 0,
+          "hyperlink": null,
+          "boundVariables": {},
+          "textWrapStyle": "AUTO"
+        }
+      ]
+    },
+    {
+      "id": "I1381:431;1379:244",
+      "characters": "다양한 디바이스에서 시청하세요. 언제든 해지하실 수 있습니다.",
+      "segments": [
+        {
+          "characters": "다양한 디바이스에서 시청하세요. 언제든 해지하실 수 있습니다.",
+          "start": 0,
+          "end": 34,
+          "fontSize": 18,
+          "fontName": {
+            "family": "Spoqa Han Sans Neo",
+            "style": "Bold"
+          },
+          "fontWeight": 700,
+          "textDecoration": "NONE",
+          "textCase": "ORIGINAL",
+          "lineHeight": {
+            "unit": "PERCENT",
+            "value": 150
+          },
+          "letterSpacing": {
+            "unit": "PERCENT",
+            "value": -0.05000000074505806
+          },
+          "fills": [
+            {
+              "type": "SOLID",
+              "visible": true,
+              "opacity": 1,
+              "blendMode": "NORMAL",
+              "color": {
+                "r": 0.7835294008255005,
+                "g": 0.7835294008255005,
+                "b": 0.7835294008255005
+              },
+              "boundVariables": {}
+            }
+          ],
+          "textStyleId": "S:d3ac9e9425eed420b1dc8f10507fc05ee135c601,",
+          "fillStyleId": "S:1b4646e7bd23c9d8581fd690bd8ec513a7e6257b,",
+          "listOptions": {
+            "type": "NONE"
+          },
+          "indentation": 0,
+          "hyperlink": null,
+          "boundVariables": {},
+          "textWrapStyle": "AUTO"
+        }
+      ]
+    },
+    {
+      "id": "I1381:431;1379:245",
+      "characters": "시청할 준비가 되셨나요? 멤버십을 등록하거나  재시작하려면 이메일 주소를 입력하세요.",
+      "segments": [
+        {
+          "characters": "시청할 준비가 되셨나요? 멤버십을 등록하거나  재시작하려면 이메일 주소를 입력하세요.",
+          "start": 0,
+          "end": 47,
+          "fontSize": 14,
+          "fontName": {
+            "family": "Spoqa Han Sans Neo",
+            "style": "Regular"
+          },
+          "fontWeight": 400,
+          "textDecoration": "NONE",
+          "textCase": "ORIGINAL",
+          "lineHeight": {
+            "unit": "PERCENT",
+            "value": 150
+          },
+          "letterSpacing": {
+            "unit": "PERCENT",
+            "value": -0.05000000074505806
+          },
+          "fills": [
+            {
+              "type": "SOLID",
+              "visible": true,
+              "opacity": 1,
+              "blendMode": "NORMAL",
+              "color": {
+                "r": 0.6752941012382507,
+                "g": 0.6752941012382507,
+                "b": 0.6752941012382507
+              },
+              "boundVariables": {}
+            }
+          ],
+          "textStyleId": "S:410a4b8f56fc31c2b2337c6c050b5b0591fcedc1,",
+          "fillStyleId": "S:fdd2bce13099d7465a2469395230573f32a8ceb5,",
+          "listOptions": {
+            "type": "NONE"
+          },
+          "indentation": 0,
+          "hyperlink": null,
+          "boundVariables": {},
+          "textWrapStyle": "AUTO"
+        }
+      ]
+    },
+    {
+      "id": "I1381:431;1379:265;1381:942",
+      "characters": "이메일 주소",
+      "segments": [
+        {
+          "characters": "이메일 주소",
+          "start": 0,
+          "end": 6,
+          "fontSize": 14,
+          "fontName": {
+            "family": "Spoqa Han Sans Neo",
+            "style": "Regular"
+          },
+          "fontWeight": 400,
+          "textDecoration": "NONE",
+          "textCase": "ORIGINAL",
+          "lineHeight": {
+            "unit": "PERCENT",
+            "value": 150
+          },
+          "letterSpacing": {
+            "unit": "PERCENT",
+            "value": -0.05000000074505806
+          },
+          "fills": [
+            {
+              "type": "SOLID",
+              "visible": true,
+              "opacity": 1,
+              "blendMode": "NORMAL",
+              "color": {
+                "r": 0.4588235318660736,
+                "g": 0.4588235318660736,
+                "b": 0.4588235318660736
+              },
+              "boundVariables": {}
+            }
+          ],
+          "textStyleId": "S:410a4b8f56fc31c2b2337c6c050b5b0591fcedc1,",
+          "fillStyleId": "S:3a99a77972b533a1036b1f47e266976c0a3ad90b,",
+          "listOptions": {
+            "type": "NONE"
+          },
+          "indentation": 0,
+          "hyperlink": null,
+          "boundVariables": {},
+          "textWrapStyle": "AUTO"
+        }
+      ]
+    },
+    {
+      "id": "I1381:431;1379:265;1378:464;1378:230",
+      "characters": "30일 무료 이용",
+      "segments": [
+        {
+          "characters": "30일 무료 이용",
+          "start": 0,
+          "end": 9,
+          "fontSize": 14,
+          "fontName": {
+            "family": "Spoqa Han Sans Neo",
+            "style": "Bold"
+          },
+          "fontWeight": 700,
+          "textDecoration": "NONE",
+          "textCase": "ORIGINAL",
+          "lineHeight": {
+            "unit": "PERCENT",
+            "value": 150
+          },
+          "letterSpacing": {
+            "unit": "PERCENT",
+            "value": -0.05000000074505806
+          },
+          "fills": [
+            {
+              "type": "SOLID",
+              "visible": true,
+              "opacity": 1,
+              "blendMode": "NORMAL",
+              "color": {
+                "r": 0.9960784316062927,
+                "g": 0.9960784316062927,
+                "b": 0.9960784316062927
+              },
+              "boundVariables": {}
+            }
+          ],
+          "textStyleId": "S:ba9048cab8a0a92351ac91e30a754060d5d7b30a,",
+          "fillStyleId": "S:444077c2de68a4c1580097841df4410876df4e00,",
+          "listOptions": {
+            "type": "NONE"
+          },
+          "indentation": 0,
+          "hyperlink": null,
+          "boundVariables": {},
+          "textWrapStyle": "AUTO"
+        }
+      ]
+    },
+    {
+      "id": "I1381:431;1379:249",
+      "characters": "신규 회원만 이 프로모션을 이용하실 수 있습니다.",
+      "segments": [
+        {
+          "characters": "신규 회원만 이 프로모션을 이용하실 수 있습니다.",
+          "start": 0,
+          "end": 27,
+          "fontSize": 12,
+          "fontName": {
+            "family": "Spoqa Han Sans Neo",
+            "style": "Regular"
+          },
+          "fontWeight": 400,
+          "textDecoration": "NONE",
+          "textCase": "ORIGINAL",
+          "lineHeight": {
+            "unit": "PERCENT",
+            "value": 150
+          },
+          "letterSpacing": {
+            "unit": "PERCENT",
+            "value": -0.05000000074505806
+          },
+          "fills": [
+            {
+              "type": "SOLID",
+              "visible": true,
+              "opacity": 1,
+              "blendMode": "NORMAL",
+              "color": {
+                "r": 0.567058801651001,
+                "g": 0.567058801651001,
+                "b": 0.567058801651001
+              },
+              "boundVariables": {}
+            }
+          ],
+          "textStyleId": "S:0429bab05ffff22c7ea99e183b8d4d24a9d8aa78,",
+          "fillStyleId": "S:2d5b43f5081f0738a01107e088dcac135cd00663,",
+          "listOptions": {
+            "type": "NONE"
+          },
+          "indentation": 0,
+          "hyperlink": null,
+          "boundVariables": {},
+          "textWrapStyle": "AUTO"
+        }
+      ]
+    },
+    {
+      "id": "I1585:527;1585:457;1379:236",
+      "characters": "TV로 즐기세요.",
+      "segments": [
+        {
+          "characters": "TV로 즐기세요.",
+          "start": 0,
+          "end": 9,
+          "fontSize": 24,
+          "fontName": {
+            "family": "Spoqa Han Sans Neo",
+            "style": "Bold"
+          },
+          "fontWeight": 700,
+          "textDecoration": "NONE",
+          "textCase": "ORIGINAL",
+          "lineHeight": {
+            "unit": "PERCENT",
+            "value": 120.00000476837158
+          },
+          "letterSpacing": {
+            "unit": "PERCENT",
+            "value": 0
+          },
+          "fills": [
+            {
+              "type": "SOLID",
+              "visible": true,
+              "opacity": 1,
+              "blendMode": "NORMAL",
+              "color": {
+                "r": 0.9960784316062927,
+                "g": 0.9960784316062927,
+                "b": 0.9960784316062927
+              },
+              "boundVariables": {}
+            }
+          ],
+          "textStyleId": "S:f44beb6696a077a0bd60b64eaf34c356dc35e1cd,",
+          "fillStyleId": "S:444077c2de68a4c1580097841df4410876df4e00,",
+          "listOptions": {
+            "type": "NONE"
+          },
+          "indentation": 0,
+          "hyperlink": null,
+          "boundVariables": {},
+          "textWrapStyle": "AUTO"
+        }
+      ]
+    },
+    {
+      "id": "I1585:527;1585:457;1379:237",
+      "characters": "스마트 TV, PlayStation, Xbox,  Chromecast, Apple TV, 블루레이 플레이어 등  다양한 디바이스에서 시청하세요.",
+      "segments": [
+        {
+          "characters": "스마트 TV, PlayStation, Xbox,  Chromecast, Apple TV, 블루레이 플레이어 등  다양한 디바이스에서 시청하세요.",
+          "start": 0,
+          "end": 80,
+          "fontSize": 16,
+          "fontName": {
+            "family": "Spoqa Han Sans Neo",
+            "style": "Regular"
+          },
+          "fontWeight": 400,
+          "textDecoration": "NONE",
+          "textCase": "ORIGINAL",
+          "lineHeight": {
+            "unit": "PERCENT",
+            "value": 150
+          },
+          "letterSpacing": {
+            "unit": "PERCENT",
+            "value": -0.05000000074505806
+          },
+          "fills": [
+            {
+              "type": "SOLID",
+              "visible": true,
+              "opacity": 1,
+              "blendMode": "NORMAL",
+              "color": {
+                "r": 0.6752941012382507,
+                "g": 0.6752941012382507,
+                "b": 0.6752941012382507
+              },
+              "boundVariables": {}
+            }
+          ],
+          "textStyleId": "S:3f18c22f61f41e7eb264e9a0c985cfa6d9305a32,",
+          "fillStyleId": "S:fdd2bce13099d7465a2469395230573f32a8ceb5,",
+          "listOptions": {
+            "type": "NONE"
+          },
+          "indentation": 0,
+          "hyperlink": null,
+          "boundVariables": {},
+          "textWrapStyle": "AUTO"
+        }
+      ]
+    },
+    {
+      "id": "I1585:527;1585:458;1379:236",
+      "characters": "다양한 디바이스에서  시청하세요.",
+      "segments": [
+        {
+          "characters": "다양한 디바이스에서  시청하세요.",
+          "start": 0,
+          "end": 18,
+          "fontSize": 24,
+          "fontName": {
+            "family": "Spoqa Han Sans Neo",
+            "style": "Bold"
+          },
+          "fontWeight": 700,
+          "textDecoration": "NONE",
+          "textCase": "ORIGINAL",
+          "lineHeight": {
+            "unit": "PERCENT",
+            "value": 120.00000476837158
+          },
+          "letterSpacing": {
+            "unit": "PERCENT",
+            "value": 0
+          },
+          "fills": [
+            {
+              "type": "SOLID",
+              "visible": true,
+              "opacity": 1,
+              "blendMode": "NORMAL",
+              "color": {
+                "r": 0.9960784316062927,
+                "g": 0.9960784316062927,
+                "b": 0.9960784316062927
+              },
+              "boundVariables": {}
+            }
+          ],
+          "textStyleId": "S:f44beb6696a077a0bd60b64eaf34c356dc35e1cd,",
+          "fillStyleId": "S:444077c2de68a4c1580097841df4410876df4e00,",
+          "listOptions": {
+            "type": "NONE"
+          },
+          "indentation": 0,
+          "hyperlink": null,
+          "boundVariables": {},
+          "textWrapStyle": "AUTO"
+        }
+      ]
+    },
+    {
+      "id": "I1585:527;1585:458;1379:237",
+      "characters": "각종 영화와 TV 프로그램을 스마트폰, 태블릿,  노트북, TV에서 무제한으로 스트리밍하세요.  추가 요금이 전혀 없습니다.",
+      "segments": [
+        {
+          "characters": "각종 영화와 TV 프로그램을 스마트폰, 태블릿,  노트북, TV에서 무제한으로 스트리밍하세요.  추가 요금이 전혀 없습니다.",
+          "start": 0,
+          "end": 69,
+          "fontSize": 16,
+          "fontName": {
+            "family": "Spoqa Han Sans Neo",
+            "style": "Regular"
+          },
+          "fontWeight": 400,
+          "textDecoration": "NONE",
+          "textCase": "ORIGINAL",
+          "lineHeight": {
+            "unit": "PERCENT",
+            "value": 150
+          },
+          "letterSpacing": {
+            "unit": "PERCENT",
+            "value": -0.05000000074505806
+          },
+          "fills": [
+            {
+              "type": "SOLID",
+              "visible": true,
+              "opacity": 1,
+              "blendMode": "NORMAL",
+              "color": {
+                "r": 0.6752941012382507,
+                "g": 0.6752941012382507,
+                "b": 0.6752941012382507
+              },
+              "boundVariables": {}
+            }
+          ],
+          "textStyleId": "S:3f18c22f61f41e7eb264e9a0c985cfa6d9305a32,",
+          "fillStyleId": "S:fdd2bce13099d7465a2469395230573f32a8ceb5,",
+          "listOptions": {
+            "type": "NONE"
+          },
+          "indentation": 0,
+          "hyperlink": null,
+          "boundVariables": {},
+          "textWrapStyle": "AUTO"
+        }
+      ]
+    },
+    {
+      "id": "I1585:527;1585:459;1379:236",
+      "characters": "즐겨 보는 콘텐츠를 저장해  오프라인으로 시청하세요.",
+      "segments": [
+        {
+          "characters": "즐겨 보는 콘텐츠를 저장해  오프라인으로 시청하세요.",
+          "start": 0,
+          "end": 29,
+          "fontSize": 24,
+          "fontName": {
+            "family": "Spoqa Han Sans Neo",
+            "style": "Bold"
+          },
+          "fontWeight": 700,
+          "textDecoration": "NONE",
+          "textCase": "ORIGINAL",
+          "lineHeight": {
+            "unit": "PERCENT",
+            "value": 120.00000476837158
+          },
+          "letterSpacing": {
+            "unit": "PERCENT",
+            "value": 0
+          },
+          "fills": [
+            {
+              "type": "SOLID",
+              "visible": true,
+              "opacity": 1,
+              "blendMode": "NORMAL",
+              "color": {
+                "r": 0.9960784316062927,
+                "g": 0.9960784316062927,
+                "b": 0.9960784316062927
+              },
+              "boundVariables": {}
+            }
+          ],
+          "textStyleId": "S:f44beb6696a077a0bd60b64eaf34c356dc35e1cd,",
+          "fillStyleId": "S:444077c2de68a4c1580097841df4410876df4e00,",
+          "listOptions": {
+            "type": "NONE"
+          },
+          "indentation": 0,
+          "hyperlink": null,
+          "boundVariables": {},
+          "textWrapStyle": "AUTO"
+        }
+      ]
+    },
+    {
+      "id": "I1585:527;1585:459;1379:237",
+      "characters": "간편하게 저장하고 빈틈없이 즐겨보세요.",
+      "segments": [
+        {
+          "characters": "간편하게 저장하고 빈틈없이 즐겨보세요.",
+          "start": 0,
+          "end": 21,
+          "fontSize": 16,
+          "fontName": {
+            "family": "Spoqa Han Sans Neo",
+            "style": "Regular"
+          },
+          "fontWeight": 400,
+          "textDecoration": "NONE",
+          "textCase": "ORIGINAL",
+          "lineHeight": {
+            "unit": "PERCENT",
+            "value": 150
+          },
+          "letterSpacing": {
+            "unit": "PERCENT",
+            "value": -0.05000000074505806
+          },
+          "fills": [
+            {
+              "type": "SOLID",
+              "visible": true,
+              "opacity": 1,
+              "blendMode": "NORMAL",
+              "color": {
+                "r": 0.6752941012382507,
+                "g": 0.6752941012382507,
+                "b": 0.6752941012382507
+              },
+              "boundVariables": {}
+            }
+          ],
+          "textStyleId": "S:3f18c22f61f41e7eb264e9a0c985cfa6d9305a32,",
+          "fillStyleId": "S:fdd2bce13099d7465a2469395230573f32a8ceb5,",
+          "listOptions": {
+            "type": "NONE"
+          },
+          "indentation": 0,
+          "hyperlink": null,
+          "boundVariables": {},
+          "textWrapStyle": "AUTO"
+        }
+      ]
+    },
+    {
+      "id": "I1585:527;1585:459;1379:240;1381:765",
+      "characters": "기묘한 이야기",
+      "segments": [
+        {
+          "characters": "기묘한 이야기",
+          "start": 0,
+          "end": 7,
+          "fontSize": 9.858333587646484,
+          "fontName": {
+            "family": "Spoqa Han Sans Neo",
+            "style": "Bold"
+          },
+          "fontWeight": 700,
+          "textDecoration": "NONE",
+          "textCase": "ORIGINAL",
+          "lineHeight": {
+            "unit": "PERCENT",
+            "value": 150
+          },
+          "letterSpacing": {
+            "unit": "PERCENT",
+            "value": -0.05000000074505806
+          },
+          "fills": [
+            {
+              "type": "SOLID",
+              "visible": true,
+              "opacity": 1,
+              "blendMode": "NORMAL",
+              "color": {
+                "r": 0.9960784316062927,
+                "g": 0.9960784316062927,
+                "b": 0.9960784316062927
+              },
+              "boundVariables": {}
+            }
+          ],
+          "textStyleId": "",
+          "fillStyleId": "S:444077c2de68a4c1580097841df4410876df4e00,",
+          "listOptions": {
+            "type": "NONE"
+          },
+          "indentation": 0,
+          "hyperlink": null,
+          "boundVariables": {},
+          "textWrapStyle": "AUTO"
+        }
+      ]
+    },
+    {
+      "id": "I1585:527;1585:459;1379:240;1381:766",
+      "characters": "저장 중...",
+      "segments": [
+        {
+          "characters": "저장 중...",
+          "start": 0,
+          "end": 7,
+          "fontSize": 8.449999809265137,
+          "fontName": {
+            "family": "Spoqa Han Sans Neo",
+            "style": "Bold"
+          },
+          "fontWeight": 700,
+          "textDecoration": "NONE",
+          "textCase": "ORIGINAL",
+          "lineHeight": {
+            "unit": "PERCENT",
+            "value": 150
+          },
+          "letterSpacing": {
+            "unit": "PERCENT",
+            "value": -0.05000000074505806
+          },
+          "fills": [
+            {
+              "type": "SOLID",
+              "visible": true,
+              "opacity": 1,
+              "blendMode": "NORMAL",
+              "color": {
+                "r": 0,
+                "g": 0.4431372582912445,
+                "b": 0.9215686321258545
+              },
+              "boundVariables": {}
+            }
+          ],
+          "textStyleId": "",
+          "fillStyleId": "S:4e7e6906872137969226b4bcf877d10ee9b807e7,",
+          "listOptions": {
+            "type": "NONE"
+          },
+          "indentation": 0,
+          "hyperlink": null,
+          "boundVariables": {},
+          "textWrapStyle": "AUTO"
+        }
+      ]
+    }
+  ]
+}

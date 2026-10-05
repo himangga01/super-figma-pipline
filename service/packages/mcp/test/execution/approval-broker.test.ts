@@ -3,6 +3,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import { createApprovalEndpoints } from '../../src/control/approval-endpoints.js';
 import { createApprovalBroker } from '../../src/policy/approval-broker.js';
+import { portalApprovalLabel } from '../../src/policy/approval-prompt.js';
 
 const scope = Object.freeze({
   requestId: 'sfp_req1_AQAAAAAAAAAAAAAAAAAAAA',
@@ -22,6 +23,57 @@ const scope = Object.freeze({
 }) satisfies Readonly<ResolvedInvocationScope>;
 
 describe('approval broker', () => {
+  it('admits Chrome portal approval with long resource identities without dropping its scope binding', async () => {
+    const authority = {
+      scope: 'frontend-only' as const,
+      targetPath: 'cdd-chrome-frontend',
+      resource: { kind: 'repo' as const, key: `portal:repo:${'a'.repeat(64)}` as const },
+      executionResources: [
+        { key: `portal:repo:${'a'.repeat(64)}`, mode: 'write' as const },
+        { key: `portal:browser:sha256:${'b'.repeat(64)}`, mode: 'write' as const },
+      ],
+    };
+    const broker = createApprovalBroker({
+      deliverPluginPrompt: async () => {
+        throw new Error('Desktop plugin must not be required');
+      },
+      deliverControlPrompt: async () => {},
+    });
+    try {
+      const label = portalApprovalLabel(authority);
+      const pending = (await broker.request(
+        { ...scope, approvalLabel: label },
+        'portal_plan',
+        [{ type: 'external-browser-read', urlArg: 'design.url', attachOnly: true }],
+        'chrome-plan',
+      ))!;
+      const waiting = pending.waitForDecision();
+      const prompt = broker.listPending(scope.actor)[0]!;
+      expect(prompt.target.label).toContain('cdd-chrome-frontend');
+      expect(prompt.target.label.length).toBeLessThanOrEqual(256);
+      await broker.settleControl(
+        scope.actor,
+        {
+          version: 1,
+          type: 'approval.decision',
+          approvalId: prompt.approvalId,
+          operationId: prompt.operationId,
+          promptHash: prompt.promptHash,
+          decision: 'approved',
+        },
+        'generation-1',
+      );
+      await expect(waiting).resolves.toEqual({ decision: 'approved' });
+      const long = { ...authority, targetPath: '🚀'.repeat(200) };
+      expect(portalApprovalLabel(long).length).toBeLessThanOrEqual(256);
+      expect(portalApprovalLabel(long)).not.toBe(
+        portalApprovalLabel({ ...long, targetPath: long.targetPath + 'other' }),
+      );
+      expect(label).not.toBe(portalApprovalLabel({ ...authority, executionResources: [] }));
+    } finally {
+      broker.dispose();
+    }
+  });
   afterEach(() => {
     vi.useRealTimers();
   });

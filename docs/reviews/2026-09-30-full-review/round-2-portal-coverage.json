@@ -1,0 +1,287 @@
+[
+  {
+    "path": "service/packages/mcp/test/control/admin-audit.test.ts",
+    "depth": "full",
+    "notes": "Complete assigned closure.portal test body read as logic in bounded slices. Any truncated combined output was fully reread separately before full coverage was recorded. Static review only; no execution."
+  },
+  {
+    "path": "service/packages/mcp/test/control/control-router.test.ts",
+    "depth": "full",
+    "notes": "Complete assigned closure.portal test body read as logic in bounded slices. Any truncated combined output was fully reread separately before full coverage was recorded. Static review only; no execution."
+  },
+  {
+    "path": "service/packages/mcp/test/control/egress-control.test.ts",
+    "depth": "full",
+    "notes": "Complete assigned closure.portal test body read as logic in bounded slices. Any truncated combined output was fully reread separately before full coverage was recorded. Static review only; no execution."
+  },
+  {
+    "path": "service/packages/mcp/test/e2e/packed-operation-evidence.test.ts",
+    "depth": "full",
+    "notes": "Complete assigned closure.portal test body read as logic in bounded slices. Any truncated combined output was fully reread separately before full coverage was recorded. Static review only; no execution."
+  },
+  {
+    "path": "service/packages/mcp/test/election/control-route-registry.test.ts",
+    "depth": "full",
+    "notes": "Complete assigned closure.portal test body read as logic in bounded slices. Any truncated combined output was fully reread separately before full coverage was recorded. Static review only; no execution."
+  },
+  {
+    "path": "service/packages/mcp/test/election/follower.test.ts",
+    "depth": "full",
+    "notes": "Complete assigned closure.portal test body read as logic in bounded slices. Any truncated combined output was fully reread separately before full coverage was recorded. Static review only; no execution."
+  },
+  {
+    "path": "service/packages/mcp/test/election/leader-lock.test.ts",
+    "depth": "full",
+    "notes": "Complete assigned closure.portal test body read as logic in bounded slices. Any truncated combined output was fully reread separately before full coverage was recorded. Static review only; no execution."
+  },
+  {
+    "path": "service/packages/mcp/test/election/node.test.ts",
+    "depth": "full",
+    "notes": "Complete assigned closure.portal test body read as logic in bounded slices. Any truncated combined output was fully reread separately before full coverage was recorded. Static review only; no execution."
+  },
+  {
+    "path": "service/packages/mcp/test/execution/approval-routing-matrix.test.ts",
+    "depth": "full",
+    "notes": "Complete assigned closure.portal test body read as logic in bounded slices. Any truncated combined output was fully reread separately before full coverage was recorded. Static review only; no execution."
+  },
+  {
+    "path": "service/packages/mcp/test/execution/completed-result-replay.test.ts",
+    "depth": "full",
+    "notes": "Complete assigned closure.portal test body read as logic in bounded slices. Any truncated combined output was fully reread separately before full coverage was recorded. Static review only; no execution."
+  },
+  {
+    "path": "service/packages/mcp/test/execution/egress-finalizer.test.ts",
+    "depth": "full",
+    "notes": "Complete assigned closure.portal test body read as logic in bounded slices. Any truncated combined output was fully reread separately before full coverage was recorded. Static review only; no execution."
+  },
+  {
+    "path": "service/packages/mcp/test/execution/egress-policy.test.ts",
+    "depth": "full",
+    "notes": "Complete assigned closure.portal test body read as logic in bounded slices. Any truncated combined output was fully reread separately before full coverage was recorded. Static review only; no execution."
+  },
+  {
+    "path": "service/packages/mcp/test/execution/execution-plane-lifecycle.test.ts",
+    "depth": "full",
+    "notes": "Complete assigned closure.portal test body read as logic in bounded slices. Any truncated combined output was fully reread separately before full coverage was recorded. Static review only; no execution."
+  },
+  {
+    "path": "service/packages/mcp/test/execution/follower-invocation-client.test.ts",
+    "depth": "full",
+    "notes": "Complete assigned closure.portal test body read as logic in bounded slices. Any truncated combined output was fully reread separately before full coverage was recorded. Static review only; no execution."
+  },
+  {
+    "path": "service/packages/mcp/test/execution/follower-stream.test.ts",
+    "depth": "full",
+    "notes": "Complete assigned closure.portal test body read as logic in bounded slices. Any truncated combined output was fully reread separately before full coverage was recorded. Static review only; no execution."
+  },
+  {
+    "path": "service/packages/mcp/test/execution/identity-bootstrap-coordinator.test.ts",
+    "depth": "full",
+    "notes": "Complete assigned closure.portal test body read as logic in bounded slices. Any truncated combined output was fully reread separately before full coverage was recorded. Static review only; no execution."
+  },
+  {
+    "path": "service/packages/mcp/test/execution/invocation-boundary.test.ts",
+    "depth": "full",
+    "notes": "Complete assigned closure.portal test body read as logic in bounded slices. Any truncated combined output was fully reread separately before full coverage was recorded. Static review only; no execution."
+  },
+  {
+    "path": "service/packages/mcp/test/execution/mcp-selector-synthesis.test.ts",
+    "depth": "full",
+    "notes": "Complete assigned closure.portal test body read as logic in bounded slices. Any truncated combined output was fully reread separately before full coverage was recorded. Static review only; no execution."
+  },
+  {
+    "path": "service/packages/mcp/test/execution/no-direct-relay.test.ts",
+    "depth": "full",
+    "notes": "Complete assigned closure.portal test body read as logic in bounded slices. Any truncated combined output was fully reread separately before full coverage was recorded. Static review only; no execution."
+  },
+  {
+    "path": "service/packages/mcp/test/execution/operation-evidence-projector.test.ts",
+    "depth": "full",
+    "notes": "Complete assigned closure.portal test body read as logic in bounded slices. Any truncated combined output was fully reread separately before full coverage was recorded. Static review only; no execution."
+  },
+  {
+    "path": "service/packages/mcp/test/execution/operation-executor.test.ts",
+    "depth": "full",
+    "notes": "Complete assigned closure.portal test body read as logic in bounded slices. Any truncated combined output was fully reread separately before full coverage was recorded. Static review only; no execution."
+  },
+  {
+    "path": "service/packages/mcp/test/execution/operation-resolution.test.ts",
+    "depth": "full",
+    "notes": "Complete assigned closure.portal test body read as logic in bounded slices. Any truncated combined output was fully reread separately before full coverage was recorded. Static review only; no execution."
+  },
+  {
+    "path": "service/packages/mcp/test/execution/plugin-progress-adapter.test.ts",
+    "depth": "full",
+    "notes": "Complete assigned closure.portal test body read as logic in bounded slices. Any truncated combined output was fully reread separately before full coverage was recorded. Static review only; no execution."
+  },
+  {
+    "path": "service/packages/mcp/test/execution/policy-context.test.ts",
+    "depth": "full",
+    "notes": "Complete assigned closure.portal test body read as logic in bounded slices. Any truncated combined output was fully reread separately before full coverage was recorded. Static review only; no execution."
+  },
+  {
+    "path": "service/packages/mcp/test/execution/target-resolution.test.ts",
+    "depth": "full",
+    "notes": "Complete assigned closure.portal test body read as logic in bounded slices. Any truncated combined output was fully reread separately before full coverage was recorded. Static review only; no execution."
+  },
+  {
+    "path": "service/packages/mcp/test/execution/workspace-endpoints.test.ts",
+    "depth": "full",
+    "notes": "Complete assigned closure.portal test body read as logic in bounded slices. Any truncated combined output was fully reread separately before full coverage was recorded. Static review only; no execution."
+  },
+  {
+    "path": "service/packages/mcp/test/fs/repo-walk.test.ts",
+    "depth": "full",
+    "notes": "Complete assigned closure.portal test body read as logic in bounded slices. Any truncated combined output was fully reread separately before full coverage was recorded. Static review only; no execution."
+  },
+  {
+    "path": "service/packages/mcp/test/fs/workspace-policy.test.ts",
+    "depth": "full",
+    "notes": "Complete assigned closure.portal test body read as logic in bounded slices. Any truncated combined output was fully reread separately before full coverage was recorded. Static review only; no execution."
+  },
+  {
+    "path": "service/packages/mcp/test/local-access.test.ts",
+    "depth": "full",
+    "notes": "Complete assigned closure.portal test body read as logic in bounded slices. Any truncated combined output was fully reread separately before full coverage was recorded. Static review only; no execution."
+  },
+  {
+    "path": "service/packages/mcp/test/mapping-consumers.test.ts",
+    "depth": "full",
+    "notes": "Complete assigned closure.portal test body read as logic in bounded slices. Any truncated combined output was fully reread separately before full coverage was recorded. Static review only; no execution."
+  },
+  {
+    "path": "service/packages/mcp/test/network/dns-pinning.test.ts",
+    "depth": "full",
+    "notes": "Complete assigned closure.portal test body read as logic in bounded slices. Any truncated combined output was fully reread separately before full coverage was recorded. Static review only; no execution."
+  },
+  {
+    "path": "service/packages/mcp/test/network/remote-domain-config.test.ts",
+    "depth": "full",
+    "notes": "Complete assigned closure.portal test body read as logic in bounded slices. Any truncated combined output was fully reread separately before full coverage was recorded. Static review only; no execution."
+  },
+  {
+    "path": "service/packages/mcp/test/network/remote-image-fetcher.test.ts",
+    "depth": "full",
+    "notes": "Complete assigned closure.portal test body read as logic in bounded slices. Any truncated combined output was fully reread separately before full coverage was recorded. Static review only; no execution."
+  },
+  {
+    "path": "service/packages/mcp/test/no-binary-sources.test.ts",
+    "depth": "full",
+    "notes": "Complete assigned closure.portal test body read as logic in bounded slices. Any truncated combined output was fully reread separately before full coverage was recorded. Static review only; no execution."
+  },
+  {
+    "path": "service/packages/mcp/test/node-id.test.ts",
+    "depth": "full",
+    "notes": "Complete assigned closure.portal test body read as logic in bounded slices. Any truncated combined output was fully reread separately before full coverage was recorded. Static review only; no execution."
+  },
+  {
+    "path": "service/packages/mcp/test/relay/relay.test.ts",
+    "depth": "full",
+    "notes": "Complete assigned closure.portal test body read as logic in bounded slices. Any truncated combined output was fully reread separately before full coverage was recorded. Static review only; no execution."
+  },
+  {
+    "path": "service/packages/mcp/test/security/control-auth.test.ts",
+    "depth": "full",
+    "notes": "Complete assigned closure.portal test body read as logic in bounded slices. Any truncated combined output was fully reread separately before full coverage was recorded. Static review only; no execution."
+  },
+  {
+    "path": "service/packages/mcp/test/security/pna.test.ts",
+    "depth": "full",
+    "notes": "Complete assigned closure.portal test body read as logic in bounded slices. Any truncated combined output was fully reread separately before full coverage was recorded. Static review only; no execution."
+  },
+  {
+    "path": "service/packages/mcp/test/security/request-limits.test.ts",
+    "depth": "full",
+    "notes": "Complete assigned closure.portal test body read as logic in bounded slices. Any truncated combined output was fully reread separately before full coverage was recorded. Static review only; no execution."
+  },
+  {
+    "path": "service/packages/mcp/test/set-annotations.test.ts",
+    "depth": "full",
+    "notes": "Complete assigned closure.portal test body read as logic in bounded slices. Any truncated combined output was fully reread separately before full coverage was recorded. Static review only; no execution."
+  },
+  {
+    "path": "service/packages/mcp/src/portal/native-lifecycle.ts",
+    "depth": "full",
+    "notes": "Complete body read in this recovery/operational pass."
+  },
+  {
+    "path": "service/packages/mcp/src/portal/preview-worker.ts",
+    "depth": "full",
+    "notes": "Complete body read in this recovery/operational pass."
+  },
+  {
+    "path": "service/packages/mcp/src/portal/native-resources.ts",
+    "depth": "full",
+    "notes": "Complete body read; resource identities and retained replace authority challenged."
+  },
+  {
+    "path": "service/packages/mcp/src/portal/store.ts",
+    "depth": "full",
+    "notes": "Complete body read; resource identities and retained replace authority challenged."
+  },
+  {
+    "path": "service/packages/mcp/src/portal/coordinator.ts",
+    "depth": "targeted",
+    "notes": "Complete bounded bodies read at lines 269-651, 1102-1147, 1201-1245 and 1481-1662. Resource reservations, resume state changes, deadline authority, validation/apply settlement. Remaining 1-268, 652-1101, 1148-1200 and 1246-1480 were not reread in this pass."
+  },
+  {
+    "path": "service/packages/mcp/src/portal/native-work.ts",
+    "depth": "targeted",
+    "notes": "Complete bounded bodies read at lines 90-181, 263-296, 300-441, 500-759, 1017-1059 and 1481-1713. Profile contract, owned job deadline, reconciliation, validation report, consumption omission and apply effect journal. Remaining 1-89, 182-262, 297-299, 442-499, 760-1016 and 1060-1480 were not reread in this pass."
+  },
+  {
+    "path": "service/packages/mcp/src/portal/control.ts",
+    "depth": "full",
+    "notes": "Complete body read; public profile transport and mandatory receipt completion gate."
+  },
+  {
+    "path": "service/packages/ir/src/portal-run.ts",
+    "depth": "full",
+    "notes": "Complete body read; public profile transport and mandatory receipt completion gate."
+  },
+  {
+    "path": "service/packages/mcp/src/portal/native-runner.ts",
+    "depth": "targeted",
+    "notes": "Complete bounded body read at lines 300-480. Preview receipt acceptance, command passage, artifacts and closed process evidence. Remaining 1-299 and 481-754 were not reread in this pass."
+  },
+  {
+    "path": "service/packages/mcp/src/portal/preview.ts",
+    "depth": "full",
+    "notes": "Complete 614-line body read in two bounded slices; failed report persistence and thrown aggregate lose owned worker receipt."
+  },
+  {
+    "path": "service/packages/mcp/src/execution/operation-executor.ts",
+    "depth": "targeted",
+    "notes": "Complete bounded body read at lines 1499-1606. Production operation.resources mapping to resourceQueue before runtime and reservation retention through dispatched work. Remaining 1-1498 and 1607-EOF were not reread in this pass."
+  },
+  {
+    "path": "service/packages/mcp/src/portal/preview-channel.ts",
+    "depth": "full",
+    "notes": "Complete body read; token-authenticated two-frame pipe and strict manifest/report binding. Safe failed-feedback protocol must preserve these boundaries."
+  },
+  {
+    "path": "service/packages/mcp/src/portal/recipes/core-preparation.ts",
+    "depth": "targeted",
+    "notes": "Complete bounded bodies read at lines 116-148, 194-291 and 611-646 (EOF). Owner/global capacity and cancel/dependency mutations. Remaining 1-115, 149-193 and 292-610 were not reread in this pass."
+  },
+  {
+    "path": "service/packages/mcp/src/fs/atomic-file.ts",
+    "depth": "targeted",
+    "notes": "Complete bounded body read at lines 1920-2071. Retained-generation default and per-leaf/shared admission limits. Remaining 1-1919 and 2072-EOF were not reread in this pass."
+  },
+  {
+    "path": "docs/reviews/2026-09-30-full-review/round-1-main-disposition.md",
+    "depth": "full",
+    "notes": "Complete body read as review authority and existing finding/counterevidence context."
+  },
+  {
+    "path": "docs/reviews/2026-09-30-full-review/main-verification-notes.md",
+    "depth": "full",
+    "notes": "Complete body read as review authority and existing finding/counterevidence context."
+  },
+  {
+    "path": "docs/plans/2026-09-30-code-remediation-plan.md",
+    "depth": "targeted",
+    "notes": "Complete initial draft body read; updated current M01-M06 and M14 sections reread at lines 40-94 and 160-166. Later changes outside these sections were not fully reread."
+  }
+]

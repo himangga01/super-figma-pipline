@@ -1,0 +1,44 @@
+{
+  "recordedAt": "2026-10-03T19:16:53.434Z",
+  "diagnosticOnly": true,
+  "beforeBuild": "sha256:8fc77eb24377ce961918e12866aabc29b16fe8bba52a924648687039fa46333e",
+  "afterBuild": "sha256:7799b3a46df011417a79934802d03e8ab3813be451102ea899b938f0c323ca80",
+  "method": "Node allocation sampling within the service process; aggregates only, no heap object values or credentials",
+  "before": {
+    "samples": 8,
+    "first": "2026-10-03T19:10:07.087Z",
+    "last": "2026-10-03T19:10:43.085Z",
+    "maxHeapUsedBytes": 3084977536,
+    "latestHeapUsedBytes": 3084977536,
+    "largestAdmissionSample": [
+      {
+        "at": "2026-10-03T19:10:43.085Z",
+        "frame": "waitForDurableAdmission@index.mjs:17782",
+        "bytes": 1481521328,
+        "parents": [
+          "(root)@<native>:0",
+          "<anonymous>@<native>:0",
+          "waitForDurableAdmission@index.mjs:17782"
+        ]
+      },
+      {
+        "at": "2026-10-03T19:10:43.085Z",
+        "frame": "waitForDurableAdmission@index.mjs:17782",
+        "bytes": 1474973400,
+        "parents": [
+          "(root)@<native>:0",
+          "<anonymous>@<native>:0"
+        ]
+      }
+    ]
+  },
+  "after": {
+    "samples": 25,
+    "first": "2026-10-03T19:14:51.391Z",
+    "last": "2026-10-03T19:16:51.819Z",
+    "maxHeapUsedBytes": 139717464,
+    "latestHeapUsedBytes": 123629440,
+    "largestAdmissionSample": []
+  },
+  "limits": "Observed window only. This is memory diagnosis, not applied frontend acceptance."
+}

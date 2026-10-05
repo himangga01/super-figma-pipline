@@ -1,6 +1,14 @@
 import { execFile, spawn } from 'node:child_process';
 import { createHash, randomBytes } from 'node:crypto';
-import { constants } from 'node:fs';
+import {
+  closeSync,
+  constants,
+  fstatSync,
+  lstatSync,
+  openSync,
+  readSync,
+  unlinkSync,
+} from 'node:fs';
 import {
   link,
   lstat,
@@ -20,6 +28,7 @@ import type { WorkspacePolicy } from '@sfp/shared';
 import {
   DirectoryLeaseBroker,
   DirectoryLeaseBrokerPool,
+  WINDOWS_DIRECTORY_LEASE_PROTOCOL,
 } from './windows-directory-lease-broker.js';
 
 export interface AtomicFilePublication {
@@ -50,11 +59,33 @@ export interface FileIdentity {
 const sameIdentity = (left: FileIdentity, right: FileIdentity): boolean =>
   left.dev === right.dev && left.ino === right.ino;
 
+/**
+ * Protocol v2 lease helper. The wire is ASCII-only in both directions: paths travel as base64 of
+ * their UTF-16LE code units, and the helper echoes the SHA-256 of the bytes it received. Explicit
+ * BOM-less UTF-8 streams replace the console code page, which garbled non-ASCII paths (OPS-1).
+ * Every request is parsed inside its own `try`, so a malformed line gets an error response. A
+ * constrained or compile-restricted host reports RESTRICTED instead of READY; Node then fails with
+ * HOST_POWERSHELL_RESTRICTED and never falls back to lease-less writes.
+ */
 const windowsDirectoryLeaseScript = String.raw`
 $ErrorActionPreference = 'Stop'
+$languageMode = $ExecutionContext.SessionState.LanguageMode
+if ($languageMode -ne 'FullLanguage') {
+  Write-Output ('RESTRICTED language-mode ' + $languageMode)
+  exit 3
+}
+$utf8 = New-Object System.Text.UTF8Encoding($false)
+$reader = New-Object System.IO.StreamReader([Console]::OpenStandardInput(), $utf8, $false)
+$writer = New-Object System.IO.StreamWriter([Console]::OpenStandardOutput(), $utf8)
+$writer.AutoFlush = $true
+$writer.NewLine = [string][char]10
 $source = @'
 using System;
+using System.ComponentModel;
+using System.Globalization;
 using System.Runtime.InteropServices;
+using System.Security.Cryptography;
+using System.Text;
 using Microsoft.Win32.SafeHandles;
 
 [StructLayout(LayoutKind.Sequential)]
@@ -71,9 +102,18 @@ public struct SfpByHandleFileInformation {
   public uint FileIndexLow;
 }
 
+public sealed class SfpDirectoryLease {
+  public SafeFileHandle Handle;
+  public string Identity;
+  public string PathSha256;
+}
+
 public static class SfpRetainedDirectoryLease {
+  // The helper serves one request at a time, so one provider instance is never shared.
+  static readonly SHA256 Digest = new SHA256CryptoServiceProvider();
+
   [DllImport("kernel32.dll", CharSet = CharSet.Unicode, SetLastError = true)]
-  public static extern SafeFileHandle CreateFileW(
+  static extern SafeFileHandle CreateFileW(
     string path,
     uint desiredAccess,
     uint shareMode,
@@ -83,72 +123,129 @@ public static class SfpRetainedDirectoryLease {
     IntPtr templateFile);
 
   [DllImport("kernel32.dll", SetLastError = true)]
-  public static extern bool GetFileInformationByHandle(
+  static extern bool GetFileInformationByHandle(
     SafeFileHandle handle,
     out SfpByHandleFileInformation information);
 
-  public static SafeFileHandle Open(string path) {
+  public static SfpDirectoryLease Acquire(string pathUtf16B64) {
+    byte[] bytes = Convert.FromBase64String(pathUtf16B64);
+    if (bytes.Length < 2 || bytes.Length > 65534 || (bytes.Length & 1) != 0) {
+      throw new ArgumentException("lease path encoding is invalid");
+    }
+    // Copy code units verbatim; Encoding.Unicode would replace unpaired surrogates.
+    char[] units = new char[bytes.Length / 2];
+    Buffer.BlockCopy(bytes, 0, units, 0, bytes.Length);
+    string path = new string(units);
+    if (path.IndexOf('\0') >= 0) {
+      throw new ArgumentException("lease path contains NUL");
+    }
+    StringBuilder digest = new StringBuilder(64);
+    foreach (byte value in Digest.ComputeHash(bytes)) {
+      digest.Append(value.ToString("x2", CultureInfo.InvariantCulture));
+    }
     const uint FILE_SHARE_READ = 0x00000001;
     const uint FILE_SHARE_WRITE = 0x00000002;
     const uint OPEN_EXISTING = 3;
     const uint FILE_FLAG_BACKUP_SEMANTICS = 0x02000000;
     const uint FILE_FLAG_OPEN_REPARSE_POINT = 0x00200000;
-    return CreateFileW(
-      path,
+    SafeFileHandle handle = CreateFileW(
+      ExtendedPath(path),
       0,
       FILE_SHARE_READ | FILE_SHARE_WRITE,
       IntPtr.Zero,
       OPEN_EXISTING,
       FILE_FLAG_BACKUP_SEMANTICS | FILE_FLAG_OPEN_REPARSE_POINT,
       IntPtr.Zero);
+    if (handle.IsInvalid) {
+      int code = Marshal.GetLastWin32Error();
+      handle.Dispose();
+      throw new Win32Exception(code, "CreateFileW failed: " + code.ToString(CultureInfo.InvariantCulture));
+    }
+    try {
+      SfpByHandleFileInformation information;
+      if (!GetFileInformationByHandle(handle, out information)) {
+        int code = Marshal.GetLastWin32Error();
+        throw new Win32Exception(code, "GetFileInformationByHandle failed: " + code.ToString(CultureInfo.InvariantCulture));
+      }
+      ulong index = ((ulong)information.FileIndexHigh << 32) | information.FileIndexLow;
+      SfpDirectoryLease lease = new SfpDirectoryLease();
+      lease.Handle = handle;
+      lease.Identity = information.VolumeSerialNumber.ToString(CultureInfo.InvariantCulture) + ":" + index.ToString(CultureInfo.InvariantCulture);
+      lease.PathSha256 = digest.ToString();
+      return lease;
+    } catch {
+      handle.Dispose();
+      throw;
+    }
   }
 
-  public static string Identity(SafeFileHandle handle) {
-    SfpByHandleFileInformation information;
-    if (!GetFileInformationByHandle(handle, out information)) {
-      throw new System.ComponentModel.Win32Exception(Marshal.GetLastWin32Error());
+  // Extended-length paths bypass MAX_PATH; paths that are already prefixed are kept verbatim.
+  public static string ExtendedPath(string path) {
+    if (path.StartsWith(@"\\?\", StringComparison.Ordinal) || path.StartsWith(@"\\.\", StringComparison.Ordinal)) {
+      return path;
     }
-    ulong index = ((ulong)information.FileIndexHigh << 32) | information.FileIndexLow;
-    return information.VolumeSerialNumber.ToString() + ":" + index.ToString();
+    if (path.StartsWith(@"\\", StringComparison.Ordinal)) {
+      return @"\\?\" + "UNC" + path.Substring(1);
+    }
+    if (path.Length >= 3 && path[1] == ':' && path[2] == '\\') {
+      return @"\\?\" + path;
+    }
+    throw new ArgumentException("lease path is not fully qualified");
+  }
+
+  // JSON string literal restricted to printable ASCII, so no code page can alter a response.
+  public static string JsonString(string text) {
+    StringBuilder builder = new StringBuilder("\"");
+    foreach (char unit in text ?? string.Empty) {
+      if (unit == '"' || unit == '\\') {
+        builder.Append('\\').Append(unit);
+      } else if (unit < ' ' || unit > '~') {
+        builder.Append("\\u").Append(((int)unit).ToString("x4", CultureInfo.InvariantCulture));
+      } else {
+        builder.Append(unit);
+      }
+    }
+    return builder.Append('"').ToString();
   }
 }
 '@
-Add-Type -TypeDefinition $source
+try {
+  Add-Type -TypeDefinition $source -ReferencedAssemblies 'System.Core'
+} catch {
+  $writer.WriteLine('RESTRICTED add-type ' + [Convert]::ToBase64String([System.Text.Encoding]::Unicode.GetBytes([string]$_.Exception.Message)))
+  exit 4
+}
 $handles = @{}
 try {
-  [Console]::Out.WriteLine("READY")
-  [Console]::Out.Flush()
-  while (($line = [Console]::In.ReadLine()) -ne $null) {
-    $command = $line | ConvertFrom-Json
+  $writer.WriteLine('READY ${WINDOWS_DIRECTORY_LEASE_PROTOCOL}')
+  while ($true) {
+    $line = $reader.ReadLine()
+    if ($null -eq $line) { break }
+    $id = ''
     try {
-      if ($command.action -eq 'acquire') {
-        $handle = [SfpRetainedDirectoryLease]::Open([string]$command.path)
-        if ($handle.IsInvalid) {
-          $code = [Runtime.InteropServices.Marshal]::GetLastWin32Error()
-          $handle.Dispose()
-          throw "CreateFileW failed: $code"
-        }
-        $handles[[string]$command.id] = $handle
-        $response = @{
-          id = [string]$command.id
-          ok = $true
-          identity = [SfpRetainedDirectoryLease]::Identity($handle)
-        }
-      } elseif ($command.action -eq 'release') {
-        $id = [string]$command.id
+      $request = ConvertFrom-Json -InputObject $line
+      if ($request -isnot [System.Management.Automation.PSCustomObject]) { throw 'lease request is not an object' }
+      if ($request.id -isnot [string] -or $request.id -cnotmatch '^[0-9a-f]{32}$') { throw 'lease request id is invalid' }
+      $id = $request.id
+      if ($request.action -ceq 'acquire') {
+        if ($request.pathUtf16B64 -isnot [string]) { throw 'lease request path is invalid' }
+        if ($handles.ContainsKey($id)) { throw 'lease id is already held' }
+        $lease = [SfpRetainedDirectoryLease]::Acquire($request.pathUtf16B64)
+        $handles[$id] = $lease.Handle
+        $response = '{"id":"' + $id + '","ok":true,"identity":"' + $lease.Identity + '","pathSha256":"' + $lease.PathSha256 + '"}'
+      } elseif ($request.action -ceq 'release') {
         if ($handles.ContainsKey($id)) {
           $handles[$id].Dispose()
           $handles.Remove($id)
         }
-        $response = @{ id = $id; ok = $true }
+        $response = '{"id":"' + $id + '","ok":true}'
       } else {
         throw 'unknown directory lease command'
       }
     } catch {
-      $response = @{ id = [string]$command.id; ok = $false; error = $_.Exception.Message }
+      $response = '{"id":"' + $id + '","ok":false,"error":' + [SfpRetainedDirectoryLease]::JsonString([string]$_.Exception.Message) + '}'
     }
-    [Console]::Out.WriteLine(($response | ConvertTo-Json -Compress))
-    [Console]::Out.Flush()
+    $writer.WriteLine($response)
   }
 } finally {
   foreach ($handle in $handles.Values) { $handle.Dispose() }
@@ -191,7 +288,7 @@ export const resolveWindowsPowerShellExecutable = (
 };
 
 export const windowsDirectoryLeaseInvocation = () => ({
-  protocol: 'windows-directory-lease-v1' as const,
+  protocol: WINDOWS_DIRECTORY_LEASE_PROTOCOL,
   executable: resolveWindowsPowerShellExecutable(),
   args: [
     '-NoLogo',
@@ -201,6 +298,8 @@ export const windowsDirectoryLeaseInvocation = () => ({
     Buffer.from(windowsDirectoryLeaseScript, 'utf16le').toString('base64'),
   ],
 });
+// The native module fence admits exactly this spawn shape: the approved args, windowsHide and
+// three pipes. Keep it byte-identical or update native-module-fence-source.ts in lockstep.
 const createWindowsDirectoryLeaseBroker = (): Promise<DirectoryLeaseBroker> => {
   const invocation = windowsDirectoryLeaseInvocation();
   return DirectoryLeaseBroker.start({
@@ -209,16 +308,23 @@ const createWindowsDirectoryLeaseBroker = (): Promise<DirectoryLeaseBroker> => {
         stdio: ['pipe', 'pipe', 'pipe'],
         windowsHide: true,
       }),
-    requestTimeoutMs: 5_000,
-    maxLineBytes: 4_096,
+    // A cold start compiles the helper with Add-Type and is scanned by antivirus.
+    startupTimeoutMs: 30_000,
+    requestTimeoutMs: 10_000,
+    shutdownTimeoutMs: 5_000,
+    forceKillTimeoutMs: 5_000,
+    maxLineBytes: 16_384,
     maxStdoutBytes: 4_194_304,
     maxStderrBytes: 65_536,
-    maxCommandBytes: 65_536,
+    // A 32,767-unit path is 87,380 base64 characters on the wire.
+    maxCommandBytes: 131_072,
     maxPending: 256,
     unrefChild: true,
   });
 };
-const windowsDirectoryLeasePool = new DirectoryLeaseBrokerPool(createWindowsDirectoryLeaseBroker);
+const windowsDirectoryLeasePool = new DirectoryLeaseBrokerPool(createWindowsDirectoryLeaseBroker, {
+  idleRetirementMs: 600_000,
+});
 
 export const acquireWindowsDirectoryLease = async (
   path: string,
@@ -1635,6 +1741,12 @@ export interface AtomicFileStoreOptions {
   afterReplaceQuarantineRenameBeforeFsync?: () => Promise<void>;
   afterReplaceQuarantineFsync?: () => Promise<void>;
   afterReplacePublishFsync?: () => Promise<void>;
+  /** Only callers whose published record supersedes the old recovery generation may opt in. */
+  reclaimRetainedAfterPublish?: boolean;
+  /** Authenticates historical metadata before migrating generations that lack cleanup intents. */
+  verifyRetainedForReclamation?: (bytes: Uint8Array) => Promise<void>;
+  afterReplaceCleanupIntentFsync?: () => Promise<void>;
+  afterReplaceRetainedUnlinkFsync?: () => Promise<void>;
   retainedReplaceLimits?: { maxRows: number; maxBytes: number; maxScanEntries: number };
   maxReplaceBytes?: number;
   beforeReplaceBodyRead?: (path: string) => Promise<void>;
@@ -1904,9 +2016,158 @@ export class AtomicFileStore implements AtomicWritePort {
     let outputMutated = false;
     try {
       return await withCanonicalPathMutex(target, async () => {
+        const cleanupIntent = join(directory, `.${basename(target)}.replace-cleanup`);
+        const resumeCleanup = async () => {
+          const intentIdentity = await lstatMaybeAtomic(cleanupIntent);
+          if (intentIdentity === null) return null;
+          const intentBytes = await readFileWithinLimit(cleanupIntent, 16_384, undefined, {
+            expectedIdentity: intentIdentity,
+            allowedLinks: [1],
+          });
+          const intent: unknown = JSON.parse(
+            new TextDecoder('utf-8', { fatal: true }).decode(intentBytes),
+          );
+          if (typeof intent !== 'object' || intent === null || Array.isArray(intent)) {
+            throw atomicError('TARGET_CHANGED', 'replacement cleanup intent is invalid');
+          }
+          const record = intent as Record<string, unknown>;
+          if (
+            record.version !== 1 ||
+            record.target !== basename(target) ||
+            typeof record.oldDigest64 !== 'string' ||
+            !/^[0-9a-f]{64}$/u.test(record.oldDigest64) ||
+            typeof record.newDigest64 !== 'string' ||
+            !/^[0-9a-f]{64}$/u.test(record.newDigest64) ||
+            typeof record.dev !== 'string' ||
+            typeof record.ino !== 'string' ||
+            !Number.isSafeInteger(record.bytes) ||
+            (record.bytes as number) < 0 ||
+            (record.bytes as number) > maxReplaceBytes
+          )
+            throw atomicError('TARGET_CHANGED', 'replacement cleanup intent binding is invalid');
+          const obsoletePath = join(
+            directory,
+            `.${basename(target)}.${record.oldDigest64}.${record.newDigest64}.replace-retained`,
+          );
+          const obsolete = await lstatMaybeAtomic(obsoletePath);
+          if (obsolete !== null) {
+            const owned = await verifyBytes(obsoletePath, record.oldDigest64, [1]);
+            if (
+              String(owned.identity.dev) !== record.dev ||
+              String(owned.identity.ino) !== record.ino ||
+              owned.bytes.byteLength !== record.bytes
+            ) {
+              throw atomicError(
+                'TARGET_CHANGED',
+                'replacement cleanup generation ownership changed',
+              );
+            }
+            // The durable intent plus the final descriptor read authorizes these exact bytes,
+            // never merely a pathname or unchanged inode. Same-owner syscall races remain.
+            const descriptor = openSync(obsoletePath, constants.O_RDONLY | constants.O_NOFOLLOW);
+            try {
+              const held = fstatSync(descriptor);
+              if (
+                !held.isFile() ||
+                held.nlink !== 1 ||
+                !sameIdentity(owned.identity, held) ||
+                held.size !== record.bytes
+              ) {
+                throw atomicError('TARGET_CHANGED', 'replacement cleanup descriptor changed');
+              }
+              const hash = createHash('sha256');
+              const chunk = Buffer.allocUnsafe(65_536);
+              let total = 0;
+              for (;;) {
+                const count = readSync(
+                  descriptor,
+                  chunk,
+                  0,
+                  Math.min(chunk.byteLength, (record.bytes as number) - total + 1),
+                  total,
+                );
+                if (count === 0) break;
+                total += count;
+                if (total > (record.bytes as number))
+                  throw atomicError('TARGET_CHANGED', 'replacement cleanup bytes grew');
+                hash.update(chunk.subarray(0, count));
+              }
+              const pathname = lstatSync(obsoletePath);
+              const after = fstatSync(descriptor);
+              if (
+                !pathname.isFile() ||
+                pathname.isSymbolicLink() ||
+                pathname.nlink !== 1 ||
+                after.nlink !== 1 ||
+                !sameIdentity(held, pathname) ||
+                !sameIdentity(held, after) ||
+                total !== record.bytes ||
+                hash.digest('hex') !== record.oldDigest64
+              ) {
+                throw atomicError(
+                  'TARGET_CHANGED',
+                  'replacement cleanup bytes changed before deletion',
+                );
+              }
+              unlinkSync(obsoletePath);
+            } finally {
+              closeSync(descriptor);
+            }
+            await fsyncDirectory(directory);
+            await this.options.afterReplaceRetainedUnlinkFsync?.();
+          }
+          const currentIntent = await readFileWithinLimit(cleanupIntent, 16_384, undefined, {
+            expectedIdentity: intentIdentity,
+            allowedLinks: [1],
+          });
+          if (!Buffer.from(currentIntent).equals(Buffer.from(intentBytes))) {
+            throw atomicError('TARGET_CHANGED', 'replacement cleanup intent changed');
+          }
+          await unlink(cleanupIntent);
+          await fsyncDirectory(directory);
+          return record;
+        };
+        const authorizeCleanup = async (
+          oldDigest64: string,
+          successorDigest64: string,
+          obsolete: Awaited<ReturnType<typeof inspectBytes>>,
+        ) => {
+          const intentBytes = Buffer.from(
+            `${JSON.stringify({
+              version: 1,
+              target: basename(target),
+              oldDigest64,
+              newDigest64: successorDigest64,
+              dev: String(obsolete.identity.dev),
+              ino: String(obsolete.identity.ino),
+              bytes: obsolete.bytes.byteLength,
+            })}\n`,
+          );
+          await new AtomicFileStore().createNew(cleanupIntent, intentBytes);
+          await this.options.afterReplaceCleanupIntentFsync?.();
+          await resumeCleanup();
+        };
+        // A durable intent authorizes only this exact obsolete inode and byte sequence. Legacy
+        // retained files without such proof remain recovery material and continue to count.
+        if (this.options.reclaimRetainedAfterPublish === true) {
+          const resumed = await resumeCleanup();
+          if (
+            resumed?.oldDigest64 === options.expectedDigest64 &&
+            resumed.newDigest64 === newDigest64
+          ) {
+            const current = await verifyBytes(target, newDigest64, [1]);
+            return Object.freeze({ path: target, bytes: current.bytes.byteLength });
+          }
+        }
         const retainedPrefix = `.${basename(target)}.`;
         const retainedSuffix = '.replace-retained';
         const retainedMetrics = { scannedEntries: 0, retainedRows: 0, retainedBytes: 0 };
+        const historical: Array<{
+          path: string;
+          oldDigest64: string;
+          newDigest64: string;
+          bytes: number;
+        }> = [];
         const directoryStream = await opendir(directory, { bufferSize: 1 });
         for await (const entry of directoryStream) {
           if (retainedMetrics.scannedEntries >= retainedLimits.maxScanEntries) {
@@ -1934,9 +2195,23 @@ export class AtomicFileStore implements AtomicWritePort {
           }
           retainedMetrics.retainedRows += 1;
           retainedMetrics.retainedBytes += metadata.size;
+          const binding = entry.name
+            .slice(retainedPrefix.length, -retainedSuffix.length)
+            .split('.');
+          if (binding.length === 2)
+            historical.push({
+              path,
+              oldDigest64: binding[0]!,
+              newDigest64: binding[1]!,
+              bytes: metadata.size,
+            });
           if (
-            retainedMetrics.retainedRows > retainedLimits.maxRows ||
-            retainedMetrics.retainedBytes > retainedLimits.maxBytes
+            (retainedMetrics.retainedRows > retainedLimits.maxRows ||
+              retainedMetrics.retainedBytes > retainedLimits.maxBytes) &&
+            !(
+              this.options.reclaimRetainedAfterPublish === true &&
+              this.options.verifyRetainedForReclamation !== undefined
+            )
           ) {
             throw Object.assign(
               atomicError(
@@ -1946,6 +2221,51 @@ export class AtomicFileStore implements AtomicWritePort {
               retainedMetrics,
             );
           }
+        }
+        if (
+          historical.length > 0 &&
+          (await lstatMaybeAtomic(target)) !== null &&
+          this.options.reclaimRetainedAfterPublish === true &&
+          this.options.verifyRetainedForReclamation !== undefined
+        ) {
+          const current = await inspectBytes(target, [1, 2]);
+          const publishedDigests = new Set([current.digest64]);
+          let changed = true;
+          while (changed) {
+            changed = false;
+            for (const generation of historical) {
+              if (
+                publishedDigests.has(generation.newDigest64) &&
+                !publishedDigests.has(generation.oldDigest64)
+              ) {
+                publishedDigests.add(generation.oldDigest64);
+                changed = true;
+              }
+            }
+          }
+          /* eslint-disable no-await-in-loop -- each authenticated historical generation has its own durable cleanup intent */
+          for (const generation of historical) {
+            if (generation.path === retained) continue;
+            if (!publishedDigests.has(generation.newDigest64)) continue;
+            const obsolete = await verifyBytes(generation.path, generation.oldDigest64, [1]);
+            await this.options.verifyRetainedForReclamation(obsolete.bytes);
+            await authorizeCleanup(generation.oldDigest64, generation.newDigest64, obsolete);
+            retainedMetrics.retainedRows -= 1;
+            retainedMetrics.retainedBytes -= generation.bytes;
+          }
+          /* eslint-enable no-await-in-loop */
+        }
+        if (
+          retainedMetrics.retainedRows > retainedLimits.maxRows ||
+          retainedMetrics.retainedBytes > retainedLimits.maxBytes
+        ) {
+          throw Object.assign(
+            atomicError(
+              'REPLACE_RETAINED_CAPACITY_EXCEEDED',
+              'unproved retained generations exceed capacity',
+            ),
+            retainedMetrics,
+          );
         }
         let retainedState = await lstatMaybeAtomic(retained);
         let temporaryState = await lstatMaybeAtomic(temporary);
@@ -1983,6 +2303,10 @@ export class AtomicFileStore implements AtomicWritePort {
             }
             await unlink(temporary);
             await fsyncDirectory(directory);
+          }
+          if (this.options.reclaimRetainedAfterPublish === true) {
+            const obsolete = await verifyBytes(retained, options.expectedDigest64, [1]);
+            await authorizeCleanup(options.expectedDigest64, newDigest64, obsolete);
           }
           return Object.freeze({ path: target, bytes: published.bytes.byteLength });
         };
@@ -2045,12 +2369,60 @@ export class AtomicFileStore implements AtomicWritePort {
           ) {
             throw atomicError('TARGET_CHANGED', 'replacement target changed before commit');
           }
+          await verifyBytes(target, options.expectedDigest64, [1]);
           await rename(target, retained);
           outputMutated = true;
           await this.options.afterReplaceQuarantineRenameBeforeFsync?.();
           await fsyncDirectory(directory);
           retainedState = await lstatMaybeAtomic(retained);
-          await verifyBytes(retained, options.expectedDigest64, [1]);
+          try {
+            await verifyBytes(retained, options.expectedDigest64, [1]);
+          } catch (conflict) {
+            // An in-place edit can race rename. Restore through an exclusive link only; an
+            // already published successor wins and the edited generation remains recoverable.
+            const moved = await lstatMaybeAtomic(retained);
+            if (
+              moved !== null &&
+              moved.isFile() &&
+              !moved.isSymbolicLink() &&
+              moved.nlink === 1 &&
+              sameIdentity(before.identity, moved)
+            ) {
+              try {
+                await link(retained, target);
+                await fsyncDirectory(directory);
+                const [restored, retainedNow] = await Promise.all([lstat(target), lstat(retained)]);
+                if (
+                  sameIdentity(moved, restored) &&
+                  sameIdentity(moved, retainedNow) &&
+                  restored.nlink === 2 &&
+                  retainedNow.nlink === 2
+                ) {
+                  await unlink(retained);
+                  await fsyncDirectory(directory);
+                }
+              } catch (restoreError) {
+                if ((restoreError as NodeJS.ErrnoException).code !== 'EEXIST') {
+                  throw Object.assign(
+                    atomicError(
+                      'TARGET_CHANGED',
+                      'edited replacement requires explicit recovery',
+                      conflict,
+                    ),
+                    { recoveryPath: retained, restorationError: restoreError },
+                  );
+                }
+              }
+            }
+            throw Object.assign(
+              atomicError(
+                'TARGET_CHANGED',
+                'edited replacement generation was preserved',
+                conflict,
+              ),
+              { recoveryPath: retained, visiblePath: target },
+            );
+          }
           await this.options.afterReplaceQuarantineFsync?.();
           try {
             await link(temporary, target);

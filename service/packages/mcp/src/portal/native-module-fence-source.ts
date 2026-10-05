@@ -120,8 +120,10 @@ export const NATIVE_MODULE_FENCE_SOURCE = String.raw`
     if(typeof value!=='string'||!path.isAbsolute(value))return reject('PORTAL_NATIVE_MODULE_CHILD_RELATIVE_EXECUTABLE');
     const file=native(value);
     if(key(file)===key(process.execPath))return {file,node:true};
+    if(path.basename(file).toLowerCase()==='taskkill.exe')return reject('PORTAL_NATIVE_MODULE_CHILD_CAPABILITY_REQUIRED');
     if(policy.previewListener&&key(policy.previewListener.executable)===key(file))return reject('PORTAL_NATIVE_MODULE_CHILD_CAPABILITY_REQUIRED');
     if(policy.directoryLease&&key(policy.directoryLease.executable)===key(file))return reject('PORTAL_NATIVE_MODULE_CHILD_CAPABILITY_REQUIRED');
+    if(policy.ownedChromeCleanup&&key(policy.ownedChromeCleanup.executable)===key(file))return reject('PORTAL_NATIVE_MODULE_CHILD_CAPABILITY_REQUIRED');
     if(policy.hostProbes?.some(probe=>probe.files.some(item=>key(item.path)===key(file))))return reject('PORTAL_NATIVE_MODULE_CHILD_CAPABILITY_REQUIRED');
     if(!files.has(key(file)))return reject('PORTAL_NATIVE_MODULE_CHILD_UNBOUND');
     check(file);
@@ -138,17 +140,41 @@ export const NATIVE_MODULE_FENCE_SOURCE = String.raw`
   const originalSpawn=cp.ChildProcess.prototype.spawn;
   Object.defineProperty(cp.ChildProcess.prototype,'spawn',{value:function(...args){if(!admittedSpawn)return reject('PORTAL_NATIVE_MODULE_CHILD_DIRECT_SPAWN_UNSUPPORTED');return originalSpawn.apply(this,args)},writable:false,configurable:false});
   const install=(object,name,value)=>Object.defineProperty(object,name,{value,writable:false,configurable:false});
+  const ownedChromeChildren=new Map();
+  const retainChromeChild=(file,child)=>{
+    const cleanup=policy.ownedChromeCleanup;
+    if(!cleanup||key(file)!==key(cleanup.chromeExecutable)||!(child instanceof cp.ChildProcess)||!Number.isSafeInteger(child.pid)||child.pid<1)return child;
+    const pid=child.pid;
+    ownedChromeChildren.set(pid,child);
+    const release=()=>{if(ownedChromeChildren.get(pid)===child)ownedChromeChildren.delete(pid)};
+    child.once('exit',release);child.once('error',release);
+    record({kind:'owned-chrome-child',pid,chromeExecutable:cleanup.chromeExecutable});
+    return child;
+  };
   for(const name of ['spawn','spawnSync']){
     const original=cp[name];
     install(cp,name,function(file,args,options){
       if(!Array.isArray(args)){options=args;args=[]}
+      const cleanup=policy.ownedChromeCleanup;
+      if(cleanup&&typeof file==='string'&&/^taskkill(?:\s|$)/u.test(file)){
+        const match=/^taskkill \/pid ([1-9][0-9]{0,9}) \/T \/F$/u.exec(file);
+        if(process.platform!=='win32'||cleanup.protocol!=='windows-owned-chrome-cleanup-v1'||name!=='spawnSync'||!match||match[0]!==file||args.length!==0||options?.shell!==true||options?.windowsHide!==true||JSON.stringify(Object.keys(options).sort())!==JSON.stringify(['shell','windowsHide'])||cleanup.timeoutMs!==5000||cleanup.maxBuffer!==65536)return reject('PORTAL_NATIVE_MODULE_CHILD_CAPABILITY_REQUIRED');
+        const pid=Number(match[1]),child=ownedChromeChildren.get(pid);
+        if(!Number.isSafeInteger(pid)||!child||child.pid!==pid||child.exitCode!==null||child.signalCode!==null)return reject('PORTAL_NATIVE_MODULE_CHILD_CHROME_NOT_OWNED');
+        check(cleanup.executable);check(cleanup.chromeExecutable);
+        const actualArgs=['/pid',String(pid),'/T','/F'],opts={shell:false,windowsHide:true,timeout:5000,maxBuffer:65536};
+        invocation('owned-chrome-cleanup',[cleanup.executable,...actualArgs],opts);
+        record({kind:'owned-chrome-cleanup',pid,executable:cleanup.executable,chromeExecutable:cleanup.chromeExecutable});
+        ownedChromeChildren.delete(pid);
+        admittedSpawn++;try{return original.call(this,cleanup.executable,actualArgs,opts)}finally{admittedSpawn--}
+      }
       const lease=policy.directoryLease;
       const leaseCall=lease&&typeof file==='string'&&path.isAbsolute(file)&&key(file)===key(lease.executable);
       if(leaseCall&&(name!=='spawn'||JSON.stringify(args)!==JSON.stringify(lease.args)||options?.shell||options?.windowsHide!==true||JSON.stringify(options?.stdio)!==JSON.stringify(['pipe','pipe','pipe'])))return reject('PORTAL_NATIVE_MODULE_CHILD_CAPABILITY_REQUIRED');
       if(leaseCall)check(file);
       const target=leaseCall?{file:lease.executable,node:false}:executable(file),opts=childOptions(options,target.node),actualArgs=target.node?nodeArgs(args):args;
       invocation(target.node?'node-child':'native-child',[target.file,...actualArgs],opts);
-      admittedSpawn++;try{return original.call(this,target.file,actualArgs,opts)}finally{admittedSpawn--}
+      admittedSpawn++;try{const child=original.call(this,target.file,actualArgs,opts);return name==='spawn'?retainChromeChild(target.file,child):child}finally{admittedSpawn--}
     });
   }
   const originalExecFileForProbe=cp.execFile;

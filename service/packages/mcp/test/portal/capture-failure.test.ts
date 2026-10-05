@@ -49,3 +49,16 @@ it('does not invent capture diagnostics for older design records', () => {
   });
   expect(design).not.toHaveProperty('captureFailure');
 });
+
+it('retains the initialization-timeout category without exposing transport details', () => {
+  const error = new PortalCaptureError(
+    'connection',
+    new Error('CHROME_INITIALIZATION_TIMEOUT: private endpoint or diagnostic payload'),
+    Date.now(),
+  );
+  expect(error.diagnostic).toMatchObject({
+    stage: 'connection',
+    code: 'CHROME_INITIALIZATION_TIMEOUT',
+  });
+  expect(JSON.stringify(error.diagnostic)).not.toMatch(/private|payload/u);
+});

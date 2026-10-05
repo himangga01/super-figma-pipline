@@ -1,0 +1,19 @@
+{
+  "recordedAt": "2026-10-04T14:47:00.000Z",
+  "purpose": "Native effect conversion after repair",
+  "commands": [
+    {
+      "command": "vitest run packages/cli/test/figma-native-effects.test.ts packages/cli/test/figma-native-nodes.test.ts",
+      "numTotalTests": 16,
+      "numPassedTests": 16,
+      "numFailedTests": 0
+    },
+    {
+      "command": "vitest run packages/cli/test/figma-native-{effects,nodes,styles,layout,reactions,paints,geometry}.test.ts (before a lint-only test assertion change)",
+      "numTotalTests": 45,
+      "numPassedTests": 45,
+      "numFailedTests": 0
+    }
+  ],
+  "staticChecks": "CLI typecheck, scoped oxlint and oxfmt passed; CLI build passed before the comparisons"
+}

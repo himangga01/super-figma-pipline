@@ -1,0 +1,107 @@
+{
+  "schemaVersion": 1,
+  "slice": "review-2026-10-04",
+  "baseline": {
+    "headCommit": "5b9343efc82ef47ba56f412acbd4eee5a328d335",
+    "authoritySha256": {
+      "upstream-lock.json": "4e7b316fd3fa5b89847d4dbde6695663426431d25dce9e9143246911109b7e67",
+      "vendor-map.json": "b3275c7d8b997d1cfe723d97594659f77d7b4361b824a790bcfdd7ff762589bd",
+      "vendor-rules.json": "0172510cbed6eca109d9dc8b955a32e0d9e77cdf7c9ab9252c8e3f0dd17b9c7f"
+    }
+  },
+  "entries": [
+    {
+      "path": "capabilities/task-review-2026-10-04-authority-classes.json",
+      "sha256": "a84c06d0a93022cbbf97111819934a101b616620f542a4df08c8bf81a75ba3d5",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "25976ee48e81bfa2e22850d8cfe047a62ec48be448d75f032eb99c481cd3d6df"
+        },
+        {
+          "class": "protected",
+          "sha256": "25976ee48e81bfa2e22850d8cfe047a62ec48be448d75f032eb99c481cd3d6df"
+        }
+      ],
+      "reason": "Repair the reproduced R5 failure: a read-only approvals poll failed control authorization when one Windows state probe exceeded its worker timeout, and the CLI cancelled the dispatched plan. Only probe-capacity outcomes now return 503 CONTROL_AUTH_BUSY; integrity failures stay 500. Monitoring tolerates that typed busy state for at most 60 s with backoff; decisions, untyped failures and exhausted windows still cancel. Two regressions failed first."
+    },
+    {
+      "path": "docs/portal-native.md",
+      "sha256": "156a2816ab7d1c2815e012547655a6b5da452a32b8af49b8f2325fcdf303ac91",
+      "priorClaims": [
+        {
+          "class": "protected",
+          "sha256": "551fa659e06bad079b04ecb864e8f74ed7e964bf69bc55593573e6096074abbb"
+        }
+      ],
+      "reason": "Repair the reproduced R5 failure: a read-only approvals poll failed control authorization when one Windows state probe exceeded its worker timeout, and the CLI cancelled the dispatched plan. Only probe-capacity outcomes now return 503 CONTROL_AUTH_BUSY; integrity failures stay 500. Monitoring tolerates that typed busy state for at most 60 s with backoff; decisions, untyped failures and exhausted windows still cancel. Two regressions failed first."
+    },
+    {
+      "path": "packages/cli/src/control-client.ts",
+      "sha256": "3bc0c86dda29965396b1aefa7ce26d3042e0a6d9a2e0480bebc7311269c023b5",
+      "priorClaims": [
+        {
+          "class": "protected",
+          "sha256": "669b0381db8641d7d278aeaf1f1e4a0ad39e2842844207e648c24e499df867fa"
+        }
+      ],
+      "reason": "Repair the reproduced R5 failure: a read-only approvals poll failed control authorization when one Windows state probe exceeded its worker timeout, and the CLI cancelled the dispatched plan. Only probe-capacity outcomes now return 503 CONTROL_AUTH_BUSY; integrity failures stay 500. Monitoring tolerates that typed busy state for at most 60 s with backoff; decisions, untyped failures and exhausted windows still cancel. Two regressions failed first."
+    },
+    {
+      "path": "packages/cli/test/control-client-http.test.ts",
+      "sha256": "b2eada99fcfb574d25d68119e07f84054b62103fd5b8f01a3286578394744c5d",
+      "priorClaims": [
+        {
+          "class": "protected",
+          "sha256": "daf99c365774fc502f99a5f65cc635ab01ecc752ed1792ee184cf514a7afe6b8"
+        }
+      ],
+      "reason": "Repair the reproduced R5 failure: a read-only approvals poll failed control authorization when one Windows state probe exceeded its worker timeout, and the CLI cancelled the dispatched plan. Only probe-capacity outcomes now return 503 CONTROL_AUTH_BUSY; integrity failures stay 500. Monitoring tolerates that typed busy state for at most 60 s with backoff; decisions, untyped failures and exhausted windows still cancel. Two regressions failed first."
+    },
+    {
+      "path": "packages/mcp/src/election/leader-endpoints.ts",
+      "sha256": "08d49c64802d01031f247a206a18edd49b193bd41777c94cc981faf2047bae57",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "33afaee8c6ba4b12f7902a670947c5ef62c59b6026b1668b4dc470ccadee984f"
+        },
+        {
+          "class": "protected",
+          "sha256": "33afaee8c6ba4b12f7902a670947c5ef62c59b6026b1668b4dc470ccadee984f"
+        }
+      ],
+      "reason": "Repair the reproduced R5 failure: a read-only approvals poll failed control authorization when one Windows state probe exceeded its worker timeout, and the CLI cancelled the dispatched plan. Only probe-capacity outcomes now return 503 CONTROL_AUTH_BUSY; integrity failures stay 500. Monitoring tolerates that typed busy state for at most 60 s with backoff; decisions, untyped failures and exhausted windows still cancel. Two regressions failed first."
+    },
+    {
+      "path": "packages/mcp/src/fs/windows-boundary-probe-worker.ts",
+      "sha256": "81a216eb68b216c3920c4ad14db903771c31c341134099030b025e0f71aed9ba",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "2a008a965c0a6f99bd99329fe659cf5c21c593dbd72fe7e2138893ade5537bb8"
+        },
+        {
+          "class": "protected",
+          "sha256": "2a008a965c0a6f99bd99329fe659cf5c21c593dbd72fe7e2138893ade5537bb8"
+        }
+      ],
+      "reason": "Repair the reproduced R5 failure: a read-only approvals poll failed control authorization when one Windows state probe exceeded its worker timeout, and the CLI cancelled the dispatched plan. Only probe-capacity outcomes now return 503 CONTROL_AUTH_BUSY; integrity failures stay 500. Monitoring tolerates that typed busy state for at most 60 s with backoff; decisions, untyped failures and exhausted windows still cancel. Two regressions failed first."
+    },
+    {
+      "path": "packages/mcp/test/election/leader-endpoints.test.ts",
+      "sha256": "e10895a13b8a98a079a57f917726706906001285b2da8ec091e8e372c27125ed",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "98b18b8d1defffb365c7d8e215f89193e2d1e003db078755ece607ba6cfd3fdb"
+        },
+        {
+          "class": "protected",
+          "sha256": "98b18b8d1defffb365c7d8e215f89193e2d1e003db078755ece607ba6cfd3fdb"
+        }
+      ],
+      "reason": "Repair the reproduced R5 failure: a read-only approvals poll failed control authorization when one Windows state probe exceeded its worker timeout, and the CLI cancelled the dispatched plan. Only probe-capacity outcomes now return 503 CONTROL_AUTH_BUSY; integrity failures stay 500. Monitoring tolerates that typed busy state for at most 60 s with backoff; decisions, untyped failures and exhausted windows still cancel. Two regressions failed first."
+    }
+  ]
+}

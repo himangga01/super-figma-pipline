@@ -40,7 +40,7 @@ const setSizing = (
  */
 export const createSetLayoutPropsHandler =
   (figmaCtx: typeof figma): SandboxToolHandler =>
-  async params => {
+  async (params, execution) => {
     const p = (params ?? {}) as {
       nodeId?: unknown;
       layoutSizingHorizontal?: unknown;
@@ -66,6 +66,8 @@ export const createSetLayoutPropsHandler =
     }
 
     const node = await figmaCtx.getNodeByIdAsync(p.nodeId);
+
+    execution?.signal.throwIfAborted();
     if (node === null) throw new Error(`set_layout_props: node ${p.nodeId} not found`);
     if (!('layoutAlign' in node)) {
       throw new Error(`set_layout_props: node ${p.nodeId} has no auto-layout child properties`);

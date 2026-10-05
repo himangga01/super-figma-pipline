@@ -12,7 +12,7 @@ const PER_SIDE = [
 
 export const createSetStrokesHandler =
   (figmaCtx: typeof figma): SandboxToolHandler =>
-  async params => {
+  async (params, execution) => {
     const p = (params ?? {}) as {
       nodeId?: unknown;
       strokes?: unknown;
@@ -36,22 +36,26 @@ export const createSetStrokesHandler =
       throw new TypeError('set_strokes: dashPattern must be an array of numbers');
     }
     const node = await figmaCtx.getNodeByIdAsync(p.nodeId);
+    execution?.signal.throwIfAborted();
     if (node === null || !('strokes' in node)) {
       throw new Error(`set_strokes: node ${p.nodeId} not found or cannot have strokes`);
     }
-    (node as GeometryMixin).strokes = await toFigmaPaintsBound(
-      figmaCtx,
-      p.strokes as SerializedPaint[],
-      'set_strokes',
-    );
+    const value = await toFigmaPaintsBound(figmaCtx, p.strokes as SerializedPaint[], 'set_strokes');
+    execution?.signal.throwIfAborted();
+    (node as GeometryMixin).strokes = value;
+    execution?.recordOwnedWrite?.(node, ['strokes']);
+    execution?.markMutated?.();
     if (typeof p.strokeWeight === 'number') {
       (node as { strokeWeight: number }).strokeWeight = p.strokeWeight;
+      execution?.recordOwnedWrite?.(node, ['strokeWeight', ...PER_SIDE]);
     }
     if (typeof p.strokeAlign === 'string') {
       (node as { strokeAlign: string }).strokeAlign = p.strokeAlign;
+      execution?.recordOwnedWrite?.(node, ['strokeAlign']);
     }
     if (Array.isArray(p.dashPattern)) {
       (node as { dashPattern: readonly number[] }).dashPattern = p.dashPattern as number[];
+      execution?.recordOwnedWrite?.(node, ['dashPattern']);
     }
     // Per-side weights live on IndividualStrokesMixin (frames/rects/components). Set them after the
     // uniform strokeWeight so a per-side value overrides it; skip silently on nodes that lack them.
@@ -62,6 +66,7 @@ export const createSetStrokesHandler =
           throw new Error(`set_strokes: node ${p.nodeId} does not support per-side stroke weights`);
         }
         (node as unknown as Record<string, number>)[side] = v;
+        execution?.recordOwnedWrite?.(node, [side, 'strokeWeight']);
       }
     }
     const result: MutateResult = { ok: true, nodeId: node.id };

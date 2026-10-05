@@ -6,7 +6,11 @@ import type { PortalSourceInventory, WorkspacePolicy } from '@sfp/shared';
 import ignore, { type Ignore } from 'ignore';
 
 import { IGNORED_DIRS } from '../ignored-dirs.js';
-import { isPortableSourcePath, portalSourceExclusion } from '../portal/source-path-policy.js';
+import {
+  isPortableSourcePath,
+  portalSourceExclusion,
+  portalSourceIssuePath,
+} from '../portal/source-path-policy.js';
 import { readFileWithinLimit, withRetainedDirectoryAuthority } from './atomic-file.js';
 
 const DEFAULT_CAP = 5_000;
@@ -529,8 +533,15 @@ export class RepoReader {
           const path = relativeDirectory === '' ? entry.name : `${relativeDirectory}/${entry.name}`;
           if (authorityMode) {
             if (!isPortableSourcePath(path)) {
-              issues.push({ code: 'REPO_SOURCE_PATH_UNSAFE' });
-              break scan;
+              // Named with an escaped, portable rendering. The entry is not recorded or entered,
+              // so the inventory stays incomplete, but the scan continues and names every one.
+              const named = portalSourceIssuePath(path);
+              issues.push({
+                code: 'REPO_SOURCE_PATH_UNSAFE',
+                ...(named === undefined ? {} : { path: named }),
+              });
+              skipped += 1;
+              continue;
             }
             const canonicalPath = path.toLowerCase();
             if (canonicalPaths.has(canonicalPath)) {
@@ -538,19 +549,16 @@ export class RepoReader {
               break scan;
             }
             canonicalPaths.add(canonicalPath);
-            const reason = portalSourceExclusion(path);
+            const kind = entry.link
+              ? 'link'
+              : entry.directory
+                ? 'directory'
+                : entry.file
+                  ? 'file'
+                  : 'other';
+            const reason = portalSourceExclusion(path, kind);
             if (reason !== undefined) {
-              exclusions.push({
-                path,
-                reason,
-                kind: entry.link
-                  ? 'link'
-                  : entry.directory
-                    ? 'directory'
-                    : entry.file
-                      ? 'file'
-                      : 'other',
-              });
+              exclusions.push({ path, reason, kind });
               skipped += 1;
               continue;
             }

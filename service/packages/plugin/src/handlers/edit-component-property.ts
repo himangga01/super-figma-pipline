@@ -10,7 +10,7 @@ import { propertyDisplayName, resolveComponentOwner } from './component-property
  */
 export const createEditComponentPropertyHandler =
   (figmaCtx: typeof figma): SandboxToolHandler =>
-  async params => {
+  async (params, execution) => {
     const p = (params ?? {}) as {
       componentId?: unknown;
       propertyId?: unknown;
@@ -34,6 +34,7 @@ export const createEditComponentPropertyHandler =
     }
 
     const node = await figmaCtx.getNodeByIdAsync(p.componentId);
+    execution?.signal.throwIfAborted();
     if (node === null) throw new Error(`edit_component_property: node ${p.componentId} not found`);
     const owner = resolveComponentOwner('edit_component_property', node);
     const def = owner.componentPropertyDefinitions[p.propertyId];

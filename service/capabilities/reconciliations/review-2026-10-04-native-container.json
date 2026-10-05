@@ -1,0 +1,73 @@
+{
+  "schemaVersion": 1,
+  "slice": "review-2026-10-04",
+  "baseline": {
+    "headCommit": "5b9343efc82ef47ba56f412acbd4eee5a328d335",
+    "authoritySha256": {
+      "upstream-lock.json": "bf539f02951c708788df0f16f7b9f1ad30850a31703c3f6973e9d205301831e0",
+      "vendor-map.json": "b3275c7d8b997d1cfe723d97594659f77d7b4361b824a790bcfdd7ff762589bd",
+      "vendor-rules.json": "0bbb66aff7bc7db1818bba36c7c1b09abb9dcc7705c377655b94d9790ad9acb9"
+    }
+  },
+  "entries": [
+    {
+      "path": "capabilities/task-review-2026-10-04-authority-classes.json",
+      "sha256": "63ddd77ab32aa9da192b18c403e0d6b279bd8ea26a531c0b7051ac59b101bc84",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "a68da6aa6b1f95978f2c966e754e820bb0721564211ddb150eecae984b7ea566"
+        },
+        {
+          "class": "protected",
+          "sha256": "a68da6aa6b1f95978f2c966e754e820bb0721564211ddb150eecae984b7ea566"
+        }
+      ],
+      "reason": "Report corner smoothing, strokes included in layout, fixed child count, overflow direction, layout grids and target aspect ratio from recorded values and Figma omitted defaults, only for Plugin API types that expose them. Column, row and square grids are converted; unobserved forms stay unknown. Separate eCommerce and CDD comparisons add 6,865 and 606 positions with zero differences. Two regressions failed first."
+    },
+    {
+      "path": "docs/portal-native.md",
+      "sha256": "ed51b76266b9c7b7065b255514e84e0b3d6338cc8be21836c6e33972b930e3fb",
+      "priorClaims": [
+        {
+          "class": "protected",
+          "sha256": "51fa426cb9cd726c8cf9586c0c4706c81d2abf27fc46747277144fd1c53d9be4"
+        }
+      ],
+      "reason": "Report corner smoothing, strokes included in layout, fixed child count, overflow direction, layout grids and target aspect ratio from recorded values and Figma omitted defaults, only for Plugin API types that expose them. Column, row and square grids are converted; unobserved forms stay unknown. Separate eCommerce and CDD comparisons add 6,865 and 606 positions with zero differences. Two regressions failed first."
+    },
+    {
+      "path": "packages/cli/src/figma-native-layout.ts",
+      "sha256": "292ec2766814b3f7a0f931a5cc0c88050c79a0b371e2cdbdd53367e12c9dfb3f",
+      "priorClaims": [
+        {
+          "class": "protected",
+          "sha256": "223e500abbdc79b3f7da34f818088a13ce2e8979e678b6ab8d6a154d6a41a109"
+        }
+      ],
+      "reason": "Report corner smoothing, strokes included in layout, fixed child count, overflow direction, layout grids and target aspect ratio from recorded values and Figma omitted defaults, only for Plugin API types that expose them. Column, row and square grids are converted; unobserved forms stay unknown. Separate eCommerce and CDD comparisons add 6,865 and 606 positions with zero differences. Two regressions failed first."
+    },
+    {
+      "path": "packages/cli/src/figma-native-nodes.ts",
+      "sha256": "e8549ce75fd507f1219cbb89f4617cebc28115967ab0c89e9dd5eb84e3fff388",
+      "priorClaims": [
+        {
+          "class": "protected",
+          "sha256": "3e87e419aa52d6c8f44cd5dbdb4ed7aaeebf4f6c1a1bb0a3b766e97444c2517f"
+        }
+      ],
+      "reason": "Report corner smoothing, strokes included in layout, fixed child count, overflow direction, layout grids and target aspect ratio from recorded values and Figma omitted defaults, only for Plugin API types that expose them. Column, row and square grids are converted; unobserved forms stay unknown. Separate eCommerce and CDD comparisons add 6,865 and 606 positions with zero differences. Two regressions failed first."
+    },
+    {
+      "path": "packages/cli/test/figma-native-layout.test.ts",
+      "sha256": "4cf1406c68556403706a45ff26afb2ba173e17019ac2f3861a103d089716504b",
+      "priorClaims": [
+        {
+          "class": "protected",
+          "sha256": "d47c7af5982e9b08777808e2f385073d5b45795d0ce31731643d0a0c4f58b16a"
+        }
+      ],
+      "reason": "Report corner smoothing, strokes included in layout, fixed child count, overflow direction, layout grids and target aspect ratio from recorded values and Figma omitted defaults, only for Plugin API types that expose them. Column, row and square grids are converted; unobserved forms stay unknown. Separate eCommerce and CDD comparisons add 6,865 and 606 positions with zero differences. Two regressions failed first."
+    }
+  ]
+}

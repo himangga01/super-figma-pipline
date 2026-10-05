@@ -1,0 +1,63 @@
+{
+  "schemaVersion": 1,
+  "slice": "review-2026-10-04",
+  "baseline": {
+    "headCommit": "5b9343efc82ef47ba56f412acbd4eee5a328d335",
+    "authoritySha256": {
+      "upstream-lock.json": "4c1da0bec2faeb320bb3a43a2da55a58ab0c027af18410e6549358f9f879c977",
+      "vendor-map.json": "b3275c7d8b997d1cfe723d97594659f77d7b4361b824a790bcfdd7ff762589bd",
+      "vendor-rules.json": "129f45589acdab4cfed7dcbfbcfbfd02c13095715b814bb5b1be2525117db6a6"
+    }
+  },
+  "entries": [
+    {
+      "path": "capabilities/task-review-2026-10-04-authority-classes.json",
+      "sha256": "6f6b241ece28da8034fd50add3529c9952110d109a4f14065fc06f64d528ff97",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "36878940952b00e757366a532e79d5bb3bf8d69ee31c7a85e74869fbef941e96"
+        },
+        {
+          "class": "protected",
+          "sha256": "36878940952b00e757366a532e79d5bb3bf8d69ee31c7a85e74869fbef941e96"
+        }
+      ],
+      "reason": "Extend the exact October4 review scope to the independent native style collector and comparison. Preserve the earlier PNG review, existing owner index and all upstream lineage."
+    },
+    {
+      "path": "packages/cli/src/artifacts.ts",
+      "sha256": "9cecb4078cf727cb626183010a6d20070ce2fb012d963c1fed08b26feebe990b",
+      "priorClaims": [
+        {
+          "class": "protected",
+          "sha256": "95cbb9674e9ef3f954cc8b1a4f78782eda2a41a7b920fae09cabf368785dbc56"
+        }
+      ],
+      "reason": "Expose independently decoded style catalogs with native GUIDs, observed values and explicit incomplete coverage. Compare only unique kind/name pairs, retaining ambiguous matches, mixed-font differences and missing fields. Three focused tests and a real CDD comparison cover 56 style pairs, 114 positions and 17 retained differences; this is not complete plugin-free acceptance."
+    },
+    {
+      "path": "packages/cli/src/commands.ts",
+      "sha256": "f148bc3b418ff4829cb1af32ef63921d55b38681876f0e4671368ae2070cb538",
+      "priorClaims": [
+        {
+          "class": "protected",
+          "sha256": "512cf0159de9c4ec5f9580e31206a52b9985b5965afa6d6f3316f11ee272da78"
+        }
+      ],
+      "reason": "Expose independently decoded style catalogs with native GUIDs, observed values and explicit incomplete coverage. Compare only unique kind/name pairs, retaining ambiguous matches, mixed-font differences and missing fields. Three focused tests and a real CDD comparison cover 56 style pairs, 114 positions and 17 retained differences; this is not complete plugin-free acceptance."
+    },
+    {
+      "path": "packages/cli/src/figma-native-styles.ts",
+      "sha256": "39a3fda912815ac75e7d2606e53af0968b81e9a03dbc06669a9f21d997fd52b2",
+      "priorClaims": [],
+      "reason": "Expose independently decoded style catalogs with native GUIDs, observed values and explicit incomplete coverage. Compare only unique kind/name pairs, retaining ambiguous matches, mixed-font differences and missing fields. Three focused tests and a real CDD comparison cover 56 style pairs, 114 positions and 17 retained differences; this is not complete plugin-free acceptance."
+    },
+    {
+      "path": "packages/cli/test/figma-native-styles.test.ts",
+      "sha256": "abd51712adb6d9b05708846271d24d09f0bc9e05e46cf3cd8a8196677e6357eb",
+      "priorClaims": [],
+      "reason": "Expose independently decoded style catalogs with native GUIDs, observed values and explicit incomplete coverage. Compare only unique kind/name pairs, retaining ambiguous matches, mixed-font differences and missing fields. Three focused tests and a real CDD comparison cover 56 style pairs, 114 positions and 17 retained differences; this is not complete plugin-free acceptance."
+    }
+  ]
+}

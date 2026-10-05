@@ -1,0 +1,143 @@
+{
+  "schemaVersion": 1,
+  "slice": "review-2026-10-02",
+  "baseline": {
+    "headCommit": "db821db346e7cb5dd27e4df465b91bb106e2f2b3",
+    "authoritySha256": {
+      "upstream-lock.json": "79345524144811021386fd89ac39d9f35a2350c24ae28eb43593a6b530f08022",
+      "vendor-map.json": "b3275c7d8b997d1cfe723d97594659f77d7b4361b824a790bcfdd7ff762589bd",
+      "vendor-rules.json": "030840d455406632c1558a2cd49660529c8d65b85da29c328555ffe7e54b19bd"
+    }
+  },
+  "entries": [
+    {
+      "path": "capabilities/task-review-2026-10-02-authority-classes.json",
+      "sha256": "bfd61ce739cd2432c2e88213d2ef5dae511135f27c0755a52f5622b68e722fe7",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "a2efe51936aa6f2453fde5d29f8cda1a38458485df2c47ec2700647f031481d7"
+        },
+        {
+          "class": "protected",
+          "sha256": "a2efe51936aa6f2453fde5d29f8cda1a38458485df2c47ec2700647f031481d7"
+        }
+      ],
+      "reason": "Owner-required service-only acceptance restart: explicit Playwright opening in existing Chrome, bounded connection waits and diagnostics, and authenticated portal approval display within the existing schema with complete target/resource digest. Preserve source-tab ownership, ambiguity rejection, Chrome-only execution, owner approval and prior evidence. Focused 39 tests and affected typechecks passed; live capture and complete frontend acceptance remain unverified."
+    },
+    {
+      "path": "docs/portal-native.md",
+      "sha256": "e7a6b186a9077fd4b66ebf86fa5f6c891b760340d18adaca47fd8de832d660d1",
+      "priorClaims": [
+        {
+          "class": "protected",
+          "sha256": "809c3d017f26e13359f29bf7c85700c42f4909033f12ab5b0f9f5e6286a9e444"
+        }
+      ],
+      "reason": "Owner-required service-only acceptance restart: explicit Playwright opening in existing Chrome, bounded connection waits and diagnostics, and authenticated portal approval display within the existing schema with complete target/resource digest. Preserve source-tab ownership, ambiguity rejection, Chrome-only execution, owner approval and prior evidence. Focused 39 tests and affected typechecks passed; live capture and complete frontend acceptance remain unverified."
+    },
+    {
+      "path": "packages/cli/src/browser-session.ts",
+      "sha256": "75817cc125aaac1d501de4aabbc27e7634c60a98370cb8f617a2684ffcbee470",
+      "priorClaims": [
+        {
+          "class": "protected",
+          "sha256": "4fc5e2187074b36536e21d428c407292b55bc3f8c5669a4013c5e59102bdc0a8"
+        }
+      ],
+      "reason": "Owner-required service-only acceptance restart: explicit Playwright opening in existing Chrome, bounded connection waits and diagnostics, and authenticated portal approval display within the existing schema with complete target/resource digest. Preserve source-tab ownership, ambiguity rejection, Chrome-only execution, owner approval and prior evidence. Focused 39 tests and affected typechecks passed; live capture and complete frontend acceptance remain unverified."
+    },
+    {
+      "path": "packages/cli/src/commands.ts",
+      "sha256": "59acf264e37ce536ea602905f0d155a846dd710744e441aa41decc926d4d48c3",
+      "priorClaims": [
+        {
+          "class": "protected",
+          "sha256": "7c7ee8b607c3f18fd0f981b1e8d07e5e534f982247e83c1d31b24182d3e513be"
+        }
+      ],
+      "reason": "Owner-required service-only acceptance restart: explicit Playwright opening in existing Chrome, bounded connection waits and diagnostics, and authenticated portal approval display within the existing schema with complete target/resource digest. Preserve source-tab ownership, ambiguity rejection, Chrome-only execution, owner approval and prior evidence. Focused 39 tests and affected typechecks passed; live capture and complete frontend acceptance remain unverified."
+    },
+    {
+      "path": "packages/cli/test/browser-session-reconnect.test.ts",
+      "sha256": "fe42ef51259927046aae8322078d13233c31140e36370ed28babc8765fb0f114",
+      "priorClaims": [
+        {
+          "class": "protected",
+          "sha256": "52f2dbe541a7da1c2ed01e9d6a33671d510245fbfc391f1dca641b62fcd095ac"
+        }
+      ],
+      "reason": "Owner-required service-only acceptance restart: explicit Playwright opening in existing Chrome, bounded connection waits and diagnostics, and authenticated portal approval display within the existing schema with complete target/resource digest. Preserve source-tab ownership, ambiguity rejection, Chrome-only execution, owner approval and prior evidence. Focused 39 tests and affected typechecks passed; live capture and complete frontend acceptance remain unverified."
+    },
+    {
+      "path": "packages/cli/test/browser-source-open.test.ts",
+      "sha256": "e6de60cc61e062240f3d3484bff5978da0e141f967d65c136bf1e65f94dadbbb",
+      "priorClaims": [],
+      "reason": "Owner-required service-only acceptance restart: explicit Playwright opening in existing Chrome, bounded connection waits and diagnostics, and authenticated portal approval display within the existing schema with complete target/resource digest. Preserve source-tab ownership, ambiguity rejection, Chrome-only execution, owner approval and prior evidence. Focused 39 tests and affected typechecks passed; live capture and complete frontend acceptance remain unverified."
+    },
+    {
+      "path": "packages/mcp/src/index.ts",
+      "sha256": "43f7b8b04e29327c0b14bca554322a1da1b2329a94b90b37a8fee615a8063d47",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "da98ecb220583509e862e7c76de782b10de6a43322b28818cf7bd647af198973"
+        },
+        {
+          "class": "protected",
+          "sha256": "da98ecb220583509e862e7c76de782b10de6a43322b28818cf7bd647af198973"
+        }
+      ],
+      "reason": "Owner-required service-only acceptance restart: explicit Playwright opening in existing Chrome, bounded connection waits and diagnostics, and authenticated portal approval display within the existing schema with complete target/resource digest. Preserve source-tab ownership, ambiguity rejection, Chrome-only execution, owner approval and prior evidence. Focused 39 tests and affected typechecks passed; live capture and complete frontend acceptance remain unverified."
+    },
+    {
+      "path": "packages/mcp/src/policy/approval-prompt.ts",
+      "sha256": "a3d3077765e1a52be7da26d3880568a8a1e6edbaac162a6d785f14ecec2c3c3d",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "5881d1de41f476c1a3cf7648c8649c3bc14ae384c6e0ef66f36a74790043d24c"
+        },
+        {
+          "class": "protected",
+          "sha256": "5881d1de41f476c1a3cf7648c8649c3bc14ae384c6e0ef66f36a74790043d24c"
+        }
+      ],
+      "reason": "Owner-required service-only acceptance restart: explicit Playwright opening in existing Chrome, bounded connection waits and diagnostics, and authenticated portal approval display within the existing schema with complete target/resource digest. Preserve source-tab ownership, ambiguity rejection, Chrome-only execution, owner approval and prior evidence. Focused 39 tests and affected typechecks passed; live capture and complete frontend acceptance remain unverified."
+    },
+    {
+      "path": "packages/mcp/test/execution/approval-broker.test.ts",
+      "sha256": "8e5753e00d389fe7796ea08c04c97374aa6cd925b2694548bbd2bfa00c3a79f2",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "79963f520253dd6dd04a5f27c9ac76b63c73109a4a31350b34e865145d554fa2"
+        },
+        {
+          "class": "protected",
+          "sha256": "79963f520253dd6dd04a5f27c9ac76b63c73109a4a31350b34e865145d554fa2"
+        }
+      ],
+      "reason": "Owner-required service-only acceptance restart: explicit Playwright opening in existing Chrome, bounded connection waits and diagnostics, and authenticated portal approval display within the existing schema with complete target/resource digest. Preserve source-tab ownership, ambiguity rejection, Chrome-only execution, owner approval and prior evidence. Focused 39 tests and affected typechecks passed; live capture and complete frontend acceptance remain unverified."
+    },
+    {
+      "path": "skills/figma-codegen/SKILL.md",
+      "sha256": "8056f4d31887a8607cae0079faa663c30e7f3918e7c0076eb4f364a247752db4",
+      "priorClaims": [
+        {
+          "class": "fork",
+          "sha256": "1fc070f9c5a29472d05ca7a62f9623ab280113bd646c5806d5e822ebd1e3fe5b"
+        },
+        {
+          "class": "managed",
+          "sha256": "1fc070f9c5a29472d05ca7a62f9623ab280113bd646c5806d5e822ebd1e3fe5b"
+        },
+        {
+          "class": "protected",
+          "sha256": "1fc070f9c5a29472d05ca7a62f9623ab280113bd646c5806d5e822ebd1e3fe5b"
+        }
+      ],
+      "reason": "Owner-required service-only acceptance restart: explicit Playwright opening in existing Chrome, bounded connection waits and diagnostics, and authenticated portal approval display within the existing schema with complete target/resource digest. Preserve source-tab ownership, ambiguity rejection, Chrome-only execution, owner approval and prior evidence. Focused 39 tests and affected typechecks passed; live capture and complete frontend acceptance remain unverified."
+    }
+  ]
+}

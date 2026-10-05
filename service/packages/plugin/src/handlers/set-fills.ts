@@ -45,20 +45,22 @@ export const toFigmaPaint = (paint: SerializedPaint): Paint => {
 
 export const createSetFillsHandler =
   (figmaCtx: typeof figma): SandboxToolHandler =>
-  async params => {
+  async (params, execution) => {
     const p = (params ?? {}) as { nodeId?: unknown; fills?: unknown };
     if (typeof p.nodeId !== 'string') throw new TypeError('set_fills: nodeId must be a string');
     if (!Array.isArray(p.fills)) throw new TypeError('set_fills: fills must be an array');
 
     const node = await figmaCtx.getNodeByIdAsync(p.nodeId);
+
+    execution?.signal.throwIfAborted();
     if (node === null || !('fills' in node)) {
       throw new Error(`set_fills: node ${p.nodeId} not found or cannot have fills`);
     }
-    (node as GeometryMixin).fills = await toFigmaPaintsBound(
-      figmaCtx,
-      p.fills as SerializedPaint[],
-      'set_fills',
-    );
+    const value = await toFigmaPaintsBound(figmaCtx, p.fills as SerializedPaint[], 'set_fills');
+    execution?.signal.throwIfAborted();
+    (node as GeometryMixin).fills = value;
+    execution?.recordOwnedWrite?.(node, ['fills']);
+    execution?.markMutated?.();
 
     const result: MutateResult = { ok: true, nodeId: node.id };
     return result;

@@ -6,10 +6,16 @@ import { fileURLToPath } from 'node:url';
 
 import { format as formatWithOxfmt } from 'oxfmt';
 
+import {
+  commitAuthorityTransaction,
+  recoverAuthorityTransaction,
+} from './update-service-forks.mjs';
+
 const defaultRepositoryRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..', '..');
 const repositoryRoot = resolve(process.env.SFP_REPOSITORY_ROOT ?? defaultRepositoryRoot);
 const compareUtf8 = (left, right) => Buffer.compare(Buffer.from(left), Buffer.from(right));
 const sha256 = value => createHash('sha256').update(value).digest('hex');
+/** @type {(code: string, message: string) => never} */
 const fail = (code, message) => {
   throw new Error(`[${code}] ${message}`);
 };
@@ -35,10 +41,15 @@ const upsertHashRow = (rows, path, digest) => {
 const registerGeneratedManifest = async (manifestRelative, manifestBytes) => {
   const lockPath = join(repositoryRoot, 'service', 'upstream-lock.json');
   const rulesPath = join(repositoryRoot, 'service', 'vendor-rules.json');
-  const [lock, rules] = await Promise.all([
-    readJson(lockPath).catch(() => null),
-    readJson(rulesPath).catch(() => null),
+  const mapPath = join(repositoryRoot, 'service', 'vendor-map.json');
+  await recoverAuthorityTransaction();
+  const [lockOriginal, rulesOriginal, mapOriginal] = await Promise.all([
+    readFile(lockPath).catch(() => null),
+    readFile(rulesPath).catch(() => null),
+    readFile(mapPath).catch(() => null),
   ]);
+  const lock = lockOriginal === null ? null : JSON.parse(lockOriginal.toString('utf8'));
+  const rules = rulesOriginal === null ? null : JSON.parse(rulesOriginal.toString('utf8'));
   if (
     lock?.schemaVersion !== 2 ||
     !Array.isArray(lock.serviceFiles) ||
@@ -50,9 +61,12 @@ const registerGeneratedManifest = async (manifestRelative, manifestBytes) => {
   ) {
     return;
   }
+  if (lockOriginal === null || rulesOriginal === null || mapOriginal === null)
+    fail('CHANGE_MANIFEST_AUTHORITY_INVALID', 'authority input bytes are missing');
   const serviceRelative = manifestRelative.slice('service/'.length);
   const digest = sha256(manifestBytes);
   lock.serviceFiles = upsertHashRow(lock.serviceFiles, serviceRelative, digest);
+  let rulesBytes = rulesOriginal;
   if (
     lock.destinationClosure.managedRoots.some(
       root => serviceRelative === root || serviceRelative.startsWith(`${root}/`),
@@ -67,11 +81,18 @@ const registerGeneratedManifest = async (manifestRelative, manifestBytes) => {
     rules.serviceOwned = [...new Set([...rules.serviceOwned, serviceRelative])].toSorted(
       compareUtf8,
     );
-    const rulesBytes = await formattedJsonBytes(rulesPath, rules);
-    await writeFile(rulesPath, rulesBytes);
+    rulesBytes = await formattedJsonBytes(rulesPath, rules);
     lock.serviceFiles = upsertHashRow(lock.serviceFiles, 'vendor-rules.json', sha256(rulesBytes));
   }
-  await writeFile(lockPath, await formattedJsonBytes(lockPath, lock));
+  await commitAuthorityTransaction([
+    {
+      path: 'upstream-lock.json',
+      contents: await formattedJsonBytes(lockPath, lock),
+      oldSha256: sha256(lockOriginal),
+    },
+    { path: 'vendor-rules.json', contents: rulesBytes, oldSha256: sha256(rulesOriginal) },
+    { path: 'vendor-map.json', contents: mapOriginal, oldSha256: sha256(mapOriginal) },
+  ]);
 };
 
 const safeRepositoryPath = path => {
@@ -143,7 +164,7 @@ const readMovePairDeclaration = async (manifestPath, slice, changes, allowedPath
   try {
     declaration = await readJson(manifestPath);
   } catch (error) {
-    if (error?.code === 'ENOENT') return [];
+    if (/** @type {NodeJS.ErrnoException | undefined} */ (error)?.code === 'ENOENT') return [];
     throw error;
   }
   if (declaration === null || typeof declaration !== 'object' || Array.isArray(declaration)) {
@@ -179,7 +200,7 @@ const cachedChanges = () => {
       '--',
       'service',
     ],
-    { maxBuffer: 64 * 1024 * 1024 },
+    { maxBuffer: 64 * 1024 * 1024, windowsHide: true },
   )
     .toString('utf8')
     .split('\0')
@@ -198,6 +219,7 @@ const cachedChanges = () => {
         : sha256(
             execFileSync('git', ['-C', repositoryRoot, 'show', `:${path}`], {
               maxBuffer: 64 * 1024 * 1024,
+              windowsHide: true,
             }),
           );
     rows.push({ status, path, sha256: digest });
@@ -218,7 +240,7 @@ const assertNoUnstagedServiceChanges = () => {
       '--',
       'service',
     ],
-    { maxBuffer: 64 * 1024 * 1024 },
+    { maxBuffer: 64 * 1024 * 1024, windowsHide: true },
   )
     .toString('utf8')
     .split('\0')
@@ -233,9 +255,11 @@ const indexMatchesHead = path => {
   try {
     const head = execFileSync('git', ['-C', repositoryRoot, 'rev-parse', `HEAD:${path}`], {
       encoding: 'utf8',
+      windowsHide: true,
     }).trim();
     const index = execFileSync('git', ['-C', repositoryRoot, 'rev-parse', `:${path}`], {
       encoding: 'utf8',
+      windowsHide: true,
     }).trim();
     return /^[0-9a-f]{40,64}$/.test(head) && head === index;
   } catch {
@@ -253,7 +277,7 @@ const main = async () => {
       'usage: verify-staged-change-manifest.mjs [--write] --slice <id>',
     );
   }
-  const slice = args[offset + 1];
+  const slice = /** @type {string} */ (args[offset + 1]);
   if (!/^(?:7[ABC]|8[AB]|9[ABC]|10|11|12[AB]|13|14|15|16|review-\d{4}-\d{2}-\d{2})$/.test(slice)) {
     fail('CHANGE_MANIFEST_SLICE_INVALID', slice);
   }

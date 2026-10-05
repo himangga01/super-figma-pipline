@@ -1,17 +1,29 @@
 /* eslint-disable no-await-in-loop -- durable claims and effect evidence have strict persistence order */
 import { randomUUID } from 'node:crypto';
-import { mkdir, lstat, readdir } from 'node:fs/promises';
+import { lstat, readdir } from 'node:fs/promises';
 import { join } from 'node:path';
 import { DatabaseSync } from 'node:sqlite';
 
-import { contentHash } from '@sfp/ir';
+import { canonicalJson, contentHash } from '@sfp/ir';
 import { z } from 'zod';
 
-import { withRetainedDirectoryChain } from '../fs/atomic-file.js';
+import { withCanonicalPathMutex, withRetainedDirectoryChain } from '../fs/atomic-file.js';
+import {
+  OwnedTreeReclamationSchema,
+  ownedTreeReviewHash,
+  reclaimOwnedTree,
+  reviewOwnedTree,
+} from '../fs/owned-tree-reclamation.js';
 import {
   createStatePermissions,
   type BoundStatePermissions,
 } from '../security/state-permissions.js';
+import {
+  NativeDirectoryCreationSchema,
+  prepareNativeDirectoryCreation,
+  publishNativeDirectoryCreation,
+  type NativeDirectoryCreationOptions,
+} from './native-directory-creation.js';
 import {
   directoryIdentity,
   observeSqlite,
@@ -52,6 +64,9 @@ export const NativeAttemptSchema = z
       'quarantined',
     ]),
     directoryIdentity: z.string().nullable(),
+    // Optional preserves historical signed receipt bytes; every new attempt records v1 intents.
+    directoryCreations: z.array(NativeDirectoryCreationSchema).max(3).optional(),
+    provisioningStarted: z.boolean().optional(),
     children: z.array(z.object({ path: z.string(), identity: z.string() }).strict()).max(4),
     processes: z.array(ProcessSchema).max(32),
     claimed: z.array(z.string()).max(64),
@@ -74,6 +89,60 @@ const IndexSchema = z
   .object({ version: z.literal(1), attempts: z.array(z.string()).max(128) })
   .strict();
 const claimId = (key: string) => contentHash('sfp-native-resource-record-v1', key).slice(7);
+const NoEffectArchiveSchema = z
+  .object({
+    protocol: z.literal('sfp-native-no-effect-archive-v1'),
+    parentPath: z.string(),
+    parentIdentity: z.string(),
+    rootPath: z.string(),
+    bytes: z.literal(0),
+    entries: z.tuple([]),
+    parentSync: z.null(),
+  })
+  .strict();
+const ArchiveTreeSchema = z.union([OwnedTreeReclamationSchema, NoEffectArchiveSchema]);
+export const NativeAttemptArchiveSchema = z
+  .object({
+    protocol: z.literal('sfp-native-attempt-archive-v1'),
+    attemptId: z.string(),
+    ownerId: z.string(),
+    receiptHash: z.string(),
+    archiveHash: z.string(),
+    record: NativeAttemptSchema,
+    tree: ArchiveTreeSchema,
+    completed: z.boolean(),
+    createdAt: z.number().int(),
+    completedAt: z.number().int().nullable(),
+  })
+  .strict();
+const ArchiveIndexSchema = z
+  .object({
+    version: z.literal(1),
+    rows: z
+      .array(z.object({ attemptId: z.string(), bytes: z.number().int().positive() }).strict())
+      .max(4096),
+  })
+  .strict()
+  .refine(
+    value =>
+      new Set(value.rows.map(row => row.attemptId)).size === value.rows.length &&
+      value.rows.reduce((total, row) => total + row.bytes, 0) <= 67_108_864,
+    { message: 'PORTAL_ENVIRONMENT_ARCHIVE_CAPACITY_INVALID' },
+  );
+export interface NativeAttemptArchivePolicy {
+  /** Hold the production dependency fence throughout eligibility checks and physical deletion. */
+  withArchiveEligibility<T>(record: NativeAttempt, work: () => Promise<T>): Promise<T>;
+  afterArchiveIntent?: () => Promise<void>;
+  afterUnlink?: (relativePath: string) => Promise<void>;
+}
+const archiveIdentity = (receiptHash: string, tree: z.infer<typeof ArchiveTreeSchema>) =>
+  contentHash('sfp-native-attempt-archive-v1', {
+    receiptHash,
+    treeHash:
+      tree.protocol === 'sfp-native-no-effect-archive-v1'
+        ? contentHash('sfp-native-no-effect-archive-v1', tree)
+        : ownedTreeReviewHash(tree),
+  });
 export class NativeEnvironmentLifecycle {
   private reservationTail: Promise<unknown> = Promise.resolve();
   private readonly permissions: BoundStatePermissions;
@@ -82,6 +151,8 @@ export class NativeEnvironmentLifecycle {
     private readonly stateRoot: string,
     permissions?: BoundStatePermissions,
     private readonly leaderGeneration: string = randomUUID(),
+    private readonly creationHooks?: NativeDirectoryCreationOptions['hooks'],
+    private readonly archivePolicy?: NativeAttemptArchivePolicy,
   ) {
     this.permissions = permissions ?? createStatePermissions(stateRoot);
   }
@@ -155,6 +226,8 @@ export class NativeEnvironmentLifecycle {
       execution,
       state: 'acquiring',
       directoryIdentity: null,
+      directoryCreations: [],
+      provisioningStarted: false,
       children: [],
       processes: [],
       claimed: [],
@@ -200,17 +273,19 @@ export class NativeEnvironmentLifecycle {
         });
       }
       signal.throwIfAborted();
-      await this.update(execution.attemptId, value => ({ ...value, state: 'creating' }));
       await withRetainedDirectoryChain(this.stateRoot, this.stateRoot, async () => {
         if ((await directoryIdentity(this.stateRoot)) !== grant.namespaceIdentity)
           throw portalError('PORTAL_ENVIRONMENT_GRANT_CHANGED');
-        await mkdir(execution.directory, { mode: 0o700 });
-        await this.permissions.ensureSecure(execution.directory);
-        const identity = await directoryIdentity(execution.directory);
+        const intent = await prepareNativeDirectoryCreation(this.stateRoot, execution.directory);
         await this.update(execution.attemptId, value => ({
           ...value,
-          directoryIdentity: identity,
+          state: 'creating',
+          directoryCreations: [intent],
         }));
+        await publishNativeDirectoryCreation(intent, this.creationOptions(execution.attemptId));
+        // No shared database can be affected before this durable fence. An interrupted directory
+        // creation alone therefore cannot quarantine unrelated SQLite resource admissions.
+        await this.update(execution.attemptId, value => ({ ...value, provisioningStarted: true }));
         // Provision real SQLite databases, not a successful environment label.
         for (const { declaration, shared } of grant.grants)
           if (!shared) {
@@ -248,6 +323,48 @@ export class NativeEnvironmentLifecycle {
         ).catch(() => {});
       throw error;
     }
+  }
+  private creationOptions(
+    attemptId: string,
+    recovery?: { revision: number; cleanupClaim: string },
+  ): NativeDirectoryCreationOptions {
+    return {
+      ...(this.creationHooks ? { hooks: this.creationHooks } : {}),
+      secure: path => this.permissions.ensureSecure(path),
+      persist: async next => {
+        const updated = await this.update(attemptId, value => {
+          if (
+            recovery
+              ? value.revision !== recovery.revision ||
+                value.cleanupClaim !== recovery.cleanupClaim ||
+                value.state !== 'quarantined' ||
+                !value.executionClosed
+              : value.state !== 'creating' || value.executionClosed
+          )
+            throw portalError('PORTAL_ENVIRONMENT_ATTEMPT_CHANGED');
+          const saved = value.directoryCreations?.find(row => row.path === next.path);
+          if (
+            !saved ||
+            saved.stagingPath !== next.stagingPath ||
+            saved.parentIdentity !== next.parentIdentity ||
+            saved.parentPath !== next.parentPath ||
+            (saved.identity !== null && saved.identity !== next.identity) ||
+            (saved.phase === 'published' && next.phase !== 'published')
+          )
+            throw portalError('PORTAL_ENVIRONMENT_ATTEMPT_CHANGED');
+          value.directoryCreations = value.directoryCreations!.map(row =>
+            row.path === next.path ? next : row,
+          );
+          if (next.phase === 'published') {
+            if (next.path === value.execution.directory) value.directoryIdentity = next.identity;
+            else if (!value.children.some(row => row.path === next.path))
+              value.children.push({ path: next.path, identity: next.identity! });
+          }
+          return value;
+        });
+        if (recovery) recovery.revision = updated.revision;
+      },
+    };
   }
   private async releaseUnstarted(record: NativeAttempt): Promise<void> {
     if (record.state !== 'acquiring' || record.directoryIdentity || record.processes.length)
@@ -297,6 +414,25 @@ export class NativeEnvironmentLifecycle {
       const record = await this.store.get('environment-attempts', id, NativeAttemptSchema);
       // A reservation can precede its attempt record. It still consumes count capacity.
       if (!record) continue;
+      if (record.directoryCreations && !record.directoryIdentity) {
+        // An unbound stage/final is never adopted or scanned as owned data. Its signed attempt
+        // still consumes the bounded count ceiling; no workload was allowed inside that stage.
+        for (const intent of record.directoryCreations) {
+          if (!intent.identity) continue;
+          const path = intent.phase === 'published' ? intent.path : intent.stagingPath;
+          const stage = await lstat(path).catch(error => {
+            if (error.code === 'ENOENT') return null;
+            throw error;
+          });
+          if (
+            stage?.isDirectory() &&
+            !stage.isSymbolicLink() &&
+            (await directoryIdentity(path)) === intent.identity
+          )
+            await walk(path);
+        }
+        continue;
+      }
       const present = await lstat(record.execution.directory).catch(error => {
         if (error.code === 'ENOENT') return null;
         throw error;
@@ -317,24 +453,27 @@ export class NativeEnvironmentLifecycle {
       throw portalError('PORTAL_ENVIRONMENT_ATTEMPT_STATE');
     await this.verifyDirectories(record);
     const path = join(record.execution.directory, name);
-    // Pending creation remains quarantinable before the child exists.
-    const creating = await this.update(attemptId, value => {
+    const intent = await prepareNativeDirectoryCreation(record.execution.directory, path);
+    await this.update(attemptId, value => {
       if (value.revision !== record.revision || value.state !== 'ready' || value.executionClosed)
         throw portalError('PORTAL_ENVIRONMENT_ATTEMPT_CHANGED');
-      return { ...value, state: 'creating' };
+      return {
+        ...value,
+        state: 'creating',
+        directoryCreations: [...(value.directoryCreations ?? []), intent],
+      };
     });
-    await mkdir(path, { mode: 0o700 });
-    await this.permissions.ensureSecure(path);
-    const identity = await directoryIdentity(path);
-    await this.update(attemptId, value => {
-      if (
-        value.revision !== creating.revision ||
-        value.state !== 'creating' ||
-        value.executionClosed
-      )
-        throw portalError('PORTAL_ENVIRONMENT_ATTEMPT_CHANGED');
-      return { ...value, state: 'ready', children: [...value.children, { path, identity }] };
-    });
+    try {
+      await publishNativeDirectoryCreation(intent, this.creationOptions(attemptId));
+      await this.update(attemptId, value => {
+        if (value.state !== 'creating' || value.executionClosed)
+          throw portalError('PORTAL_ENVIRONMENT_ATTEMPT_CHANGED');
+        return { ...value, state: 'ready' };
+      });
+    } catch (error) {
+      await this.quarantine(attemptId, 'PORTAL_ENVIRONMENT_CREATION_INTERRUPTED').catch(() => {});
+      throw error;
+    }
     return path;
   }
   async beforeLaunch(
@@ -445,7 +584,15 @@ export class NativeEnvironmentLifecycle {
     for (const key of record.claimed)
       await this.store.update('environment-resources', claimId(key), ClaimSchema, value => {
         if (value.attemptId !== attemptId) throw portalError('PORTAL_ENVIRONMENT_CLAIM_CHANGED');
-        return { ...value, state: 'quarantined' as const };
+        return {
+          ...value,
+          state:
+            record.directoryCreations &&
+            record.provisioningStarted === false &&
+            record.processes.length === 0
+              ? ('released' as const)
+              : ('quarantined' as const),
+        };
       });
   }
   async finish(
@@ -561,11 +708,53 @@ export class NativeEnvironmentLifecycle {
     const record = await this.inspect(attemptId, ownerId);
     if (contentHash('sfp-native-lifecycle-receipt-v1', record) !== expectedHash)
       throw portalError('PORTAL_ENVIRONMENT_INSPECTION_CHANGED');
+    if (record.state === 'creating' && record.directoryCreations && !record.executionClosed) {
+      let alive = true;
+      try {
+        process.kill(record.parentPid, 0);
+      } catch (error) {
+        alive = (error as NodeJS.ErrnoException).code !== 'ESRCH';
+      }
+      if (alive) throw portalError('PORTAL_ENVIRONMENT_EXECUTION_ACTIVE');
+      await this.quarantine(attemptId, 'PORTAL_ENVIRONMENT_CREATION_INTERRUPTED', {
+        revision: record.revision,
+      });
+      const closed = await this.inspect(attemptId, ownerId);
+      return this.reconcile(
+        attemptId,
+        ownerId,
+        contentHash('sfp-native-lifecycle-receipt-v1', closed),
+      );
+    }
     if (!record.executionClosed || !['cleanup', 'quarantined', 'released'].includes(record.state))
       throw portalError('PORTAL_ENVIRONMENT_EXECUTION_ACTIVE');
     if (record.processes.some(p => p.state !== 'stopped'))
       throw portalError('PORTAL_ENVIRONMENT_MANUAL_RECONCILIATION_REQUIRED');
-    return this.finish(attemptId, { revision: record.revision, hash: expectedHash });
+    const pending = (record.directoryCreations ?? []).filter(
+      intent => intent.phase !== 'published',
+    );
+    if (!pending.length)
+      return this.finish(attemptId, { revision: record.revision, hash: expectedHash });
+    const cleanupClaim = randomUUID();
+    const fenced = await this.update(attemptId, value => {
+      if (
+        value.revision !== record.revision ||
+        !value.executionClosed ||
+        value.processes.some(process => process.state !== 'stopped')
+      )
+        throw portalError('PORTAL_ENVIRONMENT_INSPECTION_CHANGED');
+      return { ...value, state: 'quarantined', cleanupClaim };
+    });
+    const recovery = { revision: fenced.revision, cleanupClaim };
+    for (const intent of pending)
+      await publishNativeDirectoryCreation(intent, this.creationOptions(attemptId, recovery));
+    const recovered = await this.inspect(attemptId, ownerId);
+    if (recovered.revision !== recovery.revision || recovered.cleanupClaim !== cleanupClaim)
+      throw portalError('PORTAL_ENVIRONMENT_INSPECTION_CHANGED');
+    return this.finish(attemptId, {
+      revision: recovered.revision,
+      hash: contentHash('sfp-native-lifecycle-receipt-v1', recovered),
+    });
   }
   async verifyReceipt(attemptId: string, ownerId: string, hash: string): Promise<NativeAttempt> {
     const record = await this.inspect(attemptId, ownerId);
@@ -574,12 +763,281 @@ export class NativeEnvironmentLifecycle {
       contentHash('sfp-native-lifecycle-receipt-v1', record) !== hash
     )
       throw portalError('PORTAL_ENVIRONMENT_RECEIPT_REQUIRED');
-    await this.verifyDirectories(record);
+    const archive = await this.store.get(
+      'environment-archives',
+      attemptId,
+      NativeAttemptArchiveSchema,
+    );
+    if (archive) {
+      if (
+        !archive.completed ||
+        archive.completedAt === null ||
+        archive.ownerId !== ownerId ||
+        archive.attemptId !== attemptId ||
+        archive.receiptHash !== hash ||
+        canonicalJson(archive.record) !== canonicalJson(record) ||
+        archive.archiveHash !== archiveIdentity(hash, archive.tree) ||
+        (archive.tree.protocol === 'sfp-native-no-effect-archive-v1' &&
+          !this.provedNoEffects(record)) ||
+        archive.tree.entries.some(entry => entry.state !== 'removed')
+      )
+        throw portalError('PORTAL_ENVIRONMENT_ARCHIVE_INCOMPLETE');
+      return record;
+    }
+    if (this.provedNoEffects(record)) await this.noEffectAbsence(record);
+    else await this.verifyDirectories(record);
     for (const key of record.claimed) {
       const claim = await this.store.get('environment-resources', claimId(key), ClaimSchema);
       if (!claim || (claim.attemptId === attemptId && claim.state !== 'released'))
         throw portalError('PORTAL_ENVIRONMENT_RECEIPT_REQUIRED');
     }
     return record;
+  }
+  private archiveLocked<T>(work: () => Promise<T>): Promise<T> {
+    return withRetainedDirectoryChain(this.stateRoot, this.stateRoot, authority =>
+      withCanonicalPathMutex(join(this.stateRoot, '.environment-archives'), work, {
+        filesystemTarget: authority.child('.environment-archives'),
+        retainedParentAuthority: true,
+      }),
+    );
+  }
+  private archiveEligible<T>(record: NativeAttempt, work: () => Promise<T>): Promise<T> {
+    if (!this.archivePolicy) throw portalError('PORTAL_ENVIRONMENT_ARCHIVE_POLICY_REQUIRED');
+    if (
+      record.state !== 'released' ||
+      !record.executionClosed ||
+      (!record.directoryIdentity && !this.provedNoEffects(record)) ||
+      record.processes.some(process => process.state !== 'stopped')
+    )
+      throw portalError('PORTAL_ENVIRONMENT_ARCHIVE_NOT_RELEASED');
+    return this.archivePolicy.withArchiveEligibility(record, work);
+  }
+  private provedNoEffects(record: NativeAttempt): boolean {
+    return (
+      record.state === 'released' &&
+      record.executionClosed &&
+      record.reason === 'no-effects-started' &&
+      record.directoryIdentity === null &&
+      record.provisioningStarted === false &&
+      record.directoryCreations?.length === 0 &&
+      record.children.length === 0 &&
+      record.processes.length === 0
+    );
+  }
+  private async noEffectAbsence(record: NativeAttempt) {
+    if (
+      !this.provedNoEffects(record) ||
+      record.execution.directory !==
+        join(this.stateRoot, `portal-attempt-${record.execution.attemptId}`)
+    )
+      throw portalError('PORTAL_ENVIRONMENT_ARCHIVE_NOT_RELEASED');
+    return withRetainedDirectoryChain(this.stateRoot, this.stateRoot, async authority => {
+      const path = await lstat(record.execution.directory).catch((error: NodeJS.ErrnoException) => {
+        if (error.code === 'ENOENT') return null;
+        throw error;
+      });
+      if (path) throw portalError('PORTAL_ENVIRONMENT_NO_EFFECT_PATH_PRESENT');
+      const parentIdentity = await directoryIdentity(this.stateRoot);
+      await authority.verify();
+      return parentIdentity;
+    });
+  }
+  private async archiveTree(record: NativeAttempt) {
+    if (this.provedNoEffects(record))
+      return NoEffectArchiveSchema.parse({
+        protocol: 'sfp-native-no-effect-archive-v1',
+        parentPath: this.stateRoot,
+        parentIdentity: await this.noEffectAbsence(record),
+        rootPath: record.execution.directory,
+        bytes: 0,
+        entries: [],
+        parentSync: null,
+      });
+    const tree = await reviewOwnedTree(
+      this.stateRoot,
+      record.execution.directory,
+      record.directoryIdentity!,
+    );
+    const creation = record.directoryCreations?.find(
+      intent => intent.path === record.execution.directory,
+    );
+    if (
+      creation &&
+      (creation.phase !== 'published' ||
+        creation.identity !== record.directoryIdentity ||
+        creation.parentPath !== tree.parentPath ||
+        creation.parentIdentity !== tree.parentIdentity)
+    )
+      throw portalError('PORTAL_ENVIRONMENT_DIRECTORY_CHANGED');
+    return tree;
+  }
+  async reviewArchive(attemptId: string, ownerId: string) {
+    const record = await this.inspect(attemptId, ownerId);
+    return this.archiveEligible(record, () =>
+      this.archiveLocked(async () => {
+        if (canonicalJson(await this.inspect(attemptId, ownerId)) !== canonicalJson(record))
+          throw portalError('PORTAL_ENVIRONMENT_ARCHIVE_CHANGED');
+        const receiptHash = contentHash('sfp-native-lifecycle-receipt-v1', record);
+        const existing = await this.store.get(
+          'environment-archives',
+          attemptId,
+          NativeAttemptArchiveSchema,
+        );
+        if (existing) {
+          if (
+            existing.receiptHash !== receiptHash ||
+            canonicalJson(existing.record) !== canonicalJson(record) ||
+            existing.archiveHash !== archiveIdentity(receiptHash, existing.tree)
+          )
+            throw portalError('PORTAL_ENVIRONMENT_ARCHIVE_CHANGED');
+          return {
+            receiptHash,
+            archiveHash: existing.archiveHash,
+            bytes: existing.tree.bytes,
+            entries: existing.tree.entries.length,
+            completed: existing.completed,
+          };
+        }
+        await this.verifyReceipt(attemptId, ownerId, receiptHash);
+        const tree = await this.archiveTree(record);
+        return {
+          receiptHash,
+          archiveHash: archiveIdentity(receiptHash, tree),
+          bytes: tree.bytes,
+          entries: tree.entries.length,
+          completed: false,
+        };
+      }),
+    );
+  }
+  async archive(attemptId: string, ownerId: string, receiptHash: string, archiveHash: string) {
+    const record = await this.inspect(attemptId, ownerId);
+    if (contentHash('sfp-native-lifecycle-receipt-v1', record) !== receiptHash)
+      throw portalError('PORTAL_ENVIRONMENT_RECEIPT_REQUIRED');
+    return this.archiveEligible(record, () =>
+      this.archiveLocked(async () => {
+        if (canonicalJson(await this.inspect(attemptId, ownerId)) !== canonicalJson(record))
+          throw portalError('PORTAL_ENVIRONMENT_ARCHIVE_CHANGED');
+        let archive = await this.store.get(
+          'environment-archives',
+          attemptId,
+          NativeAttemptArchiveSchema,
+        );
+        if (!archive) {
+          await this.verifyReceipt(attemptId, ownerId, receiptHash);
+          const tree = await this.archiveTree(record);
+          if (archiveIdentity(receiptHash, tree) !== archiveHash)
+            throw portalError('PORTAL_ENVIRONMENT_ARCHIVE_CHANGED');
+          archive = {
+            protocol: 'sfp-native-attempt-archive-v1',
+            attemptId,
+            ownerId,
+            receiptHash,
+            archiveHash,
+            record,
+            tree,
+            completed: false,
+            createdAt: Date.now(),
+            completedAt: null,
+          };
+          const charge =
+            Buffer.byteLength(canonicalJson(archive)) +
+            Buffer.byteLength(canonicalJson(record)) +
+            2048;
+          const index = await this.store.get(
+            'environment-archive-index',
+            'index',
+            ArchiveIndexSchema,
+          );
+          const rows = index?.rows ?? [];
+          const reserved = rows.find(row => row.attemptId === attemptId);
+          if (reserved && reserved.bytes !== charge)
+            throw portalError('PORTAL_ENVIRONMENT_ARCHIVE_CHANGED');
+          if (!reserved) {
+            if (
+              rows.length >= 4096 ||
+              rows.reduce((total, row) => total + row.bytes, 0) + charge > 67_108_864
+            )
+              throw portalError('PORTAL_ENVIRONMENT_ARCHIVE_CAPACITY');
+            rows.push({ attemptId, bytes: charge });
+            if (index)
+              await this.store.update(
+                'environment-archive-index',
+                'index',
+                ArchiveIndexSchema,
+                () => ({ version: 1, rows }),
+              );
+            else
+              await this.store.create(
+                'environment-archive-index',
+                'index',
+                { version: 1, rows },
+                ArchiveIndexSchema,
+              );
+          }
+          await this.store.create(
+            'environment-archives',
+            attemptId,
+            archive,
+            NativeAttemptArchiveSchema,
+          );
+        }
+        if (
+          archive.ownerId !== ownerId ||
+          archive.receiptHash !== receiptHash ||
+          archive.archiveHash !== archiveHash ||
+          archiveHash !== archiveIdentity(receiptHash, archive.tree) ||
+          canonicalJson(archive.record) !== canonicalJson(record)
+        )
+          throw portalError('PORTAL_ENVIRONMENT_ARCHIVE_CHANGED');
+        if (!archive.completed) {
+          const tree =
+            archive.tree.protocol === 'sfp-native-no-effect-archive-v1'
+              ? await (async () => {
+                  await this.archivePolicy?.afterArchiveIntent?.();
+                  if ((await this.noEffectAbsence(record)) !== archive.tree.parentIdentity)
+                    throw portalError('PORTAL_ENVIRONMENT_DIRECTORY_CHANGED');
+                  return archive.tree;
+                })()
+              : await reclaimOwnedTree(archive.tree, {
+                  persist: async next => {
+                    await this.store.update(
+                      'environment-archives',
+                      attemptId,
+                      NativeAttemptArchiveSchema,
+                      current => {
+                        if (current.archiveHash !== archiveHash || current.completed)
+                          throw portalError('PORTAL_ENVIRONMENT_ARCHIVE_CHANGED');
+                        return { ...current, tree: next };
+                      },
+                    );
+                  },
+                  ...(this.archivePolicy?.afterArchiveIntent
+                    ? { afterIntent: this.archivePolicy.afterArchiveIntent }
+                    : {}),
+                  ...(this.archivePolicy?.afterUnlink
+                    ? { afterUnlink: this.archivePolicy.afterUnlink }
+                    : {}),
+                });
+          archive = await this.store.update(
+            'environment-archives',
+            attemptId,
+            NativeAttemptArchiveSchema,
+            current => ({ ...current, tree, completed: true, completedAt: Date.now() }),
+          );
+        }
+        await this.store.update('environment-index', 'retained', IndexSchema, current => ({
+          ...current,
+          attempts: current.attempts.filter(id => id !== attemptId),
+        }));
+        return {
+          receiptHash,
+          archiveHash,
+          bytes: archive.tree.bytes,
+          entries: archive.tree.entries.length,
+          completed: true,
+        };
+      }),
+    );
   }
 }

@@ -44,6 +44,7 @@ import {
 import { readPortalAssets, readPortalDesignPage } from './design-evidence.js';
 import { normalizePortalDesign } from './design-normalization.js';
 import { derivePortalInteractionContract } from './interaction-evidence.js';
+import { portalRunStateResource, withPortalApplyDisposition } from './native-resources.js';
 import { PortalStoredValidationSchema } from './native-work.js';
 import { requirePortalInventory } from './profile-closure.js';
 import {
@@ -52,6 +53,7 @@ import {
   coreRequirementsHash,
   unavailableCoreBinding,
 } from './recipes/core-lifecycle.js';
+import { portalCoreAuthorityResource } from './recipes/core-preparation.js';
 import { analyzeServiceGraph, isPortalSourcePath } from './service-graph.js';
 import {
   qualifiedPortalSourceId,
@@ -251,7 +253,12 @@ export class PortalCoordinator {
     if (
       contentHash(
         'sfp-interaction-contract-v1',
-        derivePortalInteractionContract(captured, plan.requirements, plan.workflowCoverage),
+        derivePortalInteractionContract(
+          captured,
+          plan.requirements,
+          plan.workflowCoverage,
+          plan.request.interactionScope,
+        ),
       ) !== contentHash('sfp-interaction-contract-v1', plan.interactionContract)
     )
       throw portalError('PORTAL_INTERACTION_CONTRACT_CHANGED');
@@ -368,14 +375,34 @@ export class PortalCoordinator {
       authority.executionAuthorityHash = environment.hash as `sha256:${string}`;
       authority.executionResources = environment.resources;
     }
+    if (name !== 'portal_plan' && name !== 'portal_status' && name !== 'portal_cancel') {
+      const resources = authority.executionResources ?? [
+        { key: authority.resource.key, mode: 'write' as const },
+      ];
+      authority.executionResources = [
+        ...resources.filter(resource => resource.key !== portalRunStateResource(runId).key),
+        portalRunStateResource(runId),
+      ];
+    }
+    if (name !== 'portal_status' && name !== 'portal_cancel') {
+      const resource = portalCoreAuthorityResource({ ownerId: actor.actorId, workspaceId: id });
+      const resources = authority.executionResources ?? [
+        { key: authority.resource.key, mode: 'write' as const },
+      ];
+      authority.executionResources = [
+        ...resources.filter(row => row.key !== resource.key),
+        resource,
+      ];
+    }
+    if (name === 'portal_resume') {
+      const current = await this.run(runId, actor.actorId);
+      authority.runStateFence = { version: current.version, leaseEpoch: current.leaseEpoch };
+    }
     return authority;
   }
   execute(name: PortalToolName, input: unknown, execution: PortalExecution): Promise<unknown> {
     const args = PORTAL_INPUT_SCHEMAS[name].parse(input);
-    const owned =
-      name === 'portal_validate' ||
-      name === 'portal_apply' ||
-      (name === 'portal_resume' && 'reconcile' in args && args.reconcile !== 'none');
+    const owned = name === 'portal_validate' || name === 'portal_apply' || name === 'portal_resume';
     if (!owned) return this.executeReserved(name, input, execution);
     const key = `${execution.actor.actorId}:${(args as { runId: string }).runId}`;
     if (this.operations.has(key)) return Promise.reject(portalError('PORTAL_NATIVE_RUN_BUSY'));
@@ -443,8 +470,10 @@ export class PortalCoordinator {
       active?.controller.abort(portalError('OPERATION_CANCELLED'));
       await this.cancelPending?.(execution.actor, runId);
       let sourceOutcomeUncertain = false;
+      let cancellingApply = false;
       const updated = await this.mutate(runId, execution, run => {
         if (terminal.has(run.state)) return run;
+        cancellingApply = run.state === 'applying' && !run.appliedHash;
         sourceOutcomeUncertain = [
           'applying',
           'outcome-unknown',
@@ -459,6 +488,12 @@ export class PortalCoordinator {
       await this.work.cancel(runId);
       await active?.done.catch(error => {
         if ((error as { code?: string }).code === 'PORTAL_NATIVE_CLEANUP_UNKNOWN') throw error;
+        if (
+          cancellingApply &&
+          (error as { applyEffectDisposition?: string }).applyEffectDisposition ===
+            'pre-effect-rejected'
+        )
+          sourceOutcomeUncertain = false;
       });
       const cancelled = await this.mutate(runId, execution, run => {
         if (updated.state !== 'completed' && run.state === 'cancel-requested')
@@ -490,8 +525,22 @@ export class PortalCoordinator {
         throw portalError('PORTAL_STATE_NOT_RECONCILABLE');
       if (execution.authority.candidateHash !== run.candidateHash)
         throw portalError('PORTAL_CANDIDATE_CHANGED');
+      if (run.sourceAuthorityVersion === 2) this.assertResumeFence(run, execution);
       if (!this.work.reconcile) throw portalError('PORTAL_RECONCILIATION_REQUIRED');
-      const observed = await this.work.reconcile(plan, run, execution.authority, execution.signal);
+      const admitted =
+        plan.sourceAuthorityVersion === 2 && run.sourceAuthorityVersion === 2
+          ? await this.mutate(runId, execution, current => {
+              this.assertRunSnapshot(current, run);
+              this.admitNativeBudget(current, 'reconcile');
+              return current;
+            })
+          : run;
+      const observed = await this.work.reconcile(
+        plan,
+        admitted,
+        execution.authority,
+        execution.signal,
+      );
       if (plan.sourceAuthorityVersion !== 2 || run.sourceAuthorityVersion !== 2)
         return {
           ...publicRun(run),
@@ -506,11 +555,11 @@ export class PortalCoordinator {
         observed.state === 'partial' &&
         PORTAL_INPUT_SCHEMAS.portal_resume.parse(args).reconcile === 'continue'
       ) {
-        const contents = await this.contents(run);
+        const contents = await this.contents(admitted);
         execution.signal.throwIfAborted();
         const applied = await this.work.apply(
           plan,
-          run,
+          admitted,
           contents,
           execution.authority,
           execution.signal,
@@ -519,6 +568,7 @@ export class PortalCoordinator {
           await this.mutate(runId, execution, current => {
             if (current.state === 'cancel-requested' || current.state === 'cancelled')
               return current;
+            this.assertRunSnapshot(current, admitted);
             current.appliedHash = applied.hash;
             current.state = 'applied-awaiting-validation';
             current.validation = null;
@@ -529,6 +579,7 @@ export class PortalCoordinator {
       return publicRun(
         await this.mutate(runId, execution, current => {
           if (current.state === 'cancel-requested' || current.state === 'cancelled') return current;
+          this.assertRunSnapshot(current, admitted);
           current.lease = null;
           current.leaseEpoch++;
           current.issues = [
@@ -554,7 +605,11 @@ export class PortalCoordinator {
         if (['applying', 'outcome-unknown', 'conflict'].includes(run.state))
           throw portalError('PORTAL_RECONCILIATION_REQUIRED');
         if (terminal.has(run.state)) return run;
-        if (this.now() >= run.deadlineAt) throw portalError('PORTAL_BUDGET_EXHAUSTED');
+        this.assertResumeFence(run, execution);
+        if (['cancel-requested', 'validating-candidate', 'validating-applied'].includes(run.state))
+          throw portalError('PORTAL_STATE_NOT_RESUMABLE');
+        if (run.appliedHash) this.admitNativeBudget(run, 'applied');
+        else if (this.now() >= run.deadlineAt) throw portalError('PORTAL_BUDGET_EXHAUSTED');
         if (run.state === 'needs-input') return run;
         run.lease = null;
         run.leaseEpoch++;
@@ -807,6 +862,7 @@ export class PortalCoordinator {
           sourceId: selected.sourceId,
           path,
           hash,
+          bytes,
           text: new TextDecoder('utf-8', { fatal: true }).decode(bytes),
           designNodeIds: nodeIds,
           rationale:
@@ -889,10 +945,23 @@ export class PortalCoordinator {
             throw portalError('PORTAL_WORKFLOW_SOURCE_EVIDENCE_NOT_BOUND');
         }
       }
+    const storedCapture = design.capture
+      ? await this.store.get('designs', planId, PortalCapturedDesignSchema)
+      : null;
+    const selectedInteractions =
+      storedCapture && request.interactionScope
+        ? derivePortalInteractionContract(
+            storedCapture,
+            requirements,
+            undefined,
+            request.interactionScope,
+          )
+        : undefined;
     const workflowCoverage = coverPortalWorkflows(
       workflowAnalysis,
       requirements,
       request.workflowDecisions,
+      selectedInteractions,
     );
     const blueprintIssues = issues.filter(
       issue =>
@@ -913,11 +982,13 @@ export class PortalCoordinator {
         'PORTAL_PLAN_ISSUES_TRUNCATED',
       ];
     }
-    const storedCapture = design.capture
-      ? await this.store.get('designs', planId, PortalCapturedDesignSchema)
-      : null;
     const interactionContract = storedCapture
-      ? derivePortalInteractionContract(storedCapture, requirements, workflowCoverage)
+      ? derivePortalInteractionContract(
+          storedCapture,
+          requirements,
+          workflowCoverage,
+          request.interactionScope,
+        )
       : undefined;
     if (interactionContract && !interactionContract.complete) {
       issues.push('PORTAL_REQUIRED_INTERACTION_UNSUPPORTED', ...interactionContract.issues);
@@ -1153,6 +1224,52 @@ export class PortalCoordinator {
       return next;
     });
   }
+  private assertRunSnapshot(current: PortalRun, observed: PortalRun) {
+    if (
+      current.version !== observed.version ||
+      current.leaseEpoch !== observed.leaseEpoch ||
+      current.candidateHash !== observed.candidateHash
+    )
+      throw portalError('PORTAL_RUN_SUPERSEDED');
+  }
+  private assertResumeFence(run: PortalRun, execution: PortalExecution) {
+    const fence = execution.authority.runStateFence;
+    if (!fence || fence.version !== run.version || fence.leaseEpoch !== run.leaseEpoch)
+      throw portalError('PORTAL_RUN_SUPERSEDED');
+  }
+  private admitNativeBudget(
+    run: PortalRun,
+    target: 'candidate' | 'applied' | 'apply' | 'reconcile',
+  ) {
+    const now = this.now();
+    if (target === 'candidate') {
+      if (now >= run.deadlineAt) throw portalError('PORTAL_BUDGET_EXHAUSTED');
+      return;
+    }
+    const existing = run.nativeBudget;
+    if (existing?.recovery) {
+      if (now >= existing.recovery.deadlineAt || existing.recovery.attempts >= 4)
+        throw portalError('PORTAL_RECOVERY_BUDGET_EXHAUSTED');
+      existing.recovery.attempts++;
+      return;
+    }
+    if (existing?.effect && now < existing.effect.deadlineAt && existing.effect.attempts < 8) {
+      existing.effect.attempts++;
+      return;
+    }
+    const recoverable = target === 'applied' || target === 'reconcile';
+    if (now >= run.deadlineAt) {
+      if (!recoverable) throw portalError('PORTAL_BUDGET_EXHAUSTED');
+      run.nativeBudget = {
+        ...existing,
+        version: 1,
+        recovery: { deadlineAt: now + 900_000, attempts: 1 },
+      };
+      return;
+    }
+    if (existing?.effect) throw portalError('PORTAL_EFFECT_BUDGET_EXHAUSTED');
+    run.nativeBudget = { version: 1, effect: { deadlineAt: now + 1_800_000, attempts: 1 } };
+  }
   private async next(
     args: z.infer<typeof PORTAL_INPUT_SCHEMAS.portal_next>,
     execution: PortalExecution,
@@ -1255,7 +1372,7 @@ export class PortalCoordinator {
             ? 'Submit an independent frontend; do not create backend services.'
             : 'Learn and implement the complete relevant service in selectedClosure.closure. Qualify reused or extended source patterns by sourceId, sourceIndex, path and hash. The full byte inventory remains authority and review evidence, not a direction to copy unrelated services. Real API, data and auth behavior are required where the blueprint requires them.') +
         ' Read recipes.workItems and fetch each exact page with recipes.resultId and recipes.pageIndex on portal_next or portal_status. Submit coreDeclarations for every page using its exact result/hash/work-item ID/kind and current target file hashes or assertion IDs. declarationStatus reports declarations only; actual native consumption must still be verified.' +
-        ' Bind each rendered source root with data-sfp-root and each required interaction/form element with data-sfp-node using its exact captured node ID. Preserve source identity across routes and states. The interactionContract defines mandatory source assertions; unsupported required semantics block completion. Register typed native command.preview specifications with root set to ., exact source root/state (source:<nodeId>), route, viewport, oracle and assertion IDs. A prepared service-owned worker launches the direct Node server and Firefox; stdout reports do not prove execution. Workflow assertions must observe a real changed state. Temporal motion is validated separately from still images.',
+        ' Bind each rendered source root with data-sfp-root and each required interaction/form element with data-sfp-node using its exact captured node ID. Preserve source identity across routes and states. The interactionContract defines mandatory source assertions; unsupported required semantics block completion. Register typed native command.preview specifications with root set to ., exact source root/state (source:<nodeId>), route, viewport, oracle and assertion IDs. A prepared service-owned worker launches the direct Node server and Chrome; stdout reports do not prove execution. Workflow assertions must observe a real changed state. Temporal motion is validated separately from still images.',
       sourceInventory: plan.profiles.map((profile, index) => ({
         sourceId: this.sourceId(plan, index),
         sourceIndex: index,
@@ -1402,13 +1519,18 @@ export class PortalCoordinator {
           throw portalError('PORTAL_ASSET_NOT_AVAILABLE');
         const bytes = await reader.readBytes(original.path);
         if (storedChecksum(bytes) !== asset.contentHash) throw portalError('PORTAL_ASSET_CHANGED');
+        const encoding = original.query.kind === 'svg' ? 'utf8' : 'base64';
+        const content =
+          encoding === 'utf8'
+            ? new TextDecoder('utf-8', { fatal: true, ignoreBOM: true }).decode(bytes)
+            : Buffer.from(bytes).toString('base64');
         submittedFiles.push({
           path: asset.path,
           action: asset.action,
           baseHash: asset.baseHash,
           contentHash: asset.contentHash,
-          encoding: 'base64',
-          content: Buffer.from(bytes).toString('base64'),
+          encoding,
+          content,
         });
       }
     }
@@ -1465,7 +1587,7 @@ export class PortalCoordinator {
       }
       if (
         run.files.length > 300 ||
-        run.files.reduce((sum, file) => sum + file.artifact.bytes, 0) > 67_108_864
+        run.files.reduce((sum, file) => sum + file.artifact.bytes, 0) > 100_663_296
       )
         throw portalError('PORTAL_CANDIDATE_LIMIT');
       if (!this.recipes || !plan.coreRecipes) throw portalError('PORTAL_CORE_REPLAN_REQUIRED');
@@ -1559,6 +1681,7 @@ export class PortalCoordinator {
       if (target === 'applied' && !run.appliedHash) throw portalError('PORTAL_NOT_APPLIED');
       if (target === 'candidate' && run.appliedHash) throw portalError('PORTAL_ALREADY_APPLIED');
       if (!run.candidateHash) throw portalError('PORTAL_NO_CANDIDATE');
+      this.admitNativeBudget(run, target);
       run.lease = null;
       run.leaseEpoch++;
       run.state = target === 'candidate' ? 'validating-candidate' : 'validating-applied';
@@ -1578,32 +1701,40 @@ export class PortalCoordinator {
         execution.authority,
         execution.capture,
       );
-      return publicRun(
-        await this.mutate(id, execution, run => {
-          if (run.state === 'cancel-requested' || run.state === 'cancelled') return run;
-          if (run.version !== initial.version) throw portalError('PORTAL_VALIDATION_SUPERSEDED');
-          if (run.candidateHash !== initial.candidateHash)
-            throw portalError('PORTAL_CANDIDATE_CHANGED');
-          run.validation = report;
-          const issues = portalCompletionIssues(
-            plan,
-            report,
-            initial.candidateHash!,
-            initial,
-            target,
-          );
-          run.issues = [...plan.issues, ...issues];
-          run.state = issues.length
-            ? 'blocked'
-            : target === 'candidate'
-              ? 'ready-to-apply'
-              : 'completed';
-          return run;
-        }),
-      );
+      const settled = await this.mutate(id, execution, run => {
+        if (run.state === 'cancel-requested' || run.state === 'cancelled') return run;
+        if (run.version !== initial.version) throw portalError('PORTAL_VALIDATION_SUPERSEDED');
+        if (run.candidateHash !== initial.candidateHash)
+          throw portalError('PORTAL_CANDIDATE_CHANGED');
+        run.validation = report;
+        const issues = portalCompletionIssues(
+          plan,
+          report,
+          initial.candidateHash!,
+          initial,
+          target,
+        );
+        run.issues = [...plan.issues, ...issues];
+        run.state = issues.length
+          ? 'blocked'
+          : target === 'candidate'
+            ? 'ready-to-apply'
+            : 'completed';
+        return run;
+      });
+      if (settled.state === 'completed' && this.recipes && plan.coreRecipes) {
+        const scope = { ownerId: plan.ownerId, workspaceId: plan.workspaceId };
+        await this.recipes.release(scope, plan.coreRecipes, 'run:' + settled.runId);
+        await this.recipes.release(scope, plan.coreRecipes, 'plan:' + plan.planId);
+      }
+      return publicRun(settled);
     } catch (error) {
       await this.mutate(id, execution, run => {
-        if (run.state.startsWith('validating')) {
+        if (
+          run.state.startsWith('validating') &&
+          run.version === initial.version &&
+          run.leaseEpoch === initial.leaseEpoch
+        ) {
           run.state = 'blocked';
           run.issues.push((error as { code?: string }).code ?? 'PORTAL_VALIDATION_FAILED');
         }
@@ -1625,13 +1756,16 @@ export class PortalCoordinator {
         run.validation.sourceHash !== run.candidateHash
       )
         throw portalError('PORTAL_VALIDATION_REQUIRED');
+      this.admitNativeBudget(run, 'apply');
       run.state = 'applying';
       return run;
     });
+    let dispatched = false;
     try {
       const plan = await this.plan(initial.planId, execution.actor.actorId);
       const contents = await this.contents(initial);
       execution.signal.throwIfAborted();
+      dispatched = true;
       const result = await this.work.apply(
         plan,
         initial,
@@ -1641,9 +1775,19 @@ export class PortalCoordinator {
       );
       return publicRun(
         await this.mutate(id, execution, run => {
+          if (run.candidateHash !== initial.candidateHash)
+            throw portalError('PORTAL_CANDIDATE_CHANGED');
+          if (
+            run.state !== 'cancel-requested' &&
+            run.state !== 'cancelled' &&
+            run.state !== 'conflict'
+          )
+            this.assertRunSnapshot(run, initial);
           run.appliedHash = result.hash;
           run.state =
-            run.state === 'cancel-requested' || run.state === 'cancelled'
+            run.state === 'cancel-requested' ||
+            run.state === 'cancelled' ||
+            run.state === 'conflict'
               ? 'conflict'
               : 'applied-awaiting-validation';
           run.validation = null;
@@ -1651,12 +1795,34 @@ export class PortalCoordinator {
         }),
       );
     } catch (error) {
+      const failure = withPortalApplyDisposition(
+        error,
+        !dispatched
+          ? 'pre-effect-rejected'
+          : (error as { applyEffectDisposition?: string })?.applyEffectDisposition ===
+              'pre-effect-rejected'
+            ? 'pre-effect-rejected'
+            : (error as { applyEffectDisposition?: string })?.applyEffectDisposition ===
+                'partial-or-committed'
+              ? 'partial-or-committed'
+              : 'dispatched-outcome-unknown',
+      );
       await this.mutate(id, execution, run => {
-        run.state = (error as { committed?: boolean }).committed ? 'outcome-unknown' : 'conflict';
+        if (
+          run.state === 'cancel-requested' ||
+          run.state === 'cancelled' ||
+          run.state === 'conflict'
+        )
+          return run;
+        this.assertRunSnapshot(run, initial);
+        run.state =
+          failure.applyEffectDisposition === 'pre-effect-rejected'
+            ? 'ready-to-apply'
+            : 'outcome-unknown';
         run.issues.push((error as { code?: string }).code ?? 'PORTAL_APPLY_FAILED');
         return run;
       });
-      throw error;
+      throw failure;
     }
   }
 }

@@ -1,13 +1,14 @@
 import { execFileSync } from 'node:child_process';
 import { mkdtemp, readFile, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
-import { dirname, join } from 'node:path';
+import { join } from 'node:path';
 
+import { resolveNpmEntry } from './package-manager-entry.mjs';
 import { artifactRoot, root } from './release-common.mjs';
 
 const folder = await mkdtemp(join(tmpdir(), 'sfp-isolated-install-'));
 await writeFile(join(folder, 'package.json'), '{"private":true,"type":"module"}\n');
-const npm = join(dirname(process.execPath), 'node_modules/npm/bin/npm-cli.js');
+const npm = resolveNpmEntry();
 execFileSync(
   process.execPath,
   [

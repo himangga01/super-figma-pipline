@@ -8,9 +8,12 @@ import { promisify } from 'node:util';
 import { storedChecksum } from '@sfp/ir';
 import { afterEach, expect, it, vi } from 'vitest';
 
+import { googleChromeExecutable } from '../../src/portal/chrome-runtime.js';
 import {
+  NativeArtifactAuthoritySchema,
   prepareNativeArtifactAuthority,
   inventoryNativeArtifact,
+  verifyNativeArtifactAuthority,
   verifyNativeOutputReceipts,
 } from '../../src/portal/native-artifacts.js';
 import {
@@ -18,6 +21,8 @@ import {
   NativeProfileSchema,
   nativeExecutableHash,
 } from '../../src/portal/native-runner.js';
+import { NativePreviewSchema } from '../../src/portal/preview.js';
+import { portalFixture } from './fixtures.js';
 vi.setConfig({ testTimeout: 30000, hookTimeout: 30000 });
 const roots: string[] = [];
 const runners: NativePortalRunner[] = [];
@@ -69,6 +74,109 @@ it('fences historical missing external authority at the actual runner', async ()
   const value = await fixture();
   await expect(value.run()).rejects.toMatchObject({ code: 'PORTAL_ARTIFACT_AUTHORITY_REQUIRED' });
 });
+it.runIf(process.platform === 'win32')(
+  'binds exact installed Chrome and System32 cleanup executables in prepared preview authority',
+  async () => {
+    const value = await fixture();
+    value.profile.commands[0]!.preview = {
+      protocol: 'sfp-owned-preview-v1',
+      spec: NativePreviewSchema.parse({
+        root: '.',
+        baseUrl: 'http://127.0.0.1:1234',
+        screens: [
+          {
+            id: 'one',
+            path: '/',
+            oraclePath: 'one.png',
+            oracleHash: storedChecksum('one'),
+            viewport: { width: 100, height: 100 },
+          },
+        ],
+      }),
+    };
+    value.profile.environment.SFP_PORTAL_CHROME_EXECUTABLE = googleChromeExecutable()!;
+    const authority = await prepareNativeArtifactAuthority(value.profile);
+    expect(authority).toMatchObject({
+      ownedChromeCleanup: {
+        protocol: 'windows-owned-chrome-cleanup-v1',
+        executable: { root: join(process.env.SystemRoot!, 'System32', 'taskkill.exe') },
+        chromeExecutable: { root: googleChromeExecutable()! },
+      },
+    });
+    expect(NativeArtifactAuthoritySchema.safeParse(authority).success).toBe(true);
+  },
+);
+it.runIf(process.platform === 'win32')(
+  'reads historical preview authority without granting its missing cleanup capability',
+  async () => {
+    const value = await fixture();
+    value.profile.commands[0]!.preview = {
+      protocol: 'sfp-owned-preview-v1',
+      spec: NativePreviewSchema.parse({
+        root: '.',
+        baseUrl: 'http://127.0.0.1:1234',
+        screens: [
+          {
+            id: 'one',
+            path: '/',
+            oraclePath: 'one.png',
+            oracleHash: storedChecksum('one'),
+            viewport: { width: 100, height: 100 },
+          },
+        ],
+      }),
+    };
+    const authority = await prepareNativeArtifactAuthority(value.profile);
+    const historical = { ...authority } as Record<string, unknown>;
+    delete historical.ownedChromeCleanup;
+    value.profile.artifactAuthority = NativeArtifactAuthoritySchema.parse(historical);
+    await expect(verifyNativeArtifactAuthority(value.profile)).rejects.toMatchObject({
+      code: 'PORTAL_ARTIFACT_REPREPARE_REQUIRED',
+    });
+  },
+);
+it('accepts both directory-lease protocol literals and rejects unknown ones', async () => {
+  const value = await fixture();
+  const authority = await prepareNativeArtifactAuthority(value.profile);
+  const directoryLease = (protocol: string) => ({
+    ...authority,
+    directoryLease: {
+      protocol,
+      executable: authority.executables[0],
+      args: ['-NoLogo', '-NoProfile', '-NonInteractive', '-EncodedCommand', 'AAAA'],
+    },
+  });
+  for (const protocol of ['windows-directory-lease-v1', 'windows-directory-lease-v2'])
+    expect(NativeArtifactAuthoritySchema.safeParse(directoryLease(protocol)).success).toBe(true);
+  expect(
+    NativeArtifactAuthoritySchema.safeParse(directoryLease('windows-directory-lease-v3')).success,
+  ).toBe(false);
+});
+it('maps a stored windows-directory-lease-v1 authority to a typed re-prepare error', async () => {
+  const value = await fixture();
+  const authority = await prepareNativeArtifactAuthority(value.profile);
+  const historical = NativeProfileSchema.parse({
+    ...value.profile,
+    artifactAuthority: {
+      ...authority,
+      directoryLease: {
+        protocol: 'windows-directory-lease-v1',
+        executable: authority.executables[0],
+        args: ['-NoLogo', '-NoProfile', '-NonInteractive', '-EncodedCommand', 'AAAA'],
+      },
+    },
+  });
+  const portal = await portalFixture();
+  roots.push(portal.root);
+  await portal.store.create('lease-profiles', 'historical', historical, NativeProfileSchema);
+  const stored = await portal.store.get('lease-profiles', 'historical', NativeProfileSchema);
+  expect(stored?.artifactAuthority?.directoryLease?.protocol).toBe('windows-directory-lease-v1');
+  await expect(verifyNativeArtifactAuthority(stored!)).rejects.toMatchObject({
+    code: 'PORTAL_ARTIFACT_REPREPARE_REQUIRED',
+  });
+  value.profile.artifactAuthority = stored!.artifactAuthority;
+  await expect(value.run()).rejects.toMatchObject({ code: 'PORTAL_ARTIFACT_REPREPARE_REQUIRED' });
+});
 it('binds the whole approved external harness tree before launch', async () => {
   const value = await fixture();
   const external = await mkdtemp(join(tmpdir(), 'sfp-external-'));
@@ -98,6 +206,8 @@ it('records and verifies producer outputs before dependent commands and acceptan
   });
   value.profile.artifactAuthority = await prepareNativeArtifactAuthority(value.profile);
   const result = await value.run();
+  const failed = result.commands.filter(command => command.status !== 'passed');
+  if (failed.length) throw new Error('Native producer fixture failed: ' + JSON.stringify(failed));
   expect(result.commands.map(command => command.status)).toEqual(['passed', 'passed']);
   expect(result.outputReceipts).toHaveLength(1);
   await mkdir(join(value.root, 'node_modules', 'new'));

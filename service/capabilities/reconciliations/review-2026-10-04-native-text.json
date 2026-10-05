@@ -1,0 +1,63 @@
+{
+  "schemaVersion": 1,
+  "slice": "review-2026-10-04",
+  "baseline": {
+    "headCommit": "5b9343efc82ef47ba56f412acbd4eee5a328d335",
+    "authoritySha256": {
+      "upstream-lock.json": "efa75ce6b9e187c73a00cd95bdbc760b58a2fff46795f1cb10a88b2e92d1e3cb",
+      "vendor-map.json": "b3275c7d8b997d1cfe723d97594659f77d7b4361b824a790bcfdd7ff762589bd",
+      "vendor-rules.json": "19dc2f67d1c3fd083146d2dde501d01e697d9a2afbab30ba6e9fd51daa8e696a"
+    }
+  },
+  "entries": [
+    {
+      "path": "capabilities/task-review-2026-10-04-authority-classes.json",
+      "sha256": "a68da6aa6b1f95978f2c966e754e820bb0721564211ddb150eecae984b7ea566",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "425958ac796f59be244111bb044efd18da9f71af60d9ba96b5ec10f0078c3812"
+        },
+        {
+          "class": "protected",
+          "sha256": "425958ac796f59be244111bb044efd18da9f71af60d9ba96b5ec10f0078c3812"
+        }
+      ],
+      "reason": "Report native text case, decoration, truncation, maximum lines, wrap style, hyperlink and font weight from recorded values and Figma omitted defaults. Character runs make case, decoration and weight mixed; weights come only from recorded font metadata. Hyperlinks and malformed values stay unknown. Separate eCommerce and CDD comparisons add 6,076 and 504 text positions with zero differences."
+    },
+    {
+      "path": "docs/portal-native.md",
+      "sha256": "51fa426cb9cd726c8cf9586c0c4706c81d2abf27fc46747277144fd1c53d9be4",
+      "priorClaims": [
+        {
+          "class": "protected",
+          "sha256": "11b1d17fd59c0f9dca1b5b4f45a2cadddd3265d817e9c5e4297c2147792f4d1b"
+        }
+      ],
+      "reason": "Report native text case, decoration, truncation, maximum lines, wrap style, hyperlink and font weight from recorded values and Figma omitted defaults. Character runs make case, decoration and weight mixed; weights come only from recorded font metadata. Hyperlinks and malformed values stay unknown. Separate eCommerce and CDD comparisons add 6,076 and 504 text positions with zero differences."
+    },
+    {
+      "path": "packages/cli/src/figma-native-nodes.ts",
+      "sha256": "3e87e419aa52d6c8f44cd5dbdb4ed7aaeebf4f6c1a1bb0a3b766e97444c2517f",
+      "priorClaims": [
+        {
+          "class": "protected",
+          "sha256": "0145d69d7a90d7cc335931233953d99ce8843478f195bd11e58ca73fb784f99b"
+        }
+      ],
+      "reason": "Report native text case, decoration, truncation, maximum lines, wrap style, hyperlink and font weight from recorded values and Figma omitted defaults. Character runs make case, decoration and weight mixed; weights come only from recorded font metadata. Hyperlinks and malformed values stay unknown. Separate eCommerce and CDD comparisons add 6,076 and 504 text positions with zero differences."
+    },
+    {
+      "path": "packages/cli/src/figma-native-text-properties.ts",
+      "sha256": "73b061dbec5907889f2cd99c46070122ff0e9293604a82619e0ed15ef0c00c56",
+      "priorClaims": [],
+      "reason": "Report native text case, decoration, truncation, maximum lines, wrap style, hyperlink and font weight from recorded values and Figma omitted defaults. Character runs make case, decoration and weight mixed; weights come only from recorded font metadata. Hyperlinks and malformed values stay unknown. Separate eCommerce and CDD comparisons add 6,076 and 504 text positions with zero differences."
+    },
+    {
+      "path": "packages/cli/test/figma-native-text-properties.test.ts",
+      "sha256": "8950f7e77aa370c1e12a0f99b25491d31e50ee816fddbc9e9f56561870984ca7",
+      "priorClaims": [],
+      "reason": "Report native text case, decoration, truncation, maximum lines, wrap style, hyperlink and font weight from recorded values and Figma omitted defaults. Character runs make case, decoration and weight mixed; weights come only from recorded font metadata. Hyperlinks and malformed values stay unknown. Separate eCommerce and CDD comparisons add 6,076 and 504 text positions with zero differences."
+    }
+  ]
+}

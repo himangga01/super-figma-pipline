@@ -1,16 +1,24 @@
 import { mkdir, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 
-import { PortalRunSchema, contentHash, storedChecksum } from '@sfp/ir';
+import {
+  PortalPlanSchema,
+  PortalRunSchema,
+  contentHash,
+  portalCandidateHash,
+  storedChecksum,
+} from '@sfp/ir';
 import { type ActorContext, type PortalToolName } from '@sfp/shared';
 import { afterEach, expect, it } from 'vitest';
 import { z } from 'zod';
 
 import { PortalCoordinator, type PortalWorkPort } from '../../src/portal/coordinator.js';
+import { derivePortalInteractionContract } from '../../src/portal/interaction-evidence.js';
 import {
   loadCoreConsumptionInput,
   verifyCoreCatalogExport,
 } from '../../src/portal/recipes/consumption-input.js';
+import { compileCoreConsumption } from '../../src/portal/recipes/core-consumption.js';
 import {
   PortalCoreLifecycle,
   coreDeclarationsHash,
@@ -28,11 +36,35 @@ const actor: ActorContext = {
   authSessionId: `auth1_${'a'.repeat(43)}`,
   entryPath: 'control',
 };
-async function fixture(legacy = false) {
+async function fixture(legacy = false, incidental = false) {
   const f = await portalFixture();
   cleanups.push(f.cleanup);
   const captured = await currentCaptureFixture(f, {
-    nodes: [{ id: '0:1', name: 'Welcome', type: 'FRAME' }],
+    nodes: [
+      {
+        id: '0:1',
+        name: 'Welcome',
+        type: 'FRAME',
+        ...(incidental
+          ? {
+              children: [
+                {
+                  id: '1:2',
+                  name: 'Footer',
+                  type: 'RECTANGLE',
+                  reactions: [
+                    {
+                      trigger: { type: 'ON_CLICK' },
+                      actions: [{ type: 'URL', url: 'https://example.com/attribution' }],
+                    },
+                    { trigger: { type: 'ON_HOVER' }, actions: [{ type: 'BACK' }] },
+                  ],
+                },
+              ],
+            }
+          : {}),
+      },
+    ],
   });
   const lifecycle = new PortalCoreLifecycle(new CorePreparations(f));
   const unused = async (): Promise<never> => {
@@ -74,6 +106,22 @@ async function fixture(legacy = false) {
     'portal_plan',
     legacy ? { case: 'legacy', targetPath: 'legacy', services: ['.'] } : { case: 'new-blank' },
   );
+  const initialPlan = plan;
+  if (incidental) {
+    const contract = derivePortalInteractionContract(captured.captured, []);
+    plan = await invoke('portal_plan', {
+      case: 'new-blank',
+      interactionScope: {
+        version: 1,
+        captureFingerprint: contract.captureFingerprint,
+        exclusions: contract.interactions.map(action => ({
+          interactionId: action.id,
+          sourceHash: action.sourceHash,
+          reason: 'External attribution is incidental to this application.',
+        })),
+      },
+    });
+  }
   if (legacy) {
     const selected = plan.selectedClosure.selected[0];
     const requirements = plan.requirements.map((requirement: any) => ({
@@ -109,6 +157,7 @@ async function fixture(legacy = false) {
   }
   await invoke('portal_start', { planId: plan.planId });
   const next = await invoke('portal_next', { runId: plan.planId });
+  expect(next.lease).not.toBeNull();
   const path = 'src/main.ts',
     content = 'export const message = "Welcome";',
     hash = storedChecksum(content);
@@ -138,7 +187,7 @@ async function fixture(legacy = false) {
     planId: plan.planId as string,
     candidateHash: result.candidateHash as string,
   };
-  return { ...f, lifecycle, invoke, request, path, content, hash };
+  return { ...f, lifecycle, invoke, request, path, content, hash, initialPlan };
 }
 
 it('loads only actual owner-bound required pages and declared signed candidate bytes', async () => {
@@ -155,6 +204,62 @@ it('loads only actual owner-bound required pages and declared signed candidate b
     loadCoreConsumptionInput(f, { ...f.request, candidateHash: contentHash('other', {}) }),
   ).rejects.toThrow('CANDIDATE_CHANGED');
 });
+it('carries public owner selection through all recipe results and consumption without merging reactions on one node', async () => {
+  const f = await fixture(false, true);
+  const input = await loadCoreConsumptionInput(f, f.request);
+  const contract = input.plan.interactionContract!;
+  expect(f.initialPlan.coreRecipes.status).toBe('blocked');
+  expect(input.plan.coreRecipes!.status).toBe('ready');
+  expect(contract.interactions).toHaveLength(0);
+  expect(contract.excludedInteractions).toHaveLength(2);
+  const interactions = input.pages
+    .flatMap(page => page.page.rows)
+    .filter(row => row.kind === 'interaction');
+  expect(interactions).toHaveLength(2);
+  expect(
+    interactions
+      .flatMap(row => row.expectations)
+      .map(value => value.status)
+      .toSorted(),
+  ).toEqual(['excluded', 'excluded']);
+  const compiled = compileCoreConsumption(input, { version: 1 });
+  expect(
+    compiled.use.prepared!.requirements.some(
+      value => value.code === 'PORTAL_CONSUMPTION_INTERACTION_COVERAGE',
+    ),
+  ).toBe(false);
+  const sourceProofs = compiled.proofs.filter(value => value.kind === 'source-interaction');
+  expect(sourceProofs).toHaveLength(2);
+  expect(JSON.stringify(sourceProofs)).toContain('External attribution is incidental');
+  expect(JSON.stringify(sourceProofs)).toContain(contract.selectionHash!);
+  const material = await f.lifecycle.readForConsumption(
+    { ownerId: input.plan.ownerId, workspaceId: input.plan.workspaceId },
+    input.plan.coreRecipes!,
+  );
+  expect(material.results).toHaveLength(7);
+  for (const result of material.results)
+    expect(result.manifest).toMatchObject({
+      interactionContractHash: contentHash('sfp-interaction-contract-v1', contract),
+      interactionSelectionHash: contract.selectionHash,
+    });
+  await f.store.update('plans', f.request.planId, PortalPlanSchema, plan => ({
+    ...plan,
+    request: {
+      ...plan.request,
+      interactionScope: {
+        ...plan.request.interactionScope!,
+        exclusions: plan.request.interactionScope!.exclusions.map(value =>
+          Object.assign({}, value, {
+            reason: 'A changed owner decision invalidates admitted results.',
+          }),
+        ),
+      },
+    },
+  }));
+  await expect(loadCoreConsumptionInput(f, f.request)).rejects.toThrow(
+    'PORTAL_CONSUMPTION_INTERACTION_SELECTION_CHANGED',
+  );
+});
 it('refuses a changed declaration even if its signed container and declaration hash are valid', async () => {
   const f = await fixture();
   await f.store.update('runs', f.request.planId, PortalRunSchema, run => {
@@ -162,7 +267,22 @@ it('refuses a changed declaration even if its signed container and declaration h
     run.coreDeclarationsHash = coreDeclarationsHash(run.coreDeclarations);
     return run;
   });
-  await expect(loadCoreConsumptionInput(f, f.request)).rejects.toThrow('DECLARATIONS_CHANGED');
+  // The candidate hash binds the declarations, so the signed request no longer names this run's
+  // candidate. Candidate identity is refused first, before any declaration is interpreted.
+  await expect(loadCoreConsumptionInput(f, f.request)).rejects.toThrow('CANDIDATE_CHANGED');
+
+  // Rehash the candidate too, so the container, declaration and candidate hashes are all valid:
+  // the declaration still has to match the kind of its signed recipe result.
+  const plan = await f.store.get('plans', f.request.planId, PortalPlanSchema);
+  let candidateHash = '';
+  await f.store.update('runs', f.request.planId, PortalRunSchema, run => {
+    run.candidateHash = portalCandidateHash(run.files, plan!, run.coreDeclarations);
+    candidateHash = run.candidateHash;
+    return run;
+  });
+  await expect(loadCoreConsumptionInput(f, { ...f.request, candidateHash })).rejects.toThrow(
+    'DECLARATIONS_CHANGED',
+  );
 });
 it('rehashes actual stored content and never trusts its declared hash alone', async () => {
   const f = await fixture();

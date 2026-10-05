@@ -1,0 +1,12 @@
+{
+  "case": "new-blank",
+  "targetPath": "ecommerce-chrome-preparation-20261004",
+  "references": [],
+  "design": {
+    "url": "https://www.figma.com/design/4IBhv1d8hEclifZQrOYxHS?node-id=0-1",
+    "source": "chrome",
+    "freshness": "require-live"
+  },
+  "stack": "react-vite",
+  "requirements": []
+}

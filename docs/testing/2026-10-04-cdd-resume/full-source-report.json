@@ -1,0 +1,249 @@
+{
+  "schemaVersion": 3,
+  "attemptId": "9bd88d5c-048d-4700-bf0b-5901377374ab",
+  "folder": "source-checks/9bd88d5c-048d-4700-bf0b-5901377374ab",
+  "testScope": {
+    "path": "source-checks/9bd88d5c-048d-4700-bf0b-5901377374ab/test-scope.json",
+    "sha256": "1326c9ce36d5fb3c6848d1746787d330187530a54c8757c3ef237b14ebba8226",
+    "runId": "9bd88d5c-048d-4700-bf0b-5901377374ab",
+    "mode": "full",
+    "reportSha256": "fce2cb75fe86d59000f88b5be9e1b9c44a2e82e6e4114c7ebb22f225bd151e29",
+    "logSha256": "f3b8b3beae4e015605284c0594ea4b1d1e21f0490d1d9d8fff7b07ed01ccd56a"
+  },
+  "status": "local-source-verified",
+  "sourceHash": "sha256:0465c2612f8f2f7ab955e3e5debc28d533ce4c5a6d212d938122a64808c5c9ac",
+  "verifiedAt": "2026-10-04T09:02:45.730Z",
+  "checks": [
+    {
+      "name": "typecheck",
+      "exitCode": 0,
+      "elapsedMs": 33535,
+      "logSha256": "47fc72d6f63539764733639ef5d06b7f592942c51a5631391b93307752cf3f0e"
+    },
+    {
+      "name": "lint",
+      "exitCode": 0,
+      "elapsedMs": 1302,
+      "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "format",
+      "exitCode": 0,
+      "elapsedMs": 1818,
+      "logSha256": "05b5a5591b9bf14187e6ccfa08e3102eeba3afc0f1fcdfc13dc871c7a3dc6411"
+    },
+    {
+      "name": "knip",
+      "exitCode": 0,
+      "elapsedMs": 8080,
+      "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "contracts",
+      "exitCode": 0,
+      "elapsedMs": 1241,
+      "logSha256": "e0bfbf48403f68e16703a91e6e46175e37a156e2868b6a047243c43e9c6aee51"
+    },
+    {
+      "name": "build",
+      "exitCode": 0,
+      "elapsedMs": 7002,
+      "logSha256": "b250e711c43d8950e6ac27baf1c023ce1107e7b9955c8031e6c0729f9f1dd40e"
+    },
+    {
+      "name": "test",
+      "exitCode": 0,
+      "elapsedMs": 676002,
+      "logSha256": "f3b8b3beae4e015605284c0594ea4b1d1e21f0490d1d9d8fff7b07ed01ccd56a"
+    },
+    {
+      "name": "test-ledger",
+      "exitCode": 0,
+      "elapsedMs": 589,
+      "logSha256": "a628ffa7a0d106f888167037dd06fc837a5ce10ee0ac4f404e05ef830fd0004c"
+    },
+    {
+      "name": "provenance",
+      "exitCode": 0,
+      "elapsedMs": 388,
+      "logSha256": "f0a48513082a12df030f05efb95680f5f0ac17a9c36b675d97521e76f6f13378"
+    },
+    {
+      "name": "graph-memory",
+      "exitCode": 0,
+      "elapsedMs": 2773,
+      "logSha256": "16faf18973e61108556f2fc76b62e8599d9f9e9687a7c7b1c754dc9a99bf28b6"
+    },
+    {
+      "name": "sbom",
+      "exitCode": 0,
+      "elapsedMs": 631,
+      "logSha256": "c6c75d10ffdefdee139d3961666c58d6208032670fad6cf22ce10a1a3a858ea2"
+    },
+    {
+      "name": "notices",
+      "exitCode": 0,
+      "elapsedMs": 740,
+      "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "package",
+      "exitCode": 0,
+      "elapsedMs": 1394,
+      "logSha256": "dd961e284d84b930b897f8c90c5e6609b608e25ac74a556a093cb23d46f72460"
+    },
+    {
+      "name": "checksums",
+      "exitCode": 0,
+      "elapsedMs": 90,
+      "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "artifacts",
+      "exitCode": 0,
+      "elapsedMs": 450,
+      "logSha256": "7d6f80b2b8b6494acb80b6b688c02f580fa01ad65f47ab86e5f7fd6cfb85d076"
+    },
+    {
+      "name": "isolated-runtime",
+      "exitCode": 0,
+      "elapsedMs": 14092,
+      "logSha256": "5141959ddd5851b52df77d22bb9ee5510a0de3a9fa45476b6cc01e52f24da8f5"
+    }
+  ],
+  "knownDefects": {
+    "ledger": "test/known-failures.json",
+    "total": 0,
+    "byOwner": {}
+  },
+  "testSkips": {
+    "report": "source-checks/9bd88d5c-048d-4700-bf0b-5901377374ab/vitest-report.json",
+    "allowedSuites": [],
+    "skippedSuites": [],
+    "skipped": [
+      {
+        "file": "packages/mcp/test/e2e/process-lifecycle.test.ts",
+        "test": "process lifecycle (built dist) a leader that holds the port but stops answering names it, wakes it, and is a follower again — without anyone killing anything",
+        "status": "skipped",
+        "suite": null
+      },
+      {
+        "file": "packages/mcp/test/election/leader-lock.test.ts",
+        "test": "leader lock: the real OS probe reads a live process, and its start time agrees with the lock format",
+        "status": "skipped",
+        "suite": null
+      },
+      {
+        "file": "packages/mcp/test/election/leader-lock.test.ts",
+        "test": "leader lock: the real OS probe sees a suspended process as stopped, and SIGCONT brings it back",
+        "status": "skipped",
+        "suite": null
+      },
+      {
+        "file": "packages/mcp/test/election/leader-lock.test.ts",
+        "test": "leader lock: the real OS probe is undefined for a pid that no longer exists",
+        "status": "skipped",
+        "suite": null
+      },
+      {
+        "file": "packages/mcp/test/election/leader-lock.test.ts",
+        "test": "leader lock: the real OS probe refuses to probe or signal pid 0",
+        "status": "skipped",
+        "suite": null
+      },
+      {
+        "file": "packages/mcp/test/election/leader-lock.test.ts",
+        "test": "leader lock: the real OS probe refuses to probe or signal pid -1",
+        "status": "skipped",
+        "suite": null
+      },
+      {
+        "file": "packages/mcp/test/election/leader-lock.test.ts",
+        "test": "leader lock: the real OS probe refuses to probe or signal pid 1.5",
+        "status": "skipped",
+        "suite": null
+      },
+      {
+        "file": "packages/mcp/test/election/leader-lock.test.ts",
+        "test": "leader lock: the real OS probe refuses to probe or signal pid NaN",
+        "status": "skipped",
+        "suite": null
+      },
+      {
+        "file": "packages/mcp/test/election/leader-lock.test.ts",
+        "test": "leader lock: the real OS probe identifies this very process end-to-end, through the real probe",
+        "status": "skipped",
+        "suite": null
+      },
+      {
+        "file": "packages/mcp/test/fs/operation-evidence-artifact-store.test.ts",
+        "test": "operation evidence result artifact store reads the cleanup marker through the retained operation directory after a pathname replacement",
+        "status": "skipped",
+        "suite": null
+      },
+      {
+        "file": "packages/mcp/test/fs/runtime-paths.test.ts",
+        "test": "owner-only state permissions rejects broad Unix mode bits and enforces 0700 directories plus 0600 files",
+        "status": "skipped",
+        "suite": null
+      },
+      {
+        "file": "packages/mcp/test/fs/windows-directory-lease-broker.test.ts",
+        "test": "real Windows directory lease broker soaks 1,000 sequential leases on a Korean-named directory",
+        "status": "skipped",
+        "suite": null
+      },
+      {
+        "file": "packages/mcp/test/fs/workspace-config-store.test.ts",
+        "test": "secure owner-state prerequisite blocks an existing 0755 state directory until the bound authority explicitly hardens it",
+        "status": "skipped",
+        "suite": null
+      },
+      {
+        "file": "packages/mcp/test/fs/workspace-config-store.test.ts",
+        "test": "secure owner-state prerequisite rejects a configured file after its mode is widened to 0644",
+        "status": "skipped",
+        "suite": null
+      },
+      {
+        "file": "packages/mcp/test/fs/workspace-config-store.test.ts",
+        "test": "checksummed atomic config writes the config with Unix mode 0600",
+        "status": "skipped",
+        "suite": null
+      },
+      {
+        "file": "packages/mcp/test/fs/workspace-policy.test.ts",
+        "test": "platform boundary inspection rejects a nested Linux bind mount hidden behind an in-root lexical alias",
+        "status": "skipped",
+        "suite": null
+      },
+      {
+        "file": "packages/mcp/test/fs/workspace-policy.test.ts",
+        "test": "generic containment assertion accepts an existing Unix link whose real path remains inside the workspace",
+        "status": "skipped",
+        "suite": null
+      },
+      {
+        "file": "packages/mcp/test/network/remote-domain-config.test.ts",
+        "test": "durable remote domain state fails closed when the persisted file mode is widened",
+        "status": "skipped",
+        "suite": null
+      },
+      {
+        "file": "packages/mcp/test/portal/native-artifacts.test.ts",
+        "test": "provisions and builds the actual locked React/Vite preset with a generated configuration cache",
+        "status": "skipped",
+        "suite": null
+      },
+      {
+        "file": "packages/mcp/test/portal/source-inventory.test.ts",
+        "test": "reports case collisions on case-sensitive filesystems",
+        "status": "skipped",
+        "suite": null
+      }
+    ]
+  },
+  "realFigmaValidated": false,
+  "targetServiceValidated": false,
+  "remoteCiValidated": false
+}

@@ -1,0 +1,122 @@
+{
+  "schemaVersion": 1,
+  "slice": "review-2026-10-04",
+  "baseline": {
+    "headCommit": "5b9343efc82ef47ba56f412acbd4eee5a328d335",
+    "authoritySha256": {
+      "upstream-lock.json": "0db0a9a78f2a76712e02feb4cffecd2c30d29de95b76a881b08ae4b5cd5bf286",
+      "vendor-map.json": "b3275c7d8b997d1cfe723d97594659f77d7b4361b824a790bcfdd7ff762589bd",
+      "vendor-rules.json": "3e488b1ca992efef0324471d76ca1a59aa47105d96003ebde8a73f3562682d20"
+    }
+  },
+  "entries": [
+    {
+      "path": "capabilities/task-review-2026-10-04-authority-classes.json",
+      "sha256": "25976ee48e81bfa2e22850d8cfe047a62ec48be448d75f032eb99c481cd3d6df",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "428e78bb6cafffa138932ae2d34569d171df737dfbd764524c2bfdee85e216d7"
+        },
+        {
+          "class": "protected",
+          "sha256": "428e78bb6cafffa138932ae2d34569d171df737dfbd764524c2bfdee85e216d7"
+        }
+      ],
+      "reason": "Repair verified review findings. A failed explicit source opening closes only the tab its transport created and the caller never accepted; accepted and pre-existing tabs stay open and clients still cannot close targets. Sign-in redirects map to FIGMA_LOGIN_REQUIRED, unreached files to FIGMA_TAB_NOT_FOUND, cancellation stops waiting and concurrent opening intents are busy. PNG proof capacity or decoder limits fail freshness instead of aborting acceptance. Nine regressions failed first."
+    },
+    {
+      "path": "docs/portal-native.md",
+      "sha256": "551fa659e06bad079b04ecb864e8f74ed7e964bf69bc55593573e6096074abbb",
+      "priorClaims": [
+        {
+          "class": "protected",
+          "sha256": "f7f2d29c3628e140bac9fb0c1a90fa6bb10802b0227ade4f095ff895aa6e9f7b"
+        }
+      ],
+      "reason": "Repair verified review findings. A failed explicit source opening closes only the tab its transport created and the caller never accepted; accepted and pre-existing tabs stay open and clients still cannot close targets. Sign-in redirects map to FIGMA_LOGIN_REQUIRED, unreached files to FIGMA_TAB_NOT_FOUND, cancellation stops waiting and concurrent opening intents are busy. PNG proof capacity or decoder limits fail freshness instead of aborting acceptance. Nine regressions failed first."
+    },
+    {
+      "path": "packages/cli/src/browser-session.ts",
+      "sha256": "f9ba1ff923d35ab1f17c0289332538daad2a75d95a079463429fb132359f9c43",
+      "priorClaims": [
+        {
+          "class": "protected",
+          "sha256": "b1282a5bb45a79c5c4f2751c6db41d22b30c6ba7770dd09ac2359c8edcdcf552"
+        }
+      ],
+      "reason": "Repair verified review findings. A failed explicit source opening closes only the tab its transport created and the caller never accepted; accepted and pre-existing tabs stay open and clients still cannot close targets. Sign-in redirects map to FIGMA_LOGIN_REQUIRED, unreached files to FIGMA_TAB_NOT_FOUND, cancellation stops waiting and concurrent opening intents are busy. PNG proof capacity or decoder limits fail freshness instead of aborting acceptance. Nine regressions failed first."
+    },
+    {
+      "path": "packages/cli/test/browser-source-open.test.ts",
+      "sha256": "43849c1c166e249266bc1a26e7d49b839d29aa9193f99a56cc72eb0a83154c58",
+      "priorClaims": [
+        {
+          "class": "protected",
+          "sha256": "6d15987dad37a295e4e7cc35fc552da84dcec153c604f19ecfccd6f0bb74ac66"
+        }
+      ],
+      "reason": "Repair verified review findings. A failed explicit source opening closes only the tab its transport created and the caller never accepted; accepted and pre-existing tabs stay open and clients still cannot close targets. Sign-in redirects map to FIGMA_LOGIN_REQUIRED, unreached files to FIGMA_TAB_NOT_FOUND, cancellation stops waiting and concurrent opening intents are busy. PNG proof capacity or decoder limits fail freshness instead of aborting acceptance. Nine regressions failed first."
+    },
+    {
+      "path": "packages/mcp/src/portal/capture-freshness.ts",
+      "sha256": "0852dfa3bf5e787b06ef488ce97d049517bd778c51af2a476c47fa0b7340a78c",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "8885eeb376a0099ab357325c442e634695eb40c9aaef77210ce092db031d078e"
+        },
+        {
+          "class": "protected",
+          "sha256": "8885eeb376a0099ab357325c442e634695eb40c9aaef77210ce092db031d078e"
+        }
+      ],
+      "reason": "Repair verified review findings. A failed explicit source opening closes only the tab its transport created and the caller never accepted; accepted and pre-existing tabs stay open and clients still cannot close targets. Sign-in redirects map to FIGMA_LOGIN_REQUIRED, unreached files to FIGMA_TAB_NOT_FOUND, cancellation stops waiting and concurrent opening intents are busy. PNG proof capacity or decoder limits fail freshness instead of aborting acceptance. Nine regressions failed first."
+    },
+    {
+      "path": "packages/mcp/src/portal/chrome-transport.ts",
+      "sha256": "5585c3cd026b70b4c6f40bfeae4bd8169d934343d2703ca64fce6cf03a3becf6",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "2abeb0726ef7b94040d45c048f5c6ea959960d7d72cb1d03dd229e8787f4df97"
+        },
+        {
+          "class": "protected",
+          "sha256": "2abeb0726ef7b94040d45c048f5c6ea959960d7d72cb1d03dd229e8787f4df97"
+        }
+      ],
+      "reason": "Repair verified review findings. A failed explicit source opening closes only the tab its transport created and the caller never accepted; accepted and pre-existing tabs stay open and clients still cannot close targets. Sign-in redirects map to FIGMA_LOGIN_REQUIRED, unreached files to FIGMA_TAB_NOT_FOUND, cancellation stops waiting and concurrent opening intents are busy. PNG proof capacity or decoder limits fail freshness instead of aborting acceptance. Nine regressions failed first."
+    },
+    {
+      "path": "packages/mcp/test/portal/capture-reexport.test.ts",
+      "sha256": "b7e80d59c70176bdd670bc09abfdbfcf9bf41ca9b2e087983be0fecc54b9b24a",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "2e124c80613b2067133a37454ec7b6d35dbb4073a683213ee8ee9d77f12e14aa"
+        },
+        {
+          "class": "protected",
+          "sha256": "2e124c80613b2067133a37454ec7b6d35dbb4073a683213ee8ee9d77f12e14aa"
+        }
+      ],
+      "reason": "Repair verified review findings. A failed explicit source opening closes only the tab its transport created and the caller never accepted; accepted and pre-existing tabs stay open and clients still cannot close targets. Sign-in redirects map to FIGMA_LOGIN_REQUIRED, unreached files to FIGMA_TAB_NOT_FOUND, cancellation stops waiting and concurrent opening intents are busy. PNG proof capacity or decoder limits fail freshness instead of aborting acceptance. Nine regressions failed first."
+    },
+    {
+      "path": "packages/mcp/test/portal/chrome-transport.test.ts",
+      "sha256": "0e064f0226b73c06fedd4053af6d3e3c32d2753a585bec490b60db14271a4d91",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "1c690199a9513a1087e7e1a5fec5349da43168e6529517994952e7a984e58fdb"
+        },
+        {
+          "class": "protected",
+          "sha256": "1c690199a9513a1087e7e1a5fec5349da43168e6529517994952e7a984e58fdb"
+        }
+      ],
+      "reason": "Repair verified review findings. A failed explicit source opening closes only the tab its transport created and the caller never accepted; accepted and pre-existing tabs stay open and clients still cannot close targets. Sign-in redirects map to FIGMA_LOGIN_REQUIRED, unreached files to FIGMA_TAB_NOT_FOUND, cancellation stops waiting and concurrent opening intents are busy. PNG proof capacity or decoder limits fail freshness instead of aborting acceptance. Nine regressions failed first."
+    }
+  ]
+}

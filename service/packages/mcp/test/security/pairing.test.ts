@@ -13,7 +13,7 @@ import {
   newId,
   SystemMethod,
 } from '@sfp/shared';
-import { afterEach, describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import { WebSocket } from 'ws';
 
 import { Relay } from '../../src/relay/relay.js';
@@ -28,6 +28,7 @@ import {
 
 const roots: string[] = [];
 const servers: { http: Server; relay: Relay }[] = [];
+const barrierReleases: Array<() => void> = [];
 
 const secureTestRoot = async (): Promise<{
   stateRoot: string;
@@ -75,6 +76,8 @@ const openManager = async (
 };
 
 afterEach(async () => {
+  for (const release of barrierReleases.splice(0)) release();
+  vi.useRealTimers();
   await Promise.all(
     servers.splice(0).map(async ({ http, relay }) => {
       await relay.stop();
@@ -1035,6 +1038,7 @@ describe('ticket and resume authentication', () => {
       const commitPublishBarrier = new Promise<void>(resolve => {
         releaseCommit = resolve;
       });
+      barrierReleases.push(releaseCommit);
       let publishCalls = 0;
       const manager = await createPairingManager({
         stateRoot,
@@ -1047,6 +1051,7 @@ describe('ticket and resume authentication', () => {
           }
         },
       });
+      if (terminalCause === 'timeout') vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout'] });
       const { port, relay } = await startRelay(manager, undefined, helloTimeoutMs);
       const socket = await connect(port);
       const request = createRequest({
@@ -1064,6 +1069,7 @@ describe('ticket and resume authentication', () => {
 
       if (terminalCause === 'extra-frame') socket.send(Buffer.from([0]));
       if (terminalCause === 'socket-close') socket.terminate();
+      if (terminalCause === 'timeout') await vi.advanceTimersByTimeAsync(helloTimeoutMs!);
       const closeCode = await close;
       expect(closeCode).toBe(expectedCloseCode);
       releaseCommit();

@@ -1,6 +1,6 @@
 import { createHash, randomBytes } from 'node:crypto';
-import { constants, fstatSync, lstatSync, unlinkSync } from 'node:fs';
-import { lstat, open, rename } from 'node:fs/promises';
+import { constants, fstatSync, lstatSync, readSync, unlinkSync } from 'node:fs';
+import { link, lstat, open, rename, unlink } from 'node:fs/promises';
 import { basename, dirname, join, resolve, sep } from 'node:path';
 
 import {
@@ -60,6 +60,42 @@ const sameFile = (
   left: { dev: number | bigint; ino: number | bigint },
   right: { dev: number | bigint; ino: number | bigint },
 ): boolean => left.dev === right.dev && left.ino === right.ino;
+// Keep the final byte/identity check and unlink in the same JavaScript turn. This bounds the
+// known asynchronous edit window; a same-owner process can still race synchronous syscalls.
+const verifyCleanupBytesSync = (fd: number, path: string, expectedDigest64: string): void => {
+  const held = fstatSync(fd);
+  const maximum = OPERATION_EVIDENCE_LIMITS.maxNativeArtifactManifestBytes;
+  if (!held.isFile() || held.nlink !== 1 || held.size > maximum) {
+    throw nativeError('NATIVE_ARTIFACT_IDENTITY_MISMATCH', 'native cleanup descriptor changed');
+  }
+  const hash = createHash('sha256');
+  const chunk = Buffer.allocUnsafe(65_536);
+  let total = 0;
+  for (;;) {
+    const count = readSync(fd, chunk, 0, Math.min(chunk.byteLength, maximum - total + 1), total);
+    if (count === 0) break;
+    total += count;
+    if (total > maximum)
+      throw nativeError('NATIVE_ARTIFACT_IDENTITY_MISMATCH', 'native cleanup bytes exceed cap');
+    hash.update(chunk.subarray(0, count));
+  }
+  const pathname = lstatSync(path);
+  const descriptor = fstatSync(fd);
+  if (
+    !pathname.isFile() ||
+    pathname.isSymbolicLink() ||
+    pathname.nlink !== 1 ||
+    descriptor.nlink !== 1 ||
+    !sameFile(held, descriptor) ||
+    !sameFile(held, pathname) ||
+    hash.digest('hex') !== expectedDigest64
+  ) {
+    throw nativeError(
+      'NATIVE_ARTIFACT_IDENTITY_MISMATCH',
+      'native cleanup bytes or identity changed',
+    );
+  }
+};
 const workspacePolicyPath = (portablePath: string): string =>
   process.platform === 'win32' ? portablePath.replaceAll('/', sep) : portablePath;
 
@@ -662,6 +698,7 @@ export class NativeEvidenceArtifactPort implements NativeEvidenceArtifactPortCon
                   'retained native manifest changed before deletion',
                 );
               }
+              verifyCleanupBytesSync(retainedHandle.fd, retained, input.evidence.manifestDigest64);
               unlinkSync(retained);
               await syncParent();
             } finally {
@@ -753,6 +790,7 @@ export class NativeEvidenceArtifactPort implements NativeEvidenceArtifactPortCon
             ) {
               throw nativeError('NATIVE_ARTIFACT_IDENTITY_MISMATCH', 'native manifest changed');
             }
+            verifyCleanupBytesSync(handle.fd, fixedPath, input.evidence.manifestDigest64);
             const quarantine = join(
               authority.path,
               `${retainedPrefix}${randomBytes(16).toString('hex')}.retained`,
@@ -774,6 +812,46 @@ export class NativeEvidenceArtifactPort implements NativeEvidenceArtifactPortCon
               throw nativeError(
                 'NATIVE_ARTIFACT_IDENTITY_MISMATCH',
                 'native quarantine changed before deletion',
+              );
+            }
+            try {
+              verifyCleanupBytesSync(handle.fd, quarantine, input.evidence.manifestDigest64);
+            } catch (conflict) {
+              // Preserve an edited manifest at its original path whenever that name is absent.
+              // Exclusive publication cannot overwrite metadata from a newer operation.
+              try {
+                await link(quarantine, fixedPath);
+                await syncParent();
+                const [restored, retained] = await Promise.all([
+                  lstat(fixedPath),
+                  lstat(quarantine),
+                ]);
+                if (
+                  sameFile(opened, restored) &&
+                  sameFile(opened, retained) &&
+                  restored.nlink === 2 &&
+                  retained.nlink === 2
+                ) {
+                  await unlink(quarantine);
+                  await syncParent();
+                }
+              } catch (restorationError) {
+                if ((restorationError as NodeJS.ErrnoException).code !== 'EEXIST') {
+                  throw Object.assign(
+                    nativeError(
+                      'NATIVE_ARTIFACT_IDENTITY_MISMATCH',
+                      'edited native manifest requires recovery',
+                    ),
+                    { cause: conflict, recoveryPath: quarantine, restorationError },
+                  );
+                }
+              }
+              throw Object.assign(
+                nativeError(
+                  'NATIVE_ARTIFACT_IDENTITY_MISMATCH',
+                  'edited native metadata was preserved',
+                ),
+                { cause: conflict, recoveryPath: quarantine, visiblePath: fixedPath },
               );
             }
             unlinkSync(quarantine);

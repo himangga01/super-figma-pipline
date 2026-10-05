@@ -16,24 +16,17 @@ export interface ChromeSession {
   close(): Promise<void>;
 }
 
-/** Attach only. Never launch Chrome, create a tab, navigate an existing tab, or copy a profile. */
+/** Attach to existing Chrome. Creating a missing source tab requires an explicit owner request. */
 interface ChromeSessionOptions {
   url?: string;
   cdp?: string;
+  openIfMissing?: boolean;
+  connectionTimeoutMs?: number;
 }
 const chromeEndpoint = async (options: ChromeSessionOptions) =>
   options.cdp === undefined || options.cdp === 'chrome'
     ? await resolveExistingChromeEndpoint()
     : assertLoopbackCdp(options.cdp);
-const attachChrome = async (options: ChromeSessionOptions, timeout = 60_000): Promise<Browser> => {
-  const endpoint = await chromeEndpoint(options);
-  return chromium.connectOverCDP(endpoint, { timeout, noDefaults: true }).catch(error => {
-    throw new Error(
-      'CHROME_CONNECTION_REQUIRED: enable remote debugging in the existing Chrome at chrome://inspect/#remote-debugging, then allow its connection prompt',
-      { cause: error },
-    );
-  });
-};
 const selectExistingFigma = async (
   browser: Browser,
   options: ChromeSessionOptions,
@@ -96,56 +89,132 @@ const selectExistingFigma = async (
 };
 
 export const openChromeSession = async (options: ChromeSessionOptions): Promise<ChromeSession> => {
+  if (options.openIfMissing && options.url === undefined) throw new Error('FIGMA_URL_REQUIRED');
   if (options.url !== undefined) parseFigmaTarget(options.url);
-  const browser = await attachChrome(options);
+  // Standalone collection needs the same selected-target attachment as portal capture.
+  // Its transport belongs to this invocation, so close both logical and physical sessions.
+  const connection = new ExistingChromeConnection();
   try {
-    return await selectExistingFigma(browser, options, () => browser.close());
+    const session = await connection.open({
+      ...options,
+      connectionTimeoutMs: options.connectionTimeoutMs ?? 60_000,
+    });
+    let released = false;
+    return {
+      ...session,
+      close: async () => {
+        if (released) return;
+        released = true;
+        try {
+          await session.close();
+        } finally {
+          await connection.close();
+        }
+      },
+    };
   } catch (error) {
-    await browser.close();
+    await connection.close();
     throw error;
   }
 };
 
-/** Keep one owner-approved connection for the daemon lifetime, including missing-tab recovery. */
+/** Retain a healthy owner-approved connection; terminal remotes require a fresh private generation. */
 export class ExistingChromeConnection {
   private browser: Browser | null = null;
   private connecting: Promise<Browser> | null = null;
   private closed = false;
   private endpoint: string | null = null;
   private transport: RetainedChromeTransport | null = null;
-  state(): ReturnType<RetainedChromeTransport['state']> {
-    return this.closed
-      ? 'unavailable'
-      : (this.transport?.state() ?? (this.connecting ? 'awaiting-browser' : 'not-requested'));
+  private fileKey: string | null = null;
+  private openTargetUrl: string | null = null;
+  private activeSessions = 0;
+  state(): ReturnType<RetainedChromeTransport['state']> | 'initializing' {
+    if (this.closed) return 'unavailable';
+    const transport = this.transport?.state();
+    if (transport === 'connected')
+      return this.browser?.isConnected() ? 'connected' : 'initializing';
+    return transport ?? (this.connecting ? 'awaiting-browser' : 'not-requested');
   }
 
   async open(options: ChromeSessionOptions, signal?: AbortSignal): Promise<ChromeSession> {
     signal?.throwIfAborted();
     if (this.closed) throw new Error('CHROME_CONNECTION_CLOSED');
-    if (options.url !== undefined) parseFigmaTarget(options.url);
+    const requestedFileKey =
+      options.url === undefined ? null : parseFigmaTarget(options.url).fileKey;
+    const openTargetUrl =
+      options.openIfMissing && options.url ? parseFigmaTarget(options.url).url : null;
     const endpoint = options.cdp ?? 'chrome';
     if (this.endpoint !== null && this.endpoint !== endpoint)
       throw new Error('CHROME_CONNECTION_ENDPOINT_CHANGED');
+    const changeFile = this.fileKey !== requestedFileKey;
+    // The transport reads the opening intent while it initializes, so it must not change underneath it.
+    if (
+      (changeFile || openTargetUrl !== this.openTargetUrl) &&
+      (this.connecting || this.activeSessions)
+    )
+      throw new Error('CHROME_SOURCE_BUSY: another source acquisition is active');
+    this.fileKey = requestedFileKey;
+    this.openTargetUrl = openTargetUrl;
     this.endpoint = endpoint;
     if (this.browser?.isConnected() === false) this.browser = null;
-    if (!this.browser) {
+    if (
+      changeFile ||
+      this.connecting ||
+      !this.browser ||
+      this.transport?.state() === 'unavailable'
+    ) {
       if (!this.connecting) {
         const pending = (async () => {
-          this.transport ??= await createRetainedChromeTransport(await chromeEndpoint(options));
+          if (changeFile && this.browser) {
+            // Retain the approved remote socket while replacing only the local Playwright view.
+            await this.browser.close();
+            this.browser = null;
+          }
+          if (this.transport?.state() === 'unavailable') {
+            const obsolete = this.transport;
+            const staleBrowser = this.browser;
+            this.transport = null;
+            this.browser = null;
+            await obsolete.close();
+            if (staleBrowser) await staleBrowser.close();
+          }
+          this.transport ??= await createRetainedChromeTransport(await chromeEndpoint(options), {
+            missingTargetUrl: () => this.openTargetUrl,
+            matchesTarget: url => {
+              try {
+                const target = parseFigmaTarget(url);
+                return this.fileKey === null || target.fileKey === this.fileKey;
+              } catch {
+                return false;
+              }
+            },
+          });
           if (this.closed) {
             await this.transport.close();
             throw new Error('CHROME_CONNECTION_CLOSED');
           }
           try {
             return await chromium.connectOverCDP(this.transport.endpoint, {
-              timeout: 300_000,
+              timeout: options.connectionTimeoutMs ?? 300_000,
               noDefaults: true,
               headers: this.transport.headers,
             });
           } catch (cause) {
             // The authenticated local client may time out; the one Chrome permission request remains alive.
+            const targetFailure = [
+              'FIGMA_TAB_NOT_FOUND',
+              'CHROME_TARGET_AMBIGUOUS',
+              'CHROME_CONTEXT_AMBIGUOUS',
+              'FIGMA_URL_INVALID',
+            ].find(code => cause instanceof Error && cause.message.includes(code));
+            if (targetFailure) throw new Error(targetFailure, { cause });
+            const initializedTransport = this.transport.state() === 'connected';
+            if (initializedTransport)
+              console.error('[chrome] initialization incomplete', this.transport.diagnostics());
             throw new Error(
-              'CHROME_CONNECTION_REQUIRED: the existing Chrome connection is not ready',
+              initializedTransport
+                ? 'CHROME_INITIALIZATION_TIMEOUT: Chrome accepted the connection but Playwright could not finish browser initialization'
+                : 'CHROME_CONNECTION_REQUIRED: the existing Chrome connection is not ready',
               { cause },
             );
           }
@@ -167,12 +236,74 @@ export class ExistingChromeConnection {
     }
     signal?.throwIfAborted();
     if (this.closed) throw new Error('CHROME_CONNECTION_CLOSED');
+    if (openTargetUrl) await this.openSource(openTargetUrl, requestedFileKey, options, signal);
     // Capture completion releases its logical session, never the shared CDP transport.
-    return waitLogically(
-      selectExistingFigma(this.browser!, options, async () => {}),
-      signal,
-      session => session.close(),
-    );
+    this.activeSessions++;
+    let released = false;
+    const release = async () => {
+      if (released) return;
+      released = true;
+      this.activeSessions--;
+    };
+    try {
+      const session = await waitLogically(
+        selectExistingFigma(this.browser!, options, release),
+        signal,
+        selected => selected.close(),
+      );
+      // The requested source is selected: a tab opened for it now belongs to the owner.
+      if (openTargetUrl) this.transport?.releaseCreatedTargets();
+      return session;
+    } catch (error) {
+      await release();
+      throw error;
+    }
+  }
+
+  private async openSource(
+    url: string,
+    fileKey: string | null,
+    options: ChromeSessionOptions,
+    signal?: AbortSignal,
+  ): Promise<void> {
+    const pages = this.browser!.contexts().flatMap(context => context.pages());
+    if (pages.length !== 1) throw new Error('CHROME_TARGET_AMBIGUOUS');
+    const page = pages[0]!;
+    try {
+      if (page.url() === 'about:blank')
+        await waitLogically(
+          page.goto(url, { waitUntil: 'domcontentloaded', timeout: 60_000 }),
+          signal,
+        );
+      await waitLogically(
+        page.waitForURL(
+          candidate => {
+            try {
+              return parseFigmaTarget(candidate.href).fileKey === fileKey;
+            } catch {
+              return false;
+            }
+          },
+          {
+            waitUntil: 'domcontentloaded',
+            timeout: Math.min(options.connectionTimeoutMs ?? 60_000, 60_000),
+          },
+        ),
+        signal,
+      );
+    } catch (error) {
+      signal?.throwIfAborted();
+      // A sign-in redirect or another destination never reaches the requested file.
+      if (/\/login(?:[/?]|$)/u.test(page.url()))
+        throw new Error('FIGMA_LOGIN_REQUIRED: sign in inside the existing Figma tab', {
+          cause: error,
+        });
+      if ((error as { name?: unknown } | null)?.name === 'TimeoutError')
+        throw new Error('FIGMA_TAB_NOT_FOUND: the requested Figma file did not open', {
+          cause: error,
+        });
+      throw error;
+    }
   }
 
   async close(): Promise<void> {

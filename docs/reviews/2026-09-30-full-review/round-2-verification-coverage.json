@@ -1,0 +1,313 @@
+[
+  {
+    "path": "service/SBOM.spdx.json",
+    "depth": "metadata",
+    "notes": "Baseline SHA-256 matches=True. Parsed SPDX2.3, all 51 packages and 51 relationships; notice headings=45; non-@sfp packages absent from headings=1 (the first-party super-figma-pipeline root, not a missing dependency notice); namespace lock digest current=False. Platform-specific installed-production inventory; not complete cross-platform/license certification."
+  },
+  {
+    "path": "service/THIRD_PARTY_NOTICES.md",
+    "depth": "metadata",
+    "notes": "Baseline SHA-256 matches=True. Read header and all 45 package/version headings, declared-license labels and SBOM package correspondence. Repeated full license paragraphs were not individually reread."
+  },
+  {
+    "path": "service/capabilities/change-manifests/task-7a.json",
+    "depth": "metadata",
+    "notes": "Baseline SHA-256 matches=True. Parsed every change row: slice=7A; rows=58; statuses=A:37,M:21; duplicate paths=0; malformed nonnull hashes=0; unsafe paths=0; authorityPaths=4. Historical row digests are not treated as current-source acceptance."
+  },
+  {
+    "path": "service/capabilities/change-manifests/task-7b.json",
+    "depth": "metadata",
+    "notes": "Baseline SHA-256 matches=True. Parsed every change row: slice=7B; rows=48; statuses=A:36,M:12; duplicate paths=0; malformed nonnull hashes=0; unsafe paths=0; authorityPaths=4. Historical row digests are not treated as current-source acceptance."
+  },
+  {
+    "path": "service/capabilities/change-manifests/task-7c.json",
+    "depth": "metadata",
+    "notes": "Baseline SHA-256 matches=True. Parsed every change row: slice=7C; rows=48; statuses=A:28,M:20; duplicate paths=0; malformed nonnull hashes=0; unsafe paths=0; authorityPaths=4. Historical row digests are not treated as current-source acceptance."
+  },
+  {
+    "path": "service/capabilities/change-manifests/task-8a.json",
+    "depth": "metadata",
+    "notes": "Baseline SHA-256 matches=True. Parsed every change row: slice=8A; rows=65; statuses=M:54,A:9,D:2; duplicate paths=0; malformed nonnull hashes=0; unsafe paths=0; authorityPaths=4. Historical row digests are not treated as current-source acceptance."
+  },
+  {
+    "path": "service/capabilities/change-manifests/task-8b.json",
+    "depth": "metadata",
+    "notes": "Baseline SHA-256 matches=True. Parsed every change row: slice=8B; rows=20; statuses=A:8,M:12; duplicate paths=0; malformed nonnull hashes=0; unsafe paths=0; authorityPaths=4. Historical row digests are not treated as current-source acceptance."
+  },
+  {
+    "path": "service/capabilities/change-manifests/task-review-2026-09-05.json",
+    "depth": "metadata",
+    "notes": "Baseline SHA-256 matches=True. Parsed every change row: slice=review-2026-09-05; rows=93; statuses=M:60,A:32,D:1; duplicate paths=0; malformed nonnull hashes=0; unsafe paths=0; authorityPaths=4. Historical row digests are not treated as current-source acceptance."
+  },
+  {
+    "path": "service/capabilities/change-manifests/task-review-2026-09-06.json",
+    "depth": "metadata",
+    "notes": "Baseline SHA-256 matches=True. Parsed every change row: slice=review-2026-09-06; rows=238; statuses=M:126,A:111,D:1; duplicate paths=0; malformed nonnull hashes=0; unsafe paths=0; authorityPaths=4. Historical row digests are not treated as current-source acceptance."
+  },
+  {
+    "path": "service/capabilities/change-manifests/task-review-2026-09-07.json",
+    "depth": "metadata",
+    "notes": "Baseline SHA-256 matches=True. Parsed every change row: slice=review-2026-09-07; rows=242; statuses=M:128,A:113,D:1; duplicate paths=0; malformed nonnull hashes=0; unsafe paths=0; authorityPaths=4. Historical row digests are not treated as current-source acceptance."
+  },
+  {
+    "path": "service/capabilities/change-manifests/task-review-2026-09-08.json",
+    "depth": "metadata",
+    "notes": "Baseline SHA-256 matches=True. Parsed every change row: slice=review-2026-09-08; rows=298; statuses=M:138,A:159,D:1; duplicate paths=0; malformed nonnull hashes=0; unsafe paths=0; authorityPaths=4. Historical row digests are not treated as current-source acceptance."
+  },
+  {
+    "path": "service/capabilities/change-manifests/task-review-2026-09-10.json",
+    "depth": "metadata",
+    "notes": "Baseline SHA-256 matches=True. Parsed every change row: slice=review-2026-09-10; rows=316; statuses=M:145,A:170,D:1; duplicate paths=0; malformed nonnull hashes=0; unsafe paths=0; authorityPaths=4. Historical row digests are not treated as current-source acceptance."
+  },
+  {
+    "path": "service/capabilities/figmosha-feature-map.json",
+    "depth": "metadata",
+    "notes": "Baseline SHA-256 matches=True. Parsed all 20 helpers and 12 parsers; union helper exact=True; union parser exact=True. Checked implementation/test path references."
+  },
+  {
+    "path": "service/capabilities/rust-tool-compat.json",
+    "depth": "metadata",
+    "notes": "Baseline SHA-256 matches=True. Parsed all 114 tool compatibility rows; duplicate names=0; committed union lexical surface exact=True. Original contracts retained; no upstream code executed."
+  },
+  {
+    "path": "service/capabilities/task-7a-authority-classes.json",
+    "depth": "metadata",
+    "notes": "Baseline SHA-256 matches=True. Parsed all allowedPaths: slice=7A; rows=68; duplicates=0; unsafe=0. Read retained scope declarations."
+  },
+  {
+    "path": "service/capabilities/task-7b-authority-classes.json",
+    "depth": "metadata",
+    "notes": "Baseline SHA-256 matches=True. Parsed all allowedPaths: slice=7B; rows=54; duplicates=0; unsafe=0. Read retained scope declarations."
+  },
+  {
+    "path": "service/capabilities/task-7c-authority-classes.json",
+    "depth": "metadata",
+    "notes": "Baseline SHA-256 matches=True. Parsed all allowedPaths: slice=7C; rows=67; duplicates=0; unsafe=0. Read retained scope declarations."
+  },
+  {
+    "path": "service/capabilities/task-8a-authority-classes.json",
+    "depth": "metadata",
+    "notes": "Baseline SHA-256 matches=True. Parsed all allowedPaths: slice=8A; rows=71; duplicates=0; unsafe=0. Read retained scope declarations."
+  },
+  {
+    "path": "service/capabilities/task-8b-authority-classes.json",
+    "depth": "metadata",
+    "notes": "Baseline SHA-256 matches=True. Parsed all allowedPaths: slice=8B; rows=27; duplicates=0; unsafe=0. Read retained scope declarations."
+  },
+  {
+    "path": "service/capabilities/task-review-2026-09-05-authority-classes.json",
+    "depth": "metadata",
+    "notes": "Baseline SHA-256 matches=True. Parsed all allowedPaths: slice=review-2026-09-05; rows=97; duplicates=0; unsafe=0. Read retained scope declarations."
+  },
+  {
+    "path": "service/capabilities/task-review-2026-09-06-authority-classes.json",
+    "depth": "metadata",
+    "notes": "Baseline SHA-256 matches=True. Parsed all allowedPaths: slice=review-2026-09-06; rows=242; duplicates=0; unsafe=0. Read retained scope declarations."
+  },
+  {
+    "path": "service/capabilities/task-review-2026-09-07-authority-classes.json",
+    "depth": "metadata",
+    "notes": "Baseline SHA-256 matches=True. Parsed all allowedPaths: slice=review-2026-09-07; rows=246; duplicates=0; unsafe=0. Read retained scope declarations."
+  },
+  {
+    "path": "service/capabilities/task-review-2026-09-08-authority-classes.json",
+    "depth": "metadata",
+    "notes": "Baseline SHA-256 matches=True. Parsed all allowedPaths: slice=review-2026-09-08; rows=302; duplicates=0; unsafe=0. Read retained scope declarations."
+  },
+  {
+    "path": "service/capabilities/task-review-2026-09-10-authority-classes.json",
+    "depth": "metadata",
+    "notes": "Baseline SHA-256 matches=True. Parsed all allowedPaths: slice=review-2026-09-10; rows=320; duplicates=0; unsafe=0. Read retained scope declarations."
+  },
+  {
+    "path": "service/capabilities/union-manifest.json",
+    "depth": "metadata",
+    "notes": "Baseline SHA-256 matches=True. Parsed every canonical row: tools=128; duplicate names=0; missing implementation/test paths=0; lexical=114; helpers=20; parsers=12. Registry-derived runtime contract hashes not regenerated."
+  },
+  {
+    "path": "service/packages/mcp/test/plugin-contract.json",
+    "depth": "metadata",
+    "notes": "Baseline SHA-256 matches=True. Parsed minPluginVersion=0.5.0 and all 109 tool parameter inventories; nonarray/non-null rows=0; duplicate parameter names=0. Compared tool name inventory to committed canonical surface; runtime regeneration/parity not executed."
+  },
+  {
+    "path": "service/packages/mcp/test/portal/fixtures/native-vite-lock.json",
+    "depth": "metadata",
+    "notes": "Baseline SHA-256 matches=True. Read lock v3/root package pins: React/react-dom19.2.8, Vite8.2.2, TypeScript6.0.3, Playwright1.63.0 and plugin-react6.1.1. Inspected all 50 integrity declarations by pattern and all 50 npm-registry resolved URLs; all integrity strings have SHA-512/base64 shape. Windows PowerShell JSON conversion rejects the valid empty root-package key; no false parsed-shape conclusion carried forward. Not installed/executed."
+  },
+  {
+    "path": "service/pnpm-lock.yaml",
+    "depth": "metadata",
+    "notes": "Baseline SHA-256 matches=True. Read lock/settings/importer opening; counted all 364 SHA-512 resolution rows; compared actual lock digest to SBOM namespace. Dependency graph was not resolved or installed and transitive records were not individually reread."
+  },
+  {
+    "path": "service/test/known-failures.json",
+    "depth": "metadata",
+    "notes": "Baseline SHA-256 matches=True. Parsed every 90 ledger row; duplicate file/test keys=0; missing referenced files=0; empty failureIncludes=0; findings=K1:17,SVC-1:13,K5:60. Ledgered defects remain failures."
+  },
+  {
+    "path": "service/upstream-lock.json",
+    "depth": "metadata",
+    "notes": "Baseline SHA-256 matches=True. Parsed all 1112 protected/managed hash rows; mismatches=263; unique drift paths=149; fork rows=83; review-date rows=59; vendor-map digest matches=True; license hashes=figma-mcp-rust:True,figmosha2:True,figwright:True. Read-only comparison, not execution of the provenance verifier."
+  },
+  {
+    "path": "service/vendor-map.json",
+    "depth": "metadata",
+    "notes": "Baseline SHA-256 matches=True. Parsed all 333 rows; modes=referenceOnly:19,copy:312,mergeDependencyManifest:2; duplicate source/mode keys=0; malformed base/current digests=0. Origin commit checked against upstream lock."
+  },
+  {
+    "path": "service/vendor-rules.json",
+    "depth": "metadata",
+    "notes": "Baseline SHA-256 matches=True. Parsed all rule arrays: copy=13; merge=4; referenceOnly=19; exclude=497; serviceOwned=367. Checked pinned origin and path-list duplicate shapes; glob semantics are not a full semantic reread."
+  },
+  {
+    "path": "AGENTS.md",
+    "depth": "full",
+    "notes": "Complete document snapshot read, lines 1-8. Static inspection only; no repository runtime execution."
+  },
+  {
+    "path": "docs/reviews/2026-09-30-full-review/review-brief.md",
+    "depth": "full",
+    "notes": "Complete document snapshot read, lines 1-32. Static inspection only; no repository runtime execution."
+  },
+  {
+    "path": "docs/plans/2026-09-30-code-remediation-plan.md",
+    "depth": "full",
+    "notes": "Complete document snapshot read, lines 1-198. Static inspection only; no repository runtime execution. Evolving draft was read through its original complete body; a truncated prepared-profile sentence was reread, and all added bootstrap/scope/migration revisions and current completion text through line 198 were reread."
+  },
+  {
+    "path": "docs/reviews/2026-09-30-full-review/round-1-analysis.md",
+    "depth": "full",
+    "notes": "Complete document snapshot read, lines 1-138. Static inspection only; no repository runtime execution."
+  },
+  {
+    "path": "docs/reviews/2026-09-30-full-review/round-1-contracts.md",
+    "depth": "full",
+    "notes": "Complete document snapshot read, lines 1-60. Static inspection only; no repository runtime execution."
+  },
+  {
+    "path": "docs/reviews/2026-09-30-full-review/round-1-portal.md",
+    "depth": "full",
+    "notes": "Complete document snapshot read, lines 1-128. Static inspection only; no repository runtime execution."
+  },
+  {
+    "path": "docs/reviews/2026-09-30-full-review/round-1-platform.md",
+    "depth": "full",
+    "notes": "Complete document snapshot read, lines 1-153. Static inspection only; no repository runtime execution."
+  },
+  {
+    "path": "docs/reviews/2026-09-30-full-review/round-1-capture.md",
+    "depth": "full",
+    "notes": "Complete document snapshot read, lines 1-117. Static inspection only; no repository runtime execution."
+  },
+  {
+    "path": "docs/reviews/2026-09-30-full-review/round-1-verification.md",
+    "depth": "full",
+    "notes": "Complete document snapshot read, lines 1-159. Static inspection only; no repository runtime execution."
+  },
+  {
+    "path": "docs/reviews/2026-09-30-full-review/round-2-contracts.md",
+    "depth": "full",
+    "notes": "Complete document snapshot read, lines 1-54. Static inspection only; no repository runtime execution."
+  },
+  {
+    "path": "docs/reviews/2026-09-30-full-review/round-2-platform.md",
+    "depth": "full",
+    "notes": "Complete document snapshot read, lines 1-96. Static inspection only; no repository runtime execution."
+  },
+  {
+    "path": "docs/reviews/2026-09-30-full-review/round-1-main-disposition.md",
+    "depth": "full",
+    "notes": "Complete document snapshot read, lines 1-64. Static inspection only; no repository runtime execution."
+  },
+  {
+    "path": "docs/reviews/2026-09-30-full-review/main-verification-notes.md",
+    "depth": "full",
+    "notes": "Complete document snapshot read, lines 1-70. Static inspection only; no repository runtime execution."
+  },
+  {
+    "path": "service/scripts/test-skip-census.mjs",
+    "depth": "full",
+    "notes": "Complete source/config/test body read, lines 1-146. Static inspection only; no repository runtime execution."
+  },
+  {
+    "path": "service/scripts/check-test-report.mjs",
+    "depth": "full",
+    "notes": "Complete source/config/test body read, lines 1-277. Static inspection only; no repository runtime execution."
+  },
+  {
+    "path": "service/scripts/run-source-checks.mjs",
+    "depth": "full",
+    "notes": "Complete source/config/test body read, lines 1-157. Static inspection only; no repository runtime execution."
+  },
+  {
+    "path": ".github/workflows/service-ci.yml",
+    "depth": "full",
+    "notes": "Complete source/config/test body read, lines 1-187. Static inspection only; no repository runtime execution."
+  },
+  {
+    "path": "service/scripts/update-service-forks.mjs",
+    "depth": "targeted",
+    "notes": "Actual body ranges read: 372-478, 510-562, 795-850. Not read in this perspective: 1-371, 479-509, 563-794; total 850 lines. Targeted static countercheck; prior complete lane coverage is separate."
+  },
+  {
+    "path": "service/scripts/verify-upstream-lock.mjs",
+    "depth": "targeted",
+    "notes": "Actual body ranges read: 52-90, 255-290, 447-467. Not read in this perspective: 1-51, 91-254, 291-446, 468-881; total 881 lines. Targeted static countercheck; prior complete lane coverage is separate."
+  },
+  {
+    "path": "service/schemas/upstream-lock-v2.schema.json",
+    "depth": "full",
+    "notes": "Complete source/config/test body read, lines 1-135. Static inspection only; no repository runtime execution."
+  },
+  {
+    "path": "service/packages/mcp/src/portal/native-work.ts",
+    "depth": "targeted",
+    "notes": "Actual body ranges read: 84-213, 320-372, 1490-1540. Not read in this perspective: 1-83, 214-319, 373-1489, 1541-1713; total 1713 lines. Targeted static countercheck; prior complete lane coverage is separate."
+  },
+  {
+    "path": "service/packages/mcp/src/portal/native-lifecycle.ts",
+    "depth": "targeted",
+    "notes": "Actual body ranges read: 492-540, 550-585. Not read in this perspective: 1-491, 541-549; total 585 lines. Targeted static countercheck; prior complete lane coverage is separate."
+  },
+  {
+    "path": "service/packages/mcp/test/portal/fixtures/native-vite-package.json",
+    "depth": "full",
+    "notes": "Complete source/config/test body read, lines 1-25. Static inspection only; no repository runtime execution."
+  },
+  {
+    "path": "service/scripts/generate-sbom.mjs",
+    "depth": "full",
+    "notes": "Complete source/config/test body read, lines 1-33. Static inspection only; no repository runtime execution."
+  },
+  {
+    "path": "service/scripts/release-common.mjs",
+    "depth": "full",
+    "notes": "Complete source/config/test body read, lines 1-94. Static inspection only; no repository runtime execution."
+  },
+  {
+    "path": "service/test/test-skip-census.test.ts",
+    "depth": "full",
+    "notes": "Complete source/config/test body read, lines 1-143. Static inspection only; no repository runtime execution."
+  },
+  {
+    "path": "service/test/check-test-report.test.ts",
+    "depth": "full",
+    "notes": "Complete source/config/test body read, lines 1-186. Static inspection only; no repository runtime execution."
+  },
+  {
+    "path": "docs/reviews/2026-09-30-full-review/round-2-capture.md",
+    "depth": "full",
+    "notes": "Complete document snapshot read, lines 1-66. Static inspection only; no repository runtime execution. Own preceding rotated capture perspective, reread completely here; no fresh independent reviewer identity is claimed."
+  },
+  {
+    "path": "docs/reviews/2026-09-30-full-review/round-2-closure-assignments.json",
+    "depth": "metadata",
+    "notes": "Parsed metadataRecheck assignment and all 32 path/size/lane records. No mandatory code closure assigned to this sixth perspective; unrelated closure bodies not claimed reviewed."
+  },
+  {
+    "path": "docs/reviews/2026-09-30-full-review/source-manifest.json",
+    "depth": "metadata",
+    "notes": "Parsed baseline file/path/hash inventory and looked up all 32 metadataRecheck baseline SHA-256 values; every assigned metadata artifact matches. Not a semantic reread of every source file."
+  }
+]
+

@@ -26,7 +26,7 @@ type AutoLayoutTarget = {
 
 export const createSetAutoLayoutHandler =
   (figmaCtx: typeof figma): SandboxToolHandler =>
-  async params => {
+  async (params, execution) => {
     const p = (params ?? {}) as Record<string, unknown>;
     if (typeof p.nodeId !== 'string')
       throw new TypeError('set_auto_layout: nodeId must be a string');
@@ -36,6 +36,7 @@ export const createSetAutoLayoutHandler =
       );
     }
     const node = await figmaCtx.getNodeByIdAsync(p.nodeId);
+    execution?.signal.throwIfAborted();
     if (node === null || !('layoutMode' in node)) {
       throw new Error(`set_auto_layout: node ${p.nodeId} not found or has no auto layout`);
     }

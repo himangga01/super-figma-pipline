@@ -168,7 +168,7 @@ describe('RepoReader bounded traversal', () => {
     expect(new Set(runs.map(files => files.join('\n'))).size).toBe(1);
   });
 
-  it('rejects a junction/reparse directory instead of reading through it', async () => {
+  it('rejects a junction/reparse directory instead of reading through it', async context => {
     const root = await repository({ 'owned/Secret.ts': 'owned' });
     await mkdir(join(root, 'src'), { recursive: true });
     try {
@@ -178,7 +178,10 @@ describe('RepoReader bounded traversal', () => {
         process.platform === 'win32' ? 'junction' : 'dir',
       );
     } catch (error) {
-      if ((error as NodeJS.ErrnoException).code === 'EPERM') return;
+      if ((error as NodeJS.ErrnoException).code === 'EPERM')
+        context.skip(
+          'Creating a symbolic link needs the Windows symlink privilege (Developer Mode or elevation)',
+        );
       throw error;
     }
     await expect(
@@ -243,5 +246,44 @@ describe('walkRepoFiles compatibility generator', () => {
   it('delegates to the same sandbox, extension filter, and deterministic ordering', async () => {
     const root = await repository({ 'b.css': 'b', 'a.css': 'a', 'c.ts': 'c' });
     expect(await filesFromGenerator(root, { extensions: ['.css'] })).toEqual(['a.css', 'b.css']);
+  });
+});
+
+describe('RepoReader portal-source-authority policy (T26)', () => {
+  it('excludes generated-output directories by entry kind and keeps same-named files', async () => {
+    const root = await repository({
+      build: '#!/bin/sh\necho build script',
+      out: 'plain file named out',
+      'dist/bundle.js': 'generated',
+      'packages/app/Target/debug.bin': 'generated',
+      'src/index.ts': 'export {};',
+    });
+    const walked = await new RepoReader({ rootDir: root }).walk({
+      mode: 'portal-source-authority',
+    });
+    expect(walked.files).toEqual(['build', 'out', 'src/index.ts']);
+    expect(walked.exclusions).toEqual([
+      { path: 'dist', kind: 'directory', reason: 'generated-output' },
+      { path: 'packages/app/Target', kind: 'directory', reason: 'generated-output' },
+    ]);
+    expect(walked.issues).toEqual([]);
+  });
+
+  it('names every unsafe entry with an escaped path and continues the scan', async () => {
+    const root = await repository({
+      'a/cafe\u0301.ts': 'decomposed',
+      'b/\u1112\u1161\u11ab/nested.ts': 'decomposed directory',
+      'c/kept.ts': 'kept',
+    });
+    const walked = await new RepoReader({ rootDir: root }).walk({
+      mode: 'portal-source-authority',
+    });
+    expect(walked.issues).toEqual([
+      { code: 'REPO_SOURCE_PATH_UNSAFE', path: 'a/cafe%CC%81.ts' },
+      { code: 'REPO_SOURCE_PATH_UNSAFE', path: 'b/%E1%84%92%E1%85%A1%E1%86%AB' },
+    ]);
+    // The unsafe directory is not entered; later entries are still walked.
+    expect(walked.files).toEqual(['c/kept.ts']);
+    expect(walked.truncated).toBe(false);
   });
 });

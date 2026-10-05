@@ -160,6 +160,28 @@ it('requires source-bound configured integration hints and rejects corrupt sourc
     }).issues.some(item => item.code === 'SOURCE_HASH_MISMATCH'),
   ).toBe(true);
 });
+it('binds capability hints to original BOM-prefixed bytes and rejects stale byte identity', () => {
+  const text = 'export const integration = "calendar";';
+  const bytes = Buffer.concat([Buffer.from([0xef, 0xbb, 0xbf]), Buffer.from(text)]);
+  const hint = {
+    kind: 'configured-integration' as const,
+    sourceId: 'reference:0',
+    path: 'src/integrations.ts',
+    hash: `sha256:${createHash('sha256').update(bytes).digest('hex')}`,
+    bytes,
+    text: new TextDecoder('utf-8', { fatal: true }).decode(bytes),
+    designNodeIds: ['sync'],
+  };
+  const design = {
+    nodes: [{ id: 'settings', name: 'Integrations', children: [button('sync', 'Sync calendar')] }],
+  };
+  const result = analyzePortalWorkflows(design, 'operational-portal', { sourceHints: [hint] });
+  expect(result.candidates.some(item => item.kind === 'configured-integration')).toBe(true);
+  const stale = analyzePortalWorkflows(design, 'operational-portal', {
+    sourceHints: [{ ...hint, bytes: Buffer.from(text) }],
+  });
+  expect(stale.issues.some(item => item.code === 'SOURCE_HASH_MISMATCH')).toBe(true);
+});
 
 it('retains unmatched required interactions and avoids prose-only mutation inference', () => {
   const unknown = analyzePortalWorkflows(

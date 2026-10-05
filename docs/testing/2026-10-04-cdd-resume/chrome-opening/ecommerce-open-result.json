@@ -1,0 +1,9 @@
+{
+  "recordedAt": "2026-10-04T09:18:04.838Z",
+  "command": "service CLI chrome-open --url https://www.figma.com/design/4IBhv1d8hEclifZQrOYxHS?node-id=0-1 --wait 120",
+  "status": "attached-existing-chrome",
+  "url": "https://www.figma.com/design/4IBhv1d8hEclifZQrOYxHS?node-id=0-1",
+  "title": "eCommerce Website | Web Page Design | UI KIT | Interior Landing Page (Community) ? Figma",
+  "exitCode": 0,
+  "externalControllerUsed": false
+}

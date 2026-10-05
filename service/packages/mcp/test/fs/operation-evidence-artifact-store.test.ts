@@ -332,8 +332,8 @@ describe('operation evidence result artifact store', () => {
     await expect(readFile(join(movedOperation, 'result.v1.json'))).resolves.toEqual(bytes);
   });
 
-  it('releases a Windows directory lease on every post-acquire validation failure', async () => {
-    if (process.platform !== 'win32') return;
+  it('releases a Windows directory lease on every post-acquire validation failure', async context => {
+    if (process.platform !== 'win32') context.skip('Windows directory leases exist only on win32');
     const sandbox = await mkdtemp(join(tmpdir(), 'sfp-result-post-acquire-release-'));
     roots.push(sandbox);
     const { workspaceRoot, workspaceId, policy } = await realWorkspaceAuthority(sandbox);
@@ -636,6 +636,41 @@ describe('operation evidence result artifact store', () => {
     expect(absenceProofs).toBe(0);
   });
 
+  it('treats a verifiably missing operation directory as already removed (T09, LC-1)', async () => {
+    const root = await mkdtemp(join(tmpdir(), 'sfp-artifact-missing-operation-directory-'));
+    roots.push(root);
+    const { workspaceRoot, workspaceId, policy } = await realWorkspaceAuthority(root);
+    const operationId = 'operation-missing-directory';
+    const options = createToolInvocationOptions(true, operationId, workspaceId);
+    const store = new OperationEvidenceArtifactStore({
+      workspacePolicy: policy,
+      atomicFiles: new AtomicFileStore(),
+    });
+    const bytes = Buffer.from('{"ok":true}', 'utf8');
+    const artifact = await store.createNew({
+      workspaceId,
+      operationId,
+      intent: options.captureIntent,
+      canonicalRedactedBytes: bytes,
+      resultSchemaHash: `sha256:${'a'.repeat(64)}`,
+      resultHash: `sha256:${createHash('sha256').update(bytes).digest('hex')}`,
+    });
+    // The owner deleted the workspace's .sfp folder; the registered workspace itself is intact.
+    await rm(join(workspaceRoot, '.sfp'), { recursive: true, force: true });
+
+    await expect(
+      store.removeLinked({ workspaceId, operationId, artifact }),
+    ).resolves.toBeUndefined();
+    // Other refusals are unchanged: a path that is not the fixed operation path still fails.
+    await expect(
+      store.removeLinked({
+        workspaceId,
+        operationId: 'operation-other',
+        artifact,
+      }),
+    ).rejects.toMatchObject({ code: 'EVIDENCE_ARTIFACT_IDENTITY_MISMATCH' });
+  });
+
   it('recovers a receipt cleanup crash after removeLinked and durably completes the intent', async () => {
     const root = await mkdtemp(join(tmpdir(), 'sfp-artifact-receipt-cleanup-restart-'));
     roots.push(root);
@@ -691,6 +726,8 @@ describe('operation evidence result artifact store', () => {
       linkedAt: observed => (observed === operationId ? completedAt : null),
     });
 
+    // Since T09 the drain isolates each intent: the injected failure after removeLinked is recorded
+    // as a durable failed attempt instead of aborting the drain, and the intent stays pending.
     await expect(
       receipts.drainPendingArtifactCleanup(async receipt => {
         await artifacts.removeLinked({
@@ -700,7 +737,18 @@ describe('operation evidence result artifact store', () => {
         });
         throw Object.assign(new Error('injected cleanup crash'), { code: 'TEST_CLEANUP_CRASH' });
       }),
-    ).rejects.toMatchObject({ code: 'TEST_CLEANUP_CRASH' });
+    ).resolves.toEqual({
+      results: [
+        {
+          operationId,
+          workspaceId,
+          outcome: 'failed',
+          errorCode: 'TEST_CLEANUP_CRASH',
+          attempts: 1,
+        },
+      ],
+      next: null,
+    });
     await expect(stat(target)).rejects.toMatchObject({ code: 'ENOENT' });
 
     const restarted = new OperationEvidenceReceiptStore({ stateRoot, actorId });
@@ -1483,7 +1531,7 @@ describe('operation evidence result artifact store', () => {
     },
   );
 
-  it('preserves a linked marker when its same-inode parent moves outside the workspace behind a junction', async () => {
+  it('preserves a linked marker when its same-inode parent moves outside the workspace behind a junction', async context => {
     const sandbox = await mkdtemp(join(tmpdir(), 'sfp-linked-marker-parent-reparse-'));
     roots.push(sandbox);
     const workspaceRoot = join(sandbox, 'workspace');
@@ -1496,7 +1544,7 @@ describe('operation evidence result artifact store', () => {
       await unlink(linkProbe);
     } catch (error) {
       if (['EPERM', 'ENOTSUP', 'EACCES'].includes((error as NodeJS.ErrnoException).code ?? '')) {
-        return;
+        context.skip('This host cannot create a directory junction or symbolic link');
       }
       throw error;
     }
@@ -1863,7 +1911,7 @@ describe('operation evidence result artifact store', () => {
     await expect(stat(displaced)).resolves.toBeDefined();
   });
 
-  it('holds the marker parent identity across the asynchronous absence proof', async () => {
+  it('holds the marker parent identity across the asynchronous absence proof', async context => {
     const sandbox = await mkdtemp(join(tmpdir(), 'sfp-marker-absence-parent-reparse-'));
     roots.push(sandbox);
     const workspaceRoot = join(sandbox, 'workspace');
@@ -1876,7 +1924,7 @@ describe('operation evidence result artifact store', () => {
       await unlink(linkProbe);
     } catch (error) {
       if (['EPERM', 'ENOTSUP', 'EACCES'].includes((error as NodeJS.ErrnoException).code ?? '')) {
-        return;
+        context.skip('This host cannot create a directory junction or symbolic link');
       }
       throw error;
     }
@@ -1942,9 +1990,9 @@ describe('operation evidence result artifact store', () => {
     expect(operationDirectoryIsLink).toBe(linked);
   });
 
-  it.each(['hardlink', 'symlink'] as const)(
+  it.for(['hardlink', 'symlink'] as const)(
     'fails closed and preserves a marker-only orphan reached through a %s',
-    async linkKind => {
+    async (linkKind, context) => {
       const root = await mkdtemp(join(tmpdir(), 'sfp-marker-link-'));
       roots.push(root);
       const workspaceId = '123e4567-e89b-42d3-a456-426614174000';
@@ -1981,7 +2029,10 @@ describe('operation evidence result artifact store', () => {
         try {
           await symlink(alias, marker, 'file');
         } catch (error) {
-          if ((error as NodeJS.ErrnoException).code === 'EPERM') return;
+          if ((error as NodeJS.ErrnoException).code === 'EPERM')
+            context.skip(
+              'Creating a symbolic link needs the Windows symlink privilege (Developer Mode or elevation)',
+            );
           throw error;
         }
       }
@@ -2004,7 +2055,7 @@ describe('operation evidence result artifact store', () => {
     },
   );
 
-  it('does not traverse a marker-only operation directory replaced by a junction', async () => {
+  it('does not traverse a marker-only operation directory replaced by a junction', async context => {
     const root = await mkdtemp(join(tmpdir(), 'sfp-marker-junction-'));
     roots.push(root);
     const workspaceId = '123e4567-e89b-42d3-a456-426614174000';
@@ -2039,7 +2090,10 @@ describe('operation evidence result artifact store', () => {
     try {
       await symlink(displaced, operationDirectory, 'junction');
     } catch (error) {
-      if ((error as NodeJS.ErrnoException).code === 'EPERM') return;
+      if ((error as NodeJS.ErrnoException).code === 'EPERM')
+        context.skip(
+          'Creating a symbolic link needs the Windows symlink privilege (Developer Mode or elevation)',
+        );
       throw error;
     }
 

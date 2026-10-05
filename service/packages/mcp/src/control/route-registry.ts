@@ -150,6 +150,10 @@ const WorkspaceRootSchema = z
     realPath: z.string().min(1).max(32_768),
     rootIdentityKey: z.string().min(1).max(1024).optional(),
     addedAt: z.string().datetime({ offset: true }),
+    availability: z.enum(['available', 'unavailable', 'legacy-unbound']).optional(),
+    unavailableReason: z
+      .enum(['WORKSPACE_ROOT_MISSING', 'WORKSPACE_ROOT_IDENTITY_CHANGED'])
+      .optional(),
   })
   .strict();
 const OperationProjectionSchema = z.union([OperationRecordSchema, OperationTombstoneSchema]);
@@ -238,6 +242,17 @@ export const registerTask7ControlRoutes = (
     inputSchema: z.object({ path: z.string().min(1), actionNonce: NonceSchema }).strict(),
     outputSchema: WorkspaceRootSchema.required({ rootIdentityKey: true }),
     handle: async (principal, input) => endpoints.workspaces.add(principal, input),
+  });
+  router.register({
+    id: 'workspace.rebind',
+    method: 'POST',
+    path: '/control/workspaces/:workspaceId/rebind',
+    routeClass: 'admin',
+    inputSchema: z
+      .object({ workspaceId: WorkspaceIdSchema, path: z.string().min(1), actionNonce: NonceSchema })
+      .strict(),
+    outputSchema: WorkspaceRootSchema.required({ rootIdentityKey: true }),
+    handle: async (principal, input) => endpoints.workspaces.rebind(principal, input),
   });
   router.register({
     id: 'workspace.remove',
