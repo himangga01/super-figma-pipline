@@ -28,7 +28,21 @@
 
 ## Reboot handoff
 
+- For the latest reboot request, read [docs/handoff/reboot-2026-10-04-evening.md](docs/handoff/reboot-2026-10-04-evening.md) first. It supersedes the earlier runtime state, preserves the R8/frontend and source-change backups, records the interrupted current-source whole check, and identifies the unresolved R3/R4 control failures. Its final section is the current remaining-work list (09:47 KST, October 5), separated into owner inputs and agent work. Never treat a pending pointer from the stopped check as a pass or replay an unknown-outcome operation automatically.
+- Then read [docs/testing/2026-10-04-ecommerce-parity/control-diagnostics/README.md](docs/testing/2026-10-04-ecommerce-parity/control-diagnostics/README.md) for the continuation after that handoff (October 4, from 21:44 KST, no reboot). It records:
+
+- the HTTP 500 diagnostics and the established R3–R5 cause, a timed-out authorization probe during monitoring;
+- the typed busy and bounded-monitoring repair;
+- the verified code-review findings and repairs;
+- the successful R6 preparation;
+- the memory-interrupted whole check and the later passing whole check `a59a6e15...` at source `ac67794d...`.
+
+Then read [docs/testing/2026-10-04-ecommerce-parity/native-effects/README.md](docs/testing/2026-10-04-ecommerce-parity/native-effects/README.md). It covers the later independent native collector increments (effects, strokes, sizing, text and container fields, 87 compared fields) and the 36 remaining fields. Its source `62023ddd...` still needs a fresh whole check.
+
+It is evidence; `docs/service-analysis.md` remains the canonical analysis.
 - Before resuming after the planned reboot, read [docs/handoff/reboot-2026-10-04.md](docs/handoff/reboot-2026-10-04.md). It records the verified source baseline, generated frontend backup, private state locations, expired egress/run budgets and restart sequence. Recheck live connections after restart and preserve the existing applied output. Continue to use `docs/service-analysis.md` as the canonical analysis authority.
+- For the later October 4 continuation, also read [docs/testing/2026-10-04-cdd-resume/README.md](docs/testing/2026-10-04-cdd-resume/README.md). It records fresh R8 evidence and subsequent repairs after the published reboot baseline. Update that execution record and the canonical analysis after new results; retain earlier failed runs and distinct source fingerprints.
+- Also read [docs/testing/2026-10-04-ecommerce-parity/README.md](docs/testing/2026-10-04-ecommerce-parity/README.md) for the later complete eCommerce preparation and independent field comparison. Keep bounded field parity distinct from complete independent acquisition and final frontend acceptance.
 
 ## Additional final acceptance
 

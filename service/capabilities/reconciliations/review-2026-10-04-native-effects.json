@@ -1,0 +1,74 @@
+{
+  "schemaVersion": 1,
+  "slice": "review-2026-10-04",
+  "baseline": {
+    "headCommit": "5b9343efc82ef47ba56f412acbd4eee5a328d335",
+    "authoritySha256": {
+      "upstream-lock.json": "f522be1825accb6ac1af80e55c48ae92122390c8d702c55269cb3f140d595eb5",
+      "vendor-map.json": "b3275c7d8b997d1cfe723d97594659f77d7b4361b824a790bcfdd7ff762589bd",
+      "vendor-rules.json": "112fa13c7107d08e67f830835c7ad9960cba9626805e9bc232d9bb7c5ce8ade5"
+    }
+  },
+  "entries": [
+    {
+      "path": "capabilities/task-review-2026-10-04-authority-classes.json",
+      "sha256": "974a38f58e6e2e6507b57899e836dd57044b144e1e1302752b6dcec7abb8ac9f",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "a84c06d0a93022cbbf97111819934a101b616620f542a4df08c8bf81a75ba3d5"
+        },
+        {
+          "class": "protected",
+          "sha256": "a84c06d0a93022cbbf97111819934a101b616620f542a4df08c8bf81a75ba3d5"
+        }
+      ],
+      "reason": "Convert native layer/background blurs and drop/inner shadows to Plugin API effects, resolving effect styles over cached copies. Variable-bound, progressive, procedural and malformed effects stay unknown. Separate eCommerce and CDD comparisons now cover effects on all 3,198 and 192 nodes with zero effect differences and zero unexplained differences; neither collector supplied the other. Two regressions failed first."
+    },
+    {
+      "path": "docs/portal-native.md",
+      "sha256": "fe57e29c906b1ce6a3043c7b3d60f43e2080b794fb06a1386b40af2cf651a677",
+      "priorClaims": [
+        {
+          "class": "protected",
+          "sha256": "156a2816ab7d1c2815e012547655a6b5da452a32b8af49b8f2325fcdf303ac91"
+        }
+      ],
+      "reason": "Convert native layer/background blurs and drop/inner shadows to Plugin API effects, resolving effect styles over cached copies. Variable-bound, progressive, procedural and malformed effects stay unknown. Separate eCommerce and CDD comparisons now cover effects on all 3,198 and 192 nodes with zero effect differences and zero unexplained differences; neither collector supplied the other. Two regressions failed first."
+    },
+    {
+      "path": "packages/cli/src/figma-native-effects.ts",
+      "sha256": "2af19aa668b0b5937804c13a7e126b79b863a0771f5271705ffe490ff80a983f",
+      "priorClaims": [],
+      "reason": "Convert native layer/background blurs and drop/inner shadows to Plugin API effects, resolving effect styles over cached copies. Variable-bound, progressive, procedural and malformed effects stay unknown. Separate eCommerce and CDD comparisons now cover effects on all 3,198 and 192 nodes with zero effect differences and zero unexplained differences; neither collector supplied the other. Two regressions failed first."
+    },
+    {
+      "path": "packages/cli/src/figma-native-nodes.ts",
+      "sha256": "179966453e31298376e1e4e5f1b2209d912414ed93041f669c18c96d4254c0a4",
+      "priorClaims": [
+        {
+          "class": "protected",
+          "sha256": "9d9853197b3925e0e0a6ad30c61323704c11cfa67ecafeaa8502775a92f8e818"
+        }
+      ],
+      "reason": "Convert native layer/background blurs and drop/inner shadows to Plugin API effects, resolving effect styles over cached copies. Variable-bound, progressive, procedural and malformed effects stay unknown. Separate eCommerce and CDD comparisons now cover effects on all 3,198 and 192 nodes with zero effect differences and zero unexplained differences; neither collector supplied the other. Two regressions failed first."
+    },
+    {
+      "path": "packages/cli/test/figma-native-effects.test.ts",
+      "sha256": "1589f546cb424e3336d6384a3ebb1d4e1ef4cc2340aef444851b6a307a9475d8",
+      "priorClaims": [],
+      "reason": "Convert native layer/background blurs and drop/inner shadows to Plugin API effects, resolving effect styles over cached copies. Variable-bound, progressive, procedural and malformed effects stay unknown. Separate eCommerce and CDD comparisons now cover effects on all 3,198 and 192 nodes with zero effect differences and zero unexplained differences; neither collector supplied the other. Two regressions failed first."
+    },
+    {
+      "path": "packages/cli/test/figma-native-nodes.test.ts",
+      "sha256": "144bd3b42853fb26118bd5e261f027702225c28720984f3fb1f2148dd2b21e75",
+      "priorClaims": [
+        {
+          "class": "protected",
+          "sha256": "df87061ef1251a5542f0d5a13bee19e2909ed219a6890cecd082b360b8bca8be"
+        }
+      ],
+      "reason": "Convert native layer/background blurs and drop/inner shadows to Plugin API effects, resolving effect styles over cached copies. Variable-bound, progressive, procedural and malformed effects stay unknown. Separate eCommerce and CDD comparisons now cover effects on all 3,198 and 192 nodes with zero effect differences and zero unexplained differences; neither collector supplied the other. Two regressions failed first."
+    }
+  ]
+}

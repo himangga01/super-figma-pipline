@@ -1,0 +1,19 @@
+{
+  "recordedAt": "2026-10-04T09:18:04.834Z",
+  "baseline": "5b9343efc82ef47ba56f412acbd4eee5a328d335",
+  "source": {
+    "main": "sha256:2900ff9be349c3d2841458b9538a630f8711206cd702e0e585d2453dba0126a5",
+    "workingCopy": "sha256:2900ff9be349c3d2841458b9538a630f8711206cd702e0e585d2453dba0126a5"
+  },
+  "review": "service/capabilities/reconciliations/review-2026-10-04-chrome-opening.json",
+  "newReviewedPaths": 7,
+  "semanticChanges": 24,
+  "authorityPaths": 4,
+  "retainedForks": 178,
+  "upstreams": 3,
+  "vendorRows": 238,
+  "mainIndexHash": "5a79352238185329aee8c904a5158b713ba9645d7af966917d09c2930652500a",
+  "manifestVerified": true,
+  "offlineProvenanceVerified": true,
+  "fullSourceChecks": "running"
+}

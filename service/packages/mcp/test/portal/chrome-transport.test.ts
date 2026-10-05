@@ -16,6 +16,7 @@ const fakeChrome = async (
   initiallyAllowed = true,
   unansweredMethod?: string,
   targetInfos: object[] = [],
+  browserContextIds: string[] = [],
 ) => {
   const server = createServer();
   const sockets = new WebSocketServer({ noServer: true });
@@ -55,9 +56,13 @@ const fakeChrome = async (
               ? { product: 'FixtureChrome' }
               : message.method === 'Target.getTargets'
                 ? { targetInfos }
-                : message.method === 'Target.attachToTarget'
-                  ? { sessionId: 'owned-source-session' }
-                  : {},
+                : message.method === 'Target.getBrowserContexts'
+                  ? { browserContextIds }
+                  : message.method === 'Target.createTarget'
+                    ? { targetId: 'created-source' }
+                    : message.method === 'Target.attachToTarget'
+                      ? { sessionId: 'owned-source-session' }
+                      : {},
         }),
       );
     }),
@@ -143,6 +148,155 @@ it('initializes only the selected page and preserves nested target attachment', 
     method: 'Target.setAutoAttach',
     sessionId: 'selected-page-session',
   });
+});
+
+it('opens only the authorized missing source and grants exactly one matching navigation', async () => {
+  const sourceUrl = 'https://www.figma.com/design/openFixtureKey?node-id=0-1';
+  const chrome = await fakeChrome();
+  const bridge = await createRetainedChromeTransport(chrome.endpoint, {
+    matchesTarget: url => url === sourceUrl,
+    missingTargetUrl: () => sourceUrl,
+  });
+  cleanups.push(() => bridge.close());
+  const client = await clientFor(bridge.endpoint, bridge.headers);
+  expect(
+    await reply(client, { id: 1, method: 'Target.setAutoAttach', params: { autoAttach: true } }),
+  ).toEqual({ id: 1, result: { sessionId: 'owned-source-session' } });
+  expect(chrome.commands.map(command => command.method)).toEqual([
+    'Target.getTargets',
+    'Target.getBrowserContexts',
+    'Target.createTarget',
+    'Target.attachToTarget',
+  ]);
+  expect(chrome.commands[2]?.params).toEqual({ url: 'about:blank', newWindow: false });
+  expect(chrome.commands[3]?.params).toEqual({ targetId: 'created-source', flatten: true });
+  const navigate = (id: number, url?: string, sessionId = 'owned-source-session') =>
+    reply(client, { id, method: 'Page.navigate', sessionId, params: { url } });
+  expect(await navigate(2, sourceUrl, 'unrelated-session')).toHaveProperty('error');
+  expect(await navigate(3, 'https://example.test/')).toHaveProperty('error');
+  expect(await navigate(4, undefined)).toHaveProperty('error');
+  expect(await navigate(5, sourceUrl)).toEqual({
+    id: 5,
+    sessionId: 'owned-source-session',
+    result: {},
+  });
+  expect(await navigate(6, sourceUrl)).toHaveProperty('error');
+  expect(
+    await reply(client, { id: 7, method: 'Target.createTarget', params: { url: sourceUrl } }),
+  ).toHaveProperty('error');
+  expect(chrome.commands.filter(command => command.method === 'Page.navigate')).toHaveLength(1);
+});
+
+it('closes only its own unaccepted source tab when the transport closes', async () => {
+  const sourceUrl = 'https://www.figma.com/design/openFixtureKey?node-id=0-1';
+  const chrome = await fakeChrome();
+  const bridge = await createRetainedChromeTransport(chrome.endpoint, {
+    matchesTarget: url => url === sourceUrl,
+    missingTargetUrl: () => sourceUrl,
+  });
+  cleanups.push(() => bridge.close());
+  const client = await clientFor(bridge.endpoint, bridge.headers);
+  await reply(client, { id: 1, method: 'Target.setAutoAttach', params: { autoAttach: true } });
+  expect(
+    await reply(client, {
+      id: 2,
+      method: 'Target.closeTarget',
+      params: { targetId: 'created-source' },
+    }),
+  ).toHaveProperty('error');
+  await bridge.close();
+  expect(chrome.commands.filter(command => command.method === 'Target.closeTarget')).toEqual([
+    expect.objectContaining({ params: { targetId: 'created-source' } }),
+  ]);
+});
+
+it('keeps an accepted or pre-existing source tab open when the transport closes', async () => {
+  const sourceUrl = 'https://www.figma.com/design/openFixtureKey?node-id=0-1';
+  const created = await fakeChrome();
+  const accepted = await createRetainedChromeTransport(created.endpoint, {
+    matchesTarget: url => url === sourceUrl,
+    missingTargetUrl: () => sourceUrl,
+  });
+  cleanups.push(() => accepted.close());
+  await reply(await clientFor(accepted.endpoint, accepted.headers), {
+    id: 1,
+    method: 'Target.setAutoAttach',
+    params: { autoAttach: true },
+  });
+  accepted.releaseCreatedTargets();
+  await accepted.close();
+  const existing = await fakeChrome(true, undefined, [
+    { targetId: 'source', type: 'page', url: sourceUrl },
+  ]);
+  const attached = await createRetainedChromeTransport(existing.endpoint, {
+    matchesTarget: url => url === sourceUrl,
+    missingTargetUrl: () => sourceUrl,
+  });
+  cleanups.push(() => attached.close());
+  await reply(await clientFor(attached.endpoint, attached.headers), {
+    id: 1,
+    method: 'Target.setAutoAttach',
+    params: { autoAttach: true },
+  });
+  await attached.close();
+  expect(
+    [...created.commands, ...existing.commands].filter(
+      command => command.method === 'Target.closeTarget',
+    ),
+  ).toEqual([]);
+  expect(created.commands.map(command => command.method)).toContain('Target.createTarget');
+});
+
+it('does not guess among browser contexts when a missing source is requested', async () => {
+  const chrome = await fakeChrome(true, undefined, [], ['other-context']);
+  const bridge = await createRetainedChromeTransport(chrome.endpoint, {
+    matchesTarget: () => true,
+    missingTargetUrl: () => 'https://www.figma.com/design/openFixtureKey',
+  });
+  cleanups.push(() => bridge.close());
+  const client = await clientFor(bridge.endpoint, bridge.headers);
+  expect(
+    await reply(client, { id: 1, method: 'Target.setAutoAttach', params: { autoAttach: true } }),
+  ).toMatchObject({ error: { message: 'CHROME_CONTEXT_AMBIGUOUS' } });
+  expect(chrome.commands.map(command => command.method)).toEqual([
+    'Target.getTargets',
+    'Target.getBrowserContexts',
+  ]);
+});
+
+it('does not create a missing source outside the bound Figma destination', async () => {
+  const chrome = await fakeChrome();
+  const bridge = await createRetainedChromeTransport(chrome.endpoint, {
+    matchesTarget: () => true,
+    missingTargetUrl: () => 'https://example.test/other',
+  });
+  cleanups.push(() => bridge.close());
+  const client = await clientFor(bridge.endpoint, bridge.headers);
+  expect(
+    await reply(client, { id: 1, method: 'Target.setAutoAttach', params: { autoAttach: true } }),
+  ).toMatchObject({ error: { message: 'FIGMA_URL_INVALID' } });
+  expect(chrome.commands.map(command => command.method)).toEqual(['Target.getTargets']);
+});
+
+it('retires an unknown source creation outcome without replaying it', async () => {
+  const chrome = await fakeChrome(true, 'Target.createTarget');
+  const bridge = await createRetainedChromeTransport(chrome.endpoint, {
+    matchesTarget: () => true,
+    missingTargetUrl: () => 'https://www.figma.com/design/openFixtureKey',
+  });
+  cleanups.push(() => bridge.close());
+  const client = await clientFor(bridge.endpoint, bridge.headers);
+  client.send(
+    JSON.stringify({ id: 1, method: 'Target.setAutoAttach', params: { autoAttach: true } }),
+  );
+  await vi.waitFor(() =>
+    expect(chrome.commands.some(command => command.method === 'Target.createTarget')).toBe(true),
+  );
+  client.close();
+  await vi.waitFor(() => expect(bridge.state()).toBe('unavailable'));
+  expect(chrome.commands.filter(command => command.method === 'Target.createTarget')).toHaveLength(
+    1,
+  );
 });
 
 it.each([0, 2])('does not attach any page when the selected target count is %i', async count => {

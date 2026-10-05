@@ -1,0 +1,141 @@
+{
+  "schemaVersion": 1,
+  "slice": "review-2026-10-04",
+  "baseline": {
+    "headCommit": "5b9343efc82ef47ba56f412acbd4eee5a328d335",
+    "authoritySha256": {
+      "upstream-lock.json": "f5e06bdc170ff6f7801d29a47a24ba114105b3fed799b73de6585b31f4dde841",
+      "vendor-map.json": "b3275c7d8b997d1cfe723d97594659f77d7b4361b824a790bcfdd7ff762589bd",
+      "vendor-rules.json": "6ceac7426f8756ee2e073cd76e9b3209ad178a1b8c94d07c7c7a89e6f230c767"
+    }
+  },
+  "entries": [
+    {
+      "path": "capabilities/task-review-2026-10-04-authority-classes.json",
+      "sha256": "36878940952b00e757366a532e79d5bb3bf8d69ee31c7a85e74869fbef941e96",
+      "priorClaims": [],
+      "reason": "Declare the exact post-publication PNG re-export repair scope against commit 5b9343e. Preserve historical review slices and upstream lineage. Use a separate Git index without staging the owner working tree."
+    },
+    {
+      "path": "capabilities/union-manifest.json",
+      "sha256": "f52f4cdab4a4363523b42e8ceb3c67c7c08f6fa630df1612c7e2ff069c0ded85",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "a859a83d5db6d640ea5fc79239053945cbe9bb059d4dec0189dd599c9fd00eb4"
+        },
+        {
+          "class": "protected",
+          "sha256": "a859a83d5db6d640ea5fc79239053945cbe9bb059d4dec0189dd599c9fd00eb4"
+        }
+      ],
+      "reason": "Repair reproduced source freshness rejection for unchanged design facts and minor PNG re-export quantization. Verify both capture file sets, preserve their distinct identities, require exact non-PNG assets, source facts and alpha, RGB delta at most one and changed area at most 0.01%. Full source gates remain pending."
+    },
+    {
+      "path": "docs/portal-native.md",
+      "sha256": "e6550275a20d18ca228d260f443ea13f12ceb4c394a4dfd8184ab727770d4ff6",
+      "priorClaims": [
+        {
+          "class": "protected",
+          "sha256": "a2d92b41ec9a1d0bb8c967d8ec2ac04357543c742b2c39263e5879af04915aa9"
+        }
+      ],
+      "reason": "Repair reproduced source freshness rejection for unchanged design facts and minor PNG re-export quantization. Verify both capture file sets, preserve their distinct identities, require exact non-PNG assets, source facts and alpha, RGB delta at most one and changed area at most 0.01%. Full source gates remain pending."
+    },
+    {
+      "path": "packages/ir/src/capture-freshness.ts",
+      "sha256": "f0f0440c0e1bbf5c5f87444520cda9e5dcf22d8f588d535b4a5ff139b9b53b3b",
+      "priorClaims": [],
+      "reason": "Repair reproduced source freshness rejection for unchanged design facts and minor PNG re-export quantization. Verify both capture file sets, preserve their distinct identities, require exact non-PNG assets, source facts and alpha, RGB delta at most one and changed area at most 0.01%. Full source gates remain pending."
+    },
+    {
+      "path": "packages/ir/src/portal-run.ts",
+      "sha256": "7bff2d15d7c8d23dba490a5846e66c457ebffb0cc83f7f6f91237e5ac7de5941",
+      "priorClaims": [
+        {
+          "class": "protected",
+          "sha256": "42fdca179a436a3e5c16b28177bd2ea0e8dec7552e4c4581a93ca1a1050bd408"
+        }
+      ],
+      "reason": "Repair reproduced source freshness rejection for unchanged design facts and minor PNG re-export quantization. Verify both capture file sets, preserve their distinct identities, require exact non-PNG assets, source facts and alpha, RGB delta at most one and changed area at most 0.01%. Full source gates remain pending."
+    },
+    {
+      "path": "packages/ir/test/capture-freshness.test.ts",
+      "sha256": "db938957ad39ea86d30c7bfb48530a9aee7b8c52035f6b43df66037124f2fa9a",
+      "priorClaims": [],
+      "reason": "Exercise bounded PNG variation, changed facts, file integrity, cancellation, scope binding and forged proof rejection. Twelve focused and seventeen integrated cases passed. Preserve real capture hashes; no frontend threshold or skip policy changes."
+    },
+    {
+      "path": "packages/mcp/src/portal/capture-freshness.ts",
+      "sha256": "8885eeb376a0099ab357325c442e634695eb40c9aaef77210ce092db031d078e",
+      "priorClaims": [],
+      "reason": "Repair reproduced source freshness rejection for unchanged design facts and minor PNG re-export quantization. Verify both capture file sets, preserve their distinct identities, require exact non-PNG assets, source facts and alpha, RGB delta at most one and changed area at most 0.01%. Full source gates remain pending."
+    },
+    {
+      "path": "packages/mcp/src/portal/native-work.ts",
+      "sha256": "ee6af25547649f3daa30176d8ec0780bdd6d24b1da17901b74bdf9dcd81ae122",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "a01ac0222dc823c940d68530101c3081110e84a1bd4a8898715cc5533a21989f"
+        },
+        {
+          "class": "protected",
+          "sha256": "a01ac0222dc823c940d68530101c3081110e84a1bd4a8898715cc5533a21989f"
+        }
+      ],
+      "reason": "Repair reproduced source freshness rejection for unchanged design facts and minor PNG re-export quantization. Verify both capture file sets, preserve their distinct identities, require exact non-PNG assets, source facts and alpha, RGB delta at most one and changed area at most 0.01%. Full source gates remain pending."
+    },
+    {
+      "path": "packages/mcp/src/portal/preview.ts",
+      "sha256": "ed2a361fb8f261051f9e2836f264a1f6c56b5bd6ddcfd06f9bd7472160cf47f4",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "e4868718d6e86242e728834c5ba2a861729e4674f8ad827547de237ae4682f8a"
+        },
+        {
+          "class": "protected",
+          "sha256": "e4868718d6e86242e728834c5ba2a861729e4674f8ad827547de237ae4682f8a"
+        }
+      ],
+      "reason": "Repair reproduced source freshness rejection for unchanged design facts and minor PNG re-export quantization. Verify both capture file sets, preserve their distinct identities, require exact non-PNG assets, source facts and alpha, RGB delta at most one and changed area at most 0.01%. Full source gates remain pending."
+    },
+    {
+      "path": "packages/mcp/test/portal/capture-reexport.test.ts",
+      "sha256": "2e124c80613b2067133a37454ec7b6d35dbb4073a683213ee8ee9d77f12e14aa",
+      "priorClaims": [],
+      "reason": "Exercise bounded PNG variation, changed facts, file integrity, cancellation, scope binding and forged proof rejection. Twelve focused and seventeen integrated cases passed. Preserve real capture hashes; no frontend threshold or skip policy changes."
+    },
+    {
+      "path": "packages/shared/src/portal-capture-source.ts",
+      "sha256": "87bf640ab374220f586a4079a798780a2ee0a04da695f96f8e3a2d10b1986d43",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "b47ab38481fd10a3064680ae03d35939f9515003b568f2511f30f3a160be0d2a"
+        },
+        {
+          "class": "protected",
+          "sha256": "b47ab38481fd10a3064680ae03d35939f9515003b568f2511f30f3a160be0d2a"
+        }
+      ],
+      "reason": "Repair reproduced source freshness rejection for unchanged design facts and minor PNG re-export quantization. Verify both capture file sets, preserve their distinct identities, require exact non-PNG assets, source facts and alpha, RGB delta at most one and changed area at most 0.01%. Full source gates remain pending."
+    },
+    {
+      "path": "packages/shared/src/portal.ts",
+      "sha256": "81cfc66c697a52e59f65a64ee828bf5c351efd297b750995799387ed48b9fc0a",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "3964232d01a1f67c390a8b209a104cafc01165d38d21db037ef8101d1260fa42"
+        },
+        {
+          "class": "protected",
+          "sha256": "3964232d01a1f67c390a8b209a104cafc01165d38d21db037ef8101d1260fa42"
+        }
+      ],
+      "reason": "Repair reproduced source freshness rejection for unchanged design facts and minor PNG re-export quantization. Verify both capture file sets, preserve their distinct identities, require exact non-PNG assets, source facts and alpha, RGB delta at most one and changed area at most 0.01%. Full source gates remain pending."
+    }
+  ]
+}

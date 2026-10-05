@@ -1,8 +1,133 @@
 # Super Figma Pipeline: Service Analysis
 
-Analysis date: October 4, 2026 (Asia/Seoul).
+Analysis date: October 4–5, 2026 (Asia/Seoul).
 Repository: `C:\2026_project\super-figma-pipline`.
-Git baseline: `db821db346e7cb5dd27e4df465b91bb106e2f2b3`.
+Current published Git baseline: `5b9343efc82ef47ba56f412acbd4eee5a328d335`. Earlier sections retain their historical pre-publication baselines.
+
+## Current continuation at approximately 23:20 KST
+
+This continuation resumed from the [evening handoff](handoff/reboot-2026-10-04-evening.md) without a reboot (last boot September 30). Both service copies matched its `fc47c9f0...` source and the owner index remained `5a793522...`. The retained daemon was no longer running. The owner confirmed two decisions: follow `AGENTS.md` (no Superpowers) despite the resume prompt's request, and run the full source checks. The [control diagnostics and review record](testing/2026-10-04-ecommerce-parity/control-diagnostics/README.md) holds the evidence.
+
+**R3–R5 preparation failures: cause established and repaired.** The CLI reports `CONTROL_REQUEST_FAILED (500)` for two unlogged server paths. The first is the leader catch-all, which also receives exceptions from control authorization. The second is router codes the CLI cannot read; for example, a DOMException timeout is published as `"23"`. Bounded diagnostics were added for both.
+
+The instrumented R5 run then showed the cause directly. A read-only approvals poll failed authorization when one Windows state probe exceeded the serialized probe worker's 5 s request timeout (`STATE_ACL_COMMAND_FAILED <- WINDOWS_BOUNDARY_TIMEOUT`). The CLI treated the failed poll as fatal and cancelled the running `portal_plan`. On Windows, every control request verifies credential state on both sides through `whoami.exe` and that worker, while monitoring polls every 300 ms.
+
+Authorization still fails closed:
+
+- Only probe-capacity outcomes return `503 CONTROL_AUTH_BUSY`; integrity and other failures stay `500 CONTROL_AUTH_UNAVAILABLE`.
+- Read-only monitoring now waits out at most 60 s of that typed busy state without cancelling.
+- Approval decisions, untyped failures and exhausted windows still cancel.
+
+Fresh R6 met the same timeout once, recorded `monitoring-delayed`, and **succeeded**: plan `sfp_portal1_709fa34d66dd3de4b68be30c3f5f5f66`, complete and live-verified, 92/92 workflow scopes resolved with 89 decisions, no issues, design fingerprints identical to R2. R3–R5 remain preserved and unreplayed. The underlying probe load is still open.
+
+**Code review.** A high-effort review of the uncommitted `service/packages` changes produced ten findings, which were then independently verified. Four were repaired with nine regressions that failed first:
+
+- Unaccepted service-created source tabs are now closed, and pre-existing or accepted tabs are never closed.
+- Sign-in redirects, unreached files and cancellation during source opening are mapped or honored.
+- Concurrent opening intents are rejected as busy.
+- PNG freshness proofs that hit bounded limits now fail freshness instead of aborting acceptance.
+
+Proof re-hashing efficiency (F9), the duplicated fingerprint formula (F10), the shared 256-call re-observation cap (F4) and malformed style rows (F5) remain open. F8 is intentional and F6 was refuted.
+
+**Verification.**
+
+- Focused, related and real-installed-Chrome suites passed: 115; 338 with 8 Unix-only skips; 125; 40; and 468 with 9 Unix-only skips, all with 0 failures.
+- Typecheck, scoped lint/format and three bounded provenance rounds passed (62 semantic changes, 178 forks, 3 upstreams, 238 vendor rows).
+- One malformed provenance helper run, which `set -e` did not stop, created only an empty alternate index; a byte comparison confirmed every authority file unchanged before the corrected rerun.
+- Main and native sources match at `sha256:ac67794db1460d34bd24435e2545faa6b3ae6d596be6cadce21b515c5ac2a099`; the owner index is unchanged.
+- Whole check `41c4cda8-2ac9-4d87-a2be-46815ec00320`, at the earlier source `206bd900...`, passed its typecheck, lint, format, knip, contract and build gates. At the start of its test gate, Claude Code stopped the background shell because the system was critically low on memory. It is **interrupted, not passed** ([record](testing/2026-10-04-ecommerce-parity/control-diagnostics/interrupted-source-check.json)).
+- At the owner's request, fresh whole check `a59a6e15-5c33-472d-b947-a86d249124f8` then **passed all 16 gates at the current source `ac67794d...`** at 23:30 KST ([checkpoint](testing/2026-10-04-ecommerce-parity/control-diagnostics/full-source-checkpoint.json)):
+  - 430 files and 4,789 tests: 4,769 passed, 0 failed, 20 skipped. The skip names match the previous census, and the known-failure ledger is empty.
+  - All 37 required Chrome cases in 9 files passed with no skips.
+  - Separate artifact-content run `c36285dd-c85d-45d2-b442-c848f925a703` passed 1/1.
+  - This is local source/package/runtime verification. It does not establish live Figma, target-service or remote CI acceptance.
+
+**Independent native collector, later at about 23:55 KST.** The [native effect conversion](testing/2026-10-04-ecommerce-parity/native-effects/README.md) now outputs layer and background blurs and drop and inner shadows, resolving effect styles over cached copies. Unsupported effect forms stay unknown.
+
+- With the same separately collected inputs, eCommerce compares 127,932 positions (previously 124,734) and CDD 8,970 (previously 8,778). Both have zero effect differences and zero unexplained differences.
+- Stroke miter limits, dash patterns and side weights followed, using Figma's omitted defaults and only Plugin API stroke types. Comparisons reach 137,658 eCommerce and 9,750 CDD positions with zero unexplained differences. Four CDD side widths on one unpainted, nested scaled rectangle share that node's already-explained no-paint width representation.
+- Layout sizing (FIXED/HUG/FILL) is now derived from decoded layout fields, with hidden and absolutely positioned children excluded from auto layout. Comparisons reach 144,054 eCommerce and 10,134 CDD positions, with zero sizing differences and zero unexplained differences. FILL is unit-tested but absent from both designs.
+- Text case, decoration, truncation, maximum lines, wrap style, hyperlink and font weight followed. They use recorded values and omitted defaults, resolve character runs to `mixed`, and take weights only from recorded font metadata; hyperlinks stay unknown. Comparisons reach 150,130 eCommerce and 10,638 CDD positions, with zero text differences and zero unexplained differences.
+- Corner smoothing, strokes included in layout, fixed child count, overflow direction, layout grids and target aspect ratio followed. Comparisons reach 156,995 eCommerce and 11,244 CDD positions over 87 declared fields, with zero unexplained differences, including nine real column grids and two scrolling containers. Thirty-six reference fields remain outside the comparison: grid auto-layout, style identifiers, variables, annotations/exports, component semantics, render bounds, vectors and arcs ([inventory](testing/2026-10-04-ecommerce-parity/native-effects/uncompared-node-fields.json)).
+- Focused tests (67 native-module cases), CLI typecheck, lint/format and the fourth to eighth provenance rounds passed. Both copies now match at `sha256:62023ddd...`, a source newer than whole check `a59a6e15...`.
+- Whole check `1c7268c7...` at that source (03:02 KST on October 5) passed typecheck, lint, format, knip, contracts and build. Claude Code then stopped it for critically low system memory at the start of the test gate, the same point as the earlier interruption. It is **interrupted, not passed** ([record](testing/2026-10-04-ecommerce-parity/native-effects/interrupted-source-check.json)). A fresh attempt needs the owner's request and more free memory, or a run outside Claude Code's background-shell reaper.
+- The owner is installing Figma Desktop to enable the official local MCP server; the local probe at 23:35 KST still returned `fetch failed`.
+
+**Desktop and official MCP, October 5 at 00:07–00:26 KST.**
+
+- The owner installed Figma Desktop (free account). The official local MCP port 3845 was not listening, and the service probe returned `fetch failed`. The desktop MCP server likely needs a paid Dev Mode seat; this is an inference, not verified.
+- The verified daemon (`29fd134f...`, PID 7976) prepared the bundled local plugin (`super-figma-pipeline-dev`) through `connect`. A pairing challenge was issued, but pairing did not complete in the 900 s window, and the command ended `PLUGIN_START_REQUIRED`. No Desktop capture exists yet.
+- Cause analysis from code: `connect` embeds a one-use pairing code in the bundle, and that challenge expires after 5 minutes (`PAIR_CHALLENGE_TTL_MS`), while `connect` waits up to 900 s. A plugin started more than 5 minutes after preparation cannot pair with the embedded code. Whether the owner ran the plugin in time was not observed; the daemon does not log ordinary exchange rejections.
+- Retry with the owner present: start the daemon, then issue a fresh code with the service `pair` command and paste it into the plugin's Pairing tab within 5 minutes. Alternatively, re-run `connect` and start the plugin immediately. The 5-minute code inside a 15-minute wait is a usability gap to repair.
+
+**Live state.**
+
+- The first `chrome-open` (22:06) waited 300 s without approval; no tab was created and no approval was automated.
+- After the owner approved, `chrome-open` attached to the existing eCommerce tab.
+- R5 then ran on build `80b913fd...`, and R6 on build `29fd134f...`.
+- The R6 daemon was stopped after an identity check to free memory for the whole check, so no daemon is running.
+- Egress stays valid until October 5, 00:24:12 KST.
+
+**Next steps.**
+
+1. When live work resumes, restart the daemon from the verified build with stderr captured, and have the owner approve Chrome's prompt.
+2. Continue the evening handoff's remaining order: independent native acquisition and comparison, authenticated official MCP, Desktop, C1–C3 and review gates.
+3. Then run final dual-path eCommerce generation from a fresh live preparation, without reference frontend code.
+
+**Status check at 09:47 KST on October 5.**
+
+- Both copies still match at `62023ddd...`, and the owner index is unchanged.
+- The whole-check pointer is still `pending`.
+- No daemon is running. Free memory is 3.9 GB, below the roughly 5.5 GB that the passing check had.
+- Figma Desktop is running, but port 3845 has no listener.
+- Figma's [rate limits and access page](https://developers.figma.com/docs/figma-mcp-server/rate-limits-access/), read that morning, gives the Starter plan 20 tool calls per month. The fetched text did not state the desktop server's seat requirement, which remains an inference.
+- Egress expired at 00:24:12 KST.
+
+The official MCP path also has an unresolved source boundary: the portal source schema admits only Chrome and Desktop sources. The consolidated remaining work, separated into owner inputs and agent work, is in the [evening handoff](handoff/reboot-2026-10-04-evening.md#remaining-work-at-0947-kst-on-october-5).
+
+## Reboot checkpoint at approximately 21:35 KST
+
+The owner requested reboot preparation. [The evening handoff](handoff/reboot-2026-10-04-evening.md) is the current restart authority, with source/output backups, preserved private-state locations, connection/budget checks and concrete continuation steps. Main and native sources match at `sha256:fc47c9f0f64114d700e4da3d026c2070925842f8d5ea433ddb929824c5f43263`; the owner index remains unchanged and no new commit/push was made.
+
+The [latest completed whole check](testing/2026-10-04-ecommerce-parity/native-behavior/full-source-checkpoint.json), source `e2755bc7...`, passed all 16 gates: 4,748 passed, zero failed, 20 existing skips and all 37 mandatory Chrome cases passed. Its separate artifact-content case passed. A subsequent [control GET recovery repair](testing/2026-10-04-ecommerce-parity/control-poll/README.md) passed eleven real-HTTP cases and affected static/build/provenance checks. The newer whole check `b4a7a8fa...` reached tests but was intentionally stopped for reboot preparation after verifying its exact controller identity. Its stored pointer remains pending; the attempt is interrupted, not passed. Fresh whole verification is required after restart.
+
+CDD R8 remains completed for its recorded Chrome/Scripter C4 scope; all 44 applied files were rehashed and backed up. Complete eCommerce R2 collection and expanded independent comparisons remain preserved. R3 and R4 preparation requests ended `outcome-unknown` after cancellation, first after a connection reset and then a separate HTTP 500. The read-reset behavior is repaired; **the HTTP 500 cause is unresolved**. No eCommerce frontend was generated or applied, and the proposed 89 workflow mappings are not accepted as resolved. Preserve both operation records and do not automatically replay them.
+
+At 21:33 KST, the retained earlier daemon still reported Chrome connected and zero paired Desktop plugins. Official MCP remained unavailable locally at its last probe. The external-model egress scope expires October 5 at 00:24:12 KST. Recheck all connections after reboot. Complete independent exports/semantics/admission, official MCP, Desktop, relevant C1–C3 cases, review gates and final dual-path eCommerce frontend acceptance remain open.
+
+## Earlier October 4 continuation after Chrome approval
+
+The retained service Chrome connection is **connected**, freshly checked around 21:00 KST. The [collection record](testing/2026-10-04-ecommerce-parity/README.md) supersedes the pending-browser and partial eCommerce observations below. Public preparation captured all 3,198 nodes, 11 roots and 283 assets with complete ordered reobservation. A separate native export supplied independent input. The [latest layout/prototype repairs](testing/2026-10-04-ecommerce-parity/native-behavior/README.md) expand comparison to 124,734 eCommerce positions, including 66 click-navigation actions, with zero unexplained differences and 408 mixed-font representations retained. All 868 font ranges and 52 original images match. CDD compares 8,778 positions with zero unexplained differences and its 73 known representations retained. Actual differences in instance action fragments and placement constraints were repaired without copying reference facts.
+
+This is not complete independent capture or final eCommerce acceptance: native SVG/root-PNG exports, effects and other unobserved node/catalog/variable/prototype semantics and portal admission remain open. The eCommerce plan still has 89 workflow issues. Its original images exposed a candidate-capacity failure; the cap is now 96 MiB with unchanged per-file/submission limits and 128 MiB working-copy bounds. Rejection and exact-boundary behavior were tested, but the new cap has not yet been exercised by a live eCommerce candidate. No eCommerce frontend has been generated or applied. Official MCP still needs a usable service-owned authenticated connection; the latest local probe failed to connect. The owner was asked to enable the Desktop MCP server. Preserve the approved daemon and completed CDD output; the daemon still runs the earlier build until the next necessary verified runtime update.
+
+That revision matched at `sha256:e2755bc7404ed946ada53c70be0777beed46e68ab52cb09786f2a695d2fcc983` in both working copies. Forty-six native tests and 65 capacity/source-evidence cases passed (one existing conditional skip in the latter). Whole attempt `1dac9a33-07f8-44fd-83b0-65026f8ac713` subsequently passed all 16 gates with 4,748 passing tests and the separate artifact-content case. The preceding [full source pass](testing/2026-10-04-ecommerce-parity/full-source-checkpoint.json), source `e7333e49...`, passed all 16 gates at 20:52 KST with 4,729 passes. Both have zero failures, 20 existing skips and all 37 mandatory Chrome cases passing. The [CDD R8 result](testing/2026-10-03-cdd-generation/r8-applied-checkpoint.json) retains its recorded source, candidate and profile; other acceptance paths remain separate obligations.
+
+## Earlier October 4 continuation before the latest approval
+
+CDD Chrome/Scripter run R8 is **completed**: 44 new frontend files were applied with the submitted hash, and applied runtime, configured visual/interaction checks and final live source freshness all passed. The [actual applied checkpoint](testing/2026-10-03-cdd-generation/r8-applied-checkpoint.json) is the authority for this bounded C4 result. Official MCP, the independent collector, Desktop, other case/review gates and final eCommerce frontend acceptance remain separate obligations.
+
+Subsequent work repaired explicit Chrome source opening and obtained a real 99,302,063-byte eCommerce native export. The service normalizer expands 3,198 nodes across 11 roots. A separate Chrome/Scripter read also obtained 3,198 nodes but exhausted the budget for final reobservation and left 226 assets pending. The [opening record](testing/2026-10-04-cdd-resume/chrome-opening/README.md) and [capacity/comparison record](testing/2026-10-04-cdd-resume/capture-budget/README.md) distinguish completed preparation from incomplete capture and unexecuted frontend generation. Partial parity has 33 missing and 33 extra IDs, 1,537 property differences, nine differing font ranges and a style-name ambiguity. These require investigation against fresh complete inputs; they are not repaired by substituting one collector's facts into the other.
+
+The latest implemented changes reserve separate bounded collection/reobservation capacity, reject invalid batch parameters before connecting, and make a credential-timeout regression deterministic without changing production authentication. A subsequent full run passed 4,713 cases but failed a native cleanup check. A [Windows job-drain race](testing/2026-10-04-cdd-resume/windows-drain/README.md) was then reproduced in three real cases and repaired without weakening bounded polling or empty-job proof. All three regressions and 44 expanded native/Chrome cases passed, with one existing conditional skip in the expanded command. Matching current main/native source: `sha256:170487cf0d214cf755cbdd223e2a6eb4e2778ec06f5ef27b38bed87a893a8bb2`. Bounded provenance checks pass.
+
+At approximately 19:23 KST, fresh [full-source attempt `c5a36f06...`](testing/2026-10-04-cdd-resume/windows-drain/full-source-checkpoint.json) passed all 16 source/package gates at that unchanged source: 4,717 passed, zero failed and 20 existing skips across 4,737 cases. All 37 mandatory Chrome cases passed with no skips or overrides. The [separate artifact-content case](testing/2026-10-04-cdd-resume/windows-drain/artifact-contents-checkpoint.json) also passed. This is current local verification, not completion of the remaining live acquisition, case and final eCommerce obligations.
+
+The earlier [complete local verification](testing/2026-10-04-cdd-resume/full-source-checkpoint.json) passed all 16 gates with 4,707 passes, zero failures, 20 existing skips and all 37 required Chrome cases passing at source `0465c261...`; its separate artifact-content case passed too. The later source `2900ff9b...` failed two full-suite tests. Pairing timeout reproduced in isolation and its test timing was repaired. Native producer output failed only in that full run, then passed unchanged in isolation and the expanded suite; its cause remains unestablished, and command diagnostics were added. No failure waiver or skip override was introduced. These dated results must not be interchanged.
+
+After verification, the old daemon was stopped and the tested runtime started with build identity `sha256:b667c982ef8c2981af40e53d1ba87b38b0df2d4f04a03ef57458b37926f5a75f`. Public eCommerce preparation-only plan `sfp_portal1_a59a9126725435235f0a8daa281cee2c` returned incomplete because Chrome was not admitted. It used no references and a separate unused target; no `portal_run`, frontend submission or application was requested, and the target directory does not exist. The [current continuation state](testing/2026-10-04-cdd-resume/continuation-state.json) records the retained `awaiting-browser` connection after that logical attempt ended. Preserve the updated daemon and retry a fresh public plan after manual admission. The local official MCP probe again could not connect; the remote endpoint previously required authentication. User setup questions remain pending. Neither endpoint has yet supplied an authenticated service-owned design read, and no current quota claim is made. The new source changes are not committed or pushed.
+
+## Earlier October 4 post-reboot continuation at 17:49 KST
+
+The [resume record](testing/2026-10-04-cdd-resume/README.md) supersedes the earlier pending-browser and R7-only status. The service opened CDD through its own Chrome CLI, observed the approved connection and captured a fresh R8 plan. Candidate `e424d2ee...` contains 44 new frontend files without reference frontend code. Its second candidate validation passed, and guarded application completed with the exact candidate hash. At approximately 17:49 KST, [applied validation](testing/2026-10-03-cdd-generation/r8-applied-checkpoint.json) returned **`completed`**, no issues, and both runtime and live-design verification true. Build, typecheck, compiler-graph independence, the three configured perceptual visual checks, basic-DOM accessibility, four workflows, 2,110 consumption observations and final source freshness passed. This completes this CDD C4 run through Chrome/Scripter; the other required acquisition paths and acceptance obligations remain open. The existing R7 frontend remains preserved.
+
+A reproduced source-freshness failure involved unchanged design facts and only a minute PNG re-export difference. The implemented `same-facts-png-quantization-v1` proof retains original hashes and requires unchanged non-PNG assets, exact source facts, identical PNG dimensions/alpha, maximum RGB delta one and at most 0.01% changed pixels. The [R8 evidence](testing/2026-10-03-cdd-generation/r8-checkpoints.json) preserves the failed first attempt and successful repaired candidate. Twelve focused tests, seventeen integration tests, four selected native feedback tests, affected typechecks, lint/format, workspace build and generated contracts passed before the later native style change. The 17:28 source fingerprint `3d24d6f...` is preserved in its checkpoint. These new uncommitted changes are not covered by the earlier full-source result; full source/package checks remain outstanding.
+
+Fresh plugin-free Chrome export and comparison cover 192 nodes and 6,006 positions, with 72 matching font ranges, ten matching original images and 73 documented representation differences. The newly implemented native style converter now exposes 56 styles independently, preserving native identities and unknown fields. Its actual service CLI comparison covers 114 positions with 17 retained differences and 238 unobserved top-level properties; no duplicate names were silently paired. Eleven focused native cases and CLI typecheck/lint/format passed. The [latest provenance checkpoint](testing/2026-10-04-cdd-resume/native-style-provenance.json) records matching main/native sources at `sha256:0465c2612f8f2f7ab955e3e5debc28d533ce4c5a6d212d938122a64808c5c9ac`, verified alternate-index change manifest, three verified upstreams and 238 vendor rows. Full source checks remain pending; the earlier complete test result does not cover these changes.
+
+Complete native acquisition remains false. Official MCP probes still require local server activation or remote authentication. Independent collector completion, Desktop live pairing, remaining complete-portal cases/reviews and the final eCommerce dual-path new-frontend test remain required in the recorded order.
+
+## Historical pre-reboot checkpoint
 
 Publication note: the owner later explicitly requested committing and pushing the accumulated implementation, acceptance evidence and reboot handoff on `remediation/2026-09-27`. The no-commit/index-preservation observations below refer to their recorded checkpoints. Publication does not turn the outstanding live acceptance work into a completed result.
 

@@ -1,0 +1,15 @@
+# Control read recovery and unresolved live server failure
+
+Date: October 4, 2026 (Asia/Seoul). Published baseline `5b9343ef...`; current main/native source `sha256:fc47c9f0f64114d700e4da3d026c2070925842f8d5ea433ddb929824c5f43263`.
+
+Public eCommerce preparation R3 encountered `ECONNRESET` while its operation was dispatched. The client's monitoring error path requested cancellation and public state became `outcome-unknown`. The [saved failure](../native-behavior/workflow-preparation-failure.json) is preserved; no frontend was generated.
+
+Four [real-HTTP regressions](red-tests.json) reproduced the missing read recovery. The CLI now retries only one bodyless GET after a transport reset, using the same credentials, signal/deadline and cumulative 32 MiB response budget. It discards the interrupted body's partial bytes. Tool requests, approvals and other mutations are never replayed. Structured HTTP failures, authentication failures and aborts remain errors. All [11 cases](tests.json), CLI typecheck/build, scoped lint/format and [bounded provenance checks](provenance-checkpoint.json) passed.
+
+A separate R4 preparation attempt then failed with **`CONTROL_REQUEST_FAILED (500)`**. Its [public outcome](workflow-preparation-failure-r4.json) is again unknown after cancellation; this is a different unresolved failure, not a passing live regression. The server cause is not established. No R3/R4 plan or target frontend exists. Five proposed frontend workflows and 89 exact scope decisions therefore remain proposals; R2's unresolved workflow scope is not closed. Do not silently repeat either operation or retry arbitrary HTTP 500 errors.
+
+The preceding [native-behavior source](../native-behavior/full-source-checkpoint.json) passed all 16 gates with 4,748 passing cases, zero failures, 20 existing skips and all 37 mandatory Chrome cases passing. Its separate artifact-content check also passed. It predates this control repair.
+
+Follow-up at approximately 22:00 KST: [control diagnostics](../control-diagnostics/README.md) identifies two unlogged server paths that the CLI reports as `CONTROL_REQUEST_FAILED (500)`: the leader catch-all, which includes thrown control authorization, and router codes the CLI cannot read. Bounded diagnostics were added and authorization exceptions now fail closed with `CONTROL_AUTH_UNAVAILABLE`. Later, the instrumented R5 run established the mechanism. A read-only approvals poll failed authorization when a Windows state probe timed out, and the CLI then cancelled the plan. After the typed `CONTROL_AUTH_BUSY` and bounded-monitoring repair, R6 waited out the same timeout and succeeded with complete workflow coverage.
+
+Current whole check `b4a7a8fa-cec6-4a0a-bc3a-b3d0c491298a` passed static/build gates and reached tests, then was stopped for the owner's reboot-preparation request. It is **interrupted, not passed**. Its pointer remains pending and requires a fresh attempt after restart. See the [evening reboot handoff](../../../handoff/reboot-2026-10-04-evening.md) for source/output backups, private context locations, connection and egress state, and the exact continuation order.

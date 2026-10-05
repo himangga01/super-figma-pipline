@@ -253,6 +253,59 @@ const readBody = async (
     );
   }
 };
+const DIAGNOSTIC_NAME = /^[A-Za-z][A-Za-z0-9_]{0,63}$/u;
+const DIAGNOSTIC_CODE = /^[A-Za-z0-9_.:-]{1,64}$/u;
+const DIAGNOSTIC_SEGMENT = /^[a-z]{1,40}(?:-[a-z]{1,40}){0,4}$/u;
+
+const diagnosticCode = (value: unknown): string => {
+  if (typeof value === 'string' && DIAGNOSTIC_CODE.test(value)) return value;
+  if (typeof value === 'number' && Number.isSafeInteger(value)) return `#${value}`;
+  return '-';
+};
+
+/**
+ * Names a request route for operator diagnostics. Only the method and fixed lower-case route words
+ * remain; identifiers, credentials, query values and fragments are never written.
+ */
+export const requestRouteLabel = (method: string | undefined, url: string | undefined): string => {
+  const verb = typeof method === 'string' && /^[A-Z]{1,10}$/u.test(method) ? method : 'OTHER';
+  const path = (typeof url === 'string' ? url : '').split(/[?#]/u, 1)[0] ?? '';
+  const segments = path.split('/').slice(1);
+  const shown = segments
+    .slice(0, 8)
+    .map(segment => (DIAGNOSTIC_SEGMENT.test(segment) ? segment : ':param'));
+  return `${verb} /${shown.join('/')}${segments.length > 8 ? '/...' : ''}`;
+};
+
+/**
+ * Describes a server failure by bounded error names and codes, following at most four causes.
+ * Messages are excluded because they can contain paths, identifiers or other private values.
+ */
+export const describeServerFailure = (error: unknown): string => {
+  const parts: string[] = [];
+  const seen = new Set<unknown>();
+  let current = error;
+  try {
+    while (parts.length < 4 && current !== undefined && current !== null && !seen.has(current)) {
+      seen.add(current);
+      if (typeof current !== 'object' && typeof current !== 'function') {
+        parts.push(typeof current);
+        break;
+      }
+      const record = current as { name?: unknown; code?: unknown; cause?: unknown };
+      const name =
+        typeof record.name === 'string' && DIAGNOSTIC_NAME.test(record.name)
+          ? record.name
+          : 'Object';
+      parts.push(`${name}/${diagnosticCode(record.code)}`);
+      current = record.cause;
+    }
+  } catch {
+    parts.push('uninspectable');
+  }
+  return parts.length === 0 ? 'unknown' : parts.join(' <- ');
+};
+
 const writeJson = (response: ServerResponse, status: number, body: unknown): void => {
   let bytes = Buffer.from(JSON.stringify(body === undefined ? null : body), 'utf8');
   let safeStatus = status;
@@ -372,9 +425,11 @@ export const createControlHttpHandler =
   (dependencies: {
     router: AuthenticatedControlRouter;
     principalForRequest(request: IncomingMessage): Promise<Readonly<ActorContext>>;
+    log?: (message: string) => void;
   }) =>
   async (request: IncomingMessage, response: ServerResponse): Promise<boolean> => {
     if (request.url !== '/control' && request.url?.startsWith('/control/') !== true) return false;
+    const started = performance.now();
     try {
       const method = request.method;
       if (method !== 'GET' && method !== 'POST' && method !== 'DELETE') {
@@ -438,6 +493,16 @@ export const createControlHttpHandler =
       } else writeJson(response, 200, result);
     } catch (error) {
       const projected = publicError(error);
+      if (projected.status >= 500) {
+        // The CLI reads only upper-case public codes, so keep the server-side cause for diagnosis.
+        try {
+          dependencies.log?.(
+            `[control] request failed (${requestRouteLabel(request.method, request.url)}; ${projected.status} code=${diagnosticCode(projected.code)}; ${describeServerFailure(error)}; ${Math.round(performance.now() - started)} ms)`,
+          );
+        } catch {
+          /* diagnostics never replace the typed response */
+        }
+      }
       writeJson(response, projected.status, { code: projected.code });
     }
     return true;

@@ -1,0 +1,20 @@
+{
+  "recordedAt": "2026-10-04T13:22:24.049Z",
+  "purpose": "Verified code-review fixes F1, F2, F3 and F7 with related real-Chrome and native-work suites",
+  "command": "vitest run packages/cli/test/browser-session-reconnect.test.ts packages/cli/test/browser-session.test.ts packages/cli/test/browser-source-open.test.ts packages/mcp/test/portal/chrome-transport.test.ts packages/mcp/test/portal/capture-reexport.test.ts packages/mcp/test/portal/capture-coherence.test.ts packages/mcp/test/portal/capture-session.test.ts packages/mcp/test/portal/native-work.test.ts",
+  "files": 8,
+  "numTotalTests": 125,
+  "numPassedTests": 125,
+  "numFailedTests": 0,
+  "numPendingTests": 0,
+  "numTodoTests": 0,
+  "success": true,
+  "failed": [],
+  "selected": [
+    {
+      "file": "packages/mcp/test/portal/chrome-transport.test.ts",
+      "title": "retains bounded parameter-free initialization diagnostics after a caller times out",
+      "status": "passed"
+    }
+  ]
+}

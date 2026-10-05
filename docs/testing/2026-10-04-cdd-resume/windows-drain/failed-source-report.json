@@ -1,0 +1,61 @@
+{
+  "schemaVersion": 1,
+  "attemptId": "8ba0fbde-9d07-4e62-b172-3e28b3dec566",
+  "status": "failed",
+  "sourceHash": "sha256:4d004e087192d771e2ff361e625c2d08c8f1585dde37bbd0164841c1601bc308",
+  "failedAt": "2026-10-04T09:55:26.570Z",
+  "checks": [
+    {
+      "name": "typecheck",
+      "exitCode": 0,
+      "elapsedMs": 31497,
+      "logSha256": "47fc72d6f63539764733639ef5d06b7f592942c51a5631391b93307752cf3f0e"
+    },
+    {
+      "name": "lint",
+      "exitCode": 0,
+      "elapsedMs": 1287,
+      "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "format",
+      "exitCode": 0,
+      "elapsedMs": 1602,
+      "logSha256": "fcf903e0337d4c29c4f9df2493931de5a2698cf9d50354bdbc60010f3022355b"
+    },
+    {
+      "name": "knip",
+      "exitCode": 0,
+      "elapsedMs": 6579,
+      "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "contracts",
+      "exitCode": 0,
+      "elapsedMs": 1170,
+      "logSha256": "e0bfbf48403f68e16703a91e6e46175e37a156e2868b6a047243c43e9c6aee51"
+    },
+    {
+      "name": "build",
+      "exitCode": 0,
+      "elapsedMs": 6130,
+      "logSha256": "5bd45ff0af0a24d204b6ecbb17b25bb839a80a8c9d6337a4ca22c88a6a73cbeb"
+    },
+    {
+      "name": "test",
+      "exitCode": 1,
+      "elapsedMs": 648508,
+      "logSha256": "329734ca6c5ae11283900d3ca254a19a2e44a2f51692b535b5b2f7264b137e72"
+    },
+    {
+      "name": "test-ledger",
+      "exitCode": 1,
+      "elapsedMs": 355,
+      "logSha256": "a5f5d1bd8a701d93ed29c4f04c89bb3b426d5e9c997afb1ae0887f6ba9537086"
+    }
+  ],
+  "error": "SOURCE_CHECK_FAILED:test-ledger",
+  "realFigmaValidated": false,
+  "targetServiceValidated": false,
+  "remoteCiValidated": false
+}

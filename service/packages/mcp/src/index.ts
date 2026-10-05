@@ -1261,6 +1261,7 @@ const initializeLeaderRuntime = async (resources: LeaderResources): Promise<Lead
           entryPath: 'control' as const,
         });
       },
+      log,
     });
     const mcpAdapter = new McpInvocationAdapter({
       role: 'leader',

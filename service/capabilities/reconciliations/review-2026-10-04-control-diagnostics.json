@@ -1,0 +1,104 @@
+{
+  "schemaVersion": 1,
+  "slice": "review-2026-10-04",
+  "baseline": {
+    "headCommit": "5b9343efc82ef47ba56f412acbd4eee5a328d335",
+    "authoritySha256": {
+      "upstream-lock.json": "fdffec603dbd3dffa37f53da7be8d9537a2f1bca16ed1e36e0f22b61f34ecd0c",
+      "vendor-map.json": "b3275c7d8b997d1cfe723d97594659f77d7b4361b824a790bcfdd7ff762589bd",
+      "vendor-rules.json": "2cd28d3b2144cd0c547780257f97d06364347037e087136418e5efa62c3dd010"
+    }
+  },
+  "entries": [
+    {
+      "path": "capabilities/task-review-2026-10-04-authority-classes.json",
+      "sha256": "428e78bb6cafffa138932ae2d34569d171df737dfbd764524c2bfdee85e216d7",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "8fefb7a5d205664d66ff3763cb86faf92dcd9d67f5138483c2c20bd453b54b27"
+        },
+        {
+          "class": "protected",
+          "sha256": "8fefb7a5d205664d66ff3763cb86faf92dcd9d67f5138483c2c20bd453b54b27"
+        }
+      ],
+      "reason": "Diagnose an unexplained CONTROL_REQUEST_FAILED (500) that cancelled a dispatched preparation. Record bounded route and error-code diagnostics, without messages, identifiers, query values or credentials, for control failures the CLI cannot read, and fail closed with CONTROL_AUTH_UNAVAILABLE when control authorization throws. Successful, 4xx and other 500 bodies are unchanged. Three regressions failed before and pass after the repair. Preserve failed public operations and the owner index."
+    },
+    {
+      "path": "packages/mcp/src/control/router.ts",
+      "sha256": "40a9c7e2f9b3386512fdbb5280af767179eb5f884a9aa3c7a3b9e4ecd3e06aa4",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "93f6aa482215b034be1e7dad01968f55c842bcf557069062c15af1e8fd9e746c"
+        },
+        {
+          "class": "protected",
+          "sha256": "93f6aa482215b034be1e7dad01968f55c842bcf557069062c15af1e8fd9e746c"
+        }
+      ],
+      "reason": "Diagnose an unexplained CONTROL_REQUEST_FAILED (500) that cancelled a dispatched preparation. Record bounded route and error-code diagnostics, without messages, identifiers, query values or credentials, for control failures the CLI cannot read, and fail closed with CONTROL_AUTH_UNAVAILABLE when control authorization throws. Successful, 4xx and other 500 bodies are unchanged. Three regressions failed before and pass after the repair. Preserve failed public operations and the owner index."
+    },
+    {
+      "path": "packages/mcp/src/election/leader-endpoints.ts",
+      "sha256": "33afaee8c6ba4b12f7902a670947c5ef62c59b6026b1668b4dc470ccadee984f",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "5f92231e28e965e0d126c393ab166d2cfe30c7d38119579d0e3c07817f32c004"
+        },
+        {
+          "class": "protected",
+          "sha256": "5f92231e28e965e0d126c393ab166d2cfe30c7d38119579d0e3c07817f32c004"
+        }
+      ],
+      "reason": "Diagnose an unexplained CONTROL_REQUEST_FAILED (500) that cancelled a dispatched preparation. Record bounded route and error-code diagnostics, without messages, identifiers, query values or credentials, for control failures the CLI cannot read, and fail closed with CONTROL_AUTH_UNAVAILABLE when control authorization throws. Successful, 4xx and other 500 bodies are unchanged. Three regressions failed before and pass after the repair. Preserve failed public operations and the owner index."
+    },
+    {
+      "path": "packages/mcp/src/index.ts",
+      "sha256": "501907006741364c9126206a08bb20658277a60f86f1ae95ced2228a824a9f7a",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "43f7b8b04e29327c0b14bca554322a1da1b2329a94b90b37a8fee615a8063d47"
+        },
+        {
+          "class": "protected",
+          "sha256": "43f7b8b04e29327c0b14bca554322a1da1b2329a94b90b37a8fee615a8063d47"
+        }
+      ],
+      "reason": "Diagnose an unexplained CONTROL_REQUEST_FAILED (500) that cancelled a dispatched preparation. Record bounded route and error-code diagnostics, without messages, identifiers, query values or credentials, for control failures the CLI cannot read, and fail closed with CONTROL_AUTH_UNAVAILABLE when control authorization throws. Successful, 4xx and other 500 bodies are unchanged. Three regressions failed before and pass after the repair. Preserve failed public operations and the owner index."
+    },
+    {
+      "path": "packages/mcp/test/control/control-router.test.ts",
+      "sha256": "50c856e3f8f76c31652d433af691ef7b413c0124c9d268f60f41259ff7831bac",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "a72702bda7b7d7c0c9835773d14dc2db2190382282b642c0bac667c0ae5dbc35"
+        },
+        {
+          "class": "protected",
+          "sha256": "a72702bda7b7d7c0c9835773d14dc2db2190382282b642c0bac667c0ae5dbc35"
+        }
+      ],
+      "reason": "Diagnose an unexplained CONTROL_REQUEST_FAILED (500) that cancelled a dispatched preparation. Record bounded route and error-code diagnostics, without messages, identifiers, query values or credentials, for control failures the CLI cannot read, and fail closed with CONTROL_AUTH_UNAVAILABLE when control authorization throws. Successful, 4xx and other 500 bodies are unchanged. Three regressions failed before and pass after the repair. Preserve failed public operations and the owner index."
+    },
+    {
+      "path": "packages/mcp/test/election/leader-endpoints.test.ts",
+      "sha256": "98b18b8d1defffb365c7d8e215f89193e2d1e003db078755ece607ba6cfd3fdb",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "639368087d62eba0664e23ab9f75ca6663d5423a9da3a451d106f52613816638"
+        },
+        {
+          "class": "protected",
+          "sha256": "639368087d62eba0664e23ab9f75ca6663d5423a9da3a451d106f52613816638"
+        }
+      ],
+      "reason": "Diagnose an unexplained CONTROL_REQUEST_FAILED (500) that cancelled a dispatched preparation. Record bounded route and error-code diagnostics, without messages, identifiers, query values or credentials, for control failures the CLI cannot read, and fail closed with CONTROL_AUTH_UNAVAILABLE when control authorization throws. Successful, 4xx and other 500 bodies are unchanged. Three regressions failed before and pass after the repair. Preserve failed public operations and the owner index."
+    }
+  ]
+}

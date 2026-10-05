@@ -1,0 +1,434 @@
+{
+  "recordedAt": "2026-10-04T09:46:57.174Z",
+  "referenceComplete": false,
+  "referenceLimit": "REOBSERVATION_BUDGET; 226 pending assets",
+  "expectedNodes": 3198,
+  "actualNodes": 3198,
+  "missingNodes": [
+    "I117:447;7677:9",
+    "I117:449;117:447;7677:9",
+    "I117:450;117:447;7677:9",
+    "I117:451;117:447;7677:9",
+    "I117:453;117:447;7677:9",
+    "I117:454;117:447;7677:9",
+    "I117:455;117:447;7677:9",
+    "I117:456;117:447;7677:9",
+    "I117:485;1:77",
+    "I117:577;117:447;7677:9",
+    "I117:578;117:447;7677:9",
+    "I117:579;117:447;7677:9",
+    "I117:580;117:447;7677:9",
+    "I117:582;117:447;7677:9",
+    "I117:583;117:447;7677:9",
+    "I117:584;117:447;7677:9",
+    "I117:585;117:447;7677:9",
+    "I117:587;117:447;7677:9",
+    "I117:588;117:447;7677:9",
+    "I117:589;117:447;7677:9",
+    "I117:590;117:447;7677:9",
+    "I117:592;117:447;7677:9",
+    "I117:593;117:447;7677:9",
+    "I117:594;117:447;7677:9",
+    "I117:595;117:447;7677:9",
+    "I117:952;117:447;7677:9",
+    "I117:953;117:447;7677:9",
+    "I117:954;117:447;7677:9",
+    "I117:955;117:447;7677:9",
+    "I117:1090;117:447;7677:9",
+    "I117:1091;117:447;7677:9",
+    "I117:1092;117:447;7677:9",
+    "I117:1093;117:447;7677:9"
+  ],
+  "extraNodes": [
+    "I117:447;102:59",
+    "I117:449;117:447;102:59",
+    "I117:450;117:447;102:59",
+    "I117:451;117:447;102:59",
+    "I117:453;117:447;102:59",
+    "I117:454;117:447;102:59",
+    "I117:455;117:447;102:59",
+    "I117:456;117:447;102:59",
+    "I117:485;102:777",
+    "I117:577;117:447;102:59",
+    "I117:578;117:447;102:59",
+    "I117:579;117:447;102:59",
+    "I117:580;117:447;102:59",
+    "I117:582;117:447;102:59",
+    "I117:583;117:447;102:59",
+    "I117:584;117:447;102:59",
+    "I117:585;117:447;102:59",
+    "I117:587;117:447;102:59",
+    "I117:588;117:447;102:59",
+    "I117:589;117:447;102:59",
+    "I117:590;117:447;102:59",
+    "I117:592;117:447;102:59",
+    "I117:593;117:447;102:59",
+    "I117:594;117:447;102:59",
+    "I117:595;117:447;102:59",
+    "I117:952;117:447;102:59",
+    "I117:953;117:447;102:59",
+    "I117:954;117:447;102:59",
+    "I117:955;117:447;102:59",
+    "I117:1090;117:447;102:59",
+    "I117:1091;117:447;102:59",
+    "I117:1092;117:447;102:59",
+    "I117:1093;117:447;102:59"
+  ],
+  "comparedPositions": 88135,
+  "differenceCount": 1537,
+  "unexplainedDifferenceCount": 1139,
+  "byField": {
+    "lineHeight": {
+      "count": 408,
+      "samples": [
+        {
+          "nodeId": "I117:3183;117:341",
+          "actual": "{\"unit\":\"PERCENT\",\"value\":100}",
+          "expected": "{\"unit\":\"AUTO\"}"
+        },
+        {
+          "nodeId": "I117:3183;117:342",
+          "actual": "{\"unit\":\"PERCENT\",\"value\":100}",
+          "expected": "{\"unit\":\"AUTO\"}"
+        }
+      ]
+    },
+    "absoluteTransform": {
+      "count": 280,
+      "samples": [
+        {
+          "nodeId": "I117:3183;117:347",
+          "actual": "[[1,0,10869.33333325386],[0,1,-471.33333349227905]]",
+          "expected": "[[1,0,10869.3330078125],[0,1,-471.3333435058594]]"
+        },
+        {
+          "nodeId": "I117:3183;117:349",
+          "actual": "[[1,0,10942.33333325386],[0,1,-473.6666667461395]]",
+          "expected": "[[1,0,10942.3330078125],[0,1,-473.6666564941406]]"
+        }
+      ]
+    },
+    "absoluteBoundingBox": {
+      "count": 280,
+      "samples": [
+        {
+          "nodeId": "I117:3183;117:347",
+          "actual": "{\"x\":10869.33333325386,\"y\":-471.33333349227905,\"width\":23.33333396911621,\"height\":18.66666603088379}",
+          "expected": "{\"x\":10869.3330078125,\"y\":-471.3333435058594,\"width\":23.33333396911621,\"height\":18.66666603088379}"
+        },
+        {
+          "nodeId": "I117:3183;117:349",
+          "actual": "{\"x\":10942.33333325386,\"y\":-473.6666667461395,\"width\":22.16666603088379,\"height\":22.16666603088379}",
+          "expected": "{\"x\":10942.3330078125,\"y\":-473.6666564941406,\"width\":22.16666603088379,\"height\":22.16666603088379}"
+        }
+      ]
+    },
+    "fillGeometry": {
+      "count": 29,
+      "samples": [
+        {
+          "nodeId": "I117:3183;117:349",
+          "actual": "[]",
+          "expected": "[{\"windingRule\":\"NONZERO\",\"data\":\"M22.1667 22.1667 L16.933 16.9237 Z M19.8333 9.91667 C19.8333 12.5467 18.7885 15.0691 16.9288 16.9288 C15.0691 18.7885 12.5467 19.8333 9.91667 19.8333 C7.2866 19.8333 4.76426 18.7885 2.90452 16.9288 C1.04479"
+        },
+        {
+          "nodeId": "I117:3183;117:351",
+          "actual": "[]",
+          "expected": "[{\"windingRule\":\"NONZERO\",\"data\":\"M5.83333 0 C2.61217 0 0 2.58533 0 5.775 C0 8.34983 1.02083 14.4608 11.0693 20.6383 C11.2493 20.7479 11.456 20.8058 11.6667 20.8058 C11.8774 20.8058 12.084 20.7479 12.264 20.6383 C22.3125 14.4608 23.3333 8.3"
+        }
+      ]
+    },
+    "fills": {
+      "count": 16,
+      "samples": [
+        {
+          "nodeId": "I117:3183;117:355",
+          "actual": "[{\"type\":\"IMAGE\",\"visible\":false,\"opacity\":1,\"blendMode\":\"NORMAL\",\"scaleMode\":\"STRETCH\",\"scalingFactor\":0.5,\"rotation\":0,\"imageTransform\":[[1,0,0.03084678016602993],[0,0.6883116960525513,-0.5211747288703918]],\"filters\":{\"exposure\":0,\"contra",
+          "expected": "[{\"type\":\"IMAGE\",\"visible\":false,\"opacity\":1,\"blendMode\":\"NORMAL\",\"scaleMode\":\"CROP\",\"scalingFactor\":0.5,\"filters\":{\"exposure\":0,\"contrast\":0,\"saturation\":0,\"temperature\":0,\"tint\":0,\"highlights\":0,\"shadows\":0},\"imageTransform\":[[1,0,0.03084"
+        },
+        {
+          "nodeId": "I117:3203;117:355",
+          "actual": "[{\"type\":\"IMAGE\",\"visible\":false,\"opacity\":1,\"blendMode\":\"NORMAL\",\"scaleMode\":\"STRETCH\",\"scalingFactor\":0.5,\"rotation\":0,\"imageTransform\":[[1,0,0.03084678016602993],[0,0.6883116960525513,-0.5211747288703918]],\"filters\":{\"exposure\":0,\"contra",
+          "expected": "[{\"type\":\"IMAGE\",\"visible\":false,\"opacity\":1,\"blendMode\":\"NORMAL\",\"scaleMode\":\"CROP\",\"scalingFactor\":0.5,\"filters\":{\"exposure\":0,\"contrast\":0,\"saturation\":0,\"temperature\":0,\"tint\":0,\"highlights\":0,\"shadows\":0},\"imageTransform\":[[1,0,0.03084"
+        }
+      ]
+    },
+    "fontName": {
+      "count": 408,
+      "samples": [
+        {
+          "nodeId": "I117:3183;117:356",
+          "actual": "{\"family\":\"Montserrat\",\"style\":\"Bold\"}",
+          "expected": "\"mixed\""
+        },
+        {
+          "nodeId": "117:3293",
+          "actual": "{\"family\":\"Poppins\",\"style\":\"SemiBold\"}",
+          "expected": "\"mixed\""
+        }
+      ]
+    },
+    "strokeWeight": {
+      "count": 9,
+      "samples": [
+        {
+          "nodeId": "I117:3254;117:508",
+          "actual": "1",
+          "expected": "\"mixed\""
+        },
+        {
+          "nodeId": "I117:3223;117:508",
+          "actual": "1",
+          "expected": "\"mixed\""
+        }
+      ]
+    },
+    "cornerRadius": {
+      "count": 74,
+      "samples": [
+        {
+          "nodeId": "117:363",
+          "actual": "0",
+          "expected": "10"
+        },
+        {
+          "nodeId": "117:425",
+          "expected": "0"
+        }
+      ]
+    },
+    "childIds": {
+      "count": 33,
+      "samples": [
+        {
+          "nodeId": "117:447",
+          "actual": "[\"I117:447;102:59\"]",
+          "expected": "[\"I117:447;7677:9\"]"
+        },
+        {
+          "nodeId": "I117:449;117:447",
+          "actual": "[\"I117:449;117:447;102:59\"]",
+          "expected": "[\"I117:449;117:447;7677:9\"]"
+        }
+      ]
+    }
+  },
+  "styles": {
+    "fullCaptureAccepted": false,
+    "pairing": "unique-kind-and-name-not-identity",
+    "pairs": [
+      {
+        "kind": "paints",
+        "name": "Font / Color",
+        "nativeId": "102:8",
+        "referenceId": "S:755780f2735b3a0914099d48f95b8ffd53b19fec,203:3"
+      },
+      {
+        "kind": "paints",
+        "name": "Font / Color1",
+        "nativeId": "102:34",
+        "referenceId": "S:b662666e5d5c1716f9ca70358bb001c97a611d0c,203:5"
+      },
+      {
+        "kind": "paints",
+        "name": "Color / White",
+        "nativeId": "102:60",
+        "referenceId": "S:54eb32548334cb46ea8946112bc4088ce6cca3a4,4:3"
+      },
+      {
+        "kind": "paints",
+        "name": "Color / Primary",
+        "nativeId": "102:61",
+        "referenceId": "S:2f3b92caa2062b62c3735d0f3c1c82c3feb4cc8e,27:7"
+      },
+      {
+        "kind": "paints",
+        "name": "Color / Light BG",
+        "nativeId": "102:63",
+        "referenceId": "S:6e5fbb217fa922775ed1725f98d993bb607b8a9b,32:12"
+      },
+      {
+        "kind": "paints",
+        "name": "Color / Gray 1",
+        "nativeId": "102:64",
+        "referenceId": "S:b09fe4ea0a35d03f84e8c4f340582c6424dea051,17:2"
+      },
+      {
+        "kind": "paints",
+        "name": "Color / Gray 4",
+        "nativeId": "102:66",
+        "referenceId": "S:8c518f5943dad1c025ad16917be1abc7f6642f98,18:2"
+      },
+      {
+        "kind": "paints",
+        "name": "Color / Gray 3",
+        "nativeId": "102:68",
+        "referenceId": "S:9b49e7ea844ffbf289e7c5bd18ba3cc790b4161a,18:1"
+      },
+      {
+        "kind": "paints",
+        "name": "Color / Red Accents",
+        "nativeId": "102:70",
+        "referenceId": "S:d6987e88f8953b27dfe12323a75eabc1d2899de4,27:5"
+      },
+      {
+        "kind": "paints",
+        "name": "Color / Green Accents",
+        "nativeId": "102:71",
+        "referenceId": "S:ba8ceea83996770ca2e80bbb323b61317d329067,49:22"
+      },
+      {
+        "kind": "paints",
+        "name": "Color / Gray 2",
+        "nativeId": "102:778",
+        "referenceId": "S:d44e754a14a73b6edda6c82652b4adc34d39f4e8,18:0"
+      },
+      {
+        "kind": "paints",
+        "name": "Color / Gray 5",
+        "nativeId": "102:780",
+        "referenceId": "S:4149d24c424c13131a8d93837732f27700b4dfd3,18:4"
+      }
+    ],
+    "ambiguous": [
+      {
+        "kind": "paints",
+        "name": "Primary",
+        "nativeCount": 2,
+        "referenceCount": 2
+      }
+    ],
+    "missing": [],
+    "extra": [
+      {
+        "kind": "paints",
+        "name": "Main"
+      }
+    ],
+    "comparedPositions": 12,
+    "differences": [],
+    "unobserved": [
+      {
+        "kind": "paints",
+        "name": "Font / Color",
+        "fields": [
+          "description",
+          "remote",
+          "type",
+          "boundVariables"
+        ]
+      },
+      {
+        "kind": "paints",
+        "name": "Font / Color1",
+        "fields": [
+          "description",
+          "remote",
+          "type",
+          "boundVariables"
+        ]
+      },
+      {
+        "kind": "paints",
+        "name": "Color / White",
+        "fields": [
+          "description",
+          "remote",
+          "type",
+          "boundVariables"
+        ]
+      },
+      {
+        "kind": "paints",
+        "name": "Color / Primary",
+        "fields": [
+          "description",
+          "remote",
+          "type",
+          "boundVariables"
+        ]
+      },
+      {
+        "kind": "paints",
+        "name": "Color / Light BG",
+        "fields": [
+          "description",
+          "remote",
+          "type",
+          "boundVariables"
+        ]
+      },
+      {
+        "kind": "paints",
+        "name": "Color / Gray 1",
+        "fields": [
+          "description",
+          "remote",
+          "type",
+          "boundVariables"
+        ]
+      },
+      {
+        "kind": "paints",
+        "name": "Color / Gray 4",
+        "fields": [
+          "description",
+          "remote",
+          "type",
+          "boundVariables"
+        ]
+      },
+      {
+        "kind": "paints",
+        "name": "Color / Gray 3",
+        "fields": [
+          "description",
+          "remote",
+          "type",
+          "boundVariables"
+        ]
+      },
+      {
+        "kind": "paints",
+        "name": "Color / Red Accents",
+        "fields": [
+          "description",
+          "remote",
+          "type",
+          "boundVariables"
+        ]
+      },
+      {
+        "kind": "paints",
+        "name": "Color / Green Accents",
+        "fields": [
+          "description",
+          "remote",
+          "type",
+          "boundVariables"
+        ]
+      },
+      {
+        "kind": "paints",
+        "name": "Color / Gray 2",
+        "fields": [
+          "description",
+          "remote",
+          "type",
+          "boundVariables"
+        ]
+      },
+      {
+        "kind": "paints",
+        "name": "Color / Gray 5",
+        "fields": [
+          "description",
+          "remote",
+          "type",
+          "boundVariables"
+        ]
+      }
+    ]
+  },
+  "fullCaptureAccepted": false
+}

@@ -1,0 +1,154 @@
+{
+  "recordedAt": "2026-10-04T15:02:13.272Z",
+  "sourceFingerprint": "sha256:62023ddd8c029ecd5425a25407551dfc1ea01a649b5c7008ce844d7d9ca357bb",
+  "purpose": "Coverage inventory after effects, stroke details, layout sizing, text and container fields. Presence is not semantic equality; this is remaining coverage, not complete native admission.",
+  "referenceNodes": 3198,
+  "nativeNodes": 3198,
+  "comparedFieldCount": 87,
+  "fields": {
+    "id": {
+      "referenceNodes": 3198,
+      "nativePresent": 3198
+    },
+    "collectorCapabilities": {
+      "referenceNodes": 3198,
+      "nativePresent": 0
+    },
+    "absoluteRenderBounds": {
+      "referenceNodes": 3198,
+      "nativePresent": 0
+    },
+    "gridRowCount": {
+      "referenceNodes": 552,
+      "nativePresent": 0
+    },
+    "gridColumnCount": {
+      "referenceNodes": 552,
+      "nativePresent": 0
+    },
+    "gridRowGap": {
+      "referenceNodes": 552,
+      "nativePresent": 0
+    },
+    "gridColumnGap": {
+      "referenceNodes": 552,
+      "nativePresent": 0
+    },
+    "gridRowSizes": {
+      "referenceNodes": 552,
+      "nativePresent": 0
+    },
+    "gridColumnSizes": {
+      "referenceNodes": 552,
+      "nativePresent": 0
+    },
+    "gridRowAnchorIndex": {
+      "referenceNodes": 3198,
+      "nativePresent": 0
+    },
+    "gridColumnAnchorIndex": {
+      "referenceNodes": 3198,
+      "nativePresent": 0
+    },
+    "gridRowSpan": {
+      "referenceNodes": 3198,
+      "nativePresent": 0
+    },
+    "gridColumnSpan": {
+      "referenceNodes": 3198,
+      "nativePresent": 0
+    },
+    "gridChildHorizontalAlign": {
+      "referenceNodes": 3198,
+      "nativePresent": 0
+    },
+    "gridChildVerticalAlign": {
+      "referenceNodes": 3198,
+      "nativePresent": 0
+    },
+    "fillStyleId": {
+      "referenceNodes": 2429,
+      "nativePresent": 0
+    },
+    "strokeStyleId": {
+      "referenceNodes": 2429,
+      "nativePresent": 0
+    },
+    "effectStyleId": {
+      "referenceNodes": 3198,
+      "nativePresent": 0
+    },
+    "gridStyleId": {
+      "referenceNodes": 552,
+      "nativePresent": 0
+    },
+    "boundVariables": {
+      "referenceNodes": 3198,
+      "nativePresent": 0
+    },
+    "explicitVariableModes": {
+      "referenceNodes": 3198,
+      "nativePresent": 0
+    },
+    "resolvedVariableModes": {
+      "referenceNodes": 3198,
+      "nativePresent": 0
+    },
+    "annotations": {
+      "referenceNodes": 2429,
+      "nativePresent": 0
+    },
+    "exportSettings": {
+      "referenceNodes": 3198,
+      "nativePresent": 0
+    },
+    "componentProperties": {
+      "referenceNodes": 80,
+      "nativePresent": 0
+    },
+    "variantProperties": {
+      "referenceNodes": 83,
+      "nativePresent": 0
+    },
+    "mainComponent": {
+      "referenceNodes": 80,
+      "nativePresent": 0
+    },
+    "componentApi": {
+      "referenceNodes": 80,
+      "nativePresent": 0
+    },
+    "geometrySource": {
+      "referenceNodes": 868,
+      "nativePresent": 0
+    },
+    "textStyleId": {
+      "referenceNodes": 868,
+      "nativePresent": 0
+    },
+    "textSegments": {
+      "referenceNodes": 868,
+      "nativePresent": 0
+    },
+    "vectorPaths": {
+      "referenceNodes": 220,
+      "nativePresent": 0
+    },
+    "vectorNetwork": {
+      "referenceNodes": 220,
+      "nativePresent": 0
+    },
+    "componentPropertyDefinitions": {
+      "referenceNodes": 3,
+      "nativePresent": 0
+    },
+    "description": {
+      "referenceNodes": 3,
+      "nativePresent": 0
+    },
+    "arcData": {
+      "referenceNodes": 73,
+      "nativePresent": 0
+    }
+  }
+}

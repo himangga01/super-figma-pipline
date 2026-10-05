@@ -7,6 +7,8 @@ import {
   type PublicPingV1,
 } from '@sfp/shared';
 
+import { describeServerFailure, requestRouteLabel } from '../control/router.js';
+import { isTransientStateProbeFailure } from '../fs/windows-boundary-probe-worker.js';
 import { handleLegacyFollowerRpc, type Relay } from '../relay/relay.js';
 import type {
   AuthenticatedFollowerRequest,
@@ -194,7 +196,16 @@ export const attachLeaderEndpoints = (http: HttpServer, deps: LeaderEndpointDeps
     }
   };
 
+  const diagnose = (message: string): void => {
+    try {
+      log(message);
+    } catch {
+      /* diagnostics never replace the bounded response */
+    }
+  };
+
   const handler = (req: IncomingMessage, res: ServerResponse): void => {
+    const started = performance.now();
     void (async (): Promise<void> => {
       if (!isAllowedHost(header(req, 'host'))) {
         log(`[leader] refused ${req.method ?? '?'} request for a non-loopback Host`);
@@ -263,7 +274,25 @@ export const attachLeaderEndpoints = (http: HttpServer, deps: LeaderEndpointDeps
       }
 
       if (req.url === '/control' || req.url?.startsWith('/control/') === true) {
-        if (!(await deps.transport.control.authorizeHttp(req))) {
+        let authorized: boolean;
+        try {
+          authorized = await deps.transport.control.authorizeHttp(req);
+        } catch (error) {
+          // Fail closed. The credential state could not be evaluated, so no control route runs.
+          // Only probe-capacity outcomes are typed as busy; integrity failures stay unavailable.
+          const busy = isTransientStateProbeFailure(error);
+          diagnose(
+            `[leader] control authorization ${busy ? 'busy' : 'unavailable'} (${requestRouteLabel(req.method, req.url)}; ${describeServerFailure(error)}; ${Math.round(performance.now() - started)} ms)`,
+          );
+          writeJson(
+            res,
+            busy ? 503 : 500,
+            { code: busy ? 'CONTROL_AUTH_BUSY' : 'CONTROL_AUTH_UNAVAILABLE' },
+            unreadBodyHeaders(req, { 'cache-control': 'no-store' }),
+          );
+          return;
+        }
+        if (!authorized) {
           writeEmpty(res, 401, { connection: 'close' });
           return;
         }
@@ -356,7 +385,10 @@ export const attachLeaderEndpoints = (http: HttpServer, deps: LeaderEndpointDeps
       }
 
       writeJson(res, 404, { error: 'not found' }, unreadBodyHeaders(req));
-    })().catch(() => {
+    })().catch((error: unknown) => {
+      diagnose(
+        `[leader] request failed without a typed response (${requestRouteLabel(req.method, req.url)}; ${describeServerFailure(error)}; ${res.headersSent ? 'headers sent; ' : ''}${Math.round(performance.now() - started)} ms)`,
+      );
       if (!res.headersSent) writeJson(res, 500, { error: 'internal' });
       else res.destroy();
     });

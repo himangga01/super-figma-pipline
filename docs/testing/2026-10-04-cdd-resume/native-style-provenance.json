@@ -1,0 +1,16 @@
+{
+  "recordedAt": "2026-10-04T08:46:03.688Z",
+  "baseline": "5b9343efc82ef47ba56f412acbd4eee5a328d335",
+  "sourceHash": "sha256:0465c2612f8f2f7ab955e3e5debc28d533ce4c5a6d212d938122a64808c5c9ac",
+  "review": "service/capabilities/reconciliations/review-2026-10-04-native-styles.json",
+  "newReviewedPaths": 5,
+  "semanticChanges": 18,
+  "authorityPaths": 4,
+  "retainedForks": 178,
+  "upstreams": 3,
+  "vendorRows": 238,
+  "mainIndexHash": "5a79352238185329aee8c904a5158b713ba9645d7af966917d09c2930652500a",
+  "manifestVerified": true,
+  "offlineProvenanceVerified": true,
+  "fullSourceChecks": "pending"
+}

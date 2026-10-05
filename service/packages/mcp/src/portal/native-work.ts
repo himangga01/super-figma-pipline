@@ -43,6 +43,7 @@ import {
   type BoundStatePermissions,
 } from '../security/state-permissions.js';
 import { resolvePortalAuthority, rootIdentity, type PortalAuthority } from './authority.js';
+import { provePortalPngReexport } from './capture-freshness.js';
 import { portalContentBytes, type PortalFileContent } from './content.js';
 import type { PortalWorkPort } from './coordinator.js';
 import {
@@ -778,6 +779,7 @@ export class PortalNativeWork implements PortalWorkPort {
       assertPortalCaptureDescriptor(captured, plan.design.capture);
       let liveDesignVerified = false;
       let freshDesignFingerprint: string | null = null;
+      let reexport: NonNullable<PortalAcceptance['capture']>['reexport'];
       const scopedCapture =
         capture ??
         (prepared?.captureSource?.kind === 'chrome' ? this.options.designCapture : undefined);
@@ -822,6 +824,26 @@ export class PortalNativeWork implements PortalWorkPort {
           liveDesignVerified =
             JSON.stringify(fresh.source) === JSON.stringify(plan.design.capture!.source) &&
             portalDesignFingerprint(refreshed) === portalDesignFingerprint(captured);
+          if (
+            !liveDesignVerified &&
+            JSON.stringify(fresh.source) === JSON.stringify(plan.design.capture!.source)
+          ) {
+            reexport =
+              (await provePortalPngReexport(captured, refreshed, fresh, signal)) ?? undefined;
+            liveDesignVerified = reexport !== undefined;
+          }
+          checks.push({
+            id: 'native-design-freshness',
+            kind: 'source-scope',
+            requirementIds: [],
+            required: true,
+            status: liveDesignVerified ? 'passed' : 'failed',
+            reason: liveDesignVerified
+              ? reexport
+                ? 'SAME_FACTS_BOUNDED_PNG_REEXPORT'
+                : 'EXACT_CAPTURE_FINGERPRINT'
+              : 'PORTAL_LIVE_DESIGN_CHANGED',
+          });
         }
       }
       await this.assertPreparedProfile(profile);
@@ -884,6 +906,7 @@ export class PortalNativeWork implements PortalWorkPort {
             plan.design.capture,
           ),
           freshDesignFingerprint,
+          ...(reexport ? { reexport } : {}),
         },
         nativeEnvironment: {
           version: 1,

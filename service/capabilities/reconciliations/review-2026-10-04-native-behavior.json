@@ -1,0 +1,116 @@
+{
+  "schemaVersion": 1,
+  "slice": "review-2026-10-04",
+  "baseline": {
+    "headCommit": "5b9343efc82ef47ba56f412acbd4eee5a328d335",
+    "authoritySha256": {
+      "upstream-lock.json": "1e28b75b5174bb18875016a089f4b6d517fd0039436038449cf906dba44a2b2f",
+      "vendor-map.json": "b3275c7d8b997d1cfe723d97594659f77d7b4361b824a790bcfdd7ff762589bd",
+      "vendor-rules.json": "2d988dc9d1564d2ba2b600d54e701047f75fd1e65134cc5d80cd92035580c511"
+    }
+  },
+  "entries": [
+    {
+      "path": "capabilities/task-review-2026-10-04-authority-classes.json",
+      "sha256": "2650d4ed97fcba58518159e80d491c5ab354697959aeea26cc7e25f7a3e58b60",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "d8ed0df587dac2988877c6b24ddb6bcb3c47c2c7dd69aa5b7b6060a319af2cee"
+        },
+        {
+          "class": "protected",
+          "sha256": "d8ed0df587dac2988877c6b24ddb6bcb3c47c2c7dd69aa5b7b6060a319af2cee"
+        }
+      ],
+      "reason": "Independently normalize recorded automatic-layout fields, masks and placement constraints, and the closed single-action native click-navigation form. Merge instance interaction fragments by ID, preserve deletion markers and unknown forms, and keep instance placement distinct from component placement. Compare both recorded Figma inputs; retain raw differences, missing semantics and false full native admission. Preserve prior provenance and the owner index."
+    },
+    {
+      "path": "docs/portal-native.md",
+      "sha256": "08206a4c7412b08559304f8af659f3c240136f98ebd45feb63992323789a646c",
+      "priorClaims": [
+        {
+          "class": "protected",
+          "sha256": "9e6d96600b333f8dda74b318284483246295e7a5f2037021d7239ef79073aa52"
+        }
+      ],
+      "reason": "Independently normalize recorded automatic-layout fields, masks and placement constraints, and the closed single-action native click-navigation form. Merge instance interaction fragments by ID, preserve deletion markers and unknown forms, and keep instance placement distinct from component placement. Compare both recorded Figma inputs; retain raw differences, missing semantics and false full native admission. Preserve prior provenance and the owner index."
+    },
+    {
+      "path": "packages/cli/src/figma-native-layout.ts",
+      "sha256": "d34085b33438383f6cfc0971a084df1a821976bf7b59dab437ecc1f982dd9aee",
+      "priorClaims": [],
+      "reason": "Independently normalize recorded automatic-layout fields, masks and placement constraints, and the closed single-action native click-navigation form. Merge instance interaction fragments by ID, preserve deletion markers and unknown forms, and keep instance placement distinct from component placement. Compare both recorded Figma inputs; retain raw differences, missing semantics and false full native admission. Preserve prior provenance and the owner index."
+    },
+    {
+      "path": "packages/cli/src/figma-native-nodes.ts",
+      "sha256": "9d9853197b3925e0e0a6ad30c61323704c11cfa67ecafeaa8502775a92f8e818",
+      "priorClaims": [
+        {
+          "class": "protected",
+          "sha256": "a05003cd47fc53a942352b1c0cbdbb86fe3d2184ad73f17575423e6388d3d6e9"
+        }
+      ],
+      "reason": "Independently normalize recorded automatic-layout fields, masks and placement constraints, and the closed single-action native click-navigation form. Merge instance interaction fragments by ID, preserve deletion markers and unknown forms, and keep instance placement distinct from component placement. Compare both recorded Figma inputs; retain raw differences, missing semantics and false full native admission. Preserve prior provenance and the owner index."
+    },
+    {
+      "path": "packages/cli/src/figma-native-reactions.ts",
+      "sha256": "ca1228ad1ea9287b2bde7189f0ec5daf260af58404ac6ad46f49b220fa80c400",
+      "priorClaims": [],
+      "reason": "Independently normalize recorded automatic-layout fields, masks and placement constraints, and the closed single-action native click-navigation form. Merge instance interaction fragments by ID, preserve deletion markers and unknown forms, and keep instance placement distinct from component placement. Compare both recorded Figma inputs; retain raw differences, missing semantics and false full native admission. Preserve prior provenance and the owner index."
+    },
+    {
+      "path": "packages/cli/test/figma-native-layout.test.ts",
+      "sha256": "d17f6b32f3cb6131ba230ba6a0d3c0e3f2bdcdb798a68f23299bde83c445fd0c",
+      "priorClaims": [],
+      "reason": "Independently normalize recorded automatic-layout fields, masks and placement constraints, and the closed single-action native click-navigation form. Merge instance interaction fragments by ID, preserve deletion markers and unknown forms, and keep instance placement distinct from component placement. Compare both recorded Figma inputs; retain raw differences, missing semantics and false full native admission. Preserve prior provenance and the owner index."
+    },
+    {
+      "path": "packages/cli/test/figma-native-nodes.test.ts",
+      "sha256": "df87061ef1251a5542f0d5a13bee19e2909ed219a6890cecd082b360b8bca8be",
+      "priorClaims": [
+        {
+          "class": "protected",
+          "sha256": "e6924580901f3620706ffffeaadf262c895589176d0932e4203a906ad11c2345"
+        }
+      ],
+      "reason": "Independently normalize recorded automatic-layout fields, masks and placement constraints, and the closed single-action native click-navigation form. Merge instance interaction fragments by ID, preserve deletion markers and unknown forms, and keep instance placement distinct from component placement. Compare both recorded Figma inputs; retain raw differences, missing semantics and false full native admission. Preserve prior provenance and the owner index."
+    },
+    {
+      "path": "packages/cli/test/figma-native-reactions.test.ts",
+      "sha256": "15f86617230799c000d24d5a3a1edae1ab463c0df25105ac376d00f72dfb5903",
+      "priorClaims": [],
+      "reason": "Independently normalize recorded automatic-layout fields, masks and placement constraints, and the closed single-action native click-navigation form. Merge instance interaction fragments by ID, preserve deletion markers and unknown forms, and keep instance placement distinct from component placement. Compare both recorded Figma inputs; retain raw differences, missing semantics and false full native admission. Preserve prior provenance and the owner index."
+    },
+    {
+      "path": "packages/mcp/src/portal/coordinator.ts",
+      "sha256": "669cdfed433186444838be3819ba4dba7789833b2a1515f7184ebee6ce5a6d6d",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "0301de688d63884ed0fff66d566bfeb36f7a1b62f7a0cc1453ccdfedc005a776"
+        },
+        {
+          "class": "protected",
+          "sha256": "0301de688d63884ed0fff66d566bfeb36f7a1b62f7a0cc1453ccdfedc005a776"
+        }
+      ],
+      "reason": "Raise only the bounded candidate aggregate cap to 96 MiB after the complete original image set exceeded 64 MiB. Preserve 300 files, per-file/submission limits and 128 MiB working-copy bounds. Verify the observed set, exact boundary, excess rejection and unchanged durable run after rejection."
+    },
+    {
+      "path": "packages/mcp/test/portal/coordinator.test.ts",
+      "sha256": "f3e521e3ecfacdbee33f6c5585375180cb60d4a0027e419020d9168497f52568",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "3a13ca5ab42543cde4e759ca832bf426bb5cbebebe0b006dd623894b760f4860"
+        },
+        {
+          "class": "protected",
+          "sha256": "3a13ca5ab42543cde4e759ca832bf426bb5cbebebe0b006dd623894b760f4860"
+        }
+      ],
+      "reason": "Raise only the bounded candidate aggregate cap to 96 MiB after the complete original image set exceeded 64 MiB. Preserve 300 files, per-file/submission limits and 128 MiB working-copy bounds. Verify the observed set, exact boundary, excess rejection and unchanged durable run after rejection."
+    }
+  ]
+}

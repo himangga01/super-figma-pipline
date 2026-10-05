@@ -84,6 +84,7 @@ it('reattaches to restarted installed Chrome through fresh discovery without res
     const addedUrl = 'https://www.figma.com/design/explicitOpenFixtureKey/Owned?node-id=0-1';
     const opened = await openChromeSession({ url: addedUrl, openIfMissing: true });
     expect(opened.target.fileKey).toBe('explicitOpenFixtureKey');
+    expect(opened.context.pages()).toHaveLength(1);
     expect(await opened.page.title()).toBe('Owned reconnect fixture');
     expect(context!.pages()).toHaveLength(2);
     expect(second.page.url()).toBe(targetUrl);

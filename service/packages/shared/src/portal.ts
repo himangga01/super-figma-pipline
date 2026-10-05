@@ -18,6 +18,7 @@ export * from './portal-observations.js';
 import {
   PortalCaptureSourceSchema,
   PortalCaptureDescriptorSchema,
+  PortalCaptureReexportProofSchema,
   type PortalCaptureGrant,
 } from './portal-capture-source.js';
 import { ProjectProfileSchema } from './project-profile.js';
@@ -697,6 +698,7 @@ export const PortalAcceptanceSchema = z
         version: z.literal(2),
         originalDescriptorHash: PortalHashSchema,
         freshDesignFingerprint: PortalHashSchema.nullable(),
+        reexport: PortalCaptureReexportProofSchema.optional(),
       })
       .strict()
       .optional(),

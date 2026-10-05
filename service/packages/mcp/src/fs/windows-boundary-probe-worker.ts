@@ -153,6 +153,29 @@ const probeRequestLine = (id: string, kind: InspectionKind, paths: readonly stri
 const probeError = (code: string, message: string, cause?: unknown): Error & { code: string } =>
   Object.assign(new Error(message, cause === undefined ? undefined : { cause }), { code });
 
+// Capacity outcomes of the serialized probe worker: the inspected state was not judged insecure.
+const TRANSIENT_PROBE_CODES = new Set([
+  'WINDOWS_BOUNDARY_TIMEOUT',
+  'WINDOWS_BOUNDARY_QUEUE_FULL',
+  'WINDOWS_BOUNDARY_QUEUE_TIMEOUT',
+]);
+
+/**
+ * True only when a state inspection failed because the probe worker lacked capacity in time.
+ * Integrity, protocol and closure failures are never transient.
+ */
+export const isTransientStateProbeFailure = (error: unknown): boolean => {
+  let current = error;
+  for (let depth = 0; depth < 4 && typeof current === 'object' && current !== null; depth++) {
+    const record = current as { code?: unknown; cause?: unknown };
+    if (typeof record.code === 'string' && TRANSIENT_PROBE_CODES.has(record.code)) return true;
+    // Only the command-failure wrapper may stand between the caller and a capacity outcome.
+    if (record.code !== undefined && record.code !== 'STATE_ACL_COMMAND_FAILED') return false;
+    current = record.cause;
+  }
+  return false;
+};
+
 const validPositive = (value: number): boolean => Number.isSafeInteger(value) && value > 0;
 
 const resolvePowerShellExecutable = (

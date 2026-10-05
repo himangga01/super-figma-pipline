@@ -1,0 +1,69 @@
+{
+  "recordedAt": "2026-10-04T13:20:00.000Z",
+  "purpose": "Observed expected failures before the verified code-review repairs; each new regression was run against the unrepaired implementation in .worktrees/baseline/service",
+  "runs": [
+    {
+      "finding": "F3",
+      "command": "vitest run packages/mcp/test/portal/capture-reexport.test.ts",
+      "numTotalTests": 9,
+      "numPassedTests": 7,
+      "numFailedTests": 2,
+      "failed": [
+        {
+          "title": "returns no proof instead of aborting acceptance when a verified fresh PNG 'exceeds the bounded decoder'",
+          "message": "promise rejected \"Error: PORTAL_PREVIEW_PIXEL_LIMIT\" instead of resolving"
+        },
+        {
+          "title": "returns no proof instead of aborting acceptance when a verified fresh PNG 'is not a decodable PNG'",
+          "message": "promise rejected \"Error: PORTAL_PREVIEW_PNG_INVALID\" instead of resolving"
+        }
+      ]
+    },
+    {
+      "finding": "F2 (relay)",
+      "command": "vitest run packages/mcp/test/portal/chrome-transport.test.ts",
+      "numTotalTests": 18,
+      "numPassedTests": 16,
+      "numFailedTests": 2,
+      "failed": [
+        {
+          "title": "closes only its own unaccepted source tab when the transport closes",
+          "message": "AssertionError: expected [] to deeply equal [ ObjectContaining{…} ]"
+        },
+        {
+          "title": "keeps an accepted or pre-existing source tab open when the transport closes",
+          "message": "TypeError: accepted.releaseCreatedTargets is not a function"
+        }
+      ]
+    },
+    {
+      "finding": "F1, F2 (CLI), F7",
+      "command": "vitest run packages/cli/test/browser-source-open.test.ts",
+      "numTotalTests": 13,
+      "numPassedTests": 8,
+      "numFailedTests": 5,
+      "failed": [
+        {
+          "title": "opens the requested source through the service CLI in existing Chrome without changing unrelated tabs",
+          "message": "AssertionError: expected \"vi.fn()\" to be called once, but got 0 times (created tab never accepted)"
+        },
+        {
+          "title": "reports a sign-in redirect as FIGMA_LOGIN_REQUIRED without accepting the created tab",
+          "message": "expected FIGMA_LOGIN_REQUIRED but got 'page.waitForURL: Timeout 60000ms exceeded.'"
+        },
+        {
+          "title": "maps a source that never reaches the requested file to FIGMA_TAB_NOT_FOUND",
+          "message": "expected FIGMA_TAB_NOT_FOUND but got 'page.waitForURL: Timeout 60000ms exceeded.'"
+        },
+        {
+          "title": "stops waiting for a source navigation when its caller is cancelled",
+          "message": "Error: Test timed out in 5000ms."
+        },
+        {
+          "title": "rejects a concurrent open with a different source-opening intent",
+          "message": "expected CHROME_SOURCE_BUSY but got 'FIGMA_TAB_NOT_FOUND' (the second caller cleared the first caller's opening intent)"
+        }
+      ]
+    }
+  ]
+}

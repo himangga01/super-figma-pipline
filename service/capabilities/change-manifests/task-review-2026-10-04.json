@@ -1,0 +1,367 @@
+{
+  "schemaVersion": 1,
+  "slice": "review-2026-10-04",
+  "authorityPaths": [
+    "service/capabilities/change-manifests/task-review-2026-10-04.json",
+    "service/upstream-lock.json",
+    "service/vendor-map.json",
+    "service/vendor-rules.json"
+  ],
+  "changes": [
+    {
+      "status": "A",
+      "path": "service/capabilities/reconciliations/review-2026-10-04-auth-busy.json",
+      "sha256": "4e848a77a772bf08058934d3eaa16afd37c603292e4a0b0614a8ad80a77fb95c"
+    },
+    {
+      "status": "A",
+      "path": "service/capabilities/reconciliations/review-2026-10-04-capture-budget.json",
+      "sha256": "a65c54396735a907925dc6053f5b9c137801d5eb92ca0fabea0a9526c240fa6a"
+    },
+    {
+      "status": "A",
+      "path": "service/capabilities/reconciliations/review-2026-10-04-chrome-opening.json",
+      "sha256": "0c799966222daba8ee588450858646c0255f13e51c1a9903531f77507c09ccdc"
+    },
+    {
+      "status": "A",
+      "path": "service/capabilities/reconciliations/review-2026-10-04-control-diagnostics.json",
+      "sha256": "3b0281f9d9e5163976ffd26c30debd720623a98ab2a28f4a88a8431cff64272b"
+    },
+    {
+      "status": "A",
+      "path": "service/capabilities/reconciliations/review-2026-10-04-control-poll.json",
+      "sha256": "006793d8107a2e0bc4ca061fce570861bbaa26c252daddadbcc22be9a9d98769"
+    },
+    {
+      "status": "A",
+      "path": "service/capabilities/reconciliations/review-2026-10-04-native-behavior.json",
+      "sha256": "cee8cd4c9684d476fa1fcaef6aff1fe2cf41ddc7e642e877a7713820337c8fec"
+    },
+    {
+      "status": "A",
+      "path": "service/capabilities/reconciliations/review-2026-10-04-native-container.json",
+      "sha256": "8d0c468c83253a9bc31cbb1b12ea43e0958d0fc8d98431d35c52630121ddf08c"
+    },
+    {
+      "status": "A",
+      "path": "service/capabilities/reconciliations/review-2026-10-04-native-effects.json",
+      "sha256": "ca8feaa46381707bbad448a37fd8eb169134dda60b182d96eed1af8e4cec1673"
+    },
+    {
+      "status": "A",
+      "path": "service/capabilities/reconciliations/review-2026-10-04-native-field-parity.json",
+      "sha256": "27e4d9bbd3d3401c50b63721c55b74508942b59ca49bda3808ac9955d3888870"
+    },
+    {
+      "status": "A",
+      "path": "service/capabilities/reconciliations/review-2026-10-04-native-sizing.json",
+      "sha256": "c5f9fa8ff40633a2200359b6cf1f9f5656e1385e1e0fb5f0202b339fdb9f98bd"
+    },
+    {
+      "status": "A",
+      "path": "service/capabilities/reconciliations/review-2026-10-04-native-strokes.json",
+      "sha256": "b8cb7632013bd82cea3c8efc9ca2df58c89e9a3893d5b54914da9a29192ba962"
+    },
+    {
+      "status": "A",
+      "path": "service/capabilities/reconciliations/review-2026-10-04-native-styles.json",
+      "sha256": "bd86566fb8127b85bdd214fc00928c1845926e90a8641e833d32f5fde5ddbf4a"
+    },
+    {
+      "status": "A",
+      "path": "service/capabilities/reconciliations/review-2026-10-04-native-text.json",
+      "sha256": "e95c971eea5bb0158c508d12b9f1858af9f27b2bafbb9f5da9455c1a1f64c680"
+    },
+    {
+      "status": "A",
+      "path": "service/capabilities/reconciliations/review-2026-10-04-png-reexport.json",
+      "sha256": "35b18505bbd115ab4c6e1cdbf22bc42bd4677884355ff2b6ae9628c704dfe03a"
+    },
+    {
+      "status": "A",
+      "path": "service/capabilities/reconciliations/review-2026-10-04-review-fixes.json",
+      "sha256": "6e0cb94e7f7635f7bd71ee38cf20a362996c742d78eabaf9b003653469450c7f"
+    },
+    {
+      "status": "A",
+      "path": "service/capabilities/reconciliations/review-2026-10-04-windows-drain.json",
+      "sha256": "48e5adcbf8ded03642a943bb5b7db0054fe1a8735dedfefb117b7251afa45139"
+    },
+    {
+      "status": "A",
+      "path": "service/capabilities/task-review-2026-10-04-authority-classes.json",
+      "sha256": "63ddd77ab32aa9da192b18c403e0d6b279bd8ea26a531c0b7051ac59b101bc84"
+    },
+    {
+      "status": "M",
+      "path": "service/capabilities/union-manifest.json",
+      "sha256": "f52f4cdab4a4363523b42e8ceb3c67c7c08f6fa630df1612c7e2ff069c0ded85"
+    },
+    {
+      "status": "M",
+      "path": "service/docs/portal-native.md",
+      "sha256": "ed51b76266b9c7b7065b255514e84e0b3d6338cc8be21836c6e33972b930e3fb"
+    },
+    {
+      "status": "M",
+      "path": "service/packages/cli/src/artifacts.ts",
+      "sha256": "9cecb4078cf727cb626183010a6d20070ce2fb012d963c1fed08b26feebe990b"
+    },
+    {
+      "status": "M",
+      "path": "service/packages/cli/src/browser-session.ts",
+      "sha256": "f9ba1ff923d35ab1f17c0289332538daad2a75d95a079463429fb132359f9c43"
+    },
+    {
+      "status": "M",
+      "path": "service/packages/cli/src/commands.ts",
+      "sha256": "eed08366911ac7355f2ad00f16eba14bc258e829ce31c53f567d1e49d5aa9978"
+    },
+    {
+      "status": "M",
+      "path": "service/packages/cli/src/control-client.ts",
+      "sha256": "3bc0c86dda29965396b1aefa7ce26d3042e0a6d9a2e0480bebc7311269c023b5"
+    },
+    {
+      "status": "A",
+      "path": "service/packages/cli/src/figma-native-effects.ts",
+      "sha256": "2af19aa668b0b5937804c13a7e126b79b863a0771f5271705ffe490ff80a983f"
+    },
+    {
+      "status": "A",
+      "path": "service/packages/cli/src/figma-native-font-ranges.ts",
+      "sha256": "ff768838e272ad821262bc646123546b83d092584af21bd37622a1bd33414b64"
+    },
+    {
+      "status": "M",
+      "path": "service/packages/cli/src/figma-native-geometry.ts",
+      "sha256": "8051a12b23d9e2bcb662625fcbb2613bb956076bdc2148c2abb4809ad9f903ee"
+    },
+    {
+      "status": "A",
+      "path": "service/packages/cli/src/figma-native-layout.ts",
+      "sha256": "292ec2766814b3f7a0f931a5cc0c88050c79a0b371e2cdbdd53367e12c9dfb3f"
+    },
+    {
+      "status": "M",
+      "path": "service/packages/cli/src/figma-native-nodes.ts",
+      "sha256": "e8549ce75fd507f1219cbb89f4617cebc28115967ab0c89e9dd5eb84e3fff388"
+    },
+    {
+      "status": "M",
+      "path": "service/packages/cli/src/figma-native-paints.ts",
+      "sha256": "0da009e0ced459a51b66211331655df2fcafc4f2ee2bbd9d3f2d393f09163d97"
+    },
+    {
+      "status": "A",
+      "path": "service/packages/cli/src/figma-native-reactions.ts",
+      "sha256": "ca1228ad1ea9287b2bde7189f0ec5daf260af58404ac6ad46f49b220fa80c400"
+    },
+    {
+      "status": "A",
+      "path": "service/packages/cli/src/figma-native-styles.ts",
+      "sha256": "750a50fa1bdf7dd0ae5cfc132ddcdb064a0b82483fe8232e4eb3ff1539e24845"
+    },
+    {
+      "status": "A",
+      "path": "service/packages/cli/src/figma-native-text-properties.ts",
+      "sha256": "73b061dbec5907889f2cd99c46070122ff0e9293604a82619e0ed15ef0c00c56"
+    },
+    {
+      "status": "A",
+      "path": "service/packages/cli/src/figma-native-vector-network.ts",
+      "sha256": "b7ca1e6c023c31cda882491e1495bcb392f5c5e633d3e1a89305dcf573bd622c"
+    },
+    {
+      "status": "M",
+      "path": "service/packages/cli/src/snapshot-reader.ts",
+      "sha256": "2fff5a6656260ebb2d922f319ab1f4b4a90d006cfa2f815104f84460fa0689c7"
+    },
+    {
+      "status": "M",
+      "path": "service/packages/cli/test/browser-session-reconnect.test.ts",
+      "sha256": "af71db371f58968a5ef89721cfe164e7658d18d413e191b2c84d6e363fd00131"
+    },
+    {
+      "status": "M",
+      "path": "service/packages/cli/test/browser-source-open.test.ts",
+      "sha256": "43849c1c166e249266bc1a26e7d49b839d29aa9193f99a56cc72eb0a83154c58"
+    },
+    {
+      "status": "M",
+      "path": "service/packages/cli/test/control-client-http.test.ts",
+      "sha256": "b2eada99fcfb574d25d68119e07f84054b62103fd5b8f01a3286578394744c5d"
+    },
+    {
+      "status": "A",
+      "path": "service/packages/cli/test/figma-native-effects.test.ts",
+      "sha256": "1589f546cb424e3336d6384a3ebb1d4e1ef4cc2340aef444851b6a307a9475d8"
+    },
+    {
+      "status": "A",
+      "path": "service/packages/cli/test/figma-native-font-ranges.test.ts",
+      "sha256": "c36c15310e3d0177d3e3d7ddbc77f2e8b6cb4c9084a532059cbc16833cc17676"
+    },
+    {
+      "status": "M",
+      "path": "service/packages/cli/test/figma-native-geometry.test.ts",
+      "sha256": "8357dc100bce52077cb68d7dd13216ecb9754882fd7195408098795d511cf9a4"
+    },
+    {
+      "status": "A",
+      "path": "service/packages/cli/test/figma-native-layout.test.ts",
+      "sha256": "4cf1406c68556403706a45ff26afb2ba173e17019ac2f3861a103d089716504b"
+    },
+    {
+      "status": "M",
+      "path": "service/packages/cli/test/figma-native-nodes.test.ts",
+      "sha256": "db13af445e3874018641d2ba8af8e9c73ffd408d0993f58e3f3f1bb05078fc8f"
+    },
+    {
+      "status": "M",
+      "path": "service/packages/cli/test/figma-native-paints.test.ts",
+      "sha256": "7d2c815492610580f44c35df116a8a240402f2cb6609a10ec1a40f1053d14509"
+    },
+    {
+      "status": "A",
+      "path": "service/packages/cli/test/figma-native-reactions.test.ts",
+      "sha256": "15f86617230799c000d24d5a3a1edae1ab463c0df25105ac376d00f72dfb5903"
+    },
+    {
+      "status": "A",
+      "path": "service/packages/cli/test/figma-native-styles.test.ts",
+      "sha256": "4dcf8cf7e160cc6a8851d9c2ce08623aa52d3b9aead7e08d95220fb73e2da1ad"
+    },
+    {
+      "status": "A",
+      "path": "service/packages/cli/test/figma-native-text-properties.test.ts",
+      "sha256": "8950f7e77aa370c1e12a0f99b25491d31e50ee816fddbc9e9f56561870984ca7"
+    },
+    {
+      "status": "A",
+      "path": "service/packages/cli/test/figma-native-vector-network.test.ts",
+      "sha256": "d264537e0f6b369d58223e15fa0b559a4fbb879ab7ce90f5253f889efa40cb43"
+    },
+    {
+      "status": "M",
+      "path": "service/packages/cli/test/scripter-catalogs.test.ts",
+      "sha256": "44faf8b7fa420beddefe2c5ed1c30985751a1dd5335e570ad65fdb5129259170"
+    },
+    {
+      "status": "A",
+      "path": "service/packages/ir/src/capture-freshness.ts",
+      "sha256": "f0f0440c0e1bbf5c5f87444520cda9e5dcf22d8f588d535b4a5ff139b9b53b3b"
+    },
+    {
+      "status": "M",
+      "path": "service/packages/ir/src/portal-run.ts",
+      "sha256": "7bff2d15d7c8d23dba490a5846e66c457ebffb0cc83f7f6f91237e5ac7de5941"
+    },
+    {
+      "status": "A",
+      "path": "service/packages/ir/test/capture-freshness.test.ts",
+      "sha256": "db938957ad39ea86d30c7bfb48530a9aee7b8c52035f6b43df66037124f2fa9a"
+    },
+    {
+      "status": "M",
+      "path": "service/packages/mcp/src/control/router.ts",
+      "sha256": "40a9c7e2f9b3386512fdbb5280af767179eb5f884a9aa3c7a3b9e4ecd3e06aa4"
+    },
+    {
+      "status": "M",
+      "path": "service/packages/mcp/src/election/leader-endpoints.ts",
+      "sha256": "08d49c64802d01031f247a206a18edd49b193bd41777c94cc981faf2047bae57"
+    },
+    {
+      "status": "M",
+      "path": "service/packages/mcp/src/fs/windows-boundary-probe-worker.ts",
+      "sha256": "81a216eb68b216c3920c4ad14db903771c31c341134099030b025e0f71aed9ba"
+    },
+    {
+      "status": "M",
+      "path": "service/packages/mcp/src/index.ts",
+      "sha256": "501907006741364c9126206a08bb20658277a60f86f1ae95ced2228a824a9f7a"
+    },
+    {
+      "status": "A",
+      "path": "service/packages/mcp/src/portal/capture-freshness.ts",
+      "sha256": "0852dfa3bf5e787b06ef488ce97d049517bd778c51af2a476c47fa0b7340a78c"
+    },
+    {
+      "status": "M",
+      "path": "service/packages/mcp/src/portal/chrome-transport.ts",
+      "sha256": "5585c3cd026b70b4c6f40bfeae4bd8169d934343d2703ca64fce6cf03a3becf6"
+    },
+    {
+      "status": "M",
+      "path": "service/packages/mcp/src/portal/coordinator.ts",
+      "sha256": "669cdfed433186444838be3819ba4dba7789833b2a1515f7184ebee6ce5a6d6d"
+    },
+    {
+      "status": "M",
+      "path": "service/packages/mcp/src/portal/native-work.ts",
+      "sha256": "ee6af25547649f3daa30176d8ec0780bdd6d24b1da17901b74bdf9dcd81ae122"
+    },
+    {
+      "status": "M",
+      "path": "service/packages/mcp/src/portal/preview.ts",
+      "sha256": "ed2a361fb8f261051f9e2836f264a1f6c56b5bd6ddcfd06f9bd7472160cf47f4"
+    },
+    {
+      "status": "M",
+      "path": "service/packages/mcp/src/portal/windows-job.ts",
+      "sha256": "33771c8ff15187400566c14e86728721c22e63ada22053631b031f01af79aec6"
+    },
+    {
+      "status": "M",
+      "path": "service/packages/mcp/test/control/control-router.test.ts",
+      "sha256": "50c856e3f8f76c31652d433af691ef7b413c0124c9d268f60f41259ff7831bac"
+    },
+    {
+      "status": "M",
+      "path": "service/packages/mcp/test/election/leader-endpoints.test.ts",
+      "sha256": "e10895a13b8a98a079a57f917726706906001285b2da8ec091e8e372c27125ed"
+    },
+    {
+      "status": "A",
+      "path": "service/packages/mcp/test/portal/capture-reexport.test.ts",
+      "sha256": "b7e80d59c70176bdd670bc09abfdbfcf9bf41ca9b2e087983be0fecc54b9b24a"
+    },
+    {
+      "status": "M",
+      "path": "service/packages/mcp/test/portal/chrome-transport.test.ts",
+      "sha256": "0e064f0226b73c06fedd4053af6d3e3c32d2753a585bec490b60db14271a4d91"
+    },
+    {
+      "status": "M",
+      "path": "service/packages/mcp/test/portal/coordinator.test.ts",
+      "sha256": "f3e521e3ecfacdbee33f6c5585375180cb60d4a0027e419020d9168497f52568"
+    },
+    {
+      "status": "M",
+      "path": "service/packages/mcp/test/portal/native-artifacts.test.ts",
+      "sha256": "d007a000b6cc2b8a4fcfa27e498dd692581ab4a35c67cc20f6517780108bbaa2"
+    },
+    {
+      "status": "M",
+      "path": "service/packages/mcp/test/portal/native-environment.test.ts",
+      "sha256": "5ad222219f5765c40ef29c7b990192298ceaaa66b27c0cd90fd8b128f3a5b2ce"
+    },
+    {
+      "status": "M",
+      "path": "service/packages/mcp/test/security/pairing.test.ts",
+      "sha256": "6bbc21364c8870aeb29a0b54786c15f9ed0e5077e5d33046c3a0ffbc8c101885"
+    },
+    {
+      "status": "M",
+      "path": "service/packages/shared/src/portal-capture-source.ts",
+      "sha256": "87bf640ab374220f586a4079a798780a2ee0a04da695f96f8e3a2d10b1986d43"
+    },
+    {
+      "status": "M",
+      "path": "service/packages/shared/src/portal.ts",
+      "sha256": "81cfc66c697a52e59f65a64ee828bf5c351efd297b750995799387ed48b9fc0a"
+    }
+  ]
+}

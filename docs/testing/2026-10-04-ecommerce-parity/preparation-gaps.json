@@ -1,0 +1,765 @@
+{
+  "recordedAt": "2026-10-04T11:49:10.211Z",
+  "planId": "sfp_portal1_f936c1ff20561880bda56b1de437b073",
+  "analysisHash": "sha256:a42334b724cb5d66f6e3aae85830a68f2ff791b86dc03c343d49c82af59362b0",
+  "preparationOnly": true,
+  "workflow": {
+    "issueCount": 89,
+    "interactionCount": 66,
+    "interactionIssues": [],
+    "unresolvedByRoot": {
+      "Contact": [
+        {
+          "nodeId": "I117:3183;117:345",
+          "labels": [
+            "Group 1"
+          ],
+          "type": "GROUP",
+          "interactionCount": 1
+        }
+      ],
+      "Blog ": [
+        {
+          "nodeId": "I117:3203;117:345",
+          "labels": [
+            "Group 1"
+          ],
+          "type": "GROUP",
+          "interactionCount": 1
+        }
+      ],
+      "Home": [
+        {
+          "nodeId": "117:345",
+          "labels": [
+            "Group 1"
+          ],
+          "type": "GROUP",
+          "interactionCount": 1
+        },
+        {
+          "nodeId": "117:395",
+          "labels": [
+            "Show more"
+          ],
+          "type": "GROUP",
+          "interactionCount": 1
+        },
+        {
+          "nodeId": "117:399",
+          "labels": [
+            "Featured Products"
+          ],
+          "type": "COMPONENT",
+          "interactionCount": 1
+        },
+        {
+          "nodeId": "117:432",
+          "labels": [
+            "Button"
+          ],
+          "type": "FRAME",
+          "interactionCount": 0
+        },
+        {
+          "nodeId": "117:449",
+          "labels": [
+            "Featured Products"
+          ],
+          "type": "INSTANCE",
+          "interactionCount": 1
+        },
+        {
+          "nodeId": "I117:449;117:432",
+          "labels": [
+            "Button"
+          ],
+          "type": "FRAME",
+          "interactionCount": 0
+        },
+        {
+          "nodeId": "I117:449;117:441",
+          "labels": [
+            "Frame 12"
+          ],
+          "type": "FRAME",
+          "interactionCount": 1
+        },
+        {
+          "nodeId": "117:450",
+          "labels": [
+            "Featured Products"
+          ],
+          "type": "INSTANCE",
+          "interactionCount": 1
+        },
+        {
+          "nodeId": "I117:450;117:432",
+          "labels": [
+            "Button"
+          ],
+          "type": "FRAME",
+          "interactionCount": 0
+        },
+        {
+          "nodeId": "117:451",
+          "labels": [
+            "Featured Products"
+          ],
+          "type": "INSTANCE",
+          "interactionCount": 1
+        },
+        {
+          "nodeId": "I117:451;117:432",
+          "labels": [
+            "Button"
+          ],
+          "type": "FRAME",
+          "interactionCount": 0
+        },
+        {
+          "nodeId": "117:453",
+          "labels": [
+            "Featured Products"
+          ],
+          "type": "INSTANCE",
+          "interactionCount": 1
+        },
+        {
+          "nodeId": "I117:453;117:432",
+          "labels": [
+            "Button"
+          ],
+          "type": "FRAME",
+          "interactionCount": 0
+        },
+        {
+          "nodeId": "117:454",
+          "labels": [
+            "Featured Products"
+          ],
+          "type": "INSTANCE",
+          "interactionCount": 1
+        },
+        {
+          "nodeId": "I117:454;117:432",
+          "labels": [
+            "Button"
+          ],
+          "type": "FRAME",
+          "interactionCount": 0
+        },
+        {
+          "nodeId": "117:455",
+          "labels": [
+            "Featured Products"
+          ],
+          "type": "INSTANCE",
+          "interactionCount": 1
+        },
+        {
+          "nodeId": "I117:455;117:432",
+          "labels": [
+            "Button"
+          ],
+          "type": "FRAME",
+          "interactionCount": 0
+        },
+        {
+          "nodeId": "117:456",
+          "labels": [
+            "Featured Products"
+          ],
+          "type": "INSTANCE",
+          "interactionCount": 1
+        },
+        {
+          "nodeId": "I117:456;117:432",
+          "labels": [
+            "Button"
+          ],
+          "type": "FRAME",
+          "interactionCount": 0
+        }
+      ],
+      "Shop ": [
+        {
+          "nodeId": "I117:539;117:345",
+          "labels": [
+            "Group 1"
+          ],
+          "type": "GROUP",
+          "interactionCount": 1
+        },
+        {
+          "nodeId": "117:573",
+          "labels": [
+            "Group 83"
+          ],
+          "type": "GROUP",
+          "interactionCount": 1
+        },
+        {
+          "nodeId": "117:577",
+          "labels": [
+            "Featured Products"
+          ],
+          "type": "INSTANCE",
+          "interactionCount": 1
+        },
+        {
+          "nodeId": "I117:577;117:432",
+          "labels": [
+            "Button"
+          ],
+          "type": "FRAME",
+          "interactionCount": 0
+        },
+        {
+          "nodeId": "117:578",
+          "labels": [
+            "Featured Products"
+          ],
+          "type": "INSTANCE",
+          "interactionCount": 1
+        },
+        {
+          "nodeId": "I117:578;117:432",
+          "labels": [
+            "Button"
+          ],
+          "type": "FRAME",
+          "interactionCount": 0
+        },
+        {
+          "nodeId": "I117:578;117:441",
+          "labels": [
+            "Frame 12"
+          ],
+          "type": "FRAME",
+          "interactionCount": 1
+        },
+        {
+          "nodeId": "117:579",
+          "labels": [
+            "Featured Products"
+          ],
+          "type": "INSTANCE",
+          "interactionCount": 1
+        },
+        {
+          "nodeId": "I117:579;117:432",
+          "labels": [
+            "Button"
+          ],
+          "type": "FRAME",
+          "interactionCount": 0
+        },
+        {
+          "nodeId": "117:580",
+          "labels": [
+            "Featured Products"
+          ],
+          "type": "INSTANCE",
+          "interactionCount": 1
+        },
+        {
+          "nodeId": "I117:580;117:432",
+          "labels": [
+            "Button"
+          ],
+          "type": "FRAME",
+          "interactionCount": 0
+        },
+        {
+          "nodeId": "117:582",
+          "labels": [
+            "Featured Products"
+          ],
+          "type": "INSTANCE",
+          "interactionCount": 1
+        },
+        {
+          "nodeId": "I117:582;117:432",
+          "labels": [
+            "Button"
+          ],
+          "type": "FRAME",
+          "interactionCount": 0
+        },
+        {
+          "nodeId": "117:583",
+          "labels": [
+            "Featured Products"
+          ],
+          "type": "INSTANCE",
+          "interactionCount": 1
+        },
+        {
+          "nodeId": "I117:583;117:432",
+          "labels": [
+            "Button"
+          ],
+          "type": "FRAME",
+          "interactionCount": 0
+        },
+        {
+          "nodeId": "I117:583;117:441",
+          "labels": [
+            "Frame 12"
+          ],
+          "type": "FRAME",
+          "interactionCount": 1
+        },
+        {
+          "nodeId": "117:584",
+          "labels": [
+            "Featured Products"
+          ],
+          "type": "INSTANCE",
+          "interactionCount": 1
+        },
+        {
+          "nodeId": "I117:584;117:432",
+          "labels": [
+            "Button"
+          ],
+          "type": "FRAME",
+          "interactionCount": 0
+        },
+        {
+          "nodeId": "117:585",
+          "labels": [
+            "Featured Products"
+          ],
+          "type": "INSTANCE",
+          "interactionCount": 1
+        },
+        {
+          "nodeId": "I117:585;117:432",
+          "labels": [
+            "Button"
+          ],
+          "type": "FRAME",
+          "interactionCount": 0
+        },
+        {
+          "nodeId": "117:587",
+          "labels": [
+            "Featured Products"
+          ],
+          "type": "INSTANCE",
+          "interactionCount": 1
+        },
+        {
+          "nodeId": "I117:587;117:432",
+          "labels": [
+            "Button"
+          ],
+          "type": "FRAME",
+          "interactionCount": 0
+        },
+        {
+          "nodeId": "117:588",
+          "labels": [
+            "Featured Products"
+          ],
+          "type": "INSTANCE",
+          "interactionCount": 1
+        },
+        {
+          "nodeId": "I117:588;117:432",
+          "labels": [
+            "Button"
+          ],
+          "type": "FRAME",
+          "interactionCount": 0
+        },
+        {
+          "nodeId": "I117:588;117:441",
+          "labels": [
+            "Frame 12"
+          ],
+          "type": "FRAME",
+          "interactionCount": 1
+        },
+        {
+          "nodeId": "117:589",
+          "labels": [
+            "Featured Products"
+          ],
+          "type": "INSTANCE",
+          "interactionCount": 1
+        },
+        {
+          "nodeId": "I117:589;117:432",
+          "labels": [
+            "Button"
+          ],
+          "type": "FRAME",
+          "interactionCount": 0
+        },
+        {
+          "nodeId": "117:590",
+          "labels": [
+            "Featured Products"
+          ],
+          "type": "INSTANCE",
+          "interactionCount": 1
+        },
+        {
+          "nodeId": "I117:590;117:432",
+          "labels": [
+            "Button"
+          ],
+          "type": "FRAME",
+          "interactionCount": 0
+        },
+        {
+          "nodeId": "117:592",
+          "labels": [
+            "Featured Products"
+          ],
+          "type": "INSTANCE",
+          "interactionCount": 1
+        },
+        {
+          "nodeId": "I117:592;117:432",
+          "labels": [
+            "Button"
+          ],
+          "type": "FRAME",
+          "interactionCount": 0
+        },
+        {
+          "nodeId": "117:593",
+          "labels": [
+            "Featured Products"
+          ],
+          "type": "INSTANCE",
+          "interactionCount": 1
+        },
+        {
+          "nodeId": "I117:593;117:432",
+          "labels": [
+            "Button"
+          ],
+          "type": "FRAME",
+          "interactionCount": 0
+        },
+        {
+          "nodeId": "I117:593;117:441",
+          "labels": [
+            "Frame 12"
+          ],
+          "type": "FRAME",
+          "interactionCount": 1
+        },
+        {
+          "nodeId": "117:594",
+          "labels": [
+            "Featured Products"
+          ],
+          "type": "INSTANCE",
+          "interactionCount": 1
+        },
+        {
+          "nodeId": "I117:594;117:432",
+          "labels": [
+            "Button"
+          ],
+          "type": "FRAME",
+          "interactionCount": 0
+        },
+        {
+          "nodeId": "117:595",
+          "labels": [
+            "Featured Products"
+          ],
+          "type": "INSTANCE",
+          "interactionCount": 1
+        },
+        {
+          "nodeId": "I117:595;117:432",
+          "labels": [
+            "Button"
+          ],
+          "type": "FRAME",
+          "interactionCount": 0
+        }
+      ],
+      "Product Comparison": [
+        {
+          "nodeId": "I117:642;117:345",
+          "labels": [
+            "Group 1"
+          ],
+          "type": "GROUP",
+          "interactionCount": 1
+        },
+        {
+          "nodeId": "117:725",
+          "labels": [
+            "Group 157"
+          ],
+          "type": "GROUP",
+          "interactionCount": 1
+        },
+        {
+          "nodeId": "117:729",
+          "labels": [
+            "Group 156"
+          ],
+          "type": "GROUP",
+          "interactionCount": 1
+        },
+        {
+          "nodeId": "117:766",
+          "labels": [
+            "Group 159"
+          ],
+          "type": "GROUP",
+          "interactionCount": 1
+        }
+      ],
+      "Single Product": [
+        {
+          "nodeId": "117:818",
+          "labels": [
+            "Single Product"
+          ],
+          "type": "FRAME",
+          "interactionCount": 1
+        },
+        {
+          "nodeId": "I117:819;117:345",
+          "labels": [
+            "Group 1"
+          ],
+          "type": "GROUP",
+          "interactionCount": 1
+        },
+        {
+          "nodeId": "117:902",
+          "labels": [
+            "Group 101"
+          ],
+          "type": "GROUP",
+          "interactionCount": 1
+        },
+        {
+          "nodeId": "117:952",
+          "labels": [
+            "Featured Products"
+          ],
+          "type": "INSTANCE",
+          "interactionCount": 1
+        },
+        {
+          "nodeId": "I117:952;117:432",
+          "labels": [
+            "Button"
+          ],
+          "type": "FRAME",
+          "interactionCount": 0
+        },
+        {
+          "nodeId": "117:953",
+          "labels": [
+            "Featured Products"
+          ],
+          "type": "INSTANCE",
+          "interactionCount": 1
+        },
+        {
+          "nodeId": "I117:953;117:432",
+          "labels": [
+            "Button"
+          ],
+          "type": "FRAME",
+          "interactionCount": 0
+        },
+        {
+          "nodeId": "117:954",
+          "labels": [
+            "Featured Products"
+          ],
+          "type": "INSTANCE",
+          "interactionCount": 1
+        },
+        {
+          "nodeId": "I117:954;117:432",
+          "labels": [
+            "Button"
+          ],
+          "type": "FRAME",
+          "interactionCount": 0
+        },
+        {
+          "nodeId": "117:955",
+          "labels": [
+            "Featured Products"
+          ],
+          "type": "INSTANCE",
+          "interactionCount": 1
+        },
+        {
+          "nodeId": "I117:955;117:432",
+          "labels": [
+            "Button"
+          ],
+          "type": "FRAME",
+          "interactionCount": 0
+        }
+      ],
+      "Cart Sidebar": [
+        {
+          "nodeId": "I117:961;117:345",
+          "labels": [
+            "Group 1"
+          ],
+          "type": "GROUP",
+          "interactionCount": 1
+        },
+        {
+          "nodeId": "117:1090",
+          "labels": [
+            "Featured Products"
+          ],
+          "type": "INSTANCE",
+          "interactionCount": 1
+        },
+        {
+          "nodeId": "I117:1090;117:432",
+          "labels": [
+            "Button"
+          ],
+          "type": "FRAME",
+          "interactionCount": 0
+        },
+        {
+          "nodeId": "117:1091",
+          "labels": [
+            "Featured Products"
+          ],
+          "type": "INSTANCE",
+          "interactionCount": 1
+        },
+        {
+          "nodeId": "I117:1091;117:432",
+          "labels": [
+            "Button"
+          ],
+          "type": "FRAME",
+          "interactionCount": 0
+        },
+        {
+          "nodeId": "117:1092",
+          "labels": [
+            "Featured Products"
+          ],
+          "type": "INSTANCE",
+          "interactionCount": 1
+        },
+        {
+          "nodeId": "I117:1092;117:432",
+          "labels": [
+            "Button"
+          ],
+          "type": "FRAME",
+          "interactionCount": 0
+        },
+        {
+          "nodeId": "117:1093",
+          "labels": [
+            "Featured Products"
+          ],
+          "type": "INSTANCE",
+          "interactionCount": 1
+        },
+        {
+          "nodeId": "I117:1093;117:432",
+          "labels": [
+            "Button"
+          ],
+          "type": "FRAME",
+          "interactionCount": 0
+        },
+        {
+          "nodeId": "117:1134",
+          "labels": [
+            "Frame 151"
+          ],
+          "type": "FRAME",
+          "interactionCount": 1
+        },
+        {
+          "nodeId": "117:1138",
+          "labels": [
+            "Frame 153"
+          ],
+          "type": "FRAME",
+          "interactionCount": 1
+        }
+      ],
+      "Checkout": [
+        {
+          "nodeId": "I117:1144;117:345",
+          "labels": [
+            "Group 1"
+          ],
+          "type": "GROUP",
+          "interactionCount": 1
+        }
+      ],
+      "Cart": [
+        {
+          "nodeId": "I117:1260;117:345",
+          "labels": [
+            "Group 1"
+          ],
+          "type": "GROUP",
+          "interactionCount": 1
+        },
+        {
+          "nodeId": "117:1286",
+          "labels": [
+            "Group 146"
+          ],
+          "type": "GROUP",
+          "interactionCount": 1
+        },
+        {
+          "nodeId": "117:1303",
+          "labels": [
+            "Group 21"
+          ],
+          "type": "GROUP",
+          "interactionCount": 1
+        }
+      ]
+    }
+  },
+  "capacity": {
+    "assets": {
+      "png": {
+        "count": 11,
+        "bytes": 11889068
+      },
+      "image": {
+        "count": 52,
+        "bytes": 89090574
+      },
+      "svg": {
+        "count": 220,
+        "bytes": 175212
+      }
+    },
+    "largestOriginalImageBytes": 11514433,
+    "originalImagesBytes": 89090574,
+    "candidateLimitBytes": 67108864,
+    "workingCopyLimitBytes": 134217728,
+    "perAssetLimitBytes": 16777216,
+    "perSubmissionAssetReadBytes": 33554432
+  }
+}

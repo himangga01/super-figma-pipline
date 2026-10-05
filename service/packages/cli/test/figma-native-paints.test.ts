@@ -2,6 +2,25 @@ import { expect, it } from 'vitest';
 
 import { normalizeNativePaints } from '../src/figma-native-paints.js';
 
+it('maps native stretch image transforms to crop without inventing a separate rotation', () => {
+  const result = normalizeNativePaints([
+    {
+      type: 'IMAGE',
+      imageScaleMode: 'STRETCH',
+      image: { hash: new Uint8Array(20) },
+      transform: { m00: 0.5, m11: 0.75, m02: 0.1 },
+    },
+  ]);
+  expect(result[0]).toMatchObject({
+    scaleMode: 'CROP',
+    imageTransform: [
+      [0.5, 0, 0.1],
+      [0, 0.75, 0],
+    ],
+  });
+  expect(result[0]).not.toHaveProperty('rotation');
+});
+
 it('preserves solid alpha and gradient transforms and selects the actual animated image reference', () => {
   const paints = normalizeNativePaints([
     { type: 'SOLID', opacity: 0.5, color: { r: 1, g: 0, b: 0, a: 0.5 } },

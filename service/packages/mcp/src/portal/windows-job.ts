@@ -53,7 +53,10 @@ public static class SfpNativeJob {
           if(handle==IntPtr.Zero)continue;
           try { bool member; if(!IsProcessInJob(handle,job,out member))return false;
             // A recycled PID belonging to another job is never terminated.
-            if(member && !TerminateProcess(handle,125))return false;
+            // A member can exit after enumeration, or already be terminating from the prior pass.
+            // Failure is not stop proof. Requery within the existing bound and require a job
+            // containing only this broker before emitting STOPPED; persistent live members fail.
+            if(member)TerminateProcess(handle,125);
           } finally {CloseHandle(handle);}
         }
         if(!others)return true;

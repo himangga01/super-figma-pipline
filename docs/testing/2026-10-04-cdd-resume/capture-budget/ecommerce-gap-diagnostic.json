@@ -1,0 +1,164 @@
+{
+  "recordedAt": "2026-10-04T09:54:51.632Z",
+  "referenceComplete": false,
+  "geometry": [
+    {
+      "field": "absoluteTransform",
+      "count": 280,
+      "exactAfterFinalFloat32Rounding": 276,
+      "maxNumericDelta": 0.000732421875,
+      "samples": [
+        {
+          "nodeId": "I117:3183;117:347",
+          "field": "absoluteTransform",
+          "actual": [
+            [
+              1,
+              0,
+              10869.33333325386
+            ],
+            [
+              0,
+              1,
+              -471.33333349227905
+            ]
+          ],
+          "expected": [
+            [
+              1,
+              0,
+              10869.3330078125
+            ],
+            [
+              0,
+              1,
+              -471.3333435058594
+            ]
+          ]
+        },
+        {
+          "nodeId": "I117:3183;117:349",
+          "field": "absoluteTransform",
+          "actual": [
+            [
+              1,
+              0,
+              10942.33333325386
+            ],
+            [
+              0,
+              1,
+              -473.6666667461395
+            ]
+          ],
+          "expected": [
+            [
+              1,
+              0,
+              10942.3330078125
+            ],
+            [
+              0,
+              1,
+              -473.6666564941406
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "field": "absoluteBoundingBox",
+      "count": 280,
+      "exactAfterFinalFloat32Rounding": 276,
+      "maxNumericDelta": 0.000732421875,
+      "samples": [
+        {
+          "nodeId": "I117:3183;117:347",
+          "field": "absoluteBoundingBox",
+          "actual": {
+            "x": 10869.33333325386,
+            "y": -471.33333349227905,
+            "width": 23.33333396911621,
+            "height": 18.66666603088379
+          },
+          "expected": {
+            "x": 10869.3330078125,
+            "y": -471.3333435058594,
+            "width": 23.33333396911621,
+            "height": 18.66666603088379
+          }
+        },
+        {
+          "nodeId": "I117:3183;117:349",
+          "field": "absoluteBoundingBox",
+          "actual": {
+            "x": 10942.33333325386,
+            "y": -473.6666667461395,
+            "width": 22.16666603088379,
+            "height": 22.16666603088379
+          },
+          "expected": {
+            "x": 10942.3330078125,
+            "y": -473.6666564941406,
+            "width": 22.16666603088379,
+            "height": 22.16666603088379
+          }
+        }
+      ]
+    }
+  ],
+  "lineHeightSamples": [
+    {
+      "nodeId": "I117:3183;117:341",
+      "field": "lineHeight",
+      "actual": {
+        "unit": "PERCENT",
+        "value": 100
+      },
+      "expected": {
+        "unit": "AUTO"
+      }
+    },
+    {
+      "nodeId": "I117:3183;117:342",
+      "field": "lineHeight",
+      "actual": {
+        "unit": "PERCENT",
+        "value": 100
+      },
+      "expected": {
+        "unit": "AUTO"
+      }
+    },
+    {
+      "nodeId": "I117:3183;117:343",
+      "field": "lineHeight",
+      "actual": {
+        "unit": "PERCENT",
+        "value": 100
+      },
+      "expected": {
+        "unit": "AUTO"
+      }
+    }
+  ],
+  "cornerRadiusSamples": [
+    {
+      "nodeId": "117:363",
+      "field": "cornerRadius",
+      "actual": 0,
+      "expected": 10
+    },
+    {
+      "nodeId": "117:425",
+      "field": "cornerRadius",
+      "expected": 0
+    },
+    {
+      "nodeId": "117:428",
+      "field": "cornerRadius",
+      "expected": 0
+    }
+  ],
+  "limits": "Diagnostic only. No comparison tolerance or collector output was changed."
+}

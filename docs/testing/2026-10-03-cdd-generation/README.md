@@ -2,7 +2,11 @@
 
 Dates: October 3–4, 2026 (Asia/Seoul). Baseline commit: `db821db346e7cb5dd27e4df465b91bb106e2f2b3`, branch `remediation/2026-09-27`, substantial existing and continuing uncommitted changes.
 
-## Current continuation at 05:22 KST on October 4
+## Current continuation at 17:49 KST on October 4
+
+The [post-reboot resume record](../2026-10-04-cdd-resume/README.md) records fresh Chrome connection, native export, R8 candidate validation and the PNG freshness repair. The [R8 checkpoints](r8-checkpoints.json) preserve v1's freshness failure and v2's actual candidate pass. Its 44-file candidate was applied to a separate new output with the same hash. [Applied validation](r8-applied-checkpoint.json) subsequently returned **`completed`**, no issues, and both runtime and live-design verification true. Every configured required check passed, including the final source reread. Independent collector completion, official MCP, Desktop, other case/review gates and final eCommerce acceptance remain outstanding. New source changes have passed bounded provenance verification; complete source/package checks are running. The earlier R7 evidence and source results below remain historical.
+
+## Historical continuation at 05:22 KST on October 4
 
 All 16 local source/package gates now pass at `sha256:d0b41396a9d90c74c6fc90d744ed121d7c3454cf1f6609ac54f8b94df5940618`. The [complete checkpoint](full-source-checkpoint.json) records 423 files and 4,712 cases: 4,692 passed, zero failed, 20 existing skips. All 37 mandatory Chrome cases in nine files passed with zero skips and no override. The [report](full-source-report.json), [scope](full-source-scope.json), [tests](full-source-tests.json) and [census](full-source-skips.json) preserve the current evidence. The separately declared [artifact-content case](artifact-contents-checkpoint.json) also passed at the same fingerprint. Fresh archives/checksums and independent installed runtime were verified. These results are local source/package verification, not complete live product acceptance or release authorization.
 

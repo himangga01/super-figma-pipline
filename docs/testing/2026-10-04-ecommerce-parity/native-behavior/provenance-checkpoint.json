@@ -1,0 +1,20 @@
+{
+  "recordedAt": "2026-10-04T12:08:17.427Z",
+  "source": {
+    "main": "sha256:e2755bc7404ed946ada53c70be0777beed46e68ab52cb09786f2a695d2fcc983",
+    "workingCopy": "sha256:e2755bc7404ed946ada53c70be0777beed46e68ab52cb09786f2a695d2fcc983"
+  },
+  "publishedBaseline": "5b9343efc82ef47ba56f412acbd4eee5a328d335",
+  "review": "service/capabilities/reconciliations/review-2026-10-04-native-behavior.json",
+  "reviewedPaths": 10,
+  "semanticChanges": 50,
+  "authorityPaths": 4,
+  "retainedForks": 178,
+  "upstreamsVerified": 3,
+  "vendorRows": 238,
+  "mainIndexSha256": "5a79352238185329aee8c904a5158b713ba9645d7af966917d09c2930652500a",
+  "fullChecks": "passed",
+  "fullSourceAttempt": "1dac9a33-07f8-44fd-83b0-65026f8ac713",
+  "fullSourceCheckpoint": "full-source-checkpoint.json",
+  "artifactContentsCheckpoint": "artifact-contents-checkpoint.json"
+}

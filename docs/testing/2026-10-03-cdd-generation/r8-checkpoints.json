@@ -1,0 +1,198 @@
+{
+  "recordedAt": "2026-10-04T08:32:43.068Z",
+  "planId": "sfp_portal1_6e77baedbfa0c9c948a44811d8d80d26",
+  "complete": true,
+  "liveVerified": true,
+  "designFingerprint": "sha256:bdfefe9a98bf7e4b7a2c66be67f6e60050a7a4fb3deae1fd4a66fb9eb3fb1cdb",
+  "currentCandidate": {
+    "hash": "sha256:e424d2eeaea2faec441255fe558b9b8ca77f0dc695503822d3f8cdf721152848",
+    "files": 44
+  },
+  "attempts": [
+    {
+      "version": "cdd-perceptual-v1",
+      "profileId": "cdd-perceptual-v1",
+      "runId": "sfp_portal1_6e77baedbfa0c9c948a44811d8d80d26",
+      "candidateHash": "sha256:e424d2eeaea2faec441255fe558b9b8ca77f0dc695503822d3f8cdf721152848",
+      "state": "blocked",
+      "issues": [
+        "PORTAL_CAPTURE_FRESHNESS_REQUIRED",
+        "LIVE_DESIGN_NOT_VERIFIED"
+      ],
+      "commands": [
+        {
+          "id": "install",
+          "status": "passed",
+          "exitCode": 0,
+          "durationMs": 7086
+        },
+        {
+          "id": "typecheck",
+          "status": "passed",
+          "exitCode": 0,
+          "durationMs": 3924
+        },
+        {
+          "id": "independence",
+          "status": "passed",
+          "exitCode": 0,
+          "durationMs": 3685
+        },
+        {
+          "id": "build",
+          "status": "passed",
+          "exitCode": 0,
+          "durationMs": 3989
+        },
+        {
+          "id": "preview-cdd",
+          "status": "passed",
+          "exitCode": 0,
+          "durationMs": 107686
+        }
+      ],
+      "consumption": {
+        "total": 2110,
+        "passed": 2110
+      },
+      "screens": [
+        {
+          "id": "guide",
+          "ratio": 0.006628062787136294,
+          "strictRatio": 0.04456195763144461,
+          "comparisonMode": "pixelmatch-7.2-v1",
+          "failures": [],
+          "workflows": []
+        },
+        {
+          "id": "mobile",
+          "ratio": 0.009993095247987433,
+          "strictRatio": 0.038115945756479225,
+          "comparisonMode": "pixelmatch-7.2-v1",
+          "failures": [],
+          "workflows": []
+        },
+        {
+          "id": "desktop",
+          "ratio": 0.0037842663594232083,
+          "strictRatio": 0.015883389489175476,
+          "comparisonMode": "pixelmatch-7.2-v1",
+          "failures": [],
+          "workflows": [
+            {
+              "executedActions": 2,
+              "passed": true,
+              "requirementId": "figma-account-session"
+            },
+            {
+              "executedActions": 6,
+              "passed": true,
+              "requirementId": "registration-demo"
+            },
+            {
+              "executedActions": 2,
+              "passed": true,
+              "requirementId": "frontend-presentation"
+            },
+            {
+              "executedActions": 4,
+              "passed": true,
+              "requirementId": "language-selection"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "version": "cdd-perceptual-v2",
+      "profileId": "cdd-perceptual-v2",
+      "runId": "sfp_portal1_6e77baedbfa0c9c948a44811d8d80d26",
+      "candidateHash": "sha256:e424d2eeaea2faec441255fe558b9b8ca77f0dc695503822d3f8cdf721152848",
+      "state": "ready-to-apply",
+      "issues": [],
+      "commands": [
+        {
+          "id": "install",
+          "status": "passed",
+          "exitCode": 0,
+          "durationMs": 6317
+        },
+        {
+          "id": "typecheck",
+          "status": "passed",
+          "exitCode": 0,
+          "durationMs": 4039
+        },
+        {
+          "id": "independence",
+          "status": "passed",
+          "exitCode": 0,
+          "durationMs": 4655
+        },
+        {
+          "id": "build",
+          "status": "passed",
+          "exitCode": 0,
+          "durationMs": 4261
+        },
+        {
+          "id": "preview-cdd",
+          "status": "passed",
+          "exitCode": 0,
+          "durationMs": 108008
+        }
+      ],
+      "consumption": {
+        "total": 2110,
+        "passed": 2110
+      },
+      "screens": [
+        {
+          "id": "guide",
+          "ratio": 0.006628062787136294,
+          "strictRatio": 0.04456195763144461,
+          "comparisonMode": "pixelmatch-7.2-v1",
+          "failures": [],
+          "workflows": []
+        },
+        {
+          "id": "mobile",
+          "ratio": 0.009993095247987433,
+          "strictRatio": 0.038115945756479225,
+          "comparisonMode": "pixelmatch-7.2-v1",
+          "failures": [],
+          "workflows": []
+        },
+        {
+          "id": "desktop",
+          "ratio": 0.003784064650220105,
+          "strictRatio": 0.015883389489175476,
+          "comparisonMode": "pixelmatch-7.2-v1",
+          "failures": [],
+          "workflows": [
+            {
+              "executedActions": 2,
+              "passed": true,
+              "requirementId": "figma-account-session"
+            },
+            {
+              "executedActions": 6,
+              "passed": true,
+              "requirementId": "registration-demo"
+            },
+            {
+              "executedActions": 2,
+              "passed": true,
+              "requirementId": "frontend-presentation"
+            },
+            {
+              "executedActions": 4,
+              "passed": true,
+              "requirementId": "language-selection"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

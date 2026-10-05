@@ -13,12 +13,14 @@ import { assertDesktopTarget, readDesktopDesign } from './desktop-reader.js';
 import { compareNativeImageAssets } from './figma-native-assets.js';
 import { decodeFigmaNativeDocument, selectFigmaNativeNodes } from './figma-native-document.js';
 import { normalizeFigmaNativeNodes, compareFigmaCaptureNodes } from './figma-native-nodes.js';
+import { normalizeFigmaNativeStyles, compareFigmaStyleCatalogs } from './figma-native-styles.js';
 import { parseFigmaTarget } from './figma-url.js';
 import { exportFigmaWebDocument } from './figma-web-export.js';
 import { runOfficialFigmaMcpCommand } from './official-figma-mcp-command.js';
 import { prepareDesktopPlugin } from './plugin-bootstrap.js';
 import { runPortalPlanCommand } from './portal-commands.js';
 import { inspectProject } from './project-inspector.js';
+import { BrowserReadQuerySchema } from './read-program.js';
 import { readScripterSnapshot } from './scripter-reader.js';
 import { ensureLocalServer } from './server-session.js';
 
@@ -63,12 +65,18 @@ export const runCommand = async (args: string[], emit: (value: unknown) => void)
   const command = parsed.positionals[0] ?? 'help';
   const opts = parsed.values;
   const precise = opts.scripter === true && !opts['ui-only'];
+  if (precise && ['chrome-inspect', 'connect'].includes(command))
+    BrowserReadQuerySchema.parse({
+      nodeId: opts['node-id'] ?? null,
+      depth: Number(opts.depth),
+      maxNodes: Number(opts['max-nodes']),
+    });
   if (command === 'help') {
     emit({
       commands: [
         'connect --url <figma-url> --allow-model-data [--workspace <path>] [--keep-open]',
         'desktop-prepare: prepare the bundled local Figma Desktop development plugin for manual import',
-        'chrome-inspect --url <figma-url> [--open] [--workspace <path>] [--cdp http://127.0.0.1:9222] [--scripter] [--out <folder>]',
+        'chrome-inspect --url <figma-url> [--open] [--workspace <path>] [--cdp http://127.0.0.1:9222] [--scripter] [--out <folder>]: --max-nodes is a 1..2000 per-query batch limit; snapshots continue across batches',
         'chrome-open --url <figma-url>: open a missing Figma tab through Playwright in the existing authorized Chrome',
         'chrome-tabs --url <figma-url>',
         'chrome-export --url <figma-url> [--open] [--out <folder>]: collect a native Figma Web document without Scripter',
@@ -115,10 +123,22 @@ export const runCommand = async (args: string[], emit: (value: unknown) => void)
       if (!opts.reference) throw new Error('FIGMA_COMPARISON_REFERENCE_REQUIRED');
       const reference = JSON.parse(
         (await readFileWithinLimit(resolve(opts.reference), 16_777_216)).toString('utf8'),
-      ) as { nodes?: unknown };
+      ) as { nodes?: unknown; styles?: unknown };
       if (!Array.isArray(reference.nodes)) throw new Error('FIGMA_COMPARISON_REFERENCE_INVALID');
       const native = normalizeFigmaNativeNodes(decoded.message, target.nodeId);
       const comparison = compareFigmaCaptureNodes(native.nodes, reference.nodes);
+      const nativeStyles = normalizeFigmaNativeStyles(decoded.message);
+      if (
+        reference.styles !== undefined &&
+        (reference.styles === null ||
+          typeof reference.styles !== 'object' ||
+          Array.isArray(reference.styles))
+      )
+        throw new Error('FIGMA_STYLE_REFERENCE_INVALID');
+      const styles =
+        reference.styles === undefined
+          ? undefined
+          : compareFigmaStyleCatalogs(nativeStyles, reference.styles as Record<string, unknown>);
       const assets = opts['reference-assets']
         ? compareNativeImageAssets(
             decoded.files,
@@ -134,9 +154,11 @@ export const runCommand = async (args: string[], emit: (value: unknown) => void)
         target.fileKey,
       );
       await writeCapture(folder, 'native-design.json', native);
+      await writeCapture(folder, 'native-styles.json', nativeStyles);
       await writeCapture(folder, 'capture-comparison.json', {
         ...comparison,
         ...(assets ? { assets } : {}),
+        ...(styles ? { styles } : {}),
       });
       emit({
         status: 'capture-values-compared',
@@ -150,6 +172,12 @@ export const runCommand = async (args: string[], emit: (value: unknown) => void)
         matchingFontRanges: comparison.fontRangeEvidence.filter(row => row.matches).length,
         differingFontRanges: comparison.fontRangeEvidence.filter(row => !row.matches).length,
         matchingImages: assets?.images.filter(row => row.status === 'match').length,
+        styleCatalogs: Object.fromEntries(
+          Object.entries(nativeStyles.catalogs).map(([kind, rows]) => [kind, rows.length]),
+        ),
+        comparedStylePositions: styles?.comparedPositions,
+        styleDifferences: styles?.differences.length,
+        ambiguousStyleNames: styles?.ambiguous.length,
         fullCaptureAccepted: false,
       });
       return;

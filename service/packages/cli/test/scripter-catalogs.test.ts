@@ -183,6 +183,42 @@ it('keeps bounded reads incomplete when there is no budget for a full second pas
     expect.arrayContaining([expect.objectContaining({ reason: 'REOBSERVATION_BUDGET' })]),
   );
 });
+
+const readByteBudgetFixture = async (roots: number) => {
+  const { figma, page, target } = fixture();
+  figma.currentPage.children = Array.from({ length: roots }, (_, root) => ({
+    id: `1:${root}`,
+    name: 'Frame',
+    type: 'FRAME',
+    characters: '',
+    children: Array.from({ length: 10 }, (_child, child) => ({
+      id: `2:${root * 10 + child}`,
+      name: 'Text',
+      type: 'TEXT',
+      characters: 'x'.repeat(20_000),
+    })),
+  }));
+  figma.getNodeByIdAsync = async (id?: string) =>
+    figma.currentPage.children.find(node => node.id === id)!;
+  return readScripterSnapshot(page, target, {});
+};
+it('reserves bounded reobservation capacity for a complete first pass', async () => {
+  const result = await readByteBudgetFixture(40);
+  expect(result.capture.bytes).toBeLessThanOrEqual(24_000_000);
+  expect(result.nodeCount).toBe(440);
+  expect(result.capture.bytes).toBeGreaterThan(12_000_000);
+  expect(result.observation.reobserved).toBe(true);
+  expect(result.observation.readComplete).toBe(true);
+  expect(result.truncated).toBe(false);
+});
+it('keeps an oversized first pass incomplete under its original byte limit', async () => {
+  const result = await readByteBudgetFixture(70);
+  expect(result.capture.bytes).toBeLessThanOrEqual(24_000_000);
+  expect(result.observation.readComplete).toBe(false);
+  expect(result.pendingScopes).toEqual(
+    expect.arrayContaining([expect.objectContaining({ reason: 'SNAPSHOT_READ_BUDGET' })]),
+  );
+});
 it('keeps content hashes independent of capture timestamps', async () => {
   const { page, target } = fixture(1);
   const first = await readScripterSnapshot(page, target, {});

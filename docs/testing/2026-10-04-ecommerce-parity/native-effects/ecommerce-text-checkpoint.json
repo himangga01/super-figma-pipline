@@ -1,0 +1,23 @@
+{
+  "recordedAt": "2026-10-04T14:57:32.589Z",
+  "phase": "text-properties",
+  "nodeCount": 3198,
+  "comparedPositions": 150130,
+  "rawDifferences": 408,
+  "unexplainedDifferences": 0,
+  "textPropertyDifferences": 0,
+  "unsupportedTextWarnings": 0,
+  "observedValues": {
+    "textCase:ORIGINAL": 867,
+    "textDecoration:NONE": 836,
+    "fontWeight:500": 335,
+    "fontWeight:700": 25,
+    "fontWeight:300": 15,
+    "fontWeight:600": 233,
+    "fontWeight:400": 259,
+    "textCase:UPPER": 1,
+    "textDecoration:STRIKETHROUGH": 32,
+    "fontWeight:mixed": 1
+  },
+  "fullCaptureAccepted": false
+}

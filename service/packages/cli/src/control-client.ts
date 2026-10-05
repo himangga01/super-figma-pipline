@@ -12,17 +12,29 @@ import {
   type ToolName,
 } from '@sfp/shared';
 
+import { isTransientStateProbeFailure } from '../../mcp/src/fs/windows-boundary-probe-worker.js';
 import { resolveDefaultStateRoot } from '../../mcp/src/runtime-paths.js';
 import { createFollowerAuth } from '../../mcp/src/security/follower-auth.js';
 import { createStatePermissions } from '../../mcp/src/security/state-permissions.js';
 
-const readResponse = async (response: IncomingMessage): Promise<string> => {
+/**
+ * Pre-effect authorization capacity failures while only monitoring a dispatched operation: the
+ * daemon's typed busy response, or the same transient state probe while reading local credentials.
+ */
+const transientMonitoringFailure = (error: unknown): boolean =>
+  ((error as { status?: unknown } | null)?.status === 503 &&
+    (error as { code?: unknown } | null)?.code === 'CONTROL_AUTH_BUSY') ||
+  isTransientStateProbeFailure(error);
+
+const readResponse = async (
+  response: IncomingMessage,
+  budget: { bytes: number },
+): Promise<string> => {
   const chunks: Uint8Array[] = [];
-  let bytes = 0;
   for await (const chunk of response) {
     const data = Buffer.from(chunk);
-    bytes += data.byteLength;
-    if (bytes > 33_554_432) {
+    budget.bytes += data.byteLength;
+    if (budget.bytes > 33_554_432) {
       response.destroy();
       throw new Error('CONTROL_RESPONSE_TOO_LARGE');
     }
@@ -35,10 +47,17 @@ export class ControlClient {
   readonly stateRoot: string;
   readonly baseUrl: string;
   private readonly expectedCredentialHash: string | undefined;
+  private readonly monitoringGraceMs: number;
   constructor(
-    options: { stateRoot?: string; port?: number; expectedCredentialHash?: string } = {},
+    options: {
+      stateRoot?: string;
+      port?: number;
+      expectedCredentialHash?: string;
+      monitoringGraceMs?: number;
+    } = {},
   ) {
     this.expectedCredentialHash = options.expectedCredentialHash;
+    this.monitoringGraceMs = options.monitoringGraceMs ?? 60_000;
     this.stateRoot = options.stateRoot ?? resolveDefaultStateRoot();
     this.baseUrl = `http://127.0.0.1:${options.port ?? 3055}`;
   }
@@ -91,41 +110,59 @@ export class ControlClient {
       AbortSignal.timeout(options.timeoutMs ?? 180_000),
       ...(options.signal === undefined ? [] : [options.signal]),
     ]);
-    // Native HTTP honors this operation's budget instead of fetch's fixed five-minute header limit.
-    const response = await new Promise<IncomingMessage>((resolveResponse, reject) => {
-      const request = httpRequest(
-        `${this.baseUrl}${path}`,
-        {
-          method,
-          signal,
-          headers: {
-            authorization: credential.value,
-            'x-sfp-leader-generation': credential.generation,
-            'content-type': 'application/json',
-          },
-        },
-        resolveResponse,
-      );
-      request.once('error', reject);
-      request.end(body === undefined ? undefined : JSON.stringify(body));
-    });
-    const text = await readResponse(response);
-    const status = response.statusCode ?? 500;
-    if (status < 200 || status >= 300) {
-      let code = 'CONTROL_REQUEST_FAILED';
+    const responseBudget = { bytes: 0 };
+    // A transient read reset must not cancel a still-running tool. Mutations are never replayed.
+    for (let attempt = 0; ; attempt++) {
       try {
-        const parsed = JSON.parse(text) as { code?: unknown };
-        if (typeof parsed.code === 'string' && /^[A-Z][A-Z0-9_]{0,127}$/u.test(parsed.code))
-          code = parsed.code;
-      } catch {
-        /* non-JSON errors remain bounded and opaque */
+        // Native HTTP honors this operation's original budget across the single read retry.
+        // eslint-disable-next-line no-await-in-loop -- bounded retry of read-only transport resets
+        const response = await new Promise<IncomingMessage>((resolveResponse, reject) => {
+          const request = httpRequest(
+            `${this.baseUrl}${path}`,
+            {
+              method,
+              signal,
+              headers: {
+                authorization: credential.value,
+                'x-sfp-leader-generation': credential.generation,
+                'content-type': 'application/json',
+              },
+            },
+            resolveResponse,
+          );
+          request.once('error', reject);
+          request.end(body === undefined ? undefined : JSON.stringify(body));
+        });
+        // eslint-disable-next-line no-await-in-loop -- separate response bytes under one cumulative budget
+        const text = await readResponse(response, responseBudget);
+        const status = response.statusCode ?? 500;
+        if (status < 200 || status >= 300) {
+          let code = 'CONTROL_REQUEST_FAILED';
+          try {
+            const parsed = JSON.parse(text) as { code?: unknown };
+            if (typeof parsed.code === 'string' && /^[A-Z][A-Z0-9_]{0,127}$/u.test(parsed.code))
+              code = parsed.code;
+          } catch {
+            /* non-JSON errors remain bounded and opaque */
+          }
+          throw Object.assign(new Error(`${code} (${status})`), {
+            code,
+            status,
+          });
+        }
+        return (text.length === 0 ? undefined : JSON.parse(text)) as T;
+      } catch (error) {
+        if (
+          attempt !== 0 ||
+          method !== 'GET' ||
+          body !== undefined ||
+          signal.aborted ||
+          (error as { status?: unknown } | null)?.status !== undefined ||
+          (error as { code?: unknown } | null)?.code !== 'ECONNRESET'
+        )
+          throw error;
       }
-      throw Object.assign(new Error(`${code} (${status})`), {
-        code,
-        status,
-      });
     }
-    return (text.length === 0 ? undefined : JSON.parse(text)) as T;
   }
   async status() {
     return ControlStatusV1Schema.parse(await this.request('/control/status'));
@@ -229,6 +266,7 @@ export class ControlClient {
     };
     let cancelled = false;
     let lastStatus = '';
+    let delayedSince: number | undefined;
     // eslint-disable-next-line no-unmodified-loop-condition -- request completion updates this from its promise continuation
     while (!settled) {
       if (input.signal?.aborted && !cancelled) {
@@ -236,6 +274,7 @@ export class ControlClient {
         // eslint-disable-next-line no-await-in-loop -- cancellation identifies exactly this operation and origin request
         await cancel().catch(() => undefined);
       }
+      let deciding = false;
       try {
         // eslint-disable-next-line no-await-in-loop -- only approvals bound to this issued operation are eligible
         const prompts = await this.approvals();
@@ -244,8 +283,10 @@ export class ControlClient {
           seen.add(prompt.approvalId);
           input.emit({ status: 'approval-required', prompt });
           if (input.approve && !input.signal?.aborted) {
+            deciding = true;
             // eslint-disable-next-line no-await-in-loop -- --yes authorizes this exact request, never another pending operation
             await this.decide(prompt.approvalId, 'approved');
+            deciding = false;
           }
         }
         if (!settled) {
@@ -261,8 +302,27 @@ export class ControlClient {
             input.emit({ status: record.status, operationId, requestId });
           }
         }
+        delayedSince = undefined;
       } catch (error) {
-        if (!settled) {
+        const now = Date.now();
+        // Read-only monitoring may wait out a bounded run of typed pre-effect capacity failures; the
+        // dispatched operation keeps its own deadline. Approval decisions and other errors still cancel.
+        if (
+          !settled &&
+          !deciding &&
+          transientMonitoringFailure(error) &&
+          now - (delayedSince ?? now) < this.monitoringGraceMs
+        ) {
+          if (delayedSince === undefined) {
+            delayedSince = now;
+            input.emit({
+              status: 'monitoring-delayed',
+              operationId,
+              requestId,
+              code: (error as { code?: unknown }).code,
+            });
+          }
+        } else if (!settled) {
           // eslint-disable-next-line no-await-in-loop -- cancel the specific operation before abandoning its HTTP response
           await cancel().catch(() => undefined);
           requestController.abort();
@@ -273,7 +333,7 @@ export class ControlClient {
       }
       if (!settled) {
         // eslint-disable-next-line no-await-in-loop -- bounded polling while the daemon owns execution
-        await new Promise<void>(done => setTimeout(done, 300));
+        await new Promise<void>(done => setTimeout(done, delayedSince === undefined ? 300 : 1_000));
       }
     }
     if (input.signal?.aborted && !cancelled) await cancel().catch(() => undefined);

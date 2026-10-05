@@ -1,0 +1,22 @@
+{
+  "recordedAt": "2026-10-04T14:04:00.000Z",
+  "purpose": "Observed expected failures before the typed authorization-busy and bounded monitoring repair",
+  "command": "vitest run packages/mcp/test/election/leader-endpoints.test.ts packages/cli/test/control-client-http.test.ts",
+  "numTotalTests": 41,
+  "numPassedTests": 39,
+  "numFailedTests": 2,
+  "failed": [
+    {
+      "title": "keeps a dispatched operation through bounded typed authorization-busy polls",
+      "message": "promise rejected \"Error: CONTROL_AUTH_BUSY (503)\" instead of resolving"
+    },
+    {
+      "title": "fails closed with a typed code for a 'transient probe capacity' authorization failure",
+      "message": "AssertionError: expected 500 to be 503"
+    }
+  ],
+  "alreadyPassing": [
+    "still cancels on untyped monitoring failures and after the bounded busy window",
+    "fails closed with a typed code for a 'state integrity' authorization failure"
+  ]
+}

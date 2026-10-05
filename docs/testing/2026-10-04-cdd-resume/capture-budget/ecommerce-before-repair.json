@@ -1,0 +1,86 @@
+{
+  "recordedAt": "2026-10-04T09:43:45.938Z",
+  "fileKey": "4IBhv1d8hEclifZQrOYxHS",
+  "nodeId": "0:1",
+  "nodeCount": 3198,
+  "truncated": true,
+  "pendingScopes": [
+    {
+      "nodeId": "0:1",
+      "mode": "roots",
+      "offset": 0,
+      "depth": 0,
+      "reason": "REOBSERVATION_BUDGET"
+    }
+  ],
+  "observation": {
+    "version": 1,
+    "method": "ordered-query-reobservation",
+    "atomic": false,
+    "reobserved": false,
+    "readComplete": false,
+    "queryCount": 14,
+    "contentHash": "be9c4ad5394aa8111f6c65a556cb5ba7b6dc6e21a0a3c2e14b062f29995f497e",
+    "capabilities": [
+      {
+        "name": "variables",
+        "status": "empty",
+        "count": 0
+      },
+      {
+        "name": "collections",
+        "status": "empty",
+        "count": 0
+      },
+      {
+        "name": "paintStyles",
+        "status": "complete",
+        "count": 1
+      },
+      {
+        "name": "textStyles",
+        "status": "empty",
+        "count": 0
+      },
+      {
+        "name": "effectStyles",
+        "status": "empty",
+        "count": 0
+      },
+      {
+        "name": "gridStyles",
+        "status": "empty",
+        "count": 0
+      }
+    ],
+    "referencedClosure": {
+      "status": "complete",
+      "issues": []
+    },
+    "referencedVariables": {
+      "status": "partial",
+      "unresolvedVariableIds": []
+    },
+    "limits": {
+      "calls": 256,
+      "bytes": 12000000
+    }
+  },
+  "capture": {
+    "startedAt": "2026-10-04T09:27:23.842Z",
+    "finishedAt": "2026-10-04T09:27:35.337Z",
+    "calls": 21,
+    "bytes": 10537570,
+    "atomic": false
+  },
+  "styleCounts": {
+    "paints": 14,
+    "texts": 0,
+    "effects": 0,
+    "grids": 0
+  },
+  "assetStatus": {
+    "captured": 57,
+    "pending": 226
+  }
+}

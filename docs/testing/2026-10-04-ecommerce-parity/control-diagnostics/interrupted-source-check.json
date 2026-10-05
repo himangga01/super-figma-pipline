@@ -1,0 +1,31 @@
+{
+  "recordedAt": "2026-10-04T13:40:00.000Z",
+  "attemptId": "41c4cda8-2ac9-4d87-a2be-46815ec00320",
+  "sourceHash": "sha256:206bd90046daeb35c3493ca1031ef16b905b3c5bea06479c76a023b5bd3201cf",
+  "startedAt": "2026-10-04T22:24:50+09:00",
+  "outcome": "interrupted, not passed",
+  "interruption": "Claude Code stopped the background shell running scripts/run-source-checks.mjs because the system was critically low on memory while the session was idle. This is not a test result. No node process survived; afterwards 6.1 GB of 15.6 GB physical memory was free.",
+  "completedGates": {
+    "typecheck": "shared, ir, plugin, mcp and cli Done",
+    "lint": "no output",
+    "format": "All matched files use the correct format (1,168 files)",
+    "knip": "no output",
+    "contracts": "All 4 generated tool-contract artifacts are current.",
+    "build": "completed; MCP build identity sha256:80b913fd3e526780c8f300247b73aeaaa3e6b169ba73c001f4dd47896c96a853"
+  },
+  "interruptedGate": "test",
+  "notRun": [
+    "test",
+    "test-ledger",
+    "provenance",
+    "graph-memory",
+    "sbom",
+    "notices",
+    "package",
+    "checksums",
+    "artifacts",
+    "isolated-runtime"
+  ],
+  "pointer": "artifacts/source-checks/current.json remains status pending; it was not edited",
+  "restart": "Not restarted automatically; a fresh attempt requires the owner's request"
+}

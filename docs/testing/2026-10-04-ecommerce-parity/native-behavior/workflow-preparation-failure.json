@@ -1,0 +1,15 @@
+{
+  "recordedAt": "2026-10-04T12:21:29.568Z",
+  "purpose": "Preparation only; no generation, submission or application",
+  "operationDigest": "da02c9ff92f4baadb201d228e0a5a3ead8fca4a4318711887d2f05c1c2002657",
+  "publicStatus": "outcome-unknown",
+  "errorCode": "OPERATION_CANCELLED_AFTER_DISPATCH",
+  "clientError": "ECONNRESET",
+  "daemonConnectedAfterFailure": true,
+  "requirements": 5,
+  "workflowDecisions": 89,
+  "planProduced": false,
+  "targetCreated": false,
+  "replayed": false,
+  "diagnosis": "After dispatch, the client abandoned its response and requested cancellation on a control-poll failure. The underlying socket reset cause is not established. Public state is outcome-unknown; do not treat the proposed workflow scope as accepted."
+}

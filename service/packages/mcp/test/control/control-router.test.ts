@@ -75,6 +75,52 @@ describe('authenticated control router', () => {
     );
     expect(observed).toEqual({ status: 404, body: '{"code":"OPERATION_NOT_FOUND"}' });
   });
+  it('logs one bounded diagnostic for a server failure whose public code the CLI cannot read', async () => {
+    const router = new AuthenticatedControlRouter();
+    router.register({
+      id: 'operation.status',
+      method: 'GET',
+      path: '/control/operations/:operationId',
+      routeClass: 'admin',
+      inputSchema: z.object({ operationId: z.string() }).strict(),
+      outputSchema: z.literal('ready'),
+      handle: async (_principal, input) => {
+        if (input.operationId === 'absent') {
+          throw Object.assign(new Error('operation was not found'), {
+            code: 'OPERATION_NOT_FOUND',
+          });
+        }
+        throw new DOMException('private timeout detail', 'TimeoutError');
+      },
+    });
+    router.freeze();
+    const lines: string[] = [];
+    const handler = createControlHttpHandler({
+      router,
+      principalForRequest: async () => principal,
+      log: line => lines.push(line),
+    });
+
+    expect(
+      await callHttpHandler(handler, { method: 'GET', url: '/control/operations/absent' }),
+    ).toEqual({
+      status: 404,
+      body: '{"code":"OPERATION_NOT_FOUND"}',
+    });
+    expect(lines).toEqual([]);
+    expect(
+      await callHttpHandler(handler, {
+        method: 'GET',
+        url: '/control/operations/sfp_op1_privateId',
+      }),
+    ).toEqual({ status: 500, body: '{"code":"23"}' });
+    expect(lines).toEqual([
+      expect.stringMatching(
+        /^\[control\] request failed \(GET \/control\/operations\/:param; 500 code=23; TimeoutError\/#23; \d+ ms\)$/u,
+      ),
+    ]);
+    for (const hidden of ['private', 'sfp_op1']) expect(lines[0]).not.toContain(hidden);
+  });
   it('rejects ambiguous dynamic siblings regardless of parameter names', () => {
     const router = new AuthenticatedControlRouter();
     router.register({

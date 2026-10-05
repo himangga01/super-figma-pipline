@@ -1,0 +1,78 @@
+{
+  "recordedAt": "2026-10-04T10:45:10.870Z",
+  "planId": "sfp_portal1_f936c1ff20561880bda56b1de437b073",
+  "complete": true,
+  "liveVerified": true,
+  "nodeCount": 3198,
+  "roots": 11,
+  "observation": {
+    "version": 1,
+    "method": "ordered-query-reobservation",
+    "atomic": false,
+    "reobserved": true,
+    "readComplete": true,
+    "queryCount": 14,
+    "contentHash": "be9c4ad5394aa8111f6c65a556cb5ba7b6dc6e21a0a3c2e14b062f29995f497e",
+    "capabilities": [
+      {
+        "name": "variables",
+        "status": "empty",
+        "count": 0
+      },
+      {
+        "name": "collections",
+        "status": "empty",
+        "count": 0
+      },
+      {
+        "name": "paintStyles",
+        "status": "complete",
+        "count": 1
+      },
+      {
+        "name": "textStyles",
+        "status": "empty",
+        "count": 0
+      },
+      {
+        "name": "effectStyles",
+        "status": "empty",
+        "count": 0
+      },
+      {
+        "name": "gridStyles",
+        "status": "empty",
+        "count": 0
+      }
+    ],
+    "referencedClosure": {
+      "status": "complete",
+      "issues": []
+    },
+    "referencedVariables": {
+      "status": "complete",
+      "unresolvedVariableIds": []
+    },
+    "limits": {
+      "calls": 256,
+      "bytes": 24000000,
+      "bytesPerPass": 12000000
+    }
+  },
+  "capture": {
+    "startedAt": "2026-10-04T10:40:38.880Z",
+    "finishedAt": "2026-10-04T10:40:56.249Z",
+    "calls": 28,
+    "bytes": 16359274,
+    "atomic": false
+  },
+  "designFingerprint": "sha256:39b90a8c96c1360da4d8b8c777e99e7d34c71c921a7d9b966f3a8408ff1c2219",
+  "assetCount": 283,
+  "assetStatus": {
+    "captured": 283
+  },
+  "assetBytes": 101154854,
+  "sameContentHashAsPriorPartialRead": true,
+  "workflowIssues": 89,
+  "generationStarted": false
+}

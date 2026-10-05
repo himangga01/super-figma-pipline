@@ -16,7 +16,7 @@ export function decodeNativePath(bytes: Uint8Array): string {
       const value = buffer.readFloatLE(cursor);
       cursor += 4;
       if (!Number.isFinite(value)) throw new Error('FIGMA_NATIVE_PATH_VALUE_INVALID');
-      values.push(Number(value.toPrecision(6)));
+      values.push(value);
     }
     paths.push(commands[opcode]! + values.join(' '));
   }
@@ -26,15 +26,17 @@ export function decodeNativePath(bytes: Uint8Array): string {
 export function readNativeGeometry(value: unknown, blobs: unknown) {
   if (!Array.isArray(value)) return [];
   if (!Array.isArray(blobs)) throw new Error('FIGMA_NATIVE_BLOBS_MISSING');
-  return value.map(row => {
-    const bytes = blobs[row.commandsBlob]?.bytes;
-    if (!Number.isSafeInteger(row.commandsBlob) || !(bytes instanceof Uint8Array))
-      throw new Error('FIGMA_NATIVE_GEOMETRY_MISSING');
-    const windingRule = row.windingRule === 'ODD' ? 'EVENODD' : (row.windingRule ?? 'NONZERO');
-    if (!['NONZERO', 'EVENODD'].includes(windingRule))
-      throw new Error('FIGMA_NATIVE_WINDING_UNSUPPORTED');
-    return { windingRule, data: decodeNativePath(bytes) };
-  });
+  return value
+    .map(row => {
+      const bytes = blobs[row.commandsBlob]?.bytes;
+      if (!Number.isSafeInteger(row.commandsBlob) || !(bytes instanceof Uint8Array))
+        throw new Error('FIGMA_NATIVE_GEOMETRY_MISSING');
+      const windingRule = row.windingRule === 'ODD' ? 'EVENODD' : (row.windingRule ?? 'NONZERO');
+      if (!['NONZERO', 'EVENODD'].includes(windingRule))
+        throw new Error('FIGMA_NATIVE_WINDING_UNSUPPORTED');
+      return { windingRule, data: decodeNativePath(bytes) };
+    })
+    .filter(row => row.data.length > 0);
 }
 
 type Point = [number, number];
@@ -47,6 +49,15 @@ interface Edge {
 const near = (left: number, right: number) =>
   Math.abs(left - right) <= Math.max(0.0001, Math.abs(right) * 0.000001);
 const samePoint = (a: Point, b: Point) => near(a[0], b[0]) && near(a[1], b[1]);
+/** Match the observed six-significant-digit API path serialization; keep decoded paths unchanged. */
+const serializedCoordinate = (value: number) => {
+  if (!Number.isFinite(value) || value === 0) return value;
+  const scale = 10 ** (5 - Math.floor(Math.log10(Math.abs(value))));
+  const scaled = Math.abs(value) * scale,
+    floor = Math.floor(scaled);
+  const rounded = scaled - floor === 0.5 ? floor + (floor % 2) : Math.round(scaled);
+  return (Math.sign(value) * rounded) / scale;
+};
 const joinLines = (a: Edge, b: Edge) => {
   if (a.kind !== 'L' || b.kind !== 'L' || !samePoint(a.to, b.from)) return false;
   const x = a.to[0] - a.from[0],
@@ -58,7 +69,10 @@ const joinLines = (a: Edge, b: Edge) => {
     x * u + y * v >= -1e-8
   );
 };
-const pathEdges = (text: string): Array<{ closed: boolean; edges: Edge[] }> | null => {
+const pathEdges = (
+  text: string,
+  serialized = false,
+): Array<{ closed: boolean; edges: Edge[] }> | null => {
   const expression = /[MLQCZ]|[-+]?(?:\d*\.)?\d+(?:e[-+]?\d+)?/gu;
   if (text.replace(expression, '').replace(/[\s,]/gu, '') !== '') return null;
   const tokens = text.match(expression) ?? [],
@@ -81,7 +95,11 @@ const pathEdges = (text: string): Array<{ closed: boolean; edges: Edge[] }> | nu
     if (edges.length) paths.push({ closed, edges });
     edges = [];
   };
-  const point = (): Point => [Number(tokens[cursor++]), Number(tokens[cursor++])];
+  const coordinate = () => {
+    const value = Number(tokens[cursor++]);
+    return serialized ? serializedCoordinate(value) : value;
+  };
+  const point = (): Point => [coordinate(), coordinate()];
   while (cursor < tokens.length) {
     const kind = tokens[cursor++];
     if (kind === 'Z') {
@@ -140,7 +158,11 @@ export function equalNativeGeometry(actual: unknown, expected: unknown): boolean
       typeof reference.data !== 'string'
     )
       return false;
-    const a = pathEdges(path.data),
+    const numbers = reference.data.match(/[-+]?(?:\d*\.)?\d+(?:e[-+]?\d+)?/gu)?.map(Number) ?? [];
+    const serialized = numbers.every(
+      (value: number) => Number.isFinite(value) && serializedCoordinate(value) === value,
+    );
+    const a = pathEdges(path.data, serialized),
       e = pathEdges(reference.data);
     return (
       a !== null &&

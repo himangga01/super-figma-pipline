@@ -1,0 +1,35 @@
+{
+  "recordedAt": "2026-10-04T14:25:00.000Z",
+  "publishedBaseline": "5b9343efc82ef47ba56f412acbd4eee5a328d335",
+  "slice": "review-2026-10-04",
+  "rounds": [
+    {
+      "name": "verified code-review repairs (F1, F2, F3, F7)",
+      "review": "service/capabilities/reconciliations/review-2026-10-04-review-fixes.json",
+      "alternateIndex": ".worktrees/baseline/service/.cache/review-fixes-20261004.index",
+      "reviewHelper": ".worktrees/baseline/service/.cache/reconcile-review-fixes-20261004.mjs",
+      "reviewedFiles": 8,
+      "updaterResult": "service-forks=ok slice=review-2026-10-04 changes=63 forks=178",
+      "semanticChanges": 60,
+      "source": "sha256:206bd90046daeb35c3493ca1031ef16b905b3c5bea06479c76a023b5bd3201cf"
+    },
+    {
+      "name": "typed authorization-busy and bounded monitoring repair",
+      "review": "service/capabilities/reconciliations/review-2026-10-04-auth-busy.json",
+      "alternateIndex": ".worktrees/baseline/service/.cache/auth-busy-20261004.index",
+      "reviewHelper": ".worktrees/baseline/service/.cache/reconcile-auth-busy-20261004.mjs",
+      "reviewedFiles": 7,
+      "updaterResult": "service-forks=ok slice=review-2026-10-04 changes=65 forks=178",
+      "semanticChanges": 62,
+      "source": "sha256:ac67794db1460d34bd24435e2545faa6b3ae6d596be6cadce21b515c5ac2a099",
+      "failedFirstAttempt": "A malformed derived helper failed to parse; shell set -e did not stop the chained commands. The updater failed with ENOENT before writing, both manifest commands failed with CHANGE_MANIFEST_OUT_OF_SCOPE, and git add created only an empty alternate index (preserved as .cache/auth-busy-20261004.failed-helper.index). A byte comparison against the round-2 review index showed every authority file unchanged in both copies before the corrected rerun with strict && chaining."
+    }
+  ],
+  "authorityPaths": 4,
+  "retainedForks": 178,
+  "verifiedUpstreams": 3,
+  "vendorRows": 238,
+  "offlineLockVerification": "upstream-lock=ok mode=offline upstreams=3 vendorRows=238 in main and the native working copy after each round",
+  "mainIndexSha256": "5a79352238185329aee8c904a5158b713ba9645d7af966917d09c2930652500a",
+  "mainIndexChanged": false
+}

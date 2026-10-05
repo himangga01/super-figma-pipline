@@ -1,0 +1,14 @@
+{
+  "recordedAt": "2026-10-04T12:34:26.497Z",
+  "operationDigest": "a9698a995204fbc0dfe67de1f3d3bbcf2c53fd5ca592716d7a648dd8dd4418c7",
+  "publicStatus": "outcome-unknown",
+  "errorCode": "OPERATION_CANCELLED_AFTER_DISPATCH",
+  "clientError": "CONTROL_REQUEST_FAILED",
+  "clientMessage": "CONTROL_REQUEST_FAILED (500)",
+  "requirements": 5,
+  "workflowDecisions": 89,
+  "planProduced": false,
+  "frontendGenerationStarted": false,
+  "replayed": false,
+  "underlyingServerFailureCause": "not established"
+}

@@ -1,0 +1,15 @@
+{
+  "recordedAt": "2026-10-04T10:14:20.604Z",
+  "source": {
+    "main": "sha256:170487cf0d214cf755cbdd223e2a6eb4e2778ec06f5ef27b38bed87a893a8bb2",
+    "workingCopy": "sha256:170487cf0d214cf755cbdd223e2a6eb4e2778ec06f5ef27b38bed87a893a8bb2"
+  },
+  "review": "service/capabilities/reconciliations/review-2026-10-04-windows-drain.json",
+  "reviewedPaths": 4,
+  "semanticChanges": 32,
+  "authorityPaths": 4,
+  "manifestVerified": true,
+  "offlineProvenanceVerified": true,
+  "fullSourceAttempt": "c5a36f06-ab1f-4d47-8ff4-2222abc985a0",
+  "fullSourceStatus": "pending"
+}

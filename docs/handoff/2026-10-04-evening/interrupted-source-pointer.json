@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "attemptId": "b4a7a8fa-cec6-4a0a-bc3a-b3d0c491298a",
+  "status": "pending",
+  "sourceHash": "sha256:fc47c9f0f64114d700e4da3d026c2070925842f8d5ea433ddb929824c5f43263",
+  "folder": "source-checks/b4a7a8fa-cec6-4a0a-bc3a-b3d0c491298a",
+  "report": "source-checks/b4a7a8fa-cec6-4a0a-bc3a-b3d0c491298a/report.json",
+  "reportSha256": "49a7f58b2e5c54fbb67955a75f54e94c748ed7ea57b18f0427ed3a1fb29106a5",
+  "updatedAt": "2026-10-04T12:28:50.941Z"
+}

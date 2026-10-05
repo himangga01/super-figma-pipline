@@ -1,0 +1,52 @@
+{
+  "recordedAt": "2026-10-04T12:59:14.622Z",
+  "purpose": "Expected failures before the control failure diagnostics repair",
+  "command": "vitest run packages/mcp/test/election/leader-endpoints.test.ts packages/mcp/test/control/control-router.test.ts",
+  "files": 2,
+  "numTotalTests": 115,
+  "numPassedTests": 112,
+  "numFailedTests": 3,
+  "numPendingTests": 0,
+  "numTodoTests": 0,
+  "success": false,
+  "failed": [
+    {
+      "file": "packages/mcp/test/control/control-router.test.ts",
+      "title": "authenticated control router logs one bounded diagnostic for a server failure whose public code the CLI cannot read",
+      "status": "failed",
+      "message": "AssertionError: expected [] to deeply equal [ StringMatching{…} ]"
+    },
+    {
+      "file": "packages/mcp/test/election/leader-endpoints.test.ts",
+      "title": "typed authenticated control extension fails closed with a typed code and one bounded diagnostic when authorization cannot be evaluated",
+      "status": "failed",
+      "message": "AssertionError: expected { error: 'internal' } to deeply equal { code: 'CONTROL_AUTH_UNAVAILABLE' }"
+    },
+    {
+      "file": "packages/mcp/test/election/leader-endpoints.test.ts",
+      "title": "typed authenticated control extension records one bounded diagnostic when a control failure escapes its typed response",
+      "status": "failed",
+      "message": "AssertionError: expected [] to deeply equal [ StringMatching{…} ]"
+    }
+  ],
+  "selected": [
+    {
+      "file": "packages/mcp/test/control/control-router.test.ts",
+      "title": "authenticated control router logs one bounded diagnostic for a server failure whose public code the CLI cannot read",
+      "status": "failed",
+      "message": "AssertionError: expected [] to deeply equal [ StringMatching{…} ]"
+    },
+    {
+      "file": "packages/mcp/test/election/leader-endpoints.test.ts",
+      "title": "typed authenticated control extension fails closed with a typed code and one bounded diagnostic when authorization cannot be evaluated",
+      "status": "failed",
+      "message": "AssertionError: expected { error: 'internal' } to deeply equal { code: 'CONTROL_AUTH_UNAVAILABLE' }"
+    },
+    {
+      "file": "packages/mcp/test/election/leader-endpoints.test.ts",
+      "title": "typed authenticated control extension records one bounded diagnostic when a control failure escapes its typed response",
+      "status": "failed",
+      "message": "AssertionError: expected [] to deeply equal [ StringMatching{…} ]"
+    }
+  ]
+}

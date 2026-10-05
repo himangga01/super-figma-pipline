@@ -1,0 +1,14 @@
+{
+  "recordedAt": "2026-10-04T12:34:26.498Z",
+  "sourceHash": "sha256:fc47c9f0f64114d700e4da3d026c2070925842f8d5ea433ddb929824c5f43263",
+  "review": "service/capabilities/reconciliations/review-2026-10-04-control-poll.json",
+  "reviewedPaths": 4,
+  "semanticChanges": 53,
+  "authorityPaths": 4,
+  "retainedForks": 178,
+  "verifiedUpstreams": 3,
+  "vendorRows": 238,
+  "mainIndexSha256": "5a79352238185329aee8c904a5158b713ba9645d7af966917d09c2930652500a",
+  "fullCheckAttempt": "b4a7a8fa-cec6-4a0a-bc3a-b3d0c491298a",
+  "fullCheckOutcome": "interrupted for owner-requested reboot preparation"
+}

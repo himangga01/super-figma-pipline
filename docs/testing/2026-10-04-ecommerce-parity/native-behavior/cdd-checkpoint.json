@@ -1,0 +1,17 @@
+{
+  "recordedAt": "2026-10-04T12:08:57.046Z",
+  "nodeCount": 192,
+  "expectedNodes": 192,
+  "missingNodes": 0,
+  "extraNodes": 0,
+  "comparedPositions": 8778,
+  "rawDifferences": 73,
+  "unexplainedDifferences": 0,
+  "reactions": {
+    "nodesWithReactions": 0,
+    "actions": 0,
+    "unsupportedNodes": 0
+  },
+  "layoutUnsupported": 0,
+  "fullCaptureAccepted": false
+}

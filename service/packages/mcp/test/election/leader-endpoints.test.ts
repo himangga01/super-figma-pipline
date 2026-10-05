@@ -772,4 +772,106 @@ describe('typed authenticated control extension', () => {
 
     expect(observed).toEqual({ status: 200, body: '{"schemaVersion":1,"ok":true}' });
   });
+  it.each([
+    {
+      kind: 'transient probe capacity',
+      failure: () =>
+        Object.assign(new Error('C:/private/state/leader-auth.json probe failed'), {
+          name: 'StatePermissionError',
+          code: 'STATE_ACL_COMMAND_FAILED',
+          cause: Object.assign(new Error('private timeout detail'), {
+            code: 'WINDOWS_BOUNDARY_TIMEOUT',
+          }),
+        }),
+      status: 503,
+      code: 'CONTROL_AUTH_BUSY',
+      diagnostic:
+        /^\[leader\] control authorization busy \(GET \/control\/operations\/:param; StatePermissionError\/STATE_ACL_COMMAND_FAILED <- Error\/WINDOWS_BOUNDARY_TIMEOUT; \d+ ms\)$/u,
+    },
+    {
+      kind: 'state integrity',
+      failure: () =>
+        Object.assign(new Error('C:/private/state/leader-auth.json is insecure'), {
+          name: 'StatePermissionError',
+          code: 'STATE_ACL_INSECURE',
+        }),
+      status: 500,
+      code: 'CONTROL_AUTH_UNAVAILABLE',
+      diagnostic:
+        /^\[leader\] control authorization unavailable \(GET \/control\/operations\/:param; StatePermissionError\/STATE_ACL_INSECURE; \d+ ms\)$/u,
+    },
+  ])(
+    'fails closed with a typed code for a $kind authorization failure',
+    async ({ failure: makeFailure, status, code, diagnostic }) => {
+      const lines: string[] = [];
+      let routed = 0;
+      const extension = new ControlRouteRegistry();
+      extension.register('/control', async () => {
+        routed += 1;
+        return false;
+      });
+      const failure = makeFailure();
+      const leader = await startLeader(5_000, {
+        controlRoutes: extension,
+        log: line => lines.push(line),
+        transport: {
+          server: {} as LeaderEndpointDeps['transport']['server'],
+          control: {
+            authorizeHttp: async () => {
+              throw failure;
+            },
+          },
+        },
+      });
+
+      const response = await fetch(
+        `http://127.0.0.1:${leader.port}/control/operations/sfp_op1_privateId?cursor=secret`,
+        {
+          headers: {
+            authorization: `Bearer ${TEST_CONTROL_TOKEN}`,
+            'x-sfp-leader-generation': TEST_GENERATION,
+          },
+        },
+      );
+
+      expect(response.status).toBe(status);
+      expect(await response.json()).toEqual({ code });
+      expect(routed).toBe(0);
+      expect(lines).toEqual([expect.stringMatching(diagnostic)]);
+      for (const hidden of ['private', 'secret', 'sfp_op1', TEST_CONTROL_TOKEN]) {
+        expect(lines[0]).not.toContain(hidden);
+      }
+    },
+  );
+  it('records one bounded diagnostic when a control failure escapes its typed response', async () => {
+    const lines: string[] = [];
+    const extension = new ControlRouteRegistry();
+    extension.register('/control', async () => {
+      throw Object.assign(new TypeError('private detail'), { code: 'ERR_FIXTURE' });
+    });
+    const leader = await startLeader(5_000, {
+      controlRoutes: extension,
+      log: line => lines.push(line),
+    });
+
+    const response = await fetch(
+      `http://127.0.0.1:${leader.port}/control/approvals?cursor=secret`,
+      {
+        headers: {
+          authorization: `Bearer ${TEST_CONTROL_TOKEN}`,
+          'x-sfp-leader-generation': TEST_GENERATION,
+        },
+      },
+    );
+
+    expect(response.status).toBe(500);
+    expect(await response.json()).toEqual({ error: 'internal' });
+    expect(lines).toEqual([
+      expect.stringMatching(
+        /^\[leader\] request failed without a typed response \(GET \/control\/approvals; TypeError\/ERR_FIXTURE; \d+ ms\)$/u,
+      ),
+    ]);
+    expect(lines[0]).not.toContain('private');
+    expect(lines[0]).not.toContain('secret');
+  });
 });

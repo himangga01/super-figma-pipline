@@ -1,0 +1,264 @@
+{
+  "recordedAt": "2026-10-04T08:49:11.421Z",
+  "runId": "sfp_portal1_6e77baedbfa0c9c948a44811d8d80d26",
+  "state": "completed",
+  "issues": [],
+  "candidateHash": "sha256:e424d2eeaea2faec441255fe558b9b8ca77f0dc695503822d3f8cdf721152848",
+  "appliedHash": "sha256:e424d2eeaea2faec441255fe558b9b8ca77f0dc695503822d3f8cdf721152848",
+  "target": "applied",
+  "runtimeVerified": true,
+  "liveDesignVerified": true,
+  "checks": [
+    {
+      "id": "frontend-types",
+      "kind": "typecheck",
+      "required": true,
+      "requirementIds": [
+        "figma-account-session",
+        "language-selection",
+        "registration-demo",
+        "frontend-presentation"
+      ],
+      "status": "passed"
+    },
+    {
+      "id": "frontend-build",
+      "kind": "build",
+      "required": true,
+      "requirementIds": [
+        "figma-account-session",
+        "language-selection",
+        "registration-demo",
+        "frontend-presentation"
+      ],
+      "status": "passed"
+    },
+    {
+      "id": "frontend-independence",
+      "kind": "independence",
+      "required": true,
+      "requirementIds": [
+        "figma-account-session",
+        "language-selection",
+        "registration-demo",
+        "frontend-presentation"
+      ],
+      "status": "passed"
+    },
+    {
+      "id": "visual-guide",
+      "kind": "visual",
+      "required": true,
+      "requirementIds": [
+        "frontend-presentation"
+      ],
+      "status": "passed"
+    },
+    {
+      "id": "accessibility-guide",
+      "kind": "accessibility",
+      "required": true,
+      "requirementIds": [
+        "frontend-presentation"
+      ],
+      "status": "passed"
+    },
+    {
+      "id": "visual-mobile",
+      "kind": "visual",
+      "required": true,
+      "requirementIds": [
+        "figma-account-session",
+        "language-selection",
+        "registration-demo",
+        "frontend-presentation"
+      ],
+      "status": "passed"
+    },
+    {
+      "id": "accessibility-mobile",
+      "kind": "accessibility",
+      "required": true,
+      "requirementIds": [
+        "figma-account-session",
+        "language-selection",
+        "registration-demo",
+        "frontend-presentation"
+      ],
+      "status": "passed"
+    },
+    {
+      "id": "visual-desktop",
+      "kind": "visual",
+      "required": true,
+      "requirementIds": [
+        "figma-account-session",
+        "language-selection",
+        "registration-demo",
+        "frontend-presentation"
+      ],
+      "status": "passed"
+    },
+    {
+      "id": "accessibility-desktop",
+      "kind": "accessibility",
+      "required": true,
+      "requirementIds": [
+        "figma-account-session",
+        "language-selection",
+        "registration-demo",
+        "frontend-presentation"
+      ],
+      "status": "passed"
+    },
+    {
+      "id": "journey-account",
+      "kind": "interaction",
+      "required": true,
+      "requirementIds": [
+        "figma-account-session"
+      ],
+      "status": "passed"
+    },
+    {
+      "id": "journey-registration",
+      "kind": "interaction",
+      "required": true,
+      "requirementIds": [
+        "registration-demo"
+      ],
+      "status": "passed"
+    },
+    {
+      "id": "journey-presentation",
+      "kind": "interaction",
+      "required": true,
+      "requirementIds": [
+        "frontend-presentation"
+      ],
+      "status": "passed"
+    },
+    {
+      "id": "journey-language",
+      "kind": "interaction",
+      "required": true,
+      "requirementIds": [
+        "language-selection"
+      ],
+      "status": "passed"
+    },
+    {
+      "id": "native-command-sequence",
+      "kind": "source-scope",
+      "reason": "Every approved native command must execute successfully.",
+      "required": true,
+      "requirementIds": [],
+      "status": "passed"
+    },
+    {
+      "id": "native-source-scope",
+      "kind": "source-scope",
+      "required": true,
+      "requirementIds": [],
+      "status": "passed"
+    },
+    {
+      "id": "native-design-freshness",
+      "kind": "source-scope",
+      "reason": "SAME_FACTS_BOUNDED_PNG_REEXPORT",
+      "required": true,
+      "requirementIds": [],
+      "status": "passed"
+    },
+    {
+      "id": "core-consumption",
+      "kind": "source-scope",
+      "required": true,
+      "requirementIds": [],
+      "status": "passed"
+    }
+  ],
+  "commands": [
+    {
+      "id": "install",
+      "status": "passed",
+      "exitCode": 0,
+      "durationMs": 6239
+    },
+    {
+      "id": "typecheck",
+      "status": "passed",
+      "exitCode": 0,
+      "durationMs": 4330
+    },
+    {
+      "id": "independence",
+      "status": "passed",
+      "exitCode": 0,
+      "durationMs": 3865
+    },
+    {
+      "id": "build",
+      "status": "passed",
+      "exitCode": 0,
+      "durationMs": 4285
+    },
+    {
+      "id": "preview-cdd",
+      "status": "passed",
+      "exitCode": 0,
+      "durationMs": 106579
+    }
+  ],
+  "consumption": {
+    "total": 2110,
+    "passed": 2110
+  },
+  "screens": [
+    {
+      "id": "guide",
+      "ratio": 0.006628062787136294,
+      "strictRatio": 0.04456195763144461,
+      "comparisonMode": "pixelmatch-7.2-v1",
+      "failures": [],
+      "workflows": []
+    },
+    {
+      "id": "mobile",
+      "ratio": 0.009993095247987433,
+      "strictRatio": 0.038115945756479225,
+      "comparisonMode": "pixelmatch-7.2-v1",
+      "failures": [],
+      "workflows": []
+    },
+    {
+      "id": "desktop",
+      "ratio": 0.003784064650220105,
+      "strictRatio": 0.015883389489175476,
+      "comparisonMode": "pixelmatch-7.2-v1",
+      "failures": [],
+      "workflows": [
+        {
+          "executedActions": 2,
+          "passed": true,
+          "requirementId": "figma-account-session"
+        },
+        {
+          "executedActions": 6,
+          "passed": true,
+          "requirementId": "registration-demo"
+        },
+        {
+          "executedActions": 2,
+          "passed": true,
+          "requirementId": "frontend-presentation"
+        },
+        {
+          "executedActions": 4,
+          "passed": true,
+          "requirementId": "language-selection"
+        }
+      ]
+    }
+  ]
+}

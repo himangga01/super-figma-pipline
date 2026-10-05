@@ -13,6 +13,8 @@ export interface RetainedChromeTransport {
     pendingMethods: string[];
     pendingResets: number;
   };
+  /** The caller accepted the opened source tab; it is the owner's tab and is never closed. */
+  releaseCreatedTargets(): void;
   close(): Promise<void>;
 }
 
@@ -31,7 +33,7 @@ const forbidden = new Set([
 /** Keep the Chrome permission handshake independent of a single Playwright caller's timeout. */
 export const createRetainedChromeTransport = async (
   remoteEndpoint: string,
-  scope?: { matchesTarget(url: string): boolean },
+  scope?: { matchesTarget(url: string): boolean; missingTargetUrl?(): string | null },
 ): Promise<RetainedChromeTransport> => {
   const url = new URL(remoteEndpoint);
   if (
@@ -69,10 +71,16 @@ export const createRetainedChromeTransport = async (
       method: string;
       scopedAttach?: { waitForDebuggerOnStart: boolean };
       scopedRoot?: boolean;
+      scopedNavigationUrl?: string;
+      scopedOpen?: { phase: 'contexts' | 'create'; url: string };
     }
   >();
   const resets = new Set<number>();
   const ownedAttachments = new Set<string>();
+  const sourceNavigations = new Map<string, string>();
+  // Only tabs this relay created for a requested source and its caller has not accepted.
+  const createdTargets = new Set<string>();
+  const internal = new Map<number, () => void>();
   const pendingMethods = () =>
     [...new Set([...pending.values()].map(item => item.method))].slice(0, 32);
   const flush = () => {
@@ -88,15 +96,18 @@ export const createRetainedChromeTransport = async (
 
   const clearClient = (socket: WebSocket) => {
     if (client !== socket) return;
-    const attachmentUnsettled = [...pending.values()].some(request => request.scopedRoot);
+    const attachmentUnsettled = [...pending.values()].some(
+      request => request.scopedRoot || request.scopedOpen?.phase === 'create',
+    );
     client = null;
     queued = [];
     queuedBytes = 0;
     lastPendingMethods = pendingMethods();
     pending.clear();
+    sourceNavigations.clear();
     if (attachmentUnsettled) {
-      // The root attachment may have taken effect. Closing this CDP connection detaches
-      // only its debugger sessions; never replay an attachment with an unknown outcome.
+      // An attachment or authorized source opening may have taken effect. Retire this
+      // connection rather than replaying an operation with an unknown outcome.
       remote?.terminate();
       failed = true;
       return;
@@ -141,6 +152,8 @@ export const createRetainedChromeTransport = async (
     queuedBytes = 0;
     pending.clear();
     resets.clear();
+    for (const settle of internal.values()) settle();
+    internal.clear();
     client?.close(1011, reason);
   };
   const ensureRemote = (userAgent: string | undefined) => {
@@ -157,10 +170,17 @@ export const createRetainedChromeTransport = async (
     remote.on('error', fail);
     remote.on('close', fail);
     remote.on('message', (data, binary) => {
-      if (binary || closed) return;
+      if (binary || (closed && internal.size === 0)) return;
       received++;
       try {
         const message = JSON.parse(data.toString()) as Record<string, unknown>;
+        const settle = typeof message.id === 'number' ? internal.get(message.id) : undefined;
+        if (settle) {
+          internal.delete(message.id as number);
+          settle();
+          return;
+        }
+        if (closed) return;
         if (typeof message.id === 'number') {
           if (resets.delete(message.id)) {
             if (message.error) fail();
@@ -176,6 +196,72 @@ export const createRetainedChromeTransport = async (
               return;
             }
             ownedAttachments.add(sessionId);
+            if (request.scopedNavigationUrl)
+              sourceNavigations.set(sessionId, request.scopedNavigationUrl);
+          }
+          if (
+            request?.scopedOpen &&
+            request.owner === client &&
+            client?.readyState === WebSocket.OPEN &&
+            !message.error
+          ) {
+            const opening = request.scopedOpen;
+            const result = message.result as
+              | { browserContextIds?: unknown; targetId?: unknown }
+              | undefined;
+            if (opening.phase === 'contexts') {
+              // The normal profile is the only unambiguous creation destination.
+              if (
+                !Array.isArray(result?.browserContextIds) ||
+                result.browserContextIds.length !== 0
+              ) {
+                client.send(
+                  JSON.stringify({
+                    id: request.originalId,
+                    error: { code: -32000, message: 'CHROME_CONTEXT_AMBIGUOUS' },
+                  }),
+                );
+                return;
+              }
+              const id = ++sequence;
+              pending.set(id, {
+                owner: client,
+                originalId: request.originalId,
+                method: 'Target.createTarget',
+                scopedOpen: { phase: 'create', url: opening.url },
+              });
+              sent++;
+              remote!.send(
+                JSON.stringify({
+                  id,
+                  method: 'Target.createTarget',
+                  params: { url: 'about:blank', newWindow: false },
+                }),
+              );
+              return;
+            }
+            if (typeof result?.targetId !== 'string') {
+              fail();
+              return;
+            }
+            createdTargets.add(result.targetId);
+            const id = ++sequence;
+            pending.set(id, {
+              owner: client,
+              originalId: request.originalId,
+              method: 'Target.attachToTarget',
+              scopedRoot: true,
+              scopedNavigationUrl: opening.url,
+            });
+            sent++;
+            remote!.send(
+              JSON.stringify({
+                id,
+                method: 'Target.attachToTarget',
+                params: { targetId: result.targetId, flatten: true },
+              }),
+            );
+            return;
           }
           if (
             request?.scopedAttach &&
@@ -193,6 +279,35 @@ export const createRetainedChromeTransport = async (
                   typeof target.url === 'string' &&
                   scope!.matchesTarget(target.url),
               ) ?? [];
+            const openingUrl = targets.length === 0 ? scope?.missingTargetUrl?.() : null;
+            if (openingUrl) {
+              const source = new URL(openingUrl);
+              if (
+                source.protocol !== 'https:' ||
+                !['www.figma.com', 'figma.com'].includes(source.hostname) ||
+                source.username ||
+                source.password ||
+                !scope!.matchesTarget(openingUrl)
+              ) {
+                client.send(
+                  JSON.stringify({
+                    id: request.originalId,
+                    error: { code: -32000, message: 'FIGMA_URL_INVALID' },
+                  }),
+                );
+                return;
+              }
+              const id = ++sequence;
+              pending.set(id, {
+                owner: client,
+                originalId: request.originalId,
+                method: 'Target.getBrowserContexts',
+                scopedOpen: { phase: 'contexts', url: openingUrl },
+              });
+              sent++;
+              remote!.send(JSON.stringify({ id, method: 'Target.getBrowserContexts' }));
+              return;
+            }
             if (targets.length !== 1 || typeof targets[0]!.targetId !== 'string') {
               client.send(
                 JSON.stringify({
@@ -249,7 +364,14 @@ export const createRetainedChromeTransport = async (
           socket.close(1008);
           return;
         }
-        if (forbidden.has(message.method)) {
+        const sourceNavigation =
+          message.method === 'Page.navigate' &&
+          typeof message.sessionId === 'string' &&
+          sourceNavigations.has(message.sessionId) &&
+          sourceNavigations.get(message.sessionId) ===
+            (message.params as { url?: unknown } | undefined)?.url;
+        if (sourceNavigation) sourceNavigations.delete(message.sessionId as string);
+        if (forbidden.has(message.method) && !sourceNavigation) {
           socket.send(
             JSON.stringify({
               id: message.id,
@@ -358,9 +480,35 @@ export const createRetainedChromeTransport = async (
       pendingMethods: client ? pendingMethods() : lastPendingMethods,
       pendingResets: resets.size,
     }),
+    releaseCreatedTargets() {
+      createdTargets.clear();
+    },
     async close() {
       if (closed) return;
       closed = true;
+      // A blank or redirected tab this relay opened for a source its caller never accepted is not
+      // an owner tab. Close exactly those targets, bounded, before releasing the connection.
+      const open = remote?.readyState === WebSocket.OPEN ? remote : null;
+      if (open && createdTargets.size) {
+        const closing = [...createdTargets].map(
+          targetId =>
+            new Promise<void>(settle => {
+              const id = ++sequence;
+              internal.set(id, settle);
+              open.send(JSON.stringify({ id, method: 'Target.closeTarget', params: { targetId } }));
+            }),
+        );
+        let timer: ReturnType<typeof setTimeout> | undefined;
+        await Promise.race([
+          Promise.all(closing),
+          new Promise<void>(done => {
+            timer = setTimeout(done, 2_000);
+          }),
+        ]);
+        clearTimeout(timer);
+      }
+      createdTargets.clear();
+      internal.clear();
       remote?.terminate();
       for (const socket of sockets.clients) socket.terminate();
       sockets.close();

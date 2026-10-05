@@ -1,0 +1,17 @@
+{
+  "recordedAt": "2026-10-04T08:34:13.057Z",
+  "baseline": "5b9343efc82ef47ba56f412acbd4eee5a328d335",
+  "sourceHash": "sha256:f89c0004797615d1d5ddf410b8c6b7b57f220251caf66515882e811b2bc8046a",
+  "review": "service/capabilities/reconciliations/review-2026-10-04-png-reexport.json",
+  "reviewedPaths": 12,
+  "semanticChanges": 13,
+  "authorityPaths": 4,
+  "retainedForks": 178,
+  "upstreams": 3,
+  "vendorRows": 238,
+  "mainIndexHash": "5a79352238185329aee8c904a5158b713ba9645d7af966917d09c2930652500a",
+  "manifestVerified": true,
+  "offlineProvenanceVerified": true,
+  "fullSourceChecks": "pending",
+  "limits": "Alternate review index. Native working copy retains the same Windows owner privileges; it is not an OS sandbox."
+}

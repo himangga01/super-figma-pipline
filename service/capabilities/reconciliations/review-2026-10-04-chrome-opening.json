@@ -1,0 +1,103 @@
+{
+  "schemaVersion": 1,
+  "slice": "review-2026-10-04",
+  "baseline": {
+    "headCommit": "5b9343efc82ef47ba56f412acbd4eee5a328d335",
+    "authoritySha256": {
+      "upstream-lock.json": "a394943ad3004c74575c20a0ebe275288a29c24b3d668a136750c6f271bf1c83",
+      "vendor-map.json": "b3275c7d8b997d1cfe723d97594659f77d7b4361b824a790bcfdd7ff762589bd",
+      "vendor-rules.json": "0a32d3e9790287795c1a89134f34244ca08ae5e79e4199f2f6917420328d121c"
+    }
+  },
+  "entries": [
+    {
+      "path": "capabilities/task-review-2026-10-04-authority-classes.json",
+      "sha256": "ef47ec0e818e7436bcf08e273e4a141a7a2a90d2735911d271b220b7de6306c4",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "6f6b241ece28da8034fd50add3529c9952110d109a4f14065fc06f64d528ff97"
+        },
+        {
+          "class": "protected",
+          "sha256": "6f6b241ece28da8034fd50add3529c9952110d109a4f14065fc06f64d528ff97"
+        }
+      ],
+      "reason": "Extend the exact October4 scope for reproduced unscoped Chrome initialization during explicit source opening. Preserve earlier review records, the owner index and original upstream lineage."
+    },
+    {
+      "path": "docs/portal-native.md",
+      "sha256": "495ceb52970bdf3a212fd9563f6540680ce0c134bfdc75245da789410c3fc9e2",
+      "priorClaims": [
+        {
+          "class": "protected",
+          "sha256": "e6550275a20d18ca228d260f443ea13f12ceb4c394a4dfd8184ab727770d4ff6"
+        }
+      ],
+      "reason": "Scope explicit Figma source opening before Playwright initialization. Create only an authorized missing tab in an unambiguous normal context, allow one exact source navigation and preserve unrelated tabs. Unknown creation outcomes are not replayed. Forty-five related tests passed; actual service CLI opening and plugin-free export of eCommerce then succeeded. No browser security approval was automated."
+    },
+    {
+      "path": "packages/cli/src/browser-session.ts",
+      "sha256": "b1282a5bb45a79c5c4f2751c6db41d22b30c6ba7770dd09ac2359c8edcdcf552",
+      "priorClaims": [
+        {
+          "class": "protected",
+          "sha256": "c580ab7f99ded47985c295043f0bfd196768f19e45b453ec8dd794bca6b4c933"
+        }
+      ],
+      "reason": "Scope explicit Figma source opening before Playwright initialization. Create only an authorized missing tab in an unambiguous normal context, allow one exact source navigation and preserve unrelated tabs. Unknown creation outcomes are not replayed. Forty-five related tests passed; actual service CLI opening and plugin-free export of eCommerce then succeeded. No browser security approval was automated."
+    },
+    {
+      "path": "packages/cli/test/browser-session-reconnect.test.ts",
+      "sha256": "af71db371f58968a5ef89721cfe164e7658d18d413e191b2c84d6e363fd00131",
+      "priorClaims": [
+        {
+          "class": "protected",
+          "sha256": "4e32a4c0e0400afcf38f47bae0f8cbc3c13dece61b1c1494ac2d28d237586d54"
+        }
+      ],
+      "reason": "Scope explicit Figma source opening before Playwright initialization. Create only an authorized missing tab in an unambiguous normal context, allow one exact source navigation and preserve unrelated tabs. Unknown creation outcomes are not replayed. Forty-five related tests passed; actual service CLI opening and plugin-free export of eCommerce then succeeded. No browser security approval was automated."
+    },
+    {
+      "path": "packages/cli/test/browser-source-open.test.ts",
+      "sha256": "194ec11bef86f70b6c93729ad1ec8b16ae6e0ea007c16e62e247af8a9f9c146c",
+      "priorClaims": [
+        {
+          "class": "protected",
+          "sha256": "182cdc369ffa7aeaca45b8a3bd4bfb0fb4b9bd8ab49ba0999e90fa2a5ec24ffe"
+        }
+      ],
+      "reason": "Scope explicit Figma source opening before Playwright initialization. Create only an authorized missing tab in an unambiguous normal context, allow one exact source navigation and preserve unrelated tabs. Unknown creation outcomes are not replayed. Forty-five related tests passed; actual service CLI opening and plugin-free export of eCommerce then succeeded. No browser security approval was automated."
+    },
+    {
+      "path": "packages/mcp/src/portal/chrome-transport.ts",
+      "sha256": "2abeb0726ef7b94040d45c048f5c6ea959960d7d72cb1d03dd229e8787f4df97",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "d5f07afa1c393c49686ca2da83d266c4c15bfa11165755341b6ab49e4b05c4f9"
+        },
+        {
+          "class": "protected",
+          "sha256": "d5f07afa1c393c49686ca2da83d266c4c15bfa11165755341b6ab49e4b05c4f9"
+        }
+      ],
+      "reason": "Scope explicit Figma source opening before Playwright initialization. Create only an authorized missing tab in an unambiguous normal context, allow one exact source navigation and preserve unrelated tabs. Unknown creation outcomes are not replayed. Forty-five related tests passed; actual service CLI opening and plugin-free export of eCommerce then succeeded. No browser security approval was automated."
+    },
+    {
+      "path": "packages/mcp/test/portal/chrome-transport.test.ts",
+      "sha256": "1c690199a9513a1087e7e1a5fec5349da43168e6529517994952e7a984e58fdb",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "31421b7d55a9b4d891281f597f59c2c088415a835211600a5098cad336b57662"
+        },
+        {
+          "class": "protected",
+          "sha256": "31421b7d55a9b4d891281f597f59c2c088415a835211600a5098cad336b57662"
+        }
+      ],
+      "reason": "Scope explicit Figma source opening before Playwright initialization. Create only an authorized missing tab in an unambiguous normal context, allow one exact source navigation and preserve unrelated tabs. Unknown creation outcomes are not replayed. Forty-five related tests passed; actual service CLI opening and plugin-free export of eCommerce then succeeded. No browser security approval was automated."
+    }
+  ]
+}

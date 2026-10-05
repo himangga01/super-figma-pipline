@@ -1,0 +1,17 @@
+{
+  "recordedAt": "2026-10-04T14:54:09.626Z",
+  "phase": "layout-sizing",
+  "nodeCount": 192,
+  "comparedPositions": 10134,
+  "rawDifferences": 77,
+  "unexplainedDifferences": 0,
+  "sizingDifferences": 0,
+  "sizedPositions": 384,
+  "sizingValues": {
+    "layoutSizingHorizontal:HUG": 26,
+    "layoutSizingVertical:HUG": 37,
+    "layoutSizingHorizontal:FIXED": 166,
+    "layoutSizingVertical:FIXED": 155
+  },
+  "fullCaptureAccepted": false
+}

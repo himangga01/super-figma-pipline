@@ -78,6 +78,38 @@ const decoded = (bytes: Uint8Array) => {
   return { width, height, rgba: new Uint8Array(png.toRGBA8(image)[0]!) };
 };
 
+/** Record exact RGBA differences for the separately bounded source re-export policy. */
+export const comparePortalPngReexport = (expected: Uint8Array, actual: Uint8Array) => {
+  const left = decoded(expected),
+    right = decoded(actual);
+  if (left.width !== right.width || left.height !== right.height) return null;
+  let changedPixels = 0,
+    maxRgbDelta = 0,
+    alphaChanged = false;
+  for (let at = 0; at < left.rgba.length; at += 4) {
+    let changed = false;
+    for (let channel = 0; channel < 3; channel++) {
+      const delta = Math.abs(left.rgba[at + channel]! - right.rgba[at + channel]!);
+      maxRgbDelta = Math.max(maxRgbDelta, delta);
+      changed ||= delta !== 0;
+    }
+    if (left.rgba[at + 3] !== right.rgba[at + 3]) {
+      changed = true;
+      alphaChanged = true;
+    }
+    if (changed) changedPixels++;
+  }
+  return {
+    width: left.width,
+    height: left.height,
+    changedPixels,
+    maxRgbDelta,
+    alphaChanged,
+    originalPixelsHash: storedChecksum(left.rgba),
+    freshPixelsHash: storedChecksum(right.rgba),
+  };
+};
+
 export const comparePortalPng = (
   expected: Uint8Array,
   actual: Uint8Array,

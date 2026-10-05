@@ -34,9 +34,10 @@ export function normalizeNativePaints(value: unknown): Row[] {
     } else if (paint.type === 'IMAGE') {
       const image = object(paint.animatedImage ?? paint.image),
         filters = object(paint.imageFilters ?? paint.filters);
-      result.scaleMode = paint.imageScaleMode ?? 'FILL';
+      result.scaleMode =
+        paint.imageScaleMode === 'STRETCH' ? 'CROP' : (paint.imageScaleMode ?? 'FILL');
       result.scalingFactor = paint.scale ?? 0.5;
-      result.rotation = paint.rotation ?? 0;
+      if (result.scaleMode !== 'CROP') result.rotation = paint.rotation ?? 0;
       result.imageTransform = transform(paint.transform);
       result.filters = Object.fromEntries(
         ['exposure', 'contrast', 'saturation', 'temperature', 'tint', 'highlights', 'shadows'].map(

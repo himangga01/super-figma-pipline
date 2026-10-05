@@ -1,0 +1,152 @@
+{
+  "schemaVersion": 1,
+  "slice": "review-2026-10-04",
+  "baseline": {
+    "headCommit": "5b9343efc82ef47ba56f412acbd4eee5a328d335",
+    "authoritySha256": {
+      "upstream-lock.json": "456f154b2b7447e6fdc0285979d9e8ea6021c31b565fc47310956089e177d505",
+      "vendor-map.json": "b3275c7d8b997d1cfe723d97594659f77d7b4361b824a790bcfdd7ff762589bd",
+      "vendor-rules.json": "85b02ec307ad63114e51c6612428d80b59b8682ed84f490bd29f4b0dc024b51a"
+    }
+  },
+  "entries": [
+    {
+      "path": "capabilities/task-review-2026-10-04-authority-classes.json",
+      "sha256": "d8ed0df587dac2988877c6b24ddb6bcb3c47c2c7dd69aa5b7b6060a319af2cee",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "bb6c941d2784e5f3cdb853e23a049dc2de2784f3f95d8936528d915fe9bf861b"
+        },
+        {
+          "class": "protected",
+          "sha256": "bb6c941d2784e5f3cdb853e23a049dc2de2784f3f95d8936528d915fe9bf861b"
+        }
+      ],
+      "reason": "Extend the exact October4 scope for independent native field normalization against complete service-owned eCommerce capture. Preserve prior reviewed bytes, upstream lineage and the owner index."
+    },
+    {
+      "path": "docs/portal-native.md",
+      "sha256": "9e6d96600b333f8dda74b318284483246295e7a5f2037021d7239ef79073aa52",
+      "priorClaims": [
+        {
+          "class": "protected",
+          "sha256": "c44a2c4723b3fcd64b670b3042fe088b06c8151065cc84401cf3491971dd60dc"
+        }
+      ],
+      "reason": "Normalize native override identities, versioned style references, float32 placement, independent corners/borders, automatic line height and actual font runs without copying reference facts. Complete eCommerce capture compares 88,993 positions with no unexplained differences; 408 mixed-font representation differences remain. CDD retains its earlier bounded result; full native admission remains incomplete."
+    },
+    {
+      "path": "packages/cli/src/figma-native-font-ranges.ts",
+      "sha256": "ff768838e272ad821262bc646123546b83d092584af21bd37622a1bd33414b64",
+      "priorClaims": [],
+      "reason": "Resolve native character-style runs and independently recorded effective weight. Preserve missing or ambiguous styles as unknown and bound both character and metadata work. Comparison rejects range gaps and mismatching or extra variable axes."
+    },
+    {
+      "path": "packages/cli/src/figma-native-geometry.ts",
+      "sha256": "8051a12b23d9e2bcb662625fcbb2613bb956076bdc2148c2abb4809ad9f903ee",
+      "priorClaims": [
+        {
+          "class": "protected",
+          "sha256": "76e6579bcd0cf69b9af8c8f30f917a94af9d75dee0615040ec31a2f0e71d9a52"
+        }
+      ],
+      "reason": "Preserve decoded float32 path values and omit only empty blobs. Compare the observed six-significant-digit API serialization only when reference coordinates have that representation. Keep raw paths and existing numeric tolerances; reject larger changes and unsupported commands."
+    },
+    {
+      "path": "packages/cli/src/figma-native-nodes.ts",
+      "sha256": "a05003cd47fc53a942352b1c0cbdbb86fe3d2184ad73f17575423e6388d3d6e9",
+      "priorClaims": [
+        {
+          "class": "protected",
+          "sha256": "262b7eacaf4ca3fb36b438e1632b247ca666e3356fb6f1546657e371e5952046"
+        }
+      ],
+      "reason": "Normalize native override identities, versioned style references, float32 placement, independent corners/borders, automatic line height and actual font runs without copying reference facts. Complete eCommerce capture compares 88,993 positions with no unexplained differences; 408 mixed-font representation differences remain. CDD retains its earlier bounded result; full native admission remains incomplete."
+    },
+    {
+      "path": "packages/cli/src/figma-native-paints.ts",
+      "sha256": "0da009e0ced459a51b66211331655df2fcafc4f2ee2bbd9d3f2d393f09163d97",
+      "priorClaims": [
+        {
+          "class": "protected",
+          "sha256": "8629fb930c061900e41217548725109ffa83f2f4ad50d6860577d7710d1bad07"
+        }
+      ],
+      "reason": "Map recorded native STRETCH image transforms to API CROP and preserve their actual transform instead of inventing a separate rotation. Original image bytes and hashes remain unchanged."
+    },
+    {
+      "path": "packages/cli/src/figma-native-styles.ts",
+      "sha256": "750a50fa1bdf7dd0ae5cfc132ddcdb064a0b82483fe8232e4eb3ff1539e24845",
+      "priorClaims": [
+        {
+          "class": "protected",
+          "sha256": "39a3fda912815ac75e7d2606e53af0968b81e9a03dbc06669a9f21d997fd52b2"
+        }
+      ],
+      "reason": "Preserve actual imported style keys and resolve unique key matches before unique-name pairing. Do not invent local API keys or hide ambiguous identities, extra styles or missing metadata."
+    },
+    {
+      "path": "packages/cli/src/figma-native-vector-network.ts",
+      "sha256": "b7ca1e6c023c31cda882491e1495bcb392f5c5e633d3e1a89305dcf573bd622c",
+      "priorClaims": [],
+      "reason": "Decode bounded native vertices, tangents and region loops independently to reconstruct missing unstyled vector fill paths. Reject malformed indices, excessive sizes and non-finite coordinates; keep unsupported styled networks unknown. Synthetic malformed fixtures and actual CDD/eCommerce comparisons were executed."
+    },
+    {
+      "path": "packages/cli/test/figma-native-font-ranges.test.ts",
+      "sha256": "c36c15310e3d0177d3e3d7ddbc77f2e8b6cb4c9084a532059cbc16833cc17676",
+      "priorClaims": [],
+      "reason": "Resolve native character-style runs and independently recorded effective weight. Preserve missing or ambiguous styles as unknown and bound both character and metadata work. Comparison rejects range gaps and mismatching or extra variable axes."
+    },
+    {
+      "path": "packages/cli/test/figma-native-geometry.test.ts",
+      "sha256": "8357dc100bce52077cb68d7dd13216ecb9754882fd7195408098795d511cf9a4",
+      "priorClaims": [
+        {
+          "class": "protected",
+          "sha256": "4fafc3efb793c219cc09d57813a98bdf1ce82246b48c0b9c3e1f5d45e5ed9ba2"
+        }
+      ],
+      "reason": "Preserve decoded float32 path values and omit only empty blobs. Compare the observed six-significant-digit API serialization only when reference coordinates have that representation. Keep raw paths and existing numeric tolerances; reject larger changes and unsupported commands."
+    },
+    {
+      "path": "packages/cli/test/figma-native-nodes.test.ts",
+      "sha256": "e6924580901f3620706ffffeaadf262c895589176d0932e4203a906ad11c2345",
+      "priorClaims": [
+        {
+          "class": "protected",
+          "sha256": "cbf9eb5a8ad9b7537448e336c8790db8a26c819554fdd2f80e6ffb523add970e"
+        }
+      ],
+      "reason": "Normalize native override identities, versioned style references, float32 placement, independent corners/borders, automatic line height and actual font runs without copying reference facts. Complete eCommerce capture compares 88,993 positions with no unexplained differences; 408 mixed-font representation differences remain. CDD retains its earlier bounded result; full native admission remains incomplete."
+    },
+    {
+      "path": "packages/cli/test/figma-native-paints.test.ts",
+      "sha256": "7d2c815492610580f44c35df116a8a240402f2cb6609a10ec1a40f1053d14509",
+      "priorClaims": [
+        {
+          "class": "protected",
+          "sha256": "e9d49cc4b52a36aa74abc25b41dfd2b371e5b7169205e71532b552d9c82b9567"
+        }
+      ],
+      "reason": "Map recorded native STRETCH image transforms to API CROP and preserve their actual transform instead of inventing a separate rotation. Original image bytes and hashes remain unchanged."
+    },
+    {
+      "path": "packages/cli/test/figma-native-styles.test.ts",
+      "sha256": "4dcf8cf7e160cc6a8851d9c2ce08623aa52d3b9aead7e08d95220fb73e2da1ad",
+      "priorClaims": [
+        {
+          "class": "protected",
+          "sha256": "abd51712adb6d9b05708846271d24d09f0bc9e05e46cf3cd8a8196677e6357eb"
+        }
+      ],
+      "reason": "Preserve actual imported style keys and resolve unique key matches before unique-name pairing. Do not invent local API keys or hide ambiguous identities, extra styles or missing metadata."
+    },
+    {
+      "path": "packages/cli/test/figma-native-vector-network.test.ts",
+      "sha256": "d264537e0f6b369d58223e15fa0b559a4fbb879ab7ce90f5253f889efa40cb43",
+      "priorClaims": [],
+      "reason": "Decode bounded native vertices, tangents and region loops independently to reconstruct missing unstyled vector fill paths. Reject malformed indices, excessive sizes and non-finite coordinates; keep unsupported styled networks unknown. Synthetic malformed fixtures and actual CDD/eCommerce comparisons were executed."
+    }
+  ]
+}

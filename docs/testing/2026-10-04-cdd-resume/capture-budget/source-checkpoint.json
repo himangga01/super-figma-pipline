@@ -1,0 +1,15 @@
+{
+  "recordedAt": "2026-10-04T09:43:45.897Z",
+  "source": {
+    "main": "sha256:4d004e087192d771e2ff361e625c2d08c8f1585dde37bbd0164841c1601bc308",
+    "workingCopy": "sha256:4d004e087192d771e2ff361e625c2d08c8f1585dde37bbd0164841c1601bc308"
+  },
+  "review": "service/capabilities/reconciliations/review-2026-10-04-capture-budget.json",
+  "reviewedPaths": 8,
+  "semanticChanges": 29,
+  "authorityPaths": 4,
+  "manifestVerified": true,
+  "offlineProvenanceVerified": true,
+  "fullSourceAttempt": "8ba0fbde-9d07-4e62-b172-3e28b3dec566",
+  "fullSourceStatus": "pending"
+}

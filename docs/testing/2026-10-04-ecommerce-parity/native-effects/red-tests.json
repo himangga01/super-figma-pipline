@@ -1,0 +1,17 @@
+{
+  "recordedAt": "2026-10-04T14:45:00.000Z",
+  "purpose": "Observed expected failures before native effect conversion",
+  "command": "vitest run packages/cli/test/figma-native-effects.test.ts packages/cli/test/figma-native-nodes.test.ts",
+  "failures": [
+    {
+      "file": "packages/cli/test/figma-native-effects.test.ts",
+      "message": "Cannot find module '../src/figma-native-effects.js' (the converter did not exist)"
+    },
+    {
+      "file": "packages/cli/test/figma-native-nodes.test.ts",
+      "title": "resolves effect styles inside instances and compares effects as a declared field",
+      "message": "AssertionError: expected undefined to deeply equal []"
+    }
+  ],
+  "numPassedTests": 6
+}

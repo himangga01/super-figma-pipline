@@ -206,6 +206,8 @@ it('records and verifies producer outputs before dependent commands and acceptan
   });
   value.profile.artifactAuthority = await prepareNativeArtifactAuthority(value.profile);
   const result = await value.run();
+  const failed = result.commands.filter(command => command.status !== 'passed');
+  if (failed.length) throw new Error('Native producer fixture failed: ' + JSON.stringify(failed));
   expect(result.commands.map(command => command.status)).toEqual(['passed', 'passed']);
   expect(result.outputReceipts).toHaveLength(1);
   await mkdir(join(value.root, 'node_modules', 'new'));

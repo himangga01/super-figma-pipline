@@ -1,0 +1,25 @@
+{
+  "recordedAt": "2026-10-04T14:06:11.301Z",
+  "purpose": "Typed authorization-busy classification and bounded read-only monitoring tolerance with related suites",
+  "command": "vitest run packages/mcp/test/election packages/mcp/test/control packages/mcp/test/security/control-auth.test.ts packages/mcp/test/security/pna.test.ts packages/mcp/test/fs/windows-boundary-probe-worker.test.ts packages/mcp/test/fs/runtime-paths.test.ts packages/cli/test/admin-commands.test.ts packages/cli/test/control-client-http.test.ts packages/cli/test/desktop-reader.test.ts packages/cli/test/portal-commands.test.ts packages/cli/test/recipe-retention-client.test.ts packages/cli/test/recipe-runner.test.ts",
+  "files": 21,
+  "numTotalTests": 477,
+  "numPassedTests": 468,
+  "numFailedTests": 0,
+  "numPendingTests": 9,
+  "numTodoTests": 0,
+  "success": true,
+  "failed": [],
+  "selected": [
+    {
+      "file": "packages/mcp/test/control/control-router.test.ts",
+      "title": "authenticated control router logs one bounded diagnostic for a server failure whose public code the CLI cannot read",
+      "status": "passed"
+    },
+    {
+      "file": "packages/mcp/test/election/leader-endpoints.test.ts",
+      "title": "typed authenticated control extension records one bounded diagnostic when a control failure escapes its typed response",
+      "status": "passed"
+    }
+  ]
+}

@@ -1,0 +1,958 @@
+{
+  "recordedAt": "2026-10-04T12:40:17.957Z",
+  "baseline": "5b9343efc82ef47ba56f412acbd4eee5a328d335",
+  "branch": "remediation/2026-09-27",
+  "ownerIndexSha256": "5a79352238185329aee8c904a5158b713ba9645d7af966917d09c2930652500a",
+  "excluded": [
+    "private ignored runtime state and captures",
+    "this backup directory to avoid recursion"
+  ],
+  "patchSha256": "955c731ed12d023bb874318d030f2394439f8adb1e05309785b1eadf40886e79",
+  "files": [
+    {
+      "path": "AGENTS.md",
+      "bytes": 7494,
+      "sha256": "ac6a39bdd52b8a7f72a3bbd001fe40268476b7ad49e6c9115a8240c6d95238cc"
+    },
+    {
+      "path": "docs/handoff/reboot-2026-10-04-evening.md",
+      "bytes": 10755,
+      "sha256": "b0bb7b20908cb93e5e783991d14b857ec0658d6461e76b11b5a0b2e28405f50a"
+    },
+    {
+      "path": "docs/handoff/reboot-2026-10-04.md",
+      "bytes": 13088,
+      "sha256": "43a66d23b88304cd1b622a376ebeffa498afaa3f11e064bd1d0590696aa89e0e"
+    },
+    {
+      "path": "docs/service-analysis.md",
+      "bytes": 68946,
+      "sha256": "a788ded1445b0ad30c694a93ab0e6ec0355da20886d65341e01385e33c4ddef6"
+    },
+    {
+      "path": "docs/testing/2026-10-02-chrome-parity/README.md",
+      "bytes": 13455,
+      "sha256": "8400ff0e6946be1fef113eb810386c71bb886c1d0d82337b39c0136b90f61aa6"
+    },
+    {
+      "path": "docs/testing/2026-10-02-final-figma-preparation/README.md",
+      "bytes": 17483,
+      "sha256": "98519c504df0078937888da9896c22e0edb1e07e163ea6e6f3438bbf3f21f30b"
+    },
+    {
+      "path": "docs/testing/2026-10-03-cdd-generation/README.md",
+      "bytes": 26408,
+      "sha256": "bd2207d14ed0bd3fb96efd373f6d180346f1c814ef54fd26adc5b8321c45c593"
+    },
+    {
+      "path": "docs/testing/2026-10-03-cdd-generation/r8-applied-checkpoint.json",
+      "bytes": 6066,
+      "sha256": "68675292acab811e3dacaff327ccc24a6741108c9269e22a4d0afbe995cca87b"
+    },
+    {
+      "path": "docs/testing/2026-10-03-cdd-generation/r8-applied-status.json",
+      "bytes": 38918,
+      "sha256": "cca8e407f3cd74ab84c39d9c4dd867148ddd43c6074de74adc1f3684fd8dde53"
+    },
+    {
+      "path": "docs/testing/2026-10-03-cdd-generation/r8-applied-validation.json",
+      "bytes": 25651,
+      "sha256": "ae1aced4cbc02f3bd04143ee487bc9d7440e78be478ceb03bae6c088c1622793"
+    },
+    {
+      "path": "docs/testing/2026-10-03-cdd-generation/r8-apply-result.json",
+      "bytes": 11936,
+      "sha256": "ab2e74acf5f3ba0ec68a403e5bbf404dd892ef23b08883fe38eff4a8b4a2fa66"
+    },
+    {
+      "path": "docs/testing/2026-10-03-cdd-generation/r8-cdd-perceptual-v1-validation.json",
+      "bytes": 12245,
+      "sha256": "c8e0df027649f58a8acb6539e1e94056dc90763db0bb9a1cd94537b7aa018d13"
+    },
+    {
+      "path": "docs/testing/2026-10-03-cdd-generation/r8-cdd-perceptual-v2-validation.json",
+      "bytes": 25655,
+      "sha256": "ecc6ac044d2665f11063d7cb1bcd275c1fe57a2377613069c0851d5d2ad00d75"
+    },
+    {
+      "path": "docs/testing/2026-10-03-cdd-generation/r8-checkpoints.json",
+      "bytes": 5318,
+      "sha256": "6f1e4c5cdffcb5ec60a3dbb6c3ce56a4a1f21cbd1ffa239f2ca4f85858fbda33"
+    },
+    {
+      "path": "docs/testing/2026-10-03-cdd-generation/source-checkpoint-r8.json",
+      "bytes": 224,
+      "sha256": "04de587e0478b8f0016ca7eac70bf348fbb3e68c4f650acd6cddb1a0ed196c40"
+    },
+    {
+      "path": "docs/testing/2026-10-04-cdd-resume/README.md",
+      "bytes": 13650,
+      "sha256": "197fa395830c0ddbdc0e15ac97352aab20c906512be765a9c91fc37eafbab380"
+    },
+    {
+      "path": "docs/testing/2026-10-04-cdd-resume/artifact-contents-checkpoint.json",
+      "bytes": 727,
+      "sha256": "2759d55e2864b8b07c5cef6c8352953d4d4edd8aef43fa70b3b4ff0108a20c4d"
+    },
+    {
+      "path": "docs/testing/2026-10-04-cdd-resume/artifact-contents-scope.json",
+      "bytes": 919,
+      "sha256": "f4653394c1944b71a02e7221da5203799d1f884d85db015c1056521eb47edaa8"
+    },
+    {
+      "path": "docs/testing/2026-10-04-cdd-resume/artifact-contents-tests.json",
+      "bytes": 938,
+      "sha256": "8230c7162f188d6b49dcf6082cd1ad306510a9259bbe629568f8428d12475cff"
+    },
+    {
+      "path": "docs/testing/2026-10-04-cdd-resume/capture-budget/README.md",
+      "bytes": 5026,
+      "sha256": "d716a4661a219d0f50e65f4b3ec8edec7e201288ff6b35e8afbcced605e04c94"
+    },
+    {
+      "path": "docs/testing/2026-10-04-cdd-resume/capture-budget/budget-red-tests.json",
+      "bytes": 6813,
+      "sha256": "184e91e858b6cfb829cedd5b0ab754f739dc9f7e928d5ef2e01c3ebe83e64c9e"
+    },
+    {
+      "path": "docs/testing/2026-10-04-cdd-resume/capture-budget/ecommerce-before-repair.json",
+      "bytes": 1737,
+      "sha256": "99047a03b0c04d67736bc18606ceb362fb71e946c63564d9836fff91c93368aa"
+    },
+    {
+      "path": "docs/testing/2026-10-04-cdd-resume/capture-budget/ecommerce-gap-diagnostic.json",
+      "bytes": 3584,
+      "sha256": "bb82725c39cdadd82245256593c89c90f9dc34d91c333756d577e8d96ad39cdb"
+    },
+    {
+      "path": "docs/testing/2026-10-04-cdd-resume/capture-budget/ecommerce-parity-gaps.json",
+      "bytes": 12563,
+      "sha256": "4cd0eb37963a0c08d95a1dc0c916a67d08bcf791f79d605a0e5d20db31a32e6d"
+    },
+    {
+      "path": "docs/testing/2026-10-04-cdd-resume/capture-budget/expanded-tests.json",
+      "bytes": 42550,
+      "sha256": "4b37063f321c9be557a109e759f3822216e2aea5047074ef67cf4190e5585978"
+    },
+    {
+      "path": "docs/testing/2026-10-04-cdd-resume/capture-budget/final-fixtures.json",
+      "bytes": 11261,
+      "sha256": "1980b2cce4b18d9e81159cbac1604a27b80c3fec8d9fd5faa878598ad923e1a0"
+    },
+    {
+      "path": "docs/testing/2026-10-04-cdd-resume/capture-budget/focused-repairs.json",
+      "bytes": 23783,
+      "sha256": "355c729a2defafbd5050d4e3d2e0aed4f7f3a5a201b2166a6d983e4347c494f9"
+    },
+    {
+      "path": "docs/testing/2026-10-04-cdd-resume/capture-budget/isolated-failures.json",
+      "bytes": 21472,
+      "sha256": "06f5ef585f7c1b8318a30c7a47c8d83de8f80e7894b0fb2562b936d10ed93104"
+    },
+    {
+      "path": "docs/testing/2026-10-04-cdd-resume/capture-budget/source-checkpoint.json",
+      "bytes": 567,
+      "sha256": "76b74d66fc0f44404370af57cc5ff17f4728917890384ab17893c9c30ab800d7"
+    },
+    {
+      "path": "docs/testing/2026-10-04-cdd-resume/chrome-open-first-repair-tests.json",
+      "bytes": 1462,
+      "sha256": "6f7c83df6e8186adf8f29db3440fc64ddf76aa9be555744b063ea22429e4d536"
+    },
+    {
+      "path": "docs/testing/2026-10-04-cdd-resume/chrome-open-red-tests.json",
+      "bytes": 2073,
+      "sha256": "8a21b05013822a5a4cb2c00a7a54b3dd622b4d257d54ad348b52c3ef70fa8a24"
+    },
+    {
+      "path": "docs/testing/2026-10-04-cdd-resume/chrome-open-tests.json",
+      "bytes": 15258,
+      "sha256": "c6b193cf582decbc9c4f366bc41212b2dc732b8346a9bca4b7803fddbf622b12"
+    },
+    {
+      "path": "docs/testing/2026-10-04-cdd-resume/chrome-opening/README.md",
+      "bytes": 3515,
+      "sha256": "c52f03102c92a46a1528c0c67e77d8e66e1c69e8ece101fdf171a2a88e1f9866"
+    },
+    {
+      "path": "docs/testing/2026-10-04-cdd-resume/chrome-opening/ecommerce-native-export.json",
+      "bytes": 589,
+      "sha256": "80530e9de00eba9d0fb2af597354ca39eb57f1fe09f065a2fb9066bde2b893e7"
+    },
+    {
+      "path": "docs/testing/2026-10-04-cdd-resume/chrome-opening/ecommerce-native-summary.json",
+      "bytes": 458,
+      "sha256": "9459336eaef4ed518eb980827a2ec458d3cefac5b426302c605f15aef20a2a75"
+    },
+    {
+      "path": "docs/testing/2026-10-04-cdd-resume/chrome-opening/ecommerce-normalized-inventory.json",
+      "bytes": 2564,
+      "sha256": "ee6453eac1827435f14b024fbcc582b7ccc2bd885fc87d3ce4fe7d9986940592"
+    },
+    {
+      "path": "docs/testing/2026-10-04-cdd-resume/chrome-opening/ecommerce-open-result.json",
+      "bytes": 439,
+      "sha256": "63697aa4eaff7d9e9afc4dc10df6fee45f14d73a3e77034a7a3317427fcd4c59"
+    },
+    {
+      "path": "docs/testing/2026-10-04-cdd-resume/chrome-opening/failed-source-report.json",
+      "bytes": 1753,
+      "sha256": "d20804e1dc7275508c95d7930da3b2f8815d83254725ef7daa8b9837bad9a9c2"
+    },
+    {
+      "path": "docs/testing/2026-10-04-cdd-resume/chrome-opening/failed-source-scope.json",
+      "bytes": 528416,
+      "sha256": "387299c58045bbcc1a813133dce178d688a1b3d20a15fc4cb7f97f479fbd6f29"
+    },
+    {
+      "path": "docs/testing/2026-10-04-cdd-resume/chrome-opening/failed-source-skips.json",
+      "bytes": 4851,
+      "sha256": "b7b022e8633d0f0500ff3b91b25e8fe76fdf23f4f184c86c8052733d97f5a116"
+    },
+    {
+      "path": "docs/testing/2026-10-04-cdd-resume/chrome-opening/failed-source-tests.json",
+      "bytes": 1586001,
+      "sha256": "e49797621dc32f28060b39a7df43d8dfee6bdda00ca45170e6c8213e321cb88d"
+    },
+    {
+      "path": "docs/testing/2026-10-04-cdd-resume/chrome-opening/provenance-checkpoint.json",
+      "bytes": 715,
+      "sha256": "b860751162439512fabe92033754ceccd77795b6b43e522620e200f2544e3518"
+    },
+    {
+      "path": "docs/testing/2026-10-04-cdd-resume/continuation-state.json",
+      "bytes": 1470,
+      "sha256": "fabe2dfdcefa284436ec6f6d998810d73beb3e97ae74fca73ea5a4776a42a9e4"
+    },
+    {
+      "path": "docs/testing/2026-10-04-cdd-resume/ecommerce-open-attempt.json",
+      "bytes": 1231,
+      "sha256": "d91aae958bd4d7adaf286212afcc0d2351ad1aa81182132bb883643b333f6f4e"
+    },
+    {
+      "path": "docs/testing/2026-10-04-cdd-resume/ecommerce-preparation-request.json",
+      "bytes": 303,
+      "sha256": "68d305ff39f158719db141b8f45cd6ca9cbf961cb5359905835ef90614bc33ad"
+    },
+    {
+      "path": "docs/testing/2026-10-04-cdd-resume/ecommerce-preparation-result.json",
+      "bytes": 476,
+      "sha256": "6d28ba8238a93fdcbcf06bd32877d9b7ca93457b730c68b46f05b19b4e9e3203"
+    },
+    {
+      "path": "docs/testing/2026-10-04-cdd-resume/freshness-diagnostic.json",
+      "bytes": 4364,
+      "sha256": "22a103cc5f041b95a981d7f627e531c26c514c0fee61b4423b6188628557bf47"
+    },
+    {
+      "path": "docs/testing/2026-10-04-cdd-resume/full-source-checkpoint.json",
+      "bytes": 2211,
+      "sha256": "c8b293b76f64c558505d666d15a65eefda5ed785bb6146d25a6e611f7987a609"
+    },
+    {
+      "path": "docs/testing/2026-10-04-cdd-resume/full-source-report.json",
+      "bytes": 8823,
+      "sha256": "95407f11d440c10f132e54857f95121fffe37bbe42cd2ea99487007d05bc42d5"
+    },
+    {
+      "path": "docs/testing/2026-10-04-cdd-resume/full-source-scope.json",
+      "bytes": 528073,
+      "sha256": "1326c9ce36d5fb3c6848d1746787d330187530a54c8757c3ef237b14ebba8226"
+    },
+    {
+      "path": "docs/testing/2026-10-04-cdd-resume/full-source-skips.json",
+      "bytes": 4851,
+      "sha256": "0005620de44c5a9aa1be376afdb4fb60dddf3e0c1e73f58f83d41509be4a4084"
+    },
+    {
+      "path": "docs/testing/2026-10-04-cdd-resume/full-source-tests.json",
+      "bytes": 1580758,
+      "sha256": "fce2cb75fe86d59000f88b5be9e1b9c44a2e82e6e4114c7ebb22f225bd151e29"
+    },
+    {
+      "path": "docs/testing/2026-10-04-cdd-resume/native-comparison.json",
+      "bytes": 28483,
+      "sha256": "2e0efe84dcb1322af98c23090d5cff6ecc1d177555a2010b2c1948895d2943db"
+    },
+    {
+      "path": "docs/testing/2026-10-04-cdd-resume/native-feedback-tests.json",
+      "bytes": 11396,
+      "sha256": "c4fa8b3548126b4b26ed032c63b81e33635da399654d15a862326b29c559833f"
+    },
+    {
+      "path": "docs/testing/2026-10-04-cdd-resume/native-style-checkpoint.json",
+      "bytes": 4815,
+      "sha256": "9d0bbf4a64c87944db1b977c44ede64cd9ff38e3d9dcc0bfb3e411d78612ea3a"
+    },
+    {
+      "path": "docs/testing/2026-10-04-cdd-resume/native-style-comparison.json",
+      "bytes": 44224,
+      "sha256": "a5e920c4a4e1b38a6cca15962a0e73a7ec42c8dcfb7e293fd78b099fd5919ea5"
+    },
+    {
+      "path": "docs/testing/2026-10-04-cdd-resume/native-style-expanded-tests.json",
+      "bytes": 4740,
+      "sha256": "fd0f71ca24260b0e592eadac66e70becae25e1c758d0b278e6936232c34db92c"
+    },
+    {
+      "path": "docs/testing/2026-10-04-cdd-resume/native-style-provenance.json",
+      "bytes": 606,
+      "sha256": "df05ea30a9a050fe49318d86a51e74d2df1a83be4c37a2d1ab99b77040573fbd"
+    },
+    {
+      "path": "docs/testing/2026-10-04-cdd-resume/native-style-tests.json",
+      "bytes": 1583,
+      "sha256": "fb07242f1e06385fa63ed67df378026a176b15fe6c5348e01706a97f66e33b2f"
+    },
+    {
+      "path": "docs/testing/2026-10-04-cdd-resume/native-styles.json",
+      "bytes": 13717,
+      "sha256": "93af07b7e413f298ed6354cee5d640bae329b166e47df18ada2290b5334ff8df"
+    },
+    {
+      "path": "docs/testing/2026-10-04-cdd-resume/native-web-export.json",
+      "bytes": 555,
+      "sha256": "31b0945bf615342ab0aa10e231028e35b437c1aef8cec25adb1515e261aa1ce6"
+    },
+    {
+      "path": "docs/testing/2026-10-04-cdd-resume/provenance-checkpoint.json",
+      "bytes": 730,
+      "sha256": "eb4eb5925d7111848f9b1a04167c3f0f4dc335ed4228a32ec22f4212564cecf8"
+    },
+    {
+      "path": "docs/testing/2026-10-04-cdd-resume/reexport-integration-tests.json",
+      "bytes": 6685,
+      "sha256": "0eabf2e50c76a020b2e4f1179a2a3dc96ca00f0476e0c6048f1afeadea0d1726"
+    },
+    {
+      "path": "docs/testing/2026-10-04-cdd-resume/reexport-tests.json",
+      "bytes": 4462,
+      "sha256": "5bd561a872bd469919e0605769613d74e17c6f30780bc9a40bd3497c862c1342"
+    },
+    {
+      "path": "docs/testing/2026-10-04-cdd-resume/windows-drain/README.md",
+      "bytes": 3889,
+      "sha256": "45d13e02a46be738ccde2e8564fe5a674e79dcd83efd8eeb376e5a249b0363f8"
+    },
+    {
+      "path": "docs/testing/2026-10-04-cdd-resume/windows-drain/artifact-contents-checkpoint.json",
+      "bytes": 727,
+      "sha256": "2861a63656a723fe41a4550a2aa01489999567b49cff0c749d4c7eeab5760369"
+    },
+    {
+      "path": "docs/testing/2026-10-04-cdd-resume/windows-drain/artifact-contents-scope.json",
+      "bytes": 919,
+      "sha256": "a94ccd56f795688e257f7bcb062d3c77fefc04e774630a18da0f1f12a70c9498"
+    },
+    {
+      "path": "docs/testing/2026-10-04-cdd-resume/windows-drain/artifact-contents-tests.json",
+      "bytes": 936,
+      "sha256": "fe9cf3a05a2814f65337a30b4be050612742695499a17dfc6dce32fb4f3b85e7"
+    },
+    {
+      "path": "docs/testing/2026-10-04-cdd-resume/windows-drain/expanded-tests.json",
+      "bytes": 14109,
+      "sha256": "6b598c534001165365785a903b142c2d6d3dc9fdeafa0e4967452d6d112c7f31"
+    },
+    {
+      "path": "docs/testing/2026-10-04-cdd-resume/windows-drain/failed-source-report.json",
+      "bytes": 1753,
+      "sha256": "8e2e8e75bd624cefb18ddc6350e1c392032344900448d9f03f73c0f249b5244c"
+    },
+    {
+      "path": "docs/testing/2026-10-04-cdd-resume/windows-drain/failed-source-scope.json",
+      "bytes": 528661,
+      "sha256": "50c56470c1ff3f42b71d4ce0e9352070f98b9a2b2e1604619a258ede87bf0804"
+    },
+    {
+      "path": "docs/testing/2026-10-04-cdd-resume/windows-drain/failed-source-skips.json",
+      "bytes": 4851,
+      "sha256": "a80b35175fc7183b4a5c960791f2cf39a88f38c894ace7c806a52b4089b6acfa"
+    },
+    {
+      "path": "docs/testing/2026-10-04-cdd-resume/windows-drain/failed-source-tests.json",
+      "bytes": 1583412,
+      "sha256": "d7324471d11e6375c1d4ad002cbd03b9063f74cc59534e3e192bc4c13cde2d5c"
+    },
+    {
+      "path": "docs/testing/2026-10-04-cdd-resume/windows-drain/full-source-checkpoint.json",
+      "bytes": 2211,
+      "sha256": "04707006cac2bdb8a2e062ff28ebbeb10baa46c967eb4ba0c1fe44e96e642c0f"
+    },
+    {
+      "path": "docs/testing/2026-10-04-cdd-resume/windows-drain/full-source-report.json",
+      "bytes": 8823,
+      "sha256": "1068a4553f945c28414e3a54b3fb98cde8d3de1bb2c7d2d204c37ba546a0ea78"
+    },
+    {
+      "path": "docs/testing/2026-10-04-cdd-resume/windows-drain/full-source-scope.json",
+      "bytes": 528913,
+      "sha256": "be675871cbebd6f6814ac8313fa3af63a014b099fc357f0d1d1a16b27f275fa2"
+    },
+    {
+      "path": "docs/testing/2026-10-04-cdd-resume/windows-drain/full-source-skips.json",
+      "bytes": 4851,
+      "sha256": "b7b022e8633d0f0500ff3b91b25e8fe76fdf23f4f184c86c8052733d97f5a116"
+    },
+    {
+      "path": "docs/testing/2026-10-04-cdd-resume/windows-drain/full-source-tests.json",
+      "bytes": 1583505,
+      "sha256": "792e499df148711f20e58a9798abb807353cbaaa9ca409bc4f8d4d004cbdf8ca"
+    },
+    {
+      "path": "docs/testing/2026-10-04-cdd-resume/windows-drain/race-after.json",
+      "bytes": 7587,
+      "sha256": "e444fe78a0504e244282ba26934b2abf796a7d9369807a82be47b8823deb26fb"
+    },
+    {
+      "path": "docs/testing/2026-10-04-cdd-resume/windows-drain/race-before.json",
+      "bytes": 8942,
+      "sha256": "bf371422fba3c525c3179608a7b0798d6adb8799a8753c3afd820bb079440596"
+    },
+    {
+      "path": "docs/testing/2026-10-04-cdd-resume/windows-drain/source-checkpoint.json",
+      "bytes": 566,
+      "sha256": "bb7741a5a73b00cd4e4026b24198efd8ecbdf14ab501f45c2ffd4a49daa7a803"
+    },
+    {
+      "path": "docs/testing/2026-10-04-ecommerce-parity/README.md",
+      "bytes": 7752,
+      "sha256": "b91117b3cba6e25ad2f55d2887708c15811888b724c4e9dc03358e78308c14d6"
+    },
+    {
+      "path": "docs/testing/2026-10-04-ecommerce-parity/artifact-contents-checkpoint.json",
+      "bytes": 727,
+      "sha256": "c41d47bf17cb757f75da5bf2235adc381f9da64e0da921dbcc10c3ac941c0a95"
+    },
+    {
+      "path": "docs/testing/2026-10-04-ecommerce-parity/artifact-contents-scope.json",
+      "bytes": 919,
+      "sha256": "b74ece53232353be51a380ce5c4c642ba5c5b480db10785f03bb079fc054c26d"
+    },
+    {
+      "path": "docs/testing/2026-10-04-ecommerce-parity/artifact-contents-tests.json",
+      "bytes": 948,
+      "sha256": "107144d553fdaf44cafb787074308b081648bd0e1129643ead80dedd081408cf"
+    },
+    {
+      "path": "docs/testing/2026-10-04-ecommerce-parity/cdd-checkpoint.json",
+      "bytes": 448,
+      "sha256": "6da607bae2dd04cd98c6b631197a0eeaadb3aa6bd0c8fcfaf00b858156a6b292"
+    },
+    {
+      "path": "docs/testing/2026-10-04-ecommerce-parity/cdd-comparison.json",
+      "bytes": 43667,
+      "sha256": "8b0208d52ad73a2ce7388c9c1c8efc556ef1dacd915d4a4a552c36057bfe7c7a"
+    },
+    {
+      "path": "docs/testing/2026-10-04-ecommerce-parity/cdd-native-styles.json",
+      "bytes": 13717,
+      "sha256": "93af07b7e413f298ed6354cee5d640bae329b166e47df18ada2290b5334ff8df"
+    },
+    {
+      "path": "docs/testing/2026-10-04-ecommerce-parity/complete-chrome-capture.json",
+      "bytes": 1783,
+      "sha256": "b46684c013452e81f8ca84980ef6759a5f9e1e3c3b1b460bdc23e53481f8292c"
+    },
+    {
+      "path": "docs/testing/2026-10-04-ecommerce-parity/control-poll/README.md",
+      "bytes": 2410,
+      "sha256": "a397702e5b567e65d19e4c79823dee04dd674666ffa612d1a140232c85929d8a"
+    },
+    {
+      "path": "docs/testing/2026-10-04-ecommerce-parity/control-poll/provenance-checkpoint.json",
+      "bytes": 594,
+      "sha256": "515387a7b30f8508ef2186c64bb5e463084de6570810bb37f2b0911e83a4efea"
+    },
+    {
+      "path": "docs/testing/2026-10-04-ecommerce-parity/control-poll/red-tests.json",
+      "bytes": 6650,
+      "sha256": "5560d5032198e02bac827c9ab166d8851f8b3cb9d82cf5f618ed558d23d8a62f"
+    },
+    {
+      "path": "docs/testing/2026-10-04-ecommerce-parity/control-poll/tests.json",
+      "bytes": 3686,
+      "sha256": "7b13017cd1466b874d0ee0962a15d4e64f637c2f777e5677cce65253ddc65db0"
+    },
+    {
+      "path": "docs/testing/2026-10-04-ecommerce-parity/control-poll/workflow-preparation-failure-r4.json",
+      "bytes": 505,
+      "sha256": "3436069b893d2a55fc9b9ad916b0e97dbd45f5274fdd68be202b539c1c68bfea"
+    },
+    {
+      "path": "docs/testing/2026-10-04-ecommerce-parity/ecommerce-checkpoint.json",
+      "bytes": 513,
+      "sha256": "d804e8ffbcddeb534aac175fa46a25efa139d56d42f1f91585c454f92d7788bb"
+    },
+    {
+      "path": "docs/testing/2026-10-04-ecommerce-parity/ecommerce-comparison.json",
+      "bytes": 153517,
+      "sha256": "f6bf69465b565fb7c94dafd8cd506d78c93d553087fc3d57f7bab9de0277d839"
+    },
+    {
+      "path": "docs/testing/2026-10-04-ecommerce-parity/ecommerce-native-styles.json",
+      "bytes": 4438,
+      "sha256": "427bd2f2983df32518aa3fe1ecc88d58a73dbef91d7f49094fdd7d9956f552e5"
+    },
+    {
+      "path": "docs/testing/2026-10-04-ecommerce-parity/field-parity-red-tests.json",
+      "bytes": 8465,
+      "sha256": "b7108ef31ce5de5b2db436dfee0254ccc1ff96602d0c823b456bb4f5922ac6c3"
+    },
+    {
+      "path": "docs/testing/2026-10-04-ecommerce-parity/full-source-checkpoint.json",
+      "bytes": 2211,
+      "sha256": "73df52bee0ab73354c4d58c311751a428a8727f2000a0f51acef4a3864949230"
+    },
+    {
+      "path": "docs/testing/2026-10-04-ecommerce-parity/full-source-report.json",
+      "bytes": 8823,
+      "sha256": "82d810a8dfdc2f520eec5620fe08a6b44197f785eb08ce6a3d1261d8faed04a6"
+    },
+    {
+      "path": "docs/testing/2026-10-04-ecommerce-parity/full-source-scope.json",
+      "bytes": 530280,
+      "sha256": "5d3fbead6239d4f92363aa192187afe3c2cb841b1e0c2edcb226735af770e954"
+    },
+    {
+      "path": "docs/testing/2026-10-04-ecommerce-parity/full-source-skips.json",
+      "bytes": 4851,
+      "sha256": "b7b022e8633d0f0500ff3b91b25e8fe76fdf23f4f184c86c8052733d97f5a116"
+    },
+    {
+      "path": "docs/testing/2026-10-04-ecommerce-parity/full-source-tests.json",
+      "bytes": 1587967,
+      "sha256": "432391ec5ff989edd11839b3e9135753b38df3c765fc036eed566e034ea41df4"
+    },
+    {
+      "path": "docs/testing/2026-10-04-ecommerce-parity/native-behavior/README.md",
+      "bytes": 5172,
+      "sha256": "2dede861af89e477f050e01d4133de9d2fd0df3de888e76fb5b8bc1fa5b812ba"
+    },
+    {
+      "path": "docs/testing/2026-10-04-ecommerce-parity/native-behavior/artifact-contents-checkpoint.json",
+      "bytes": 727,
+      "sha256": "b7b4fec9f18a6cb019e93c43d242ea8d9ce0a203db8193d13bbb5b92565dbb66"
+    },
+    {
+      "path": "docs/testing/2026-10-04-ecommerce-parity/native-behavior/artifact-contents-scope.json",
+      "bytes": 919,
+      "sha256": "cf48029d573ab54bdaff9332cd045aff06d8ea4aa9b7f28e6197343b7870f6ac"
+    },
+    {
+      "path": "docs/testing/2026-10-04-ecommerce-parity/native-behavior/artifact-contents-tests.json",
+      "bytes": 938,
+      "sha256": "e0e1926ab79835bb4570c0d5089ce8c9c23a03420d4a8157b8b0155d54f41b9f"
+    },
+    {
+      "path": "docs/testing/2026-10-04-ecommerce-parity/native-behavior/capacity-red-tests.json",
+      "bytes": 10257,
+      "sha256": "bfcd4af59a43f45069e6638d859eb5b1ac3cd260dc9c792fa4a305d309de1cda"
+    },
+    {
+      "path": "docs/testing/2026-10-04-ecommerce-parity/native-behavior/capacity-tests.json",
+      "bytes": 20567,
+      "sha256": "24fb29879ddaa3bb62202e293d87217d610d4cfda4899b3927d538b02ea88c8b"
+    },
+    {
+      "path": "docs/testing/2026-10-04-ecommerce-parity/native-behavior/cdd-checkpoint.json",
+      "bytes": 368,
+      "sha256": "79c95b11c321bfb5d53c1052f540a6113c2d26033c5f24f0d64b64ae42d4ce7b"
+    },
+    {
+      "path": "docs/testing/2026-10-04-ecommerce-parity/native-behavior/cdd-comparison.json",
+      "bytes": 44040,
+      "sha256": "94868492f48bc24469369521f3ca9f4fa563fe56ff75afcfa24e23e69e77147e"
+    },
+    {
+      "path": "docs/testing/2026-10-04-ecommerce-parity/native-behavior/cdd-placement-before.json",
+      "bytes": 44361,
+      "sha256": "50ddc81b09371548d19718da8c0e2355f7650f9932e9439a839a425052886dbf"
+    },
+    {
+      "path": "docs/testing/2026-10-04-ecommerce-parity/native-behavior/continuation-state.json",
+      "bytes": 1750,
+      "sha256": "b1a1be63948b5659ea9ac09dbf391a58400a8cb08599f645a743895cc530f1ef"
+    },
+    {
+      "path": "docs/testing/2026-10-04-ecommerce-parity/native-behavior/ecommerce-checkpoint.json",
+      "bytes": 375,
+      "sha256": "0764c37e76fd3fec3d58be90fa2c43af5f58f817f6115fc0412979ee62b929be"
+    },
+    {
+      "path": "docs/testing/2026-10-04-ecommerce-parity/native-behavior/ecommerce-comparison.json",
+      "bytes": 153891,
+      "sha256": "e624ff08d6cf81ba6f4ed03771add94754e3177b8600992c1c8eaba3cfd707f7"
+    },
+    {
+      "path": "docs/testing/2026-10-04-ecommerce-parity/native-behavior/ecommerce-placement-before.json",
+      "bytes": 155032,
+      "sha256": "885429b7dd040810c00defa724e8c3f0c4c27b041fd9a84eba443b1a9a112101"
+    },
+    {
+      "path": "docs/testing/2026-10-04-ecommerce-parity/native-behavior/ecommerce-reaction-fragments-before.json",
+      "bytes": 163733,
+      "sha256": "36be8e637af161534209c05472a8e7583139d1f9df886e1143d716b8be6ff3f6"
+    },
+    {
+      "path": "docs/testing/2026-10-04-ecommerce-parity/native-behavior/full-source-checkpoint.json",
+      "bytes": 2211,
+      "sha256": "21acf7304a4ba65afd648bdbe40e7d237719edcc97077743ed2e47535053a6a1"
+    },
+    {
+      "path": "docs/testing/2026-10-04-ecommerce-parity/native-behavior/full-source-report.json",
+      "bytes": 8823,
+      "sha256": "2ed25205b37e89311a5f455c39d85197734866a2950164dfa01e43381308a3d5"
+    },
+    {
+      "path": "docs/testing/2026-10-04-ecommerce-parity/native-behavior/full-source-scope.json",
+      "bytes": 532017,
+      "sha256": "d4d7edcb7af2f17480181fc478ea49a4999cf40b238a95f249be9d765ea52703"
+    },
+    {
+      "path": "docs/testing/2026-10-04-ecommerce-parity/native-behavior/full-source-skips.json",
+      "bytes": 4851,
+      "sha256": "b7b022e8633d0f0500ff3b91b25e8fe76fdf23f4f184c86c8052733d97f5a116"
+    },
+    {
+      "path": "docs/testing/2026-10-04-ecommerce-parity/native-behavior/full-source-tests.json",
+      "bytes": 1593265,
+      "sha256": "b4ebef43f03a460a6a616a0914465d5b061ba946025f9dd04bdc513bad3826d5"
+    },
+    {
+      "path": "docs/testing/2026-10-04-ecommerce-parity/native-behavior/layout-red-tests.json",
+      "bytes": 3379,
+      "sha256": "44fa7e15f4b14d7d7e3e12afb74ac78268ca1c2cf2111bfaca25bc1daf6a7a36"
+    },
+    {
+      "path": "docs/testing/2026-10-04-ecommerce-parity/native-behavior/native-tests.json",
+      "bytes": 17994,
+      "sha256": "fdf33088923ca9444c686f35c73d2b05a45f71302d51f7c3cdbfddc334ac766d"
+    },
+    {
+      "path": "docs/testing/2026-10-04-ecommerce-parity/native-behavior/provenance-checkpoint.json",
+      "bytes": 850,
+      "sha256": "9a25c146ecb5f3006f124fde5c592401d3036b746a26128c16ddc085943be4c8"
+    },
+    {
+      "path": "docs/testing/2026-10-04-ecommerce-parity/native-behavior/reactions-red-tests.json",
+      "bytes": 18872,
+      "sha256": "e8fb1d5ad40d7a8186b95e763df34487f078db14b8517b9f56dda1e9d7e668f4"
+    },
+    {
+      "path": "docs/testing/2026-10-04-ecommerce-parity/native-behavior/uncompared-node-fields.json",
+      "bytes": 5176,
+      "sha256": "0fb5ef18ca603b9ce0930101830fbb4131d11fae3622a145fe2df7364518fc34"
+    },
+    {
+      "path": "docs/testing/2026-10-04-ecommerce-parity/native-behavior/workflow-preparation-failure.json",
+      "bytes": 754,
+      "sha256": "7b8e9f19459217d35e841e440b38982ae452c15c87c0a92188102c21712a3a36"
+    },
+    {
+      "path": "docs/testing/2026-10-04-ecommerce-parity/native-tests.json",
+      "bytes": 10234,
+      "sha256": "9d79ae8b9d34ae4221c3af75b55158f86eee5f35c409948dc6de0f17bd25a4e5"
+    },
+    {
+      "path": "docs/testing/2026-10-04-ecommerce-parity/native-web-export.json",
+      "bytes": 589,
+      "sha256": "4cfe0a8731727336cfa23f60a5606fd26609474f908f74e459ec8455d2093c1b"
+    },
+    {
+      "path": "docs/testing/2026-10-04-ecommerce-parity/override-key-red-tests.json",
+      "bytes": 3379,
+      "sha256": "3cd94a12a95dd7f2822ac1846cc8566a8c4fc1e4071d561741b3b13e94610638"
+    },
+    {
+      "path": "docs/testing/2026-10-04-ecommerce-parity/preparation-gaps.json",
+      "bytes": 16888,
+      "sha256": "047a1ec22fd1500b6e39c6505f78359babc2583e6243989a1f6141ec25e1e50c"
+    },
+    {
+      "path": "docs/testing/2026-10-04-ecommerce-parity/uncompared-node-fields.json",
+      "bytes": 8002,
+      "sha256": "1f17b2389c9fbd9a6b868e2e9502419eb21adff8c289471d303233ba790ab1f0"
+    },
+    {
+      "path": "service/capabilities/change-manifests/task-review-2026-10-04.json",
+      "bytes": 10241,
+      "sha256": "90b1d291e61d936d74498accfe0851914ee6598ff663db2392c301a989ebf1cf"
+    },
+    {
+      "path": "service/capabilities/reconciliations/review-2026-10-04-capture-budget.json",
+      "bytes": 6497,
+      "sha256": "a65c54396735a907925dc6053f5b9c137801d5eb92ca0fabea0a9526c240fa6a"
+    },
+    {
+      "path": "service/capabilities/reconciliations/review-2026-10-04-chrome-opening.json",
+      "bytes": 5937,
+      "sha256": "0c799966222daba8ee588450858646c0255f13e51c1a9903531f77507c09ccdc"
+    },
+    {
+      "path": "service/capabilities/reconciliations/review-2026-10-04-control-poll.json",
+      "bytes": 3909,
+      "sha256": "006793d8107a2e0bc4ca061fce570861bbaa26c252daddadbcc22be9a9d98769"
+    },
+    {
+      "path": "service/capabilities/reconciliations/review-2026-10-04-native-behavior.json",
+      "bytes": 8026,
+      "sha256": "cee8cd4c9684d476fa1fcaef6aff1fe2cf41ddc7e642e877a7713820337c8fec"
+    },
+    {
+      "path": "service/capabilities/reconciliations/review-2026-10-04-native-field-parity.json",
+      "bytes": 8734,
+      "sha256": "27e4d9bbd3d3401c50b63721c55b74508942b59ca49bda3808ac9955d3888870"
+    },
+    {
+      "path": "service/capabilities/reconciliations/review-2026-10-04-native-styles.json",
+      "bytes": 3727,
+      "sha256": "bd86566fb8127b85bdd214fc00928c1845926e90a8641e833d32f5fde5ddbf4a"
+    },
+    {
+      "path": "service/capabilities/reconciliations/review-2026-10-04-png-reexport.json",
+      "bytes": 8113,
+      "sha256": "35b18505bbd115ab4c6e1cdbf22bc42bd4677884355ff2b6ae9628c704dfe03a"
+    },
+    {
+      "path": "service/capabilities/reconciliations/review-2026-10-04-windows-drain.json",
+      "bytes": 3761,
+      "sha256": "48e5adcbf8ded03642a943bb5b7db0054fe1a8735dedfefb117b7251afa45139"
+    },
+    {
+      "path": "service/capabilities/task-review-2026-10-04-authority-classes.json",
+      "bytes": 4565,
+      "sha256": "8fefb7a5d205664d66ff3763cb86faf92dcd9d67f5138483c2c20bd453b54b27"
+    },
+    {
+      "path": "service/capabilities/union-manifest.json",
+      "bytes": 183483,
+      "sha256": "f52f4cdab4a4363523b42e8ceb3c67c7c08f6fa630df1612c7e2ff069c0ded85"
+    },
+    {
+      "path": "service/docs/portal-native.md",
+      "bytes": 18325,
+      "sha256": "f7f2d29c3628e140bac9fb0c1a90fa6bb10802b0227ade4f095ff895aa6e9f7b"
+    },
+    {
+      "path": "service/packages/cli/src/artifacts.ts",
+      "bytes": 2591,
+      "sha256": "9cecb4078cf727cb626183010a6d20070ce2fb012d963c1fed08b26feebe990b"
+    },
+    {
+      "path": "service/packages/cli/src/browser-session.ts",
+      "bytes": 12133,
+      "sha256": "b1282a5bb45a79c5c4f2751c6db41d22b30c6ba7770dd09ac2359c8edcdcf552"
+    },
+    {
+      "path": "service/packages/cli/src/commands.ts",
+      "bytes": 24974,
+      "sha256": "eed08366911ac7355f2ad00f16eba14bc258e829ce31c53f567d1e49d5aa9978"
+    },
+    {
+      "path": "service/packages/cli/src/control-client.ts",
+      "bytes": 16640,
+      "sha256": "669b0381db8641d7d278aeaf1f1e4a0ad39e2842844207e648c24e499df867fa"
+    },
+    {
+      "path": "service/packages/cli/src/figma-native-font-ranges.ts",
+      "bytes": 3752,
+      "sha256": "ff768838e272ad821262bc646123546b83d092584af21bd37622a1bd33414b64"
+    },
+    {
+      "path": "service/packages/cli/src/figma-native-geometry.ts",
+      "bytes": 6727,
+      "sha256": "8051a12b23d9e2bcb662625fcbb2613bb956076bdc2148c2abb4809ad9f903ee"
+    },
+    {
+      "path": "service/packages/cli/src/figma-native-layout.ts",
+      "bytes": 4356,
+      "sha256": "d34085b33438383f6cfc0971a084df1a821976bf7b59dab437ecc1f982dd9aee"
+    },
+    {
+      "path": "service/packages/cli/src/figma-native-nodes.ts",
+      "bytes": 22422,
+      "sha256": "9d9853197b3925e0e0a6ad30c61323704c11cfa67ecafeaa8502775a92f8e818"
+    },
+    {
+      "path": "service/packages/cli/src/figma-native-paints.ts",
+      "bytes": 2242,
+      "sha256": "0da009e0ced459a51b66211331655df2fcafc4f2ee2bbd9d3f2d393f09163d97"
+    },
+    {
+      "path": "service/packages/cli/src/figma-native-reactions.ts",
+      "bytes": 3519,
+      "sha256": "ca1228ad1ea9287b2bde7189f0ec5daf260af58404ac6ad46f49b220fa80c400"
+    },
+    {
+      "path": "service/packages/cli/src/figma-native-styles.ts",
+      "bytes": 9539,
+      "sha256": "750a50fa1bdf7dd0ae5cfc132ddcdb064a0b82483fe8232e4eb3ff1539e24845"
+    },
+    {
+      "path": "service/packages/cli/src/figma-native-vector-network.ts",
+      "bytes": 5585,
+      "sha256": "b7ca1e6c023c31cda882491e1495bcb392f5c5e633d3e1a89305dcf573bd622c"
+    },
+    {
+      "path": "service/packages/cli/src/snapshot-reader.ts",
+      "bytes": 19467,
+      "sha256": "2fff5a6656260ebb2d922f319ab1f4b4a90d006cfa2f815104f84460fa0689c7"
+    },
+    {
+      "path": "service/packages/cli/test/browser-session-reconnect.test.ts",
+      "bytes": 5159,
+      "sha256": "af71db371f58968a5ef89721cfe164e7658d18d413e191b2c84d6e363fd00131"
+    },
+    {
+      "path": "service/packages/cli/test/browser-source-open.test.ts",
+      "bytes": 7486,
+      "sha256": "6d15987dad37a295e4e7cc35fc552da84dcec153c604f19ecfccd6f0bb74ac66"
+    },
+    {
+      "path": "service/packages/cli/test/control-client-http.test.ts",
+      "bytes": 7025,
+      "sha256": "daf99c365774fc502f99a5f65cc635ab01ecc752ed1792ee184cf514a7afe6b8"
+    },
+    {
+      "path": "service/packages/cli/test/figma-native-font-ranges.test.ts",
+      "bytes": 1963,
+      "sha256": "c36c15310e3d0177d3e3d7ddbc77f2e8b6cb4c9084a532059cbc16833cc17676"
+    },
+    {
+      "path": "service/packages/cli/test/figma-native-geometry.test.ts",
+      "bytes": 2290,
+      "sha256": "8357dc100bce52077cb68d7dd13216ecb9754882fd7195408098795d511cf9a4"
+    },
+    {
+      "path": "service/packages/cli/test/figma-native-layout.test.ts",
+      "bytes": 3030,
+      "sha256": "d17f6b32f3cb6131ba230ba6a0d3c0e3f2bdcdb798a68f23299bde83c445fd0c"
+    },
+    {
+      "path": "service/packages/cli/test/figma-native-nodes.test.ts",
+      "bytes": 9002,
+      "sha256": "df87061ef1251a5542f0d5a13bee19e2909ed219a6890cecd082b360b8bca8be"
+    },
+    {
+      "path": "service/packages/cli/test/figma-native-paints.test.ts",
+      "bytes": 1600,
+      "sha256": "7d2c815492610580f44c35df116a8a240402f2cb6609a10ec1a40f1053d14509"
+    },
+    {
+      "path": "service/packages/cli/test/figma-native-reactions.test.ts",
+      "bytes": 5903,
+      "sha256": "15f86617230799c000d24d5a3a1edae1ab463c0df25105ac376d00f72dfb5903"
+    },
+    {
+      "path": "service/packages/cli/test/figma-native-styles.test.ts",
+      "bytes": 4501,
+      "sha256": "4dcf8cf7e160cc6a8851d9c2ce08623aa52d3b9aead7e08d95220fb73e2da1ad"
+    },
+    {
+      "path": "service/packages/cli/test/figma-native-vector-network.test.ts",
+      "bytes": 1676,
+      "sha256": "d264537e0f6b369d58223e15fa0b559a4fbb879ab7ce90f5253f889efa40cb43"
+    },
+    {
+      "path": "service/packages/cli/test/scripter-catalogs.test.ts",
+      "bytes": 17533,
+      "sha256": "44faf8b7fa420beddefe2c5ed1c30985751a1dd5335e570ad65fdb5129259170"
+    },
+    {
+      "path": "service/packages/ir/src/capture-freshness.ts",
+      "bytes": 2274,
+      "sha256": "f0f0440c0e1bbf5c5f87444520cda9e5dcf22d8f588d535b4a5ff139b9b53b3b"
+    },
+    {
+      "path": "service/packages/ir/src/portal-run.ts",
+      "bytes": 14683,
+      "sha256": "7bff2d15d7c8d23dba490a5846e66c457ebffb0cc83f7f6f91237e5ac7de5941"
+    },
+    {
+      "path": "service/packages/ir/test/capture-freshness.test.ts",
+      "bytes": 4843,
+      "sha256": "db938957ad39ea86d30c7bfb48530a9aee7b8c52035f6b43df66037124f2fa9a"
+    },
+    {
+      "path": "service/packages/mcp/src/portal/capture-freshness.ts",
+      "bytes": 3267,
+      "sha256": "8885eeb376a0099ab357325c442e634695eb40c9aaef77210ce092db031d078e"
+    },
+    {
+      "path": "service/packages/mcp/src/portal/chrome-transport.ts",
+      "bytes": 16878,
+      "sha256": "2abeb0726ef7b94040d45c048f5c6ea959960d7d72cb1d03dd229e8787f4df97"
+    },
+    {
+      "path": "service/packages/mcp/src/portal/coordinator.ts",
+      "bytes": 74235,
+      "sha256": "669cdfed433186444838be3819ba4dba7789833b2a1515f7184ebee6ce5a6d6d"
+    },
+    {
+      "path": "service/packages/mcp/src/portal/native-work.ts",
+      "bytes": 80987,
+      "sha256": "ee6af25547649f3daa30176d8ec0780bdd6d24b1da17901b74bdf9dcd81ae122"
+    },
+    {
+      "path": "service/packages/mcp/src/portal/preview.ts",
+      "bytes": 30386,
+      "sha256": "ed2a361fb8f261051f9e2836f264a1f6c56b5bd6ddcfd06f9bd7472160cf47f4"
+    },
+    {
+      "path": "service/packages/mcp/src/portal/windows-job.ts",
+      "bytes": 8578,
+      "sha256": "33771c8ff15187400566c14e86728721c22e63ada22053631b031f01af79aec6"
+    },
+    {
+      "path": "service/packages/mcp/test/portal/capture-reexport.test.ts",
+      "bytes": 5395,
+      "sha256": "2e124c80613b2067133a37454ec7b6d35dbb4073a683213ee8ee9d77f12e14aa"
+    },
+    {
+      "path": "service/packages/mcp/test/portal/chrome-transport.test.ts",
+      "bytes": 18385,
+      "sha256": "1c690199a9513a1087e7e1a5fec5349da43168e6529517994952e7a984e58fdb"
+    },
+    {
+      "path": "service/packages/mcp/test/portal/coordinator.test.ts",
+      "bytes": 43301,
+      "sha256": "f3e521e3ecfacdbee33f6c5585375180cb60d4a0027e419020d9168497f52568"
+    },
+    {
+      "path": "service/packages/mcp/test/portal/native-artifacts.test.ts",
+      "bytes": 22541,
+      "sha256": "d007a000b6cc2b8a4fcfa27e498dd692581ab4a35c67cc20f6517780108bbaa2"
+    },
+    {
+      "path": "service/packages/mcp/test/portal/native-environment.test.ts",
+      "bytes": 35304,
+      "sha256": "5ad222219f5765c40ef29c7b990192298ceaaa66b27c0cd90fd8b128f3a5b2ce"
+    },
+    {
+      "path": "service/packages/mcp/test/security/pairing.test.ts",
+      "bytes": 53243,
+      "sha256": "6bbc21364c8870aeb29a0b54786c15f9ed0e5077e5d33046c3a0ffbc8c101885"
+    },
+    {
+      "path": "service/packages/shared/src/portal-capture-source.ts",
+      "bytes": 4409,
+      "sha256": "87bf640ab374220f586a4079a798780a2ee0a04da695f96f8e3a2d10b1986d43"
+    },
+    {
+      "path": "service/packages/shared/src/portal.ts",
+      "bytes": 42421,
+      "sha256": "81cfc66c697a52e59f65a64ee828bf5c351efd297b750995799387ed48b9fc0a"
+    },
+    {
+      "path": "service/upstream-lock.json",
+      "bytes": 397325,
+      "sha256": "fdffec603dbd3dffa37f53da7be8d9537a2f1bca16ed1e36e0f22b61f34ecd0c"
+    },
+    {
+      "path": "service/vendor-rules.json",
+      "bytes": 76738,
+      "sha256": "2cd28d3b2144cd0c547780257f97d06364347037e087136418e5efa62c3dd010"
+    }
+  ]
+}

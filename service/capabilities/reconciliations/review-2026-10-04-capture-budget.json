@@ -1,0 +1,114 @@
+{
+  "schemaVersion": 1,
+  "slice": "review-2026-10-04",
+  "baseline": {
+    "headCommit": "5b9343efc82ef47ba56f412acbd4eee5a328d335",
+    "authoritySha256": {
+      "upstream-lock.json": "c83d03e9b224306128d22707c6c25efbd9afb5dc0bd5c8f05d344c174d9d59a7",
+      "vendor-map.json": "b3275c7d8b997d1cfe723d97594659f77d7b4361b824a790bcfdd7ff762589bd",
+      "vendor-rules.json": "9ed88e9246d132c9cf1ecdc41730cbbda36850d18bca0b4678b7c8a882bda183"
+    }
+  },
+  "entries": [
+    {
+      "path": "capabilities/task-review-2026-10-04-authority-classes.json",
+      "sha256": "cf8efe788f047d03c02fce64881aca225248dc384bfa2dcf686c0e6d31c18eb2",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "ef47ec0e818e7436bcf08e273e4a141a7a2a90d2735911d271b220b7de6306c4"
+        },
+        {
+          "class": "protected",
+          "sha256": "ef47ec0e818e7436bcf08e273e4a141a7a2a90d2735911d271b220b7de6306c4"
+        }
+      ],
+      "reason": "Extend the exact October4 scope for the observed eCommerce reobservation capacity failure and source-test diagnostics. Preserve prior review records, the owner index and all upstream lineage."
+    },
+    {
+      "path": "docs/portal-native.md",
+      "sha256": "97c1257e62ace291fd804a2dbe4119565aa35aeed795d39f3d2bf4beeca22b71",
+      "priorClaims": [
+        {
+          "class": "protected",
+          "sha256": "495ceb52970bdf3a212fd9563f6540680ce0c134bfdc75245da789410c3fc9e2"
+        }
+      ],
+      "reason": "Reserve a separate 12,000,000-byte accepted-response budget for initial collection and its exact ordered reread, with 24,000,000 total, unchanged 256-call/deadline/per-query limits and explicit incompleteness. Real eCommerce collected 3,198 nodes but exhausted the old combined budget. Validate 1..2000 batch parameters before connecting and document their meaning. Focused positive and over-budget cases passed."
+    },
+    {
+      "path": "packages/cli/src/commands.ts",
+      "sha256": "eed08366911ac7355f2ad00f16eba14bc258e829ce31c53f567d1e49d5aa9978",
+      "priorClaims": [
+        {
+          "class": "protected",
+          "sha256": "f148bc3b418ff4829cb1af32ef63921d55b38681876f0e4671368ae2070cb538"
+        }
+      ],
+      "reason": "Reserve a separate 12,000,000-byte accepted-response budget for initial collection and its exact ordered reread, with 24,000,000 total, unchanged 256-call/deadline/per-query limits and explicit incompleteness. Real eCommerce collected 3,198 nodes but exhausted the old combined budget. Validate 1..2000 batch parameters before connecting and document their meaning. Focused positive and over-budget cases passed."
+    },
+    {
+      "path": "packages/cli/src/snapshot-reader.ts",
+      "sha256": "2fff5a6656260ebb2d922f319ab1f4b4a90d006cfa2f815104f84460fa0689c7",
+      "priorClaims": [
+        {
+          "class": "protected",
+          "sha256": "35c66f589330b9fdf8b429ce59153a6f36e86f522557e90e1908c4431c696150"
+        }
+      ],
+      "reason": "Reserve a separate 12,000,000-byte accepted-response budget for initial collection and its exact ordered reread, with 24,000,000 total, unchanged 256-call/deadline/per-query limits and explicit incompleteness. Real eCommerce collected 3,198 nodes but exhausted the old combined budget. Validate 1..2000 batch parameters before connecting and document their meaning. Focused positive and over-budget cases passed."
+    },
+    {
+      "path": "packages/cli/test/browser-source-open.test.ts",
+      "sha256": "6d15987dad37a295e4e7cc35fc552da84dcec153c604f19ecfccd6f0bb74ac66",
+      "priorClaims": [
+        {
+          "class": "protected",
+          "sha256": "194ec11bef86f70b6c93729ad1ec8b16ae6e0ea007c16e62e247af8a9f9c146c"
+        }
+      ],
+      "reason": "Reserve a separate 12,000,000-byte accepted-response budget for initial collection and its exact ordered reread, with 24,000,000 total, unchanged 256-call/deadline/per-query limits and explicit incompleteness. Real eCommerce collected 3,198 nodes but exhausted the old combined budget. Validate 1..2000 batch parameters before connecting and document their meaning. Focused positive and over-budget cases passed."
+    },
+    {
+      "path": "packages/cli/test/scripter-catalogs.test.ts",
+      "sha256": "44faf8b7fa420beddefe2c5ed1c30985751a1dd5335e570ad65fdb5129259170",
+      "priorClaims": [
+        {
+          "class": "protected",
+          "sha256": "20e5a261bdbbb18f49435999a6cca038fc5de01f3f05e50c2e21971b8752753b"
+        }
+      ],
+      "reason": "Reserve a separate 12,000,000-byte accepted-response budget for initial collection and its exact ordered reread, with 24,000,000 total, unchanged 256-call/deadline/per-query limits and explicit incompleteness. Real eCommerce collected 3,198 nodes but exhausted the old combined budget. Validate 1..2000 batch parameters before connecting and document their meaning. Focused positive and over-budget cases passed."
+    },
+    {
+      "path": "packages/mcp/test/portal/native-artifacts.test.ts",
+      "sha256": "d007a000b6cc2b8a4fcfa27e498dd692581ab4a35c67cc20f6517780108bbaa2",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "2178da75626df9b50ecbcb82e188e9dd259ad465bd36d8accb7908f2abd484ab"
+        },
+        {
+          "class": "protected",
+          "sha256": "2178da75626df9b50ecbcb82e188e9dd259ad465bd36d8accb7908f2abd484ab"
+        }
+      ],
+      "reason": "Retain exact failed native producer command diagnostics after a full-suite failure that did not reproduce in isolation or the expanded suite. This improves evidence without changing runner behavior, raising timeouts, adding skips or claiming the unexplained failure is fixed."
+    },
+    {
+      "path": "packages/mcp/test/security/pairing.test.ts",
+      "sha256": "6bbc21364c8870aeb29a0b54786c15f9ed0e5077e5d33046c3a0ffbc8c101885",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "75ba46eb2eb08d3ab284e0a9773b23e5e314891e9b9a33680d4d0e2fcff0e551"
+        },
+        {
+          "class": "protected",
+          "sha256": "75ba46eb2eb08d3ab284e0a9773b23e5e314891e9b9a33680d4d0e2fcff0e551"
+        }
+      ],
+      "reason": "Make the hello-timeout regression reach its held credential-commit boundary before advancing the fake timeout. Preserve real sockets, actual persistence and all no-publication assertions. Release held test barriers during cleanup. The previous race reproduced in isolation; production authentication timeouts are unchanged."
+    }
+  ]
+}

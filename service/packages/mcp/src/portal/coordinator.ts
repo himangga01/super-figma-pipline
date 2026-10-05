@@ -1587,7 +1587,7 @@ export class PortalCoordinator {
       }
       if (
         run.files.length > 300 ||
-        run.files.reduce((sum, file) => sum + file.artifact.bytes, 0) > 67_108_864
+        run.files.reduce((sum, file) => sum + file.artifact.bytes, 0) > 100_663_296
       )
         throw portalError('PORTAL_CANDIDATE_LIMIT');
       if (!this.recipes || !plan.coreRecipes) throw portalError('PORTAL_CORE_REPLAN_REQUIRED');

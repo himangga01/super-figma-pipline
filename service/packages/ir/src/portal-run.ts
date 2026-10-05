@@ -29,6 +29,7 @@ import {
 import { z } from 'zod';
 
 import { contentHash } from './canonical-json.js';
+import { portalCaptureFreshnessMatches } from './capture-freshness.js';
 
 export const PortalRepositoryGrantSchema = z
   .object({
@@ -267,8 +268,7 @@ export const portalCompletionIssues = (
     issues.push('PORTAL_CAPTURE_RECEIPT_REQUIRED');
   if (
     plan.request.design.freshness === 'require-live' &&
-    (!plan.design.capture ||
-      report.capture?.freshDesignFingerprint !== plan.design.capture.designFingerprint)
+    !portalCaptureFreshnessMatches(plan.design.capture, report.capture)
   )
     issues.push('PORTAL_CAPTURE_FRESHNESS_REQUIRED');
   try {

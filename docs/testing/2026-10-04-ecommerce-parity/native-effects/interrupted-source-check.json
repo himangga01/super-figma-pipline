@@ -1,0 +1,19 @@
+{
+  "recordedAt": "2026-10-04T18:05:00.000Z",
+  "attemptId": "1c7268c7-567a-488d-a78a-9cbcc6577ae5",
+  "sourceHash": "sha256:62023ddd8c029ecd5425a25407551dfc1ea01a649b5c7008ce844d7d9ca357bb",
+  "startedAt": "2026-10-05T03:02:00+09:00",
+  "outcome": "interrupted, not passed",
+  "interruption": "Claude Code stopped the background shell running scripts/run-source-checks.mjs because the system was critically low on memory while the session was idle. This is not a test result. As in attempt 41c4cda8, the stop came at the start of the test gate. No node process survived; afterwards 5.3 GB of 15.6 GB was free, with several other Claude sessions, Chrome and Defender resident.",
+  "completedGates": {
+    "typecheck": "all packages Done",
+    "lint": "no output",
+    "format": "1,178 files checked, correct format",
+    "knip": "no output",
+    "contracts": "All 4 generated tool-contract artifacts are current.",
+    "build": "completed"
+  },
+  "interruptedGate": "test",
+  "pointer": "artifacts/source-checks/current.json remains status pending; it was not edited",
+  "restart": "Not restarted automatically; a fresh attempt requires the owner's request and more free memory, or a run outside Claude Code's background-shell memory reaper"
+}

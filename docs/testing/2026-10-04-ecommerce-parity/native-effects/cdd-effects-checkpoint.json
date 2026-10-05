@@ -1,0 +1,20 @@
+{
+  "recordedAt": "2026-10-04T14:44:29.093Z",
+  "phase": "effects",
+  "nodeCount": 192,
+  "expectedNodes": 192,
+  "missingNodes": 0,
+  "extraNodes": 0,
+  "comparedPositions": 8970,
+  "rawDifferences": 73,
+  "unexplainedDifferences": 0,
+  "effectsCompared": true,
+  "effectDifferences": 0,
+  "nodesWithEffects": 6,
+  "effectEntries": 6,
+  "effectTypes": {
+    "DROP_SHADOW": 6
+  },
+  "unsupportedEffectNodes": 0,
+  "fullCaptureAccepted": false
+}

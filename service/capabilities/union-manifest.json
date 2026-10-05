@@ -2816,7 +2816,7 @@
           "schemaHash": "c405d38b4b44164ae727bef89354e65dc63d4f2007d89e812641166a658aa68e"
         }
       ],
-      "targetContractHash": "b459027627a52750b3e775474864baa2762de9f2f5c6b22f500f80a97daf39a1",
+      "targetContractHash": "92a16cdb2540aab8a082823a75fffc93cabb676ba907a60512c20d914941ddb3",
       "disposition": "adapter",
       "registration": "advertised",
       "availability": ["registered-workspace", "authenticated-owner"],
@@ -2835,7 +2835,7 @@
           "schemaHash": "67338fa38cd6bcd944ca13e9a9e218f441ded5edc6ee6128135e14866b297893"
         }
       ],
-      "targetContractHash": "21a3cfc1d972d4de80daf0a641b94abb00677e322fc3064831c02bb03af8939b",
+      "targetContractHash": "e730f090bfccb72e93dc263f93a394adfd9153e4d91fa5329b114a51aff4af3d",
       "disposition": "adapter",
       "registration": "advertised",
       "availability": ["registered-workspace", "authenticated-owner"],
@@ -2854,7 +2854,7 @@
           "schemaHash": "a11f9fd25b6cc706f5a9ed39dac1fc2a2525d94894cc17d40d40faddfd0b25c5"
         }
       ],
-      "targetContractHash": "980bdc916ed424146f46d3a0edc988085a21b6f2ee2b3c0cd8d2d4f76c50233b",
+      "targetContractHash": "269268dfd66a874a77bc32775b17117a84e4cc99f94ed38cc57f4d0c5eae0d4c",
       "disposition": "adapter",
       "registration": "advertised",
       "availability": ["registered-workspace", "authenticated-owner"],
@@ -2873,7 +2873,7 @@
           "schemaHash": "3a62b8bb9ff1cd7bc298c94f70ab776c6ed6c5abed2b50bc8ddb923254b1400a"
         }
       ],
-      "targetContractHash": "467d835f24d4afdcdfeae34b3399654c75962fd32d383a60ac0e4042faa9507e",
+      "targetContractHash": "07f09047c76a39d83a05b258439f62c580aab6755b1540ef9b872e5075da6a30",
       "disposition": "adapter",
       "registration": "advertised",
       "availability": [
@@ -2896,7 +2896,7 @@
           "schemaHash": "0b3a47befbc98a6e2313481f0965b586eef63a132a041dab75705a4834a1cc27"
         }
       ],
-      "targetContractHash": "8a4d99ad8457506c03a45a19b96185d02f8d7cb79810175ff279e33e0b12f0ae",
+      "targetContractHash": "f1685d58be398cff42903f9f9ef77cfb4ff77bd0802e0e5e876d58b715b6ee89",
       "disposition": "adapter",
       "registration": "advertised",
       "availability": [
@@ -2920,7 +2920,7 @@
           "schemaHash": "2500ed2a0aa9df2e3c768a88b1e2693457f7a05322c61ffa3304dda35158e055"
         }
       ],
-      "targetContractHash": "940a1f3730b614cc76070589cc63e42b2060f99fb20d3a77a6295da9647ef86b",
+      "targetContractHash": "786dcc3d98a23af58247a01387862e2c5e0becdc0b6c224f4f5bec635322804a",
       "disposition": "adapter",
       "registration": "advertised",
       "availability": ["registered-workspace", "authenticated-owner"],
@@ -2939,7 +2939,7 @@
           "schemaHash": "803ff6e81b35ddf953c7ced8d1a56f45832386d8d2fc230a4bd8895c14a9c5b6"
         }
       ],
-      "targetContractHash": "fbe2b317ad9168a16a27ca81964f1bf1bf8a0025975dff6eca4b2e1ec4329f97",
+      "targetContractHash": "751110a112c7c636c062ccdb613578076634f5328b040af8f6936a12aac0fa9c",
       "disposition": "adapter",
       "registration": "advertised",
       "availability": ["registered-workspace", "authenticated-owner"],
@@ -2958,7 +2958,7 @@
           "schemaHash": "3a62b8bb9ff1cd7bc298c94f70ab776c6ed6c5abed2b50bc8ddb923254b1400a"
         }
       ],
-      "targetContractHash": "467d835f24d4afdcdfeae34b3399654c75962fd32d383a60ac0e4042faa9507e",
+      "targetContractHash": "07f09047c76a39d83a05b258439f62c580aab6755b1540ef9b872e5075da6a30",
       "disposition": "adapter",
       "registration": "advertised",
       "availability": ["registered-workspace", "authenticated-owner"],

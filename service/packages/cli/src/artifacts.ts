@@ -33,6 +33,7 @@ export const writeCapture = async (
     | 'web-ui.json'
     | 'native-summary.json'
     | 'native-design.json'
+    | 'native-styles.json'
     | 'capture-comparison.json'
     | 'desktop.json'
     | 'project.json'
