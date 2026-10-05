@@ -19,9 +19,9 @@ Prepared on October 5, 2026, at about 10:10 KST (Asia/Seoul). The owner asked fo
 | Work commit | `78af2b1adf4d3cd7c2ebda67afb0edee2f1a0b6f`: all service, test, provenance and evidence changes (260 files) |
 | Handoff commit | `a795151a4f044ee1e88c03863d3bfc41054448f4`: this document, its helper copies and pointer updates. A later documentation commit on `main` records the branch cleanup |
 | Earlier published commits | `5b9343efc82ef47ba56f412acbd4eee5a328d335` (former remediation tip) and `0a0f3ad58cc41326e3f362fb9dc350eb45d371e3` (former `main`) |
-| Service source fingerprint | `sha256:62023ddd8c029ecd5425a25407551dfc1ea01a649b5c7008ce844d7d9ca357bb` |
-| Committed service tree | `5f342a83d33eee96c7cbd6ee1c33e2f4b520f2a2`, identical to the last verified review index (`native-container-20261005.index`) |
-| Provenance | Checked on the staged state before the commit: slice `review-2026-10-04` (71 semantic changes, 4 authority paths); the offline upstream lock (3 upstreams, 238 vendor rows) |
+| Service source fingerprint | `sha256:eb9c2c5c5369df4c75ce6050b1484a4ccf4252528e4583741039e154d120d602`, after the October 5 commit "feat: repair review findings and add native metadata fields" on `main`. The earlier handoff state was `sha256:62023ddd...` |
+| Committed service tree | `1cff1731766a12eef1242ce662d0fd5120354903`, identical to the last verified review index (`review-20261005.index`); the earlier work commit's tree was `5f342a83...` |
+| Provenance | Checked on the staged state before each commit: slice `review-2026-10-04` (71 semantic changes) and then slice `review-2026-10-05` (21 changes), each with 4 authority paths; the offline upstream lock (3 upstreams, 238 vendor rows) |
 | Secret scan | No credential, cookie, token or pairing-code pattern found in the 258 committed text files or the two committed ZIP archives |
 
 `service/.gitattributes` keeps service text files on LF, so the fingerprint reproduces on a fresh clone even with `core.autocrlf=true`. Root documents may check out with CRLF; Git normalizes them on commit.
@@ -111,7 +111,7 @@ Check that both copies have the recorded source fingerprint:
 node -e "import('file:///C:/2026_project/super-figma-pipline/service/scripts/source-fingerprint.mjs').then(async m => console.log(await m.sourceFingerprint('C:/2026_project/super-figma-pipline/service'), await m.sourceFingerprint('C:/2026_project/super-figma-pipline/.worktrees/baseline/service')))"
 ```
 
-Both values must be `sha256:62023ddd8c029ecd5425a25407551dfc1ea01a649b5c7008ce844d7d9ca357bb`. If they differ, compare the file lists before running anything that records evidence.
+Both values must be `sha256:eb9c2c5c5369df4c75ce6050b1484a4ccf4252528e4583741039e154d120d602`. If they differ, compare the file lists before running anything that records evidence.
 
 ## 5. Start the service
 
@@ -147,7 +147,7 @@ Stop-Process -Id <ProcessId>
 
 ## 6. Whole check: the first task, after the owner asks
 
-**State.** Whole check `1c7268c7-567a-488d-a78a-9cbcc6577ae5` at `62023ddd...` passed typecheck, lint, format, knip, contracts and build. Claude Code's memory reaper then stopped it at the test gate ([record](../testing/2026-10-04-ecommerce-parity/native-effects/interrupted-source-check.json)). Its `pending` pointer was deleted with the old validation copy; that committed record is now the only evidence.
+**State.** Whole check `1c7268c7-567a-488d-a78a-9cbcc6577ae5` at `62023ddd...` passed typecheck, lint, format, knip, contracts and build. Claude Code's memory reaper then stopped it at the test gate ([record](../testing/2026-10-04-ecommerce-parity/native-effects/interrupted-source-check.json)). Its `pending` pointer was deleted with the old validation copy; that committed record is now the only evidence. The current source is newer (`eb9c2c5c...`) and has had no whole check.
 
 The last complete pass is `a59a6e15-5c33-472d-b947-a86d249124f8`, at the older source `ac67794d...` ([checkpoint](../testing/2026-10-04-ecommerce-parity/control-diagnostics/full-source-checkpoint.json)):
 
@@ -239,10 +239,18 @@ These come from AGENTS.md, which is authoritative, and from the old PC's agent m
 
 ## 10. Remaining work
 
+**Update at about 21:30 KST.** Items 1 and 2 of "Agent work that needs no owner input" below have progressed; see the [findings and metadata record](../testing/2026-10-05-findings-and-metadata/README.md).
+
+- The four review findings and the authorization load are repaired.
+- The native reader compares 110 fields.
+- Twelve reference fields, independent exports and capture admission remain.
+
+These changes are committed on `main`, so the service source is now `sha256:eb9c2c5c...`, and the first whole check applies to that source.
+
 ### First steps on the new PC
 
 1. Do the setup and fingerprint check in section 4.
-2. With the owner's approval, run the whole check at `62023ddd...` (section 6).
+2. With the owner's approval, run the whole check at `eb9c2c5c...` (section 6).
 
 ### Needs the owner
 

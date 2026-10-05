@@ -1,0 +1,239 @@
+{
+  "schemaVersion": 1,
+  "slice": "review-2026-10-05",
+  "baseline": {
+    "headCommit": "6459363354f52940b4c67e399b9e735d7332d4dc",
+    "authoritySha256": {
+      "upstream-lock.json": "19898cd7ac1058b3de75aa41ea5c9b14b60fdde14af4ac47fc6f1e4079c479e6",
+      "vendor-map.json": "b3275c7d8b997d1cfe723d97594659f77d7b4361b824a790bcfdd7ff762589bd",
+      "vendor-rules.json": "e626690fcfae02b0392aef167c35e3a55b935bbafe200e8e7bdb183e5354ff60"
+    }
+  },
+  "entries": [
+    {
+      "path": "capabilities/task-review-2026-10-05-authority-classes.json",
+      "sha256": "008736abfab2f699ceff25e5b33bc37b73a62fc5b2eb91b230911fa6094d2fd3",
+      "priorClaims": [],
+      "reason": "Repair open review findings: malformed native style rows are excluded instead of aborting comparison, each snapshot pass has its own call budget, freshness proofs stop re-hashing verified captures and share one fingerprint formula, and Windows authorization reuses the process SID and polls less often. Add native style IDs, grid auto-layout, variable, annotation, export and arc fields; undeterminable values are unobserved, not matched. Regressions failed first."
+    },
+    {
+      "path": "docs/portal-native.md",
+      "sha256": "523f6398273c4d3e3689c80aa174f612f40d12c4309833476136073633d146d2",
+      "priorClaims": [
+        {
+          "class": "protected",
+          "sha256": "ed51b76266b9c7b7065b255514e84e0b3d6338cc8be21836c6e33972b930e3fb"
+        }
+      ],
+      "reason": "Repair open review findings: malformed native style rows are excluded instead of aborting comparison, each snapshot pass has its own call budget, freshness proofs stop re-hashing verified captures and share one fingerprint formula, and Windows authorization reuses the process SID and polls less often. Add native style IDs, grid auto-layout, variable, annotation, export and arc fields; undeterminable values are unobserved, not matched. Regressions failed first."
+    },
+    {
+      "path": "packages/cli/src/commands.ts",
+      "sha256": "9f7c71893cedf673ab5caac9d79cde79130b0ea990f85d6584ad2ba69e596ab5",
+      "priorClaims": [
+        {
+          "class": "protected",
+          "sha256": "eed08366911ac7355f2ad00f16eba14bc258e829ce31c53f567d1e49d5aa9978"
+        }
+      ],
+      "reason": "Repair open review findings: malformed native style rows are excluded instead of aborting comparison, each snapshot pass has its own call budget, freshness proofs stop re-hashing verified captures and share one fingerprint formula, and Windows authorization reuses the process SID and polls less often. Add native style IDs, grid auto-layout, variable, annotation, export and arc fields; undeterminable values are unobserved, not matched. Regressions failed first."
+    },
+    {
+      "path": "packages/cli/src/control-client.ts",
+      "sha256": "5c3f70e0f4389f0fb2b4a23bf524b591cb9ec67439492d87dc8d027f87c80081",
+      "priorClaims": [
+        {
+          "class": "protected",
+          "sha256": "3bc0c86dda29965396b1aefa7ce26d3042e0a6d9a2e0480bebc7311269c023b5"
+        }
+      ],
+      "reason": "Repair open review findings: malformed native style rows are excluded instead of aborting comparison, each snapshot pass has its own call budget, freshness proofs stop re-hashing verified captures and share one fingerprint formula, and Windows authorization reuses the process SID and polls less often. Add native style IDs, grid auto-layout, variable, annotation, export and arc fields; undeterminable values are unobserved, not matched. Regressions failed first."
+    },
+    {
+      "path": "packages/cli/src/figma-native-metadata.ts",
+      "sha256": "d294d85a85f0a69036c0f41eb4a4f6cc5b2a328b3f4151f70a06f67361bd2f75",
+      "priorClaims": [],
+      "reason": "Repair open review findings: malformed native style rows are excluded instead of aborting comparison, each snapshot pass has its own call budget, freshness proofs stop re-hashing verified captures and share one fingerprint formula, and Windows authorization reuses the process SID and polls less often. Add native style IDs, grid auto-layout, variable, annotation, export and arc fields; undeterminable values are unobserved, not matched. Regressions failed first."
+    },
+    {
+      "path": "packages/cli/src/figma-native-nodes.ts",
+      "sha256": "2be779f42871f69d851c1baff9e81aa986d55cb14d224d24229ccd9c0f44f5c3",
+      "priorClaims": [
+        {
+          "class": "protected",
+          "sha256": "e8549ce75fd507f1219cbb89f4617cebc28115967ab0c89e9dd5eb84e3fff388"
+        }
+      ],
+      "reason": "Repair open review findings: malformed native style rows are excluded instead of aborting comparison, each snapshot pass has its own call budget, freshness proofs stop re-hashing verified captures and share one fingerprint formula, and Windows authorization reuses the process SID and polls less often. Add native style IDs, grid auto-layout, variable, annotation, export and arc fields; undeterminable values are unobserved, not matched. Regressions failed first."
+    },
+    {
+      "path": "packages/cli/src/figma-native-styles.ts",
+      "sha256": "e1f4ba284fab5e1b7f6e97238726050a44584191bcf6f682def1593ed92e6a5b",
+      "priorClaims": [
+        {
+          "class": "protected",
+          "sha256": "750a50fa1bdf7dd0ae5cfc132ddcdb064a0b82483fe8232e4eb3ff1539e24845"
+        }
+      ],
+      "reason": "Repair open review findings: malformed native style rows are excluded instead of aborting comparison, each snapshot pass has its own call budget, freshness proofs stop re-hashing verified captures and share one fingerprint formula, and Windows authorization reuses the process SID and polls less often. Add native style IDs, grid auto-layout, variable, annotation, export and arc fields; undeterminable values are unobserved, not matched. Regressions failed first."
+    },
+    {
+      "path": "packages/cli/src/snapshot-reader.ts",
+      "sha256": "25107aad9bc90ad3af4abcd45d9ac218e751cbe8a59b6175ca9fd989cc98dbf7",
+      "priorClaims": [
+        {
+          "class": "protected",
+          "sha256": "2fff5a6656260ebb2d922f319ab1f4b4a90d006cfa2f815104f84460fa0689c7"
+        }
+      ],
+      "reason": "Repair open review findings: malformed native style rows are excluded instead of aborting comparison, each snapshot pass has its own call budget, freshness proofs stop re-hashing verified captures and share one fingerprint formula, and Windows authorization reuses the process SID and polls less often. Add native style IDs, grid auto-layout, variable, annotation, export and arc fields; undeterminable values are unobserved, not matched. Regressions failed first."
+    },
+    {
+      "path": "packages/cli/test/control-client-http.test.ts",
+      "sha256": "6b4560137bca64386166ad49df7856f6c4f55454cfb4a31cdade47bc85a2f617",
+      "priorClaims": [
+        {
+          "class": "protected",
+          "sha256": "b2eada99fcfb574d25d68119e07f84054b62103fd5b8f01a3286578394744c5d"
+        }
+      ],
+      "reason": "Repair open review findings: malformed native style rows are excluded instead of aborting comparison, each snapshot pass has its own call budget, freshness proofs stop re-hashing verified captures and share one fingerprint formula, and Windows authorization reuses the process SID and polls less often. Add native style IDs, grid auto-layout, variable, annotation, export and arc fields; undeterminable values are unobserved, not matched. Regressions failed first."
+    },
+    {
+      "path": "packages/cli/test/figma-native-metadata.test.ts",
+      "sha256": "ccfedbb8da6c1e22c8fbb239d62725d8a3496071d4fae3dacb7c9a5dba0c04e9",
+      "priorClaims": [],
+      "reason": "Repair open review findings: malformed native style rows are excluded instead of aborting comparison, each snapshot pass has its own call budget, freshness proofs stop re-hashing verified captures and share one fingerprint formula, and Windows authorization reuses the process SID and polls less often. Add native style IDs, grid auto-layout, variable, annotation, export and arc fields; undeterminable values are unobserved, not matched. Regressions failed first."
+    },
+    {
+      "path": "packages/cli/test/figma-native-nodes.test.ts",
+      "sha256": "3b1db36e597f7f121e1a399b0b7f26d87a87db2147d8061b46ae5f367b6d89c5",
+      "priorClaims": [
+        {
+          "class": "protected",
+          "sha256": "db13af445e3874018641d2ba8af8e9c73ffd408d0993f58e3f3f1bb05078fc8f"
+        }
+      ],
+      "reason": "Repair open review findings: malformed native style rows are excluded instead of aborting comparison, each snapshot pass has its own call budget, freshness proofs stop re-hashing verified captures and share one fingerprint formula, and Windows authorization reuses the process SID and polls less often. Add native style IDs, grid auto-layout, variable, annotation, export and arc fields; undeterminable values are unobserved, not matched. Regressions failed first."
+    },
+    {
+      "path": "packages/cli/test/figma-native-styles.test.ts",
+      "sha256": "65d7dbbdece84756bb899ac8414bd2baeaf949b47970e6c19a510a951c687795",
+      "priorClaims": [
+        {
+          "class": "protected",
+          "sha256": "4dcf8cf7e160cc6a8851d9c2ce08623aa52d3b9aead7e08d95220fb73e2da1ad"
+        }
+      ],
+      "reason": "Repair open review findings: malformed native style rows are excluded instead of aborting comparison, each snapshot pass has its own call budget, freshness proofs stop re-hashing verified captures and share one fingerprint formula, and Windows authorization reuses the process SID and polls less often. Add native style IDs, grid auto-layout, variable, annotation, export and arc fields; undeterminable values are unobserved, not matched. Regressions failed first."
+    },
+    {
+      "path": "packages/cli/test/scripter-catalogs.test.ts",
+      "sha256": "2b6561ae4e800910bdb8662b0245fbac94615f6da5a46b2db8ff3843feb41a03",
+      "priorClaims": [
+        {
+          "class": "protected",
+          "sha256": "44faf8b7fa420beddefe2c5ed1c30985751a1dd5335e570ad65fdb5129259170"
+        }
+      ],
+      "reason": "Repair open review findings: malformed native style rows are excluded instead of aborting comparison, each snapshot pass has its own call budget, freshness proofs stop re-hashing verified captures and share one fingerprint formula, and Windows authorization reuses the process SID and polls less often. Add native style IDs, grid auto-layout, variable, annotation, export and arc fields; undeterminable values are unobserved, not matched. Regressions failed first."
+    },
+    {
+      "path": "packages/ir/src/capture-freshness.ts",
+      "sha256": "59613ba800ba7820326012e0d5f415eca63767be6509c38a95edce8a53df14ac",
+      "priorClaims": [
+        {
+          "class": "protected",
+          "sha256": "f0f0440c0e1bbf5c5f87444520cda9e5dcf22d8f588d535b4a5ff139b9b53b3b"
+        }
+      ],
+      "reason": "Repair open review findings: malformed native style rows are excluded instead of aborting comparison, each snapshot pass has its own call budget, freshness proofs stop re-hashing verified captures and share one fingerprint formula, and Windows authorization reuses the process SID and polls less often. Add native style IDs, grid auto-layout, variable, annotation, export and arc fields; undeterminable values are unobserved, not matched. Regressions failed first."
+    },
+    {
+      "path": "packages/ir/src/index.ts",
+      "sha256": "e1a2492a1f3c313703ec1985e4c65a799c81b4da69599387e25ce2a987748187",
+      "priorClaims": [
+        {
+          "class": "protected",
+          "sha256": "c373cbc90e1ea9f6c81ce4d788f7487ef39c862e1ffd4722688de597e4a90aed"
+        }
+      ],
+      "reason": "Repair open review findings: malformed native style rows are excluded instead of aborting comparison, each snapshot pass has its own call budget, freshness proofs stop re-hashing verified captures and share one fingerprint formula, and Windows authorization reuses the process SID and polls less often. Add native style IDs, grid auto-layout, variable, annotation, export and arc fields; undeterminable values are unobserved, not matched. Regressions failed first."
+    },
+    {
+      "path": "packages/mcp/src/portal/capture-freshness.ts",
+      "sha256": "1875664870af8fe085597b0ee77dc094de59a5891e2c6618b2c53b5557664752",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "0852dfa3bf5e787b06ef488ce97d049517bd778c51af2a476c47fa0b7340a78c"
+        },
+        {
+          "class": "protected",
+          "sha256": "0852dfa3bf5e787b06ef488ce97d049517bd778c51af2a476c47fa0b7340a78c"
+        }
+      ],
+      "reason": "Repair open review findings: malformed native style rows are excluded instead of aborting comparison, each snapshot pass has its own call budget, freshness proofs stop re-hashing verified captures and share one fingerprint formula, and Windows authorization reuses the process SID and polls less often. Add native style IDs, grid auto-layout, variable, annotation, export and arc fields; undeterminable values are unobserved, not matched. Regressions failed first."
+    },
+    {
+      "path": "packages/mcp/src/portal/design-capture.ts",
+      "sha256": "50966231f71633b99e0bc46854e3c414bf50c7a7b6d4dcad16d0dfa7de1c6b77",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "30bf6eb4d1701f6982bbf2114772d721d0866e1872c440639ccd4ae8eda0cd3c"
+        },
+        {
+          "class": "protected",
+          "sha256": "30bf6eb4d1701f6982bbf2114772d721d0866e1872c440639ccd4ae8eda0cd3c"
+        }
+      ],
+      "reason": "Repair open review findings: malformed native style rows are excluded instead of aborting comparison, each snapshot pass has its own call budget, freshness proofs stop re-hashing verified captures and share one fingerprint formula, and Windows authorization reuses the process SID and polls less often. Add native style IDs, grid auto-layout, variable, annotation, export and arc fields; undeterminable values are unobserved, not matched. Regressions failed first."
+    },
+    {
+      "path": "packages/mcp/src/security/state-permissions.ts",
+      "sha256": "60e1a218a82a9efa012c1b3b009cfa6ce161749d75ae29d505296f59a7e3df93",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "67745843a60482db79f81ab8347ed4332d02a507d6f639de8fcc7ca5ec94d61c"
+        },
+        {
+          "class": "protected",
+          "sha256": "67745843a60482db79f81ab8347ed4332d02a507d6f639de8fcc7ca5ec94d61c"
+        }
+      ],
+      "reason": "Repair open review findings: malformed native style rows are excluded instead of aborting comparison, each snapshot pass has its own call budget, freshness proofs stop re-hashing verified captures and share one fingerprint formula, and Windows authorization reuses the process SID and polls less often. Add native style IDs, grid auto-layout, variable, annotation, export and arc fields; undeterminable values are unobserved, not matched. Regressions failed first."
+    },
+    {
+      "path": "packages/mcp/test/fs/runtime-paths.test.ts",
+      "sha256": "5c5b61319296e8331431bf56872bff505a7af464f5d18dbfd7bb77eca392d6aa",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "1c78f16614cd8e606c3fe6d457ba49adbb904fcb004937aedf9f0646b6991f19"
+        },
+        {
+          "class": "protected",
+          "sha256": "1c78f16614cd8e606c3fe6d457ba49adbb904fcb004937aedf9f0646b6991f19"
+        }
+      ],
+      "reason": "Repair open review findings: malformed native style rows are excluded instead of aborting comparison, each snapshot pass has its own call budget, freshness proofs stop re-hashing verified captures and share one fingerprint formula, and Windows authorization reuses the process SID and polls less often. Add native style IDs, grid auto-layout, variable, annotation, export and arc fields; undeterminable values are unobserved, not matched. Regressions failed first."
+    },
+    {
+      "path": "packages/mcp/test/portal/capture-reexport.test.ts",
+      "sha256": "3c632605496445943ecc34c3e893e4f8c20c15bed1a561bec173034dc8fe5ae9",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "b7e80d59c70176bdd670bc09abfdbfcf9bf41ca9b2e087983be0fecc54b9b24a"
+        },
+        {
+          "class": "protected",
+          "sha256": "b7e80d59c70176bdd670bc09abfdbfcf9bf41ca9b2e087983be0fecc54b9b24a"
+        }
+      ],
+      "reason": "Repair open review findings: malformed native style rows are excluded instead of aborting comparison, each snapshot pass has its own call budget, freshness proofs stop re-hashing verified captures and share one fingerprint formula, and Windows authorization reuses the process SID and polls less often. Add native style IDs, grid auto-layout, variable, annotation, export and arc fields; undeterminable values are unobserved, not matched. Regressions failed first."
+    }
+  ]
+}

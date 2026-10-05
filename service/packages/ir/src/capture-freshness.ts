@@ -6,13 +6,40 @@ import {
 } from '../../shared/src/portal-capture-source.js';
 import { contentHash } from './canonical-json.js';
 
-const designHash = (descriptor: PortalCaptureDescriptor) =>
+/** The single v2 design-version formula, shared by capture descriptors and freshness proofs. */
+export const portalDesignVersionFingerprint = (parts: {
+  contentFingerprint?: string | undefined;
+  contractFingerprint?: string | undefined;
+  sourceFingerprint?: string | undefined;
+  assetFingerprint?: string | undefined;
+}) =>
   contentHash('sfp-portal-design-version-v2', {
-    content: descriptor.contentFingerprint,
-    contracts: descriptor.contractFingerprint,
-    source: descriptor.sourceFingerprint,
-    assets: descriptor.assetFingerprint,
+    content: parts.contentFingerprint,
+    contracts: parts.contractFingerprint,
+    source: parts.sourceFingerprint,
+    assets: parts.assetFingerprint,
   });
+
+/** The single v2 asset-row formula, shared by capture descriptors and freshness proofs. */
+export const portalCaptureAssetFingerprint = (
+  rows: ReadonlyArray<{
+    query: unknown;
+    status: string;
+    sha256?: string | null | undefined;
+    bytes?: number | null | undefined;
+    exportedFrom?: unknown;
+  }>,
+) =>
+  contentHash(
+    'sfp-portal-capture-assets-v2',
+    rows.map(row => ({
+      query: row.query,
+      status: row.status,
+      sha256: row.sha256 ?? null,
+      bytes: row.bytes ?? null,
+      exportedFrom: row.exportedFrom ?? null,
+    })),
+  );
 
 /** Keep exact capture identities; only a bound, narrow re-export proof can bridge different bytes. */
 export function portalCaptureFreshnessMatches(
@@ -40,8 +67,7 @@ export function portalCaptureFreshnessMatches(
   )
     return false;
   const assetHash = (which: 'original' | 'fresh') =>
-    contentHash(
-      'sfp-portal-capture-assets-v2',
+    portalCaptureAssetFingerprint(
       proof.assets.map(asset => ({
         query: asset.query,
         status: 'captured',
@@ -53,7 +79,7 @@ export function portalCaptureFreshnessMatches(
   return (
     assetHash('original') === original.assetFingerprint &&
     assetHash('fresh') === fresh.assetFingerprint &&
-    designHash(original) === original.designFingerprint &&
-    designHash(fresh) === fresh.designFingerprint
+    portalDesignVersionFingerprint(original) === original.designFingerprint &&
+    portalDesignVersionFingerprint(fresh) === fresh.designFingerprint
   );
 }

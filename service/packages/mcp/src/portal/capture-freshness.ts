@@ -8,7 +8,7 @@ import {
   type PortalCaptureReexportProof,
 } from '../../../shared/src/portal-capture-source.js';
 import { RepoReader } from '../fs/repo-walk.js';
-import { verifyPortalCaptureFiles, type PortalCapturedDesign } from './design-capture.js';
+import type { PortalCapturedDesign } from './design-capture.js';
 import { comparePortalPngReexport } from './preview.js';
 import { portalError } from './store.js';
 
@@ -17,6 +17,11 @@ const PROOF_READ_LIMITS = new Set(['REPO_TOTAL_BYTES_EXCEEDED', 'FILE_SIZE_LIMIT
 const proofReadLimit = (error: unknown): boolean =>
   PROOF_READ_LIMITS.has(String((error as { code?: unknown } | null)?.code));
 
+/**
+ * Callers verify both whole captures' files around this proof: native work verifies the refreshed
+ * capture just before it, and `assertCapture` verifies the original before and after it. The proof
+ * re-reads and re-checks only the differing PNG bytes it compares.
+ */
 export async function provePortalPngReexport(
   original: PortalCapturedDesign,
   fresh: PortalCapturedDesign,
@@ -33,8 +38,6 @@ export async function provePortalPngReexport(
     original.assets.length !== fresh.assets.length
   )
     return null;
-  await verifyPortalCaptureFiles(original, signal);
-  await verifyPortalCaptureFiles(fresh, signal);
   const reader = (capture: PortalCapturedDesign) =>
     new RepoReader({
       rootDir: capture.assetRoot,

@@ -2,7 +2,59 @@
 
 Analysis date: October 4–5, 2026 (Asia/Seoul).
 Repository: `C:\2026_project\super-figma-pipline`.
-Current published Git baseline: `main` at merge commit `4c24aa3a4360d06d8ac082d3e114add3598e3ea5`, pushed on October 5 at the owner's request. It contains work commit `78af2b1...` and the handoff commit for [continuing on another PC](handoff/another-pc-2026-10-05.md). The service source fingerprint is `sha256:62023ddd...`. The other branches were then cleaned up as that handoff records. Previous baselines: `5b9343efc82ef47ba56f412acbd4eee5a328d335` (former `remediation/2026-09-27`) and `0a0f3ad...` (former `main`). Earlier sections retain their historical pre-publication baselines.
+Current published Git baseline: `main`, pushed on October 5 at the owner's request. It includes merge commit `4c24aa3a4360d06d8ac082d3e114add3598e3ea5` (work commit `78af2b1...` and the handoff commit for [continuing on another PC](handoff/another-pc-2026-10-05.md)) and the later commit "feat: repair review findings and add native metadata fields". The service source fingerprint is `sha256:eb9c2c5c...`; before that commit it was `sha256:62023ddd...`. The other branches were then cleaned up as that handoff records. Previous baselines: `5b9343efc82ef47ba56f412acbd4eee5a328d335` (former `remediation/2026-09-27`) and `0a0f3ad...` (former `main`). Earlier sections retain their historical pre-publication baselines.
+
+## Review findings and native metadata at about 21:30 KST on October 5
+
+The owner asked to proceed with only items 4 and 5 of the summary below. The [execution record](testing/2026-10-05-findings-and-metadata/README.md) holds the evidence. The changes move both service copies to `sha256:eb9c2c5c...`; at the owner's request they were committed and pushed on `main`.
+
+- **Item 5, review findings.** All four open findings are repaired, each with a regression that failed first (F10 is a guarded refactor):
+  - F5: malformed native style rows are excluded and listed, so they no longer abort the comparison.
+  - F4: each snapshot pass has its own call budget.
+  - F9: the freshness proof no longer re-hashes both verified captures.
+  - F10: the fingerprint formula exists once, in `ir`.
+- **Item 5, authorization load.** Windows authorization load is reduced in two ways: the process SID is cached per authority, and monitoring polls once a second after its first 5 seconds. Reusing verified credential state across requests was deliberately not attempted.
+- **Item 4, independent native reader.** 23 more fields are compared: style identifiers, grid auto-layout, variables, annotations, export settings and arcs, for 110 in total. eCommerce compares 204,255 positions and CDD 14,128; both have zero unexplained differences and unchanged raw differences (408 and 77).
+- **Unobserved values.** Values the normalizer cannot determine are now counted as unobserved positions: 10 for eCommerce and 383 for CDD. Most are local style identifiers, which have no native key, and CDD's resolved variable modes.
+- **Still open in item 4.** Twelve reference fields remain uncompared: 6 component-semantic fields, 3 geometry fields, and 3 collector-only fields. Independent SVG and root-PNG exports and capture admission need a live session.
+- **Verification.** Focused and related tests, typecheck, scoped lint/format, knip and the new provenance slice `review-2026-10-05` passed. The offline lock passed in both copies, and the owner index is unchanged. The whole check for this source has not been run.
+
+## Implementation summary at 19:57 KST on October 5
+
+The owner asked which parts of the service are implemented and what remains.
+
+- **Baseline.** `main` at `6459363`, with a clean working tree. The service source fingerprint is `sha256:62023ddd...`.
+- **Scope of this summary.** It consolidates the code inventory and the dated evidence below. No new tests or live runs were executed for it.
+- **Verification levels used in the table:**
+  - **Implemented**: code exists and focused tests pass.
+  - **Live-verified**: a recorded run exercised real Figma or real Chrome.
+  - **Accepted**: the full flow passed: candidate validation, guarded application, applied checks and final source freshness.
+
+Code existence or tool registration alone is not acceptance.
+
+| Area | What exists | Highest verified level |
+| --- | --- | --- |
+| Chrome/Scripter collection | Playwright attaches to the owner's authorized Chrome, opens or finds the file and runs the Scripter reader. It collects nodes, styles, variables, interactions and original assets | Live-verified: complete eCommerce preparation (3,198 nodes, 11 roots, 283 assets) and the CDD capture behind R8 |
+| Independent native reader | `chrome-export` collects the native `.fig` without Scripter. A decoder and normalizer, and `chrome-compare` against the Scripter facts | Live inputs compared over 87 fields with zero unexplained differences. Not admitted as full capture; 36 fields and independent exports remain |
+| Desktop development plugin | Bundled plugin code, UI and manifest; `desktop-prepare`, `connect` and `pair` | Bundle produced and prepared. Pairing has not completed, so there is no Desktop capture |
+| Official Figma MCP | Official SDK client limited to the remote and local official endpoints. `figma-mcp config`, `probe` and `read` with five read tools; OAuth credentials by environment-variable name | Focused tests. Service-owned authenticated reads have not been demonstrated, and the local server was unavailable on the owner's Starter account. The earlier 189-node comparison used supplemental connector observations |
+| MCP tool catalog | 128 tools: 28 read, 21 create, 40 modify, 11 delete, 11 portal, and 17 analysis, mapping and export utilities. 109 run through plugin handlers | Registration and focused tests, not workflow acceptance |
+| Source analysis | Project analysis and component/token maps, stylesheet dependencies, SVG queries, fetch classification and incomplete component APIs | Focused tests. No real C2/C3 target service has been analyzed for acceptance |
+| Portal orchestration | Plan, recipes, coding lease, submission, native profile, candidate validation, guarded application, applied validation. Run-state fences, cancellation and recovery budgets | Accepted for one C4 frontend: CDD R8 through Chrome/Scripter |
+| Native validation and previews | Reviewed native profiles in a hash-bound working copy. Owned headless Chrome previews with PNG comparison, interactions, a DOM/keyboard audit and failed-feedback artifacts | Used in the CDD R8 acceptance. This is not an OS sandbox |
+| Control plane | Daemon and leader election, control HTTP with Windows ACL authorization, egress grants, approvals, the operations journal and workspaces | Live-verified through R6. The typed busy repair is in place, but the underlying probe load remains open |
+| Verification and provenance | The 16-gate whole check, test scope and skip census, the upstream lock, change manifests, SBOM, packaging and the isolated runtime | The last full pass was at the older source `ac67794d...`; a whole check for the current source is owed |
+
+**Remaining work, in order** (items marked *owner* need the owner's decision or presence):
+
+1. The whole check for the current source. *Owner:* approval, plus enough free memory or a separate terminal.
+2. The official MCP path. *Owner:* choose a plan or seat, remote OAuth within the 20-call monthly Starter quota, or record the path as blocked. Separately, the portal source schema must admit an official MCP source so that this path can produce its own frontend.
+3. Desktop pairing and live collection, compared against Chrome. *Owner:* present to paste a fresh code within 5 minutes. A proposal for the pairing-lifetime usability gap is pending.
+4. Independent native reader: the 36 remaining fields, SVG and root-PNG exports, and capture admission.
+5. Open review findings F4, F5, F9 and F10, and the Windows authorization probe load.
+6. C1–C3 full-portal cases with real services and the review gates. *Owner:* name the available C2 legacy target and C3 references, with their environments and credentials. The open items of the M01–M17 plan belong here.
+7. The final eCommerce acceptance: two separate new frontends from official MCP and Chrome, without reference frontend code, each through the full accepted flow. It starts with a fresh live preparation, Chrome approval and egress re-authorization.
+8. The final release review: `verify:release`, remote CI and two final whole-code review rounds.
 
 ## Current continuation at approximately 23:20 KST
 

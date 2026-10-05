@@ -1,4 +1,4 @@
-import { mkdir, writeFile } from 'node:fs/promises';
+import { mkdir, rm, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { crc32 } from 'node:zlib';
 
@@ -130,6 +130,75 @@ it('verifies real capture files and rejects changed source facts, bytes and canc
     await expect(
       provePortalPngReexport(original.captured, fresh.captured, fresh.descriptor, signal),
     ).rejects.toThrow('PORTAL_CAPTURE_ASSET_CHANGED');
+  } finally {
+    await f.cleanup();
+  }
+}, 30000);
+
+it('reads only the differing PNG and accepts mixed rows with an export origin', async () => {
+  const f = await portalFixture();
+  try {
+    const svg = new TextEncoder().encode('<svg xmlns="http://www.w3.org/2000/svg"/>');
+    const exportedFrom = { nodeId: '1:1', geometryHash: contentHash('fixture-geometry-v1', 1) };
+    const capture = async (name: string, bytes: Uint8Array) => {
+      const root = join(f.root, name);
+      await mkdir(root);
+      await writeFile(join(root, 'root.png'), bytes);
+      await writeFile(join(root, 'icon.svg'), svg);
+      return currentCaptureFixture(f, {
+        nodes: [
+          {
+            id: '1:1',
+            type: 'FRAME',
+            width: 100,
+            height: 100,
+            children: [{ id: '1:2', type: 'VECTOR', width: 10, height: 10 }],
+          },
+        ],
+        assetRoot: root,
+        assets: [
+          {
+            query: { kind: 'png', nodeId: '1:1' },
+            status: 'captured',
+            path: 'root.png',
+            sha256: storedChecksum(bytes),
+            bytes: bytes.length,
+            exportedFrom,
+          },
+          {
+            query: { kind: 'svg', nodeId: '1:2' },
+            status: 'captured',
+            path: 'icon.svg',
+            sha256: storedChecksum(svg),
+            bytes: svg.length,
+          },
+        ],
+      });
+    };
+    const original = await capture('original', image());
+    const fresh = await capture('fresh', image([[0, 128]]));
+    // Callers verify both whole captures around the proof; the proof reads only differing PNGs.
+    await rm(join(original.captured.assetRoot, 'icon.svg'));
+    await rm(join(fresh.captured.assetRoot, 'icon.svg'));
+    const proof = await provePortalPngReexport(
+      original.captured,
+      fresh.captured,
+      fresh.descriptor,
+      new AbortController().signal,
+    );
+    expect(proof?.assets.map(asset => asset.query.kind)).toEqual(['png', 'svg']);
+    expect(proof?.assets[0]?.exportedFrom).toEqual(exportedFrom);
+    expect(
+      portalCaptureFreshnessMatches(original.descriptor, {
+        version: 2,
+        originalDescriptorHash: contentHash(
+          'sfp-portal-capture-descriptor-v2',
+          original.descriptor,
+        ),
+        freshDesignFingerprint: fresh.descriptor.designFingerprint,
+        reexport: proof!,
+      }),
+    ).toBe(true);
   } finally {
     await f.cleanup();
   }

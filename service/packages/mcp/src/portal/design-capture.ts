@@ -3,7 +3,12 @@ import { randomUUID } from 'node:crypto';
 import { mkdtemp } from 'node:fs/promises';
 import { join } from 'node:path';
 
-import { contentHash, storedChecksum } from '@sfp/ir';
+import {
+  contentHash,
+  portalCaptureAssetFingerprint,
+  portalDesignVersionFingerprint,
+  storedChecksum,
+} from '@sfp/ir';
 import {
   canonicalFileIdentityHash,
   DesignCollectorEvidenceSchema,
@@ -222,28 +227,13 @@ const captureFingerprints = (
         }
       : null,
   ),
-  assetFingerprint: contentHash(
-    'sfp-portal-capture-assets-v2',
-    assets.map(asset => ({
-      query: asset.query,
-      status: asset.status,
-      sha256: asset.sha256 ?? null,
-      bytes: asset.bytes ?? null,
-      exportedFrom: asset.exportedFrom ?? null,
-    })),
-  ),
+  assetFingerprint: portalCaptureAssetFingerprint(assets),
 });
 export interface PortalDesignCapturePort {
   capture(planId: string, url: string, signal: AbortSignal): Promise<PortalCapturedDesign>;
 }
 export const portalDesignFingerprint = (captured: PortalCapturedDesign): string => {
-  if (captured.captureVersion === 2)
-    return contentHash('sfp-portal-design-version-v2', {
-      content: captured.contentFingerprint,
-      contracts: captured.contractFingerprint,
-      source: captured.sourceFingerprint,
-      assets: captured.assetFingerprint,
-    });
+  if (captured.captureVersion === 2) return portalDesignVersionFingerprint(captured);
   const value = JSON.parse(captured.raw) as Record<string, unknown>;
   const { capture: _capture, warnings: _warnings, ...design } = value;
   return contentHash('sfp-portal-design-version-v1', {

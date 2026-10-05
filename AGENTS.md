@@ -29,6 +29,7 @@
 ## Reboot handoff
 
 - To continue on another PC or from a fresh clone, read [docs/handoff/another-pc-2026-10-05.md](docs/handoff/another-pc-2026-10-05.md) first. It records the pushed commits and source fingerprint, what Git does not carry, setup and service start steps, the whole check still owed for the current source, commands and inputs, helper copies, owner preferences and the remaining work.
+- For the October 5 review-finding repairs and native metadata fields (110 compared fields, unobserved positions, new provenance slice `review-2026-10-05`), read [docs/testing/2026-10-05-findings-and-metadata/README.md](docs/testing/2026-10-05-findings-and-metadata/README.md). Its source `eb9c2c5c...` has not had a whole check.
 - For the latest reboot request, read [docs/handoff/reboot-2026-10-04-evening.md](docs/handoff/reboot-2026-10-04-evening.md) first. It supersedes the earlier runtime state, preserves the R8/frontend and source-change backups, records the interrupted current-source whole check, and identifies the unresolved R3/R4 control failures. Its final section is the current remaining-work list (09:47 KST, October 5), separated into owner inputs and agent work. Never treat a pending pointer from the stopped check as a pass or replay an unknown-outcome operation automatically.
 - Then read [docs/testing/2026-10-04-ecommerce-parity/control-diagnostics/README.md](docs/testing/2026-10-04-ecommerce-parity/control-diagnostics/README.md) for the continuation after that handoff (October 4, from 21:44 KST, no reboot). It records:
 

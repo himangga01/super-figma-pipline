@@ -1,0 +1,32 @@
+{
+  "schemaVersion": 1,
+  "slice": "review-2026-10-05",
+  "scope": "Owner-requested October 5 continuation: repair the open review findings F4, F5, F9 and F10, reduce Windows control authorization load, and extend the independent native collector with style identifier, grid auto-layout, variable, annotation, export and arc fields, leaving undeterminable values unobserved. Chrome-only native acceptance, exact per-path claims and original upstream lineage remain required.",
+  "allowedPaths": [
+    "service/capabilities/change-manifests/task-review-2026-10-05.json",
+    "service/capabilities/reconciliations/review-2026-10-05-findings-metadata.json",
+    "service/capabilities/task-review-2026-10-05-authority-classes.json",
+    "service/docs/portal-native.md",
+    "service/packages/cli/src/commands.ts",
+    "service/packages/cli/src/control-client.ts",
+    "service/packages/cli/src/figma-native-metadata.ts",
+    "service/packages/cli/src/figma-native-nodes.ts",
+    "service/packages/cli/src/figma-native-styles.ts",
+    "service/packages/cli/src/snapshot-reader.ts",
+    "service/packages/cli/test/control-client-http.test.ts",
+    "service/packages/cli/test/figma-native-metadata.test.ts",
+    "service/packages/cli/test/figma-native-nodes.test.ts",
+    "service/packages/cli/test/figma-native-styles.test.ts",
+    "service/packages/cli/test/scripter-catalogs.test.ts",
+    "service/packages/ir/src/capture-freshness.ts",
+    "service/packages/ir/src/index.ts",
+    "service/packages/mcp/src/portal/capture-freshness.ts",
+    "service/packages/mcp/src/portal/design-capture.ts",
+    "service/packages/mcp/src/security/state-permissions.ts",
+    "service/packages/mcp/test/fs/runtime-paths.test.ts",
+    "service/packages/mcp/test/portal/capture-reexport.test.ts",
+    "service/upstream-lock.json",
+    "service/vendor-map.json",
+    "service/vendor-rules.json"
+  ]
+}

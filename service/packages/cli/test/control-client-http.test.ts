@@ -19,7 +19,7 @@ afterEach(async () => {
 });
 const fixture = async (
   handle: (request: IncomingMessage, response: ServerResponse) => void,
-  options: { monitoringGraceMs?: number } = {},
+  options: { monitoringGraceMs?: number; monitoringSteadyAfterMs?: number } = {},
 ) => {
   const server = createServer(handle);
   await new Promise<void>(resolve => server.listen(0, '127.0.0.1', resolve));
@@ -100,6 +100,30 @@ it('still cancels on untyped monitoring failures and after the bounded busy wind
   ).rejects.toMatchObject({ code: 'CONTROL_AUTH_BUSY', status: 503 });
   expect(persistent.counts).toMatchObject({ toolCalls: 1, cancellations: 1 });
 });
+it('slows read-only monitoring after the initial window to bound daemon authorization load', async () => {
+  const timed = () => {
+    let statusReads = 0;
+    const handle = (request: IncomingMessage, response: ServerResponse) => {
+      if (request.url === '/control/tools/call')
+        setTimeout(() => response.end(JSON.stringify({ planId: 'fixture-plan' })), 2_500);
+      else if (request.url === '/control/approvals') response.end('[]');
+      else {
+        statusReads++;
+        response.end(JSON.stringify({ status: 'running' }));
+      }
+    };
+    return { handle, reads: () => statusReads };
+  };
+  const fast = timed();
+  await expect(invokePlan(await fixture(fast.handle))).resolves.toEqual({ planId: 'fixture-plan' });
+  const steady = timed();
+  await expect(
+    invokePlan(await fixture(steady.handle, { monitoringSteadyAfterMs: 0 })),
+  ).resolves.toEqual({ planId: 'fixture-plan' });
+  expect(fast.reads()).toBeGreaterThanOrEqual(6);
+  expect(steady.reads()).toBeLessThanOrEqual(4);
+}, 20_000);
+
 it('uses the reviewed control credential and accepts a delayed chunked response', async () => {
   const client = await fixture((request, response) => {
     expect(request.headers.authorization).toBe('fixture-credential');

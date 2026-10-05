@@ -1,0 +1,81 @@
+{
+  "recordedAt": "2026-10-05T11:31:22.708Z",
+  "sourceFingerprint": "sha256:eb9c2c5c5369df4c75ce6050b1484a4ccf4252528e4583741039e154d120d602",
+  "purpose": "eCommerce reference node fields that remain outside the declared native comparison after the October 5 metadata increment.",
+  "referenceNodes": 3198,
+  "comparedFieldCount": 110,
+  "fields": [
+    {
+      "field": "collectorCapabilities",
+      "referenceNodes": 3198,
+      "nativePresent": 0,
+      "group": "collector metadata, not a design fact"
+    },
+    {
+      "field": "absoluteRenderBounds",
+      "referenceNodes": 3198,
+      "nativePresent": 0,
+      "group": "geometry"
+    },
+    {
+      "field": "componentProperties",
+      "referenceNodes": 80,
+      "nativePresent": 0,
+      "group": "component semantics"
+    },
+    {
+      "field": "variantProperties",
+      "referenceNodes": 83,
+      "nativePresent": 0,
+      "group": "component semantics"
+    },
+    {
+      "field": "mainComponent",
+      "referenceNodes": 80,
+      "nativePresent": 0,
+      "group": "component semantics"
+    },
+    {
+      "field": "componentApi",
+      "referenceNodes": 80,
+      "nativePresent": 0,
+      "group": "component semantics"
+    },
+    {
+      "field": "geometrySource",
+      "referenceNodes": 868,
+      "nativePresent": 0,
+      "group": "collector metadata, not a design fact"
+    },
+    {
+      "field": "textSegments",
+      "referenceNodes": 868,
+      "nativePresent": 0,
+      "group": "collector representation; compared through resolved font-range evidence"
+    },
+    {
+      "field": "vectorPaths",
+      "referenceNodes": 220,
+      "nativePresent": 0,
+      "group": "geometry"
+    },
+    {
+      "field": "vectorNetwork",
+      "referenceNodes": 220,
+      "nativePresent": 0,
+      "group": "geometry"
+    },
+    {
+      "field": "componentPropertyDefinitions",
+      "referenceNodes": 3,
+      "nativePresent": 0,
+      "group": "component semantics"
+    },
+    {
+      "field": "description",
+      "referenceNodes": 3,
+      "nativePresent": 0,
+      "group": "component semantics"
+    }
+  ]
+}

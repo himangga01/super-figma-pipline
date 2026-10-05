@@ -48,16 +48,19 @@ export class ControlClient {
   readonly baseUrl: string;
   private readonly expectedCredentialHash: string | undefined;
   private readonly monitoringGraceMs: number;
+  private readonly monitoringSteadyAfterMs: number;
   constructor(
     options: {
       stateRoot?: string;
       port?: number;
       expectedCredentialHash?: string;
       monitoringGraceMs?: number;
+      monitoringSteadyAfterMs?: number;
     } = {},
   ) {
     this.expectedCredentialHash = options.expectedCredentialHash;
     this.monitoringGraceMs = options.monitoringGraceMs ?? 60_000;
+    this.monitoringSteadyAfterMs = options.monitoringSteadyAfterMs ?? 5_000;
     this.stateRoot = options.stateRoot ?? resolveDefaultStateRoot();
     this.baseUrl = `http://127.0.0.1:${options.port ?? 3055}`;
   }
@@ -267,6 +270,7 @@ export class ControlClient {
     let cancelled = false;
     let lastStatus = '';
     let delayedSince: number | undefined;
+    const monitoringStartedAt = Date.now();
     // eslint-disable-next-line no-unmodified-loop-condition -- request completion updates this from its promise continuation
     while (!settled) {
       if (input.signal?.aborted && !cancelled) {
@@ -332,8 +336,13 @@ export class ControlClient {
         }
       }
       if (!settled) {
+        // Each poll is two authorized requests, and each costs the daemon several Windows ACL probes.
+        // Poll quickly at first, then once a second for long-running operations.
+        const steady =
+          delayedSince !== undefined ||
+          Date.now() - monitoringStartedAt >= this.monitoringSteadyAfterMs;
         // eslint-disable-next-line no-await-in-loop -- bounded polling while the daemon owns execution
-        await new Promise<void>(done => setTimeout(done, delayedSince === undefined ? 300 : 1_000));
+        await new Promise<void>(done => setTimeout(done, steady ? 1_000 : 300));
       }
     }
     if (input.signal?.aborted && !cancelled) await cancel().catch(() => undefined);

@@ -642,6 +642,39 @@ describe('owner-only state permissions', () => {
     });
   });
 
+  it('resolves the process SID once per authority and retries a failed lookup', async () => {
+    const product = await windowsProductState();
+    await mkdir(product.stateRoot);
+    const sid = 'S-1-5-21-111-222-333-1001';
+    let lookups = 0;
+    const command = vi.fn<StatePermissionCommandRunner>(async file => {
+      if (file !== 'whoami.exe') return { stdout: '', stderr: '' };
+      lookups++;
+      if (lookups === 1) throw new Error('fixture whoami failure');
+      return { stdout: `"owner","${sid}"\r\n`, stderr: '' };
+    });
+    const permissions = createStatePermissions(product.stateRoot, {
+      ...product.options,
+      command,
+      windowsAclProbe: async path => ({
+        path,
+        attributes: 16,
+        sddl: `D:PAI(A;OICI;FA;;;SY)(A;OICI;FA;;;${sid})`,
+      }),
+    });
+
+    await expect(permissions.verifySecure(product.stateRoot)).rejects.toMatchObject({
+      code: 'STATE_ACL_COMMAND_FAILED',
+    });
+    await permissions.verifySecure(product.stateRoot);
+    await permissions.verifySecure(product.stateRoot);
+    await Promise.all([
+      permissions.verifySecure(product.stateRoot),
+      permissions.verifySecure(product.stateRoot),
+    ]);
+    expect(lookups).toBe(2);
+  });
+
   it('rejects an ACL with an unknown allow principal', async () => {
     const product = await windowsProductState();
     await mkdir(product.stateRoot);

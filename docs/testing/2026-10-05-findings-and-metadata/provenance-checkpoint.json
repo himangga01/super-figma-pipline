@@ -1,0 +1,22 @@
+{
+  "recordedAt": "2026-10-05T12:30:00.000Z",
+  "slice": "review-2026-10-05",
+  "baselineHead": "6459363354f52940b4c67e399b9e735d7332d4dc",
+  "reviewRecord": "service/capabilities/reconciliations/review-2026-10-05-findings-metadata.json",
+  "authorityRecord": "service/capabilities/task-review-2026-10-05-authority-classes.json",
+  "changeManifest": "service/capabilities/change-manifests/task-review-2026-10-05.json",
+  "alternateIndex": ".worktrees/baseline/service/.cache/review-20261005.index",
+  "results": {
+    "serviceForks": "service-forks=ok slice=review-2026-10-05 changes=23 forks=178",
+    "stagedManifest": "staged-change-manifest=ok slice=review-2026-10-05 changes=21 authority=4",
+    "upstreamLockMain": "upstream-lock=ok mode=offline upstreams=3 vendorRows=238",
+    "upstreamLockValidationCopy": "upstream-lock=ok mode=offline upstreams=3 vendorRows=238"
+  },
+  "ordering": "A new slice has no manifest yet: the first manifest write registers its hash in upstream-lock.json, so the review record's reserved-authority baseline was refreshed after that write and before update-service-forks. The first attempt stopped with ENOENT (no manifest) and the second with SERVICE_FORK_RECONCILIATION_CONFLICT (stale baseline); neither changed a reserved authority file.",
+  "sourceFingerprint": {
+    "main": "sha256:eb9c2c5c5369df4c75ce6050b1484a4ccf4252528e4583741039e154d120d602",
+    "validationCopy": "sha256:eb9c2c5c5369df4c75ce6050b1484a4ccf4252528e4583741039e154d120d602"
+  },
+  "ownerIndexSha256": "9c240c1b6ab4df61637197576b6582518cffe2cc8509e6e3d31f83acb1c6dc97",
+  "ownerIndexUnchanged": true
+}

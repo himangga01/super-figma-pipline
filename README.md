@@ -87,13 +87,13 @@ For the requested atomic-design file, the [October 2 comparison](docs/testing/20
 
 ## Current progress and remaining work
 
-State on October 5, 2026, at `main`. The service source fingerprint is `sha256:62023ddd...`.
+State on October 5, 2026, at `main`. The service source fingerprint is `sha256:eb9c2c5c...`, after the review-finding repairs and native metadata fields recorded in [the findings and metadata record](docs/testing/2026-10-05-findings-and-metadata/README.md).
 
 | Area | State | Evidence |
 | --- | --- | --- |
 | CDD design, C4 frontend | Chrome/Scripter run R8 completed candidate validation, guarded application, applied runtime, visual and interaction checks, and final source freshness | [CDD record](docs/testing/2026-10-03-cdd-generation/README.md) |
 | eCommerce design | Complete Chrome/Scripter preparation: 3,198 nodes, 11 roots and 283 assets. Workflow preparation R6 succeeded with 92 of 92 workflow scopes resolved. No eCommerce frontend has been generated yet | [Collection record](docs/testing/2026-10-04-ecommerce-parity/README.md), [control diagnostics](docs/testing/2026-10-04-ecommerce-parity/control-diagnostics/README.md) |
-| Independent native reader | 87 compared fields with zero unexplained differences: 156,995 eCommerce and 11,244 CDD positions. 36 reference fields remain, and it is not accepted as full capture | [Native increments](docs/testing/2026-10-04-ecommerce-parity/native-effects/README.md) |
+| Independent native reader | 110 compared fields with zero unexplained differences: 204,255 eCommerce and 14,128 CDD positions. Values it cannot determine, such as local style identifiers, are counted as unobserved (10 and 383). Twelve reference fields remain, and it is not accepted as full capture | [Native increments](docs/testing/2026-10-04-ecommerce-parity/native-effects/README.md), [metadata fields](docs/testing/2026-10-05-findings-and-metadata/README.md) |
 | Control monitoring | The R3–R5 preparation failures came from Windows authorization probe timeouts during polling. Monitoring now waits out a typed busy state for up to 60 s instead of cancelling | [Control diagnostics](docs/testing/2026-10-04-ecommerce-parity/control-diagnostics/README.md) |
 | Local verification | The last complete whole check passed all 16 gates at an earlier source: 4,769 tests passed, 0 failed and 20 skipped. The current source's whole check was interrupted by low memory and is still owed | [Interrupted check](docs/testing/2026-10-04-ecommerce-parity/native-effects/interrupted-source-check.json) |
 | Official MCP and Desktop | The October 2 field comparison is recorded below. The official path's account plan is undecided, and Desktop plugin pairing has not completed yet | [Service analysis](docs/service-analysis.md) |
@@ -105,7 +105,7 @@ Remaining work, in order:
 1. Run the whole check for the current source.
 2. Decide the official MCP path (plan or seat, remote OAuth within the quota, or record it as blocked). Then allow an official MCP read to produce its own frontend; the portal source schema currently admits only Chrome and Desktop sources.
 3. Pair the Desktop plugin and compare its collection with Chrome.
-4. Finish the remaining native fields, independent exports and capture admission, and the open review findings.
+4. Finish the remaining native fields (component semantics and geometry), independent exports and capture admission. The four open review findings and the authorization-load reduction were completed on October 5.
 5. Complete the relevant C1–C3 full-portal cases and review gates.
 6. Run the final eCommerce acceptance: two separate new frontends, one from official MCP and one from Chrome, without reference frontend code.
 7. Run the final release review: `verify:release`, remote CI and two final whole-code review rounds.

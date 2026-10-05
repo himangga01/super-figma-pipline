@@ -35,7 +35,18 @@ export function normalizeFigmaNativeStyles(message: Row) {
     grids: [],
   };
   const unsupported: Array<{ nativeId: string | null; styleType: unknown }> = [];
-  const seen = new Set<string>();
+  const invalid: Array<{
+    nativeId: string | null;
+    reason: 'missing-identity' | 'duplicate-identity' | 'missing-name';
+  }> = [];
+  const live = message.nodeChanges
+    .map(object)
+    .filter(row => row.styleType && row.styleType !== 'NONE' && row.isSoftDeleted !== true);
+  const occurrences = new Map<string, number>();
+  for (const row of live) {
+    const nativeId = nativeNodeId(row.guid);
+    if (nativeId) occurrences.set(nativeId, (occurrences.get(nativeId) ?? 0) + 1);
+  }
   let deleted = 0;
   for (const input of message.nodeChanges) {
     const row = object(input);
@@ -44,10 +55,20 @@ export function normalizeFigmaNativeStyles(message: Row) {
       deleted++;
       continue;
     }
+    // A malformed row is excluded and reported; it never aborts the rest of the catalog.
     const nativeId = nativeNodeId(row.guid);
-    if (!nativeId || seen.has(nativeId) || typeof row.name !== 'string')
-      throw new Error('FIGMA_NATIVE_STYLE_INVALID');
-    seen.add(nativeId);
+    if (!nativeId) {
+      invalid.push({ nativeId: null, reason: 'missing-identity' });
+      continue;
+    }
+    if ((occurrences.get(nativeId) ?? 0) > 1) {
+      invalid.push({ nativeId, reason: 'duplicate-identity' });
+      continue;
+    }
+    if (typeof row.name !== 'string') {
+      invalid.push({ nativeId, reason: 'missing-name' });
+      continue;
+    }
     const kind = typeof row.styleType === 'string' ? kinds[row.styleType] : undefined;
     if (!kind) {
       unsupported.push({ nativeId, styleType: row.styleType });
@@ -110,10 +131,12 @@ export function normalizeFigmaNativeStyles(message: Row) {
     catalogs,
     deleted,
     unsupported,
+    invalid,
     complete: false as const,
     limitations: [
       'Native GUIDs are retained separately from Plugin API IDs and library keys.',
       'Absent fields, variable bindings and unsupported style semantics are not inferred.',
+      'Style rows without an identity or name, or with a duplicated identity, are excluded and listed as invalid.',
     ],
   };
 }
@@ -267,5 +290,6 @@ export function compareFigmaStyleCatalogs(
     comparedPositions,
     differences,
     unobserved,
+    invalid: native.invalid,
   };
 }

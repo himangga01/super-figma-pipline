@@ -1,0 +1,102 @@
+{
+  "recordedAt": "2026-10-05T11:31:03.633Z",
+  "inputs": "The same separately collected native documents and Chrome/Scripter references as the October 4 increments; neither collector supplied the other.",
+  "firstRun": [
+    {
+      "scope": "ecommerce",
+      "comparedFields": 110,
+      "comparedPositions": 204255,
+      "rawDifferences": 416,
+      "unexplainedDifferences": 8,
+      "differencesByField": {
+        "fontName": 408,
+        "exportSettings": 8
+      },
+      "unobservedPositions": 10,
+      "unobservedFields": {
+        "fillStyleId": 9,
+        "strokeStyleId": 1
+      },
+      "missingNodes": 0,
+      "extraNodes": 0,
+      "fullCaptureAccepted": false
+    },
+    {
+      "scope": "cdd",
+      "comparedFields": 110,
+      "comparedPositions": 14123,
+      "rawDifferences": 88,
+      "unexplainedDifferences": 11,
+      "differencesByField": {
+        "fontName": 72,
+        "exportSettings": 11,
+        "strokeWeight": 1,
+        "strokeTopWeight": 1,
+        "strokeRightWeight": 1,
+        "strokeBottomWeight": 1,
+        "strokeLeftWeight": 1
+      },
+      "unobservedPositions": 388,
+      "unobservedFields": {
+        "resolvedVariableModes": 192,
+        "fillStyleId": 116,
+        "textStyleId": 57,
+        "boundVariables": 4,
+        "exportSettings": 6,
+        "strokeStyleId": 7,
+        "effectStyleId": 6
+      },
+      "missingNodes": 0,
+      "extraNodes": 0,
+      "fullCaptureAccepted": false
+    }
+  ],
+  "afterExportRepair": [
+    {
+      "scope": "ecommerce",
+      "comparedFields": 110,
+      "comparedPositions": 204255,
+      "rawDifferences": 408,
+      "unexplainedDifferences": 0,
+      "differencesByField": {
+        "fontName": 408
+      },
+      "unobservedPositions": 10,
+      "unobservedFields": {
+        "fillStyleId": 9,
+        "strokeStyleId": 1
+      },
+      "missingNodes": 0,
+      "extraNodes": 0,
+      "fullCaptureAccepted": false
+    },
+    {
+      "scope": "cdd",
+      "comparedFields": 110,
+      "comparedPositions": 14128,
+      "rawDifferences": 77,
+      "unexplainedDifferences": 0,
+      "differencesByField": {
+        "fontName": 72,
+        "strokeWeight": 1,
+        "strokeTopWeight": 1,
+        "strokeRightWeight": 1,
+        "strokeBottomWeight": 1,
+        "strokeLeftWeight": 1
+      },
+      "unobservedPositions": 383,
+      "unobservedFields": {
+        "resolvedVariableModes": 192,
+        "fillStyleId": 116,
+        "textStyleId": 57,
+        "boundVariables": 4,
+        "strokeStyleId": 7,
+        "effectStyleId": 6,
+        "exportSettings": 1
+      },
+      "missingNodes": 0,
+      "extraNodes": 0,
+      "fullCaptureAccepted": false
+    }
+  ]
+}

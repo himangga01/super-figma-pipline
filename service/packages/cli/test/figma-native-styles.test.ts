@@ -56,10 +56,29 @@ it('exposes independent native style values without inventing API identity or ab
   ]);
 });
 
-it('rejects duplicate native identities and records unsupported style kinds', () => {
-  expect(() =>
-    normalizeFigmaNativeStyles({ nodeChanges: [style(1, 'TEXT', 'A'), style(1, 'TEXT', 'B')] }),
-  ).toThrow('FIGMA_NATIVE_STYLE_INVALID');
+it('excludes malformed native style rows without aborting the rest of the catalog', () => {
+  const result = normalizeFigmaNativeStyles({
+    nodeChanges: [
+      style(1, 'TEXT', 'A'),
+      style(1, 'TEXT', 'B'),
+      style(2, 'FILL', 'Valid', { fillPaints: [] }),
+      { styleType: 'FILL', name: 'No identity' },
+      style(3, 'EFFECT', 7 as unknown as string),
+    ],
+  });
+  expect(result.invalid).toEqual([
+    { nativeId: '1:1', reason: 'duplicate-identity' },
+    { nativeId: '1:1', reason: 'duplicate-identity' },
+    { nativeId: null, reason: 'missing-identity' },
+    { nativeId: '1:3', reason: 'missing-name' },
+  ]);
+  expect(result.catalogs.texts).toEqual([]);
+  expect(result.catalogs.paints.map(row => row.name)).toEqual(['Valid']);
+  expect(result.catalogs.effects).toEqual([]);
+  expect(result.complete).toBe(false);
+  expect(
+    compareFigmaStyleCatalogs(result, { paints: [], texts: [], effects: [], grids: [] }).invalid,
+  ).toEqual(result.invalid);
   expect(
     normalizeFigmaNativeStyles({ nodeChanges: [style(1, 'FUTURE', 'Unknown')] }).unsupported,
   ).toEqual([{ nativeId: '1:1', styleType: 'FUTURE' }]);

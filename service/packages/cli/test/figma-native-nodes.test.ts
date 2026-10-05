@@ -472,3 +472,121 @@ it('compares an explicit default weight axis only with independent native weight
       ?.matches,
   ).toBe(false);
 });
+
+it('emits metadata fields and keeps declared unknown native values out of the differences', () => {
+  const guid = (sessionID: number, localID: number) => ({ sessionID, localID });
+  const key = 'b'.repeat(40);
+  const message = {
+    nodeChanges: [
+      { guid: guid(0, 1), type: 'CANVAS', name: 'Page' },
+      {
+        guid: guid(1, 1),
+        parentIndex: { guid: guid(0, 1), position: '!' },
+        type: 'FRAME',
+        name: 'Frame',
+        styleIdForFill: { assetRef: { key, version: '4:3' } },
+        styleIdForStrokeFill: { guid: guid(1, 9) },
+      },
+      {
+        guid: guid(1, 2),
+        parentIndex: { guid: guid(1, 1), position: '!' },
+        type: 'ELLIPSE',
+        name: 'Dot',
+      },
+    ],
+  };
+  const native = normalizeFigmaNativeNodes(message, '0:1');
+  const frame = native.nodes[0]!;
+  expect(frame).toMatchObject({
+    fillStyleId: `S:${key},4:3`,
+    exportSettings: [],
+    gridRowCount: 0,
+    nativeUnknownFields: ['strokeStyleId'],
+  });
+  expect(frame).not.toHaveProperty('strokeStyleId');
+  expect((frame.children as Array<Record<string, unknown>>)[0]).toMatchObject({
+    arcData: { startingAngle: 0, endingAngle: Math.fround(2 * Math.PI), innerRadius: 0 },
+    gridRowSpan: 1,
+  });
+  expect(native.warnings).toContainEqual({
+    code: 'NATIVE_METADATA_UNSUPPORTED',
+    nodeId: '1:1',
+    detail: 'strokeStyleId',
+  });
+  const { nativeUnknownFields: _unknown, ...observed } = frame;
+  const reference = [
+    {
+      ...observed,
+      fillStyleId: `S:${key},4:3`,
+      strokeStyleId: `S:${'c'.repeat(40)},`,
+      children: undefined,
+      childIds: undefined,
+    },
+  ];
+  const comparison = compareFigmaCaptureNodes(
+    [{ ...frame, children: [], childIds: undefined }],
+    reference,
+  );
+  expect(comparison.comparedFields).toEqual(
+    expect.arrayContaining(['fillStyleId', 'gridRowCount', 'exportSettings', 'arcData']),
+  );
+  expect(comparison.differences.filter(row => row.field === 'strokeStyleId')).toEqual([]);
+  expect(comparison.unobservedPositions).toBe(1);
+  expect(comparison.unobservedFields).toEqual({ strokeStyleId: 1 });
+});
+
+it('reports only a node’s own export settings, never its main component’s', () => {
+  const guid = (sessionID: number, localID: number) => ({ sessionID, localID });
+  const png = {
+    suffix: '',
+    imageType: 'PNG',
+    constraint: { type: 'CONTENT_SCALE', value: 1 },
+    contentsOnly: true,
+    useAbsoluteBounds: false,
+    colorProfile: 'DOCUMENT',
+  };
+  const message = {
+    nodeChanges: [
+      { guid: guid(0, 1), type: 'CANVAS', name: 'Page' },
+      {
+        guid: guid(2, 1),
+        parentIndex: { guid: guid(0, 1), position: '!' },
+        type: 'SYMBOL',
+        name: 'Master',
+        exportSettings: [png],
+      },
+      {
+        guid: guid(2, 2),
+        parentIndex: { guid: guid(2, 1), position: '!' },
+        type: 'FRAME',
+        name: 'Inner',
+        exportSettings: [png],
+      },
+      {
+        guid: guid(1, 1),
+        parentIndex: { guid: guid(0, 1), position: '"' },
+        type: 'INSTANCE',
+        name: 'Copy',
+        symbolData: { symbolID: guid(2, 1) },
+      },
+      {
+        guid: guid(1, 2),
+        parentIndex: { guid: guid(0, 1), position: '#' },
+        type: 'INSTANCE',
+        name: 'Overridden',
+        symbolData: {
+          symbolID: guid(2, 1),
+          symbolOverrides: [{ guidPath: { guids: [guid(2, 2)] }, exportSettings: [png] }],
+        },
+      },
+    ],
+  };
+  const [master, copy, overridden] = normalizeFigmaNativeNodes(message, '0:1').nodes as Array<
+    Record<string, unknown> & { children: Array<Record<string, unknown>> }
+  >;
+  expect(master!.exportSettings).toHaveLength(1);
+  expect(master!.children[0]!.exportSettings).toHaveLength(1);
+  expect(copy).toMatchObject({ exportSettings: [], children: [{ exportSettings: [] }] });
+  expect(overridden!.children[0]).not.toHaveProperty('exportSettings');
+  expect(overridden!.children[0]!.nativeUnknownFields).toContain('exportSettings');
+});

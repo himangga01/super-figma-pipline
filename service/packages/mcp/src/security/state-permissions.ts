@@ -554,6 +554,17 @@ export const createStatePermissions = (
     );
   }
   const command = options.command ?? runExecFile;
+  // The process token's user SID cannot change during the process lifetime, so one lookup serves
+  // every verification of this authority. A failed lookup is not cached: the next check retries it
+  // and still fails closed.
+  let windowsSidLookup: Promise<string> | undefined;
+  const processWindowsSid = (): Promise<string> => {
+    windowsSidLookup ??= currentWindowsSid(command).catch((error: unknown) => {
+      windowsSidLookup = undefined;
+      throw error;
+    });
+    return windowsSidLookup;
+  };
   const currentUid = options.currentUid ?? (() => process.getuid?.());
   const windowsAclProbe =
     options.windowsAclProbe ??
@@ -772,7 +783,7 @@ export const createStatePermissions = (
     await assertNoReparseAncestors(path);
     const rootIdentityBefore = await currentBoundRootIdentity();
     if (platform === 'win32') {
-      await verifyWindows(path, await currentWindowsSid(command));
+      await verifyWindows(path, await processWindowsSid());
     } else {
       await verifyUnix(path);
     }
@@ -834,7 +845,7 @@ export const createStatePermissions = (
       assertBoundRootIdentity(rootIdentityBefore);
 
       if (platform === 'win32') {
-        const sid = await currentWindowsSid(command);
+        const sid = await processWindowsSid();
         const inheritedFlags = metadata.isDirectory() ? '(OI)(CI)F' : 'F';
         try {
           await command('icacls.exe', [path, '/inheritance:r']);

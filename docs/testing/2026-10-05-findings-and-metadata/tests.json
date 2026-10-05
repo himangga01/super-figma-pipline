@@ -1,0 +1,119 @@
+{
+  "recordedAt": "2026-10-05T11:31:03.633Z",
+  "note": "Focused runs in the separate validation copy (.worktrees/baseline/service) with one worker. follower-transport structure tests must run from the service root.",
+  "runs": [
+    {
+      "label": "f5-green",
+      "files": 1,
+      "passed": 4,
+      "failed": 0,
+      "skipped": 0,
+      "failures": []
+    },
+    {
+      "label": "f4-green",
+      "files": 1,
+      "passed": 24,
+      "failed": 0,
+      "skipped": 0,
+      "failures": []
+    },
+    {
+      "label": "f9-green",
+      "files": 1,
+      "passed": 10,
+      "failed": 0,
+      "skipped": 0,
+      "failures": []
+    },
+    {
+      "label": "sid-green",
+      "files": 6,
+      "passed": 41,
+      "failed": 0,
+      "skipped": 1,
+      "failures": []
+    },
+    {
+      "label": "poll-green",
+      "files": 1,
+      "passed": 14,
+      "failed": 0,
+      "skipped": 0,
+      "failures": []
+    },
+    {
+      "label": "export-green",
+      "files": 2,
+      "passed": 18,
+      "failed": 0,
+      "skipped": 0,
+      "failures": []
+    },
+    {
+      "label": "cli-related",
+      "files": 23,
+      "passed": 185,
+      "failed": 0,
+      "skipped": 0,
+      "failures": []
+    },
+    {
+      "label": "mcp-related",
+      "files": 22,
+      "passed": 238,
+      "failed": 2,
+      "skipped": 1,
+      "failures": [
+        {
+          "test": "public follower transport identities keeps private follower crypto behind exactly one production importer",
+          "message": "Error: ENOENT: no such file or directory, scandir 'C:\\2026_project\\super-figma-pipline\\.worktrees\\baseline\\service\\packages\\mcp\\packages\\mcp\\src'"
+        },
+        {
+          "test": "public follower transport identities keeps the transitional unpinned fallback behind exactly two read-only aggregators",
+          "message": "Error: ENOENT: no such file or directory, open 'C:\\2026_project\\super-figma-pipline\\.worktrees\\baseline\\service\\packages\\mcp\\packages\\mcp\\src\\dispatch.ts'"
+        }
+      ]
+    },
+    {
+      "label": "follower-root",
+      "files": 3,
+      "passed": 74,
+      "failed": 0,
+      "skipped": 0,
+      "failures": []
+    },
+    {
+      "label": "ir-all",
+      "files": 5,
+      "passed": 11,
+      "failed": 0,
+      "skipped": 0,
+      "failures": []
+    },
+    {
+      "label": "final-cli",
+      "files": 5,
+      "passed": 60,
+      "failed": 0,
+      "skipped": 0,
+      "failures": []
+    },
+    {
+      "label": "final-mcp",
+      "files": 7,
+      "passed": 51,
+      "failed": 0,
+      "skipped": 1,
+      "failures": []
+    },
+    {
+      "label": "final-ir",
+      "files": 1,
+      "passed": 5,
+      "failed": 0,
+      "skipped": 0,
+      "failures": []
+    }
+  ]
+}

@@ -166,9 +166,9 @@ it('detects same-ID catalog value changes in the final pass', async () => {
   ];
   await expect(readScripterSnapshot(page, target, {})).rejects.toThrow('BROWSER_CONTENT_CHANGED');
 });
-it('keeps bounded reads incomplete when there is no budget for a full second pass', async () => {
+const manyRootsFixture = (roots: number) => {
   const { figma, page, target } = fixture();
-  figma.currentPage.children = Array.from({ length: 130 }, (_, i) => ({
+  figma.currentPage.children = Array.from({ length: roots }, (_, i) => ({
     id: `1:${i}`,
     name: 'Node',
     type: 'TEXT',
@@ -176,10 +176,26 @@ it('keeps bounded reads incomplete when there is no budget for a full second pas
   }));
   figma.getNodeByIdAsync = async (id?: string) =>
     figma.currentPage.children.find(node => node.id === id)!;
+  return { page, target };
+};
+it('gives the verification pass its own call budget after a first pass above half the cap', async () => {
+  const { page, target } = manyRootsFixture(130);
   const result = await readScripterSnapshot(page, target, {});
-  expect(result.capture.calls).toBe(256);
-  expect(result.observation.reobserved).toBe(false);
-  expect(result.pendingScopes).toEqual(
+  expect(result.observation.queryCount).toBeGreaterThan(128);
+  expect(result.capture.calls).toBe(2 * result.observation.queryCount);
+  expect(result.observation.reobserved).toBe(true);
+  expect(result.pendingScopes).toEqual([]);
+  expect(result.observation.limits).toMatchObject({ calls: 512, callsPerPass: 256 });
+});
+it('keeps a first pass that exhausts its call budget incomplete while still reobserving it', async () => {
+  const { page, target } = manyRootsFixture(300);
+  const result = await readScripterSnapshot(page, target, {});
+  expect(result.observation.queryCount).toBe(256);
+  expect(result.capture.calls).toBe(512);
+  expect(result.observation.reobserved).toBe(true);
+  expect(result.observation.readComplete).toBe(false);
+  expect(result.pendingScopes.length).toBeGreaterThan(0);
+  expect(result.pendingScopes).not.toEqual(
     expect.arrayContaining([expect.objectContaining({ reason: 'REOBSERVATION_BUDGET' })]),
   );
 });

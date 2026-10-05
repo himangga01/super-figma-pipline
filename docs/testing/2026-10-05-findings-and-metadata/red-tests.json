@@ -1,0 +1,105 @@
+{
+  "recordedAt": "2026-10-05T11:31:03.633Z",
+  "note": "Each regression was run against the unrepaired code first; failures are for the intended reason. F10 is a refactor guarded by a test that passes before and after.",
+  "runs": [
+    {
+      "label": "f5-red",
+      "files": 1,
+      "passed": 3,
+      "failed": 1,
+      "skipped": 0,
+      "failures": [
+        {
+          "test": "excludes malformed native style rows without aborting the rest of the catalog",
+          "message": "Error: FIGMA_NATIVE_STYLE_INVALID"
+        }
+      ]
+    },
+    {
+      "label": "f4-red",
+      "files": 1,
+      "passed": 22,
+      "failed": 2,
+      "skipped": 0,
+      "failures": [
+        {
+          "test": "gives the verification pass its own call budget after a first pass above half the cap",
+          "message": "AssertionError: expected 256 to be 264 // Object.is equality"
+        },
+        {
+          "test": "keeps a first pass that exhausts its call budget incomplete while still reobserving it",
+          "message": "AssertionError: expected 256 to be 512 // Object.is equality"
+        }
+      ]
+    },
+    {
+      "label": "f9-red",
+      "files": 1,
+      "passed": 9,
+      "failed": 1,
+      "skipped": 0,
+      "failures": [
+        {
+          "test": "reads only the differing PNG and accepts mixed rows with an export origin",
+          "message": "Error: repo path does not exist"
+        }
+      ]
+    },
+    {
+      "label": "sid-red",
+      "files": 6,
+      "passed": 0,
+      "failed": 1,
+      "skipped": 41,
+      "failures": [
+        {
+          "test": "owner-only state permissions resolves the process SID once per authority and retries a failed lookup",
+          "message": "AssertionError: expected 5 to be 2 // Object.is equality"
+        }
+      ]
+    },
+    {
+      "label": "poll-red",
+      "files": 1,
+      "passed": 0,
+      "failed": 1,
+      "skipped": 13,
+      "failures": [
+        {
+          "test": "slows read-only monitoring after the initial window to bound daemon authorization load",
+          "message": "AssertionError: expected 9 to be less than or equal to 4"
+        }
+      ]
+    },
+    {
+      "label": "metadata-red",
+      "files": 2,
+      "passed": 10,
+      "failed": 1,
+      "skipped": 0,
+      "failures": [
+        {
+          "file": "figma-native-metadata.test.ts",
+          "message": "Cannot find module '../src/figma-native-metadata.js' imported from C:/2026_project/super-figma-pipline/.worktrees/baseline/service/packages/cli/test/figma-native-metadata.test.ts"
+        },
+        {
+          "test": "emits metadata fields and keeps declared unknown native values out of the differences",
+          "message": "AssertionError: expected { id: '1:1', name: 'Frame', …(56) } to match object { …(4) }"
+        }
+      ]
+    },
+    {
+      "label": "export-red",
+      "files": 1,
+      "passed": 11,
+      "failed": 1,
+      "skipped": 0,
+      "failures": [
+        {
+          "test": "reports only a node’s own export settings, never its main component’s",
+          "message": "AssertionError: expected { id: '1:1', name: 'Copy', …(77) } to match object { exportSettings: [], …(1) }"
+        }
+      ]
+    }
+  ]
+}

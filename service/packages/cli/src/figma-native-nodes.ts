@@ -10,6 +10,11 @@ import {
   NATIVE_LAYOUT_FIELDS,
   NATIVE_SIZING_FIELDS,
 } from './figma-native-layout.js';
+import {
+  NATIVE_METADATA_FIELDS,
+  nativeDocumentHasVariables,
+  nativeMetadataProperties,
+} from './figma-native-metadata.js';
 import { normalizeNativePaints } from './figma-native-paints.js';
 import { mergeNativeReactions, readNativeReactions } from './figma-native-reactions.js';
 import { readNativeTextLayout } from './figma-native-text-layout.js';
@@ -146,6 +151,9 @@ export function normalizeFigmaNativeNodes(message: Row, nodeId: string | null) {
       return x < y ? -1 : x > y ? 1 : 0;
     });
   const root = selectFigmaNativeNodes(message, nodeId)[0]!;
+  const variables = nativeDocumentHasVariables(all);
+  // Grid auto-layout placement of a child depends on whether its parent is a grid container.
+  const gridParents: boolean[] = [];
   let count = 0;
   const expandedIds = new Set<string>();
   const warnings: Array<{ code: string; nodeId: string; detail?: string }> = [];
@@ -294,6 +302,35 @@ export function normalizeFigmaNativeNodes(message: Row, nodeId: string | null) {
         nodeId: id,
         detail: container.unknown.join(','),
       });
+    // Export settings belong to the node itself: an instance never reports its main component's
+    // settings, and instance sublayers report none unless an instance override sets them.
+    const exportOverridden = contexts.some(
+      context =>
+        object(context.overrides.get(path.slice(context.path.length).join(';'))).exportSettings !==
+        undefined,
+    );
+    const ownExportSettings = prefix.length
+      ? exportOverridden
+        ? null
+        : undefined
+      : node.type === 'INSTANCE'
+        ? input.exportSettings
+        : node.exportSettings;
+    const metadata = nativeMetadataProperties(node, String(result.type), {
+      parentIsGrid: gridParents.at(-1) ?? false,
+      variables,
+      exportSettings: ownExportSettings,
+    });
+    Object.assign(result, metadata.values);
+    if (metadata.unknown.length) {
+      // Declared unknowns are reported as unobserved comparison positions, never as matches.
+      result.nativeUnknownFields = metadata.unknown;
+      warnings.push({
+        code: 'NATIVE_METADATA_UNSUPPORTED',
+        nodeId: id,
+        detail: metadata.unknown.join(','),
+      });
+    }
     for (const [field, binding, output] of [
       ['fillPaints', 'styleIdForFill', 'fills'],
       ['strokePaints', 'styleIdForStrokeFill', 'strokes'],
@@ -457,6 +494,7 @@ export function normalizeFigmaNativeNodes(message: Row, nodeId: string | null) {
               : { unit: value.units === 'PIXELS' ? 'PIXELS' : value.units, value: value.value };
     }
     if (childRecords.length) {
+      gridParents.push(node.stackMode === 'GRID');
       result.children = childRecords.map(child =>
         visit(
           child,
@@ -467,6 +505,7 @@ export function normalizeFigmaNativeNodes(message: Row, nodeId: string | null) {
           result.type === 'GROUP' ? reportedRelative : null,
         ),
       );
+      gridParents.pop();
       result.childIds = (result.children as Row[]).map(child => child.id);
     }
     return result;
@@ -561,7 +600,9 @@ export function compareFigmaCaptureNodes(actual: Row[], expected: Row[]) {
     ...NATIVE_SIZING_FIELDS,
     ...NATIVE_TEXT_PROPERTY_FIELDS,
     ...NATIVE_CONTAINER_FIELDS,
+    ...NATIVE_METADATA_FIELDS,
   ];
+  const unobservedFields: Record<string, number> = {};
   const differences: Array<{
     nodeId: string;
     field: string;
@@ -628,8 +669,15 @@ export function compareFigmaCaptureNodes(actual: Row[], expected: Row[]) {
         matches: sameFontRanges(nativeRanges, pluginRanges),
       });
     }
+    const declaredUnknown = new Set(
+      Array.isArray(observed.nativeUnknownFields) ? observed.nativeUnknownFields : [],
+    );
     for (const field of fields) {
       if (!(field in reference)) continue;
+      if (declaredUnknown.has(field)) {
+        unobservedFields[field] = (unobservedFields[field] ?? 0) + 1;
+        continue;
+      }
       compared++;
       const matched =
         field === 'fillGeometry' || field === 'strokeGeometry'
@@ -679,6 +727,8 @@ export function compareFigmaCaptureNodes(actual: Row[], expected: Row[]) {
     fullCaptureAccepted: false,
     comparedFields: fields,
     comparedPositions: compared,
+    unobservedPositions: Object.values(unobservedFields).reduce((sum, value) => sum + value, 0),
+    unobservedFields,
     expectedNodes: e.size,
     actualNodes: a.size,
     missingNodes,

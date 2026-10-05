@@ -168,6 +168,7 @@ export const runCommand = async (args: string[], emit: (value: unknown) => void)
         missingNodes: comparison.missingNodes.length,
         extraNodes: comparison.extraNodes.length,
         comparedPositions: comparison.comparedPositions,
+        unobservedPositions: comparison.unobservedPositions,
         differences: comparison.differenceCount,
         matchingFontRanges: comparison.fontRangeEvidence.filter(row => row.matches).length,
         differingFontRanges: comparison.fontRangeEvidence.filter(row => !row.matches).length,
@@ -178,6 +179,7 @@ export const runCommand = async (args: string[], emit: (value: unknown) => void)
         comparedStylePositions: styles?.comparedPositions,
         styleDifferences: styles?.differences.length,
         ambiguousStyleNames: styles?.ambiguous.length,
+        invalidNativeStyles: nativeStyles.invalid.length,
         fullCaptureAccepted: false,
       });
       return;

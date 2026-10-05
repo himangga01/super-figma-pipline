@@ -81,6 +81,10 @@
         "sha256": "e6aaa4312aeddba9bd3326218b4c1aaf40daa357828b40dad966593523191f66"
       },
       {
+        "path": "capabilities/change-manifests/task-review-2026-10-05.json",
+        "sha256": "98e73a991c2c2403855b28b41522b401cf692d42fa1d9092adbe9f04df29c0ee"
+      },
+      {
         "path": "capabilities/figmosha-feature-map.json",
         "sha256": "ce423b9ed67c825a84e5b2500124a305ca5b5119e5e07f8a79aabca05a49d862"
       },
@@ -189,6 +193,10 @@
         "sha256": "48e5adcbf8ded03642a943bb5b7db0054fe1a8735dedfefb117b7251afa45139"
       },
       {
+        "path": "capabilities/reconciliations/review-2026-10-05-findings-metadata.json",
+        "sha256": "aab4448fd625622ec380f4c2205449146d65320350d82a8cb803fab2604a4250"
+      },
+      {
         "path": "capabilities/rust-tool-compat.json",
         "sha256": "a13fc9633b0406946b78f800135d1420d00de0da77cd27f4f62a4334dd70615a"
       },
@@ -243,6 +251,10 @@
       {
         "path": "capabilities/task-review-2026-10-04-authority-classes.json",
         "sha256": "63ddd77ab32aa9da192b18c403e0d6b279bd8ea26a531c0b7051ac59b101bc84"
+      },
+      {
+        "path": "capabilities/task-review-2026-10-05-authority-classes.json",
+        "sha256": "008736abfab2f699ceff25e5b33bc37b73a62fc5b2eb91b230911fa6094d2fd3"
       },
       {
         "path": "capabilities/union-manifest.json",
@@ -594,7 +606,7 @@
       },
       {
         "path": "packages/mcp/src/portal/capture-freshness.ts",
-        "sha256": "0852dfa3bf5e787b06ef488ce97d049517bd778c51af2a476c47fa0b7340a78c"
+        "sha256": "1875664870af8fe085597b0ee77dc094de59a5891e2c6618b2c53b5557664752"
       },
       {
         "path": "packages/mcp/src/portal/capture-runtime.ts",
@@ -626,7 +638,7 @@
       },
       {
         "path": "packages/mcp/src/portal/design-capture.ts",
-        "sha256": "30bf6eb4d1701f6982bbf2114772d721d0866e1872c440639ccd4ae8eda0cd3c"
+        "sha256": "50966231f71633b99e0bc46854e3c414bf50c7a7b6d4dcad16d0dfa7de1c6b77"
       },
       {
         "path": "packages/mcp/src/portal/design-evidence.ts",
@@ -898,7 +910,7 @@
       },
       {
         "path": "packages/mcp/src/security/state-permissions.ts",
-        "sha256": "67745843a60482db79f81ab8347ed4332d02a507d6f639de8fcc7ca5ec94d61c"
+        "sha256": "60e1a218a82a9efa012c1b3b009cfa6ce161749d75ae29d505296f59a7e3df93"
       },
       {
         "path": "packages/mcp/src/snapshot/build-grounding-graph.ts",
@@ -1710,7 +1722,7 @@
       },
       {
         "path": "packages/mcp/test/fs/runtime-paths.test.ts",
-        "sha256": "1c78f16614cd8e606c3fe6d457ba49adbb904fcb004937aedf9f0646b6991f19"
+        "sha256": "5c5b61319296e8331431bf56872bff505a7af464f5d18dbfd7bb77eca392d6aa"
       },
       {
         "path": "packages/mcp/test/fs/shared-dependency-boundary.test.ts",
@@ -1862,7 +1874,7 @@
       },
       {
         "path": "packages/mcp/test/portal/capture-reexport.test.ts",
-        "sha256": "b7e80d59c70176bdd670bc09abfdbfcf9bf41ca9b2e087983be0fecc54b9b24a"
+        "sha256": "3c632605496445943ecc34c3e893e4f8c20c15bed1a561bec173034dc8fe5ae9"
       },
       {
         "path": "packages/mcp/test/portal/capture-session.test.ts",
@@ -3240,6 +3252,10 @@
       "sha256": "e6aaa4312aeddba9bd3326218b4c1aaf40daa357828b40dad966593523191f66"
     },
     {
+      "path": "capabilities/change-manifests/task-review-2026-10-05.json",
+      "sha256": "98e73a991c2c2403855b28b41522b401cf692d42fa1d9092adbe9f04df29c0ee"
+    },
+    {
       "path": "capabilities/figmosha-feature-map.json",
       "sha256": "ce423b9ed67c825a84e5b2500124a305ca5b5119e5e07f8a79aabca05a49d862"
     },
@@ -3348,6 +3364,10 @@
       "sha256": "48e5adcbf8ded03642a943bb5b7db0054fe1a8735dedfefb117b7251afa45139"
     },
     {
+      "path": "capabilities/reconciliations/review-2026-10-05-findings-metadata.json",
+      "sha256": "aab4448fd625622ec380f4c2205449146d65320350d82a8cb803fab2604a4250"
+    },
+    {
       "path": "capabilities/rust-tool-compat.json",
       "sha256": "a13fc9633b0406946b78f800135d1420d00de0da77cd27f4f62a4334dd70615a"
     },
@@ -3404,6 +3424,10 @@
       "sha256": "63ddd77ab32aa9da192b18c403e0d6b279bd8ea26a531c0b7051ac59b101bc84"
     },
     {
+      "path": "capabilities/task-review-2026-10-05-authority-classes.json",
+      "sha256": "008736abfab2f699ceff25e5b33bc37b73a62fc5b2eb91b230911fa6094d2fd3"
+    },
+    {
       "path": "capabilities/union-manifest.json",
       "sha256": "f52f4cdab4a4363523b42e8ceb3c67c7c08f6fa630df1612c7e2ff069c0ded85"
     },
@@ -3417,7 +3441,7 @@
     },
     {
       "path": "docs/portal-native.md",
-      "sha256": "ed51b76266b9c7b7065b255514e84e0b3d6338cc8be21836c6e33972b930e3fb"
+      "sha256": "523f6398273c4d3e3689c80aa174f612f40d12c4309833476136073633d146d2"
     },
     {
       "path": "docs/reviews/2026-10-02-lossless-design-inverses.md",
@@ -3485,11 +3509,11 @@
     },
     {
       "path": "packages/cli/src/commands.ts",
-      "sha256": "eed08366911ac7355f2ad00f16eba14bc258e829ce31c53f567d1e49d5aa9978"
+      "sha256": "9f7c71893cedf673ab5caac9d79cde79130b0ea990f85d6584ad2ba69e596ab5"
     },
     {
       "path": "packages/cli/src/control-client.ts",
-      "sha256": "3bc0c86dda29965396b1aefa7ce26d3042e0a6d9a2e0480bebc7311269c023b5"
+      "sha256": "5c3f70e0f4389f0fb2b4a23bf524b591cb9ec67439492d87dc8d027f87c80081"
     },
     {
       "path": "packages/cli/src/desktop-reader.ts",
@@ -3520,8 +3544,12 @@
       "sha256": "292ec2766814b3f7a0f931a5cc0c88050c79a0b371e2cdbdd53367e12c9dfb3f"
     },
     {
+      "path": "packages/cli/src/figma-native-metadata.ts",
+      "sha256": "d294d85a85f0a69036c0f41eb4a4f6cc5b2a328b3f4151f70a06f67361bd2f75"
+    },
+    {
       "path": "packages/cli/src/figma-native-nodes.ts",
-      "sha256": "e8549ce75fd507f1219cbb89f4617cebc28115967ab0c89e9dd5eb84e3fff388"
+      "sha256": "2be779f42871f69d851c1baff9e81aa986d55cb14d224d24229ccd9c0f44f5c3"
     },
     {
       "path": "packages/cli/src/figma-native-paints.ts",
@@ -3533,7 +3561,7 @@
     },
     {
       "path": "packages/cli/src/figma-native-styles.ts",
-      "sha256": "750a50fa1bdf7dd0ae5cfc132ddcdb064a0b82483fe8232e4eb3ff1539e24845"
+      "sha256": "e1f4ba284fab5e1b7f6e97238726050a44584191bcf6f682def1593ed92e6a5b"
     },
     {
       "path": "packages/cli/src/figma-native-text-layout.ts",
@@ -3597,7 +3625,7 @@
     },
     {
       "path": "packages/cli/src/snapshot-reader.ts",
-      "sha256": "2fff5a6656260ebb2d922f319ab1f4b4a90d006cfa2f815104f84460fa0689c7"
+      "sha256": "25107aad9bc90ad3af4abcd45d9ac218e751cbe8a59b6175ca9fd989cc98dbf7"
     },
     {
       "path": "packages/cli/src/vector-export-source.ts",
@@ -3637,7 +3665,7 @@
     },
     {
       "path": "packages/cli/test/control-client-http.test.ts",
-      "sha256": "b2eada99fcfb574d25d68119e07f84054b62103fd5b8f01a3286578394744c5d"
+      "sha256": "6b4560137bca64386166ad49df7856f6c4f55454cfb4a31cdade47bc85a2f617"
     },
     {
       "path": "packages/cli/test/desktop-reader.test.ts",
@@ -3668,8 +3696,12 @@
       "sha256": "4cf1406c68556403706a45ff26afb2ba173e17019ac2f3861a103d089716504b"
     },
     {
+      "path": "packages/cli/test/figma-native-metadata.test.ts",
+      "sha256": "ccfedbb8da6c1e22c8fbb239d62725d8a3496071d4fae3dacb7c9a5dba0c04e9"
+    },
+    {
       "path": "packages/cli/test/figma-native-nodes.test.ts",
-      "sha256": "db13af445e3874018641d2ba8af8e9c73ffd408d0993f58e3f3f1bb05078fc8f"
+      "sha256": "3b1db36e597f7f121e1a399b0b7f26d87a87db2147d8061b46ae5f367b6d89c5"
     },
     {
       "path": "packages/cli/test/figma-native-paints.test.ts",
@@ -3681,7 +3713,7 @@
     },
     {
       "path": "packages/cli/test/figma-native-styles.test.ts",
-      "sha256": "4dcf8cf7e160cc6a8851d9c2ce08623aa52d3b9aead7e08d95220fb73e2da1ad"
+      "sha256": "65d7dbbdece84756bb899ac8414bd2baeaf949b47970e6c19a510a951c687795"
     },
     {
       "path": "packages/cli/test/figma-native-text-layout.test.ts",
@@ -3713,7 +3745,7 @@
     },
     {
       "path": "packages/cli/test/scripter-catalogs.test.ts",
-      "sha256": "44faf8b7fa420beddefe2c5ed1c30985751a1dd5335e570ad65fdb5129259170"
+      "sha256": "2b6561ae4e800910bdb8662b0245fbac94615f6da5a46b2db8ff3843feb41a03"
     },
     {
       "path": "packages/cli/test/scripter-reader.test.ts",
@@ -3749,7 +3781,7 @@
     },
     {
       "path": "packages/ir/src/capture-freshness.ts",
-      "sha256": "f0f0440c0e1bbf5c5f87444520cda9e5dcf22d8f588d535b4a5ff139b9b53b3b"
+      "sha256": "59613ba800ba7820326012e0d5f415eca63767be6509c38a95edce8a53df14ac"
     },
     {
       "path": "packages/ir/src/fidelity.ts",
@@ -3761,7 +3793,7 @@
     },
     {
       "path": "packages/ir/src/index.ts",
-      "sha256": "c373cbc90e1ea9f6c81ce4d788f7487ef39c862e1ffd4722688de597e4a90aed"
+      "sha256": "e1a2492a1f3c313703ec1985e4c65a799c81b4da69599387e25ce2a987748187"
     },
     {
       "path": "packages/ir/src/inspection-v1.ts",
@@ -4169,7 +4201,7 @@
     },
     {
       "path": "packages/mcp/src/portal/capture-freshness.ts",
-      "sha256": "0852dfa3bf5e787b06ef488ce97d049517bd778c51af2a476c47fa0b7340a78c"
+      "sha256": "1875664870af8fe085597b0ee77dc094de59a5891e2c6618b2c53b5557664752"
     },
     {
       "path": "packages/mcp/src/portal/capture-runtime.ts",
@@ -4201,7 +4233,7 @@
     },
     {
       "path": "packages/mcp/src/portal/design-capture.ts",
-      "sha256": "30bf6eb4d1701f6982bbf2114772d721d0866e1872c440639ccd4ae8eda0cd3c"
+      "sha256": "50966231f71633b99e0bc46854e3c414bf50c7a7b6d4dcad16d0dfa7de1c6b77"
     },
     {
       "path": "packages/mcp/src/portal/design-evidence.ts",
@@ -4473,7 +4505,7 @@
     },
     {
       "path": "packages/mcp/src/security/state-permissions.ts",
-      "sha256": "67745843a60482db79f81ab8347ed4332d02a507d6f639de8fcc7ca5ec94d61c"
+      "sha256": "60e1a218a82a9efa012c1b3b009cfa6ce161749d75ae29d505296f59a7e3df93"
     },
     {
       "path": "packages/mcp/src/snapshot/build-grounding-graph.ts",
@@ -5285,7 +5317,7 @@
     },
     {
       "path": "packages/mcp/test/fs/runtime-paths.test.ts",
-      "sha256": "1c78f16614cd8e606c3fe6d457ba49adbb904fcb004937aedf9f0646b6991f19"
+      "sha256": "5c5b61319296e8331431bf56872bff505a7af464f5d18dbfd7bb77eca392d6aa"
     },
     {
       "path": "packages/mcp/test/fs/shared-dependency-boundary.test.ts",
@@ -5437,7 +5469,7 @@
     },
     {
       "path": "packages/mcp/test/portal/capture-reexport.test.ts",
-      "sha256": "b7e80d59c70176bdd670bc09abfdbfcf9bf41ca9b2e087983be0fecc54b9b24a"
+      "sha256": "3c632605496445943ecc34c3e893e4f8c20c15bed1a561bec173034dc8fe5ae9"
     },
     {
       "path": "packages/mcp/test/portal/capture-session.test.ts",
@@ -6901,7 +6933,7 @@
     },
     {
       "path": "vendor-rules.json",
-      "sha256": "2f5144a489e203442dcb2b05504b052d6009b65dd1910fb62fbd374139018239"
+      "sha256": "98731aecff9a6c72227ce1826994df9c64d91e2051545c1770af35b6a0e78599"
     },
     {
       "path": "vitest.config.ts",
