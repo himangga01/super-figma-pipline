@@ -15,10 +15,10 @@ Prepared on October 5, 2026, at about 10:10 KST (Asia/Seoul). The owner asked fo
 | Item | Value |
 | --- | --- |
 | Repository | `https://github.com/himangga01/super-figma-pipline`. It is **public**: anything pushed is readable by anyone |
-| Branch | `remediation/2026-09-27`; `main` was not changed |
+| Branch | `main`. Merge commit `4c24aa3a4360d06d8ac082d3e114add3598e3ea5` brought in `remediation/2026-09-27`, which was then deleted (see [Branch cleanup](#branch-cleanup-on-october-5)) |
 | Work commit | `78af2b1adf4d3cd7c2ebda67afb0edee2f1a0b6f`: all service, test, provenance and evidence changes (260 files) |
-| Handoff commit | The next commit on the branch: this document, its helper copies and pointer updates |
-| Previous published commit | `5b9343efc82ef47ba56f412acbd4eee5a328d335` |
+| Handoff commit | `a795151a4f044ee1e88c03863d3bfc41054448f4`: this document, its helper copies and pointer updates. A later documentation commit on `main` records the branch cleanup |
+| Earlier published commits | `5b9343efc82ef47ba56f412acbd4eee5a328d335` (former remediation tip) and `0a0f3ad58cc41326e3f362fb9dc350eb45d371e3` (former `main`) |
 | Service source fingerprint | `sha256:62023ddd8c029ecd5425a25407551dfc1ea01a649b5c7008ce844d7d9ca357bb` |
 | Committed service tree | `5f342a83d33eee96c7cbd6ee1c33e2f4b520f2a2`, identical to the last verified review index (`native-container-20261005.index`) |
 | Provenance | Checked on the staged state before the commit: slice `review-2026-10-04` (71 semantic changes, 4 authority paths); the offline upstream lock (3 upstreams, 238 vendor rows) |
@@ -29,6 +29,18 @@ Prepared on October 5, 2026, at about 10:10 KST (Asia/Seoul). The owner asked fo
 This source passed focused tests and provenance checks, but its whole check did **not** complete (section 6). It is not release-verified or acceptance-verified.
 
 Pushing `service/**` triggers the `Service verification` workflow in `.github/workflows/service-ci.yml`. Its results are not part of this handoff. Its `non-ascii-paths` variant is expected to fail until T01, and its Ubuntu job is informational.
+
+### Branch cleanup on October 5
+
+At the owner's request, the work was merged into `main` with a merge commit and pushed (`0a0f3ad..4c24aa3`). Every other branch was already contained in `main` before anything was deleted, and no pull request was open.
+
+- **Remote.** `remediation/2026-09-27` and `feat/super-figma-pipeline-v0.1` were deleted. Only `main` remains.
+- **Local, deleted.** `remediation/2026-09-27` and eight task branches: `rem/p0-baseline`, `rem/p0-wiring`, `rem/t01-lease-v2`, `rem/t03-t04-tooling`, `rem/t06a-repros`, `rem/t08-workspace-rows`, `rem/t09-retention-sweep` and `rem/t26-analysis-limits`.
+- **Local, still present on the old PC.** Five branches checked out in task worktrees: `rem/t07-replace-integrity` (`.worktrees/lane-a`), `rem/t14a-consumption-logic` (`lane-b`), `rem/t10-leader-health` (`lane-c`), `rem/t05a-provenance` (`lane-d`) and `rem/int-contracts-refresh` (`main-wiring`). Claude Code's automatic permission check denied removing those worktrees, so they await the owner's decision. Their commits are all in `main`.
+- **Uncommitted September 27 work.** `lane-a` (T07 replace integrity: 2 modified, 4 new files) and `lane-b` (T14a consumption logic: 5 modified, 2 new files) hold work that is in no commit. Before any cleanup it was copied to the old PC's ignored `.worktrees/_cache/wip-backup-20261005`. Each lane has `info.txt` (branch and base commit), `tracked.patch`, `paths.txt` and full file copies. The copies matched by SHA-256, and both patches apply cleanly to their base commits. This backup is local only and was not pushed.
+- **Recovery list.** Every branch tip before cleanup is in `branch-tips-before-cleanup.txt` in the same folder.
+
+The `.worktrees/baseline` validation copy is detached (no branch) and was kept.
 
 ## 3. What Git does not carry
 
@@ -45,7 +57,7 @@ Pushing `service/**` triggers the `Service verification` workflow in `.github/wo
 | CDD R8 reference context | `.worktrees/_cache/cdd-codegen-context-20261004-r8` (8.3 MB) | Re-collect it, or copy it privately |
 | CDD R8 applied frontend | `.worktrees/_cache/cdd-service-outputs/cdd-chrome-frontend-r8` | Committed as [cdd-chrome-frontend-r8.zip](2026-10-04-evening/cdd-chrome-frontend-r8.zip). Check its 44 entries against [cdd-r8-files.json](2026-10-04-evening/cdd-r8-files.json) |
 | Daemon logs | `.worktrees/_cache/daemon-logs` | Not needed |
-| Old task worktrees | `.worktrees/lane-a` to `lane-d` and `.worktrees/main-wiring` | Not needed |
+| Old task worktrees and the September 27 WIP backup | `.worktrees/lane-a` to `lane-d`, `.worktrees/main-wiring` and `.worktrees/_cache/wip-backup-20261005` | Not needed for current work; see [Branch cleanup](#branch-cleanup-on-october-5) |
 | Agent memory of owner preferences | Claude Code's per-user memory folder | Summarized in section 9 |
 
 "Copy privately" means a direct transfer the owner controls, such as an external drive. Never use this public repository for it. Copied inputs keep the folder names used in section 7. Re-collected inputs get new folder names, and comparisons made with them are new evidence, not reproductions of the recorded results.
@@ -66,8 +78,7 @@ Clone and prepare in PowerShell. These paths match the old PC, so the relative p
 ```powershell
 git clone https://github.com/himangga01/super-figma-pipline.git C:/2026_project/super-figma-pipline
 cd C:/2026_project/super-figma-pipline
-git switch remediation/2026-09-27
-git log --oneline -3   # expect the handoff commit, then 78af2b1, then 5b9343e
+git log --oneline -3   # main: expect the cleanup docs commit, then merge 4c24aa3 above a795151 and 78af2b1
 
 # Native validation copy at the same commit
 git worktree add --detach .worktrees/baseline HEAD
