@@ -1,0 +1,15 @@
+{
+  "recordedAt": "2026-10-10T14:20:13.203Z",
+  "runId": "d080fe00-86c4-47d8-a279-e1bcce8d6432",
+  "sourceHash": "sha256:2caeae1fea68090dede0521f2bea073c3005efb3343d2151af6d66ef263bddfd",
+  "sourceAttempt": "c90c1f85-8a99-4895-8d93-696dc440751c",
+  "status": "passed",
+  "tests": 1,
+  "passed": 1,
+  "failed": 0,
+  "skipped": 0,
+  "scopeHash": "02f8acb93957dc20242d0db34273f7de0afa19c09b2df5f5f4860457615b74b8",
+  "reportHash": "2a25fd5352718fda2c87d52b62e16a37600b58096698a83945bbac6ba5382ab7",
+  "logHash": "082489cee08204795bb6a7815189eb6fa62eadf8c7216393b2b1bc95068cf345",
+  "folder": "C:\\2026_project\\super-figma-pipline\\.worktrees\\baseline\\service\\artifacts\\focused-checks\\d080fe00-86c4-47d8-a279-e1bcce8d6432"
+}

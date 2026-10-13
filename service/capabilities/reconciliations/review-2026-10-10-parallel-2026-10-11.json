@@ -1,0 +1,473 @@
+{
+  "schemaVersion": 1,
+  "slice": "review-2026-10-10",
+  "baseline": {
+    "headCommit": "22517932dc9b2cb974c177ec4eacb84d4b16e254",
+    "authoritySha256": {
+      "upstream-lock.json": "4af9165a9c9e737ba2f9dde49d4562115eff63bae3bc17f721e582f940800fc5",
+      "vendor-map.json": "b3275c7d8b997d1cfe723d97594659f77d7b4361b824a790bcfdd7ff762589bd",
+      "vendor-rules.json": "31420e05055b2e07cb2d7e62841ba11028d47c993c21efa0a709bacb4ff60807"
+    }
+  },
+  "entries": [
+    {
+      "path": "README.md",
+      "sha256": "93cda7e49850806a72af5c3bb2af791c9625552acd592afa19465173af4c4f9e",
+      "priorClaims": [
+        {
+          "class": "fork",
+          "sha256": "81ea09472151f33f099b979239f5ccd320692f3f67e0d29c0e9d4c1b9f047e0b"
+        },
+        {
+          "class": "managed",
+          "sha256": "81ea09472151f33f099b979239f5ccd320692f3f67e0d29c0e9d4c1b9f047e0b"
+        },
+        {
+          "class": "protected",
+          "sha256": "81ea09472151f33f099b979239f5ccd320692f3f67e0d29c0e9d4c1b9f047e0b"
+        }
+      ],
+      "reason": "Add service-owned Chrome Copy as acquisition with bounded hooks and one same-file navigation; resolve verified project references/rootDirs without invented generated inputs; add official-only fixed read/export capture and generation handoff with identity, assets, deadline and cancellation gates. Independent scoped reviews repaired reproduced defects. Focused tests pass; live official and full frontend acceptance remain pending."
+    },
+    {
+      "path": "capabilities/task-review-2026-10-10-authority-classes.json",
+      "sha256": "07fda0b799f27832c430df254d17b2f4c10a90a51224bd4fc7a57bb4f978a777",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "4fe90a87b34f27ecd8e217e6d7436ddd216dc11cc172dc3bcad061ddf44dbf33"
+        },
+        {
+          "class": "protected",
+          "sha256": "4fe90a87b34f27ecd8e217e6d7436ddd216dc11cc172dc3bcad061ddf44dbf33"
+        }
+      ],
+      "reason": "Add service-owned Chrome Copy as acquisition with bounded hooks and one same-file navigation; resolve verified project references/rootDirs without invented generated inputs; add official-only fixed read/export capture and generation handoff with identity, assets, deadline and cancellation gates. Independent scoped reviews repaired reproduced defects. Focused tests pass; live official and full frontend acceptance remain pending."
+    },
+    {
+      "path": "capabilities/union-manifest.json",
+      "sha256": "0a317088925a69b933c8338bd1da53cb1de2281d320519ca451c5aaa731a719d",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "f52f4cdab4a4363523b42e8ceb3c67c7c08f6fa630df1612c7e2ff069c0ded85"
+        },
+        {
+          "class": "protected",
+          "sha256": "f52f4cdab4a4363523b42e8ceb3c67c7c08f6fa630df1612c7e2ff069c0ded85"
+        }
+      ],
+      "reason": "Add service-owned Chrome Copy as acquisition with bounded hooks and one same-file navigation; resolve verified project references/rootDirs without invented generated inputs; add official-only fixed read/export capture and generation handoff with identity, assets, deadline and cancellation gates. Independent scoped reviews repaired reproduced defects. Focused tests pass; live official and full frontend acceptance remain pending."
+    },
+    {
+      "path": "packages/cli/src/browser-session.ts",
+      "sha256": "a1a2453dd5d40a1d714f4fd078534eeb9760814bee883aff790dd7211dc9996a",
+      "priorClaims": [
+        {
+          "class": "protected",
+          "sha256": "f9ba1ff923d35ab1f17c0289332538daad2a75d95a079463429fb132359f9c43"
+        }
+      ],
+      "reason": "Add service-owned Chrome Copy as acquisition with bounded hooks and one same-file navigation; resolve verified project references/rootDirs without invented generated inputs; add official-only fixed read/export capture and generation handoff with identity, assets, deadline and cancellation gates. Independent scoped reviews repaired reproduced defects. Focused tests pass; live official and full frontend acceptance remain pending."
+    },
+    {
+      "path": "packages/cli/src/commands.ts",
+      "sha256": "fb1ca72eeb33011d1db3df912915667e9a9f58d0a25cf301ef36ec6832d94dde",
+      "priorClaims": [
+        {
+          "class": "protected",
+          "sha256": "9f7c71893cedf673ab5caac9d79cde79130b0ea990f85d6584ad2ba69e596ab5"
+        }
+      ],
+      "reason": "Add service-owned Chrome Copy as acquisition with bounded hooks and one same-file navigation; resolve verified project references/rootDirs without invented generated inputs; add official-only fixed read/export capture and generation handoff with identity, assets, deadline and cancellation gates. Independent scoped reviews repaired reproduced defects. Focused tests pass; live official and full frontend acceptance remain pending."
+    },
+    {
+      "path": "packages/cli/src/figma-web-copy.ts",
+      "sha256": "3855a191a7036807c8e635004ac3985741ab8bd10bfae676ff85460916f4133a",
+      "priorClaims": [],
+      "reason": "Add service-owned Chrome Copy as acquisition with bounded hooks and one same-file navigation; resolve verified project references/rootDirs without invented generated inputs; add official-only fixed read/export capture and generation handoff with identity, assets, deadline and cancellation gates. Independent scoped reviews repaired reproduced defects. Focused tests pass; live official and full frontend acceptance remain pending."
+    },
+    {
+      "path": "packages/cli/test/browser-source-open.test.ts",
+      "sha256": "de222974657ba5e1178e91d058a8e2acb67b7445372eaef55e56ca4e8fa4e432",
+      "priorClaims": [
+        {
+          "class": "protected",
+          "sha256": "43849c1c166e249266bc1a26e7d49b839d29aa9193f99a56cc72eb0a83154c58"
+        }
+      ],
+      "reason": "Add service-owned Chrome Copy as acquisition with bounded hooks and one same-file navigation; resolve verified project references/rootDirs without invented generated inputs; add official-only fixed read/export capture and generation handoff with identity, assets, deadline and cancellation gates. Independent scoped reviews repaired reproduced defects. Focused tests pass; live official and full frontend acceptance remain pending."
+    },
+    {
+      "path": "packages/cli/test/figma-web-export.test.ts",
+      "sha256": "a17f2b751a94a47fedff680219c9b3df46ca0babb1baf2b6884d9eac9615aaa1",
+      "priorClaims": [
+        {
+          "class": "protected",
+          "sha256": "dca0ab353059c513e51bedf91733353204daf005c48b0072105dd90af37f30d1"
+        }
+      ],
+      "reason": "Add service-owned Chrome Copy as acquisition with bounded hooks and one same-file navigation; resolve verified project references/rootDirs without invented generated inputs; add official-only fixed read/export capture and generation handoff with identity, assets, deadline and cancellation gates. Independent scoped reviews repaired reproduced defects. Focused tests pass; live official and full frontend acceptance remain pending."
+    },
+    {
+      "path": "packages/mcp/src/index.ts",
+      "sha256": "0d3d70edaafb00a8b1616f9668a357b9b5e5d4a7f6c3928c3ced49bd9848e207",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "501907006741364c9126206a08bb20658277a60f86f1ae95ced2228a824a9f7a"
+        },
+        {
+          "class": "protected",
+          "sha256": "501907006741364c9126206a08bb20658277a60f86f1ae95ced2228a824a9f7a"
+        }
+      ],
+      "reason": "Add service-owned Chrome Copy as acquisition with bounded hooks and one same-file navigation; resolve verified project references/rootDirs without invented generated inputs; add official-only fixed read/export capture and generation handoff with identity, assets, deadline and cancellation gates. Independent scoped reviews repaired reproduced defects. Focused tests pass; live official and full frontend acceptance remain pending."
+    },
+    {
+      "path": "packages/mcp/src/official-figma-mcp-program.ts",
+      "sha256": "183e461818c0ac3320f47636735dadb9703b9fa46225d6e8cafc9663217cfc64",
+      "priorClaims": [],
+      "reason": "Add service-owned Chrome Copy as acquisition with bounded hooks and one same-file navigation; resolve verified project references/rootDirs without invented generated inputs; add official-only fixed read/export capture and generation handoff with identity, assets, deadline and cancellation gates. Independent scoped reviews repaired reproduced defects. Focused tests pass; live official and full frontend acceptance remain pending."
+    },
+    {
+      "path": "packages/mcp/src/official-figma-mcp.ts",
+      "sha256": "d5a4e2cf07e373ff3e3081299c646d1262a7e6310ea35919da9db583e0ef6820",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "68626388b5ff5ef10059c6864e9ac1bf9878152250acaf74a98877765ef89a67"
+        },
+        {
+          "class": "protected",
+          "sha256": "68626388b5ff5ef10059c6864e9ac1bf9878152250acaf74a98877765ef89a67"
+        }
+      ],
+      "reason": "Add service-owned Chrome Copy as acquisition with bounded hooks and one same-file navigation; resolve verified project references/rootDirs without invented generated inputs; add official-only fixed read/export capture and generation handoff with identity, assets, deadline and cancellation gates. Independent scoped reviews repaired reproduced defects. Focused tests pass; live official and full frontend acceptance remain pending."
+    },
+    {
+      "path": "packages/mcp/src/policy/operation-policy.ts",
+      "sha256": "1d2f69faef6e09e677d52ad0d4aea991108ece8b36701fbd157c44b5a761d7fc",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "2540155d9f41fcc3f4e3c745475503ec3962e72e51f835b014ee016be2d8d4b4"
+        },
+        {
+          "class": "protected",
+          "sha256": "2540155d9f41fcc3f4e3c745475503ec3962e72e51f835b014ee016be2d8d4b4"
+        }
+      ],
+      "reason": "Add service-owned Chrome Copy as acquisition with bounded hooks and one same-file navigation; resolve verified project references/rootDirs without invented generated inputs; add official-only fixed read/export capture and generation handoff with identity, assets, deadline and cancellation gates. Independent scoped reviews repaired reproduced defects. Focused tests pass; live official and full frontend acceptance remain pending."
+    },
+    {
+      "path": "packages/mcp/src/portal/capture-admission-runtime.ts",
+      "sha256": "978dc7b81dbbfa18d834df7d8447d6c0fde7c64d48d71adcba40b64db06d01c0",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "a6165035f5e0c94335b2b2c6514a17230fbf2f8b83d8ef08828d29ae7342d829"
+        },
+        {
+          "class": "protected",
+          "sha256": "a6165035f5e0c94335b2b2c6514a17230fbf2f8b83d8ef08828d29ae7342d829"
+        }
+      ],
+      "reason": "Add service-owned Chrome Copy as acquisition with bounded hooks and one same-file navigation; resolve verified project references/rootDirs without invented generated inputs; add official-only fixed read/export capture and generation handoff with identity, assets, deadline and cancellation gates. Independent scoped reviews repaired reproduced defects. Focused tests pass; live official and full frontend acceptance remain pending."
+    },
+    {
+      "path": "packages/mcp/src/portal/capture-runtime.ts",
+      "sha256": "fecb1925ce4bfb303c0886b901ce8d099cc5f4003fbe6c72f6ab26601f00ec33",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "02c59cf19028097f6ac700cf895092932631d80c1b666a445c72e80aa2191bab"
+        },
+        {
+          "class": "protected",
+          "sha256": "02c59cf19028097f6ac700cf895092932631d80c1b666a445c72e80aa2191bab"
+        }
+      ],
+      "reason": "Add service-owned Chrome Copy as acquisition with bounded hooks and one same-file navigation; resolve verified project references/rootDirs without invented generated inputs; add official-only fixed read/export capture and generation handoff with identity, assets, deadline and cancellation gates. Independent scoped reviews repaired reproduced defects. Focused tests pass; live official and full frontend acceptance remain pending."
+    },
+    {
+      "path": "packages/mcp/src/portal/capture-source-admission.ts",
+      "sha256": "11783a42158fe370b1526d9f2d248cd62f5c982ad32e3299753b6b72f9666ca5",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "9b8b8232327fa5f9ce91328149a81aa72225b8204f92209150db5b2c2ad2f3b6"
+        },
+        {
+          "class": "protected",
+          "sha256": "9b8b8232327fa5f9ce91328149a81aa72225b8204f92209150db5b2c2ad2f3b6"
+        }
+      ],
+      "reason": "Add service-owned Chrome Copy as acquisition with bounded hooks and one same-file navigation; resolve verified project references/rootDirs without invented generated inputs; add official-only fixed read/export capture and generation handoff with identity, assets, deadline and cancellation gates. Independent scoped reviews repaired reproduced defects. Focused tests pass; live official and full frontend acceptance remain pending."
+    },
+    {
+      "path": "packages/mcp/src/portal/chrome-transport.ts",
+      "sha256": "6126a02ba32adb6912655c8596b282210000bc4656b2c81d2e996491b569101c",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "5585c3cd026b70b4c6f40bfeae4bd8169d934343d2703ca64fce6cf03a3becf6"
+        },
+        {
+          "class": "protected",
+          "sha256": "5585c3cd026b70b4c6f40bfeae4bd8169d934343d2703ca64fce6cf03a3becf6"
+        }
+      ],
+      "reason": "Add service-owned Chrome Copy as acquisition with bounded hooks and one same-file navigation; resolve verified project references/rootDirs without invented generated inputs; add official-only fixed read/export capture and generation handoff with identity, assets, deadline and cancellation gates. Independent scoped reviews repaired reproduced defects. Focused tests pass; live official and full frontend acceptance remain pending."
+    },
+    {
+      "path": "packages/mcp/src/portal/coordinator.ts",
+      "sha256": "029807ae11b2ab40a584dd3fdfa8a3918b61e587ee94bc531ad9dc48b189dfa6",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "669cdfed433186444838be3819ba4dba7789833b2a1515f7184ebee6ce5a6d6d"
+        },
+        {
+          "class": "protected",
+          "sha256": "669cdfed433186444838be3819ba4dba7789833b2a1515f7184ebee6ce5a6d6d"
+        }
+      ],
+      "reason": "Add service-owned Chrome Copy as acquisition with bounded hooks and one same-file navigation; resolve verified project references/rootDirs without invented generated inputs; add official-only fixed read/export capture and generation handoff with identity, assets, deadline and cancellation gates. Independent scoped reviews repaired reproduced defects. Focused tests pass; live official and full frontend acceptance remain pending."
+    },
+    {
+      "path": "packages/mcp/src/portal/design-capture.ts",
+      "sha256": "c42afb09ab4c502242f0ff2ce1456944ceb5e44ab243b9acf41ae67cbdb86f1a",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "50966231f71633b99e0bc46854e3c414bf50c7a7b6d4dcad16d0dfa7de1c6b77"
+        },
+        {
+          "class": "protected",
+          "sha256": "50966231f71633b99e0bc46854e3c414bf50c7a7b6d4dcad16d0dfa7de1c6b77"
+        }
+      ],
+      "reason": "Add service-owned Chrome Copy as acquisition with bounded hooks and one same-file navigation; resolve verified project references/rootDirs without invented generated inputs; add official-only fixed read/export capture and generation handoff with identity, assets, deadline and cancellation gates. Independent scoped reviews repaired reproduced defects. Focused tests pass; live official and full frontend acceptance remain pending."
+    },
+    {
+      "path": "packages/mcp/src/portal/design-normalization.ts",
+      "sha256": "7dafe55fa67c9453fcd5668aa3d2ccfc65d1c661d1e5bbdb332e268e00fe6b89",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "e947fd38681b6b2733e64125ed2e0e6c8a5f68c394a5073e22cf62456c454f6b"
+        },
+        {
+          "class": "protected",
+          "sha256": "e947fd38681b6b2733e64125ed2e0e6c8a5f68c394a5073e22cf62456c454f6b"
+        }
+      ],
+      "reason": "Add service-owned Chrome Copy as acquisition with bounded hooks and one same-file navigation; resolve verified project references/rootDirs without invented generated inputs; add official-only fixed read/export capture and generation handoff with identity, assets, deadline and cancellation gates. Independent scoped reviews repaired reproduced defects. Focused tests pass; live official and full frontend acceptance remain pending."
+    },
+    {
+      "path": "packages/mcp/src/portal/module-resolution.ts",
+      "sha256": "76d9e47741e7c5cb8c24415543b841b2fcbf45df22db6122601ed605a3e0b023",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "2cd3b8510ae9ad71542720086db42841eee4b307579243b75ac148d313ce517e"
+        },
+        {
+          "class": "protected",
+          "sha256": "2cd3b8510ae9ad71542720086db42841eee4b307579243b75ac148d313ce517e"
+        }
+      ],
+      "reason": "Add service-owned Chrome Copy as acquisition with bounded hooks and one same-file navigation; resolve verified project references/rootDirs without invented generated inputs; add official-only fixed read/export capture and generation handoff with identity, assets, deadline and cancellation gates. Independent scoped reviews repaired reproduced defects. Focused tests pass; live official and full frontend acceptance remain pending."
+    },
+    {
+      "path": "packages/mcp/src/portal/native-work.ts",
+      "sha256": "dea4947572ee25079ed2abbba2e7d3ea356072bc212aa430dc28b2a508700862",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "ee6af25547649f3daa30176d8ec0780bdd6d24b1da17901b74bdf9dcd81ae122"
+        },
+        {
+          "class": "protected",
+          "sha256": "ee6af25547649f3daa30176d8ec0780bdd6d24b1da17901b74bdf9dcd81ae122"
+        }
+      ],
+      "reason": "Add service-owned Chrome Copy as acquisition with bounded hooks and one same-file navigation; resolve verified project references/rootDirs without invented generated inputs; add official-only fixed read/export capture and generation handoff with identity, assets, deadline and cancellation gates. Independent scoped reviews repaired reproduced defects. Focused tests pass; live official and full frontend acceptance remain pending."
+    },
+    {
+      "path": "packages/mcp/src/portal/official-mcp-capture.ts",
+      "sha256": "e080870135275ee2cb752bcc9fb8b2c57da0dd3f6e165f9ea1911ff8f5743df4",
+      "priorClaims": [],
+      "reason": "Add service-owned Chrome Copy as acquisition with bounded hooks and one same-file navigation; resolve verified project references/rootDirs without invented generated inputs; add official-only fixed read/export capture and generation handoff with identity, assets, deadline and cancellation gates. Independent scoped reviews repaired reproduced defects. Focused tests pass; live official and full frontend acceptance remain pending."
+    },
+    {
+      "path": "packages/mcp/test/official-figma-mcp-capture.test.ts",
+      "sha256": "ba87815ccbf430f6335f4cec0e93219923056f509e63968544ba529873452022",
+      "priorClaims": [],
+      "reason": "Add service-owned Chrome Copy as acquisition with bounded hooks and one same-file navigation; resolve verified project references/rootDirs without invented generated inputs; add official-only fixed read/export capture and generation handoff with identity, assets, deadline and cancellation gates. Independent scoped reviews repaired reproduced defects. Focused tests pass; live official and full frontend acceptance remain pending."
+    },
+    {
+      "path": "packages/mcp/test/official-mcp-fixture.ts",
+      "sha256": "d63a50ed287d3d24bc425735744dfbc0924e37be7afdedbcd432f0c7014c81fa",
+      "priorClaims": [],
+      "reason": "Add service-owned Chrome Copy as acquisition with bounded hooks and one same-file navigation; resolve verified project references/rootDirs without invented generated inputs; add official-only fixed read/export capture and generation handoff with identity, assets, deadline and cancellation gates. Independent scoped reviews repaired reproduced defects. Focused tests pass; live official and full frontend acceptance remain pending."
+    },
+    {
+      "path": "packages/mcp/test/policy/operation-policy.test.ts",
+      "sha256": "ae2c112c24430fcc982500eee0c3b6858f8c7d6d7427a5f055b9e224d7ccd063",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "33a00d4c4a38991331662e7e589d02e81562e93c336a5286bb0bcbba98b914d6"
+        },
+        {
+          "class": "protected",
+          "sha256": "33a00d4c4a38991331662e7e589d02e81562e93c336a5286bb0bcbba98b914d6"
+        }
+      ],
+      "reason": "Add service-owned Chrome Copy as acquisition with bounded hooks and one same-file navigation; resolve verified project references/rootDirs without invented generated inputs; add official-only fixed read/export capture and generation handoff with identity, assets, deadline and cancellation gates. Independent scoped reviews repaired reproduced defects. Focused tests pass; live official and full frontend acceptance remain pending."
+    },
+    {
+      "path": "packages/mcp/test/portal/capture-plane.test.ts",
+      "sha256": "2feded936ce05beb40774e72a90f5fe5dd6a4d82f5f5444285f688a67f9427e8",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "b01e8a09a70a9e714d6da72d758093317b3bc99261e16d619197fd33a81a6735"
+        },
+        {
+          "class": "protected",
+          "sha256": "b01e8a09a70a9e714d6da72d758093317b3bc99261e16d619197fd33a81a6735"
+        }
+      ],
+      "reason": "Add service-owned Chrome Copy as acquisition with bounded hooks and one same-file navigation; resolve verified project references/rootDirs without invented generated inputs; add official-only fixed read/export capture and generation handoff with identity, assets, deadline and cancellation gates. Independent scoped reviews repaired reproduced defects. Focused tests pass; live official and full frontend acceptance remain pending."
+    },
+    {
+      "path": "packages/mcp/test/portal/chrome-transport.test.ts",
+      "sha256": "e44a6b619bb21eab62d058cc2ae461bb784113bb7e37acbdc9ff196ee8bdfe0a",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "0e064f0226b73c06fedd4053af6d3e3c32d2753a585bec490b60db14271a4d91"
+        },
+        {
+          "class": "protected",
+          "sha256": "0e064f0226b73c06fedd4053af6d3e3c32d2753a585bec490b60db14271a4d91"
+        }
+      ],
+      "reason": "Add service-owned Chrome Copy as acquisition with bounded hooks and one same-file navigation; resolve verified project references/rootDirs without invented generated inputs; add official-only fixed read/export capture and generation handoff with identity, assets, deadline and cancellation gates. Independent scoped reviews repaired reproduced defects. Focused tests pass; live official and full frontend acceptance remain pending."
+    },
+    {
+      "path": "packages/mcp/test/portal/module-resolution.test.ts",
+      "sha256": "26ed8b847056b2feb5684d07049c7377553409b631eeae9ed360db0bd31f9a9b",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "99d8dfc7792dd5cd0e5bee5e53453ee8934eb06de42b1632607308875fc38bc2"
+        },
+        {
+          "class": "protected",
+          "sha256": "99d8dfc7792dd5cd0e5bee5e53453ee8934eb06de42b1632607308875fc38bc2"
+        }
+      ],
+      "reason": "Add service-owned Chrome Copy as acquisition with bounded hooks and one same-file navigation; resolve verified project references/rootDirs without invented generated inputs; add official-only fixed read/export capture and generation handoff with identity, assets, deadline and cancellation gates. Independent scoped reviews repaired reproduced defects. Focused tests pass; live official and full frontend acceptance remain pending."
+    },
+    {
+      "path": "packages/mcp/test/portal/official-mcp-capture.test.ts",
+      "sha256": "fb5da74d82fb8c5ce5a98cc67e6a6219c99dec57bad61f0f28dcc1a6a98cd678",
+      "priorClaims": [],
+      "reason": "Add service-owned Chrome Copy as acquisition with bounded hooks and one same-file navigation; resolve verified project references/rootDirs without invented generated inputs; add official-only fixed read/export capture and generation handoff with identity, assets, deadline and cancellation gates. Independent scoped reviews repaired reproduced defects. Focused tests pass; live official and full frontend acceptance remain pending."
+    },
+    {
+      "path": "packages/shared/src/design-observation.ts",
+      "sha256": "08f7c416745543457dc6f8ce50ec4acfa4427f189080c2b935ba4b460474a8fe",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "08a09f40a923e58178092e01644941f32697c7de9415f9ce2cc4fdc5cadb1513"
+        },
+        {
+          "class": "protected",
+          "sha256": "08a09f40a923e58178092e01644941f32697c7de9415f9ce2cc4fdc5cadb1513"
+        }
+      ],
+      "reason": "Add service-owned Chrome Copy as acquisition with bounded hooks and one same-file navigation; resolve verified project references/rootDirs without invented generated inputs; add official-only fixed read/export capture and generation handoff with identity, assets, deadline and cancellation gates. Independent scoped reviews repaired reproduced defects. Focused tests pass; live official and full frontend acceptance remain pending."
+    },
+    {
+      "path": "packages/shared/src/figma-capture-query.ts",
+      "sha256": "03701c8426676e3aa022eb304c0d4fb6c730ac31250fce9b1215a169b487885c",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "36e4232eee2af2a8f1e2e035b56bf06d9712ac00001c15d0965b813b54547bb6"
+        },
+        {
+          "class": "protected",
+          "sha256": "36e4232eee2af2a8f1e2e035b56bf06d9712ac00001c15d0965b813b54547bb6"
+        }
+      ],
+      "reason": "Add service-owned Chrome Copy as acquisition with bounded hooks and one same-file navigation; resolve verified project references/rootDirs without invented generated inputs; add official-only fixed read/export capture and generation handoff with identity, assets, deadline and cancellation gates. Independent scoped reviews repaired reproduced defects. Focused tests pass; live official and full frontend acceptance remain pending."
+    },
+    {
+      "path": "packages/shared/src/figma-capture-read.ts",
+      "sha256": "5c00133e6c958dc16eb35b3feb4714577239ccb70e0639627f31c480a95b9a2c",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "33c97af5eb1fcc857e154c6043f5b7ffc5669b53e2a3dbcdc6ff59905907bc55"
+        },
+        {
+          "class": "protected",
+          "sha256": "33c97af5eb1fcc857e154c6043f5b7ffc5669b53e2a3dbcdc6ff59905907bc55"
+        }
+      ],
+      "reason": "Add service-owned Chrome Copy as acquisition with bounded hooks and one same-file navigation; resolve verified project references/rootDirs without invented generated inputs; add official-only fixed read/export capture and generation handoff with identity, assets, deadline and cancellation gates. Independent scoped reviews repaired reproduced defects. Focused tests pass; live official and full frontend acceptance remain pending."
+    },
+    {
+      "path": "packages/shared/src/operations.ts",
+      "sha256": "7af602a3cd8ffd64649309b193cbe304c58e06be6912d2b7061919e344004f65",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "786c97861a5640539a6e18ffc5d8413637f3153801aaa8df2293b08fbc21eb29"
+        },
+        {
+          "class": "protected",
+          "sha256": "786c97861a5640539a6e18ffc5d8413637f3153801aaa8df2293b08fbc21eb29"
+        }
+      ],
+      "reason": "Add service-owned Chrome Copy as acquisition with bounded hooks and one same-file navigation; resolve verified project references/rootDirs without invented generated inputs; add official-only fixed read/export capture and generation handoff with identity, assets, deadline and cancellation gates. Independent scoped reviews repaired reproduced defects. Focused tests pass; live official and full frontend acceptance remain pending."
+    },
+    {
+      "path": "packages/shared/src/portal-capture-source.ts",
+      "sha256": "8c6d27c9ebea8b3538e2ac8ad8d02415eed6fe99167f6fc51e9c93be7a8f510b",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "87bf640ab374220f586a4079a798780a2ee0a04da695f96f8e3a2d10b1986d43"
+        },
+        {
+          "class": "protected",
+          "sha256": "87bf640ab374220f586a4079a798780a2ee0a04da695f96f8e3a2d10b1986d43"
+        }
+      ],
+      "reason": "Add service-owned Chrome Copy as acquisition with bounded hooks and one same-file navigation; resolve verified project references/rootDirs without invented generated inputs; add official-only fixed read/export capture and generation handoff with identity, assets, deadline and cancellation gates. Independent scoped reviews repaired reproduced defects. Focused tests pass; live official and full frontend acceptance remain pending."
+    },
+    {
+      "path": "packages/shared/src/portal.ts",
+      "sha256": "44a5f5488a2ad6b89bdd6c27b329b2b70220733a98edcc8f5248298fad11a0f0",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "81cfc66c697a52e59f65a64ee828bf5c351efd297b750995799387ed48b9fc0a"
+        },
+        {
+          "class": "protected",
+          "sha256": "81cfc66c697a52e59f65a64ee828bf5c351efd297b750995799387ed48b9fc0a"
+        }
+      ],
+      "reason": "Add service-owned Chrome Copy as acquisition with bounded hooks and one same-file navigation; resolve verified project references/rootDirs without invented generated inputs; add official-only fixed read/export capture and generation handoff with identity, assets, deadline and cancellation gates. Independent scoped reviews repaired reproduced defects. Focused tests pass; live official and full frontend acceptance remain pending."
+    }
+  ]
+}

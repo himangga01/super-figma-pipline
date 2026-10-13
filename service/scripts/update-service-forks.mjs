@@ -314,6 +314,133 @@ const upsertHashRow = (rows, path, hash) => {
   return retained.toSorted((left, right) => compareUtf8(left.path, right.path));
 };
 
+const workspaceManifestPath = path => /^packages\/[^/]+\/package\.json$/u.test(path);
+const validWorkspacePackageName = name =>
+  typeof name === 'string' &&
+  name.length <= 214 &&
+  /^(?:@[a-z0-9][a-z0-9._-]*\/)?[a-z0-9][a-z0-9._-]*$/u.test(name);
+const reconcileReviewedWorkspaceMembership = (reviewed, originalChanges, lock) => {
+  const additions = [...reviewed].filter(([path]) => workspaceManifestPath(path));
+  if (lock.rootAuthority === undefined || additions.length === 0) return;
+  /** @type {(path: string) => never} */
+  const invalid = path => fail('SERVICE_FORK_WORKSPACE_MEMBERSHIP_INVALID', path);
+  const prior = lock.rootAuthority.workspacePackageNames;
+  if (
+    !Array.isArray(prior) ||
+    prior.some(name => !validWorkspacePackageName(name)) ||
+    new Set(prior).size !== prior.length
+  )
+    invalid('existing workspace name authority');
+  const names = new Set(prior);
+  const parseName = (path, bytes) => {
+    if (bytes.length > 262_144) invalid(path);
+    let metadata;
+    try {
+      metadata = JSON.parse(bytes.toString('utf8'));
+    } catch {
+      invalid(path);
+    }
+    if (
+      metadata === null ||
+      typeof metadata !== 'object' ||
+      Array.isArray(metadata) ||
+      !validWorkspacePackageName(metadata.name)
+    )
+      invalid(path);
+    return metadata.name;
+  };
+  const gitOutput = args =>
+    execFileSync('git', ['-C', repositoryRoot, ...args], {
+      encoding: 'utf8',
+      maxBuffer: 64 * 1024 * 1024,
+      windowsHide: true,
+    });
+  const headPaths = gitOutput([
+    'ls-tree',
+    '-r',
+    '--name-only',
+    '-z',
+    'HEAD',
+    '--',
+    'service/packages',
+  ])
+    .split('\0')
+    .filter(Boolean)
+    .map(path => path.slice('service/'.length))
+    .filter(workspaceManifestPath);
+  const indexed = gitOutput(['ls-files', '--stage', '-z', '--', 'service/packages'])
+    .split('\0')
+    .filter(Boolean)
+    .flatMap(row => {
+      const match = /^([0-9]{6}) [0-9a-f]{40,64} ([0-3])\t(service\/.+)$/u.exec(row);
+      if (!match || match[1] === undefined || match[2] === undefined || match[3] === undefined)
+        invalid('workspace index record');
+      const path = safePath(match[3].slice('service/'.length));
+      if (!workspaceManifestPath(path)) return [];
+      if (!['100644', '100755'].includes(match[1]) || match[2] !== '0') invalid(path);
+      return [path];
+    });
+  if (headPaths.length > 128 || indexed.length > 128) invalid('workspace manifest limit');
+  const headOwners = new Map(),
+    headNames = new Map(),
+    indexOwners = new Map();
+  for (const path of headPaths) {
+    const name = parseName(
+      path,
+      execFileSync('git', ['-C', repositoryRoot, 'show', `HEAD:service/${safePath(path)}`], {
+        maxBuffer: 262_145,
+        windowsHide: true,
+      }),
+    );
+    if (headOwners.has(name)) invalid(path);
+    headOwners.set(name, path);
+    headNames.set(path, name);
+  }
+  for (const path of indexed) {
+    const name = parseName(path, stagedBytes(path));
+    if (indexOwners.has(name)) invalid(path);
+    indexOwners.set(name, path);
+  }
+  const stagedAdds = new Set(
+    originalChanges.filter(change => change.status === 'A').map(change => change.path),
+  );
+  // Older authority records retain protected path/hash claims and a name set, not a
+  // path/name table. A changed uncommitted addition is identifiable only when both
+  // residual sets are singletons. Multiple prior additions remain ambiguous.
+  const priorAdditionNames = prior.filter(name => !headOwners.has(name));
+  const priorAdditionClaims = (lock.serviceFiles ?? []).filter(
+    row => workspaceManifestPath(row.path) && !headNames.has(row.path),
+  );
+  for (const [path, entry] of additions) {
+    const name = parseName(path, entry.bytes);
+    if (headNames.has(path)) {
+      // Existing membership cannot be renamed or retroactively admitted by an add review.
+      if (headNames.get(path) !== name || !names.has(name)) invalid(path);
+      continue;
+    }
+    if (!stagedAdds.has(path) || indexOwners.get(name) !== path || headOwners.has(name))
+      invalid(path);
+    const protectedClaims = priorAdditionClaims.filter(row => row.path === path);
+    if (protectedClaims.length > 1) invalid(path);
+    const protectedClaim = protectedClaims[0];
+    if (protectedClaim !== undefined && protectedClaim.sha256 !== entry.sha256) {
+      // The caller has already matched the review's exact prior claims to the
+      // baseline authority. Permit a new reviewed byte claim only for that same
+      // previously admitted, unambiguous path/name identity. Never infer a rename.
+      if (
+        priorAdditionClaims.length !== 1 ||
+        priorAdditionNames.length !== 1 ||
+        priorAdditionNames[0] !== name ||
+        !names.has(name)
+      )
+        invalid(path);
+    } else if (names.has(name) && protectedClaim === undefined) invalid(path);
+    names.add(name);
+  }
+  // Other index/HEAD names are collision evidence only, never new membership authority.
+  lock.rootAuthority.workspacePackageNames = [...names].toSorted(compareUtf8);
+};
+
 const reconcileDeclaredChanges = async (path, slice, originals, lock, vendorMap, changes) => {
   if (!path.startsWith('service/capabilities/reconciliations/')) {
     fail(
@@ -456,6 +583,7 @@ const reconcileDeclaredChanges = async (path, slice, originals, lock, vendorMap,
     reviewed.set(entry.path, { sha256: entry.sha256, bytes: stagedBytes(entry.path) });
   }
   /* eslint-enable no-await-in-loop */
+  reconcileReviewedWorkspaceMembership(reviewed, changes, lock);
   for (const packageAuthority of lock.packageAuthorities ?? []) {
     if (!reviewed.has(packageAuthority.path)) continue;
     const manifest = JSON.parse(reviewed.get(packageAuthority.path).bytes.toString('utf8'));

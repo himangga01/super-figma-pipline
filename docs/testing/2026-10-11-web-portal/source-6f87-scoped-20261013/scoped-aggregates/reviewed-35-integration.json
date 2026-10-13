@@ -1,0 +1,269 @@
+{
+  "schemaVersion": 1,
+  "name": "reviewed-35-integration",
+  "releaseId": "5b1c8abd-9bd3-4e81-b5ef-125d0b4d287c",
+  "finalSourceHash": "sha256:6f87f836d872a4ba8ab49533f6447a7c921adb6b8af3dae75ddd6241e8b8a1cb",
+  "status": "passed",
+  "sourceBinding": "reviewed-exact-files",
+  "evidence": {
+    "historicalIntegration": {
+      "path": "docs/testing/2026-10-11-web-portal/fast-reviewed-35-integration-20261013.json",
+      "sha256": "b16417b2a1c2aa614c3d76c94b141ebc6f6ea73f1cb04e4db090d65d02c891ff"
+    },
+    "historicalR52": {
+      "path": "docs/testing/2026-10-11-web-portal/c2-legacy-ssr-r52-integration-20261013.json",
+      "sha256": "a52babd70c81533b140d31eb9e8a068a8631970d759a55a7a55e2750f98c8ae6"
+    },
+    "currentIntegration": {
+      "path": ".worktrees/_cache/eight-file-integration-preparation-20261013/eight-file-integration-execution-r1/integration-receipt.json",
+      "sha256": "137706cd3586b8937c761e1e4a60ed928a821aa231ed2007632049cdd5e157f0"
+    },
+    "currentFiles": [
+      {
+        "path": "packages/mcp/src/portal/react-router-compiler-evidence.ts",
+        "sha256": "44b1952686603dd056faea33803c65a985e7b41230b5b04ad434ab69ac2065c8"
+      },
+      {
+        "path": "packages/mcp/test/portal/react-router-compiler-evidence.test.ts",
+        "sha256": "fb2ef781c20c20d1f2b5ee5148448239829188a8b05f3c18fd6c0f4d982305f8"
+      },
+      {
+        "path": "packages/portal/src/bridge.ts",
+        "sha256": "ab7008aea8646ade1eff75bb03b5e5c755656662e815dc1775185528ea94b9e2"
+      },
+      {
+        "path": "packages/portal/test/backend.test.ts",
+        "sha256": "2b47f7e3c843b47cb19ea4eb20038de330c90d80602c58499842e62d116538ac"
+      },
+      {
+        "path": "packages/mcp/src/portal/preview.ts",
+        "sha256": "58eac8fb765ed34799d86a431fb7cef39131bcbd5870b97d076b81d76f158f37"
+      },
+      {
+        "path": "packages/mcp/test/portal/preview-interactions.test.ts",
+        "sha256": "da7dbb42c129bf1408331e71cdf8e13a2a971bea0abe5530fc50e7a1ab68ef0d"
+      },
+      {
+        "path": "packages/mcp/src/portal/module-resolution.ts",
+        "sha256": "2358e3d2fa16b28d086c600e1b947c3da579ff1f7485cb93649024c8b0dd85ef"
+      },
+      {
+        "path": "packages/mcp/test/portal/module-resolution.test.ts",
+        "sha256": "fab4f3b951e951342c2c39cba72e6264226acc8ed30b295282678419f0e436c6"
+      }
+    ],
+    "approvals": [
+      {
+        "path": "docs/testing/2026-10-11-web-portal/c2-css-decoder-r60-independent-20261013.json",
+        "sha256": "ed83ea9d43b9e7f7c3d697dc18644f010a4f314308976934ecb626f2d8d7e28e",
+        "manifestSha256": "0b8a2f4d0ca62f1e3898f74a77e4b70e0e1845d40416f16cd67300be70f32d9f",
+        "passed": 3,
+        "failed": 0
+      },
+      {
+        "path": "docs/testing/2026-10-11-web-portal/no-core-plan-recovery-r2-independent-20261013.json",
+        "sha256": "097ff7fdb9a2debeb695e6fbd57943eb4b3fd7b8d9272743fb115829e3adc278",
+        "manifestSha256": "97b219177b9d705ea122dde1e42004b74c5df607290c20f7e1966ee17255fcb2",
+        "passed": 4,
+        "failed": 0
+      },
+      {
+        "path": "docs/testing/2026-10-11-web-portal/c2-route-type-r65-independent-20261013.json",
+        "sha256": "52fc6ad402b1c6ed4558d9bac1dd9ca817d6e670d86050e088ac69ef53443320",
+        "manifestSha256": "0253c302d1ffa6cf9a7007c0d8870932dcc2c93649b8e0c76eee71862f62d3a9",
+        "passed": 3,
+        "failed": 0
+      },
+      {
+        "path": "docs/testing/2026-10-11-web-portal/preview-navigation-budget-independent-20261013.json",
+        "sha256": "9e22768b061c2370b29c7386eeb4dc34b9b70e1b153e0a9b31f0c9dc5eb9911a",
+        "manifestSha256": "e94fa3061b64656a6572ba8bdb1ae10abda8753a5282e619a2ffd09846890c6b",
+        "passed": 2,
+        "failed": 0
+      }
+    ],
+    "finalFiles": [
+      {
+        "path": "packages/mcp/src/portal/react-router-compiler-evidence.ts",
+        "sha256": "44b1952686603dd056faea33803c65a985e7b41230b5b04ad434ab69ac2065c8",
+        "supersession": "current-eight-reviewed-delta"
+      },
+      {
+        "path": "packages/mcp/src/portal/epic-compiler-configuration.ts",
+        "sha256": "50c0f30e89fe795892e9f58230be4da2df3cc65d684ef27ab95abfa453648fa8",
+        "supersession": "unchanged-historical-component"
+      },
+      {
+        "path": "packages/mcp/src/portal/native-work.ts",
+        "sha256": "ea1829c2196b44e4272bcbb105d2de678707246d3713ac137c853a3d05cd41cf",
+        "supersession": "unchanged-historical-component"
+      },
+      {
+        "path": "packages/mcp/src/portal/service-graph.ts",
+        "sha256": "ec6a6f1a6c36873b64aa701ae2b4b1caf67f051bf090d4da3c8b47d745b6e43e",
+        "supersession": "unchanged-historical-component"
+      },
+      {
+        "path": "packages/mcp/src/portal/source-path-policy.ts",
+        "sha256": "086be883ff88fcb848e9f3be0f8ca871def2d4c5bd123b8477e4ac53d73d6614",
+        "supersession": "unchanged-historical-component"
+      },
+      {
+        "path": "packages/mcp/src/portal/native-module-fence.ts",
+        "sha256": "a27cff19a34cdd2bd552efc43375b4ade66651166fec3f499355af6d1b9a35d2",
+        "supersession": "unchanged-historical-component"
+      },
+      {
+        "path": "packages/mcp/src/portal/native-runner.ts",
+        "sha256": "8a8bd8a12f1e69ca7b7aacd425184a11c7371e67889159d4fa767c97feb65517",
+        "supersession": "unchanged-historical-component"
+      },
+      {
+        "path": "packages/mcp/test/portal/epic-compiler-configuration.test.ts",
+        "sha256": "9ee4341b7c15ec96cfd5af3c692b23825a2a8b12cf4a95353fde844d09d70ce1",
+        "supersession": "unchanged-historical-component"
+      },
+      {
+        "path": "packages/mcp/test/portal/epic-compiler-fixture.ts",
+        "sha256": "4fe98632487fddac3b54de06e5a026f60f6dd9a9d27870e3bec15acfffba65fc",
+        "supersession": "unchanged-historical-component"
+      },
+      {
+        "path": "packages/mcp/test/portal/react-router-compiler-evidence.test.ts",
+        "sha256": "fb2ef781c20c20d1f2b5ee5148448239829188a8b05f3c18fd6c0f4d982305f8",
+        "supersession": "current-eight-reviewed-delta"
+      },
+      {
+        "path": "packages/mcp/test/portal/source-preparation.test.ts",
+        "sha256": "3245e3bd1eca902d24271478f604bb3f87192e84c9d85dc2931a180c66d05f1b",
+        "supersession": "unchanged-historical-component"
+      },
+      {
+        "path": "packages/mcp/test/portal/source-inventory.test.ts",
+        "sha256": "1173be4c666aa4502b8b14344bdbb48d436f3b62fc82bf036f5e310c4799f484",
+        "supersession": "unchanged-historical-component"
+      },
+      {
+        "path": "packages/mcp/test/portal/native-module-fence.test.ts",
+        "sha256": "eb49ab79fa9591a37a4f8a08d69edc6f0d36842d3e0ec46272f0e6bf71be11b0",
+        "supersession": "unchanged-historical-component"
+      },
+      {
+        "path": "packages/mcp/test/portal/native-runner.test.ts",
+        "sha256": "b7ad2e85ebf55d5da45fa93c92987c4755670b472e74689bb3ccf2e4c85df02e",
+        "supersession": "unchanged-historical-component"
+      },
+      {
+        "path": "packages/mcp/src/portal/profile-preparation.ts",
+        "sha256": "c8670269cddec3b8a14ec6c5d73b8b5208af029c3422730ceb8fc4ddae877f8f",
+        "supersession": "unchanged-historical-component"
+      },
+      {
+        "path": "packages/mcp/test/portal/profile-preparation-fixture.ts",
+        "sha256": "ca19ad90b4169d04a7f7bb308b2248ebadb30cbb7ace29cd713feeb6b14d062c",
+        "supersession": "unchanged-historical-component"
+      },
+      {
+        "path": "packages/mcp/test/portal/profile-preparation.test.ts",
+        "sha256": "dc78348d7da5a550230f73a1499760f6f7aa83e66a300bc9a08a6fbdf7886c3a",
+        "supersession": "unchanged-historical-component"
+      },
+      {
+        "path": "packages/mcp/test/portal/profile-preparation-http.test.ts",
+        "sha256": "df3f19aa3a0772cec8ab342e8ada434672721833c9fd9c3634d01a730a976a73",
+        "supersession": "unchanged-historical-component"
+      },
+      {
+        "path": "packages/mcp/src/portal/control.ts",
+        "sha256": "a5b5aee5b3204d0a14213ca534517088be5fa1f125a62af3908ca3d2b79e875b",
+        "supersession": "unchanged-historical-component"
+      },
+      {
+        "path": "packages/mcp/src/control/router.ts",
+        "sha256": "09c6bde2e97055539d577c2944ceba3fdaecdd4d82e09488e85af6a4c4e5f327",
+        "supersession": "unchanged-historical-component"
+      },
+      {
+        "path": "packages/cli/src/admin-commands.ts",
+        "sha256": "786a51d4dbc76307f38d9f70563cdf2034c1fdafeb751b3d805041280d43cc09",
+        "supersession": "unchanged-historical-component"
+      },
+      {
+        "path": "packages/cli/test/admin-commands.test.ts",
+        "sha256": "fd8f9bf1fb155f922c6c88251dc9c0bfcc14e0b8cb514f66936b9186551ba9f5",
+        "supersession": "unchanged-historical-component"
+      },
+      {
+        "path": "packages/cli/src/service-functions.ts",
+        "sha256": "efce2fd7e8f27c1116da2657affef864df57e6eb85b27d184d422f3beecb1722",
+        "supersession": "unchanged-historical-component"
+      },
+      {
+        "path": "packages/cli/test/service-functions.test.ts",
+        "sha256": "8255e5bcbf84030cc5dba5e995d44d4bd7cceab448ac8a11eed90ae126a2f40d",
+        "supersession": "unchanged-historical-component"
+      },
+      {
+        "path": "packages/portal/src/control.ts",
+        "sha256": "bd379d5a998d28fa9411454657118e425af343ded98d3e2401d894800a17c67d",
+        "supersession": "unchanged-historical-component"
+      },
+      {
+        "path": "packages/portal/test/service-control.test.ts",
+        "sha256": "b0e5821e08383c2f19a7bfb721d5a70cf0bafd125ea059fc7fdaa5f829bb9125",
+        "supersession": "unchanged-historical-component"
+      },
+      {
+        "path": "packages/mcp/src/portal/native-artifacts.ts",
+        "sha256": "c7f18d44692989583e84030a55d37f26f4ae8487e27070eb49879d1269b02b57",
+        "supersession": "unchanged-historical-component"
+      },
+      {
+        "path": "packages/mcp/test/portal/native-artifacts.test.ts",
+        "sha256": "ec544cb695697f83b4bbb2b4c8ce4e1728e72e3660b3ac23bb0e8fb4fa11ae4f",
+        "supersession": "unchanged-historical-component"
+      },
+      {
+        "path": "packages/cli/src/commands.ts",
+        "sha256": "ee70e54988a0479f89bc2f15bcba9868f4cb1cfa04846f36b0f1ecac6cef563c",
+        "supersession": "unchanged-historical-component"
+      },
+      {
+        "path": "packages/mcp/src/portal/coordinator.ts",
+        "sha256": "97be904a81a1873e19160c47e79abffc22bcbc9a19db47253498c4a125d66f39",
+        "supersession": "unchanged-historical-component"
+      },
+      {
+        "path": "packages/mcp/test/portal/fixtures/vite7-resolver/dist/node/chunks/config.js.txt",
+        "sha256": "c5d2cb692f24bb9d9de7dbd0b86506f1dada18c362aaa7c5a05d460870ced734",
+        "supersession": "unchanged-historical-component"
+      },
+      {
+        "path": "packages/mcp/test/portal/fixtures/vite7-resolver/dist/node/module-runner.js.txt",
+        "sha256": "e9e66cba21fc780ae9a5a64da48503afa49bf9bc25c69007333c7835b763b89c",
+        "supersession": "unchanged-historical-component"
+      },
+      {
+        "path": "packages/mcp/test/portal/fixtures/vite7-resolver/LICENSE.txt",
+        "sha256": "2ef0b8a67599690e6abccc21a3678b54457b420fb402654112d45c4e71cce364",
+        "supersession": "unchanged-historical-component"
+      },
+      {
+        "path": "packages/mcp/src/fs/operation-evidence-artifact-store.ts",
+        "sha256": "0df6a134c87125c4fc02a9b0ff02564b9650a11b2999b129b49f645f05c10369",
+        "supersession": "unchanged-historical-component"
+      },
+      {
+        "path": "packages/mcp/test/fs/operation-evidence-artifact-store.test.ts",
+        "sha256": "c97c9f50f05d4742e1419ac9f9632b5d6aa9dba983921f0f23897b3da085b1df",
+        "supersession": "unchanged-historical-component"
+      }
+    ],
+    "oldWholePass": false,
+    "compatibilityNameOnly": true
+  },
+  "ownerEcommerce": "skipped",
+  "officialMcpLive": "deferred",
+  "wholePassed": false,
+  "liveAcceptance": false
+}

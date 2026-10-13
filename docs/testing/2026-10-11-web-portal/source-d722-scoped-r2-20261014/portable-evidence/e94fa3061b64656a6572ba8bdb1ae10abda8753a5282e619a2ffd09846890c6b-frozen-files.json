@@ -1,0 +1,55 @@
+{
+  "schema": "preview-navigation-budget-repair.v1",
+  "baselineSource": "303de5d1904d11c1fb89bdf80951900e375ac4325ea6cfc932f39ebee2785732",
+  "integrated": false,
+  "files": [
+    {
+      "path": "packages/mcp/src/portal/preview.ts",
+      "beforeSha256": "55f5d5be1af3fd79ba47ce452044b4542a6b0d958bf965c5d0072ea07e371718",
+      "afterSha256": "58eac8fb765ed34799d86a431fb7cef39131bcbd5870b97d076b81d76f158f37",
+      "bytes": 32332
+    },
+    {
+      "path": "packages/mcp/test/portal/preview-interactions.test.ts",
+      "beforeSha256": "bbe858504b334bb8ebcd88d1c866d9e6d0c3e08aad6f8f77e7e8ae16d9f60125",
+      "afterSha256": "da7dbb42c129bf1408331e71cdf8e13a2a971bea0abe5530fc50e7a1ab68ef0d",
+      "bytes": 14460
+    }
+  ],
+  "receipts": [
+    {
+      "path": "targeted-red.json",
+      "sha256": "aa6894b126c1e7fc95f645203228255386b58d6b8845fdede083b19a6014c70c"
+    },
+    {
+      "path": "targeted-green.json",
+      "sha256": "b612780cf8c0bf0dee660b1c786618f302e48e400f04e7245200236b8e23208d"
+    },
+    {
+      "path": "targeted-final.json",
+      "sha256": "0af2861bb850adca333d822d190ee213558fe80efaa0d05bda84bd4d51a6e6a1"
+    },
+    {
+      "path": "typecheck-receipt.json",
+      "sha256": "2689ee3a45689712969ddc78da7178ca0532ace75434bfb05efff9f7eaa9a077"
+    }
+  ],
+  "verification": {
+    "chrome": "155.0.8059.39",
+    "passed": 2,
+    "failed": 0,
+    "filtered": 4,
+    "typecheck": {
+      "version": "6.0.3",
+      "sourceFiles": 116,
+      "diagnostics": 0
+    },
+    "lintExit": 0,
+    "formatExit": 0
+  },
+  "initialNavigationMs": 30000,
+  "workflowNavigationMs": 30000,
+  "defaultAssertionMs": 5000,
+  "localPreviewCeilingMs": 300000,
+  "originalRunDeadlineChanged": false
+}

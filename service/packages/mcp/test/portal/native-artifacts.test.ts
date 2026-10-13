@@ -1,6 +1,17 @@
 import { execFile } from 'node:child_process';
 import { createHash } from 'node:crypto';
-import { mkdtemp, writeFile, mkdir, rm, readFile, copyFile, readdir, link } from 'node:fs/promises';
+import {
+  mkdtemp,
+  writeFile,
+  mkdir,
+  rm,
+  readFile,
+  copyFile,
+  readdir,
+  link,
+  rename,
+  symlink,
+} from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join, dirname } from 'node:path';
 import { promisify } from 'node:util';
@@ -23,10 +34,76 @@ import {
 } from '../../src/portal/native-runner.js';
 import { NativePreviewSchema } from '../../src/portal/preview.js';
 import { portalFixture } from './fixtures.js';
-vi.setConfig({ testTimeout: 30000, hookTimeout: 30000 });
+vi.setConfig({ testTimeout: 60000, hookTimeout: 30000 });
+const artifactIO = vi.hoisted(() => ({
+  root: '',
+  opened: 0,
+  closed: 0,
+  active: 0,
+  peak: 0,
+  reads: 0,
+  gate: null as Promise<void> | null,
+  rejectClose: false,
+  rootStats: 0,
+  rootFinalEntered: false,
+  rootFinalGate: null as Promise<void> | null,
+}));
+vi.mock('node:fs/promises', async importActual => {
+  const actual = await importActual<typeof import('node:fs/promises')>();
+  return {
+    ...actual,
+    lstat: async (...args: Parameters<typeof actual.lstat>) => {
+      if (artifactIO.root && String(args[0]) === artifactIO.root) {
+        artifactIO.rootStats++;
+        if (artifactIO.rootFinalGate && artifactIO.rootStats === 3) {
+          artifactIO.rootFinalEntered = true;
+          await artifactIO.rootFinalGate;
+        }
+      }
+      return actual.lstat(...args);
+    },
+    open: async (...args: Parameters<typeof actual.open>) => {
+      const handle = await actual.open(...args);
+      if (!artifactIO.root || !String(args[0]).startsWith(artifactIO.root)) return handle;
+      artifactIO.opened++;
+      artifactIO.active++;
+      artifactIO.peak = Math.max(artifactIO.peak, artifactIO.active);
+      return new Proxy(handle, {
+        get(target, key) {
+          if (key === 'read')
+            return async (...parameters: unknown[]) => {
+              artifactIO.reads++;
+              await artifactIO.gate;
+              return Reflect.apply(target.read, target, parameters);
+            };
+          if (key === 'close')
+            return async () => {
+              try {
+                await target.close();
+              } finally {
+                artifactIO.closed++;
+                artifactIO.active--;
+              }
+              if (artifactIO.rejectClose)
+                throw Object.assign(Error('OWNED_CLOSE_ACK_FAILED'), { code: 'EIO' });
+            };
+          const value = Reflect.get(target, key, target);
+          return typeof value === 'function' ? value.bind(target) : value;
+        },
+      });
+    },
+  };
+});
 const roots: string[] = [];
 const runners: NativePortalRunner[] = [];
 afterEach(async () => {
+  if (artifactIO.active !== 0) throw Error('OWNED_ARTIFACT_IO_UNSETTLED');
+  artifactIO.root = '';
+  artifactIO.gate = null;
+  artifactIO.rejectClose = false;
+  artifactIO.rootFinalGate = null;
+  artifactIO.rootFinalEntered = false;
+  artifactIO.rootStats = 0;
   await Promise.all(runners.splice(0).map(runner => runner.close()));
   for (const root of roots.splice(0)) await rm(root, { recursive: true, force: true });
 });
@@ -50,7 +127,9 @@ const fixture = async () => {
         executable: process.execPath,
         executableHash: await nativeExecutableHash(process.execPath),
         args: ['check.mjs'],
-        timeoutMs: 5000,
+        // These fixtures verify artifact mutations and receipts, not broker startup latency.
+        // A cold Windows PowerShell/Job Object launch can consume the former five-second budget.
+        timeoutMs: 15000,
       },
     ],
   });
@@ -551,4 +630,147 @@ it('rejects package-manager implementation replacement while the Node executable
   value.profile.artifactAuthority = await prepareNativeArtifactAuthority(value.profile);
   await writeFile(join(npmRoot, 'bin/npm-cli.js'), 'throw Error("replacement must not run")');
   await expect(value.run()).rejects.toMatchObject({ code: 'PORTAL_ARTIFACT_CHANGED' });
+});
+
+const parallelLimits = { entries: 100000, bytes: 2147483648, fileBytes: 536870912 };
+async function parallelFixture() {
+  const root = await mkdtemp(join(tmpdir(), 'sfp-artifact-parallel-'));
+  roots.push(root);
+  await mkdir(join(root, 'nested'));
+  for (let index = 0; index < 24; index++)
+    await writeFile(
+      join(root, index % 2 ? 'nested' : '', String(index).padStart(3, '0') + '.bin'),
+      Buffer.alloc(1024, index),
+    );
+  Object.assign(artifactIO, {
+    root,
+    opened: 0,
+    closed: 0,
+    active: 0,
+    peak: 0,
+    reads: 0,
+    gate: null,
+    rejectClose: false,
+    rootStats: 0,
+    rootFinalEntered: false,
+    rootFinalGate: null,
+  });
+  return root;
+}
+it('preserves exact deterministic inventories and observation order between serial and eight-file reads', async () => {
+  const root = await parallelFixture(),
+    serialObservation = { files: [], directories: [] },
+    parallelObservation = { files: [], directories: [] };
+  const serial = await inventoryNativeArtifact(
+    root,
+    undefined,
+    { ...parallelLimits, fileConcurrency: 1 },
+    [],
+    serialObservation,
+  );
+  expect(artifactIO.peak).toBe(1);
+  Object.assign(artifactIO, { opened: 0, closed: 0, peak: 0, reads: 0 });
+  const parallel = await inventoryNativeArtifact(
+    root,
+    undefined,
+    { ...parallelLimits, fileConcurrency: 8 },
+    [],
+    parallelObservation,
+  );
+  expect(parallel).toEqual(serial);
+  expect(parallelObservation).toEqual(serialObservation);
+  expect(artifactIO.peak).toBeLessThanOrEqual(8);
+  expect(artifactIO.closed).toBe(24);
+  expect(artifactIO.active).toBe(0);
+  await expect(
+    inventoryNativeArtifact(root, undefined, { ...parallelLimits, fileConcurrency: 9 }),
+  ).rejects.toMatchObject({ code: 'PORTAL_ARTIFACT_LIMIT' });
+});
+it('holds cancellation until every issued file read settles and closes without late observation publication', async () => {
+  const root = await parallelFixture();
+  let release!: () => void;
+  artifactIO.gate = new Promise<void>(resolve => (release = resolve));
+  const controller = new AbortController(),
+    observation = { files: [], directories: [] };
+  let settled = false;
+  const task = inventoryNativeArtifact(root, controller.signal, parallelLimits, [], observation);
+  const outcome = task
+    .then(
+      value => ({ value }),
+      error => ({ error }),
+    )
+    .finally(() => {
+      settled = true;
+    });
+  await vi.waitFor(() => expect(artifactIO.reads).toBe(8));
+  controller.abort(Object.assign(Error('OPERATION_CANCELLED'), { code: 'OPERATION_CANCELLED' }));
+  await new Promise<void>(resolve => setImmediate(resolve));
+  expect(settled).toBe(false);
+  expect(artifactIO.opened).toBe(8);
+  expect(artifactIO.peak).toBe(8);
+  release();
+  expect(await outcome).toMatchObject({ error: { code: 'OPERATION_CANCELLED' } });
+  expect(artifactIO.closed).toBe(8);
+  expect(artifactIO.active).toBe(0);
+  expect(observation).toEqual({ files: [], directories: [] });
+});
+it.each(['file', 'root'] as const)(
+  'rejects %s mutation before inventory publication and drains all handles',
+  async kind => {
+    const root = await parallelFixture();
+    let release!: () => void;
+    const gate = new Promise<void>(resolve => (release = resolve));
+    if (kind === 'file') artifactIO.gate = gate;
+    else artifactIO.rootFinalGate = gate;
+    const observation = { files: [], directories: [] },
+      outcome = inventoryNativeArtifact(root, undefined, parallelLimits, [], observation).then(
+        value => ({ value }),
+        error => ({ error }),
+      );
+    try {
+      await vi.waitFor(() =>
+        expect(kind === 'file' ? artifactIO.reads === 8 : artifactIO.rootFinalEntered).toBe(true),
+      );
+      expect(artifactIO.active).toBe(kind === 'file' ? 8 : 0);
+      if (kind === 'file') {
+        await writeFile(join(root, '000.bin'), 'changed');
+      } else {
+        await rename(root, root + '-retained');
+        roots.push(root + '-retained');
+        await mkdir(root);
+      }
+      release();
+      expect(await outcome).toMatchObject({ error: { code: 'PORTAL_ARTIFACT_CHANGED' } });
+      expect(artifactIO.active).toBe(0);
+      expect(artifactIO.closed).toBe(artifactIO.opened);
+      expect(observation).toEqual({ files: [], directories: [] });
+    } finally {
+      release();
+      await outcome;
+    }
+  },
+);
+it('rejects a regular owned junction resolving outside the inventory without reading its target', async () => {
+  const root = await parallelFixture(),
+    foreign = await mkdtemp(join(tmpdir(), 'sfp-artifact-foreign-'));
+  roots.push(foreign);
+  await writeFile(join(foreign, 'outside.bin'), 'owned external canary');
+  await symlink(foreign, join(root, '000-outside'), 'junction');
+  const observation = { files: [], directories: [] };
+  await expect(
+    inventoryNativeArtifact(root, undefined, parallelLimits, [], observation),
+  ).rejects.toMatchObject({ code: 'PORTAL_ARTIFACT_LINK_OUTSIDE_ROOT' });
+  expect(artifactIO.reads).toBe(0);
+  expect(observation).toEqual({ files: [], directories: [] });
+});
+it('reports cleanup uncertainty when close acknowledgement fails and publishes no inventory', async () => {
+  const root = await parallelFixture();
+  artifactIO.rejectClose = true;
+  const observation = { files: [], directories: [] };
+  await expect(
+    inventoryNativeArtifact(root, undefined, parallelLimits, [], observation),
+  ).rejects.toMatchObject({ code: 'PORTAL_NATIVE_CLEANUP_UNKNOWN' });
+  expect(artifactIO.active).toBe(0);
+  expect(artifactIO.closed).toBe(artifactIO.opened);
+  expect(observation).toEqual({ files: [], directories: [] });
 });

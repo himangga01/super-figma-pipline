@@ -1,0 +1,47 @@
+{
+  "at": "2026-10-12T01:25:39.709Z",
+  "sourceHash": "sha256:f0dc149a95da3bc7f8e52aecb094362d6e0166ae69e4ba29946a393e90f220c8",
+  "sameChromePid": 9932,
+  "sameTab": true,
+  "origin": "http://127.0.0.1:4310",
+  "jobs": [
+    {
+      "name": "chrome.inspect.runtime",
+      "id": "7c346227-c465-47f0-81a5-57b754474126",
+      "status": "succeeded",
+      "errorCode": null,
+      "bytes": 278,
+      "outputHash": "sha256:e78428e95d0cb3d5ab13f8d837880da42a3a7b17d4c589705ab76215e859cf2c",
+      "elapsedMs": 936
+    },
+    {
+      "name": "chrome.export",
+      "id": "2d367c4a-c986-47da-8d19-8d2f5cdffa93",
+      "status": "unknown",
+      "errorCode": "SERVICE_UNAVAILABLE",
+      "bytes": null,
+      "outputHash": null,
+      "elapsedMs": 10382
+    }
+  ],
+  "passed": false,
+  "frontendAccepted": false,
+  "runtime": {
+    "available": false,
+    "identityVerified": false,
+    "fileKeyPresent": false,
+    "fileKeyType": "undefined",
+    "fileKeyMatches": false,
+    "stableApiObject": null,
+    "stablePageObject": null,
+    "pageId": null,
+    "reason": "api-not-exposed",
+    "fullCapture": false
+  },
+  "error": {
+    "message": "Expected values to be strictly equal:\n+ actual - expected\n\n+ 'unknown'\n- 'succeeded'\n",
+    "locations": []
+  },
+  "privateEvidenceFolder": ".worktrees/_cache/primary-restart-20261012/cdd-diagnostics-1791768339706",
+  "fullFigmaAcceptance": false
+}

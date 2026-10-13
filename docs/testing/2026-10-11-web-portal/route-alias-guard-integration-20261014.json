@@ -1,0 +1,33 @@
+{
+  "kind": "route-alias-guard-source-integration",
+  "recordedAt": "2026-10-13T22:57:36.474Z",
+  "beforeSourceHash": "sha256:a28fbf9263536110c90a972a1cf97e2e7039d710fbe1532588476989e415ab5e",
+  "sourceHash": "sha256:8d6b9c24ba0f0f2944082456f0db2fd5d8c5f152481d1d9def2865926d4b93be",
+  "completed": [
+    {
+      "tree": "main",
+      "path": "packages/mcp/src/portal/module-resolution.ts",
+      "sha256": "3b96c00ef17fb0d74ca437be20fc291b73c145ec549d61727a77a698687a63c6"
+    },
+    {
+      "tree": "main",
+      "path": "packages/mcp/test/portal/generated-route-alias-runtime.test.ts",
+      "sha256": "f8b46a075c4e372542fb2675aafed661d65003777fb631cd083f3a6dd59c93a0"
+    },
+    {
+      "tree": "native",
+      "path": "packages/mcp/src/portal/module-resolution.ts",
+      "sha256": "3b96c00ef17fb0d74ca437be20fc291b73c145ec549d61727a77a698687a63c6"
+    },
+    {
+      "tree": "native",
+      "path": "packages/mcp/test/portal/generated-route-alias-runtime.test.ts",
+      "sha256": "f8b46a075c4e372542fb2675aafed661d65003777fb631cd083f3a6dd59c93a0"
+    }
+  ],
+  "compiledArtifactsChanged": false,
+  "runtimeRestarted": false,
+  "provenanceRefreshPending": true,
+  "fullCaseAcceptance": false,
+  "automaticReplayAllowed": false
+}

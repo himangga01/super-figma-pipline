@@ -1,0 +1,56 @@
+{
+  "at": "2026-10-13T00:18:55.670Z",
+  "source": "sha256:8523ee9227d80ef3c6701326e566e85349f9e4665bc679d62e8b86efdc2951a0",
+  "entries": [
+    {
+      "path": "upstream-lock.json",
+      "before": "1c73c842a6fea978313f27f0621e06d63728c2c51872f22bed928891a0ebd674",
+      "after": "11e687bd0ec4f18d37c2551e96fef34e98dec75fd6721d4b6bcb97be41a4c4a2"
+    },
+    {
+      "path": "vendor-map.json",
+      "before": "b3275c7d8b997d1cfe723d97594659f77d7b4361b824a790bcfdd7ff762589bd",
+      "after": "b3275c7d8b997d1cfe723d97594659f77d7b4361b824a790bcfdd7ff762589bd"
+    },
+    {
+      "path": "vendor-rules.json",
+      "before": "c54793eb64349d827b19eac0d4f2d3753ce479dde0860aaa028f8e7e92f32a08",
+      "after": "d57c6b11f34843242303698f0ec8ea26f778082697912d19f4912c72926d6328"
+    },
+    {
+      "path": "capabilities/change-manifests/task-review-2026-10-10.json",
+      "before": "6b3c8948d1b4f8cad60b79a9cf5a3359ed1595e87aa11db7d3a86c8232ca9746",
+      "after": "301c005ad729e71e90e0b14dd352b2e6117385c9117e6b7df42d38198fe4850c"
+    },
+    {
+      "path": "capabilities/task-review-2026-10-10-authority-classes.json",
+      "before": "aa66dae23ab3a937a9efcfdbc25ea645a2094495fd23f77d747c876b80bb73f4",
+      "after": "326accb5f73bab81cec1e97369b47dd7ef04194893acc8770400e85ba851743b"
+    },
+    {
+      "path": "capabilities/reconciliations/review-2026-10-10-sourceprep-generated-contracts-2026-10-13.json",
+      "before": null,
+      "after": "d523f088b65467d200bacec74019fa1cf0f94942b9de1faa62d273595fb6d0e2"
+    }
+  ],
+  "semanticChanges": 243,
+  "derivedAuthorities": 4,
+  "ownerIndexUnchanged": true,
+  "actualNativePackageTypes": {
+    "mcp": 0,
+    "cli": 0,
+    "portal": 0
+  },
+  "lint": 0,
+  "format": 0,
+  "knip": 0,
+  "diagnostics": {
+    "codes": 1951,
+    "modules": 460,
+    "labels": 307
+  },
+  "wholePassed": false,
+  "runtimeReplaced": false,
+  "completePortalJourneys": 0,
+  "officialLive": "deferred-by-owner"
+}

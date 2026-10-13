@@ -1,0 +1,119 @@
+{
+  "recordedAt": "2026-10-11T10:51:30.072Z",
+  "publishedHead": "22517932dc9b2cb974c177ec4eacb84d4b16e254",
+  "integratedSourceHash": "sha256:935216d1aadd504a3e3e1757fde2f7c5056329cdb76220730a64a2522aa184dd",
+  "wholeAttemptId": "ae2a7fa1-c542-4a3e-a925-fe3a0a336ebf",
+  "portalSourceDigest": "sha256:0086f2d89615091e074ae6130eee9e8fdc149e0ce673b332697dca037ff7511f",
+  "rounds": [
+    {
+      "round": 1,
+      "status": "passed",
+      "suite": {
+        "total": 58,
+        "passed": 58,
+        "failed": 0,
+        "skipped": 0,
+        "reportSha256": "48f3afa5460b1fd91ea8718b6ee5b37ca83f5e2429b25d5a57b0aa825c285ff4"
+      }
+    },
+    {
+      "round": 2,
+      "status": "passed",
+      "suite": {
+        "total": 58,
+        "passed": 58,
+        "failed": 0,
+        "skipped": 0,
+        "reportSha256": "e111c036941017e4cffd0a1d405c7f76d79662f28891cae3180230f1443c2854"
+      },
+      "adversarial": {
+        "tests": 13,
+        "passed": 13,
+        "failed": 0,
+        "skipped": 0,
+        "reportSha256": "d9a98be24fbfe4c400b7129179328055534e1614053a910f064b6156133dd5bc"
+      }
+    },
+    {
+      "round": 3,
+      "status": "partially-passed",
+      "productionEntrySha256": "aa7b8a52d773c768b973c17ad096b4dd581b6105c3e7df0bb1befda426e2b866",
+      "chromeEditing": {
+        "checks": 11,
+        "errors": 0
+      },
+      "chromeActualRunMap": {
+        "checks": 6,
+        "errors": 0
+      },
+      "restart": {
+        "workflows": 4,
+        "runs": 4,
+        "unchangedWorkflowBytes": true,
+        "runStatusRevisionGraphPreserved": true
+      },
+      "actualServiceRefresh": {
+        "status": "awaiting-input",
+        "sourceStatus": "failed",
+        "sourceMessage": "FIGMA_TAB_NOT_FOUND"
+      },
+      "packagedRuntime": {
+        "verifiedByWhole": true,
+        "dependencyBoundary": "Extracted own packages with builder-linked third-party dependencies; not a fresh npm installation."
+      },
+      "liveCdd": {
+        "status": "awaiting-input",
+        "webRunId": "ce58cfa9-5554-4b34-9df5-6f2714657fc7",
+        "serviceRunId": "sfp_portal1_316bd98d4ecfd5f42c5fd18b6f5efb78",
+        "captureFailure": {
+          "code": "DESIGN_CAPTURE_FAILED",
+          "elapsedMs": 300004,
+          "stage": "connection",
+          "type": "timeout-error"
+        },
+        "captureAccepted": false,
+        "generationAccepted": false,
+        "applicationAccepted": false,
+        "codingLeaseGranted": false,
+        "executedDaemonBuild": "sha256:fa06abc94fee3d932497d39e2b7f109021e7d6ff49017fdf880fe57da362e4f7",
+        "nativeChromeApprovalConfirmed": false
+      },
+      "previousFailedLiveCdd": {
+        "status": "failed",
+        "errorCode": "PORTAL_WORKFLOW_DECISION_NOT_BOUND",
+        "captureAccepted": false,
+        "generationAccepted": false,
+        "applicationAccepted": false,
+        "executedDaemonBuild": "sha256:824441b9880d474efb13883e291e96d8bef0a64b0bbbc980857e6e98e4320fbf",
+        "nativeChromeApprovalConfirmed": false
+      }
+    }
+  ],
+  "artifacts": [
+    {
+      "name": "mcp.tgz",
+      "bytes": 935373,
+      "sha256": "840d9bafb070db18b9f7f85f50580b6b4311a6dc0e7271af3ec92b3f06d8df6b"
+    },
+    {
+      "name": "cli.tgz",
+      "bytes": 836490,
+      "sha256": "7bcce546d61cc3f0e8978620116e5ad90baf733e96ddb561cc2772a773205d49"
+    },
+    {
+      "name": "plugin.zip",
+      "bytes": 274130,
+      "sha256": "dbd62c8dbc7a2bce4daa730a6365752fb7f54ee84fe9edd4f88d50db18eb3a7a"
+    },
+    {
+      "name": "portal.tgz",
+      "bytes": 148303,
+      "sha256": "2c3050c164cb56e4119adfd6bcea230717aa1c4e98525d9041c4f864458ce5bd"
+    }
+  ],
+  "limits": [
+    "Successful live Figma acquisition remains unverified in the third round.",
+    "A web run hands code generation to the existing coding-agent lease/submission interface; no bundled background model is present.",
+    "Complete CDD, official MCP and separate eCommerce frontend acceptance remain open."
+  ]
+}

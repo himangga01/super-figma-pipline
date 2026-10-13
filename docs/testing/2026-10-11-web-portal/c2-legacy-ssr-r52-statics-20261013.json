@@ -1,0 +1,39 @@
+{
+  "schemaVersion": 1,
+  "at": "2026-10-13T07:38:18.247Z",
+  "kind": "r52-exact-file-static-checks",
+  "sourceFiles": [
+    {
+      "path": "packages/mcp/src/portal/react-router-compiler-evidence.ts",
+      "sha256": "595f0ec5810511d63948c02265a347a15169ff62b9b00344fd69edb53f3a5bea"
+    },
+    {
+      "path": "packages/mcp/test/portal/react-router-compiler-evidence.test.ts",
+      "sha256": "6d9d2266ad1c33c6f8f5274403d32e606f3ca0c9985d0f8a7f9d196fc3222025"
+    }
+  ],
+  "whole": false,
+  "results": [
+    {
+      "name": "mcp-types",
+      "exitCode": 0,
+      "elapsedMs": 15520,
+      "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "summary": ""
+    },
+    {
+      "name": "changed-lint",
+      "exitCode": 0,
+      "elapsedMs": 176,
+      "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "summary": ""
+    },
+    {
+      "name": "changed-format",
+      "exitCode": 0,
+      "elapsedMs": 216,
+      "logSha256": "59be9568bdc483789a4be07cab257aa8bbd07568928d5fb1003f8f9dcd022621",
+      "summary": "Checking formatting...\n\nAll matched files use the correct format.\nFinished in 8ms on 2 files using 12 threads.\n"
+    }
+  ]
+}

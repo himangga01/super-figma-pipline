@@ -1,0 +1,101 @@
+{
+  "recordedAt": "2026-10-11T05:48:58.305Z",
+  "root": "C:/2026_project/super-figma-pipline/.worktrees/baseline/service",
+  "kind": "owned-official-source-slice",
+  "count": 23,
+  "hash": "sha256:6c2271d003498a38c1b31516e1a9df2f66d2064d86a233a579bf424004c31e9d",
+  "files": [
+    {
+      "path": "packages/mcp/src/official-figma-mcp.ts",
+      "sha256": "sha256:d5a4e2cf07e373ff3e3081299c646d1262a7e6310ea35919da9db583e0ef6820"
+    },
+    {
+      "path": "packages/mcp/src/official-figma-mcp-program.ts",
+      "sha256": "sha256:183e461818c0ac3320f47636735dadb9703b9fa46225d6e8cafc9663217cfc64"
+    },
+    {
+      "path": "packages/mcp/src/portal/official-mcp-capture.ts",
+      "sha256": "sha256:e080870135275ee2cb752bcc9fb8b2c57da0dd3f6e165f9ea1911ff8f5743df4"
+    },
+    {
+      "path": "packages/mcp/src/portal/capture-source-admission.ts",
+      "sha256": "sha256:11783a42158fe370b1526d9f2d248cd62f5c982ad32e3299753b6b72f9666ca5"
+    },
+    {
+      "path": "packages/mcp/src/portal/capture-admission-runtime.ts",
+      "sha256": "sha256:978dc7b81dbbfa18d834df7d8447d6c0fde7c64d48d71adcba40b64db06d01c0"
+    },
+    {
+      "path": "packages/mcp/src/portal/capture-runtime.ts",
+      "sha256": "sha256:fecb1925ce4bfb303c0886b901ce8d099cc5f4003fbe6c72f6ab26601f00ec33"
+    },
+    {
+      "path": "packages/mcp/src/portal/coordinator.ts",
+      "sha256": "sha256:029807ae11b2ab40a584dd3fdfa8a3918b61e587ee94bc531ad9dc48b189dfa6"
+    },
+    {
+      "path": "packages/mcp/src/portal/design-capture.ts",
+      "sha256": "sha256:c42afb09ab4c502242f0ff2ce1456944ceb5e44ab243b9acf41ae67cbdb86f1a"
+    },
+    {
+      "path": "packages/mcp/src/portal/design-normalization.ts",
+      "sha256": "sha256:7dafe55fa67c9453fcd5668aa3d2ccfc65d1c661d1e5bbdb332e268e00fe6b89"
+    },
+    {
+      "path": "packages/mcp/src/portal/native-work.ts",
+      "sha256": "sha256:dea4947572ee25079ed2abbba2e7d3ea356072bc212aa430dc28b2a508700862"
+    },
+    {
+      "path": "packages/mcp/src/index.ts",
+      "sha256": "sha256:0d3d70edaafb00a8b1616f9668a357b9b5e5d4a7f6c3928c3ced49bd9848e207"
+    },
+    {
+      "path": "packages/mcp/src/policy/operation-policy.ts",
+      "sha256": "sha256:1d2f69faef6e09e677d52ad0d4aea991108ece8b36701fbd157c44b5a761d7fc"
+    },
+    {
+      "path": "packages/shared/src/portal-capture-source.ts",
+      "sha256": "sha256:8c6d27c9ebea8b3538e2ac8ad8d02415eed6fe99167f6fc51e9c93be7a8f510b"
+    },
+    {
+      "path": "packages/shared/src/portal.ts",
+      "sha256": "sha256:44a5f5488a2ad6b89bdd6c27b329b2b70220733a98edcc8f5248298fad11a0f0"
+    },
+    {
+      "path": "packages/shared/src/operations.ts",
+      "sha256": "sha256:7af602a3cd8ffd64649309b193cbe304c58e06be6912d2b7061919e344004f65"
+    },
+    {
+      "path": "packages/shared/src/figma-capture-query.ts",
+      "sha256": "sha256:03701c8426676e3aa022eb304c0d4fb6c730ac31250fce9b1215a169b487885c"
+    },
+    {
+      "path": "packages/shared/src/figma-capture-read.ts",
+      "sha256": "sha256:5c00133e6c958dc16eb35b3feb4714577239ccb70e0639627f31c480a95b9a2c"
+    },
+    {
+      "path": "packages/shared/src/design-observation.ts",
+      "sha256": "sha256:08f7c416745543457dc6f8ce50ec4acfa4427f189080c2b935ba4b460474a8fe"
+    },
+    {
+      "path": "packages/mcp/test/official-mcp-fixture.ts",
+      "sha256": "sha256:d63a50ed287d3d24bc425735744dfbc0924e37be7afdedbcd432f0c7014c81fa"
+    },
+    {
+      "path": "packages/mcp/test/official-figma-mcp-capture.test.ts",
+      "sha256": "sha256:ba87815ccbf430f6335f4cec0e93219923056f509e63968544ba529873452022"
+    },
+    {
+      "path": "packages/mcp/test/portal/official-mcp-capture.test.ts",
+      "sha256": "sha256:fb5da74d82fb8c5ce5a98cc67e6a6219c99dec57bad61f0f28dcc1a6a98cd678"
+    },
+    {
+      "path": "packages/mcp/test/portal/capture-plane.test.ts",
+      "sha256": "sha256:2feded936ce05beb40774e72a90f5fe5dd6a4d82f5f5444285f688a67f9427e8"
+    },
+    {
+      "path": "packages/mcp/test/policy/operation-policy.test.ts",
+      "sha256": "sha256:ae2c112c24430fcc982500eee0c3b6858f8c7d6d7427a5f055b9e224d7ccd063"
+    }
+  ]
+}

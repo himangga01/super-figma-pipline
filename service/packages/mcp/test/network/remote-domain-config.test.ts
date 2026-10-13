@@ -26,7 +26,11 @@ import {
   RemoteDomainConfigStore,
   remoteDomainConfigPath,
 } from '../../src/network/remote-domain-config-store.js';
-import type { BoundStatePermissions } from '../../src/security/state-permissions.js';
+import { resolveDefaultStateRoot } from '../../src/runtime-paths.js';
+import {
+  createStatePermissions,
+  type BoundStatePermissions,
+} from '../../src/security/state-permissions.js';
 
 const temporaryRoots: string[] = [];
 let stateRoot: string;
@@ -194,6 +198,138 @@ describe('remote domain normalization', () => {
 });
 
 describe('durable remote domain state', () => {
+  it('adds, reloads and removes with the real platform permission authority and secures temporary bytes before writing', async () => {
+    const location = join(stateRoot, 'native-appdata');
+    await mkdir(location);
+    const environment = { ...process.env, LOCALAPPDATA: location, XDG_STATE_HOME: location };
+    const productRoot = resolveDefaultStateRoot({ environment, homeDirectory: location });
+    if (process.platform === 'darwin') await mkdir(dirname(productRoot), { recursive: true });
+    const authority = createStatePermissions(productRoot, { environment, homeDirectory: location });
+    await authority.ensureSecure(productRoot);
+    const securedSizes: number[] = [];
+    const permissions: BoundStatePermissions = {
+      ...authority,
+      ensureSecure: async path => {
+        if (basename(path).startsWith('.remote-domain-state.v1.'))
+          securedSizes.push((await lstat(path)).size);
+        await authority.ensureSecure(path);
+      },
+    };
+    let prepared = 0;
+    const store = new RemoteDomainConfigStore({
+      stateRoot: productRoot,
+      permissions,
+      hooks: {
+        afterTemporaryFsync: async path => {
+          await authority.verifySecure(path);
+          prepared++;
+        },
+      },
+    });
+    await store.recover();
+    await store.addAuthorized(ACTOR_A, 'portal-acceptance.example.com', authorize);
+    await authority.verifySecure(remoteDomainConfigPath(productRoot));
+    const reopened = new RemoteDomainConfigStore({ stateRoot: productRoot, permissions });
+    await reopened.recover();
+    expect((await reopened.list()).map(row => row.fqdnAscii)).toEqual([
+      'portal-acceptance.example.com',
+    ]);
+    await store.removeAuthorized(ACTOR_A, 'portal-acceptance.example.com', authorize);
+    expect(await store.list()).toEqual([]);
+    await authority.verifySecure(remoteDomainConfigPath(productRoot));
+    expect(prepared).toBe(2);
+    expect(securedSizes).toEqual(process.platform === 'win32' ? [0, 0] : []);
+    expect(authorize).toHaveBeenCalledTimes(2);
+  });
+
+  it('does not grant permissions or delete a foreign replacement swapped before securing the new temporary', async () => {
+    const base = testPermissions(stateRoot);
+    let grants = 0,
+      temporary = '',
+      displaced = '';
+    let outcome: 'swapped' | 'blocked' | undefined;
+    const store = createStore({
+      permissions: {
+        ...base,
+        ensureSecure: async path => {
+          if (basename(path).startsWith('.remote-domain-state.v1.')) grants++;
+          await base.ensureSecure(path);
+        },
+      },
+      hooks: {
+        afterTemporaryCreate: async path => {
+          temporary = path;
+          displaced = path + '.owned-displaced';
+          outcome = await externalSwap(path, displaced, Buffer.from('foreign-before-acl'));
+          if (outcome === 'blocked') throw new Error('external replacement blocked');
+        },
+      },
+    });
+    await store.recover();
+    await expect(
+      store.addAuthorized(ACTOR_A, 'assets.example.com', authorize),
+    ).rejects.toBeDefined();
+    expect(grants).toBe(0);
+    expect(outcome).toBeDefined();
+    const [foreign, owned] = await Promise.all([readMaybe(temporary), readMaybe(displaced)]);
+    expect({ foreign: foreign?.toString() ?? null, ownedBytes: owned?.length ?? null }).toEqual(
+      outcome === 'swapped'
+        ? { foreign: 'foreign-before-acl', ownedBytes: 0 }
+        : { foreign: null, ownedBytes: null },
+    );
+    expect(await readMaybe(remoteDomainConfigPath(stateRoot))).toBeNull();
+  });
+
+  it('pins the Windows ACL target against replacement and uses descriptor mode changes on other platforms', async () => {
+    const base = testPermissions(stateRoot);
+    let attempt: 'swapped' | 'blocked' | 'descriptor-mode' = 'descriptor-mode';
+    let grants = 0,
+      displaced = '';
+    const store = createStore({
+      permissions: {
+        ...base,
+        ensureSecure: async path => {
+          if (basename(path).startsWith('.remote-domain-state.v1.')) {
+            grants++;
+            displaced = path + '.attempted-displaced';
+            attempt = await externalSwap(path, displaced, Buffer.from('foreign-during-acl'));
+          }
+          await base.ensureSecure(path);
+        },
+      },
+    });
+    await store.recover();
+    await store.addAuthorized(ACTOR_A, 'assets.example.com', authorize);
+    expect(attempt).toBe(process.platform === 'win32' ? 'blocked' : 'descriptor-mode');
+    expect(grants).toBe(process.platform === 'win32' ? 1 : 0);
+    expect(await readMaybe(displaced || join(stateRoot, 'not-created'))).toBeNull();
+    expect((await store.list()).map(row => row.fqdnAscii)).toEqual(['assets.example.com']);
+  });
+
+  it('cleans only the still-owned empty temporary when its permission admission fails', async () => {
+    const base = testPermissions(stateRoot);
+    let temporary = '';
+    const store = createStore({
+      permissions: {
+        ...base,
+        inspectSecure: async path => {
+          if (basename(path).startsWith('.remote-domain-state.v1.')) {
+            temporary = path;
+            throw new Error('owned permission rejection');
+          }
+          return base.inspectSecure(path);
+        },
+      },
+    });
+    await store.recover();
+    await expect(
+      store.addAuthorized(ACTOR_A, 'assets.example.com', authorize),
+    ).rejects.toMatchObject({ code: 'REMOTE_DOMAIN_CONFIG_INVALID' });
+    expect(temporary.length).toBeGreaterThan(0);
+    expect(await readMaybe(temporary)).toBeNull();
+    expect(await readMaybe(remoteDomainConfigPath(stateRoot))).toBeNull();
+  });
+
   it('rejects a non-principal actor before consuming authorization', async () => {
     const store = createStore();
     await store.recover();
@@ -585,8 +721,13 @@ describe('bounded recovery', () => {
     const failure = await store
       .addAuthorized(ACTOR_A, 'assets.example.com', authorize)
       .catch(error => error as unknown);
-    expect(failure).toBeInstanceOf(AggregateError);
-    expect((failure as AggregateError).errors).toHaveLength(2);
+    expect(failure).toMatchObject({ code: 'REMOTE_DOMAIN_CONFIG_INVALID' });
+    expect({
+      aggregate: failure instanceof AggregateError,
+      errors: failure instanceof AggregateError ? failure.errors.length : 0,
+    }).toEqual(
+      outcome === 'swapped' ? { aggregate: true, errors: 2 } : { aggregate: false, errors: 0 },
+    );
     expect(outcome).toBeDefined();
     await expect(readFile(remoteDomainConfigPath(stateRoot))).rejects.toMatchObject({
       code: 'ENOENT',

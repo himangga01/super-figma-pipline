@@ -1,7 +1,9 @@
 import { execFile } from 'node:child_process';
 import { mkdtemp, mkdir, writeFile, readFile, rm, realpath, lstat } from 'node:fs/promises';
+import { createRequire } from 'node:module';
 import { tmpdir } from 'node:os';
-import { join, relative, isAbsolute, sep } from 'node:path';
+import { join, relative, isAbsolute, sep, dirname } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { promisify } from 'node:util';
 
 import { storedChecksum } from '@sfp/ir';
@@ -440,3 +442,524 @@ it('rejects unsupported promisified exec requests without invoking child transpo
   expect(value.result.stdout).toContain('PORTAL_NATIVE_MODULE_CHILD_EXEC_UNSUPPORTED');
   await expect(readFile(value.transport)).rejects.toMatchObject({ code: 'ENOENT' });
 });
+// Upstream @tailwindcss/node 4.2.2 (MIT) cache resolver, retained as a real loader fixture.
+const tailwindCacheLoader =
+  'import{isBuiltin as i}from"module";var o=async(a,e,u)=>{let r=await u(a,e);if(r.url===import.meta.url||i(r.url)||!e.parentURL)return r;let t=new URL(e.parentURL).searchParams.get("id");if(t===null)return r;let l=new URL(r.url);return l.searchParams.set("id",t),{...r,url:`${l}`}};export{o as resolve};\n';
+
+async function epicFenceFixture() {
+  const { epicCompilerFixture } = await import('./epic-compiler-fixture.js');
+  const { RepoReader } = await import('../../src/fs/repo-walk.js');
+  const { collectPortalSourceInventory } = await import('../../src/portal/source-inventory.js');
+  const {
+    captureReactRouterCompilerSource,
+    compilerSourceBytes,
+    prepareReactRouterCompilerProfile,
+  } = await import('../../src/portal/react-router-compiler-evidence.js');
+  const root = await mkdtemp(join(tmpdir(), 'sfp-task33-module-fence-epic-'));
+  roots.push(root);
+  const input = join(root, 'input'),
+    work = join(root, 'work');
+  await mkdir(input);
+  await mkdir(work);
+  const manifest = JSON.parse(epicCompilerFixture['package.json']);
+  const packages: Record<string, unknown> = { '': manifest };
+  for (const name of [
+    '@react-router/dev',
+    '@react-router/express',
+    'react-router',
+    'vite',
+    '@tailwindcss/vite',
+    'express',
+    '@epic-web/config',
+    '@sentry/react-router',
+    'react-router-devtools',
+    'vite-env-only',
+    'vite-plugin-icons-spritesheet',
+    'react-router-auto-routes',
+    '@tailwindcss/node',
+  ]) {
+    const spec = manifest.dependencies?.[name] ?? manifest.devDependencies?.[name] ?? '4.2.2';
+    const version = /^\D*(\d+\.\d+\.\d+)/u.exec(spec)?.[1] ?? '7.0.0';
+    packages['node_modules/' + name] = { version, integrity: 'sha512-YWJjZA==' };
+    await mkdir(join(input, 'node_modules', name), { recursive: true });
+    await writeFile(
+      join(input, 'node_modules', name, 'package.json'),
+      JSON.stringify({ name, version }),
+    );
+  }
+  for (const [path, text] of Object.entries({
+    ...epicCompilerFixture,
+    'package-lock.json': JSON.stringify({ lockfileVersion: 3, packages }),
+    'server/app.ts': 'export const app=true;',
+    'app/components/ui/icons/sprite.svg': '<svg/>',
+    'app/components/ui/icons/types.ts': 'export type IconName="owned";',
+    'node_modules/@tailwindcss/node/dist/esm-cache.loader.mjs': tailwindCacheLoader,
+  })) {
+    await mkdir(dirname(join(input, path)), { recursive: true });
+    await writeFile(join(input, path), text);
+  }
+  for (const path of ['chunks/config.js', 'module-runner.js']) {
+    const bytes = await readFile(
+      fileURLToPath(
+        new URL('./fixtures/vite7-resolver/dist/node/' + path + '.txt', import.meta.url),
+      ),
+    );
+    await mkdir(dirname(join(input, 'node_modules/vite/dist/node', path)), { recursive: true });
+    await writeFile(join(input, 'node_modules/vite/dist/node', path), bytes);
+  }
+  const reader = new RepoReader({ rootDir: input }),
+    source = await captureReactRouterCompilerSource(
+      reader,
+      storedChecksum('epic-fence-source'),
+      await collectPortalSourceInventory(reader),
+    );
+  const profile = await prepareReactRouterCompilerProfile(
+    source,
+    NativeProfileSchema.parse({
+      schemaVersion: 1,
+      sourceAuthorityVersion: 2,
+      id: 'epic-fence',
+      executionMode: 'native-working-copy',
+      environmentKind: 'disposable-test',
+      sourceHash: source.inputHash,
+      closure: [{ path: 'placeholder.mjs', hash: storedChecksum('placeholder') }],
+      environment: {},
+      commands: [
+        {
+          id: 'placeholder',
+          executable: process.execPath,
+          executableHash: await nativeExecutableHash(process.execPath),
+          args: ['-e', ''],
+          timeoutMs: 5000,
+        },
+      ],
+    }),
+    input,
+  );
+  for (const [path, bytes] of compilerSourceBytes(source)) {
+    await mkdir(dirname(join(work, 'compiler-input', path)), { recursive: true });
+    await writeFile(join(work, 'compiler-input', path), bytes);
+  }
+  return { root, input, work, profile };
+}
+
+it('consolidates the genuinely provisioned Epic second command into one complete fresh fence boundary', async () => {
+  const value = await epicFenceFixture(),
+    runner = new NativePortalRunner();
+  const artifacts = await import('../../src/portal/native-artifacts.js');
+  const fences = await import('../../src/portal/native-module-fence.js');
+  const original = fences.createNativeModuleFence;
+  const verifyOriginal = vi.spyOn(artifacts, 'verifyNativeArtifactAuthority');
+  let observed = false,
+    beforeCalls = 0,
+    afterCalls = 0;
+  vi.spyOn(fences, 'createNativeModuleFence').mockImplementation(async (...args) => {
+    if (args[1].id === 'react-router-compiler') {
+      observed = true;
+      beforeCalls = verifyOriginal.mock.calls.length;
+      await original(...args);
+      afterCalls = verifyOriginal.mock.calls.length;
+      throw Object.assign(Error('OWNED_STOP_BEFORE_SECOND_COMMAND'), {
+        code: 'OWNED_STOP_BEFORE_SECOND_COMMAND',
+      });
+    }
+    return original(...args);
+  });
+  try {
+    await expect(
+      runner.execute(
+        'epic-fence-run',
+        value.profile,
+        value.work,
+        value.profile.sourceHash,
+        new AbortController().signal,
+        Date.now() + 60000,
+      ),
+    ).rejects.toMatchObject({ code: 'OWNED_STOP_BEFORE_SECOND_COMMAND' });
+    expect(observed).toBe(true);
+    expect([beforeCalls, afterCalls]).toEqual([2, 3]);
+  } finally {
+    vi.restoreAllMocks();
+    await runner.close();
+  }
+}, 60000);
+it.each([
+  'original-tamper',
+  'copy-tamper',
+  'missing-issuer',
+  'missing-provisioner',
+  'profile-clone',
+  'wrong-phase',
+  'wrong-root',
+  'foreign-run',
+  'foreign-receipt',
+])(
+  'keeps complete fresh compiler admission for %s %#',
+  async mode => {
+    const value = await epicFenceFixture(),
+      runner = new NativePortalRunner();
+    const fences = await import('../../src/portal/native-module-fence.js');
+    const { hasCompletedReactRouterCompilerProvisioner } =
+      await import('../../src/portal/native-runner.js');
+    const original = fences.createNativeModuleFence;
+    let checked = false,
+      preReady = false,
+      alteredReady: boolean | null = null,
+      innerFailure: string | null = null;
+    vi.spyOn(fences, 'createNativeModuleFence').mockImplementation(async (...args) => {
+      if (args[1].id !== 'react-router-compiler') return original(...args);
+      checked = true;
+      preReady = hasCompletedReactRouterCompilerProvisioner(
+        'epic-fence-run',
+        value.profile,
+        value.work,
+        args[3],
+        args[1].id,
+      );
+      if (mode === 'original-tamper' || mode === 'copy-tamper') {
+        await writeFile(
+          join(
+            mode === 'original-tamper'
+              ? value.input
+              : join(value.work, 'compiler-workspace/source'),
+            'node_modules/react-router/package.json',
+          ),
+          '{}',
+        );
+        innerFailure = await original(...args).then(
+          () => null,
+          error => error.code,
+        );
+      } else {
+        const profile =
+          mode === 'missing-issuer'
+            ? {}
+            : mode === 'profile-clone'
+              ? JSON.parse(JSON.stringify(value.profile))
+              : value.profile;
+        const receipts =
+          mode === 'missing-provisioner'
+            ? []
+            : mode === 'foreign-receipt'
+              ? args[3].map(v => ({ ...v }))
+              : args[3];
+        alteredReady = hasCompletedReactRouterCompilerProvisioner(
+          mode === 'foreign-run' ? 'other-run' : 'epic-fence-run',
+          profile as any,
+          mode === 'wrong-root' ? join(value.root, 'other') : value.work,
+          receipts,
+          mode === 'wrong-phase' ? 'compiler-dependencies' : 'react-router-compiler',
+        );
+        if (['missing-provisioner', 'foreign-receipt', 'foreign-run'].includes(mode))
+          innerFailure = await original(
+            args[0],
+            args[1],
+            args[2],
+            receipts,
+            args[4],
+            args[5],
+            args[6],
+            mode === 'foreign-run' ? 'other-run' : args[7],
+          ).then(
+            () => null,
+            error => error.code,
+          );
+      }
+      throw Object.assign(Error('OWNED_STOP_BEFORE_SECOND_COMMAND'), {
+        code: 'OWNED_STOP_BEFORE_SECOND_COMMAND',
+      });
+    });
+    try {
+      await expect(
+        runner.execute(
+          'epic-fence-run',
+          value.profile,
+          value.work,
+          value.profile.sourceHash,
+          new AbortController().signal,
+          Date.now() + 60000,
+        ),
+      ).rejects.toMatchObject({ code: 'OWNED_STOP_BEFORE_SECOND_COMMAND' });
+      expect(checked).toBe(true);
+      expect(preReady).toBe(true);
+      expect(alteredReady).toBe(['original-tamper', 'copy-tamper'].includes(mode) ? null : false);
+      expect(innerFailure).toBe(
+        mode === 'original-tamper'
+          ? 'PORTAL_ARTIFACT_CHANGED'
+          : mode === 'copy-tamper'
+            ? 'PORTAL_PROVISIONED_OUTPUT_CHANGED'
+            : ['missing-provisioner', 'foreign-receipt', 'foreign-run'].includes(mode)
+              ? 'PORTAL_COMPILER_PROVISIONER_REQUIRED'
+              : null,
+      );
+    } finally {
+      vi.restoreAllMocks();
+      await runner.close();
+    }
+  },
+  60000,
+);
+it('holds an aborted consolidated fresh verification until its issued verification promise settles', async () => {
+  const value = await epicFenceFixture(),
+    runner = new NativePortalRunner(),
+    controller = new AbortController();
+  const artifacts = await import('../../src/portal/native-artifacts.js'),
+    fences = await import('../../src/portal/native-module-fence.js');
+  const originalFence = fences.createNativeModuleFence,
+    originalVerify = artifacts.verifyNativeArtifactAuthority;
+  let release!: () => void,
+    entered = false,
+    settled = false;
+  const gate = new Promise<void>(resolve => {
+    release = resolve;
+  });
+  vi.spyOn(fences, 'createNativeModuleFence').mockImplementation(async (...args) => {
+    if (args[1].id !== 'react-router-compiler') return originalFence(...args);
+    vi.spyOn(artifacts, 'verifyNativeArtifactAuthority').mockImplementation(
+      async (...parameters) => {
+        entered = true;
+        await gate;
+        return originalVerify(...parameters);
+      },
+    );
+    return originalFence(...args);
+  });
+  const task = runner.execute(
+    'epic-fence-run',
+    value.profile,
+    value.work,
+    value.profile.sourceHash,
+    controller.signal,
+    Date.now() + 60000,
+  );
+  const outcome = task
+    .catch(error => error)
+    .finally(() => {
+      settled = true;
+    });
+  try {
+    await vi.waitFor(() => expect(entered).toBe(true), { timeout: 10000 });
+    controller.abort(
+      Object.assign(Error('PORTAL_BUDGET_EXHAUSTED'), { code: 'PORTAL_BUDGET_EXHAUSTED' }),
+    );
+    await new Promise<void>(resolve => setImmediate(resolve));
+    expect(settled).toBe(false);
+    release();
+    expect(await outcome).toMatchObject({ code: 'PORTAL_BUDGET_EXHAUSTED' });
+    await expect(
+      readFile(join(value.work, 'compiler-workspace/source/compiler-observations/observed.json')),
+    ).rejects.toMatchObject({ code: 'ENOENT' });
+  } finally {
+    release();
+    await outcome;
+    vi.restoreAllMocks();
+    await runner.close();
+  }
+}, 60000);
+async function cacheLoaderFixture(mode: string) {
+  const vite7 = mode.startsWith('vite-7-');
+  if (vite7) mode = mode.replace('vite-7-', 'vite-');
+  const root = await mkdtemp(join(tmpdir(), 'sfp-task33-module-fence-'));
+  roots.push(root);
+  const loader = 'deps/node_modules/@tailwindcss/node/dist/esm-cache.loader.mjs';
+  const nativeRequire = createRequire(import.meta.url);
+  const viteRoot = vite7
+    ? fileURLToPath(new URL('./fixtures/vite7-resolver/', import.meta.url))
+    : dirname(
+        createRequire(nativeRequire.resolve('vitest/package.json')).resolve('vite/package.json'),
+      );
+  const viteMode = mode.startsWith('vite-');
+  const resolverText = await readFile(
+    join(viteRoot, 'dist/node/module-runner.js' + (vite7 ? '.txt' : '')),
+    'utf8',
+  );
+  let resolverBody =
+    /function customizationHookResolve\(specifier, context, nextResolve\) \{[\s\S]*?\n\}/.exec(
+      resolverText,
+    )![0];
+  if (mode === 'vite-changed-callback')
+    resolverBody = resolverBody.replace(
+      'specifier = parsedSpecifier',
+      'specifier = String(parsedSpecifier)',
+    );
+  const copyVite = viteMode
+    ? [vite7 ? 'chunks/config.js' : 'chunks/node.js', 'module-runner.js']
+        .map(
+          p =>
+            'fs.mkdirSync(path.dirname(' +
+            JSON.stringify('deps/node_modules/vite/dist/node/' + p) +
+            '),{recursive:true});fs.copyFileSync(' +
+            JSON.stringify(join(viteRoot, 'dist/node', p + (vite7 ? '.txt' : ''))) +
+            ',' +
+            JSON.stringify('deps/node_modules/vite/dist/node/' + p) +
+            ');',
+        )
+        .join('')
+    : '';
+  const provision =
+    'const fs=require("node:fs"),path=require("node:path");fs.mkdirSync(path.dirname(' +
+    JSON.stringify(loader) +
+    '),{recursive:true});fs.writeFileSync(' +
+    JSON.stringify(loader) +
+    ',' +
+    JSON.stringify(tailwindCacheLoader + (mode === 'changed-body' ? '//changed' : '')) +
+    ');' +
+    copyVite;
+  const registration =
+    mode === 'wrong-file'
+      ? 'new URL("./foreign.mjs",import.meta.url)'
+      : mode === 'custom'
+        ? '"data:text/javascript,export async function resolve(s,c,n){return n(s,c)}"'
+        : mode === 'query'
+          ? 'new URL("./' + loader + '?private-canary",import.meta.url)'
+          : 'new URL("./' + loader + '",import.meta.url)';
+  const extra =
+    mode === 'register-hooks'
+      ? 'registerHooks({resolve(s,c,n){return n(s,c)}});'
+      : mode === 'repeat'
+        ? 'register(' + registration + ');'
+        : mode === 'changed-child'
+          ? '(await import("node:fs")).writeFileSync("dep.mjs",' +
+            JSON.stringify('console.log("UNREVIEWED_CHILD");') +
+            ');'
+          : '';
+  let source =
+    'import{register,registerHooks}from"node:module";register(' +
+    registration +
+    (mode === 'options' ? ',{data:{unexpected:true}}' : '') +
+    ');' +
+    extra +
+    'await import("./consumer.mjs?id=owned-fixture");';
+  if (viteMode) {
+    const callback =
+      mode === 'vite-load-hook'
+        ? '{resolve:customizationHookResolve,load(){throw Error("UNTRUSTED_LOAD")}}'
+        : mode === 'vite-accessor'
+          ? '{get resolve(){throw Error("UNTRUSTED_ACCESSOR")}}'
+          : '{resolve:customizationHookResolve}';
+    const target = mode === 'vite-data-scheme' ? 'data:text/javascript,export{}' : './dep.mjs';
+    source =
+      'import{registerHooks}from"node:module";const customizationHookNamespace={ [Symbol.toPrimitive](){throw Error("UNTRUSTED_CALLBACK_CLOSURE_EXECUTED")}};' +
+      resolverBody +
+      ';registerHooks(' +
+      callback +
+      ');const resolved=import.meta.resolve("vite-module-runner:import-meta-resolve/v1/"+JSON.stringify([' +
+      JSON.stringify(target) +
+      ',import.meta.url]));if(!resolved.endsWith("/dep.mjs"))throw Error("Incorrect resolver result");console.log("VITE_RESOLVE_ACK");';
+  }
+  const files = {
+    'provision.cjs': provision,
+    'check.mjs': source,
+    'consumer.mjs': 'import"./dep.mjs";',
+    'dep.mjs':
+      'if(!import.meta.url.endsWith("?id=owned-fixture"))throw Error("Cache id did not propagate");console.log("CACHE_ID_PROPAGATED");',
+    'foreign.mjs': 'export async function resolve(s,c,n){return n(s,c)}',
+  };
+  for (const [p, text] of Object.entries(files)) await writeFile(join(root, p), text);
+  const profile = NativeProfileSchema.parse({
+    schemaVersion: 1,
+    sourceAuthorityVersion: 2,
+    id: 'cache-loader-fixture',
+    executionMode: 'native-working-copy',
+    environmentKind: 'disposable-test',
+    sourceHash: storedChecksum(JSON.stringify(files)),
+    closure: Object.entries(files).map(([path, text]) => ({ path, hash: storedChecksum(text) })),
+    environment: {},
+    ...(viteMode ? { externalArtifacts: [{ root: viteRoot, kind: 'node-package-tree' }] } : {}),
+    commands: [
+      {
+        id: 'provision',
+        executable: process.execPath,
+        executableHash: await nativeExecutableHash(process.execPath),
+        args: ['provision.cjs'],
+        timeoutMs: 15000,
+        produces: [{ path: 'deps', kind: 'provisioned-dependencies' }],
+      },
+      {
+        id: 'cache',
+        executable: process.execPath,
+        executableHash: await nativeExecutableHash(process.execPath),
+        args: ['check.mjs'],
+        timeoutMs: 15000,
+        ...(mode === 'missing-capability' ? {} : { moduleLoader: 'tailwindcss-node-esm-cache-v1' }),
+        ...(viteMode && mode !== 'vite-missing-capability'
+          ? { moduleResolver: 'vite-import-meta-resolve-v1' }
+          : {}),
+      },
+    ],
+  });
+  profile.artifactAuthority = await prepareNativeArtifactAuthority(profile);
+  const runner = new NativePortalRunner();
+  try {
+    return await runner.execute(
+      'cache-loader-fixture',
+      profile,
+      root,
+      profile.sourceHash,
+      new AbortController().signal,
+      Date.now() + 60000,
+    );
+  } finally {
+    await runner.close();
+  }
+}
+it('admits only the exact reviewed Tailwind cache resolver and preserves child import byte checks', async () => {
+  expect(Buffer.byteLength(tailwindCacheLoader)).toBe(302);
+  expect(storedChecksum(tailwindCacheLoader)).toBe(
+    'sha256:e929c736300ab9a4c49cfcebba3569972dfc6c772167912e2b385bea6c390df2',
+  );
+  const result = await cacheLoaderFixture('valid');
+  expect(result.commands.map(c => c.status)).toEqual(['passed', 'passed']);
+  expect(result.commands[1]!.output).toContain('CACHE_ID_PROPAGATED');
+  expect(result.commands[1]!.moduleEvidence!.loadedModules).toBeGreaterThanOrEqual(3);
+});
+it.each(['missing-capability', 'changed-body', 'wrong-file', 'query', 'options', 'custom'])(
+  'rejects caller loader widening despite an admitted dependency receipt: %s',
+  async mode => {
+    await expect(cacheLoaderFixture(mode)).rejects.toMatchObject({
+      code: 'PORTAL_NATIVE_MODULE_LOADER_UNSUPPORTED',
+    });
+  },
+);
+
+it.each([
+  ['register-hooks', 'PORTAL_NATIVE_MODULE_LOADER_UNSUPPORTED'],
+  ['repeat', 'PORTAL_NATIVE_MODULE_LOADER_UNSUPPORTED'],
+  ['changed-child', 'PORTAL_NATIVE_MODULE_CHANGED'],
+])('retains guarded module authority after known cache registration: %s', async (mode, code) => {
+  await expect(cacheLoaderFixture(mode!)).rejects.toMatchObject({ code });
+});
+
+it('uses only the service-owned Vite resolver and never invokes the matching caller closure', async () => {
+  const result = await cacheLoaderFixture('vite-valid');
+  expect(result.commands.map(c => c.status)).toEqual(['passed', 'passed']);
+  expect(result.commands[1]!.output).toContain('VITE_RESOLVE_ACK');
+  expect(result.commands[1]!.output).not.toContain('UNTRUSTED_CALLBACK');
+});
+it.each([
+  ['vite-missing-capability', 'PORTAL_NATIVE_MODULE_LOADER_UNSUPPORTED'],
+  ['vite-changed-callback', 'PORTAL_NATIVE_MODULE_LOADER_UNSUPPORTED'],
+  ['vite-load-hook', 'PORTAL_NATIVE_MODULE_LOADER_UNSUPPORTED'],
+  ['vite-accessor', 'PORTAL_NATIVE_MODULE_LOADER_UNSUPPORTED'],
+  ['vite-data-scheme', 'PORTAL_NATIVE_MODULE_RESOLVER_UNSUPPORTED'],
+])('refuses resolver widening or unadmitted namespace data: %s', async (mode, code) => {
+  await expect(cacheLoaderFixture(mode!)).rejects.toMatchObject({ code });
+});
+
+it('acknowledges exact Vite7 file/body authority without executing matching callback closure', async () => {
+  const result = await cacheLoaderFixture('vite-7-valid');
+  expect(result.commands.map(c => c.status)).toEqual(['passed', 'passed']);
+  expect(result.commands[1]!.output).toContain('VITE_RESOLVE_ACK');
+  expect(result.commands[1]!.output).not.toContain('UNTRUSTED_CALLBACK');
+});
+it.each(['changed-callback', 'load-hook', 'accessor', 'data-scheme'])(
+  'rejects Vite7 resolver widening %# %s',
+  async kind => {
+    await expect(cacheLoaderFixture('vite-7-' + kind)).rejects.toMatchObject({
+      code:
+        kind === 'data-scheme'
+          ? 'PORTAL_NATIVE_MODULE_RESOLVER_UNSUPPORTED'
+          : 'PORTAL_NATIVE_MODULE_LOADER_UNSUPPORTED',
+    });
+  },
+);

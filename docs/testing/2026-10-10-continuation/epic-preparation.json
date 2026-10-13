@@ -1,0 +1,34 @@
+{
+  "preparedAt": "2026-10-10T13:08:16.962Z",
+  "root": "C:\\2026_project\\super-figma-pipline\\.worktrees\\_cache\\portal-case-samples-20261010\\epic-legacy",
+  "sourceCommit": "64ca647630e15f71e6782b622ab0112c4b428f1f",
+  "environmentKeys": [
+    "NODE_ENV",
+    "MOCKS",
+    "PORT",
+    "DATABASE_PATH",
+    "DATABASE_URL",
+    "CACHE_DATABASE_PATH",
+    "SESSION_SECRET",
+    "INTERNAL_COMMAND_TOKEN",
+    "HONEYPOT_SECRET",
+    "ALLOW_INDEXING",
+    "ALLOWED_HOSTS",
+    "AWS_ACCESS_KEY_ID",
+    "AWS_SECRET_ACCESS_KEY",
+    "AWS_REGION",
+    "AWS_ENDPOINT_URL_S3",
+    "BUCKET_NAME",
+    "CHECKPOINT_DISABLE",
+    "DO_NOT_TRACK"
+  ],
+  "syntheticCredentials": true,
+  "cloudCredentials": false,
+  "externalServices": "upstream local mocks; object-storage URL restricted to loopback",
+  "loopbackPatch": {
+    "path": "server/index.ts",
+    "before": "8917a82bfdb5f11de4be2f503fb787a0ee2997007b896d5742a1bae2b675840e",
+    "after": "0f35e8372f4858335ad18ef6e8c3fbec805aceb97ae48609db43848cf3431816"
+  },
+  "applicationStarted": false
+}

@@ -1,0 +1,46 @@
+{
+  "schemaVersion": 1,
+  "at": "2026-10-13T20:58:24.166Z",
+  "kind": "generated-type-config-and-explicit-suffix-r68-provenance-sync",
+  "sourceHash": "sha256:eeef1b0da0f5c05e083ecfa43c8ddb37edc2228ca526538a75857277040fa876",
+  "entries": [
+    {
+      "path": "upstream-lock.json",
+      "beforeHash": "3189e90b5205183d6d3b6880dfafee2d8b209f3eca577d19c3a10d2958236627",
+      "afterHash": "f5464318e08befb7d1c37ade87a5b106693ac331e08ce9fdc43fac3d5d917389"
+    },
+    {
+      "path": "vendor-map.json",
+      "beforeHash": "b3275c7d8b997d1cfe723d97594659f77d7b4361b824a790bcfdd7ff762589bd",
+      "afterHash": "b3275c7d8b997d1cfe723d97594659f77d7b4361b824a790bcfdd7ff762589bd"
+    },
+    {
+      "path": "vendor-rules.json",
+      "beforeHash": "c82a646ab0b05c7368a9f76e18e63a1d0a317eaf4d3597f387e6129f1a6a4b2d",
+      "afterHash": "03562b4245af04a0196572a9fcba1978e53bb815faa0fd8347f1df7251a0e9f2"
+    },
+    {
+      "path": "capabilities/change-manifests/task-review-2026-10-10.json",
+      "beforeHash": "2e9777616046b121043e3fb3b0336f4ab150b70a39805de12f2fc10eeebf3a1e",
+      "afterHash": "4d5aaa2db4cbbcc254a4f74f4f82dc67d2e33fe96b37733fe2f645c9b601278c"
+    },
+    {
+      "path": "capabilities/task-review-2026-10-10-authority-classes.json",
+      "beforeHash": "2170e91698cff07f3608129854922f0e4026f11c86cc0032ab7f4bd8b9ad5dd7",
+      "afterHash": "930319d03baa411fea5299df76ace3ccb7603cf499f1ca7739c652b44002a61d"
+    },
+    {
+      "path": "capabilities/reconciliations/review-2026-10-10-config-provenance-repair-2026-10-14.json",
+      "beforeHash": null,
+      "afterHash": "3361e2afdcbeb97a4f3c4b70e1325285ff18407177976c018f829c8ee3a9e195"
+    }
+  ],
+  "shadowIndex": ".worktrees/baseline/service/.cache/review-20261014-r68.index",
+  "semanticChanges": 282,
+  "derivedAuthorities": 4,
+  "ownerIndexHash": "ecc1808ab3e14fa2e8c233ae1fc1c91e0a33b5b2e383a7270f1bc3068997e675",
+  "ownerIndexUnchanged": true,
+  "whole": false,
+  "runtimeReplaced": false,
+  "liveAcceptance": false
+}

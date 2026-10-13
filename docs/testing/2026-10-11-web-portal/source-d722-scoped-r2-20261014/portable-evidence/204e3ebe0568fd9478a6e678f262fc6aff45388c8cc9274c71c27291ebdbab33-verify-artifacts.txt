@@ -1,0 +1,3 @@
+Verified portable portal startup and 12 packaged web assets using extracted CLI/MCP and installed third-party runtime dependencies
+Verified 4 archives, all file hashes and checksums
+

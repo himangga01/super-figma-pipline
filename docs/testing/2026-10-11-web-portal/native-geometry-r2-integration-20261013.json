@@ -1,0 +1,86 @@
+{
+  "recordedAt": "2026-10-13T02:18:21.869Z",
+  "sourceHash": "sha256:3f3335dec6b7138e599aed3c17e3bbe0ff11f8558efd5bba9094cd7f0e820c0e",
+  "manifestHash": "31ab448e33f7b6163fadf25e63f7f8d809568d0dd4c9a3922813997f1ae2978c",
+  "files": [
+    {
+      "path": "packages/shared/src/portal-native-geometry.ts",
+      "before": null,
+      "revision1After": "7b942815be23e6def99a4eccbc4d96ac86f0f036553c1f9a0127be1698b74091",
+      "after": "7b942815be23e6def99a4eccbc4d96ac86f0f036553c1f9a0127be1698b74091"
+    },
+    {
+      "path": "packages/shared/src/portal.ts",
+      "before": "bc44489007514abf4ed30e7341ef3788b58deb9f5e685a491adf0883880ae2aa",
+      "revision1After": "9078c049ccc92ce3720876e418ac6456513bc455962dd285420bacbd03d255e3",
+      "after": "9078c049ccc92ce3720876e418ac6456513bc455962dd285420bacbd03d255e3"
+    },
+    {
+      "path": "packages/mcp/src/portal/native-contours.ts",
+      "before": "316df137173a4e951c385d2a95c6ffb368ffa127016b0582d414f6f2ac20927c",
+      "revision1After": "a047fbd0a98edb2fb759507dcb4d487b38ab18c2306dab1ed7866d5ac09ae828",
+      "after": "a047fbd0a98edb2fb759507dcb4d487b38ab18c2306dab1ed7866d5ac09ae828"
+    },
+    {
+      "path": "packages/mcp/src/portal/native-geometry.ts",
+      "before": null,
+      "revision1After": "a8645d1f9c96a69766a06a46e75b432fe68d05db3f66420fe3f5871d3666e0ea",
+      "after": "a8645d1f9c96a69766a06a46e75b432fe68d05db3f66420fe3f5871d3666e0ea"
+    },
+    {
+      "path": "packages/mcp/src/portal/coordinator.ts",
+      "before": "c697d81af1625570a328d9402a47988dbb886df25d5a2cd2f88534fe6b1524aa",
+      "revision1After": "ed84a650e4cfec2f257a50697ef61fab18dd2a661b47b274cb356cb38704155a",
+      "after": "11847bfaa1804cd6015acbd4ee26e470117fd563a7cbdde6b59f17abcc079dbd"
+    },
+    {
+      "path": "packages/mcp/src/policy/result-egress-policy.ts",
+      "before": "26cf2c823c03b05b0342669e17d017b5c356a2bffc9ca60c263fad7fc27447e1",
+      "revision1After": "f6a85257d432db63b112da8c3567dae55cbac069281c49fc8c7f848a17441604",
+      "after": "f6a85257d432db63b112da8c3567dae55cbac069281c49fc8c7f848a17441604"
+    },
+    {
+      "path": "packages/shared/test/portal-native-geometry.test.ts",
+      "before": null,
+      "revision1After": "8c1641e69570a2a0c47e5a086771c7a13823fc698f4f25279d4e7bec71fff355",
+      "after": "8c1641e69570a2a0c47e5a086771c7a13823fc698f4f25279d4e7bec71fff355"
+    },
+    {
+      "path": "packages/mcp/test/portal/native-geometry.test.ts",
+      "before": null,
+      "revision1After": "8869c8a20a2a902402637062900e8a1d3905d5dbc0a30ab1bcbaca085bc64bcc",
+      "after": "8869c8a20a2a902402637062900e8a1d3905d5dbc0a30ab1bcbaca085bc64bcc"
+    },
+    {
+      "path": "packages/mcp/test/portal/native-geometry-http.test.ts",
+      "before": null,
+      "revision1After": "334865b6cbb1d44c2e35bf884efe1940041c9c362c6a801444725a0dee1cb306",
+      "after": "94ab5a7c9d57dad81e69caa8644559dd41cbbdee50b9ab586fc777f40a9fa5a8"
+    }
+  ],
+  "indexWiring": {
+    "path": "packages/mcp/src/index.ts",
+    "before": "a1ac55dc67da5c9345a7b1dcf66a5d856f625707ebd544b896727006411f324b",
+    "after": "433dcaa63d4f096aea3efe3e1d61c5a92f929ab569a152fbfda9f599e2d4a722",
+    "sharedSingleSupplier": true
+  },
+  "independentFull": {
+    "tests": 121,
+    "passed": 121,
+    "failed": 0,
+    "skipped": 0,
+    "reportHash": "4325c95b8b6315fd350c8e0bd32686458b71fb4386026ec8388718ea54cc1db0"
+  },
+  "independentOriginalRaces": {
+    "passed": 2,
+    "failed": 0,
+    "filtered": 117,
+    "reportHash": "405e36a035681ebc3dc829c11595b3fb51da911913ddf0dd0dd731bdeb8c71e0",
+    "unchangedAssertions": true
+  },
+  "ownerIndexUnchanged": true,
+  "currentWholePassed": false,
+  "runtimeReplaced": false,
+  "liveFigmaAcceptance": false,
+  "frontendApplied": false
+}

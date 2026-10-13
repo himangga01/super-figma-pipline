@@ -7,7 +7,9 @@ export const NATIVE_MODULE_FENCE_SOURCE = String.raw`
   const path = require('node:path');
   const crypto = require('node:crypto');
   const mod = require('node:module');
-  const {fileURLToPath} = require('node:url');
+  const {fileURLToPath,pathToFileURL,URL:NativeURL} = require('node:url');
+  const functionSource=Function.prototype.toString.call.bind(Function.prototype.toString),ownDescriptors=Object.getOwnPropertyDescriptors.bind(Object),ownKeys=Reflect.ownKeys.bind(Reflect),parseJson=JSON.parse.bind(JSON);
+  const nativeHref=Object.getOwnPropertyDescriptor(NativeURL.prototype,'href').get;
   const {threadId} = require('node:worker_threads');
   const createHash=crypto.createHash.bind(crypto),open=fs.openSync.bind(fs),readFd=fs.readSync.bind(fs),close=fs.closeSync.bind(fs),fstat=fs.fstatSync.bind(fs),lstat=fs.lstatSync.bind(fs),write=fs.writeFileSync.bind(fs);
   const hash = bytes => 'sha256:' + createHash('sha256').update(bytes).digest('hex');
@@ -68,6 +70,14 @@ export const NATIVE_MODULE_FENCE_SOURCE = String.raw`
   record({kind:'start',protocol:policy.protocol,policyHash:expectedHash,pid:process.pid,threadId});
   const hooks=mod.registerHooks({
     resolve(specifier,context,nextResolve){
+      const namespace='vite-module-runner:import-meta-resolve/v1/';
+      if(policy.viteResolver && specifier.startsWith(namespace)){
+        if(specifier.length>16384)return reject('PORTAL_NATIVE_MODULE_RESOLVER_UNSUPPORTED');
+        let pair;try{pair=parseJson(specifier.slice(namespace.length))}catch{return reject('PORTAL_NATIVE_MODULE_RESOLVER_UNSUPPORTED')}
+        if(!Array.isArray(pair)||pair.length!==2||pair.some(v=>typeof v!=='string'||v.length>8192||v.includes('\0'))||pair[0].startsWith(namespace)||(/^[A-Za-z][A-Za-z0-9+.-]*:/.test(pair[0])&&!/^(?:node|file):/.test(pair[0])))return reject('PORTAL_NATIVE_MODULE_RESOLVER_UNSUPPORTED');
+        try{check(fileURLToPath(pair[1]))}catch(error){if(error?.code?.startsWith('PORTAL_NATIVE_MODULE_'))throw error;return reject('PORTAL_NATIVE_MODULE_RESOLVER_UNSUPPORTED')}
+        specifier=pair[0];context={...context,parentURL:pair[1]};
+      }
       const result=nextResolve(specifier,context);
       if(result.url.startsWith('node:'))return result;
       if(!result.url.startsWith('file:'))return reject('PORTAL_NATIVE_MODULE_UNSUPPORTED');
@@ -87,9 +97,35 @@ export const NATIVE_MODULE_FENCE_SOURCE = String.raw`
     }
   });
   void hooks;
-  const unsupported = () => reject('PORTAL_NATIVE_MODULE_LOADER_UNSUPPORTED');
-  Object.defineProperty(mod,'registerHooks',{value:unsupported,writable:false,configurable:false});
-  Object.defineProperty(mod,'register',{value:unsupported,writable:false,configurable:false});
+  const unsupported = (reason='unadmitted-loader') => {record({kind:'loader-rejection',reason});return reject('PORTAL_NATIVE_MODULE_LOADER_UNSUPPORTED')};
+  const acknowledgeResolver=(request)=>{
+    if(!policy.viteResolver || policy.viteResolver.protocol!=='vite-import-meta-resolve-v1')return unsupported('register-hooks');
+    let descriptors,source;try{descriptors=ownDescriptors(request);if(ownKeys(descriptors).length!==1 || !descriptors.resolve || !('value' in descriptors.resolve) || typeof descriptors.resolve.value!=='function')return unsupported('resolver-shape');source=functionSource(descriptors.resolve.value)}catch{return unsupported('resolver-shape')}
+    const checksum=hash(Buffer.from(source));
+    if(!['sha256:2caef89c1e7f049b23b138e5645f0ae2c886a04f22319e63aeb700a6c18e890e','sha256:35b9a1a654ad20ab0bb654334feed9aa7cb7434f761ea1d239f1facc654c596e'].includes(checksum))return unsupported('resolver-body');
+    for(const file of policy.viteResolver.files)check(file.path);
+    // Do not execute or register a caller closure. The service-owned resolve hook above
+    // implements the fixed Vite namespace and retains importer/target byte authority.
+    record({kind:'known-resolver',protocol:policy.viteResolver.protocol,functionHash:checksum});
+    return Object.freeze({deregister(){return unsupported('resolver-deregister')}});
+  };
+  Object.defineProperty(mod,'registerHooks',{value:acknowledgeResolver,writable:false,configurable:false});
+  const originalRegister=typeof mod.register==='function'?mod.register.bind(mod):null;
+  let loaderRegistered=false;
+  const knownRegister=(specifier,...options)=>{
+    const expected=policy.knownCacheLoader;
+    if(!expected || expected.protocol!=='tailwindcss-node-esm-cache-v1' || !originalRegister)return unsupported('missing-capability');
+    if(options.length)return unsupported('options');
+    if(loaderRegistered)return unsupported('repeat');
+    let href;try{href=typeof specifier==='string'?specifier:nativeHref.call(specifier)}catch{return unsupported('specifier-type')}
+    if(href!==nativeHref.call(pathToFileURL(expected.path)))return unsupported('wrong-file');
+    const bytes=check(expected.path),checksum=hash(bytes);
+    if(bytes.length!==302 || checksum!=='sha256:e929c736300ab9a4c49cfcebba3569972dfc6c772167912e2b385bea6c390df2' || checksum!==expected.hash)return unsupported();
+    loaderRegistered=true;
+    originalRegister(href);
+    record({kind:'known-loader',protocol:expected.protocol,path:expected.path,hash:checksum,identity:expected.identity,bytes:bytes.length});
+  };
+  Object.defineProperty(mod,'register',{value:knownRegister,writable:false,configurable:false});
   Object.freeze(mod._extensions);
   const originalCompile=mod.Module.prototype._compile;
   // Node24's fixed CLI bootstrap contains no application code. Compare all of its bytes.

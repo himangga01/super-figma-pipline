@@ -1,0 +1,5 @@
+Vitest report: 442 files, 5017 tests: 4996 passed, 1 failed, 20 skipped; 0 failed suites without a failed test.
+Known failures matched: 0 of 0 ledger entries.
+UNEXPECTED failures, not in the ledger (1):
+  - packages/mcp/test/portal/capture-session.test.ts > categorizes a cleanup failure at its exact boundary: AssertionError: expected { stage: 'cleanup', …(3) } to match object { stage: 'cleanup', …(1) }
+Result: FAIL

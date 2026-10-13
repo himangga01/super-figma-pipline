@@ -1,0 +1,93 @@
+{
+  "schemaVersion": 1,
+  "recordedAt": "2026-10-12T07:33:21.257Z",
+  "sourceHash": "sha256:a476a925b0304a9ce8b02d199228f2d80f9e6eb99c342c2569e2ceefa91c4230",
+  "scope": "Actual same-state QA replacement verification, operator local-fence disposition, failed Chrome reads and unexecuted model-data approval. No Figma or frontend acceptance.",
+  "runtimeVerification": {
+    "receiptSha256": "2d09f4857d45a0e3b63ab862be1a3be76923eb5ebe17c5e4b11688f1ab72872c",
+    "kind": "separate-running-replacement-verification-after-metadata-publish-failure",
+    "recordedAt": "2026-10-12T06:35:26.549Z",
+    "daemon": {
+      "pid": 39796,
+      "port": 3059,
+      "created": 1791785334585
+    },
+    "portal": {
+      "pid": 35244,
+      "port": 4315,
+      "created": 1791785340430
+    },
+    "oldProcessesAbsent": true,
+    "stoppedSnapshot": {
+      "manifestSha256": "252f4d396ed324b5cb85b77a18678fc1aa2d98c3997b92a62b153cdba3b4084c",
+      "files": 65,
+      "directories": 24
+    },
+    "failedOriginalHelperPreserved": true,
+    "emptyOriginalMetadataPreserved": true,
+    "oldAuthorityRestored": false,
+    "gracefulDiagnosticsFlushConfirmed": false,
+    "browserSideRetirementConfirmed": false
+  },
+  "localFence": {
+    "receiptSha256": "4842f11830db1b9a20aff7c613809447f80b3ad99dda37c15e5315f5bb0e1f06",
+    "rationaleSha256": "cf3c81d56effc696e4cf3e0770d9879d8c020ada8f681ff80c68728d9024ef82",
+    "originalJobId": "fa9b8cbc-2d60-4412-a5b1-a6adb4f6b0e5",
+    "originalOutcome": "unknown",
+    "originalFieldsPreserved": true,
+    "replayed": false,
+    "deadlineRenewed": false,
+    "grantCreated": false,
+    "disposition": {
+      "decision": "owner-abandoned",
+      "quiescence": "operator-asserted-prior-runtime",
+      "at": "2026-10-12T06:58:15.763Z",
+      "activityId": "331366b7-3edc-4c81-aabc-338e81bc535b",
+      "reasonHash": "sha256:45d5854e215068e0ea06354cfea269e0c696de098539de21ce9d0480160dad97",
+      "evidenceHash": "sha256:cf3c81d56effc696e4cf3e0770d9879d8c020ada8f681ff80c68728d9024ef82"
+    }
+  },
+  "chromeReadAttempts": [
+    {
+      "receiptSha256": "7f5ad063ca86c52c561062a9f8449f05c37c062490e8667277b9378d2e94b62d",
+      "recordedAt": "2026-10-12T06:39:42.779Z",
+      "sameTab": true,
+      "job": {
+        "id": "d99be8f4-b186-4bc0-8e24-7917883ce084",
+        "status": "failed",
+        "errorCode": "CHROME_CONNECTION_REQUIRED",
+        "elapsedMs": 48018
+      }
+    },
+    {
+      "receiptSha256": "449e6d1f999d3109011c653a30db48d9b6a3464ea853a55e74464fd2d17dc1ea",
+      "recordedAt": "2026-10-12T06:44:22.231Z",
+      "sameTab": true,
+      "job": {
+        "id": "b00c4a86-c9a4-442a-8df4-453e31f82c9e",
+        "status": "failed",
+        "errorCode": "CHROME_CONNECTION_REQUIRED",
+        "elapsedMs": 182156
+      }
+    }
+  ],
+  "modelDataApproval": {
+    "at": "2026-10-12T07:33:21.256Z",
+    "id": "29a87742-f6b5-4539-8080-a4d2b74ba8dc",
+    "status": "cancelled",
+    "operations": 0,
+    "outputHash": null,
+    "approvals": 0,
+    "actualGrantEstablished": false,
+    "originalDeadlineRenewed": false,
+    "approvalActionPostObserved": false
+  },
+  "verificationLimits": {
+    "oauthCandidateIntegrated": false,
+    "authenticatedOfficialMcp": false,
+    "completeFigmaCapture": false,
+    "newFrontendApplied": false,
+    "threeFrontendJourneys": false,
+    "gitCommitPush": false
+  }
+}

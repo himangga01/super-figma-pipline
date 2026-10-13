@@ -1,0 +1,11 @@
+{
+  "at": "2026-10-13T00:07:25.040Z",
+  "path": "packages/portal/README.md",
+  "before": "4daa8089444c7c38134518d2899743b7374aa1cdc9270bf0b3c3c0b360e56583",
+  "after": "3947ca88ee66de2ad68a95f1fe593162c22c508b928c4a786d9a76d7e80695a3",
+  "change": "Formatter-only whitespace and wrapping",
+  "failedWhole": "c062f467-8aea-40d7-a881-e4899fb88f95",
+  "failedSource": "034849a7fd017fe473384288a0bff7a57e3ddb0cef7b7b41146623a7d788f285",
+  "failedReportSha256": "f81f182c1dde1c1e8c124b8168949f7c5016dfceb1b0b60b25c0279fafc3c87b",
+  "wholePassed": false
+}

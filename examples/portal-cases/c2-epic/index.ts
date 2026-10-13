@@ -1,0 +1,15 @@
+import 'dotenv/config'
+import * as fs from 'node:fs'
+import sourceMapSupport from 'source-map-support'
+import { prepareEpicNativeEnvironment } from './server/native-environment.ts'
+
+prepareEpicNativeEnvironment()
+sourceMapSupport.install({
+  retrieveSourceMap: function (source) {
+    const match = source.match(/^file:\/\/(.*)\?t=[.\d]+$/)
+    if (match) return { url: source, map: fs.readFileSync(`${match[1]}.map`, 'utf8') }
+    return null
+  },
+})
+if (process.env.MOCKS === 'true') await import('./tests/mocks/index.ts')
+await import('./server/index.ts')

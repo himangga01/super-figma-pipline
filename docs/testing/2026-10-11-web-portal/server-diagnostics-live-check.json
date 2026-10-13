@@ -1,0 +1,87 @@
+{
+  "at": "2026-10-11T17:31:58.940Z",
+  "sourceHash": "sha256:ce6fdc2dcba4d29f2741507fe0d38c021b961cbb1f19b1ec83c2a618329d735f",
+  "sameChromeTab": true,
+  "scope": "logging-only; Chrome acquisition failed separately",
+  "jobs": [
+    {
+      "id": "e965da6b-b871-46c7-8b4f-57963ff92eb3",
+      "type": "feature",
+      "name": "status",
+      "status": "succeeded",
+      "errorCode": null,
+      "requestId": "b4928fb1-15b4-4792-935e-6dfe0c83e65a"
+    },
+    {
+      "id": "7c0fac9a-88ef-4540-b84d-3b89b1ca69bd",
+      "type": "tool",
+      "name": "doctor",
+      "status": "failed",
+      "errorCode": "EGRESS_CONFIG_REQUIRED",
+      "requestId": "c3bdb5dc-a071-456e-8f6e-4c609dc1498a"
+    }
+  ],
+  "passed": true,
+  "initialDiagnostics": {
+    "enabled": true,
+    "level": "debug",
+    "location": "diagnostics/portal.jsonl",
+    "written": 2928,
+    "pending": 1,
+    "dropped": 0,
+    "writeFailures": 3,
+    "flushTimeouts": 0,
+    "maxBytes": 1048576,
+    "retainedFiles": 4
+  },
+  "rejectedRequestId": "b19518d6-cd41-47ef-ba93-e09e484bf546",
+  "finalDiagnostics": {
+    "enabled": true,
+    "level": "debug",
+    "location": "diagnostics/portal.jsonl",
+    "written": 3001,
+    "pending": 1,
+    "dropped": 0,
+    "writeFailures": 3,
+    "flushTimeouts": 0,
+    "maxBytes": 1048576,
+    "retainedFiles": 4
+  },
+  "files": {
+    "portal": [
+      {
+        "name": "portal.jsonl",
+        "bytes": 741519,
+        "sha256": "5875807968162710aa4afd12e44cc0f1bd7cc91b4db482edc614d2535425ac27"
+      }
+    ],
+    "daemon": [
+      {
+        "name": "daemon.jsonl",
+        "bytes": 75192,
+        "sha256": "83a3080531e4d1a97214011557ce420a3865637bba9156a8afccc9c7492a124e"
+      }
+    ]
+  },
+  "correlation": {
+    "jobId": "e965da6b-b871-46c7-8b4f-57963ff92eb3",
+    "portalRequestId": "b4928fb1-15b4-4792-935e-6dfe0c83e65a",
+    "daemonRequestIds": [
+      "ea80fb57-2df6-4118-8733-16573b38b9df"
+    ]
+  },
+  "failure": {
+    "jobId": "7c0fac9a-88ef-4540-b84d-3b89b1ca69bd",
+    "knownCode": "EGRESS_CONFIG_REQUIRED",
+    "causeCount": 1,
+    "stackLocations": [
+      {
+        "module": "commands.mjs",
+        "chunkHash": "sha256:23e8e1a9bfdc1c5e58ebc3a0388708b8e832745dcc42ac1efcd065f842ea9cf8",
+        "line": 51904,
+        "column": 41
+      }
+    ]
+  },
+  "privateValuesAbsent": true
+}

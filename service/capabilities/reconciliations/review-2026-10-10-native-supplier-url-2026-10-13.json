@@ -1,0 +1,70 @@
+{
+  "schemaVersion": 1,
+  "slice": "review-2026-10-10",
+  "baseline": {
+    "headCommit": "22517932dc9b2cb974c177ec4eacb84d4b16e254",
+    "authoritySha256": {
+      "upstream-lock.json": "adb14e1ea4b0e5a3806b0d3abcec36404e06c3d2faac9a5d4c293e8965376cb4",
+      "vendor-map.json": "b3275c7d8b997d1cfe723d97594659f77d7b4361b824a790bcfdd7ff762589bd",
+      "vendor-rules.json": "a1b2cb8de17fce24558adbe0c910da8bab2253272d10ddb891a642ef5d7ab141"
+    }
+  },
+  "entries": [
+    {
+      "path": "capabilities/task-review-2026-10-10-authority-classes.json",
+      "sha256": "ab0aab9d542b42de42af555e92bbfcc2528f38cfabb23318cc03aed7f74edee3",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "84d7169815863169a66255ad0361fd1da490e9bb1b4d6e689b0114a4e04e1f42"
+        },
+        {
+          "class": "protected",
+          "sha256": "84d7169815863169a66255ad0361fd1da490e9bb1b4d6e689b0114a4e04e1f42"
+        }
+      ],
+      "reason": "Canonicalize the signed plan URL with the existing parser for native supplement lookup. Only one production predicate changes; signed source/storage/scope/time/deadline checks remain. Root reproduces three original equivalence failures and passes all75 supplier/coherence/public-geometry cases with foreign-target denials. Preserve actual public failures and diagnostic limits. Fresh whole/artifact/runtime and frontend acceptance remain required."
+    },
+    {
+      "path": "packages/mcp/src/portal/capture-native-supplement.ts",
+      "sha256": "4fad40f8b2290da577ce08e144944cadd93a85a34830566404de788331feaa1b",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "253535a2a8203a31614869b17aa14c48ec98f5b9aab393048351170fd8a09898"
+        },
+        {
+          "class": "protected",
+          "sha256": "253535a2a8203a31614869b17aa14c48ec98f5b9aab393048351170fd8a09898"
+        }
+      ],
+      "reason": "Canonicalize the signed plan URL with the existing parser for native supplement lookup. Only one production predicate changes; signed source/storage/scope/time/deadline checks remain. Root reproduces three original equivalence failures and passes all75 supplier/coherence/public-geometry cases with foreign-target denials. Preserve actual public failures and diagnostic limits. Fresh whole/artifact/runtime and frontend acceptance remain required."
+    },
+    {
+      "path": "packages/mcp/test/portal/capture-native-supplement.test.ts",
+      "sha256": "3d3f8206054aef21fd8476f9af7b5101ed925370aeb1a607a56bf0c5f08ec00e",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "02362d84aea8ce22a0a788ca0da49114a5dc71ac00888830444d86fee6021d97"
+        },
+        {
+          "class": "protected",
+          "sha256": "02362d84aea8ce22a0a788ca0da49114a5dc71ac00888830444d86fee6021d97"
+        }
+      ],
+      "reason": "Canonicalize the signed plan URL with the existing parser for native supplement lookup. Only one production predicate changes; signed source/storage/scope/time/deadline checks remain. Root reproduces three original equivalence failures and passes all75 supplier/coherence/public-geometry cases with foreign-target denials. Preserve actual public failures and diagnostic limits. Fresh whole/artifact/runtime and frontend acceptance remain required."
+    },
+    {
+      "path": "packages/portal/package.json",
+      "sha256": "ddb99eafe979d2319697f9bde91d01c4b3f4cf7f3e2a2baccfcb06ceff7767c8",
+      "priorClaims": [
+        {
+          "class": "protected",
+          "sha256": "ddb99eafe979d2319697f9bde91d01c4b3f4cf7f3e2a2baccfcb06ceff7767c8"
+        }
+      ],
+      "reason": "Canonicalize the signed plan URL with the existing parser for native supplement lookup. Only one production predicate changes; signed source/storage/scope/time/deadline checks remain. Root reproduces three original equivalence failures and passes all75 supplier/coherence/public-geometry cases with foreign-target denials. Preserve actual public failures and diagnostic limits. Fresh whole/artifact/runtime and frontend acceptance remain required."
+    }
+  ]
+}

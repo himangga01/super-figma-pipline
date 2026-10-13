@@ -1,0 +1,47 @@
+{
+  "schemaVersion": 1,
+  "recordedAt": "2026-10-13T17:55:22.273Z",
+  "sourceHash": "sha256:6f87f836d872a4ba8ab49533f6447a7c921adb6b8af3dae75ddd6241e8b8a1cb",
+  "workspaceId": "2b01b5cf-8338-4f64-8121-be7dc72e947c",
+  "originPlanId": "sfp_portal1_e340f664b45cece56e764477e508d2d9",
+  "newPlanId": "sfp_portal1_a1d0b5e8f45697228d01b2c2b01a1276",
+  "profileId": "case-source-335a580f-db4c-42f1-bd14-81f629c32769",
+  "sourceId": "sha256:c4def4604fb156d7dcf0dadd9624f95e4ea663a4edd20053036405cee4716b3f",
+  "compilerEvidenceHash": "sha256:64c48ce1a7f1d586e5e44fc12d7129b03d2a6083923797117c3984ef67f8e3f7",
+  "graphCompilerEvidenceHash": "sha256:64c48ce1a7f1d586e5e44fc12d7129b03d2a6083923797117c3984ef67f8e3f7",
+  "sourceInventoryHash": "sha256:9c2a9d7d7d4d8a2d2b1e6cd1be3062e9ae8c2e05d735c097b422d63528f8e09a",
+  "generatedFiles": 17,
+  "originalDeadlineAt": 1791917281197,
+  "sourceResultSha256": "94288fcb5b2be73ea365a01dcc250723bd632113b4be122a21ff5bd7025e81d6",
+  "storedNewPlanSha256": "0b74511dd97bdcd0b884fc60e3dcb7be89b2733377b1650b0df40e313459c520",
+  "commands": [
+    {
+      "id": "compiler-dependencies",
+      "status": "passed",
+      "exitCode": 0,
+      "cleanup": "finished",
+      "durationMs": 13662
+    },
+    {
+      "id": "react-router-compiler",
+      "status": "passed",
+      "exitCode": 0,
+      "cleanup": "finished",
+      "durationMs": 9089
+    }
+  ],
+  "genuinePublicSourcePreparation": true,
+  "genuineFreshGraphConsumption": true,
+  "sourcePreparationOnly": true,
+  "syntheticDesign": true,
+  "designComplete": false,
+  "designLiveVerified": false,
+  "caseAcceptance": false,
+  "application": false,
+  "graphIncomplete": true,
+  "limitations": [
+    "Synthetic pinned design was used only to admit genuine reference-source compiler preparation.",
+    "Own live design capture, frontend generation, backend workflows, native acceptance and guarded application remain required.",
+    "Compiler authority is process-local and expires on restart or its original deadline."
+  ]
+}

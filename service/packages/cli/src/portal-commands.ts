@@ -20,7 +20,7 @@ const usage = (message: string) =>
 export const runPortalPlanCommand = async (
   args: string[],
   emit: (value: unknown) => void,
-  options: { client?: ControlClient; home?: string } = {},
+  options: { client?: ControlClient; home?: string; signal?: AbortSignal } = {},
 ): Promise<boolean> => {
   if (args[0] !== 'portal' || args[1] !== 'plan') return false;
   const parsed = parseArgs({
@@ -220,7 +220,7 @@ export const runPortalPlanCommand = async (
         approve: flags.yes,
         captureResult: flags['capture-result'],
         timeoutMs: seconds * 1000,
-        signal: controller.signal,
+        signal: options.signal ?? controller.signal,
         emit,
         ...(flags['operation-id'] ? { operationId: flags['operation-id'] } : {}),
       }),

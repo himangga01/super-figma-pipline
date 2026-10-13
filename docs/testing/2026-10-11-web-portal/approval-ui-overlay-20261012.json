@@ -1,0 +1,27 @@
+{
+  "at": "2026-10-12T13:56:39.140Z",
+  "baseline": "sha256:a476a925b0304a9ce8b02d199228f2d80f9e6eb99c342c2569e2ceefa91c4230",
+  "overlaySource": "sha256:4b11eac461e23d44a6c6373ff4fce9e74391b4ae1c04ac75f3f6b623591236b5",
+  "files": [
+    {
+      "path": "packages/portal/web/service-functions.js",
+      "beforeSha256": "757065688ec43b2acf519cb5b8073554a18865e458813c6762322bbd0efc2a51",
+      "sha256": "36c0d05f81dcc63db109eaff6a6bc0239e797d85624f90dce95cf91a503c0e19",
+      "bytes": 28592
+    },
+    {
+      "path": "packages/portal/web/tests/local-capture-progress.test.mjs",
+      "beforeSha256": "0ccb220881a776f52cf9803eec4f2e0b009749d9ba1da01c176c31bcc24bdc13",
+      "sha256": "dea8ed68928a2c88bea448e5ee83bb942abed46f6bb98ccaf2090ea7492805fe",
+      "bytes": 7143
+    }
+  ],
+  "ownerIndex": "a99e5dd36982d74373d779448068a8449189b133e54cd673b13be2c2c356b2a9",
+  "scope": "Reviewed static approval UI and associated unchanged-poll regression only. Compiled QA/daemon remain a476; portal browser must reload to use overlay.",
+  "independentFunctionalAssertionsPassed": 3,
+  "independentOverallExit": "failed due to fixture denied-socket teardown, preserved; revised fixture recheck owed",
+  "noCompiledRestart": true,
+  "noUnknownReplay": true,
+  "noGrantCreated": true,
+  "wholeCheckOwed": true
+}

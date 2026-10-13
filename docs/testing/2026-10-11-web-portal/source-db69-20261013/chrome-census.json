@@ -1,0 +1,139 @@
+{
+  "recordedAt": "2026-10-13T01:36:53.649Z",
+  "sourceHash": "sha256:db69ea3b1fa4363176712640af1a7e733706ce09542406fe18fc84b6c81f2f0a",
+  "wholeAttemptId": "38001901-20ed-45f9-8b9f-6d0730090734",
+  "reportSha256": "aee55e11ec40a024d2899de8c690011cb0f0f44e4caa96bee13fb68b78e5de76",
+  "registeredFiles": 18,
+  "tests": 140,
+  "files": [
+    {
+      "path": "packages/cli/test/browser-observation.test.ts",
+      "tests": 6,
+      "passed": 6,
+      "failed": 0,
+      "skipped": 0
+    },
+    {
+      "path": "packages/cli/test/browser-runtime-probe.test.ts",
+      "tests": 7,
+      "passed": 7,
+      "failed": 0,
+      "skipped": 0
+    },
+    {
+      "path": "packages/cli/test/browser-session-reconnect.test.ts",
+      "tests": 7,
+      "passed": 7,
+      "failed": 0,
+      "skipped": 0
+    },
+    {
+      "path": "packages/cli/test/figma-web-export.test.ts",
+      "tests": 16,
+      "passed": 16,
+      "failed": 0,
+      "skipped": 0
+    },
+    {
+      "path": "packages/cli/test/figma-page-reader.test.ts",
+      "tests": 17,
+      "passed": 17,
+      "failed": 0,
+      "skipped": 0
+    },
+    {
+      "path": "packages/cli/test/scripter-ui.test.ts",
+      "tests": 3,
+      "passed": 3,
+      "failed": 0,
+      "skipped": 0
+    },
+    {
+      "path": "packages/mcp/test/portal/observation-manifest.test.ts",
+      "tests": 4,
+      "passed": 4,
+      "failed": 0,
+      "skipped": 0
+    },
+    {
+      "path": "packages/mcp/test/portal/preview-consumption.test.ts",
+      "tests": 26,
+      "passed": 26,
+      "failed": 0,
+      "skipped": 0
+    },
+    {
+      "path": "packages/mcp/test/portal/preview-native-contours.test.ts",
+      "tests": 4,
+      "passed": 4,
+      "failed": 0,
+      "skipped": 0
+    },
+    {
+      "path": "packages/mcp/test/portal/preview-interactions.test.ts",
+      "tests": 4,
+      "passed": 4,
+      "failed": 0,
+      "skipped": 0
+    },
+    {
+      "path": "packages/mcp/test/portal/preview-native.test.ts",
+      "tests": 1,
+      "passed": 1,
+      "failed": 0,
+      "skipped": 0
+    },
+    {
+      "path": "packages/mcp/test/portal/preview.test.ts",
+      "tests": 15,
+      "passed": 15,
+      "failed": 0,
+      "skipped": 0
+    },
+    {
+      "path": "packages/portal/test/browser.test.ts",
+      "tests": 2,
+      "passed": 2,
+      "failed": 0,
+      "skipped": 0
+    },
+    {
+      "path": "packages/portal/web/tests/schema-form.test.mjs",
+      "tests": 9,
+      "passed": 9,
+      "failed": 0,
+      "skipped": 0
+    },
+    {
+      "path": "packages/portal/web/tests/local-capture-progress.test.mjs",
+      "tests": 1,
+      "passed": 1,
+      "failed": 0,
+      "skipped": 0
+    },
+    {
+      "path": "packages/portal/web/tests/official-oauth-settings.test.mjs",
+      "tests": 12,
+      "passed": 12,
+      "failed": 0,
+      "skipped": 0
+    },
+    {
+      "path": "packages/portal/web/tests/service-job-approval-pointer.test.mjs",
+      "tests": 2,
+      "passed": 2,
+      "failed": 0,
+      "skipped": 0
+    },
+    {
+      "path": "packages/portal/web/tests/first-workspace-setup.test.mjs",
+      "tests": 4,
+      "passed": 4,
+      "failed": 0,
+      "skipped": 0
+    }
+  ],
+  "installedBrowser": "Google Chrome",
+  "liveFigmaAcceptance": false,
+  "frontendApplicationAcceptance": false
+}

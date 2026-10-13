@@ -8,7 +8,7 @@ import {
   DesignBindingObservationSchema,
   DesignInteractionObservationSchema,
 } from './design-observation.js';
-import { PortalLayerSchema, PortalPathSchema } from './portal.js';
+import { PortalLayerSchema, PortalPathSchema } from './portal-base.js';
 
 // These contracts describe evidence. Parsing never proves provenance or authorizes execution.
 export const PORTAL_RECIPE_AUTHORITY_VERSION = 1 as const;

@@ -1,0 +1,22 @@
+{
+  "schemaVersion": 1,
+  "kind": "canonical-authenticated-pre-egress-tombstone-no-core-recovery",
+  "baselineSource": "sha256:6f87f836d872a4ba8ab49533f6447a7c921adb6b8af3dae75ddd6241e8b8a1cb",
+  "files": [
+    {
+      "path": "packages/portal/src/bridge.ts",
+      "beforeSha256": "ab7008aea8646ade1eff75bb03b5e5c755656662e815dc1775185528ea94b9e2",
+      "afterSha256": "23eaae954eb16bb4bff335b6a3c82f5fbc2c3bd142eab8d01ca0b42c03c88ace",
+      "bytes": 39488
+    },
+    {
+      "path": "packages/portal/test/backend.test.ts",
+      "beforeSha256": "2b47f7e3c843b47cb19ea4eb20038de330c90d80602c58499842e62d116538ac",
+      "afterSha256": "e1e8a5ec7968ac3ab4c4edba27dfceb0262d6554a5c4493755f984667015ff3a",
+      "bytes": 75132
+    }
+  ],
+  "criteria": "exact-original-operation/workspace/tool/portal_plan; canonical-pre-egress/settled; no-result/no-receipt; tombstone-unexpired-at-store-callback",
+  "liveRecovery": false,
+  "sourceIntegrated": false
+}

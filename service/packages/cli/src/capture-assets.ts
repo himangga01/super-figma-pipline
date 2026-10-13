@@ -35,6 +35,8 @@ export const captureBrowserAssets = async (
   options: {
     deadlineAt?: number;
     signal?: AbortSignal;
+    sourceWork?<T>(pending: Promise<T>, cleanup?: boolean): Promise<T>;
+    sourceUnconfirmed?(): void;
     maxAssets?: number;
     previous?: CapturedAsset[];
     renderingComplete?: boolean;
@@ -45,7 +47,10 @@ export const captureBrowserAssets = async (
   return captureDesignAssets(
     nodes,
     folder,
-    query => readScripterAsset(page, target, query, options),
+    query => {
+      const pending = readScripterAsset(page, target, query, options);
+      return options.sourceWork?.(pending, true) ?? pending;
+    },
     options,
   );
 };

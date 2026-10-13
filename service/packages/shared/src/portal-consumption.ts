@@ -1,6 +1,10 @@
 import { z } from 'zod';
 
 import { isBoundedDesignJson } from './design-observation.js';
+import {
+  PortalNativeContourExpectationSchema,
+  PortalNativeContourActualSchema,
+} from './portal-native-contours.js';
 const hash = z.string().regex(/^sha256:[0-9a-f]{64}$/u),
   id = z.string().min(1).max(512);
 export const PortalConsumptionValueSchema = z.discriminatedUnion('kind', [
@@ -60,6 +64,7 @@ export const PortalConsumptionPropertySchema = z.enum([
   'textContent',
 ]);
 export const PortalConsumptionExpectationSchema = z.discriminatedUnion('kind', [
+  PortalNativeContourExpectationSchema,
   z
     .object({
       kind: z.literal('property'),
@@ -118,7 +123,8 @@ export const PortalConsumptionBatchSchema = z
 export type PortalConsumptionBatch = z.infer<typeof PortalConsumptionBatchSchema>;
 export const PortalConsumptionActualSchema = z
   .object({
-    kind: z.enum(['property', 'asset', 'component']),
+    kind: z.enum(['property', 'asset', 'component', 'native-contour']),
+    nativeContour: PortalNativeContourActualSchema.nullable().optional(),
     value: z.string().max(16384).nullable(),
     resourceHash: hash.nullable(),
     resourceBytes: z.number().int().min(0).max(16777216).nullable(),

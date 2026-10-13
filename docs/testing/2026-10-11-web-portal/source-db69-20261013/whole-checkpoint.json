@@ -1,0 +1,128 @@
+{
+  "recordedAt": "2026-10-13T01:34:48.499Z",
+  "sourceHash": "sha256:db69ea3b1fa4363176712640af1a7e733706ce09542406fe18fc84b6c81f2f0a",
+  "attemptId": "38001901-20ed-45f9-8b9f-6d0730090734",
+  "status": "local-source-verified",
+  "wholePointerSha256": "492e2413edf3bb10db93afe9cff2dceb3cf1ce55f1a0e55aac86d5ebc1ffefca",
+  "wholeReportSha256": "36c451bdbc767cb20a604ca1d3ffec36ef1cad67bcd61253a4a6fbeaf376618e",
+  "sourceScopeSha256": "0189fa9aef69275a64c473257d2a71ec23672b21d9631d14dfd3f1510e5882de",
+  "skipCensusSha256": "b7b022e8633d0f0500ff3b91b25e8fe76fdf23f4f184c86c8052733d97f5a116",
+  "testReportSha256": "aee55e11ec40a024d2899de8c690011cb0f0f44e4caa96bee13fb68b78e5de76",
+  "declaredFiles": 481,
+  "tests": 5734,
+  "passed": 5714,
+  "failed": 0,
+  "skipped": 20,
+  "checks": [
+    {
+      "name": "typecheck",
+      "exitCode": 0,
+      "elapsedMs": 49943,
+      "logSha256": "d2d95c551cd3d7c9ce656c890d8d76c8bdeccd590679e5521da75dafcecd693d"
+    },
+    {
+      "name": "lint",
+      "exitCode": 0,
+      "elapsedMs": 1367,
+      "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "format",
+      "exitCode": 0,
+      "elapsedMs": 1700,
+      "logSha256": "7a762f27598bb49f524a640f1b512148572f3c3046ca5e943ebf759a5cc42a0b"
+    },
+    {
+      "name": "knip",
+      "exitCode": 0,
+      "elapsedMs": 2790,
+      "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "contracts",
+      "exitCode": 0,
+      "elapsedMs": 1529,
+      "logSha256": "e0bfbf48403f68e16703a91e6e46175e37a156e2868b6a047243c43e9c6aee51"
+    },
+    {
+      "name": "build",
+      "exitCode": 0,
+      "elapsedMs": 9520,
+      "logSha256": "003b540b7aee1230d8da964e3fadccf765834b04f7489a8fa596f8450d79e40d"
+    },
+    {
+      "name": "test",
+      "exitCode": 0,
+      "elapsedMs": 1402115,
+      "logSha256": "c913d7f935cf781ae1b0d72d726ce83dbb2ba0e4ceaafc5175e53c1e7df5454a"
+    },
+    {
+      "name": "test-ledger",
+      "exitCode": 0,
+      "elapsedMs": 1386,
+      "logSha256": "473458ad7f2dc7c68346c848dd5a79463c8e8d222250f55385904468ba5be7db"
+    },
+    {
+      "name": "provenance",
+      "exitCode": 0,
+      "elapsedMs": 724,
+      "logSha256": "f0a48513082a12df030f05efb95680f5f0ac17a9c36b675d97521e76f6f13378"
+    },
+    {
+      "name": "graph-memory",
+      "exitCode": 0,
+      "elapsedMs": 4793,
+      "logSha256": "76c0b71ca7a930a0091899ac350724381c5a05f335710881f4f648ba370899e9"
+    },
+    {
+      "name": "sbom",
+      "exitCode": 0,
+      "elapsedMs": 1032,
+      "logSha256": "b8af3021ada6ece5ce2d21b7e1660c3410a8cd4f5827d8fbd857521223a68246"
+    },
+    {
+      "name": "notices",
+      "exitCode": 0,
+      "elapsedMs": 1210,
+      "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "package",
+      "exitCode": 0,
+      "elapsedMs": 3455,
+      "logSha256": "e01eb0631ace7babca3f2260f2386458f341ed89cc955dc5e7ed8caa06d37f77"
+    },
+    {
+      "name": "checksums",
+      "exitCode": 0,
+      "elapsedMs": 104,
+      "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "artifacts",
+      "exitCode": 0,
+      "elapsedMs": 5183,
+      "logSha256": "94ff7d430515965f8c026a5136108b4b8859d09741701b6f1653c322c8e0e533"
+    },
+    {
+      "name": "isolated-runtime",
+      "exitCode": 0,
+      "elapsedMs": 25399,
+      "logSha256": "1ffe1b53a54cce87ad30db54683c8c892618cbd4303d264fa236abe7acdfde72"
+    }
+  ],
+  "archiveManifestSha256": "c7c0971afa19e1a3d9135290db6913bd0238203ec7303f1cd04db87156cccfd2",
+  "buildInfoSha256": "5867c2f03068b1903794d0aff8cc31a5a1a8362cd3a053d9cda8bce44ed2b73a",
+  "expectedBuildId": 1791202532000,
+  "expectedBuildIdentityHash": "sha256:6a3c0ce138ff9ee8ad18c7f36716a6b6f001027f7f64691cea7f51c4a5f446be",
+  "environment": {
+    "operatingSystem": "Windows",
+    "nativeToolchain": true,
+    "sourceDateEpoch": "1791202532",
+    "sameWindowsUser": true,
+    "osProcessSandbox": false
+  },
+  "liveFigmaAcceptance": false,
+  "targetServiceAcceptance": false,
+  "remoteCiAcceptance": false
+}

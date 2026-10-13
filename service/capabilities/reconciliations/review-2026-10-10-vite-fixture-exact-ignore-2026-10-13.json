@@ -1,0 +1,51 @@
+{
+  "schemaVersion": 1,
+  "slice": "review-2026-10-10",
+  "baseline": {
+    "headCommit": "22517932dc9b2cb974c177ec4eacb84d4b16e254",
+    "authoritySha256": {
+      "upstream-lock.json": "658d667364f8b6c06dbe35ad2ad822b1719a6d6226a357035bb28580b231b11d",
+      "vendor-map.json": "b3275c7d8b997d1cfe723d97594659f77d7b4361b824a790bcfdd7ff762589bd",
+      "vendor-rules.json": "bcf1e35072c7db6729ac2892f045fdf029c01d8ad7f34561e1ce4c16afd7696a"
+    }
+  },
+  "entries": [
+    {
+      "path": ".gitignore",
+      "sha256": "c958e6a03df79f2918a0e7fcb03fc3b72a44cc8db5d75ac0b5f0df2f75488e24",
+      "priorClaims": [
+        {
+          "class": "protected",
+          "sha256": "5b97da169fe483aa16f3c73a8a5ddd554798788edc84f766b81d21385cf81e95"
+        }
+      ],
+      "reason": "Narrow the reviewed Vite fixture tracking exception with three anchored child-deny rules. Permit only the two immutable reviewed text fixtures and ancestor directories, preserving ignored generated outputs and denying arbitrary sibling fixture files. Independent review rejected the broader five-line draft; preserve that finding and prior unmanaged-resource failure. No runtime behavior, timers, test assertions or historical outcomes changed."
+    },
+    {
+      "path": "capabilities/task-review-2026-10-10-authority-classes.json",
+      "sha256": "d5b873e3d65668f49dfe13f30fee190ae273b6db2d45377def3fd92399f5c46a",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "829daf77e0c46e5220619cfb73c40bd107aa5ff9b41b8e3ba0d544d6a1ed1f03"
+        },
+        {
+          "class": "protected",
+          "sha256": "829daf77e0c46e5220619cfb73c40bd107aa5ff9b41b8e3ba0d544d6a1ed1f03"
+        }
+      ],
+      "reason": "Narrow the reviewed Vite fixture tracking exception with three anchored child-deny rules. Permit only the two immutable reviewed text fixtures and ancestor directories, preserving ignored generated outputs and denying arbitrary sibling fixture files. Independent review rejected the broader five-line draft; preserve that finding and prior unmanaged-resource failure. No runtime behavior, timers, test assertions or historical outcomes changed."
+    },
+    {
+      "path": "packages/portal/package.json",
+      "sha256": "ddb99eafe979d2319697f9bde91d01c4b3f4cf7f3e2a2baccfcb06ceff7767c8",
+      "priorClaims": [
+        {
+          "class": "protected",
+          "sha256": "ddb99eafe979d2319697f9bde91d01c4b3f4cf7f3e2a2baccfcb06ceff7767c8"
+        }
+      ],
+      "reason": "Narrow the reviewed Vite fixture tracking exception with three anchored child-deny rules. Permit only the two immutable reviewed text fixtures and ancestor directories, preserving ignored generated outputs and denying arbitrary sibling fixture files. Independent review rejected the broader five-line draft; preserve that finding and prior unmanaged-resource failure. No runtime behavior, timers, test assertions or historical outcomes changed."
+    }
+  ]
+}

@@ -1,0 +1,220 @@
+{
+  "schemaVersion": 1,
+  "recordedAt": "2026-10-12T07:37:58.649Z",
+  "sourceHash": "sha256:a476a925b0304a9ce8b02d199228f2d80f9e6eb99c342c2569e2ceefa91c4230",
+  "scope": "Three actual retained-tab a476 QA portal/backend logging rounds. Expected doctor EGRESS_CONFIG_REQUIRED is not a successful doctor execution. No Figma-to-frontend acceptance.",
+  "sameTab": true,
+  "rounds": [
+    {
+      "receiptSha256": "70154c2eca14d42b5edbf53c76fe1ec40e65ec561feb74a36a576ded6eaecbde",
+      "at": "2026-10-12T07:35:45.587Z",
+      "passed": true,
+      "jobs": [
+        {
+          "id": "6e022525-3240-416c-89d4-ea3541ddbbe4",
+          "type": "feature",
+          "name": "status",
+          "status": "succeeded",
+          "errorCode": null,
+          "requestId": "94ac8019-f1e1-4eaa-af69-a785fff5ff00"
+        },
+        {
+          "id": "0ef542a3-f862-4193-a6ff-bb170ffc7849",
+          "type": "tool",
+          "name": "doctor",
+          "status": "failed",
+          "errorCode": "EGRESS_CONFIG_REQUIRED",
+          "requestId": "0bda2260-a23e-494e-806f-a0754137a2aa"
+        }
+      ],
+      "correlation": {
+        "jobId": "6e022525-3240-416c-89d4-ea3541ddbbe4",
+        "portalRequestId": "94ac8019-f1e1-4eaa-af69-a785fff5ff00",
+        "daemonRequestIds": [
+          "bd45f8de-69e8-400d-8955-61d17e4e3f93"
+        ]
+      },
+      "failure": {
+        "jobId": "0ef542a3-f862-4193-a6ff-bb170ffc7849",
+        "knownCode": "EGRESS_CONFIG_REQUIRED",
+        "causeCount": 1,
+        "stackLocations": [
+          {
+            "module": "commands.mjs",
+            "chunkHash": "sha256:0f9245e00e1aee773d2749d2b22f4877024e610feb0b2ac85691c283ce7291ea",
+            "line": 54036,
+            "column": 41
+          }
+        ]
+      },
+      "privateValuesAbsent": true,
+      "files": {
+        "portal": [
+          {
+            "name": "portal.jsonl",
+            "bytes": 1007806,
+            "sha256": "667274e5263cf260065cc6014c511590127945c639955bac0ec851dab388b86b"
+          }
+        ],
+        "daemon": [
+          {
+            "name": "daemon.jsonl",
+            "bytes": 166918,
+            "sha256": "bf84733324d911b97df6d413b07e9f3b7bb558e1e4f9c188bae41c3b823661fc"
+          }
+        ]
+      },
+      "logger": {
+        "level": "debug",
+        "dropped": 0,
+        "writeFailures": 0,
+        "flushTimeouts": 0,
+        "preWriteRetries": 0,
+        "recoveredWrites": 0
+      }
+    },
+    {
+      "receiptSha256": "7dddc50b0dfcdc898135aa505e4b0de33eb12167b15143217e92dedc54c6588f",
+      "at": "2026-10-12T07:36:06.178Z",
+      "passed": true,
+      "jobs": [
+        {
+          "id": "5b07d464-b8b5-46f4-8fd3-624503921b31",
+          "type": "feature",
+          "name": "status",
+          "status": "succeeded",
+          "errorCode": null,
+          "requestId": "ac979d3b-84a3-444b-a75a-4702192aac1f"
+        },
+        {
+          "id": "9a9a8cc4-f8a4-4c49-bd8c-7e95c5fe0ff3",
+          "type": "tool",
+          "name": "doctor",
+          "status": "failed",
+          "errorCode": "EGRESS_CONFIG_REQUIRED",
+          "requestId": "0f9e5c14-3e15-4f24-bf67-b057519e1530"
+        }
+      ],
+      "correlation": {
+        "jobId": "5b07d464-b8b5-46f4-8fd3-624503921b31",
+        "portalRequestId": "ac979d3b-84a3-444b-a75a-4702192aac1f",
+        "daemonRequestIds": [
+          "4e0fba8f-38ca-45bb-8614-7fb723f320c0"
+        ]
+      },
+      "failure": {
+        "jobId": "9a9a8cc4-f8a4-4c49-bd8c-7e95c5fe0ff3",
+        "knownCode": "EGRESS_CONFIG_REQUIRED",
+        "causeCount": 1,
+        "stackLocations": [
+          {
+            "module": "commands.mjs",
+            "chunkHash": "sha256:0f9245e00e1aee773d2749d2b22f4877024e610feb0b2ac85691c283ce7291ea",
+            "line": 54036,
+            "column": 41
+          }
+        ]
+      },
+      "privateValuesAbsent": true,
+      "files": {
+        "portal": [
+          {
+            "name": "portal.jsonl",
+            "bytes": 1037155,
+            "sha256": "8567bb1fa52e5f6e6f36f51f2964d6364ba2744627852b0efb2783cd6b91f66d"
+          }
+        ],
+        "daemon": [
+          {
+            "name": "daemon.jsonl",
+            "bytes": 188422,
+            "sha256": "4f237ca93eabb8f031efe0df36c46e94568a66901bcd9f47b6c657816bfd0826"
+          }
+        ]
+      },
+      "logger": {
+        "level": "debug",
+        "dropped": 0,
+        "writeFailures": 0,
+        "flushTimeouts": 0,
+        "preWriteRetries": 0,
+        "recoveredWrites": 0
+      }
+    },
+    {
+      "receiptSha256": "ecd58e764b239e401a674281020c3dfd9d6835bdbb58fab3a3bf7d121e71a43c",
+      "at": "2026-10-12T07:36:09.965Z",
+      "passed": true,
+      "jobs": [
+        {
+          "id": "7d2bd094-7482-40c7-9abe-a7f873b1bf45",
+          "type": "feature",
+          "name": "status",
+          "status": "succeeded",
+          "errorCode": null,
+          "requestId": "c7df2451-404a-4dbc-b266-7be52813c248"
+        },
+        {
+          "id": "ccb06167-b01a-4b91-b6d1-cb598ac058c7",
+          "type": "tool",
+          "name": "doctor",
+          "status": "failed",
+          "errorCode": "EGRESS_CONFIG_REQUIRED",
+          "requestId": "76c520c7-a44f-4269-a704-4d9afd25d68e"
+        }
+      ],
+      "correlation": {
+        "jobId": "7d2bd094-7482-40c7-9abe-a7f873b1bf45",
+        "portalRequestId": "c7df2451-404a-4dbc-b266-7be52813c248",
+        "daemonRequestIds": [
+          "b6cabe67-985f-465b-951f-b23a500cf137"
+        ]
+      },
+      "failure": {
+        "jobId": "ccb06167-b01a-4b91-b6d1-cb598ac058c7",
+        "knownCode": "EGRESS_CONFIG_REQUIRED",
+        "causeCount": 1,
+        "stackLocations": [
+          {
+            "module": "commands.mjs",
+            "chunkHash": "sha256:0f9245e00e1aee773d2749d2b22f4877024e610feb0b2ac85691c283ce7291ea",
+            "line": 54036,
+            "column": 41
+          }
+        ]
+      },
+      "privateValuesAbsent": true,
+      "files": {
+        "portal": [
+          {
+            "name": "portal.jsonl",
+            "bytes": 18083,
+            "sha256": "c629313123523145ab65fa980532a4c79d205dc544b16bf68198650c059dee42"
+          },
+          {
+            "name": "portal.jsonl.1",
+            "bytes": 1048421,
+            "sha256": "7badea29ec11c14fb11420b47087260a3a36557a5482c4b03b2af488a227e7be"
+          }
+        ],
+        "daemon": [
+          {
+            "name": "daemon.jsonl",
+            "bytes": 209925,
+            "sha256": "3992a7afba06caf1245b9a1807c20e18924c36ab9fbdaf1d270fe6f7ebdd6bee"
+          }
+        ]
+      },
+      "logger": {
+        "level": "debug",
+        "dropped": 0,
+        "writeFailures": 0,
+        "flushTimeouts": 0,
+        "preWriteRetries": 0,
+        "recoveredWrites": 0
+      }
+    }
+  ],
+  "allLoggingChecksPassed": true,
+  "completeFrontendJourneys": 0
+}

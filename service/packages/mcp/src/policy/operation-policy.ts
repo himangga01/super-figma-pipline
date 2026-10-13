@@ -441,11 +441,32 @@ const portalEntries = PORTAL_TOOL_NAMES.map(name => {
       name,
       policy(
         name,
-        [...effects, browser, FIGMA_READ],
+        [
+          ...effects,
+          browser,
+          { ...browser, collector: 'page-api' },
+          { ...browser, collector: 'scripter' },
+          FIGMA_READ,
+          network('design.officialEndpoint'),
+        ],
         (args, context) => {
           const design = args.design as { artifactPath?: string; freshness?: string } | undefined;
           return !design?.artifactPath || design.freshness === 'require-live'
-            ? [...effects, context.portalCaptureSource === 'desktop' ? FIGMA_READ : browser]
+            ? [
+                ...effects,
+                ...(context.portalCaptureSource === 'official-mcp'
+                  ? [FIGMA_READ, network('design.officialEndpoint')]
+                  : [
+                      context.portalCaptureSource === 'desktop'
+                        ? FIGMA_READ
+                        : {
+                            ...browser,
+                            ...(context.portalCaptureCollector
+                              ? { collector: context.portalCaptureCollector }
+                              : {}),
+                          },
+                    ]),
+              ]
             : effects;
         },
         () => 'operation-id',
@@ -459,11 +480,37 @@ const portalEntries = PORTAL_TOOL_NAMES.map(name => {
       name,
       policy(
         name,
-        [...effects, FIGMA_READ],
+        [
+          ...effects,
+          {
+            type: 'external-browser-read',
+            urlArg: 'plan.design.url',
+            attachOnly: true,
+            collector: 'page-api',
+          },
+          {
+            type: 'external-browser-read',
+            urlArg: 'plan.design.url',
+            attachOnly: true,
+            collector: 'scripter',
+          },
+          FIGMA_READ,
+          network('plan.design.officialEndpoint'),
+        ],
         (_args, context) =>
-          context.portalCaptureSource === 'desktop'
-            ? [...effects.filter(effect => effect.type !== 'external-browser-read'), FIGMA_READ]
-            : effects,
+          context.portalCaptureSource === 'official-mcp'
+            ? [
+                ...effects.filter(effect => effect.type !== 'external-browser-read'),
+                FIGMA_READ,
+                network('plan.design.officialEndpoint'),
+              ]
+            : context.portalCaptureSource === 'desktop'
+              ? [...effects.filter(effect => effect.type !== 'external-browser-read'), FIGMA_READ]
+              : effects.map(effect =>
+                  effect.type === 'external-browser-read' && context.portalCaptureCollector
+                    ? { ...effect, collector: context.portalCaptureCollector }
+                    : effect,
+                ),
         () => 'operation-id',
         'exclusive-heavy',
         'operation-id',

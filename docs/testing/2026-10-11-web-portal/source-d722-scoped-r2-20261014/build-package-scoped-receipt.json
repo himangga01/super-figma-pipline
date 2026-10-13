@@ -1,0 +1,169 @@
+{
+  "schemaVersion": 1,
+  "kind": "scoped-build-package-artifact-evidence",
+  "releaseId": "1fb30463-ea9c-446d-88fe-bd750b6c28d6",
+  "runId": "909b0e47-957c-4178-b50c-662deedc37e5",
+  "recordedAt": "2026-10-13T18:16:53.264Z",
+  "sourceHash": "sha256:d722c32152149464c961c660622a95e3da603eb00f291e28b15c024507bcd87d",
+  "sourceEpoch": 1791202532,
+  "wholePassed": false,
+  "liveAcceptance": false,
+  "status": "passed",
+  "commands": [
+    {
+      "name": "build",
+      "executable": "C:\\Program Files\\nodejs\\node.exe",
+      "args": [
+        "C:\\Program Files\\nodejs\\node_modules\\corepack\\dist\\pnpm.js",
+        "build"
+      ],
+      "startedAt": "2026-10-13T18:16:53.968Z",
+      "elapsedMs": 9888,
+      "exitCode": 0,
+      "signal": null,
+      "killed": false,
+      "logPath": ".worktrees/baseline/service/artifacts/focused-checks/909b0e47-957c-4178-b50c-662deedc37e5/build.txt",
+      "logSha256": "fae03352f91ad30c3841e168e0142c3c96a42b6ada7f81cb4acee668b9032047"
+    },
+    {
+      "name": "sbom",
+      "executable": "C:\\Program Files\\nodejs\\node.exe",
+      "args": [
+        "scripts/generate-sbom.mjs"
+      ],
+      "startedAt": "2026-10-13T18:17:03.857Z",
+      "elapsedMs": 545,
+      "exitCode": 0,
+      "signal": null,
+      "killed": false,
+      "logPath": ".worktrees/baseline/service/artifacts/focused-checks/909b0e47-957c-4178-b50c-662deedc37e5/sbom.txt",
+      "logSha256": "cf98f3271ab799b585833bcb42a0ce944d6172c34d6671b4fa9045f22b49c08f"
+    },
+    {
+      "name": "notices",
+      "executable": "C:\\Program Files\\nodejs\\node.exe",
+      "args": [
+        "scripts/generate-notices.mjs"
+      ],
+      "startedAt": "2026-10-13T18:17:04.403Z",
+      "elapsedMs": 948,
+      "exitCode": 0,
+      "signal": null,
+      "killed": false,
+      "logPath": ".worktrees/baseline/service/artifacts/focused-checks/909b0e47-957c-4178-b50c-662deedc37e5/notices.txt",
+      "logSha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b"
+    },
+    {
+      "name": "package",
+      "executable": "C:\\Program Files\\nodejs\\node.exe",
+      "args": [
+        "scripts/package-artifacts.mjs"
+      ],
+      "startedAt": "2026-10-13T18:17:06.070Z",
+      "elapsedMs": 2421,
+      "exitCode": 0,
+      "signal": null,
+      "killed": false,
+      "logPath": ".worktrees/baseline/service/artifacts/focused-checks/909b0e47-957c-4178-b50c-662deedc37e5/package.txt",
+      "logSha256": "92ad9a7940c8ed43facbfa5dab2f43e08695537f01de40b81a421a1a05191a71"
+    },
+    {
+      "name": "checksums",
+      "executable": "C:\\Program Files\\nodejs\\node.exe",
+      "args": [
+        "scripts/generate-checksums.mjs"
+      ],
+      "startedAt": "2026-10-13T18:17:08.493Z",
+      "elapsedMs": 95,
+      "exitCode": 0,
+      "signal": null,
+      "killed": false,
+      "logPath": ".worktrees/baseline/service/artifacts/focused-checks/909b0e47-957c-4178-b50c-662deedc37e5/checksums.txt",
+      "logSha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b"
+    },
+    {
+      "name": "verify-artifacts",
+      "executable": "C:\\Program Files\\nodejs\\node.exe",
+      "args": [
+        "scripts/verify-artifacts.mjs"
+      ],
+      "startedAt": "2026-10-13T18:17:08.588Z",
+      "elapsedMs": 4642,
+      "exitCode": 0,
+      "signal": null,
+      "killed": false,
+      "logPath": ".worktrees/baseline/service/artifacts/focused-checks/909b0e47-957c-4178-b50c-662deedc37e5/verify-artifacts.txt",
+      "logSha256": "204e3ebe0568fd9478a6e678f262fc6aff45388c8cc9274c71c27291ebdbab33"
+    },
+    {
+      "name": "artifact-contents",
+      "executable": "C:\\Program Files\\nodejs\\node.exe",
+      "args": [
+        "C:\\Program Files\\nodejs\\node_modules\\corepack\\dist\\pnpm.js",
+        "exec",
+        "vitest",
+        "run",
+        "test/artifact-contents.test.ts"
+      ],
+      "startedAt": "2026-10-13T18:17:16.718Z",
+      "elapsedMs": 5411,
+      "exitCode": 0,
+      "signal": null,
+      "killed": false,
+      "logPath": ".worktrees/baseline/service/artifacts/focused-checks/909b0e47-957c-4178-b50c-662deedc37e5/artifact-contents.txt",
+      "logSha256": "67f73bddc841f3897213830c3bbada84a1c92a8a15f22fbda5336116ae74e992"
+    },
+    {
+      "name": "artifact-adjudication",
+      "executable": "C:\\Program Files\\nodejs\\node.exe",
+      "args": [
+        "scripts/check-test-report.mjs",
+        "C:\\2026_project\\super-figma-pipline\\.worktrees\\baseline\\service\\artifacts\\focused-checks\\909b0e47-957c-4178-b50c-662deedc37e5\\vitest-report.json",
+        "--log",
+        "C:\\2026_project\\super-figma-pipline\\.worktrees\\baseline\\service\\artifacts\\focused-checks\\909b0e47-957c-4178-b50c-662deedc37e5\\artifact-contents.txt",
+        "--scope",
+        "C:\\2026_project\\super-figma-pipline\\.worktrees\\baseline\\service\\artifacts\\focused-checks\\909b0e47-957c-4178-b50c-662deedc37e5\\test-scope.json"
+      ],
+      "startedAt": "2026-10-13T18:17:22.130Z",
+      "elapsedMs": 736,
+      "exitCode": 0,
+      "signal": null,
+      "killed": false,
+      "logPath": ".worktrees/baseline/service/artifacts/focused-checks/909b0e47-957c-4178-b50c-662deedc37e5/artifact-adjudication.txt",
+      "logSha256": "c226468726d82f1b97bbd62b311aa0c9f7fa54b88f9880d24e59e8dc526d3d8e"
+    }
+  ],
+  "build": {
+    "buildInfoPath": ".worktrees/baseline/service/packages/mcp/dist/build-info.json",
+    "sha256": "f119460a3fc7346033c568e8756e600d25628a0417642bb8012db52d2bcc3bac",
+    "buildId": 1791202532000,
+    "identity": "sha256:7632acd6e38c4887b44325ef6cb1439f55170bdb7452ce3985aae3eb629cb1d1"
+  },
+  "package": {
+    "manifestPath": ".worktrees/baseline/service/artifacts/artifact-manifest.v1.json",
+    "sha256": "f4f6294b169f2dded2f131eea9d5f020d061e1099deba7ddcce452a92975e967",
+    "archives": [
+      {
+        "name": "mcp.tgz",
+        "sha256": "2506cc2fb8399917fc1636d408e6368dbd4c7dbf9bd39c47983c2a2b0de3a462"
+      },
+      {
+        "name": "cli.tgz",
+        "sha256": "22f08e4763d724fe4b76c747e1c6445a423b7be912addd8e5f7c79c5d98df4ea"
+      },
+      {
+        "name": "plugin.zip",
+        "sha256": "012486b5887792093e8d457746a8964f79ce995b137ee391cf3b06cd132cb1ac"
+      },
+      {
+        "name": "portal.tgz",
+        "sha256": "e840c969020cf69fabd9b4eec8319100e21b0fc462dca0858c75d39e893e2ae4"
+      }
+    ]
+  },
+  "artifact": {
+    "checkpointPath": "docs/testing/2026-10-11-web-portal/source-d722-scoped-r2-20261014/artifact-contents-checkpoint.json",
+    "sha256": "feb1b66c4eb6c8398b47bc846b1fbfbb99649f095a54f7be45ab77725a19e2f8"
+  },
+  "completedAt": "2026-10-13T18:17:23.553Z"
+}

@@ -1,0 +1,1447 @@
+{
+  "schemaVersion": 1,
+  "slice": "review-2026-10-10",
+  "authorityPaths": [
+    "service/capabilities/change-manifests/task-review-2026-10-10.json",
+    "service/upstream-lock.json",
+    "service/vendor-map.json",
+    "service/vendor-rules.json"
+  ],
+  "changes": [
+    {
+      "status": "M",
+      "path": "service/.gitignore",
+      "sha256": "c958e6a03df79f2918a0e7fcb03fc3b72a44cc8db5d75ac0b5f0df2f75488e24"
+    },
+    {
+      "status": "M",
+      "path": "service/README.md",
+      "sha256": "4ccb48d0475443c20127482cd9bf2f5da599107fea4d3784f1dc434ba3a581ae"
+    },
+    {
+      "status": "M",
+      "path": "service/SBOM.spdx.json",
+      "sha256": "def65842c04e035fe82f55b09e6113a0d33a95e506ba9151079bf58b5c5eb008"
+    },
+    {
+      "status": "A",
+      "path": "service/capabilities/reconciliations/review-2026-10-10-chrome-scope-names-2026-10-12.json",
+      "sha256": "68e762c02484c5aa729f3505061d0e15fa10f9e3a4c3df8e940ccfb1dda33600"
+    },
+    {
+      "status": "A",
+      "path": "service/capabilities/reconciliations/review-2026-10-10-cleanup-test-2026-10-11.json",
+      "sha256": "2e592c2afac94b5b418320569d8222f294d7bc08cce82c544f329b3cc8fd9a18"
+    },
+    {
+      "status": "A",
+      "path": "service/capabilities/reconciliations/review-2026-10-10-config-provenance-repair-2026-10-14.json",
+      "sha256": "3361e2afdcbeb97a4f3c4b70e1325285ff18407177976c018f829c8ee3a9e195"
+    },
+    {
+      "status": "A",
+      "path": "service/capabilities/reconciliations/review-2026-10-10-consent-entry-and-oauth-schema-knip-2026-10-13.json",
+      "sha256": "b50f775c6794aa62030cd51006d22ce52d428faddedf5089aad7ec2ed10c44dc"
+    },
+    {
+      "status": "A",
+      "path": "service/capabilities/reconciliations/review-2026-10-10-diagnostics-chrome-2026-10-12.json",
+      "sha256": "ca2c4a1819a39345a515f459e4e32d7eeb28266e6bfaa278eabdb932fd3efad8"
+    },
+    {
+      "status": "A",
+      "path": "service/capabilities/reconciliations/review-2026-10-10-eight-file-repair-2026-10-13.json",
+      "sha256": "ea5550543f78dc5f27b89d86909fa3404ba94a4a6040e00bee24b45c6940ca0c"
+    },
+    {
+      "status": "A",
+      "path": "service/capabilities/reconciliations/review-2026-10-10-fast-reviewed-35-2026-10-13.json",
+      "sha256": "dbb1ab47f6b207559c10c2fdb919d9eddd666e38eb93ace106fe64b34f39ce13"
+    },
+    {
+      "status": "A",
+      "path": "service/capabilities/reconciliations/review-2026-10-10-final-scoped-repair-2026-10-14.json",
+      "sha256": "9b373898d9b1e028598fc2da8e1864838a2a6612d32352ae02ec4956fbba88f7"
+    },
+    {
+      "status": "A",
+      "path": "service/capabilities/reconciliations/review-2026-10-10-first-workspace-chrome-open-and-registration-2026-10-13.json",
+      "sha256": "abfbf56f105c7f3d56c5930a579936730e3d2105432f87d0ab4b0146ee3b4bd6"
+    },
+    {
+      "status": "A",
+      "path": "service/capabilities/reconciliations/review-2026-10-10-fixture-assertion.json",
+      "sha256": "9ae2e3af73cd335bcf12a9ee46ba8aa61b32880b5780e753f1939f409bdb9fd6"
+    },
+    {
+      "status": "A",
+      "path": "service/capabilities/reconciliations/review-2026-10-10-fixture-budgets.json",
+      "sha256": "a6475f23386a0be419c6edceaf1b59840403deffc6d687cd161d015bbd712e49"
+    },
+    {
+      "status": "A",
+      "path": "service/capabilities/reconciliations/review-2026-10-10-generated-route-alias-guard-2026-10-14.json",
+      "sha256": "938f775233ca0036376ddc8b526fae65cbad585243d89d5944897961351ef3fa"
+    },
+    {
+      "status": "A",
+      "path": "service/capabilities/reconciliations/review-2026-10-10-graph-membership-repair-2026-10-14.json",
+      "sha256": "786852166f448f2b0eb3d9569a743f740d788072b616c96426e271157accc1e3"
+    },
+    {
+      "status": "A",
+      "path": "service/capabilities/reconciliations/review-2026-10-10-legacy-ssr-r52-2026-10-13.json",
+      "sha256": "d359b803b9e667bd1ee0406875b2c3cded2aa56a969767197e5251695d7ae0a3"
+    },
+    {
+      "status": "A",
+      "path": "service/capabilities/reconciliations/review-2026-10-10-local-recovery-and-evidence-2026-10-12.json",
+      "sha256": "383b7b3e0dd17f53ec690a83994f81157e876a0092fca84cb4d59c2f6e1ecd8c"
+    },
+    {
+      "status": "A",
+      "path": "service/capabilities/reconciliations/review-2026-10-10-native-components-and-archives.json",
+      "sha256": "b905acdac1a9e454980503f76fb02b84160dd15329ed899e755965c089dbe820"
+    },
+    {
+      "status": "A",
+      "path": "service/capabilities/reconciliations/review-2026-10-10-native-contours-supplement-and-c3-compiler-2026-10-13.json",
+      "sha256": "f39e97ddfd12f21b067059f39397443d181230d38860f575f5e871b0cc55089e"
+    },
+    {
+      "status": "A",
+      "path": "service/capabilities/reconciliations/review-2026-10-10-native-export-repair-2026-10-12.json",
+      "sha256": "15ff8718b49591f36b15b368d5c367ba411f9446690651493fc65075f56d5e2e"
+    },
+    {
+      "status": "A",
+      "path": "service/capabilities/reconciliations/review-2026-10-10-native-geometry-authoring-2026-10-13.json",
+      "sha256": "e24eec33808e09f726529f299a89405421226d262a7e204f5051235fee02ccbb"
+    },
+    {
+      "status": "A",
+      "path": "service/capabilities/reconciliations/review-2026-10-10-native-supplier-url-2026-10-13.json",
+      "sha256": "aa16c279404c0b1be377c3a8f9d9b7620824f10f73a8e7169f3f5cc0ab5e69cd"
+    },
+    {
+      "status": "A",
+      "path": "service/capabilities/reconciliations/review-2026-10-10-package-imports.json",
+      "sha256": "b5a02414c141c19f706b372c002d1a5682557d32d2109d1583dba08629415d91"
+    },
+    {
+      "status": "A",
+      "path": "service/capabilities/reconciliations/review-2026-10-10-packaged-guide-format-2026-10-13.json",
+      "sha256": "eac6d452e4d8967f3dbb6f776c5dbabc09f422bab2753e5c1b1b950d84a18b69"
+    },
+    {
+      "status": "A",
+      "path": "service/capabilities/reconciliations/review-2026-10-10-page-api-2026-10-11.json",
+      "sha256": "a7c620b341ea0891c7e14a6fe50b6494bc421012edfd039de2a1d6d812f28153"
+    },
+    {
+      "status": "A",
+      "path": "service/capabilities/reconciliations/review-2026-10-10-page-api-lint-2026-10-11.json",
+      "sha256": "d619c1a05abf6a452f2fb6042def71fa504856ebaad65d047d956da31add7202"
+    },
+    {
+      "status": "A",
+      "path": "service/capabilities/reconciliations/review-2026-10-10-parallel-2026-10-11.json",
+      "sha256": "57968822e5129edcb0cc907a5450332b3c75ecd7251628480931eb8e7a27ce31"
+    },
+    {
+      "status": "A",
+      "path": "service/capabilities/reconciliations/review-2026-10-10-portal-all-functions-2026-10-11.json",
+      "sha256": "c97c8c5fcf99114ac52de6e5a156f6540c20926dc7c326360a37b8b4f8712bdf"
+    },
+    {
+      "status": "A",
+      "path": "service/capabilities/reconciliations/review-2026-10-10-portal-all-functions-test-names-2026-10-11.json",
+      "sha256": "57b8237c51c31ff52f439093863f765ff333df2141aa1d37e7233cbaaabb2898"
+    },
+    {
+      "status": "A",
+      "path": "service/capabilities/reconciliations/review-2026-10-10-portal-auth-approval-package-2026-10-12.json",
+      "sha256": "b9ab1fd49c5763f189f103a30011f3087cbc1eaadf49e668ff7b255e7fa64780"
+    },
+    {
+      "status": "A",
+      "path": "service/capabilities/reconciliations/review-2026-10-10-portal-delete-transport-2026-10-12.json",
+      "sha256": "342d94cc108704ea8f852aeb0d46e226a4b11600124e08fea6b16658e428a4ac"
+    },
+    {
+      "status": "A",
+      "path": "service/capabilities/reconciliations/review-2026-10-10-portal-live-repairs-2026-10-12.json",
+      "sha256": "d575e6f1170f3dd54e2b68f06b3e59615fdcb1109552180cc7bf876e5b65c2be"
+    },
+    {
+      "status": "A",
+      "path": "service/capabilities/reconciliations/review-2026-10-10-preview-reset-2026-10-13.json",
+      "sha256": "ff2f34e6f77b5b0d853abc7ab0554ca59efd987a1b18aad3176a46055e836e41"
+    },
+    {
+      "status": "A",
+      "path": "service/capabilities/reconciliations/review-2026-10-10-probe-fixtures.json",
+      "sha256": "53c582cebad507c9b621c0f1bfbeb5b81f6cef6ecebf19b5b153ec6dec577f04"
+    },
+    {
+      "status": "A",
+      "path": "service/capabilities/reconciliations/review-2026-10-10-retained-runtime-2026-10-12.json",
+      "sha256": "6aa9f385739e79a90cab1c7327f82ff2bc837b620b3ec15e1b16eeb754a043b4"
+    },
+    {
+      "status": "A",
+      "path": "service/capabilities/reconciliations/review-2026-10-10-sourceprep-generated-contracts-2026-10-13.json",
+      "sha256": "d523f088b65467d200bacec74019fa1cf0f94942b9de1faa62d273595fb6d0e2"
+    },
+    {
+      "status": "A",
+      "path": "service/capabilities/reconciliations/review-2026-10-10-vector-paths.json",
+      "sha256": "faa42b02586fb6c4f01276c1e1bf35f995814b5c27614355bc5df13ec2494530"
+    },
+    {
+      "status": "A",
+      "path": "service/capabilities/reconciliations/review-2026-10-10-vite-fixture-exact-ignore-2026-10-13.json",
+      "sha256": "4db1c01ccda1b957b0806dfc06ed950855b4e6350b490b8b93260dc508200f7d"
+    },
+    {
+      "status": "A",
+      "path": "service/capabilities/reconciliations/review-2026-10-10-vite-fixture-tracking-2026-10-13.json",
+      "sha256": "c7ea9dda1afd68c185e6ff93fa590659728a4a4c922d652f7bcde80798b91441"
+    },
+    {
+      "status": "A",
+      "path": "service/capabilities/reconciliations/review-2026-10-10-web-portal-2026-10-11.json",
+      "sha256": "917a7b6902a6c257be112a3c711defe0e2c0505f1fac74eb601117f11bf19cd8"
+    },
+    {
+      "status": "A",
+      "path": "service/capabilities/reconciliations/review-2026-10-10-web-portal-followup-2026-10-11.json",
+      "sha256": "d4b63c666b8bda87e81d84dfce8f76f450041b340aa0a35c0fefab13b7981819"
+    },
+    {
+      "status": "A",
+      "path": "service/capabilities/reconciliations/review-2026-10-10-whole-c767-repairs-2026-10-13.json",
+      "sha256": "371b254ee053a06aac3d5574e65091a7096aca867178d06e695c3c0c88a4ea79"
+    },
+    {
+      "status": "A",
+      "path": "service/capabilities/task-review-2026-10-10-authority-classes.json",
+      "sha256": "f481c63a4f04085161d77684eb47eab750f5ca80b0d679769f180187936cfb6d"
+    },
+    {
+      "status": "M",
+      "path": "service/capabilities/union-manifest.json",
+      "sha256": "2d48f4159b2fb6fda5607491e2c389f74b575e2adc4e04bc88aca98ac926bb39"
+    },
+    {
+      "status": "M",
+      "path": "service/knip.json",
+      "sha256": "07407991f9d2c29e8908d3794ec727365e36c8e27022c750d79ff4b23e2335c9"
+    },
+    {
+      "status": "M",
+      "path": "service/package.json",
+      "sha256": "e18ba80dbc513411f03f45840fe2330dc701bef912ef3bfc40707f707fbba5ce"
+    },
+    {
+      "status": "M",
+      "path": "service/packages/cli/src/admin-commands.ts",
+      "sha256": "786a51d4dbc76307f38d9f70563cdf2034c1fdafeb751b3d805041280d43cc09"
+    },
+    {
+      "status": "M",
+      "path": "service/packages/cli/src/browser-session.ts",
+      "sha256": "3d7de7962798b545c8de3e3e65917b8ea530b67d574dba98a287121db85f1e91"
+    },
+    {
+      "status": "M",
+      "path": "service/packages/cli/src/capture-assets.ts",
+      "sha256": "7e87267a53cc7124136b24e5effc66e25bfecae5edf243c7a4603c1b22f73d0d"
+    },
+    {
+      "status": "A",
+      "path": "service/packages/cli/src/capture-fact-comparison.ts",
+      "sha256": "787ce9c74c4ec2c8c86f65cefb4a3b109ffc7329699b2313b50e8bd18f75cce1"
+    },
+    {
+      "status": "M",
+      "path": "service/packages/cli/src/chrome-endpoint.ts",
+      "sha256": "30b6f449d19089fec74a22f80ff0b810a098621da1caa42922de668fbcc20ee5"
+    },
+    {
+      "status": "M",
+      "path": "service/packages/cli/src/commands.ts",
+      "sha256": "ee70e54988a0479f89bc2f15bcba9868f4cb1cfa04846f36b0f1ecac6cef563c"
+    },
+    {
+      "status": "M",
+      "path": "service/packages/cli/src/control-client.ts",
+      "sha256": "3ef2b249980a8d6796a06638e3b11537e88f67948af200c76db60b03ea4e6dc2"
+    },
+    {
+      "status": "A",
+      "path": "service/packages/cli/src/figma-native-components.ts",
+      "sha256": "a19fe85cde6fbc3c5f7c29923db19b2509344fbe227bad19eacfa12c09e36957"
+    },
+    {
+      "status": "M",
+      "path": "service/packages/cli/src/figma-native-metadata.ts",
+      "sha256": "b1f813586ae945ef4af40afefaeb442358cc9760dcf43a189b516ef69ce83c81"
+    },
+    {
+      "status": "M",
+      "path": "service/packages/cli/src/figma-native-nodes.ts",
+      "sha256": "038162f60bb11b237f122bb4ff3f79fcc0a0dc7e671fd80d7b5459c0a19d401f"
+    },
+    {
+      "status": "M",
+      "path": "service/packages/cli/src/figma-native-vector-network.ts",
+      "sha256": "a3796389e959322dc3e4f6c627c3406a9800de1b672ab655d16f26bf96d67b8f"
+    },
+    {
+      "status": "A",
+      "path": "service/packages/cli/src/figma-page-reader.ts",
+      "sha256": "daeb45dee99dbff9a09cc2f49c7c635c2cd44d310216b6d34782d61008ad5f4a"
+    },
+    {
+      "status": "A",
+      "path": "service/packages/cli/src/figma-web-copy.ts",
+      "sha256": "27fe629f1e074c04eebd932117fc2e231e09b72f2a10759396e5c71d7d98b928"
+    },
+    {
+      "status": "M",
+      "path": "service/packages/cli/src/figma-web-export.ts",
+      "sha256": "2374462137a7e3856cbb1b364ef17084d763bb274975051acc3a7aee75a01457"
+    },
+    {
+      "status": "M",
+      "path": "service/packages/cli/src/library.ts",
+      "sha256": "5affbcda1d371784a6f123155b70c5e5e341e355870d0891544e1be8a453ea05"
+    },
+    {
+      "status": "A",
+      "path": "service/packages/cli/src/local-capture-execution.ts",
+      "sha256": "a30ab55ee3958fcb8949c503c67f9ec362559c2ac4a23725f6f75a97a3ecff70"
+    },
+    {
+      "status": "M",
+      "path": "service/packages/cli/src/official-figma-mcp-command.ts",
+      "sha256": "d129f1e6a536c2e2045472bdb7db73ad01296b7fda9599d2e8a4023cefddafe9"
+    },
+    {
+      "status": "M",
+      "path": "service/packages/cli/src/portal-commands.ts",
+      "sha256": "c1ef11ce93e28d28027564456855e49c4eb09ee36329e4d5c9a39cfb983b1113"
+    },
+    {
+      "status": "M",
+      "path": "service/packages/cli/src/scripter-bridge.ts",
+      "sha256": "49fe18d6e3b1b0d132d8f4cf151fc8686c1d13c92044e1be8650aed64cc366ce"
+    },
+    {
+      "status": "M",
+      "path": "service/packages/cli/src/server-session.ts",
+      "sha256": "7dad75c4a581cbf41178716f0ee9356ecc5f0f09d0b0cdf5983a70d80142a5ab"
+    },
+    {
+      "status": "A",
+      "path": "service/packages/cli/src/service-functions.ts",
+      "sha256": "efce2fd7e8f27c1116da2657affef864df57e6eb85b27d184d422f3beecb1722"
+    },
+    {
+      "status": "A",
+      "path": "service/packages/cli/src/service-tool-catalog.ts",
+      "sha256": "bd5889dc589313207f10af146010165e88420844b40877c2e616496d97142a77"
+    },
+    {
+      "status": "M",
+      "path": "service/packages/cli/src/snapshot-reader.ts",
+      "sha256": "579efc45e0e459173201d903310744b4cf53df6da06de7709800ff53fa088cd2"
+    },
+    {
+      "status": "M",
+      "path": "service/packages/cli/test/admin-commands.test.ts",
+      "sha256": "fd8f9bf1fb155f922c6c88251dc9c0bfcc14e0b8cb514f66936b9186551ba9f5"
+    },
+    {
+      "status": "A",
+      "path": "service/packages/cli/test/bound-server-session.test.ts",
+      "sha256": "f4c892eeab7ffc68347d1e3a09d776ffbba79205a6911ec0bf354e0d7d907d9a"
+    },
+    {
+      "status": "A",
+      "path": "service/packages/cli/test/browser-observation-bounds.test.ts",
+      "sha256": "388d3e5235b41209364473007c1ac770a83425b8526c8f92b021ed83fd81f2ae"
+    },
+    {
+      "status": "M",
+      "path": "service/packages/cli/test/browser-observation.test.ts",
+      "sha256": "36c78b6c4ef60b2a47528613340d227138ba17406791cf258c2f90f49d7227a9"
+    },
+    {
+      "status": "A",
+      "path": "service/packages/cli/test/browser-runtime-probe.test.ts",
+      "sha256": "7b589effded5fdef41221f3051ccf91e9585cd113ebee26a605552f6aa8e688b"
+    },
+    {
+      "status": "M",
+      "path": "service/packages/cli/test/browser-session-reconnect.test.ts",
+      "sha256": "311c25668af4888f0205c2973b8f2c0bd7d2f3f39339db67abd9584e3d314e54"
+    },
+    {
+      "status": "M",
+      "path": "service/packages/cli/test/browser-session.test.ts",
+      "sha256": "9ae1902dcd7760a6e16151eb5065d6ddb7667836a4eb16972bb2bcf81378b5ef"
+    },
+    {
+      "status": "M",
+      "path": "service/packages/cli/test/browser-source-open.test.ts",
+      "sha256": "269c22d37e882b4ae1765fe3fc176d430e7df69713bfadc4ae74670731d6b92a"
+    },
+    {
+      "status": "A",
+      "path": "service/packages/cli/test/capture-fact-comparison.test.ts",
+      "sha256": "a182fc17174722aae35633b3135c4addac275af61ac0ba0524784d2f44ab2906"
+    },
+    {
+      "status": "M",
+      "path": "service/packages/cli/test/chrome-endpoint.test.ts",
+      "sha256": "9886324e87224ba16b36a5474437957eec4766c9a67c72f18573a29b55fe6e6b"
+    },
+    {
+      "status": "M",
+      "path": "service/packages/cli/test/control-client-http.test.ts",
+      "sha256": "843d160d62044c3e04efc04cb8742857051a89c2c1637743b590e88acaee405e"
+    },
+    {
+      "status": "A",
+      "path": "service/packages/cli/test/control-client-oauth-handoff.test.ts",
+      "sha256": "0ca33212f4505a7b089054b434f9878dd0e5e0027f8bd1c5aed90bd95e8a99bf"
+    },
+    {
+      "status": "A",
+      "path": "service/packages/cli/test/desktop-feature-invocation.test.ts",
+      "sha256": "67b20d60a9e90e5bc55ca33c29b79d08902b091c42f78bb2bc08af8755c45295"
+    },
+    {
+      "status": "A",
+      "path": "service/packages/cli/test/figma-native-components.test.ts",
+      "sha256": "52806d048d5842e1b2a3a33c36f27445488718cad6d12c5bc4871dbf6e4829a7"
+    },
+    {
+      "status": "M",
+      "path": "service/packages/cli/test/figma-native-metadata.test.ts",
+      "sha256": "e095dae2a41274d3ca097a6ee9b5e4888fa5478275a375c6291a4a16c02623c9"
+    },
+    {
+      "status": "A",
+      "path": "service/packages/cli/test/figma-native-text-observer.test.ts",
+      "sha256": "d0a9914e592357bd4580d8bab958e9ff13379e60f0cbfc7e4ecce5ba55f9cb85"
+    },
+    {
+      "status": "M",
+      "path": "service/packages/cli/test/figma-native-vector-network.test.ts",
+      "sha256": "e688a58d4d34a468edf810289552c8bb22966fd16b4e4564d34783f3bd76813a"
+    },
+    {
+      "status": "A",
+      "path": "service/packages/cli/test/figma-page-identity-diagnostics.test.ts",
+      "sha256": "41c0f6bb259be4663d83211cede8218d87d8ab3299e35162d2619a4dca119cdc"
+    },
+    {
+      "status": "A",
+      "path": "service/packages/cli/test/figma-page-reader.test.ts",
+      "sha256": "71486bc06de9389631e2fcb9a06e814ccda4274e81b2c6a7d879ff334c8d9e98"
+    },
+    {
+      "status": "M",
+      "path": "service/packages/cli/test/figma-web-export.test.ts",
+      "sha256": "c40f351b5566386e5fbfbe13e842a35f4d0de12ce239bc186e839247f08039ea"
+    },
+    {
+      "status": "A",
+      "path": "service/packages/cli/test/local-capture-helper-quiescence.test.ts",
+      "sha256": "eccda21eb24383761dfc6aaed7c9684c4c39f443dd0e8a3fa4d99745952ff02e"
+    },
+    {
+      "status": "A",
+      "path": "service/packages/cli/test/local-capture-proof.test.ts",
+      "sha256": "cdd38e7041dabc7cf2fa860e5f2030943385e915bf2461bf6e74d1a6bd5639e2"
+    },
+    {
+      "status": "A",
+      "path": "service/packages/cli/test/official-figma-mcp-auth.test.ts",
+      "sha256": "31d12be4451480fc852c0c6dd313d3f95bee14419c5df5b068352a8c9ade98db"
+    },
+    {
+      "status": "M",
+      "path": "service/packages/cli/test/official-figma-mcp.test.ts",
+      "sha256": "bd090eb43a4d4a8fddf67fad20594f4024fa88078e769c85355fc8f1f0f5c2ca"
+    },
+    {
+      "status": "A",
+      "path": "service/packages/cli/test/service-functions.test.ts",
+      "sha256": "8255e5bcbf84030cc5dba5e995d44d4bd7cceab448ac8a11eed90ae126a2f40d"
+    },
+    {
+      "status": "A",
+      "path": "service/packages/cli/test/service-tool-catalog.test.ts",
+      "sha256": "dec0e14d16cb95eba96d7a7afdba43b1e6072b54f309ef636a97e278a1aab3f7"
+    },
+    {
+      "status": "M",
+      "path": "service/packages/ir/src/inspection-v1.ts",
+      "sha256": "b484f161d436540d2ca2c36abb8ce5f83e8fbdaa67390d957b50560a9cbf719e"
+    },
+    {
+      "status": "M",
+      "path": "service/packages/ir/test/inspection-v1.test.ts",
+      "sha256": "26ca4d809bb63201cdded547a68466be968068bd35c66de45303d5e8e157d734"
+    },
+    {
+      "status": "M",
+      "path": "service/packages/mcp/README.md",
+      "sha256": "7f5d0502fbd455f00b6572c05b6bdfdf9bdeb7f4d63b753542008efc663f7c93"
+    },
+    {
+      "status": "A",
+      "path": "service/packages/mcp/src/control/figma-oauth-callback.ts",
+      "sha256": "aa1fcd9db89a9d77b26b4e36d31d7db868d9be58cb6a625b8e91f740470d7597"
+    },
+    {
+      "status": "A",
+      "path": "service/packages/mcp/src/control/figma-oauth-contract.ts",
+      "sha256": "4e748ba03778e1a4f554889ba6be105c6686335e0bf402d248aae5ba92e8017a"
+    },
+    {
+      "status": "A",
+      "path": "service/packages/mcp/src/control/figma-oauth-handoff.ts",
+      "sha256": "f47591eb2cd2124f3c6db3746bf9c416481333e7b823c7479fe8994b5bb09b41"
+    },
+    {
+      "status": "A",
+      "path": "service/packages/mcp/src/control/figma-oauth-metadata.ts",
+      "sha256": "1cd0f7adffb5c6b993c470ef480f0488b5d6b3cd8129a471e266c128fa9a9a5c"
+    },
+    {
+      "status": "A",
+      "path": "service/packages/mcp/src/control/figma-oauth-provider.ts",
+      "sha256": "af12be3b799ec8dd5a654441ad5665d28d3dac6c4aeb02ea82abf5703826ef2d"
+    },
+    {
+      "status": "A",
+      "path": "service/packages/mcp/src/control/figma-oauth-state.ts",
+      "sha256": "700196f42b51018cbd587143f9569a944a47b6e6aeb70ca1dce88e18387a6e38"
+    },
+    {
+      "status": "A",
+      "path": "service/packages/mcp/src/control/figma-settings-endpoint.ts",
+      "sha256": "2a3e766744e56b3088a84364f34f2218ec3fd536257a2c96ac8bb7183de7da5c"
+    },
+    {
+      "status": "M",
+      "path": "service/packages/mcp/src/control/route-registry.ts",
+      "sha256": "9ab919bbe51b1c335cee135dc14f7a2d2e8b75acf842d6e903073795538cf73b"
+    },
+    {
+      "status": "M",
+      "path": "service/packages/mcp/src/control/router.ts",
+      "sha256": "09c6bde2e97055539d577c2944ceba3fdaecdd4d82e09488e85af6a4c4e5f327"
+    },
+    {
+      "status": "A",
+      "path": "service/packages/mcp/src/diagnostics-catalog.ts",
+      "sha256": "19ab236e3e969996da9b49dbd75c72bc7535f73c636113a2dc7a4aefde241753"
+    },
+    {
+      "status": "A",
+      "path": "service/packages/mcp/src/diagnostics.ts",
+      "sha256": "739d182662af6b77bfa84378ee7e4c8b593b03c7b20d6eb36380ab3d32252a40"
+    },
+    {
+      "status": "M",
+      "path": "service/packages/mcp/src/election/leader-endpoints.ts",
+      "sha256": "d6c4b906137a5dabb7cba718bdadca7056bc06c8f541866fbab177f0a7a33beb"
+    },
+    {
+      "status": "M",
+      "path": "service/packages/mcp/src/execution/execution-plane.ts",
+      "sha256": "a12a18873d9773060bd74390b4f256d9b2793fe4858b7d3be75caa921eb05f23"
+    },
+    {
+      "status": "M",
+      "path": "service/packages/mcp/src/fs/atomic-file.ts",
+      "sha256": "f5f25f079c4c3dc823c32069164d26a1b55fb4d4f8712ea85b17096b1e893a70"
+    },
+    {
+      "status": "M",
+      "path": "service/packages/mcp/src/fs/operation-evidence-artifact-store.ts",
+      "sha256": "0df6a134c87125c4fc02a9b0ff02564b9650a11b2999b129b49f645f05c10369"
+    },
+    {
+      "status": "M",
+      "path": "service/packages/mcp/src/index.ts",
+      "sha256": "433dcaa63d4f096aea3efe3e1d61c5a92f929ab569a152fbfda9f599e2d4a722"
+    },
+    {
+      "status": "M",
+      "path": "service/packages/mcp/src/network/remote-domain-config-store.ts",
+      "sha256": "46dbb3f7115e0c0bef7eab25812fe602e88dab5a5861b31fe9fa2f7f636254a7"
+    },
+    {
+      "status": "A",
+      "path": "service/packages/mcp/src/official-figma-mcp-program.ts",
+      "sha256": "183e461818c0ac3320f47636735dadb9703b9fa46225d6e8cafc9663217cfc64"
+    },
+    {
+      "status": "M",
+      "path": "service/packages/mcp/src/official-figma-mcp.ts",
+      "sha256": "ae1fc1050fcf5a8911b587281fa5ddc636f1165e54f6331fc70995770d1ff2f3"
+    },
+    {
+      "status": "A",
+      "path": "service/packages/mcp/src/official-figma-oauth.ts",
+      "sha256": "c5f91dca14205d8e5c7a522ab33a32a8c605bedec355b5ca2c0a6e66dd617e34"
+    },
+    {
+      "status": "M",
+      "path": "service/packages/mcp/src/policy/approval-prompt.ts",
+      "sha256": "5b2e033c5cfacc8bee82e80096c3249f4b080f2d992324e2b21783283800d18a"
+    },
+    {
+      "status": "M",
+      "path": "service/packages/mcp/src/policy/operation-policy.ts",
+      "sha256": "2a9e0ccfc4b3adef4ec770e5d955c9d963c6f0c5620a33b63e13690ff1907486"
+    },
+    {
+      "status": "M",
+      "path": "service/packages/mcp/src/policy/result-egress-policy.ts",
+      "sha256": "f6a85257d432db63b112da8c3567dae55cbac069281c49fc8c7f848a17441604"
+    },
+    {
+      "status": "M",
+      "path": "service/packages/mcp/src/portal/capture-admission-runtime.ts",
+      "sha256": "978dc7b81dbbfa18d834df7d8447d6c0fde7c64d48d71adcba40b64db06d01c0"
+    },
+    {
+      "status": "A",
+      "path": "service/packages/mcp/src/portal/capture-native-supplement.ts",
+      "sha256": "4fad40f8b2290da577ce08e144944cadd93a85a34830566404de788331feaa1b"
+    },
+    {
+      "status": "M",
+      "path": "service/packages/mcp/src/portal/capture-runtime.ts",
+      "sha256": "9741134f5d4bc8eda78b7b376be6082c73b2ae429819e9d396578d52797003c3"
+    },
+    {
+      "status": "M",
+      "path": "service/packages/mcp/src/portal/capture-source-admission.ts",
+      "sha256": "10f869ab80a6d78c8c37a9d3dc307328f7d88b6c9f44dc5a51deebcf5a4d8098"
+    },
+    {
+      "status": "M",
+      "path": "service/packages/mcp/src/portal/chrome-transport.ts",
+      "sha256": "96ee2e62ab36739aff909de959a8b935803465a717348bad36dd05bcbe86cf1d"
+    },
+    {
+      "status": "M",
+      "path": "service/packages/mcp/src/portal/control.ts",
+      "sha256": "a5b5aee5b3204d0a14213ca534517088be5fa1f125a62af3908ca3d2b79e875b"
+    },
+    {
+      "status": "M",
+      "path": "service/packages/mcp/src/portal/coordinator.ts",
+      "sha256": "97be904a81a1873e19160c47e79abffc22bcbc9a19db47253498c4a125d66f39"
+    },
+    {
+      "status": "M",
+      "path": "service/packages/mcp/src/portal/design-capture.ts",
+      "sha256": "6278899c421059366780405fd801143981e9e377b38b9a86d58c983a0853ce57"
+    },
+    {
+      "status": "M",
+      "path": "service/packages/mcp/src/portal/design-normalization.ts",
+      "sha256": "c6d008fe6cd7900ecec8400d037ebb5a58ffd9aa24e73c81e0bf10d81af37a3b"
+    },
+    {
+      "status": "A",
+      "path": "service/packages/mcp/src/portal/epic-compiler-configuration.ts",
+      "sha256": "50c0f30e89fe795892e9f58230be4da2df3cc65d684ef27ab95abfa453648fa8"
+    },
+    {
+      "status": "M",
+      "path": "service/packages/mcp/src/portal/module-resolution.ts",
+      "sha256": "3b96c00ef17fb0d74ca437be20fc291b73c145ec549d61727a77a698687a63c6"
+    },
+    {
+      "status": "M",
+      "path": "service/packages/mcp/src/portal/native-artifacts.ts",
+      "sha256": "c7f18d44692989583e84030a55d37f26f4ae8487e27070eb49879d1269b02b57"
+    },
+    {
+      "status": "A",
+      "path": "service/packages/mcp/src/portal/native-contours.ts",
+      "sha256": "a047fbd0a98edb2fb759507dcb4d487b38ab18c2306dab1ed7866d5ac09ae828"
+    },
+    {
+      "status": "A",
+      "path": "service/packages/mcp/src/portal/native-geometry.ts",
+      "sha256": "a8645d1f9c96a69766a06a46e75b432fe68d05db3f66420fe3f5871d3666e0ea"
+    },
+    {
+      "status": "M",
+      "path": "service/packages/mcp/src/portal/native-module-fence-source.ts",
+      "sha256": "a5297abc323d748a480a7e5e2741f19b644a4232d6471aa280a7b0b4b7d72dcd"
+    },
+    {
+      "status": "M",
+      "path": "service/packages/mcp/src/portal/native-module-fence.ts",
+      "sha256": "a27cff19a34cdd2bd552efc43375b4ade66651166fec3f499355af6d1b9a35d2"
+    },
+    {
+      "status": "M",
+      "path": "service/packages/mcp/src/portal/native-runner.ts",
+      "sha256": "8a8bd8a12f1e69ca7b7aacd425184a11c7371e67889159d4fa767c97feb65517"
+    },
+    {
+      "status": "M",
+      "path": "service/packages/mcp/src/portal/native-work.ts",
+      "sha256": "d4b50bb1f626ba3b21968cd6872f2ac989e83e511dec0321652b5301d641bbc5"
+    },
+    {
+      "status": "A",
+      "path": "service/packages/mcp/src/portal/official-mcp-capture.ts",
+      "sha256": "e080870135275ee2cb752bcc9fb8b2c57da0dd3f6e165f9ea1911ff8f5743df4"
+    },
+    {
+      "status": "A",
+      "path": "service/packages/mcp/src/portal/package-config-evidence.ts",
+      "sha256": "594a03189b6de2b532f16d1a2c18432493e8f65566df63655598797592d9355e"
+    },
+    {
+      "status": "A",
+      "path": "service/packages/mcp/src/portal/preview-accessibility.ts",
+      "sha256": "b765bc3f5f371b68ab2b81d94c9cfb01fb034f5cba4581d79e01759c97510f05"
+    },
+    {
+      "status": "M",
+      "path": "service/packages/mcp/src/portal/preview-consumption.ts",
+      "sha256": "3bb8c015c7590060ecf68aa1ee691467ce2fad958598dcd04abaaa52d620a5ae"
+    },
+    {
+      "status": "A",
+      "path": "service/packages/mcp/src/portal/preview-native-contours.ts",
+      "sha256": "93eb96c53c7f85f9625912a1c23b5877f6ce21aacb055bdee0b6a7e7456b0f3c"
+    },
+    {
+      "status": "M",
+      "path": "service/packages/mcp/src/portal/preview.ts",
+      "sha256": "58eac8fb765ed34799d86a431fb7cef39131bcbd5870b97d076b81d76f158f37"
+    },
+    {
+      "status": "A",
+      "path": "service/packages/mcp/src/portal/profile-preparation.ts",
+      "sha256": "c8670269cddec3b8a14ec6c5d73b8b5208af029c3422730ceb8fc4ddae877f8f"
+    },
+    {
+      "status": "A",
+      "path": "service/packages/mcp/src/portal/react-router-compiler-evidence.ts",
+      "sha256": "da6b2efb21772fa7b01bce3a353da61169f147651bff3f64a82e5c45e48290f0"
+    },
+    {
+      "status": "M",
+      "path": "service/packages/mcp/src/portal/recipes/consumption-input.ts",
+      "sha256": "4a62262fb16d62ef84fb3740192b2e511d45161f223bd2b2e238dd79f2627977"
+    },
+    {
+      "status": "M",
+      "path": "service/packages/mcp/src/portal/recipes/core-consumption.ts",
+      "sha256": "b14046b8da5cf713f1910474edc9652f482f082babe8ebaf781bd8a19a9ae0f2"
+    },
+    {
+      "status": "M",
+      "path": "service/packages/mcp/src/portal/recipes/core-lifecycle.ts",
+      "sha256": "120846345085b8080d7d6ec01e94f7a2c74823e2ef28e7d58ce675e88c22390b"
+    },
+    {
+      "status": "M",
+      "path": "service/packages/mcp/src/portal/recipes/core-source.ts",
+      "sha256": "d0c7df63fcd9cff210e0db257d37b3938ffdf3e9c5800bc25eb28d271b37ad67"
+    },
+    {
+      "status": "M",
+      "path": "service/packages/mcp/src/portal/service-graph.ts",
+      "sha256": "e3a725707655e699e987b41e1c342a9c119c428a802963f5624f0eb9c4d10f7c"
+    },
+    {
+      "status": "M",
+      "path": "service/packages/mcp/src/portal/service-selection.ts",
+      "sha256": "4c8ec77c46972434c9ea4f5e445f7aa2b89d442d52a129adefd499faa915e20f"
+    },
+    {
+      "status": "M",
+      "path": "service/packages/mcp/src/portal/source-path-policy.ts",
+      "sha256": "086be883ff88fcb848e9f3be0f8ca871def2d4c5bd123b8477e4ac53d73d6614"
+    },
+    {
+      "status": "M",
+      "path": "service/packages/mcp/src/tools/portal.ts",
+      "sha256": "27a9b3ae44052da839b0c15df8c26f8648a25877152434f4dfb3cee68b276b00"
+    },
+    {
+      "status": "A",
+      "path": "service/packages/mcp/test/control/figma-oauth-provider.test.ts",
+      "sha256": "ea86456ee36035da34187b362136f40bcab43b8244a3f0dbc8132d5fec57a484"
+    },
+    {
+      "status": "A",
+      "path": "service/packages/mcp/test/control/figma-settings-endpoint.test.ts",
+      "sha256": "7e6ee58b12dd832781c0c52eecbbc7d18c8726933b22d6f620be95c2fc770666"
+    },
+    {
+      "status": "A",
+      "path": "service/packages/mcp/test/diagnostics.test.ts",
+      "sha256": "e92132efbd5d93062ec779010f277cda8d083dde8f4d3693fed54a7b84190325"
+    },
+    {
+      "status": "M",
+      "path": "service/packages/mcp/test/fs/operation-evidence-artifact-store.test.ts",
+      "sha256": "c97c9f50f05d4742e1419ac9f9632b5d6aa9dba983921f0f23897b3da085b1df"
+    },
+    {
+      "status": "M",
+      "path": "service/packages/mcp/test/fs/windows-boundary-probe-worker.test.ts",
+      "sha256": "f0a7a07d7d0587b8098a139ac1d6663112e9643ed3b8a64133cf989e987fd9ae"
+    },
+    {
+      "status": "M",
+      "path": "service/packages/mcp/test/network/remote-domain-config.test.ts",
+      "sha256": "f5bca1acfc559b2078ecba105335f895e6e9220ee5ecf5a787dc266f8a357799"
+    },
+    {
+      "status": "M",
+      "path": "service/packages/mcp/test/node-id.test.ts",
+      "sha256": "2947c9da26d0c9ed5320cdc27b257e350ea2699869cddad771da1193963e0d72"
+    },
+    {
+      "status": "A",
+      "path": "service/packages/mcp/test/official-figma-mcp-capture.test.ts",
+      "sha256": "ba87815ccbf430f6335f4cec0e93219923056f509e63968544ba529873452022"
+    },
+    {
+      "status": "A",
+      "path": "service/packages/mcp/test/official-figma-oauth.test.ts",
+      "sha256": "9d6552b39bc1cd12f182be589f515f4939554504300888539c650f16ff8b489d"
+    },
+    {
+      "status": "A",
+      "path": "service/packages/mcp/test/official-mcp-fixture.ts",
+      "sha256": "d63a50ed287d3d24bc425735744dfbc0924e37be7afdedbcd432f0c7014c81fa"
+    },
+    {
+      "status": "M",
+      "path": "service/packages/mcp/test/policy/operation-policy.test.ts",
+      "sha256": "7c6dfabf6b64ca79fd5f1c3bf2fc90dc242bc84ec3ce686b6ab76e7e278f903d"
+    },
+    {
+      "status": "M",
+      "path": "service/packages/mcp/test/portal/capture-coherence.test.ts",
+      "sha256": "2bdd186338eae1b3f7aa2e8cfa8c81572d5bee90a498fdb1b5da7fbdb02bb2ab"
+    },
+    {
+      "status": "A",
+      "path": "service/packages/mcp/test/portal/capture-native-supplement.test.ts",
+      "sha256": "3d3f8206054aef21fd8476f9af7b5101ed925370aeb1a607a56bf0c5f08ec00e"
+    },
+    {
+      "status": "M",
+      "path": "service/packages/mcp/test/portal/capture-plane.test.ts",
+      "sha256": "147a75fe7dec1d9554755f5d46c7b187ea220db0f9e847edee19800df93eaca3"
+    },
+    {
+      "status": "M",
+      "path": "service/packages/mcp/test/portal/capture-session.test.ts",
+      "sha256": "23eb46d6db1489936fdd3eecba375873ca1c999765887c5ee9c5fae25913ed0b"
+    },
+    {
+      "status": "M",
+      "path": "service/packages/mcp/test/portal/chrome-transport.test.ts",
+      "sha256": "77faa7878e24f45709d0e6838bcf52fa132aef059f8a3a072d96e05c281da407"
+    },
+    {
+      "status": "M",
+      "path": "service/packages/mcp/test/portal/coordinator.test.ts",
+      "sha256": "687dcaeaad5b8419744e0dd9aee5024f55a756e500d0e14f87a0fc4bd5fe56ac"
+    },
+    {
+      "status": "M",
+      "path": "service/packages/mcp/test/portal/core-lifecycle.test.ts",
+      "sha256": "4431eaa033140e8ec412504a62433739dff030e9925c14ed189023765fbc86a1"
+    },
+    {
+      "status": "M",
+      "path": "service/packages/mcp/test/portal/core-recipes.test.ts",
+      "sha256": "42746c63cc8fb7d98135c9339cd6dcd3ac2c2374ad8588a6c73ac146eeaef3e1"
+    },
+    {
+      "status": "A",
+      "path": "service/packages/mcp/test/portal/epic-compiler-configuration.test.ts",
+      "sha256": "9ee4341b7c15ec96cfd5af3c692b23825a2a8b12cf4a95353fde844d09d70ce1"
+    },
+    {
+      "status": "A",
+      "path": "service/packages/mcp/test/portal/epic-compiler-fixture.ts",
+      "sha256": "4fe98632487fddac3b54de06e5a026f60f6dd9a9d27870e3bec15acfffba65fc"
+    },
+    {
+      "status": "A",
+      "path": "service/packages/mcp/test/portal/fixtures/vite7-resolver/LICENSE.txt",
+      "sha256": "2ef0b8a67599690e6abccc21a3678b54457b420fb402654112d45c4e71cce364"
+    },
+    {
+      "status": "A",
+      "path": "service/packages/mcp/test/portal/fixtures/vite7-resolver/dist/node/chunks/config.js.txt",
+      "sha256": "c5d2cb692f24bb9d9de7dbd0b86506f1dada18c362aaa7c5a05d460870ced734"
+    },
+    {
+      "status": "A",
+      "path": "service/packages/mcp/test/portal/fixtures/vite7-resolver/dist/node/module-runner.js.txt",
+      "sha256": "e9e66cba21fc780ae9a5a64da48503afa49bf9bc25c69007333c7835b763b89c"
+    },
+    {
+      "status": "A",
+      "path": "service/packages/mcp/test/portal/generated-route-alias-runtime.test.ts",
+      "sha256": "f8b46a075c4e372542fb2675aafed661d65003777fb631cd083f3a6dd59c93a0"
+    },
+    {
+      "status": "M",
+      "path": "service/packages/mcp/test/portal/module-resolution.test.ts",
+      "sha256": "2efc994f88c057aebb7373837512289adace0f2d31d1ba5e4e0ed495a8315c15"
+    },
+    {
+      "status": "M",
+      "path": "service/packages/mcp/test/portal/native-artifacts.test.ts",
+      "sha256": "ec544cb695697f83b4bbb2b4c8ce4e1728e72e3660b3ac23bb0e8fb4fa11ae4f"
+    },
+    {
+      "status": "A",
+      "path": "service/packages/mcp/test/portal/native-contours.test.ts",
+      "sha256": "6810b2f1fd0b591160d3edbcfbe862c898b9ae263a61ecda188772d2c33d04e6"
+    },
+    {
+      "status": "A",
+      "path": "service/packages/mcp/test/portal/native-geometry-http.test.ts",
+      "sha256": "94ab5a7c9d57dad81e69caa8644559dd41cbbdee50b9ab586fc777f40a9fa5a8"
+    },
+    {
+      "status": "A",
+      "path": "service/packages/mcp/test/portal/native-geometry.test.ts",
+      "sha256": "8869c8a20a2a902402637062900e8a1d3905d5dbc0a30ab1bcbaca085bc64bcc"
+    },
+    {
+      "status": "A",
+      "path": "service/packages/mcp/test/portal/native-module-fence-evidence.test.ts",
+      "sha256": "90f364232fc2ad04a67d1a77ad41457231e4aee8c58a792675b7cafb04ac7d69"
+    },
+    {
+      "status": "M",
+      "path": "service/packages/mcp/test/portal/native-module-fence.test.ts",
+      "sha256": "eb49ab79fa9591a37a4f8a08d69edc6f0d36842d3e0ec46272f0e6bf71be11b0"
+    },
+    {
+      "status": "M",
+      "path": "service/packages/mcp/test/portal/native-runner.test.ts",
+      "sha256": "b7ad2e85ebf55d5da45fa93c92987c4755670b472e74689bb3ccf2e4c85df02e"
+    },
+    {
+      "status": "M",
+      "path": "service/packages/mcp/test/portal/native-work.characterization.test.ts",
+      "sha256": "a7146d4b2b75f99cc19ca2f33dce95d80fa7a6a828664be00a8136037e9fe0e5"
+    },
+    {
+      "status": "M",
+      "path": "service/packages/mcp/test/portal/native-work.test.ts",
+      "sha256": "730539f5bb11ff561bdc3e347fd83c3a0c092cb962431977848de942ea25eb38"
+    },
+    {
+      "status": "A",
+      "path": "service/packages/mcp/test/portal/official-mcp-capture.test.ts",
+      "sha256": "fb5da74d82fb8c5ce5a98cc67e6a6219c99dec57bad61f0f28dcc1a6a98cd678"
+    },
+    {
+      "status": "A",
+      "path": "service/packages/mcp/test/portal/package-config-evidence.test.ts",
+      "sha256": "d822bcfecb05293df3b527016ba7a7e9857702cec3de771fc3df8a2533132d3e"
+    },
+    {
+      "status": "A",
+      "path": "service/packages/mcp/test/portal/page-api-admission.test.ts",
+      "sha256": "5bf5ea1b3bd64cc81b350f436529b28d43aea397977022e46df1748f44d4c2d9"
+    },
+    {
+      "status": "A",
+      "path": "service/packages/mcp/test/portal/page-api-fixture.ts",
+      "sha256": "ba2b2212497697a804674eaab0b3b39ea8e610dcf6a318714d686ea24b7c24bd"
+    },
+    {
+      "status": "A",
+      "path": "service/packages/mcp/test/portal/page-api-flow.test.ts",
+      "sha256": "44bf0b671d5945503bfb4c03b65fe98a2911173bed9fd0bf9652b219ffc48c47"
+    },
+    {
+      "status": "M",
+      "path": "service/packages/mcp/test/portal/preview-consumption.test.ts",
+      "sha256": "9e99b36883a5d1cc16ca9f35ae0e9931064735a13df0c09834e2997c5dfed713"
+    },
+    {
+      "status": "M",
+      "path": "service/packages/mcp/test/portal/preview-interactions.test.ts",
+      "sha256": "da7dbb42c129bf1408331e71cdf8e13a2a971bea0abe5530fc50e7a1ab68ef0d"
+    },
+    {
+      "status": "A",
+      "path": "service/packages/mcp/test/portal/preview-native-contours.test.ts",
+      "sha256": "3b3fd32e7adfe35dd9286decaf18a8c32d52d512161e6840074637b9338df93a"
+    },
+    {
+      "status": "M",
+      "path": "service/packages/mcp/test/portal/preview-native.test.ts",
+      "sha256": "8bdc84e5f586b5fa01f6379041a7bf4159f3190a0e316dfb9095b11c58d64773"
+    },
+    {
+      "status": "M",
+      "path": "service/packages/mcp/test/portal/preview.test.ts",
+      "sha256": "dd18d2b406bc2cafd13a39df98a1da5ecd86bdb07a6791b6d3efcbcb4a3c2de3"
+    },
+    {
+      "status": "A",
+      "path": "service/packages/mcp/test/portal/profile-preparation-fixture.ts",
+      "sha256": "ca19ad90b4169d04a7f7bb308b2248ebadb30cbb7ace29cd713feeb6b14d062c"
+    },
+    {
+      "status": "A",
+      "path": "service/packages/mcp/test/portal/profile-preparation-http.test.ts",
+      "sha256": "df3f19aa3a0772cec8ab342e8ada434672721833c9fd9c3634d01a730a976a73"
+    },
+    {
+      "status": "A",
+      "path": "service/packages/mcp/test/portal/profile-preparation.test.ts",
+      "sha256": "dc78348d7da5a550230f73a1499760f6f7aa83e66a300bc9a08a6fbdf7886c3a"
+    },
+    {
+      "status": "A",
+      "path": "service/packages/mcp/test/portal/react-router-compiler-evidence.test.ts",
+      "sha256": "684d073c9fb949c15bb2d8cf3621ebc5bdc13581052c858f720fc32da60bbab2"
+    },
+    {
+      "status": "M",
+      "path": "service/packages/mcp/test/portal/service-graph.test.ts",
+      "sha256": "a4d238f8053115a687c5c045eee3fb9ed8995ed50cda19d2a55d5955c6be3bc8"
+    },
+    {
+      "status": "M",
+      "path": "service/packages/mcp/test/portal/source-inventory.test.ts",
+      "sha256": "1173be4c666aa4502b8b14344bdbb48d436f3b62fc82bf036f5e310c4799f484"
+    },
+    {
+      "status": "A",
+      "path": "service/packages/mcp/test/portal/source-preparation.test.ts",
+      "sha256": "3245e3bd1eca902d24271478f604bb3f87192e84c9d85dc2931a180c66d05f1b"
+    },
+    {
+      "status": "A",
+      "path": "service/packages/mcp/test/portal/source-refresh-diagnostic.test.ts",
+      "sha256": "0eb0aa3d6965c13f79b03bb1d1dfcb63b9eb1b91f5ab3978c7547d5938d4eb21"
+    },
+    {
+      "status": "A",
+      "path": "service/packages/portal/DEBUGGING.md",
+      "sha256": "82853e36979b7fda86c3139924cba244255c1f52ea4c2e438c02017f22e8e31e"
+    },
+    {
+      "status": "A",
+      "path": "service/packages/portal/README.md",
+      "sha256": "bd2ad737feb715337a0d5318230bb114df10c610dfbdad542843a3c31eba126f"
+    },
+    {
+      "status": "A",
+      "path": "service/packages/portal/package.json",
+      "sha256": "ddb99eafe979d2319697f9bde91d01c4b3f4cf7f3e2a2baccfcb06ceff7767c8"
+    },
+    {
+      "status": "A",
+      "path": "service/packages/portal/src/bridge.ts",
+      "sha256": "23eaae954eb16bb4bff335b6a3c82f5fbc2c3bd142eab8d01ca0b42c03c88ace"
+    },
+    {
+      "status": "A",
+      "path": "service/packages/portal/src/contract.ts",
+      "sha256": "093c1d201aeadc83d157a1770f2e826686ca8db2a2e188b375c95809314d8e84"
+    },
+    {
+      "status": "A",
+      "path": "service/packages/portal/src/control.ts",
+      "sha256": "bd379d5a998d28fa9411454657118e425af343ded98d3e2401d894800a17c67d"
+    },
+    {
+      "status": "A",
+      "path": "service/packages/portal/src/figma-settings.ts",
+      "sha256": "c5ebe016937ac62a3940846897c707192ff2d835499d2682867c3875b764b8ea"
+    },
+    {
+      "status": "A",
+      "path": "service/packages/portal/src/index.ts",
+      "sha256": "f4eb1b6fe6e6caabc55044e5073596fa30ec127d24ff9673f4c3aeec99789f8a"
+    },
+    {
+      "status": "A",
+      "path": "service/packages/portal/src/server.ts",
+      "sha256": "1bd438d4bffc1fe0f4fa8db800a57e0033af099ac9f49e792fae5f0f5f835ce2"
+    },
+    {
+      "status": "A",
+      "path": "service/packages/portal/src/service-jobs.ts",
+      "sha256": "8d3e04f71cf0ddf74ae2aefbe0e3d0edb0b90d9ffa7416fd57e6ca43b3575e93"
+    },
+    {
+      "status": "A",
+      "path": "service/packages/portal/src/store.ts",
+      "sha256": "d6fcade97b2dc47c4942acb49de4ea2142b13a593aeb1aaab32bb94483af4d28"
+    },
+    {
+      "status": "A",
+      "path": "service/packages/portal/test/backend.test.ts",
+      "sha256": "e1e8a5ec7968ac3ab4c4edba27dfceb0262d6554a5c4493755f984667015ff3a"
+    },
+    {
+      "status": "A",
+      "path": "service/packages/portal/test/browser.test.ts",
+      "sha256": "22e90dd20dd5c512277f11259cf0487b927af8330d10594a1ed2b2b99865768e"
+    },
+    {
+      "status": "A",
+      "path": "service/packages/portal/test/diagnostics-http.test.ts",
+      "sha256": "7b607ede1ba11ad185162d22c62e888da6835f01ce2ab49adea4d2a83a0bdf3e"
+    },
+    {
+      "status": "A",
+      "path": "service/packages/portal/test/figma-oauth-relay.test.ts",
+      "sha256": "d00590cde1379a17e8f524dd0b6e9713c2e07d0ae294ab8d195094f0630aff0b"
+    },
+    {
+      "status": "A",
+      "path": "service/packages/portal/test/figma-settings.test.ts",
+      "sha256": "155589ddcad8ffc74eeec81e4f7aee64dd45fc56f17918dfc6bfc85fb90b0101"
+    },
+    {
+      "status": "A",
+      "path": "service/packages/portal/test/local-capture-recovery.test.ts",
+      "sha256": "da944aba90f8f06c7fae4ffc323620f08fa015ae68f27a4581fb3ccef518a41f"
+    },
+    {
+      "status": "A",
+      "path": "service/packages/portal/test/service-control.test.ts",
+      "sha256": "b0e5821e08383c2f19a7bfb721d5a70cf0bafd125ea059fc7fdaa5f829bb9125"
+    },
+    {
+      "status": "A",
+      "path": "service/packages/portal/test/service-jobs.test.ts",
+      "sha256": "329f76a25fbc131616b8bc2fe3401d65cb7d90774122e4891c763592c88a7f52"
+    },
+    {
+      "status": "A",
+      "path": "service/packages/portal/tsconfig.json",
+      "sha256": "b90d29ce9f4a18aa601f5de55a91b6f611060db01b80dfb6642955c9b4e13715"
+    },
+    {
+      "status": "A",
+      "path": "service/packages/portal/tsdown.config.ts",
+      "sha256": "fad4e65c94ba4c6ff68da8f96e3d55361d3c47d79cb8bc5f69856be13316bf6e"
+    },
+    {
+      "status": "A",
+      "path": "service/packages/portal/vitest.config.ts",
+      "sha256": "27d74ae348da3ae449598449bc001b68b9c414146148af43b325ea213feb6c5c"
+    },
+    {
+      "status": "A",
+      "path": "service/packages/portal/web/api.js",
+      "sha256": "4b608fcde06ebb2e2a8bf2d3bda7ba682a3a72920b8762ce55db8f6390b05102"
+    },
+    {
+      "status": "A",
+      "path": "service/packages/portal/web/app.js",
+      "sha256": "fe9e1257b0001dc09425637d3849fede9270bbdb85bc895ec068cf6ef06585e3"
+    },
+    {
+      "status": "A",
+      "path": "service/packages/portal/web/figma-auth-consent.css",
+      "sha256": "92936bf38172f7af6875e8be212882ff6a7db8eceb186306ced37a347e6abc73"
+    },
+    {
+      "status": "A",
+      "path": "service/packages/portal/web/figma-auth-consent.html",
+      "sha256": "a517ebb46e30626d50ab7562b459e209a8d93d617370fd367524bba7319f4eea"
+    },
+    {
+      "status": "A",
+      "path": "service/packages/portal/web/figma-auth-consent.js",
+      "sha256": "cfa0bd18655247a3dcaff6520b250bfd329484d857be7b94a077428416d01b0c"
+    },
+    {
+      "status": "A",
+      "path": "service/packages/portal/web/figma-auth-public.js",
+      "sha256": "37c224301b981a75ea0eb59755142199372de6bf5ec9b8b5671bb365631056f9"
+    },
+    {
+      "status": "A",
+      "path": "service/packages/portal/web/figma-settings.js",
+      "sha256": "00a6349b3c16da3b31cab8e32da0dde5cc5764724abd1d9fd01fb9f4cbb66575"
+    },
+    {
+      "status": "A",
+      "path": "service/packages/portal/web/index.html",
+      "sha256": "412a66ea1bca0396e3105f37635ad7973510b657e2549aac1337d03f2dfcd690"
+    },
+    {
+      "status": "A",
+      "path": "service/packages/portal/web/model.js",
+      "sha256": "4be8488eb188ec799c4264aa78596dd8dd005173d185ff0ba831bad3b11190b4"
+    },
+    {
+      "status": "A",
+      "path": "service/packages/portal/web/schema-form.js",
+      "sha256": "9d1b1d073824327e8e6206d76981e23cdbc9e980f2511542c81aed2a3600693d"
+    },
+    {
+      "status": "A",
+      "path": "service/packages/portal/web/service-functions.js",
+      "sha256": "36c0d05f81dcc63db109eaff6a6bc0239e797d85624f90dce95cf91a503c0e19"
+    },
+    {
+      "status": "A",
+      "path": "service/packages/portal/web/styles.css",
+      "sha256": "47267a7738904f221ad77e0d1d18463d7b268a310735ab026388cbd8d8262b8a"
+    },
+    {
+      "status": "A",
+      "path": "service/packages/portal/web/tests/api.test.mjs",
+      "sha256": "293fa2d08fed0c03318bbbb973f76f57143ce875256916fcf2ae41fb8ab5ef0f"
+    },
+    {
+      "status": "A",
+      "path": "service/packages/portal/web/tests/approval-check.mjs",
+      "sha256": "2f75f89e31a4678571a20da37d133060e2978271be2ef3e6af882dfe23465f3f"
+    },
+    {
+      "status": "A",
+      "path": "service/packages/portal/web/tests/chrome-check.mjs",
+      "sha256": "353d71ccb6bbc41ddcae2f90688886eef72fe6dc2d3d2e227c88e4a31d6b754b"
+    },
+    {
+      "status": "A",
+      "path": "service/packages/portal/web/tests/first-workspace-setup.test.mjs",
+      "sha256": "b3588fcbb3cb88bf10e6ac054b78d744e045e9c219aceae2fd9da20ba38dd948"
+    },
+    {
+      "status": "A",
+      "path": "service/packages/portal/web/tests/live-usage-check.mjs",
+      "sha256": "ae469a6553c8be630041d7bb7e7f3e71512f82c3663a399a0b95d6502185a855"
+    },
+    {
+      "status": "A",
+      "path": "service/packages/portal/web/tests/live-usage-check.test.mjs",
+      "sha256": "9007b04733b6a14e6b239aeb9f4d2873f9c7f283ed8506297ed8911a62a0a6e3"
+    },
+    {
+      "status": "A",
+      "path": "service/packages/portal/web/tests/local-capture-progress.test.mjs",
+      "sha256": "dea8ed68928a2c88bea448e5ee83bb942abed46f6bb98ccaf2090ea7492805fe"
+    },
+    {
+      "status": "A",
+      "path": "service/packages/portal/web/tests/model.test.mjs",
+      "sha256": "cf5176d70c1534d55909daa6db93bb54a20819b409c9d679564684776c2eee29"
+    },
+    {
+      "status": "A",
+      "path": "service/packages/portal/web/tests/official-oauth-settings.test.mjs",
+      "sha256": "29ed09255609f04e0dc09d8412a009a17f65d099bd37caa06429bac6020c9379"
+    },
+    {
+      "status": "A",
+      "path": "service/packages/portal/web/tests/owned-chrome-session.mjs",
+      "sha256": "ec46f6e6743247b369795cef5b30e6d63cdff654ec509a92581ca896a8aa417d"
+    },
+    {
+      "status": "A",
+      "path": "service/packages/portal/web/tests/schema-form.test.mjs",
+      "sha256": "4202139109fcf0620aa3d3357f336db20a07c1194aee0520f546e59605f41253"
+    },
+    {
+      "status": "A",
+      "path": "service/packages/portal/web/tests/service-job-approval-pointer.test.mjs",
+      "sha256": "dff63cabdb36c6f1f14388d29e513801ce11c5cad45d380312767a9260c01dac"
+    },
+    {
+      "status": "M",
+      "path": "service/packages/shared/src/design-observation.ts",
+      "sha256": "ade7ee53d97f46b11e8e3d73e24b1d6a5eda8284bb0855e9325ef4d8bae62d04"
+    },
+    {
+      "status": "M",
+      "path": "service/packages/shared/src/figma-capture-query.ts",
+      "sha256": "b7dda43f293e6ffb006bb25a3c78a70164376300eb99067500602c6a46b3fbe5"
+    },
+    {
+      "status": "M",
+      "path": "service/packages/shared/src/figma-capture-read.ts",
+      "sha256": "a1e78a4d3a2b05f36886f233d79f2af1031df83f1cd2a0228038075268ba4772"
+    },
+    {
+      "status": "M",
+      "path": "service/packages/shared/src/operations.ts",
+      "sha256": "7ad0f4b964e8b60c0c4e68e4095177a5b6d3ca6f6a72a592242826e971246646"
+    },
+    {
+      "status": "A",
+      "path": "service/packages/shared/src/portal-base.ts",
+      "sha256": "c58941fa7cb7c68abac05003aeae00e5188ed1a76bf1c42b9942c67bc0fe5d2d"
+    },
+    {
+      "status": "M",
+      "path": "service/packages/shared/src/portal-capture-source.ts",
+      "sha256": "f063433f26b592ddd891fc6458a38086b669b4cb22b647f8339b187f7a4f9597"
+    },
+    {
+      "status": "M",
+      "path": "service/packages/shared/src/portal-consumption.ts",
+      "sha256": "0ec80342cc2f6b927f7b2904198410f5278ac894d2fb4dabb5180edbb11219e5"
+    },
+    {
+      "status": "A",
+      "path": "service/packages/shared/src/portal-native-contours.ts",
+      "sha256": "9ef5c0666b17f432e278a3d31ccba55924b18019fa809a5489d200085137f7a2"
+    },
+    {
+      "status": "A",
+      "path": "service/packages/shared/src/portal-native-geometry.ts",
+      "sha256": "7b942815be23e6def99a4eccbc4d96ac86f0f036553c1f9a0127be1698b74091"
+    },
+    {
+      "status": "M",
+      "path": "service/packages/shared/src/portal-recipe-use.ts",
+      "sha256": "a08ea8a2a2286e61ac16051a20959c8f7e122f05960910075a88d5b849d9c594"
+    },
+    {
+      "status": "M",
+      "path": "service/packages/shared/src/portal-recipes.ts",
+      "sha256": "7acfc69e8555e974045bd206b2c96b4d789be22a134632cf3f1d251989b1bd64"
+    },
+    {
+      "status": "M",
+      "path": "service/packages/shared/src/portal.ts",
+      "sha256": "9078c049ccc92ce3720876e418ac6456513bc455962dd285420bacbd03d255e3"
+    },
+    {
+      "status": "A",
+      "path": "service/packages/shared/test/portal-import-order.test.ts",
+      "sha256": "e884d622e99fec85725ed54de10d9177de036ebd0ceaa757629af61f974f82ef"
+    },
+    {
+      "status": "A",
+      "path": "service/packages/shared/test/portal-native-geometry.test.ts",
+      "sha256": "8c1641e69570a2a0c47e5a086771c7a13823fc698f4f25279d4e7bec71fff355"
+    },
+    {
+      "status": "M",
+      "path": "service/packages/shared/test/portal.test.ts",
+      "sha256": "c84eecede7ba8c24693ae89216c0b2fb6c4685ddb84018e8b999ea64558fc19c"
+    },
+    {
+      "status": "M",
+      "path": "service/pnpm-lock.yaml",
+      "sha256": "495333d1af84cb634c20df2063e38bfda1754cd80f2c8ea1aa183e4ae438d1b6"
+    },
+    {
+      "status": "A",
+      "path": "service/scripts/archive-command.mjs",
+      "sha256": "4345719f829e062b6a43d10836004b59a3b23f2cb5d86b3b041a21186bbcaf66"
+    },
+    {
+      "status": "M",
+      "path": "service/scripts/generate-checksums.mjs",
+      "sha256": "19d5d0d0cc962f1a6d06cca3a3a79b1d851137414a9d094379f3d17d87494e83"
+    },
+    {
+      "status": "M",
+      "path": "service/scripts/package-artifacts.mjs",
+      "sha256": "9a911fd029257e8b2511fc440e03f7bfe224714e1e4f7b0dc693d5f9ef879652"
+    },
+    {
+      "status": "M",
+      "path": "service/scripts/test-skip-census.mjs",
+      "sha256": "8e3f73dbfc00c1c8efd59a48f422be9e95be9258e2e262996feb4c770ef514c3"
+    },
+    {
+      "status": "A",
+      "path": "service/scripts/update-diagnostics-catalog.mjs",
+      "sha256": "4d775d21cc7883e8fab893a41d4f26befe770a0a76cb7504594e6a78a21c5bb2"
+    },
+    {
+      "status": "M",
+      "path": "service/scripts/update-service-forks.mjs",
+      "sha256": "1e42d79ced118c7b1a7f2e0303c021371268c96c4b5a2605d4e349d54d85775a"
+    },
+    {
+      "status": "M",
+      "path": "service/scripts/verify-artifacts.mjs",
+      "sha256": "256ea98d106af460404c2e45c30aa7a67e5c25f18de29f47a51278351ef47360"
+    },
+    {
+      "status": "A",
+      "path": "service/test/archive-command.test.ts",
+      "sha256": "24db5b3e9ad889eef5201d8d911399622d9d2856453f0533d610c52eeb8f4a58"
+    },
+    {
+      "status": "M",
+      "path": "service/test/artifact-contents.test.ts",
+      "sha256": "87612f0d4cce2deea656de67b6bc7d884e6a3e34cfa6a70c9894b4833c6f096f"
+    },
+    {
+      "status": "M",
+      "path": "service/test/package-artifacts-hermetic.test.ts",
+      "sha256": "9cb17f775d2b0adae64ad80cffdb1fd0e4db65bd31e7cfd0b37211f26bcfb8ec"
+    },
+    {
+      "status": "A",
+      "path": "service/test/portal-artifact-startup.test.ts",
+      "sha256": "7b31555201ebfe1b8ba817ff9102693f70eefc4faac10c9a44c6f034b0a7f55a"
+    },
+    {
+      "status": "M",
+      "path": "service/test/service-fork-lineage.test.ts",
+      "sha256": "c2d131a35dbb95adb77067849eab59c044db6220069d7e966bf6f09b9db8d759"
+    },
+    {
+      "status": "M",
+      "path": "service/test/test-skip-census.test.ts",
+      "sha256": "edae848b6dcbd54ebc8be392eef0ef2148193358aa0585d19a0640039a96d165"
+    },
+    {
+      "status": "M",
+      "path": "service/test/upstream-parity.test.ts",
+      "sha256": "41f16d8a77a6f9a59bae2cdf925e2fee944a71e5702e019ba60e030b2f7d16f5"
+    },
+    {
+      "status": "M",
+      "path": "service/test/vendor-upstreams.test.ts",
+      "sha256": "a783c88c5e14571ab5445d50a406f1bb8ed185f1f426885ee1c8bd56365d780d"
+    },
+    {
+      "status": "M",
+      "path": "service/vitest.config.ts",
+      "sha256": "22eccb4967c064b14ece823dc0f7d362ba93e8af7e87fca212132811e8c9be5f"
+    }
+  ]
+}

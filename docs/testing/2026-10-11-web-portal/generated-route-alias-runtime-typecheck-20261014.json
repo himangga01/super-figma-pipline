@@ -1,0 +1,32 @@
+{
+  "schemaVersion": 1,
+  "kind": "isolated-candidate-affected-mcp-typecheck",
+  "date": "2026-10-14",
+  "candidateManifestSha256": "c759e9b9be0e849a737b60b91e988405d6a8effa149f6547419461595bdb2150",
+  "sourceBaseline": "sha256:a28fbf9263536110c90a972a1cf97e2e7039d710fbe1532588476989e415ab5e",
+  "cwd": ".worktrees/_cache/generated-route-alias-runtime-guard-20261014/service",
+  "command": "node C:/2026_project/super-figma-pipline/.worktrees/baseline/service/node_modules/typescript/lib/tsc.js --noEmit -p packages/mcp/tsconfig.json",
+  "reason": "The isolated generated-route guard and new test file changed; one affected MCP package typecheck was requested.",
+  "attempts": [
+    {
+      "exitCode": 1,
+      "sessionId": 58989,
+      "failure": "Owned-copy packages/plugin dependency directory absent: TS2307 @sfp/shared and zod, plus consequent TS7006 implicit-any diagnostics.",
+      "rawLogPersisted": false,
+      "candidateDiagnosticsObserved": false
+    },
+    {
+      "exitCode": 0,
+      "sessionId": 89939,
+      "output": "",
+      "setupCorrection": "Created only the owned packages/plugin/node_modules junction to the existing native plugin dependency directory.",
+      "repeatReason": "The failed setup prevented an affected package result; no previously passing typecheck was repeated."
+    }
+  ],
+  "functionalCasesRepeated": false,
+  "whole": false,
+  "mainNativeSourceModified": false,
+  "runtimeModified": false,
+  "buildExecuted": false,
+  "liveAcceptance": false
+}

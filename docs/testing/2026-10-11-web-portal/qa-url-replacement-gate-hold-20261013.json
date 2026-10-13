@@ -1,0 +1,17 @@
+{
+  "version": 1,
+  "at": "2026-10-13T05:13:35.826Z",
+  "helperR2ConditionallyApproved": true,
+  "independentTests": 32,
+  "passed": 32,
+  "failed": 0,
+  "skipped": 0,
+  "wholeAttemptId": "db9bbfee-f588-4252-9758-c2d659aa6fe4",
+  "wholeStatus": "failed",
+  "sourceHash": "sha256:f8d76e71e491a1df5f5a3b468c705dab8e6645a5e3476e93d07d2f90e8fccf4a",
+  "wholeReportSha256": "70b162e6fb1510f85ad435fbfcb26323dbacc9fd681e2493770ebfecfa452843",
+  "gateFailure": "unhandled-ECONNRESET-test-ledger",
+  "helperModesInvoked": false,
+  "liveEffects": false,
+  "grantRenewed": false
+}

@@ -1,0 +1,115 @@
+{
+  "recordedAt": "2026-10-13T00:49:17.893Z",
+  "sourceHash": "sha256:36e554e04dd489ea267dfb694ed17ec28aeed94e7e4d430960d0c9ab6178276e",
+  "whole": {
+    "attemptId": "c767a7fd-75d7-4ed4-97e5-12fb953f597c",
+    "sourceHash": "sha256:8523ee9227d80ef3c6701326e566e85349f9e4665bc679d62e8b86efdc2951a0",
+    "status": "failed",
+    "reportSha256": "0b87888fa6e5aa03b7a745858decdd8ce4abaa7583e666ed21b8821815c55af7",
+    "declaredFiles": 481,
+    "tests": 5734,
+    "passed": 5709,
+    "failed": 5,
+    "skipped": 20,
+    "checks": [
+      {
+        "name": "typecheck",
+        "exitCode": 0,
+        "elapsedMs": 41487,
+        "logSha256": "d2d95c551cd3d7c9ce656c890d8d76c8bdeccd590679e5521da75dafcecd693d"
+      },
+      {
+        "name": "lint",
+        "exitCode": 0,
+        "elapsedMs": 1809,
+        "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "name": "format",
+        "exitCode": 0,
+        "elapsedMs": 2134,
+        "logSha256": "230898276d0a7c27d52f9edce1704907735fb359becdcb803ceee942f49a6c64"
+      },
+      {
+        "name": "knip",
+        "exitCode": 0,
+        "elapsedMs": 8291,
+        "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "name": "contracts",
+        "exitCode": 0,
+        "elapsedMs": 1413,
+        "logSha256": "e0bfbf48403f68e16703a91e6e46175e37a156e2868b6a047243c43e9c6aee51"
+      },
+      {
+        "name": "build",
+        "exitCode": 0,
+        "elapsedMs": 8493,
+        "logSha256": "05c352384daff9b326769f8c5b9202caf71a47702552a8626f381be4ac0e80e2"
+      },
+      {
+        "name": "test",
+        "exitCode": 1,
+        "elapsedMs": 1277700,
+        "logSha256": "42c5327c6b1a810b6a3ab636ea4497975ba4d4bea399495a355a03fb59e00bf2"
+      },
+      {
+        "name": "test-ledger",
+        "exitCode": 1,
+        "elapsedMs": 785,
+        "logSha256": "9ef5f6220720f94169a089df43bf770bec4d8f10574011d3db1e9e5785e7f211"
+      }
+    ]
+  },
+  "repair": {
+    "files": [
+      {
+        "path": "packages/cli/test/service-tool-catalog.test.ts",
+        "sha256": "dec0e14d16cb95eba96d7a7afdba43b1e6072b54f309ef636a97e278a1aab3f7"
+      },
+      {
+        "path": "test/upstream-parity.test.ts",
+        "sha256": "41f16d8a77a6f9a59bae2cdf925e2fee944a71e5702e019ba60e030b2f7d16f5"
+      },
+      {
+        "path": "packages/mcp/test/node-id.test.ts",
+        "sha256": "2947c9da26d0c9ed5320cdc27b257e350ea2699869cddad771da1193963e0d72"
+      },
+      {
+        "path": "packages/mcp/test/policy/operation-policy.test.ts",
+        "sha256": "7c6dfabf6b64ca79fd5f1c3bf2fc90dc242bc84ec3ce686b6ab76e7e278f903d"
+      }
+    ],
+    "tests": 40,
+    "passed": 40,
+    "failed": 0,
+    "skipped": 0,
+    "testReportSha256": "1af66a97cb87468a326a2594b544f6442b668f920bc65b02d11f77a53148d41f",
+    "fullLintExitCode": 0,
+    "earlierFocusedAttempts": [
+      {
+        "revision": 1,
+        "passed": 39,
+        "failed": 1,
+        "evidence": "retained tool output; incorrect expected exclusive-heavy export name"
+      },
+      {
+        "revision": 2,
+        "passed": 38,
+        "failed": 2,
+        "reportSha256": "6df910b51a5871ecc78e25cebc01e4d8f4c2097dcc875390539a3d5761f0a87f",
+        "evidence": "retained private JSON/log; ambiguous patch also changed an earlier baseline list"
+      }
+    ]
+  },
+  "unresolved": [
+    "pure module-resolution eager native-artifact initialization",
+    "actual HTTP source-profile preparation and C2 compiler execution",
+    "public current-native-geometry authoring"
+  ],
+  "ownerIndexHash": "a99e5dd36982d74373d779448068a8449189b133e54cd673b13be2c2c356b2a9",
+  "wholePassedForCurrentSource": false,
+  "deploymentExecuted": false,
+  "frontendAcceptance": false
+}

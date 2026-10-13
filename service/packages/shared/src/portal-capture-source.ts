@@ -1,7 +1,17 @@
 import { z } from 'zod';
 const hash = z.string().regex(/^sha256:[a-f0-9]{64}$/u);
 const id = z.string().min(1).max(1024);
-export const PortalCaptureSourceSchema = z.enum(['chrome', 'desktop']);
+export const OfficialFigmaEndpointSchema = z.enum([
+  'https://mcp.figma.com/mcp',
+  'http://127.0.0.1:3845/mcp',
+]);
+export const OfficialFigmaCaptureNodeIdSchema = z
+  .string()
+  .max(512)
+  .regex(/^\d+:\d+$/u);
+export const PortalCaptureSourceSchema = z.enum(['chrome', 'desktop', 'official-mcp']);
+export const PortalChromeCollectorSchema = z.enum(['page-api', 'scripter']);
+export type PortalChromeCollector = z.infer<typeof PortalChromeCollectorSchema>;
 const common = {
   version: z.literal(1),
   url: z.url().max(2048),
@@ -12,7 +22,18 @@ export const PortalCaptureGrantSchema = z.discriminatedUnion('kind', [
   z
     .object({
       ...common,
+      kind: z.literal('official-mcp'),
+      requestedNodeId: OfficialFigmaCaptureNodeIdSchema,
+      phase: z.literal('requested-source'),
+      binding: z.literal('official-runtime-file-key-required'),
+      endpoint: OfficialFigmaEndpointSchema,
+    })
+    .strict(),
+  z
+    .object({
+      ...common,
       kind: z.literal('chrome'),
+      collector: PortalChromeCollectorSchema.optional(),
       phase: z.literal('requested-source'),
       binding: z.literal('selected-page-after-approved-connection'),
     })
@@ -51,13 +72,18 @@ export const PortalCaptureDescriptorSchema = z
     source: z
       .object({
         kind: PortalCaptureSourceSchema,
+        collector: PortalChromeCollectorSchema.optional(),
         url: z.url().max(2048),
         fileKeyHash: hash,
         requestedNodeId: z.string().max(512).nullable(),
         scopeId: id,
         bindingMethod: z.enum(['file-key', 'owner-confirmed-document']),
       })
-      .strict(),
+      .strict()
+      .refine(
+        value => value.kind === 'chrome' || value.collector === undefined,
+        'PORTAL_CAPTURE_COLLECTOR_MISMATCH',
+      ),
   })
   .strict();
 export type PortalCaptureDescriptor = z.infer<typeof PortalCaptureDescriptorSchema>;

@@ -8,7 +8,9 @@ import {
 import { parseFigmaTarget } from '../../../cli/src/figma-url.js';
 import {
   PortalCaptureGrantSchema,
+  OfficialFigmaCaptureNodeIdSchema,
   type PortalCaptureGrant,
+  type PortalChromeCollector,
 } from '../../../shared/src/portal-capture-source.js';
 import type { SessionDocumentBinding } from '../execution/identity-bootstrap-coordinator.js';
 import type {
@@ -19,8 +21,10 @@ import { TargetResolver } from '../execution/target-resolver.js';
 import type { DocumentBindingStore } from '../security/document-binding-store.js';
 import { portalError } from './store.js';
 export interface PortalSourceRequest {
-  source: 'chrome' | 'desktop';
+  source: 'chrome' | 'desktop' | 'official-mcp';
   url: string;
+  officialEndpoint?: string | undefined;
+  collector?: PortalChromeCollector | undefined;
 }
 export interface PortalDocumentBinding {
   fileKeyHash: string;
@@ -43,14 +47,31 @@ export async function resolvePortalCaptureSource(
   const common = { version: 1, url: requested.url, fileKeyHash, requestedNodeId: requested.nodeId };
   const resolver = new TargetResolver(ports.sessions);
   const automatic = selector.kind === 'portal-source';
-  if (request.source === 'chrome') {
+  if (request.source !== 'chrome' && request.collector !== undefined)
+    throw portalError('PORTAL_CAPTURE_COLLECTOR_MISMATCH');
+  if (request.source === 'chrome' && request.collector === 'page-api' && !requested.nodeId)
+    throw portalError('FIGMA_PAGE_TARGET_REQUIRED');
+  if (request.source === 'chrome' || request.source === 'official-mcp') {
     const target = resolver.resolve(automatic ? { kind: 'none' } : selector, 'forbidden');
+    if (
+      request.source === 'official-mcp' &&
+      !OfficialFigmaCaptureNodeIdSchema.safeParse(requested.nodeId).success
+    )
+      throw portalError('FIGMA_MCP_TARGET_REQUIRED');
     return {
       grant: PortalCaptureGrantSchema.parse({
         ...common,
-        kind: 'chrome',
+        kind: request.source,
         phase: 'requested-source',
-        binding: 'selected-page-after-approved-connection',
+        ...(request.source === 'chrome'
+          ? {
+              binding: 'selected-page-after-approved-connection',
+              ...(request.collector ? { collector: request.collector } : {}),
+            }
+          : {
+              binding: 'official-runtime-file-key-required',
+              endpoint: request.officialEndpoint ?? 'https://mcp.figma.com/mcp',
+            }),
       }),
       target,
     };
@@ -138,7 +159,8 @@ export async function revalidatePortalCaptureGrant(
   target: Readonly<PluginTarget>,
   ports: PortalCaptureAdmissionPorts,
 ): Promise<void> {
-  if (grant.kind === 'chrome') {
+  if (grant.kind === 'chrome' || grant.kind === 'official-mcp') {
+    PortalCaptureGrantSchema.parse(grant);
     if (target.sessionId !== null) throw portalError('TARGET_FORBIDDEN');
     return;
   }

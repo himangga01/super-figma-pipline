@@ -1,0 +1,29 @@
+{
+  "at": "2026-10-12T23:00:34.572Z",
+  "ownerAuthorization": "Explicit new eight-hour approval followed by all-auto-approve on October13",
+  "passed": true,
+  "sameTab": true,
+  "newRequest": true,
+  "approvedIds": [
+    "d28b142d-caa3-42b7-9992-fe374cd8ee4d"
+  ],
+  "originalDeadlineRenewed": false,
+  "oldGrantCopied": false,
+  "previousGrantExpiry": "2026-10-12T22:02:20.755Z",
+  "jobId": "075c31d4-6c36-4af1-a50b-fa86404440f4",
+  "originalJobDeadlineAt": 1791846946103,
+  "status": "succeeded",
+  "errorCode": null,
+  "outputHash": "sha256:1f0c5032a455d71b52223932b35311409e505f873715b1c56595d1b768e3c7e8",
+  "grant": {
+    "mode": "external-model",
+    "allowedClasses": [
+      "public",
+      "project-code",
+      "design-text",
+      "design-image"
+    ],
+    "configuredAt": "2026-10-12T23:00:48.660Z",
+    "expiresAt": "2026-10-13T07:00:48.660Z"
+  }
+}

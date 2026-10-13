@@ -50,7 +50,9 @@ export async function preparePortalCaptureAuthority(
         key:
           capture.grant.kind === 'desktop'
             ? capture.grant.fileExecutionKey
-            : 'portal:browser:' + capture.grant.fileKeyHash,
+            : capture.grant.kind === 'official-mcp'
+              ? 'portal:official-mcp:' + capture.grant.fileKeyHash
+              : 'portal:browser:' + capture.grant.fileKeyHash,
         mode: 'write',
       },
     ];

@@ -53,7 +53,12 @@ export const BrowserNodeSchema: z.ZodType<BrowserNode> = z.lazy(() =>
 export const FigmaCaptureReadResultSchema = z
   .object({
     schemaVersion: z.literal(1),
-    source: z.enum(['figma-plugin-api-via-scripter', 'figma-plugin-api-pinned']),
+    source: z.enum([
+      'figma-plugin-api-via-scripter',
+      'figma-plugin-api-pinned',
+      'official-figma-mcp',
+      'figma-web-page-api',
+    ]),
     fileName: z.string(),
     pageId: z.string(),
     pageName: z.string(),

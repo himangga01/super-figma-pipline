@@ -1,0 +1,11 @@
+{
+  "at": "2026-10-13T00:01:19.046Z",
+  "failedPreflight": "SERVICE_FORK_RECONCILIATION_INVALID",
+  "failedReasonLength": 626,
+  "allowedReasonLength": 512,
+  "correctedReasonLength": 417,
+  "failedRecordSha256": "1033299729aded9c7f7feead51f8161294d6974420260bdb984556a8872a0190",
+  "correctedRecordSha256": "f39e97ddfd12f21b067059f39397443d181230d38860f575f5e871b0cc55089e",
+  "derivedAuthoritiesUnchangedBeforeCorrection": true,
+  "ownerIndexUnchanged": true
+}

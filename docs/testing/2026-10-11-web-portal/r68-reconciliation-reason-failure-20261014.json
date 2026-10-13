@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "kind": "observed-r68-first-update-failure-preserved",
+  "sourceBeforeReconciliation": "sha256:d17485f0b84f2a9adbb6ef40acf0280507ad40e2617ca7001b142731bc2dfd80",
+  "failure": "SERVICE_FORK_RECONCILIATION_INVALID",
+  "failedCommand": "update",
+  "reasonLength": 701,
+  "maximumReasonLength": 512,
+  "authorityWritesObserved": false,
+  "subsequentStagesExecuted": false,
+  "observedBy": "Root execution report and primary updater predicate",
+  "invalidRecord": {
+    "path": "docs/testing/2026-10-11-web-portal/r68-reconciliation-reason-invalid-20261014.json",
+    "sha256": "17b3dba4ad0a910e649bfa1406b670b0cb91a0c6761c857f92e362e3ae25cfd2"
+  },
+  "retryPreparedOnly": true
+}

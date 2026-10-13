@@ -1,0 +1,36 @@
+{
+  "schema": "no-core-recovery-candidate-r2.v1",
+  "baselineSource": "303de5d1904d11c1fb89bdf80951900e375ac4325ea6cfc932f39ebee2785732",
+  "integrated": false,
+  "priorManifestSha256": "a2fb2986fdd55e1d89afafc48973181e9899b9877a00930fadbe60b847e1cc90",
+  "files": [
+    {
+      "path": "packages/portal/src/bridge.ts",
+      "beforeSha256": "5e729885279e81964144f450c59fd56747282541d0ad90d2a76b6f5ac93ce5b2",
+      "r1Sha256": "56addaf263113cea8bc6c49b1679e7306605081e0aa230abc1ec7dee1650b0bf",
+      "afterSha256": "ab7008aea8646ade1eff75bb03b5e5c755656662e815dc1775185528ea94b9e2",
+      "bytes": 39176
+    },
+    {
+      "path": "packages/portal/test/backend.test.ts",
+      "beforeSha256": "e788e7330434cadbc28bad0179b5fe7dfa7fa57bfc0a80501406280d1cc7355a",
+      "r1Sha256": "bf93b83d3843970ca92494e1489cfce1e0128439effa77958c7a2f95f6c7e6bc",
+      "afterSha256": "2b47f7e3c843b47cb19ea4eb20038de330c90d80602c58499842e62d116538ac",
+      "bytes": 71637
+    }
+  ],
+  "verification": {
+    "passed": 4,
+    "failed": 0,
+    "filtered": 67,
+    "typecheck": {
+      "version": "6.0.3",
+      "sourceFiles": 387,
+      "diagnostics": 0
+    },
+    "lintExit": 0,
+    "formatExit": 0
+  },
+  "atomicDisposition": true,
+  "readonlyInspectionPreservesUnknown": true
+}

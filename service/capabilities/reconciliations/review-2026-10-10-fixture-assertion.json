@@ -1,0 +1,44 @@
+{
+  "schemaVersion": 1,
+  "slice": "review-2026-10-10",
+  "baseline": {
+    "headCommit": "22517932dc9b2cb974c177ec4eacb84d4b16e254",
+    "authoritySha256": {
+      "upstream-lock.json": "107136a759dc9c21b9bc18a243ee6b4f7069a1d7a126e086e5b7412b7ae39a1d",
+      "vendor-map.json": "b3275c7d8b997d1cfe723d97594659f77d7b4361b824a790bcfdd7ff762589bd",
+      "vendor-rules.json": "b03ceb11e4c6887dec5f5540441d2a899081de02b7178dbe6ead805b852e46b6"
+    }
+  },
+  "entries": [
+    {
+      "path": "capabilities/task-review-2026-10-10-authority-classes.json",
+      "sha256": "1bc28ac3d4d9f788f2af01f3a08604ed5703689829218cf24f11911ffe972272",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "e7005585b02e8d9af069adde037aa9befa464816f09d25eabbd8ac7c7d5b7c3f"
+        },
+        {
+          "class": "protected",
+          "sha256": "e7005585b02e8d9af069adde037aa9befa464816f09d25eabbd8ac7c7d5b7c3f"
+        }
+      ],
+      "reason": "Retain the existing one-argument assertion required by project lint and types while preserving the reviewed native fixture budgets and all failure expectations."
+    },
+    {
+      "path": "test/vendor-upstreams.test.ts",
+      "sha256": "a783c88c5e14571ab5445d50a406f1bb8ed185f1f426885ee1c8bd56365d780d",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "b86d74335819aa9571d51c3c96868c28363c175b3ca0adb6b2878838b76d5d8e"
+        },
+        {
+          "class": "protected",
+          "sha256": "b86d74335819aa9571d51c3c96868c28363c175b3ca0adb6b2878838b76d5d8e"
+        }
+      ],
+      "reason": "Retain the existing one-argument assertion required by project lint and types while preserving the reviewed native fixture budgets and all failure expectations."
+    }
+  ]
+}

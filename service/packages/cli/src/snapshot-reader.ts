@@ -28,7 +28,12 @@ export const readScripterSnapshot = async (
   page: Page,
   target: Readonly<FigmaTarget>,
   input: unknown,
-  options: { deadlineAt?: number; signal?: AbortSignal } = {},
+  options: {
+    deadlineAt?: number;
+    signal?: AbortSignal;
+    sourceWork?<T>(pending: Promise<T>, cleanup?: boolean): Promise<T>;
+    sourceUnconfirmed?(): void;
+  } = {},
 ) => {
   return readDesignSnapshot(
     target,

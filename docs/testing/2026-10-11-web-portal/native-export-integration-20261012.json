@@ -1,0 +1,30 @@
+{
+  "at": "2026-10-12T01:50:35.157Z",
+  "baseline": "sha256:f0dc149a95da3bc7f8e52aecb094362d6e0166ae69e4ba29946a393e90f220c8",
+  "integratedUnreconciledSource": "sha256:b84b96504fce01a1d85f790e914a9b8a894275cacc49dd5a053deccd2176378d",
+  "ownerIndex": "a99e5dd36982d74373d779448068a8449189b133e54cd673b13be2c2c356b2a9",
+  "files": [
+    {
+      "path": "service/packages/cli/src/figma-web-export.ts",
+      "beforeSha256": "7a26c6a98c3e54deb7fff429d760716330eed6fbfbf4d40b4c37e09a721f227e",
+      "sha256": "4b07cd47ae159abf9f3f6bba819865553b248aab61196fb749916e25ecc31998"
+    },
+    {
+      "path": "service/packages/cli/test/figma-web-export.test.ts",
+      "beforeSha256": "a17f2b751a94a47fedff680219c9b3df46ca0babb1baf2b6884d9eac9615aaa1",
+      "sha256": "0365ba6a2d67bb25f8bdf0c44f73b72a6307af19e3b0c858eb7ae55c90191dc5"
+    }
+  ],
+  "compiledF0dcBackupFiles": 17,
+  "mainAndNativeMatch": true,
+  "focusedNative": {
+    "total": 15,
+    "passed": 15,
+    "failed": 0,
+    "skipped": 0,
+    "reportSha256": "ccf2d76e0b220375f50dadbcf4c59ff3cbb99539520360f0198848ba53394a70"
+  },
+  "independentReview": "docs/testing/2026-10-11-web-portal/figma-design-mode-export-review.md",
+  "wholeCheckStillRequired": true,
+  "liveFigmaAcceptance": false
+}

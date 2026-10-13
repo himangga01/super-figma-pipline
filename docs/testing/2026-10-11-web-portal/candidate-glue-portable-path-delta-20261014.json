@@ -1,0 +1,21 @@
+{
+  "schemaVersion": 1,
+  "date": "2026-10-14",
+  "path": "examples/portal-cases/compose-case-candidate.mjs",
+  "beforeSha256": "379535b76a0b2370aba5163e3d07ee37d408e4ff8015abefae279a590bd71999",
+  "afterSha256": "88f4f4fecf0e4016bff51092faee580495165ddbc9df4ea5d4beb6ecc48b71fb",
+  "changes": [
+    "Shared import/copy root uses published shared-design.",
+    "C2 landing copies use published c2-epic/design-extension.",
+    "C3 authored framework and acceptance copies use published c3-workspace paths."
+  ],
+  "verification": {
+    "portableModuleImportExitCode": 0,
+    "actualAssemblyExecuted": false,
+    "serviceCalls": false,
+    "oldPassingTestsRepeated": false
+  },
+  "authorFreezeChanged": false,
+  "serviceSourceChanged": false,
+  "caseAcceptance": false
+}

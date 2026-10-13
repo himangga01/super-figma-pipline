@@ -1,0 +1,107 @@
+{
+  "schemaVersion": 1,
+  "recordedAt": "2026-10-13T17:57:08.703Z",
+  "sourceHash": "sha256:6f87f836d872a4ba8ab49533f6447a7c921adb6b8af3dae75ddd6241e8b8a1cb",
+  "planId": "sfp_portal1_a1d0b5e8f45697228d01b2c2b01a1276",
+  "compilerEvidenceHash": "sha256:64c48ce1a7f1d586e5e44fc12d7129b03d2a6083923797117c3984ef67f8e3f7",
+  "graphIncomplete": true,
+  "lexicalReviewable": false,
+  "issuesTruncated": false,
+  "sourceInventoryComplete": true,
+  "sourceInventoryIssueCodes": [],
+  "connectionComplete": false,
+  "connectionIssuesTruncated": false,
+  "connectionRows": 0,
+  "issueCodeCounts": {
+    "MODULE_UNRESOLVED": 4,
+    "MODULE_ANALYSIS_INCOMPLETE": 1,
+    "UNRESOLVED_MOUNT": 8
+  },
+  "issues": [
+    {
+      "code": "MODULE_UNRESOLVED",
+      "diagnosticHash": "be276381290738a70c9ab2deef728426bb1aaa1bc4f9dd301d7c18a2f613062a"
+    },
+    {
+      "code": "MODULE_UNRESOLVED",
+      "diagnosticHash": "f9ca51606e547649b8a0f57272dc02ab6cfc8ddb650ee54baeda6ec83ccaf5c7"
+    }
+  ],
+  "connectionIssues": [
+    {
+      "code": "MODULE_ANALYSIS_INCOMPLETE"
+    },
+    {
+      "code": "MODULE_UNRESOLVED",
+      "evidence": {
+        "path": "app/root.tsx",
+        "hash": "sha256:da108f06484304a845d5067f66cfe279af63e996a6381fc69cc33ed83488dd4e"
+      }
+    },
+    {
+      "code": "MODULE_UNRESOLVED",
+      "evidence": {
+        "path": "app/routes/home.tsx",
+        "hash": "sha256:3e26b590d78b0ae7387842289383211ba9733ab0b3a059d77bd92d3b437c366c"
+      }
+    },
+    {
+      "code": "UNRESOLVED_MOUNT",
+      "evidence": {
+        "path": "server.js",
+        "hash": "sha256:0cee5b26560d640a769eac2d9629d3692daa590724cd5bb326acba6535841992"
+      }
+    },
+    {
+      "code": "UNRESOLVED_MOUNT",
+      "evidence": {
+        "path": "server.js",
+        "hash": "sha256:0cee5b26560d640a769eac2d9629d3692daa590724cd5bb326acba6535841992"
+      }
+    },
+    {
+      "code": "UNRESOLVED_MOUNT",
+      "evidence": {
+        "path": "server.js",
+        "hash": "sha256:0cee5b26560d640a769eac2d9629d3692daa590724cd5bb326acba6535841992"
+      }
+    },
+    {
+      "code": "UNRESOLVED_MOUNT",
+      "evidence": {
+        "path": "server.js",
+        "hash": "sha256:0cee5b26560d640a769eac2d9629d3692daa590724cd5bb326acba6535841992"
+      }
+    },
+    {
+      "code": "UNRESOLVED_MOUNT",
+      "evidence": {
+        "path": "server.js",
+        "hash": "sha256:0cee5b26560d640a769eac2d9629d3692daa590724cd5bb326acba6535841992"
+      }
+    },
+    {
+      "code": "UNRESOLVED_MOUNT",
+      "evidence": {
+        "path": "server.js",
+        "hash": "sha256:0cee5b26560d640a769eac2d9629d3692daa590724cd5bb326acba6535841992"
+      }
+    },
+    {
+      "code": "UNRESOLVED_MOUNT",
+      "evidence": {
+        "path": "server.js",
+        "hash": "sha256:0cee5b26560d640a769eac2d9629d3692daa590724cd5bb326acba6535841992"
+      }
+    },
+    {
+      "code": "UNRESOLVED_MOUNT",
+      "evidence": {
+        "path": "server/app.ts",
+        "hash": "sha256:38ccc286c38804340616c16afec333ef656cf6bb2f4ef4e9be413a40baeea5db"
+      }
+    }
+  ],
+  "designComplete": false,
+  "caseAcceptance": false
+}

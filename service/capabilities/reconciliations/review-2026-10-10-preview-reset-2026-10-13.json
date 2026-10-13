@@ -1,0 +1,55 @@
+{
+  "schemaVersion": 1,
+  "slice": "review-2026-10-10",
+  "baseline": {
+    "headCommit": "22517932dc9b2cb974c177ec4eacb84d4b16e254",
+    "authoritySha256": {
+      "upstream-lock.json": "17a2d6877134c4972ff69beac37184ccf98079d78d90c01e4887555c17addfce",
+      "vendor-map.json": "b3275c7d8b997d1cfe723d97594659f77d7b4361b824a790bcfdd7ff762589bd",
+      "vendor-rules.json": "30e431140eddfa38c2624cde0b7d4c5d31f3f1852dc826e10577c25a872bcf37"
+    }
+  },
+  "entries": [
+    {
+      "path": "capabilities/task-review-2026-10-10-authority-classes.json",
+      "sha256": "dc8caf41414e3ec1366deba984247a444a0c4ee296d06ef8864f545916696c85",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "ab0aab9d542b42de42af555e92bbfcc2528f38cfabb23318cc03aed7f74edee3"
+        },
+        {
+          "class": "protected",
+          "sha256": "ab0aab9d542b42de42af555e92bbfcc2528f38cfabb23318cc03aed7f74edee3"
+        }
+      ],
+      "reason": "Repair only the owned native-contour Chrome test deny proxy lifecycle. A real peer reset reproduces original assertion-pass/exit-one unhandled ECONNRESET. Attach scoped closing-lane handlers before rejection, surface unexpected errors and await all owned socket closure. Root independently passes all5 Chrome cases with original four assertions byte-identical. Production code and deny permissions unchanged. Preserve failed whole; fresh whole/artifact/runtime acceptance remains required."
+    },
+    {
+      "path": "packages/mcp/test/portal/preview-native-contours.test.ts",
+      "sha256": "3b3fd32e7adfe35dd9286decaf18a8c32d52d512161e6840074637b9338df93a",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "76f84fc168d443397c44198cc8ac6c2c1bee0b75e514843670dfe1de215f20ba"
+        },
+        {
+          "class": "protected",
+          "sha256": "76f84fc168d443397c44198cc8ac6c2c1bee0b75e514843670dfe1de215f20ba"
+        }
+      ],
+      "reason": "Repair only the owned native-contour Chrome test deny proxy lifecycle. A real peer reset reproduces original assertion-pass/exit-one unhandled ECONNRESET. Attach scoped closing-lane handlers before rejection, surface unexpected errors and await all owned socket closure. Root independently passes all5 Chrome cases with original four assertions byte-identical. Production code and deny permissions unchanged. Preserve failed whole; fresh whole/artifact/runtime acceptance remains required."
+    },
+    {
+      "path": "packages/portal/package.json",
+      "sha256": "ddb99eafe979d2319697f9bde91d01c4b3f4cf7f3e2a2baccfcb06ceff7767c8",
+      "priorClaims": [
+        {
+          "class": "protected",
+          "sha256": "ddb99eafe979d2319697f9bde91d01c4b3f4cf7f3e2a2baccfcb06ceff7767c8"
+        }
+      ],
+      "reason": "Repair only the owned native-contour Chrome test deny proxy lifecycle. A real peer reset reproduces original assertion-pass/exit-one unhandled ECONNRESET. Attach scoped closing-lane handlers before rejection, surface unexpected errors and await all owned socket closure. Root independently passes all5 Chrome cases with original four assertions byte-identical. Production code and deny permissions unchanged. Preserve failed whole; fresh whole/artifact/runtime acceptance remains required."
+    }
+  ]
+}

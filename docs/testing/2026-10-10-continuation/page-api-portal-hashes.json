@@ -1,0 +1,105 @@
+{
+  "recordedAt": "2026-10-11T07:30:47.698Z",
+  "root": "C:/2026_project/super-figma-pipline/.worktrees/baseline/service",
+  "kind": "owned-page-api-portal-slice",
+  "count": 24,
+  "hash": "sha256:62036c45ac0b1fad0f066b11c6b866a163d9ae102638f31f613fdf3bb320e6bb",
+  "files": [
+    {
+      "path": "packages/shared/src/portal.ts",
+      "sha256": "sha256:99e52c0b69d5705c1c95882af6f84d584eb4607545b176ba25f1577e2a4a636a"
+    },
+    {
+      "path": "packages/shared/src/portal-capture-source.ts",
+      "sha256": "sha256:f063433f26b592ddd891fc6458a38086b669b4cb22b647f8339b187f7a4f9597"
+    },
+    {
+      "path": "packages/shared/src/operations.ts",
+      "sha256": "sha256:7ad0f4b964e8b60c0c4e68e4095177a5b6d3ca6f6a72a592242826e971246646"
+    },
+    {
+      "path": "packages/mcp/src/portal/capture-source-admission.ts",
+      "sha256": "sha256:10f869ab80a6d78c8c37a9d3dc307328f7d88b6c9f44dc5a51deebcf5a4d8098"
+    },
+    {
+      "path": "packages/mcp/src/portal/capture-runtime.ts",
+      "sha256": "sha256:9741134f5d4bc8eda78b7b376be6082c73b2ae429819e9d396578d52797003c3"
+    },
+    {
+      "path": "packages/mcp/src/portal/design-capture.ts",
+      "sha256": "sha256:0db6ee493563dff2b0f34de47fcf7d6c3ececc4065c4a4caf60adb89a5f48c26"
+    },
+    {
+      "path": "packages/mcp/src/portal/coordinator.ts",
+      "sha256": "sha256:58c98cf628cad386ac437cf1c4ebdbd906a80e63a2ec837944582fce477a0f17"
+    },
+    {
+      "path": "packages/mcp/src/portal/native-work.ts",
+      "sha256": "sha256:d0592bb58da1f9e31c7ba2a04fc83226bf28010de7251f8858fcfc3e3b592727"
+    },
+    {
+      "path": "packages/mcp/src/index.ts",
+      "sha256": "sha256:4d1b9e2b4cb898815522c4189d16b2193d8b00f45aa651d8e80112bd089c5606"
+    },
+    {
+      "path": "packages/mcp/src/execution/execution-plane.ts",
+      "sha256": "sha256:a12a18873d9773060bd74390b4f256d9b2793fe4858b7d3be75caa921eb05f23"
+    },
+    {
+      "path": "packages/mcp/src/policy/operation-policy.ts",
+      "sha256": "sha256:2a9e0ccfc4b3adef4ec770e5d955c9d963c6f0c5620a33b63e13690ff1907486"
+    },
+    {
+      "path": "packages/mcp/src/policy/approval-prompt.ts",
+      "sha256": "sha256:5b2e033c5cfacc8bee82e80096c3249f4b080f2d992324e2b21783283800d18a"
+    },
+    {
+      "path": "packages/mcp/test/portal/page-api-admission.test.ts",
+      "sha256": "sha256:5bf5ea1b3bd64cc81b350f436529b28d43aea397977022e46df1748f44d4c2d9"
+    },
+    {
+      "path": "packages/mcp/test/portal/page-api-fixture.ts",
+      "sha256": "sha256:ba2b2212497697a804674eaab0b3b39ea8e610dcf6a318714d686ea24b7c24bd"
+    },
+    {
+      "path": "packages/mcp/test/portal/page-api-flow.test.ts",
+      "sha256": "sha256:44bf0b671d5945503bfb4c03b65fe98a2911173bed9fd0bf9652b219ffc48c47"
+    },
+    {
+      "path": "packages/mcp/test/portal/capture-plane.test.ts",
+      "sha256": "sha256:147a75fe7dec1d9554755f5d46c7b187ea220db0f9e847edee19800df93eaca3"
+    },
+    {
+      "path": "packages/mcp/test/portal/native-work.test.ts",
+      "sha256": "sha256:0d12374852a3de5cd1a990a8ea8a57fc798dbe3da47765b6ec3f3cb447e318bc"
+    },
+    {
+      "path": "packages/mcp/test/policy/operation-policy.test.ts",
+      "sha256": "sha256:d3bb14cc254cce70539c8a6244d2160b72d70f063ae93b69cd08d3c83eff9e07"
+    },
+    {
+      "path": "packages/cli/src/figma-page-reader.ts",
+      "sha256": "sha256:f346bb9781c7bd44392821529dee9db9b2a70fb2ae35c1a1600bc07f8981ccd0"
+    },
+    {
+      "path": "packages/cli/test/figma-page-reader.test.ts",
+      "sha256": "sha256:71486bc06de9389631e2fcb9a06e814ccda4274e81b2c6a7d879ff334c8d9e98"
+    },
+    {
+      "path": "packages/shared/src/figma-capture-query.ts",
+      "sha256": "sha256:b7dda43f293e6ffb006bb25a3c78a70164376300eb99067500602c6a46b3fbe5"
+    },
+    {
+      "path": "packages/shared/src/figma-capture-read.ts",
+      "sha256": "sha256:a1e78a4d3a2b05f36886f233d79f2af1031df83f1cd2a0228038075268ba4772"
+    },
+    {
+      "path": "packages/shared/src/design-observation.ts",
+      "sha256": "sha256:ade7ee53d97f46b11e8e3d73e24b1d6a5eda8284bb0855e9325ef4d8bae62d04"
+    },
+    {
+      "path": "packages/mcp/src/portal/design-normalization.ts",
+      "sha256": "sha256:c6d008fe6cd7900ecec8400d037ebb5a58ffd9aa24e73c81e0bf10d81af37a3b"
+    }
+  ]
+}

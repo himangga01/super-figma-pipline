@@ -1,0 +1,32 @@
+{
+    "cause":  "Review entry reason exceeded the existing 512-character limit",
+    "kind":  "r68-first-update-rejected-before-authority-write",
+    "recordPath":  "docs/testing/2026-10-11-web-portal/r68-invalid-reason-record-20261014.json",
+    "code":  "SERVICE_FORK_RECONCILIATION_INVALID",
+    "runtimeReplaced":  false,
+    "whole":  false,
+    "authorityBytesUnchanged":  true,
+    "recordSha256":  "17b3dba4ad0a910e649bfa1406b670b0cb91a0c6761c857f92e362e3ae25cfd2",
+    "ownerIndexSha256":  "ecc1808ab3e14fa2e8c233ae1fc1c91e0a33b5b2e383a7270f1bc3068997e675",
+    "authorityHashes":  {
+                            "map":  "b3275c7d8b997d1cfe723d97594659f77d7b4361b824a790bcfdd7ff762589bd",
+                            "rules":  "c82a646ab0b05c7368a9f76e18e63a1d0a317eaf4d3597f387e6129f1a6a4b2d",
+                            "lock":  "3189e90b5205183d6d3b6880dfafee2d8b209f3eca577d19c3a10d2958236627"
+                        },
+    "exitCode":  1,
+    "stage":  "update",
+    "provenanceCommandsPassed":  0,
+    "entryReasonLengths":  [
+                               701,
+                               701,
+                               701,
+                               701
+                           ],
+    "localProjectionAttempt":  "PowerShell boolean syntax failed; empty two-byte projection was replaced with this corrected record; no service operation repeated",
+    "liveAcceptance":  false,
+    "automaticReplayAllowed":  false,
+    "at":  "2026-10-13T20:51:54.3104459Z",
+    "originalRunnerDidNotPublishFailureReceipt":  true,
+    "schemaVersion":  1,
+    "preparationSourceHash":  "sha256:d17485f0b84f2a9adbb6ef40acf0280507ad40e2617ca7001b142731bc2dfd80"
+}

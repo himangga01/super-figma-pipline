@@ -105,6 +105,7 @@ interface VerifiedCleanupMarker {
 interface VerifiedArtifactFile {
   handle: OpenFileHandle;
   identity: FileIdentity;
+  exactIdentity: Readonly<{ dev: bigint; ino: bigint }>;
 }
 type MarkerQuarantinePolicy = 'unlink-protected' | 'retain-durable';
 interface RetainedMarkerLimits {
@@ -1149,6 +1150,13 @@ export class OperationEvidenceArtifactStore implements OperationEvidenceArtifact
         'artifact is not one unaliased regular file',
       );
     }
+    const beforeExact = await lstat(path, { bigint: true }).catch(() => null);
+    if (beforeExact === null) {
+      throw evidenceError(
+        'EVIDENCE_ARTIFACT_IDENTITY_MISMATCH',
+        'artifact exact identity is unavailable before retention cleanup',
+      );
+    }
     let handle: OpenFileHandle;
     try {
       handle = await open(path, constants.O_RDONLY | constants.O_NOFOLLOW);
@@ -1160,7 +1168,13 @@ export class OperationEvidenceArtifactStore implements OperationEvidenceArtifact
     }
     try {
       const identity = await handle.stat();
-      if (!identity.isFile() || identity.nlink !== 1 || !sameFile(before, identity)) {
+      const exactIdentity = await handle.stat({ bigint: true });
+      if (
+        !identity.isFile() ||
+        identity.nlink !== 1 ||
+        !sameFile(before, identity) ||
+        !this.artifactExactIdentityMatches(beforeExact, exactIdentity)
+      ) {
         throw evidenceError(
           'EVIDENCE_ARTIFACT_IDENTITY_MISMATCH',
           'artifact identity changed before retention cleanup',
@@ -1182,12 +1196,15 @@ export class OperationEvidenceArtifactStore implements OperationEvidenceArtifact
       /* eslint-enable no-await-in-loop */
       const bytes = Buffer.concat(chunks, total);
       const afterRead = await lstat(path).catch(() => null);
+      const afterReadExact = await lstat(path, { bigint: true }).catch(() => null);
       if (
         afterRead === null ||
+        afterReadExact === null ||
         !afterRead.isFile() ||
         afterRead.isSymbolicLink() ||
         afterRead.nlink !== 1 ||
         !sameFile(identity, afterRead) ||
+        !this.artifactExactIdentityMatches(exactIdentity, afterReadExact) ||
         digest(bytes) !== artifact.artifactDigest64
       ) {
         throw evidenceError(
@@ -1195,7 +1212,11 @@ export class OperationEvidenceArtifactStore implements OperationEvidenceArtifact
           'artifact bytes or identity changed during retention cleanup',
         );
       }
-      return { handle, identity };
+      return {
+        handle,
+        identity,
+        exactIdentity: Object.freeze({ dev: exactIdentity.dev, ino: exactIdentity.ino }),
+      };
     } catch (error) {
       await handle.close();
       throw error;
@@ -1212,6 +1233,13 @@ export class OperationEvidenceArtifactStore implements OperationEvidenceArtifact
     );
   }
 
+  private artifactExactIdentityMatches(
+    left: Readonly<{ dev: bigint; ino: bigint }>,
+    right: Readonly<{ dev: bigint; ino: bigint }>,
+  ): boolean {
+    return left.dev === right.dev && left.ino === right.ino;
+  }
+
   private artifactAtAuthorityMatchesSync(input: {
     path: string;
     verified: VerifiedArtifactFile;
@@ -1219,9 +1247,13 @@ export class OperationEvidenceArtifactStore implements OperationEvidenceArtifact
   }): boolean {
     let pathname: ReturnType<typeof lstatSync> | null = null;
     let held: ReturnType<typeof fstatSync> | null = null;
+    let pathnameExact: Readonly<{ dev: bigint; ino: bigint }> | null = null;
+    let heldExact: Readonly<{ dev: bigint; ino: bigint }> | null = null;
     try {
       pathname = lstatSync(input.path);
       held = fstatSync(input.verified.handle.fd);
+      pathnameExact = lstatSync(input.path, { bigint: true });
+      heldExact = fstatSync(input.verified.handle.fd, { bigint: true });
     } catch {
       return false;
     }
@@ -1234,7 +1266,9 @@ export class OperationEvidenceArtifactStore implements OperationEvidenceArtifact
       held.size < 1 ||
       held.size > 8_388_608 ||
       !sameFile(input.verified.identity, pathname) ||
-      !sameFile(input.verified.identity, held)
+      !sameFile(input.verified.identity, held) ||
+      !this.artifactExactIdentityMatches(input.verified.exactIdentity, pathnameExact) ||
+      !this.artifactExactIdentityMatches(input.verified.exactIdentity, heldExact)
     ) {
       return false;
     }
@@ -1300,12 +1334,20 @@ export class OperationEvidenceArtifactStore implements OperationEvidenceArtifact
         await this.dependencies.beforeCleanupCommit?.(input.fixedPath);
         await this.verifyDirectoryChain(input.directoryChain);
         const immediatelyBeforeRename = await lstat(fixedAuthorityPath).catch(() => null);
+        const immediatelyBeforeRenameExact = await lstat(fixedAuthorityPath, {
+          bigint: true,
+        }).catch(() => null);
         if (
           immediatelyBeforeRename === null ||
+          immediatelyBeforeRenameExact === null ||
           !immediatelyBeforeRename.isFile() ||
           immediatelyBeforeRename.isSymbolicLink() ||
           immediatelyBeforeRename.nlink !== 1 ||
           !sameFile(input.verified.identity, immediatelyBeforeRename) ||
+          !this.artifactExactIdentityMatches(
+            input.verified.exactIdentity,
+            immediatelyBeforeRenameExact,
+          ) ||
           (await this.lstatMaybe(quarantine)) !== null
         ) {
           throw evidenceError(
@@ -1315,12 +1357,15 @@ export class OperationEvidenceArtifactStore implements OperationEvidenceArtifact
         }
         await rename(fixedAuthorityPath, quarantine);
         const moved = await lstat(quarantine).catch(() => null);
+        const movedExact = await lstat(quarantine, { bigint: true }).catch(() => null);
         if (
           moved === null ||
+          movedExact === null ||
           !moved.isFile() ||
           moved.isSymbolicLink() ||
           moved.nlink !== 1 ||
-          !sameFile(input.verified.identity, moved)
+          !sameFile(input.verified.identity, moved) ||
+          !this.artifactExactIdentityMatches(input.verified.exactIdentity, movedExact)
         ) {
           throw evidenceError(
             'EVIDENCE_ARTIFACT_IDENTITY_MISMATCH',

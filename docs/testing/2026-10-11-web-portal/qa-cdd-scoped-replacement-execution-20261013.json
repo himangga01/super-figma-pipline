@@ -1,0 +1,53 @@
+{
+  "schemaVersion": 1,
+  "recordedAt": "2026-10-13T13:02:26.684Z",
+  "sourceHash": "sha256:6f87f836d872a4ba8ab49533f6447a7c921adb6b8af3dae75ddd6241e8b8a1cb",
+  "releaseId": "5b1c8abd-9bd3-4e81-b5ef-125d0b4d287c",
+  "build": {
+    "buildId": 1791202532000,
+    "buildIdentityHash": "sha256:cc91e5c866434c08e76f9a58a04a34c8dae73c09a22fa6b6f57a41db30ef5da7",
+    "leaderGenerationHash": "7518e12989542653a679eba8817c42ca86818191401b2bb35de1c99e87ecd9ae",
+    "role": "leader"
+  },
+  "daemon": {
+    "port": 3059,
+    "pid": 26712,
+    "commandHash": "5ccf93669310bd2b91c40eefc316af33789224efa60aa91a5655eaa8ee79ce1f",
+    "startedAt": 1791896412965,
+    "entry": "daemon"
+  },
+  "portal": {
+    "port": 4315,
+    "pid": 8952,
+    "commandHash": "f8c8cec83e151dff0a43c87e13be26793eae9228783c4f61d7706ad868d48737",
+    "startedAt": 1791896478622,
+    "entry": "portal"
+  },
+  "releaseReportHash": "75b29f2aa88e32d68a85f22a2a660a81d3885fbca1565b0962a1c7e918522d6f",
+  "artifactCheckpointHash": "9576f1716f4dbc1423305100c2b23c159e6485594897287f34adb19b1c069ceb",
+  "verifiedReceiptHash": "5bc5d6baf85474c51b59fb9581b6f27e84c647829cb0ee77f3a250d73a72a28f",
+  "stoppedManifestHash": "6d3efceeeb85721e7911bc29a9d1470b28b4ac55ee13acf7bc634c80442158ac",
+  "originalUnknownPreserved": true,
+  "originalDeadlinesPreserved": true,
+  "namespaceCopied": false,
+  "automaticReplay": false,
+  "retainedCounts": {
+    "jobs": 36,
+    "runs": 12,
+    "workflows": 8
+  },
+  "retainedCoreRows": 11,
+  "retiredNativeAttempts": 2,
+  "unknownJobs": 2,
+  "grant": {
+    "mode": "external-model",
+    "configuredAt": "2026-10-13T07:21:06.181Z",
+    "expiresAt": "2026-10-13T15:21:06.181Z"
+  },
+  "newGrantRequested": false,
+  "primaryTouched": false,
+  "sourceChromeChanged": false,
+  "portalChromeChanged": false,
+  "wholePassed": false,
+  "fullGenerationAccepted": false
+}

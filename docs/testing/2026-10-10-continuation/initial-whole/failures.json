@@ -1,0 +1,65 @@
+[
+  {
+    "file": "C:/2026_project/super-figma-pipline/.worktrees/baseline/service/test/vendor-upstreams.test.ts",
+    "name": "vendor upstream reconciliation regenerates raw Figwright allowances from copy and service-owned destinations",
+    "errors": [
+      "AssertionError: expected 1 to be +0 // Object.is equality\n    at C:/2026_project/super-figma-pipline/.worktrees/baseline/service/test/vendor-upstreams.test.ts:106:27\n    at file:///C:/2026_project/super-figma-pipline/.worktrees/baseline/service/node_modules/.pnpm/@vitest+runner@4.1.11/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:20"
+    ]
+  },
+  {
+    "file": "C:/2026_project/super-figma-pipline/.worktrees/baseline/service/test/vendor-upstreams.test.ts",
+    "name": "vendor upstream reconciliation removes a previous managed destination when its mapped bytes are unchanged",
+    "errors": [
+      "AssertionError: expected 1 to be +0 // Object.is equality\n    at C:/2026_project/super-figma-pipline/.worktrees/baseline/service/test/vendor-upstreams.test.ts:125:27\n    at file:///C:/2026_project/super-figma-pipline/.worktrees/baseline/service/node_modules/.pnpm/@vitest+runner@4.1.11/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:20"
+    ]
+  },
+  {
+    "file": "C:/2026_project/super-figma-pipline/.worktrees/baseline/service/test/vendor-upstreams.test.ts",
+    "name": "vendor upstream reconciliation rejects a locally modified obsolete destination without changing the file or map",
+    "errors": [
+      "AssertionError: expected 'fatal: cannot change to \\'C:\\Users\\강지…' to contain '[VENDOR_STALE_MODIFIED]'\n    at C:/2026_project/super-figma-pipline/.worktrees/baseline/service/test/vendor-upstreams.test.ts:146:27\n    at file:///C:/2026_project/super-figma-pipline/.worktrees/baseline/service/node_modules/.pnpm/@vitest+runner@4.1.11/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:20"
+    ]
+  },
+  {
+    "file": "C:/2026_project/super-figma-pipline/.worktrees/baseline/service/test/vendor-upstreams.test.ts",
+    "name": "vendor upstream reconciliation preserves service-owned lifecycle scripts and excludes the upstream-only clean command",
+    "errors": [
+      "AssertionError: expected 1 to be +0 // Object.is equality\n    at C:/2026_project/super-figma-pipline/.worktrees/baseline/service/test/vendor-upstreams.test.ts:174:27\n    at file:///C:/2026_project/super-figma-pipline/.worktrees/baseline/service/node_modules/.pnpm/@vitest+runner@4.1.11/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:20"
+    ]
+  },
+  {
+    "file": "C:/2026_project/super-figma-pipline/.worktrees/baseline/service/packages/mcp/test/network/remote-domain-config.test.ts",
+    "name": "durable remote domain state rejects a non-principal actor before consuming authorization",
+    "errors": [
+      "Error: current process start identity is unavailable\n    at acquireInterprocessPathLock (C:/2026_project/super-figma-pipline/.worktrees/baseline/service/packages/mcp/src/fs/atomic-file.ts:699:25)\n    at processTicksAndRejections (node:internal/process/task_queues:104:5)\n    at withCanonicalPathMutex (C:/2026_project/super-figma-pipline/.worktrees/baseline/service/packages/mcp/src/fs/atomic-file.ts:934:27)\n    at withRetainedDirectoryAuthority (C:/2026_project/super-figma-pipline/.worktrees/baseline/service/packages/mcp/src/fs/atomic-file.ts:530:14)\n    at withRetainedDirectoryAuthority (C:/2026_project/super-figma-pipline/.worktrees/baseline/service/packages/mcp/src/fs/atomic-file.ts:530:14)\n    at RemoteDomainConfigStore.recover (C:/2026_project/super-figma-pipline/.worktrees/baseline/service/packages/mcp/src/network/remote-domain-config-store.ts:550:5)\n    at C:/2026_project/super-figma-pipline/.worktrees/baseline/service/packages/mcp/test/network/remote-domain-config.test.ts:199:5\n    at file:///C:/2026_project/super-figma-pipline/.worktrees/baseline/service/node_modules/.pnpm/@vitest+runner@4.1.11/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:20"
+    ]
+  },
+  {
+    "file": "C:/2026_project/super-figma-pipline/.worktrees/baseline/service/packages/mcp/test/network/remote-domain-config.test.ts",
+    "name": "durable remote domain state treats a missing file as an empty immutable list only after recovery",
+    "errors": [
+      "Error: current process start identity is unavailable\n    at acquireInterprocessPathLock (C:/2026_project/super-figma-pipline/.worktrees/baseline/service/packages/mcp/src/fs/atomic-file.ts:699:25)\n    at processTicksAndRejections (node:internal/process/task_queues:104:5)\n    at withCanonicalPathMutex (C:/2026_project/super-figma-pipline/.worktrees/baseline/service/packages/mcp/src/fs/atomic-file.ts:934:27)\n    at withRetainedDirectoryAuthority (C:/2026_project/super-figma-pipline/.worktrees/baseline/service/packages/mcp/src/fs/atomic-file.ts:530:14)\n    at withRetainedDirectoryAuthority (C:/2026_project/super-figma-pipline/.worktrees/baseline/service/packages/mcp/src/fs/atomic-file.ts:530:14)\n    at RemoteDomainConfigStore.recover (C:/2026_project/super-figma-pipline/.worktrees/baseline/service/packages/mcp/src/network/remote-domain-config-store.ts:550:5)\n    at C:/2026_project/super-figma-pipline/.worktrees/baseline/service/packages/mcp/test/network/remote-domain-config.test.ts:211:5\n    at file:///C:/2026_project/super-figma-pipline/.worktrees/baseline/service/node_modules/.pnpm/@vitest+runner@4.1.11/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:20"
+    ]
+  },
+  {
+    "file": "C:/2026_project/super-figma-pipline/.worktrees/baseline/service/packages/mcp/test/portal/native-artifacts.test.ts",
+    "name": "rejects loader flags, unbound external entrypoints and pre-existing unbound dependencies",
+    "errors": [
+      "Error: STACK_TRACE_ERROR\n    at task (file:///C:/2026_project/super-figma-pipline/.worktrees/baseline/service/node_modules/.pnpm/@vitest+runner@4.1.11/node_modules/@vitest/runner/dist/chunk-artifact.js:1784:27)\n    at Object.<anonymous> (file:///C:/2026_project/super-figma-pipline/.worktrees/baseline/service/node_modules/.pnpm/@vitest+runner@4.1.11/node_modules/@vitest/runner/dist/chunk-artifact.js:1817:16)\n    at Object.<anonymous> (file:///C:/2026_project/super-figma-pipline/.worktrees/baseline/service/node_modules/.pnpm/@vitest+runner@4.1.11/node_modules/@vitest/runner/dist/chunk-artifact.js:1563:28)\n    at chain (file:///C:/2026_project/super-figma-pipline/.worktrees/baseline/service/node_modules/.pnpm/@vitest+runner@4.1.11/node_modules/@vitest/runner/dist/chunk-artifact.js:599:14)\n    at C:/2026_project/super-figma-pipline/.worktrees/baseline/service/packages/mcp/test/portal/native-artifacts.test.ts:259:1\n    at processTicksAndRejections (node:internal/process/task_queues:104:5)\n    at VitestModuleEvaluator._runInlinedModule (file:///C:/2026_project/super-figma-pipline/.worktrees/baseline/service/node_modules/.pnpm/vitest@4.1.11_@types+node@2_c309fb1c5c9d3c0c0e7ffa14cbd12b0c/node_modules/vitest/dist/module-evaluator.js:206:4)\n    at VitestModuleRunner.directRequest (file:///C:/2026_project/super-figma-pipline/.worktrees/baseline/service/node_modules/.pnpm/vite@8.2.2_@types+node@24.13.3_jiti@2.7.0_yaml@2.9.0/node_modules/vite/dist/node/module-runner.js:1273:59)\n    at VitestModuleRunner.cachedRequest (file:///C:/2026_project/super-figma-pipline/.worktrees/baseline/service/node_modules/.pnpm/vite@8.2.2_@types+node@24.13.3_jiti@2.7.0_yaml@2.9.0/node_modules/vite/dist/node/module-runner.js:1180:73)\n    at VitestModuleRunner.import (file:///C:/2026_project/super-figma-pipline/.worktrees/baseline/service/node_modules/.pnpm/vite@8.2.2_@types+node@24.13.3_jiti@2.7.0_yaml@2.9.0/node_modules/vite/dist/node/module-runner.js:1135:10)"
+    ]
+  },
+  {
+    "file": "C:/2026_project/super-figma-pipline/.worktrees/baseline/service/packages/mcp/test/portal/service-graph.test.ts",
+    "name": "retains graph diagnostic loss state with 512 lexical source files",
+    "errors": [
+      "Error: STACK_TRACE_ERROR\n    at task (file:///C:/2026_project/super-figma-pipline/.worktrees/baseline/service/node_modules/.pnpm/@vitest+runner@4.1.11/node_modules/@vitest/runner/dist/chunk-artifact.js:1784:27)\n    at Object.<anonymous> (file:///C:/2026_project/super-figma-pipline/.worktrees/baseline/service/node_modules/.pnpm/@vitest+runner@4.1.11/node_modules/@vitest/runner/dist/chunk-artifact.js:1817:16)\n    at Object.<anonymous> (file:///C:/2026_project/super-figma-pipline/.worktrees/baseline/service/node_modules/.pnpm/@vitest+runner@4.1.11/node_modules/@vitest/runner/dist/chunk-artifact.js:1563:28)\n    at Object.chain (file:///C:/2026_project/super-figma-pipline/.worktrees/baseline/service/node_modules/.pnpm/@vitest+runner@4.1.11/node_modules/@vitest/runner/dist/chunk-artifact.js:599:14)\n    at file:///C:/2026_project/super-figma-pipline/.worktrees/baseline/service/node_modules/.pnpm/@vitest+runner@4.1.11/node_modules/@vitest/runner/dist/chunk-artifact.js:2027:7\n    at Array.forEach (<anonymous>)\n    at file:///C:/2026_project/super-figma-pipline/.worktrees/baseline/service/node_modules/.pnpm/@vitest+runner@4.1.11/node_modules/@vitest/runner/dist/chunk-artifact.js:2021:10\n    at C:/2026_project/super-figma-pipline/.worktrees/baseline/service/packages/mcp/test/portal/service-graph.test.ts:279:20\n    at processTicksAndRejections (node:internal/process/task_queues:104:5)\n    at VitestModuleEvaluator._runInlinedModule (file:///C:/2026_project/super-figma-pipline/.worktrees/baseline/service/node_modules/.pnpm/vitest@4.1.11_@types+node@2_c309fb1c5c9d3c0c0e7ffa14cbd12b0c/node_modules/vitest/dist/module-evaluator.js:206:4)"
+    ]
+  },
+  {
+    "file": "C:/2026_project/super-figma-pipline/.worktrees/baseline/service/packages/mcp/test/portal/service-graph.test.ts",
+    "name": "retains graph diagnostic loss state with 513 lexical source files",
+    "errors": [
+      "Error: STACK_TRACE_ERROR\n    at task (file:///C:/2026_project/super-figma-pipline/.worktrees/baseline/service/node_modules/.pnpm/@vitest+runner@4.1.11/node_modules/@vitest/runner/dist/chunk-artifact.js:1784:27)\n    at Object.<anonymous> (file:///C:/2026_project/super-figma-pipline/.worktrees/baseline/service/node_modules/.pnpm/@vitest+runner@4.1.11/node_modules/@vitest/runner/dist/chunk-artifact.js:1817:16)\n    at Object.<anonymous> (file:///C:/2026_project/super-figma-pipline/.worktrees/baseline/service/node_modules/.pnpm/@vitest+runner@4.1.11/node_modules/@vitest/runner/dist/chunk-artifact.js:1563:28)\n    at Object.chain (file:///C:/2026_project/super-figma-pipline/.worktrees/baseline/service/node_modules/.pnpm/@vitest+runner@4.1.11/node_modules/@vitest/runner/dist/chunk-artifact.js:599:14)\n    at file:///C:/2026_project/super-figma-pipline/.worktrees/baseline/service/node_modules/.pnpm/@vitest+runner@4.1.11/node_modules/@vitest/runner/dist/chunk-artifact.js:2027:7\n    at Array.forEach (<anonymous>)\n    at file:///C:/2026_project/super-figma-pipline/.worktrees/baseline/service/node_modules/.pnpm/@vitest+runner@4.1.11/node_modules/@vitest/runner/dist/chunk-artifact.js:2021:10\n    at C:/2026_project/super-figma-pipline/.worktrees/baseline/service/packages/mcp/test/portal/service-graph.test.ts:279:20\n    at processTicksAndRejections (node:internal/process/task_queues:104:5)\n    at VitestModuleEvaluator._runInlinedModule (file:///C:/2026_project/super-figma-pipline/.worktrees/baseline/service/node_modules/.pnpm/vitest@4.1.11_@types+node@2_c309fb1c5c9d3c0c0e7ffa14cbd12b0c/node_modules/vitest/dist/module-evaluator.js:206:4)"
+    ]
+  }
+]

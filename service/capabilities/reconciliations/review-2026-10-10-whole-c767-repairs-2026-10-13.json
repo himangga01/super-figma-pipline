@@ -1,0 +1,115 @@
+{
+  "schemaVersion": 1,
+  "slice": "review-2026-10-10",
+  "baseline": {
+    "headCommit": "22517932dc9b2cb974c177ec4eacb84d4b16e254",
+    "authoritySha256": {
+      "upstream-lock.json": "11e687bd0ec4f18d37c2551e96fef34e98dec75fd6721d4b6bcb97be41a4c4a2",
+      "vendor-map.json": "b3275c7d8b997d1cfe723d97594659f77d7b4361b824a790bcfdd7ff762589bd",
+      "vendor-rules.json": "d57c6b11f34843242303698f0ec8ea26f778082697912d19f4912c72926d6328"
+    }
+  },
+  "entries": [
+    {
+      "path": "capabilities/task-review-2026-10-10-authority-classes.json",
+      "sha256": "1ca35c78569b58a20f8c71d67621266045503e05e1cd94328dc1bc9e4c8778a3",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "326accb5f73bab81cec1e97369b47dd7ef04194893acc8770400e85ba851743b"
+        },
+        {
+          "class": "protected",
+          "sha256": "326accb5f73bab81cec1e97369b47dd7ef04194893acc8770400e85ba851743b"
+        }
+      ],
+      "reason": "Repair five failures from whole c767 at source8523: four source-tool registration/census tests retain exact names and non-canvas source identity, and compiler native imports load only inside existing async work. Root reran40 census and129 compiler/config/resolver cases, all passed; private issuer maps and strict fresh-process guard remain unchanged. Preserve failed revisions, original deadlines, deferred official live work and owner index. Fresh whole/artifact/live gates remain required."
+    },
+    {
+      "path": "packages/cli/test/service-tool-catalog.test.ts",
+      "sha256": "dec0e14d16cb95eba96d7a7afdba43b1e6072b54f309ef636a97e278a1aab3f7",
+      "priorClaims": [
+        {
+          "class": "protected",
+          "sha256": "7961e23b844faf1cb964ba99054c4e77cfca44c9f0e574db64be27a9a1b850fb"
+        }
+      ],
+      "reason": "Repair five failures from whole c767 at source8523: four source-tool registration/census tests retain exact names and non-canvas source identity, and compiler native imports load only inside existing async work. Root reran40 census and129 compiler/config/resolver cases, all passed; private issuer maps and strict fresh-process guard remain unchanged. Preserve failed revisions, original deadlines, deferred official live work and owner index. Fresh whole/artifact/live gates remain required."
+    },
+    {
+      "path": "packages/mcp/src/portal/react-router-compiler-evidence.ts",
+      "sha256": "829200906970fa63c18f5fe89f03489d38faf55ceeeac65592bb0308e4d321b9",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "c17c1a3bc0d37c6ef32c9feb0d1360c5b38abcc84e8e9fdbe298f1481b5ea12d"
+        },
+        {
+          "class": "protected",
+          "sha256": "c17c1a3bc0d37c6ef32c9feb0d1360c5b38abcc84e8e9fdbe298f1481b5ea12d"
+        }
+      ],
+      "reason": "Repair five failures from whole c767 at source8523: four source-tool registration/census tests retain exact names and non-canvas source identity, and compiler native imports load only inside existing async work. Root reran40 census and129 compiler/config/resolver cases, all passed; private issuer maps and strict fresh-process guard remain unchanged. Preserve failed revisions, original deadlines, deferred official live work and owner index. Fresh whole/artifact/live gates remain required."
+    },
+    {
+      "path": "packages/mcp/test/node-id.test.ts",
+      "sha256": "2947c9da26d0c9ed5320cdc27b257e350ea2699869cddad771da1193963e0d72",
+      "priorClaims": [
+        {
+          "class": "fork",
+          "sha256": "268c53362d1ae4060d278222c3b57e01920fd7b90ad573d8d57e3a3b8059f2e8"
+        },
+        {
+          "class": "managed",
+          "sha256": "268c53362d1ae4060d278222c3b57e01920fd7b90ad573d8d57e3a3b8059f2e8"
+        },
+        {
+          "class": "protected",
+          "sha256": "268c53362d1ae4060d278222c3b57e01920fd7b90ad573d8d57e3a3b8059f2e8"
+        }
+      ],
+      "reason": "Repair five failures from whole c767 at source8523: four source-tool registration/census tests retain exact names and non-canvas source identity, and compiler native imports load only inside existing async work. Root reran40 census and129 compiler/config/resolver cases, all passed; private issuer maps and strict fresh-process guard remain unchanged. Preserve failed revisions, original deadlines, deferred official live work and owner index. Fresh whole/artifact/live gates remain required."
+    },
+    {
+      "path": "packages/mcp/test/policy/operation-policy.test.ts",
+      "sha256": "7c6dfabf6b64ca79fd5f1c3bf2fc90dc242bc84ec3ce686b6ab76e7e278f903d",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "d3bb14cc254cce70539c8a6244d2160b72d70f063ae93b69cd08d3c83eff9e07"
+        },
+        {
+          "class": "protected",
+          "sha256": "d3bb14cc254cce70539c8a6244d2160b72d70f063ae93b69cd08d3c83eff9e07"
+        }
+      ],
+      "reason": "Repair five failures from whole c767 at source8523: four source-tool registration/census tests retain exact names and non-canvas source identity, and compiler native imports load only inside existing async work. Root reran40 census and129 compiler/config/resolver cases, all passed; private issuer maps and strict fresh-process guard remain unchanged. Preserve failed revisions, original deadlines, deferred official live work and owner index. Fresh whole/artifact/live gates remain required."
+    },
+    {
+      "path": "packages/portal/package.json",
+      "sha256": "ddb99eafe979d2319697f9bde91d01c4b3f4cf7f3e2a2baccfcb06ceff7767c8",
+      "priorClaims": [
+        {
+          "class": "protected",
+          "sha256": "ddb99eafe979d2319697f9bde91d01c4b3f4cf7f3e2a2baccfcb06ceff7767c8"
+        }
+      ],
+      "reason": "Repair five failures from whole c767 at source8523: four source-tool registration/census tests retain exact names and non-canvas source identity, and compiler native imports load only inside existing async work. Root reran40 census and129 compiler/config/resolver cases, all passed; private issuer maps and strict fresh-process guard remain unchanged. Preserve failed revisions, original deadlines, deferred official live work and owner index. Fresh whole/artifact/live gates remain required."
+    },
+    {
+      "path": "test/upstream-parity.test.ts",
+      "sha256": "41f16d8a77a6f9a59bae2cdf925e2fee944a71e5702e019ba60e030b2f7d16f5",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "b1d02b83e22ff486a0d963912469754909d814a9bc49f5810c326440c3838465"
+        },
+        {
+          "class": "protected",
+          "sha256": "b1d02b83e22ff486a0d963912469754909d814a9bc49f5810c326440c3838465"
+        }
+      ],
+      "reason": "Repair five failures from whole c767 at source8523: four source-tool registration/census tests retain exact names and non-canvas source identity, and compiler native imports load only inside existing async work. Root reran40 census and129 compiler/config/resolver cases, all passed; private issuer maps and strict fresh-process guard remain unchanged. Preserve failed revisions, original deadlines, deferred official live work and owner index. Fresh whole/artifact/live gates remain required."
+    }
+  ]
+}

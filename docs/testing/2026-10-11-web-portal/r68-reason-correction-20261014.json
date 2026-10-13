@@ -1,0 +1,27 @@
+{
+  "schemaVersion": 1,
+  "kind": "one-use-r68-reconciliation-reason-only-correction",
+  "status": "corrected-and-shadow-staged",
+  "ownerIndexHash": "ecc1808ab3e14fa2e8c233ae1fc1c91e0a33b5b2e383a7270f1bc3068997e675",
+  "shadowBefore": "d74a69f5825ab4ed9ac1d73254c2c62881b68159aab06e6702e3c67de57ece2a",
+  "attempt": {
+    "path": "service/capabilities/reconciliations/review-2026-10-10-config-provenance-repair-2026-10-14.json",
+    "beforeHash": "17b3dba4ad0a910e649bfa1406b670b0cb91a0c6761c857f92e362e3ae25cfd2",
+    "afterHash": "3361e2afdcbeb97a4f3c4b70e1325285ff18407177976c018f829c8ee3a9e195",
+    "status": "verified",
+    "mutationStarted": true,
+    "intentAt": "2026-10-13T20:57:12.181Z",
+    "verifiedAt": "2026-10-13T20:57:12.189Z",
+    "observedHash": "3361e2afdcbeb97a4f3c4b70e1325285ff18407177976c018f829c8ee3a9e195"
+  },
+  "authorityHashes": {
+    "upstream-lock.json": "3189e90b5205183d6d3b6880dfafee2d8b209f3eca577d19c3a10d2958236627",
+    "vendor-map.json": "b3275c7d8b997d1cfe723d97594659f77d7b4361b824a790bcfdd7ff762589bd",
+    "vendor-rules.json": "c82a646ab0b05c7368a9f76e18e63a1d0a317eaf4d3597f387e6129f1a6a4b2d"
+  },
+  "automaticReplayAllowed": false,
+  "codeChanged": false,
+  "runtimeChanged": false,
+  "shadowAfter": "80341c8c9a89048d521486833277427775b1be2df985cbebcf5bbfa398b38b17",
+  "completedAt": "2026-10-13T20:57:12.249Z"
+}

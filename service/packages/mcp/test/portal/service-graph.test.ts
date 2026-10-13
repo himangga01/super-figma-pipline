@@ -1,14 +1,208 @@
-import { mkdtemp, mkdir, writeFile, rm } from 'node:fs/promises';
+import { mkdtemp, mkdir, writeFile, rm, readFile, realpath, lstat } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
-import { join } from 'node:path';
+import { join, dirname, basename } from 'node:path';
 
-import { storedChecksum } from '@sfp/ir';
+import { storedChecksum, contentHash } from '@sfp/ir';
 import { ServiceGraphProfileSchema } from '@sfp/shared';
 import { afterEach, expect, it } from 'vitest';
 
 import { RepoReader } from '../../src/fs/repo-walk.js';
+import {
+  inventoryNativeArtifact,
+  type NativeArtifactAuthority,
+} from '../../src/portal/native-artifacts.js';
+import {
+  capturePackageConfigEvidence,
+  admittedPackageConfigEvidence,
+} from '../../src/portal/package-config-evidence.js';
 import { analyzeServiceGraph } from '../../src/portal/service-graph.js';
+import { collectPortalSourceInventory } from '../../src/portal/source-inventory.js';
 const roots: string[] = [];
+
+async function removeOwnedConfigurationFixture(
+  root: string,
+  canonicalRoot: string,
+  temporaryParent: string,
+  identity: { dev: bigint; ino: bigint },
+) {
+  const current = await lstat(root, { bigint: true });
+  if (
+    dirname(canonicalRoot) !== temporaryParent ||
+    !basename(canonicalRoot).startsWith('sfp-c2-config-members-') ||
+    (await realpath(root)) !== canonicalRoot ||
+    !current.isDirectory() ||
+    current.isSymbolicLink() ||
+    current.dev !== identity.dev ||
+    current.ino !== identity.ino
+  )
+    throw Error('Owned fixture cleanup identity changed');
+  await rm(root, { recursive: true, force: true });
+}
+
+async function withPackageConfigurationMembers(
+  check: (fixture: {
+    root: string;
+    reader: RepoReader;
+    authority: NativeArtifactAuthority;
+  }) => Promise<void>,
+) {
+  const temporaryParent = await realpath(tmpdir());
+  const root = await mkdtemp(join(temporaryParent, 'sfp-c2-config-members-'));
+  const canonicalRoot = await realpath(root);
+  const identity = await lstat(root, { bigint: true });
+  try {
+    const tree = join(root, 'node_modules');
+    const pkg = join(tree, '@epic-web/config');
+    await mkdir(pkg, { recursive: true });
+    await mkdir(join(root, 'app'));
+    await writeFile(join(root, 'package.json'), '{"devDependencies":{"@epic-web/config":"1.0.0"}}');
+    await writeFile(
+      join(root, 'package-lock.json'),
+      '{"lockfileVersion":3,"packages":{"node_modules/@epic-web/config":{"version":"1.0.0","integrity":"sha512-Zml4dHVyZQ=="}}}',
+    );
+    await writeFile(
+      join(root, 'tsconfig.json'),
+      '{"extends":["@epic-web/config/typescript"],"compilerOptions":{"rootDirs":[".","./.react-router/types"],"paths":{"@value":["./app/value.ts"]}}}',
+    );
+    await writeFile(join(root, 'app/main.ts'), 'import {value} from "@value"; export {value};');
+    await writeFile(join(root, 'app/value.ts'), 'export const value = 1;');
+    await writeFile(
+      join(pkg, 'package.json'),
+      '{"name":"@epic-web/config","version":"1.0.0","exports":{"./typescript":"./typescript.json"}}',
+    );
+    await writeFile(join(pkg, 'typescript.json'), '{"compilerOptions":{"strict":true}}');
+    const authority: NativeArtifactAuthority = {
+      version: 1,
+      configurationHash: storedChecksum('configuration'),
+      commandHash: storedChecksum('command'),
+      artifacts: [
+        {
+          declaration: { root: tree, kind: 'node-package-tree' },
+          inventory: await inventoryNativeArtifact(tree),
+        },
+      ],
+      executables: [],
+    };
+    await check({ root, reader: new RepoReader({ rootDir: root }), authority });
+  } finally {
+    await removeOwnedConfigurationFixture(root, canonicalRoot, temporaryParent, identity);
+  }
+}
+
+it('binds admitted package configurations as configuration members without changing source inventory', async () => {
+  await withPackageConfigurationMembers(async ({ root, reader, authority }) => {
+    const before = await collectPortalSourceInventory(reader);
+    const result = await analyzeServiceGraph(reader, undefined, {
+      packageConfigAuthority: authority,
+    });
+    expect(result.issues).toEqual([]);
+    expect(result.connections!.issues).toEqual([]);
+    expect(result.connections!.complete).toBe(true);
+    const sources = new Map<string, string>();
+    for (const path of ['package.json', 'tsconfig.json', 'app/main.ts', 'app/value.ts'])
+      sources.set(path, await readFile(join(root, path), 'utf8'));
+    const capture = await capturePackageConfigEvidence(reader, sources, before, authority);
+    expect(result.sourceHash).toBe(
+      contentHash('sfp-service-source-v2', {
+        inventoryHash: before.hash,
+        files: result.files,
+        packageConfigEvidenceHash: capture.hash,
+      }),
+    );
+    expect(result.connections!.configuration).toContainEqual(
+      expect.objectContaining({
+        module: 'node_modules/@epic-web/config/typescript.json',
+        status: 'candidate',
+      }),
+    );
+    expect(result.sourceInventory).toEqual(before);
+    expect(result.files.some(file => file.path.startsWith('node_modules/'))).toBe(false);
+    expect(result.connections!.producers).toEqual([]);
+  });
+});
+
+it('denies unadmitted changed-source changed-inventory and changed-byte package configurations', async () => {
+  await withPackageConfigurationMembers(async ({ root, reader, authority }) => {
+    const inventory = await collectPortalSourceInventory(reader);
+    const sources = new Map<string, string>();
+    for (const path of ['package.json', 'tsconfig.json', 'app/main.ts', 'app/value.ts'])
+      sources.set(path, await readFile(join(root, path), 'utf8'));
+    const paths = inventory.files.map(file => file.path);
+    const capture = await capturePackageConfigEvidence(reader, sources, inventory, authority);
+    expect(capture.issues).toEqual([]);
+    expect(admittedPackageConfigEvidence(capture, sources, paths)!.sources.size).toBe(1);
+    expect(admittedPackageConfigEvidence({ ...capture }, sources, paths)).toBeNull();
+    expect(
+      admittedPackageConfigEvidence(
+        capture,
+        new Map([...sources, ['foreign.ts', 'export {};']]),
+        paths,
+      ),
+    ).toBeNull();
+    expect(admittedPackageConfigEvidence(capture, sources, [...paths, 'foreign.ts'])).toBeNull();
+    const ordinary = await analyzeServiceGraph(reader);
+    expect(ordinary.issues).toContain('CONFIG_EXTENDS_UNSUPPORTED:tsconfig.json');
+    await writeFile(
+      join(root, 'node_modules/@epic-web/config/typescript.json'),
+      '{"compilerOptions":{"strict":false}}',
+    );
+    const stale = await analyzeServiceGraph(reader, undefined, {
+      packageConfigAuthority: authority,
+    });
+    expect(stale.incomplete).toBe(true);
+    expect(stale.issues.some(issue => issue.startsWith('PACKAGE_CONFIG_'))).toBe(true);
+    expect(
+      stale.connections!.configuration.some(row => row.module.startsWith('node_modules/')),
+    ).toBe(false);
+  });
+});
+
+it('requires explicit package config admission and binds captured configs without expanding source inventory', async () => {
+  const root = await mkdtemp(join(tmpdir(), 'sfp-graph-package-config-'));
+  roots.push(root);
+  const tree = join(root, 'node_modules');
+  const pkg = join(tree, 'config');
+  await mkdir(pkg, { recursive: true });
+  await writeFile(join(root, 'package.json'), '{"devDependencies":{"config":"1.0.0"}}');
+  await writeFile(
+    join(root, 'package-lock.json'),
+    '{"lockfileVersion":3,"packages":{"node_modules/config":{"version":"1.0.0","integrity":"sha512-Zml4dHVyZQ=="}}}',
+  );
+  await writeFile(join(root, 'tsconfig.json'), '{"extends":["config/typescript"]}');
+  await writeFile(join(root, 'main.ts'), 'export {};');
+  await writeFile(
+    join(pkg, 'package.json'),
+    '{"name":"config","version":"1.0.0","exports":{"./typescript":"./typescript.json"}}',
+  );
+  await writeFile(join(pkg, 'typescript.json'), '{}');
+  const ordinary = await analyzeServiceGraph(new RepoReader({ rootDir: root }));
+  expect(ordinary.issues).toContain('CONFIG_EXTENDS_UNSUPPORTED:tsconfig.json');
+  const authority = {
+    version: 1,
+    configurationHash: storedChecksum('configuration'),
+    commandHash: storedChecksum('command'),
+    artifacts: [
+      {
+        declaration: { root: tree, kind: 'node-package-tree' as const },
+        inventory: await inventoryNativeArtifact(tree),
+      },
+    ],
+    executables: [],
+  };
+  const qualified = await analyzeServiceGraph(new RepoReader({ rootDir: root }), undefined, {
+    packageConfigAuthority: authority,
+  });
+  expect(qualified.issues).not.toContain('CONFIG_EXTENDS_UNSUPPORTED:tsconfig.json');
+  expect(qualified.sourceInventory?.files).toEqual(ordinary.sourceInventory?.files);
+  expect(qualified.files.some(file => file.path.startsWith('node_modules/'))).toBe(false);
+  expect(qualified.sourceHash).not.toBe(ordinary.sourceHash);
+  await writeFile(join(pkg, 'typescript.json'), '{"compilerOptions":{"strict":true}}');
+  const stale = await analyzeServiceGraph(new RepoReader({ rootDir: root }), undefined, {
+    packageConfigAuthority: authority,
+  });
+  expect(stale.incomplete).toBe(true);
+  expect(stale.issues.some(issue => issue.startsWith('PACKAGE_CONFIG_'))).toBe(true);
+});
 it('keeps binary files with semantic extensions out of text evidence', async () => {
   const root = await mkdtemp(join(tmpdir(), 'sfp-service-binary-'));
   roots.push(root);
@@ -418,4 +612,35 @@ it('aggregates connection evidence rows per service, module key and kind (SA-2)'
     expect.objectContaining({ detail: 'pg', path: 'src/repository0.ts', count: 30 }),
   ]);
   expect(graph.services[0]!.layers).toContain('database');
+});
+it('retains a native reference Dockerfile as configuration without treating it as unsupported executable source', async () => {
+  const root = await mkdtemp(join(tmpdir(), 'sfp-graph-container-configuration-'));
+  roots.push(root);
+  const docker = 'FROM node:22-alpine AS build\nCOPY . .\nRUN echo must-not-run\n';
+  await writeFile(join(root, 'Dockerfile'), docker);
+  await writeFile(join(root, 'package.json'), '{}');
+  await writeFile(join(root, 'main.js'), 'export const value=true;');
+  const graph = await analyzeServiceGraph(new RepoReader({ rootDir: root }));
+  expect(graph.sourceInventory!.files).toContainEqual(
+    expect.objectContaining({ path: 'Dockerfile', hash: storedChecksum(docker) }),
+  );
+  expect(graph.connections!.issues.filter(i => i.evidence?.path === 'Dockerfile')).toEqual([]);
+  expect(graph.services.flatMap(s => s.evidence)).toContainEqual(
+    expect.objectContaining({
+      path: 'Dockerfile',
+      sourceRole: 'configuration',
+      kind: 'runtime-configuration',
+    }),
+  );
+  await writeFile(
+    join(root, 'Dockerfile'),
+    'console.log("ordinary code needs supported runtime review");',
+  );
+  const ambiguous = await analyzeServiceGraph(new RepoReader({ rootDir: root }));
+  expect(ambiguous.connections!.issues).toContainEqual(
+    expect.objectContaining({
+      code: 'UNSUPPORTED_RUNTIME_SOURCE',
+      evidence: expect.objectContaining({ path: 'Dockerfile' }),
+    }),
+  );
 });

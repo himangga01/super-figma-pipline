@@ -1,0 +1,269 @@
+{
+  "schemaVersion": 1,
+  "slice": "review-2026-10-10",
+  "baseline": {
+    "headCommit": "22517932dc9b2cb974c177ec4eacb84d4b16e254",
+    "authoritySha256": {
+      "upstream-lock.json": "debf9cf9ad859d57b80dc23dce7324add8b7669a300b86b920f667c893d93298",
+      "vendor-map.json": "b3275c7d8b997d1cfe723d97594659f77d7b4361b824a790bcfdd7ff762589bd",
+      "vendor-rules.json": "064c63ecc57d3941e18d63096c1750d5ad1bbf06d0488be4ef007ec7a47c8e6a"
+    }
+  },
+  "entries": [
+    {
+      "path": "README.md",
+      "sha256": "b241e8dfc555b8e5980375e723488a99baaf13ddc9ba0ac1395b04c63f22ee7c",
+      "priorClaims": [
+        {
+          "class": "fork",
+          "sha256": "a8fe20246a24af8262bc400982a5198aec52fe31838797e5c9cf24988ec40611"
+        },
+        {
+          "class": "managed",
+          "sha256": "a8fe20246a24af8262bc400982a5198aec52fe31838797e5c9cf24988ec40611"
+        },
+        {
+          "class": "protected",
+          "sha256": "a8fe20246a24af8262bc400982a5198aec52fe31838797e5c9cf24988ec40611"
+        }
+      ],
+      "reason": "Implement owner-requested correlated server diagnostics with closed privacy projection, bounded concurrent rotation, visible failure counters, source catalog generator and packaged guide. Repair Chrome missing-profile errors and bounded HTTP CDP discovery with one connection deadline and independent logical cancellation. Preserve approvals, original unknown jobs, native source Chrome, owner index and historical evidence; require independent reviews and fresh whole, artifact and same-tab runtime checks."
+    },
+    {
+      "path": "capabilities/task-review-2026-10-10-authority-classes.json",
+      "sha256": "0262205b1c4168eba1ff4686c4b7945366a27162cc3d8269bd526c5c2dfbf308",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "0e4782dfb8b11e43bedc65044c80623b4f50e111b949859d615b83e0a9fd35bd"
+        },
+        {
+          "class": "protected",
+          "sha256": "0e4782dfb8b11e43bedc65044c80623b4f50e111b949859d615b83e0a9fd35bd"
+        }
+      ],
+      "reason": "Implement owner-requested correlated server diagnostics with closed privacy projection, bounded concurrent rotation, visible failure counters, source catalog generator and packaged guide. Repair Chrome missing-profile errors and bounded HTTP CDP discovery with one connection deadline and independent logical cancellation. Preserve approvals, original unknown jobs, native source Chrome, owner index and historical evidence; require independent reviews and fresh whole, artifact and same-tab runtime checks."
+    },
+    {
+      "path": "packages/cli/src/browser-session.ts",
+      "sha256": "5a34bf368faae00467489e1f184b64210d6c119e7e5affbd72cac24c826f971f",
+      "priorClaims": [
+        {
+          "class": "protected",
+          "sha256": "7c658eac651371db198ae4fb18c9bf41e88a4e9343a457f4a498778b07172d54"
+        }
+      ],
+      "reason": "Implement owner-requested correlated server diagnostics with closed privacy projection, bounded concurrent rotation, visible failure counters, source catalog generator and packaged guide. Repair Chrome missing-profile errors and bounded HTTP CDP discovery with one connection deadline and independent logical cancellation. Preserve approvals, original unknown jobs, native source Chrome, owner index and historical evidence; require independent reviews and fresh whole, artifact and same-tab runtime checks."
+    },
+    {
+      "path": "packages/cli/src/chrome-endpoint.ts",
+      "sha256": "30b6f449d19089fec74a22f80ff0b810a098621da1caa42922de668fbcc20ee5",
+      "priorClaims": [
+        {
+          "class": "protected",
+          "sha256": "82ccb75f8827aa11dd046c1c50d4c761e51b461b2efd3a332c139b9fd775af01"
+        }
+      ],
+      "reason": "Implement owner-requested correlated server diagnostics with closed privacy projection, bounded concurrent rotation, visible failure counters, source catalog generator and packaged guide. Repair Chrome missing-profile errors and bounded HTTP CDP discovery with one connection deadline and independent logical cancellation. Preserve approvals, original unknown jobs, native source Chrome, owner index and historical evidence; require independent reviews and fresh whole, artifact and same-tab runtime checks."
+    },
+    {
+      "path": "packages/cli/src/control-client.ts",
+      "sha256": "3f6818b0f685060bf639e30418347bce0fcd9501cdea30639ee7fdf230fbc20e",
+      "priorClaims": [
+        {
+          "class": "protected",
+          "sha256": "3577ac95a9c0f79f2c20d9c0d690da3b75f59be7c245c874d20d915f797ddd76"
+        }
+      ],
+      "reason": "Implement owner-requested correlated server diagnostics with closed privacy projection, bounded concurrent rotation, visible failure counters, source catalog generator and packaged guide. Repair Chrome missing-profile errors and bounded HTTP CDP discovery with one connection deadline and independent logical cancellation. Preserve approvals, original unknown jobs, native source Chrome, owner index and historical evidence; require independent reviews and fresh whole, artifact and same-tab runtime checks."
+    },
+    {
+      "path": "packages/cli/test/browser-session-reconnect.test.ts",
+      "sha256": "254465bff788536a3257837ebb3d6ea299661f5c5025049fcad4264c629f0387",
+      "priorClaims": [
+        {
+          "class": "protected",
+          "sha256": "6bd5369f20c9603dab75103ae8e37e9a76dd676a89690bba13a275124e30e3fc"
+        }
+      ],
+      "reason": "Implement owner-requested correlated server diagnostics with closed privacy projection, bounded concurrent rotation, visible failure counters, source catalog generator and packaged guide. Repair Chrome missing-profile errors and bounded HTTP CDP discovery with one connection deadline and independent logical cancellation. Preserve approvals, original unknown jobs, native source Chrome, owner index and historical evidence; require independent reviews and fresh whole, artifact and same-tab runtime checks."
+    },
+    {
+      "path": "packages/cli/test/chrome-endpoint.test.ts",
+      "sha256": "8eea0cca0e928e952ad510f7a4d0df704ad358af1f6d62711b0ba301e87103e0",
+      "priorClaims": [
+        {
+          "class": "protected",
+          "sha256": "a60d626bd828e3f7322cd8e8059375264940d296d5b70353401ff50f59bf0b7d"
+        }
+      ],
+      "reason": "Implement owner-requested correlated server diagnostics with closed privacy projection, bounded concurrent rotation, visible failure counters, source catalog generator and packaged guide. Repair Chrome missing-profile errors and bounded HTTP CDP discovery with one connection deadline and independent logical cancellation. Preserve approvals, original unknown jobs, native source Chrome, owner index and historical evidence; require independent reviews and fresh whole, artifact and same-tab runtime checks."
+    },
+    {
+      "path": "packages/mcp/src/control/router.ts",
+      "sha256": "1abafa6eee2c9f6a164ce832efc05a25a5fe5c847a81efb9645642149908dff3",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "40a9c7e2f9b3386512fdbb5280af767179eb5f884a9aa3c7a3b9e4ecd3e06aa4"
+        },
+        {
+          "class": "protected",
+          "sha256": "40a9c7e2f9b3386512fdbb5280af767179eb5f884a9aa3c7a3b9e4ecd3e06aa4"
+        }
+      ],
+      "reason": "Implement owner-requested correlated server diagnostics with closed privacy projection, bounded concurrent rotation, visible failure counters, source catalog generator and packaged guide. Repair Chrome missing-profile errors and bounded HTTP CDP discovery with one connection deadline and independent logical cancellation. Preserve approvals, original unknown jobs, native source Chrome, owner index and historical evidence; require independent reviews and fresh whole, artifact and same-tab runtime checks."
+    },
+    {
+      "path": "packages/mcp/src/diagnostics-catalog.ts",
+      "sha256": "dc4e5d0bfd87e5652d3e709d79eb0878628e671c4d561e9e0ea007457b683ee1",
+      "priorClaims": [],
+      "reason": "Implement owner-requested correlated server diagnostics with closed privacy projection, bounded concurrent rotation, visible failure counters, source catalog generator and packaged guide. Repair Chrome missing-profile errors and bounded HTTP CDP discovery with one connection deadline and independent logical cancellation. Preserve approvals, original unknown jobs, native source Chrome, owner index and historical evidence; require independent reviews and fresh whole, artifact and same-tab runtime checks."
+    },
+    {
+      "path": "packages/mcp/src/diagnostics.ts",
+      "sha256": "262f802e38bdaf2eea07623e98b0dcf13e3c046ea55bbac8e5230ef9f8154c1d",
+      "priorClaims": [],
+      "reason": "Implement owner-requested correlated server diagnostics with closed privacy projection, bounded concurrent rotation, visible failure counters, source catalog generator and packaged guide. Repair Chrome missing-profile errors and bounded HTTP CDP discovery with one connection deadline and independent logical cancellation. Preserve approvals, original unknown jobs, native source Chrome, owner index and historical evidence; require independent reviews and fresh whole, artifact and same-tab runtime checks."
+    },
+    {
+      "path": "packages/mcp/src/election/leader-endpoints.ts",
+      "sha256": "d6c4b906137a5dabb7cba718bdadca7056bc06c8f541866fbab177f0a7a33beb",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "08d49c64802d01031f247a206a18edd49b193bd41777c94cc981faf2047bae57"
+        },
+        {
+          "class": "protected",
+          "sha256": "08d49c64802d01031f247a206a18edd49b193bd41777c94cc981faf2047bae57"
+        }
+      ],
+      "reason": "Implement owner-requested correlated server diagnostics with closed privacy projection, bounded concurrent rotation, visible failure counters, source catalog generator and packaged guide. Repair Chrome missing-profile errors and bounded HTTP CDP discovery with one connection deadline and independent logical cancellation. Preserve approvals, original unknown jobs, native source Chrome, owner index and historical evidence; require independent reviews and fresh whole, artifact and same-tab runtime checks."
+    },
+    {
+      "path": "packages/mcp/src/index.ts",
+      "sha256": "4b53e76d7098cdeea2b9133763f8cce1d1fee467c25caf32b16e88ee163cacd8",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "e4f6da78b480879d381e029e2535129513829756ef161f6e8e9e36cb792ba4c3"
+        },
+        {
+          "class": "protected",
+          "sha256": "e4f6da78b480879d381e029e2535129513829756ef161f6e8e9e36cb792ba4c3"
+        }
+      ],
+      "reason": "Implement owner-requested correlated server diagnostics with closed privacy projection, bounded concurrent rotation, visible failure counters, source catalog generator and packaged guide. Repair Chrome missing-profile errors and bounded HTTP CDP discovery with one connection deadline and independent logical cancellation. Preserve approvals, original unknown jobs, native source Chrome, owner index and historical evidence; require independent reviews and fresh whole, artifact and same-tab runtime checks."
+    },
+    {
+      "path": "packages/mcp/test/diagnostics.test.ts",
+      "sha256": "5697b30ec0eecea2a233ca8d2f80674504aa5d51f7600c7d06079a24bfc0812e",
+      "priorClaims": [],
+      "reason": "Implement owner-requested correlated server diagnostics with closed privacy projection, bounded concurrent rotation, visible failure counters, source catalog generator and packaged guide. Repair Chrome missing-profile errors and bounded HTTP CDP discovery with one connection deadline and independent logical cancellation. Preserve approvals, original unknown jobs, native source Chrome, owner index and historical evidence; require independent reviews and fresh whole, artifact and same-tab runtime checks."
+    },
+    {
+      "path": "packages/portal/DEBUGGING.md",
+      "sha256": "f980631cae8fa98cbd562ac48f61592b3a9cfd1c707c312db2a8966eb2b32267",
+      "priorClaims": [],
+      "reason": "Implement owner-requested correlated server diagnostics with closed privacy projection, bounded concurrent rotation, visible failure counters, source catalog generator and packaged guide. Repair Chrome missing-profile errors and bounded HTTP CDP discovery with one connection deadline and independent logical cancellation. Preserve approvals, original unknown jobs, native source Chrome, owner index and historical evidence; require independent reviews and fresh whole, artifact and same-tab runtime checks."
+    },
+    {
+      "path": "packages/portal/package.json",
+      "sha256": "117b1e02db6798bf9197e722fd615f3519e6cc841ed37d4210e3eef47d91912b",
+      "priorClaims": [
+        {
+          "class": "protected",
+          "sha256": "e7694b340e0fa0968b85713307561ee84731961b36a1bd78136ce91e99964719"
+        }
+      ],
+      "reason": "Implement owner-requested correlated server diagnostics with closed privacy projection, bounded concurrent rotation, visible failure counters, source catalog generator and packaged guide. Repair Chrome missing-profile errors and bounded HTTP CDP discovery with one connection deadline and independent logical cancellation. Preserve approvals, original unknown jobs, native source Chrome, owner index and historical evidence; require independent reviews and fresh whole, artifact and same-tab runtime checks."
+    },
+    {
+      "path": "packages/portal/src/index.ts",
+      "sha256": "f4eb1b6fe6e6caabc55044e5073596fa30ec127d24ff9673f4c3aeec99789f8a",
+      "priorClaims": [
+        {
+          "class": "protected",
+          "sha256": "f093b152c20f41b860b5a59a23ef8fd03173701252a0c301e6cca146168d5087"
+        }
+      ],
+      "reason": "Implement owner-requested correlated server diagnostics with closed privacy projection, bounded concurrent rotation, visible failure counters, source catalog generator and packaged guide. Repair Chrome missing-profile errors and bounded HTTP CDP discovery with one connection deadline and independent logical cancellation. Preserve approvals, original unknown jobs, native source Chrome, owner index and historical evidence; require independent reviews and fresh whole, artifact and same-tab runtime checks."
+    },
+    {
+      "path": "packages/portal/src/server.ts",
+      "sha256": "9ae5ede1ce50cd56012945db98e7a56d7cfd784ce42fa7ae9a07ce9b93ce08c5",
+      "priorClaims": [
+        {
+          "class": "protected",
+          "sha256": "692263a807d76a258e3393cd0719313e6ef58b989fb84d792599b4e63261d8d6"
+        }
+      ],
+      "reason": "Implement owner-requested correlated server diagnostics with closed privacy projection, bounded concurrent rotation, visible failure counters, source catalog generator and packaged guide. Repair Chrome missing-profile errors and bounded HTTP CDP discovery with one connection deadline and independent logical cancellation. Preserve approvals, original unknown jobs, native source Chrome, owner index and historical evidence; require independent reviews and fresh whole, artifact and same-tab runtime checks."
+    },
+    {
+      "path": "packages/portal/src/service-jobs.ts",
+      "sha256": "4f1e0ee6c2af028a6d088526938aaba8080c6851806daf0ab15749ad1b19fa6b",
+      "priorClaims": [
+        {
+          "class": "protected",
+          "sha256": "4ffb817ee3739ba6893ce6886a95b6aef3176adf4619e76e713a29340ab254d1"
+        }
+      ],
+      "reason": "Implement owner-requested correlated server diagnostics with closed privacy projection, bounded concurrent rotation, visible failure counters, source catalog generator and packaged guide. Repair Chrome missing-profile errors and bounded HTTP CDP discovery with one connection deadline and independent logical cancellation. Preserve approvals, original unknown jobs, native source Chrome, owner index and historical evidence; require independent reviews and fresh whole, artifact and same-tab runtime checks."
+    },
+    {
+      "path": "packages/portal/test/diagnostics-http.test.ts",
+      "sha256": "7b607ede1ba11ad185162d22c62e888da6835f01ce2ab49adea4d2a83a0bdf3e",
+      "priorClaims": [],
+      "reason": "Implement owner-requested correlated server diagnostics with closed privacy projection, bounded concurrent rotation, visible failure counters, source catalog generator and packaged guide. Repair Chrome missing-profile errors and bounded HTTP CDP discovery with one connection deadline and independent logical cancellation. Preserve approvals, original unknown jobs, native source Chrome, owner index and historical evidence; require independent reviews and fresh whole, artifact and same-tab runtime checks."
+    },
+    {
+      "path": "scripts/package-artifacts.mjs",
+      "sha256": "9a911fd029257e8b2511fc440e03f7bfe224714e1e4f7b0dc693d5f9ef879652",
+      "priorClaims": [
+        {
+          "class": "protected",
+          "sha256": "370ddd10917125df1ba8a83a3136ec97fbd594d04437b462c3290c3014825f27"
+        }
+      ],
+      "reason": "Implement owner-requested correlated server diagnostics with closed privacy projection, bounded concurrent rotation, visible failure counters, source catalog generator and packaged guide. Repair Chrome missing-profile errors and bounded HTTP CDP discovery with one connection deadline and independent logical cancellation. Preserve approvals, original unknown jobs, native source Chrome, owner index and historical evidence; require independent reviews and fresh whole, artifact and same-tab runtime checks."
+    },
+    {
+      "path": "scripts/update-diagnostics-catalog.mjs",
+      "sha256": "4d775d21cc7883e8fab893a41d4f26befe770a0a76cb7504594e6a78a21c5bb2",
+      "priorClaims": [],
+      "reason": "Implement owner-requested correlated server diagnostics with closed privacy projection, bounded concurrent rotation, visible failure counters, source catalog generator and packaged guide. Repair Chrome missing-profile errors and bounded HTTP CDP discovery with one connection deadline and independent logical cancellation. Preserve approvals, original unknown jobs, native source Chrome, owner index and historical evidence; require independent reviews and fresh whole, artifact and same-tab runtime checks."
+    },
+    {
+      "path": "test/artifact-contents.test.ts",
+      "sha256": "87612f0d4cce2deea656de67b6bc7d884e6a3e34cfa6a70c9894b4833c6f096f",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "d81e57e7b59fb479c03b7647dcf7d5065fbce962f416131a553f20e49d49fbff"
+        },
+        {
+          "class": "protected",
+          "sha256": "d81e57e7b59fb479c03b7647dcf7d5065fbce962f416131a553f20e49d49fbff"
+        }
+      ],
+      "reason": "Implement owner-requested correlated server diagnostics with closed privacy projection, bounded concurrent rotation, visible failure counters, source catalog generator and packaged guide. Repair Chrome missing-profile errors and bounded HTTP CDP discovery with one connection deadline and independent logical cancellation. Preserve approvals, original unknown jobs, native source Chrome, owner index and historical evidence; require independent reviews and fresh whole, artifact and same-tab runtime checks."
+    },
+    {
+      "path": "test/package-artifacts-hermetic.test.ts",
+      "sha256": "9cb17f775d2b0adae64ad80cffdb1fd0e4db65bd31e7cfd0b37211f26bcfb8ec",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "929b79e8ad891f678f1d9ef42ca619e4ce789ee44feb0f5a7b353aaa48985adc"
+        },
+        {
+          "class": "protected",
+          "sha256": "929b79e8ad891f678f1d9ef42ca619e4ce789ee44feb0f5a7b353aaa48985adc"
+        }
+      ],
+      "reason": "Implement owner-requested correlated server diagnostics with closed privacy projection, bounded concurrent rotation, visible failure counters, source catalog generator and packaged guide. Repair Chrome missing-profile errors and bounded HTTP CDP discovery with one connection deadline and independent logical cancellation. Preserve approvals, original unknown jobs, native source Chrome, owner index and historical evidence; require independent reviews and fresh whole, artifact and same-tab runtime checks."
+    }
+  ]
+}

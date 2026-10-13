@@ -19,10 +19,30 @@ vi.mock('../../mcp/src/portal/chrome-transport.js', () => ({
   createRetainedChromeTransport: (...args: unknown[]) => mocks.transport(...args),
 }));
 import { ExistingChromeConnection, openChromeSession } from '../src/browser-session.js';
-import { runCommand } from '../src/commands.js';
+import { runCommand, parseCommand } from '../src/commands.js';
 
 const url = 'https://www.figma.com/design/4IBhv1d8hEclifZQrOYxHS/Example?node-id=0-1';
 const canonicalUrl = 'https://www.figma.com/design/4IBhv1d8hEclifZQrOYxHS?node-id=0-1';
+
+it('selects the explicit page API mode and rejects mixed or unscoped requests before connection', async () => {
+  expect(parseCommand(['chrome-inspect', '--page-api', '--url', url]).values['page-api']).toBe(
+    true,
+  );
+  for (const args of [
+    ['chrome-export', '--page-api', '--url', url],
+    ['chrome-inspect', '--page-api', '--ui-only', '--url', url],
+    [
+      'chrome-inspect',
+      '--page-api',
+      '--url',
+      'https://www.figma.com/design/4IBhv1d8hEclifZQrOYxHS',
+    ],
+  ]) {
+    // eslint-disable-next-line no-await-in-loop -- each malformed invocation must fail before connection
+    await expect(runCommand(args, vi.fn())).rejects.toThrow('FIGMA_PAGE_API_ARGUMENTS_REQUIRED');
+  }
+  expect(mocks.connect).not.toHaveBeenCalled();
+});
 const setup = (urls: string[]) => {
   const pages: Page[] = [];
   let selected: Page[] = [];
@@ -55,6 +75,7 @@ const setup = (urls: string[]) => {
     const page = {
       url: () => current,
       title: async () => 'Figma source',
+      bringToFront: vi.fn<() => Promise<void>>(async () => {}),
       context: () => context,
       goto: vi.fn<(destination: string) => Promise<void>>(async destination => {
         if (navigationHold) await navigationHold;
@@ -111,6 +132,25 @@ const setup = (urls: string[]) => {
 };
 
 beforeEach(() => vi.clearAllMocks());
+
+it('honors the requested node in an existing file and activates that same Chrome tab', async () => {
+  const fixture = setup(['https://www.figma.com/design/4IBhv1d8hEclifZQrOYxHS?node-id=1-37']);
+  const emit = vi.fn<(value: unknown) => void>();
+  await runCommand(['chrome-open', '--url', url], emit);
+  expect(fixture.pages[0]!.goto).toHaveBeenCalledWith(canonicalUrl, expect.any(Object));
+  expect(fixture.pages[0]!.bringToFront).toHaveBeenCalledOnce();
+  expect(mocks.createTarget).not.toHaveBeenCalled();
+  expect(mocks.launch).not.toHaveBeenCalled();
+  expect(emit).toHaveBeenCalledWith(expect.objectContaining({ url: canonicalUrl }));
+});
+
+it('opens a file without a node and activates it without introducing node selection', async () => {
+  const file = 'https://www.figma.com/design/4IBhv1d8hEclifZQrOYxHS';
+  const fixture = setup([file]);
+  await runCommand(['chrome-open', '--url', file], vi.fn());
+  expect(fixture.pages[0]!.goto).not.toHaveBeenCalled();
+  expect(fixture.pages[0]!.bringToFront).toHaveBeenCalledOnce();
+});
 
 it('opens the requested source through the service CLI in existing Chrome without changing unrelated tabs', async () => {
   const fixture = setup(['https://example.com/']);
@@ -178,6 +218,25 @@ it('rejects invalid capture batch limits before requesting a Chrome connection',
       vi.fn<(value: unknown) => void>(),
     ),
   ).rejects.toThrow('2000');
+  expect(mocks.connect).not.toHaveBeenCalled();
+  expect(mocks.transport).not.toHaveBeenCalled();
+});
+
+it.each([
+  { args: ['chrome-copy', '--url', url, '--format', 'html'] },
+  {
+    args: [
+      'chrome-copy',
+      '--url',
+      'https://www.figma.com/design/4IBhv1d8hEclifZQrOYxHS',
+      '--format',
+      'svg',
+    ],
+  },
+  { args: ['chrome-copy', '--format', 'png'] },
+])('rejects incomplete copy arguments before connecting %j', async ({ args }) => {
+  setup([]);
+  await expect(runCommand(args, vi.fn())).rejects.toThrow('FIGMA_WEB_COPY_ARGUMENTS_REQUIRED');
   expect(mocks.connect).not.toHaveBeenCalled();
   expect(mocks.transport).not.toHaveBeenCalled();
 });

@@ -1,0 +1,45 @@
+{
+  "schemaVersion": 1,
+  "name": "c2-r50-targeted",
+  "releaseId": "03c80519-d773-4cc7-bfa3-1b416151544f",
+  "finalSourceHash": "sha256:303de5d1904d11c1fb89bdf80951900e375ac4325ea6cfc932f39ebee2785732",
+  "status": "passed",
+  "sourceBinding": "reviewed-exact-files",
+  "evidence": {
+    "reports": [
+      {
+        "path": ".worktrees/_cache/c2-independent-frozen-r30-20261013/r50-source-r2.json",
+        "sha256": "69aaf2d2b3cac298bc13dba07c23d5640d6799a769376e5fe77f362576d54d6e",
+        "passed": 105,
+        "failed": 0,
+        "platformSkipped": 0
+      },
+      {
+        "path": ".worktrees/_cache/c2-independent-frozen-r30-20261013/r50-independent-r1.json",
+        "sha256": "76c1b5f361e75652d8daa089fd64afaf6c4fa8f5f1a2f262b489bf84d89f78a3",
+        "passed": 4,
+        "failed": 0,
+        "platformSkipped": 0
+      },
+      {
+        "path": ".worktrees/_cache/c2-independent-frozen-r30-20261013/r50-http-regression.json",
+        "sha256": "b15991cbad9363639a2149bf4dfd46d15ee6231f07b2a98fe2a0e6f56d4ec8b0",
+        "passed": 8,
+        "failed": 0,
+        "platformSkipped": 0
+      }
+    ],
+    "posthash": {
+      "path": ".worktrees/_cache/c2-independent-frozen-r30-20261013/posthash-r50.json",
+      "sha256": "8e25581dca96f66d48428d6cea044b5465451f0948ae82922118a8a42fc2266f"
+    },
+    "r52": {
+      "path": "docs/testing/2026-10-11-web-portal/c2-legacy-ssr-r52-integration-20261013.json",
+      "sha256": "a52babd70c81533b140d31eb9e8a068a8631970d759a55a7a55e2750f98c8ae6"
+    },
+    "c2PublicPositive": false,
+    "R25UnknownPreserved": true
+  },
+  "wholePassed": false,
+  "liveAcceptance": false
+}

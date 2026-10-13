@@ -1,0 +1,66 @@
+{
+  "recordedAt": "2026-10-11T10:51:07.204Z",
+  "sourceHash": "sha256:935216d1aadd504a3e3e1757fde2f7c5056329cdb76220730a64a2522aa184dd",
+  "daemonBuildIdentity": "sha256:fa06abc94fee3d932497d39e2b7f109021e7d6ff49017fdf880fe57da362e4f7",
+  "webRunId": "ce58cfa9-5554-4b34-9df5-6f2714657fc7",
+  "serviceRunId": "sfp_portal1_316bd98d4ecfd5f42c5fd18b6f5efb78",
+  "status": "awaiting-input",
+  "source": {
+    "complete": false,
+    "liveVerified": false,
+    "captureFailure": {
+      "code": "DESIGN_CAPTURE_FAILED",
+      "elapsedMs": 300004,
+      "stage": "connection",
+      "type": "timeout-error"
+    }
+  },
+  "workflowCoverage": {
+    "complete": false,
+    "admittedDecisions": 0
+  },
+  "codingLeaseGranted": false,
+  "issues": [
+    "DESIGN_CAPTURE_FAILED",
+    "DESIGN_CAPTURE_REQUIRED",
+    "LIVE_DESIGN_VERIFICATION_REQUIRED",
+    "WORKFLOW_ANALYSIS:DESIGN_MISSING:",
+    "WORKFLOW_DECISIONS_REQUIRE_COMPLETE_CAPTURE",
+    "PORTAL_CAPTURE_CURRENT_REQUIRED",
+    "PORTAL_CAPTURE_CURRENT_REQUIRED"
+  ],
+  "nodes": [
+    {
+      "nodeId": "source",
+      "type": "source",
+      "status": "failed",
+      "message": "DESIGN_CAPTURE_FAILED"
+    },
+    {
+      "nodeId": "requirements",
+      "type": "requirements",
+      "status": "waiting",
+      "message": "Waiting for complete design evidence under the selected freshness policy."
+    },
+    {
+      "nodeId": "generation",
+      "type": "generation",
+      "status": "pending",
+      "message": "needs-input"
+    },
+    {
+      "nodeId": "validation",
+      "type": "validation",
+      "status": "pending",
+      "message": "needs-input"
+    },
+    {
+      "nodeId": "output",
+      "type": "output",
+      "status": "pending",
+      "message": "needs-input"
+    }
+  ],
+  "captureAcceptancePassed": false,
+  "generationAcceptancePassed": false
+}

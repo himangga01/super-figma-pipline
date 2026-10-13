@@ -1,5 +1,5 @@
 /* eslint-disable no-await-in-loop -- ordered deterministic staging and archives */
-import { cp, mkdir, mkdtemp, readFile, writeFile } from 'node:fs/promises';
+import { cp, mkdir, mkdtemp, readFile, readdir, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 
 import { hermeticGit } from './hermetic-git.mjs';
@@ -29,7 +29,7 @@ const common = ['LICENSE', 'THIRD_PARTY_NOTICES.md', 'PROVENANCE.md', 'SBOM.spdx
  * }}
  */
 const manifest = { schemaVersion: 1, created: isoTime, archives: [] };
-for (const kind of ['mcp', 'cli', 'plugin']) {
+for (const kind of ['mcp', 'cli', 'plugin', 'portal']) {
   const stage = join(staging, kind),
     source = join(root, 'packages', kind);
   await mkdir(stage);
@@ -42,6 +42,19 @@ for (const kind of ['mcp', 'cli', 'plugin']) {
     filter: name => !name.endsWith('.map'),
   });
   await cp(join(root, 'README.md'), join(stage, 'README.md'));
+  if (kind === 'portal') {
+    await cp(join(source, 'DEBUGGING.md'), join(stage, 'DEBUGGING.md'));
+    await mkdir(join(stage, 'web'));
+    for (const item of await readdir(join(source, 'web'), { withFileTypes: true })) {
+      if (
+        !item.isFile() ||
+        !/^[A-Za-z0-9][A-Za-z0-9._-]{0,127}\.(?:html|css|js|svg)$/u.test(item.name) ||
+        /\.(?:test|spec)\./u.test(item.name)
+      )
+        continue;
+      await cp(join(source, 'web', item.name), join(stage, 'web', item.name));
+    }
+  }
   if (kind === 'plugin') await cp(join(source, 'manifest.json'), join(stage, 'manifest.json'));
   else {
     const metadata = JSON.parse(await readFile(join(source, 'package.json'), 'utf8'));
@@ -51,6 +64,15 @@ for (const kind of ['mcp', 'cli', 'plugin']) {
     delete metadata.dependencies['@sfp/shared'];
     delete metadata.dependencies['@sfp/ir'];
     if (kind === 'cli') metadata.dependencies['@sfp/mcp'] = metadata.version;
+    if (kind === 'portal') {
+      const cli = JSON.parse(await readFile(join(root, 'packages/cli/package.json'), 'utf8'));
+      if (
+        typeof cli.version !== 'string' ||
+        !/^\d+\.\d+\.\d+(?:-[A-Za-z0-9.-]+)?$/u.test(cli.version)
+      )
+        throw new Error('PORTAL_CLI_VERSION_INVALID');
+      metadata.dependencies['@sfp/cli'] = cli.version;
+    }
     await writeFile(join(stage, 'package.json'), `${JSON.stringify(metadata, null, 2)}\n`);
     if (kind === 'mcp') {
       await mkdir(join(stage, 'dist/plugin/dist'), { recursive: true });
@@ -101,4 +123,4 @@ await publish(
   join(artifactRoot, 'artifact-manifest.v1.json'),
   Buffer.from(`${JSON.stringify(manifest, null, 2)}\n`),
 );
-process.stdout.write('Packaged MCP, CLI and Figma plugin\n');
+process.stdout.write('Packaged MCP, CLI, Figma plugin and web portal\n');

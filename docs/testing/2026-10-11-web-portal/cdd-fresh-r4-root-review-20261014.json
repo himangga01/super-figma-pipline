@@ -1,0 +1,14 @@
+{
+  "at": "2026-10-13T16:41:00.576Z",
+  "kind": "fresh-confirmed-r4-file-review",
+  "sourceRuntimeHash": "sha256:6f87f836d872a4ba8ab49533f6447a7c921adb6b8af3dae75ddd6241e8b8a1cb",
+  "manifestSha256": "7374a37b26f75452a240444869f9bfeef29d5d116c48489a1073a064a5d518b4",
+  "freezeSha256": "ffea830b9488b244e635bd2a5dd986b0b7433256e4dcc3817b4d4131f02a55b5",
+  "profileSha256": "04363f62e9c39138dad7c527cec68979abb18b02ee8118f4f0b654e2e62fe160",
+  "sourceDocumentHash": "sha256:085941570384c1bfa734eeedfb2429e0fb3833cf50c910d333ce935926046ace",
+  "verifiedInlineFiles": 39,
+  "catalogRows": 95,
+  "sourceOracleUi": false,
+  "testsRerun": false,
+  "serviceAcceptance": false
+}

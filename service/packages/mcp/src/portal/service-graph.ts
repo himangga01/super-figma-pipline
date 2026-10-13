@@ -8,6 +8,13 @@ import type { RepoReader } from '../fs/repo-walk.js';
 import { analyzeProject } from '../profile/profile.js';
 import { scanSfcScripts } from '../scan/sfc-blocks.js';
 import { resolvePortalModules } from './module-resolution.js';
+import type { NativeArtifactAuthority } from './native-artifacts.js';
+import {
+  admittedPackageConfigEvidence,
+  capturePackageConfigEvidence,
+} from './package-config-evidence.js';
+import { reactRouterCompilerPackageAuthority } from './react-router-compiler-evidence.js';
+import type { ReactRouterCompilerEvidence } from './react-router-compiler-evidence.js';
 import {
   analyzePortalServiceConnections,
   type PortalConnectionMember,
@@ -96,6 +103,10 @@ const object = (value: unknown): value is Record<string, unknown> =>
 export const analyzeServiceGraph = async (
   reader: RepoReader,
   sourceId: `sha256:${string}` = contentHash('sfp-unqualified-analysis-v1', reader.rootDir),
+  options: {
+    packageConfigAuthority?: NativeArtifactAuthority;
+    reactRouterCompilerEvidence?: ReactRouterCompilerEvidence;
+  } = {},
 ): Promise<ServiceGraphProfile> => {
   const sourceInventory = await collectPortalSourceInventory(reader);
   const files: ServiceGraphProfile['files'] = [],
@@ -221,9 +232,31 @@ export const analyzeServiceGraph = async (
   );
   const edges: ServiceGraphProfile['edges'] = [];
   const byPath = new Map(files.map(file => [file.path, file]));
+  const packageAuthority =
+    options.packageConfigAuthority ??
+    (options.reactRouterCompilerEvidence
+      ? reactRouterCompilerPackageAuthority(
+          options.reactRouterCompilerEvidence,
+          sourceId,
+          sourceInventory.hash,
+        )
+      : undefined);
+  const packageConfigEvidence = packageAuthority
+    ? await capturePackageConfigEvidence(reader, source, sourceInventory, packageAuthority)
+    : undefined;
   const moduleGraph = resolvePortalModules(
     source,
     sourceInventory.files.map(file => file.path),
+    {
+      ...(packageConfigEvidence ? { packageConfigEvidence } : {}),
+      ...(options.reactRouterCompilerEvidence
+        ? {
+            reactRouterCompilerEvidence: options.reactRouterCompilerEvidence,
+            sourceId,
+            sourceInventoryHash: sourceInventory.hash,
+          }
+        : {}),
+    },
   );
   if (!moduleGraph.complete) {
     incomplete = true;
@@ -258,10 +291,17 @@ export const analyzeServiceGraph = async (
         `SOURCE_REQUIRED_INPUT_EXCLUDED:${reference.from}:${reference.offset}:${excluded.reason}:${excluded.path}`,
       );
   }
+  // A retained container reference is configuration, never permission to run Docker.
+  // Extensionless executable code with a similar name remains an explicit runtime uncertainty.
+  const nativeReferenceConfiguration = (path: string) =>
+    /(?:^|\/)Dockerfile(?:\.[^/]*)?$/u.test(path) &&
+    !/\.[cm]?[jt]sx?$/u.test(path) &&
+    /^\s*(?:#[^\r\n]*(?:\r?\n|$)\s*)*(?:FROM|ARG)[ \t]/u.test(source.get(path) ?? '');
   const runtimePaths = new Set(
     [...source.keys()].filter(
       path =>
         !auxiliary(path) &&
+        !nativeReferenceConfiguration(path) &&
         !/\.(?:json|ya?ml|toml|xml|html|css|scss|sql|prisma|graphql|gql|md)$/u.test(path),
     ),
   );
@@ -283,7 +323,8 @@ export const analyzeServiceGraph = async (
       ? 'runtime'
       : auxiliary(path)
         ? 'auxiliary'
-        : /\.(?:json|ya?ml|toml|xml|html|css|scss)$/u.test(path)
+        : nativeReferenceConfiguration(path) ||
+            /\.(?:json|ya?ml|toml|xml|html|css|scss)$/u.test(path)
           ? 'configuration'
           : /\.(?:sql|prisma|graphql|gql|md)$/u.test(path)
             ? 'asset'
@@ -640,6 +681,46 @@ export const analyzeServiceGraph = async (
           ? 'configuration'
           : 'asset',
   }));
+  const packageConfiguration = packageConfigEvidence
+    ? admittedPackageConfigEvidence(
+        packageConfigEvidence,
+        source,
+        sourceInventory.files.map(file => file.path),
+      )
+    : null;
+  const occupiedMemberPaths = new Set(sourceInventory.files.map(file => file.path.toLowerCase()));
+  // Captured dependency configurations belong to their admitted package evidence, not
+  // source inventory or runtime modules. The opaque capture binds the exact source inputs.
+  for (const [path, text] of packageConfiguration?.sources ?? []) {
+    const owners = packageConfiguration!.evidence.packages.filter(pkg =>
+      pkg.configurations.some(
+        config =>
+          config.path === path &&
+          config.hash === storedChecksum(text) &&
+          config.bytes === Buffer.byteLength(text),
+      ),
+    );
+    const owner = owners[0],
+      service = owner && services.get(fileRoot(owner.ownerManifest));
+    if (
+      owners.length !== 1 ||
+      !owner ||
+      !source.has(owner.ownerManifest) ||
+      !service ||
+      occupiedMemberPaths.has(path.toLowerCase())
+    ) {
+      hard(`PACKAGE_CONFIG_MEMBER_INVALID:${path}`);
+      continue;
+    }
+    occupiedMemberPaths.add(path.toLowerCase());
+    members.push({
+      sourceId,
+      serviceId: service.id,
+      path,
+      hash: storedChecksum(text),
+      role: 'configuration',
+    });
+  }
   const connections = analyzePortalServiceConnections({
     sources: [...source].map(([path, text]) => ({
       sourceId,
@@ -716,8 +797,15 @@ export const analyzeServiceGraph = async (
     sourceHash: contentHash('sfp-service-source-v2', {
       inventoryHash: sourceInventory.hash,
       files,
+      ...(packageConfigEvidence ? { packageConfigEvidenceHash: packageConfigEvidence.hash } : {}),
+      ...(options.reactRouterCompilerEvidence
+        ? { reactRouterCompilerEvidenceHash: options.reactRouterCompilerEvidence.hash }
+        : {}),
     }),
     sourceInventory,
+    ...(options.reactRouterCompilerEvidence
+      ? { compilerEvidenceHash: options.reactRouterCompilerEvidence.hash }
+      : {}),
     services: [...services.values()],
     files,
     edges,

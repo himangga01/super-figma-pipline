@@ -240,7 +240,10 @@ const collectKeyframeInputClasses = (value: unknown, classes: Set<DataClass>): v
 
 const possibleInputClassesFor = (toolName: string, args: UnknownRecord): readonly DataClass[] => {
   if (PORTAL_TOOL_NAMES.some(name => name === toolName))
-    return toolName === 'portal_submit' ? PROJECT_DESIGN_TEXT_AND_IMAGE : PROJECT_AND_DESIGN_TEXT;
+    return toolName === 'portal_submit' ||
+      (toolName === 'portal_next' && args.nativeGeometry !== undefined)
+      ? PROJECT_DESIGN_TEXT_AND_IMAGE
+      : PROJECT_AND_DESIGN_TEXT;
   if (toolName === 'import_image') {
     const classes: DataClass[] = [];
     if (nonEmptyString(args.name)) classes.push('design-text');

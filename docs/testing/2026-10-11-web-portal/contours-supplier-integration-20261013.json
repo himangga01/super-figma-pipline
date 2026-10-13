@@ -1,0 +1,134 @@
+{
+  "at": "2026-10-12T23:48:14.344Z",
+  "before": "sha256:cb669d536ff80519c1c712d25bd498134547b97ee8e26391dac6ab57f5a7c6c6",
+  "after": "sha256:105d270d8cf613b07fc83f8086cf71a6614fb0c713743173d0eec91500b376d8",
+  "entries": [
+    {
+      "path": "packages/shared/src/portal-native-contours.ts",
+      "before": null,
+      "after": "9ef5c0666b17f432e278a3d31ccba55924b18019fa809a5489d200085137f7a2",
+      "bytes": 2781,
+      "manifest": "producer12R3"
+    },
+    {
+      "path": "packages/mcp/src/portal/native-contours.ts",
+      "before": null,
+      "after": "316df137173a4e951c385d2a95c6ffb368ffa127016b0582d414f6f2ac20927c",
+      "bytes": 15613,
+      "manifest": "producer12R3"
+    },
+    {
+      "path": "packages/mcp/src/portal/preview-native-contours.ts",
+      "before": null,
+      "after": "93eb96c53c7f85f9625912a1c23b5877f6ce21aacb055bdee0b6a7e7456b0f3c",
+      "bytes": 12312,
+      "manifest": "producer12R3"
+    },
+    {
+      "path": "packages/shared/src/portal-consumption.ts",
+      "before": "05abcb86384b044c60a27bea2ec2343ad03c3ea1bb72d709aa402213e4f4a3e9",
+      "after": "0ec80342cc2f6b927f7b2904198410f5278ac894d2fb4dabb5180edbb11219e5",
+      "bytes": 5380,
+      "manifest": "producer12R3"
+    },
+    {
+      "path": "packages/shared/src/portal-recipe-use.ts",
+      "before": "9064bc5c7ef32edf223d262fa833cac73aaa35fc63a61f2933fecf044b56f44d",
+      "after": "a08ea8a2a2286e61ac16051a20959c8f7e122f05960910075a88d5b849d9c594",
+      "bytes": 4219,
+      "manifest": "producer12R3"
+    },
+    {
+      "path": "packages/mcp/src/portal/preview-consumption.ts",
+      "before": "225a65c7aa968b276ec3d0ad2c38ef792aa6d78f72ff420edb383feef2bb675f",
+      "after": "3bb8c015c7590060ecf68aa1ee691467ce2fad958598dcd04abaaa52d620a5ae",
+      "bytes": 40828,
+      "manifest": "producer12R3"
+    },
+    {
+      "path": "packages/mcp/src/portal/recipes/core-consumption.ts",
+      "before": "e5a74d39f9c8ef3c6a8e1a794b45966f568fd61413f6e06417eff23c62a30dd6",
+      "after": "b14046b8da5cf713f1910474edc9652f482f082babe8ebaf781bd8a19a9ae0f2",
+      "bytes": 44358,
+      "manifest": "producer12R3"
+    },
+    {
+      "path": "packages/mcp/src/portal/recipes/consumption-input.ts",
+      "before": "25224b3de4a8ae1f8eea99031920839948454d943870c902d005bf8e04f8d7f1",
+      "after": "4a62262fb16d62ef84fb3740192b2e511d45161f223bd2b2e238dd79f2627977",
+      "bytes": 14357,
+      "manifest": "producer12R3"
+    },
+    {
+      "path": "packages/cli/src/figma-native-nodes.ts",
+      "before": "4307b1bb3ef050d482a8179eb9db059116683cd253211b34a5dd86eed08d1f01",
+      "after": "038162f60bb11b237f122bb4ff3f79fcc0a0dc7e671fd80d7b5459c0a19d401f",
+      "bytes": 29725,
+      "manifest": "producer12R3"
+    },
+    {
+      "path": "packages/mcp/test/portal/native-contours.test.ts",
+      "before": null,
+      "after": "6810b2f1fd0b591160d3edbcfbe862c898b9ae263a61ecda188772d2c33d04e6",
+      "bytes": 14762,
+      "manifest": "producer12R3"
+    },
+    {
+      "path": "packages/mcp/test/portal/preview-native-contours.test.ts",
+      "before": null,
+      "after": "76f84fc168d443397c44198cc8ac6c2c1bee0b75e514843670dfe1de215f20ba",
+      "bytes": 15038,
+      "manifest": "producer12R3"
+    },
+    {
+      "path": "packages/cli/test/figma-native-text-observer.test.ts",
+      "before": null,
+      "after": "d0a9914e592357bd4580d8bab958e9ff13379e60f0cbfc7e4ecce5ba55f9cb85",
+      "bytes": 1734,
+      "manifest": "producer12R3"
+    },
+    {
+      "path": "packages/mcp/src/portal/capture-native-supplement.ts",
+      "before": null,
+      "after": "253535a2a8203a31614869b17aa14c48ec98f5b9aab393048351170fd8a09898",
+      "bytes": 13412,
+      "manifest": "supplier4R2"
+    },
+    {
+      "path": "packages/mcp/test/portal/capture-native-supplement.test.ts",
+      "before": null,
+      "after": "02362d84aea8ce22a0a788ca0da49114a5dc71ac00888830444d86fee6021d97",
+      "bytes": 15575,
+      "manifest": "supplier4R2"
+    },
+    {
+      "path": "packages/mcp/src/portal/design-capture.ts",
+      "before": "0db6ee493563dff2b0f34de47fcf7d6c3ececc4065c4a4caf60adb89a5f48c26",
+      "after": "42d22b1d300455de81aec494df4a713262450fc838172ec4bc4911f1cb21dbe7",
+      "bytes": 43546,
+      "manifest": "supplier4R2"
+    },
+    {
+      "path": "packages/mcp/test/portal/capture-coherence.test.ts",
+      "before": "e602ea2902939ca1b628eaa4872cfdac3d1c68d1509289b9c69139893224436e",
+      "after": "afb9a9922216328f54eb2f87cc33bd0bcf7113e66e3fbe1a8e74f57da02e31e7",
+      "bytes": 18130,
+      "manifest": "supplier4R2"
+    }
+  ],
+  "manifestHashes": [
+    {
+      "name": "producer12R3",
+      "sha256": "7e3126bc3a5d6410a9c17fd5a608068366b2634de9de0785dd4889204d3bc634"
+    },
+    {
+      "name": "supplier4R2",
+      "sha256": "31720871a4f6547e6b464e744bfc04f2f79162794b3d782e6ae72e9dd8d9ec14"
+    }
+  ],
+  "ownerIndexUnchanged": true,
+  "productionIndexWired": false,
+  "wholePassed": false,
+  "liveCapture": false,
+  "runtimeReplaced": false
+}

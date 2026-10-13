@@ -171,22 +171,26 @@ export function normalizeDesignObservation(
       ? 'desktop'
       : raw.source === 'figma-plugin-api-via-scripter'
         ? 'chrome'
-        : null;
+        : raw.source === 'official-figma-mcp'
+          ? 'official-mcp'
+          : raw.source === 'figma-web-page-api'
+            ? 'chrome-page-api'
+            : null;
   if (source === null) throw new Error('DESIGN_OBSERVATION_SOURCE_UNSUPPORTED');
   const document = jsonObject(raw.document) ? raw.document : {};
   const definitions = jsonObject(raw.variables) ? raw.variables : {};
   const tree =
-    source === 'chrome' || raw.source === 'figma-plugin-api-pinned'
+    source !== 'desktop' || raw.source === 'figma-plugin-api-pinned'
       ? raw.nodes
       : (document.children ??
         document.nodes ??
         (jsonObject(document.node) ? [document.node] : undefined));
   const variableRows =
-    source === 'chrome' || raw.source === 'figma-plugin-api-pinned'
+    source !== 'desktop' || raw.source === 'figma-plugin-api-pinned'
       ? raw.tokens
       : definitions.variables;
   const collectionRows =
-    source === 'chrome' || raw.source === 'figma-plugin-api-pinned'
+    source !== 'desktop' || raw.source === 'figma-plugin-api-pinned'
       ? raw.collections
       : definitions.collections;
   const styles = jsonObject(raw.styles) ? raw.styles : {};

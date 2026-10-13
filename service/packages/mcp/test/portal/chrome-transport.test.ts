@@ -85,6 +85,9 @@ const fakeChrome = async (
     },
     commands,
     requestHeaders,
+    emit: (message: object) => {
+      for (const socket of sockets.clients) socket.send(JSON.stringify(message));
+    },
     disconnect: () => {
       for (const socket of sockets.clients) socket.terminate();
     },
@@ -104,6 +107,40 @@ const reply = async (socket: WebSocket, command: object) => {
   socket.send(JSON.stringify(command));
   return JSON.parse(String((await response)[0]));
 };
+
+it('releases confirmed detached target ownership before refreshing the local browser client', async () => {
+  const selectedUrl = 'https://www.figma.com/design/replacementFixtureKey';
+  const chrome = await fakeChrome(true, undefined, [
+    { targetId: 'source', type: 'page', url: selectedUrl },
+  ]);
+  const bridge = await createRetainedChromeTransport(chrome.endpoint, {
+    matchesTarget: url => url === selectedUrl,
+  });
+  cleanups.push(() => bridge.close());
+  const client = await clientFor(bridge.endpoint, bridge.headers);
+  await reply(client, {
+    id: 1,
+    method: 'Target.setAutoAttach',
+    params: { autoAttach: true, flatten: true },
+  });
+  const detached = once(client, 'message');
+  chrome.emit({
+    method: 'Target.detachedFromTarget',
+    params: { sessionId: 'owned-source-session', targetId: 'source' },
+  });
+  await detached;
+  client.close();
+  await vi.waitFor(() =>
+    expect(chrome.commands.some(command => command.method === 'Target.setDiscoverTargets')).toBe(
+      true,
+    ),
+  );
+  expect(
+    chrome.commands.filter(command => command.method === 'Target.detachFromTarget'),
+  ).toHaveLength(0);
+  expect(bridge.state()).toBe('connected');
+  expect(chrome.attempts).toBe(1);
+});
 
 it('initializes only the selected page and preserves nested target attachment', async () => {
   const selectedUrl = 'https://www.figma.com/design/selectedFixtureKey';
@@ -185,6 +222,53 @@ it('opens only the authorized missing source and grants exactly one matching nav
     await reply(client, { id: 7, method: 'Target.createTarget', params: { url: sourceUrl } }),
   ).toHaveProperty('error');
   expect(chrome.commands.filter(command => command.method === 'Page.navigate')).toHaveLength(1);
+});
+
+it('permits one explicit same-file node selection only on the attached source session', async () => {
+  const sourceUrl = 'https://www.figma.com/design/selectFixtureKey?node-id=0-1';
+  const nodeUrl = 'https://www.figma.com/design/selectFixtureKey?node-id=1-2';
+  const chrome = await fakeChrome(true, undefined, [
+    { targetId: 'source', type: 'page', url: sourceUrl },
+  ]);
+  const bridge = await createRetainedChromeTransport(chrome.endpoint, {
+    matchesTarget: url => new URL(url).pathname === '/design/selectFixtureKey',
+    selectedNodeUrl: () => nodeUrl,
+  });
+  cleanups.push(() => bridge.close());
+  const client = await clientFor(bridge.endpoint, bridge.headers);
+  await reply(client, { id: 1, method: 'Target.setAutoAttach', params: { autoAttach: true } });
+  const navigate = (id: number, url: string, sessionId = 'owned-source-session') =>
+    reply(client, { id, method: 'Page.navigate', sessionId, params: { url } });
+  expect(await navigate(2, nodeUrl, 'unrelated-session')).toHaveProperty('error');
+  expect(await navigate(3, sourceUrl)).toHaveProperty('error');
+  expect(await navigate(4, nodeUrl)).toHaveProperty('result');
+  expect(await navigate(5, nodeUrl)).toHaveProperty('error');
+  expect(chrome.commands.filter(c => c.method === 'Page.navigate')).toHaveLength(1);
+});
+
+it.each([
+  'https://www.figma.com/design/otherFixtureKey?node-id=1-2',
+  'https://www.figma.com/design/selectFixtureKey',
+  'https://www.figma.com/design/selectFixtureKey?node-id=1-2&unexpected=1',
+  'https://attacker.test/design/selectFixtureKey?node-id=1-2',
+])('rejects invalid explicit node selection %s', async selected => {
+  const chrome = await fakeChrome(true, undefined, [
+    {
+      targetId: 'source',
+      type: 'page',
+      url: 'https://www.figma.com/design/selectFixtureKey?node-id=0-1',
+    },
+  ]);
+  const bridge = await createRetainedChromeTransport(chrome.endpoint, {
+    matchesTarget: () => true,
+    selectedNodeUrl: () => selected,
+  });
+  cleanups.push(() => bridge.close());
+  const client = await clientFor(bridge.endpoint, bridge.headers);
+  expect(
+    await reply(client, { id: 1, method: 'Target.setAutoAttach', params: { autoAttach: true } }),
+  ).toHaveProperty('error');
+  expect(chrome.commands.some(c => c.method === 'Target.attachToTarget')).toBe(false);
 });
 
 it('closes only its own unaccepted source tab when the transport closes', async () => {

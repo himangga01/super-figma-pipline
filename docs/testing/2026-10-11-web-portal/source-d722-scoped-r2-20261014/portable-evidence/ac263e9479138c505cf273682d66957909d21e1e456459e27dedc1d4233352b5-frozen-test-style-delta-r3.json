@@ -1,0 +1,16 @@
+{
+  "at": "2026-10-13T18:12:48.957Z",
+  "path": "packages/mcp/test/portal/react-router-compiler-evidence.test.ts",
+  "beforeSha256": "62fc8c6891ac08a4a24f3672a6991f45fa5514f039a4d07d882102f8949cc4a9",
+  "afterSha256": "684d073c9fb949c15bb2d8cf3621ebc5bdc13581052c858f720fc32da60bbab2",
+  "changes": [
+    "resolve import renamed resolvePath, old Promise callback unchanged",
+    "new modules keys use toSorted",
+    "absent-output assertion matches observed repo root is unavailable",
+    "changed test formatted once with primary config"
+  ],
+  "productionUnchanged": true,
+  "productionSha256": "da6b2efb21772fa7b01bce3a353da61169f147651bff3f64a82e5c45e48290f0",
+  "functionalAssertionsRepeated": false,
+  "semanticTypecheckRepeated": false
+}

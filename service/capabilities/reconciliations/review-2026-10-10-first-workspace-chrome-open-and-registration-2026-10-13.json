@@ -1,0 +1,101 @@
+{
+  "schemaVersion": 1,
+  "slice": "review-2026-10-10",
+  "baseline": {
+    "headCommit": "22517932dc9b2cb974c177ec4eacb84d4b16e254",
+    "authoritySha256": {
+      "upstream-lock.json": "9c4246c7f88e348378aaf7e909fb208adc7aec12053fb620191011ec30831db0",
+      "vendor-map.json": "b3275c7d8b997d1cfe723d97594659f77d7b4361b824a790bcfdd7ff762589bd",
+      "vendor-rules.json": "7e32056ff3a5dcee3c1899b46b41b066bbed91557bae86411005f10e955c3296"
+    }
+  },
+  "entries": [
+    {
+      "path": "capabilities/task-review-2026-10-10-authority-classes.json",
+      "sha256": "763f6ddb5d9efdbbbccb193299fcc45a36100af4a4bfdd9690a165db20392784",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "64441cf310808c8ea7bc735e5b34f505d306b1ec59f7b90f631e33dc632e7688"
+        },
+        {
+          "class": "protected",
+          "sha256": "64441cf310808c8ea7bc735e5b34f505d306b1ec59f7b90f631e33dc632e7688"
+        }
+      ],
+      "reason": "Repair actual first-workspace registration to new-setup flow without discarding user edits, honor explicit requested Figma node and activate existing Chrome, and repair strict child-process test mock after source-registration failure. Preserve original failures/unknown outcomes, source/data deadlines, Chrome-only service ownership and owner Git index; source mock and UI/CLI checks passed, fresh whole and actual frontend acceptance remain required."
+    },
+    {
+      "path": "packages/cli/src/commands.ts",
+      "sha256": "4ee2ab4d09a02671c257839137c570ecba9b0d061a48c5737d4e952bbb94dadd",
+      "priorClaims": [
+        {
+          "class": "protected",
+          "sha256": "335a807e57092b40851b1c351af74228971721531d47e349407e3ff371b458ad"
+        }
+      ],
+      "reason": "Repair actual first-workspace registration to new-setup flow without discarding user edits, honor explicit requested Figma node and activate existing Chrome, and repair strict child-process test mock after source-registration failure. Preserve original failures/unknown outcomes, source/data deadlines, Chrome-only service ownership and owner Git index; source mock and UI/CLI checks passed, fresh whole and actual frontend acceptance remain required."
+    },
+    {
+      "path": "packages/cli/test/bound-server-session.test.ts",
+      "sha256": "f4c892eeab7ffc68347d1e3a09d776ffbba79205a6911ec0bf354e0d7d907d9a",
+      "priorClaims": [
+        {
+          "class": "protected",
+          "sha256": "ec5de6679d1be54e8ce55617c9f50a9b8d01972738e67c6bde058506db6522a2"
+        }
+      ],
+      "reason": "Repair actual first-workspace registration to new-setup flow without discarding user edits, honor explicit requested Figma node and activate existing Chrome, and repair strict child-process test mock after source-registration failure. Preserve original failures/unknown outcomes, source/data deadlines, Chrome-only service ownership and owner Git index; source mock and UI/CLI checks passed, fresh whole and actual frontend acceptance remain required."
+    },
+    {
+      "path": "packages/cli/test/browser-source-open.test.ts",
+      "sha256": "269c22d37e882b4ae1765fe3fc176d430e7df69713bfadc4ae74670731d6b92a",
+      "priorClaims": [
+        {
+          "class": "protected",
+          "sha256": "31d4b147c3aebdc4c892eb4ab616f21e7260741b81d30c5ad4ff636303c76e30"
+        }
+      ],
+      "reason": "Repair actual first-workspace registration to new-setup flow without discarding user edits, honor explicit requested Figma node and activate existing Chrome, and repair strict child-process test mock after source-registration failure. Preserve original failures/unknown outcomes, source/data deadlines, Chrome-only service ownership and owner Git index; source mock and UI/CLI checks passed, fresh whole and actual frontend acceptance remain required."
+    },
+    {
+      "path": "packages/portal/package.json",
+      "sha256": "ddb99eafe979d2319697f9bde91d01c4b3f4cf7f3e2a2baccfcb06ceff7767c8",
+      "priorClaims": [
+        {
+          "class": "protected",
+          "sha256": "ddb99eafe979d2319697f9bde91d01c4b3f4cf7f3e2a2baccfcb06ceff7767c8"
+        }
+      ],
+      "reason": "Repair actual first-workspace registration to new-setup flow without discarding user edits, honor explicit requested Figma node and activate existing Chrome, and repair strict child-process test mock after source-registration failure. Preserve original failures/unknown outcomes, source/data deadlines, Chrome-only service ownership and owner Git index; source mock and UI/CLI checks passed, fresh whole and actual frontend acceptance remain required."
+    },
+    {
+      "path": "packages/portal/web/app.js",
+      "sha256": "fe9e1257b0001dc09425637d3849fede9270bbdb85bc895ec068cf6ef06585e3",
+      "priorClaims": [
+        {
+          "class": "protected",
+          "sha256": "61842fbf00d44dca7fa0a0a76c495914dc15ce8b2ba16965d7141781512e350a"
+        }
+      ],
+      "reason": "Repair actual first-workspace registration to new-setup flow without discarding user edits, honor explicit requested Figma node and activate existing Chrome, and repair strict child-process test mock after source-registration failure. Preserve original failures/unknown outcomes, source/data deadlines, Chrome-only service ownership and owner Git index; source mock and UI/CLI checks passed, fresh whole and actual frontend acceptance remain required."
+    },
+    {
+      "path": "packages/portal/web/tests/first-workspace-setup.test.mjs",
+      "sha256": "b3588fcbb3cb88bf10e6ac054b78d744e045e9c219aceae2fd9da20ba38dd948",
+      "priorClaims": [],
+      "reason": "Repair actual first-workspace registration to new-setup flow without discarding user edits, honor explicit requested Figma node and activate existing Chrome, and repair strict child-process test mock after source-registration failure. Preserve original failures/unknown outcomes, source/data deadlines, Chrome-only service ownership and owner Git index; source mock and UI/CLI checks passed, fresh whole and actual frontend acceptance remain required."
+    },
+    {
+      "path": "scripts/test-skip-census.mjs",
+      "sha256": "9a26ccf5a315b40c6be087adb5d5497b60b3b2330cbc77a97bc6bccf0fc64c83",
+      "priorClaims": [
+        {
+          "class": "protected",
+          "sha256": "6763a222503f271c88f89b94192cd362c1249bbdcbc02d9622dcf501602da578"
+        }
+      ],
+      "reason": "Repair actual first-workspace registration to new-setup flow without discarding user edits, honor explicit requested Figma node and activate existing Chrome, and repair strict child-process test mock after source-registration failure. Preserve original failures/unknown outcomes, source/data deadlines, Chrome-only service ownership and owner Git index; source mock and UI/CLI checks passed, fresh whole and actual frontend acceptance remain required."
+    }
+  ]
+}

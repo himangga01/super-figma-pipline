@@ -1,0 +1,485 @@
+{
+  "schemaVersion": 1,
+  "slice": "review-2026-10-10",
+  "baseline": {
+    "headCommit": "22517932dc9b2cb974c177ec4eacb84d4b16e254",
+    "authoritySha256": {
+      "upstream-lock.json": "948ef8e54f14ae262a0211c3a599ceef9b755763c5f242823741385093d90fb5",
+      "vendor-map.json": "b3275c7d8b997d1cfe723d97594659f77d7b4361b824a790bcfdd7ff762589bd",
+      "vendor-rules.json": "62f82fddfb18605d11ab9f3945335383c7bc4889de06b7e085b3062af9ddf8a2"
+    }
+  },
+  "entries": [
+    {
+      "path": "README.md",
+      "sha256": "a8fe20246a24af8262bc400982a5198aec52fe31838797e5c9cf24988ec40611",
+      "priorClaims": [
+        {
+          "class": "fork",
+          "sha256": "036f5c814a4b9996f76c4ad02c66dadb938226e6461080a27231fa3b81bb654d"
+        },
+        {
+          "class": "managed",
+          "sha256": "036f5c814a4b9996f76c4ad02c66dadb938226e6461080a27231fa3b81bb654d"
+        },
+        {
+          "class": "protected",
+          "sha256": "036f5c814a4b9996f76c4ad02c66dadb938226e6461080a27231fa3b81bb654d"
+        }
+      ],
+      "reason": "Integrate independently reviewed local web frontend/backend, typed workflow state and approval handling, concurrency repairs, required Chrome tests, launch/dependency/docs and fourth-package wiring; include reviewed Chrome tab replacement, AX names and bounded package-config evidence. Preserve failed verification and unknown operations. Require three portal/backend verification rounds plus renewed whole/artifact acceptance; no live Figma or release completion is implied."
+    },
+    {
+      "path": "SBOM.spdx.json",
+      "sha256": "def65842c04e035fe82f55b09e6113a0d33a95e506ba9151079bf58b5c5eb008",
+      "priorClaims": [
+        {
+          "class": "protected",
+          "sha256": "c7cdf0800f2ffa5d6b124197952a55279f97ceac78c2749f59293def04f58596"
+        }
+      ],
+      "reason": "Integrate independently reviewed local web frontend/backend, typed workflow state and approval handling, concurrency repairs, required Chrome tests, launch/dependency/docs and fourth-package wiring; include reviewed Chrome tab replacement, AX names and bounded package-config evidence. Preserve failed verification and unknown operations. Require three portal/backend verification rounds plus renewed whole/artifact acceptance; no live Figma or release completion is implied."
+    },
+    {
+      "path": "capabilities/task-review-2026-10-10-authority-classes.json",
+      "sha256": "c9b5518a35e26edf29125a2f44c29e9025b0c772ee3d6b326f450112056efe15",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "c26bf75a10e04c0f0ea4c4cb11eb0c479d44dcebcb214e8dd31c478bac03f7d6"
+        },
+        {
+          "class": "protected",
+          "sha256": "c26bf75a10e04c0f0ea4c4cb11eb0c479d44dcebcb214e8dd31c478bac03f7d6"
+        }
+      ],
+      "reason": "Integrate independently reviewed local web frontend/backend, typed workflow state and approval handling, concurrency repairs, required Chrome tests, launch/dependency/docs and fourth-package wiring; include reviewed Chrome tab replacement, AX names and bounded package-config evidence. Preserve failed verification and unknown operations. Require three portal/backend verification rounds plus renewed whole/artifact acceptance; no live Figma or release completion is implied."
+    },
+    {
+      "path": "knip.json",
+      "sha256": "05828d92643184d4c9dfc412f224449d3860a5fc63c43351cce49253eaaf416f",
+      "priorClaims": [
+        {
+          "class": "protected",
+          "sha256": "609e9aff2fbe23e07d567980a0a243bd196185d089d2452f8e9300873bd77aa6"
+        }
+      ],
+      "reason": "Integrate independently reviewed local web frontend/backend, typed workflow state and approval handling, concurrency repairs, required Chrome tests, launch/dependency/docs and fourth-package wiring; include reviewed Chrome tab replacement, AX names and bounded package-config evidence. Preserve failed verification and unknown operations. Require three portal/backend verification rounds plus renewed whole/artifact acceptance; no live Figma or release completion is implied."
+    },
+    {
+      "path": "package.json",
+      "sha256": "e18ba80dbc513411f03f45840fe2330dc701bef912ef3bfc40707f707fbba5ce",
+      "priorClaims": [
+        {
+          "class": "fork",
+          "sha256": "f62cd340e319186205f3f105c984aea33e9f4c3a4d0800cc88a7a7b57ce5f45a"
+        },
+        {
+          "class": "manifest",
+          "sha256": "f0f040dcb6ffc4e47df3efef02df379c4305ebc56830b3fb3d433341085d17ad"
+        },
+        {
+          "class": "package",
+          "sha256": "177f268ec8ccf88fba0b412411b2fc08bcb9258d9f888b03c8348d76b557ab6d"
+        },
+        {
+          "class": "protected",
+          "sha256": "f62cd340e319186205f3f105c984aea33e9f4c3a4d0800cc88a7a7b57ce5f45a"
+        },
+        {
+          "class": "root",
+          "sha256": "64f5f1ea8b7a942391ef0c04ff54fc2f27f98ea1362795abcf7f7912f8e9aaa7"
+        }
+      ],
+      "reason": "Integrate independently reviewed local web frontend/backend, typed workflow state and approval handling, concurrency repairs, required Chrome tests, launch/dependency/docs and fourth-package wiring; include reviewed Chrome tab replacement, AX names and bounded package-config evidence. Preserve failed verification and unknown operations. Require three portal/backend verification rounds plus renewed whole/artifact acceptance; no live Figma or release completion is implied."
+    },
+    {
+      "path": "packages/cli/src/browser-session.ts",
+      "sha256": "bcb847671d664491d412fd33ce0c36db3fa3a8dbcd37ff448560d9c2e7545896",
+      "priorClaims": [
+        {
+          "class": "protected",
+          "sha256": "f0d7e86bbdd81a1489f906c9c2d43fd00b27483866d7a6ce9bd4e24285261024"
+        }
+      ],
+      "reason": "Integrate independently reviewed local web frontend/backend, typed workflow state and approval handling, concurrency repairs, required Chrome tests, launch/dependency/docs and fourth-package wiring; include reviewed Chrome tab replacement, AX names and bounded package-config evidence. Preserve failed verification and unknown operations. Require three portal/backend verification rounds plus renewed whole/artifact acceptance; no live Figma or release completion is implied."
+    },
+    {
+      "path": "packages/cli/test/browser-session-reconnect.test.ts",
+      "sha256": "6bd5369f20c9603dab75103ae8e37e9a76dd676a89690bba13a275124e30e3fc",
+      "priorClaims": [
+        {
+          "class": "protected",
+          "sha256": "af71db371f58968a5ef89721cfe164e7658d18d413e191b2c84d6e363fd00131"
+        }
+      ],
+      "reason": "Integrate independently reviewed local web frontend/backend, typed workflow state and approval handling, concurrency repairs, required Chrome tests, launch/dependency/docs and fourth-package wiring; include reviewed Chrome tab replacement, AX names and bounded package-config evidence. Preserve failed verification and unknown operations. Require three portal/backend verification rounds plus renewed whole/artifact acceptance; no live Figma or release completion is implied."
+    },
+    {
+      "path": "packages/cli/test/browser-session.test.ts",
+      "sha256": "6e14e79c2a14285a0cf4a30a6342349261a496ad7fd497548eef1d25c5a57772",
+      "priorClaims": [
+        {
+          "class": "protected",
+          "sha256": "ad5f7d79af38b838509fd4545d008d11bafdb6c92b132550b5d4c372ccd76e2c"
+        }
+      ],
+      "reason": "Integrate independently reviewed local web frontend/backend, typed workflow state and approval handling, concurrency repairs, required Chrome tests, launch/dependency/docs and fourth-package wiring; include reviewed Chrome tab replacement, AX names and bounded package-config evidence. Preserve failed verification and unknown operations. Require three portal/backend verification rounds plus renewed whole/artifact acceptance; no live Figma or release completion is implied."
+    },
+    {
+      "path": "packages/mcp/src/portal/chrome-transport.ts",
+      "sha256": "96ee2e62ab36739aff909de959a8b935803465a717348bad36dd05bcbe86cf1d",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "6126a02ba32adb6912655c8596b282210000bc4656b2c81d2e996491b569101c"
+        },
+        {
+          "class": "protected",
+          "sha256": "6126a02ba32adb6912655c8596b282210000bc4656b2c81d2e996491b569101c"
+        }
+      ],
+      "reason": "Integrate independently reviewed local web frontend/backend, typed workflow state and approval handling, concurrency repairs, required Chrome tests, launch/dependency/docs and fourth-package wiring; include reviewed Chrome tab replacement, AX names and bounded package-config evidence. Preserve failed verification and unknown operations. Require three portal/backend verification rounds plus renewed whole/artifact acceptance; no live Figma or release completion is implied."
+    },
+    {
+      "path": "packages/mcp/src/portal/module-resolution.ts",
+      "sha256": "fcebd307eb4f2c7b2aa25600918f80c028b72313b9b9f8fbf04d6389232c38e7",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "8c00795ce9aa6fb6aa4bf87e592df039b0ea28b42703527a38608414d0c8ebdb"
+        },
+        {
+          "class": "protected",
+          "sha256": "8c00795ce9aa6fb6aa4bf87e592df039b0ea28b42703527a38608414d0c8ebdb"
+        }
+      ],
+      "reason": "Integrate independently reviewed local web frontend/backend, typed workflow state and approval handling, concurrency repairs, required Chrome tests, launch/dependency/docs and fourth-package wiring; include reviewed Chrome tab replacement, AX names and bounded package-config evidence. Preserve failed verification and unknown operations. Require three portal/backend verification rounds plus renewed whole/artifact acceptance; no live Figma or release completion is implied."
+    },
+    {
+      "path": "packages/mcp/src/portal/package-config-evidence.ts",
+      "sha256": "594a03189b6de2b532f16d1a2c18432493e8f65566df63655598797592d9355e",
+      "priorClaims": [],
+      "reason": "Integrate independently reviewed local web frontend/backend, typed workflow state and approval handling, concurrency repairs, required Chrome tests, launch/dependency/docs and fourth-package wiring; include reviewed Chrome tab replacement, AX names and bounded package-config evidence. Preserve failed verification and unknown operations. Require three portal/backend verification rounds plus renewed whole/artifact acceptance; no live Figma or release completion is implied."
+    },
+    {
+      "path": "packages/mcp/src/portal/preview-accessibility.ts",
+      "sha256": "b765bc3f5f371b68ab2b81d94c9cfb01fb034f5cba4581d79e01759c97510f05",
+      "priorClaims": [],
+      "reason": "Integrate independently reviewed local web frontend/backend, typed workflow state and approval handling, concurrency repairs, required Chrome tests, launch/dependency/docs and fourth-package wiring; include reviewed Chrome tab replacement, AX names and bounded package-config evidence. Preserve failed verification and unknown operations. Require three portal/backend verification rounds plus renewed whole/artifact acceptance; no live Figma or release completion is implied."
+    },
+    {
+      "path": "packages/mcp/src/portal/preview.ts",
+      "sha256": "ed7d06836ef43b80651808be49893c1cc3e7cf1ca57e9976f27bbf097f65dbbe",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "ed2a361fb8f261051f9e2836f264a1f6c56b5bd6ddcfd06f9bd7472160cf47f4"
+        },
+        {
+          "class": "protected",
+          "sha256": "ed2a361fb8f261051f9e2836f264a1f6c56b5bd6ddcfd06f9bd7472160cf47f4"
+        }
+      ],
+      "reason": "Integrate independently reviewed local web frontend/backend, typed workflow state and approval handling, concurrency repairs, required Chrome tests, launch/dependency/docs and fourth-package wiring; include reviewed Chrome tab replacement, AX names and bounded package-config evidence. Preserve failed verification and unknown operations. Require three portal/backend verification rounds plus renewed whole/artifact acceptance; no live Figma or release completion is implied."
+    },
+    {
+      "path": "packages/mcp/src/portal/service-graph.ts",
+      "sha256": "1042e728abf21edee6ebc35cc0245ad582965981db06632ab07eb9d1602017ec",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "c6f78daa6343a571bc821dbd1c86caca6ff97af2dda1aa1a2d9a54877efb2c4d"
+        },
+        {
+          "class": "protected",
+          "sha256": "c6f78daa6343a571bc821dbd1c86caca6ff97af2dda1aa1a2d9a54877efb2c4d"
+        }
+      ],
+      "reason": "Integrate independently reviewed local web frontend/backend, typed workflow state and approval handling, concurrency repairs, required Chrome tests, launch/dependency/docs and fourth-package wiring; include reviewed Chrome tab replacement, AX names and bounded package-config evidence. Preserve failed verification and unknown operations. Require three portal/backend verification rounds plus renewed whole/artifact acceptance; no live Figma or release completion is implied."
+    },
+    {
+      "path": "packages/mcp/test/portal/chrome-transport.test.ts",
+      "sha256": "77faa7878e24f45709d0e6838bcf52fa132aef059f8a3a072d96e05c281da407",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "e44a6b619bb21eab62d058cc2ae461bb784113bb7e37acbdc9ff196ee8bdfe0a"
+        },
+        {
+          "class": "protected",
+          "sha256": "e44a6b619bb21eab62d058cc2ae461bb784113bb7e37acbdc9ff196ee8bdfe0a"
+        }
+      ],
+      "reason": "Integrate independently reviewed local web frontend/backend, typed workflow state and approval handling, concurrency repairs, required Chrome tests, launch/dependency/docs and fourth-package wiring; include reviewed Chrome tab replacement, AX names and bounded package-config evidence. Preserve failed verification and unknown operations. Require three portal/backend verification rounds plus renewed whole/artifact acceptance; no live Figma or release completion is implied."
+    },
+    {
+      "path": "packages/mcp/test/portal/module-resolution.test.ts",
+      "sha256": "94f8ab700f1f00cdf20ef93a74287821b96ac4dcd8687010fe55ebbf1fe301bd",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "92967d1c37b351fa6218379007400bd6dca693f8906ac4322a8c1bff12c1ff38"
+        },
+        {
+          "class": "protected",
+          "sha256": "92967d1c37b351fa6218379007400bd6dca693f8906ac4322a8c1bff12c1ff38"
+        }
+      ],
+      "reason": "Integrate independently reviewed local web frontend/backend, typed workflow state and approval handling, concurrency repairs, required Chrome tests, launch/dependency/docs and fourth-package wiring; include reviewed Chrome tab replacement, AX names and bounded package-config evidence. Preserve failed verification and unknown operations. Require three portal/backend verification rounds plus renewed whole/artifact acceptance; no live Figma or release completion is implied."
+    },
+    {
+      "path": "packages/mcp/test/portal/package-config-evidence.test.ts",
+      "sha256": "d822bcfecb05293df3b527016ba7a7e9857702cec3de771fc3df8a2533132d3e",
+      "priorClaims": [],
+      "reason": "Integrate independently reviewed local web frontend/backend, typed workflow state and approval handling, concurrency repairs, required Chrome tests, launch/dependency/docs and fourth-package wiring; include reviewed Chrome tab replacement, AX names and bounded package-config evidence. Preserve failed verification and unknown operations. Require three portal/backend verification rounds plus renewed whole/artifact acceptance; no live Figma or release completion is implied."
+    },
+    {
+      "path": "packages/mcp/test/portal/preview.test.ts",
+      "sha256": "1af0f998c308aad6ad5ce87a9bfd327e0eb981ff5c7cf4881317d9a6b8225821",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "ae7dae942e53a9f1271b8b7c8adc5d570a3f76c044e85fb3ad492567b9789f26"
+        },
+        {
+          "class": "protected",
+          "sha256": "ae7dae942e53a9f1271b8b7c8adc5d570a3f76c044e85fb3ad492567b9789f26"
+        }
+      ],
+      "reason": "Integrate independently reviewed local web frontend/backend, typed workflow state and approval handling, concurrency repairs, required Chrome tests, launch/dependency/docs and fourth-package wiring; include reviewed Chrome tab replacement, AX names and bounded package-config evidence. Preserve failed verification and unknown operations. Require three portal/backend verification rounds plus renewed whole/artifact acceptance; no live Figma or release completion is implied."
+    },
+    {
+      "path": "packages/mcp/test/portal/service-graph.test.ts",
+      "sha256": "ac9d4495e463811513ff0ec26f978fa90be01e7e1005cd73aaac4b2c24cfc05d",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "f1e3811add1865a20a1a3bf5c913004ddeb5ef961740b9cd25fb884777d2b7c8"
+        },
+        {
+          "class": "protected",
+          "sha256": "f1e3811add1865a20a1a3bf5c913004ddeb5ef961740b9cd25fb884777d2b7c8"
+        }
+      ],
+      "reason": "Integrate independently reviewed local web frontend/backend, typed workflow state and approval handling, concurrency repairs, required Chrome tests, launch/dependency/docs and fourth-package wiring; include reviewed Chrome tab replacement, AX names and bounded package-config evidence. Preserve failed verification and unknown operations. Require three portal/backend verification rounds plus renewed whole/artifact acceptance; no live Figma or release completion is implied."
+    },
+    {
+      "path": "packages/portal/package.json",
+      "sha256": "b24e512457d928850cca601504e7fe5c4f9fe0f1d32ccd7d37b5145e4eca5fcb",
+      "priorClaims": [],
+      "reason": "Integrate independently reviewed local web frontend/backend, typed workflow state and approval handling, concurrency repairs, required Chrome tests, launch/dependency/docs and fourth-package wiring; include reviewed Chrome tab replacement, AX names and bounded package-config evidence. Preserve failed verification and unknown operations. Require three portal/backend verification rounds plus renewed whole/artifact acceptance; no live Figma or release completion is implied."
+    },
+    {
+      "path": "packages/portal/src/bridge.ts",
+      "sha256": "15447d4c0a45cad7f2d16969e49415a57347fac4f3a66a06844334ae3712061e",
+      "priorClaims": [],
+      "reason": "Integrate independently reviewed local web frontend/backend, typed workflow state and approval handling, concurrency repairs, required Chrome tests, launch/dependency/docs and fourth-package wiring; include reviewed Chrome tab replacement, AX names and bounded package-config evidence. Preserve failed verification and unknown operations. Require three portal/backend verification rounds plus renewed whole/artifact acceptance; no live Figma or release completion is implied."
+    },
+    {
+      "path": "packages/portal/src/contract.ts",
+      "sha256": "046b0335ef0c0a64f0ef5fc730cd6b00222524f702a520b87ebf373006a285bd",
+      "priorClaims": [],
+      "reason": "Integrate independently reviewed local web frontend/backend, typed workflow state and approval handling, concurrency repairs, required Chrome tests, launch/dependency/docs and fourth-package wiring; include reviewed Chrome tab replacement, AX names and bounded package-config evidence. Preserve failed verification and unknown operations. Require three portal/backend verification rounds plus renewed whole/artifact acceptance; no live Figma or release completion is implied."
+    },
+    {
+      "path": "packages/portal/src/control.ts",
+      "sha256": "1c946916f47c2fddb15f5423c8bb9057e9578832a42afb7235e3ba643f9906c2",
+      "priorClaims": [],
+      "reason": "Integrate independently reviewed local web frontend/backend, typed workflow state and approval handling, concurrency repairs, required Chrome tests, launch/dependency/docs and fourth-package wiring; include reviewed Chrome tab replacement, AX names and bounded package-config evidence. Preserve failed verification and unknown operations. Require three portal/backend verification rounds plus renewed whole/artifact acceptance; no live Figma or release completion is implied."
+    },
+    {
+      "path": "packages/portal/src/index.ts",
+      "sha256": "f093b152c20f41b860b5a59a23ef8fd03173701252a0c301e6cca146168d5087",
+      "priorClaims": [],
+      "reason": "Integrate independently reviewed local web frontend/backend, typed workflow state and approval handling, concurrency repairs, required Chrome tests, launch/dependency/docs and fourth-package wiring; include reviewed Chrome tab replacement, AX names and bounded package-config evidence. Preserve failed verification and unknown operations. Require three portal/backend verification rounds plus renewed whole/artifact acceptance; no live Figma or release completion is implied."
+    },
+    {
+      "path": "packages/portal/src/server.ts",
+      "sha256": "ab10030f84c0bdf7fffac04cba98140157316b0aba5b9e8840b90f8a23382700",
+      "priorClaims": [],
+      "reason": "Integrate independently reviewed local web frontend/backend, typed workflow state and approval handling, concurrency repairs, required Chrome tests, launch/dependency/docs and fourth-package wiring; include reviewed Chrome tab replacement, AX names and bounded package-config evidence. Preserve failed verification and unknown operations. Require three portal/backend verification rounds plus renewed whole/artifact acceptance; no live Figma or release completion is implied."
+    },
+    {
+      "path": "packages/portal/src/store.ts",
+      "sha256": "d0b48571e254c4fcf15d490bb59ed2878067ff57291b14edbe3195f6b572e21c",
+      "priorClaims": [],
+      "reason": "Integrate independently reviewed local web frontend/backend, typed workflow state and approval handling, concurrency repairs, required Chrome tests, launch/dependency/docs and fourth-package wiring; include reviewed Chrome tab replacement, AX names and bounded package-config evidence. Preserve failed verification and unknown operations. Require three portal/backend verification rounds plus renewed whole/artifact acceptance; no live Figma or release completion is implied."
+    },
+    {
+      "path": "packages/portal/test/backend.test.ts",
+      "sha256": "a61f319354b17c378eecafa481045a6c07070efc6905c3ee5c85f44145af782e",
+      "priorClaims": [],
+      "reason": "Integrate independently reviewed local web frontend/backend, typed workflow state and approval handling, concurrency repairs, required Chrome tests, launch/dependency/docs and fourth-package wiring; include reviewed Chrome tab replacement, AX names and bounded package-config evidence. Preserve failed verification and unknown operations. Require three portal/backend verification rounds plus renewed whole/artifact acceptance; no live Figma or release completion is implied."
+    },
+    {
+      "path": "packages/portal/test/browser.test.ts",
+      "sha256": "efacd4e44cb8faaab9f9baf233b1fee3c7dbf571fc320191e51187264ba5bae3",
+      "priorClaims": [],
+      "reason": "Integrate independently reviewed local web frontend/backend, typed workflow state and approval handling, concurrency repairs, required Chrome tests, launch/dependency/docs and fourth-package wiring; include reviewed Chrome tab replacement, AX names and bounded package-config evidence. Preserve failed verification and unknown operations. Require three portal/backend verification rounds plus renewed whole/artifact acceptance; no live Figma or release completion is implied."
+    },
+    {
+      "path": "packages/portal/tsconfig.json",
+      "sha256": "b90d29ce9f4a18aa601f5de55a91b6f611060db01b80dfb6642955c9b4e13715",
+      "priorClaims": [],
+      "reason": "Integrate independently reviewed local web frontend/backend, typed workflow state and approval handling, concurrency repairs, required Chrome tests, launch/dependency/docs and fourth-package wiring; include reviewed Chrome tab replacement, AX names and bounded package-config evidence. Preserve failed verification and unknown operations. Require three portal/backend verification rounds plus renewed whole/artifact acceptance; no live Figma or release completion is implied."
+    },
+    {
+      "path": "packages/portal/tsdown.config.ts",
+      "sha256": "fad4e65c94ba4c6ff68da8f96e3d55361d3c47d79cb8bc5f69856be13316bf6e",
+      "priorClaims": [],
+      "reason": "Integrate independently reviewed local web frontend/backend, typed workflow state and approval handling, concurrency repairs, required Chrome tests, launch/dependency/docs and fourth-package wiring; include reviewed Chrome tab replacement, AX names and bounded package-config evidence. Preserve failed verification and unknown operations. Require three portal/backend verification rounds plus renewed whole/artifact acceptance; no live Figma or release completion is implied."
+    },
+    {
+      "path": "packages/portal/vitest.config.ts",
+      "sha256": "27d74ae348da3ae449598449bc001b68b9c414146148af43b325ea213feb6c5c",
+      "priorClaims": [],
+      "reason": "Integrate independently reviewed local web frontend/backend, typed workflow state and approval handling, concurrency repairs, required Chrome tests, launch/dependency/docs and fourth-package wiring; include reviewed Chrome tab replacement, AX names and bounded package-config evidence. Preserve failed verification and unknown operations. Require three portal/backend verification rounds plus renewed whole/artifact acceptance; no live Figma or release completion is implied."
+    },
+    {
+      "path": "packages/portal/web/api.js",
+      "sha256": "dc87696501913a7af8d9e1e26a298a3368179c36b814734a4880fed0c46fc3de",
+      "priorClaims": [],
+      "reason": "Integrate independently reviewed local web frontend/backend, typed workflow state and approval handling, concurrency repairs, required Chrome tests, launch/dependency/docs and fourth-package wiring; include reviewed Chrome tab replacement, AX names and bounded package-config evidence. Preserve failed verification and unknown operations. Require three portal/backend verification rounds plus renewed whole/artifact acceptance; no live Figma or release completion is implied."
+    },
+    {
+      "path": "packages/portal/web/app.js",
+      "sha256": "dc75a442c0e3d6958b4d7f9cc26e92c1b2298b218b2f9f0cef93bf7ea5f72b92",
+      "priorClaims": [],
+      "reason": "Integrate independently reviewed local web frontend/backend, typed workflow state and approval handling, concurrency repairs, required Chrome tests, launch/dependency/docs and fourth-package wiring; include reviewed Chrome tab replacement, AX names and bounded package-config evidence. Preserve failed verification and unknown operations. Require three portal/backend verification rounds plus renewed whole/artifact acceptance; no live Figma or release completion is implied."
+    },
+    {
+      "path": "packages/portal/web/index.html",
+      "sha256": "b38508ff4d6d5fbbcc31c7f8a55ed6bb4ac9c983936e036d25dec0e309d56384",
+      "priorClaims": [],
+      "reason": "Integrate independently reviewed local web frontend/backend, typed workflow state and approval handling, concurrency repairs, required Chrome tests, launch/dependency/docs and fourth-package wiring; include reviewed Chrome tab replacement, AX names and bounded package-config evidence. Preserve failed verification and unknown operations. Require three portal/backend verification rounds plus renewed whole/artifact acceptance; no live Figma or release completion is implied."
+    },
+    {
+      "path": "packages/portal/web/model.js",
+      "sha256": "baa72ccd8395298036c5964e51e5599e36724d588b8f4bf47c1de75825f8790c",
+      "priorClaims": [],
+      "reason": "Integrate independently reviewed local web frontend/backend, typed workflow state and approval handling, concurrency repairs, required Chrome tests, launch/dependency/docs and fourth-package wiring; include reviewed Chrome tab replacement, AX names and bounded package-config evidence. Preserve failed verification and unknown operations. Require three portal/backend verification rounds plus renewed whole/artifact acceptance; no live Figma or release completion is implied."
+    },
+    {
+      "path": "packages/portal/web/styles.css",
+      "sha256": "26a7e560eb87391d1a4bf4085efbb3c82e2fbd91391053f9e53d4b3ba2083a38",
+      "priorClaims": [],
+      "reason": "Integrate independently reviewed local web frontend/backend, typed workflow state and approval handling, concurrency repairs, required Chrome tests, launch/dependency/docs and fourth-package wiring; include reviewed Chrome tab replacement, AX names and bounded package-config evidence. Preserve failed verification and unknown operations. Require three portal/backend verification rounds plus renewed whole/artifact acceptance; no live Figma or release completion is implied."
+    },
+    {
+      "path": "packages/portal/web/tests/api.test.mjs",
+      "sha256": "41614ffac61ad5b8af0b56c7e226f536f179915537988d1b917aa9a9dbc42762",
+      "priorClaims": [],
+      "reason": "Integrate independently reviewed local web frontend/backend, typed workflow state and approval handling, concurrency repairs, required Chrome tests, launch/dependency/docs and fourth-package wiring; include reviewed Chrome tab replacement, AX names and bounded package-config evidence. Preserve failed verification and unknown operations. Require three portal/backend verification rounds plus renewed whole/artifact acceptance; no live Figma or release completion is implied."
+    },
+    {
+      "path": "packages/portal/web/tests/approval-check.mjs",
+      "sha256": "2f75f89e31a4678571a20da37d133060e2978271be2ef3e6af882dfe23465f3f",
+      "priorClaims": [],
+      "reason": "Integrate independently reviewed local web frontend/backend, typed workflow state and approval handling, concurrency repairs, required Chrome tests, launch/dependency/docs and fourth-package wiring; include reviewed Chrome tab replacement, AX names and bounded package-config evidence. Preserve failed verification and unknown operations. Require three portal/backend verification rounds plus renewed whole/artifact acceptance; no live Figma or release completion is implied."
+    },
+    {
+      "path": "packages/portal/web/tests/chrome-check.mjs",
+      "sha256": "178ea8fdca270183f629f6ed2ebecb018649cd4094c950a46896f80e95ca1092",
+      "priorClaims": [],
+      "reason": "Integrate independently reviewed local web frontend/backend, typed workflow state and approval handling, concurrency repairs, required Chrome tests, launch/dependency/docs and fourth-package wiring; include reviewed Chrome tab replacement, AX names and bounded package-config evidence. Preserve failed verification and unknown operations. Require three portal/backend verification rounds plus renewed whole/artifact acceptance; no live Figma or release completion is implied."
+    },
+    {
+      "path": "packages/portal/web/tests/model.test.mjs",
+      "sha256": "a5856040d47cb945f364b422f052e060b94df05aeea73e58279680be8d21fbf8",
+      "priorClaims": [],
+      "reason": "Integrate independently reviewed local web frontend/backend, typed workflow state and approval handling, concurrency repairs, required Chrome tests, launch/dependency/docs and fourth-package wiring; include reviewed Chrome tab replacement, AX names and bounded package-config evidence. Preserve failed verification and unknown operations. Require three portal/backend verification rounds plus renewed whole/artifact acceptance; no live Figma or release completion is implied."
+    },
+    {
+      "path": "pnpm-lock.yaml",
+      "sha256": "495333d1af84cb634c20df2063e38bfda1754cd80f2c8ea1aa183e4ae438d1b6",
+      "priorClaims": [
+        {
+          "class": "protected",
+          "sha256": "1e304bcc7e9935f013f2195737406ee679c5a112f5dcf02b21cc462b97dab7d8"
+        }
+      ],
+      "reason": "Integrate independently reviewed local web frontend/backend, typed workflow state and approval handling, concurrency repairs, required Chrome tests, launch/dependency/docs and fourth-package wiring; include reviewed Chrome tab replacement, AX names and bounded package-config evidence. Preserve failed verification and unknown operations. Require three portal/backend verification rounds plus renewed whole/artifact acceptance; no live Figma or release completion is implied."
+    },
+    {
+      "path": "scripts/generate-checksums.mjs",
+      "sha256": "19d5d0d0cc962f1a6d06cca3a3a79b1d851137414a9d094379f3d17d87494e83",
+      "priorClaims": [
+        {
+          "class": "protected",
+          "sha256": "d657b7d850e7d7af209d522d5fec94b32f3be7a93df790268d37b8365181e174"
+        }
+      ],
+      "reason": "Integrate independently reviewed local web frontend/backend, typed workflow state and approval handling, concurrency repairs, required Chrome tests, launch/dependency/docs and fourth-package wiring; include reviewed Chrome tab replacement, AX names and bounded package-config evidence. Preserve failed verification and unknown operations. Require three portal/backend verification rounds plus renewed whole/artifact acceptance; no live Figma or release completion is implied."
+    },
+    {
+      "path": "scripts/package-artifacts.mjs",
+      "sha256": "370ddd10917125df1ba8a83a3136ec97fbd594d04437b462c3290c3014825f27",
+      "priorClaims": [
+        {
+          "class": "protected",
+          "sha256": "33affd3844ad8a6ea05aefbb539b843b5005970692683eb327ca0b752ceb0272"
+        }
+      ],
+      "reason": "Integrate independently reviewed local web frontend/backend, typed workflow state and approval handling, concurrency repairs, required Chrome tests, launch/dependency/docs and fourth-package wiring; include reviewed Chrome tab replacement, AX names and bounded package-config evidence. Preserve failed verification and unknown operations. Require three portal/backend verification rounds plus renewed whole/artifact acceptance; no live Figma or release completion is implied."
+    },
+    {
+      "path": "scripts/test-skip-census.mjs",
+      "sha256": "786bd6e9cfdc3b1a729ff594e99edb54e18ab7b0731020d0881ff21006f5c057",
+      "priorClaims": [
+        {
+          "class": "protected",
+          "sha256": "1652937ce00b7701ca29de6fbfbf308622d81a7ae7ba34829a29f5f8d941a90b"
+        }
+      ],
+      "reason": "Integrate independently reviewed local web frontend/backend, typed workflow state and approval handling, concurrency repairs, required Chrome tests, launch/dependency/docs and fourth-package wiring; include reviewed Chrome tab replacement, AX names and bounded package-config evidence. Preserve failed verification and unknown operations. Require three portal/backend verification rounds plus renewed whole/artifact acceptance; no live Figma or release completion is implied."
+    },
+    {
+      "path": "scripts/verify-artifacts.mjs",
+      "sha256": "8b1b3b3b1717dac547cc15fede9b9e5f12a02e35561235146476101f74edd0df",
+      "priorClaims": [
+        {
+          "class": "protected",
+          "sha256": "76afb3983d61e1c4715c6247e8e32bac05ec12ae5cbf84575e4f362c36780d22"
+        }
+      ],
+      "reason": "Integrate independently reviewed local web frontend/backend, typed workflow state and approval handling, concurrency repairs, required Chrome tests, launch/dependency/docs and fourth-package wiring; include reviewed Chrome tab replacement, AX names and bounded package-config evidence. Preserve failed verification and unknown operations. Require three portal/backend verification rounds plus renewed whole/artifact acceptance; no live Figma or release completion is implied."
+    },
+    {
+      "path": "test/artifact-contents.test.ts",
+      "sha256": "d81e57e7b59fb479c03b7647dcf7d5065fbce962f416131a553f20e49d49fbff",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "93caf0b9f0a9756ec750bf77b521a00b73cd57481f893ea11db1c45fb992bbbd"
+        },
+        {
+          "class": "protected",
+          "sha256": "93caf0b9f0a9756ec750bf77b521a00b73cd57481f893ea11db1c45fb992bbbd"
+        }
+      ],
+      "reason": "Integrate independently reviewed local web frontend/backend, typed workflow state and approval handling, concurrency repairs, required Chrome tests, launch/dependency/docs and fourth-package wiring; include reviewed Chrome tab replacement, AX names and bounded package-config evidence. Preserve failed verification and unknown operations. Require three portal/backend verification rounds plus renewed whole/artifact acceptance; no live Figma or release completion is implied."
+    },
+    {
+      "path": "test/package-artifacts-hermetic.test.ts",
+      "sha256": "929b79e8ad891f678f1d9ef42ca619e4ce789ee44feb0f5a7b353aaa48985adc",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "a8ef7689257c8b65749b97277d9ff9833c46496b48a82322c2a06e3265be6679"
+        },
+        {
+          "class": "protected",
+          "sha256": "a8ef7689257c8b65749b97277d9ff9833c46496b48a82322c2a06e3265be6679"
+        }
+      ],
+      "reason": "Integrate independently reviewed local web frontend/backend, typed workflow state and approval handling, concurrency repairs, required Chrome tests, launch/dependency/docs and fourth-package wiring; include reviewed Chrome tab replacement, AX names and bounded package-config evidence. Preserve failed verification and unknown operations. Require three portal/backend verification rounds plus renewed whole/artifact acceptance; no live Figma or release completion is implied."
+    },
+    {
+      "path": "test/portal-artifact-startup.test.ts",
+      "sha256": "0a57ddffc549efcb657e8589c9902d069491e8efa5cc5d06110bb3a34c85b7bc",
+      "priorClaims": [],
+      "reason": "Integrate independently reviewed local web frontend/backend, typed workflow state and approval handling, concurrency repairs, required Chrome tests, launch/dependency/docs and fourth-package wiring; include reviewed Chrome tab replacement, AX names and bounded package-config evidence. Preserve failed verification and unknown operations. Require three portal/backend verification rounds plus renewed whole/artifact acceptance; no live Figma or release completion is implied."
+    }
+  ]
+}

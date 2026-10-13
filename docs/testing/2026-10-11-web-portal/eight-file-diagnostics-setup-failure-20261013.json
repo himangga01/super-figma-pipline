@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "at": "2026-10-13T12:12:08.193Z",
+  "kind": "diagnostics-setup-failure-preserved",
+  "code": "ERR_UNSUPPORTED_TYPESCRIPT_SYNTAX",
+  "requiredTransformFlagOmitted": true,
+  "catalogMutationObserved": false,
+  "verifiedMainNativeBeforeHash": "e3d89bb25c38af68554d1d2a04ca441161ce83ad8d3c2addda8e8553e9ddc405",
+  "ownerIndexUnchanged": true
+}

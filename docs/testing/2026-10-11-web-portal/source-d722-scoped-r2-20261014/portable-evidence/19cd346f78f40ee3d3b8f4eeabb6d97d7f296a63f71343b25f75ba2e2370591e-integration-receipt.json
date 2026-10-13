@@ -1,0 +1,104 @@
+{
+  "schemaVersion": 1,
+  "kind": "reviewed-source-diagnostic-main-native-integration",
+  "at": "2026-10-13T17:59:05.761Z",
+  "baselineSource": "sha256:e2831adb29e5f4b12b8271c88e5c5d8a027e7894614eab099ed303f919d2ca2d",
+  "manifestHash": "6c9ede4b418d69d19602ae40c8d72afd09e1396f289f8f83d719a9d7778f7cc7",
+  "approvalHash": "cdd87b69878fe0865851a7a23cb1b1079857adb2f75be86b7e7673b618d4ea48",
+  "implementationHash": "c08f81b6613090dceb236604e7e6fbba929f71df40c4a72219357ad324f32467",
+  "indexHash": "ecc1808ab3e14fa2e8c233ae1fc1c91e0a33b5b2e383a7270f1bc3068997e675",
+  "attempts": [
+    {
+      "path": "service/packages/cli/src/figma-page-reader.ts",
+      "beforeHash": "f346bb9781c7bd44392821529dee9db9b2a70fb2ae35c1a1600bc07f8981ccd0",
+      "afterHash": "daeb45dee99dbff9a09cc2f49c7c635c2cd44d310216b6d34782d61008ad5f4a",
+      "status": "verified",
+      "mutationStarted": true,
+      "intentAt": "2026-10-13T17:59:05.768Z",
+      "verifiedAt": "2026-10-13T17:59:05.775Z",
+      "observedHash": "daeb45dee99dbff9a09cc2f49c7c635c2cd44d310216b6d34782d61008ad5f4a"
+    },
+    {
+      "path": ".worktrees/baseline/service/packages/cli/src/figma-page-reader.ts",
+      "beforeHash": "f346bb9781c7bd44392821529dee9db9b2a70fb2ae35c1a1600bc07f8981ccd0",
+      "afterHash": "daeb45dee99dbff9a09cc2f49c7c635c2cd44d310216b6d34782d61008ad5f4a",
+      "status": "verified",
+      "mutationStarted": true,
+      "intentAt": "2026-10-13T17:59:05.780Z",
+      "verifiedAt": "2026-10-13T17:59:05.787Z",
+      "observedHash": "daeb45dee99dbff9a09cc2f49c7c635c2cd44d310216b6d34782d61008ad5f4a"
+    },
+    {
+      "path": "service/packages/mcp/src/portal/native-work.ts",
+      "beforeHash": "ea1829c2196b44e4272bcbb105d2de678707246d3713ac137c853a3d05cd41cf",
+      "afterHash": "d4b50bb1f626ba3b21968cd6872f2ac989e83e511dec0321652b5301d641bbc5",
+      "status": "verified",
+      "mutationStarted": true,
+      "intentAt": "2026-10-13T17:59:05.791Z",
+      "verifiedAt": "2026-10-13T17:59:05.799Z",
+      "observedHash": "d4b50bb1f626ba3b21968cd6872f2ac989e83e511dec0321652b5301d641bbc5"
+    },
+    {
+      "path": ".worktrees/baseline/service/packages/mcp/src/portal/native-work.ts",
+      "beforeHash": "ea1829c2196b44e4272bcbb105d2de678707246d3713ac137c853a3d05cd41cf",
+      "afterHash": "d4b50bb1f626ba3b21968cd6872f2ac989e83e511dec0321652b5301d641bbc5",
+      "status": "verified",
+      "mutationStarted": true,
+      "intentAt": "2026-10-13T17:59:05.805Z",
+      "verifiedAt": "2026-10-13T17:59:05.812Z",
+      "observedHash": "d4b50bb1f626ba3b21968cd6872f2ac989e83e511dec0321652b5301d641bbc5"
+    },
+    {
+      "path": "service/packages/cli/test/figma-page-identity-diagnostics.test.ts",
+      "beforeHash": null,
+      "afterHash": "41c0f6bb259be4663d83211cede8218d87d8ab3299e35162d2619a4dca119cdc",
+      "status": "verified",
+      "mutationStarted": true,
+      "intentAt": "2026-10-13T17:59:05.815Z",
+      "createdIdentity": "4174130065:1688849863559446",
+      "verifiedAt": "2026-10-13T17:59:05.826Z",
+      "observedHash": "41c0f6bb259be4663d83211cede8218d87d8ab3299e35162d2619a4dca119cdc"
+    },
+    {
+      "path": ".worktrees/baseline/service/packages/cli/test/figma-page-identity-diagnostics.test.ts",
+      "beforeHash": null,
+      "afterHash": "41c0f6bb259be4663d83211cede8218d87d8ab3299e35162d2619a4dca119cdc",
+      "status": "verified",
+      "mutationStarted": true,
+      "intentAt": "2026-10-13T17:59:05.830Z",
+      "createdIdentity": "4174130065:1970324840270103",
+      "verifiedAt": "2026-10-13T17:59:05.842Z",
+      "observedHash": "41c0f6bb259be4663d83211cede8218d87d8ab3299e35162d2619a4dca119cdc"
+    },
+    {
+      "path": "service/packages/mcp/test/portal/source-refresh-diagnostic.test.ts",
+      "beforeHash": null,
+      "afterHash": "33353d65bf4e42c8c8e61e0b8908b8325e1ba4fd8f2f52b15df053d70692efd8",
+      "status": "verified",
+      "mutationStarted": true,
+      "intentAt": "2026-10-13T17:59:05.845Z",
+      "createdIdentity": "4174130065:1125899910138136",
+      "verifiedAt": "2026-10-13T17:59:05.857Z",
+      "observedHash": "33353d65bf4e42c8c8e61e0b8908b8325e1ba4fd8f2f52b15df053d70692efd8"
+    },
+    {
+      "path": ".worktrees/baseline/service/packages/mcp/test/portal/source-refresh-diagnostic.test.ts",
+      "beforeHash": null,
+      "afterHash": "33353d65bf4e42c8c8e61e0b8908b8325e1ba4fd8f2f52b15df053d70692efd8",
+      "status": "verified",
+      "mutationStarted": true,
+      "intentAt": "2026-10-13T17:59:05.862Z",
+      "createdIdentity": "4174130065:1125899910138137",
+      "verifiedAt": "2026-10-13T17:59:05.875Z",
+      "observedHash": "33353d65bf4e42c8c8e61e0b8908b8325e1ba4fd8f2f52b15df053d70692efd8"
+    }
+  ],
+  "status": "integrated",
+  "sourceIntegrated": true,
+  "runtimeDeployed": false,
+  "liveAcceptance": false,
+  "automaticReplayAllowed": false,
+  "atomicAcrossFiles": false,
+  "sourceHash": "sha256:195ba986e0ea9ec4e7624b4cae581a553c15ea486428ddc340b0eb1a0c4a6ba4",
+  "completedAt": "2026-10-13T17:59:06.671Z"
+}

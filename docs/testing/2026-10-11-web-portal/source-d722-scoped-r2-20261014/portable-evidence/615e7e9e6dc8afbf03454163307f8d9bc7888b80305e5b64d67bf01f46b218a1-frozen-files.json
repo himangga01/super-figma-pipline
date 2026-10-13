@@ -1,0 +1,20 @@
+{
+    "guardCriteriaUnchanged":  true,
+    "files":  [
+                  {
+                      "beforeSha256":  "33353d65bf4e42c8c8e61e0b8908b8325e1ba4fd8f2f52b15df053d70692efd8",
+                      "path":  "packages/mcp/test/portal/source-refresh-diagnostic.test.ts",
+                      "afterSha256":  "0eb0aa3d6965c13f79b03bb1d1dfcb63b9eb1b91f5ab3978c7547d5938d4eb21",
+                      "bytes":  3047
+                  }
+              ],
+    "reason":  "Actual final changed lint rejected no-unsafe-finally; move unchanged guarded cleanup to afterEach",
+    "kind":  "diagnostic-test-cleanup-after-each-only",
+    "schemaVersion":  1,
+    "verification":  {
+                         "changedFileFormatExitCode":  0,
+                         "changedFileLintExitCode":  0,
+                         "typesRepeated":  false,
+                         "threePassedLogAssertionsRepeated":  false
+                     }
+}

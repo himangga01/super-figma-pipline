@@ -1,0 +1,27 @@
+{
+  "schemaVersion": 1,
+  "kind": "normalized-actual-main-preimages-author-freeze-preserved",
+  "authorManifest": {
+    "path": ".worktrees/_cache/c2-c3-implementation-20261014/c2-package-config-members-repair-r1/frozen-package-config-members.json",
+    "sha256": "be91a8a67d8ae5d37ed014872cb371798bf0a5912a4fdd359b167e5fbf0e6a65"
+  },
+  "actualIntegration": {
+    "path": "docs/testing/2026-10-11-web-portal/c2-package-config-members-integration-20261014.json",
+    "sha256": "025da3ae11ac825276e9bbc4baf03fbc5e45ae64e92b661855317ce70d9811f9"
+  },
+  "files": [
+    {
+      "path": "packages/mcp/src/portal/service-graph.ts",
+      "beforeSha256": "ec6a6f1a6c36873b64aa701ae2b4b1caf67f051bf090d4da3c8b47d745b6e43e",
+      "afterSha256": "e3a725707655e699e987b41e1c342a9c119c428a802963f5624f0eb9c4d10f7c",
+      "bytes": 32165
+    },
+    {
+      "path": "packages/mcp/test/portal/service-graph.test.ts",
+      "beforeSha256": "1d7ffde27e28beb59da91172b06e2d2a137d2b815a0a340f2972ad329dd6d9cc",
+      "afterSha256": "a4d238f8053115a687c5c045eee3fb9ed8995ed50cda19d2a55d5955c6be3bc8",
+      "bytes": 29514
+    }
+  ],
+  "reason": "Actual eighth paired integration, author before/after fields unchanged"
+}

@@ -1,0 +1,26 @@
+{
+  "schemaVersion": 1,
+  "kind": "normal-generated-r69-diagnostic-catalog",
+  "at": "2026-10-13T21:18:29.077Z",
+  "baselineSource": "sha256:1790a1dc140343d8f0982ff5a83083cdbea99834f21f20ed88c5d95e17e006f3",
+  "ownerIndexHash": "ecc1808ab3e14fa2e8c233ae1fc1c91e0a33b5b2e383a7270f1bc3068997e675",
+  "status": "failed-preserve-partial",
+  "command": {
+    "exitCode": 0,
+    "elapsedMs": 4178,
+    "logSha256": "a19a6d7c9b30bd6b925c2c2e90e4d42e361986c5107ac795addbe5641d1a3d49",
+    "summary": "Updated diagnostics catalog (1982 codes, 464 modules, 339 labels)"
+  },
+  "mainAttempt": {
+    "path": "service/packages/mcp/src/diagnostics-catalog.ts",
+    "beforeHash": "19ab236e3e969996da9b49dbd75c72bc7535f73c636113a2dc7a4aefde241753",
+    "afterHash": null,
+    "status": "not-started",
+    "mutationStarted": false
+  },
+  "whole": false,
+  "runtimeDeployed": false,
+  "liveAcceptance": false,
+  "automaticReplayAllowed": false,
+  "code": "NEW_DIAGNOSTIC_NOT_GENERATED"
+}

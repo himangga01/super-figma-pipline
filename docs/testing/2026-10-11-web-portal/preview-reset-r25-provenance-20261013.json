@@ -1,0 +1,54 @@
+{
+  "version": 1,
+  "at": "2026-10-13T05:27:54.568Z",
+  "sourceHash": "sha256:1de53379d5742ccb8be95c0a7b7fc0f98528db79e846d4b2c482c641b8aeb00a",
+  "entries": [
+    {
+      "path": "upstream-lock.json",
+      "before": "17a2d6877134c4972ff69beac37184ccf98079d78d90c01e4887555c17addfce",
+      "after": "1ecd46c69314cfdece8f406ebd2e589de5a587c7c419762010570671bdbeecd4"
+    },
+    {
+      "path": "vendor-map.json",
+      "before": "b3275c7d8b997d1cfe723d97594659f77d7b4361b824a790bcfdd7ff762589bd",
+      "after": "b3275c7d8b997d1cfe723d97594659f77d7b4361b824a790bcfdd7ff762589bd"
+    },
+    {
+      "path": "vendor-rules.json",
+      "before": "30e431140eddfa38c2624cde0b7d4c5d31f3f1852dc826e10577c25a872bcf37",
+      "after": "de6e56d726ed51a2c3048ec4a03e5d149c08ee086fc5c1dd3fe32d62f306bff3"
+    },
+    {
+      "path": "capabilities/change-manifests/task-review-2026-10-10.json",
+      "before": "1c1d55422078c2b153edcfef686bf15454f7919252ffacda80d93de753bdb251",
+      "after": "b4c8a42d124b9d1d31c115b8bf513fd0a81282fb1ee83aca993e52e37afb372a"
+    },
+    {
+      "path": "capabilities/task-review-2026-10-10-authority-classes.json",
+      "before": "ab0aab9d542b42de42af555e92bbfcc2528f38cfabb23318cc03aed7f74edee3",
+      "after": "dc8caf41414e3ec1366deba984247a444a0c4ee296d06ef8864f545916696c85"
+    },
+    {
+      "path": "capabilities/reconciliations/review-2026-10-10-preview-reset-2026-10-13.json",
+      "before": null,
+      "after": "ff2f34e6f77b5b0d853abc7ab0554ca59efd987a1b18aad3176a46055e836e41"
+    }
+  ],
+  "semanticChanges": 255,
+  "derivedAuthorities": 4,
+  "ownerIndexBaseline": "ecc1808ab3e14fa2e8c233ae1fc1c91e0a33b5b2e383a7270f1bc3068997e675",
+  "ownerIndexUnchangedByReconciliation": true,
+  "independentOwnedChromeReset": {
+    "passed": 5,
+    "failed": 0,
+    "skipped": 0
+  },
+  "causalOriginalReset": {
+    "passedAssertions": 1,
+    "processExitCode": 1,
+    "historicalWholeSocketProven": false
+  },
+  "wholePassed": false,
+  "runtimeReplaced": false,
+  "officialLive": "deferred-by-owner"
+}

@@ -1,0 +1,73 @@
+{
+  "schemaVersion": 1,
+  "slice": "review-2026-10-10",
+  "baseline": {
+    "headCommit": "22517932dc9b2cb974c177ec4eacb84d4b16e254",
+    "authoritySha256": {
+      "upstream-lock.json": "020cff714d44331d9ddf32d84d10e62008b76d56f25c6cccefbe7d27a3cb37a6",
+      "vendor-map.json": "b3275c7d8b997d1cfe723d97594659f77d7b4361b824a790bcfdd7ff762589bd",
+      "vendor-rules.json": "1c2a23ba169ee5689c587702aafcbd5c61eafb7161fbac08c6d2b0ebfccd0b02"
+    }
+  },
+  "entries": [
+    {
+      "path": "SBOM.spdx.json",
+      "sha256": "c7cdf0800f2ffa5d6b124197952a55279f97ceac78c2749f59293def04f58596",
+      "priorClaims": [
+        {
+          "class": "protected",
+          "sha256": "29e78604bb8e859fc1551df4d5c8519ccfe66760cc6b6a66754728828bd8b344"
+        }
+      ],
+      "reason": "Decode independent vector paths with precise scale, open contours, coincident closure and unfilled branches. Preserve fill geometry and leave styled unsupported networks unknown. Four regressions failed first, 18 focused cases pass and both stored-input comparisons retain zero unexplained node differences. Generate the SBOM before freezing verification with an explicit source epoch."
+    },
+    {
+      "path": "capabilities/task-review-2026-10-10-authority-classes.json",
+      "sha256": "db0e75292e7a1d6065e2c98f66ede53a75e0836e43fc639f4e2ebe57fb2c7bd2",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "852a89c50a9b5eb2252298de0fa166a2628c9b1f1544700399e3dc5982ef3428"
+        },
+        {
+          "class": "protected",
+          "sha256": "852a89c50a9b5eb2252298de0fa166a2628c9b1f1544700399e3dc5982ef3428"
+        }
+      ],
+      "reason": "Decode independent vector paths with precise scale, open contours, coincident closure and unfilled branches. Preserve fill geometry and leave styled unsupported networks unknown. Four regressions failed first, 18 focused cases pass and both stored-input comparisons retain zero unexplained node differences. Generate the SBOM before freezing verification with an explicit source epoch."
+    },
+    {
+      "path": "packages/cli/src/figma-native-nodes.ts",
+      "sha256": "4307b1bb3ef050d482a8179eb9db059116683cd253211b34a5dd86eed08d1f01",
+      "priorClaims": [
+        {
+          "class": "protected",
+          "sha256": "bef3eb99decfc751d05b51625eb80cc9824f9d6f46373c686e0935bc09a202ee"
+        }
+      ],
+      "reason": "Decode independent vector paths with precise scale, open contours, coincident closure and unfilled branches. Preserve fill geometry and leave styled unsupported networks unknown. Four regressions failed first, 18 focused cases pass and both stored-input comparisons retain zero unexplained node differences. Generate the SBOM before freezing verification with an explicit source epoch."
+    },
+    {
+      "path": "packages/cli/src/figma-native-vector-network.ts",
+      "sha256": "a3796389e959322dc3e4f6c627c3406a9800de1b672ab655d16f26bf96d67b8f",
+      "priorClaims": [
+        {
+          "class": "protected",
+          "sha256": "b7ca1e6c023c31cda882491e1495bcb392f5c5e633d3e1a89305dcf573bd622c"
+        }
+      ],
+      "reason": "Decode independent vector paths with precise scale, open contours, coincident closure and unfilled branches. Preserve fill geometry and leave styled unsupported networks unknown. Four regressions failed first, 18 focused cases pass and both stored-input comparisons retain zero unexplained node differences. Generate the SBOM before freezing verification with an explicit source epoch."
+    },
+    {
+      "path": "packages/cli/test/figma-native-vector-network.test.ts",
+      "sha256": "e688a58d4d34a468edf810289552c8bb22966fd16b4e4564d34783f3bd76813a",
+      "priorClaims": [
+        {
+          "class": "protected",
+          "sha256": "d264537e0f6b369d58223e15fa0b559a4fbb879ab7ce90f5253f889efa40cb43"
+        }
+      ],
+      "reason": "Decode independent vector paths with precise scale, open contours, coincident closure and unfilled branches. Preserve fill geometry and leave styled unsupported networks unknown. Four regressions failed first, 18 focused cases pass and both stored-input comparisons retain zero unexplained node differences. Generate the SBOM before freezing verification with an explicit source epoch."
+    }
+  ]
+}

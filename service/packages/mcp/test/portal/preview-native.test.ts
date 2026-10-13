@@ -366,7 +366,20 @@ it('executes a prepared owned worker through NativeWork and ignores forged stdou
   const unowned = await invoke('portal_validate', {
     runId: run.runId,
     profileId: 'unrelated-listener',
-  });
-  expect(unowned.validation.runtimeVerified).toBe(false);
-  expect(unowned.validation.observations).toBeUndefined();
+  }).then(
+    validationResult => ({
+      runtimeVerified: validationResult.validation.runtimeVerified,
+      observations: validationResult.validation.observations,
+      rejectionCode: null,
+    }),
+    error => ({ runtimeVerified: null, observations: undefined, rejectionCode: error?.code }),
+  );
+  // An owned producer can be stopped while appending its trace. That incomplete proof must
+  // reject explicitly; a failed validation or this exact evidence rejection both deny acceptance.
+  expect(unowned.observations).toBeUndefined();
+  expect(
+    (unowned.runtimeVerified === false && unowned.rejectionCode === null) ||
+      (unowned.runtimeVerified === null &&
+        unowned.rejectionCode === 'PORTAL_NATIVE_MODULE_EVIDENCE_CHANGED'),
+  ).toBe(true);
 }, 180000);

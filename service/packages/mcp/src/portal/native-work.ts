@@ -1,5 +1,6 @@
+import { randomUUID } from 'node:crypto';
 /* eslint-disable no-await-in-loop -- source copying and journaled compare-and-swap writes have strict ordering */
-import { lstat, mkdtemp } from 'node:fs/promises';
+import { lstat, mkdtemp, readdir } from 'node:fs/promises';
 import { dirname, isAbsolute, join, relative, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -19,6 +20,7 @@ import {
   PortalIdSchema,
   PortalPathSchema,
   type PortalAcceptance,
+  type PortalSourcePreparationResult,
   type WorkspacePolicy,
 } from '@sfp/shared';
 import {
@@ -31,6 +33,7 @@ import { z } from 'zod';
 import { parseFigmaTarget } from '../../../cli/src/figma-url.js';
 import { PortalObservationManifestSchema } from '../../../shared/src/portal-observations.js';
 import { PortalRecipeUseSchema } from '../../../shared/src/portal-recipe-use.js';
+import { diagnose, diagnosticError } from '../diagnostics.js';
 import {
   AtomicFileStore,
   readFileWithinLimit,
@@ -43,6 +46,7 @@ import {
   type BoundStatePermissions,
 } from '../security/state-permissions.js';
 import { resolvePortalAuthority, rootIdentity, type PortalAuthority } from './authority.js';
+import { PortalCaptureError } from './capture-failure.js';
 import { provePortalPngReexport } from './capture-freshness.js';
 import { portalContentBytes, type PortalFileContent } from './content.js';
 import type { PortalWorkPort } from './coordinator.js';
@@ -62,6 +66,7 @@ import {
   verifyNativeArtifactAuthority,
   verifyNativeOutputReceipts,
 } from './native-artifacts.js';
+import type { PortalNativeContourAcquisitionPort } from './native-contours.js';
 import {
   NativeDirectoryCreationSchema,
   inspectNativeDirectoryCreation,
@@ -91,6 +96,20 @@ import {
   portalMaterialFiles,
   assertPortalMaterialFiles,
 } from './profile-closure.js';
+import {
+  REACT_ROUTER_INPUT_PREFIX,
+  captureReactRouterCompilerSource,
+  compilerSourceBytes,
+  prepareReactRouterCompilerProfile,
+  captureReactRouterCompilerEvidence,
+  verifyReactRouterCompilerEvidence,
+  retireReactRouterCompilerEvidence,
+  reactRouterCompilerEvidenceExpired,
+  type ReactRouterCompilerEvidence,
+  type ReactRouterCompilerSource,
+  reactRouterCompilerProfileMatchesSource,
+  compilerRunDiagnostics,
+} from './react-router-compiler-evidence.js';
 import { loadCoreConsumptionInput } from './recipes/consumption-input.js';
 import { verifyCoreConsumptionExecution } from './recipes/consumption-receipt.js';
 import { compileCoreConsumption, attachCoreConsumption } from './recipes/core-consumption.js';
@@ -104,6 +123,15 @@ import { PortalStore, portalError } from './store.js';
 import { verifyPortalVisualEvidence } from './visual-evidence.js';
 
 /** Owner-reviewed assertions map concrete native commands to acceptance requirements. */
+const SourcePreparationSchema = z
+  .object({
+    sourceId: PortalHashSchema,
+    packageContextRoot: z.string().min(1).max(2048),
+    sourceInventoryHash: PortalHashSchema.optional(),
+    preparationId: z.string().uuid().optional(),
+    issuerDeadlineAt: z.number().int().positive().optional(),
+  })
+  .strict();
 export const PortalNativeProfileSchema = z
   .object({
     schemaVersion: z.literal(1),
@@ -112,6 +140,8 @@ export const PortalNativeProfileSchema = z
     ownerId: z.string().min(1),
     planId: PortalIdSchema,
     contextHash: PortalHashSchema,
+    purpose: z.enum(['acceptance', 'source-preparation']).optional(),
+    sourcePreparation: SourcePreparationSchema.optional(),
     native: NativeProfileSchema,
     observationManifest: PortalObservationManifestSchema.optional(),
     recipeUse: PortalRecipeUseSchema.optional(),
@@ -161,6 +191,13 @@ export const PortalNativeProfileSchema = z
   })
   .strict()
   .superRefine((profile, ctx) => {
+    if ((profile.purpose === 'source-preparation') !== (profile.sourcePreparation !== undefined))
+      ctx.addIssue({ code: 'custom', message: 'PORTAL_PROFILE_PURPOSE_MISMATCH' });
+    if (
+      profile.purpose === 'source-preparation' &&
+      (profile.recipeUse || profile.observationManifest)
+    )
+      ctx.addIssue({ code: 'custom', message: 'PORTAL_COMPILER_ACCEPTANCE_FIELDS_REJECTED' });
     const commands = new Set(profile.native.commands.map(command => command.id));
     if (profile.assertions.some(assertion => !commands.has(assertion.commandId)))
       ctx.addIssue({
@@ -181,6 +218,8 @@ export const PortalNativeRegistrationSchema = z
     sourceAuthorityVersion: PortalSourceAuthorityVersionSchema,
     planId: PortalIdSchema,
     contextHash: PortalHashSchema,
+    purpose: z.enum(['acceptance', 'source-preparation']).optional(),
+    sourcePreparation: SourcePreparationSchema.optional(),
     native: NativeProfileSchema,
     observationManifest: PortalObservationManifestSchema.optional(),
     recipeUse: PortalRecipeUseSchema.optional(),
@@ -191,8 +230,20 @@ export const PortalNativeRegistrationSchema = z
 /** Canonical owner-reviewed public body; legacy stored records remain readable for recovery. */
 export const PortalPreparedNativeProfileSchema = PortalNativeRegistrationSchema.extend({
   preparedContractVersion: z.literal(2),
-  recipeUse: PortalRecipeUseSchema,
+  recipeUse: PortalRecipeUseSchema.optional(),
 }).superRefine((profile, ctx) => {
+  if (profile.purpose === 'source-preparation') {
+    if (
+      !profile.sourcePreparation ||
+      !profile.native.artifactAuthority ||
+      profile.recipeUse ||
+      profile.observationManifest ||
+      profile.native.environmentAuthority ||
+      profile.native.resources
+    )
+      ctx.addIssue({ code: 'custom', message: 'PORTAL_COMPILER_PROFILE_PREPARATION_REQUIRED' });
+    return;
+  }
   if (
     !profile.recipeUse?.prepared ||
     !profile.native.artifactAuthority ||
@@ -254,7 +305,48 @@ const exists = async (path: string) =>
   });
 
 /** Native execution and source publication. Reference roots are always read-only. */
+/** Logging preserves the failed acceptance and supplies no source authority. */
+export function diagnosePortalLiveRefreshFailure(error: unknown, runId: string): void {
+  diagnose(
+    'portal.native.live-refresh-failed',
+    {
+      runId,
+      phase:
+        error instanceof PortalCaptureError
+          ? error.diagnostic.stage
+          : 'portal.native.live-refresh-failed',
+      outcome: 'failed',
+      ...(error instanceof PortalCaptureError
+        ? {
+            errorCode: error.diagnostic.code,
+            functionName: error.diagnostic.type,
+            durationMs: error.diagnostic.elapsedMs,
+          }
+        : {}),
+    },
+    error,
+    'warn',
+  );
+}
+
 export class PortalNativeWork implements PortalWorkPort {
+  private readonly compilerEvidence = new Map<string, ReactRouterCompilerEvidence>();
+  #freshCompilerProfiles = new WeakMap<
+    PortalNativeProfile,
+    {
+      request: object;
+      native: PortalNativeProfile['native'];
+      source: ReactRouterCompilerSource;
+      profileHash: string;
+      sourceInputHash: string;
+    }
+  >();
+  private readonly pendingSourceProfiles = new Set<string>();
+  private readonly sourceProfiles = new Map<
+    string,
+    { profile: PortalNativeProfile; hash: string; registered: boolean }
+  >();
+  private compilerDirectoryTail: Promise<void> = Promise.resolve();
   private readonly jobs = new Map<
     string,
     { controller: AbortController; done: Promise<unknown> }
@@ -274,6 +366,8 @@ export class PortalNativeWork implements PortalWorkPort {
       designCapture?: PortalDesignCapturePort;
       validatorModuleUrl?: string;
       chromeExecutable?: string;
+      /** Lookup-only protected supplement already acquired in admitted coherent capture. */
+      nativeContourAcquisition?: PortalNativeContourAcquisitionPort;
       environmentArchivePolicy?: NativeAttemptArchivePolicy;
     },
   ) {
@@ -307,7 +401,512 @@ export class PortalNativeWork implements PortalWorkPort {
   async close(): Promise<void> {
     await Promise.all([...this.jobs.keys()].map(runId => this.cancel(runId)));
     await this.runner.close();
+    for (const value of this.compilerEvidence.values()) retireReactRouterCompilerEvidence(value);
+    this.compilerEvidence.clear();
+    this.sourceProfiles.clear();
+    this.#freshCompilerProfiles = new WeakMap();
   }
+
+  private assertIssuedSourceProfile(profile: PortalNativeProfile) {
+    const id = profile.sourcePreparation?.preparationId,
+      issued = id && this.sourceProfiles.get(id);
+    if (
+      !issued ||
+      profile.sourcePreparation?.issuerDeadlineAt === undefined ||
+      Date.now() >= profile.sourcePreparation.issuerDeadlineAt ||
+      issued.hash !== contentHash('sfp-prepared-profile-v2', profile)
+    )
+      throw portalError('PORTAL_PROFILE_PREPARATION_ISSUER_UNAVAILABLE');
+    return issued;
+  }
+  retireSourceProfile(id: string): void {
+    this.sourceProfiles.delete(id);
+  }
+  sourceProfileIssuerAvailable(id: string): boolean {
+    const entry = this.sourceProfiles.get(id);
+    return !!entry && Date.now() < (entry.profile.sourcePreparation?.issuerDeadlineAt ?? 0);
+  }
+  async profilePreparationRows<T>(schema: import('zod').ZodType<T>): Promise<T[]> {
+    const folder = join(this.options.stateRoot, 'portal', 'profile-preparations');
+    const names = await readdir(folder).catch(error => {
+      if (error.code === 'ENOENT') return [];
+      throw error;
+    });
+    const committed = names.filter(name => /^[-a-f0-9]{36}\.json$/u.test(name));
+    if (
+      committed.length > 64 ||
+      names.some(
+        name =>
+          !/^[-a-f0-9]{36}\.json$/u.test(name) &&
+          !/^\.[-a-f0-9]{36}\.json\.[a-f0-9]{32}\.(?:sfp-tmp|replace-retained)$/u.test(name),
+      )
+    )
+      throw portalError('PORTAL_PROFILE_PREPARATION_CAPACITY');
+    const rows: T[] = [];
+    for (const name of committed) {
+      const value = await this.options.store.get('profile-preparations', name.slice(0, -5), schema);
+      if (value) rows.push(value);
+    }
+    return rows;
+  }
+  hasPendingSourcePreparation(runId: string): boolean {
+    return this.pendingSourceProfiles.has(runId);
+  }
+  async sourceProfileJob<T>(
+    profile: PortalNativeProfile,
+    signal: AbortSignal,
+    deadlineAt: number,
+    action: (signal: AbortSignal) => Promise<T>,
+  ): Promise<T> {
+    const runId = profile.planId;
+    if (this.pendingSourceProfiles.has(runId)) throw portalError('PORTAL_NATIVE_RUN_BUSY');
+    this.pendingSourceProfiles.add(runId);
+    try {
+      return await this.owned(runId, signal, deadlineAt, async bounded => {
+        bounded.throwIfAborted();
+        const plan = await this.options.store.get('plans', profile.planId, PortalPlanSchema);
+        bounded.throwIfAborted();
+        const run = await this.options.store.get('runs', profile.planId, PortalRunSchema);
+        bounded.throwIfAborted();
+        if (
+          !plan ||
+          !run ||
+          run.runId !== runId ||
+          plan.ownerId !== profile.ownerId ||
+          plan.contextHash !== profile.contextHash ||
+          run.ownerId !== profile.ownerId ||
+          deadlineAt > run.deadlineAt
+        )
+          throw portalError('PORTAL_PROFILE_SOURCE_CHANGED');
+        return action(bounded);
+      });
+    } finally {
+      this.pendingSourceProfiles.delete(runId);
+    }
+  }
+
+  private async compilerSource(plan: PortalPlan, sourceId: string, signal?: AbortSignal) {
+    const profile = plan.profiles.find(p => p.graph.sourceId === sourceId);
+    const repository =
+      profile &&
+      plan.repositories.find(
+        r =>
+          r.workspaceId === profile.workspaceId &&
+          r.role === profile.role &&
+          r.rootPath === profile.rootPath,
+      );
+    if (!profile || !repository || !profile.graph.sourceInventory?.complete)
+      throw portalError('PORTAL_COMPILER_SOURCE_REQUIRED');
+    const reader = new RepoReader({
+      rootDir: repository.canonicalPath,
+      workspaceId: repository.workspaceId,
+      workspacePolicy: this.options.policy,
+      ...(signal ? { signal } : {}),
+      maxTotalBytes: 134_217_728,
+      maxFileBytes: 16_777_216,
+    });
+    const inventory = await collectPortalSourceInventory(reader);
+    if (!inventory.complete || inventory.hash !== profile.graph.sourceInventory.hash)
+      throw portalError('PORTAL_SOURCE_CHANGED');
+    const stat = await lstat(repository.canonicalPath, { bigint: true });
+    if (repository.role === 'target') {
+      const current = await resolvePortalAuthority(
+        this.options.policy,
+        plan.workspaceId,
+        plan.request,
+        plan.planId,
+        plan.implementationScope,
+        plan,
+        true,
+      );
+      const bound = current.roots.find(
+        root =>
+          root.role === 'target' &&
+          root.workspaceId === repository.workspaceId &&
+          root.rootPath === repository.rootPath,
+      );
+      if (
+        !bound ||
+        bound.path !== repository.canonicalPath ||
+        bound.identity !== repository.identity
+      )
+        throw portalError('PORTAL_ROOT_CHANGED');
+    } else if (repository.identity !== String(stat.dev) + ':' + String(stat.ino))
+      throw portalError('PORTAL_ROOT_CHANGED');
+    return {
+      source: await captureReactRouterCompilerSource(reader, sourceId, inventory),
+      inventory,
+    };
+  }
+  async sourceCompilerEvidence(
+    ownerId: string,
+    sourceId: string,
+    sourceInventoryHash: string,
+    signal?: AbortSignal,
+    workspaceId?: string,
+  ): Promise<ReactRouterCompilerEvidence | undefined> {
+    if (!workspaceId) return undefined;
+    const key = ownerId + ':' + workspaceId + ':' + sourceId;
+    const value = this.compilerEvidence.get(key);
+    if (!value) return undefined;
+    if (
+      value.sourceInventoryHash !== sourceInventoryHash ||
+      reactRouterCompilerEvidenceExpired(value)
+    ) {
+      retireReactRouterCompilerEvidence(value);
+      this.compilerEvidence.delete(key);
+      return undefined;
+    }
+    await verifyReactRouterCompilerEvidence(
+      value,
+      ownerId,
+      this.options.leaderGeneration ?? 'process-local',
+      sourceInventoryHash,
+      signal,
+      workspaceId,
+    );
+    return value;
+  }
+  async prepareSource(
+    plan: PortalPlan,
+    run: PortalRun,
+    profileId: string,
+    sourceId: string,
+    deadlineAt: number,
+    authority: PortalAuthority,
+    signal: AbortSignal,
+  ): Promise<PortalSourcePreparationResult> {
+    if (!Number.isSafeInteger(deadlineAt) || deadlineAt > run.deadlineAt)
+      throw portalError('PORTAL_BUDGET_EXHAUSTED');
+    if (plan.ownerId !== run.ownerId || plan.planId !== run.planId)
+      throw portalError('PORTAL_PLAN_NOT_FOUND');
+    if (this.pendingSourceProfiles.has(run.runId)) throw portalError('PORTAL_NATIVE_RUN_BUSY');
+    this.pendingSourceProfiles.add(run.runId);
+    try {
+      return await this.owned(run.runId, signal, Math.min(run.deadlineAt, deadlineAt), bounded =>
+        this.prepareSourceOwned(plan, run, profileId, sourceId, deadlineAt, authority, bounded),
+      );
+    } finally {
+      this.pendingSourceProfiles.delete(run.runId);
+    }
+  }
+  private async prepareSourceOwned(
+    plan: PortalPlan,
+    run: PortalRun,
+    profileId: string,
+    sourceId: string,
+    deadlineAt: number,
+    authority: PortalAuthority,
+    signal: AbortSignal,
+  ): Promise<PortalSourcePreparationResult> {
+    if (!Number.isSafeInteger(deadlineAt) || deadlineAt > run.deadlineAt)
+      throw portalError('PORTAL_BUDGET_EXHAUSTED');
+    if (plan.ownerId !== run.ownerId || plan.planId !== run.planId)
+      throw portalError('PORTAL_PLAN_NOT_FOUND');
+    if (
+      !['needs-input', 'blocked', 'waiting-agent'].includes(run.state) ||
+      run.candidateHash ||
+      run.lease
+    )
+      throw portalError('PORTAL_COMPILER_RUN_STATE_REJECTED');
+    const root = authority.roots.find(
+      r =>
+        (r.role === 'reference' || (r.role === 'target' && plan.requestedCase === 'legacy')) &&
+        plan.profiles.some(
+          p =>
+            p.graph.sourceId === sourceId &&
+            p.workspaceId === r.workspaceId &&
+            p.rootPath === r.rootPath,
+        ),
+    );
+    if (!root) throw portalError('PORTAL_COMPILER_REFERENCE_REQUIRED');
+    const source = await this.compilerSource(plan, sourceId, signal);
+    const key = contentHash('sfp-portal-profile-key-v1', {
+      planId: plan.planId,
+      profileId,
+      candidateHash: source.source.inputHash,
+    }).slice(7);
+    const registered = await this.options.store.get('profiles', key, PortalNativeProfileSchema);
+    if (
+      !registered ||
+      registered.ownerId !== plan.ownerId ||
+      registered.contextHash !== plan.contextHash ||
+      registered.purpose !== 'source-preparation' ||
+      registered.sourcePreparation?.sourceId !== sourceId
+    )
+      throw portalError('PORTAL_COMPILER_PROFILE_REQUIRED');
+    if (
+      this.compilerEvidence.size >= 16 &&
+      !this.compilerEvidence.has(plan.ownerId + ':' + plan.workspaceId + ':' + sourceId)
+    )
+      throw portalError('PORTAL_COMPILER_CAPACITY');
+    if (!this.assertIssuedSourceProfile(registered).registered)
+      throw portalError('PORTAL_PROFILE_PREPARATION_ISSUER_UNAVAILABLE');
+    const revalidationRequest = Object.freeze({});
+    const freshlyPrepared = await this.assertPreparedProfile(
+      registered,
+      signal,
+      revalidationRequest,
+    );
+    const ownedSignal = signal;
+    {
+      const paired = this.takeFreshCompilerProfile(
+        freshlyPrepared,
+        registered,
+        revalidationRequest,
+        source.source.inputHash,
+        Math.min(run.deadlineAt, deadlineAt),
+        ownedSignal,
+      );
+      const native = paired.native,
+        pairedSource = paired.source;
+      ownedSignal.throwIfAborted();
+      const attemptId = contentHash('sfp-portal-source-preparation-attempt-v1', {
+        ownerId: plan.ownerId,
+        runId: run.runId,
+        profileId: native.id,
+        sourceId,
+        profileHash: contentHash('sfp-native-profile-v1', native),
+      }).slice(7);
+      if (await this.options.store.get('compiler-attempts', attemptId, z.unknown()))
+        throw portalError('PORTAL_COMPILER_ALREADY_ATTEMPTED');
+      // Creation is durable and atomic before provision or execution. Unknown/failed attempts
+      // never replay automatically; an explicit newly reviewed profile is required.
+      await this.options.store.create(
+        'compiler-attempts',
+        attemptId,
+        {
+          schemaVersion: 1,
+          ownerId: plan.ownerId,
+          planId: plan.planId,
+          runId: run.runId,
+          sourceId,
+          profileId: native.id,
+          profileHash: contentHash('sfp-native-profile-v1', native),
+          deadlineAt,
+          generation: this.options.leaderGeneration ?? 'process-local',
+          status: 'started',
+        },
+        z.unknown(),
+      );
+      let commandDiagnostics: ReturnType<typeof compilerRunDiagnostics> | undefined;
+      let removeObserver: (() => void) | undefined;
+      try {
+        removeObserver = this.runner.observeCommandDiagnostics?.(
+          {
+            runId: run.runId,
+            profileHash: contentHash('sfp-native-profile-v1', native),
+            deadlineAt: Math.min(run.deadlineAt, deadlineAt),
+          },
+          async (diagnostic, observerScope) => {
+            await this.options.store.update(
+              'compiler-attempts',
+              attemptId,
+              z.record(z.string(), z.unknown()),
+              value => {
+                if (
+                  !observerScope.isCurrent() ||
+                  value.status !== 'started' ||
+                  value.ownerId !== plan.ownerId ||
+                  value.sourceId !== sourceId ||
+                  value.runId !== run.runId ||
+                  value.profileHash !== contentHash('sfp-native-profile-v1', native) ||
+                  value.deadlineAt !== deadlineAt
+                )
+                  throw portalError('PORTAL_COMPILER_DIAGNOSTIC_BINDING_CHANGED');
+                const prior = Array.isArray(value.commandProgress) ? value.commandProgress : [];
+                return {
+                  ...value,
+                  commandProgress: [...prior, diagnostic].slice(-4),
+                  commandProgressUpdatedAt: Date.now(),
+                };
+              },
+            );
+          },
+        );
+      } catch (error) {
+        diagnose(
+          'portal.compiler.diagnostics-write-failed',
+          { runId: run.runId, phase: 'cleanup', outcome: 'failed' },
+          error,
+          'error',
+        );
+      }
+      try {
+        const priorDirectory = this.compilerDirectoryTail;
+        let releaseDirectory!: () => void;
+        this.compilerDirectoryTail = new Promise<void>(resolve => {
+          releaseDirectory = resolve;
+        });
+        let directory: string;
+        try {
+          await priorDirectory;
+          ownedSignal.throwIfAborted();
+          const workRoot = join(this.options.stateRoot, 'portal', 'work');
+          directory = await withRetainedDirectoryChain(
+            this.options.stateRoot,
+            workRoot,
+            async () => {
+              await this.permissions.ensureSecure(join(this.options.stateRoot, 'portal'));
+              await this.permissions.ensureSecure(workRoot);
+              const retained = (await readdir(workRoot)).filter(name =>
+                name.startsWith('compiler-'),
+              );
+              if (retained.length >= 16) throw portalError('PORTAL_COMPILER_CAPACITY');
+              for (const name of retained) {
+                const member = await lstat(join(workRoot, name));
+                if (!member.isDirectory() || member.isSymbolicLink())
+                  throw portalError('PORTAL_NATIVE_ROOT_INVALID');
+              }
+              ownedSignal.throwIfAborted();
+              const path = await mkdtemp(join(workRoot, 'compiler-'));
+              await this.permissions.ensureSecure(path);
+              return path;
+            },
+            { createMissing: true },
+          );
+        } finally {
+          releaseDirectory();
+        }
+        const atomic = new AtomicFileStore({ maxReplaceBytes: 16_777_216 });
+        for (const [path, bytes] of compilerSourceBytes(pairedSource)) {
+          ownedSignal.throwIfAborted();
+          const full = join(directory, REACT_ROUTER_INPUT_PREFIX, path);
+          await withRetainedDirectoryChain(
+            directory,
+            dirname(full),
+            held => atomic.createNew(held.child(path.split('/').at(-1)!), bytes),
+            { createMissing: true },
+          );
+        }
+        const current = await this.compilerSource(plan, sourceId, ownedSignal);
+        if (current.source.inputHash !== source.source.inputHash)
+          throw portalError('PORTAL_SOURCE_CHANGED');
+        const result = await this.runner.execute(
+          run.runId,
+          native,
+          directory,
+          source.source.inputHash,
+          ownedSignal,
+          Math.min(run.deadlineAt, deadlineAt),
+        );
+        commandDiagnostics = compilerRunDiagnostics(result);
+        await this.options.store.update(
+          'compiler-attempts',
+          attemptId,
+          z.record(z.string(), z.unknown()),
+          value => ({
+            ...value,
+            diagnostics: commandDiagnostics,
+            physicalState: 'runner-returned',
+          }),
+        );
+        const observed = await captureReactRouterCompilerEvidence({
+          source: pairedSource,
+          ownerId: plan.ownerId,
+          generation: this.options.leaderGeneration ?? 'process-local',
+          workspaceId: plan.workspaceId,
+          originPlanId: plan.planId,
+          originContextHash: plan.contextHash,
+          root: directory,
+          runId: run.runId,
+          profile: native,
+          result,
+          signal: ownedSignal,
+        });
+        await this.compilerSource(plan, sourceId, ownedSignal);
+        const preparationId = contentHash('sfp-portal-source-preparation-v1', {
+          owner: plan.ownerId,
+          run: run.runId,
+          source: sourceId,
+          profile: native.id,
+          evidence: observed.hash,
+        });
+        const response: PortalSourcePreparationResult = {
+          schemaVersion: 1,
+          preparationId,
+          sourceId,
+          sourceInventoryHash: source.inventory.hash,
+          compilerEvidenceHash: observed.hash,
+          status: 'ready',
+          sourcePreparationOnly: true,
+          requiresReplan: true,
+          authorityExpiresOnRestart: true,
+          generatedFiles: observed.generatedFiles,
+        };
+        await this.options.store.create(
+          'compiler-results',
+          preparationId.slice(7),
+          {
+            ...response,
+            ownerId: plan.ownerId,
+            planId: plan.planId,
+            runId: run.runId,
+            deadlineAt,
+            generation: this.options.leaderGeneration ?? 'process-local',
+          },
+          z.unknown(),
+        );
+        if (
+          this.compilerEvidence.size >= 16 &&
+          !this.compilerEvidence.has(plan.ownerId + ':' + plan.workspaceId + ':' + sourceId)
+        )
+          throw portalError('PORTAL_COMPILER_CAPACITY');
+        await this.options.store.update(
+          'compiler-attempts',
+          attemptId,
+          z.record(z.string(), z.unknown()),
+          value => ({ ...value, status: 'ready', preparationId }),
+        );
+        ownedSignal.throwIfAborted();
+        if (Date.now() >= Math.min(run.deadlineAt, deadlineAt))
+          throw portalError('PORTAL_BUDGET_EXHAUSTED');
+        const previous = this.compilerEvidence.get(
+          plan.ownerId + ':' + plan.workspaceId + ':' + sourceId,
+        );
+        if (previous) retireReactRouterCompilerEvidence(previous);
+        this.compilerEvidence.set(plan.ownerId + ':' + plan.workspaceId + ':' + sourceId, observed);
+        return response;
+      } catch (error) {
+        const settledFailure =
+          commandDiagnostics !== undefined &&
+          commandDiagnostics.commands.every(command => command.cleanup !== 'unconfirmed') &&
+          !ownedSignal.aborted;
+        try {
+          await this.options.store.update(
+            'compiler-attempts',
+            attemptId,
+            z.record(z.string(), z.unknown()),
+            value => ({
+              ...value,
+              status: settledFailure ? 'failed' : 'unknown',
+              physicalState: commandDiagnostics ? 'runner-returned' : 'unconfirmed',
+              ...(commandDiagnostics ? { diagnostics: commandDiagnostics } : {}),
+              error: diagnosticError(error),
+              finishedAt: Date.now(),
+            }),
+          );
+        } catch (writeError) {
+          diagnose(
+            'portal.compiler.diagnostics-write-failed',
+            { runId: run.runId, phase: 'cleanup', outcome: 'failed' },
+            writeError,
+            'error',
+          );
+        }
+        diagnose(
+          'portal.compiler.failed',
+          { runId: run.runId, phase: 'execution', outcome: settledFailure ? 'failed' : 'unknown' },
+          error,
+          'error',
+        );
+        throw error;
+      } finally {
+        removeObserver?.();
+      }
+    }
+  }
+
   private async owned<T>(
     runId: string,
     signal: AbortSignal,
@@ -355,6 +954,9 @@ export class PortalNativeWork implements PortalWorkPort {
       plan.design.artifactHash !== plan.design.capture.rawHash ||
       plan.design.assetManifestHash !== plan.design.capture.assetManifestHash ||
       plan.request.design.source !== plan.design.capture.source.kind ||
+      (plan.request.design.source === 'chrome' &&
+        (plan.request.design.collector ?? 'scripter') !==
+          (plan.design.capture.source.collector ?? 'scripter')) ||
       parseFigmaTarget(plan.design.url).url !== plan.design.capture.source.url
     )
       throw portalError('PORTAL_CAPTURE_EVIDENCE_CHANGED');
@@ -601,8 +1203,16 @@ export class PortalNativeWork implements PortalWorkPort {
       if (
         !grant ||
         grant.kind !== plan.request.design.source ||
+        (grant.kind === 'chrome' &&
+          (grant.collector ?? 'scripter') !== (plan.request.design.collector ?? 'scripter')) ||
         grant.url !== parseFigmaTarget(plan.design.url).url ||
-        (!capture && (grant.kind === 'desktop' || !this.options.designCapture))
+        (grant.kind === 'official-mcp' &&
+          grant.endpoint !==
+            (plan.request.design.officialEndpoint ?? 'https://mcp.figma.com/mcp')) ||
+        (!capture &&
+          (grant.kind !== 'chrome' ||
+            grant.collector === 'page-api' ||
+            !this.options.designCapture))
       )
         throw portalError('PORTAL_CAPTURE_ADMISSION_REQUIRED');
     }
@@ -782,7 +1392,10 @@ export class PortalNativeWork implements PortalWorkPort {
       let reexport: NonNullable<PortalAcceptance['capture']>['reexport'];
       const scopedCapture =
         capture ??
-        (prepared?.captureSource?.kind === 'chrome' ? this.options.designCapture : undefined);
+        (prepared?.captureSource?.kind === 'chrome' &&
+        prepared.captureSource.collector !== 'page-api'
+          ? this.options.designCapture
+          : undefined);
       // Failed commands already prevent acceptance. Preserve their feedback promptly;
       // a successful sequence must still reobserve the source before it can pass.
       const commandsPassed =
@@ -797,8 +1410,9 @@ export class PortalNativeWork implements PortalWorkPort {
         if (!prepared?.captureSource) throw portalError('PORTAL_CAPTURE_ADMISSION_REQUIRED');
         const refreshed = await scopedCapture
           .capture(plan.planId, plan.design.url, signal)
-          .catch(() => {
+          .catch(error => {
             signal.throwIfAborted();
+            diagnosePortalLiveRefreshFailure(error, run.runId);
             // Preserve completed command/preview evidence when a new source read is unavailable.
             // This remains failed acceptance; admission and file-integrity failures below still throw.
             checks.push({
@@ -1021,6 +1635,9 @@ export class PortalNativeWork implements PortalWorkPort {
         store: this.options.store,
         lifecycle: this.coreLifecycle,
         policy: this.options.policy,
+        ...(this.options.nativeContourAcquisition
+          ? { nativeContourAcquisition: this.options.nativeContourAcquisition }
+          : {}),
         verifyAppliedTarget: async (plan, appliedRun, verifySignal) => {
           const authority = await resolvePortalAuthority(
             this.options.policy,
@@ -1037,6 +1654,7 @@ export class PortalNativeWork implements PortalWorkPort {
         ownerId: profile.ownerId,
         planId: profile.planId,
         candidateHash: profile.native.sourceHash,
+        nativeContourNodeIds: profile.recipeUse?.nativeContours?.map(value => value.nodeId) ?? [],
         target: target ?? (run.appliedHash ? 'applied' : 'candidate'),
       },
       signal,
@@ -1045,34 +1663,129 @@ export class PortalNativeWork implements PortalWorkPort {
   async assertRecipeRegistration(input: PortalNativeProfile): Promise<void> {
     const profile = PortalNativeProfileSchema.parse(input);
     await this.assertPreparedProfile(profile);
+    if (profile.purpose === 'source-preparation') return;
     if (profile.recipeUse?.prepared?.status !== 'ready')
       throw portalError('PORTAL_CONSUMPTION_PREPARATION_REQUIRED');
   }
-  async registerProfile(input: PortalNativeProfile): Promise<string> {
+  async registerProfile(
+    input: PortalNativeProfile,
+    signal: AbortSignal = new AbortController().signal,
+  ): Promise<string> {
+    signal.throwIfAborted();
     const profile = PortalNativeProfileSchema.parse(input);
     assertCurrentPortalSourceAuthority(profile, profile.native);
     const plan = await this.options.store.get('plans', profile.planId, PortalPlanSchema);
     if (!plan || plan.ownerId !== profile.ownerId || plan.contextHash !== profile.contextHash)
       throw portalError('PORTAL_PLAN_NOT_FOUND');
-    await this.assertCapture(plan);
+    if (profile.purpose !== 'source-preparation') await this.assertCapture(plan);
+    else {
+      this.assertIssuedSourceProfile(profile);
+      await this.assertPreparedProfile(profile, signal);
+    }
+    signal.throwIfAborted();
     await this.assertRecipeRegistration(profile);
     const id = contentHash('sfp-portal-profile-key-v1', {
       planId: profile.planId,
       profileId: profile.native.id,
       candidateHash: profile.native.sourceHash,
     }).slice(7);
+    signal.throwIfAborted();
     await this.options.store.create('profiles', id, profile, PortalNativeProfileSchema);
+    signal.throwIfAborted();
+    if (profile.purpose === 'source-preparation')
+      this.assertIssuedSourceProfile(profile).registered = true;
     return id;
   }
 
   /** Read-only owner-scoped preparation; returned bytes must be approved before registration. */
-  async prepareProfile(input: PortalNativeProfile): Promise<PortalNativeProfile> {
+  async prepareProfile(
+    input: PortalNativeProfile,
+    signal: AbortSignal = new AbortController().signal,
+    newPreparationId?: string,
+    revalidationRequest?: object,
+  ): Promise<PortalNativeProfile> {
+    signal.throwIfAborted();
     const profile = PortalNativeProfileSchema.parse(input);
     assertCurrentPortalSourceAuthority(profile, profile.native);
     const plan = await this.options.store.get('plans', profile.planId, PortalPlanSchema);
     if (!plan || plan.ownerId !== profile.ownerId || plan.contextHash !== profile.contextHash)
       throw portalError('PORTAL_PLAN_NOT_FOUND');
     assertCurrentPortalSourceAuthority(plan);
+    if (profile.purpose === 'source-preparation') {
+      if (
+        !profile.sourcePreparation ||
+        profile.recipeUse ||
+        profile.observationManifest ||
+        profile.sourceReviews.length
+      )
+        throw portalError('PORTAL_COMPILER_ACCEPTANCE_FIELDS_REJECTED');
+      const run = await this.options.store.get('runs', plan.planId, PortalRunSchema);
+      if (
+        !run ||
+        run.ownerId !== profile.ownerId ||
+        !['needs-input', 'blocked', 'waiting-agent'].includes(run.state) ||
+        run.candidateHash ||
+        run.lease
+      )
+        throw portalError('PORTAL_COMPILER_RUN_STATE_REJECTED');
+      const id = newPreparationId ?? profile.sourcePreparation.preparationId ?? randomUUID();
+      if (profile.sourcePreparation.preparationId && !newPreparationId)
+        this.assertIssuedSourceProfile(profile);
+      const source = await this.compilerSource(plan, profile.sourcePreparation.sourceId, signal);
+      const native = await prepareReactRouterCompilerProfile(
+        source.source,
+        profile.native,
+        profile.sourcePreparation.packageContextRoot,
+        signal,
+      );
+      const finalSource = await this.compilerSource(
+        plan,
+        profile.sourcePreparation.sourceId,
+        signal,
+      );
+      if (finalSource.source.inputHash !== source.source.inputHash)
+        throw portalError('PORTAL_SOURCE_CHANGED');
+      signal.throwIfAborted();
+      if (Date.now() >= run.deadlineAt) throw portalError('PORTAL_BUDGET_EXHAUSTED');
+      const prepared = PortalNativeProfileSchema.parse({
+        ...profile,
+        preparedContractVersion: 2,
+        native,
+        sourcePreparation: {
+          ...profile.sourcePreparation,
+          sourceInventoryHash: source.inventory.hash,
+          preparationId: id,
+          issuerDeadlineAt: run.deadlineAt,
+        },
+        assertions: native.commands.map(command => ({
+          commandId: command.id,
+          check: {
+            id: 'source-' + command.id,
+            kind: 'source-scope',
+            requirementIds: [],
+            required: true,
+          },
+        })),
+      });
+      if (!profile.sourcePreparation.preparationId || newPreparationId) {
+        if (this.sourceProfiles.size >= 64 && !this.sourceProfiles.has(id))
+          throw portalError('PORTAL_PROFILE_PREPARATION_CAPACITY');
+        this.sourceProfiles.set(id, {
+          profile: prepared,
+          hash: contentHash('sfp-prepared-profile-v2', prepared),
+          registered: false,
+        });
+      }
+      if (revalidationRequest)
+        this.#freshCompilerProfiles.set(prepared, {
+          request: revalidationRequest,
+          native,
+          source: source.source,
+          profileHash: contentHash('sfp-prepared-profile-v2', prepared),
+          sourceInputHash: source.source.inputHash,
+        });
+      return prepared;
+    }
     assertCurrentPortalAnalysis(plan);
     await this.assertCapture(plan);
     const environment = { ...profile.native.environment };
@@ -1249,16 +1962,51 @@ export class PortalNativeWork implements PortalWorkPort {
       assertions,
     });
   }
-  private async assertPreparedProfile(profile: PortalNativeProfile): Promise<void> {
+  private async assertPreparedProfile(
+    profile: PortalNativeProfile,
+    signal: AbortSignal = new AbortController().signal,
+    revalidationRequest?: object,
+  ): Promise<PortalNativeProfile | undefined> {
     if (profile.preparedContractVersion !== 2) throw portalError('PORTAL_PROFILE_CONTRACT_STALE');
-    await verifyNativeEnvironment(profile, this.options.stateRoot);
-    await verifyNativeArtifactAuthority(profile.native);
-    const expected = await this.prepareProfile(profile);
+    if (profile.purpose !== 'source-preparation')
+      await verifyNativeEnvironment(profile, this.options.stateRoot);
+    if (profile.purpose !== 'source-preparation')
+      await verifyNativeArtifactAuthority(profile.native, signal);
+    const expected = await this.prepareProfile(profile, signal, undefined, revalidationRequest);
     if (
       contentHash('sfp-prepared-profile-v2', expected) !==
       contentHash('sfp-prepared-profile-v2', profile)
     )
       throw portalError('PORTAL_PROFILE_PREPARATION_CHANGED');
+    return profile.purpose === 'source-preparation' ? expected : undefined;
+  }
+
+  private takeFreshCompilerProfile(
+    fresh: PortalNativeProfile | undefined,
+    expected: PortalNativeProfile,
+    request: object,
+    sourceInputHash: string,
+    deadlineAt: number,
+    signal: AbortSignal,
+  ): Readonly<{ native: PortalNativeProfile['native']; source: ReactRouterCompilerSource }> {
+    const held = fresh && this.#freshCompilerProfiles.get(fresh);
+    if (fresh) this.#freshCompilerProfiles.delete(fresh);
+    signal.throwIfAborted();
+    if (Date.now() >= deadlineAt) throw portalError('PORTAL_BUDGET_EXHAUSTED');
+    if (
+      !held ||
+      !fresh ||
+      held.request !== request ||
+      held.sourceInputHash !== sourceInputHash ||
+      held.native.sourceHash !== sourceInputHash ||
+      !reactRouterCompilerProfileMatchesSource(held.native, held.source) ||
+      held.profileHash !== contentHash('sfp-prepared-profile-v2', fresh) ||
+      held.profileHash !== contentHash('sfp-prepared-profile-v2', expected) ||
+      contentHash('sfp-native-profile-v1', held.native) !==
+        contentHash('sfp-native-profile-v1', expected.native)
+    )
+      throw portalError('PORTAL_PROFILE_PREPARATION_CHANGED');
+    return Object.freeze({ native: held.native, source: held.source });
   }
 
   private checkContents(plan: PortalPlan, run: PortalRun, files: PortalFileContent[]): void {

@@ -1,0 +1,11 @@
+{
+  "name": "cdd-notes-backend-candidate",
+  "private": true,
+  "type": "module",
+  "engines": { "node": ">=24.21.0 <25" },
+  "scripts": {
+    "start": "node server.mjs",
+    "migrate": "node migrate.mjs",
+    "test": "node acceptance/backend-journey.mjs"
+  }
+}

@@ -1,7 +1,7 @@
 import { readFile, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 
-import { contentHash, storedChecksum } from '@sfp/ir';
+import { contentHash, storedChecksum, type PortalPlan } from '@sfp/ir';
 import { type PortalRecipeInputContext } from '@sfp/shared';
 import { afterEach, expect, it } from 'vitest';
 
@@ -10,6 +10,7 @@ import {
   PortalCoreDeclarationsSchema,
   PortalCoreEvidenceViewSchema,
 } from '../../../shared/src/portal-core-lifecycle.js';
+import { RepoReader } from '../../src/fs/repo-walk.js';
 import { normalizeDesignObservation } from '../../src/portal/design-normalization.js';
 import { CORE_RECIPE_CONTRACT_HASH } from '../../src/portal/recipes/core-derivation.js';
 import {
@@ -18,6 +19,7 @@ import {
   unavailableCoreBinding,
 } from '../../src/portal/recipes/core-lifecycle.js';
 import { CorePreparations } from '../../src/portal/recipes/core-preparation.js';
+import { collectPortalSourceInventory } from '../../src/portal/source-inventory.js';
 import { portalFixture } from './fixtures.js';
 
 const hash = contentHash('test', 'input');
@@ -277,4 +279,38 @@ it('supports all4096 core page declarations while bounding aggregate bytes and t
       },
     }).success,
   ).toBe(false);
+});
+
+it('rejects a persisted compiler-qualified graph without its current private producer even when source bytes match', async () => {
+  const f = await fixture();
+  await writeFile(join(f.workspaceRoot, 'main.ts'), 'export const value=1;');
+  const inventory = await collectPortalSourceInventory(
+    new RepoReader({
+      rootDir: f.workspaceRoot,
+      workspaceId: f.workspaceId,
+      workspacePolicy: f.policy,
+    }),
+  );
+  const plan = {
+    ownerId: 'actor',
+    profiles: [
+      {
+        role: 'reference',
+        workspaceId: f.workspaceId,
+        rootPath: '.',
+        graph: { sourceId: hash, sourceInventory: inventory, compilerEvidenceHash: hash },
+      },
+    ],
+    repositories: [
+      {
+        role: 'reference',
+        workspaceId: f.workspaceId,
+        rootPath: '.',
+        canonicalPath: f.workspaceRoot,
+      },
+    ],
+  } as unknown as PortalPlan;
+  await expect(
+    new PortalCoreLifecycle(f.service).assertSourcesCurrent(plan, f.policy),
+  ).rejects.toMatchObject({ code: 'PORTAL_COMPILER_EVIDENCE_REQUIRED' });
 });

@@ -1,0 +1,16 @@
+﻿{
+    "pushRun":  37308291101,
+    "nightlyRun":  38000314608,
+    "recordedAt":  "2026-10-10T21:33:59.9344509+09:00",
+    "windowsDefaultFailedSteps":  [
+                                      "Known-failure ledger",
+                                      "Artifact contents",
+                                      "Isolated packed runtime"
+                                  ],
+    "conclusion":  "failure",
+    "nightlyFailedSteps":  [
+                               "Native artifact suite with the React/Vite acceptance enabled"
+                           ],
+    "logAccess":  "GitHub CLI is not authenticated; public API job and annotation metadata inspected",
+    "commit":  "22517932dc9b2cb974c177ec4eacb84d4b16e254"
+}

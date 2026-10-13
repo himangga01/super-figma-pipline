@@ -1,0 +1,27 @@
+{
+  "schemaVersion": 1,
+  "name": "provenance",
+  "releaseId": "1fb30463-ea9c-446d-88fe-bd750b6c28d6",
+  "finalSourceHash": "sha256:d722c32152149464c961c660622a95e3da603eb00f291e28b15c024507bcd87d",
+  "status": "passed",
+  "sourceBinding": "current-source",
+  "evidence": {
+    "receipt": {
+      "path": "docs/testing/2026-10-11-web-portal/final-d722-generated-checks-20261014.json",
+      "sha256": "5b77e3cff33dae790cfde70429c5d6462a105fd0e24fa3a8265322369389c7e0"
+    },
+    "registration": {
+      "path": "docs/testing/2026-10-11-web-portal/final-scoped-r67-provenance-20261014.json",
+      "sha256": "d389cccd5ae8b63e72fe5635af442b89825df0271ed68711fa104ded5d0276d0"
+    },
+    "commands": {
+      "path": ".worktrees/baseline/service/.cache/final-r67-provenance-commands.json",
+      "sha256": "582f2e2189e84cf4594806af9e13f87a1b6ffa984a6adfd1e16fd06c13ecbaf0"
+    },
+    "historicalFailedChecksPreserved": true
+  },
+  "ownerEcommerce": "skipped",
+  "officialMcpLive": "deferred",
+  "wholePassed": false,
+  "liveAcceptance": false
+}

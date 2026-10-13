@@ -1,0 +1,123 @@
+{
+  "recordedAt": "2026-10-11T07:44:04.413Z",
+  "source": "sha256:6faae6271793a8f80728301a66cf627cfc32b3da89678f63093cfcad8b549cff",
+  "daemon": {
+    "pid": 37744,
+    "build": "sha256:6c60047a5639094954e0fd8965bd4badb9b62a240637c3bcc94d6721824a66c5"
+  },
+  "rows": [
+    {
+      "attempt": "r1",
+      "context": "C:\\2026_project\\super-figma-pipline\\.worktrees\\_cache\\cdd-page-api-context-20261011-prep-r1",
+      "planId": "sfp_portal1_2948f05f50b05e7eca4b264b3ea35033",
+      "planSha256": "sha256:3f5e3e6dd537a640e1901eed008e8dcb3a5d4a3a6f1470f83ffb9496636ed6bb",
+      "targetPath": "cdd-page-api-frontend-20261011-r1",
+      "complete": true,
+      "liveVerified": true,
+      "issues": [
+        "WORKFLOW_SCOPE_UNRESOLVED:design-4bfd338819e4f15c407a35b54a381a5666077fb972223022be959c0e2df499d4",
+        "WORKFLOW_SCOPE_UNRESOLVED:design-b0fd91c384113d31d598a536c72772989154639bafa27f2c0cded119936af522",
+        "WORKFLOW_SCOPE_UNRESOLVED:design-da2363d08b5a4d00701a5e4e56180f3e8f07a7a1f62f17723fd5bab1cc0b1e45",
+        "WORKFLOW_SCOPE_UNRESOLVED:design-deec40eccede4ba1d46bd807df4c58dc1c45648be3633010654e254a62d2b223",
+        "WORKFLOW_SCOPE_UNRESOLVED:design-6e1258ba4ca5a5b0fbbf67cf69f232a6c395385dcb0014e4959762aa70bf0d27",
+        "WORKFLOW_SCOPE_UNRESOLVED:design-ad6c2f98f5ef4d94ec21475123b37204aa436f8e6a84fb92c475519e34e4a465",
+        "WORKFLOW_SCOPE_UNRESOLVED:design-1b5cca3b2f87bfcc2c7c31dd739616fc5c3a292bff93827e8909fca058cdaefa",
+        "WORKFLOW_SCOPE_UNRESOLVED:design-7f96ccfef1e0a23c278fe1854f65441cdc80b4b2376eaeb03cd742fc32cd61cb"
+      ],
+      "capture": {
+        "admission": {
+          "binding": "selected-page-after-approved-connection",
+          "collector": "page-api",
+          "fileKeyHash": "sha256:b2ef8cd5e6a2dad955c16e621201cfb498d2c563242b77a6d3fab41d79bb0caf",
+          "kind": "chrome",
+          "phase": "requested-source",
+          "requestedNodeId": "1378:120",
+          "url": "https://www.figma.com/design/ly06O8jAcrd7oWmwhz5Vr6?node-id=1378-120",
+          "version": 1
+        },
+        "assetFingerprint": "sha256:ab1fd660a6b77a4dbce7d009ae788799fc91e343992750ea0d9668e3e52c680b",
+        "assetManifestHash": "sha256:34364b581621797d684b1b9b113b4389d628f1fd9f76cbd3cdc150a2e34ce0c1",
+        "contentFingerprint": "sha256:31c9957a5f0fdab49fe9b147c91aab03f4278dabd2d84b82bc824118e3fdea70",
+        "contractFingerprint": "sha256:b6f1f9e19586a84c840880a63057c5e96eeda09408f9029a3d3ab48c05a7da8d",
+        "designFingerprint": "sha256:ea47ffac0a7e6adfe6dcca5e8e73e16e89354995db9b9b07e6d2bc21363f4f14",
+        "evidenceHash": "sha256:9fb103183c1a8ba17e341812f3c743bf641f23950c5369d2412f089cc1fde7b6",
+        "rawHash": "sha256:eb64de34ba789ad7295088d1dbb8366b88c7eed756044d20f4da4d8061f5ec8f",
+        "source": {
+          "bindingMethod": "file-key",
+          "collector": "page-api",
+          "fileKeyHash": "sha256:b2ef8cd5e6a2dad955c16e621201cfb498d2c563242b77a6d3fab41d79bb0caf",
+          "kind": "chrome",
+          "requestedNodeId": "1378:120",
+          "scopeId": "{\"requestedNodeId\":\"1378:120\",\"pageId\":\"1378:120\",\"scopeNodeId\":\"1378:120\"}",
+          "url": "https://www.figma.com/design/ly06O8jAcrd7oWmwhz5Vr6?node-id=1378-120"
+        },
+        "sourceFingerprint": "sha256:22abb8ecc9c8db34404a88cf2fc62ce7b6a40f25e573779e9c5545e882d82779",
+        "version": 2
+      },
+      "workflowCoverage": {
+        "analysisHash": "sha256:066a4bc963e1ce1b3d1446665a1d1f70f9444fc53f073ca3a2825d5a24a46530",
+        "complete": false,
+        "scopes": 9,
+        "decisions": 0
+      },
+      "operationStatus": "succeeded"
+    },
+    {
+      "attempt": "r2",
+      "context": "C:\\2026_project\\super-figma-pipline\\.worktrees\\_cache\\cdd-page-api-context-20261011-prep-r2",
+      "planId": "sfp_portal1_1459262f8e0752efd5db0519931fe827",
+      "planSha256": "sha256:61bccbfb46a419fe818875e4dfbce1646fc312c5f1a38510e85da1c1df0d7974",
+      "targetPath": "cdd-page-api-frontend-20261011-r1",
+      "complete": true,
+      "liveVerified": true,
+      "issues": [],
+      "capture": {
+        "admission": {
+          "binding": "selected-page-after-approved-connection",
+          "collector": "page-api",
+          "fileKeyHash": "sha256:b2ef8cd5e6a2dad955c16e621201cfb498d2c563242b77a6d3fab41d79bb0caf",
+          "kind": "chrome",
+          "phase": "requested-source",
+          "requestedNodeId": "1378:120",
+          "url": "https://www.figma.com/design/ly06O8jAcrd7oWmwhz5Vr6?node-id=1378-120",
+          "version": 1
+        },
+        "assetFingerprint": "sha256:6626ca5272149bb27b84cf38e46a7a7720909e5f5d0bddda5a6d0cb68f4528b0",
+        "assetManifestHash": "sha256:6874732133128fe1a0a42402bf8813ba853f1b4dcb59ef3a23772de18bde931e",
+        "contentFingerprint": "sha256:31c9957a5f0fdab49fe9b147c91aab03f4278dabd2d84b82bc824118e3fdea70",
+        "contractFingerprint": "sha256:b6f1f9e19586a84c840880a63057c5e96eeda09408f9029a3d3ab48c05a7da8d",
+        "designFingerprint": "sha256:3a5e9bd6b29536af8ba910852f5b944bda0a20b0fdaee1415a5c4fa7e525be12",
+        "evidenceHash": "sha256:8c8df401362736581f184e387e581cb81c606f58c0472a1f4468ed081f653f54",
+        "rawHash": "sha256:24649fcfac7df0c59642ca30cc8b6c287d441226fbffc46959ff5b2e577fe25e",
+        "source": {
+          "bindingMethod": "file-key",
+          "collector": "page-api",
+          "fileKeyHash": "sha256:b2ef8cd5e6a2dad955c16e621201cfb498d2c563242b77a6d3fab41d79bb0caf",
+          "kind": "chrome",
+          "requestedNodeId": "1378:120",
+          "scopeId": "{\"requestedNodeId\":\"1378:120\",\"pageId\":\"1378:120\",\"scopeNodeId\":\"1378:120\"}",
+          "url": "https://www.figma.com/design/ly06O8jAcrd7oWmwhz5Vr6?node-id=1378-120"
+        },
+        "sourceFingerprint": "sha256:22abb8ecc9c8db34404a88cf2fc62ce7b6a40f25e573779e9c5545e882d82779",
+        "version": 2
+      },
+      "workflowCoverage": {
+        "analysisHash": "sha256:066a4bc963e1ce1b3d1446665a1d1f70f9444fc53f073ca3a2825d5a24a46530",
+        "complete": true,
+        "scopes": 9,
+        "decisions": 8
+      },
+      "operationStatus": "succeeded"
+    }
+  ],
+  "run": {
+    "runId": "sfp_portal1_1459262f8e0752efd5db0519931fe827",
+    "state": "generating",
+    "issues": [],
+    "sourceNodes": 192,
+    "capturedAssets": 25,
+    "recipeWorkItems": 7
+  },
+  "candidateSubmitted": false,
+  "frontendAccepted": false
+}

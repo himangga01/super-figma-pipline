@@ -1,0 +1,310 @@
+{
+  "schemaVersion": 1,
+  "recordedAt": "2026-10-13T15:59:06.628Z",
+  "sourceHash": "sha256:6f87f836d872a4ba8ab49533f6447a7c921adb6b8af3dae75ddd6241e8b8a1cb",
+  "runId": "cdab6896-9890-4cbe-aaf7-afd0e60426e4",
+  "coreRunId": "sfp_portal1_ae7f701dccf96d5b57ce839e26d83bd2",
+  "originalDeadlineAt": 1791906706344,
+  "generationAttempts": 4,
+  "capture": {
+    "complete": true,
+    "liveVerified": true,
+    "nodes": 192,
+    "nativeResources": 438,
+    "nativeTextNodes": 72,
+    "nativeGlyphPlacements": 1594
+  },
+  "attempts": [
+    {
+      "ordinal": 33,
+      "candidateHash": "sha256:e5a587dc85888465288a753b0b8042bbcf7f6774474ce907043d5163e77eb088",
+      "state": "blocked",
+      "checks": [
+        {
+          "id": "frontend-types",
+          "status": "passed"
+        },
+        {
+          "id": "frontend-independence",
+          "status": "passed"
+        },
+        {
+          "id": "frontend-build",
+          "status": "passed"
+        },
+        {
+          "id": "visual-guide",
+          "status": "failed"
+        },
+        {
+          "id": "accessibility-guide",
+          "status": "failed"
+        },
+        {
+          "id": "visual-mobile",
+          "status": "failed"
+        },
+        {
+          "id": "accessibility-mobile",
+          "status": "failed"
+        },
+        {
+          "id": "visual-desktop",
+          "status": "failed"
+        },
+        {
+          "id": "accessibility-desktop",
+          "status": "failed"
+        },
+        {
+          "id": "journey-figma-account-session",
+          "status": "failed"
+        },
+        {
+          "id": "journey-language-selection",
+          "status": "failed"
+        },
+        {
+          "id": "journey-registration-demo",
+          "status": "failed"
+        },
+        {
+          "id": "journey-frontend-presentation",
+          "status": "failed"
+        },
+        {
+          "id": "native-command-sequence",
+          "status": "failed"
+        },
+        {
+          "id": "native-source-scope",
+          "status": "passed"
+        },
+        {
+          "id": "core-consumption",
+          "status": "failed"
+        }
+      ],
+      "previewFailure": "PORTAL_CONSUMPTION_FAILED",
+      "consumptionFailureCounts": {
+        "nativeContourMismatch": 42,
+        "propertyMismatch": 6,
+        "elementHidden": 121,
+        "imageNotLoaded": 8
+      },
+      "pixelDifferenceRatios": {
+        "guide": 0.0003030883103624298,
+        "mobile": 0.007574783344445566,
+        "desktop": 0.0029850944967274697
+      },
+      "unchangedMaximumRatio": 0.01
+    },
+    {
+      "ordinal": 37,
+      "candidateHash": "sha256:d2d37dbaf66d71966159f5b21acff84303f12ff352fea8a7d1089f526dfe42a4",
+      "state": "blocked",
+      "failure": "TS2322",
+      "sourceFile": "src/CapturedNode.jsx",
+      "sourceLines": [
+        92,
+        93
+      ],
+      "checks": [
+        {
+          "id": "frontend-types",
+          "status": "failed"
+        },
+        {
+          "id": "frontend-independence",
+          "status": "blocked"
+        },
+        {
+          "id": "frontend-build",
+          "status": "blocked"
+        },
+        {
+          "id": "visual-guide",
+          "status": "blocked"
+        },
+        {
+          "id": "accessibility-guide",
+          "status": "blocked"
+        },
+        {
+          "id": "visual-mobile",
+          "status": "blocked"
+        },
+        {
+          "id": "accessibility-mobile",
+          "status": "blocked"
+        },
+        {
+          "id": "visual-desktop",
+          "status": "blocked"
+        },
+        {
+          "id": "accessibility-desktop",
+          "status": "blocked"
+        },
+        {
+          "id": "journey-figma-account-session",
+          "status": "blocked"
+        },
+        {
+          "id": "journey-language-selection",
+          "status": "blocked"
+        },
+        {
+          "id": "journey-registration-demo",
+          "status": "blocked"
+        },
+        {
+          "id": "journey-frontend-presentation",
+          "status": "blocked"
+        },
+        {
+          "id": "native-command-sequence",
+          "status": "failed"
+        },
+        {
+          "id": "native-source-scope",
+          "status": "passed"
+        },
+        {
+          "id": "core-consumption",
+          "status": "failed"
+        }
+      ]
+    },
+    {
+      "ordinal": 40,
+      "candidateHash": "sha256:0bcd5249523214493b72bf35f3c24ee271dabd97c3729cf66cf754ca50249238",
+      "state": "blocked",
+      "checks": [
+        {
+          "id": "frontend-types",
+          "status": "passed"
+        },
+        {
+          "id": "frontend-independence",
+          "status": "passed"
+        },
+        {
+          "id": "frontend-build",
+          "status": "passed"
+        },
+        {
+          "id": "visual-guide",
+          "status": "failed"
+        },
+        {
+          "id": "accessibility-guide",
+          "status": "failed"
+        },
+        {
+          "id": "visual-mobile",
+          "status": "failed"
+        },
+        {
+          "id": "accessibility-mobile",
+          "status": "failed"
+        },
+        {
+          "id": "visual-desktop",
+          "status": "failed"
+        },
+        {
+          "id": "accessibility-desktop",
+          "status": "failed"
+        },
+        {
+          "id": "journey-figma-account-session",
+          "status": "failed"
+        },
+        {
+          "id": "journey-language-selection",
+          "status": "failed"
+        },
+        {
+          "id": "journey-registration-demo",
+          "status": "failed"
+        },
+        {
+          "id": "journey-frontend-presentation",
+          "status": "failed"
+        },
+        {
+          "id": "native-command-sequence",
+          "status": "failed"
+        },
+        {
+          "id": "native-source-scope",
+          "status": "passed"
+        },
+        {
+          "id": "core-consumption",
+          "status": "failed"
+        }
+      ],
+      "previewFailure": "INTERACTION_SOURCE_NOT_VISIBLE",
+      "previewReceiptPublished": false,
+      "remainingConsumptionFailuresUnknown": true
+    }
+  ],
+  "diagnostic": {
+    "serviceOwnedHeadlessChrome": true,
+    "sourceVisibilityCriterionUnchanged": true,
+    "firstFailingWorkflow": "registration-demo",
+    "step": 0,
+    "kind": "fill",
+    "selector": "[data-sfp-node=\"I1604:1325;1379:329;1378:421\"]",
+    "centerHitSourceNodeId": "I1604:1325;1379:329;1378:421;1378:351",
+    "centerHitTag": "svg",
+    "diagnosticReceiptSha256": "a914ae24d3ecf70ec223460457cf7b98432727fb72ccf529d001c960e56ead73",
+    "sourceChromeChanged": false,
+    "portalChromeChanged": false,
+    "acceptance": false
+  },
+  "modelGrant": {
+    "schemaVersion": 1,
+    "kind": "normal-registered-cli-model-grant",
+    "recordedAt": "2026-10-13T15:32:05.782Z",
+    "status": "succeeded",
+    "registeredCommand": "egress allow",
+    "publicClientMethod": "ControlClient.allowModelData",
+    "authenticatedAction": "egress.configure",
+    "stateNamespacePreserved": true,
+    "configuredAt": "2026-10-13T15:32:02.947Z",
+    "expiresAt": "2026-10-13T23:32:02.947Z",
+    "allowedClasses": [
+      "public",
+      "project-code",
+      "design-text",
+      "design-image"
+    ],
+    "egressHash": "3ece19bbad3fd94f5295cf9b6f610438c943539e1b9b57a723988fd95ffbb7a6",
+    "priorGrantHash": "513fb8a54728c5402ee87852c0e0e35ed9552b2b49192821180a4efc148dafcd",
+    "priorGrantExpiresAt": "2026-10-13T15:21:06.181Z",
+    "unknownParentPreserved": true,
+    "originalRunDeadlineAt": 1791906706344,
+    "sourceDispatch": false,
+    "nativeSecurityAutomated": false,
+    "portalGrantUi": "blocked-RUN_OUTCOME_UNKNOWN"
+  },
+  "noCoreRecovery": {
+    "parentStatus": "unknown",
+    "inspectionContract": "OperationTombstoneSchema",
+    "terminalStatus": "pre-egress-rejected",
+    "fullOperationRecord": false,
+    "currentRefreshAcceptance": false,
+    "portalGrantUi": "blocked-RUN_OUTCOME_UNKNOWN",
+    "unknownRecordUnchanged": true
+  },
+  "application": false,
+  "fullGenerationAccepted": false,
+  "completePortalJourneys": 0,
+  "requiredPortalJourneys": 1,
+  "officialMcpLive": "owner-deferred",
+  "independentCollectorParity": "owner-excluded",
+  "eCommerce": "owner-skipped"
+}

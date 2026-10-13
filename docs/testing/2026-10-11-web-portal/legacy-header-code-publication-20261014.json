@@ -1,0 +1,29 @@
+{
+  "schemaVersion": 1,
+  "at": "2026-10-13T18:58:56.043Z",
+  "kind": "legacy-authenticated-header-code-publication",
+  "manifestHash": "75d07e922091679c03b5b1e21f55df9991605815d001e468a077525283e99124",
+  "files": [
+    {
+      "target": "examples/portal-cases/compose-case-candidate.mjs",
+      "beforeHash": "88f4f4fecf0e4016bff51092faee580495165ddbc9df4ea5d4beb6ecc48b71fb",
+      "afterHash": "1105777cd6bc3890ab224dcc3430f51a212d532c94f277897975b54124f489e4",
+      "sourceHash": "161c38c130e17b40006a9e42fba7ee5bacdb78190fe8bedb9b741e92630a05ba"
+    },
+    {
+      "target": "examples/portal-cases/c2-epic/design-extension/app/components/cdd/case-contract.ts",
+      "beforeHash": "751be880958e0dfc8f4f7744c59cd7961aa60409ea183236caff69204d601329",
+      "afterHash": "49788bbc171c3fb293fb080f86beb087a2c11b69b754212021a783a1f99f4130",
+      "sourceHash": "49788bbc171c3fb293fb080f86beb087a2c11b69b754212021a783a1f99f4130"
+    },
+    {
+      "target": "examples/portal-cases/c2-epic/design-extension/app/components/cdd/LegacyLandingActions.tsx",
+      "beforeHash": "a53766a56d51e80559c258a77b6f17ab0801a191e15a332617aecc3214297db1",
+      "afterHash": "5bcd95d8fb713a4dd9d59e99e007496c5997cac1fb18e9552f964c87416df876",
+      "sourceHash": "5bcd95d8fb713a4dd9d59e99e007496c5997cac1fb18e9552f964c87416df876"
+    }
+  ],
+  "serviceSourceChanged": false,
+  "actualInputsExecuted": false,
+  "nativeAcceptance": false
+}

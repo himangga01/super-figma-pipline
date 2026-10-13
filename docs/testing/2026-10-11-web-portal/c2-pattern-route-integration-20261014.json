@@ -1,0 +1,60 @@
+{
+  "schemaVersion": 1,
+  "kind": "reviewed-exact-produced-route-diagnostic-compatibility-integration",
+  "at": "2026-10-13T21:17:46.785Z",
+  "baselineSource": "sha256:5715ff0b534336196bb1213687bee747edbc3a5039324671a5f456c739bb93e6",
+  "indexHash": "ecc1808ab3e14fa2e8c233ae1fc1c91e0a33b5b2e383a7270f1bc3068997e675",
+  "manifestHash": "3568cc9446c9edbdc3b436654c7198ae570de7651d1a15b3ea12bd8f154dc76d",
+  "approvalPath": "docs/testing/2026-10-11-web-portal/c2-pattern-route-root-review-20261014.md",
+  "approvalHash": "83e3443050317557e68b7841859903204cea4f4b60ee4193e775819d605f243c",
+  "attempts": [
+    {
+      "path": "service/packages/mcp/src/portal/service-selection.ts",
+      "beforeHash": "14c2c50facfb41c82802df43572221c69be75b7e1f85ad48d3abbaa5ea5a2d1c",
+      "afterHash": "4c8ec77c46972434c9ea4f5e445f7aa2b89d442d52a129adefd499faa915e20f",
+      "status": "verified",
+      "mutationStarted": true,
+      "intentAt": "2026-10-13T21:17:46.792Z",
+      "verifiedAt": "2026-10-13T21:17:46.799Z",
+      "observedHash": "4c8ec77c46972434c9ea4f5e445f7aa2b89d442d52a129adefd499faa915e20f"
+    },
+    {
+      "path": ".worktrees/baseline/service/packages/mcp/src/portal/service-selection.ts",
+      "beforeHash": "14c2c50facfb41c82802df43572221c69be75b7e1f85ad48d3abbaa5ea5a2d1c",
+      "afterHash": "4c8ec77c46972434c9ea4f5e445f7aa2b89d442d52a129adefd499faa915e20f",
+      "status": "verified",
+      "mutationStarted": true,
+      "intentAt": "2026-10-13T21:17:46.803Z",
+      "verifiedAt": "2026-10-13T21:17:46.810Z",
+      "observedHash": "4c8ec77c46972434c9ea4f5e445f7aa2b89d442d52a129adefd499faa915e20f"
+    },
+    {
+      "path": "service/packages/mcp/test/portal/core-recipes.test.ts",
+      "beforeHash": "4829b6b2457cdd4841aae4e373f20150c2345491e74d6a1ccf345e8df3a29b3c",
+      "afterHash": "42746c63cc8fb7d98135c9339cd6dcd3ac2c2374ad8588a6c73ac146eeaef3e1",
+      "status": "verified",
+      "mutationStarted": true,
+      "intentAt": "2026-10-13T21:17:46.814Z",
+      "verifiedAt": "2026-10-13T21:17:46.821Z",
+      "observedHash": "42746c63cc8fb7d98135c9339cd6dcd3ac2c2374ad8588a6c73ac146eeaef3e1"
+    },
+    {
+      "path": ".worktrees/baseline/service/packages/mcp/test/portal/core-recipes.test.ts",
+      "beforeHash": "4829b6b2457cdd4841aae4e373f20150c2345491e74d6a1ccf345e8df3a29b3c",
+      "afterHash": "42746c63cc8fb7d98135c9339cd6dcd3ac2c2374ad8588a6c73ac146eeaef3e1",
+      "status": "verified",
+      "mutationStarted": true,
+      "intentAt": "2026-10-13T21:17:46.826Z",
+      "verifiedAt": "2026-10-13T21:17:46.833Z",
+      "observedHash": "42746c63cc8fb7d98135c9339cd6dcd3ac2c2374ad8588a6c73ac146eeaef3e1"
+    }
+  ],
+  "status": "integrated",
+  "sourceIntegrated": true,
+  "runtimeDeployed": false,
+  "distChanged": false,
+  "liveAcceptance": false,
+  "automaticReplayAllowed": false,
+  "sourceHash": "sha256:1790a1dc140343d8f0982ff5a83083cdbea99834f21f20ed88c5d95e17e006f3",
+  "completedAt": "2026-10-13T21:17:47.512Z"
+}

@@ -1,0 +1,315 @@
+{
+  "recordedAt": "2026-10-10T14:13:56.335Z",
+  "sourceHash": "sha256:a5d0df4bbbc951e7b8392f342f593e9fd9fa4fc461f0f49ff17b07d0ddb227ca",
+  "status": "source-analysis-preparation-only",
+  "portalAccepted": false,
+  "samples": [
+    {
+      "case": "C2",
+      "root": "C:\\2026_project\\super-figma-pipline\\.worktrees\\_cache\\portal-case-samples-20261010\\epic-legacy",
+      "elapsedMs": 2553,
+      "incomplete": true,
+      "lexicalReviewable": false,
+      "files": 281,
+      "services": [
+        {
+          "rootPath": ".",
+          "layers": [
+            "frontend",
+            "database",
+            "authentication",
+            "configuration",
+            "backend"
+          ]
+        },
+        {
+          "rootPath": "remix.init",
+          "layers": [
+            "configuration"
+          ]
+        }
+      ],
+      "issueCount": 59,
+      "issues": [
+        "CONFIG_EXTENDS_UNSUPPORTED:tsconfig.json",
+        "CONFIG_RESOLUTION_UNSUPPORTED:tsconfig.json",
+        "MODULE_UNRESOLVED:app/components/ui/icon.tsx:81:module-target-missing",
+        "MODULE_UNRESOLVED:app/root.tsx:1026:loader-query-unsupported",
+        "MODULE_UNRESOLVED:app/root.tsx:258:module-target-missing",
+        "MODULE_UNRESOLVED:app/routes/_auth/auth.$provider/callback.test.ts:1006:module-target-missing",
+        "MODULE_UNRESOLVED:app/routes/_auth/auth.$provider/callback.ts:963:module-target-missing",
+        "MODULE_UNRESOLVED:app/routes/_auth/auth.$provider/index.ts:370:module-target-missing",
+        "MODULE_UNRESOLVED:app/routes/_auth/forgot-password.test.ts:352:module-target-missing",
+        "MODULE_UNRESOLVED:app/routes/_auth/forgot-password.tsx:843:module-target-missing",
+        "MODULE_UNRESOLVED:app/routes/_auth/login.tsx:1183:module-target-missing",
+        "MODULE_UNRESOLVED:app/routes/_auth/logout.tsx:93:module-target-missing",
+        "MODULE_UNRESOLVED:app/routes/_auth/onboarding/$provider.tsx:1102:module-target-missing",
+        "MODULE_UNRESOLVED:app/routes/_auth/onboarding/index.tsx:1156:module-target-missing",
+        "MODULE_UNRESOLVED:app/routes/_auth/reset-password.test.ts:487:module-target-missing",
+        "MODULE_UNRESOLVED:app/routes/_auth/reset-password.tsx:773:module-target-missing",
+        "MODULE_UNRESOLVED:app/routes/_auth/signup.tsx:1036:module-target-missing",
+        "MODULE_UNRESOLVED:app/routes/_auth/verify.test.ts:776:module-target-missing"
+      ],
+      "connectionIssues": [
+        {
+          "code": "MODULE_ANALYSIS_INCOMPLETE"
+        },
+        {
+          "code": "MODULE_UNRESOLVED",
+          "evidence": {
+            "sourceId": "sha256:96e73aba83732a038da04c113f789f77e228a390a79366dfe89f76ff1d7b48e0",
+            "path": "app/components/ui/icon.tsx",
+            "hash": "sha256:8594792f62f0d743a36a759d11ec89a0e50c768e0fd3320032c8e5a3ddd8be0d",
+            "offset": 81,
+            "reason": "Verified static module reference"
+          }
+        },
+        {
+          "code": "MODULE_UNRESOLVED",
+          "evidence": {
+            "sourceId": "sha256:96e73aba83732a038da04c113f789f77e228a390a79366dfe89f76ff1d7b48e0",
+            "path": "app/root.tsx",
+            "hash": "sha256:ad430796455301cb76237fb4530dedadab960241b30bcc8fbbe1697d635708a3",
+            "offset": 258,
+            "reason": "Verified static module reference"
+          }
+        },
+        {
+          "code": "MODULE_UNRESOLVED",
+          "evidence": {
+            "sourceId": "sha256:96e73aba83732a038da04c113f789f77e228a390a79366dfe89f76ff1d7b48e0",
+            "path": "app/root.tsx",
+            "hash": "sha256:ad430796455301cb76237fb4530dedadab960241b30bcc8fbbe1697d635708a3",
+            "offset": 1026,
+            "reason": "Verified static module reference"
+          }
+        },
+        {
+          "code": "MODULE_UNRESOLVED",
+          "evidence": {
+            "sourceId": "sha256:96e73aba83732a038da04c113f789f77e228a390a79366dfe89f76ff1d7b48e0",
+            "path": "app/routes/_auth/auth.$provider/callback.ts",
+            "hash": "sha256:8866c80515e6dac24fcf8b1cbe3ff9981d9f6bbd9831e96d5585a33c7022052c",
+            "offset": 963,
+            "reason": "Verified static module reference"
+          }
+        },
+        {
+          "code": "MODULE_UNRESOLVED",
+          "evidence": {
+            "sourceId": "sha256:96e73aba83732a038da04c113f789f77e228a390a79366dfe89f76ff1d7b48e0",
+            "path": "app/routes/_auth/auth.$provider/index.ts",
+            "hash": "sha256:9915eb4a415adbe549afdf4033b647aa4175e6f49f60e4067929501752a3a25e",
+            "offset": 370,
+            "reason": "Verified static module reference"
+          }
+        },
+        {
+          "code": "MODULE_UNRESOLVED",
+          "evidence": {
+            "sourceId": "sha256:96e73aba83732a038da04c113f789f77e228a390a79366dfe89f76ff1d7b48e0",
+            "path": "app/routes/_auth/forgot-password.tsx",
+            "hash": "sha256:cbffa3cbf8715a52295d76e331bceda72fbfdb0f09e2eefa8c0898153f5f1dcc",
+            "offset": 843,
+            "reason": "Verified static module reference"
+          }
+        },
+        {
+          "code": "MODULE_UNRESOLVED",
+          "evidence": {
+            "sourceId": "sha256:96e73aba83732a038da04c113f789f77e228a390a79366dfe89f76ff1d7b48e0",
+            "path": "app/routes/_auth/login.tsx",
+            "hash": "sha256:d9a3c9032e624593c511d0c228773fcd9ea56d48afa2dbfe858e1011934fafed",
+            "offset": 1183,
+            "reason": "Verified static module reference"
+          }
+        },
+        {
+          "code": "MODULE_UNRESOLVED",
+          "evidence": {
+            "sourceId": "sha256:96e73aba83732a038da04c113f789f77e228a390a79366dfe89f76ff1d7b48e0",
+            "path": "app/routes/_auth/logout.tsx",
+            "hash": "sha256:62575cbf42a8a2c3ccb7f68a0366f79fcd8d2d3caa04821d9fa93278a5017fad",
+            "offset": 93,
+            "reason": "Verified static module reference"
+          }
+        },
+        {
+          "code": "MODULE_UNRESOLVED",
+          "evidence": {
+            "sourceId": "sha256:96e73aba83732a038da04c113f789f77e228a390a79366dfe89f76ff1d7b48e0",
+            "path": "app/routes/_auth/onboarding/$provider.tsx",
+            "hash": "sha256:a34e67fb99eea73d7872c0171eb72cd27d37cf548d6e5b203906cbcd0d9774b4",
+            "offset": 1102,
+            "reason": "Verified static module reference"
+          }
+        },
+        {
+          "code": "MODULE_UNRESOLVED",
+          "evidence": {
+            "sourceId": "sha256:96e73aba83732a038da04c113f789f77e228a390a79366dfe89f76ff1d7b48e0",
+            "path": "app/routes/_auth/onboarding/index.tsx",
+            "hash": "sha256:6137f77a32d1283f880fd37b61ea3edc7463aab2aa31eb651a7de290a724f113",
+            "offset": 1156,
+            "reason": "Verified static module reference"
+          }
+        },
+        {
+          "code": "MODULE_UNRESOLVED",
+          "evidence": {
+            "sourceId": "sha256:96e73aba83732a038da04c113f789f77e228a390a79366dfe89f76ff1d7b48e0",
+            "path": "app/routes/_auth/reset-password.tsx",
+            "hash": "sha256:054cb908538cd89a3e2c6fbc5c4e61f7245cf52f6b8fb540990bcd7ad62fba45",
+            "offset": 773,
+            "reason": "Verified static module reference"
+          }
+        }
+      ],
+      "inventoryComplete": true
+    },
+    {
+      "case": "C3",
+      "root": "C:\\2026_project\\super-figma-pipline\\.worktrees\\_cache\\oss-samples-20261010\\react-router-templates\\node-custom-server",
+      "elapsedMs": 121,
+      "incomplete": true,
+      "lexicalReviewable": false,
+      "files": 16,
+      "services": [
+        {
+          "rootPath": ".",
+          "layers": [
+            "configuration",
+            "frontend",
+            "backend"
+          ]
+        }
+      ],
+      "issueCount": 7,
+      "issues": [
+        "CONFIG_PROJECT_REFERENCES_REQUIRE_REVIEW:tsconfig.json",
+        "MODULE_UNRESOLVED:app/root.tsx:125:module-target-missing",
+        "MODULE_UNRESOLVED:app/routes/home.tsx:0:undeclared-external-module",
+        "MODULE_UNRESOLVED:app/routes/home.tsx:56:module-target-missing",
+        "MODULE_UNRESOLVED:server.js:1290:nonliteral-module",
+        "MODULE_UNRESOLVED:server/app.ts:152:undeclared-external-module",
+        "MODULE_UNRESOLVED:server/app.ts:294:unsupported-module-specifier"
+      ],
+      "connectionIssues": [
+        {
+          "code": "MODULE_ANALYSIS_INCOMPLETE"
+        },
+        {
+          "code": "MODULE_UNRESOLVED",
+          "evidence": {
+            "sourceId": "sha256:f510d242cabbb432d0441f7d3c04132e87a88d898306475cd080e81cd831d6dc",
+            "path": "app/root.tsx",
+            "hash": "sha256:da108f06484304a845d5067f66cfe279af63e996a6381fc69cc33ed83488dd4e",
+            "offset": 125,
+            "reason": "Verified static module reference"
+          }
+        },
+        {
+          "code": "MODULE_UNRESOLVED",
+          "evidence": {
+            "sourceId": "sha256:f510d242cabbb432d0441f7d3c04132e87a88d898306475cd080e81cd831d6dc",
+            "path": "app/routes/home.tsx",
+            "hash": "sha256:3e26b590d78b0ae7387842289383211ba9733ab0b3a059d77bd92d3b437c366c",
+            "offset": 0,
+            "reason": "Verified static module reference"
+          }
+        },
+        {
+          "code": "MODULE_UNRESOLVED",
+          "evidence": {
+            "sourceId": "sha256:f510d242cabbb432d0441f7d3c04132e87a88d898306475cd080e81cd831d6dc",
+            "path": "app/routes/home.tsx",
+            "hash": "sha256:3e26b590d78b0ae7387842289383211ba9733ab0b3a059d77bd92d3b437c366c",
+            "offset": 56,
+            "reason": "Verified static module reference"
+          }
+        },
+        {
+          "code": "MODULE_UNRESOLVED",
+          "evidence": {
+            "sourceId": "sha256:f510d242cabbb432d0441f7d3c04132e87a88d898306475cd080e81cd831d6dc",
+            "path": "server.js",
+            "hash": "sha256:3ce39982a210cd25969b2e10d70051bf7583ada1259eb412a69d54219d892315",
+            "offset": 1290,
+            "reason": "Verified static module reference"
+          }
+        },
+        {
+          "code": "MODULE_UNRESOLVED",
+          "evidence": {
+            "sourceId": "sha256:f510d242cabbb432d0441f7d3c04132e87a88d898306475cd080e81cd831d6dc",
+            "path": "server/app.ts",
+            "hash": "sha256:0547f728df7c12537cfbc971e8cc86739d382d5560451ae3f86779820629db7b",
+            "offset": 152,
+            "reason": "Verified static module reference"
+          }
+        },
+        {
+          "code": "MODULE_UNRESOLVED",
+          "evidence": {
+            "sourceId": "sha256:f510d242cabbb432d0441f7d3c04132e87a88d898306475cd080e81cd831d6dc",
+            "path": "server/app.ts",
+            "hash": "sha256:0547f728df7c12537cfbc971e8cc86739d382d5560451ae3f86779820629db7b",
+            "offset": 294,
+            "reason": "Verified static module reference"
+          }
+        },
+        {
+          "code": "UNSUPPORTED_RUNTIME_SOURCE",
+          "evidence": {
+            "sourceId": "sha256:f510d242cabbb432d0441f7d3c04132e87a88d898306475cd080e81cd831d6dc",
+            "path": "Dockerfile",
+            "hash": "sha256:675fff249895856d5c57db8d007c7f03e4d2400c4dcc42fb5589fbcf3d1a4644",
+            "offset": 0,
+            "reason": "Runtime format has no supported parser"
+          }
+        },
+        {
+          "code": "UNRESOLVED_MOUNT",
+          "evidence": {
+            "sourceId": "sha256:f510d242cabbb432d0441f7d3c04132e87a88d898306475cd080e81cd831d6dc",
+            "path": "server.js",
+            "hash": "sha256:3ce39982a210cd25969b2e10d70051bf7583ada1259eb412a69d54219d892315",
+            "offset": 356,
+            "reason": "Mount or middleware semantics require review"
+          }
+        },
+        {
+          "code": "UNRESOLVED_MOUNT",
+          "evidence": {
+            "sourceId": "sha256:f510d242cabbb432d0441f7d3c04132e87a88d898306475cd080e81cd831d6dc",
+            "path": "server.js",
+            "hash": "sha256:3ce39982a210cd25969b2e10d70051bf7583ada1259eb412a69d54219d892315",
+            "offset": 624,
+            "reason": "Mount or middleware semantics require review"
+          }
+        },
+        {
+          "code": "UNRESOLVED_MOUNT",
+          "evidence": {
+            "sourceId": "sha256:f510d242cabbb432d0441f7d3c04132e87a88d898306475cd080e81cd831d6dc",
+            "path": "server.js",
+            "hash": "sha256:3ce39982a210cd25969b2e10d70051bf7583ada1259eb412a69d54219d892315",
+            "offset": 663,
+            "reason": "Mount or middleware semantics require review"
+          }
+        },
+        {
+          "code": "UNRESOLVED_MOUNT",
+          "evidence": {
+            "sourceId": "sha256:f510d242cabbb432d0441f7d3c04132e87a88d898306475cd080e81cd831d6dc",
+            "path": "server.js",
+            "hash": "sha256:3ce39982a210cd25969b2e10d70051bf7583ada1259eb412a69d54219d892315",
+            "offset": 1073,
+            "reason": "Mount or middleware semantics require review"
+          }
+        }
+      ],
+      "inventoryComplete": true
+    }
+  ]
+}

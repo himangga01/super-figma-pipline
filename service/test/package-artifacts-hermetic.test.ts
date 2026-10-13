@@ -25,7 +25,7 @@ import { afterEach, describe, expect, it } from 'vitest';
 import { hermeticGit, hermeticGitEnvironment } from '../scripts/hermetic-git.mjs';
 
 const serviceRoot = resolve(import.meta.dirname, '..');
-const artifacts = ['mcp.tgz', 'cli.tgz', 'plugin.zip', 'artifact-manifest.v1.json'];
+const artifacts = ['mcp.tgz', 'cli.tgz', 'plugin.zip', 'portal.tgz', 'artifact-manifest.v1.json'];
 const roots: string[] = [];
 afterEach(async () => {
   await Promise.all(roots.splice(0).map(root => rm(root, { recursive: true, force: true })));
@@ -65,6 +65,21 @@ const packagingFixture = async (root: string) => {
     'packages/mcp/dist/index.mjs.map': '{}\n',
     'packages/cli/package.json': workspacePackage('@sfp/cli'),
     'packages/cli/dist/index.mjs': '#!/usr/bin/env node\nconsole.log("cli");\n',
+    'packages/portal/package.json': JSON.stringify({
+      name: '@sfp/portal',
+      version: '0.1.0',
+      private: true,
+      bin: { 'sfp-portal': './dist/index.mjs' },
+      dependencies: { '@sfp/cli': 'workspace:*', '@sfp/shared': 'workspace:*' },
+    }),
+    'packages/portal/dist/index.mjs': '#!/usr/bin/env node\nconsole.log("portal");\n',
+    'packages/portal/DEBUGGING.md': '# Server diagnostics\n',
+    'packages/portal/web/index.html': '<!doctype html><title>portal</title>',
+    'packages/portal/web/app.js': 'export {};',
+    'packages/portal/web/api.js': 'export {};',
+    'packages/portal/web/model.js': 'export {};',
+    'packages/portal/web/styles.css': 'body { color: black; }',
+    'packages/portal/web/tests/private.test.js': 'fixture source must not ship',
     'packages/plugin/manifest.json': '{"name":"fixture"}\n',
     'packages/plugin/dist/code.js': 'figma.closePlugin();\n',
     'packages/plugin/dist/index.html': '<!doctype html><title>fixture</title>\n',
@@ -165,6 +180,12 @@ const packageArtifacts = async (service: string, environment: NodeJS.ProcessEnv)
     windowsHide: true,
   });
   expect({ status: result.status, stderr: result.stderr }).toEqual({ status: 0, stderr: '' });
+  const manifest: unknown = JSON.parse(
+    await readFile(join(service, 'artifacts', 'artifact-manifest.v1.json'), 'utf8'),
+  );
+  expect(manifest).toMatchObject({
+    archives: expect.arrayContaining([expect.objectContaining({ name: 'portal.tgz' })]),
+  });
   const digests = Object.fromEntries(
     await Promise.all(
       artifacts.map(async name => {
@@ -175,9 +196,6 @@ const packageArtifacts = async (service: string, environment: NodeJS.ProcessEnv)
         ] as const;
       }),
     ),
-  );
-  const manifest: unknown = JSON.parse(
-    await readFile(join(service, 'artifacts', 'artifact-manifest.v1.json'), 'utf8'),
   );
   return { digests, manifest };
 };
@@ -236,6 +254,10 @@ describe('hermetic packaging git', () => {
         },
         { name: 'cli.tgz' },
         { name: 'plugin.zip' },
+        {
+          name: 'portal.tgz',
+          files: expect.arrayContaining([expect.objectContaining({ path: 'DEBUGGING.md' })]),
+        },
       ],
     });
   }, 120_000);

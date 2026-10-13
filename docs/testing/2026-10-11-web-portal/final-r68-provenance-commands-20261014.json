@@ -1,0 +1,98 @@
+{
+  "schemaVersion": 1,
+  "at": "2026-10-13T20:58:00.808Z",
+  "commands": [
+    {
+      "name": "update",
+      "args": [
+        "--experimental-transform-types",
+        "--disable-warning=ExperimentalWarning",
+        "scripts/update-service-forks.mjs",
+        "--slice",
+        "review-2026-10-10",
+        "--index",
+        "service/capabilities/change-manifests/task-review-2026-10-10.json",
+        "--reconcile",
+        "service/capabilities/reconciliations/review-2026-10-10-config-provenance-repair-2026-10-14.json"
+      ],
+      "exitCode": 0,
+      "durationMs": 21186,
+      "outputHash": "e67e6f0d5bc53e14514f0772cf3a1e3593ccfd3f59097fd542f9379039c2d336",
+      "logPath": ".worktrees/baseline/service/.cache/final-r68-r3-update.txt",
+      "logSha256": "e67e6f0d5bc53e14514f0772cf3a1e3593ccfd3f59097fd542f9379039c2d336"
+    },
+    {
+      "name": "stage-three",
+      "args": [
+        "-C",
+        "C:\\2026_project\\super-figma-pipline",
+        "-c",
+        "core.autocrlf=false",
+        "add",
+        "--",
+        "service/upstream-lock.json",
+        "service/vendor-map.json",
+        "service/vendor-rules.json"
+      ],
+      "exitCode": 0,
+      "durationMs": 72,
+      "outputHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "logPath": ".worktrees/baseline/service/.cache/final-r68-r3-stage-three.txt",
+      "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "write-manifest",
+      "args": [
+        "--experimental-transform-types",
+        "--disable-warning=ExperimentalWarning",
+        "scripts/verify-staged-change-manifest.mjs",
+        "--write",
+        "--slice",
+        "review-2026-10-10"
+      ],
+      "exitCode": 0,
+      "durationMs": 12730,
+      "outputHash": "31f03c518679f5613c874970c5e53ab504c457bcc50ea161cb304d2db18b9dbf",
+      "logPath": ".worktrees/baseline/service/.cache/final-r68-r3-write-manifest.txt",
+      "logSha256": "31f03c518679f5613c874970c5e53ab504c457bcc50ea161cb304d2db18b9dbf"
+    },
+    {
+      "name": "stage-four",
+      "args": [
+        "-C",
+        "C:\\2026_project\\super-figma-pipline",
+        "-c",
+        "core.autocrlf=false",
+        "add",
+        "--",
+        "service/upstream-lock.json",
+        "service/vendor-map.json",
+        "service/vendor-rules.json",
+        "service/capabilities/change-manifests/task-review-2026-10-10.json"
+      ],
+      "exitCode": 0,
+      "durationMs": 58,
+      "outputHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "logPath": ".worktrees/baseline/service/.cache/final-r68-r3-stage-four.txt",
+      "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "verify",
+      "args": [
+        "--experimental-transform-types",
+        "--disable-warning=ExperimentalWarning",
+        "scripts/verify-staged-change-manifest.mjs",
+        "--slice",
+        "review-2026-10-10"
+      ],
+      "exitCode": 0,
+      "durationMs": 13684,
+      "outputHash": "da3371c7a54cc323ae00b487d9d7695f81c0de12e8858fb12afb4ad2afccc9c9",
+      "logPath": ".worktrees/baseline/service/.cache/final-r68-r3-verify.txt",
+      "logSha256": "da3371c7a54cc323ae00b487d9d7695f81c0de12e8858fb12afb4ad2afccc9c9"
+    }
+  ],
+  "shadowIndex": "C:\\2026_project\\super-figma-pipline\\.worktrees\\baseline\\service\\.cache\\review-20261014-r68.index",
+  "ownerIndexUnchanged": true,
+  "whole": false
+}

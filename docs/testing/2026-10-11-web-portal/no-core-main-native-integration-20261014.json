@@ -1,0 +1,103 @@
+{
+  "schemaVersion": 2,
+  "kind": "canonical-no-core-retained-proof-main-native-integration",
+  "at": "2026-10-13T17:55:20.534Z",
+  "helperHash": "842d9a3de1d3e2b734d4329ef8f3375ade24cc481f0b330722a98ac42a7eb2d5",
+  "baseline": "sha256:6f87f836d872a4ba8ab49533f6447a7c921adb6b8af3dae75ddd6241e8b8a1cb",
+  "ownerIndexHash": "ecc1808ab3e14fa2e8c233ae1fc1c91e0a33b5b2e383a7270f1bc3068997e675",
+  "frozenManifest": {
+    "path": ".worktrees/_cache/no-core-public-inspection-20261014/freeze/frozen-files.json",
+    "sha256": "5f0b524767e23929148ac990b1d1773a02617e9cd161ae56f7f0fd8b15da2194"
+  },
+  "independentApproval": {
+    "path": "docs/testing/2026-10-11-web-portal/no-core-public-inspection-independent-20261014.md",
+    "sha256": "39c3d553044f45e117c4443b0909481274ee354825c8dd638c13da390c57c246"
+  },
+  "reusedR2Engine": {
+    "path": ".worktrees/_cache/r60-main-integration-preparation-20261013/integrate-reviewed-four-files-r2.mjs",
+    "sha256": "02c62affb3ac3f55253687739e88fc5dd6ebfce6251c85e2373ff34e4b1d30ef"
+  },
+  "intendedTargetWrites": 4,
+  "attempts": [
+    {
+      "path": "service/packages/portal/src/bridge.ts",
+      "beforeHash": "ab7008aea8646ade1eff75bb03b5e5c755656662e815dc1775185528ea94b9e2",
+      "afterHash": "23eaae954eb16bb4bff335b6a3c82f5fbc2c3bd142eab8d01ca0b42c03c88ace",
+      "backup": ".worktrees/_cache/no-core-public-inspection-integration-preparation-20261014/execution-r1/0.before",
+      "status": "verified",
+      "mutationStarted": true,
+      "intentAt": "2026-10-13T17:55:20.542Z",
+      "verifiedAt": "2026-10-13T17:55:20.549Z",
+      "observedHash": "23eaae954eb16bb4bff335b6a3c82f5fbc2c3bd142eab8d01ca0b42c03c88ace"
+    },
+    {
+      "path": ".worktrees/baseline/service/packages/portal/src/bridge.ts",
+      "beforeHash": "ab7008aea8646ade1eff75bb03b5e5c755656662e815dc1775185528ea94b9e2",
+      "afterHash": "23eaae954eb16bb4bff335b6a3c82f5fbc2c3bd142eab8d01ca0b42c03c88ace",
+      "backup": ".worktrees/_cache/no-core-public-inspection-integration-preparation-20261014/execution-r1/1.before",
+      "status": "verified",
+      "mutationStarted": true,
+      "intentAt": "2026-10-13T17:55:20.555Z",
+      "verifiedAt": "2026-10-13T17:55:20.562Z",
+      "observedHash": "23eaae954eb16bb4bff335b6a3c82f5fbc2c3bd142eab8d01ca0b42c03c88ace"
+    },
+    {
+      "path": "service/packages/portal/test/backend.test.ts",
+      "beforeHash": "2b47f7e3c843b47cb19ea4eb20038de330c90d80602c58499842e62d116538ac",
+      "afterHash": "e1e8a5ec7968ac3ab4c4edba27dfceb0262d6554a5c4493755f984667015ff3a",
+      "backup": ".worktrees/_cache/no-core-public-inspection-integration-preparation-20261014/execution-r1/2.before",
+      "status": "verified",
+      "mutationStarted": true,
+      "intentAt": "2026-10-13T17:55:20.569Z",
+      "verifiedAt": "2026-10-13T17:55:20.576Z",
+      "observedHash": "e1e8a5ec7968ac3ab4c4edba27dfceb0262d6554a5c4493755f984667015ff3a"
+    },
+    {
+      "path": ".worktrees/baseline/service/packages/portal/test/backend.test.ts",
+      "beforeHash": "2b47f7e3c843b47cb19ea4eb20038de330c90d80602c58499842e62d116538ac",
+      "afterHash": "e1e8a5ec7968ac3ab4c4edba27dfceb0262d6554a5c4493755f984667015ff3a",
+      "backup": ".worktrees/_cache/no-core-public-inspection-integration-preparation-20261014/execution-r1/3.before",
+      "status": "verified",
+      "mutationStarted": true,
+      "intentAt": "2026-10-13T17:55:20.584Z",
+      "verifiedAt": "2026-10-13T17:55:20.591Z",
+      "observedHash": "e1e8a5ec7968ac3ab4c4edba27dfceb0262d6554a5c4493755f984667015ff3a"
+    }
+  ],
+  "writes": [
+    {
+      "path": "service/packages/portal/src/bridge.ts",
+      "beforeHash": "ab7008aea8646ade1eff75bb03b5e5c755656662e815dc1775185528ea94b9e2",
+      "afterHash": "23eaae954eb16bb4bff335b6a3c82f5fbc2c3bd142eab8d01ca0b42c03c88ace",
+      "backup": ".worktrees/_cache/no-core-public-inspection-integration-preparation-20261014/execution-r1/0.before"
+    },
+    {
+      "path": ".worktrees/baseline/service/packages/portal/src/bridge.ts",
+      "beforeHash": "ab7008aea8646ade1eff75bb03b5e5c755656662e815dc1775185528ea94b9e2",
+      "afterHash": "23eaae954eb16bb4bff335b6a3c82f5fbc2c3bd142eab8d01ca0b42c03c88ace",
+      "backup": ".worktrees/_cache/no-core-public-inspection-integration-preparation-20261014/execution-r1/1.before"
+    },
+    {
+      "path": "service/packages/portal/test/backend.test.ts",
+      "beforeHash": "2b47f7e3c843b47cb19ea4eb20038de330c90d80602c58499842e62d116538ac",
+      "afterHash": "e1e8a5ec7968ac3ab4c4edba27dfceb0262d6554a5c4493755f984667015ff3a",
+      "backup": ".worktrees/_cache/no-core-public-inspection-integration-preparation-20261014/execution-r1/2.before"
+    },
+    {
+      "path": ".worktrees/baseline/service/packages/portal/test/backend.test.ts",
+      "beforeHash": "2b47f7e3c843b47cb19ea4eb20038de330c90d80602c58499842e62d116538ac",
+      "afterHash": "e1e8a5ec7968ac3ab4c4edba27dfceb0262d6554a5c4493755f984667015ff3a",
+      "backup": ".worktrees/_cache/no-core-public-inspection-integration-preparation-20261014/execution-r1/3.before"
+    }
+  ],
+  "status": "integrated",
+  "sourceIntegrated": true,
+  "runtimeDeployed": false,
+  "liveRecovery": false,
+  "sourceProvenanceRefreshOwed": true,
+  "atomicRollback": false,
+  "automaticReplayAllowed": false,
+  "protection": "Held file identities and durable per-target intent under the same Windows owner; no OS sandbox or cross-file atomicity.",
+  "completedAt": "2026-10-13T17:55:21.333Z",
+  "sourceHash": "sha256:e2831adb29e5f4b12b8271c88e5c5d8a027e7894614eab099ed303f919d2ca2d"
+}

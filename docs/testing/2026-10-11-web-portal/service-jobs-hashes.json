@@ -1,0 +1,47 @@
+{
+  "date": "2026-10-11T12:39:50.856Z",
+  "fileCount": 10,
+  "sliceHash": "de2cc13a3b1b45258833bb871750cd746475699116791d1f15b5fd9591f40130",
+  "files": [
+    {
+      "path": "packages/cli/src/library.ts",
+      "sha256": "703a5f2ce21a22f9dfc7f08780421831d03a1dae6679ff51a36690168472b52a"
+    },
+    {
+      "path": "packages/cli/src/service-tool-catalog.ts",
+      "sha256": "81744d1c84ae801ac3b49006c3249f70fb3fe9d6b535cadebcdbeab22d3f37c7"
+    },
+    {
+      "path": "packages/cli/test/service-tool-catalog.test.ts",
+      "sha256": "7961e23b844faf1cb964ba99054c4e77cfca44c9f0e574db64be27a9a1b850fb"
+    },
+    {
+      "path": "packages/portal/src/bridge.ts",
+      "sha256": "2497b28f32adfd41cfc93c896187d67d2a4c50a740423e0e210e9e6b81faf0fe"
+    },
+    {
+      "path": "packages/portal/src/contract.ts",
+      "sha256": "ad67a4d7bfef0d0ddfd237863f756f533eef92d57d02083c027bef99ea8479b6"
+    },
+    {
+      "path": "packages/portal/src/control.ts",
+      "sha256": "1cdd9dfd558ffed744f59c82d67dd1bf9c65ed051ef82ccc9bbe7e1c5406550c"
+    },
+    {
+      "path": "packages/portal/src/server.ts",
+      "sha256": "692263a807d76a258e3393cd0719313e6ef58b989fb84d792599b4e63261d8d6"
+    },
+    {
+      "path": "packages/portal/src/service-jobs.ts",
+      "sha256": "4ffb817ee3739ba6893ce6886a95b6aef3176adf4619e76e713a29340ab254d1"
+    },
+    {
+      "path": "packages/portal/test/service-control.test.ts",
+      "sha256": "6f24566591cefefda12a8fa604962f413de507206d0b3595b826bcd491882385"
+    },
+    {
+      "path": "packages/portal/test/service-jobs.test.ts",
+      "sha256": "329f76a25fbc131616b8bc2fe3401d65cb7d90774122e4891c763592c88a7f52"
+    }
+  ]
+}

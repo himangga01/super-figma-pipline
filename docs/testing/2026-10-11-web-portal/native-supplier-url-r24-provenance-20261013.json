@@ -1,0 +1,54 @@
+{
+  "version": 1,
+  "at": "2026-10-13T04:33:11.320Z",
+  "sourceHash": "sha256:f8d76e71e491a1df5f5a3b468c705dab8e6645a5e3476e93d07d2f90e8fccf4a",
+  "entries": [
+    {
+      "path": "upstream-lock.json",
+      "before": "adb14e1ea4b0e5a3806b0d3abcec36404e06c3d2faac9a5d4c293e8965376cb4",
+      "after": "17a2d6877134c4972ff69beac37184ccf98079d78d90c01e4887555c17addfce"
+    },
+    {
+      "path": "vendor-map.json",
+      "before": "b3275c7d8b997d1cfe723d97594659f77d7b4361b824a790bcfdd7ff762589bd",
+      "after": "b3275c7d8b997d1cfe723d97594659f77d7b4361b824a790bcfdd7ff762589bd"
+    },
+    {
+      "path": "vendor-rules.json",
+      "before": "a1b2cb8de17fce24558adbe0c910da8bab2253272d10ddb891a642ef5d7ab141",
+      "after": "30e431140eddfa38c2624cde0b7d4c5d31f3f1852dc826e10577c25a872bcf37"
+    },
+    {
+      "path": "capabilities/change-manifests/task-review-2026-10-10.json",
+      "before": "0b9ff9c984a11a475c4d567fc6a27e63e37c7dd87ed31ab605d492234d0aebbe",
+      "after": "1c1d55422078c2b153edcfef686bf15454f7919252ffacda80d93de753bdb251"
+    },
+    {
+      "path": "capabilities/task-review-2026-10-10-authority-classes.json",
+      "before": "84d7169815863169a66255ad0361fd1da490e9bb1b4d6e689b0114a4e04e1f42",
+      "after": "ab0aab9d542b42de42af555e92bbfcc2528f38cfabb23318cc03aed7f74edee3"
+    },
+    {
+      "path": "capabilities/reconciliations/review-2026-10-10-native-supplier-url-2026-10-13.json",
+      "before": null,
+      "after": "aa16c279404c0b1be377c3a8f9d9b7620824f10f73a8e7169f3f5cc0ab5e69cd"
+    }
+  ],
+  "semanticChanges": 254,
+  "derivedAuthorities": 4,
+  "ownerIndexBaseline": "ecc1808ab3e14fa2e8c233ae1fc1c91e0a33b5b2e383a7270f1bc3068997e675",
+  "ownerIndexUnchangedByReconciliation": true,
+  "independentSupplier": {
+    "passed": 75,
+    "failed": 0,
+    "skipped": 0
+  },
+  "independentOriginalEquivalence": {
+    "passed": 0,
+    "failed": 3,
+    "filtered": 72
+  },
+  "wholePassed": false,
+  "runtimeReplaced": false,
+  "officialLive": "deferred-by-owner"
+}

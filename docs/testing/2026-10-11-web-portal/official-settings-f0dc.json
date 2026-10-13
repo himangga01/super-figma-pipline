@@ -1,0 +1,16 @@
+{
+  "at": "2026-10-11T18:35:55.473Z",
+  "sourceHash": "sha256:f0dc149a95da3bc7f8e52aecb094362d6e0166ae69e4ba29946a393e90f220c8",
+  "sameTab": true,
+  "serviceOwnedIntegration": true,
+  "configurationChanged": false,
+  "probeCompleted": true,
+  "fullCapture": false,
+  "requestId": "33eeb669-58ec-4d5d-985a-416201a08bf4",
+  "result": {
+    "status": "auth-required",
+    "code": "FIGMA_MCP_AUTH_REQUIRED",
+    "readyForCaptureAttempt": false,
+    "programCaptureSupported": false
+  }
+}

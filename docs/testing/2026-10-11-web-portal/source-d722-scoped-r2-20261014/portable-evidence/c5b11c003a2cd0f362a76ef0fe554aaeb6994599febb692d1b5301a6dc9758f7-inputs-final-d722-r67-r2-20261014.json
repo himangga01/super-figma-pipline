@@ -1,0 +1,186 @@
+{
+  "diagnosticsContracts": {
+    "path": "docs/testing/2026-10-11-web-portal/final-d722-generated-checks-20261014.json",
+    "sha256": "5b77e3cff33dae790cfde70429c5d6462a105fd0e24fa3a8265322369389c7e0",
+    "requiredCommands": [
+      "diagnostics"
+    ]
+  },
+  "provenance": {
+    "path": "docs/testing/2026-10-11-web-portal/final-d722-generated-checks-20261014.json",
+    "sha256": "5b77e3cff33dae790cfde70429c5d6462a105fd0e24fa3a8265322369389c7e0",
+    "requiredCommands": [
+      "offline-provenance"
+    ]
+  },
+  "provenanceRegistration": {
+    "path": "docs/testing/2026-10-11-web-portal/final-scoped-r67-provenance-20261014.json",
+    "sha256": "d389cccd5ae8b63e72fe5635af442b89825df0271ed68711fa104ded5d0276d0"
+  },
+  "provenanceCommands": {
+    "path": ".worktrees/baseline/service/.cache/final-r67-provenance-commands.json",
+    "sha256": "582f2e2189e84cf4594806af9e13f87a1b6ffa984a6adfd1e16fd06c13ecbaf0"
+  },
+  "diagnosticsCatalogHash": "19ab236e3e969996da9b49dbd75c72bc7535f73c636113a2dc7a4aefde241753",
+  "buildReceiptSha256": "d57383a2d1fccd8cc7812da37b8afa3b655268fa57b34fab6dd4b6000c5bed4a",
+  "eightIntegration": {
+    "path": ".worktrees/_cache/eight-file-integration-preparation-20261013/eight-file-integration-execution-r1/integration-receipt.json",
+    "sha256": "137706cd3586b8937c761e1e4a60ed928a821aa231ed2007632049cdd5e157f0"
+  },
+  "independentApprovals": [
+    {
+      "path": "docs/testing/2026-10-11-web-portal/c2-css-decoder-r60-independent-20261013.json",
+      "sha256": "ed83ea9d43b9e7f7c3d697dc18644f010a4f314308976934ecb626f2d8d7e28e",
+      "manifestSha256": "0b8a2f4d0ca62f1e3898f74a77e4b70e0e1845d40416f16cd67300be70f32d9f",
+      "passed": 3
+    },
+    {
+      "path": "docs/testing/2026-10-11-web-portal/no-core-plan-recovery-r2-independent-20261013.json",
+      "sha256": "097ff7fdb9a2debeb695e6fbd57943eb4b3fd7b8d9272743fb115829e3adc278",
+      "manifestSha256": "97b219177b9d705ea122dde1e42004b74c5df607290c20f7e1966ee17255fcb2",
+      "passed": 4
+    },
+    {
+      "path": "docs/testing/2026-10-11-web-portal/c2-route-type-r65-independent-20261013.json",
+      "sha256": "52fc6ad402b1c6ed4558d9bac1dd9ca817d6e670d86050e088ac69ef53443320",
+      "manifestSha256": "0253c302d1ffa6cf9a7007c0d8870932dcc2c93649b8e0c76eee71862f62d3a9",
+      "passed": 3
+    },
+    {
+      "path": "docs/testing/2026-10-11-web-portal/preview-navigation-budget-independent-20261013.json",
+      "sha256": "9e22768b061c2370b29c7386eeb4dc34b9b70e1b153e0a9b31f0c9dc5eb9911a",
+      "manifestSha256": "e94fa3061b64656a6572ba8bdb1ae10abda8753a5282e619a2ffd09846890c6b",
+      "passed": 2
+    }
+  ],
+  "changedStatics": {
+    "path": ".worktrees/_cache/final-scoped-publication-preparation-20261014/final-static-aggregate-d722-r2-20261014.json",
+    "sha256": "ca61b6fdf29c9a266d1e040de9679bbb8fb7e3c63b2b51627831794851dd5d09"
+  },
+  "precisionInputs": {
+    "path": ".worktrees/_cache/source6f87-publication-preparation-20261013/precision-input-comparison.json",
+    "sha256": "14bd5de5fa40f8833aae6baed56e35d516beb7f82be00999d93f92d51e5dbf41"
+  },
+  "qaGates": {
+    "path": ".worktrees/baseline/service/.cache/qa-cdd-scoped-release-20261013/scoped-gates.mjs",
+    "sha256": "f93e46ea20abb0a86c850ce9c92a7eecf9cb1f57cbcf9deeaf62e600821da06c"
+  },
+  "ownerIndexHash": "ecc1808ab3e14fa2e8c233ae1fc1c91e0a33b5b2e383a7270f1bc3068997e675",
+  "reviewedDeltas": [
+    {
+      "manifest": {
+        "path": ".worktrees/_cache/no-core-public-inspection-20261014/freeze/frozen-files.json",
+        "sha256": "5f0b524767e23929148ac990b1d1773a02617e9cd161ae56f7f0fd8b15da2194"
+      },
+      "approval": {
+        "path": "docs/testing/2026-10-11-web-portal/no-core-public-inspection-independent-20261014.md",
+        "sha256": "39c3d553044f45e117c4443b0909481274ee354825c8dd638c13da390c57c246"
+      },
+      "integration": {
+        "path": ".worktrees/_cache/no-core-public-inspection-integration-preparation-20261014/execution-r1/integration-receipt.json",
+        "sha256": "d95082480cfaf187b3be40407a67c3c7916c2429515601b34bbbe994e9994b83"
+      },
+      "tests": {
+        "path": ".worktrees/_cache/no-core-public-inspection-20261014/targeted-report.json",
+        "sha256": "9a392295cc137ea8bf316532b5d7c481f6a90e6328cc70787105a4c1bd358590",
+        "passed": 2
+      },
+      "fileCount": 2
+    },
+    {
+      "manifest": {
+        "path": ".worktrees/_cache/source-identity-phase-diagnostics-20261014/freeze-r2/frozen-files.json",
+        "sha256": "6c9ede4b418d69d19602ae40c8d72afd09e1396f289f8f83d719a9d7778f7cc7"
+      },
+      "approval": {
+        "path": "docs/testing/2026-10-11-web-portal/source-identity-diagnostics-r2-approval-20261014.md",
+        "sha256": "cdd87b69878fe0865851a7a23cb1b1079857adb2f75be86b7e7673b618d4ea48"
+      },
+      "integration": {
+        "path": ".worktrees/_cache/source-diagnostic-integration-20261014/integration-receipt.json",
+        "sha256": "19cd346f78f40ee3d3b8f4eeabb6d97d7f296a63f71343b25f75ba2e2370591e"
+      },
+      "tests": {
+        "path": ".worktrees/_cache/source-identity-phase-diagnostics-20261014/targeted-report.json",
+        "sha256": "32e681b5cd1b5c5d9944bc2b953b6c7f7bc4e4aeaacb41afb24df2e98272f895",
+        "passed": 3
+      },
+      "fileCount": 4
+    },
+    {
+      "manifest": {
+        "path": ".worktrees/_cache/source-identity-phase-diagnostics-20261014/freeze-r3/frozen-files.json",
+        "sha256": "615e7e9e6dc8afbf03454163307f8d9bc7888b80305e5b64d67bf01f46b218a1"
+      },
+      "approval": {
+        "path": "docs/testing/2026-10-11-web-portal/diagnostic-cleanup-r3-integration-20261014.json",
+        "sha256": "f0b410d20248e8f7d99191592c75ca6cb8300a8e33219328e365c94fb4b6225e"
+      },
+      "integration": {
+        "path": "docs/testing/2026-10-11-web-portal/diagnostic-cleanup-r3-integration-20261014.json",
+        "sha256": "f0b410d20248e8f7d99191592c75ca6cb8300a8e33219328e365c94fb4b6225e"
+      },
+      "tests": null,
+      "fileCount": 1
+    },
+    {
+      "manifest": {
+        "path": ".worktrees/_cache/final-scoped-publication-preparation-20261014/c3-r2-normalized-actual-main-preimages.json",
+        "sha256": "946a10d211dc27519aa0d5d7668518aafea66d6a752902a849e32856669c0196"
+      },
+      "approval": {
+        "path": "docs/testing/2026-10-11-web-portal/c3-generated-route-type-review-20261014.md",
+        "sha256": "d524c4671b9af992cb7801374baad96bae700e39cf7963503b06139b1b2b07d8"
+      },
+      "integration": {
+        "path": "docs/testing/2026-10-11-web-portal/c3-generated-types-integration-20261014.json",
+        "sha256": "b709a99bc41b1121addd77463d76655a1e9c0359b24d7708fe14c4df1feba60c"
+      },
+      "tests": {
+        "passed": 2,
+        "scope": "Two selected changed assertions from distinct original reports; R3 negative failure and R4 filtered cases preserved; cleanup-only final test changes not rerun",
+        "reports": [
+          {
+            "path": ".worktrees/_cache/c2-c3-implementation-20261014/c3-graph-repair/changed-compiler-tests-r3.json",
+            "sha256": "24879ae24d1e903bcc0728d927b36f1e2b60a421d25b6568fffcbc8ba2510474",
+            "passedAssertionNames": [
+              "retains bounded non-Epic generated root and home types in the compiler namespace"
+            ],
+            "originalReportSuccess": false,
+            "originalFailedTests": 1
+          },
+          {
+            "path": ".worktrees/_cache/c2-c3-implementation-20261014/c3-graph-repair/changed-compiler-tests-r4.json",
+            "sha256": "48713e580ac02efdf5583cedd5485c1ec2b676296912eac7ef5ba6a3634444f1",
+            "passedAssertionNames": [
+              "denies absent or foreign-linked generated type output without issuing compiler authority"
+            ],
+            "originalReportSuccess": true,
+            "originalFailedTests": 0
+          }
+        ]
+      },
+      "fileCount": 2
+    },
+    {
+      "manifest": {
+        "path": ".worktrees/_cache/final-scoped-publication-preparation-20261014/c3-test-style-normalized-actual-main-preimages.json",
+        "sha256": "e1be41e5105522137034eff574f9fb8764d2215433c9548d7dbd01dd6cf36dfa"
+      },
+      "approval": {
+        "path": "docs/testing/2026-10-11-web-portal/c3-test-style-integration-20261014.json",
+        "sha256": "410d9de58971121786688fb2e1159535ca66fa113f2a558ec7837addc89732b0"
+      },
+      "integration": {
+        "path": "docs/testing/2026-10-11-web-portal/c3-test-style-integration-20261014.json",
+        "sha256": "410d9de58971121786688fb2e1159535ca66fa113f2a558ec7837addc89732b0"
+      },
+      "tests": null,
+      "fileCount": 1
+    }
+  ],
+  "registrationCounts": {
+    "semanticChanges": 281,
+    "derivedAuthorities": 4
+  }
+}

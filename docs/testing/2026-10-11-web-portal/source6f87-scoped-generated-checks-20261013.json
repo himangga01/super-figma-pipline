@@ -1,0 +1,46 @@
+{
+  "schemaVersion": 1,
+  "kind": "source6f87-scoped-generated-checks",
+  "at": "2026-10-13T12:20:33.386Z",
+  "sourceHash": "sha256:6f87f836d872a4ba8ab49533f6447a7c921adb6b8af3dae75ddd6241e8b8a1cb",
+  "whole": false,
+  "results": [
+    {
+      "name": "diagnostics",
+      "args": [
+        "--experimental-transform-types",
+        "--disable-warning=ExperimentalWarning",
+        "scripts/update-diagnostics-catalog.mjs",
+        "--check"
+      ],
+      "exitCode": 0,
+      "elapsedMs": 1632,
+      "logSha256": "3e0bf68769ad0658196dcf4a733f6a63ae2d8d96f8f161ae51bb2f38230b4f82",
+      "summary": "Diagnostics catalog matches source and public inventory\n"
+    },
+    {
+      "name": "contracts",
+      "args": [
+        "--experimental-transform-types",
+        "--disable-warning=ExperimentalWarning",
+        "scripts/update-contracts.mjs",
+        "--check"
+      ],
+      "exitCode": 0,
+      "elapsedMs": 1320,
+      "logSha256": "e0bfbf48403f68e16703a91e6e46175e37a156e2868b6a047243c43e9c6aee51",
+      "summary": "All 4 generated tool-contract artifacts are current.\n"
+    },
+    {
+      "name": "offline-provenance",
+      "args": [
+        "scripts/verify-upstream-lock.mjs",
+        "--offline"
+      ],
+      "exitCode": 0,
+      "elapsedMs": 590,
+      "logSha256": "f0a48513082a12df030f05efb95680f5f0ac17a9c36b675d97521e76f6f13378",
+      "summary": "upstream-lock=ok mode=offline upstreams=3 vendorRows=238\n"
+    }
+  ]
+}

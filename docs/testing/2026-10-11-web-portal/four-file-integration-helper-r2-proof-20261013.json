@@ -1,0 +1,38 @@
+{
+  "schema": "four-file-integration-helper-r2-proof.v1",
+  "at": "2026-10-13T11:43:57.671Z",
+  "helperSha256": "02c62affb3ac3f55253687739e88fc5dd6ebfce6251c85e2373ff34e4b1d30ef",
+  "passed": 3,
+  "failed": 0,
+  "results": [
+    {
+      "case": "late-symlink",
+      "passed": true,
+      "rejection": "/TARGET_IDENTITY_CHANGED/",
+      "externalSameByteFileUnchanged": true,
+      "durableAttemptStatus": "rejected-before-mutation",
+      "targetMutated": false,
+      "automaticReplayAllowed": false
+    },
+    {
+      "case": "late-hardlink",
+      "passed": true,
+      "rejection": "/TARGET_IDENTITY_CHANGED/",
+      "externalSameByteFileUnchanged": true,
+      "durableAttemptStatus": "rejected-before-mutation",
+      "targetMutated": false,
+      "automaticReplayAllowed": false
+    },
+    {
+      "case": "receipt-failure-after-mutation",
+      "passed": true,
+      "rejection": "/RECEIPT_DIRECTORY_CHANGED/",
+      "externalSameByteFileUnchanged": true,
+      "durableAttemptStatus": "intent",
+      "targetMutated": true,
+      "automaticReplayAllowed": false
+    }
+  ],
+  "scope": "New owned temporary roots only. No Main/native/index/live write. Same-owner Windows is not an OS sandbox.",
+  "receiptFailureKind": "Controlled expected-directory identity mismatch rejects atomic receipt publication after the target mutation; last published intent remains unchanged."
+}

@@ -1,0 +1,11 @@
+{
+  "version": 1,
+  "at": "2026-10-13T04:28:48.364Z",
+  "previousObservedRawIndexHash": "a99e5dd36982d74373d779448068a8449189b133e54cd673b13be2c2c356b2a9",
+  "currentRawIndexHash": "ecc1808ab3e14fa2e8c233ae1fc1c91e0a33b5b2e383a7270f1bc3068997e675",
+  "indexEntryCount": 1759,
+  "indexEntriesEqualHead": true,
+  "indexUnchangedByInspection": true,
+  "cause": "A root git status inspection without GIT_OPTIONAL_LOCKS=0 can refresh index stat metadata. The raw hash changed after that inspection; staged mode/blob/path entries remain exactly HEAD. No old index is restored.",
+  "scope": "Readonly semantic verification, not a staging or commit operation"
+}

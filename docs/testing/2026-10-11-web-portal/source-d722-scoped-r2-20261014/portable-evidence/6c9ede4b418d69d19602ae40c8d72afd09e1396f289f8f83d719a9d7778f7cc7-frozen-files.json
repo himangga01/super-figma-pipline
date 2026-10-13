@@ -1,0 +1,41 @@
+{
+  "schemaVersion": 1,
+  "kind": "normal-path-source-identity-phase-and-refresh-logging-r2",
+  "baselineSource": "sha256:6f87f836d872a4ba8ab49533f6447a7c921adb6b8af3dae75ddd6241e8b8a1cb",
+  "files": [
+    {
+      "path": "packages/cli/src/figma-page-reader.ts",
+      "beforeSha256": "f346bb9781c7bd44392821529dee9db9b2a70fb2ae35c1a1600bc07f8981ccd0",
+      "afterSha256": "daeb45dee99dbff9a09cc2f49c7c635c2cd44d310216b6d34782d61008ad5f4a",
+      "bytes": 18571
+    },
+    {
+      "path": "packages/mcp/src/portal/native-work.ts",
+      "beforeSha256": "ea1829c2196b44e4272bcbb105d2de678707246d3713ac137c853a3d05cd41cf",
+      "afterSha256": "d4b50bb1f626ba3b21968cd6872f2ac989e83e511dec0321652b5301d641bbc5",
+      "bytes": 109637
+    },
+    {
+      "path": "packages/cli/test/figma-page-identity-diagnostics.test.ts",
+      "beforeSha256": null,
+      "afterSha256": "41c0f6bb259be4663d83211cede8218d87d8ab3299e35162d2619a4dca119cdc",
+      "bytes": 4750
+    },
+    {
+      "path": "packages/mcp/test/portal/source-refresh-diagnostic.test.ts",
+      "beforeSha256": null,
+      "afterSha256": "33353d65bf4e42c8c8e61e0b8908b8325e1ba4fd8f2f52b15df053d70692efd8",
+      "bytes": 2948
+    }
+  ],
+  "productionFiles": 2,
+  "newTestFiles": 2,
+  "guardAndDeadlineCriteriaUnchanged": true,
+  "privatePageAccessorAdded": false,
+  "liveSourceDiagnosticPerformed": false,
+  "sourceIntegrated": false,
+  "previousFreezeSha256": "364f052d679101a8cd6ad4f4230930b81eea891aa343207d563e37c466e184e3",
+  "deltaFromR1": "two test cleanup guards only",
+  "cleanupGuards": "owned mkdtemp prefix, canonical root/parent, parent and root bigint identities checked before recursive rm",
+  "passedTestsNotRepeated": true
+}

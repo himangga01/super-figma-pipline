@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="referrer" content="same-origin" />
+    <title>이 서비스의 Figma 로그인 동의</title>
+    <link rel="stylesheet" href="/figma-auth-consent.css" />
+  </head>
+  <body>
+    <main id="figma-auth-consent">
+      <h1>이 서비스의 Figma 로그인 동의</h1>
+      <p>
+        기존 포털과 Figma 소스 탭은 유지됩니다. 이 탭에서만 계속 버튼을 누르고, Figma 로그인·동의와
+        브라우저의 허용 요청은 직접 확인하세요.
+      </p>
+      <p>
+        운영자가 설치한 서비스 전용 계약은 Figma의 등록 자격을 서버에서 검증했다는 뜻이 아닙니다.
+        로그인은 파일 수집 성공이나 데이터 전송 허용을 부여하지 않습니다.
+      </p>
+      <p id="figma-consent-status" role="status">현재 서비스의 로그인 상태를 읽고 있습니다.</p>
+      <form
+        id="figma-consent-form"
+        method="post"
+        action="/api/figma-settings/auth/handoff"
+        autocomplete="off"
+      >
+        <input type="hidden" name="csrf" />
+        <input type="hidden" name="providerInstanceId" />
+        <input type="hidden" name="configurationGeneration" />
+        <input type="hidden" name="authGeneration" />
+        <input type="hidden" name="flowId" />
+        <button id="figma-consent-continue" type="submit" disabled>Figma 동의 화면으로 계속</button>
+      </form>
+      <button id="figma-consent-reload" type="button">현재 상태 다시 읽기</button>
+      <p>
+        이 화면의 조회는 로그인을 시작하거나 동의를 재사용하지 않습니다. 취소되거나 기한이 지난
+        로그인은 포털에서 상태를 확인한 뒤 새로 시작해야 합니다.
+      </p>
+      <p>
+        <a href="/" rel="noreferrer">포털로 돌아가기</a>. 이 탭을 닫아도 이미 전송된 요청이
+        취소됐다고 보장하지 않습니다.
+      </p>
+    </main>
+    <script type="module" nonce="__SFP_FIGMA_CONSENT_NONCE__" src="/figma-auth-consent.js"></script>
+  </body>
+</html>

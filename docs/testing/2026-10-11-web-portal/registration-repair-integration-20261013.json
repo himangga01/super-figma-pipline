@@ -1,0 +1,16 @@
+{
+  "at": "2026-10-12T15:37:45.294Z",
+  "baseline": "sha256:9c2806c53fe97177935a8e5949a4da4714cda5a18dc10b4bdf5d31c3b133bc95",
+  "sourceHash": "sha256:bac0034e914c4c92b7e1ddb60b72b738740147fe3fb5794b3febc78fcc1a457c",
+  "file": {
+    "path": "packages/cli/test/bound-server-session.test.ts",
+    "beforeSha256": "ec5de6679d1be54e8ce55617c9f50a9b8d01972738e67c6bde058506db6522a2",
+    "afterSha256": "e79e921d15a157e2b041a83bbbe5edd8f8ab27adc62469bd362b17a92c97f614"
+  },
+  "ownerIndex": "a99e5dd36982d74373d779448068a8449189b133e54cd673b13be2c2c356b2a9",
+  "registrationFocusedCases": 2,
+  "actualFocusedTests": 2,
+  "productionChanged": false,
+  "wholeCheckOwed": true,
+  "oldWholeFailurePreserved": true
+}

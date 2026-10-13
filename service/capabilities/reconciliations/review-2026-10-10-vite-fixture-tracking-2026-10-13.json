@@ -1,0 +1,63 @@
+{
+  "schemaVersion": 1,
+  "slice": "review-2026-10-10",
+  "baseline": {
+    "headCommit": "22517932dc9b2cb974c177ec4eacb84d4b16e254",
+    "authoritySha256": {
+      "upstream-lock.json": "0fcacdcb855e001b273fcbdcfaf0a2f0dc00867bc89537a061795d0f74f637fb",
+      "vendor-map.json": "b3275c7d8b997d1cfe723d97594659f77d7b4361b824a790bcfdd7ff762589bd",
+      "vendor-rules.json": "389126f5781b4cc8ee5502aa0c837f18e1748fa128c47e4052fa91f6aae7fc88"
+    }
+  },
+  "entries": [
+    {
+      "path": ".gitignore",
+      "sha256": "5b97da169fe483aa16f3c73a8a5ddd554798788edc84f766b81d21385cf81e95",
+      "priorClaims": [
+        {
+          "class": "protected",
+          "sha256": "6802f3fe5cd552b576af0e530a3f966ce430eda51867de0183ef06a11a43f869"
+        }
+      ],
+      "reason": "Register the two already reviewed immutable Vite7 resolver fixture text resources excluded by the blanket dist ignore. Add only exact fixture directory/file negations; preserve all generated dist ignores and frozen resource bytes/license. Prior R27 offline verification rejected those unmanaged resources. Keep R52 independent tests, failed R51 proof, historical whole failures and original deadlines. Source-only tracking repair, no acceptance or whole-pass claim."
+    },
+    {
+      "path": "capabilities/task-review-2026-10-10-authority-classes.json",
+      "sha256": "829daf77e0c46e5220619cfb73c40bd107aa5ff9b41b8e3ba0d544d6a1ed1f03",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "1fd5cf6369752bd6d1b7791d87fdc0a0aaff4102806eb1fb2420ad54d3ced8d6"
+        },
+        {
+          "class": "protected",
+          "sha256": "1fd5cf6369752bd6d1b7791d87fdc0a0aaff4102806eb1fb2420ad54d3ced8d6"
+        }
+      ],
+      "reason": "Register the two already reviewed immutable Vite7 resolver fixture text resources excluded by the blanket dist ignore. Add only exact fixture directory/file negations; preserve all generated dist ignores and frozen resource bytes/license. Prior R27 offline verification rejected those unmanaged resources. Keep R52 independent tests, failed R51 proof, historical whole failures and original deadlines. Source-only tracking repair, no acceptance or whole-pass claim."
+    },
+    {
+      "path": "packages/mcp/test/portal/fixtures/vite7-resolver/dist/node/chunks/config.js.txt",
+      "sha256": "c5d2cb692f24bb9d9de7dbd0b86506f1dada18c362aaa7c5a05d460870ced734",
+      "priorClaims": [],
+      "reason": "Register the two already reviewed immutable Vite7 resolver fixture text resources excluded by the blanket dist ignore. Add only exact fixture directory/file negations; preserve all generated dist ignores and frozen resource bytes/license. Prior R27 offline verification rejected those unmanaged resources. Keep R52 independent tests, failed R51 proof, historical whole failures and original deadlines. Source-only tracking repair, no acceptance or whole-pass claim."
+    },
+    {
+      "path": "packages/mcp/test/portal/fixtures/vite7-resolver/dist/node/module-runner.js.txt",
+      "sha256": "e9e66cba21fc780ae9a5a64da48503afa49bf9bc25c69007333c7835b763b89c",
+      "priorClaims": [],
+      "reason": "Register the two already reviewed immutable Vite7 resolver fixture text resources excluded by the blanket dist ignore. Add only exact fixture directory/file negations; preserve all generated dist ignores and frozen resource bytes/license. Prior R27 offline verification rejected those unmanaged resources. Keep R52 independent tests, failed R51 proof, historical whole failures and original deadlines. Source-only tracking repair, no acceptance or whole-pass claim."
+    },
+    {
+      "path": "packages/portal/package.json",
+      "sha256": "ddb99eafe979d2319697f9bde91d01c4b3f4cf7f3e2a2baccfcb06ceff7767c8",
+      "priorClaims": [
+        {
+          "class": "protected",
+          "sha256": "ddb99eafe979d2319697f9bde91d01c4b3f4cf7f3e2a2baccfcb06ceff7767c8"
+        }
+      ],
+      "reason": "Register the two already reviewed immutable Vite7 resolver fixture text resources excluded by the blanket dist ignore. Add only exact fixture directory/file negations; preserve all generated dist ignores and frozen resource bytes/license. Prior R27 offline verification rejected those unmanaged resources. Keep R52 independent tests, failed R51 proof, historical whole failures and original deadlines. Source-only tracking repair, no acceptance or whole-pass claim."
+    }
+  ]
+}

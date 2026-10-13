@@ -1,0 +1,56 @@
+{
+  "at": "2026-10-13T00:03:06.322Z",
+  "source": "sha256:034849a7fd017fe473384288a0bff7a57e3ddb0cef7b7b41146623a7d788f285",
+  "entries": [
+    {
+      "path": "upstream-lock.json",
+      "before": "f992cfad28c4493a80d9f66228f281e42751280277b1ec3ea889c0591e71b7c4",
+      "after": "00fd50b2a506587621401780ecf96f7e15f5ce57bb6ac2db2efe4503b2484bc3"
+    },
+    {
+      "path": "vendor-map.json",
+      "before": "b3275c7d8b997d1cfe723d97594659f77d7b4361b824a790bcfdd7ff762589bd",
+      "after": "b3275c7d8b997d1cfe723d97594659f77d7b4361b824a790bcfdd7ff762589bd"
+    },
+    {
+      "path": "vendor-rules.json",
+      "before": "0f91198db6556d8d4009ceac41ddb17f35e7b9b28c0039ab77c47879917f4875",
+      "after": "4981f573bf146fd8855a2fd10c0aafbb807a6a9420149799b2fa6ed749674021"
+    },
+    {
+      "path": "capabilities/change-manifests/task-review-2026-10-10.json",
+      "before": "05b40354adc8f67a431c9d4933113b7119f3210169482e21fa1c1d63e87960ea",
+      "after": "a7d5e90086918380d271145d6a1f86bffdf1879d984948dbaeca5f6c1d11ea61"
+    },
+    {
+      "path": "capabilities/task-review-2026-10-10-authority-classes.json",
+      "before": "1d42d7b8a0af5aee2e058f142e94eba4731435f83c1f70bb2958ddce3a069c3f",
+      "after": "764ad40b1a788600d802c38e8b69be10ab0a21b83c8b6a8cc4b3b2e1130661dc"
+    },
+    {
+      "path": "capabilities/reconciliations/review-2026-10-10-native-contours-supplement-and-c3-compiler-2026-10-13.json",
+      "before": null,
+      "after": "f39e97ddfd12f21b067059f39397443d181230d38860f575f5e871b0cc55089e"
+    }
+  ],
+  "semanticChanges": 240,
+  "derivedAuthorities": 4,
+  "ownerIndexUnchanged": true,
+  "actualNativePackageTypes": {
+    "mcp": 0,
+    "cli": 0,
+    "portal": 0
+  },
+  "lint": 0,
+  "format": 0,
+  "knip": 0,
+  "diagnostics": {
+    "codes": 1951,
+    "modules": 460,
+    "labels": 307
+  },
+  "wholePassed": false,
+  "runtimeReplaced": false,
+  "completePortalJourneys": 0,
+  "officialLive": "deferred-by-owner"
+}

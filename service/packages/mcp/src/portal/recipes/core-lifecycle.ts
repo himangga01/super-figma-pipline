@@ -28,6 +28,10 @@ import {
 } from '../design-capture.js';
 import { normalizeDesignObservation } from '../design-normalization.js';
 import { derivePortalInteractionContract } from '../interaction-evidence.js';
+import {
+  verifyReactRouterCompilerGraphEvidence,
+  type ReactRouterCompilerEvidence,
+} from '../react-router-compiler-evidence.js';
 import { collectPortalSourceInventory } from '../source-inventory.js';
 import { portalError } from '../store.js';
 import { CORE_RECIPE_CONTRACT_HASH, type deriveCoreRecipeBundle } from './core-derivation.js';
@@ -145,6 +149,18 @@ export class PortalCoreLifecycle {
       );
       if (!inventory.complete || inventory.hash !== profile.graph.sourceInventory.hash)
         throw portalError('PORTAL_CORE_SOURCE_CHANGED');
+      if (profile.graph.compilerEvidenceHash) {
+        if (!profile.graph.sourceId) throw portalError('PORTAL_COMPILER_EVIDENCE_REQUIRED');
+        // eslint-disable-next-line no-await-in-loop -- current issuer/output proof is independent per root
+        await verifyReactRouterCompilerGraphEvidence(
+          profile.graph.compilerEvidenceHash,
+          plan.ownerId,
+          profile.graph.sourceId,
+          inventory.hash,
+          plan.workspaceId,
+          signal,
+        );
+      }
     }
   }
 
@@ -155,6 +171,7 @@ export class PortalCoreLifecycle {
     authority: PortalAuthority,
     policy: WorkspacePolicy,
     signal: AbortSignal,
+    compilerEvidence: ReadonlyMap<string, ReactRouterCompilerEvidence> = new Map(),
   ): Promise<PortalCorePlanBinding> {
     if (
       !plan.design.capture ||
@@ -188,6 +205,9 @@ export class PortalCoreLifecycle {
       if (!root || !profile.graph.sourceId) throw portalError('PORTAL_CORE_SOURCE_REQUIRED');
       return {
         sourceId: profile.graph.sourceId as `sha256:${string}`,
+        ...(compilerEvidence.has(profile.graph.sourceId)
+          ? { compilerEvidence: compilerEvidence.get(profile.graph.sourceId)! }
+          : {}),
         reader: new RepoReader({
           rootDir: root.path,
           workspaceId: root.workspaceId,

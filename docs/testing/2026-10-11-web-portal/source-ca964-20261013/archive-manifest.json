@@ -1,0 +1,474 @@
+{
+  "schemaVersion": 1,
+  "created": "2026-10-05T12:15:32.000Z",
+  "archives": [
+    {
+      "name": "mcp.tgz",
+      "sha256": "4b4e35db6b95080cc7bac5ddd81d2ae979cbd217c3e2d5e8141a51e0501c22fd",
+      "bytes": 1042015,
+      "files": [
+        {
+          "path": "LICENSE",
+          "bytes": 1090,
+          "sha256": "71bdd83bd806bf641f813b89cae0325c9ec207d6b9cab501be827186c61432b7"
+        },
+        {
+          "path": "PROVENANCE.md",
+          "bytes": 7735,
+          "sha256": "44f911ccc9b69bb5002e73811e575fe6dc26641200f5e771bdb1778f2b676b78"
+        },
+        {
+          "path": "README.md",
+          "bytes": 14151,
+          "sha256": "4ccb48d0475443c20127482cd9bf2f5da599107fea4d3784f1dc434ba3a581ae"
+        },
+        {
+          "path": "SBOM.spdx.json",
+          "bytes": 34610,
+          "sha256": "def65842c04e035fe82f55b09e6113a0d33a95e506ba9151079bf58b5c5eb008"
+        },
+        {
+          "path": "THIRD_PARTY_NOTICES.md",
+          "bytes": 127587,
+          "sha256": "09afbf5660607cc322fa0522f620f69fc8c6e86e1b80a966ccec897e7b66c9f9"
+        },
+        {
+          "path": "capabilities/figmosha-feature-map.json",
+          "bytes": 8757,
+          "sha256": "ce423b9ed67c825a84e5b2500124a305ca5b5119e5e07f8a79aabca05a49d862"
+        },
+        {
+          "path": "capabilities/rust-tool-compat.json",
+          "bytes": 49873,
+          "sha256": "a13fc9633b0406946b78f800135d1420d00de0da77cd27f4f62a4334dd70615a"
+        },
+        {
+          "path": "capabilities/union-manifest.json",
+          "bytes": 184312,
+          "sha256": "2d48f4159b2fb6fda5607491e2c389f74b575e2adc4e04bc88aca98ac926bb39"
+        },
+        {
+          "path": "dist/build-info.json",
+          "bytes": 129,
+          "sha256": "2a2d7f71f8f73cec85f693e9c9e039dc3978ee9b6a087a62c8e1a4de4553a00e"
+        },
+        {
+          "path": "dist/daemon-entry.mjs",
+          "bytes": 377,
+          "sha256": "e3a58bd2118f08b01e71b62d845a62c561fef0ff05e44d33b327a2593bb0464c"
+        },
+        {
+          "path": "dist/index.mjs",
+          "bytes": 2260859,
+          "sha256": "11b0c973345ee98d51087d6853b1e173ec6351c56e2d0b9601869718cd820ee1"
+        },
+        {
+          "path": "dist/native-artifacts-DFn0eFKT.mjs",
+          "bytes": 59116,
+          "sha256": "25e82394a83cec2f1b20e284777b2bd7a0443713834227aede3a957f7ca4b6c8"
+        },
+        {
+          "path": "dist/native-artifacts-DhS3KtPr.mjs",
+          "bytes": 766,
+          "sha256": "c9bd9cad23d038f735d9d79b6b10a9007bdc5f41e6d58a15d433efaab4c5a598"
+        },
+        {
+          "path": "dist/native-module-fence-BdiSMVvv.mjs",
+          "bytes": 15324,
+          "sha256": "b93173352b1cf14d2ab15ebcd3ecc62269eb066326dd69ca5d69b7eb4ac126b7"
+        },
+        {
+          "path": "dist/native-module-fence-CbIHt79q.mjs",
+          "bytes": 200,
+          "sha256": "14c30e43db61752fbc5726c6f9bc261e34d7c598b551f34abc3e0aef7ba856c7"
+        },
+        {
+          "path": "dist/native-runner-1Tiphkbl.mjs",
+          "bytes": 319,
+          "sha256": "a93d34d36aa77e0ba559c9c7375eab3f7f7387a29832e25a026e0017ac0587a5"
+        },
+        {
+          "path": "dist/native-runner-ZymO77ZZ.mjs",
+          "bytes": 72575,
+          "sha256": "7e0db94eeba1af86c8f88a2f23cb72799febcdade3a62771f4b1927283e2804d"
+        },
+        {
+          "path": "dist/operation-evidence-projector-B7-FeG0J.mjs",
+          "bytes": 156,
+          "sha256": "58fd1706c3727fdd06503d21db32e58310528980394caed679e811510a35643f"
+        },
+        {
+          "path": "dist/operation-evidence-projector-DANuVUDF.mjs",
+          "bytes": 5821,
+          "sha256": "742f3d1da3acdd5b68de8dcbbf631bebb3475863a1e3670e8a3457d00e4f86e3"
+        },
+        {
+          "path": "dist/plugin/dist/code.js",
+          "bytes": 355337,
+          "sha256": "7ab84788b2adf32b44e48908c6f54d075b61ffdd629096e39d0f386312badd20"
+        },
+        {
+          "path": "dist/plugin/dist/index.html",
+          "bytes": 383091,
+          "sha256": "801ecd7020f0015547ab246fbc25c27fcbc7f70901cee46f026eee20605f804b"
+        },
+        {
+          "path": "dist/plugin/manifest.json",
+          "bytes": 529,
+          "sha256": "d658e7e382bb503adba766dce6698d1d853466601a97f0266926ab2fc093665f"
+        },
+        {
+          "path": "dist/portal-validation.mjs",
+          "bytes": 2566,
+          "sha256": "a05abf6cfb7c67b448ace045d9a86634da2b8dc7cccebfe95c932fcefc179230"
+        },
+        {
+          "path": "dist/preview-listener-CQdhJ0GI.mjs",
+          "bytes": 155271,
+          "sha256": "385844d65c7baad7484d0de05ba48dcc85c5646ee18139e63b391c1f1e8ab563"
+        },
+        {
+          "path": "dist/preview-worker-DCythLGG.mjs",
+          "bytes": 254327,
+          "sha256": "eb5ebfd6af54fbdaeb3f54ff9e65db60865009d9bc897e10fee48080c596ca49"
+        },
+        {
+          "path": "dist/runtime-mode-CtV2_UhM.mjs",
+          "bytes": 223,
+          "sha256": "cbbef87c27503d74ff4dddff1b845fa75e8fd34c7aa3468e275e22eeed185c5f"
+        },
+        {
+          "path": "dist/src-9lRp_v81.mjs",
+          "bytes": 170,
+          "sha256": "6419782132c43b159bcd1f25a9c83b8b9a6e848f7095b9d6fd59ade939076417"
+        },
+        {
+          "path": "dist/src-DUMERF16.mjs",
+          "bytes": 259338,
+          "sha256": "29b7e09f2e6fe4da0414ed9ec52c300f4f30366e5032a981cd758975afbd8888"
+        },
+        {
+          "path": "dist/src-_fQKUeHi.mjs",
+          "bytes": 55059,
+          "sha256": "4fe6dc27b54a3193aea7f541c8555e1cd3d2bf3e8f97c3a8a595960a5535f767"
+        },
+        {
+          "path": "licenses/figma-mcp-rust-LICENSE",
+          "bytes": 1137,
+          "sha256": "090008b93681f89f069796302925b21e031e8ac7c8c810cf75eb624cb8b195c2"
+        },
+        {
+          "path": "licenses/figmosha2-LICENSE",
+          "bytes": 1071,
+          "sha256": "88d4bc888f9604446e87873d7baf06925af639fe77c10ed3c90b0fb138ec4423"
+        },
+        {
+          "path": "licenses/figwright-LICENSE",
+          "bytes": 1069,
+          "sha256": "596f04ba93da8a848340599a9fafbbda8859d45a4087fd19c220bf16640c4d8f"
+        },
+        {
+          "path": "package.json",
+          "bytes": 855,
+          "sha256": "979523c53853456ef73f12df6b758ff87895a59eb9a22fae430ce5c538f7587b"
+        }
+      ]
+    },
+    {
+      "name": "cli.tgz",
+      "sha256": "d78e2322e552f5018e6f0b7d8c82215983f6a69c408d6972c4ff9d032f91f449",
+      "bytes": 877144,
+      "files": [
+        {
+          "path": "LICENSE",
+          "bytes": 1090,
+          "sha256": "71bdd83bd806bf641f813b89cae0325c9ec207d6b9cab501be827186c61432b7"
+        },
+        {
+          "path": "PROVENANCE.md",
+          "bytes": 7735,
+          "sha256": "44f911ccc9b69bb5002e73811e575fe6dc26641200f5e771bdb1778f2b676b78"
+        },
+        {
+          "path": "README.md",
+          "bytes": 14151,
+          "sha256": "4ccb48d0475443c20127482cd9bf2f5da599107fea4d3784f1dc434ba3a581ae"
+        },
+        {
+          "path": "SBOM.spdx.json",
+          "bytes": 34610,
+          "sha256": "def65842c04e035fe82f55b09e6113a0d33a95e506ba9151079bf58b5c5eb008"
+        },
+        {
+          "path": "THIRD_PARTY_NOTICES.md",
+          "bytes": 127587,
+          "sha256": "09afbf5660607cc322fa0522f620f69fc8c6e86e1b80a966ccec897e7b66c9f9"
+        },
+        {
+          "path": "capabilities/figmosha-feature-map.json",
+          "bytes": 8757,
+          "sha256": "ce423b9ed67c825a84e5b2500124a305ca5b5119e5e07f8a79aabca05a49d862"
+        },
+        {
+          "path": "capabilities/rust-tool-compat.json",
+          "bytes": 49873,
+          "sha256": "a13fc9633b0406946b78f800135d1420d00de0da77cd27f4f62a4334dd70615a"
+        },
+        {
+          "path": "capabilities/union-manifest.json",
+          "bytes": 184312,
+          "sha256": "2d48f4159b2fb6fda5607491e2c389f74b575e2adc4e04bc88aca98ac926bb39"
+        },
+        {
+          "path": "dist/commands-Z8CbVlEn.mjs",
+          "bytes": 3233025,
+          "sha256": "72728d60e538b9ea6aaf8cd5412bd080bfe121dfed425b264abfca75e0c36f10"
+        },
+        {
+          "path": "dist/index.mjs",
+          "bytes": 504,
+          "sha256": "8b881c9fbd3b81306cfa2847d53da86429ca37fdf635915720604ce40f7595cb"
+        },
+        {
+          "path": "dist/library.mjs",
+          "bytes": 24096,
+          "sha256": "5812a23ff4d98926d38e2a2c0dcc373101de57ca04f7b63e2629666c9c39d98f"
+        },
+        {
+          "path": "licenses/figma-mcp-rust-LICENSE",
+          "bytes": 1137,
+          "sha256": "090008b93681f89f069796302925b21e031e8ac7c8c810cf75eb624cb8b195c2"
+        },
+        {
+          "path": "licenses/figmosha2-LICENSE",
+          "bytes": 1071,
+          "sha256": "88d4bc888f9604446e87873d7baf06925af639fe77c10ed3c90b0fb138ec4423"
+        },
+        {
+          "path": "licenses/figwright-LICENSE",
+          "bytes": 1069,
+          "sha256": "596f04ba93da8a848340599a9fafbbda8859d45a4087fd19c220bf16640c4d8f"
+        },
+        {
+          "path": "package.json",
+          "bytes": 530,
+          "sha256": "beadd39225842310a767b6377c6657cf50fe692ca17c433c3ba959fabee48f9c"
+        }
+      ]
+    },
+    {
+      "name": "plugin.zip",
+      "sha256": "012486b5887792093e8d457746a8964f79ce995b137ee391cf3b06cd132cb1ac",
+      "bytes": 276576,
+      "files": [
+        {
+          "path": "LICENSE",
+          "bytes": 1090,
+          "sha256": "71bdd83bd806bf641f813b89cae0325c9ec207d6b9cab501be827186c61432b7"
+        },
+        {
+          "path": "PROVENANCE.md",
+          "bytes": 7735,
+          "sha256": "44f911ccc9b69bb5002e73811e575fe6dc26641200f5e771bdb1778f2b676b78"
+        },
+        {
+          "path": "README.md",
+          "bytes": 14151,
+          "sha256": "4ccb48d0475443c20127482cd9bf2f5da599107fea4d3784f1dc434ba3a581ae"
+        },
+        {
+          "path": "SBOM.spdx.json",
+          "bytes": 34610,
+          "sha256": "def65842c04e035fe82f55b09e6113a0d33a95e506ba9151079bf58b5c5eb008"
+        },
+        {
+          "path": "THIRD_PARTY_NOTICES.md",
+          "bytes": 127587,
+          "sha256": "09afbf5660607cc322fa0522f620f69fc8c6e86e1b80a966ccec897e7b66c9f9"
+        },
+        {
+          "path": "capabilities/figmosha-feature-map.json",
+          "bytes": 8757,
+          "sha256": "ce423b9ed67c825a84e5b2500124a305ca5b5119e5e07f8a79aabca05a49d862"
+        },
+        {
+          "path": "capabilities/rust-tool-compat.json",
+          "bytes": 49873,
+          "sha256": "a13fc9633b0406946b78f800135d1420d00de0da77cd27f4f62a4334dd70615a"
+        },
+        {
+          "path": "capabilities/union-manifest.json",
+          "bytes": 184312,
+          "sha256": "2d48f4159b2fb6fda5607491e2c389f74b575e2adc4e04bc88aca98ac926bb39"
+        },
+        {
+          "path": "dist/code.js",
+          "bytes": 355337,
+          "sha256": "7ab84788b2adf32b44e48908c6f54d075b61ffdd629096e39d0f386312badd20"
+        },
+        {
+          "path": "dist/index.html",
+          "bytes": 383091,
+          "sha256": "801ecd7020f0015547ab246fbc25c27fcbc7f70901cee46f026eee20605f804b"
+        },
+        {
+          "path": "licenses/figma-mcp-rust-LICENSE",
+          "bytes": 1137,
+          "sha256": "090008b93681f89f069796302925b21e031e8ac7c8c810cf75eb624cb8b195c2"
+        },
+        {
+          "path": "licenses/figmosha2-LICENSE",
+          "bytes": 1071,
+          "sha256": "88d4bc888f9604446e87873d7baf06925af639fe77c10ed3c90b0fb138ec4423"
+        },
+        {
+          "path": "licenses/figwright-LICENSE",
+          "bytes": 1069,
+          "sha256": "596f04ba93da8a848340599a9fafbbda8859d45a4087fd19c220bf16640c4d8f"
+        },
+        {
+          "path": "manifest.json",
+          "bytes": 529,
+          "sha256": "d658e7e382bb503adba766dce6698d1d853466601a97f0266926ab2fc093665f"
+        }
+      ]
+    },
+    {
+      "name": "portal.tgz",
+      "sha256": "f9d141eabefa056a35b5d7e4e6c2fafaf54a408728aabe8a1c6ff56a77c0a6a4",
+      "bytes": 243854,
+      "files": [
+        {
+          "path": "DEBUGGING.md",
+          "bytes": 12174,
+          "sha256": "82853e36979b7fda86c3139924cba244255c1f52ea4c2e438c02017f22e8e31e"
+        },
+        {
+          "path": "LICENSE",
+          "bytes": 1090,
+          "sha256": "71bdd83bd806bf641f813b89cae0325c9ec207d6b9cab501be827186c61432b7"
+        },
+        {
+          "path": "PROVENANCE.md",
+          "bytes": 7735,
+          "sha256": "44f911ccc9b69bb5002e73811e575fe6dc26641200f5e771bdb1778f2b676b78"
+        },
+        {
+          "path": "README.md",
+          "bytes": 14151,
+          "sha256": "4ccb48d0475443c20127482cd9bf2f5da599107fea4d3784f1dc434ba3a581ae"
+        },
+        {
+          "path": "SBOM.spdx.json",
+          "bytes": 34610,
+          "sha256": "def65842c04e035fe82f55b09e6113a0d33a95e506ba9151079bf58b5c5eb008"
+        },
+        {
+          "path": "THIRD_PARTY_NOTICES.md",
+          "bytes": 127587,
+          "sha256": "09afbf5660607cc322fa0522f620f69fc8c6e86e1b80a966ccec897e7b66c9f9"
+        },
+        {
+          "path": "capabilities/figmosha-feature-map.json",
+          "bytes": 8757,
+          "sha256": "ce423b9ed67c825a84e5b2500124a305ca5b5119e5e07f8a79aabca05a49d862"
+        },
+        {
+          "path": "capabilities/rust-tool-compat.json",
+          "bytes": 49873,
+          "sha256": "a13fc9633b0406946b78f800135d1420d00de0da77cd27f4f62a4334dd70615a"
+        },
+        {
+          "path": "capabilities/union-manifest.json",
+          "bytes": 184312,
+          "sha256": "2d48f4159b2fb6fda5607491e2c389f74b575e2adc4e04bc88aca98ac926bb39"
+        },
+        {
+          "path": "dist/index.mjs",
+          "bytes": 438440,
+          "sha256": "86473671fcdaa85956e0edbdd8a539c7ed40d8d33226bbc33d3cdff4b6055a94"
+        },
+        {
+          "path": "licenses/figma-mcp-rust-LICENSE",
+          "bytes": 1137,
+          "sha256": "090008b93681f89f069796302925b21e031e8ac7c8c810cf75eb624cb8b195c2"
+        },
+        {
+          "path": "licenses/figmosha2-LICENSE",
+          "bytes": 1071,
+          "sha256": "88d4bc888f9604446e87873d7baf06925af639fe77c10ed3c90b0fb138ec4423"
+        },
+        {
+          "path": "licenses/figwright-LICENSE",
+          "bytes": 1069,
+          "sha256": "596f04ba93da8a848340599a9fafbbda8859d45a4087fd19c220bf16640c4d8f"
+        },
+        {
+          "path": "package.json",
+          "bytes": 770,
+          "sha256": "acd06b7bf3013d850852818a5ab7d9a0c9e411a579bb1b3dce56c2010406145c"
+        },
+        {
+          "path": "web/api.js",
+          "bytes": 4536,
+          "sha256": "4b608fcde06ebb2e2a8bf2d3bda7ba682a3a72920b8762ce55db8f6390b05102"
+        },
+        {
+          "path": "web/app.js",
+          "bytes": 105054,
+          "sha256": "fe9e1257b0001dc09425637d3849fede9270bbdb85bc895ec068cf6ef06585e3"
+        },
+        {
+          "path": "web/figma-auth-consent.css",
+          "bytes": 630,
+          "sha256": "92936bf38172f7af6875e8be212882ff6a7db8eceb186306ced37a347e6abc73"
+        },
+        {
+          "path": "web/figma-auth-consent.html",
+          "bytes": 2207,
+          "sha256": "a517ebb46e30626d50ab7562b459e209a8d93d617370fd367524bba7319f4eea"
+        },
+        {
+          "path": "web/figma-auth-consent.js",
+          "bytes": 4565,
+          "sha256": "cfa0bd18655247a3dcaff6520b250bfd329484d857be7b94a077428416d01b0c"
+        },
+        {
+          "path": "web/figma-auth-public.js",
+          "bytes": 8111,
+          "sha256": "37c224301b981a75ea0eb59755142199372de6bf5ec9b8b5671bb365631056f9"
+        },
+        {
+          "path": "web/figma-settings.js",
+          "bytes": 19373,
+          "sha256": "00a6349b3c16da3b31cab8e32da0dde5cc5764724abd1d9fd01fb9f4cbb66575"
+        },
+        {
+          "path": "web/index.html",
+          "bytes": 1340,
+          "sha256": "412a66ea1bca0396e3105f37635ad7973510b657e2549aac1337d03f2dfcd690"
+        },
+        {
+          "path": "web/model.js",
+          "bytes": 21878,
+          "sha256": "4be8488eb188ec799c4264aa78596dd8dd005173d185ff0ba831bad3b11190b4"
+        },
+        {
+          "path": "web/schema-form.js",
+          "bytes": 22793,
+          "sha256": "9d1b1d073824327e8e6206d76981e23cdbc9e980f2511542c81aed2a3600693d"
+        },
+        {
+          "path": "web/service-functions.js",
+          "bytes": 28592,
+          "sha256": "36c0d05f81dcc63db109eaff6a6bc0239e797d85624f90dce95cf91a503c0e19"
+        },
+        {
+          "path": "web/styles.css",
+          "bytes": 29240,
+          "sha256": "47267a7738904f221ad77e0d1d18463d7b268a310735ab026388cbd8d8262b8a"
+        }
+      ]
+    }
+  ]
+}

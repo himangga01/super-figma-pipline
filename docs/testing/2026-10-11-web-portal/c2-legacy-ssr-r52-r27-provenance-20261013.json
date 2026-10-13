@@ -1,0 +1,52 @@
+{
+  "schemaVersion": 1,
+  "at": "2026-10-13T07:39:14.468Z",
+  "sourceHash": "sha256:ab85c50154f0bacdd94ea9ff63bc1b88c8369955967eaa02ab9638f8e39caa5a",
+  "entries": [
+    {
+      "path": "upstream-lock.json",
+      "before": "e28fba5add7d99cb0d77c778d798b0c01cf89b167158a42d6276cf55f51750b1",
+      "after": "0fcacdcb855e001b273fcbdcfaf0a2f0dc00867bc89537a061795d0f74f637fb"
+    },
+    {
+      "path": "vendor-map.json",
+      "before": "b3275c7d8b997d1cfe723d97594659f77d7b4361b824a790bcfdd7ff762589bd",
+      "after": "b3275c7d8b997d1cfe723d97594659f77d7b4361b824a790bcfdd7ff762589bd"
+    },
+    {
+      "path": "vendor-rules.json",
+      "before": "1e8434cafb6793bc19010b1f75cb7669ee20b77151ada4e32a9bb1a0ff8bf15d",
+      "after": "389126f5781b4cc8ee5502aa0c837f18e1748fa128c47e4052fa91f6aae7fc88"
+    },
+    {
+      "path": "capabilities/change-manifests/task-review-2026-10-10.json",
+      "before": "bbea1a589a178ef8bb5ce9f4d640811ca4ee834e4590e2f7d34a180c2d2caa45",
+      "after": "cdb2e949804bda216270dae63b736b1fc21190e8256168f7ddc8bc917d0390c7"
+    },
+    {
+      "path": "capabilities/task-review-2026-10-10-authority-classes.json",
+      "before": "b3460371b2399fe7949d2b740c796af41d98e73202f9144cb72fdfc7f7177799",
+      "after": "1fd5cf6369752bd6d1b7791d87fdc0a0aaff4102806eb1fb2420ad54d3ced8d6"
+    },
+    {
+      "path": "capabilities/reconciliations/review-2026-10-10-legacy-ssr-r52-2026-10-13.json",
+      "before": null,
+      "after": "d359b803b9e667bd1ee0406875b2c3cded2aa56a969767197e5251695d7ae0a3"
+    }
+  ],
+  "semanticChanges": 271,
+  "derivedAuthorities": 4,
+  "ownerIndexBaseline": "ecc1808ab3e14fa2e8c233ae1fc1c91e0a33b5b2e383a7270f1bc3068997e675",
+  "ownerIndexUnchangedByReconciliation": true,
+  "r52Independent": {
+    "passed": 3,
+    "failed": 0,
+    "filtered": 10,
+    "exitCode": 0
+  },
+  "wholeRerun": false,
+  "portalJourneys": 1,
+  "wholePassed": false,
+  "runtimeReplaced": false,
+  "officialLive": "deferred-by-owner"
+}

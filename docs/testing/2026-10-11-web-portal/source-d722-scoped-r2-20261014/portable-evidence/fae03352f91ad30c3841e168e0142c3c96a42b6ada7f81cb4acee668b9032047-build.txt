@@ -1,0 +1,115 @@
+Scope: 6 of 7 workspace projects
+packages/shared build$ tsc --noEmit -p tsconfig.json
+packages/shared build: Done
+packages/ir build$ tsc --noEmit -p tsconfig.json
+packages/plugin build$ pnpm run build:main && pnpm run build:ui
+packages/plugin build: $ vite build --config vite.config.main.ts
+packages/plugin build: vite v8.2.2 building client environment for production...
+packages/plugin build: transforming...
+packages/plugin build: ✓ 271 modules transformed.
+packages/plugin build: rendering chunks...
+packages/plugin build: computing gzip size...
+packages/plugin build: dist/code.js  355.33 kB │ gzip: 93.71 kB
+packages/plugin build: ✓ built in 105ms
+packages/plugin build: $ vite build --config vite.config.ts
+packages/ir build: Done
+packages/plugin build: vite v8.2.2 building client environment for production...
+packages/plugin build: transforming...
+packages/plugin build: ✓ 1994 modules transformed.
+packages/plugin build: rendering chunks...
+packages/plugin build: [plugin vite:singlefile] 
+packages/plugin build: [plugin vite:singlefile] Inlining: index-BxoGNu2k.js
+packages/plugin build: [plugin vite:singlefile] Inlining: style-BX-z2B9S.css
+packages/plugin build: computing gzip size...
+packages/plugin build: dist/index.html  383.09 kB │ gzip: 115.56 kB
+packages/plugin build: ✓ built in 1.46s
+packages/plugin build: Done
+packages/mcp build$ node ../../scripts/build-server.mjs
+packages/mcp build: ℹ tsdown v0.22.14 powered by rolldown v1.2.6
+packages/mcp build: ℹ config file: C:\2026_project\super-figma-pipline\.worktrees\baseline\service\packages\mcp\tsdown.config.ts 
+packages/mcp build: ℹ entry: src/index.ts, src/daemon-entry.ts, src/portal-validation.ts
+packages/mcp build: ℹ target: node24
+packages/mcp build: ℹ tsconfig: tsconfig.json
+packages/mcp build: ℹ Build start
+packages/mcp build: ℹ Cleaning 18 files
+packages/mcp build: ℹ Hint: consider adding deps.onlyBundle option to avoid unintended bundling of dependencies, or set deps.onlyBundle: false to disable this hint.
+packages/mcp build: See more at https://tsdown.dev/options/dependencies#deps-onlybundle
+packages/mcp build: Detected dependencies in bundle:
+packages/mcp build: - kiwi-schema
+packages/mcp build: ℹ Granting execute permission to dist\daemon-entry.mjs
+packages/mcp build: ℹ Granting execute permission to dist\index.mjs
+packages/mcp build: ℹ Granting execute permission to dist\portal-validation.mjs
+packages/mcp build: ℹ dist\index.mjs                                    2.17 MB
+packages/mcp build: ℹ dist\portal-validation.mjs                        2.57 kB │ gzip:  1.12 kB
+packages/mcp build: ℹ dist\daemon-entry.mjs                             0.38 kB │ gzip:  0.28 kB
+packages/mcp build: ℹ dist\src-DUMERF16.mjs                           259.34 kB │ gzip: 64.53 kB
+packages/mcp build: ℹ dist\preview-worker-Bjrhf7-u.mjs                254.36 kB │ gzip: 62.29 kB
+packages/mcp build: ℹ dist\native-module-fence-a9u2lrRN.mjs           242.73 kB │ gzip: 61.04 kB
+packages/mcp build: ℹ dist\preview-listener-CQdhJ0GI.mjs              155.27 kB │ gzip: 36.51 kB
+packages/mcp build: ℹ dist\native-artifacts-DtQ2xVxN.mjs               60.87 kB │ gzip: 17.14 kB
+packages/mcp build: ℹ dist\src-_fQKUeHi.mjs                            55.06 kB │ gzip: 13.14 kB
+packages/mcp build: ℹ dist\operation-evidence-projector-DANuVUDF.mjs    5.82 kB │ gzip:  1.89 kB
+packages/mcp build: ℹ dist\native-artifacts-OawpcHIy.mjs                0.77 kB │ gzip:  0.28 kB
+packages/mcp build: ℹ dist\native-runner-C9SFx4hL.mjs                   0.48 kB │ gzip:  0.24 kB
+packages/mcp build: ℹ dist\runtime-mode-CtV2_UhM.mjs                    0.22 kB │ gzip:  0.16 kB
+packages/mcp build: ℹ dist\native-module-fence-CCV15dvS.mjs             0.20 kB │ gzip:  0.15 kB
+packages/mcp build: ℹ dist\src-9lRp_v81.mjs                             0.17 kB │ gzip:  0.14 kB
+packages/mcp build: ℹ dist\operation-evidence-projector-B7-FeG0J.mjs    0.16 kB │ gzip:  0.13 kB
+packages/mcp build: ℹ 16 files, total: 3.21 MB
+packages/mcp build: [33m[INEFFECTIVE_DYNAMIC_IMPORT] [0msrc/portal/native-runner.ts is dynamically imported by src/portal/react-router-compiler-evidence.ts but also statically imported by src/portal/native-module-fence.ts, src/portal/native-work.ts, dynamic import will not move module into another chunk.
+packages/mcp build: [33m[INEFFECTIVE_DYNAMIC_IMPORT] [0msrc/portal/native-module-fence.ts is dynamically imported by src/portal/react-router-compiler-evidence.ts but also statically imported by src/portal/native-runner.ts, src/portal/native-work.ts, dynamic import will not move module into another chunk.
+packages/mcp build: ✔ Build complete in 188ms
+packages/mcp build: ✔ [publint] No issues found (230ms)
+packages/mcp build: Done
+packages/cli build$ tsdown
+packages/cli build: ℹ tsdown v0.22.14 powered by rolldown v1.2.6
+packages/cli build: ℹ config file: C:\2026_project\super-figma-pipline\.worktrees\baseline\service\packages\cli\tsdown.config.ts 
+packages/cli build: ℹ entry: src/index.ts, src/library.ts
+packages/cli build: ℹ target: node24
+packages/cli build: ℹ tsconfig: tsconfig.json
+packages/cli build: ℹ Build start
+packages/cli build: ℹ Cleaning 8 files
+packages/cli build: ℹ Hint: consider adding deps.onlyBundle option to avoid unintended bundling of dependencies, or set deps.onlyBundle: false to disable this hint.
+packages/cli build: See more at https://tsdown.dev/options/dependencies#deps-onlybundle
+packages/cli build: Detected dependencies in bundle:
+packages/cli build: - ws
+packages/cli build: - tslib
+packages/cli build: - pdf-lib
+packages/cli build: - @pdf-lib/standard-fonts
+packages/cli build: - @modelcontextprotocol/client
+packages/cli build: - @modelcontextprotocol/core
+packages/cli build: - pkce-challenge
+packages/cli build: - eventsource-parser
+packages/cli build: - pako
+packages/cli build: - @pdf-lib/upng
+packages/cli build: ℹ Granting execute permission to dist\index.mjs
+packages/cli build: ℹ Granting execute permission to dist\library.mjs
+packages/cli build: ℹ dist\library.mjs                        25.80 kB │ gzip:   7.76 kB
+packages/cli build: ℹ dist\index.mjs                           0.50 kB │ gzip:   0.35 kB
+packages/cli build: ℹ dist\commands-IxXIxa2W.mjs               2.45 MB
+packages/cli build: ℹ dist\native-module-fence-DfYlTqFk.mjs  893.46 kB │ gzip: 218.75 kB
+packages/cli build: ℹ dist\rolldown-runtime-CQi-gXI4.mjs       1.95 kB │ gzip:   0.88 kB
+packages/cli build: ℹ dist\native-runner-DhKJxS5P.mjs          0.48 kB │ gzip:   0.24 kB
+packages/cli build: ℹ dist\native-module-fence-DHS30v6q.mjs    0.20 kB │ gzip:   0.15 kB
+packages/cli build: ℹ 7 files, total: 3.37 MB
+packages/cli build: [33m[INEFFECTIVE_DYNAMIC_IMPORT] [0m../mcp/src/portal/native-artifacts.ts is dynamically imported by ../mcp/src/portal/package-config-evidence.ts, ../mcp/src/portal/react-router-compiler-evidence.ts but also statically imported by ../mcp/src/portal/native-module-fence.ts, ../mcp/src/portal/native-runner.ts, ../mcp/src/portal/native-work.ts, dynamic import will not move module into another chunk.
+packages/cli build: [33m[INEFFECTIVE_DYNAMIC_IMPORT] [0m../mcp/src/portal/native-runner.ts is dynamically imported by ../mcp/src/portal/react-router-compiler-evidence.ts but also statically imported by ../mcp/src/portal/native-module-fence.ts, ../mcp/src/portal/native-work.ts, dynamic import will not move module into another chunk.
+packages/cli build: [33m[INEFFECTIVE_DYNAMIC_IMPORT] [0m../mcp/src/portal/native-module-fence.ts is dynamically imported by ../mcp/src/portal/react-router-compiler-evidence.ts but also statically imported by ../mcp/src/portal/native-runner.ts, ../mcp/src/portal/native-work.ts, dynamic import will not move module into another chunk.
+packages/cli build: ✔ Build complete in 337ms
+packages/cli build: ✔ [publint] No issues found (29ms)
+packages/cli build: Done
+packages/portal build$ tsdown
+packages/portal build: ℹ tsdown v0.22.14 powered by rolldown v1.2.6
+packages/portal build: ℹ config file: C:\2026_project\super-figma-pipline\.worktrees\baseline\service\packages\portal\tsdown.config.ts 
+packages/portal build: ℹ entry: src/index.ts
+packages/portal build: ℹ target: node24
+packages/portal build: ℹ tsconfig: tsconfig.json
+packages/portal build: ℹ Build start
+packages/portal build: ℹ Cleaning 2 files
+packages/portal build: ℹ Granting execute permission to dist\index.mjs
+packages/portal build: ℹ dist\index.mjs  443.78 kB │ gzip: 106.17 kB
+packages/portal build: ℹ 1 files, total: 443.78 kB
+packages/portal build: ✔ Build complete in 52ms
+packages/portal build: Done
+
+$ pnpm -r run build

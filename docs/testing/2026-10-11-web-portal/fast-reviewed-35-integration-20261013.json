@@ -1,0 +1,199 @@
+{
+  "version": 1,
+  "at": "2026-10-13T06:47:40.036Z",
+  "sourceHash": "sha256:cea2fb6280ff216cc546d1c269712048127c5f1f351f7511e7c4befd8a524eb8",
+  "files": [
+    {
+      "path": "packages/mcp/src/portal/react-router-compiler-evidence.ts",
+      "before": "829200906970fa63c18f5fe89f03489d38faf55ceeeac65592bb0308e4d321b9",
+      "after": "12348c8f6a4b19b3cbb00b2039e1f9f955a4626495a7d334f1d9c3a0cf4d443e"
+    },
+    {
+      "path": "packages/mcp/src/portal/epic-compiler-configuration.ts",
+      "before": null,
+      "after": "50c0f30e89fe795892e9f58230be4da2df3cc65d684ef27ab95abfa453648fa8"
+    },
+    {
+      "path": "packages/mcp/src/portal/native-work.ts",
+      "before": "3d2c566380ee4e54f5a801990d83df87c754db69cc69e5e88f422c2ec0dbf61a",
+      "after": "ea1829c2196b44e4272bcbb105d2de678707246d3713ac137c853a3d05cd41cf"
+    },
+    {
+      "path": "packages/mcp/src/portal/service-graph.ts",
+      "before": "92c0deeead1a0c65135079d28b209eeac407717011c4ce9714705b822969e430",
+      "after": "ec6a6f1a6c36873b64aa701ae2b4b1caf67f051bf090d4da3c8b47d745b6e43e"
+    },
+    {
+      "path": "packages/mcp/src/portal/source-path-policy.ts",
+      "before": "0b25ec23aa4aeae25fc61c52b28de103b89a876c502b40f39a98f9b23ee73969",
+      "after": "086be883ff88fcb848e9f3be0f8ca871def2d4c5bd123b8477e4ac53d73d6614"
+    },
+    {
+      "path": "packages/mcp/src/portal/native-module-fence.ts",
+      "before": "75cb1d7338581f17d87f7e305d88c892e21abb714742dce286a264179d6488cd",
+      "after": "a27cff19a34cdd2bd552efc43375b4ade66651166fec3f499355af6d1b9a35d2"
+    },
+    {
+      "path": "packages/mcp/src/portal/native-runner.ts",
+      "before": "a11fd737d016ef977703e4b7c32bace3934dea975d62e6b5d28bf18a180ab3c0",
+      "after": "8a8bd8a12f1e69ca7b7aacd425184a11c7371e67889159d4fa767c97feb65517"
+    },
+    {
+      "path": "packages/mcp/test/portal/epic-compiler-configuration.test.ts",
+      "before": null,
+      "after": "9ee4341b7c15ec96cfd5af3c692b23825a2a8b12cf4a95353fde844d09d70ce1"
+    },
+    {
+      "path": "packages/mcp/test/portal/epic-compiler-fixture.ts",
+      "before": null,
+      "after": "4fe98632487fddac3b54de06e5a026f60f6dd9a9d27870e3bec15acfffba65fc"
+    },
+    {
+      "path": "packages/mcp/test/portal/react-router-compiler-evidence.test.ts",
+      "before": "607746733b0cc1f08ae2cb83269b4b29e28c13c8998c9fbff7aa92b488333ed9",
+      "after": "41e89bf79e8137a5ddbb813bdc368873c0df9e64b825293625bfde1342022b38"
+    },
+    {
+      "path": "packages/mcp/test/portal/source-preparation.test.ts",
+      "before": "78e9ab27954110d9cd394d9987713ac9b0c4de116f08d2d3659349337a803128",
+      "after": "3245e3bd1eca902d24271478f604bb3f87192e84c9d85dc2931a180c66d05f1b"
+    },
+    {
+      "path": "packages/mcp/test/portal/source-inventory.test.ts",
+      "before": "7d608f9233c79c97b0fda7c6c5852f76d84b2402ba8c084141a1842acb00aac2",
+      "after": "1173be4c666aa4502b8b14344bdbb48d436f3b62fc82bf036f5e310c4799f484"
+    },
+    {
+      "path": "packages/mcp/test/portal/native-module-fence.test.ts",
+      "before": "7f75cd768db5164f056e407b74967105d320ff921e46b1663cee520c207aa2be",
+      "after": "eb49ab79fa9591a37a4f8a08d69edc6f0d36842d3e0ec46272f0e6bf71be11b0"
+    },
+    {
+      "path": "packages/mcp/test/portal/native-runner.test.ts",
+      "before": "003869837bcc84c855a2005185709afecf467c5501fe0a50a5eefb0c4f9cb3d9",
+      "after": "b7ad2e85ebf55d5da45fa93c92987c4755670b472e74689bb3ccf2e4c85df02e"
+    },
+    {
+      "path": "packages/mcp/src/portal/profile-preparation.ts",
+      "before": null,
+      "after": "c8670269cddec3b8a14ec6c5d73b8b5208af029c3422730ceb8fc4ddae877f8f"
+    },
+    {
+      "path": "packages/mcp/test/portal/profile-preparation-fixture.ts",
+      "before": null,
+      "after": "ca19ad90b4169d04a7f7bb308b2248ebadb30cbb7ace29cd713feeb6b14d062c"
+    },
+    {
+      "path": "packages/mcp/test/portal/profile-preparation.test.ts",
+      "before": null,
+      "after": "dc78348d7da5a550230f73a1499760f6f7aa83e66a300bc9a08a6fbdf7886c3a"
+    },
+    {
+      "path": "packages/mcp/test/portal/profile-preparation-http.test.ts",
+      "before": null,
+      "after": "df3f19aa3a0772cec8ab342e8ada434672721833c9fd9c3634d01a730a976a73"
+    },
+    {
+      "path": "packages/mcp/src/portal/control.ts",
+      "before": "7822102958b0d1121f3b66f60906ee2e5ec444c1cf6daa49fb3c3ae31c0432ae",
+      "after": "a5b5aee5b3204d0a14213ca534517088be5fa1f125a62af3908ca3d2b79e875b"
+    },
+    {
+      "path": "packages/mcp/src/control/router.ts",
+      "before": "1abafa6eee2c9f6a164ce832efc05a25a5fe5c847a81efb9645642149908dff3",
+      "after": "09c6bde2e97055539d577c2944ceba3fdaecdd4d82e09488e85af6a4c4e5f327"
+    },
+    {
+      "path": "packages/cli/src/admin-commands.ts",
+      "before": "443405131b610349d9554435fc31ce7848ef95b8495ae6911bb219f3bb0ceb9d",
+      "after": "786a51d4dbc76307f38d9f70563cdf2034c1fdafeb751b3d805041280d43cc09"
+    },
+    {
+      "path": "packages/cli/test/admin-commands.test.ts",
+      "before": "8dda757b4939fb79aa4550b1feb9d049ce7d17945ae78b9a04b37afaf8eeee6a",
+      "after": "fd8f9bf1fb155f922c6c88251dc9c0bfcc14e0b8cb514f66936b9186551ba9f5"
+    },
+    {
+      "path": "packages/cli/src/service-functions.ts",
+      "before": "65b322eed8692e28a81015f7450d2d4b0f6651f4e7d52bb7183ada665d884246",
+      "after": "efce2fd7e8f27c1116da2657affef864df57e6eb85b27d184d422f3beecb1722"
+    },
+    {
+      "path": "packages/cli/test/service-functions.test.ts",
+      "before": "5be2bdbb27bac82421307763cb5254e36cf81d3f78b0bf902a9b86fd4e7e5bd3",
+      "after": "8255e5bcbf84030cc5dba5e995d44d4bd7cceab448ac8a11eed90ae126a2f40d"
+    },
+    {
+      "path": "packages/portal/src/control.ts",
+      "before": "d7623e55517a393ac19ea9aec13f1147af597be6cfd016458b7ea674888cfb18",
+      "after": "bd379d5a998d28fa9411454657118e425af343ded98d3e2401d894800a17c67d"
+    },
+    {
+      "path": "packages/portal/test/service-control.test.ts",
+      "before": "cfe65a413ce05ead343e4f19ff351a6bacca3d2c72d93ebc2d7dfee9c1162a04",
+      "after": "b0e5821e08383c2f19a7bfb721d5a70cf0bafd125ea059fc7fdaa5f829bb9125"
+    },
+    {
+      "path": "packages/mcp/src/portal/native-artifacts.ts",
+      "before": "526f8df5b33abf301d013449c9b45f55d878cb5fbb7af63115ea84cf42bf48eb",
+      "after": "c7f18d44692989583e84030a55d37f26f4ae8487e27070eb49879d1269b02b57"
+    },
+    {
+      "path": "packages/mcp/test/portal/native-artifacts.test.ts",
+      "before": "58716c36eb2be5c10e94b9fccf01d01810bbf48d0acef5658b4b720b79b746b5",
+      "after": "ec544cb695697f83b4bbb2b4c8ce4e1728e72e3660b3ac23bb0e8fb4fa11ae4f"
+    },
+    {
+      "path": "packages/cli/src/commands.ts",
+      "before": "91bda67f13db4b2642d0df406fd78fecb11787015c177a383b64d5473c94cbf8",
+      "after": "ee70e54988a0479f89bc2f15bcba9868f4cb1cfa04846f36b0f1ecac6cef563c"
+    },
+    {
+      "path": "packages/mcp/src/portal/coordinator.ts",
+      "before": "11847bfaa1804cd6015acbd4ee26e470117fd563a7cbdde6b59f17abcc079dbd",
+      "after": "97be904a81a1873e19160c47e79abffc22bcbc9a19db47253498c4a125d66f39"
+    },
+    {
+      "path": "packages/mcp/test/portal/fixtures/vite7-resolver/dist/node/chunks/config.js.txt",
+      "before": null,
+      "after": "c5d2cb692f24bb9d9de7dbd0b86506f1dada18c362aaa7c5a05d460870ced734"
+    },
+    {
+      "path": "packages/mcp/test/portal/fixtures/vite7-resolver/dist/node/module-runner.js.txt",
+      "before": null,
+      "after": "e9e66cba21fc780ae9a5a64da48503afa49bf9bc25c69007333c7835b763b89c"
+    },
+    {
+      "path": "packages/mcp/test/portal/fixtures/vite7-resolver/LICENSE.txt",
+      "before": null,
+      "after": "2ef0b8a67599690e6abccc21a3678b54457b420fb402654112d45c4e71cce364"
+    },
+    {
+      "path": "packages/mcp/src/fs/operation-evidence-artifact-store.ts",
+      "before": "2e0d609ad585237119ef4ef15e84daba98af9d4062550eadba647fa87bddbb3d",
+      "after": "0df6a134c87125c4fc02a9b0ff02564b9650a11b2999b129b49f645f05c10369"
+    },
+    {
+      "path": "packages/mcp/test/fs/operation-evidence-artifact-store.test.ts",
+      "before": "cf2ce5ac3aa48d2fd408acd405d86e37f3fe99181fc538cc287b0e5127e4f63c",
+      "after": "c97c9f50f05d4742e1419ac9f9632b5d6aa9dba983921f0f23897b3da085b1df"
+    }
+  ],
+  "c2Freeze": "3522cb7c4c6032e67248ea6a02135c643ef0f0be890f718ad7359b61b0bbef56",
+  "precisionFreeze": "8c8d7e381fb6c4deaf92824deb18420715ae9c0669b9568a526d871994b6945d",
+  "independentC2Posthash": "8e25581dca96f66d48428d6cea044b5465451f0948ae82922118a8a42fc2266f",
+  "independentPrecision": {
+    "passed": 56,
+    "failed": 0,
+    "unchangedPlatformSkip": 1,
+    "reportHash": "90e1d97bbd44593bc7bad643e6873e1f37cf8e2020720997967030d04e14bacf"
+  },
+  "ownerScope": "Fast mode; no further whole/full-regression repeats; one complete portal journey",
+  "historicalWholeFailuresPreserved": true,
+  "historicalRaceCauseProven": false,
+  "currentWholePassed": false,
+  "c2PublicPositive": false,
+  "runtimeReplaced": false,
+  "ownerIndexUnchanged": true,
+  "protection": "Separate regular same-user working copy; ordered writes, no OS/process sandbox or multi-file atomic rollback"
+}

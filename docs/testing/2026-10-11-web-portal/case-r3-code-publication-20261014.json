@@ -1,0 +1,132 @@
+{
+  "schemaVersion": 1,
+  "kind": "reviewed-case-r3-code-ingredients-publication",
+  "at": "2026-10-13T18:04:41.230Z",
+  "manifestHash": "511e20adc7ba4ab0b0f44342aac75350582f932fae4ea437e2585d29bb0ae0b6",
+  "sourceIntegratedIntoCase": false,
+  "serviceSourceChanged": false,
+  "actualCaseAcceptance": false,
+  "files": [
+    {
+      "source": "case-assembly-preparation/c2/app/routes/_marketing/desktop.tsx",
+      "path": "examples/portal-cases/c2-epic/design-extension/app/routes/_marketing/desktop.tsx",
+      "beforeHash": null,
+      "afterHash": "8cab7809654ae553b893a75d1439cd6e031715e3b49f58caf70a671d69b6dede",
+      "status": "verified",
+      "mutationStarted": true,
+      "observedHash": "8cab7809654ae553b893a75d1439cd6e031715e3b49f58caf70a671d69b6dede"
+    },
+    {
+      "source": "case-assembly-preparation/c2/app/routes/_marketing/guide.tsx",
+      "path": "examples/portal-cases/c2-epic/design-extension/app/routes/_marketing/guide.tsx",
+      "beforeHash": null,
+      "afterHash": "8cab7809654ae553b893a75d1439cd6e031715e3b49f58caf70a671d69b6dede",
+      "status": "verified",
+      "mutationStarted": true,
+      "observedHash": "8cab7809654ae553b893a75d1439cd6e031715e3b49f58caf70a671d69b6dede"
+    },
+    {
+      "source": "case-assembly-preparation/c2/app/routes/_marketing/mobile.tsx",
+      "path": "examples/portal-cases/c2-epic/design-extension/app/routes/_marketing/mobile.tsx",
+      "beforeHash": null,
+      "afterHash": "8cab7809654ae553b893a75d1439cd6e031715e3b49f58caf70a671d69b6dede",
+      "status": "verified",
+      "mutationStarted": true,
+      "observedHash": "8cab7809654ae553b893a75d1439cd6e031715e3b49f58caf70a671d69b6dede"
+    },
+    {
+      "source": "case-assembly-preparation/shared/CaseScene.tsx",
+      "path": "examples/portal-cases/shared-design/CaseScene.tsx",
+      "beforeHash": "a62201137e47e38cc11948ed7883fc4d212fe0a61c496b73a7773b3cd8d6ece3",
+      "afterHash": "40c77acbb89a01b71b780926883dba7a4931ee727947118d2a71001bf211c4c3",
+      "status": "verified",
+      "mutationStarted": true,
+      "intentAt": "2026-10-13T18:04:41.257Z",
+      "verifiedAt": "2026-10-13T18:04:41.264Z",
+      "observedHash": "40c77acbb89a01b71b780926883dba7a4931ee727947118d2a71001bf211c4c3"
+    },
+    {
+      "source": "case-assembly-preparation/shared/load-facts.ts",
+      "path": "examples/portal-cases/shared-design/load-facts.ts",
+      "beforeHash": null,
+      "afterHash": "680b9019cec290aeb6a182144f6a26432352a8004855e74ea3851484ab0a13cc",
+      "status": "verified",
+      "mutationStarted": true,
+      "observedHash": "680b9019cec290aeb6a182144f6a26432352a8004855e74ea3851484ab0a13cc"
+    },
+    {
+      "source": "case-assembly-preparation/shared/style.ts",
+      "path": "examples/portal-cases/shared-design/style.ts",
+      "beforeHash": "68d518b2d9d46862a5c3c3730b3cc753e507b75c35c84bccb387a10cc2ef5291",
+      "afterHash": "d9d4fb6256ecb93e283cf6675f128bb51a0f187716a76083f974872741c2ecb3",
+      "status": "verified",
+      "mutationStarted": true,
+      "intentAt": "2026-10-13T18:04:41.276Z",
+      "verifiedAt": "2026-10-13T18:04:41.283Z",
+      "observedHash": "d9d4fb6256ecb93e283cf6675f128bb51a0f187716a76083f974872741c2ecb3"
+    },
+    {
+      "source": "case-assembly-preparation/shared/types.ts",
+      "path": "examples/portal-cases/shared-design/types.ts",
+      "beforeHash": "b518c3adf7122897ed921d75329a498acd45acf0a15828924e8c6b5ac3b53abb",
+      "afterHash": "acf61c8edbd9d602a926fe01801d5ddd74c413c3368edc7819e3ba8b8763c9ec",
+      "status": "verified",
+      "mutationStarted": true,
+      "intentAt": "2026-10-13T18:04:41.288Z",
+      "verifiedAt": "2026-10-13T18:04:41.294Z",
+      "observedHash": "acf61c8edbd9d602a926fe01801d5ddd74c413c3368edc7819e3ba8b8763c9ec"
+    },
+    {
+      "source": "case-plan-inputs.mjs",
+      "path": "examples/portal-cases/case-plan-inputs.mjs",
+      "beforeHash": "6c895c4b600d52287652650b8e3dec75abfaacdee8f9817ef4ea16a36508c2f2",
+      "afterHash": "a86e3e4ae6ee2a14522a1286afd823cd47e20ca91446a739e798ee6070fa54d4",
+      "status": "verified",
+      "mutationStarted": true,
+      "intentAt": "2026-10-13T18:04:41.299Z",
+      "verifiedAt": "2026-10-13T18:04:41.305Z",
+      "observedHash": "a86e3e4ae6ee2a14522a1286afd823cd47e20ca91446a739e798ee6070fa54d4"
+    },
+    {
+      "source": "standalone-native-profile.mjs",
+      "path": "examples/portal-cases/standalone-native-profile.mjs",
+      "beforeHash": "c7d0eecb9469bef9cae1d161bc1e6cf18542f478a546deb8ba66ad20fea5ca45",
+      "afterHash": "f93309a98e2c1f2dae65c7a1c57bf544d24b5f0394140f58c058b18c773f7d8d",
+      "status": "verified",
+      "mutationStarted": true,
+      "intentAt": "2026-10-13T18:04:41.310Z",
+      "verifiedAt": "2026-10-13T18:04:41.317Z",
+      "observedHash": "f93309a98e2c1f2dae65c7a1c57bf544d24b5f0394140f58c058b18c773f7d8d"
+    },
+    {
+      "source": "assemble-case-capsules.mjs",
+      "path": "examples/portal-cases/assemble-case-capsules.mjs",
+      "beforeHash": null,
+      "afterHash": "cff9f29834de3233b5ed0dbd2c8708ed62f5f561c63651cddba0169153ea267f",
+      "status": "verified",
+      "mutationStarted": true,
+      "observedHash": "cff9f29834de3233b5ed0dbd2c8708ed62f5f561c63651cddba0169153ea267f"
+    },
+    {
+      "source": "author-case-recipe-use.mjs",
+      "path": "examples/portal-cases/author-case-recipe-use.mjs",
+      "beforeHash": null,
+      "afterHash": "3bc21b3efbd6d2491386e1135b42ea0ffd932c3552762571583f561648054446",
+      "status": "verified",
+      "mutationStarted": true,
+      "observedHash": "3bc21b3efbd6d2491386e1135b42ea0ffd932c3552762571583f561648054446"
+    },
+    {
+      "source": "c3-source-only-plan-input.mjs",
+      "path": "examples/portal-cases/c3-source-only-plan-input.mjs",
+      "beforeHash": null,
+      "afterHash": "17359f4b82e4e0976a60f57d30dd1f433f1387446e78269930ebee874d1dd4af",
+      "status": "verified",
+      "mutationStarted": true,
+      "observedHash": "17359f4b82e4e0976a60f57d30dd1f433f1387446e78269930ebee874d1dd4af"
+    }
+  ],
+  "status": "published",
+  "automaticReplayAllowed": false,
+  "completedAt": "2026-10-13T18:04:41.348Z"
+}

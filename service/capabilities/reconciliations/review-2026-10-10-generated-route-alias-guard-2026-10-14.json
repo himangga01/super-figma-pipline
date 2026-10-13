@@ -1,0 +1,61 @@
+{
+  "schemaVersion": 1,
+  "slice": "review-2026-10-10",
+  "baseline": {
+    "headCommit": "22517932dc9b2cb974c177ec4eacb84d4b16e254",
+    "authoritySha256": {
+      "upstream-lock.json": "fb1633f070644eda257eba18b0a0a64e6792adb990d00ab5f3af0323633dbef8",
+      "vendor-map.json": "b3275c7d8b997d1cfe723d97594659f77d7b4361b824a790bcfdd7ff762589bd",
+      "vendor-rules.json": "ec7cb8664658230799f79eaf9bf7a7a3f3fb2b3f21560c21e79af97d2adf0de9"
+    }
+  },
+  "entries": [
+    {
+      "path": "capabilities/task-review-2026-10-10-authority-classes.json",
+      "sha256": "f481c63a4f04085161d77684eb47eab750f5ca80b0d679769f180187936cfb6d",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "21692da126ade2ab0cde2588d3dcd232e2d5d11b80466f4c60a18e346fd00e88"
+        },
+        {
+          "class": "protected",
+          "sha256": "21692da126ade2ab0cde2588d3dcd232e2d5d11b80466f4c60a18e346fd00e88"
+        }
+      ],
+      "reason": "Register the reviewed generated route alias runtime guard and its new targeted tests. Route producer +types aliases through existing type-only, rootDirs and exact-member checks while preserving admitted runtime virtual modules, source identity, compiler evidence, deadlines and prior outcomes. This is isolated source repair, not full graph or live case acceptance. Preserve the owner index; no whole rerun."
+    },
+    {
+      "path": "packages/mcp/src/portal/module-resolution.ts",
+      "sha256": "3b96c00ef17fb0d74ca437be20fc291b73c145ec549d61727a77a698687a63c6",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "e9b07c18cc5b1ea17a6778cc7c0dd8be76a2d75168460364c4e28535c1e89250"
+        },
+        {
+          "class": "protected",
+          "sha256": "e9b07c18cc5b1ea17a6778cc7c0dd8be76a2d75168460364c4e28535c1e89250"
+        }
+      ],
+      "reason": "Register the reviewed generated route alias runtime guard and its new targeted tests. Route producer +types aliases through existing type-only, rootDirs and exact-member checks while preserving admitted runtime virtual modules, source identity, compiler evidence, deadlines and prior outcomes. This is isolated source repair, not full graph or live case acceptance. Preserve the owner index; no whole rerun."
+    },
+    {
+      "path": "packages/mcp/test/portal/generated-route-alias-runtime.test.ts",
+      "sha256": "f8b46a075c4e372542fb2675aafed661d65003777fb631cd083f3a6dd59c93a0",
+      "priorClaims": [],
+      "reason": "Register the reviewed generated route alias runtime guard and its new targeted tests. Route producer +types aliases through existing type-only, rootDirs and exact-member checks while preserving admitted runtime virtual modules, source identity, compiler evidence, deadlines and prior outcomes. This is isolated source repair, not full graph or live case acceptance. Preserve the owner index; no whole rerun."
+    },
+    {
+      "path": "packages/portal/package.json",
+      "sha256": "ddb99eafe979d2319697f9bde91d01c4b3f4cf7f3e2a2baccfcb06ceff7767c8",
+      "priorClaims": [
+        {
+          "class": "protected",
+          "sha256": "ddb99eafe979d2319697f9bde91d01c4b3f4cf7f3e2a2baccfcb06ceff7767c8"
+        }
+      ],
+      "reason": "Register the reviewed generated route alias runtime guard and its new targeted tests. Route producer +types aliases through existing type-only, rootDirs and exact-member checks while preserving admitted runtime virtual modules, source identity, compiler evidence, deadlines and prior outcomes. This is isolated source repair, not full graph or live case acceptance. Preserve the owner index; no whole rerun."
+    }
+  ]
+}

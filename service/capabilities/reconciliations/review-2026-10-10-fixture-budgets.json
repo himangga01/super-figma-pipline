@@ -1,0 +1,59 @@
+{
+  "schemaVersion": 1,
+  "slice": "review-2026-10-10",
+  "baseline": {
+    "headCommit": "22517932dc9b2cb974c177ec4eacb84d4b16e254",
+    "authoritySha256": {
+      "upstream-lock.json": "5adcf18fbacd0548cb8ac4b5d3ef070d34321fd19edc5b258e6550217be3bf04",
+      "vendor-map.json": "b3275c7d8b997d1cfe723d97594659f77d7b4361b824a790bcfdd7ff762589bd",
+      "vendor-rules.json": "4f3433f90faadcd93a3675657c5404280c58c8951ee30b1c4667a2e288cd478d"
+    }
+  },
+  "entries": [
+    {
+      "path": "capabilities/task-review-2026-10-10-authority-classes.json",
+      "sha256": "e7005585b02e8d9af069adde037aa9befa464816f09d25eabbd8ac7c7d5b7c3f",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "97d50a797009d5fb6d5f3171d7be1d5b09d5b0917a903f866656ceff9723f700"
+        },
+        {
+          "class": "protected",
+          "sha256": "97d50a797009d5fb6d5f3171d7be1d5b09d5b0917a903f866656ceff9723f700"
+        }
+      ],
+      "reason": "Give artifact-integrity fixtures enough bounded time for cold native Windows startup and full upstream allowance regeneration. Keep production deadlines, expected failure codes, cleanup receipts, test scope and skip policy unchanged. Prior failed runs are preserved."
+    },
+    {
+      "path": "packages/mcp/test/portal/native-artifacts.test.ts",
+      "sha256": "58716c36eb2be5c10e94b9fccf01d01810bbf48d0acef5658b4b720b79b746b5",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "d007a000b6cc2b8a4fcfa27e498dd692581ab4a35c67cc20f6517780108bbaa2"
+        },
+        {
+          "class": "protected",
+          "sha256": "d007a000b6cc2b8a4fcfa27e498dd692581ab4a35c67cc20f6517780108bbaa2"
+        }
+      ],
+      "reason": "Give artifact-integrity fixtures enough bounded time for cold native Windows startup and full upstream allowance regeneration. Keep production deadlines, expected failure codes, cleanup receipts, test scope and skip policy unchanged. Prior failed runs are preserved."
+    },
+    {
+      "path": "test/vendor-upstreams.test.ts",
+      "sha256": "b86d74335819aa9571d51c3c96868c28363c175b3ca0adb6b2878838b76d5d8e",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "b5901d7fc4fd0ac06724c6087e49bd449f3a6fd8e1fe2018c13edcc8b2cf9b16"
+        },
+        {
+          "class": "protected",
+          "sha256": "b5901d7fc4fd0ac06724c6087e49bd449f3a6fd8e1fe2018c13edcc8b2cf9b16"
+        }
+      ],
+      "reason": "Give artifact-integrity fixtures enough bounded time for cold native Windows startup and full upstream allowance regeneration. Keep production deadlines, expected failure codes, cleanup receipts, test scope and skip policy unchanged. Prior failed runs are preserved."
+    }
+  ]
+}

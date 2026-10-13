@@ -1,0 +1,62 @@
+{
+  "schemaVersion": 1,
+  "recordedAt": "2026-10-13T21:16:34.206Z",
+  "kind": "source-selection-produced-pattern-tag-compatibility",
+  "files": [
+    {
+      "path": "packages/mcp/src/portal/service-selection.ts",
+      "beforeSha256": "14c2c50facfb41c82802df43572221c69be75b7e1f85ad48d3abbaa5ea5a2d1c",
+      "afterSha256": "4c8ec77c46972434c9ea4f5e445f7aa2b89d442d52a129adefd499faa915e20f",
+      "bytes": 10654
+    },
+    {
+      "path": "packages/mcp/test/portal/core-recipes.test.ts",
+      "beforeSha256": "4829b6b2457cdd4841aae4e373f20150c2345491e74d6a1ccf345e8df3a29b3c",
+      "afterSha256": "42746c63cc8fb7d98135c9339cd6dcd3ac2c2374ad8588a6c73ac146eeaef3e1",
+      "bytes": 66022
+    }
+  ],
+  "productionDelta": "Only adds the actual producer tag DYNAMIC_OR_PATTERN_ROUTE to the existing exact semantic review eligibility set.",
+  "tests": {
+    "before": {
+      "selectedFailed": 2,
+      "selectedPassed": 0,
+      "filtered": 44,
+      "receiptHash": "7b2b2154dc95f27e7b7e5d6604904cff44bbd9b928a930bfc2cc08f3471c3c1d"
+    },
+    "after": {
+      "selectedPassed": 2,
+      "selectedFailed": 0,
+      "filtered": 44,
+      "receiptHash": "f06dd6ccb15cdede93ca688c28fcc6302968567665fc0b00630128af4d087ac7"
+    },
+    "finalWhitespaceFormattingAfterTests": true,
+    "broaderTestsExecuted": false,
+    "cleanupRevisionAfterClosedPasses": true,
+    "finalCleanupRevisionAfterClosedPasses": true
+  },
+  "installs": 0,
+  "builds": 0,
+  "liveEffects": false,
+  "mainNativeEdited": false,
+  "r1ManifestSha256": "8536900f719685aa96bf16ef9fafb94b47ca2215219dbbbe7ec8763d74a492eb",
+  "revision": 3,
+  "cleanupOnlyRevision": {
+    "newFixturesRemovedFromHistoricalDirs": true,
+    "historicalCleanupUnchanged": true,
+    "canonicalTemporaryParentAndPrefixChecked": true,
+    "physicalDirectoryAndCanonicalPathChecked": true,
+    "privateBigintDeviceInodeRecheckedBeforeRecursiveRemoval": true,
+    "behavioralTestsNotRepeated": true,
+    "assertionLogicUnchanged": true,
+    "lintExitCode": 0,
+    "formatExitCode": 0,
+    "initialCleanupLintFailurePreservedInToolEvidence": true,
+    "directGuardedFixtureCreation": true,
+    "noLegacyFactoryCall": true,
+    "identityRegisteredBeforeAnyFileWrites": true,
+    "sameDefaultAndExtraFileBytes": true,
+    "testAssertionSuffixByteIdenticalToR2": true
+  },
+  "r2ManifestSha256": "463578d24c04f18b8e3959f78038c936e27acf27dbd554ee6ef004865e4404fa"
+}

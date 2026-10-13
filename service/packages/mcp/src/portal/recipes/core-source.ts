@@ -27,6 +27,10 @@ import { loadMappingTokenSource, readMappingOverrides } from '../../mapping/mapp
 import { analyzeProject, isUtilityFirst, type ProjectProfile } from '../../profile/profile.js';
 import { scanComponents } from '../../scan/scan.js';
 import { normalizeDesignObservation } from '../design-normalization.js';
+import {
+  verifyReactRouterCompilerSourceEvidence,
+  type ReactRouterCompilerEvidence,
+} from '../react-router-compiler-evidence.js';
 import { analyzeServiceGraph } from '../service-graph.js';
 import { selectPortalServices, selectedPortalLayers } from '../service-selection.js';
 import { collectPortalSourceInventory } from '../source-inventory.js';
@@ -108,6 +112,7 @@ type SourceRequest = z.input<typeof SourceRequestSchema>;
 interface SourceInput {
   sourceId: `sha256:${string}`;
   reader: RepoReader;
+  compilerEvidence?: ReactRouterCompilerEvidence;
 }
 interface FreshSource {
   sourceId: `sha256:${string}`;
@@ -251,7 +256,19 @@ export async function prepareCoreRecipeSources(input: {
         dev: String(identity.dev),
         ino: String(identity.ino),
       });
-    const graph = await analyzeServiceGraph(reader, inputSource.sourceId);
+    if (inputSource.compilerEvidence)
+      await verifyReactRouterCompilerSourceEvidence(
+        inputSource.compilerEvidence,
+        inputSource.sourceId,
+        inventory.hash,
+      );
+    const graph = await analyzeServiceGraph(
+      reader,
+      inputSource.sourceId,
+      inputSource.compilerEvidence
+        ? { reactRouterCompilerEvidence: inputSource.compilerEvidence }
+        : {},
+    );
     if (graph.sourceInventory?.hash !== inventory.hash) throw new Error('CORE_SOURCE_CHANGED');
     sources.push({
       sourceId: inputSource.sourceId,
@@ -426,6 +443,11 @@ export async function prepareCoreRecipeSources(input: {
       identity.ino !== source.identity.ino
     )
       throw new Error('CORE_SOURCE_CHANGED');
+    const compiler = input.sources.find(
+      candidate => candidate.sourceId === source.sourceId,
+    )?.compilerEvidence;
+    if (compiler)
+      await verifyReactRouterCompilerSourceEvidence(compiler, source.sourceId, after.hash);
   }
   /* eslint-enable no-await-in-loop */
   return payloads.map(payload => {

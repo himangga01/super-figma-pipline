@@ -1,3 +1,4 @@
+import { nativeComponentProperties, NATIVE_COMPONENT_FIELDS } from './figma-native-components.js';
 import { nativeNodeId, selectFigmaNativeNodes } from './figma-native-document.js';
 import { normalizeNativeEffects } from './figma-native-effects.js';
 import { readNativeFontRanges } from './figma-native-font-ranges.js';
@@ -122,7 +123,15 @@ const overlays = (input: Row, path: string[], contexts: InstanceContext[]) => {
 };
 
 /** Expand native component references without borrowing data from the Plugin API capture. */
-export function normalizeFigmaNativeNodes(message: Row, nodeId: string | null) {
+export function normalizeFigmaNativeNodes(
+  message: Row,
+  nodeId: string | null,
+  observeText?: (input: {
+    nodeId: string;
+    effective: Readonly<Row>;
+    normalized: Readonly<Row>;
+  }) => void,
+) {
   const all = rows(message.nodeChanges),
     byId = new Map<string, Row>(),
     stylesByKey = new Map<string, Row[]>(),
@@ -264,9 +273,11 @@ export function normalizeFigmaNativeNodes(message: Row, nodeId: string | null) {
           ? 'RECTANGLE'
           : node.type === 'SYMBOL'
             ? 'COMPONENT'
-            : node.type === 'FRAME' && node.resizeToFit === true
-              ? 'GROUP'
-              : node.type,
+            : node.type === 'FRAME' && node.isStateGroup === true
+              ? 'COMPONENT_SET'
+              : node.type === 'FRAME' && node.resizeToFit === true
+                ? 'GROUP'
+                : node.type,
       x: reportedRelative[0][2],
       y: reportedRelative[1][2],
       relativeTransform: reportedRelative,
@@ -331,6 +342,16 @@ export function normalizeFigmaNativeNodes(message: Row, nodeId: string | null) {
         detail: metadata.unknown.join(','),
       });
     }
+    const components = nativeComponentProperties(node, String(result.type), byId);
+    Object.assign(result, components.values);
+    if (components.unknown.length) {
+      result.nativeUnknownFields = [...metadata.unknown, ...components.unknown];
+      warnings.push({
+        code: 'NATIVE_COMPONENT_PROPERTIES_UNSUPPORTED',
+        nodeId: id,
+        detail: components.unknown.join(','),
+      });
+    }
     for (const [field, binding, output] of [
       ['fillPaints', 'styleIdForFill', 'fills'],
       ['strokePaints', 'styleIdForStrokeFill', 'strokes'],
@@ -370,6 +391,21 @@ export function normalizeFigmaNativeNodes(message: Row, nodeId: string | null) {
     }
     for (const field of properties) if (node[field] !== undefined) result[field] = node[field];
     if (node.type !== 'TEXT') {
+      if (node.type === 'VECTOR') {
+        const vectorPaths = readNativeVectorGeometry(
+          node.vectorData,
+          message.blobs,
+          node.size,
+          'paths',
+        );
+        if (vectorPaths === null) {
+          result.nativeUnknownFields = [
+            ...(Array.isArray(result.nativeUnknownFields) ? result.nativeUnknownFields : []),
+            'vectorPaths',
+          ];
+          warnings.push({ code: 'NATIVE_VECTOR_PATHS_UNSUPPORTED', nodeId: id });
+        } else result.vectorPaths = vectorPaths;
+      }
       result.fillGeometry = readNativeGeometry(node.fillGeometry, message.blobs);
       result.strokeGeometry = readNativeGeometry(node.strokeGeometry, message.blobs);
       if ((result.fillGeometry as unknown[]).length === 0 && node.type === 'VECTOR') {
@@ -493,6 +529,14 @@ export function normalizeFigmaNativeNodes(message: Row, nodeId: string | null) {
               ? { unit: 'PERCENT', value: value.value * 100 }
               : { unit: value.units === 'PIXELS' ? 'PIXELS' : value.units, value: value.value };
     }
+    // This internal observer sees the same bounded effective instance expansion as normalization.
+    // It adds no public fields and cannot replace the returned normalized node.
+    if (node.type === 'TEXT' && observeText)
+      observeText({
+        nodeId: id,
+        effective: structuredClone(node),
+        normalized: structuredClone(result),
+      });
     if (childRecords.length) {
       gridParents.push(node.stackMode === 'GRID');
       result.children = childRecords.map(child =>
@@ -595,12 +639,14 @@ export function compareFigmaCaptureNodes(actual: Row[], expected: Row[]) {
     'effects',
     'fillGeometry',
     'strokeGeometry',
+    'vectorPaths',
     'reactions',
     ...NATIVE_LAYOUT_FIELDS,
     ...NATIVE_SIZING_FIELDS,
     ...NATIVE_TEXT_PROPERTY_FIELDS,
     ...NATIVE_CONTAINER_FIELDS,
     ...NATIVE_METADATA_FIELDS,
+    ...NATIVE_COMPONENT_FIELDS,
   ];
   const unobservedFields: Record<string, number> = {};
   const differences: Array<{
@@ -680,7 +726,7 @@ export function compareFigmaCaptureNodes(actual: Row[], expected: Row[]) {
       }
       compared++;
       const matched =
-        field === 'fillGeometry' || field === 'strokeGeometry'
+        field === 'fillGeometry' || field === 'strokeGeometry' || field === 'vectorPaths'
           ? equalNativeGeometry(observed[field], reference[field])
           : equal(observed[field], reference[field]);
       if (!matched)

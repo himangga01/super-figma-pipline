@@ -19,6 +19,22 @@ import type { createAdminAuditEndpoint } from './admin-audit-endpoints.js';
 import type { createApprovalEndpoints } from './approval-endpoints.js';
 import type { createEgressControl } from './egress-endpoints.js';
 import {
+  FigmaOAuthStatusSchema,
+  FigmaOAuthConfigureInputSchema,
+  FigmaOAuthStartInputSchema,
+  FigmaOAuthRefreshInputSchema,
+  FigmaOAuthCleanupInputSchema,
+  figmaOAuthError,
+} from './figma-oauth-contract.js';
+import {
+  FigmaMcpDaemonStatusSchema,
+  FigmaMcpProbeInputSchema,
+  FigmaMcpProbeResultSchema,
+  FigmaMcpReadInputSchema,
+  FigmaMcpReadResultSchema,
+  type createFigmaMcpSettingsEndpoint,
+} from './figma-settings-endpoint.js';
+import {
   GroundingRefreshRequestSchema,
   type createGroundingEndpoint,
 } from './grounding-endpoints.js';
@@ -95,6 +111,90 @@ export const registerTask8BNetworkRoutes = (
 };
 
 const EmptySchema = z.object({}).strict();
+const oauthSignal = (signal: Readonly<{ aborted: boolean }>): AbortSignal => {
+  if (!(signal instanceof AbortSignal)) throw figmaOAuthError('FIGMA_MCP_OAUTH_INPUT_INVALID');
+  return signal;
+};
+export function registerFigmaMcpSettingsRoutes(
+  router: AuthenticatedControlRouter,
+  endpoints: ReturnType<typeof createFigmaMcpSettingsEndpoint>,
+): void {
+  router.register({
+    id: 'figma-mcp.status',
+    method: 'GET',
+    path: '/control/figma-mcp/status',
+    routeClass: 'admin',
+    inputSchema: EmptySchema,
+    outputSchema: FigmaMcpDaemonStatusSchema,
+    handle: async () => endpoints.status(),
+  });
+  router.register({
+    id: 'figma-mcp.probe',
+    method: 'POST',
+    path: '/control/figma-mcp/probe',
+    routeClass: 'admin',
+    inputSchema: FigmaMcpProbeInputSchema,
+    outputSchema: FigmaMcpProbeResultSchema,
+    handle: (_principal, input, signal) => endpoints.probe(input, signal),
+  });
+  router.register({
+    id: 'figma-mcp.read',
+    method: 'POST',
+    path: '/control/figma-mcp/read',
+    routeClass: 'admin',
+    inputSchema: FigmaMcpReadInputSchema,
+    outputSchema: FigmaMcpReadResultSchema,
+    handle: (_principal, input, signal) => endpoints.read(input, signal),
+  });
+  const oauth = endpoints.oauth;
+  if (!oauth) return;
+  router.register({
+    id: 'figma-mcp.auth-status',
+    method: 'GET',
+    path: '/control/figma-mcp/auth/status',
+    routeClass: 'admin',
+    inputSchema: EmptySchema,
+    outputSchema: FigmaOAuthStatusSchema,
+    handle: async () => oauth.status(),
+  });
+  router.register({
+    id: 'figma-mcp.auth-configure',
+    method: 'POST',
+    path: '/control/figma-mcp/auth/configure',
+    routeClass: 'admin',
+    inputSchema: FigmaOAuthConfigureInputSchema,
+    outputSchema: FigmaOAuthStatusSchema,
+    handle: (principal, input, signal) => oauth.configure(principal, input, oauthSignal(signal)),
+  });
+  router.register({
+    id: 'figma-mcp.auth-start',
+    method: 'POST',
+    path: '/control/figma-mcp/auth/start',
+    routeClass: 'admin',
+    inputSchema: FigmaOAuthStartInputSchema,
+    outputSchema: FigmaOAuthStatusSchema,
+    handle: (principal, input, signal) => oauth.start(principal, input, oauthSignal(signal)),
+  });
+  router.register({
+    id: 'figma-mcp.auth-refresh',
+    method: 'POST',
+    path: '/control/figma-mcp/auth/refresh',
+    routeClass: 'admin',
+    inputSchema: FigmaOAuthRefreshInputSchema,
+    outputSchema: FigmaOAuthStatusSchema,
+    handle: (principal, input, signal) => oauth.refresh(principal, input, oauthSignal(signal)),
+  });
+  for (const action of ['cancel', 'logout'] as const)
+    router.register({
+      id: `figma-mcp.auth-${action}`,
+      method: 'POST',
+      path: `/control/figma-mcp/auth/${action}`,
+      routeClass: 'admin',
+      inputSchema: FigmaOAuthCleanupInputSchema,
+      outputSchema: FigmaOAuthStatusSchema,
+      handle: (principal, input) => oauth.cleanup(principal, input, action === 'logout'),
+    });
+}
 export const registerSnapshotControlRoutes = (
   router: AuthenticatedControlRouter,
   endpoints: {

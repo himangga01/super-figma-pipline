@@ -23,8 +23,10 @@ import { PortalCoreLifecycle } from '../../src/portal/recipes/core-lifecycle.js'
 import { CorePreparations } from '../../src/portal/recipes/core-preparation.js';
 import { ToolInvocationService } from '../../src/tool-invocation-service.js';
 import { createBoundRuntimeRegistry } from '../../src/tools/runtime-registry.js';
+import { officialServerFixture } from '../official-mcp-fixture.js';
 import { currentCaptureFixture } from './capture-fixture.js';
 import { portalFixture } from './fixtures.js';
+import { pageApiCaptureFixture } from './page-api-fixture.js';
 const cleanup: Array<() => Promise<void>> = [];
 afterEach(async () => {
   vi.restoreAllMocks();
@@ -35,7 +37,10 @@ const actor: ActorContext = {
   authSessionId: ('auth1_' + 'B'.repeat(43)) as ActorContext['authSessionId'],
   entryPath: 'mcp-direct',
 };
-async function fixture(source: 'desktop' | 'chrome', replaceAtApproval = false) {
+async function fixture(
+  source: 'desktop' | 'chrome' | 'official-mcp' | 'page-api',
+  replaceAtApproval = false,
+) {
   const f = await portalFixture();
   cleanup.push(f.cleanup);
   const now = Date.now();
@@ -95,6 +100,9 @@ async function fixture(source: 'desktop' | 'chrome', replaceAtApproval = false) 
       return current.captured;
     },
   };
+  const official = officialServerFixture();
+  const pageApi = source === 'page-api' ? pageApiCaptureFixture(f) : undefined;
+  if (pageApi) cleanup.push(() => pageApi.capture.close());
   const coordinator = new PortalCoordinator(
     f.store,
     f.policy,
@@ -117,7 +125,9 @@ async function fixture(source: 'desktop' | 'chrome', replaceAtApproval = false) 
     permissions: f.permissions,
     store: f.store,
     chrome,
+    ...(pageApi ? { pageApi: pageApi.capture.pageApiCapture } : {}),
     admission,
+    officialMcp: { fetch: official.fetch },
   });
   const issuer = operationIdIssuerFromKey(f.key);
   const journal = new OperationJournal({
@@ -223,7 +233,11 @@ async function fixture(source: 'desktop' | 'chrome', replaceAtApproval = false) 
   });
   const args = {
     case: 'new',
-    design: { source, url: 'https://www.figma.com/design/4IBhv1d8hEclifZQrOYxHS?node-id=0-1' },
+    design: {
+      source: source === 'page-api' ? 'chrome' : source,
+      ...(source === 'page-api' ? { collector: 'page-api' } : {}),
+      url: 'https://www.figma.com/design/4IBhv1d8hEclifZQrOYxHS?node-id=0-1',
+    },
   };
   return {
     ...f,
@@ -234,7 +248,13 @@ async function fixture(source: 'desktop' | 'chrome', replaceAtApproval = false) 
     plane,
     coordinator,
     admission,
-    calls: () => calls,
+    calls: () =>
+      source === 'official-mcp'
+        ? official.calls.length
+        : source === 'page-api'
+          ? pageApi!.reads()
+          : calls,
+    otherCaptureCalls: () => calls,
     approvals,
     request: (kind: 'portal-source' | 'none' = 'portal-source') => ({
       version: 1,
@@ -246,7 +266,7 @@ async function fixture(source: 'desktop' | 'chrome', replaceAtApproval = false) 
     }),
   };
 }
-it.each(['desktop', 'chrome'] as const)(
+it.each(['desktop', 'chrome', 'official-mcp', 'page-api'] as const)(
   'executes %s capture through canonical plane, validated runtime and signed plan',
   async source => {
     const f = await fixture(source);
@@ -257,9 +277,12 @@ it.each(['desktop', 'chrome'] as const)(
     expect(result.design.complete).toBe(true);
     expect(result.design.capture).toBeDefined();
     expect(f.calls()).toBeGreaterThan(0);
+    expect(f.otherCaptureCalls()).toBe(
+      ['official-mcp', 'page-api'].includes(source) ? 0 : f.calls(),
+    );
     const signed = await f.store.get('plans', result.planId, PortalPlanSchema);
     expect(signed?.design.capture).toEqual(result.design.capture);
-    expect(f.approvals).toHaveBeenCalledTimes(source === 'chrome' ? 1 : 0);
+    expect(f.approvals).toHaveBeenCalledTimes(source === 'desktop' ? 0 : 1);
   },
 );
 it('rejects explicit no-target Desktop intent before capture effects', async () => {
@@ -269,6 +292,22 @@ it('rejects explicit no-target Desktop intent before capture effects', async () 
   });
   expect(f.calls()).toBe(0);
   expect(f.approvals).not.toHaveBeenCalled();
+});
+it('carries the admitted page API collector into the actual approval effect', async () => {
+  const f = await fixture('page-api');
+  await f.plane.invokeTool(actor, f.request());
+  expect(f.approvals).toHaveBeenCalledWith(
+    expect.anything(),
+    'portal_plan',
+    expect.arrayContaining([
+      expect.objectContaining({
+        type: 'external-browser-read',
+        collector: 'page-api',
+        urlArg: 'design.url',
+      }),
+    ]),
+    expect.any(String),
+  );
 });
 it.each(['leader', 'follower'] as const)(
   'MCP %s adapter preserves dynamic source intent without reading a plan or impersonating owner',

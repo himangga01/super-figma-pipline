@@ -1,0 +1,66 @@
+{
+  "schemaVersion": 1,
+  "at": "2026-10-13T20:46:09.544Z",
+  "kind": "final-reviewed-change-statics",
+  "sourceHash": "sha256:d17485f0b84f2a9adbb6ef40acf0280507ad40e2617ca7001b142731bc2dfd80",
+  "codeInputs": [
+    {
+      "sha256": "e9b07c18cc5b1ea17a6778cc7c0dd8be76a2d75168460364c4e28535c1e89250",
+      "path": "packages/mcp/src/portal/module-resolution.ts"
+    },
+    {
+      "sha256": "2efc994f88c057aebb7373837512289adace0f2d31d1ba5e4e0ed495a8315c15",
+      "path": "packages/mcp/test/portal/module-resolution.test.ts"
+    }
+  ],
+  "packages": [
+    "mcp"
+  ],
+  "ownerIndexHash": "ecc1808ab3e14fa2e8c233ae1fc1c91e0a33b5b2e383a7270f1bc3068997e675",
+  "ownerIndexUnchanged": true,
+  "whole": false,
+  "status": "passed",
+  "results": [
+    {
+      "name": "mcp-types",
+      "exitCode": 0,
+      "signal": null,
+      "elapsedMs": 16199,
+      "args": [
+        "-p",
+        "packages/mcp/tsconfig.json",
+        "--noEmit",
+        "--incremental",
+        "false"
+      ],
+      "logPath": "C:\\2026_project\\super-figma-pipline\\.worktrees\\baseline\\service\\.cache\\final-statics-c28246f2-42ee-4e48-a1e9-fda212de3d51\\mcp-types.txt",
+      "logSha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b"
+    },
+    {
+      "name": "changed-lint",
+      "exitCode": 0,
+      "signal": null,
+      "elapsedMs": 425,
+      "args": [
+        "--deny-warnings",
+        "packages/mcp/src/portal/module-resolution.ts",
+        "packages/mcp/test/portal/module-resolution.test.ts"
+      ],
+      "logPath": "C:\\2026_project\\super-figma-pipline\\.worktrees\\baseline\\service\\.cache\\final-statics-c28246f2-42ee-4e48-a1e9-fda212de3d51\\changed-lint.txt",
+      "logSha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b"
+    },
+    {
+      "name": "changed-format",
+      "exitCode": 0,
+      "signal": null,
+      "elapsedMs": 345,
+      "args": [
+        "--check",
+        "packages/mcp/src/portal/module-resolution.ts",
+        "packages/mcp/test/portal/module-resolution.test.ts"
+      ],
+      "logPath": "C:\\2026_project\\super-figma-pipline\\.worktrees\\baseline\\service\\.cache\\final-statics-c28246f2-42ee-4e48-a1e9-fda212de3d51\\changed-format.txt",
+      "logSha256": "2dfa844560d6769dd0ce8cc75496b5cd48f945f80bd88fe8bb73b40cd030be6d"
+    }
+  ]
+}

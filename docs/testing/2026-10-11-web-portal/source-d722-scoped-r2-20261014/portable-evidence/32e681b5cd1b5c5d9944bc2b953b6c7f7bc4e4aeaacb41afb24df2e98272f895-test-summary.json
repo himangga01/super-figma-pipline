@@ -1,0 +1,25 @@
+{
+  "kind": "sanitized-original-test-report-summary",
+  "originalPath": ".worktrees/_cache/source-identity-phase-diagnostics-20261014/targeted-report.json",
+  "originalSha256": "32e681b5cd1b5c5d9944bc2b953b6c7f7bc4e4aeaacb41afb24df2e98272f895",
+  "originalSuccess": true,
+  "numTotalTests": 3,
+  "numPassedTests": 3,
+  "numFailedTests": 0,
+  "numPendingTests": 0,
+  "assertions": [
+    {
+      "name": "records a synthetic URL binding failure before any page API lookup without exposing the URL",
+      "status": "passed"
+    },
+    {
+      "name": "records synthetic API-file and page-reference failure phases while preserving identity guards",
+      "status": "passed"
+    },
+    {
+      "name": "writes the original safe capture failure stage/type/code/elapsed projection without private messages",
+      "status": "passed"
+    }
+  ],
+  "scope": "Sanitized summary only; original raw report remains local-only, and original failures/filtered cases are preserved"
+}

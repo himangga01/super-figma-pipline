@@ -38,7 +38,9 @@ export async function readFigmaCapture(
   figma: FigmaCaptureApi,
   source:
     | 'figma-plugin-api-via-scripter'
-    | 'figma-plugin-api-pinned' = 'figma-plugin-api-via-scripter',
+    | 'figma-plugin-api-pinned'
+    | 'official-figma-mcp'
+    | 'figma-web-page-api' = 'figma-plugin-api-via-scripter',
 ): Promise<string> {
   const warnings: unknown[] = [];
   let count = 0,

@@ -1,0 +1,51 @@
+{
+  "version": 1,
+  "at": "2026-10-13T03:30:39.224Z",
+  "sourceHash": "sha256:ca964193b989acf154ff769490f5732d7e028fe2e2d5a01b06f7edf1571fd84a",
+  "wholeAttemptId": "9e9507f6-73d8-4413-8d6b-713bb2a4e2cb",
+  "artifactAttemptId": "e0823ce2-b366-4102-a9cf-8da95633c5ce",
+  "helperManifestHash": "7e3562796725e20836348940fa3b7c00d5e4294e329b61af345bc9e336e3463c",
+  "privateReplacementReceiptHash": "536e34f15b2f3f08db483de0c2b28d11ec4642352034a0a9a28df3cb2c548902",
+  "replacementVerified": true,
+  "qaDaemonPid": 35816,
+  "qaPortalPid": 21836,
+  "qaPorts": [
+    3059,
+    4315
+  ],
+  "primaryPortsUntouched": [
+    3055,
+    4310
+  ],
+  "retainedPortalChromePid": 9932,
+  "separateSourceChromePid": 2072,
+  "dataGrantExpiresAt": "2026-10-13T07:00:48.660Z",
+  "originalRunsAndUnknownsPreserved": true,
+  "automaticReplay": false,
+  "browserCleanupConfirmed": false,
+  "daemon": {
+    "health": true,
+    "buildId": 1791202532000,
+    "buildIdentityHash": "sha256:f278f4540c38fa7d550a5d6404bc432722ab3240f4353058f0b93a7245f58eae",
+    "browserConnection": "awaiting-browser"
+  },
+  "journey": {
+    "number": 1,
+    "source": "chrome-page-api",
+    "workflowId": "f1e9ade8-4fd9-4960-8570-e79858cd00c8",
+    "workspaceId": "5ad8926b-3eb9-4b8f-afe6-be8653c624fe",
+    "publicRunId": "4c373005-e30d-4383-93df-5446d4e746be",
+    "coreRunId": "sfp_portal1_6d6a63bcfcc56bebe9d8bf458c2b4515",
+    "status": "awaiting-input",
+    "serviceState": "needs-input",
+    "captureFailure": {
+      "code": "DESIGN_CAPTURE_FAILED",
+      "stage": "connection",
+      "type": "timeout-error"
+    },
+    "captureAccepted": false,
+    "fullGenerationAccepted": false,
+    "codingLeasePresent": false,
+    "privateEvidenceHash": "77b03d5fe40c912431d648b3b44d71fabde82135afe8db4d3bfeced56f7fdc89"
+  }
+}

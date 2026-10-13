@@ -1,0 +1,31 @@
+{
+  "schemaVersion": 1,
+  "recordedAt": "2026-10-13T15:11:52.277Z",
+  "sourceHash": "sha256:6f87f836d872a4ba8ab49533f6447a7c921adb6b8af3dae75ddd6241e8b8a1cb",
+  "buildIdentity": "sha256:cc91e5c866434c08e76f9a58a04a34c8dae73c09a22fa6b6f57a41db30ef5da7",
+  "runId": "sfp_portal1_ae7f701dccf96d5b57ce839e26d83bd2",
+  "state": "candidate-ready",
+  "candidateHash": "sha256:e5a587dc85888465288a753b0b8042bbcf7f6774474ce907043d5163e77eb088",
+  "inlineFiles": 39,
+  "currentProtectedAssetReferences": 4,
+  "coreDeclarations": 7,
+  "profile": {
+    "id": "node-frontend",
+    "targets": 192,
+    "nativeContours": 72,
+    "assertions": 13,
+    "typecheckProgram": "node_modules/typescript/lib/tsc.js"
+  },
+  "validation": {
+    "dispatched": true,
+    "completed": false
+  },
+  "originalDeadlineAt": 1791906706344,
+  "grantExpiresAt": 1791904866181,
+  "completePortalJourneys": 0,
+  "requiredPortalJourneys": 1,
+  "fullGenerationAccepted": false,
+  "officialMcpLive": "owner-deferred",
+  "independentCollectorParity": "owner-excluded",
+  "eCommerce": "owner-skipped"
+}

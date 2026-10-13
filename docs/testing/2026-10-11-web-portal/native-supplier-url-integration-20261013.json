@@ -1,0 +1,38 @@
+{
+  "version": 1,
+  "at": "2026-10-13T04:29:06.835Z",
+  "priorSource": "sha256:ca964193b989acf154ff769490f5732d7e028fe2e2d5a01b06f7edf1571fd84a",
+  "manifestHash": "47c1aa6f1525cda50fb941c503f3d56bdaec62aa4bc6b7b37753a09986700b3e",
+  "files": [
+    {
+      "path": "packages/mcp/src/portal/capture-native-supplement.ts",
+      "before": "253535a2a8203a31614869b17aa14c48ec98f5b9aab393048351170fd8a09898",
+      "after": "4fad40f8b2290da577ce08e144944cadd93a85a34830566404de788331feaa1b",
+      "bytes": 13434
+    },
+    {
+      "path": "packages/mcp/test/portal/capture-native-supplement.test.ts",
+      "before": "02362d84aea8ce22a0a788ca0da49114a5dc71ac00888830444d86fee6021d97",
+      "after": "3d3f8206054aef21fd8476f9af7b5101ed925370aeb1a607a56bf0c5f08ec00e",
+      "bytes": 17871
+    }
+  ],
+  "minimalProductionDeltaVerified": true,
+  "independentOriginal": {
+    "passed": 0,
+    "failed": 3,
+    "filtered": 72,
+    "sha256": "5789e4e0e3434ad5a6f416ad2223b7083de986e91ba7902d6301693637a05153"
+  },
+  "independentRepair": {
+    "passed": 75,
+    "failed": 0,
+    "skipped": 0,
+    "sha256": "8ed2edf66147a2a54304f3100bccb6b8ca99286d9ce1998a4c579569ab074650"
+  },
+  "ownerIndexUnchanged": true,
+  "liveControl": false,
+  "deployed": false,
+  "wholeForNewSource": false,
+  "physicalProtection": "Regular working copy under the same Windows user; no OS/process sandbox and no multi-file atomic rollback claim"
+}

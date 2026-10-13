@@ -1,0 +1,175 @@
+{
+  "schemaVersion": 1,
+  "revision": "R61",
+  "proofId": "de58aff8-f520-4617-8556-7114a90f7e4e",
+  "candidateNotDeployed": true,
+  "mainBaseline": "sha256:303de5d1904d11c1fb89bdf80951900e375ac4325ea6cfc932f39ebee2785732",
+  "sourcePreparationPublicPassed": true,
+  "combinedFreshGraphPassed": false,
+  "completeCaseAcceptance": false,
+  "syntheticDesign": true,
+  "publicResult": {
+    "authorityExpiresOnRestart": true,
+    "compilerEvidenceHash": "sha256:16eaecc5c251584bc12cb355b35573759616ae943accb990321e6adcd8786285",
+    "generatedFiles": 235,
+    "preparationId": "sha256:edc1d033fb1d57ec70276f10b8b8a7ffc5b2166a22e6fd50fa2ad248c67610c4",
+    "requiresReplan": true,
+    "schemaVersion": 1,
+    "sourceId": "sha256:7062b4ee750f1e8f4704aca583a674792d6c42163a156caed2cadacabc5704de",
+    "sourceInventoryHash": "sha256:c2a4db4cf25834401612172a79e2a36b9902dd3d9916f7d5e1c62438dcf4738b",
+    "sourcePreparationOnly": true,
+    "status": "ready"
+  },
+  "generatedFiles": 235,
+  "journalStatus": "succeeded",
+  "originalRunUnchanged": true,
+  "preparation": {
+    "bytes": 67719,
+    "preparationId": "3f6c8634-6da0-445f-a307-bf7a2a12386c",
+    "prepareDurationMs": 183407
+  },
+  "registration": {
+    "durationMs": 264270,
+    "preparedFileHash": "fb5b4c70dc41747a4ff5f1b9bec5c3bf3680a87a222cfe5cbbda056224d42891"
+  },
+  "genuineNativeResultReturned": true,
+  "safeNativeResult": {
+    "commands": [
+      {
+        "id": "compiler-dependencies",
+        "status": "passed",
+        "exitCode": 0,
+        "durationMs": 40799,
+        "cleanup": "finished",
+        "outputBytes": 28,
+        "outputHash": "sha256:f037bea517f88210ca04c7ad7a61753db8f94b66d9fcc8fba530c78c041ad833",
+        "moduleEvidenceHash": "sha256:e49d01e84eabe437f593eea0d2996336093f3f81401083b68bae72749ed8b6f1",
+        "moduleEvidencePresent": true
+      },
+      {
+        "id": "react-router-compiler",
+        "status": "passed",
+        "exitCode": 0,
+        "durationMs": 19844,
+        "cleanup": "finished",
+        "outputBytes": 27055,
+        "outputHash": "sha256:44befd93133316650b5b94c6630b9b3678fd5d45cac5b4a138de3caf9c8d4e9d",
+        "moduleEvidenceHash": "sha256:8a25c868c2d8a312d39288a67f43fa4567d87fe7adc8b0636acb4f3087bc888d",
+        "moduleEvidencePresent": true
+      }
+    ],
+    "outputs": [
+      {
+        "path": "compiler-workspace",
+        "kind": "provisioned-dependencies"
+      },
+      {
+        "path": "compiler-workspace/source/build",
+        "kind": "generated-output"
+      },
+      {
+        "path": "compiler-workspace/source/.react-router",
+        "kind": "generated-output"
+      },
+      {
+        "path": "compiler-workspace/source/node_modules/.vite-temp",
+        "kind": "generated-output"
+      },
+      {
+        "path": "compiler-workspace/source/compiler-observations",
+        "kind": "generated-output"
+      },
+      {
+        "path": "compiler-workspace/source/app/components/ui/icons/sprite.svg",
+        "kind": "generated-output"
+      },
+      {
+        "path": "compiler-workspace/source/app/components/ui/icons/types.ts",
+        "kind": "generated-output"
+      }
+    ]
+  },
+  "originalBudget": {
+    "runDeadlineAt": 1791891155731,
+    "requestStartedAt": 1791888004247,
+    "deadlineAt": 1791888904247,
+    "probe": false
+  },
+  "originalResultHash": "46a108efff4e52dc98813ff46d1b6b8938aee9ca532ff06cbc1bf9efad6d2176",
+  "compilerResultScope": "235 files counted by actual issued compiler evidence; all required native command/module/output checks completed.",
+  "graphFollowup": {
+    "performedFreshGraphAnalysis": false,
+    "returnedExistingOldPlanSummary": true,
+    "reason": "Fixture setup used owned-setup-portal_plan for both calls; planId derives from owner+operationId and existing plan returns before source-compiler lookup.",
+    "retainedPlanCount": 1,
+    "retainedPlanId": "sfp_portal1_1300279be1f099e221bd6d3a976331f9",
+    "sameSourceId": true,
+    "sameInventory": true,
+    "oldIssueCount": 57,
+    "oldGraphIncomplete": true,
+    "compilerEvidenceHashAbsentFromOldSummary": true,
+    "noNewGraphRejectionClaim": true
+  },
+  "shutdown": {
+    "pid": 16720,
+    "outcome": "port-released",
+    "at": 1791888523217,
+    "gracefulBrowserCleanupClaimed": false,
+    "sourceElapsedMs": 518970,
+    "originalRemainingMs": 381030
+  },
+  "physicalRetirement": {
+    "at": 1791888926329,
+    "rootPid": 16720,
+    "rootCreatedAt": 1791887441774,
+    "exactRootAbsent": true,
+    "observedChildrenCount": 4,
+    "exactObservedChildrenAbsent": true,
+    "noUniversalOrRemoteCleanupClaim": true
+  },
+  "authorityLifecycle": "Issuer retired by fixture ordered close; cannot reconstruct or rebrand this evidence from JSON/old files.",
+  "receipts": [
+    {
+      "file": "prepared-contract.json",
+      "sha256": "7cb51c9f10471e94612088ec5c8ef69671561a390b557e603d4b01f7ac6e378c"
+    },
+    {
+      "file": "registration-contract.json",
+      "sha256": "00fa2b4e3841a0bf31051e4072e4f2c5e18d1cf7f200b9d9e4111a7b1102b3f3"
+    },
+    {
+      "file": "original-budget.json",
+      "sha256": "ade6cacce4278c41acf99d21db829e18653ed9f951dd736f5ee0367bc26775e9"
+    },
+    {
+      "file": "native-result-projection.json",
+      "sha256": "93ffeba5fd8cfb3cdad37f03fe107086ebe532c5dd696dd38ce18d3ccdab9a8e"
+    },
+    {
+      "file": "result.json",
+      "sha256": "46a108efff4e52dc98813ff46d1b6b8938aee9ca532ff06cbc1bf9efad6d2176"
+    },
+    {
+      "file": "graph-before.json",
+      "sha256": "768cd9f694a6a3d71fbbf5edba0f66aae47919a6fb03235d4346a8eb128b59e9"
+    },
+    {
+      "file": "graph-after.json",
+      "sha256": "768cd9f694a6a3d71fbbf5edba0f66aae47919a6fb03235d4346a8eb128b59e9"
+    },
+    {
+      "file": "shutdown.json",
+      "sha256": "87f24cc0e1d7ee8cca994b6ff42aea8bbe01f55623aa35b7271528a54c613515"
+    },
+    {
+      "file": "physical-retirement.json",
+      "sha256": "db2ec3c573fa135fbebf969634ccbb76c9b0279fb7438516d6a7e5f50aa70862"
+    }
+  ],
+  "limits": [
+    "Actual public prepare_source and issued compiler evidence passed",
+    "Fresh graph closure not executed because fixture reused old operationId",
+    "No capture, generation, application or complete C2/C3 acceptance",
+    "No old-state, policy, token or grant copy; no post-close issuer resurrection"
+  ]
+}

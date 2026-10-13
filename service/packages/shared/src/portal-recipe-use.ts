@@ -47,6 +47,17 @@ export const PortalRecipeUseSchema = z
       .object({
         version: z.literal(1),
         targets: z.array(target).max(20_000).default([]),
+        nativeContours: z
+          .array(
+            z
+              .object({
+                nodeId: id,
+                representation: z.literal('native-contour'),
+              })
+              .strict(),
+          )
+          .max(20000)
+          .optional(),
         components: z
           .array(
             z
@@ -113,6 +124,7 @@ export const PortalRecipeUseSchema = z
       .superRefine((value, ctx) => {
         for (const keys of [
           value.targets.map(row => row.nodeId),
+          value.nativeContours?.map(row => row.nodeId) ?? [],
           value.components.map(row => JSON.stringify([row.resultId, row.rowId])),
           value.cssVariables.map(row => row.variableId),
           value.assets.map(row => JSON.stringify([row.nodeId, row.property])),

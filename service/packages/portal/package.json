@@ -1,0 +1,51 @@
+{
+  "name": "@sfp/portal",
+  "version": "0.1.0",
+  "private": true,
+  "license": "MIT",
+  "bin": {
+    "sfp-portal": "./dist/index.mjs"
+  },
+  "files": [
+    "dist",
+    "web/index.html",
+    "web/styles.css",
+    "web/app.js",
+    "web/api.js",
+    "web/model.js",
+    "web/schema-form.js",
+    "web/service-functions.js",
+    "web/figma-settings.js",
+    "web/figma-auth-public.js",
+    "web/figma-auth-consent.html",
+    "web/figma-auth-consent.js",
+    "web/figma-auth-consent.css",
+    "README.md",
+    "DEBUGGING.md",
+    "LICENSE",
+    "THIRD_PARTY_NOTICES.md",
+    "PROVENANCE.md",
+    "SBOM.spdx.json",
+    "licenses",
+    "capabilities"
+  ],
+  "type": "module",
+  "scripts": {
+    "build": "tsdown",
+    "start": "node dist/index.mjs",
+    "test:web": "vitest run --config vitest.config.ts web/tests",
+    "typecheck": "tsc --noEmit -p tsconfig.json"
+  },
+  "dependencies": {
+    "@sfp/cli": "workspace:*",
+    "@sfp/shared": "workspace:*",
+    "zod": "4.4.3"
+  },
+  "devDependencies": {
+    "playwright": "1.63.0",
+    "tsdown": "^0.22.14"
+  },
+  "engines": {
+    "node": ">=24.0.0 <25"
+  }
+}

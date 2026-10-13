@@ -3,7 +3,7 @@ import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 
 import { requireChrome } from '../../../test/support/required-suite.js';
 import { googleChromeExecutable } from '../../mcp/src/portal/chrome-runtime.js';
-import { observeFigmaPage } from '../src/browser-session.js';
+import { observeFigmaPage, probeFigmaWebRuntime } from '../src/browser-session.js';
 import { parseFigmaTarget } from '../src/figma-url.js';
 
 const target = parseFigmaTarget('https://www.figma.com/design/4IBhv1d8hEclifZQrOYxHS?node-id=0-1');
@@ -44,6 +44,51 @@ describe('Figma editor observation in a real browser', () => {
   it('does not treat the hidden marker alone as a loaded editor', async () => {
     await page.setContent(marker);
     expect((await observeFigmaPage(page, target)).status).toBe('loading');
+  });
+
+  it('reports only page-runtime availability and never invokes its design API', async () => {
+    await page.evaluate(() => {
+      Reflect.deleteProperty(window, 'figma');
+    });
+    expect(await probeFigmaWebRuntime(page, target)).toMatchObject({
+      available: false,
+      identityVerified: false,
+      fullCapture: false,
+    });
+    await page.evaluate(fileKey => {
+      Object.defineProperty(window, 'figma', {
+        configurable: true,
+        value: {
+          fileKey,
+          currentPage: { id: '0:1' },
+          getNodeByIdAsync() {
+            throw Error('must not invoke');
+          },
+        },
+      });
+    }, target.fileKey);
+    expect(await probeFigmaWebRuntime(page, target)).toMatchObject({
+      available: true,
+      identityVerified: true,
+      pageId: '0:1',
+      fullCapture: false,
+    });
+    await page.evaluate(() => {
+      Object.defineProperty(window, 'figma', {
+        configurable: true,
+        get() {
+          throw Error('do not expose this exception');
+        },
+      });
+    });
+    expect(await probeFigmaWebRuntime(page, target)).toMatchObject({
+      available: false,
+      identityVerified: false,
+      reason: 'runtime-unavailable',
+    });
+    await page.evaluate(() => {
+      Reflect.deleteProperty(window, 'figma');
+    });
   });
 
   it('finds a visible editor canvas after a hidden canvas and rejects hidden-only canvases', async () => {

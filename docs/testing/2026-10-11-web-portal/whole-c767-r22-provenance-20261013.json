@@ -1,0 +1,52 @@
+{
+  "recordedAt": "2026-10-13T01:05:03.613Z",
+  "sourceHash": "sha256:db69ea3b1fa4363176712640af1a7e733706ce09542406fe18fc84b6c81f2f0a",
+  "entries": [
+    {
+      "path": "upstream-lock.json",
+      "before": "11e687bd0ec4f18d37c2551e96fef34e98dec75fd6721d4b6bcb97be41a4c4a2",
+      "after": "a7b60bda00d020ea9580239ff2333fa29f2995701b36525bcafb2e5a6f1fac83"
+    },
+    {
+      "path": "vendor-map.json",
+      "before": "b3275c7d8b997d1cfe723d97594659f77d7b4361b824a790bcfdd7ff762589bd",
+      "after": "b3275c7d8b997d1cfe723d97594659f77d7b4361b824a790bcfdd7ff762589bd"
+    },
+    {
+      "path": "vendor-rules.json",
+      "before": "d57c6b11f34843242303698f0ec8ea26f778082697912d19f4912c72926d6328",
+      "after": "18c317a65d4d69dfd3dc89beb12397402bc91ab7eab6d4a5c69807da331fa026"
+    },
+    {
+      "path": "capabilities/change-manifests/task-review-2026-10-10.json",
+      "before": "301c005ad729e71e90e0b14dd352b2e6117385c9117e6b7df42d38198fe4850c",
+      "after": "18b3cd601b3b3e718a569ce413f8b82dfdbec9af50e558c0fbddff8a512a7f9f"
+    },
+    {
+      "path": "capabilities/task-review-2026-10-10-authority-classes.json",
+      "before": "326accb5f73bab81cec1e97369b47dd7ef04194893acc8770400e85ba851743b",
+      "after": "1ca35c78569b58a20f8c71d67621266045503e05e1cd94328dc1bc9e4c8778a3"
+    },
+    {
+      "path": "capabilities/reconciliations/review-2026-10-10-whole-c767-repairs-2026-10-13.json",
+      "before": null,
+      "after": "371b254ee053a06aac3d5574e65091a7096aca867178d06e695c3c0c88a4ea79"
+    }
+  ],
+  "semanticChanges": 246,
+  "derivedAuthorities": 4,
+  "ownerIndexUnchanged": true,
+  "focusedCensus": {
+    "passed": 40,
+    "failed": 0,
+    "skipped": 0
+  },
+  "independentCompiler": {
+    "passed": 129,
+    "failed": 0,
+    "skipped": 0
+  },
+  "wholePassed": false,
+  "runtimeReplaced": false,
+  "officialLive": "deferred-by-owner"
+}

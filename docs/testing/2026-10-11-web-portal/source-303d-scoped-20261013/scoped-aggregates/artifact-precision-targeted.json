@@ -1,0 +1,23 @@
+{
+  "schemaVersion": 1,
+  "name": "artifact-precision-targeted",
+  "releaseId": "03c80519-d773-4cc7-bfa3-1b416151544f",
+  "finalSourceHash": "sha256:303de5d1904d11c1fb89bdf80951900e375ac4325ea6cfc932f39ebee2785732",
+  "status": "passed",
+  "sourceBinding": "reviewed-exact-files",
+  "evidence": {
+    "reports": [
+      {
+        "path": ".worktrees/_cache/native-supplement-url-root-review-20261013/root-artifact-precision.json",
+        "sha256": "90e1d97bbd44593bc7bad643e6873e1f37cf8e2020720997967030d04e14bacf",
+        "passed": 56,
+        "failed": 0,
+        "platformSkipped": 1
+      }
+    ],
+    "unchangedPlatformSkip": 1,
+    "historicalRaceCauseProven": false
+  },
+  "wholePassed": false,
+  "liveAcceptance": false
+}

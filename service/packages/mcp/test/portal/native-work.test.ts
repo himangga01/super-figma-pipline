@@ -30,12 +30,16 @@ import { operationIdIssuerFromKey } from '../../src/execution/operation-id.js';
 import { OperationJournal } from '../../src/execution/operation-journal.js';
 import { AtomicFileStore } from '../../src/fs/atomic-file.js';
 import { resolvePortalAuthority } from '../../src/portal/authority.js';
+import { resolvePortalCaptureSource } from '../../src/portal/capture-source-admission.js';
 import {
   createPortalProfileEndpoint,
   createPortalProfilePreparationEndpoint,
 } from '../../src/portal/control.js';
 import { PortalCoordinator } from '../../src/portal/coordinator.js';
-import { PortalCapturedDesignSchema } from '../../src/portal/design-capture.js';
+import {
+  PortalCapturedDesignSchema,
+  describePortalCapture,
+} from '../../src/portal/design-capture.js';
 import {
   expandNativeEnvironment,
   prepareNativeEnvironment,
@@ -53,6 +57,7 @@ import { CorePreparations } from '../../src/portal/recipes/core-preparation.js';
 import { createBoundRuntimeRegistry } from '../../src/tools/runtime-registry.js';
 import { currentCaptureFixture } from './capture-fixture.js';
 import { portalFixture } from './fixtures.js';
+import { pageApiCaptureFixture } from './page-api-fixture.js';
 
 const cleanups: Array<() => Promise<void>> = [];
 let creationWorker: string;
@@ -347,8 +352,14 @@ it('keeps prior signed partial apply proof when a later invocation is cancelled 
     (await value.store.get('apply', value.run.runId, PortalApplyJournalSchema))?.files[0]?.state,
   ).toBe('written');
 }, 30_000);
-const fixture = async (legacy = false, heavy = false, requireLive = false) => {
+const fixture = async (
+  legacy = false,
+  heavy = false,
+  requireLive = false,
+  collector?: 'page-api',
+) => {
   const value = await portalFixture();
+  const pageApi = collector === 'page-api' ? pageApiCaptureFixture(value) : undefined;
   const work = new PortalNativeWork({
     stateRoot: value.stateRoot,
     store: value.store,
@@ -356,10 +367,44 @@ const fixture = async (legacy = false, heavy = false, requireLive = false) => {
     permissions: value.permissions,
   });
   cleanups.push(async () => {
+    await pageApi?.capture.close();
     await work.close();
     await value.cleanup();
   });
-  const capture = await currentCaptureFixture(value);
+  const capture = pageApi
+    ? await (async () => {
+        const captured = await pageApi.capture.pageApiCapture.capture(
+          'native-page-api-fixture',
+          pageApi.url,
+          new AbortController().signal,
+        );
+        const grant = (
+          await resolvePortalCaptureSource(
+            { source: 'chrome', collector: 'page-api', url: pageApi.url },
+            { kind: 'portal-source' },
+            {
+              sessions: { active: () => undefined, list: () => [] },
+              bindingFor: async () => null,
+            },
+          )
+        ).grant;
+        const descriptor = describePortalCapture(
+          captured,
+          { kind: 'chrome', url: pageApi.url },
+          grant,
+        );
+        return {
+          captured,
+          grant,
+          descriptor,
+          receipt: {
+            version: 2 as const,
+            originalDescriptorHash: contentHash('sfp-portal-capture-descriptor-v2', descriptor),
+            freshDesignFingerprint: descriptor.designFingerprint,
+          },
+        };
+      })()
+    : await currentCaptureFixture(value);
   const coordinator = new PortalCoordinator(
     value.store,
     value.policy,
@@ -381,6 +426,7 @@ const fixture = async (legacy = false, heavy = false, requireLive = false) => {
       workspaceId: value.workspaceId,
       operationId,
       authority,
+      ...(pageApi ? { capture: pageApi.capture.pageApiCapture } : {}),
       signal: new AbortController().signal,
     }) as Promise<Record<string, any>>;
   };
@@ -450,7 +496,10 @@ const fixture = async (legacy = false, heavy = false, requireLive = false) => {
         }
       : {}),
     targetPath: 'output',
-    design: { freshness: requireLive ? 'require-live' : 'allow-pinned' },
+    design: {
+      freshness: requireLive ? 'require-live' : 'allow-pinned',
+      ...(collector ? { collector } : {}),
+    },
   });
   if (legacy) {
     const draft = (await value.store.get('plans', planned.planId, PortalPlanSchema))!;
@@ -519,7 +568,7 @@ const fixture = async (legacy = false, heavy = false, requireLive = false) => {
   });
   const plan = (await value.store.get('plans', planned.planId, PortalPlanSchema))!;
   const run = (await value.store.get('runs', plan.planId, PortalRunSchema))!;
-  return { ...value, plan, run, files, work, invoke, capture };
+  return { ...value, plan, run, files, work, invoke, capture, pageApi };
 };
 const acceptanceFixture = async (
   value: Awaited<ReturnType<typeof fixture>>,
@@ -1351,6 +1400,54 @@ it('keeps a failed unasserted native step from authorizing completion', async ()
   expect(result.state).toBe('blocked');
 }, 60000);
 
+it.each([false, true])(
+  'reobserves page-api source facts through NativeWork freshness (changed=%s)',
+  async changed => {
+    const value = await fixture(false, false, true, 'page-api');
+    try {
+      const original = (await value.store.get(
+        'designs',
+        value.plan.planId,
+        PortalCapturedDesignSchema,
+      ))!;
+      await seedBlockedExecutionProfile(value, await profileFixture(value));
+      const before = value.pageApi!.reads();
+      if (changed) value.pageApi!.node.width = 2;
+      const report = await value.work.validate(
+        value.plan,
+        value.run,
+        value.files,
+        new AbortController().signal,
+        'candidate',
+        'node-frontend',
+        await executionFixture(value, value.work, 'candidate'),
+        value.pageApi!.capture.pageApiCapture,
+      );
+      expect(value.pageApi!.reads()).toBeGreaterThan(before);
+      expect(value.pageApi!.scripterCalls()).toBe(0);
+      expect(report.liveDesignVerified).toBe(!changed);
+      expect(report.checks).toContainEqual(
+        expect.objectContaining({
+          id: 'native-design-freshness',
+          required: true,
+          status: changed ? 'failed' : 'passed',
+          reason: changed ? 'PORTAL_LIVE_DESIGN_CHANGED' : 'EXACT_CAPTURE_FINGERPRINT',
+        }),
+      );
+      const retained = (await value.store.get(
+        'designs',
+        value.plan.planId,
+        PortalCapturedDesignSchema,
+      ))!;
+      expect(storedChecksum(retained.raw)).toBe(storedChecksum(original.raw));
+      expect(retained.assetRoot).toBe(original.assetRoot);
+    } finally {
+      vi.restoreAllMocks();
+    }
+  },
+  60_000,
+);
+
 it.each(['source-unavailable', 'command-failed'] as const)(
   'retains failed native feedback: %s',
   async failure => {
@@ -1367,6 +1464,9 @@ it.each(['source-unavailable', 'command-failed'] as const)(
     });
     cleanups.unshift(() => work.close());
     const profile = await profileFixture(value);
+    // This fixture checks retained feedback, not Windows helper startup latency.
+    // Keep the prerequisite assertion within a separate bounded fixture budget.
+    profile.native.commands[0]!.timeoutMs = 15_000;
     if (failure === 'command-failed')
       profile.native.commands.push({
         ...profile.native.commands[0]!,
@@ -1400,10 +1500,16 @@ it.each(['source-unavailable', 'command-failed'] as const)(
     expect(report.evidencePaths).toHaveLength(1);
     const evidenceId = report.evidencePaths[0]!.split('/').at(-1)!.replace('.json', '');
     const stored = await value.store.get('validation', evidenceId, PortalStoredValidationSchema);
+    const expectedCommands = [
+      { commandId: 'assert-source', status: 'passed' },
+      ...(failure === 'command-failed'
+        ? [{ commandId: 'failed-command', status: 'failed', exitCode: 9 }]
+        : []),
+    ];
     expect(stored?.commandEvidence).toMatchObject({
-      commands: expect.arrayContaining([
-        expect.objectContaining({ commandId: 'assert-source', status: 'passed' }),
-      ]),
+      commands: expect.arrayContaining(
+        expectedCommands.map(command => expect.objectContaining(command)),
+      ),
     });
   },
   60000,

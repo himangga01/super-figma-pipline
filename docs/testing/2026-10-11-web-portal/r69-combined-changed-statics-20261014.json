@@ -1,0 +1,78 @@
+{
+  "schemaVersion": 1,
+  "at": "2026-10-13T21:21:24.916Z",
+  "kind": "final-reviewed-change-statics",
+  "sourceHash": "sha256:1790a1dc140343d8f0982ff5a83083cdbea99834f21f20ed88c5d95e17e006f3",
+  "codeInputs": [
+    {
+      "sha256": "e3a725707655e699e987b41e1c342a9c119c428a802963f5624f0eb9c4d10f7c",
+      "path": "packages/mcp/src/portal/service-graph.ts"
+    },
+    {
+      "sha256": "a4d238f8053115a687c5c045eee3fb9ed8995ed50cda19d2a55d5955c6be3bc8",
+      "path": "packages/mcp/test/portal/service-graph.test.ts"
+    },
+    {
+      "sha256": "4c8ec77c46972434c9ea4f5e445f7aa2b89d442d52a129adefd499faa915e20f",
+      "path": "packages/mcp/src/portal/service-selection.ts"
+    },
+    {
+      "sha256": "42746c63cc8fb7d98135c9339cd6dcd3ac2c2374ad8588a6c73ac146eeaef3e1",
+      "path": "packages/mcp/test/portal/core-recipes.test.ts"
+    }
+  ],
+  "packages": [
+    "mcp"
+  ],
+  "ownerIndexHash": "ecc1808ab3e14fa2e8c233ae1fc1c91e0a33b5b2e383a7270f1bc3068997e675",
+  "ownerIndexUnchanged": true,
+  "whole": false,
+  "status": "passed",
+  "results": [
+    {
+      "name": "mcp-types",
+      "exitCode": 0,
+      "signal": null,
+      "elapsedMs": 11127,
+      "args": [
+        "-p",
+        "packages/mcp/tsconfig.json",
+        "--noEmit",
+        "--incremental",
+        "false"
+      ],
+      "logPath": "C:\\2026_project\\super-figma-pipline\\.worktrees\\baseline\\service\\.cache\\final-statics-edbcd2d2-182f-4c6a-939f-4e848bd52f7a\\mcp-types.txt",
+      "logSha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b"
+    },
+    {
+      "name": "changed-lint",
+      "exitCode": 0,
+      "signal": null,
+      "elapsedMs": 166,
+      "args": [
+        "--deny-warnings",
+        "packages/mcp/src/portal/service-graph.ts",
+        "packages/mcp/test/portal/service-graph.test.ts",
+        "packages/mcp/src/portal/service-selection.ts",
+        "packages/mcp/test/portal/core-recipes.test.ts"
+      ],
+      "logPath": "C:\\2026_project\\super-figma-pipline\\.worktrees\\baseline\\service\\.cache\\final-statics-edbcd2d2-182f-4c6a-939f-4e848bd52f7a\\changed-lint.txt",
+      "logSha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b"
+    },
+    {
+      "name": "changed-format",
+      "exitCode": 0,
+      "signal": null,
+      "elapsedMs": 148,
+      "args": [
+        "--check",
+        "packages/mcp/src/portal/service-graph.ts",
+        "packages/mcp/test/portal/service-graph.test.ts",
+        "packages/mcp/src/portal/service-selection.ts",
+        "packages/mcp/test/portal/core-recipes.test.ts"
+      ],
+      "logPath": "C:\\2026_project\\super-figma-pipline\\.worktrees\\baseline\\service\\.cache\\final-statics-edbcd2d2-182f-4c6a-939f-4e848bd52f7a\\changed-format.txt",
+      "logSha256": "518ad9a31eadf38ca67bedd8c005683e893e767ea0a619a25bfa4c123f44a1cd"
+    }
+  ]
+}

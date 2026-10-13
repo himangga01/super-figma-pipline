@@ -4,6 +4,6 @@ import { join } from 'node:path';
 
 import { artifactRoot, sha256, publish } from './release-common.mjs';
 const rows = [];
-for (const name of ['artifact-manifest.v1.json', 'cli.tgz', 'mcp.tgz', 'plugin.zip'])
+for (const name of ['artifact-manifest.v1.json', 'cli.tgz', 'mcp.tgz', 'plugin.zip', 'portal.tgz'])
   rows.push(`${sha256(await readFile(join(artifactRoot, name)))}  ${name}`);
 await publish(join(artifactRoot, 'SHA256SUMS'), Buffer.from(`${rows.join('\n')}\n`));

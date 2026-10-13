@@ -1,0 +1,13 @@
+{
+  "schemaVersion": 1,
+  "at": "2026-10-13T18:02:21.613Z",
+  "reason": "Actual prior scoped lint failed no-unsafe-finally; only repaired cleanup test rechecked",
+  "file": "packages/mcp/test/portal/source-refresh-diagnostic.test.ts",
+  "sha256": "0eb0aa3d6965c13f79b03bb1d1dfcb63b9eb1b91f5ab3978c7547d5938d4eb21",
+  "exitCode": 0,
+  "elapsedMs": 180,
+  "outputHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "typesRepeated": false,
+  "logTestsRepeated": false,
+  "whole": false
+}

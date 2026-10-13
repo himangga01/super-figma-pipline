@@ -1,0 +1,174 @@
+{
+  "schemaVersion": 1,
+  "kind": "final-scoped-static-reuse-aggregate",
+  "sourceHash": "sha256:d722c32152149464c961c660622a95e3da603eb00f291e28b15c024507bcd87d",
+  "status": "passed",
+  "whole": false,
+  "ownerIndexHash": "ecc1808ab3e14fa2e8c233ae1fc1c91e0a33b5b2e383a7270f1bc3068997e675",
+  "ownerIndexUnchanged": true,
+  "codeInputs": [
+    {
+      "path": "packages/cli/src/figma-page-reader.ts",
+      "sha256": "daeb45dee99dbff9a09cc2f49c7c635c2cd44d310216b6d34782d61008ad5f4a"
+    },
+    {
+      "path": "packages/cli/test/figma-page-identity-diagnostics.test.ts",
+      "sha256": "41c0f6bb259be4663d83211cede8218d87d8ab3299e35162d2619a4dca119cdc"
+    },
+    {
+      "path": "packages/mcp/src/portal/native-work.ts",
+      "sha256": "d4b50bb1f626ba3b21968cd6872f2ac989e83e511dec0321652b5301d641bbc5"
+    },
+    {
+      "path": "packages/mcp/src/portal/react-router-compiler-evidence.ts",
+      "sha256": "da6b2efb21772fa7b01bce3a353da61169f147651bff3f64a82e5c45e48290f0"
+    },
+    {
+      "path": "packages/mcp/test/portal/react-router-compiler-evidence.test.ts",
+      "sha256": "684d073c9fb949c15bb2d8cf3621ebc5bdc13581052c858f720fc32da60bbab2"
+    },
+    {
+      "path": "packages/mcp/test/portal/source-refresh-diagnostic.test.ts",
+      "sha256": "0eb0aa3d6965c13f79b03bb1d1dfcb63b9eb1b91f5ab3978c7547d5938d4eb21"
+    },
+    {
+      "path": "packages/portal/src/bridge.ts",
+      "sha256": "23eaae954eb16bb4bff335b6a3c82f5fbc2c3bd142eab8d01ca0b42c03c88ace"
+    },
+    {
+      "path": "packages/portal/test/backend.test.ts",
+      "sha256": "e1e8a5ec7968ac3ab4c4edba27dfceb0262d6554a5c4493755f984667015ff3a"
+    }
+  ],
+  "results": [
+    {
+      "name": "cli-types",
+      "exitCode": 0,
+      "signal": null,
+      "receipt": {
+        "path": "docs/testing/2026-10-11-web-portal/final-delta-statics-first-20261014.json",
+        "sha256": "077aa83c39040b979965904f56456cab734e3bd553a5cd2517920c650e50a6ef"
+      },
+      "logSha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+      "reused": true,
+      "scope": "Historical actual cli-types command from original failed aggregate; explicit test-only supersessions recorded; no new whole-source type or formatting run",
+      "inputSupersessions": [
+        {
+          "path": "packages/mcp/test/portal/source-refresh-diagnostic.test.ts",
+          "beforeSha256": "33353d65bf4e42c8c8e61e0b8908b8325e1ba4fd8f2f52b15df053d70692efd8",
+          "afterSha256": "0eb0aa3d6965c13f79b03bb1d1dfcb63b9eb1b91f5ab3978c7547d5938d4eb21"
+        }
+      ],
+      "originalSourceHash": "sha256:195ba986e0ea9ec4e7624b4cae581a553c15ea486428ddc340b0eb1a0c4a6ba4"
+    },
+    {
+      "name": "portal-types",
+      "exitCode": 0,
+      "signal": null,
+      "receipt": {
+        "path": "docs/testing/2026-10-11-web-portal/final-delta-statics-first-20261014.json",
+        "sha256": "077aa83c39040b979965904f56456cab734e3bd553a5cd2517920c650e50a6ef"
+      },
+      "logSha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+      "reused": true,
+      "scope": "Historical actual portal-types command from original failed aggregate; explicit test-only supersessions recorded; no new whole-source type or formatting run",
+      "inputSupersessions": [
+        {
+          "path": "packages/mcp/test/portal/source-refresh-diagnostic.test.ts",
+          "beforeSha256": "33353d65bf4e42c8c8e61e0b8908b8325e1ba4fd8f2f52b15df053d70692efd8",
+          "afterSha256": "0eb0aa3d6965c13f79b03bb1d1dfcb63b9eb1b91f5ab3978c7547d5938d4eb21"
+        }
+      ],
+      "originalSourceHash": "sha256:195ba986e0ea9ec4e7624b4cae581a553c15ea486428ddc340b0eb1a0c4a6ba4"
+    },
+    {
+      "name": "mcp-types",
+      "exitCode": 0,
+      "signal": null,
+      "receipt": {
+        "path": "docs/testing/2026-10-11-web-portal/c3-producer-statics-first-20261014.json",
+        "sha256": "a04c40449a61e9fa4d8c39e6e1261f6b4ca55f998a614349c1f39b62e2d548ad"
+      },
+      "logSha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+      "reused": true,
+      "scope": "Historical actual mcp-types command from original failed aggregate; explicit test-only supersessions recorded; no new whole-source type or formatting run",
+      "inputSupersessions": [
+        {
+          "path": "packages/mcp/test/portal/react-router-compiler-evidence.test.ts",
+          "beforeSha256": "62fc8c6891ac08a4a24f3672a6991f45fa5514f039a4d07d882102f8949cc4a9",
+          "afterSha256": "684d073c9fb949c15bb2d8cf3621ebc5bdc13581052c858f720fc32da60bbab2"
+        }
+      ],
+      "originalSourceHash": "sha256:15c074bf124393877d75f73278dad7b9b2033c9fac58a5f0b89bdb83b122d4fa"
+    },
+    {
+      "name": "changed-lint",
+      "exitCode": 0,
+      "signal": null,
+      "receipt": {
+        "path": "docs/testing/2026-10-11-web-portal/final-d722-eight-lint-20261014.json",
+        "sha256": "fa4fb7e5c4cb4e3fb9991338bbad8fe7027fb5ec36e6fc8102de2e1ca7cd85b2"
+      },
+      "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "reused": false,
+      "scope": "Actual current-source successful lint of all eight reviewed changed files after previously failed affected batches; no package types or functional cases repeated",
+      "inputSupersessions": [],
+      "originalSourceHash": "sha256:d722c32152149464c961c660622a95e3da603eb00f291e28b15c024507bcd87d"
+    },
+    {
+      "name": "changed-format",
+      "exitCode": 0,
+      "signal": null,
+      "receipt": {
+        "path": "docs/testing/2026-10-11-web-portal/final-d722-eight-format-20261014.json",
+        "sha256": "eff3e6f43d4be93bba389aff7fd30654336a8027c7909584e13bc50aa584a98d"
+      },
+      "logSha256": "ac7e0405adf2952daac9c84355d0c5baefa49df57f8c0fb5552a496df90fee79",
+      "reused": false,
+      "scope": "Actual current-source successful format of all eight reviewed changed files after previously failed affected batches; no package types or functional cases repeated",
+      "inputSupersessions": [],
+      "originalSourceHash": "sha256:d722c32152149464c961c660622a95e3da603eb00f291e28b15c024507bcd87d"
+    }
+  ],
+  "preservedFailedBatches": [
+    {
+      "receipt": {
+        "path": "docs/testing/2026-10-11-web-portal/final-delta-statics-first-20261014.json",
+        "sha256": "077aa83c39040b979965904f56456cab734e3bd553a5cd2517920c650e50a6ef"
+      },
+      "originalStatus": "failed",
+      "failedCommands": [
+        "changed-lint"
+      ]
+    },
+    {
+      "receipt": {
+        "path": "docs/testing/2026-10-11-web-portal/c3-producer-statics-first-20261014.json",
+        "sha256": "a04c40449a61e9fa4d8c39e6e1261f6b4ca55f998a614349c1f39b62e2d548ad"
+      },
+      "originalStatus": "failed",
+      "failedCommands": [
+        "changed-lint",
+        "changed-format"
+      ]
+    }
+  ],
+  "limitations": {
+    "fullFinalSourceTypecheck": false,
+    "wholePassed": false,
+    "oldFailedBatchesRelabeled": false,
+    "passingTestsRepeated": false,
+    "scope": "Three actual historical typechecks with explicit reviewed test-only supersessions; actual current-source eight-file lint and format; original failed batches remain failed"
+  },
+  "sourceBinding": "current exact reviewed files plus explicit historical command/input supersessions",
+  "historicalOneFileRepairReceipts": [
+    {
+      "path": "docs/testing/2026-10-11-web-portal/diagnostic-cleanup-r3-lint-20261014.json",
+      "sha256": "31df5a42d61894b76cbe66807b790536957068b7d098b39260be75c0f8c4a539"
+    },
+    {
+      "path": "docs/testing/2026-10-11-web-portal/c3-test-style-checks-20261014.json",
+      "sha256": "2868bd9f63512d70080cd7d5a29d3cd67bc951ccf61c6c8581be33bf27260b00"
+    }
+  ]
+}

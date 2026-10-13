@@ -1,0 +1,66 @@
+{
+  "schemaVersion": 1,
+  "slice": "review-2026-10-10",
+  "baseline": {
+    "headCommit": "22517932dc9b2cb974c177ec4eacb84d4b16e254",
+    "authoritySha256": {
+      "upstream-lock.json": "820800ba8864f6b6b273a4a05537ce5c4aaccc5869b6f4c70eb1532f9e489cf1",
+      "vendor-map.json": "b3275c7d8b997d1cfe723d97594659f77d7b4361b824a790bcfdd7ff762589bd",
+      "vendor-rules.json": "db6eb554845f69503a3f6b7750f611b2097c0f8b5b658ac61d704546ed5a731c"
+    }
+  },
+  "entries": [
+    {
+      "path": "capabilities/task-review-2026-10-10-authority-classes.json",
+      "sha256": "1d42d7b8a0af5aee2e058f142e94eba4731435f83c1f70bb2958ddce3a069c3f",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "763f6ddb5d9efdbbbccb193299fcc45a36100af4a4bfdd9690a165db20392784"
+        },
+        {
+          "class": "protected",
+          "sha256": "763f6ddb5d9efdbbbccb193299fcc45a36100af4a4bfdd9690a165db20392784"
+        }
+      ],
+      "reason": "Repair current-source whole knip failure by declaring the real consent-page module entry, removing five consumer-free inferred type aliases and cloning the refresh schema without changing accepted/rejected inputs. Independent native knip and84focused tests passed. Preserve all original failures, public OAuth schemas, live deferred acceptance, owner index, source authority and deadlines; new whole remains required."
+    },
+    {
+      "path": "knip.json",
+      "sha256": "07407991f9d2c29e8908d3794ec727365e36c8e27022c750d79ff4b23e2335c9",
+      "priorClaims": [
+        {
+          "class": "protected",
+          "sha256": "da0d85126c80728acd465ef1bc540f9fa207e50c4c5f0b6c865daae52e3745b2"
+        }
+      ],
+      "reason": "Repair current-source whole knip failure by declaring the real consent-page module entry, removing five consumer-free inferred type aliases and cloning the refresh schema without changing accepted/rejected inputs. Independent native knip and84focused tests passed. Preserve all original failures, public OAuth schemas, live deferred acceptance, owner index, source authority and deadlines; new whole remains required."
+    },
+    {
+      "path": "packages/mcp/src/control/figma-oauth-contract.ts",
+      "sha256": "4e748ba03778e1a4f554889ba6be105c6686335e0bf402d248aae5ba92e8017a",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "b46deab1f5cb5b15988f07a1b9229559fb7857421ec3736036558d5aa9181006"
+        },
+        {
+          "class": "protected",
+          "sha256": "b46deab1f5cb5b15988f07a1b9229559fb7857421ec3736036558d5aa9181006"
+        }
+      ],
+      "reason": "Repair current-source whole knip failure by declaring the real consent-page module entry, removing five consumer-free inferred type aliases and cloning the refresh schema without changing accepted/rejected inputs. Independent native knip and84focused tests passed. Preserve all original failures, public OAuth schemas, live deferred acceptance, owner index, source authority and deadlines; new whole remains required."
+    },
+    {
+      "path": "packages/portal/package.json",
+      "sha256": "ddb99eafe979d2319697f9bde91d01c4b3f4cf7f3e2a2baccfcb06ceff7767c8",
+      "priorClaims": [
+        {
+          "class": "protected",
+          "sha256": "ddb99eafe979d2319697f9bde91d01c4b3f4cf7f3e2a2baccfcb06ceff7767c8"
+        }
+      ],
+      "reason": "Repair current-source whole knip failure by declaring the real consent-page module entry, removing five consumer-free inferred type aliases and cloning the refresh schema without changing accepted/rejected inputs. Independent native knip and84focused tests passed. Preserve all original failures, public OAuth schemas, live deferred acceptance, owner index, source authority and deadlines; new whole remains required."
+    }
+  ]
+}

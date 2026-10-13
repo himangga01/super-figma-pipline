@@ -1,0 +1,102 @@
+{
+  "schemaVersion": 1,
+  "kind": "sanitized-original-test-report-summary",
+  "originalPath": ".worktrees/_cache/c2-c3-implementation-20261014/c3-graph-repair/changed-compiler-tests-r3.json",
+  "originalSha256": "24879ae24d1e903bcc0728d927b36f1e2b60a421d25b6568fffcbc8ba2510474",
+  "originalSuccess": false,
+  "numTotalTests": 22,
+  "numPassedTests": 1,
+  "numFailedTests": 1,
+  "numPendingTests": 20,
+  "assertions": [
+    {
+      "name": "retains bounded non-Epic generated root and home types in the compiler namespace",
+      "status": "passed"
+    },
+    {
+      "name": "denies absent or foreign-linked generated type output without issuing compiler authority",
+      "status": "failed"
+    },
+    {
+      "name": "decodes the actual pinned Vite two-statement CSS shape through its emitted client manifest",
+      "status": "skipped"
+    },
+    {
+      "name": "denies foreign CSS tokens imports manifest paths links and empty output",
+      "status": "skipped"
+    },
+    {
+      "name": "keeps literal CSS exports and the complete generated native command cap",
+      "status": "skipped"
+    },
+    {
+      "name": "admits the complete generated compiler bootstrap under the unchanged native argument cap",
+      "status": "skipped"
+    },
+    {
+      "name": "uses real installed Vite legacy client-only builder while preserving buildApp hooks and default environments",
+      "status": "skipped"
+    },
+    {
+      "name": "retains CSS duplicate and size rejection with only closed metrics and code hashes",
+      "status": "skipped"
+    },
+    {
+      "name": "accepts actual installed Vite context cloning while keeping the original injection and SSR options",
+      "status": "skipped"
+    },
+    {
+      "name": "rejects changed or unsupported manifest facts and retains real SSR output guards",
+      "status": "skipped"
+    },
+    {
+      "name": "retains closed plugin hook and module diagnostics while hashing unknown error identities",
+      "status": "skipped"
+    },
+    {
+      "name": "observes a genuine second SSR build for the pinned Epic legacy compiler branch",
+      "status": "skipped"
+    },
+    {
+      "name": "keeps Environment API compilation combined and rejects unsupported legacy selection",
+      "status": "skipped"
+    },
+    {
+      "name": "preserves failed command provenance with bounded projections and no raw output or labels",
+      "status": "skipped"
+    },
+    {
+      "name": "projects only closed bootstrap failure markers and hashes unknown child errors",
+      "status": "skipped"
+    },
+    {
+      "name": "accepts literal reviewed framework configs and rejects executable custom, aliased or spread config",
+      "status": "skipped"
+    },
+    {
+      "name": "rejects an actual native caller-written fake build as React Router compiler authority",
+      "status": "skipped"
+    },
+    {
+      "name": "reads closed pnpm v9 importer/version/integrity facts and rejects a different importer",
+      "status": "skipped"
+    },
+    {
+      "name": "rejects contradictory or unsupported top-level lock facts 0",
+      "status": "skipped"
+    },
+    {
+      "name": "rejects contradictory or unsupported top-level lock facts 1",
+      "status": "skipped"
+    },
+    {
+      "name": "rejects contradictory or unsupported top-level lock facts 2",
+      "status": "skipped"
+    },
+    {
+      "name": "does not grant fixed icon-output capability to a caller fabricated or serialized profile",
+      "status": "skipped"
+    }
+  ],
+  "limits": "Original raw report remains local-only; stacks/source snippets/actor-state omitted. Summary cannot issue authority or convert a failed full report to pass."
+}

@@ -1,0 +1,31 @@
+{
+  "kind": "startup-journal-preservation",
+  "recordedAt": "2026-10-13T22:47:05.484Z",
+  "originalStateAndBackupMutated": false,
+  "serviceReadersExecutedOnlyOnDisposableCopies": true,
+  "selectedGenerationAnchorCheckpointAndRecordChainsValidated": true,
+  "egressRecords": 470,
+  "evidenceRecords": 235,
+  "logicalRecordsEqual": true,
+  "logicalHash": "f7deccaedfcee896a0b950857a4a239e7697177d2b67d956f19f0e612b0ea85a",
+  "originalBackupCriticalFiles": 228,
+  "currentCriticalFiles": 231,
+  "nonJournalChangesOnlyLeaderAuthentication": true,
+  "excludedDerivedFields": {
+    "egress": [
+      "recordHash",
+      "previousRecordHash",
+      "sequence"
+    ],
+    "evidence": [
+      "contentHash",
+      "receiptHash",
+      "previousReceiptHash"
+    ]
+  },
+  "privateProofSha256": "2ba976d0875ede30f04d107bd8fcd61bafd513c567e1881ace00baa2b1a82f78",
+  "producerCodeSha256": "4946f42d0ac6b1f269cba48d5c21b5e775117f4019d647740f96f86bf5432499",
+  "fullAnchorBackup": false,
+  "portalRestored": false,
+  "liveAcceptance": false
+}

@@ -1,0 +1,30 @@
+{
+  "schemaVersion": 1,
+  "name": "artifact-precision-targeted",
+  "releaseId": "5b1c8abd-9bd3-4e81-b5ef-125d0b4d287c",
+  "finalSourceHash": "sha256:6f87f836d872a4ba8ab49533f6447a7c921adb6b8af3dae75ddd6241e8b8a1cb",
+  "status": "passed",
+  "sourceBinding": "reviewed-exact-files",
+  "evidence": {
+    "reports": [
+      {
+        "path": ".worktrees/_cache/native-supplement-url-root-review-20261013/root-artifact-precision.json",
+        "sha256": "90e1d97bbd44593bc7bad643e6873e1f37cf8e2020720997967030d04e14bacf",
+        "passed": 56,
+        "failed": 0,
+        "platformSkipped": 1
+      }
+    ],
+    "currentUnchangedImportClosure": {
+      "path": ".worktrees/_cache/source6f87-publication-preparation-20261013/precision-input-comparison.json",
+      "sha256": "14bd5de5fa40f8833aae6baed56e35d516beb7f82be00999d93f92d51e5dbf41"
+    },
+    "unchangedPlatformSkip": 1,
+    "historicalRaceCauseProven": false,
+    "scope": "Historical 56-pass/1-skip component evidence with exact unchanged 53-file current closure; no test rerun or final full-source claim"
+  },
+  "ownerEcommerce": "skipped",
+  "officialMcpLive": "deferred",
+  "wholePassed": false,
+  "liveAcceptance": false
+}

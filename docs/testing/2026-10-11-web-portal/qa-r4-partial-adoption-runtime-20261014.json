@@ -1,0 +1,78 @@
+{
+  "schemaVersion": 1,
+  "kind": "same-state-qa-partial-backup-adoption-runtime-verified",
+  "recordedAt": "2026-10-13T20:10:56.602Z",
+  "privateEvidenceHash": "d8d49b5e4bada440d750f3f49dcc2c3b1b2567a52c25fe45784727797c7bf4a8",
+  "sourceHash": "sha256:d722c32152149464c961c660622a95e3da603eb00f291e28b15c024507bcd87d",
+  "releaseId": "1fb30463-ea9c-446d-88fe-bd750b6c28d6",
+  "releaseReportHash": "1fba5d15ddc8fd08f7e92c691d8bea2d256fa95af90b22e2b3f40354a741885a",
+  "artifactCheckpointHash": "feb1b66c4eb6c8398b47bc846b1fbfbb99649f095a54f7be45ab77725a19e2f8",
+  "daemon": {
+    "port": 3059,
+    "pid": 41920,
+    "commandHash": "5ccf93669310bd2b91c40eefc316af33789224efa60aa91a5655eaa8ee79ce1f",
+    "startedAt": 1791922116470,
+    "entry": "daemon"
+  },
+  "portal": {
+    "port": 4315,
+    "pid": 18448,
+    "commandHash": "f8c8cec83e151dff0a43c87e13be26793eae9228783c4f61d7706ad868d48737",
+    "startedAt": 1791922185752,
+    "entry": "portal"
+  },
+  "build": {
+    "buildId": 1791202532000,
+    "buildIdentityHash": "sha256:7632acd6e38c4887b44325ef6cb1439f55170bdb7452ce3985aae3eb629cb1d1",
+    "leaderGenerationHash": "54dec10a21aecb23cdb33e99d790ca57f3304675e24ce38afd149b63d0b99c32",
+    "role": "leader"
+  },
+  "retainedCounts": {
+    "jobs": 36,
+    "runs": 17,
+    "workflows": 12
+  },
+  "retainedStateHash": "74ae7365e56298ea0175c9fa66c0e21a0557d17992de8096b830a0c3930ecfda",
+  "egress": {
+    "mode": "external-model",
+    "configuredAt": "2026-10-13T15:32:02.947Z",
+    "expiresAt": "2026-10-13T23:32:02.947Z",
+    "classes": [
+      "public",
+      "project-code",
+      "design-text",
+      "design-image"
+    ]
+  },
+  "failedParentIntentHash": "19d0a2b22790ab018440b32a0268eee54cdae2c9d844e81da37a15b6aff2555c",
+  "failedPartialIntentHash": "ac5d0bb21c1fe570dc22e4439e1cdc99a48117d51779317bd5b82b0e8f13d9e7",
+  "stoppedManifestHash": "47356475cec2784a69e2b3b747b4d5170cbfc42f44b7851946022808bc60c244",
+  "regularFilesRecopied": 0,
+  "sourceLinksFollowed": false,
+  "originalUnknownPreserved": true,
+  "expiredGeneratingPreserved": true,
+  "originalDeadlinesPreserved": true,
+  "namespaceCopied": false,
+  "automaticReplay": false,
+  "gracefulFlushConfirmed": false,
+  "browserSideCleanupConfirmed": false,
+  "wholePassed": false,
+  "portalJourneyLimit": 1,
+  "completeCddJourneys": 0,
+  "normalPublicNoCoreResult": {
+    "schemaVersion": 1,
+    "recordedAt": "2026-10-13T20:12:20.627Z",
+    "kind": "normal-public-original-no-core-terminal-result",
+    "runId": "6c983d30-a6c1-4623-b647-52a231e18d30",
+    "previousStatus": "unknown",
+    "status": "failed",
+    "errorCode": "PORTAL_PLAN_PRE_DISPATCH_REJECTED",
+    "noCore": true,
+    "originalCreatedAtPreserved": true,
+    "originalOperationHash": "1c8cc0d8c7be1d034a44b217096dc4beee53c8789205b26eb7274a5152f0a193",
+    "refreshRepeated": false,
+    "operationReplayed": false,
+    "directRecordEdit": false,
+    "newSourceCapture": false
+  }
+}

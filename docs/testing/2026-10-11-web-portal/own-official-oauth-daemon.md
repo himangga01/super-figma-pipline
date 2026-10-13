@@ -1,0 +1,78 @@
+# Own-service official OAuth daemon integration candidate
+
+Date: October 12, 2026 (Asia/Seoul).
+
+This managed-only implementation resumes the prior daemon/auth owner's partial work and implements the daemon portion of [the portal integration design](../../plans/2026-10-12-own-official-oauth-portal.md). Read [the engine candidate](own-official-oauth-engine.md), [its independent review](own-official-oauth-engine-review.md), [the canonical service analysis](../../service-analysis.md) and [repository instructions](../../../AGENTS.md) first. Main/native remain at the root's a476 baseline. This report is implementation evidence, not actual official authentication or frontend acceptance.
+
+## Baseline and ownership
+
+Source baseline: `sha256:a476a925b0304a9ce8b02d199228f2d80f9e6eb99c342c2569e2ceefa91c4230`. Existing owned files matched main/native at the prior owner's backup. Six OAuth control modules and four existing MCP wiring files were already partially written when this agent resumed. They were inspected, preserved and repaired. Unowned portal/CLI/catalog/provenance files were not edited. New test ownership is `packages/mcp/test/control/figma-oauth-provider.test.ts`; prior existing MCP tests remain unchanged. No Git command, live process, Chrome, policy, grant, operation fence, real contract or credential was changed.
+
+Frozen manifest: `service/.cache/own-official-oauth-daemon/frozen-files.json`, SHA-256 `4e305e019d0c4fb87e1943d410afb7b0b8dc75ab189ebcc6dacd9a3e0d8474dd`. Before hashes for existing files come from the preserved `before/before-files.json`; null means absent from main/native, not that the recovered partial files did not exist. The resume agent did not retain a separate initial partial-byte hash. Exact engine R3 source/test remain unchanged at `c5f91dca14205d8e5c7a522ab33a32a8c605bedec355b5ca2c0a6e66dd617e34` and `9d6552b39bc1cd12f182be589f515f4939554504300888539c650f16ff8b489d`.
+
+| Service-relative owned path | Frozen SHA-256 |
+| --- | --- |
+| `packages/mcp/src/control/figma-oauth-callback.ts` | `aa1fcd9db89a9d77b26b4e36d31d7db868d9be58cb6a625b8e91f740470d7597` |
+| `packages/mcp/src/control/figma-oauth-contract.ts` | `b46deab1f5cb5b15988f07a1b9229559fb7857421ec3736036558d5aa9181006` |
+| `packages/mcp/src/control/figma-oauth-handoff.ts` | `f47591eb2cd2124f3c6db3746bf9c416481333e7b823c7479fe8994b5bb09b41` |
+| `packages/mcp/src/control/figma-oauth-metadata.ts` | `1cd0f7adffb5c6b993c470ef480f0488b5d6b3cd8129a471e266c128fa9a9a5c` |
+| `packages/mcp/src/control/figma-oauth-provider.ts` | `af12be3b799ec8dd5a654441ad5665d28d3dac6c4aeb02ea82abf5703826ef2d` |
+| `packages/mcp/src/control/figma-oauth-state.ts` | `700196f42b51018cbd587143f9569a944a47b6e6aeb70ca1dce88e18387a6e38` |
+| `packages/mcp/src/control/figma-settings-endpoint.ts` | `2a3e766744e56b3088a84364f34f2218ec3fd536257a2c96ac8bb7183de7da5c` |
+| `packages/mcp/src/control/route-registry.ts` | `9ab919bbe51b1c335cee135dc14f7a2d2e8b75acf842d6e903073795538cf73b` |
+| `packages/mcp/src/index.ts` | `74ac932dbbdc00bc9e1225289faf206022b0fe0b6e09d22a60b4b1f1ad36a2de` |
+| `packages/mcp/src/official-figma-mcp.ts` | `ae1fc1050fcf5a8911b587281fa5ddc636f1165e54f6331fc70995770d1ff2f3` |
+| `packages/mcp/test/control/figma-oauth-provider.test.ts` | `ea86456ee36035da34187b362136f40bcab43b8244a3f0dbc8132d5fec57a484` |
+
+## Purpose and implemented behavior
+
+The daemon owns one OAuth provider, one engine, local names-only configuration, operator-installed contract inspection, bounded metadata requests, exact fixed loopback callback lease and private one-use handoff. The same provider connection supplies existing status/probe/read and the generation/capture runtime in `index.ts`. CLI and portal are authenticated control clients. Desktop calls receive no remote credential or lease.
+
+The pure public contract remains unchanged in fields and exports; its hash is `b46deab1f5cb5b15988f07a1b9229559fb7857421ec3736036558d5aa9181006`. Status contains only provider/configuration/auth generations, names and references, closed stage/code, expiry, flow ID and declared/observed flags. Missing configuration returns a useful blocked state. No status GET performs discovery, registration, token exchange or handoff. Local configured contract checks may read protected daemon files, but actual Figma eligibility remains an operator declaration. A valid contract/environment declaration produces initial `blocked` with `code:null`, making explicit Start available while still reporting no server authorization.
+
+The operator supplies a strict secret-free record at `<stateRoot>/figma-auth/contracts/<reference>.json`. It requires the literal service identity, accepted-own-service declaration, evidence reference, SHA-256 client-ID digest, supported secret method and exact query-free fixed loopback redirect. Configuration stores only environment variable names, endpoint/mode and contract reference/digest. It never sets process environment or accepts client/token values. Start rereads the exact contract digest before binding/discovery and resolves only the explicitly named daemon environment variables. No DCR, public-client fallback, PAT, borrowed application identity or checkbox approval is implemented.
+
+Authenticated private routes are GET `/control/figma-mcp/auth/status` and POST `configure`, `start`, `refresh`, `cancel` and `logout` under the same prefix. The dedicated POST `handoff` handler returns a private 303 Location with an empty body; it never serializes the URL. Principal actor/session come from the existing authenticated daemon control seam. Every mutation uses provider/configuration/auth binding; handoff and cleanup additionally bind the current flow and authenticated session. Readiness consumers retain their separate auth-binding stamp; existing daemon status fields remain compatible.
+
+The callback listener binds exclusively to the operator-approved literal loopback address and exact fixed port. It rejects occupied ports without search/fallback, wrong Host/path/method/peer/body envelope, and raw URLs beyond the bound. It bypasses generic logging middleware and returns static no-store/no-referrer/CSP pages. Callback GET only continues the prior POST-authorized engine attempt. State/code/issuer/cardinality and single-use exchange are validated by frozen R3. Success, cancellation, failure, deadline and shutdown close the actual owned listener. Lost exchanges are not replayed.
+
+Start retains its original interactive deadline (at most ten minutes); setup is at most twenty seconds and metadata/token HTTP at most fifteen seconds. Explicit refresh is at most twenty seconds. Metadata validity currently caps credential use at eight hours, independently of token expiry. This is a deliberate local freshness bound, not an eight-hour source/data grant or proof of token lifetime. Actual server token expiry is also enforced. Refresh never happens during status, probe, read or capture. Logout clears local references and aborts dependents; it does not revoke a remote Figma grant or securely zeroize JavaScript copies.
+
+Credential leases combine retirement signals and generation assertions with actual SDK requests. Config/start/refresh/logout/cancel/expiry retire dependent official RPCs; late results cannot publish from an old generation. Successful credential publication also advances auth generation, invalidating earlier readiness. Endpoint generation checks additionally reject late injected probe/read results. There is no silent transport replacement, reconnection or RPC replay. Private-result checks cover known client/secret/token/state/code/verifier and consent material, without putting values into public errors.
+
+
+## Revision two after independent privacy review
+
+The initial eleven-file freeze `e222697a58519a8d7c5a6887d9ea34c7269af9567282b3a2f1bed4d9793814cb` and its full source/report are preserved as `frozen-files-v1.json`, `source-v1/` and `report-v1.md`. Independent actual-SDK/owned-loopback review found that JSON serialization escapes quotes and backslashes in valid client secrets, so the original raw substring comparison could miss a reflected nested value or property key. Its initial 7/8 receipt SHA-256 is `9d0790d8c3dd9035a83c859c755a73aafe0888e4e136c4d9fa94cd4d11246b21`; expanded endpoint reproduction was 7/10. The author independently reproduced all four direct/endpoint value/key failures in R7: **183 passed, four failed**. These failed receipts remain history.
+
+Revision two changes only provider/test bytes. The guard now bounds serialized output at two MiB, rejects serialization failures with a closed code, and compares known private material in both raw and JSON-escaped forms. Matching covers nested strings and property names without a second getter traversal. This is conservative checking of known material, not arbitrary encoded-data detection or a memory-allocation sandbox. Four reflection regressions and one serialization bound/error regression pass. R8 passed 188 tests but static checks exposed a missing required MCP content field in a test fixture, a conditional-expect lint rule and function scoping; those test/helper issues were repaired. Final R9 is **188/188, zero skips**, with full MCP typecheck and all eleven owned lint/format checks exiting zero in `static-privacy-final.json`. Exact revision-two manifest is `4e305e019d0c4fb87e1943d410afb7b0b8dc75ab189ebcc6dacd9a3e0d8474dd`; independent SOL rechecking approved this exact revision. Frozen engine R3 hashes remain unchanged.
+
+## Repairs and retained failures
+
+Resumed-source inspection found configured status permanently marked contract-required, returned configuration status temporarily marked preparing, duplicate starts replacing a pending transaction, metadata cookie headers stripped without rejection and insufficient pre-discovery mutation retirement. Those behaviors were repaired. Original provider/control wiring and the frozen engine were reused.
+
+R1 retained 171/172: the added lost-exchange test expected a second static callback rejection, while the implementation correctly closed the physical listener and returned connection refused. The expectation was repaired to require closure and unchanged exchange count. The first typecheck exposed the shared route's readonly signal contract; OAuth routes now require an actual AbortSignal explicitly. R2 passed 172/172. R3/R4 passed 178/178 after generation and physical deadline coverage. R5 retained 179/180: a held refresh cancelled by logout returned the engine's closed cancellation code rather than the test's expected superseded code. The final test requires that actual cancellation code, aborted HTTP signal, no token publication and no second refresh request. A lint-only unsafe optional-chain assertion was also repaired. No failure was converted into a live acceptance claim.
+
+## Executed verification
+
+A separate private source fixture was copied from current main under `service/.cache/own-official-oauth-daemon/fixture/service`, excluding dependency/cache/generated trees. Only these eleven files plus untouched engine R3 files were overlaid. Already installed native dependency directories are read through junctions. No install or build was executed. Vitest uses a native-loaded .mjs configuration and an explicit private cache location, keeping output outside dependency trees. This is source/dependency separation, not an OS filesystem or process sandbox.
+
+Final focused R9: **188 passed, zero failed, zero skipped** across six files. It includes **54 new provider/listener/control cases**, 69 unchanged engine R3 cases, 26 settings cases, 19 official MCP cases, 16 capture cases and four registry cases. The final receipt SHA-256 is `927d02b954783b982949599305ef85fdd81d3d9769b2e3e8e6a3c94590156f55`. Actual SDK discovery, S256 exchange and refresh functions use injected official responses. Global fetch is blocked and asserted unused in every new fixture; actual owned loopback/control requests use Node HTTP. No real auth HTTP, Figma browser, official MCP account, contract installation or consent action occurred.
+
+MCP typecheck, owned lint with denied warnings and owned formatting all exited zero in `static-privacy-final.json`, SHA-256 `a278e339c61364ed6c9c6683544a39f869ed607641643e856d03b8d10494d412`. Tests cover useful missing configuration/zero-network behavior; declared identity/digest/method rejection; metadata redirects/cookies/body privacy; exact port/Host/path/envelope; callbacks before start; one-use state and handoff; control owner/session/generation; actual control HTTP status/config/start/logout; listener closure/deadline; lost exchange; duplicate starts/refresh; local contract-read retirement; SDK held probe/read abort; explicit refresh/logout retirement; credential expiry; Desktop separation and known-private-result rejection. Earlier receipts remain separately hashed in the manifest.
+
+`node node_modules/vitest/vitest.mjs run --config .cache/focused.config.mjs --configLoader native --reporter=json --outputFile=.cache/daemon-r9-final.json`
+
+`node node_modules/typescript/bin/tsc -p packages/mcp/tsconfig.json --noEmit`
+
+Owned lint/format commands use installed `oxlint@1.80.0` and `oxfmt@0.65.0` binaries against the eleven manifest files only.
+
+## Limits and continuation
+
+The fixture injects the permissions port for its temporary state. It does not independently establish actual Windows ACL or whole-daemon startup/deployment behavior. Existing production StatePermissions/AtomicFileStore remain responsible for protected state access. Root must integrate and independently review exact bytes, reconcile catalog/public inventory/provenance, verify combined source/build/package/whole gates, and test portal native form CSRF/CSP/303/tab behavior through service-owned Chrome. Auth route names and new diagnostic modules require root-owned catalog/provenance reconciliation. Portal unknown-fence admission and side-effect recording remain the relay/public operation owner's responsibility; this provider neither resolves nor bypasses existing workspace fences.
+
+Real own-client eligibility, credentials and accepted redirect contract are unavailable. The candidate therefore cannot claim real registration, exchange, refresh, authenticated server tool access or full capture. Once the owner supplies those external facts, only root's authorized service path and manual owner consent can establish actual official login/probe. Compatible full-program tools, scoped source capture, independent Chrome parity and fresh frontend acceptance remain separate gates. Main/native a476 whole/artifact evidence does not cover this managed integration.
+
+## Final independent revision-two review
+
+The [independent SOL review](own-official-oauth-daemon-review.md) approved exact manifest `4e305e019d0c4fb87e1943d410afb7b0b8dc75ab189ebcc6dacd9a3e0d8474dd` after independently rerunning **188/188 author cases plus 10/10 independent boundaries**, with zero skips. It confirmed all eleven managed/private fixture hashes before and after execution, including actual endpoint rejection of JSON-escaped nested values and property keys. The distinct 188-case receipt SHA-256 is `01f207ac2ac9c4d6a77919de2c97e241f9516e1288f212c4e00b6c7dfba8a00d`; the ten-case private receipt is `6a0b3478cd93c7aa206e81f377d90fd484b1f8fffec659cb1bbbb92bef281f2c`. Independent report SHA-256 is `fb8105b05f255275a1da1b5b252073f6be344c41a509f794d4487eafa22ea5bb`. Initial failed privacy receipts and source remain preserved. This scope approval does not establish root integration, packaged/runtime/Chrome acceptance, actual approved client configuration or official login.

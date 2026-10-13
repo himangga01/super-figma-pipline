@@ -1,0 +1,46 @@
+{
+  "schemaVersion": 1,
+  "at": "2026-10-13T18:15:42.863Z",
+  "kind": "final-scoped-repair-r67-provenance-sync",
+  "sourceHash": "sha256:d722c32152149464c961c660622a95e3da603eb00f291e28b15c024507bcd87d",
+  "entries": [
+    {
+      "path": "upstream-lock.json",
+      "beforeHash": "91180657c8938af63da45d467a0a8f499e0f97022857707108838fa41b16cbef",
+      "afterHash": "3189e90b5205183d6d3b6880dfafee2d8b209f3eca577d19c3a10d2958236627"
+    },
+    {
+      "path": "vendor-map.json",
+      "beforeHash": "b3275c7d8b997d1cfe723d97594659f77d7b4361b824a790bcfdd7ff762589bd",
+      "afterHash": "b3275c7d8b997d1cfe723d97594659f77d7b4361b824a790bcfdd7ff762589bd"
+    },
+    {
+      "path": "vendor-rules.json",
+      "beforeHash": "e61302d99b0567e6451f69cdf48d2aaefc28826f1cd48ba486193147303e25ae",
+      "afterHash": "c82a646ab0b05c7368a9f76e18e63a1d0a317eaf4d3597f387e6129f1a6a4b2d"
+    },
+    {
+      "path": "capabilities/change-manifests/task-review-2026-10-10.json",
+      "beforeHash": "7e87ee5c21bfdeafe14e65e5c3aa4a74ca5403f3dc56aae9a025107ed96dfab3",
+      "afterHash": "2e9777616046b121043e3fb3b0336f4ab150b70a39805de12f2fc10eeebf3a1e"
+    },
+    {
+      "path": "capabilities/task-review-2026-10-10-authority-classes.json",
+      "beforeHash": "9efc2ff51ab0c5eefa2df559210f67a29fcb6333d1444324ded96f088766c935",
+      "afterHash": "2170e91698cff07f3608129854922f0e4026f11c86cc0032ab7f4bd8b9ad5dd7"
+    },
+    {
+      "path": "capabilities/reconciliations/review-2026-10-10-final-scoped-repair-2026-10-14.json",
+      "beforeHash": null,
+      "afterHash": "9b373898d9b1e028598fc2da8e1864838a2a6612d32352ae02ec4956fbba88f7"
+    }
+  ],
+  "shadowIndex": ".worktrees/baseline/service/.cache/review-20261014-r67.index",
+  "semanticChanges": 281,
+  "derivedAuthorities": 4,
+  "ownerIndexHash": "ecc1808ab3e14fa2e8c233ae1fc1c91e0a33b5b2e383a7270f1bc3068997e675",
+  "ownerIndexUnchanged": true,
+  "whole": false,
+  "runtimeReplaced": false,
+  "liveAcceptance": false
+}

@@ -7,6 +7,7 @@ import { domainToASCII } from 'node:url';
 
 import {
   readFileWithinLimit,
+  acquireWindowsDirectoryLease,
   type RetainedDirectoryAuthority,
   withCanonicalPathMutex,
   withRetainedDirectoryAuthority,
@@ -97,6 +98,7 @@ interface RemoteDomainStateEnvelope extends RemoteDomainStatePayload {
 }
 
 export interface RemoteDomainConfigStoreHooks {
+  afterTemporaryCreate?: (temporaryPath: string) => Promise<void>;
   afterTemporaryFsync?: (temporaryPath: string) => Promise<void>;
   afterRecoveryTemporaryRead?: (temporaryPath: string) => Promise<void>;
   beforeOwnedTemporaryCleanup?: (temporaryPath: string) => Promise<void>;
@@ -808,6 +810,20 @@ export class RemoteDomainConfigStore {
     capability: BigIntStats,
     inspectedKey: string,
   ): void {
+    this.assertPhysicalIdentity(file, descriptor, logical, capability);
+    if (inspectedKey !== bigintIdentityKey(file.identity))
+      throw fail(
+        'REMOTE_DOMAIN_CONFIG_INVALID',
+        'retained remote domain permission identity changed',
+      );
+  }
+
+  private assertPhysicalIdentity(
+    file: RetainedStateFile,
+    descriptor: BigIntStats,
+    logical: BigIntStats,
+    capability: BigIntStats,
+  ): void {
     if (
       !descriptor.isFile() ||
       descriptor.nlink !== 1n ||
@@ -819,11 +835,46 @@ export class RemoteDomainConfigStore {
       capability.nlink !== 1n ||
       !sameBigintIdentity(file.identity, descriptor) ||
       !sameBigintIdentity(file.identity, logical) ||
-      !sameBigintIdentity(file.identity, capability) ||
-      inspectedKey !== bigintIdentityKey(file.identity)
+      !sameBigintIdentity(file.identity, capability)
     ) {
       throw fail('REMOTE_DOMAIN_CONFIG_INVALID', 'retained remote domain file identity changed');
     }
+  }
+
+  private async verifyPhysicalIdentity(file: RetainedStateFile): Promise<void> {
+    const [descriptor, logical, capability] = await Promise.all([
+      file.handle.stat({ bigint: true }),
+      lstat(file.logicalPath, { bigint: true }),
+      lstat(file.authorityPath, { bigint: true }),
+    ]);
+    this.assertPhysicalIdentity(file, descriptor, logical, capability);
+  }
+
+  private async secureCreatedTemporary(paths: SecurePaths, file: RetainedStateFile): Promise<void> {
+    let lease: Awaited<ReturnType<typeof acquireWindowsDirectoryLease>> | undefined;
+    try {
+      await paths.authority.verify();
+      await this.verifyPhysicalIdentity(file);
+      if (process.platform === 'win32') {
+        // The existing native lease also accepts regular files and denies rename/delete while
+        // allowing this retained handle's writes. Pin the exact new file before path-based ACL work.
+        lease = await acquireWindowsDirectoryLease(file.authorityPath);
+        if (lease.identity.dev !== file.identity.dev || lease.identity.ino !== file.identity.ino)
+          throw fail('REMOTE_DOMAIN_CONFIG_INVALID', 'remote domain ACL lease identity changed');
+        await paths.authority.verify();
+        await this.verifyPhysicalIdentity(file);
+        await this.permissions.ensureSecure(file.logicalPath);
+      } else {
+        // Apply mode to the retained descriptor, never to a replacement at its pathname.
+        await file.handle.chmod(0o600);
+      }
+      await paths.authority.verify();
+      await this.verifyRetainedIdentity(file);
+    } finally {
+      await lease?.release();
+    }
+    await paths.authority.verify();
+    await this.verifyRetainedIdentity(file);
   }
 
   private async verifyRetainedIdentity(file: RetainedStateFile): Promise<void> {
@@ -1160,6 +1211,8 @@ export class RemoteDomainConfigStore {
         handle,
         identity: await handle.stat({ bigint: true }),
       };
+      await this.hooks.afterTemporaryCreate?.(logicalTemporary);
+      await this.secureCreatedTemporary(paths, retained);
       await handle.writeFile(bytes);
       await handle.sync();
       await this.verifyRetainedIdentity(retained);

@@ -8,6 +8,7 @@ import {
 } from '@sfp/shared';
 
 import { describeServerFailure, requestRouteLabel } from '../control/router.js';
+import { type Diagnostics, diagnose as diagnosticEvent, observeHttp } from '../diagnostics.js';
 import { isTransientStateProbeFailure } from '../fs/windows-boundary-probe-worker.js';
 import { handleLegacyFollowerRpc, type Relay } from '../relay/relay.js';
 import type {
@@ -50,6 +51,7 @@ export interface LeaderEndpointDeps {
   controlActor?: string;
   onAbdicate?: () => void;
   log?: (msg: string) => void;
+  diagnostics?: Diagnostics;
   rpcTimeoutMs?: number;
   abdicateQuietWindowMs?: number;
   innerRpcHandler?: (
@@ -204,7 +206,7 @@ export const attachLeaderEndpoints = (http: HttpServer, deps: LeaderEndpointDeps
     }
   };
 
-  const handler = (req: IncomingMessage, res: ServerResponse): void => {
+  const executeHandler = (req: IncomingMessage, res: ServerResponse): void => {
     const started = performance.now();
     void (async (): Promise<void> => {
       if (!isAllowedHost(header(req, 'host'))) {
@@ -278,6 +280,7 @@ export const attachLeaderEndpoints = (http: HttpServer, deps: LeaderEndpointDeps
         try {
           authorized = await deps.transport.control.authorizeHttp(req);
         } catch (error) {
+          diagnosticEvent('control.authorization-error', {}, error, 'warn');
           // Fail closed. The credential state could not be evaluated, so no control route runs.
           // Only probe-capacity outcomes are typed as busy; integrity failures stay unavailable.
           const busy = isTransientStateProbeFailure(error);
@@ -386,12 +389,30 @@ export const attachLeaderEndpoints = (http: HttpServer, deps: LeaderEndpointDeps
 
       writeJson(res, 404, { error: 'not found' }, unreadBodyHeaders(req));
     })().catch((error: unknown) => {
+      diagnosticEvent(
+        'daemon.request-error',
+        { durationMs: performance.now() - started },
+        error,
+        'error',
+      );
       diagnose(
         `[leader] request failed without a typed response (${requestRouteLabel(req.method, req.url)}; ${describeServerFailure(error)}; ${res.headersSent ? 'headers sent; ' : ''}${Math.round(performance.now() - started)} ms)`,
       );
       if (!res.headersSent) writeJson(res, 500, { error: 'internal' });
       else res.destroy();
     });
+  };
+
+  const handler = (req: IncomingMessage, res: ServerResponse): void => {
+    if (deps.diagnostics)
+      observeHttp(
+        deps.diagnostics,
+        req,
+        res,
+        { buildId: deps.buildId, leaderGeneration: deps.leaderGeneration },
+        () => executeHandler(req, res),
+      );
+    else executeHandler(req, res);
   };
 
   http.on('request', handler);

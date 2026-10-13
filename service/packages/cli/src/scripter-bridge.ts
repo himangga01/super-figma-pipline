@@ -106,7 +106,12 @@ const evaluateReadProgram = async (
   page: Page,
   target: Readonly<FigmaTarget>,
   program: string,
-  options: { signal?: AbortSignal; deadlineAt?: number } = {},
+  options: {
+    signal?: AbortSignal;
+    deadlineAt?: number;
+    sourceWork?<T>(pending: Promise<T>, cleanup?: boolean): Promise<T>;
+    sourceUnconfirmed?(): void;
+  } = {},
 ): Promise<string> => {
   options.signal?.throwIfAborted();
   if (Date.now() >= (options.deadlineAt ?? Infinity)) throw new Error('SNAPSHOT_READ_BUDGET');
@@ -123,7 +128,7 @@ const evaluateReadProgram = async (
     ...(options.signal ? [options.signal] : []),
   ]);
   const id = `sfp-read-${randomBytes(16).toString('hex')}`;
-  const evaluation = frame.evaluate(
+  const physicalEvaluation = frame.evaluate(
     async ({ id: requestId, program: script, timeoutMs: timeout, timeoutCode: errorCode }) =>
       new Promise<string>((resolve, reject) => {
         // Explicit browser surface types keep this shared collector usable by the Node-only daemon.
@@ -158,18 +163,24 @@ const evaluateReadProgram = async (
       }),
     { id, program, timeoutMs, timeoutCode },
   );
+  const evaluation = options.sourceWork?.(physicalEvaluation, true) ?? physicalEvaluation;
   let cancel: (() => void) | undefined;
   const cancelled = new Promise<never>((_resolve, reject) => {
     cancel = () => {
+      // A posted cancellation is not a trusted acknowledgement of Plugin API retirement.
+      try {
+        options.sourceUnconfirmed?.();
+      } catch {
+        /* Never prevent caller cancellation. */
+      }
       // Cancel only this read ID. A Plugin API export already underway may finish separately.
-      void frame
-        .evaluate(requestId => {
-          const { parent } = globalThis as unknown as {
-            parent: { postMessage(value: unknown, origin: string): void };
-          };
-          parent.postMessage({ type: 'eval-cancel', id: requestId }, '*');
-        }, id)
-        .catch(() => {});
+      const cancellation = frame.evaluate(requestId => {
+        const { parent } = globalThis as unknown as {
+          parent: { postMessage(value: unknown, origin: string): void };
+        };
+        parent.postMessage({ type: 'eval-cancel', id: requestId }, '*');
+      }, id);
+      void (options.sourceWork?.(cancellation, true) ?? cancellation).catch(() => {});
       reject(options.signal?.aborted ? options.signal.reason : new Error(timeoutCode));
     };
     readSignal.addEventListener('abort', cancel, { once: true });
@@ -191,7 +202,12 @@ export const readScripterAsset = async (
   page: Page,
   target: Readonly<FigmaTarget>,
   input: unknown,
-  options: { signal?: AbortSignal; deadlineAt?: number } = {},
+  options: {
+    signal?: AbortSignal;
+    deadlineAt?: number;
+    sourceWork?<T>(pending: Promise<T>, cleanup?: boolean): Promise<T>;
+    sourceUnconfirmed?(): void;
+  } = {},
 ) => {
   const query = AssetQuerySchema.parse(input);
   if (query.kind === 'image') {
@@ -240,7 +256,12 @@ export const readScripterDesign = async (
   page: Page,
   target: Readonly<FigmaTarget>,
   input: unknown,
-  options: { signal?: AbortSignal; deadlineAt?: number } = {},
+  options: {
+    signal?: AbortSignal;
+    deadlineAt?: number;
+    sourceWork?<T>(pending: Promise<T>, cleanup?: boolean): Promise<T>;
+    sourceUnconfirmed?(): void;
+  } = {},
 ) => {
   const result = await evaluateReadProgram(page, target, createFigmaReadProgram(input), options);
   return FigmaCaptureReadResultSchema.parse(JSON.parse(result));

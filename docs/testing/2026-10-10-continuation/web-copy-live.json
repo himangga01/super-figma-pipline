@@ -1,0 +1,68 @@
+{
+  "recordedAt": "2026-10-11T05:47:36.702Z",
+  "captures": [
+    {
+      "receipt": ".worktrees/_cache/live-cdd-copy-20261011-r3/ly06O8jAcrd7oWmwhz5Vr6-1791696033394-d351fb64/sfpCopyb138bde46e5b1f804eaad381608a3b3d.json",
+      "source": "figma-web-copy",
+      "fileKey": "ly06O8jAcrd7oWmwhz5Vr6",
+      "nodeId": "1381:285",
+      "format": "png",
+      "bytes": 26827,
+      "sha256": "sha256:7236c4153e7c508363207b0952901fde6a54e0650d77d36885c4041a60b2495d",
+      "width": 1306,
+      "height": 384,
+      "capturedAt": "2026-10-11T05:20:34.159Z",
+      "selectionBinding": "requested-node-url-only-unverified",
+      "fullAssetAcceptance": false
+    },
+    {
+      "receipt": ".worktrees/_cache/live-cdd-copy-guide-svg-20261011-r6/ly06O8jAcrd7oWmwhz5Vr6-1791697419338-765eac42/sfpCopy5a5239d2a2f7b38296edf0f8c521257d.json",
+      "source": "figma-web-copy",
+      "fileKey": "ly06O8jAcrd7oWmwhz5Vr6",
+      "nodeId": "1381:285",
+      "format": "svg",
+      "bytes": 29425,
+      "sha256": "sha256:3cc8565d750d4790c453028d6f8caeea429645acfaf656adcfd5269c9c459057",
+      "capturedAt": "2026-10-11T05:43:40.055Z",
+      "selectionBinding": "requested-node-url-and-stable-selected-row; exact-node-identity-unverified",
+      "fullAssetAcceptance": false
+    },
+    {
+      "receipt": ".worktrees/_cache/live-cdd-copy-mobile-png-20261011-r2/ly06O8jAcrd7oWmwhz5Vr6-1791697221745-dcc0b76d/sfpCopyfdefff42b7bffb723e43b1b261623a18.json",
+      "source": "figma-web-copy",
+      "fileKey": "ly06O8jAcrd7oWmwhz5Vr6",
+      "nodeId": "1381:530",
+      "format": "png",
+      "bytes": 1838095,
+      "sha256": "sha256:43b5828e89e6dd571789f728e67b9eeb093154251dcf0d7b4bf967282ae8d5d8",
+      "width": 994,
+      "height": 6102,
+      "capturedAt": "2026-10-11T05:40:23.448Z",
+      "selectionBinding": "requested-node-url-and-stable-selected-row; exact-node-identity-unverified",
+      "fullAssetAcceptance": false
+    },
+    {
+      "receipt": ".worktrees/_cache/live-cdd-copy-desktop-png-20261011-r2/ly06O8jAcrd7oWmwhz5Vr6-1791697231473-289eba1d/sfpCopy22564d3bbcf97b0aa969cb4eaad06a5f.json",
+      "source": "figma-web-copy",
+      "fileKey": "ly06O8jAcrd7oWmwhz5Vr6",
+      "nodeId": "1381:541",
+      "format": "png",
+      "bytes": 5222492,
+      "sha256": "sha256:45e8e7fb08d03ca7140302020086a9367811f57d6adf9a190c12dbad09eba693",
+      "width": 3456,
+      "height": 5738,
+      "capturedAt": "2026-10-11T05:40:35.298Z",
+      "selectionBinding": "requested-node-url-and-stable-selected-row; exact-node-identity-unverified",
+      "fullAssetAcceptance": false
+    }
+  ],
+  "sourceModuleHash": "sha256:3855a191a7036807c8e635004ac3985741ab8bd10bfae676ff85460916f4133a",
+  "sourceHashScope": "Collector bytes at evidence-save time; capture receipts are supplemental and do not bind an aggregate service acceptance.",
+  "tests": {
+    "passed": 43,
+    "failed": 0,
+    "skipped": 0,
+    "scope": "Four files; includes the added stalled-renderer deadline regression."
+  },
+  "fullCaptureAccepted": false
+}

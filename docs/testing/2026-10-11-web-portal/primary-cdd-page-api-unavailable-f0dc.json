@@ -1,0 +1,26 @@
+{
+  "at": "2026-10-12T01:23:09.188Z",
+  "sourceHash": "sha256:f0dc149a95da3bc7f8e52aecb094362d6e0166ae69e4ba29946a393e90f220c8",
+  "sameChromePid": 9932,
+  "sameTab": true,
+  "origin": "http://127.0.0.1:4310",
+  "jobs": [
+    {
+      "name": "chrome.inspect.page-api",
+      "id": "4f6d727a-8c4a-4183-865e-746c04efd2c1",
+      "status": "unknown",
+      "errorCode": "FIGMA_PAGE_API_UNAVAILABLE",
+      "bytes": null,
+      "outputHash": null,
+      "elapsedMs": 953
+    }
+  ],
+  "passed": false,
+  "frontendAccepted": false,
+  "error": {
+    "message": "Expected values to be strictly equal:\n+ actual - expected\n\n+ 'unknown'\n- 'succeeded'\n",
+    "locations": []
+  },
+  "privateEvidenceFolder": ".worktrees/_cache/primary-restart-20261012/cdd-collectors-1791768189187",
+  "fullFigmaAcceptance": false
+}

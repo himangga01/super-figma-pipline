@@ -1,0 +1,19 @@
+{
+  "schemaVersion": 1,
+  "name": "diagnostics-contracts",
+  "releaseId": "5b1c8abd-9bd3-4e81-b5ef-125d0b4d287c",
+  "finalSourceHash": "sha256:6f87f836d872a4ba8ab49533f6447a7c921adb6b8af3dae75ddd6241e8b8a1cb",
+  "status": "passed",
+  "sourceBinding": "current-source",
+  "evidence": {
+    "receipt": {
+      "path": "docs/testing/2026-10-11-web-portal/source6f87-scoped-generated-checks-20261013.json",
+      "sha256": "a78d793684299c89c5eb3187272e263800a2d7edb7fa3ee8b807fbc2ed7fd3ac"
+    },
+    "diagnosticsCatalogHash": "4c4d0ba72588b0e8ba25e3fbfd12eac8e5a31006ce8ff0a0b6bb48de2bef197e"
+  },
+  "ownerEcommerce": "skipped",
+  "officialMcpLive": "deferred",
+  "wholePassed": false,
+  "liveAcceptance": false
+}

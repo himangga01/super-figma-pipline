@@ -1,0 +1,50 @@
+{
+  "at": "2026-10-12T04:17:23.100Z",
+  "baseline": "sha256:31e47b614fbc093b160d562e7b4107a4c1ad473965237b086f100663bb4f5ef5",
+  "integratedUnreconciledSource": "sha256:f29b9e17f3e24fb5b187b2b86bd09f9913105fc72200a2fb1797eee208e0cc58",
+  "ownerIndex": "a99e5dd36982d74373d779448068a8449189b133e54cd673b13be2c2c356b2a9",
+  "files": [
+    {
+      "path": "service/packages/mcp/src/diagnostics.ts",
+      "beforeSha256": "739d182662af6b77bfa84378ee7e4c8b593b03c7b20d6eb36380ab3d32252a40",
+      "sha256": "739d182662af6b77bfa84378ee7e4c8b593b03c7b20d6eb36380ab3d32252a40",
+      "changed": false
+    },
+    {
+      "path": "service/packages/mcp/test/diagnostics.test.ts",
+      "beforeSha256": "10005ca85cafff0581da57558455cf412de949df72058d965e458f2591b3752c",
+      "sha256": "e92132efbd5d93062ec779010f277cda8d083dde8f4d3693fed54a7b84190325",
+      "changed": true
+    },
+    {
+      "path": "service/packages/mcp/src/portal/native-module-fence.ts",
+      "beforeSha256": "36dee4088aa59673b3f72815482fea6f3ab6d84f5659bacb571ee2e38c7dd7ee",
+      "sha256": "277256620d5bf2056bf10071f6f3ec727d45d7ddcfbffbf9e1f534ce9ffdd2df",
+      "changed": true
+    },
+    {
+      "path": "service/packages/mcp/test/portal/preview-native.test.ts",
+      "beforeSha256": "8f52b764de18a7285fb12c27a74255e74852902ac2feb754de2b82c9011d72bd",
+      "sha256": "8bdc84e5f586b5fa01f6379041a7bf4159f3190a0e316dfb9095b11c58d64773",
+      "changed": true
+    },
+    {
+      "path": "service/packages/mcp/test/portal/native-module-fence-evidence.test.ts",
+      "beforeSha256": null,
+      "sha256": "90f364232fc2ad04a67d1a77ad41457231e4aee8c58a792675b7cafb04ac7d69",
+      "changed": true
+    }
+  ],
+  "focusedNative": {
+    "total": 28,
+    "passed": 28,
+    "failed": 0,
+    "skipped": 0,
+    "reportSha256": "e28c9120cc44bf55ed23a2b24594a374b7a45f3a5c1c0e089c9fc016742d303a"
+  },
+  "diagnosticsProductUnchanged": true,
+  "originalDiagnosticsCauseUnresolved": true,
+  "originalWholeFailuresPreserved": true,
+  "wholeCheckStillRequired": true,
+  "liveFigmaAccepted": false
+}

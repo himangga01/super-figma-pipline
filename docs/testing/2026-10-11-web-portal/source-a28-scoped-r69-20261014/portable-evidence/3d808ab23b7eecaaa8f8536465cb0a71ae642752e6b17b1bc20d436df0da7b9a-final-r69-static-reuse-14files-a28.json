@@ -1,0 +1,239 @@
+{
+  "schemaVersion": 1,
+  "kind": "final-r69-exact-file-static-reuse-aggregate",
+  "sourceHash": "sha256:a28fbf9263536110c90a972a1cf97e2e7039d710fbe1532588476989e415ab5e",
+  "status": "passed",
+  "whole": false,
+  "ownerIndexHash": "ecc1808ab3e14fa2e8c233ae1fc1c91e0a33b5b2e383a7270f1bc3068997e675",
+  "ownerIndexUnchanged": true,
+  "codeInputs": [
+    {
+      "path": "packages/cli/src/figma-page-reader.ts",
+      "sha256": "daeb45dee99dbff9a09cc2f49c7c635c2cd44d310216b6d34782d61008ad5f4a"
+    },
+    {
+      "path": "packages/cli/test/figma-page-identity-diagnostics.test.ts",
+      "sha256": "41c0f6bb259be4663d83211cede8218d87d8ab3299e35162d2619a4dca119cdc"
+    },
+    {
+      "path": "packages/mcp/src/portal/module-resolution.ts",
+      "sha256": "e9b07c18cc5b1ea17a6778cc7c0dd8be76a2d75168460364c4e28535c1e89250"
+    },
+    {
+      "path": "packages/mcp/src/portal/native-work.ts",
+      "sha256": "d4b50bb1f626ba3b21968cd6872f2ac989e83e511dec0321652b5301d641bbc5"
+    },
+    {
+      "path": "packages/mcp/src/portal/react-router-compiler-evidence.ts",
+      "sha256": "da6b2efb21772fa7b01bce3a353da61169f147651bff3f64a82e5c45e48290f0"
+    },
+    {
+      "path": "packages/mcp/src/portal/service-graph.ts",
+      "sha256": "e3a725707655e699e987b41e1c342a9c119c428a802963f5624f0eb9c4d10f7c"
+    },
+    {
+      "path": "packages/mcp/src/portal/service-selection.ts",
+      "sha256": "4c8ec77c46972434c9ea4f5e445f7aa2b89d442d52a129adefd499faa915e20f"
+    },
+    {
+      "path": "packages/mcp/test/portal/core-recipes.test.ts",
+      "sha256": "42746c63cc8fb7d98135c9339cd6dcd3ac2c2374ad8588a6c73ac146eeaef3e1"
+    },
+    {
+      "path": "packages/mcp/test/portal/module-resolution.test.ts",
+      "sha256": "2efc994f88c057aebb7373837512289adace0f2d31d1ba5e4e0ed495a8315c15"
+    },
+    {
+      "path": "packages/mcp/test/portal/react-router-compiler-evidence.test.ts",
+      "sha256": "684d073c9fb949c15bb2d8cf3621ebc5bdc13581052c858f720fc32da60bbab2"
+    },
+    {
+      "path": "packages/mcp/test/portal/service-graph.test.ts",
+      "sha256": "a4d238f8053115a687c5c045eee3fb9ed8995ed50cda19d2a55d5955c6be3bc8"
+    },
+    {
+      "path": "packages/mcp/test/portal/source-refresh-diagnostic.test.ts",
+      "sha256": "0eb0aa3d6965c13f79b03bb1d1dfcb63b9eb1b91f5ab3978c7547d5938d4eb21"
+    },
+    {
+      "path": "packages/portal/src/bridge.ts",
+      "sha256": "23eaae954eb16bb4bff335b6a3c82f5fbc2c3bd142eab8d01ca0b42c03c88ace"
+    },
+    {
+      "path": "packages/portal/test/backend.test.ts",
+      "sha256": "e1e8a5ec7968ac3ab4c4edba27dfceb0262d6554a5c4493755f984667015ff3a"
+    }
+  ],
+  "results": [
+    {
+      "name": "cli-types",
+      "exitCode": 0,
+      "signal": null,
+      "receipt": {
+        "path": "docs/testing/2026-10-11-web-portal/final-delta-statics-first-20261014.json",
+        "sha256": "077aa83c39040b979965904f56456cab734e3bd553a5cd2517920c650e50a6ef"
+      },
+      "logSha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+      "reused": true,
+      "scope": "Closed prior actual cli-types on exact unchanged captured code inputs; no final full-source pass is inferred",
+      "inputSupersessions": [
+        {
+          "path": "packages/mcp/test/portal/source-refresh-diagnostic.test.ts",
+          "beforeSha256": "33353d65bf4e42c8c8e61e0b8908b8325e1ba4fd8f2f52b15df053d70692efd8",
+          "afterSha256": "0eb0aa3d6965c13f79b03bb1d1dfcb63b9eb1b91f5ab3978c7547d5938d4eb21"
+        }
+      ],
+      "originalSourceHash": "sha256:195ba986e0ea9ec4e7624b4cae581a553c15ea486428ddc340b0eb1a0c4a6ba4"
+    },
+    {
+      "name": "portal-types",
+      "exitCode": 0,
+      "signal": null,
+      "receipt": {
+        "path": "docs/testing/2026-10-11-web-portal/final-delta-statics-first-20261014.json",
+        "sha256": "077aa83c39040b979965904f56456cab734e3bd553a5cd2517920c650e50a6ef"
+      },
+      "logSha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+      "reused": true,
+      "scope": "Closed prior actual portal-types on exact unchanged captured code inputs; no final full-source pass is inferred",
+      "inputSupersessions": [
+        {
+          "path": "packages/mcp/test/portal/source-refresh-diagnostic.test.ts",
+          "beforeSha256": "33353d65bf4e42c8c8e61e0b8908b8325e1ba4fd8f2f52b15df053d70692efd8",
+          "afterSha256": "0eb0aa3d6965c13f79b03bb1d1dfcb63b9eb1b91f5ab3978c7547d5938d4eb21"
+        }
+      ],
+      "originalSourceHash": "sha256:195ba986e0ea9ec4e7624b4cae581a553c15ea486428ddc340b0eb1a0c4a6ba4"
+    },
+    {
+      "name": "changed-lint",
+      "exitCode": 0,
+      "signal": null,
+      "receipt": {
+        "path": "docs/testing/2026-10-11-web-portal/final-d722-eight-lint-20261014.json",
+        "sha256": "fa4fb7e5c4cb4e3fb9991338bbad8fe7027fb5ec36e6fc8102de2e1ca7cd85b2"
+      },
+      "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "reused": true,
+      "scope": "Closed prior actual changed-lint on exact unchanged captured code inputs; no final full-source pass is inferred",
+      "inputSupersessions": [],
+      "originalSourceHash": "sha256:d722c32152149464c961c660622a95e3da603eb00f291e28b15c024507bcd87d"
+    },
+    {
+      "name": "changed-format",
+      "exitCode": 0,
+      "signal": null,
+      "receipt": {
+        "path": "docs/testing/2026-10-11-web-portal/final-d722-eight-format-20261014.json",
+        "sha256": "eff3e6f43d4be93bba389aff7fd30654336a8027c7909584e13bc50aa584a98d"
+      },
+      "logSha256": "ac7e0405adf2952daac9c84355d0c5baefa49df57f8c0fb5552a496df90fee79",
+      "reused": true,
+      "scope": "Closed prior actual changed-format on exact unchanged captured code inputs; no final full-source pass is inferred",
+      "inputSupersessions": [],
+      "originalSourceHash": "sha256:d722c32152149464c961c660622a95e3da603eb00f291e28b15c024507bcd87d"
+    },
+    {
+      "name": "changed-lint",
+      "exitCode": 0,
+      "signal": null,
+      "receipt": {
+        "path": "docs/testing/2026-10-11-web-portal/c2-explicit-route-type-statics-20261014.json",
+        "sha256": "9dd52d5fa48fcb0d03801f3448670ea0fe3ba7d3be440f19117b339bbdf0f570"
+      },
+      "logSha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+      "reused": true,
+      "scope": "Closed exact two-file explicit-ts lint/format on unchanged d174 code inputs",
+      "inputSupersessions": [],
+      "originalSourceHash": "sha256:d17485f0b84f2a9adbb6ef40acf0280507ad40e2617ca7001b142731bc2dfd80"
+    },
+    {
+      "name": "changed-format",
+      "exitCode": 0,
+      "signal": null,
+      "receipt": {
+        "path": "docs/testing/2026-10-11-web-portal/c2-explicit-route-type-statics-20261014.json",
+        "sha256": "9dd52d5fa48fcb0d03801f3448670ea0fe3ba7d3be440f19117b339bbdf0f570"
+      },
+      "logSha256": "2dfa844560d6769dd0ce8cc75496b5cd48f945f80bd88fe8bb73b40cd030be6d",
+      "reused": true,
+      "scope": "Closed exact two-file explicit-ts lint/format on unchanged d174 code inputs",
+      "inputSupersessions": [],
+      "originalSourceHash": "sha256:d17485f0b84f2a9adbb6ef40acf0280507ad40e2617ca7001b142731bc2dfd80"
+    },
+    {
+      "name": "mcp-types",
+      "exitCode": 0,
+      "signal": null,
+      "receipt": {
+        "path": "docs/testing/2026-10-11-web-portal/r69-combined-changed-statics-20261014.json",
+        "sha256": "15a0c34f8e5bc136ef238be7a6c38604c140fdad43c3873af4295bfa3066641a"
+      },
+      "logSha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+      "reused": true,
+      "scope": "Actual latest1790 MCP types and exact four-file package-member/selection lint/format; later metadata reconciliation is separate",
+      "inputSupersessions": [],
+      "originalSourceHash": "sha256:1790a1dc140343d8f0982ff5a83083cdbea99834f21f20ed88c5d95e17e006f3"
+    },
+    {
+      "name": "changed-lint",
+      "exitCode": 0,
+      "signal": null,
+      "receipt": {
+        "path": "docs/testing/2026-10-11-web-portal/r69-combined-changed-statics-20261014.json",
+        "sha256": "15a0c34f8e5bc136ef238be7a6c38604c140fdad43c3873af4295bfa3066641a"
+      },
+      "logSha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+      "reused": true,
+      "scope": "Actual latest1790 MCP types and exact four-file package-member/selection lint/format; later metadata reconciliation is separate",
+      "inputSupersessions": [],
+      "originalSourceHash": "sha256:1790a1dc140343d8f0982ff5a83083cdbea99834f21f20ed88c5d95e17e006f3"
+    },
+    {
+      "name": "changed-format",
+      "exitCode": 0,
+      "signal": null,
+      "receipt": {
+        "path": "docs/testing/2026-10-11-web-portal/r69-combined-changed-statics-20261014.json",
+        "sha256": "15a0c34f8e5bc136ef238be7a6c38604c140fdad43c3873af4295bfa3066641a"
+      },
+      "logSha256": "518ad9a31eadf38ca67bedd8c005683e893e767ea0a619a25bfa4c123f44a1cd",
+      "reused": true,
+      "scope": "Actual latest1790 MCP types and exact four-file package-member/selection lint/format; later metadata reconciliation is separate",
+      "inputSupersessions": [],
+      "originalSourceHash": "sha256:1790a1dc140343d8f0982ff5a83083cdbea99834f21f20ed88c5d95e17e006f3"
+    }
+  ],
+  "preservedFailedBatches": [
+    {
+      "receipt": {
+        "path": "docs/testing/2026-10-11-web-portal/final-delta-statics-first-20261014.json",
+        "sha256": "077aa83c39040b979965904f56456cab734e3bd553a5cd2517920c650e50a6ef"
+      },
+      "originalStatus": "failed",
+      "failedCommands": [
+        "changed-lint"
+      ]
+    },
+    {
+      "receipt": {
+        "path": "docs/testing/2026-10-11-web-portal/c3-producer-statics-first-20261014.json",
+        "sha256": "a04c40449a61e9fa4d8c39e6e1261f6b4ca55f998a614349c1f39b62e2d548ad"
+      },
+      "originalStatus": "failed",
+      "failedCommands": [
+        "changed-lint",
+        "changed-format"
+      ]
+    }
+  ],
+  "limitations": {
+    "wholePassed": false,
+    "fullFinalSourceTypecheck": false,
+    "fullCaseAcceptance": false,
+    "oldFailedBatchesRelabeled": false,
+    "passingTestsRepeated": false,
+    "scope": "Latest actual MCP types +closed CLI/portal types; eight+two+four exact-file lint/format scopes cover14current files. No whole, source freshness, full graph or live case acceptance claim"
+  },
+  "sourceBinding": "Current14exactreviewedfilebytes with actual latest1790MCP checks and historical closed input scopes; metadata-only reconciliation not a rerun"
+}

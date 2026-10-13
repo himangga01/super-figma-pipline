@@ -63,6 +63,114 @@ const invokePlan = (client: ControlClient, emit: (value: unknown) => void = () =
     timeoutMs: 10_000,
     emit,
   });
+
+it('sends the domain-removal nonce only in its required header with an empty body', async () => {
+  const nonce = `sfp_an1_${'a'.repeat(43)}`;
+  let received: { header: unknown; bytes: number } | undefined;
+  const client = await fixture((request, response) => {
+    let bytes = 0;
+    request.on('data', (value: Buffer) => {
+      bytes += value.byteLength;
+    });
+    request.on('end', () => {
+      received = { header: request.headers['x-sfp-action-nonce'], bytes };
+      response.end(JSON.stringify({ removed: received.header === nonce && bytes === 0 }));
+    });
+  });
+  await expect(
+    client.request('/control/network/domains/registry.npmjs.org', 'DELETE', { actionNonce: nonce }),
+  ).resolves.toEqual({ removed: true });
+  expect(received).toEqual({ header: nonce, bytes: 0 });
+  await expect(
+    client.request('/control/network/domains/registry.npmjs.org', 'DELETE', {
+      actionNonce: nonce,
+      ignored: true,
+    }),
+  ).rejects.toThrow('CONTROL_NETWORK_DELETE_NONCE_INVALID');
+});
+it.each([
+  '/control/egress',
+  '/control/workspaces/00000000-0000-4000-8000-000000000001',
+  '/control/workspaces/default',
+])('sends nonce-only DELETE %s in the nonce header with no HTTP body', async path => {
+  const nonce = `sfp_an1_${'b'.repeat(43)}`;
+  let received:
+    | { path: string | undefined; method: string | undefined; header: unknown; bytes: number }
+    | undefined;
+  const client = await fixture((request, response) => {
+    let bytes = 0;
+    request.on('data', (chunk: Buffer) => {
+      bytes += chunk.byteLength;
+    });
+    request.on('end', () => {
+      received = {
+        path: request.url,
+        method: request.method,
+        header: request.headers['x-sfp-action-nonce'],
+        bytes,
+      };
+      response.end(JSON.stringify({ accepted: received.header === nonce && bytes === 0 }));
+    });
+  });
+  await expect(client.request(path, 'DELETE', { actionNonce: nonce })).resolves.toEqual({
+    accepted: true,
+  });
+  expect(received).toEqual({ path, method: 'DELETE', header: nonce, bytes: 0 });
+});
+it.each([
+  '/control/egress',
+  '/control/workspaces/00000000-0000-4000-8000-000000000001',
+  '/control/workspaces/default',
+])('rejects malformed or extra nonce-only DELETE input for %s before sending', async path => {
+  const nonce = `sfp_an1_${'c'.repeat(43)}`;
+  let calls = 0;
+  const client = await fixture((_request, response) => {
+    calls++;
+    response.end('{}');
+  });
+  for (const body of [
+    undefined,
+    null,
+    {},
+    [],
+    { actionNonce: 'invalid' },
+    { actionNonce: nonce, ignored: true },
+    Object.assign(Object.create({ actionNonce: nonce }), { ignored: true }),
+  ]) {
+    await expect(client.request(path, 'DELETE', body)).rejects.toThrow(
+      'CONTROL_DELETE_NONCE_INVALID',
+    );
+  }
+  expect(calls).toBe(0);
+});
+it('does not replay a nonce-only DELETE after a transport reset', async () => {
+  let calls = 0;
+  const client = await fixture(request => {
+    calls++;
+    request.socket.destroy();
+  });
+  await expect(
+    client.request('/control/egress', 'DELETE', { actionNonce: `sfp_an1_${'d'.repeat(43)}` }),
+  ).rejects.toMatchObject({ code: 'ECONNRESET' });
+  expect(calls).toBe(1);
+});
+it('keeps nonce-bearing POST input in the JSON body without a DELETE nonce header', async () => {
+  const body = { actionNonce: `sfp_an1_${'e'.repeat(43)}`, mode: 'local-only' };
+  let received: unknown;
+  const client = await fixture((request, response) => {
+    const chunks: Buffer[] = [];
+    request.on('data', (chunk: Buffer) => chunks.push(chunk));
+    request.on('end', () => {
+      received = {
+        header: request.headers['x-sfp-action-nonce'],
+        body: JSON.parse(Buffer.concat(chunks).toString('utf8')),
+      };
+      response.end('{}');
+    });
+  });
+  await client.request('/control/egress', 'POST', body);
+  expect(received).toEqual({ header: undefined, body });
+});
 const busy = (response: ServerResponse) => {
   response.writeHead(503, { 'content-type': 'application/json' });
   response.end(JSON.stringify({ code: 'CONTROL_AUTH_BUSY' }));

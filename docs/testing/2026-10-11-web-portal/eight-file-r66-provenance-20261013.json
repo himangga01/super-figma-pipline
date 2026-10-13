@@ -1,0 +1,46 @@
+{
+  "schemaVersion": 1,
+  "at": "2026-10-13T12:17:22.808Z",
+  "kind": "eight-file-repair-r66-provenance-sync",
+  "sourceHash": "sha256:6f87f836d872a4ba8ab49533f6447a7c921adb6b8af3dae75ddd6241e8b8a1cb",
+  "entries": [
+    {
+      "path": "upstream-lock.json",
+      "beforeHash": "8cd20321548bcfd1170c0ee26f5807f175e4ea64bbdee70fbb7db3ad4db0fc03",
+      "afterHash": "91180657c8938af63da45d467a0a8f499e0f97022857707108838fa41b16cbef"
+    },
+    {
+      "path": "vendor-map.json",
+      "beforeHash": "b3275c7d8b997d1cfe723d97594659f77d7b4361b824a790bcfdd7ff762589bd",
+      "afterHash": "b3275c7d8b997d1cfe723d97594659f77d7b4361b824a790bcfdd7ff762589bd"
+    },
+    {
+      "path": "vendor-rules.json",
+      "beforeHash": "5e6bfd983fa59422327387b905f770437162802f7576e2fbc31e250931f6920b",
+      "afterHash": "e61302d99b0567e6451f69cdf48d2aaefc28826f1cd48ba486193147303e25ae"
+    },
+    {
+      "path": "capabilities/change-manifests/task-review-2026-10-10.json",
+      "beforeHash": "60c5ee25653a9bf93158121c3b9f2f031c8680bf71d45a203f54a6fab1ce4b8d",
+      "afterHash": "7e87ee5c21bfdeafe14e65e5c3aa4a74ca5403f3dc56aae9a025107ed96dfab3"
+    },
+    {
+      "path": "capabilities/task-review-2026-10-10-authority-classes.json",
+      "beforeHash": "d5b873e3d65668f49dfe13f30fee190ae273b6db2d45377def3fd92399f5c46a",
+      "afterHash": "9efc2ff51ab0c5eefa2df559210f67a29fcb6333d1444324ded96f088766c935"
+    },
+    {
+      "path": "capabilities/reconciliations/review-2026-10-10-eight-file-repair-2026-10-13.json",
+      "beforeHash": null,
+      "afterHash": "ea5550543f78dc5f27b89d86909fa3404ba94a4a6040e00bee24b45c6940ca0c"
+    }
+  ],
+  "shadowIndex": ".worktrees/baseline/service/.cache/review-20261013-r66.index",
+  "semanticChanges": 278,
+  "derivedAuthorities": 4,
+  "ownerIndexHash": "ecc1808ab3e14fa2e8c233ae1fc1c91e0a33b5b2e383a7270f1bc3068997e675",
+  "ownerIndexUnchanged": true,
+  "whole": false,
+  "runtimeReplaced": false,
+  "liveAcceptance": false
+}

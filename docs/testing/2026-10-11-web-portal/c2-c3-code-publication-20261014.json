@@ -1,0 +1,125 @@
+{
+  "at": "2026-10-13T15:39:53.465Z",
+  "sourceEpoch": "6f87f836d872a4ba8ab49533f6447a7c921adb6b8af3dae75ddd6241e8b8a1cb",
+  "published": 23,
+  "files": [
+    {
+      "path": "examples/portal-cases/c2-epic/origin-guard.mjs",
+      "bytes": 729,
+      "sha256": "751a856e4ec2457a52d6d40401dba45da1ad2fd8578da761131b42dee6531e96"
+    },
+    {
+      "path": "examples/portal-cases/c2-epic/origin-guard-check.mjs",
+      "bytes": 975,
+      "sha256": "5a7b65ce505fd55926e5a5227207f33279597560986a83410567dacae7fc9575"
+    },
+    {
+      "path": "examples/portal-cases/c2-epic/epic-journey.mjs",
+      "bytes": 7089,
+      "sha256": "ca03d2681ef176c1ba2bec65f286a0a26b8b7a969edf1f40f22ba97f8251b19b"
+    },
+    {
+      "path": "examples/portal-cases/c2-epic/environment-adapter.mjs",
+      "bytes": 815,
+      "sha256": "a1f4e86d45d0f0ce64b94da1d70a8bfb675757a4193dccb6e29760a08b4e8be9"
+    },
+    {
+      "path": "examples/portal-cases/c2-epic/server/app.ts",
+      "bytes": 725,
+      "sha256": "63ec963b0c71b5884a6b4996bab9255c6b4014e4f11d9a670a3dca6054d2b582"
+    },
+    {
+      "path": "examples/portal-cases/c2-epic/server/origin-guard.ts",
+      "bytes": 746,
+      "sha256": "8d5e20da71c920805a8c8bcadd276734c577d67586415b09e253754e776b957b"
+    },
+    {
+      "path": "examples/portal-cases/c3-workspace/backend/package.json",
+      "bytes": 262,
+      "sha256": "8737b83a05d768850b62d52456b1740164c349455536a7c7256f4733f0b4bf00"
+    },
+    {
+      "path": "examples/portal-cases/c3-workspace/backend/store.mjs",
+      "bytes": 5676,
+      "sha256": "43edada14dc52142e353b5cfcba9efa0194886a7b4f4b4c3460556802c01e89c"
+    },
+    {
+      "path": "examples/portal-cases/c3-workspace/backend/handler.mjs",
+      "bytes": 6385,
+      "sha256": "0094038955a83809463692faae0e1eb8b6f74e9ee73e0ce7864cb524715214bb"
+    },
+    {
+      "path": "examples/portal-cases/c3-workspace/backend/server.mjs",
+      "bytes": 1039,
+      "sha256": "bee929211250ada85101ecb700dbc442a7bf2ac365f1074da4a5829e759039b2"
+    },
+    {
+      "path": "examples/portal-cases/c3-workspace/backend/migrate.mjs",
+      "bytes": 246,
+      "sha256": "146ae11712171b6a8f171dc25438f5181a42a6c5b2ba38d9f106cacf878a49f1"
+    },
+    {
+      "path": "examples/portal-cases/c3-workspace/backend/client.mjs",
+      "bytes": 1376,
+      "sha256": "f1bd248e4a73858cd8342ca7cd068a5cc81f71c04078e221116ece794bcbd85f"
+    },
+    {
+      "path": "examples/portal-cases/c3-workspace/backend/integration/server.js",
+      "bytes": 1825,
+      "sha256": "0a41edbffa58ad608cfba8d107431091fe60bfe475e63778de06db06c958895f"
+    },
+    {
+      "path": "examples/portal-cases/c3-workspace/backend/integration/notes-route.jsx",
+      "bytes": 145,
+      "sha256": "6f36a0a01bd818e462174d9045469089498e4985a85ee3c2f8662dfb288a6a16"
+    },
+    {
+      "path": "examples/portal-cases/c3-workspace/backend/acceptance/backend-journey.mjs",
+      "bytes": 7953,
+      "sha256": "1eeae0c949a4d0d9df2ae51cdfef5c8720e1802fe8b9084bfa2255f2046b8a2a"
+    },
+    {
+      "path": "examples/portal-cases/c3-workspace/backend/acceptance/migration-preservation.mjs",
+      "bytes": 2149,
+      "sha256": "cb752afb2d6236fbaf576cf3a6d27da27cbe8a7ff216d242a5d4e70e95329d6b"
+    },
+    {
+      "path": "examples/portal-cases/c3-workspace/backend/acceptance/application-journey.mjs",
+      "bytes": 3258,
+      "sha256": "8eae11bbbb6ec0a8dac9d7720b69430d6c47daff07f2badcec701e07a156ed3d"
+    },
+    {
+      "path": "examples/portal-cases/c3-workspace/backend/acceptance/server-wiring.mjs",
+      "bytes": 4051,
+      "sha256": "aca2386e184f786aadfa96462347cfe27c472eac09534049bc71b580671d8a85"
+    },
+    {
+      "path": "examples/portal-cases/profile-ingredients.mjs",
+      "bytes": 2971,
+      "sha256": "6cca112d1156844f2631c93ba46ed8de4d1befa394998dea60e930703927c15e"
+    },
+    {
+      "path": "examples/portal-cases/c3-workspace/ui/NotesWorkspace.jsx",
+      "bytes": 9037,
+      "sha256": "85e0ddd447d15172a4fe1b8cf7228bb81a43120948678c906989748e398ba3ab"
+    },
+    {
+      "path": "examples/portal-cases/c3-workspace/ui/notes-workspace.css",
+      "bytes": 2091,
+      "sha256": "7c563b3c77171afc3f10140400ef5b759410c44f7594ae54014677525dfb1683"
+    },
+    {
+      "path": "examples/portal-cases/c3-workspace/ui/notes-client.mjs",
+      "bytes": 1376,
+      "sha256": "f1bd248e4a73858cd8342ca7cd068a5cc81f71c04078e221116ece794bcbd85f"
+    },
+    {
+      "path": "examples/portal-cases/c3-workspace/ui/README.md",
+      "bytes": 1420,
+      "sha256": "ec57c8959f453e8c08296e80ea3d62cd5cde71940861fc79dfb53e6a09545099"
+    }
+  ],
+  "privateStateIncluded": false,
+  "serviceSourceChanged": false,
+  "pipelineAcceptance": false
+}

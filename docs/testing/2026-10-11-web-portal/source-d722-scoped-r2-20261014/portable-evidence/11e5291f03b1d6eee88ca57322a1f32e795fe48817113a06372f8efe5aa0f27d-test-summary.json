@@ -1,0 +1,17 @@
+{
+  "kind": "sanitized-original-test-report-summary",
+  "originalPath": ".worktrees/baseline/service/artifacts/focused-checks/909b0e47-957c-4178-b50c-662deedc37e5/vitest-report.json",
+  "originalSha256": "11e5291f03b1d6eee88ca57322a1f32e795fe48817113a06372f8efe5aa0f27d",
+  "originalSuccess": true,
+  "numTotalTests": 1,
+  "numPassedTests": 1,
+  "numFailedTests": 0,
+  "numPendingTests": 0,
+  "assertions": [
+    {
+      "name": "verifies the actual four archives, contained files and portable portal startup",
+      "status": "passed"
+    }
+  ],
+  "scope": "Sanitized summary only; original raw report remains local-only, and original failures/filtered cases are preserved"
+}

@@ -1,0 +1,358 @@
+{
+  "schemaVersion": 2,
+  "kind": "exact-r60-no-core-r2-preview-r65-main-native-integration",
+  "helperHash": "399e26e30345bfd9c63fced96a58a4f2f37ffefa36ce85992b3ed320bea529f0",
+  "at": "2026-10-13T12:05:38.762Z",
+  "baseline": "sha256:303de5d1904d11c1fb89bdf80951900e375ac4325ea6cfc932f39ebee2785732",
+  "indexHash": "ecc1808ab3e14fa2e8c233ae1fc1c91e0a33b5b2e383a7270f1bc3068997e675",
+  "reviewedManifests": [
+    [
+      "r54",
+      "8b696cb3c1e1b4cb35bc48238544ea897dcacc6e26004a9b04013d0417f25e95"
+    ],
+    [
+      "r56",
+      "ec71dd1abf312bae7b36f5743ef62afccf6beefe61402f57e62096233c5816f4"
+    ],
+    [
+      "r58",
+      "274508d904dd01debe7afae0994376e4fb56f3b99aecd5165dac13b11d49120e"
+    ],
+    [
+      "r60",
+      "0b8a2f4d0ca62f1e3898f74a77e4b70e0e1845d40416f16cd67300be70f32d9f"
+    ]
+  ],
+  "noCoreManifestHash": "97b219177b9d705ea122dde1e42004b74c5df607290c20f7e1966ee17255fcb2",
+  "candidateManifests": [
+    {
+      "name": "r60",
+      "path": ".worktrees/_cache/c2-compiler-support-20261013/freeze-r60/frozen-files.json",
+      "sha256": "0b8a2f4d0ca62f1e3898f74a77e4b70e0e1845d40416f16cd67300be70f32d9f"
+    },
+    {
+      "name": "no-core-r2",
+      "path": ".worktrees/_cache/no-core-recovery-20261013/freeze-r2/frozen-files.json",
+      "sha256": "97b219177b9d705ea122dde1e42004b74c5df607290c20f7e1966ee17255fcb2"
+    },
+    {
+      "name": "preview",
+      "path": ".worktrees/_cache/preview-navigation-budget-20261013/freeze/frozen-files.json",
+      "sha256": "e94fa3061b64656a6572ba8bdb1ae10abda8753a5282e619a2ffd09846890c6b"
+    },
+    {
+      "name": "route-types-r65",
+      "path": ".worktrees/_cache/c2-compiler-support-20261013/route-types-r65/frozen-files.json",
+      "sha256": "0253c302d1ffa6cf9a7007c0d8870932dcc2c93649b8e0c76eee71862f62d3a9"
+    }
+  ],
+  "approvalReceipts": [
+    {
+      "name": "no-core-r2",
+      "path": "docs/testing/2026-10-11-web-portal/no-core-plan-recovery-r2-independent-20261013.json",
+      "sha256": "097ff7fdb9a2debeb695e6fbd57943eb4b3fd7b8d9272743fb115829e3adc278"
+    },
+    {
+      "name": "r60",
+      "path": "docs/testing/2026-10-11-web-portal/c2-css-decoder-r60-independent-20261013.json",
+      "sha256": "ed83ea9d43b9e7f7c3d697dc18644f010a4f314308976934ecb626f2d8d7e28e"
+    },
+    {
+      "name": "preview",
+      "path": "docs/testing/2026-10-11-web-portal/preview-navigation-budget-independent-20261013.json",
+      "sha256": "9e22768b061c2370b29c7386eeb4dc34b9b70e1b153e0a9b31f0c9dc5eb9911a"
+    },
+    {
+      "name": "route-types-r65",
+      "path": "docs/testing/2026-10-11-web-portal/c2-route-type-r65-independent-20261013.json",
+      "sha256": "52fc6ad402b1c6ed4558d9bac1dd9ca817d6e670d86050e088ac69ef53443320"
+    }
+  ],
+  "originalR2EngineHash": "02c62affb3ac3f55253687739e88fc5dd6ebfce6251c85e2373ff34e4b1d30ef",
+  "status": "integrated",
+  "intendedTargetWrites": 16,
+  "attempts": [
+    {
+      "path": "service/packages/mcp/src/portal/react-router-compiler-evidence.ts",
+      "beforeHash": "595f0ec5810511d63948c02265a347a15169ff62b9b00344fd69edb53f3a5bea",
+      "afterHash": "44b1952686603dd056faea33803c65a985e7b41230b5b04ad434ab69ac2065c8",
+      "backup": ".worktrees/_cache/eight-file-integration-preparation-20261013/eight-file-integration-execution-r1/0.before",
+      "status": "verified",
+      "mutationStarted": true,
+      "intentAt": "2026-10-13T12:05:38.765Z",
+      "verifiedAt": "2026-10-13T12:05:38.772Z",
+      "observedHash": "44b1952686603dd056faea33803c65a985e7b41230b5b04ad434ab69ac2065c8"
+    },
+    {
+      "path": ".worktrees/baseline/service/packages/mcp/src/portal/react-router-compiler-evidence.ts",
+      "beforeHash": "595f0ec5810511d63948c02265a347a15169ff62b9b00344fd69edb53f3a5bea",
+      "afterHash": "44b1952686603dd056faea33803c65a985e7b41230b5b04ad434ab69ac2065c8",
+      "backup": ".worktrees/_cache/eight-file-integration-preparation-20261013/eight-file-integration-execution-r1/1.before",
+      "status": "verified",
+      "mutationStarted": true,
+      "intentAt": "2026-10-13T12:05:38.779Z",
+      "verifiedAt": "2026-10-13T12:05:38.786Z",
+      "observedHash": "44b1952686603dd056faea33803c65a985e7b41230b5b04ad434ab69ac2065c8"
+    },
+    {
+      "path": "service/packages/mcp/test/portal/react-router-compiler-evidence.test.ts",
+      "beforeHash": "6d9d2266ad1c33c6f8f5274403d32e606f3ca0c9985d0f8a7f9d196fc3222025",
+      "afterHash": "fb2ef781c20c20d1f2b5ee5148448239829188a8b05f3c18fd6c0f4d982305f8",
+      "backup": ".worktrees/_cache/eight-file-integration-preparation-20261013/eight-file-integration-execution-r1/2.before",
+      "status": "verified",
+      "mutationStarted": true,
+      "intentAt": "2026-10-13T12:05:38.792Z",
+      "verifiedAt": "2026-10-13T12:05:38.799Z",
+      "observedHash": "fb2ef781c20c20d1f2b5ee5148448239829188a8b05f3c18fd6c0f4d982305f8"
+    },
+    {
+      "path": ".worktrees/baseline/service/packages/mcp/test/portal/react-router-compiler-evidence.test.ts",
+      "beforeHash": "6d9d2266ad1c33c6f8f5274403d32e606f3ca0c9985d0f8a7f9d196fc3222025",
+      "afterHash": "fb2ef781c20c20d1f2b5ee5148448239829188a8b05f3c18fd6c0f4d982305f8",
+      "backup": ".worktrees/_cache/eight-file-integration-preparation-20261013/eight-file-integration-execution-r1/3.before",
+      "status": "verified",
+      "mutationStarted": true,
+      "intentAt": "2026-10-13T12:05:38.805Z",
+      "verifiedAt": "2026-10-13T12:05:38.811Z",
+      "observedHash": "fb2ef781c20c20d1f2b5ee5148448239829188a8b05f3c18fd6c0f4d982305f8"
+    },
+    {
+      "path": "service/packages/portal/src/bridge.ts",
+      "beforeHash": "5e729885279e81964144f450c59fd56747282541d0ad90d2a76b6f5ac93ce5b2",
+      "afterHash": "ab7008aea8646ade1eff75bb03b5e5c755656662e815dc1775185528ea94b9e2",
+      "backup": ".worktrees/_cache/eight-file-integration-preparation-20261013/eight-file-integration-execution-r1/4.before",
+      "status": "verified",
+      "mutationStarted": true,
+      "intentAt": "2026-10-13T12:05:38.818Z",
+      "verifiedAt": "2026-10-13T12:05:38.825Z",
+      "observedHash": "ab7008aea8646ade1eff75bb03b5e5c755656662e815dc1775185528ea94b9e2"
+    },
+    {
+      "path": ".worktrees/baseline/service/packages/portal/src/bridge.ts",
+      "beforeHash": "5e729885279e81964144f450c59fd56747282541d0ad90d2a76b6f5ac93ce5b2",
+      "afterHash": "ab7008aea8646ade1eff75bb03b5e5c755656662e815dc1775185528ea94b9e2",
+      "backup": ".worktrees/_cache/eight-file-integration-preparation-20261013/eight-file-integration-execution-r1/5.before",
+      "status": "verified",
+      "mutationStarted": true,
+      "intentAt": "2026-10-13T12:05:38.831Z",
+      "verifiedAt": "2026-10-13T12:05:38.838Z",
+      "observedHash": "ab7008aea8646ade1eff75bb03b5e5c755656662e815dc1775185528ea94b9e2"
+    },
+    {
+      "path": "service/packages/portal/test/backend.test.ts",
+      "beforeHash": "e788e7330434cadbc28bad0179b5fe7dfa7fa57bfc0a80501406280d1cc7355a",
+      "afterHash": "2b47f7e3c843b47cb19ea4eb20038de330c90d80602c58499842e62d116538ac",
+      "backup": ".worktrees/_cache/eight-file-integration-preparation-20261013/eight-file-integration-execution-r1/6.before",
+      "status": "verified",
+      "mutationStarted": true,
+      "intentAt": "2026-10-13T12:05:38.844Z",
+      "verifiedAt": "2026-10-13T12:05:38.850Z",
+      "observedHash": "2b47f7e3c843b47cb19ea4eb20038de330c90d80602c58499842e62d116538ac"
+    },
+    {
+      "path": ".worktrees/baseline/service/packages/portal/test/backend.test.ts",
+      "beforeHash": "e788e7330434cadbc28bad0179b5fe7dfa7fa57bfc0a80501406280d1cc7355a",
+      "afterHash": "2b47f7e3c843b47cb19ea4eb20038de330c90d80602c58499842e62d116538ac",
+      "backup": ".worktrees/_cache/eight-file-integration-preparation-20261013/eight-file-integration-execution-r1/7.before",
+      "status": "verified",
+      "mutationStarted": true,
+      "intentAt": "2026-10-13T12:05:38.857Z",
+      "verifiedAt": "2026-10-13T12:05:38.864Z",
+      "observedHash": "2b47f7e3c843b47cb19ea4eb20038de330c90d80602c58499842e62d116538ac"
+    },
+    {
+      "path": "service/packages/mcp/src/portal/preview.ts",
+      "beforeHash": "55f5d5be1af3fd79ba47ce452044b4542a6b0d958bf965c5d0072ea07e371718",
+      "afterHash": "58eac8fb765ed34799d86a431fb7cef39131bcbd5870b97d076b81d76f158f37",
+      "backup": ".worktrees/_cache/eight-file-integration-preparation-20261013/eight-file-integration-execution-r1/8.before",
+      "status": "verified",
+      "mutationStarted": true,
+      "intentAt": "2026-10-13T12:05:38.871Z",
+      "verifiedAt": "2026-10-13T12:05:38.877Z",
+      "observedHash": "58eac8fb765ed34799d86a431fb7cef39131bcbd5870b97d076b81d76f158f37"
+    },
+    {
+      "path": ".worktrees/baseline/service/packages/mcp/src/portal/preview.ts",
+      "beforeHash": "55f5d5be1af3fd79ba47ce452044b4542a6b0d958bf965c5d0072ea07e371718",
+      "afterHash": "58eac8fb765ed34799d86a431fb7cef39131bcbd5870b97d076b81d76f158f37",
+      "backup": ".worktrees/_cache/eight-file-integration-preparation-20261013/eight-file-integration-execution-r1/9.before",
+      "status": "verified",
+      "mutationStarted": true,
+      "intentAt": "2026-10-13T12:05:38.883Z",
+      "verifiedAt": "2026-10-13T12:05:38.890Z",
+      "observedHash": "58eac8fb765ed34799d86a431fb7cef39131bcbd5870b97d076b81d76f158f37"
+    },
+    {
+      "path": "service/packages/mcp/test/portal/preview-interactions.test.ts",
+      "beforeHash": "bbe858504b334bb8ebcd88d1c866d9e6d0c3e08aad6f8f77e7e8ae16d9f60125",
+      "afterHash": "da7dbb42c129bf1408331e71cdf8e13a2a971bea0abe5530fc50e7a1ab68ef0d",
+      "backup": ".worktrees/_cache/eight-file-integration-preparation-20261013/eight-file-integration-execution-r1/10.before",
+      "status": "verified",
+      "mutationStarted": true,
+      "intentAt": "2026-10-13T12:05:38.896Z",
+      "verifiedAt": "2026-10-13T12:05:38.902Z",
+      "observedHash": "da7dbb42c129bf1408331e71cdf8e13a2a971bea0abe5530fc50e7a1ab68ef0d"
+    },
+    {
+      "path": ".worktrees/baseline/service/packages/mcp/test/portal/preview-interactions.test.ts",
+      "beforeHash": "bbe858504b334bb8ebcd88d1c866d9e6d0c3e08aad6f8f77e7e8ae16d9f60125",
+      "afterHash": "da7dbb42c129bf1408331e71cdf8e13a2a971bea0abe5530fc50e7a1ab68ef0d",
+      "backup": ".worktrees/_cache/eight-file-integration-preparation-20261013/eight-file-integration-execution-r1/11.before",
+      "status": "verified",
+      "mutationStarted": true,
+      "intentAt": "2026-10-13T12:05:38.909Z",
+      "verifiedAt": "2026-10-13T12:05:38.915Z",
+      "observedHash": "da7dbb42c129bf1408331e71cdf8e13a2a971bea0abe5530fc50e7a1ab68ef0d"
+    },
+    {
+      "path": "service/packages/mcp/src/portal/module-resolution.ts",
+      "beforeHash": "0eba03f98f2c48c2ee299bcbf708ce1111b8b40f28d6300aaff5d88ed0c25f70",
+      "afterHash": "2358e3d2fa16b28d086c600e1b947c3da579ff1f7485cb93649024c8b0dd85ef",
+      "backup": ".worktrees/_cache/eight-file-integration-preparation-20261013/eight-file-integration-execution-r1/12.before",
+      "status": "verified",
+      "mutationStarted": true,
+      "intentAt": "2026-10-13T12:05:38.922Z",
+      "verifiedAt": "2026-10-13T12:05:38.928Z",
+      "observedHash": "2358e3d2fa16b28d086c600e1b947c3da579ff1f7485cb93649024c8b0dd85ef"
+    },
+    {
+      "path": ".worktrees/baseline/service/packages/mcp/src/portal/module-resolution.ts",
+      "beforeHash": "0eba03f98f2c48c2ee299bcbf708ce1111b8b40f28d6300aaff5d88ed0c25f70",
+      "afterHash": "2358e3d2fa16b28d086c600e1b947c3da579ff1f7485cb93649024c8b0dd85ef",
+      "backup": ".worktrees/_cache/eight-file-integration-preparation-20261013/eight-file-integration-execution-r1/13.before",
+      "status": "verified",
+      "mutationStarted": true,
+      "intentAt": "2026-10-13T12:05:38.935Z",
+      "verifiedAt": "2026-10-13T12:05:38.943Z",
+      "observedHash": "2358e3d2fa16b28d086c600e1b947c3da579ff1f7485cb93649024c8b0dd85ef"
+    },
+    {
+      "path": "service/packages/mcp/test/portal/module-resolution.test.ts",
+      "beforeHash": "ca7de6c9afc1c6018e9a1762d95d45e42d5e5f8b86b11f936a96a8e4355418ed",
+      "afterHash": "fab4f3b951e951342c2c39cba72e6264226acc8ed30b295282678419f0e436c6",
+      "backup": ".worktrees/_cache/eight-file-integration-preparation-20261013/eight-file-integration-execution-r1/14.before",
+      "status": "verified",
+      "mutationStarted": true,
+      "intentAt": "2026-10-13T12:05:38.951Z",
+      "verifiedAt": "2026-10-13T12:05:38.962Z",
+      "observedHash": "fab4f3b951e951342c2c39cba72e6264226acc8ed30b295282678419f0e436c6"
+    },
+    {
+      "path": ".worktrees/baseline/service/packages/mcp/test/portal/module-resolution.test.ts",
+      "beforeHash": "ca7de6c9afc1c6018e9a1762d95d45e42d5e5f8b86b11f936a96a8e4355418ed",
+      "afterHash": "fab4f3b951e951342c2c39cba72e6264226acc8ed30b295282678419f0e436c6",
+      "backup": ".worktrees/_cache/eight-file-integration-preparation-20261013/eight-file-integration-execution-r1/15.before",
+      "status": "verified",
+      "mutationStarted": true,
+      "intentAt": "2026-10-13T12:05:38.970Z",
+      "verifiedAt": "2026-10-13T12:05:38.979Z",
+      "observedHash": "fab4f3b951e951342c2c39cba72e6264226acc8ed30b295282678419f0e436c6"
+    }
+  ],
+  "writes": [
+    {
+      "path": "service/packages/mcp/src/portal/react-router-compiler-evidence.ts",
+      "beforeHash": "595f0ec5810511d63948c02265a347a15169ff62b9b00344fd69edb53f3a5bea",
+      "afterHash": "44b1952686603dd056faea33803c65a985e7b41230b5b04ad434ab69ac2065c8",
+      "backup": ".worktrees/_cache/eight-file-integration-preparation-20261013/eight-file-integration-execution-r1/0.before"
+    },
+    {
+      "path": ".worktrees/baseline/service/packages/mcp/src/portal/react-router-compiler-evidence.ts",
+      "beforeHash": "595f0ec5810511d63948c02265a347a15169ff62b9b00344fd69edb53f3a5bea",
+      "afterHash": "44b1952686603dd056faea33803c65a985e7b41230b5b04ad434ab69ac2065c8",
+      "backup": ".worktrees/_cache/eight-file-integration-preparation-20261013/eight-file-integration-execution-r1/1.before"
+    },
+    {
+      "path": "service/packages/mcp/test/portal/react-router-compiler-evidence.test.ts",
+      "beforeHash": "6d9d2266ad1c33c6f8f5274403d32e606f3ca0c9985d0f8a7f9d196fc3222025",
+      "afterHash": "fb2ef781c20c20d1f2b5ee5148448239829188a8b05f3c18fd6c0f4d982305f8",
+      "backup": ".worktrees/_cache/eight-file-integration-preparation-20261013/eight-file-integration-execution-r1/2.before"
+    },
+    {
+      "path": ".worktrees/baseline/service/packages/mcp/test/portal/react-router-compiler-evidence.test.ts",
+      "beforeHash": "6d9d2266ad1c33c6f8f5274403d32e606f3ca0c9985d0f8a7f9d196fc3222025",
+      "afterHash": "fb2ef781c20c20d1f2b5ee5148448239829188a8b05f3c18fd6c0f4d982305f8",
+      "backup": ".worktrees/_cache/eight-file-integration-preparation-20261013/eight-file-integration-execution-r1/3.before"
+    },
+    {
+      "path": "service/packages/portal/src/bridge.ts",
+      "beforeHash": "5e729885279e81964144f450c59fd56747282541d0ad90d2a76b6f5ac93ce5b2",
+      "afterHash": "ab7008aea8646ade1eff75bb03b5e5c755656662e815dc1775185528ea94b9e2",
+      "backup": ".worktrees/_cache/eight-file-integration-preparation-20261013/eight-file-integration-execution-r1/4.before"
+    },
+    {
+      "path": ".worktrees/baseline/service/packages/portal/src/bridge.ts",
+      "beforeHash": "5e729885279e81964144f450c59fd56747282541d0ad90d2a76b6f5ac93ce5b2",
+      "afterHash": "ab7008aea8646ade1eff75bb03b5e5c755656662e815dc1775185528ea94b9e2",
+      "backup": ".worktrees/_cache/eight-file-integration-preparation-20261013/eight-file-integration-execution-r1/5.before"
+    },
+    {
+      "path": "service/packages/portal/test/backend.test.ts",
+      "beforeHash": "e788e7330434cadbc28bad0179b5fe7dfa7fa57bfc0a80501406280d1cc7355a",
+      "afterHash": "2b47f7e3c843b47cb19ea4eb20038de330c90d80602c58499842e62d116538ac",
+      "backup": ".worktrees/_cache/eight-file-integration-preparation-20261013/eight-file-integration-execution-r1/6.before"
+    },
+    {
+      "path": ".worktrees/baseline/service/packages/portal/test/backend.test.ts",
+      "beforeHash": "e788e7330434cadbc28bad0179b5fe7dfa7fa57bfc0a80501406280d1cc7355a",
+      "afterHash": "2b47f7e3c843b47cb19ea4eb20038de330c90d80602c58499842e62d116538ac",
+      "backup": ".worktrees/_cache/eight-file-integration-preparation-20261013/eight-file-integration-execution-r1/7.before"
+    },
+    {
+      "path": "service/packages/mcp/src/portal/preview.ts",
+      "beforeHash": "55f5d5be1af3fd79ba47ce452044b4542a6b0d958bf965c5d0072ea07e371718",
+      "afterHash": "58eac8fb765ed34799d86a431fb7cef39131bcbd5870b97d076b81d76f158f37",
+      "backup": ".worktrees/_cache/eight-file-integration-preparation-20261013/eight-file-integration-execution-r1/8.before"
+    },
+    {
+      "path": ".worktrees/baseline/service/packages/mcp/src/portal/preview.ts",
+      "beforeHash": "55f5d5be1af3fd79ba47ce452044b4542a6b0d958bf965c5d0072ea07e371718",
+      "afterHash": "58eac8fb765ed34799d86a431fb7cef39131bcbd5870b97d076b81d76f158f37",
+      "backup": ".worktrees/_cache/eight-file-integration-preparation-20261013/eight-file-integration-execution-r1/9.before"
+    },
+    {
+      "path": "service/packages/mcp/test/portal/preview-interactions.test.ts",
+      "beforeHash": "bbe858504b334bb8ebcd88d1c866d9e6d0c3e08aad6f8f77e7e8ae16d9f60125",
+      "afterHash": "da7dbb42c129bf1408331e71cdf8e13a2a971bea0abe5530fc50e7a1ab68ef0d",
+      "backup": ".worktrees/_cache/eight-file-integration-preparation-20261013/eight-file-integration-execution-r1/10.before"
+    },
+    {
+      "path": ".worktrees/baseline/service/packages/mcp/test/portal/preview-interactions.test.ts",
+      "beforeHash": "bbe858504b334bb8ebcd88d1c866d9e6d0c3e08aad6f8f77e7e8ae16d9f60125",
+      "afterHash": "da7dbb42c129bf1408331e71cdf8e13a2a971bea0abe5530fc50e7a1ab68ef0d",
+      "backup": ".worktrees/_cache/eight-file-integration-preparation-20261013/eight-file-integration-execution-r1/11.before"
+    },
+    {
+      "path": "service/packages/mcp/src/portal/module-resolution.ts",
+      "beforeHash": "0eba03f98f2c48c2ee299bcbf708ce1111b8b40f28d6300aaff5d88ed0c25f70",
+      "afterHash": "2358e3d2fa16b28d086c600e1b947c3da579ff1f7485cb93649024c8b0dd85ef",
+      "backup": ".worktrees/_cache/eight-file-integration-preparation-20261013/eight-file-integration-execution-r1/12.before"
+    },
+    {
+      "path": ".worktrees/baseline/service/packages/mcp/src/portal/module-resolution.ts",
+      "beforeHash": "0eba03f98f2c48c2ee299bcbf708ce1111b8b40f28d6300aaff5d88ed0c25f70",
+      "afterHash": "2358e3d2fa16b28d086c600e1b947c3da579ff1f7485cb93649024c8b0dd85ef",
+      "backup": ".worktrees/_cache/eight-file-integration-preparation-20261013/eight-file-integration-execution-r1/13.before"
+    },
+    {
+      "path": "service/packages/mcp/test/portal/module-resolution.test.ts",
+      "beforeHash": "ca7de6c9afc1c6018e9a1762d95d45e42d5e5f8b86b11f936a96a8e4355418ed",
+      "afterHash": "fab4f3b951e951342c2c39cba72e6264226acc8ed30b295282678419f0e436c6",
+      "backup": ".worktrees/_cache/eight-file-integration-preparation-20261013/eight-file-integration-execution-r1/14.before"
+    },
+    {
+      "path": ".worktrees/baseline/service/packages/mcp/test/portal/module-resolution.test.ts",
+      "beforeHash": "ca7de6c9afc1c6018e9a1762d95d45e42d5e5f8b86b11f936a96a8e4355418ed",
+      "afterHash": "fab4f3b951e951342c2c39cba72e6264226acc8ed30b295282678419f0e436c6",
+      "backup": ".worktrees/_cache/eight-file-integration-preparation-20261013/eight-file-integration-execution-r1/15.before"
+    }
+  ],
+  "wholePassed": false,
+  "nativePositiveInferred": false,
+  "liveAcceptanceInferred": false,
+  "atomicRollback": false,
+  "automaticReplayAllowed": false,
+  "protection": "Held file identity and atomic receipt publication under the same Windows owner; no OS sandbox or cross-file atomicity.",
+  "completedAt": "2026-10-13T12:05:39.651Z",
+  "sourceHash": "sha256:7ae88cfdd8343e83e8872d0edd3a0d82d31f253b20169f55328e1d4c8d66c6d7"
+}

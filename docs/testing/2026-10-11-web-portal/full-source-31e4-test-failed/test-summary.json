@@ -1,0 +1,21 @@
+{
+  "at": "2026-10-12T03:06:39.228Z",
+  "attemptId": "ed4b77cc-acc5-4b28-b869-ae3d0efa891a",
+  "sourceHash": "sha256:31e47b614fbc093b160d562e7b4107a4c1ad473965237b086f100663bb4f5ef5",
+  "total": 5370,
+  "passed": 5348,
+  "failed": 2,
+  "skipped": 20,
+  "failures": [
+    {
+      "file": "packages/mcp/test/diagnostics.test.ts",
+      "name": "keeps the file cap when two independent loggers append to the same state concurrently",
+      "message": "AssertionError: expected 2 to be +0 // Object.is equality\n    at C:/2026_project/super-figma-pipline/.worktrees/baseline/service/packages/mcp/test/diagnostics.test.ts:368:72\n    at file:///C:/2026_project/super-figma-pipline/.worktrees/baseline/service/node_modules/.pnpm/@vitest+runner@4.1.11/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:20"
+    },
+    {
+      "file": "packages/mcp/test/portal/preview-native.test.ts",
+      "name": "executes a prepared owned worker through NativeWork and ignores forged stdout reports",
+      "message": "SyntaxError: Unexpected end of JSON input\n    at JSON.parse (<anonymous>)\n    at C:/2026_project/super-figma-pipline/.worktrees/baseline/service/packages/mcp/src/portal/native-module-fence.ts:271:29\n    at Array.map (<anonymous>)\n    at Object.collectEvidence (C:/2026_project/super-figma-pipline/.worktrees/baseline/service/packages/mcp/src/portal/native-module-fence.ts:271:12)\n    at NativePortalRunner.execute (C:/2026_project/super-figma-pipline/.worktrees/baseline/service/packages/mcp/src/portal/native-runner.ts:471:32)\n    at PortalNativeWork.validateFiles (C:/2026_project/super-figma-pipline/.worktrees/baseline/service/packages/mcp/src/portal/native-work.ts:692:22)\n    at PortalNativeWork.owned (C:/2026_project/super-figma-pipline/.worktrees/baseline/service/packages/mcp/src/portal/native-work.ts:345:14)\n    at PortalCoordinator.validate (C:/2026_project/super-figma-pipline/.worktrees/baseline/service/packages/mcp/src/portal/coordinator.ts:1721:22)\n    at C:/2026_project/super-figma-pipline/.worktrees/baseline/service/packages/mcp/test/portal/preview-native.test.ts:366:19\n    at file:///C:/2026_project/super-figma-pipline/.worktrees/baseline/service/node_modules/.pnpm/@vitest+runner@4.1.11/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:20"
+    }
+  ]
+}

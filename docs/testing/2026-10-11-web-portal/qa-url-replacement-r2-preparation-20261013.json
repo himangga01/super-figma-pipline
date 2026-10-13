@@ -1,0 +1,17 @@
+{
+  "version": 1,
+  "revision": 2,
+  "at": "2026-10-13T04:51:02.283Z",
+  "phase": "frozen-awaiting-independent-review-and-actual-gates",
+  "predecessorR1Rejected": true,
+  "helperManifestHash": "5a324ae08251eed528c85e95d287027c36cb464c88a94616f063bf6adead73c9",
+  "frozenManifestHash": "2b859a61e69309e8f8bd8c8689609497fc26ca8cd87596ccd9309a68141fdc2f",
+  "tests": 31,
+  "passed": 31,
+  "failed": 0,
+  "skipped": 0,
+  "crossScriptTuplesParsedAndMatched": true,
+  "helperModesInvoked": false,
+  "liveEffects": false,
+  "originalFailedCrossScriptTestPreserved": true
+}

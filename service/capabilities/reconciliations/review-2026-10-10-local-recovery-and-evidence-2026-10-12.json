@@ -1,0 +1,349 @@
+{
+  "schemaVersion": 1,
+  "slice": "review-2026-10-10",
+  "baseline": {
+    "headCommit": "22517932dc9b2cb974c177ec4eacb84d4b16e254",
+    "authoritySha256": {
+      "upstream-lock.json": "9615dcee99b8b774452900448e631a09b3435cf625f86d610d618efc41132b12",
+      "vendor-map.json": "b3275c7d8b997d1cfe723d97594659f77d7b4361b824a790bcfdd7ff762589bd",
+      "vendor-rules.json": "3a8238f342cf38101f487d4245846ab7cabbdf39ed5f4d8319e13743055b2f1c"
+    }
+  },
+  "entries": [
+    {
+      "path": "capabilities/task-review-2026-10-10-authority-classes.json",
+      "sha256": "ba5cdb1a96af6b3aab7ea64eb021e0166a4babd31f8500dca5233656fe5d123d",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "1206a25939aa5c9dcea76538f24cff646835380b801f34957c57ab973098b5e0"
+        },
+        {
+          "class": "protected",
+          "sha256": "1206a25939aa5c9dcea76538f24cff646835380b801f34957c57ab973098b5e0"
+        }
+      ],
+      "reason": "Add explicitly authorized local fence disposition without changing unknown outcomes, trusted future pre-effect proof, actual deferred-source cleanup quarantine and safe active-job progress. Reject incomplete native evidence; strengthen logging regression evidence without speculative retry changes. Exact candidates passed native focused and independent tests; preserve owner index and require fresh whole/live acceptance."
+    },
+    {
+      "path": "packages/cli/src/browser-session.ts",
+      "sha256": "3d7de7962798b545c8de3e3e65917b8ea530b67d574dba98a287121db85f1e91",
+      "priorClaims": [
+        {
+          "class": "protected",
+          "sha256": "7b6e91c2a9a203436200a633b9be3eff64cbb9d39af55c685cfaaa1ae2ec4fcc"
+        }
+      ],
+      "reason": "Add explicitly authorized local fence disposition without changing unknown outcomes, trusted future pre-effect proof, actual deferred-source cleanup quarantine and safe active-job progress. Reject incomplete native evidence; strengthen logging regression evidence without speculative retry changes. Exact candidates passed native focused and independent tests; preserve owner index and require fresh whole/live acceptance."
+    },
+    {
+      "path": "packages/cli/src/capture-assets.ts",
+      "sha256": "7e87267a53cc7124136b24e5effc66e25bfecae5edf243c7a4603c1b22f73d0d",
+      "priorClaims": [
+        {
+          "class": "protected",
+          "sha256": "477af5e60d0d62271266d1eeea6b173017350a8a99ea2b0de79bd923c65a3a80"
+        }
+      ],
+      "reason": "Add explicitly authorized local fence disposition without changing unknown outcomes, trusted future pre-effect proof, actual deferred-source cleanup quarantine and safe active-job progress. Reject incomplete native evidence; strengthen logging regression evidence without speculative retry changes. Exact candidates passed native focused and independent tests; preserve owner index and require fresh whole/live acceptance."
+    },
+    {
+      "path": "packages/cli/src/commands.ts",
+      "sha256": "4ef01f26d4abb4decb070e86deb01b16ea715e672b1cbb5f8266d6ef5661ee5b",
+      "priorClaims": [
+        {
+          "class": "protected",
+          "sha256": "798226f3bbec41321bf32c76caad936e5fe761409c83c0869e8d41e2ef4793a1"
+        }
+      ],
+      "reason": "Add explicitly authorized local fence disposition without changing unknown outcomes, trusted future pre-effect proof, actual deferred-source cleanup quarantine and safe active-job progress. Reject incomplete native evidence; strengthen logging regression evidence without speculative retry changes. Exact candidates passed native focused and independent tests; preserve owner index and require fresh whole/live acceptance."
+    },
+    {
+      "path": "packages/cli/src/figma-web-copy.ts",
+      "sha256": "27fe629f1e074c04eebd932117fc2e231e09b72f2a10759396e5c71d7d98b928",
+      "priorClaims": [
+        {
+          "class": "protected",
+          "sha256": "3855a191a7036807c8e635004ac3985741ab8bd10bfae676ff85460916f4133a"
+        }
+      ],
+      "reason": "Add explicitly authorized local fence disposition without changing unknown outcomes, trusted future pre-effect proof, actual deferred-source cleanup quarantine and safe active-job progress. Reject incomplete native evidence; strengthen logging regression evidence without speculative retry changes. Exact candidates passed native focused and independent tests; preserve owner index and require fresh whole/live acceptance."
+    },
+    {
+      "path": "packages/cli/src/figma-web-export.ts",
+      "sha256": "f47dbf2c5e482f358fb88912726b36feba1edaf98c9ed194d3fd39cbfca78970",
+      "priorClaims": [
+        {
+          "class": "protected",
+          "sha256": "4b07cd47ae159abf9f3f6bba819865553b248aab61196fb749916e25ecc31998"
+        }
+      ],
+      "reason": "Add explicitly authorized local fence disposition without changing unknown outcomes, trusted future pre-effect proof, actual deferred-source cleanup quarantine and safe active-job progress. Reject incomplete native evidence; strengthen logging regression evidence without speculative retry changes. Exact candidates passed native focused and independent tests; preserve owner index and require fresh whole/live acceptance."
+    },
+    {
+      "path": "packages/cli/src/library.ts",
+      "sha256": "5affbcda1d371784a6f123155b70c5e5e341e355870d0891544e1be8a453ea05",
+      "priorClaims": [
+        {
+          "class": "protected",
+          "sha256": "b1c3bac768fb102758d0dd6917b32c312d388fc69e57c56348f320c1608d016b"
+        }
+      ],
+      "reason": "Add explicitly authorized local fence disposition without changing unknown outcomes, trusted future pre-effect proof, actual deferred-source cleanup quarantine and safe active-job progress. Reject incomplete native evidence; strengthen logging regression evidence without speculative retry changes. Exact candidates passed native focused and independent tests; preserve owner index and require fresh whole/live acceptance."
+    },
+    {
+      "path": "packages/cli/src/local-capture-execution.ts",
+      "sha256": "a30ab55ee3958fcb8949c503c67f9ec362559c2ac4a23725f6f75a97a3ecff70",
+      "priorClaims": [],
+      "reason": "Add explicitly authorized local fence disposition without changing unknown outcomes, trusted future pre-effect proof, actual deferred-source cleanup quarantine and safe active-job progress. Reject incomplete native evidence; strengthen logging regression evidence without speculative retry changes. Exact candidates passed native focused and independent tests; preserve owner index and require fresh whole/live acceptance."
+    },
+    {
+      "path": "packages/cli/src/scripter-bridge.ts",
+      "sha256": "49fe18d6e3b1b0d132d8f4cf151fc8686c1d13c92044e1be8650aed64cc366ce",
+      "priorClaims": [
+        {
+          "class": "protected",
+          "sha256": "2a7a43ac3587a1e58c8a048824be19a607f5ccfcd415a5fe00bad52b39005361"
+        }
+      ],
+      "reason": "Add explicitly authorized local fence disposition without changing unknown outcomes, trusted future pre-effect proof, actual deferred-source cleanup quarantine and safe active-job progress. Reject incomplete native evidence; strengthen logging regression evidence without speculative retry changes. Exact candidates passed native focused and independent tests; preserve owner index and require fresh whole/live acceptance."
+    },
+    {
+      "path": "packages/cli/src/service-functions.ts",
+      "sha256": "1df07a9fa0b8213e043660ab6d44d2d6f16561781348af21218fc18905fa7f92",
+      "priorClaims": [
+        {
+          "class": "protected",
+          "sha256": "7094acaa954573a6ce7d9f4405bd5410ceab0fcd778db8cc1127015efe0c845f"
+        }
+      ],
+      "reason": "Add explicitly authorized local fence disposition without changing unknown outcomes, trusted future pre-effect proof, actual deferred-source cleanup quarantine and safe active-job progress. Reject incomplete native evidence; strengthen logging regression evidence without speculative retry changes. Exact candidates passed native focused and independent tests; preserve owner index and require fresh whole/live acceptance."
+    },
+    {
+      "path": "packages/cli/src/snapshot-reader.ts",
+      "sha256": "579efc45e0e459173201d903310744b4cf53df6da06de7709800ff53fa088cd2",
+      "priorClaims": [
+        {
+          "class": "protected",
+          "sha256": "25107aad9bc90ad3af4abcd45d9ac218e751cbe8a59b6175ca9fd989cc98dbf7"
+        }
+      ],
+      "reason": "Add explicitly authorized local fence disposition without changing unknown outcomes, trusted future pre-effect proof, actual deferred-source cleanup quarantine and safe active-job progress. Reject incomplete native evidence; strengthen logging regression evidence without speculative retry changes. Exact candidates passed native focused and independent tests; preserve owner index and require fresh whole/live acceptance."
+    },
+    {
+      "path": "packages/cli/test/browser-session.test.ts",
+      "sha256": "9ae1902dcd7760a6e16151eb5065d6ddb7667836a4eb16972bb2bcf81378b5ef",
+      "priorClaims": [
+        {
+          "class": "protected",
+          "sha256": "46ccd3874a078c69f0badf3230c403f4a9cb5a81ddad48d0d52b4403fc61e54a"
+        }
+      ],
+      "reason": "Add explicitly authorized local fence disposition without changing unknown outcomes, trusted future pre-effect proof, actual deferred-source cleanup quarantine and safe active-job progress. Reject incomplete native evidence; strengthen logging regression evidence without speculative retry changes. Exact candidates passed native focused and independent tests; preserve owner index and require fresh whole/live acceptance."
+    },
+    {
+      "path": "packages/cli/test/local-capture-helper-quiescence.test.ts",
+      "sha256": "eccda21eb24383761dfc6aaed7c9684c4c39f443dd0e8a3fa4d99745952ff02e",
+      "priorClaims": [],
+      "reason": "Add explicitly authorized local fence disposition without changing unknown outcomes, trusted future pre-effect proof, actual deferred-source cleanup quarantine and safe active-job progress. Reject incomplete native evidence; strengthen logging regression evidence without speculative retry changes. Exact candidates passed native focused and independent tests; preserve owner index and require fresh whole/live acceptance."
+    },
+    {
+      "path": "packages/cli/test/local-capture-proof.test.ts",
+      "sha256": "cdd38e7041dabc7cf2fa860e5f2030943385e915bf2461bf6e74d1a6bd5639e2",
+      "priorClaims": [],
+      "reason": "Add explicitly authorized local fence disposition without changing unknown outcomes, trusted future pre-effect proof, actual deferred-source cleanup quarantine and safe active-job progress. Reject incomplete native evidence; strengthen logging regression evidence without speculative retry changes. Exact candidates passed native focused and independent tests; preserve owner index and require fresh whole/live acceptance."
+    },
+    {
+      "path": "packages/mcp/src/diagnostics-catalog.ts",
+      "sha256": "d83de82c9e27a3353b044e375d2eb491ee746d3c10e2a896212a1884dbc0748a",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "b6c636fa40c73fb054cb9d2fb9ae4ef1546a8736e4167973aec1e5e85a6560fc"
+        },
+        {
+          "class": "protected",
+          "sha256": "b6c636fa40c73fb054cb9d2fb9ae4ef1546a8736e4167973aec1e5e85a6560fc"
+        }
+      ],
+      "reason": "Add explicitly authorized local fence disposition without changing unknown outcomes, trusted future pre-effect proof, actual deferred-source cleanup quarantine and safe active-job progress. Reject incomplete native evidence; strengthen logging regression evidence without speculative retry changes. Exact candidates passed native focused and independent tests; preserve owner index and require fresh whole/live acceptance."
+    },
+    {
+      "path": "packages/mcp/src/portal/native-module-fence.ts",
+      "sha256": "277256620d5bf2056bf10071f6f3ec727d45d7ddcfbffbf9e1f534ce9ffdd2df",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "36dee4088aa59673b3f72815482fea6f3ab6d84f5659bacb571ee2e38c7dd7ee"
+        },
+        {
+          "class": "protected",
+          "sha256": "36dee4088aa59673b3f72815482fea6f3ab6d84f5659bacb571ee2e38c7dd7ee"
+        }
+      ],
+      "reason": "Add explicitly authorized local fence disposition without changing unknown outcomes, trusted future pre-effect proof, actual deferred-source cleanup quarantine and safe active-job progress. Reject incomplete native evidence; strengthen logging regression evidence without speculative retry changes. Exact candidates passed native focused and independent tests; preserve owner index and require fresh whole/live acceptance."
+    },
+    {
+      "path": "packages/mcp/test/diagnostics.test.ts",
+      "sha256": "e92132efbd5d93062ec779010f277cda8d083dde8f4d3693fed54a7b84190325",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "10005ca85cafff0581da57558455cf412de949df72058d965e458f2591b3752c"
+        },
+        {
+          "class": "protected",
+          "sha256": "10005ca85cafff0581da57558455cf412de949df72058d965e458f2591b3752c"
+        }
+      ],
+      "reason": "Add explicitly authorized local fence disposition without changing unknown outcomes, trusted future pre-effect proof, actual deferred-source cleanup quarantine and safe active-job progress. Reject incomplete native evidence; strengthen logging regression evidence without speculative retry changes. Exact candidates passed native focused and independent tests; preserve owner index and require fresh whole/live acceptance."
+    },
+    {
+      "path": "packages/mcp/test/portal/native-module-fence-evidence.test.ts",
+      "sha256": "90f364232fc2ad04a67d1a77ad41457231e4aee8c58a792675b7cafb04ac7d69",
+      "priorClaims": [],
+      "reason": "Add explicitly authorized local fence disposition without changing unknown outcomes, trusted future pre-effect proof, actual deferred-source cleanup quarantine and safe active-job progress. Reject incomplete native evidence; strengthen logging regression evidence without speculative retry changes. Exact candidates passed native focused and independent tests; preserve owner index and require fresh whole/live acceptance."
+    },
+    {
+      "path": "packages/mcp/test/portal/preview-native.test.ts",
+      "sha256": "8bdc84e5f586b5fa01f6379041a7bf4159f3190a0e316dfb9095b11c58d64773",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "8f52b764de18a7285fb12c27a74255e74852902ac2feb754de2b82c9011d72bd"
+        },
+        {
+          "class": "protected",
+          "sha256": "8f52b764de18a7285fb12c27a74255e74852902ac2feb754de2b82c9011d72bd"
+        }
+      ],
+      "reason": "Add explicitly authorized local fence disposition without changing unknown outcomes, trusted future pre-effect proof, actual deferred-source cleanup quarantine and safe active-job progress. Reject incomplete native evidence; strengthen logging regression evidence without speculative retry changes. Exact candidates passed native focused and independent tests; preserve owner index and require fresh whole/live acceptance."
+    },
+    {
+      "path": "packages/portal/DEBUGGING.md",
+      "sha256": "82853e36979b7fda86c3139924cba244255c1f52ea4c2e438c02017f22e8e31e",
+      "priorClaims": [
+        {
+          "class": "protected",
+          "sha256": "d7002d65fd3c1705f98c8d9f368fbb578e8a1443a5a6cc3cd76c4437dbb13eed"
+        }
+      ],
+      "reason": "Add explicitly authorized local fence disposition without changing unknown outcomes, trusted future pre-effect proof, actual deferred-source cleanup quarantine and safe active-job progress. Reject incomplete native evidence; strengthen logging regression evidence without speculative retry changes. Exact candidates passed native focused and independent tests; preserve owner index and require fresh whole/live acceptance."
+    },
+    {
+      "path": "packages/portal/package.json",
+      "sha256": "117b1e02db6798bf9197e722fd615f3519e6cc841ed37d4210e3eef47d91912b",
+      "priorClaims": [
+        {
+          "class": "protected",
+          "sha256": "117b1e02db6798bf9197e722fd615f3519e6cc841ed37d4210e3eef47d91912b"
+        }
+      ],
+      "reason": "Add explicitly authorized local fence disposition without changing unknown outcomes, trusted future pre-effect proof, actual deferred-source cleanup quarantine and safe active-job progress. Reject incomplete native evidence; strengthen logging regression evidence without speculative retry changes. Exact candidates passed native focused and independent tests; preserve owner index and require fresh whole/live acceptance."
+    },
+    {
+      "path": "packages/portal/src/contract.ts",
+      "sha256": "0a77805d3a9332c966948f411ee47bb1afd4929aa852a673f993f80c571bd1e3",
+      "priorClaims": [
+        {
+          "class": "protected",
+          "sha256": "ad67a4d7bfef0d0ddfd237863f756f533eef92d57d02083c027bef99ea8479b6"
+        }
+      ],
+      "reason": "Add explicitly authorized local fence disposition without changing unknown outcomes, trusted future pre-effect proof, actual deferred-source cleanup quarantine and safe active-job progress. Reject incomplete native evidence; strengthen logging regression evidence without speculative retry changes. Exact candidates passed native focused and independent tests; preserve owner index and require fresh whole/live acceptance."
+    },
+    {
+      "path": "packages/portal/src/control.ts",
+      "sha256": "decf556b34e21d5ad7048b26088f468121793834ad8bed07a71f54d336bd097e",
+      "priorClaims": [
+        {
+          "class": "protected",
+          "sha256": "63441d66a3fb1e89656a28f2b7df8d177edfd34058aa0684b16b81c671b7898f"
+        }
+      ],
+      "reason": "Add explicitly authorized local fence disposition without changing unknown outcomes, trusted future pre-effect proof, actual deferred-source cleanup quarantine and safe active-job progress. Reject incomplete native evidence; strengthen logging regression evidence without speculative retry changes. Exact candidates passed native focused and independent tests; preserve owner index and require fresh whole/live acceptance."
+    },
+    {
+      "path": "packages/portal/src/service-jobs.ts",
+      "sha256": "8d3e04f71cf0ddf74ae2aefbe0e3d0edb0b90d9ffa7416fd57e6ca43b3575e93",
+      "priorClaims": [
+        {
+          "class": "protected",
+          "sha256": "4f1e0ee6c2af028a6d088526938aaba8080c6851806daf0ab15749ad1b19fa6b"
+        }
+      ],
+      "reason": "Add explicitly authorized local fence disposition without changing unknown outcomes, trusted future pre-effect proof, actual deferred-source cleanup quarantine and safe active-job progress. Reject incomplete native evidence; strengthen logging regression evidence without speculative retry changes. Exact candidates passed native focused and independent tests; preserve owner index and require fresh whole/live acceptance."
+    },
+    {
+      "path": "packages/portal/test/local-capture-recovery.test.ts",
+      "sha256": "da944aba90f8f06c7fae4ffc323620f08fa015ae68f27a4581fb3ccef518a41f",
+      "priorClaims": [],
+      "reason": "Add explicitly authorized local fence disposition without changing unknown outcomes, trusted future pre-effect proof, actual deferred-source cleanup quarantine and safe active-job progress. Reject incomplete native evidence; strengthen logging regression evidence without speculative retry changes. Exact candidates passed native focused and independent tests; preserve owner index and require fresh whole/live acceptance."
+    },
+    {
+      "path": "packages/portal/web/api.js",
+      "sha256": "839d093685ba0c0d56072d7ec679357cd2dc9a3d4096ee50a17bca57a14bb9e5",
+      "priorClaims": [
+        {
+          "class": "protected",
+          "sha256": "ca48afaa74f8cd025cadc898ed8a71c73c3b072c5d8c4947843f23d9a2354605"
+        }
+      ],
+      "reason": "Add explicitly authorized local fence disposition without changing unknown outcomes, trusted future pre-effect proof, actual deferred-source cleanup quarantine and safe active-job progress. Reject incomplete native evidence; strengthen logging regression evidence without speculative retry changes. Exact candidates passed native focused and independent tests; preserve owner index and require fresh whole/live acceptance."
+    },
+    {
+      "path": "packages/portal/web/service-functions.js",
+      "sha256": "757065688ec43b2acf519cb5b8073554a18865e458813c6762322bbd0efc2a51",
+      "priorClaims": [
+        {
+          "class": "protected",
+          "sha256": "447529a82601a7526890e2ffb0cca9d659729d42b6fe26598ea5489b5acbad83"
+        }
+      ],
+      "reason": "Add explicitly authorized local fence disposition without changing unknown outcomes, trusted future pre-effect proof, actual deferred-source cleanup quarantine and safe active-job progress. Reject incomplete native evidence; strengthen logging regression evidence without speculative retry changes. Exact candidates passed native focused and independent tests; preserve owner index and require fresh whole/live acceptance."
+    },
+    {
+      "path": "packages/portal/web/tests/local-capture-progress.test.mjs",
+      "sha256": "0ccb220881a776f52cf9803eec4f2e0b009749d9ba1da01c176c31bcc24bdc13",
+      "priorClaims": [],
+      "reason": "Add explicitly authorized local fence disposition without changing unknown outcomes, trusted future pre-effect proof, actual deferred-source cleanup quarantine and safe active-job progress. Reject incomplete native evidence; strengthen logging regression evidence without speculative retry changes. Exact candidates passed native focused and independent tests; preserve owner index and require fresh whole/live acceptance."
+    },
+    {
+      "path": "scripts/test-skip-census.mjs",
+      "sha256": "9e300dfe4862245c9f77bdd67e47c851b7b9a412693c0d504f4288c00adfb23b",
+      "priorClaims": [
+        {
+          "class": "protected",
+          "sha256": "2d5affbae43a3ae916aee783b7e3f7a095b71b7151ffc8e22f2c55e775e418d8"
+        }
+      ],
+      "reason": "Add explicitly authorized local fence disposition without changing unknown outcomes, trusted future pre-effect proof, actual deferred-source cleanup quarantine and safe active-job progress. Reject incomplete native evidence; strengthen logging regression evidence without speculative retry changes. Exact candidates passed native focused and independent tests; preserve owner index and require fresh whole/live acceptance."
+    },
+    {
+      "path": "scripts/verify-artifacts.mjs",
+      "sha256": "f830be1f4b2a98992fa0baa66a7339ba96af2d6f026d7c76ecb97eb50d8fa86f",
+      "priorClaims": [
+        {
+          "class": "protected",
+          "sha256": "0f79be058077fb98e53a3c18a84d53d81e87f69316f1d4d5c1d7bb77feee4d67"
+        }
+      ],
+      "reason": "Add explicitly authorized local fence disposition without changing unknown outcomes, trusted future pre-effect proof, actual deferred-source cleanup quarantine and safe active-job progress. Reject incomplete native evidence; strengthen logging regression evidence without speculative retry changes. Exact candidates passed native focused and independent tests; preserve owner index and require fresh whole/live acceptance."
+    },
+    {
+      "path": "test/portal-artifact-startup.test.ts",
+      "sha256": "79bea84da156a81ce54ae342d26e2c1b45c6241aa1c5fa5d1cf921f7229cbdfd",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "9889022b1a644d33c5060b03d9fd76b182a6413fcdb45edb0571603c6a107a01"
+        },
+        {
+          "class": "protected",
+          "sha256": "9889022b1a644d33c5060b03d9fd76b182a6413fcdb45edb0571603c6a107a01"
+        }
+      ],
+      "reason": "Add explicitly authorized local fence disposition without changing unknown outcomes, trusted future pre-effect proof, actual deferred-source cleanup quarantine and safe active-job progress. Reject incomplete native evidence; strengthen logging regression evidence without speculative retry changes. Exact candidates passed native focused and independent tests; preserve owner index and require fresh whole/live acceptance."
+    }
+  ]
+}

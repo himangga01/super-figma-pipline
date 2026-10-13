@@ -1,0 +1,37 @@
+[
+  {
+    "file": "C:/2026_project/super-figma-pipline/.worktrees/baseline/service/packages/mcp/test/fs/windows-boundary-probe-worker.test.ts",
+    "name": "bounded persistent Windows boundary probe worker reuses one real PowerShell worker while freshly inspecting every request",
+    "errors": [
+      "Error: Windows boundary worker termination could not be confirmed\n    at probeError (C:/2026_project/super-figma-pipline/.worktrees/baseline/service/packages/mcp/src/fs/windows-boundary-probe-worker.ts:154:17)\n    at WindowsBoundaryProbeWorker.terminate (C:/2026_project/super-figma-pipline/.worktrees/baseline/service/packages/mcp/src/fs/windows-boundary-probe-worker.ts:607:13)\n    at WindowsBoundaryProbeWorker.close (C:/2026_project/super-figma-pipline/.worktrees/baseline/service/packages/mcp/src/fs/windows-boundary-probe-worker.ts:631:5)"
+    ]
+  },
+  {
+    "file": "C:/2026_project/super-figma-pipline/.worktrees/baseline/service/packages/mcp/test/fs/windows-boundary-probe-worker.test.ts",
+    "name": "bounded persistent Windows boundary probe worker rejects an invalid ACL response (missing-sddl) and retires its worker",
+    "errors": [
+      "Error: promise rejected \"Error: Windows boundary request expired i… { code: '…' }\" instead of resolving\n    at _Assertion.__VITEST_RESOLVES__ (file:///C:/2026_project/super-figma-pipline/.worktrees/baseline/service/node_modules/.pnpm/@vitest+expect@4.1.11/node_modules/@vitest/expect/dist/index.js:1710:17)\n    at _Assertion.propertyGetter (file:///C:/2026_project/super-figma-pipline/.worktrees/baseline/service/node_modules/.pnpm/chai@6.2.2/node_modules/chai/index.js:1570:27)\n    at Reflect.get (<anonymous>)\n    at Object.proxyGetter [as get] (file:///C:/2026_project/super-figma-pipline/.worktrees/baseline/service/node_modules/.pnpm/chai@6.2.2/node_modules/chai/index.js:1659:22)\n    at C:/2026_project/super-figma-pipline/.worktrees/baseline/service/packages/mcp/test/fs/windows-boundary-probe-worker.test.ts:230:48\n    at processTicksAndRejections (node:internal/process/task_queues:104:5)\n    at file:///C:/2026_project/super-figma-pipline/.worktrees/baseline/service/node_modules/.pnpm/@vitest+runner@4.1.11/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:20"
+    ]
+  },
+  {
+    "file": "C:/2026_project/super-figma-pipline/.worktrees/baseline/service/packages/mcp/test/fs/windows-boundary-probe-worker.test.ts",
+    "name": "bounded persistent Windows boundary probe worker serializes mixed boundary and ACL requests through the same bounded queue",
+    "errors": [
+      "Error: Windows boundary worker termination could not be confirmed\n    at probeError (C:/2026_project/super-figma-pipline/.worktrees/baseline/service/packages/mcp/src/fs/windows-boundary-probe-worker.ts:154:17)\n    at WindowsBoundaryProbeWorker.terminate (C:/2026_project/super-figma-pipline/.worktrees/baseline/service/packages/mcp/src/fs/windows-boundary-probe-worker.ts:607:13)\n    at WindowsBoundaryProbeWorker.close (C:/2026_project/super-figma-pipline/.worktrees/baseline/service/packages/mcp/src/fs/windows-boundary-probe-worker.ts:631:5)"
+    ]
+  },
+  {
+    "file": "C:/2026_project/super-figma-pipline/.worktrees/baseline/service/packages/mcp/test/fs/windows-boundary-probe-worker.test.ts",
+    "name": "bounded persistent Windows boundary probe worker bounds hang failure, awaits retirement, and starts a healthy replacement",
+    "errors": [
+      "Error: promise rejected \"Error: Windows boundary request expired i… { code: '…' }\" instead of resolving\n    at _Assertion.__VITEST_RESOLVES__ (file:///C:/2026_project/super-figma-pipline/.worktrees/baseline/service/node_modules/.pnpm/@vitest+expect@4.1.11/node_modules/@vitest/expect/dist/index.js:1710:17)\n    at _Assertion.propertyGetter (file:///C:/2026_project/super-figma-pipline/.worktrees/baseline/service/node_modules/.pnpm/chai@6.2.2/node_modules/chai/index.js:1570:27)\n    at Reflect.get (<anonymous>)\n    at Object.proxyGetter [as get] (file:///C:/2026_project/super-figma-pipline/.worktrees/baseline/service/node_modules/.pnpm/chai@6.2.2/node_modules/chai/index.js:1659:22)\n    at C:/2026_project/super-figma-pipline/.worktrees/baseline/service/packages/mcp/test/fs/windows-boundary-probe-worker.test.ts:372:49\n    at processTicksAndRejections (node:internal/process/task_queues:104:5)\n    at file:///C:/2026_project/super-figma-pipline/.worktrees/baseline/service/node_modules/.pnpm/@vitest+runner@4.1.11/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:20"
+    ]
+  },
+  {
+    "file": "C:/2026_project/super-figma-pipline/.worktrees/baseline/service/packages/mcp/test/fs/windows-boundary-probe-worker.test.ts",
+    "name": "bounded persistent Windows boundary probe worker serializes requests and expires queued work at its own deadline",
+    "errors": [
+      "Error: Windows boundary worker termination could not be confirmed\n    at probeError (C:/2026_project/super-figma-pipline/.worktrees/baseline/service/packages/mcp/src/fs/windows-boundary-probe-worker.ts:154:17)\n    at WindowsBoundaryProbeWorker.terminate (C:/2026_project/super-figma-pipline/.worktrees/baseline/service/packages/mcp/src/fs/windows-boundary-probe-worker.ts:607:13)\n    at WindowsBoundaryProbeWorker.close (C:/2026_project/super-figma-pipline/.worktrees/baseline/service/packages/mcp/src/fs/windows-boundary-probe-worker.ts:631:5)"
+    ]
+  }
+]

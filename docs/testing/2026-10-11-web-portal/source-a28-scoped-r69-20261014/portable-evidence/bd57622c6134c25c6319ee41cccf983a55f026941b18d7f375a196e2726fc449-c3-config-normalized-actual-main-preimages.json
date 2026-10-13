@@ -1,0 +1,27 @@
+{
+  "schemaVersion": 1,
+  "kind": "normalized-actual-main-preimages-author-freeze-preserved",
+  "authorManifest": {
+    "path": ".worktrees/_cache/c2-c3-implementation-20261014/c3-configuration-provenance-repair/frozen-configuration-provenance-repair.json",
+    "sha256": "bd08344ec69fdb265a5d454d0031ea2d00d2b6f5d8572806262921444c1a9781"
+  },
+  "actualIntegration": {
+    "path": "docs/testing/2026-10-11-web-portal/c3-config-provenance-integration-20261014.json",
+    "sha256": "21e93d924a4c5ff81638b4d74e5ddabc22b0693190e517b77b32b1133948a5ad"
+  },
+  "files": [
+    {
+      "path": "packages/mcp/src/portal/module-resolution.ts",
+      "beforeSha256": "2358e3d2fa16b28d086c600e1b947c3da579ff1f7485cb93649024c8b0dd85ef",
+      "afterSha256": "bb63d231502c716409dffd731c7e17078ba2fcd8f361711b322dd4e6072144bd",
+      "bytes": 64089
+    },
+    {
+      "path": "packages/mcp/test/portal/module-resolution.test.ts",
+      "beforeSha256": "fab4f3b951e951342c2c39cba72e6264226acc8ed30b295282678419f0e436c6",
+      "afterSha256": "fb442e930b793a7673a4e04232cd5f36b7fd8b68c6bd847846a4a3241e6d7538",
+      "bytes": 54908
+    }
+  ],
+  "reason": "Preserve original author manifest; actual Main/native preimages come only from verified integration attempts"
+}

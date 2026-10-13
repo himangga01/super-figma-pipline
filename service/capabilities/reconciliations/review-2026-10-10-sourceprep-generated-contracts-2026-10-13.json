@@ -1,0 +1,93 @@
+{
+  "schemaVersion": 1,
+  "slice": "review-2026-10-10",
+  "baseline": {
+    "headCommit": "22517932dc9b2cb974c177ec4eacb84d4b16e254",
+    "authoritySha256": {
+      "upstream-lock.json": "1c73c842a6fea978313f27f0621e06d63728c2c51872f22bed928891a0ebd674",
+      "vendor-map.json": "b3275c7d8b997d1cfe723d97594659f77d7b4361b824a790bcfdd7ff762589bd",
+      "vendor-rules.json": "c54793eb64349d827b19eac0d4f2d3753ce479dde0860aaa028f8e7e92f32a08"
+    }
+  },
+  "entries": [
+    {
+      "path": "README.md",
+      "sha256": "4ccb48d0475443c20127482cd9bf2f5da599107fea4d3784f1dc434ba3a581ae",
+      "priorClaims": [
+        {
+          "class": "fork",
+          "sha256": "b241e8dfc555b8e5980375e723488a99baaf13ddc9ba0ac1395b04c63f22ee7c"
+        },
+        {
+          "class": "managed",
+          "sha256": "b241e8dfc555b8e5980375e723488a99baaf13ddc9ba0ac1395b04c63f22ee7c"
+        },
+        {
+          "class": "protected",
+          "sha256": "b241e8dfc555b8e5980375e723488a99baaf13ddc9ba0ac1395b04c63f22ee7c"
+        }
+      ],
+      "reason": "Regenerate and review only the new portal_prepare_source union contract row and two generated README tool-count blocks after exact whole45f failed its contracts gate. Existing tool rows remain unchanged. Contracts and formatting checks passed. Preserve source behavior, failed checkpoints, original deadlines, official-live deferral and owner index; fresh whole/artifact/live acceptance remain required."
+    },
+    {
+      "path": "capabilities/task-review-2026-10-10-authority-classes.json",
+      "sha256": "326accb5f73bab81cec1e97369b47dd7ef04194893acc8770400e85ba851743b",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "aa66dae23ab3a937a9efcfdbc25ea645a2094495fd23f77d747c876b80bb73f4"
+        },
+        {
+          "class": "protected",
+          "sha256": "aa66dae23ab3a937a9efcfdbc25ea645a2094495fd23f77d747c876b80bb73f4"
+        }
+      ],
+      "reason": "Regenerate and review only the new portal_prepare_source union contract row and two generated README tool-count blocks after exact whole45f failed its contracts gate. Existing tool rows remain unchanged. Contracts and formatting checks passed. Preserve source behavior, failed checkpoints, original deadlines, official-live deferral and owner index; fresh whole/artifact/live acceptance remain required."
+    },
+    {
+      "path": "capabilities/union-manifest.json",
+      "sha256": "d9428e7ce1ac9159d7424b4d82562901692d5189cfd8dcbd60f5ca8b9227b95d",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "990a1ac118fd0741aa109be809df1a15c82ec3e6711036bfacaeda288dfe498a"
+        },
+        {
+          "class": "protected",
+          "sha256": "990a1ac118fd0741aa109be809df1a15c82ec3e6711036bfacaeda288dfe498a"
+        }
+      ],
+      "reason": "Regenerate and review only the new portal_prepare_source union contract row and two generated README tool-count blocks after exact whole45f failed its contracts gate. Existing tool rows remain unchanged. Contracts and formatting checks passed. Preserve source behavior, failed checkpoints, original deadlines, official-live deferral and owner index; fresh whole/artifact/live acceptance remain required."
+    },
+    {
+      "path": "packages/mcp/README.md",
+      "sha256": "7f5d0502fbd455f00b6572c05b6bdfdf9bdeb7f4d63b753542008efc663f7c93",
+      "priorClaims": [
+        {
+          "class": "fork",
+          "sha256": "760298dd5ec71a1518c3081b20b9721e4237829f63c17c7401220d23d22daa22"
+        },
+        {
+          "class": "managed",
+          "sha256": "760298dd5ec71a1518c3081b20b9721e4237829f63c17c7401220d23d22daa22"
+        },
+        {
+          "class": "protected",
+          "sha256": "760298dd5ec71a1518c3081b20b9721e4237829f63c17c7401220d23d22daa22"
+        }
+      ],
+      "reason": "Regenerate and review only the new portal_prepare_source union contract row and two generated README tool-count blocks after exact whole45f failed its contracts gate. Existing tool rows remain unchanged. Contracts and formatting checks passed. Preserve source behavior, failed checkpoints, original deadlines, official-live deferral and owner index; fresh whole/artifact/live acceptance remain required."
+    },
+    {
+      "path": "packages/portal/package.json",
+      "sha256": "ddb99eafe979d2319697f9bde91d01c4b3f4cf7f3e2a2baccfcb06ceff7767c8",
+      "priorClaims": [
+        {
+          "class": "protected",
+          "sha256": "ddb99eafe979d2319697f9bde91d01c4b3f4cf7f3e2a2baccfcb06ceff7767c8"
+        }
+      ],
+      "reason": "Regenerate and review only the new portal_prepare_source union contract row and two generated README tool-count blocks after exact whole45f failed its contracts gate. Existing tool rows remain unchanged. Contracts and formatting checks passed. Preserve source behavior, failed checkpoints, original deadlines, official-live deferral and owner index; fresh whole/artifact/live acceptance remain required."
+    }
+  ]
+}

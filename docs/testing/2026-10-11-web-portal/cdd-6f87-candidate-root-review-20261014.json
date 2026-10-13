@@ -1,0 +1,28 @@
+{
+  "schemaVersion": 1,
+  "recordedAt": "2026-10-13T15:06:27.167Z",
+  "kind": "bounded-filesystem-candidate-review",
+  "sourceRuntimeHash": "sha256:6f87f836d872a4ba8ab49533f6447a7c921adb6b8af3dae75ddd6241e8b8a1cb",
+  "manifestSha256": "d4089a3f3d5b9564deb206883274bb77b6b9149d5077270568d253046ce6b21c",
+  "freezeSha256": "c6ef564ea83e3a1b418af3465058051220360ecfb48337ff10581893e20d18d6",
+  "profileConfigSha256": "04363f62e9c39138dad7c527cec68979abb18b02ee8118f4f0b654e2e62fe160",
+  "verifiedInlineFiles": 39,
+  "catalogRows": 95,
+  "catalogEnvelopeValid": true,
+  "rootPngUiProxy": false,
+  "sourceDocumentHash": "sha256:5c362243e5bf9c844fd88f7781b25339c186356e4b24a3c3280742f6e22e0aa5",
+  "screens": 3,
+  "actions": 34,
+  "workflowAssertions": 4,
+  "typecheckLauncher": {
+    "samePackage": true,
+    "entrypoint": "node_modules/typescript/lib/tsc.js",
+    "args": [
+      "--noEmit"
+    ],
+    "frontendSourceEditedForProfile": false
+  },
+  "browserExecuted": false,
+  "testsRepeated": false,
+  "serviceAcceptance": false
+}

@@ -1,0 +1,315 @@
+{
+  "recordedAt": "2026-10-10T14:05:06.429Z",
+  "sourceHash": "sha256:2caeae1fea68090dede0521f2bea073c3005efb3343d2151af6d66ef263bddfd",
+  "status": "source-analysis-preparation-only",
+  "portalAccepted": false,
+  "samples": [
+    {
+      "case": "C2",
+      "root": "C:\\2026_project\\super-figma-pipline\\.worktrees\\_cache\\portal-case-samples-20261010\\epic-legacy",
+      "elapsedMs": 2818,
+      "incomplete": true,
+      "lexicalReviewable": false,
+      "files": 281,
+      "services": [
+        {
+          "rootPath": ".",
+          "layers": [
+            "frontend",
+            "database",
+            "authentication",
+            "configuration",
+            "backend"
+          ]
+        },
+        {
+          "rootPath": "remix.init",
+          "layers": [
+            "configuration"
+          ]
+        }
+      ],
+      "issueCount": 431,
+      "issues": [
+        "CONFIG_EXTENDS_UNSUPPORTED:tsconfig.json",
+        "CONFIG_RESOLUTION_UNSUPPORTED:tsconfig.json",
+        "MODULE_UNRESOLVED:app/components/error-boundary.tsx:220:unsupported-module-specifier",
+        "MODULE_UNRESOLVED:app/components/progress-bar.tsx:142:unsupported-module-specifier",
+        "MODULE_UNRESOLVED:app/components/search-bar.tsx:96:unsupported-module-specifier",
+        "MODULE_UNRESOLVED:app/components/toaster.tsx:80:unsupported-module-specifier",
+        "MODULE_UNRESOLVED:app/components/ui/button.tsx:146:unsupported-module-specifier",
+        "MODULE_UNRESOLVED:app/components/ui/checkbox.tsx:97:unsupported-module-specifier",
+        "MODULE_UNRESOLVED:app/components/ui/dropdown-menu.tsx:106:unsupported-module-specifier",
+        "MODULE_UNRESOLVED:app/components/ui/icon.tsx:39:unsupported-module-specifier",
+        "MODULE_UNRESOLVED:app/components/ui/icon.tsx:81:module-target-missing",
+        "MODULE_UNRESOLVED:app/components/ui/input-otp.tsx:89:unsupported-module-specifier",
+        "MODULE_UNRESOLVED:app/components/ui/input.tsx:34:unsupported-module-specifier",
+        "MODULE_UNRESOLVED:app/components/ui/label.tsx:139:unsupported-module-specifier",
+        "MODULE_UNRESOLVED:app/components/ui/status-button.tsx:43:unsupported-module-specifier",
+        "MODULE_UNRESOLVED:app/components/ui/textarea.tsx:34:unsupported-module-specifier",
+        "MODULE_UNRESOLVED:app/components/ui/tooltip.tsx:95:unsupported-module-specifier",
+        "MODULE_UNRESOLVED:app/components/user-dropdown.tsx:112:unsupported-module-specifier"
+      ],
+      "connectionIssues": [
+        {
+          "code": "MODULE_ANALYSIS_INCOMPLETE"
+        },
+        {
+          "code": "MODULE_UNRESOLVED",
+          "evidence": {
+            "sourceId": "sha256:96e73aba83732a038da04c113f789f77e228a390a79366dfe89f76ff1d7b48e0",
+            "path": "app/components/error-boundary.tsx",
+            "hash": "sha256:3d0c40b7a4f51095e2575db3eab5a7eaf36fe73b6ccb92e757735efb2e7ae16e",
+            "offset": 220,
+            "reason": "Verified static module reference"
+          }
+        },
+        {
+          "code": "MODULE_UNRESOLVED",
+          "evidence": {
+            "sourceId": "sha256:96e73aba83732a038da04c113f789f77e228a390a79366dfe89f76ff1d7b48e0",
+            "path": "app/components/progress-bar.tsx",
+            "hash": "sha256:8bf6fb4bba6e5e5fd4a77816bae8c88004296a9dae9a1861af3c300ea0853f79",
+            "offset": 142,
+            "reason": "Verified static module reference"
+          }
+        },
+        {
+          "code": "MODULE_UNRESOLVED",
+          "evidence": {
+            "sourceId": "sha256:96e73aba83732a038da04c113f789f77e228a390a79366dfe89f76ff1d7b48e0",
+            "path": "app/components/search-bar.tsx",
+            "hash": "sha256:5b2fe92be46fcb6cf72747837c6efd3004db211522f610e311baf9455c0bac35",
+            "offset": 96,
+            "reason": "Verified static module reference"
+          }
+        },
+        {
+          "code": "MODULE_UNRESOLVED",
+          "evidence": {
+            "sourceId": "sha256:96e73aba83732a038da04c113f789f77e228a390a79366dfe89f76ff1d7b48e0",
+            "path": "app/components/toaster.tsx",
+            "hash": "sha256:4f993a98aa321bf9c72b3ea1626a09cbc72c9d867dd4b0c1b7cc99aa1ab73cf6",
+            "offset": 80,
+            "reason": "Verified static module reference"
+          }
+        },
+        {
+          "code": "MODULE_UNRESOLVED",
+          "evidence": {
+            "sourceId": "sha256:96e73aba83732a038da04c113f789f77e228a390a79366dfe89f76ff1d7b48e0",
+            "path": "app/components/ui/button.tsx",
+            "hash": "sha256:ab68727930f9fce6f4e125f32f4ef9a538efd8dad1fdc1f7045c7ab271946278",
+            "offset": 146,
+            "reason": "Verified static module reference"
+          }
+        },
+        {
+          "code": "MODULE_UNRESOLVED",
+          "evidence": {
+            "sourceId": "sha256:96e73aba83732a038da04c113f789f77e228a390a79366dfe89f76ff1d7b48e0",
+            "path": "app/components/ui/checkbox.tsx",
+            "hash": "sha256:7ed01b43db3c71fd312ec9682fe3bc23590a635110aa260f54d782164c5597cd",
+            "offset": 97,
+            "reason": "Verified static module reference"
+          }
+        },
+        {
+          "code": "MODULE_UNRESOLVED",
+          "evidence": {
+            "sourceId": "sha256:96e73aba83732a038da04c113f789f77e228a390a79366dfe89f76ff1d7b48e0",
+            "path": "app/components/ui/dropdown-menu.tsx",
+            "hash": "sha256:2b83edad1b830d17778233339edc88c60ec24396c2a71be51fe450fa087c23b5",
+            "offset": 106,
+            "reason": "Verified static module reference"
+          }
+        },
+        {
+          "code": "MODULE_UNRESOLVED",
+          "evidence": {
+            "sourceId": "sha256:96e73aba83732a038da04c113f789f77e228a390a79366dfe89f76ff1d7b48e0",
+            "path": "app/components/ui/icon.tsx",
+            "hash": "sha256:8594792f62f0d743a36a759d11ec89a0e50c768e0fd3320032c8e5a3ddd8be0d",
+            "offset": 39,
+            "reason": "Verified static module reference"
+          }
+        },
+        {
+          "code": "MODULE_UNRESOLVED",
+          "evidence": {
+            "sourceId": "sha256:96e73aba83732a038da04c113f789f77e228a390a79366dfe89f76ff1d7b48e0",
+            "path": "app/components/ui/icon.tsx",
+            "hash": "sha256:8594792f62f0d743a36a759d11ec89a0e50c768e0fd3320032c8e5a3ddd8be0d",
+            "offset": 81,
+            "reason": "Verified static module reference"
+          }
+        },
+        {
+          "code": "MODULE_UNRESOLVED",
+          "evidence": {
+            "sourceId": "sha256:96e73aba83732a038da04c113f789f77e228a390a79366dfe89f76ff1d7b48e0",
+            "path": "app/components/ui/input-otp.tsx",
+            "hash": "sha256:39468e733ebed4b0e08d48aa6c6db89e5a2495e5e569710eb049d67b939ced60",
+            "offset": 89,
+            "reason": "Verified static module reference"
+          }
+        },
+        {
+          "code": "MODULE_UNRESOLVED",
+          "evidence": {
+            "sourceId": "sha256:96e73aba83732a038da04c113f789f77e228a390a79366dfe89f76ff1d7b48e0",
+            "path": "app/components/ui/input.tsx",
+            "hash": "sha256:53511b4f6112dd679b010ee9e62ae9a346ca0a47edcf11418ff4536e9dc5fc32",
+            "offset": 34,
+            "reason": "Verified static module reference"
+          }
+        }
+      ],
+      "inventoryComplete": true
+    },
+    {
+      "case": "C3",
+      "root": "C:\\2026_project\\super-figma-pipline\\.worktrees\\_cache\\oss-samples-20261010\\react-router-templates\\node-custom-server",
+      "elapsedMs": 137,
+      "incomplete": true,
+      "lexicalReviewable": false,
+      "files": 16,
+      "services": [
+        {
+          "rootPath": ".",
+          "layers": [
+            "configuration",
+            "frontend",
+            "backend"
+          ]
+        }
+      ],
+      "issueCount": 7,
+      "issues": [
+        "CONFIG_PROJECT_REFERENCES_REQUIRE_REVIEW:tsconfig.json",
+        "MODULE_UNRESOLVED:app/root.tsx:125:module-target-missing",
+        "MODULE_UNRESOLVED:app/routes/home.tsx:0:undeclared-external-module",
+        "MODULE_UNRESOLVED:app/routes/home.tsx:56:module-target-missing",
+        "MODULE_UNRESOLVED:server.js:1290:nonliteral-module",
+        "MODULE_UNRESOLVED:server/app.ts:152:undeclared-external-module",
+        "MODULE_UNRESOLVED:server/app.ts:294:unsupported-module-specifier"
+      ],
+      "connectionIssues": [
+        {
+          "code": "MODULE_ANALYSIS_INCOMPLETE"
+        },
+        {
+          "code": "MODULE_UNRESOLVED",
+          "evidence": {
+            "sourceId": "sha256:f510d242cabbb432d0441f7d3c04132e87a88d898306475cd080e81cd831d6dc",
+            "path": "app/root.tsx",
+            "hash": "sha256:da108f06484304a845d5067f66cfe279af63e996a6381fc69cc33ed83488dd4e",
+            "offset": 125,
+            "reason": "Verified static module reference"
+          }
+        },
+        {
+          "code": "MODULE_UNRESOLVED",
+          "evidence": {
+            "sourceId": "sha256:f510d242cabbb432d0441f7d3c04132e87a88d898306475cd080e81cd831d6dc",
+            "path": "app/routes/home.tsx",
+            "hash": "sha256:3e26b590d78b0ae7387842289383211ba9733ab0b3a059d77bd92d3b437c366c",
+            "offset": 0,
+            "reason": "Verified static module reference"
+          }
+        },
+        {
+          "code": "MODULE_UNRESOLVED",
+          "evidence": {
+            "sourceId": "sha256:f510d242cabbb432d0441f7d3c04132e87a88d898306475cd080e81cd831d6dc",
+            "path": "app/routes/home.tsx",
+            "hash": "sha256:3e26b590d78b0ae7387842289383211ba9733ab0b3a059d77bd92d3b437c366c",
+            "offset": 56,
+            "reason": "Verified static module reference"
+          }
+        },
+        {
+          "code": "MODULE_UNRESOLVED",
+          "evidence": {
+            "sourceId": "sha256:f510d242cabbb432d0441f7d3c04132e87a88d898306475cd080e81cd831d6dc",
+            "path": "server.js",
+            "hash": "sha256:3ce39982a210cd25969b2e10d70051bf7583ada1259eb412a69d54219d892315",
+            "offset": 1290,
+            "reason": "Verified static module reference"
+          }
+        },
+        {
+          "code": "MODULE_UNRESOLVED",
+          "evidence": {
+            "sourceId": "sha256:f510d242cabbb432d0441f7d3c04132e87a88d898306475cd080e81cd831d6dc",
+            "path": "server/app.ts",
+            "hash": "sha256:0547f728df7c12537cfbc971e8cc86739d382d5560451ae3f86779820629db7b",
+            "offset": 152,
+            "reason": "Verified static module reference"
+          }
+        },
+        {
+          "code": "MODULE_UNRESOLVED",
+          "evidence": {
+            "sourceId": "sha256:f510d242cabbb432d0441f7d3c04132e87a88d898306475cd080e81cd831d6dc",
+            "path": "server/app.ts",
+            "hash": "sha256:0547f728df7c12537cfbc971e8cc86739d382d5560451ae3f86779820629db7b",
+            "offset": 294,
+            "reason": "Verified static module reference"
+          }
+        },
+        {
+          "code": "UNSUPPORTED_RUNTIME_SOURCE",
+          "evidence": {
+            "sourceId": "sha256:f510d242cabbb432d0441f7d3c04132e87a88d898306475cd080e81cd831d6dc",
+            "path": "Dockerfile",
+            "hash": "sha256:675fff249895856d5c57db8d007c7f03e4d2400c4dcc42fb5589fbcf3d1a4644",
+            "offset": 0,
+            "reason": "Runtime format has no supported parser"
+          }
+        },
+        {
+          "code": "UNRESOLVED_MOUNT",
+          "evidence": {
+            "sourceId": "sha256:f510d242cabbb432d0441f7d3c04132e87a88d898306475cd080e81cd831d6dc",
+            "path": "server.js",
+            "hash": "sha256:3ce39982a210cd25969b2e10d70051bf7583ada1259eb412a69d54219d892315",
+            "offset": 356,
+            "reason": "Mount or middleware semantics require review"
+          }
+        },
+        {
+          "code": "UNRESOLVED_MOUNT",
+          "evidence": {
+            "sourceId": "sha256:f510d242cabbb432d0441f7d3c04132e87a88d898306475cd080e81cd831d6dc",
+            "path": "server.js",
+            "hash": "sha256:3ce39982a210cd25969b2e10d70051bf7583ada1259eb412a69d54219d892315",
+            "offset": 624,
+            "reason": "Mount or middleware semantics require review"
+          }
+        },
+        {
+          "code": "UNRESOLVED_MOUNT",
+          "evidence": {
+            "sourceId": "sha256:f510d242cabbb432d0441f7d3c04132e87a88d898306475cd080e81cd831d6dc",
+            "path": "server.js",
+            "hash": "sha256:3ce39982a210cd25969b2e10d70051bf7583ada1259eb412a69d54219d892315",
+            "offset": 663,
+            "reason": "Mount or middleware semantics require review"
+          }
+        },
+        {
+          "code": "UNRESOLVED_MOUNT",
+          "evidence": {
+            "sourceId": "sha256:f510d242cabbb432d0441f7d3c04132e87a88d898306475cd080e81cd831d6dc",
+            "path": "server.js",
+            "hash": "sha256:3ce39982a210cd25969b2e10d70051bf7583ada1259eb412a69d54219d892315",
+            "offset": 1073,
+            "reason": "Mount or middleware semantics require review"
+          }
+        }
+      ],
+      "inventoryComplete": true
+    }
+  ]
+}

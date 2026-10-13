@@ -1,0 +1,67 @@
+{
+  "schemaVersion": 1,
+  "name": "changed-source-types",
+  "releaseId": "1fb30463-ea9c-446d-88fe-bd750b6c28d6",
+  "finalSourceHash": "sha256:d722c32152149464c961c660622a95e3da603eb00f291e28b15c024507bcd87d",
+  "status": "passed",
+  "sourceBinding": "reviewed-exact-files",
+  "evidence": {
+    "receipt": {
+      "path": ".worktrees/_cache/final-scoped-publication-preparation-20261014/final-static-aggregate-d722-r2-20261014.json",
+      "sha256": "ca61b6fdf29c9a266d1e040de9679bbb8fb7e3c63b2b51627831794851dd5d09"
+    },
+    "receiptOnlyStaticOutputs": [],
+    "portableCommandLogs": [
+      {
+        "path": "docs/testing/2026-10-11-web-portal/source-d722-scoped-r2-20261014/scoped-static-logs/cli-types-01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b.txt",
+        "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+        "actualReceipt": {
+          "path": "docs/testing/2026-10-11-web-portal/final-delta-statics-first-20261014.json",
+          "sha256": "077aa83c39040b979965904f56456cab734e3bd553a5cd2517920c650e50a6ef"
+        },
+        "verifiedEmptyOutputReceipt": false
+      },
+      {
+        "path": "docs/testing/2026-10-11-web-portal/source-d722-scoped-r2-20261014/scoped-static-logs/portal-types-01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b.txt",
+        "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+        "actualReceipt": {
+          "path": "docs/testing/2026-10-11-web-portal/final-delta-statics-first-20261014.json",
+          "sha256": "077aa83c39040b979965904f56456cab734e3bd553a5cd2517920c650e50a6ef"
+        },
+        "verifiedEmptyOutputReceipt": false
+      },
+      {
+        "path": "docs/testing/2026-10-11-web-portal/source-d722-scoped-r2-20261014/scoped-static-logs/mcp-types-01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b.txt",
+        "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+        "actualReceipt": {
+          "path": "docs/testing/2026-10-11-web-portal/c3-producer-statics-first-20261014.json",
+          "sha256": "a04c40449a61e9fa4d8c39e6e1261f6b4ca55f998a614349c1f39b62e2d548ad"
+        },
+        "verifiedEmptyOutputReceipt": false
+      },
+      {
+        "path": "docs/testing/2026-10-11-web-portal/source-d722-scoped-r2-20261014/scoped-static-logs/changed-lint-e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "actualReceipt": {
+          "path": "docs/testing/2026-10-11-web-portal/final-d722-eight-lint-20261014.json",
+          "sha256": "fa4fb7e5c4cb4e3fb9991338bbad8fe7027fb5ec36e6fc8102de2e1ca7cd85b2"
+        },
+        "verifiedEmptyOutputReceipt": false
+      },
+      {
+        "path": "docs/testing/2026-10-11-web-portal/source-d722-scoped-r2-20261014/scoped-static-logs/changed-format-ac7e0405adf2952daac9c84355d0c5baefa49df57f8c0fb5552a496df90fee79.txt",
+        "sha256": "ac7e0405adf2952daac9c84355d0c5baefa49df57f8c0fb5552a496df90fee79",
+        "actualReceipt": {
+          "path": "docs/testing/2026-10-11-web-portal/final-d722-eight-format-20261014.json",
+          "sha256": "eff3e6f43d4be93bba389aff7fd30654336a8027c7909584e13bc50aa584a98d"
+        },
+        "verifiedEmptyOutputReceipt": false
+      }
+    ],
+    "scope": "Actual CLI/MCP/portal command evidence with closed checks reused only under explicit current-file closures and reviewed supersessions; no final whole-source type acceptance"
+  },
+  "ownerEcommerce": "skipped",
+  "officialMcpLive": "deferred",
+  "wholePassed": false,
+  "liveAcceptance": false
+}

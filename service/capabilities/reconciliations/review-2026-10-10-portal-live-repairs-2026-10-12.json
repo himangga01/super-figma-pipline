@@ -1,0 +1,296 @@
+{
+  "schemaVersion": 1,
+  "slice": "review-2026-10-10",
+  "baseline": {
+    "headCommit": "22517932dc9b2cb974c177ec4eacb84d4b16e254",
+    "authoritySha256": {
+      "upstream-lock.json": "400fd55c6b36db11fc3dbc961c09d20037dd40fbbd591f871252971441ebf748",
+      "vendor-map.json": "b3275c7d8b997d1cfe723d97594659f77d7b4361b824a790bcfdd7ff762589bd",
+      "vendor-rules.json": "e418cae98b03ccfd1a19c9d58213c3336a5c6c88175998343658bc085eb0ef2c"
+    }
+  },
+  "entries": [
+    {
+      "path": "capabilities/task-review-2026-10-10-authority-classes.json",
+      "sha256": "da3c303a584cba4234c9e572f1cc9c02d03f58868f97a0678083c72c959f4c37",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "524394407bb3970940ea06345e263cafc212521c7909b50f1df9d10faf2325b3"
+        },
+        {
+          "class": "protected",
+          "sha256": "524394407bb3970940ea06345e263cafc212521c7909b50f1df9d10faf2325b3"
+        }
+      ],
+      "reason": "Repair actual portal findings: lossless multiline/JSON string input, catalog aliases, activity drafts, pure diagnostics and exact-file Windows ACL publication. Restore Chrome replacement discovery and update packaged catalog/assets and test census. Correct preview exposure/image settlement without relaxing clipping, identity, cancellation or visual thresholds. Preserve unknown jobs, deadlines, owner index and failed evidence; require fresh whole/artifact and actual Chrome checks."
+    },
+    {
+      "path": "packages/cli/src/browser-session.ts",
+      "sha256": "7c658eac651371db198ae4fb18c9bf41e88a4e9343a457f4a498778b07172d54",
+      "priorClaims": [
+        {
+          "class": "protected",
+          "sha256": "45e0b75729740c563e98a83a807ea0d687698362e364704dc0caf5245b56e97f"
+        }
+      ],
+      "reason": "Repair actual portal findings: lossless multiline/JSON string input, catalog aliases, activity drafts, pure diagnostics and exact-file Windows ACL publication. Restore Chrome replacement discovery and update packaged catalog/assets and test census. Correct preview exposure/image settlement without relaxing clipping, identity, cancellation or visual thresholds. Preserve unknown jobs, deadlines, owner index and failed evidence; require fresh whole/artifact and actual Chrome checks."
+    },
+    {
+      "path": "packages/mcp/src/fs/atomic-file.ts",
+      "sha256": "f5f25f079c4c3dc823c32069164d26a1b55fb4d4f8712ea85b17096b1e893a70",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "b721c00872f6a5ce6579d1cb8e573e0fef7757cfc89770d80d2af0103bc394d4"
+        },
+        {
+          "class": "protected",
+          "sha256": "b721c00872f6a5ce6579d1cb8e573e0fef7757cfc89770d80d2af0103bc394d4"
+        }
+      ],
+      "reason": "Repair actual portal findings: lossless multiline/JSON string input, catalog aliases, activity drafts, pure diagnostics and exact-file Windows ACL publication. Restore Chrome replacement discovery and update packaged catalog/assets and test census. Correct preview exposure/image settlement without relaxing clipping, identity, cancellation or visual thresholds. Preserve unknown jobs, deadlines, owner index and failed evidence; require fresh whole/artifact and actual Chrome checks."
+    },
+    {
+      "path": "packages/mcp/src/network/remote-domain-config-store.ts",
+      "sha256": "46dbb3f7115e0c0bef7eab25812fe602e88dab5a5861b31fe9fa2f7f636254a7",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "e966c34360ad4ced9625302a349252155d26714833f7f42b6423f319e26e0b99"
+        },
+        {
+          "class": "protected",
+          "sha256": "e966c34360ad4ced9625302a349252155d26714833f7f42b6423f319e26e0b99"
+        }
+      ],
+      "reason": "Repair actual portal findings: lossless multiline/JSON string input, catalog aliases, activity drafts, pure diagnostics and exact-file Windows ACL publication. Restore Chrome replacement discovery and update packaged catalog/assets and test census. Correct preview exposure/image settlement without relaxing clipping, identity, cancellation or visual thresholds. Preserve unknown jobs, deadlines, owner index and failed evidence; require fresh whole/artifact and actual Chrome checks."
+    },
+    {
+      "path": "packages/mcp/src/portal/preview-consumption.ts",
+      "sha256": "225a65c7aa968b276ec3d0ad2c38ef792aa6d78f72ff420edb383feef2bb675f",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "0346a99cff48a02d58a0735824de2694fa35e03691ea736dda427a4b7d556972"
+        },
+        {
+          "class": "protected",
+          "sha256": "0346a99cff48a02d58a0735824de2694fa35e03691ea736dda427a4b7d556972"
+        }
+      ],
+      "reason": "Repair actual portal findings: lossless multiline/JSON string input, catalog aliases, activity drafts, pure diagnostics and exact-file Windows ACL publication. Restore Chrome replacement discovery and update packaged catalog/assets and test census. Correct preview exposure/image settlement without relaxing clipping, identity, cancellation or visual thresholds. Preserve unknown jobs, deadlines, owner index and failed evidence; require fresh whole/artifact and actual Chrome checks."
+    },
+    {
+      "path": "packages/mcp/src/portal/preview.ts",
+      "sha256": "55f5d5be1af3fd79ba47ce452044b4542a6b0d958bf965c5d0072ea07e371718",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "ed7d06836ef43b80651808be49893c1cc3e7cf1ca57e9976f27bbf097f65dbbe"
+        },
+        {
+          "class": "protected",
+          "sha256": "ed7d06836ef43b80651808be49893c1cc3e7cf1ca57e9976f27bbf097f65dbbe"
+        }
+      ],
+      "reason": "Repair actual portal findings: lossless multiline/JSON string input, catalog aliases, activity drafts, pure diagnostics and exact-file Windows ACL publication. Restore Chrome replacement discovery and update packaged catalog/assets and test census. Correct preview exposure/image settlement without relaxing clipping, identity, cancellation or visual thresholds. Preserve unknown jobs, deadlines, owner index and failed evidence; require fresh whole/artifact and actual Chrome checks."
+    },
+    {
+      "path": "packages/mcp/test/network/remote-domain-config.test.ts",
+      "sha256": "f5bca1acfc559b2078ecba105335f895e6e9220ee5ecf5a787dc266f8a357799",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "01936ad051c77b64a13ca630fe5b7540f6d4b0428d7197085d4e73d6bdb18354"
+        },
+        {
+          "class": "protected",
+          "sha256": "01936ad051c77b64a13ca630fe5b7540f6d4b0428d7197085d4e73d6bdb18354"
+        }
+      ],
+      "reason": "Repair actual portal findings: lossless multiline/JSON string input, catalog aliases, activity drafts, pure diagnostics and exact-file Windows ACL publication. Restore Chrome replacement discovery and update packaged catalog/assets and test census. Correct preview exposure/image settlement without relaxing clipping, identity, cancellation or visual thresholds. Preserve unknown jobs, deadlines, owner index and failed evidence; require fresh whole/artifact and actual Chrome checks."
+    },
+    {
+      "path": "packages/mcp/test/portal/preview-consumption.test.ts",
+      "sha256": "9e99b36883a5d1cc16ca9f35ae0e9931064735a13df0c09834e2997c5dfed713",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "9490324a05346c625ba184cd562abbce5928092f10053c5fbe7e98474402bb4e"
+        },
+        {
+          "class": "protected",
+          "sha256": "9490324a05346c625ba184cd562abbce5928092f10053c5fbe7e98474402bb4e"
+        }
+      ],
+      "reason": "Repair actual portal findings: lossless multiline/JSON string input, catalog aliases, activity drafts, pure diagnostics and exact-file Windows ACL publication. Restore Chrome replacement discovery and update packaged catalog/assets and test census. Correct preview exposure/image settlement without relaxing clipping, identity, cancellation or visual thresholds. Preserve unknown jobs, deadlines, owner index and failed evidence; require fresh whole/artifact and actual Chrome checks."
+    },
+    {
+      "path": "packages/mcp/test/portal/preview.test.ts",
+      "sha256": "dd18d2b406bc2cafd13a39df98a1da5ecd86bdb07a6791b6d3efcbcb4a3c2de3",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "1af0f998c308aad6ad5ce87a9bfd327e0eb981ff5c7cf4881317d9a6b8225821"
+        },
+        {
+          "class": "protected",
+          "sha256": "1af0f998c308aad6ad5ce87a9bfd327e0eb981ff5c7cf4881317d9a6b8225821"
+        }
+      ],
+      "reason": "Repair actual portal findings: lossless multiline/JSON string input, catalog aliases, activity drafts, pure diagnostics and exact-file Windows ACL publication. Restore Chrome replacement discovery and update packaged catalog/assets and test census. Correct preview exposure/image settlement without relaxing clipping, identity, cancellation or visual thresholds. Preserve unknown jobs, deadlines, owner index and failed evidence; require fresh whole/artifact and actual Chrome checks."
+    },
+    {
+      "path": "packages/portal/package.json",
+      "sha256": "e7694b340e0fa0968b85713307561ee84731961b36a1bd78136ce91e99964719",
+      "priorClaims": [
+        {
+          "class": "protected",
+          "sha256": "e7694b340e0fa0968b85713307561ee84731961b36a1bd78136ce91e99964719"
+        }
+      ],
+      "reason": "Repair actual portal findings: lossless multiline/JSON string input, catalog aliases, activity drafts, pure diagnostics and exact-file Windows ACL publication. Restore Chrome replacement discovery and update packaged catalog/assets and test census. Correct preview exposure/image settlement without relaxing clipping, identity, cancellation or visual thresholds. Preserve unknown jobs, deadlines, owner index and failed evidence; require fresh whole/artifact and actual Chrome checks."
+    },
+    {
+      "path": "packages/portal/src/control.ts",
+      "sha256": "1f9198c796c82febccd2934e58b672aefe93068025ae088586f458112bc6d0c1",
+      "priorClaims": [
+        {
+          "class": "protected",
+          "sha256": "a0fe970a35f1e259db15e35467d564008be72f74e6a7957ff4acad20b8cbb8b8"
+        }
+      ],
+      "reason": "Repair actual portal findings: lossless multiline/JSON string input, catalog aliases, activity drafts, pure diagnostics and exact-file Windows ACL publication. Restore Chrome replacement discovery and update packaged catalog/assets and test census. Correct preview exposure/image settlement without relaxing clipping, identity, cancellation or visual thresholds. Preserve unknown jobs, deadlines, owner index and failed evidence; require fresh whole/artifact and actual Chrome checks."
+    },
+    {
+      "path": "packages/portal/test/browser.test.ts",
+      "sha256": "22e90dd20dd5c512277f11259cf0487b927af8330d10594a1ed2b2b99865768e",
+      "priorClaims": [
+        {
+          "class": "protected",
+          "sha256": "efacd4e44cb8faaab9f9baf233b1fee3c7dbf571fc320191e51187264ba5bae3"
+        }
+      ],
+      "reason": "Repair actual portal findings: lossless multiline/JSON string input, catalog aliases, activity drafts, pure diagnostics and exact-file Windows ACL publication. Restore Chrome replacement discovery and update packaged catalog/assets and test census. Correct preview exposure/image settlement without relaxing clipping, identity, cancellation or visual thresholds. Preserve unknown jobs, deadlines, owner index and failed evidence; require fresh whole/artifact and actual Chrome checks."
+    },
+    {
+      "path": "packages/portal/test/service-control.test.ts",
+      "sha256": "4cf964a39004d3c4d7a4dc4fda89e09a57730396a3a631bba39b6c8f73212a67",
+      "priorClaims": [
+        {
+          "class": "protected",
+          "sha256": "375b611602f9afb13df44e3f9152716766c441a0d3711466013d92fc11bf2917"
+        }
+      ],
+      "reason": "Repair actual portal findings: lossless multiline/JSON string input, catalog aliases, activity drafts, pure diagnostics and exact-file Windows ACL publication. Restore Chrome replacement discovery and update packaged catalog/assets and test census. Correct preview exposure/image settlement without relaxing clipping, identity, cancellation or visual thresholds. Preserve unknown jobs, deadlines, owner index and failed evidence; require fresh whole/artifact and actual Chrome checks."
+    },
+    {
+      "path": "packages/portal/web/app.js",
+      "sha256": "61842fbf00d44dca7fa0a0a76c495914dc15ce8b2ba16965d7141781512e350a",
+      "priorClaims": [
+        {
+          "class": "protected",
+          "sha256": "59857d5724e82a6f26201432e1cd18a430a2d9b55a39c47328433c843114033c"
+        }
+      ],
+      "reason": "Repair actual portal findings: lossless multiline/JSON string input, catalog aliases, activity drafts, pure diagnostics and exact-file Windows ACL publication. Restore Chrome replacement discovery and update packaged catalog/assets and test census. Correct preview exposure/image settlement without relaxing clipping, identity, cancellation or visual thresholds. Preserve unknown jobs, deadlines, owner index and failed evidence; require fresh whole/artifact and actual Chrome checks."
+    },
+    {
+      "path": "packages/portal/web/schema-form.js",
+      "sha256": "9d1b1d073824327e8e6206d76981e23cdbc9e980f2511542c81aed2a3600693d",
+      "priorClaims": [
+        {
+          "class": "protected",
+          "sha256": "f2d65468647aa10e92d86cff7b357439b35dd65d9b4d1b491d693201969ba8ea"
+        }
+      ],
+      "reason": "Repair actual portal findings: lossless multiline/JSON string input, catalog aliases, activity drafts, pure diagnostics and exact-file Windows ACL publication. Restore Chrome replacement discovery and update packaged catalog/assets and test census. Correct preview exposure/image settlement without relaxing clipping, identity, cancellation or visual thresholds. Preserve unknown jobs, deadlines, owner index and failed evidence; require fresh whole/artifact and actual Chrome checks."
+    },
+    {
+      "path": "packages/portal/web/service-functions.js",
+      "sha256": "447529a82601a7526890e2ffb0cca9d659729d42b6fe26598ea5489b5acbad83",
+      "priorClaims": [
+        {
+          "class": "protected",
+          "sha256": "b88a19d84fd8cea8de71973c1207bf422d239f483c50c8d6b278d2bd2c341b6b"
+        }
+      ],
+      "reason": "Repair actual portal findings: lossless multiline/JSON string input, catalog aliases, activity drafts, pure diagnostics and exact-file Windows ACL publication. Restore Chrome replacement discovery and update packaged catalog/assets and test census. Correct preview exposure/image settlement without relaxing clipping, identity, cancellation or visual thresholds. Preserve unknown jobs, deadlines, owner index and failed evidence; require fresh whole/artifact and actual Chrome checks."
+    },
+    {
+      "path": "packages/portal/web/tests/chrome-check.mjs",
+      "sha256": "353d71ccb6bbc41ddcae2f90688886eef72fe6dc2d3d2e227c88e4a31d6b754b",
+      "priorClaims": [
+        {
+          "class": "protected",
+          "sha256": "178ea8fdca270183f629f6ed2ebecb018649cd4094c950a46896f80e95ca1092"
+        }
+      ],
+      "reason": "Repair actual portal findings: lossless multiline/JSON string input, catalog aliases, activity drafts, pure diagnostics and exact-file Windows ACL publication. Restore Chrome replacement discovery and update packaged catalog/assets and test census. Correct preview exposure/image settlement without relaxing clipping, identity, cancellation or visual thresholds. Preserve unknown jobs, deadlines, owner index and failed evidence; require fresh whole/artifact and actual Chrome checks."
+    },
+    {
+      "path": "packages/portal/web/tests/schema-form.test.mjs",
+      "sha256": "4202139109fcf0620aa3d3357f336db20a07c1194aee0520f546e59605f41253",
+      "priorClaims": [
+        {
+          "class": "protected",
+          "sha256": "717e277b575641c50be99d4cb13cc4f4cb3df4bbeee878c60bcce76a038dea52"
+        }
+      ],
+      "reason": "Repair actual portal findings: lossless multiline/JSON string input, catalog aliases, activity drafts, pure diagnostics and exact-file Windows ACL publication. Restore Chrome replacement discovery and update packaged catalog/assets and test census. Correct preview exposure/image settlement without relaxing clipping, identity, cancellation or visual thresholds. Preserve unknown jobs, deadlines, owner index and failed evidence; require fresh whole/artifact and actual Chrome checks."
+    },
+    {
+      "path": "scripts/test-skip-census.mjs",
+      "sha256": "2d5affbae43a3ae916aee783b7e3f7a095b71b7151ffc8e22f2c55e775e418d8",
+      "priorClaims": [
+        {
+          "class": "protected",
+          "sha256": "786bd6e9cfdc3b1a729ff594e99edb54e18ab7b0731020d0881ff21006f5c057"
+        }
+      ],
+      "reason": "Repair actual portal findings: lossless multiline/JSON string input, catalog aliases, activity drafts, pure diagnostics and exact-file Windows ACL publication. Restore Chrome replacement discovery and update packaged catalog/assets and test census. Correct preview exposure/image settlement without relaxing clipping, identity, cancellation or visual thresholds. Preserve unknown jobs, deadlines, owner index and failed evidence; require fresh whole/artifact and actual Chrome checks."
+    },
+    {
+      "path": "scripts/verify-artifacts.mjs",
+      "sha256": "d10e76a87729c7203692fd052a1f9cd695d1ae7a07839390ab5649ba92d01ce0",
+      "priorClaims": [
+        {
+          "class": "protected",
+          "sha256": "2ace729849a3f7f6c54a1e71eea6ea59b5ebeb6a60b271dc5bde9315284e74a8"
+        }
+      ],
+      "reason": "Repair actual portal findings: lossless multiline/JSON string input, catalog aliases, activity drafts, pure diagnostics and exact-file Windows ACL publication. Restore Chrome replacement discovery and update packaged catalog/assets and test census. Correct preview exposure/image settlement without relaxing clipping, identity, cancellation or visual thresholds. Preserve unknown jobs, deadlines, owner index and failed evidence; require fresh whole/artifact and actual Chrome checks."
+    },
+    {
+      "path": "test/portal-artifact-startup.test.ts",
+      "sha256": "1f4ed6af649eb524180419d0eca972607d4732406065fed9f6f053af31c95289",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "0a57ddffc549efcb657e8589c9902d069491e8efa5cc5d06110bb3a34c85b7bc"
+        },
+        {
+          "class": "protected",
+          "sha256": "0a57ddffc549efcb657e8589c9902d069491e8efa5cc5d06110bb3a34c85b7bc"
+        }
+      ],
+      "reason": "Repair actual portal findings: lossless multiline/JSON string input, catalog aliases, activity drafts, pure diagnostics and exact-file Windows ACL publication. Restore Chrome replacement discovery and update packaged catalog/assets and test census. Correct preview exposure/image settlement without relaxing clipping, identity, cancellation or visual thresholds. Preserve unknown jobs, deadlines, owner index and failed evidence; require fresh whole/artifact and actual Chrome checks."
+    },
+    {
+      "path": "test/test-skip-census.test.ts",
+      "sha256": "edae848b6dcbd54ebc8be392eef0ef2148193358aa0585d19a0640039a96d165",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "7fb711267f6d9e9f1bbf77aa22529b5e1a0aaff746da25c422aab70829554aab"
+        },
+        {
+          "class": "protected",
+          "sha256": "7fb711267f6d9e9f1bbf77aa22529b5e1a0aaff746da25c422aab70829554aab"
+        }
+      ],
+      "reason": "Repair actual portal findings: lossless multiline/JSON string input, catalog aliases, activity drafts, pure diagnostics and exact-file Windows ACL publication. Restore Chrome replacement discovery and update packaged catalog/assets and test census. Correct preview exposure/image settlement without relaxing clipping, identity, cancellation or visual thresholds. Preserve unknown jobs, deadlines, owner index and failed evidence; require fresh whole/artifact and actual Chrome checks."
+    }
+  ]
+}

@@ -1,0 +1,128 @@
+{
+  "at": "2026-10-13T17:11:45.085Z",
+  "manifestSha256": "f134c8b978b0ac8fdc8b598214bedf1790038612c0f404740d800b15ef3428e2",
+  "published": 23,
+  "files": [
+    {
+      "path": "examples/portal-cases/c3-workspace/framework/app/design/current-design.tsx",
+      "sha256": "655472f1c6fc97988cea51bff7204580290d9ae032ac028302f67a1f9ec7ddf3",
+      "bytes": 189
+    },
+    {
+      "path": "examples/portal-cases/c3-workspace/framework/app/features/notes/notes-client.ts",
+      "sha256": "512777260532dc1c1fb85d0588b192cca007fc54faeb4c69985d5d5553e8af3a",
+      "bytes": 2362
+    },
+    {
+      "path": "examples/portal-cases/c3-workspace/framework/app/features/notes/notes-workspace.css",
+      "sha256": "7c563b3c77171afc3f10140400ef5b759410c44f7594ae54014677525dfb1683",
+      "bytes": 2091
+    },
+    {
+      "path": "examples/portal-cases/c3-workspace/framework/app/features/notes/NotesWorkspace.tsx",
+      "sha256": "2def83b3651d9d57994147c15bc9c632298a089cc8424fbf30fa3cbcb6c351b2",
+      "bytes": 9828
+    },
+    {
+      "path": "examples/portal-cases/c3-workspace/framework/app/root.tsx",
+      "sha256": "86bec02f20938de6509405261dffa901cb3b0bea562f365d60303783929601b2",
+      "bytes": 737
+    },
+    {
+      "path": "examples/portal-cases/c3-workspace/framework/app/routes/home.tsx",
+      "sha256": "32ffd0f1850e4fe8f71e3c394587ae79f2a2495d9dcfe8cc98f84f84f5890d1a",
+      "bytes": 115
+    },
+    {
+      "path": "examples/portal-cases/c3-workspace/framework/app/routes/notes.tsx",
+      "sha256": "c0a09d4a192f8a39b23e0ecea075b462951aa47d216e4e51418c709a56293fef",
+      "bytes": 148
+    },
+    {
+      "path": "examples/portal-cases/c3-workspace/framework/app/routes.ts",
+      "sha256": "15b8675e3e6f13237df387fd81491efce67b04bf02b0ac69ad805ecc1dfb061a",
+      "bytes": 176
+    },
+    {
+      "path": "examples/portal-cases/c3-workspace/framework/app/server-types.ts",
+      "sha256": "e45f2c5546a769eb75e1c6b47f51d9f396bda2cbfe4b5e5a1c7222a31230e6c4",
+      "bytes": 169
+    },
+    {
+      "path": "examples/portal-cases/c3-workspace/framework/package.json",
+      "sha256": "ce226d84f55e371bb6b00cb73315ba9424361d56efaa6de0b86fddc234fb3b9a",
+      "bytes": 1018
+    },
+    {
+      "path": "examples/portal-cases/c3-workspace/framework/pnpm-lock.yaml",
+      "sha256": "95944af9c528eaad783a6a74d7f753c644811b0d78b51a4d7d7b6803f03d642c",
+      "bytes": 127721
+    },
+    {
+      "path": "examples/portal-cases/c3-workspace/framework/react-router.config.ts",
+      "sha256": "e7d3965d3a090bbc84174798e91de6eb5dedb786ba3e456c7f0836187868f1b5",
+      "bytes": 103
+    },
+    {
+      "path": "examples/portal-cases/c3-workspace/framework/server/app.ts",
+      "sha256": "45f3328846549b93ab6387c785ca7140385565e5d4b3b4636ba2d942a3dfa45c",
+      "bytes": 246
+    },
+    {
+      "path": "examples/portal-cases/c3-workspace/framework/server/notes/handler.mjs",
+      "sha256": "40150bfb94730aeeeca133b1011e91ae97322b0623c834721e255c7cc8f9d787",
+      "bytes": 51
+    },
+    {
+      "path": "examples/portal-cases/c3-workspace/framework/server/notes/handler.ts",
+      "sha256": "be9e930c9f7e24850e40c4765b75e9e2c849752272629838da7140a7e9bff4d5",
+      "bytes": 6882
+    },
+    {
+      "path": "examples/portal-cases/c3-workspace/framework/server/notes/migrate.mjs",
+      "sha256": "ea6aefc9fc7a19d44a3a4ba4071a2cdf07f56db8349698463b5b8154bb27ede6",
+      "bytes": 247
+    },
+    {
+      "path": "examples/portal-cases/c3-workspace/framework/server/notes/store.mjs",
+      "sha256": "65df6fd8b9e2a5452827807466334b59f3a9fdaaa71d101371bb3cdd4dfe08da",
+      "bytes": 40
+    },
+    {
+      "path": "examples/portal-cases/c3-workspace/framework/server/notes/store.ts",
+      "sha256": "9865e12b0e774b6c903e2a15a3d42460a563615da2fc21004c3c4660a029ac45",
+      "bytes": 6598
+    },
+    {
+      "path": "examples/portal-cases/c3-workspace/framework/server.js",
+      "sha256": "214f6f9b8ea63bbc521db09c2352762c803125a0397e4ccba7f4c91e8183b0c8",
+      "bytes": 2181
+    },
+    {
+      "path": "examples/portal-cases/c3-workspace/framework/tsconfig.json",
+      "sha256": "12905be15606612a8d2c6eb4c1a3239153b0a48cd3d3ec71c7aac0b461f8322b",
+      "bytes": 270
+    },
+    {
+      "path": "examples/portal-cases/c3-workspace/framework/tsconfig.node.json",
+      "sha256": "b40886803a416002968cceca6ca1ff157691d3374ba2e89fba1acd7671abc013",
+      "bytes": 234
+    },
+    {
+      "path": "examples/portal-cases/c3-workspace/framework/tsconfig.vite.json",
+      "sha256": "1791fa6fb15129fd862b50d0324429401c063bebaee63e418f67046122a080e7",
+      "bytes": 453
+    },
+    {
+      "path": "examples/portal-cases/c3-workspace/framework/vite.config.ts",
+      "sha256": "fdcfad66b45cf3b68f88e0e1ec9c70b8b5d85b68a6f92d321f49b0fced29550a",
+      "bytes": 335
+    }
+  ],
+  "strictSemantic17OwnedSourcesRemainClosed": true,
+  "readOnlyFrameworkTypesExcludedFromPublication": true,
+  "homeRequiresOwnDesign": true,
+  "actualCaseBuildOrAcceptance": false,
+  "serviceSourceChanged": false,
+  "privateStateIncluded": false
+}

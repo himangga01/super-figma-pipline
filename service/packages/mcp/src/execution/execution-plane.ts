@@ -818,6 +818,10 @@ export class LeaderGenerationExecutionPlane {
               ...(toolAuthority.portalAuthority.captureSource
                 ? { portalCaptureSource: toolAuthority.portalAuthority.captureSource.kind }
                 : {}),
+              ...(toolAuthority.portalAuthority.captureSource?.kind === 'chrome' &&
+              toolAuthority.portalAuthority.captureSource.collector
+                ? { portalCaptureCollector: toolAuthority.portalAuthority.captureSource.collector }
+                : {}),
             }
           : extension !== undefined
             ? {

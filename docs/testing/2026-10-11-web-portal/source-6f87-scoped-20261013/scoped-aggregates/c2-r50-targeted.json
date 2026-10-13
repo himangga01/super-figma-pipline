@@ -1,0 +1,38 @@
+{
+  "schemaVersion": 1,
+  "name": "c2-r50-targeted",
+  "releaseId": "5b1c8abd-9bd3-4e81-b5ef-125d0b4d287c",
+  "finalSourceHash": "sha256:6f87f836d872a4ba8ab49533f6447a7c921adb6b8af3dae75ddd6241e8b8a1cb",
+  "status": "passed",
+  "sourceBinding": "reviewed-exact-files",
+  "evidence": {
+    "currentIntegration": {
+      "path": ".worktrees/_cache/eight-file-integration-preparation-20261013/eight-file-integration-execution-r1/integration-receipt.json",
+      "sha256": "137706cd3586b8937c761e1e4a60ed928a821aa231ed2007632049cdd5e157f0"
+    },
+    "approvals": [
+      {
+        "path": "docs/testing/2026-10-11-web-portal/c2-css-decoder-r60-independent-20261013.json",
+        "sha256": "ed83ea9d43b9e7f7c3d697dc18644f010a4f314308976934ecb626f2d8d7e28e",
+        "manifestSha256": "0b8a2f4d0ca62f1e3898f74a77e4b70e0e1845d40416f16cd67300be70f32d9f",
+        "passed": 3,
+        "failed": 0
+      },
+      {
+        "path": "docs/testing/2026-10-11-web-portal/c2-route-type-r65-independent-20261013.json",
+        "sha256": "52fc6ad402b1c6ed4558d9bac1dd9ca817d6e670d86050e088ac69ef53443320",
+        "manifestSha256": "0253c302d1ffa6cf9a7007c0d8870932dcc2c93649b8e0c76eee71862f62d3a9",
+        "passed": 3,
+        "failed": 0
+      }
+    ],
+    "scope": "Current exact R60/R65 changes and independent 6-case pass; compatibility name is not a new R50 run",
+    "c2PublicPositive": false,
+    "completeC2C3Acceptance": false,
+    "R25UnknownPreserved": true
+  },
+  "ownerEcommerce": "skipped",
+  "officialMcpLive": "deferred",
+  "wholePassed": false,
+  "liveAcceptance": false
+}

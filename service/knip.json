@@ -21,6 +21,15 @@
     "packages/cli": {
       "project": ["src/**/*.ts"],
       "ignoreDependencies": ["ignore", "oxc-parser", "@sfp/mcp"]
+    },
+    "packages/portal": {
+      "entry": [
+        "web/app.js",
+        "web/figma-settings.js",
+        "web/figma-auth-consent.js",
+        "web/tests/*.mjs"
+      ],
+      "project": ["src/**/*.ts", "web/**/*.js", "web/**/*.mjs"]
     }
   }
 }

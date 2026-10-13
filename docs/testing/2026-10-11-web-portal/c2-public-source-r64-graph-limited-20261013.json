@@ -1,0 +1,156 @@
+{
+  "schemaVersion": 1,
+  "recordedAt": "2026-10-13T11:45:39.920Z",
+  "proofRevision": "R64",
+  "proofId": "54ea039b-a836-4bfe-b7d4-a339aaf0adda",
+  "status": "combined-contract-failed",
+  "sourceBaseline": "sha256:303de5d1904d11c1fb89bdf80951900e375ac4325ea6cfc932f39ebee2785732",
+  "candidateNotDeployed": true,
+  "r60FrozenManifestSha256": "0b8a2f4d0ca62f1e3898f74a77e4b70e0e1845d40416f16cd67300be70f32d9f",
+  "r64HelperManifestSha256": "4fdf9da3b308a6ee0e80772f7d93a2c5257f0e648f0b80c0d60c0e2eb1e5e329",
+  "r64ReadinessSha256": "1efea804abf05f61bdca243e9d3854979672ab4c6edb6450e01bcbf7578b2d0d",
+  "process": {
+    "pid": 9036,
+    "startedAt": 1791890239504,
+    "exitCode": 1
+  },
+  "profilePreparation": {
+    "bytes": 67719,
+    "preparationId": "334ee341-6de7-43fe-901a-f58e10081657",
+    "prepareDurationMs": 189903
+  },
+  "registration": {
+    "durationMs": 301336,
+    "preparedFileHash": "3ae014e3c396d55fb4e53d14905c90bf52c1d6ef826793433a8f90d07fadec4a"
+  },
+  "originalBudget": {
+    "runDeadlineAt": 1791893978211,
+    "requestStartedAt": 1791890870385,
+    "deadlineAt": 1791891770385,
+    "probe": false,
+    "originalSourceBudgetMs": 900000,
+    "sourceAndFollowupDurationThroughShutdownMs": 822127,
+    "remainingAtShutdownMs": 77873,
+    "deadlineRenewed": false
+  },
+  "native": {
+    "commands": [
+      {
+        "id": "compiler-dependencies",
+        "status": "passed",
+        "exitCode": 0,
+        "durationMs": 40540,
+        "cleanup": "finished",
+        "outputBytes": 28,
+        "outputHash": "sha256:f037bea517f88210ca04c7ad7a61753db8f94b66d9fcc8fba530c78c041ad833",
+        "moduleEvidenceHash": "sha256:e7047de3a6f16367805b364f4c8f549a6b79620ebdab1e094882d41687a993d8",
+        "moduleEvidencePresent": true
+      },
+      {
+        "id": "react-router-compiler",
+        "status": "passed",
+        "exitCode": 0,
+        "durationMs": 19659,
+        "cleanup": "finished",
+        "outputBytes": 27055,
+        "outputHash": "sha256:d11974a560c940c79e69f6867f91ced1793962ee6700221e1690a35be8368222",
+        "moduleEvidenceHash": "sha256:4daba27ae7cf69d9b12560fb0ae6dc57be43306def151bf25522ac057657d7cc",
+        "moduleEvidencePresent": true
+      }
+    ],
+    "issuedOutputReceipts": 7,
+    "nativeResultProjectionSha256": "93cc22948500c683b1b5d3b42d0e42e2c629887b4c369b08854c6d813d9decbe"
+  },
+  "publicSource": {
+    "status": "ready",
+    "sourcePreparationOnly": true,
+    "generatedFiles": 235,
+    "compilerEvidenceHash": "sha256:8ef15d941166bba3fbb08ea406a9998cc652e0a566b3a6d0f2d921dbb35b78e8",
+    "sourceId": "sha256:27b905fc20d5034d81f70a457704750100c19338eafee310edde45ef9847acb9",
+    "sourceInventoryHash": "sha256:c2a4db4cf25834401612172a79e2a36b9902dd3d9916f7d5e1c62438dcf4738b",
+    "requiresReplan": true,
+    "authorityExpiresOnRestart": true,
+    "signedStoredResultSha256": "511eead8b0ed884221b27413a2a6d8a3ddc123d2aac35f9dbf788452db8ed3e1"
+  },
+  "publicJournalTerminal": [
+    {
+      "operationName": "portal_prepare_source",
+      "status": "succeeded",
+      "errorCode": null,
+      "resultHash": "sha256:72f21c705184f0b6262eb1bc9dfa973735421509a9a2ece34e3733e51851cb6b"
+    },
+    {
+      "operationName": "portal_plan",
+      "status": "succeeded",
+      "errorCode": null,
+      "resultHash": "sha256:3a3d31e95e57a619bf1c59d523488069ed8b20a8f3ad1c06abf94647833453b4"
+    }
+  ],
+  "freshGraph": {
+    "genuineReadySourceOnly": true,
+    "expectedAndActualSha256Shapes": true,
+    "differentPlanIds": true,
+    "compilerEvidenceMatches": true,
+    "sourceMatches": true,
+    "inventoryMatches": true,
+    "issuesArray": true,
+    "noModuleGraphPrefixIssue": true,
+    "incomplete": true,
+    "lexicalReviewable": false,
+    "fullGraphClosure": false,
+    "compilerEvidenceHash": "sha256:8ef15d941166bba3fbb08ea406a9998cc652e0a566b3a6d0f2d921dbb35b78e8",
+    "issueCount": 2,
+    "issues": [
+      "MODULE_UNRESOLVED:app/routes/resources/images.tsx:281:module-target-missing",
+      "MODULE_UNRESOLVED:app/routes/settings/profile/_layout.tsx:495:module-target-missing"
+    ],
+    "firstFailedContractPredicate": "incomplete && !lexicalReviewable",
+    "typeOnlyImportFacts": [
+      {
+        "sourcePath": "app/routes/resources/images.tsx",
+        "offset": 281,
+        "specifier": "./+types/images",
+        "typeOnlyImportedName": "Route"
+      },
+      {
+        "sourcePath": "app/routes/settings/profile/_layout.tsx",
+        "offset": 495,
+        "specifier": "./+types/_layout.tsx",
+        "typeOnlyImportedName": "Route"
+      }
+    ],
+    "signedFreshPlanSha256": "36784cd2bde2457b849a632083f93d6edad412a184cce68cab949a558d05ebf4"
+  },
+  "failure": {
+    "phase": "compiler-bound-replan",
+    "codeHash": "eb045d78d273107348b0300c01d29b7552d622abbc6faf81b3ec55359aa9950c",
+    "messageHash": "3699887c566026c146dcf632d4537a4329a09e0d4be3c7f852e4596a421590dd",
+    "runtimeCalls": 2,
+    "compilerCalls": 1,
+    "knownCode": "OWNED_FRESH_COMPILER_GRAPH_REQUIRED",
+    "sourceTimeoutClaimed": false
+  },
+  "retirement": {
+    "status": "observed-handles-absent",
+    "observedAt": 1791891760518,
+    "verifiedHandles": 5,
+    "presentExactPids": [],
+    "universalDescendantRetirementClaimed": false,
+    "remoteBrowserCleanupClaimed": false,
+    "shutdownOutcome": "port-released",
+    "shutdownAt": 1791891692512,
+    "processIssuerRetired": true
+  },
+  "limits": {
+    "combinedGraphPassed": false,
+    "fullGraphClosure": false,
+    "completeC2C3Acceptance": false,
+    "figmaCapture": false,
+    "generationOrApply": false,
+    "syntheticDesign": true,
+    "oldIssuerResurrected": false,
+    "retryOrAdditionalProof": false,
+    "originalR61ReceiptPreserved": true,
+    "universalDescendantOrRemoteBrowserCleanupClaimed": false
+  }
+}

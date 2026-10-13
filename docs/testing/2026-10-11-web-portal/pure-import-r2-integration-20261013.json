@@ -1,0 +1,14 @@
+{
+  "recordedAt": "2026-10-13T01:00:09.993Z",
+  "sourceHash": "sha256:34daec27982cddfd55bddb0e9883a6c2c04eab0d9c2f474ba20d72449810c54d",
+  "path": "packages/mcp/src/portal/react-router-compiler-evidence.ts",
+  "before": "c17c1a3bc0d37c6ef32c9feb0d1360c5b38abcc84e8e9fdbe298f1481b5ea12d",
+  "after": "829200906970fa63c18f5fe89f03489d38faf55ceeeac65592bb0308e4d321b9",
+  "manifestSha256": "3468fa432918f4acd5d152c02dba01d02dd8b7d8abe3ce5d4eb0bd64fbed065e",
+  "authorSingleTestPassed": 1,
+  "authorFilteredCases": 12,
+  "rootFullCohortPending": true,
+  "ownerIndexUnchanged": true,
+  "runtimeReplaced": false,
+  "wholePassed": false
+}

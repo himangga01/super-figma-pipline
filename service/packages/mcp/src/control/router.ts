@@ -3,6 +3,8 @@ import type { IncomingMessage, ServerResponse } from 'node:http';
 import { parseActorContext, type ActorContext, type AuthenticatedControlRoute } from '@sfp/shared';
 import { z } from 'zod';
 
+import { diagnose } from '../diagnostics.js';
+
 export const CONTROL_LOGICAL_REQUEST_MAX_BYTES = 9_437_184 as const;
 
 export class AuthenticatedControlRouterError extends Error {
@@ -195,6 +197,8 @@ export class AuthenticatedControlRouter {
         );
       }
       // Only the first matching route executes; awaiting here preserves single-response semantics.
+      const started = performance.now();
+      diagnose('control.route-start', { phase: route.id });
       // eslint-disable-next-line no-await-in-loop
       const result = await route.handle(principal, parsed.data, signal);
       if (Symbol.asyncIterator in Object(result)) {
@@ -211,6 +215,10 @@ export class AuthenticatedControlRouter {
           { cause: output.error },
         );
       }
+      diagnose('control.route-finish', {
+        phase: route.id,
+        durationMs: performance.now() - started,
+      });
       return output.data;
     }
     throw new AuthenticatedControlRouterError(
@@ -490,9 +498,27 @@ export const createControlHttpHandler =
       );
       if (Symbol.asyncIterator in Object(result)) {
         writeJson(response, 501, { code: 'CONTROL_STREAM_NOT_AVAILABLE' });
-      } else writeJson(response, 200, result);
+      } else {
+        const accepted =
+          method === 'POST' &&
+          ['/control/portal/profiles/prepare', '/control/portal/profiles'].includes(
+            requestUrl.pathname,
+          ) &&
+          typeof result === 'object' &&
+          result !== null &&
+          'preparationId' in result &&
+          'status' in result &&
+          ['preparing', 'registering'].includes(String(result.status));
+        writeJson(response, accepted ? 202 : 200, result);
+      }
     } catch (error) {
       const projected = publicError(error);
+      diagnose(
+        'control.dispatch-error',
+        { status: projected.status, errorCode: projected.code },
+        error,
+        projected.status >= 500 ? 'error' : 'warn',
+      );
       if (projected.status >= 500) {
         // The CLI reads only upper-case public codes, so keep the server-side cause for diagnosis.
         try {

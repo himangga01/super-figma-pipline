@@ -1,0 +1,57 @@
+{
+  "schemaVersion": 1,
+  "recordedAt": "2026-10-13T19:32:34.407Z",
+  "kind": "actual-stopped-QA-continuation-and-readonly-ACL-evidence",
+  "incomingSourceHash": "sha256:d722c32152149464c961c660622a95e3da603eb00f291e28b15c024507bcd87d",
+  "incomingBuildIdentity": "sha256:7632acd6e38c4887b44325ef6cb1439f55170bdb7452ce3985aae3eb629cb1d1",
+  "continuation": {
+    "freezeHash": "d82d554ed65627d1ce4ba603577834c3c9d9a1f1be531b69e3d2b8b36bd2ee3b",
+    "status": "failed",
+    "failedAt": "2026-10-13T19:18:45.734Z",
+    "previousPhase": "old-stopped",
+    "errorCode": "FIXED_POWERSHELL_REFUSED",
+    "causeHash": "a38de3ab41cad357d796e99dd2a9011f6ad939750fc40dacbb0cc85eda6cf129",
+    "failedIntentHash": "ac5d0bb21c1fe570dc22e4439e1cdc99a48117d51779317bd5b82b0e8f13d9e7",
+    "originalPowerShellExitReason": "not retained"
+  },
+  "existingBackup": {
+    "metadataCountComplete": true,
+    "regularFiles": 75569,
+    "directories": 13032,
+    "links": 0,
+    "contentVerifiedByDiagnostic": false,
+    "completeManifestPublished": false,
+    "countReceiptHash": "f36caa8b7d877014d677bd943fd4de771e7010061e10a19c3544072896c1d2ba"
+  },
+  "readOnlyAcl": {
+    "receiptHash": "34a2fc41ed196a14602fbf4a7b10c61fb39c31c059334e849fa359fb2a8d8da5",
+    "exactScriptHash": "4a242598eefec3552ab731c799a27799841a8237e9c0fd2eb530e1e16b7dd078",
+    "startedAt": "2026-10-13T19:24:45.682Z",
+    "endedAt": "2026-10-13T19:26:19.115Z",
+    "elapsedMs": 93432,
+    "originalBudgetMs": 600000,
+    "exitCode": 0,
+    "killed": false,
+    "signal": null,
+    "category": "PRIVATE_ACL_VERIFIED",
+    "stdoutHash": "482de97b74046123bab3780ffd8a2d5485d4bc2fef1d3cfc4e84cd17bd6f281b",
+    "protectNew": false,
+    "aclModified": false,
+    "failedIntentUnchanged": true,
+    "verificationNotOriginalFailureReconstruction": true
+  },
+  "runtime": {
+    "qaDaemonRunning": false,
+    "qaPortalRunning": false,
+    "sourceChromeWindowRetained": true,
+    "portalChromeWindowRetained": true,
+    "primaryRuntimeUntouched": true,
+    "sourceTransportRetired": true
+  },
+  "newRuntimeStarted": false,
+  "backupCompleted": false,
+  "operationReplayed": false,
+  "sourceCapture": false,
+  "sourceGrantExpiresAt": "2026-10-13T23:32:02.947Z",
+  "liveAcceptance": false
+}

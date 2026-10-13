@@ -1,0 +1,590 @@
+{
+  "version": 1,
+  "at": "2026-10-13T00:08:18.068Z",
+  "task": "read-only-current-QA-replacement-readiness",
+  "anchorRelative": ".worktrees/_cache/portal-cdd-export-repair-20261012",
+  "before": {
+    "processes": [
+      {
+        "pid": 2072,
+        "createdUtc": "2026-10-09T06:38:08.3830520Z",
+        "entry": "chrome",
+        "commandHash": "be0c22e63cec290a2bb874c917c5d3927b8d121fa537e999cfe9caad05a2c4a5",
+        "startedAt": 1791527888383,
+        "parent": 7736,
+        "name": "chrome.exe",
+        "executable": "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe"
+      },
+      {
+        "pid": 9932,
+        "createdUtc": "2026-10-11T12:28:56.9359920Z",
+        "entry": "chrome",
+        "commandHash": "84b95ad976434d78ba3fba44fe268252e86c3f9dc5ceba9c3171d8f87ee4a096",
+        "startedAt": 1791721736935,
+        "parent": 35972,
+        "name": "chrome.exe",
+        "executable": "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe"
+      },
+      {
+        "pid": 7460,
+        "createdUtc": "2026-10-12T00:19:43.3224490Z",
+        "entry": "daemon-entry",
+        "commandHash": "5ccf93669310bd2b91c40eefc316af33789224efa60aa91a5655eaa8ee79ce1f",
+        "startedAt": 1791764383322,
+        "parent": 40172,
+        "name": "node.exe",
+        "executable": "C:\\Program Files\\nodejs\\node.exe"
+      },
+      {
+        "pid": 27636,
+        "createdUtc": "2026-10-12T00:19:48.6271710Z",
+        "entry": "portal-entry",
+        "commandHash": "f8c8cec83e151dff0a43c87e13be26793eae9228783c4f61d7706ad868d48737",
+        "startedAt": 1791764388627,
+        "parent": 40172,
+        "name": "node.exe",
+        "executable": "C:\\Program Files\\nodejs\\node.exe"
+      },
+      {
+        "pid": 39796,
+        "createdUtc": "2026-10-12T06:08:54.5855630Z",
+        "entry": "daemon-entry",
+        "commandHash": "5ccf93669310bd2b91c40eefc316af33789224efa60aa91a5655eaa8ee79ce1f",
+        "startedAt": 1791785334585,
+        "parent": 17492,
+        "name": "node.exe",
+        "executable": "C:\\Program Files\\nodejs\\node.exe"
+      },
+      {
+        "pid": 40032,
+        "createdUtc": "2026-10-12T06:08:54.5911280Z",
+        "entry": "console-host",
+        "commandHash": "417222c4a0ecb4d60a457ebe8e26fddf3d5406bffb16a5c59af8eeb241beca51",
+        "startedAt": 1791785334591,
+        "parent": 39796,
+        "name": "conhost.exe",
+        "executable": "C:\\WINDOWS\\system32\\conhost.exe"
+      },
+      {
+        "pid": 35244,
+        "createdUtc": "2026-10-12T06:09:00.4305830Z",
+        "entry": "portal-entry",
+        "commandHash": "f8c8cec83e151dff0a43c87e13be26793eae9228783c4f61d7706ad868d48737",
+        "startedAt": 1791785340430,
+        "parent": 17492,
+        "name": "node.exe",
+        "executable": "C:\\Program Files\\nodejs\\node.exe"
+      },
+      {
+        "pid": 38188,
+        "createdUtc": "2026-10-12T06:09:00.4360110Z",
+        "entry": "console-host",
+        "commandHash": "417222c4a0ecb4d60a457ebe8e26fddf3d5406bffb16a5c59af8eeb241beca51",
+        "startedAt": 1791785340436,
+        "parent": 35244,
+        "name": "conhost.exe",
+        "executable": "C:\\WINDOWS\\system32\\conhost.exe"
+      },
+      {
+        "pid": 26892,
+        "createdUtc": "2026-10-13T00:07:30.6095690Z",
+        "entry": "powershell-helper",
+        "commandHash": "c6a6361951ec0ab8ab45f9ee8de0f79973ca2c1400a4d4cc54ef56a8dc0b4310",
+        "startedAt": 1791850050609,
+        "parent": 39796,
+        "name": "powershell.exe",
+        "executable": "C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe"
+      },
+      {
+        "pid": 29232,
+        "createdUtc": "2026-10-13T00:07:37.4419370Z",
+        "entry": "powershell-helper",
+        "commandHash": "c6a6361951ec0ab8ab45f9ee8de0f79973ca2c1400a4d4cc54ef56a8dc0b4310",
+        "startedAt": 1791850057441,
+        "parent": 35244,
+        "name": "powershell.exe",
+        "executable": "C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe"
+      }
+    ],
+    "listeners": [
+      {
+        "port": 4315,
+        "pid": 35244,
+        "address": "127.0.0.1"
+      },
+      {
+        "port": 4310,
+        "pid": 27636,
+        "address": "127.0.0.1"
+      },
+      {
+        "port": 3059,
+        "pid": 39796,
+        "address": "127.0.0.1"
+      },
+      {
+        "port": 3055,
+        "pid": 7460,
+        "address": "127.0.0.1"
+      }
+    ]
+  },
+  "after": {
+    "processes": [
+      {
+        "pid": 2072,
+        "createdUtc": "2026-10-09T06:38:08.3830520Z",
+        "entry": "chrome",
+        "commandHash": "be0c22e63cec290a2bb874c917c5d3927b8d121fa537e999cfe9caad05a2c4a5",
+        "startedAt": 1791527888383,
+        "parent": 7736,
+        "name": "chrome.exe",
+        "executable": "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe"
+      },
+      {
+        "pid": 9932,
+        "createdUtc": "2026-10-11T12:28:56.9359920Z",
+        "entry": "chrome",
+        "commandHash": "84b95ad976434d78ba3fba44fe268252e86c3f9dc5ceba9c3171d8f87ee4a096",
+        "startedAt": 1791721736935,
+        "parent": 35972,
+        "name": "chrome.exe",
+        "executable": "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe"
+      },
+      {
+        "pid": 7460,
+        "createdUtc": "2026-10-12T00:19:43.3224490Z",
+        "entry": "daemon-entry",
+        "commandHash": "5ccf93669310bd2b91c40eefc316af33789224efa60aa91a5655eaa8ee79ce1f",
+        "startedAt": 1791764383322,
+        "parent": 40172,
+        "name": "node.exe",
+        "executable": "C:\\Program Files\\nodejs\\node.exe"
+      },
+      {
+        "pid": 27636,
+        "createdUtc": "2026-10-12T00:19:48.6271710Z",
+        "entry": "portal-entry",
+        "commandHash": "f8c8cec83e151dff0a43c87e13be26793eae9228783c4f61d7706ad868d48737",
+        "startedAt": 1791764388627,
+        "parent": 40172,
+        "name": "node.exe",
+        "executable": "C:\\Program Files\\nodejs\\node.exe"
+      },
+      {
+        "pid": 39796,
+        "createdUtc": "2026-10-12T06:08:54.5855630Z",
+        "entry": "daemon-entry",
+        "commandHash": "5ccf93669310bd2b91c40eefc316af33789224efa60aa91a5655eaa8ee79ce1f",
+        "startedAt": 1791785334585,
+        "parent": 17492,
+        "name": "node.exe",
+        "executable": "C:\\Program Files\\nodejs\\node.exe"
+      },
+      {
+        "pid": 40032,
+        "createdUtc": "2026-10-12T06:08:54.5911280Z",
+        "entry": "console-host",
+        "commandHash": "417222c4a0ecb4d60a457ebe8e26fddf3d5406bffb16a5c59af8eeb241beca51",
+        "startedAt": 1791785334591,
+        "parent": 39796,
+        "name": "conhost.exe",
+        "executable": "C:\\WINDOWS\\system32\\conhost.exe"
+      },
+      {
+        "pid": 35244,
+        "createdUtc": "2026-10-12T06:09:00.4305830Z",
+        "entry": "portal-entry",
+        "commandHash": "f8c8cec83e151dff0a43c87e13be26793eae9228783c4f61d7706ad868d48737",
+        "startedAt": 1791785340430,
+        "parent": 17492,
+        "name": "node.exe",
+        "executable": "C:\\Program Files\\nodejs\\node.exe"
+      },
+      {
+        "pid": 38188,
+        "createdUtc": "2026-10-12T06:09:00.4360110Z",
+        "entry": "console-host",
+        "commandHash": "417222c4a0ecb4d60a457ebe8e26fddf3d5406bffb16a5c59af8eeb241beca51",
+        "startedAt": 1791785340436,
+        "parent": 35244,
+        "name": "conhost.exe",
+        "executable": "C:\\WINDOWS\\system32\\conhost.exe"
+      },
+      {
+        "pid": 26892,
+        "createdUtc": "2026-10-13T00:07:30.6095690Z",
+        "entry": "powershell-helper",
+        "commandHash": "c6a6361951ec0ab8ab45f9ee8de0f79973ca2c1400a4d4cc54ef56a8dc0b4310",
+        "startedAt": 1791850050609,
+        "parent": 39796,
+        "name": "powershell.exe",
+        "executable": "C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe"
+      },
+      {
+        "pid": 29232,
+        "createdUtc": "2026-10-13T00:07:37.4419370Z",
+        "entry": "powershell-helper",
+        "commandHash": "c6a6361951ec0ab8ab45f9ee8de0f79973ca2c1400a4d4cc54ef56a8dc0b4310",
+        "startedAt": 1791850057441,
+        "parent": 35244,
+        "name": "powershell.exe",
+        "executable": "C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe"
+      }
+    ],
+    "listeners": [
+      {
+        "port": 4315,
+        "pid": 35244,
+        "address": "127.0.0.1"
+      },
+      {
+        "port": 4310,
+        "pid": 27636,
+        "address": "127.0.0.1"
+      },
+      {
+        "port": 3059,
+        "pid": 39796,
+        "address": "127.0.0.1"
+      },
+      {
+        "port": 3055,
+        "pid": 7460,
+        "address": "127.0.0.1"
+      }
+    ]
+  },
+  "readOnlyService": {
+    "healthy": true,
+    "status": {
+      "serverVersion": "0.1.0",
+      "buildId": 1791202532000,
+      "buildIdentityHash": "sha256:12d6aa5958e41ea798a6f5443a7ce80439fea83cbc46db88b3b89546e1ed1224",
+      "leaderGenerationHash": "775d9b89b751dd76fad8815e65e1779b30be98a08f6ddeb53c40346c2d7917de",
+      "role": "leader",
+      "browserConnection": "connected",
+      "pairedPluginCount": 0
+    },
+    "portal": {
+      "available": true,
+      "connected": null,
+      "health": 200
+    },
+    "egress": {
+      "mode": "external-model",
+      "allowedClasses": [
+        "public",
+        "project-code",
+        "design-text",
+        "design-image"
+      ],
+      "configuredAt": "2026-10-12T23:00:48.660Z",
+      "expiresAt": "2026-10-13T07:00:48.660Z"
+    },
+    "journal": {
+      "pages": 1,
+      "count": 27,
+      "statuses": {
+        "pre-egress-rejected": 6,
+        "succeeded": 21
+      },
+      "pending": [],
+      "unknown": []
+    }
+  },
+  "portal": {
+    "jobsHash": "8f6756404e365bc80d78dc280b4508d5f92fae451c59db440731ec3cdb90b735",
+    "databaseHash": "767e111e438cfaaf19399a9473d713eca0fb3afc576a92265a5ab43990aa8efd",
+    "jobCount": 30,
+    "jobStatuses": {
+      "cancelled": 1,
+      "failed": 8,
+      "succeeded": 19,
+      "unknown": 2
+    },
+    "pendingJobs": [],
+    "unknownJobs": [
+      {
+        "id": "fa9b8cbc-2d60-4412-a5b1-a6adb4f6b0e5",
+        "feature": null,
+        "type": "feature",
+        "status": "unknown",
+        "workspaceIdHash": "41276efc437089ef9e7e0edb14938095906a52468c1fca1a75ceed4854d863cb",
+        "createdAt": "2026-10-12T02:02:34.650Z",
+        "updatedAt": "2026-10-12T02:05:34.722Z",
+        "deadlineAt": 1791771454650,
+        "errorCode": "CHROME_CONNECTION_REQUIRED",
+        "operationCount": 0,
+        "disposition": {
+          "decision": "owner-abandoned",
+          "quiescence": "operator-asserted-prior-runtime",
+          "at": "2026-10-12T06:58:15.763Z"
+        },
+        "rowHash": "79a3765e23596d097b38690eaf6a094da7fd02cde9a99bc01de433d78e324699"
+      },
+      {
+        "id": "3cb0290a-4327-4b02-83be-a70a6c61cc25",
+        "feature": null,
+        "type": "feature",
+        "status": "unknown",
+        "workspaceIdHash": "41276efc437089ef9e7e0edb14938095906a52468c1fca1a75ceed4854d863cb",
+        "createdAt": "2026-10-12T14:41:21.864Z",
+        "updatedAt": "2026-10-12T14:44:29.911Z",
+        "deadlineAt": 1791816981864,
+        "errorCode": "SERVICE_UNAVAILABLE",
+        "operationCount": 0,
+        "disposition": {
+          "decision": "owner-abandoned",
+          "quiescence": "observed",
+          "at": "2026-10-12T15:18:04.057Z"
+        },
+        "rowHash": "f63255925624c025e0c3b72b8508bfa3f3c281af679fab4c99a1b1aef50c73ab"
+      }
+    ],
+    "workflowCount": 1,
+    "runCount": 2,
+    "runs": [
+      {
+        "id": "bc5c4cc6-2261-48b8-b393-f6cc475138cb",
+        "status": "awaiting-agent",
+        "workflowId": "afe4d69e-4ed0-4065-b49e-44c696d2dd75",
+        "workflowRevision": 2,
+        "operationIdHash": "8b13c42452dcf3df77c1429fb2f1f2b2e3fa55f90c23ff4862186232aa118565",
+        "unresolvedOperation": null,
+        "updatedAt": "2026-10-12T16:06:56.050Z",
+        "createdAt": "2026-10-12T16:06:29.629Z",
+        "nodeStates": [
+          {
+            "status": "completed"
+          },
+          {
+            "status": "completed"
+          },
+          {
+            "status": "waiting"
+          },
+          {
+            "status": "pending"
+          },
+          {
+            "status": "pending"
+          }
+        ],
+        "resultState": "waiting-agent",
+        "resultRunId": "sfp_portal1_1888b85dfa365426c760b5f06ae066b3",
+        "hasResult": true
+      },
+      {
+        "id": "13524e1e-e652-4519-bcc1-9742b9cbd791",
+        "status": "awaiting-input",
+        "workflowId": "afe4d69e-4ed0-4065-b49e-44c696d2dd75",
+        "workflowRevision": 1,
+        "operationIdHash": "74f7fa4ea3e807faf2372feda455de0730033b6fa090ab761e176d6d7bf72167",
+        "unresolvedOperation": null,
+        "updatedAt": "2026-10-12T15:58:54.073Z",
+        "createdAt": "2026-10-12T15:58:16.545Z",
+        "nodeStates": [
+          {
+            "status": "completed"
+          },
+          {
+            "status": "waiting"
+          },
+          {
+            "status": "pending"
+          },
+          {
+            "status": "pending"
+          },
+          {
+            "status": "pending"
+          }
+        ],
+        "resultState": "needs-input",
+        "resultRunId": "sfp_portal1_fd039f7fe288366d56a27b8e9193c620",
+        "hasResult": true
+      }
+    ],
+    "startedServerActivityCount": 0,
+    "activityCount": 287
+  },
+  "signedRuns": [
+    {
+      "file": "sfp_portal1_1888b85dfa365426c760b5f06ae066b3.json",
+      "hash": "db5d120686f499f33b9963534065ef33cf0a42cb5ed4c0d32766b803b269e166",
+      "id": "sfp_portal1_1888b85dfa365426c760b5f06ae066b3",
+      "state": "generating",
+      "deadlineAt": 1791824815611,
+      "expired": true,
+      "leaseExpiresAt": 1791822234539,
+      "hasCandidate": false,
+      "hasApplied": false,
+      "ownerHash": "60687b6377f02e485b5cdf382252f313e6b8590c2146eab921a78bd0c5fc5c6c"
+    },
+    {
+      "file": "sfp_portal1_fd039f7fe288366d56a27b8e9193c620.json",
+      "hash": "abcfe0f68137e20b20a3dd09f1c849dc0886a3994cf60219aeca276cf4b69d4a",
+      "id": "sfp_portal1_fd039f7fe288366d56a27b8e9193c620",
+      "state": "needs-input",
+      "deadlineAt": 1791824333611,
+      "expired": true,
+      "leaseExpiresAt": null,
+      "hasCandidate": false,
+      "hasApplied": false,
+      "ownerHash": "60687b6377f02e485b5cdf382252f313e6b8590c2146eab921a78bd0c5fc5c6c"
+    }
+  ],
+  "preservedHistorical": {
+    "runtimeFileHash": "7d485981a63194772dcd90e9af55f3a9d86aff67a902bcbd60cc0196989fc6f9",
+    "emptyOriginalRuntime": {
+      "bytes": 0,
+      "hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "priorProtectedReceipt": {
+      "hash": "2d09f4857d45a0e3b63ab862be1a3be76923eb5ebe17c5e4b11688f1ab72872c",
+      "kind": "separate-running-replacement-verification-after-metadata-publish-failure",
+      "recordedAt": "2026-10-12T06:35:26.549Z",
+      "sourceHash": "sha256:a476a925b0304a9ce8b02d199228f2d80f9e6eb99c342c2569e2ceefa91c4230"
+    },
+    "failedIntent": {
+      "hash": "ff37402ffd6bcea325d8cd0562f4dbe864f0b9a27d995b0fd5d22fb32b5ee449",
+      "phase": "failed",
+      "previousPhase": "postchecked",
+      "automaticReplayAllowed": false
+    },
+    "originalUnknownPreserved": true
+  },
+  "opaqueBackupScope": {
+    "files": 492,
+    "directories": 136,
+    "bytes": 218281334,
+    "links": 0,
+    "hardLinks": 0,
+    "special": 0,
+    "inventoryHash": "2c53a9aaa1ac1bd9d4ed82164e408c5ab8df28145af278f5fb76d85d00b6b886",
+    "stateFileNames": [
+      "auth",
+      "diagnostics",
+      "egress.v1.json",
+      "handoff-qa-recovery-a476-20261012",
+      "journal",
+      "leader-auth.json",
+      "network",
+      "pairing-hmac.key",
+      "portal",
+      "workspaces.v1.json"
+    ],
+    "portalSubtreeNames": [
+      "capture-attempts",
+      "capture-progress",
+      "captures",
+      "core-capacity",
+      "core-inputs",
+      "core-pages",
+      "core-preparations",
+      "core-publications",
+      "core-results",
+      "designs",
+      "plans",
+      "runs"
+    ]
+  },
+  "limits": {
+    "readOnly": true,
+    "noStopOrRestart": true,
+    "noGrantOrFenceMutation": true,
+    "noSourceChromeControl": true,
+    "noSecretTokenOrWebsocketOutput": true,
+    "notAtomicStoppedBackup": true
+  },
+  "referenceHashes": {
+    "AGENTS.md": "3687939728872e11f4ad3b56e71221e6a5d253697ca6d75bd845bee855e95f8d",
+    "docs/service-analysis.md": "fdb334ce58a43281dcdf2c52e791cf74085ee26d53d79dfd481801ef46118d72",
+    "docs/testing/2026-10-11-web-portal/qa-recovery-deployment-readiness.md": "6ce86cbe18b5c592868e68aaa0cab8761cfece3a69e21fd89ddbc81161cdec7e",
+    "docs/testing/2026-10-11-web-portal/qa-recovery-helper-review.md": "bac2fb78d8f1bf793a4f54ca06693cee2423ad4dc631bfb04751ac36c2dc5e90",
+    "docs/testing/2026-10-11-web-portal/qa-a476-continuation-20261012.json": "249eacd7e4f49d7844e1b5e0a70cee541b0dc252997340a28324cca4b335eb11",
+    "docs/testing/2026-10-11-web-portal/idle-coding-broker-exit-20261013.json": "ead30ca3e62b20dd8d3a6ef05ad35661bbef21f8ecd59039d3b5d3ade1e81128",
+    "docs/testing/2026-10-11-web-portal/owner-new-eight-hours-r2-20261013.json": "bf37f5391efa1018b287fe8ab8388d2a791890d3a73b96e578fb77eb8605b643",
+    "service/packages/portal/src/store.ts": "d6fcade97b2dc47c4942acb49de4ea2142b13a593aeb1aaab32bb94483af4d28",
+    "service/packages/portal/src/service-jobs.ts": "8d3e04f71cf0ddf74ae2aefbe0e3d0edb0b90d9ffa7416fd57e6ca43b3575e93",
+    "service/packages/portal/src/bridge.ts": "5e729885279e81964144f450c59fd56747282541d0ad90d2a76b6f5ac93ce5b2",
+    "service/packages/mcp/src/portal/coordinator.ts": "c697d81af1625570a328d9402a47988dbb886df25d5a2cd2f88534fe6b1524aa",
+    "service/packages/mcp/src/portal/store.ts": "1858b26a2583d1371ee0c144dc751d3b5f1557689bab6a40020253f7d6e7a884"
+  },
+  "inspectorHash": "18b04e608672e33da3e0290486e511b2079abc9d8bb93f267c458ce0b80dd89d",
+  "sourceBaseline": {
+    "integratedSourceReportedByRoot": "sha256:213acbf4d43369d5f30856121406359c5047e2e319e1b8581f2a19d28d991a65",
+    "ownGitCommandExecuted": false,
+    "wholeAndArtifactsPassed": false,
+    "loadedRuntimeBoundByHistoricalReceipt": "sha256:a476a925b0304a9ce8b02d199228f2d80f9e6eb99c342c2569e2ceefa91c4230"
+  },
+  "brokerEvidence": {
+    "execSession": 62481,
+    "operatingSystemPidClaimed": false,
+    "exitCode": 0,
+    "requests": 16,
+    "responses": 16,
+    "pendingRequest": false,
+    "source": "Root-published exit receipt, independently read and hashed",
+    "browserCleanupClaimed": false
+  },
+  "aclReadOnlyObservation": {
+    "daemonState": {
+      "protected": true,
+      "ownerAndSystemFullControlOnly": true
+    },
+    "oldBackup": {
+      "protected": true,
+      "ownerAndSystemFullControlOnly": true
+    },
+    "portalState": {
+      "protected": false,
+      "inheritedUsersRead": true,
+      "inheritedAuthenticatedUsersModify": true
+    },
+    "changed": false,
+    "backupRequirement": "Create a new protected owner+SYSTEM directory before copying any opaque bytes; never modify old failed receipt/intent."
+  },
+  "harnessCorrections": {
+    "powerShellDepthParameter": true,
+    "windowsEsmFileUrl": true,
+    "productFailureClaimed": false,
+    "initialFailureBeforePrivateServiceRequests": true
+  },
+  "restartPrediction": {
+    "portalAwaitingAgentPreserved": true,
+    "portalAwaitingInputPreserved": true,
+    "signedGeneratingPreserved": true,
+    "currentExpiredLeaseRemainsExpired": true,
+    "noAutomaticReplay": true,
+    "noCompletionClaim": true,
+    "basedOnSourceOnly": true
+  },
+  "retainedLocalHelperMetadata": [
+    {
+      "startedAt": 1791850050609,
+      "scriptContainsAcl": true,
+      "executable": "C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe",
+      "present": true,
+      "decodedUtf8ScriptHash": "8cdde0ad2fb7f820492c508b5e32b301593a2f19f114c7c682cdfeefe0aae602",
+      "parent": 39796,
+      "encodedScript": true,
+      "scriptContainsReadLine": true,
+      "pid": 26892,
+      "commandHash": "c6a6361951ec0ab8ab45f9ee8de0f79973ca2c1400a4d4cc54ef56a8dc0b4310"
+    },
+    {
+      "startedAt": 1791850057441,
+      "scriptContainsAcl": true,
+      "executable": "C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe",
+      "present": true,
+      "decodedUtf8ScriptHash": "8cdde0ad2fb7f820492c508b5e32b301593a2f19f114c7c682cdfeefe0aae602",
+      "parent": 35244,
+      "encodedScript": true,
+      "scriptContainsReadLine": true,
+      "pid": 29232,
+      "commandHash": "c6a6361951ec0ab8ab45f9ee8de0f79973ca2c1400a4d4cc54ef56a8dc0b4310"
+    }
+  ]
+}

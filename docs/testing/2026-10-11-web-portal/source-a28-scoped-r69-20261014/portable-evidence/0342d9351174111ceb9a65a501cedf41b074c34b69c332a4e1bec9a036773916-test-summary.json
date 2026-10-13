@@ -1,0 +1,482 @@
+{
+  "schemaVersion": 1,
+  "kind": "sanitized-original-test-report-summary",
+  "originalPath": ".worktrees/_cache/c2-c3-implementation-20261014/c2-explicit-route-type-repair-r1/changed-explicit-ts-tests-r2.json",
+  "originalSha256": "0342d9351174111ceb9a65a501cedf41b074c34b69c332a4e1bec9a036773916",
+  "originalSuccess": true,
+  "numTotalTests": 117,
+  "numPassedTests": 2,
+  "numFailedTests": 0,
+  "numPendingTests": 115,
+  "assertions": [
+    {
+      "name": "resolves a top-level immutable literal import binding without executing source",
+      "status": "skipped"
+    },
+    {
+      "name": "retains a known constant production target as missing instead of inventing build evidence",
+      "status": "skipped"
+    },
+    {
+      "name": "keeps uncertain or shadowed import binding blocked 0",
+      "status": "skipped"
+    },
+    {
+      "name": "keeps uncertain or shadowed import binding blocked 1",
+      "status": "skipped"
+    },
+    {
+      "name": "keeps uncertain or shadowed import binding blocked 2",
+      "status": "skipped"
+    },
+    {
+      "name": "keeps uncertain or shadowed import binding blocked 3",
+      "status": "skipped"
+    },
+    {
+      "name": "keeps uncertain or shadowed import binding blocked 4",
+      "status": "skipped"
+    },
+    {
+      "name": "keeps uncertain or shadowed import binding blocked 5",
+      "status": "skipped"
+    },
+    {
+      "name": "keeps uncertain or shadowed import binding blocked 6",
+      "status": "skipped"
+    },
+    {
+      "name": "keeps uncertain or shadowed import binding blocked 7",
+      "status": "skipped"
+    },
+    {
+      "name": "keeps uncertain or shadowed import binding blocked 8",
+      "status": "skipped"
+    },
+    {
+      "name": "keeps uncertain or shadowed import binding blocked 9",
+      "status": "skipped"
+    },
+    {
+      "name": "resolves native require literal bindings while keeping custom/shadowed require blocked",
+      "status": "skipped"
+    },
+    {
+      "name": "merges array extends left to right with per-parent origins and child overrides",
+      "status": "skipped"
+    },
+    {
+      "name": "uses the final inherited baseUrl with the last parent paths declaration",
+      "status": "skipped"
+    },
+    {
+      "name": "keeps malformed, excessive and cyclic array extends blocking",
+      "status": "skipped"
+    },
+    {
+      "name": "resolves .tsx to verified .ts through selected TypeScript configuration and rootDirs",
+      "status": "skipped"
+    },
+    {
+      "name": "resolves .tsx aliases to verified .ts while preserving exact target precedence",
+      "status": "skipped"
+    },
+    {
+      "name": "does not infer .tsx compiler substitution without a selected config or through Node package targets",
+      "status": "skipped"
+    },
+    {
+      "name": "retains unreadable/case-mismatched exact .tsx inputs instead of substituting another file",
+      "status": "skipped"
+    },
+    {
+      "name": "does not skip an unreadable exact .tsx alias choice for a later readable alternative",
+      "status": "skipped"
+    },
+    {
+      "name": "preserves unavailable baseUrl .tsx compiler targets instead of choosing a same-name package",
+      "status": "skipped"
+    },
+    {
+      "name": "keeps .tsx substitution unresolved in an ambiguous or unassigned project context",
+      "status": "skipped"
+    },
+    {
+      "name": "resolves plain CSS ?url using bound Vite configuration export default {plugins:[]};",
+      "status": "skipped"
+    },
+    {
+      "name": "resolves plain CSS ?url using bound Vite configuration import {defineConfig as config} from \"vite\"; export default config({plugins:[]});",
+      "status": "skipped"
+    },
+    {
+      "name": "resolves plain CSS ?url using bound Vite configuration import {defineConfig} from \"vite\"; export default defineConfig(({mode})=>{const value=mode; return {plugins:[]};});",
+      "status": "skipped"
+    },
+    {
+      "name": "keeps unsupported CSS loader request ./style.module.css?url unresolved",
+      "status": "skipped"
+    },
+    {
+      "name": "keeps unsupported CSS loader request ./style.css?raw unresolved",
+      "status": "skipped"
+    },
+    {
+      "name": "keeps unsupported CSS loader request ./style.css?url&raw unresolved",
+      "status": "skipped"
+    },
+    {
+      "name": "keeps unsupported CSS loader request ./style.css?url=1 unresolved",
+      "status": "skipped"
+    },
+    {
+      "name": "does not assume Vite CSS ?url semantics for unsupported config export default foreign;",
+      "status": "skipped"
+    },
+    {
+      "name": "does not assume Vite CSS ?url semantics for unsupported config import {defineConfig} from \"vite\"; defineConfig=foreign; export default defineConfig({});",
+      "status": "skipped"
+    },
+    {
+      "name": "does not assume Vite CSS ?url semantics for unsupported config import {defineConfig} from \"vite\"; export default defineConfig(async()=>({}));",
+      "status": "skipped"
+    },
+    {
+      "name": "does not assume Vite CSS ?url semantics for unsupported config import {defineConfig} from \"vite\"; export default defineConfig(()=>{if(flag)return {};return {};});",
+      "status": "skipped"
+    },
+    {
+      "name": "does not assume Vite CSS ?url semantics for unsupported config export default {resolve:{alias:{\"./style.css\":\"./other.css\"}}};",
+      "status": "skipped"
+    },
+    {
+      "name": "does not assume Vite CSS ?url semantics for unsupported config export default {root:\"elsewhere\"};",
+      "status": "skipped"
+    },
+    {
+      "name": "does not assume Vite CSS ?url semantics for unsupported config export default {...foreign};",
+      "status": "skipped"
+    },
+    {
+      "name": "does not assume Vite CSS ?url semantics for unsupported config export default {__proto__:{root:\"elsewhere\"}};",
+      "status": "skipped"
+    },
+    {
+      "name": "does not assume Vite CSS ?url semantics for unsupported config export default {get plugins(){return []}};",
+      "status": "skipped"
+    },
+    {
+      "name": "does not bind a type-only Vite helper import type {defineConfig} from \"vite\"; export default defineConfig({}); to a runtime CSS loader",
+      "status": "skipped"
+    },
+    {
+      "name": "does not bind a type-only Vite helper import {type defineConfig} from \"vite\"; export default defineConfig({}); to a runtime CSS loader",
+      "status": "skipped"
+    },
+    {
+      "name": "keeps CSS ?url unresolved for a compiler override of Vite or an unassigned source",
+      "status": "skipped"
+    },
+    {
+      "name": "does not assume core CSS source resolution for unverified Vite plugins export default {plugins:[{name:\"redirect\",enforce:\"pre\",resolveId(id){if(id===\"./style.css?url\")return \"/fixture/other.css?url\";}}]};",
+      "status": "skipped"
+    },
+    {
+      "name": "does not assume core CSS source resolution for unverified Vite plugins export default {plugins:[{name:\"alias\",config(){return {resolve:{alias:{\"./style.css\":\"./other.css\"}}}}}]};",
+      "status": "skipped"
+    },
+    {
+      "name": "does not assume core CSS source resolution for unverified Vite plugins export default {plugins:[foreign()]};",
+      "status": "skipped"
+    },
+    {
+      "name": "does not assume core CSS source resolution for unverified Vite plugins export default {plugins:foreign};",
+      "status": "skipped"
+    },
+    {
+      "name": "requires owning Vite declaration, config inventory and readable CSS source for ?url",
+      "status": "skipped"
+    },
+    {
+      "name": "does not use an unbound manifest or declared external stylesheet as captured CSS ?url source",
+      "status": "skipped"
+    },
+    {
+      "name": "keeps unsupported Vite selector npm:other-loader@7.3.1 explicit for CSS ?url",
+      "status": "skipped"
+    },
+    {
+      "name": "keeps unsupported Vite selector workspace:* explicit for CSS ?url",
+      "status": "skipped"
+    },
+    {
+      "name": "keeps unsupported Vite selector * explicit for CSS ?url",
+      "status": "skipped"
+    },
+    {
+      "name": "keeps unsupported Vite selector ^6.0.0 explicit for CSS ?url",
+      "status": "skipped"
+    },
+    {
+      "name": "retains selected source configuration, CSS dependencies and unsupported inherited config issues",
+      "status": "skipped"
+    },
+    {
+      "name": "resolves private package imports from the owning manifest and binds conditional source branches",
+      "status": "skipped"
+    },
+    {
+      "name": "honors exact private import blocks and specific patterns without inheriting across package boundaries",
+      "status": "skipped"
+    },
+    {
+      "name": "leaves unsafe or unsupported private import target ../outside.ts unresolved",
+      "status": "skipped"
+    },
+    {
+      "name": "leaves unsafe or unsupported private import target ./sub/../inside.ts unresolved",
+      "status": "skipped"
+    },
+    {
+      "name": "leaves unsafe or unsupported private import target ./node_modules/pkg/index.ts unresolved",
+      "status": "skipped"
+    },
+    {
+      "name": "leaves unsafe or unsupported private import target ./%2e%2e/outside.ts unresolved",
+      "status": "skipped"
+    },
+    {
+      "name": "leaves unsafe or unsupported private import target external-package unresolved",
+      "status": "skipped"
+    },
+    {
+      "name": "retains ambiguity when a TypeScript path overrides a private package import",
+      "status": "skipped"
+    },
+    {
+      "name": "resolves SVG ?react only with its configured Vite loader",
+      "status": "skipped"
+    },
+    {
+      "name": "resolves SVG ?component only with its configured Vite loader",
+      "status": "skipped"
+    },
+    {
+      "name": "resolves imports, CommonJS, literal dynamic imports and re-exports to source files",
+      "status": "skipped"
+    },
+    {
+      "name": "resolves inherited JSONC path aliases with config-relative origins and workspace exports",
+      "status": "skipped"
+    },
+    {
+      "name": "distinguishes builtins and declared external dependencies from unresolved inputs",
+      "status": "skipped"
+    },
+    {
+      "name": "keeps ignored/generated inventory members resolvable and flags unparsed code targets",
+      "status": "skipped"
+    },
+    {
+      "name": "does not silently resolve escaped, case-aliased, blocked export or duplicate package paths",
+      "status": "skipped"
+    },
+    {
+      "name": "marks invalid syntax, unsupported config inheritance and truncated analysis incomplete",
+      "status": "skipped"
+    },
+    {
+      "name": "never executes source or configuration and remains deterministic",
+      "status": "skipped"
+    },
+    {
+      "name": "resolves Vue and Svelte scripts and TypeScript import-equals without executing templates",
+      "status": "skipped"
+    },
+    {
+      "name": "keeps conditional wildcard exports conservative and blocks uncertain require bindings",
+      "status": "skipped"
+    },
+    {
+      "name": "fences member and custom module loaders and resolves import-type source dependencies",
+      "status": "skipped"
+    },
+    {
+      "name": "does not use uninstalled fixture manifests to shadow external dependencies",
+      "status": "skipped"
+    },
+    {
+      "name": "honors explicit external aliases and file targets ahead of matching workspace names",
+      "status": "skipped"
+    },
+    {
+      "name": "does not guess workspace version ranges or self-references without exports",
+      "status": "skipped"
+    },
+    {
+      "name": "prioritizes an exported self-reference over a same-name external dependency selector",
+      "status": "skipped"
+    },
+    {
+      "name": "uses referenced project aliases for included sources and binds solution configuration",
+      "status": "skipped"
+    },
+    {
+      "name": "separates solution references from inheritance and chooses each project by its source membership",
+      "status": "skipped"
+    },
+    {
+      "name": "supports directory references, nested projects, inherited selectors and explicit file membership",
+      "status": "skipped"
+    },
+    {
+      "name": "keeps overlapping and excluded solution project sources unresolved instead of using external declarations",
+      "status": "skipped"
+    },
+    {
+      "name": "retains the solution own source configuration and treats a parent-child overlap as ambiguous",
+      "status": "skipped"
+    },
+    {
+      "name": "requires explicit hidden-directory globs and inherited JavaScript permission for referenced source membership",
+      "status": "skipped"
+    },
+    {
+      "name": "does not override inherited allowJs false with checkJs true when choosing a referenced project",
+      "status": "skipped"
+    },
+    {
+      "name": "accepts an empty rootDirs override without retaining an inherited overlay",
+      "status": "skipped"
+    },
+    {
+      "name": "rejects wildcard parent traversal in referenced project source selectors",
+      "status": "skipped"
+    },
+    {
+      "name": "bounds project source membership comparisons across a wide solution",
+      "status": "skipped"
+    },
+    {
+      "name": "keeps imported source ownership across referenced project contexts instead of switching to another project",
+      "status": "skipped"
+    },
+    {
+      "name": "keeps recursive wildcard exclusions out of referenced project ownership",
+      "status": "skipped"
+    },
+    {
+      "name": "inherits implicit output-directory exclusion unless exclude explicitly overrides it",
+      "status": "skipped"
+    },
+    {
+      "name": "keeps absent and unreadable explicit project files incomplete while empty solution files stay valid",
+      "status": "skipped"
+    },
+    {
+      "name": "rejects a transitive switch to a nested standalone config outside the solution references",
+      "status": "skipped"
+    },
+    {
+      "name": "rejects a transitive switch to default resolution outside the solution directory",
+      "status": "skipped"
+    },
+    {
+      "name": "validates effective project files after overriding an inherited template list",
+      "status": "skipped"
+    },
+    {
+      "name": "does not accept unsafe or absent project reference ../outside.json",
+      "status": "skipped"
+    },
+    {
+      "name": "does not accept unsafe or absent project reference C:/outside.json",
+      "status": "skipped"
+    },
+    {
+      "name": "does not accept unsafe or absent project reference ./%2e%2e/outside.json",
+      "status": "skipped"
+    },
+    {
+      "name": "does not accept unsafe or absent project reference ./missing.json",
+      "status": "skipped"
+    },
+    {
+      "name": "detects reference cycles and limits without treating child inheritance as a cycle",
+      "status": "skipped"
+    },
+    {
+      "name": "resolves relative generated types through config-relative inherited rootDirs only when verified bytes exist",
+      "status": "skipped"
+    },
+    {
+      "name": "uses the longest rootDirs prefix and retains direct source precedence",
+      "status": "skipped"
+    },
+    {
+      "name": "keeps missing, unreadable and case-mismatched rootDirs inputs unresolved",
+      "status": "skipped"
+    },
+    {
+      "name": "rejects unsupported rootDirs \"../outside\"",
+      "status": "skipped"
+    },
+    {
+      "name": "rejects unsupported rootDirs \"./%2e%2e/outside\"",
+      "status": "skipped"
+    },
+    {
+      "name": "rejects unsupported rootDirs \"C:/outside\"",
+      "status": "skipped"
+    },
+    {
+      "name": "rejects unsupported rootDirs 1",
+      "status": "skipped"
+    },
+    {
+      "name": "rejects unsupported rootDirs \"app\"",
+      "status": "skipped"
+    },
+    {
+      "name": "bounds wide AST arrays without throwing before the traversal limit",
+      "status": "skipped"
+    },
+    {
+      "name": "fences destructured, default, rest, reassigned and caught require bindings",
+      "status": "skipped"
+    },
+    {
+      "name": "rejects mixed export conditions and subpath keys at every selected level",
+      "status": "skipped"
+    },
+    {
+      "name": "resolves protected React Router route types from actual generated members 0",
+      "status": "skipped"
+    },
+    {
+      "name": "resolves protected React Router route types from actual generated members 1",
+      "status": "skipped"
+    },
+    {
+      "name": "denies protected React Router route types for runtime, foreign, missing and ambiguous facts",
+      "status": "skipped"
+    },
+    {
+      "name": "keeps admitted generated root and home targets out of source configuration provenance",
+      "status": "skipped"
+    },
+    {
+      "name": "keeps missing real compiler source configuration incomplete after generated type classification",
+      "status": "skipped"
+    },
+    {
+      "name": "resolves explicit ts inline route types for actual Epic root and marketing routes",
+      "status": "passed"
+    },
+    {
+      "name": "denies explicit ts generated route imports without exact type-only admission",
+      "status": "passed"
+    }
+  ],
+  "limits": "Original raw report remains local-only; stacks/source snippets/actor-state omitted. Summary cannot issue authority or convert a failed full report to pass."
+}

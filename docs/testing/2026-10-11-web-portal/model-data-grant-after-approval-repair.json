@@ -1,0 +1,20 @@
+{
+  "at": "2026-10-12T14:02:51.093Z",
+  "jobId": "603b8bf2-0e53-4925-a3e8-df488c70513f",
+  "status": "succeeded",
+  "grantReadBack": true,
+  "grant": {
+    "mode": "external-model",
+    "allowedClasses": [
+      "public",
+      "project-code",
+      "design-text",
+      "design-image"
+    ],
+    "configuredAt": "2026-10-12T14:02:20.755Z",
+    "expiresAt": "2026-10-12T22:02:20.755Z"
+  },
+  "originalRequestReplayed": false,
+  "oldDeadlineRenewed": false,
+  "scope": "Fresh owner-authorized grant through repaired normal portal approval; initial helper classified its own ISO timestamp assertion as failure after successful action, then read back without replay."
+}

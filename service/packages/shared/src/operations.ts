@@ -38,7 +38,12 @@ export type Effect =
   | { type: 'portal-state-read' }
   | { type: 'native-process-run'; profileArg: string }
   | { type: 'owned-process-stop' }
-  | { type: 'external-browser-read'; urlArg: string; attachOnly: true }
+  | {
+      type: 'external-browser-read';
+      urlArg: string;
+      attachOnly: true;
+      collector?: 'page-api' | 'scripter';
+    }
   | { type: 'network'; urlArg: string };
 
 export interface ServerEvidenceWriteEffectV1 {
@@ -69,7 +74,8 @@ export interface WorkspaceInvocationContext {
  * without making policy classification perform side effects.
  */
 export interface PolicyInvocationContext {
-  portalCaptureSource?: 'chrome' | 'desktop';
+  portalCaptureSource?: 'chrome' | 'desktop' | 'official-mcp';
+  portalCaptureCollector?: 'page-api' | 'scripter';
   workspace: WorkspaceInvocationContext;
   /** Present after Task 4 resolves path arguments; absent means no overwrite has been observed. */
   resolvedPaths?: Readonly<Record<string, ResolvedWorkspacePath>>;

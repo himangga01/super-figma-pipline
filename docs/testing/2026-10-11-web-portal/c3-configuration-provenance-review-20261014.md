@@ -1,0 +1,17 @@
+# Generated type target configuration classification review
+
+Date: October14,2026,05:28KST. Baseline Main/native/runtime source isd722, build7632; Main HEAD22517932 retains working-tree changes and owner indexECC1808. Root read the new actual C3 source/graph result, complete two-file candidate diff, producer/resolver/connection call chain and targeted report. Read [AGENTS](../../../AGENTS.md) and [C2/C3 continuation](../../analysis/c2-c3-continuation-20261013.md) first.
+
+## Finding and approved exact change
+
+The genuine d722 compiler result7f1a fixed missing generated type modules. Fresh graph40fe consumed that exact hash and resolved root/home imports, but service selection remained incomplete with two `CONFIGURATION_SOURCE_MISSING` observations. The resolver wrongly appended the admitted generated type target to `reference.configuration`. The connection analyzer correctly requires configuration inputs to exist as source inventory members. Generated compiler type output is not such a source configuration file.
+
+The exact correction removes only the admitted generated target from this configuration list. It retains selected TypeScript configuration and the compiler's actual source configuration inputs, status external, empty runtime targets and the observed-generated-type reason. The existing branch still requires a type-only import, admitted compiler/source/inventory identity, valid rootDirs, exact unique observed member and original issuer deadline. Graph.compilerEvidenceHash continues to bind the protected output. Runtime/foreign/missing/ambiguous imports and missing real configuration remain guarded. No new source-inventory member, broad type-only skip, semantic review waiver or capture authority is added.
+
+Frozen manifest `.worktrees/_cache/c2-c3-implementation-20261014/c3-configuration-provenance-repair/frozen-configuration-provenance-repair.json` hashes tobd08344ec69fdb265a5d454d0031ea2d00d2b6f5d8572806262921444c1a9781. Source final hash isbb63d231502c716409dffd731c7e17078ba2fcd8f361711b322dd4e6072144bd; test final hash isfb442e930b793a7673a4e04232cd5f36b7fd8b68c6bd847846a4a3241e6d7538. Current Main preimages are2358e3d2 andfab4f3b9.
+
+## Verification and limits
+
+Two new resolve-to-connection integration assertions passed, zero failed and113 historical cases filtered. One proves root/home produce real configuration candidates; the other proves an actually absent compiler source configuration still emits both failures. Report hash1139f623885d2cba8fc158b6ae9cbecdc6ea70540a842c6538b961768f2575aa. The test's compiler admission spy is explicit and cannot issue genuine native authority. Formatting ran after those functional assertions; exact two-file lint/format passed without repeating them. Historical configuration expectations were updated for the intentionally changed classification, but no historical full-suite pass is inferred.
+
+Root approves the exact bounded two-file implementation. Main/native integration, affected types/static/provenance/build and actual new-source graph selection remain separate gates. Current C2 source preparation is still active on the verified d722 runtime. Preserve its compiled artifact/issuer binding; do not overwrite dist or restart its daemon while it is pending. Chrome approval is actually pending and unsupported to click in this session, so these source-only fixtures do not establish full CDD/C2/C3 acceptance or completion by08:00.

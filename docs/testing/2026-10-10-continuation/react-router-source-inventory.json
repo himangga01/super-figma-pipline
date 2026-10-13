@@ -1,0 +1,430 @@
+{
+  "repo": "react-router-templates",
+  "commit": "067adb378a00a4c2ceb71934d5e8901d0e87c256",
+  "files": 80,
+  "symlinks": [],
+  "executables": [],
+  "hits": [
+    {
+      "file": ".tests/package.json",
+      "line": 12,
+      "kind": "execution",
+      "text": "\"execa\": \"^9.6.1\","
+    },
+    {
+      "file": ".tests/utils.ts",
+      "line": 5,
+      "kind": "execution",
+      "text": "execa,"
+    },
+    {
+      "file": ".tests/utils.ts",
+      "line": 10,
+      "kind": "execution",
+      "text": "} from \"execa\";"
+    },
+    {
+      "file": ".tests/utils.ts",
+      "line": 14,
+      "kind": "execution",
+      "text": "import { ChildProcess } from \"child_process\";"
+    },
+    {
+      "file": ".tests/utils.ts",
+      "line": 62,
+      "kind": "execution",
+      "text": "const spawn = execa({"
+    },
+    {
+      "file": ".tests/utils.ts",
+      "line": 73,
+      "kind": "execution",
+      "text": "await spawn(file, args);"
+    },
+    {
+      "file": ".tests/utils.ts",
+      "line": 91,
+      "kind": "execution",
+      "text": "const spawn = execa({"
+    },
+    {
+      "file": ".tests/utils.ts",
+      "line": 105,
+      "kind": "execution",
+      "text": "const p = spawn(file, args, options);"
+    }
+  ],
+  "manifests": [
+    {
+      "file": ".tests/package.json",
+      "scripts": {
+        "test": "playwright test",
+        "clean": "rm -rf ./test-results && rm -rf ./tmp"
+      },
+      "engines": {}
+    },
+    {
+      "file": "default/package.json",
+      "scripts": {
+        "build": "react-router build",
+        "dev": "react-router dev",
+        "start": "react-router-serve ./build/server/index.js",
+        "typecheck": "react-router typegen && tsc"
+      },
+      "engines": {}
+    },
+    {
+      "file": "node-custom-server/package.json",
+      "scripts": {
+        "build": "react-router build",
+        "dev": "cross-env NODE_ENV=development node --conditions development server.js",
+        "start": "node server.js",
+        "typecheck": "react-router typegen && tsc -b"
+      },
+      "engines": {}
+    },
+    {
+      "file": "unstable_rsc-data-mode-vite/package.json",
+      "scripts": {
+        "build": "vite build",
+        "dev": "cross-env NODE_ENV=development vite",
+        "start": "cross-env NODE_ENV=production node server.js",
+        "typecheck": "tsc --noEmit"
+      },
+      "engines": {}
+    },
+    {
+      "file": "unstable_rsc-framework-mode/package.json",
+      "scripts": {
+        "dev": "react-router dev",
+        "build": "react-router build",
+        "start": "react-router-serve build/server/index.js",
+        "typecheck": "react-router typegen && tsc"
+      },
+      "engines": {}
+    }
+  ],
+  "dependencyLocks": [],
+  "fileHashes": [
+    {
+      "file": ".assets/starter-kits-solid.png",
+      "sha256": "1eb831e0331c33513f5073b22cc63ab36f641b75cb45ea505116b4c584537b84"
+    },
+    {
+      "file": ".github/workflows/ci.yml",
+      "sha256": "d3aeb788b9e0da844c0e07acee263802beead586f451f6729cf09cdb4c7f3a65"
+    },
+    {
+      "file": ".gitignore",
+      "sha256": "6e89242efb127dd295164602162e516b05a256c2b8188c00309b52530bbf2d6e"
+    },
+    {
+      "file": ".nvmrc",
+      "sha256": "f6bca0e7f46a94bd3349fdb86511cbec4a9091e409b62dd2d6b8c1fdb9a3ce00"
+    },
+    {
+      "file": ".tests/.gitignore",
+      "sha256": "2c4b50c346c5e5eec12bfe1913af8c0127fbf89c6d3913578613dc9198e51777"
+    },
+    {
+      "file": ".tests/package.json",
+      "sha256": "3c0999be7fb9ec161c4a18e9cf07cdb208d672a22b8f5a2f47f1cad9675dc2a7"
+    },
+    {
+      "file": ".tests/playwright.config.ts",
+      "sha256": "0eddcdc66901dc195de1646d0335df6b010d87a35cfbba5b17cea95f48b133a6"
+    },
+    {
+      "file": ".tests/test.default.ts",
+      "sha256": "3a2662804d13dfbf5ac6dcdc142709fcc1a43c207b7414dfc542171ac228e2ef"
+    },
+    {
+      "file": ".tests/test.node-custom-server.ts",
+      "sha256": "89d7b6200e906ae7c1a77b10d747f1b3a34754b7ed80dbe6c646ea87b51fc921"
+    },
+    {
+      "file": ".tests/utils.ts",
+      "sha256": "a535f0df243f622a3b530512e26da2269f2a76b19587b22c6a3c792ce2c3faaf"
+    },
+    {
+      "file": "README.md",
+      "sha256": "dfff4c3519776acb63faa5706f65c3719039913af700f699e53a8bf4887ec549"
+    },
+    {
+      "file": "default/.dockerignore",
+      "sha256": "01c6b28cc1b8b8e63b232925685ea81fe5b200a0bba896934a87bf0da33cdb4d"
+    },
+    {
+      "file": "default/.gitignore",
+      "sha256": "45a7c0a27373af75e831844447479f64a05dcc648b5da6829c5e0fae9b665a83"
+    },
+    {
+      "file": "default/Dockerfile",
+      "sha256": "1bdd40dd354f391060049df44c8beff45be59966b67cffdbbc0ad58e9c9fdc20"
+    },
+    {
+      "file": "default/README.md",
+      "sha256": "7c3aef16dd8d14d7aed5836cad938ac31ea60947c3e13625bd02cb95da1bdb7a"
+    },
+    {
+      "file": "default/app/app.css",
+      "sha256": "6eb8cc0f863d95186809c795e2b002bd38fb09ba747192506ff73692b29e7611"
+    },
+    {
+      "file": "default/app/root.tsx",
+      "sha256": "da108f06484304a845d5067f66cfe279af63e996a6381fc69cc33ed83488dd4e"
+    },
+    {
+      "file": "default/app/routes.ts",
+      "sha256": "027f4134a3cf7a6ead9844c9e2472e9ab6e3b58445029cc3af6dec7c4c360a09"
+    },
+    {
+      "file": "default/app/routes/home.tsx",
+      "sha256": "8db90eaf9aec57a1da434730ca6ac936877370b35ca8a213a401eb9aadfba777"
+    },
+    {
+      "file": "default/app/welcome/logo-dark.svg",
+      "sha256": "a67acd1399fc04d770b46890f0c5aec63993b8e62bab44f390786d337105e925"
+    },
+    {
+      "file": "default/app/welcome/logo-light.svg",
+      "sha256": "c00c3464aee8b5fe75a97ae0e90e79fdf6fa3e0d4b6945e113cad8282b8fb0f4"
+    },
+    {
+      "file": "default/app/welcome/welcome.tsx",
+      "sha256": "8fde88fd71725966e637df4705aa017470bd95745a75fbd181ecb9e9dce82a5f"
+    },
+    {
+      "file": "default/package.json",
+      "sha256": "0a9f28bb4cfd6eb28843fa39ab6752cc9eba9259952f9ac62fdb0f748deccfc5"
+    },
+    {
+      "file": "default/public/favicon.ico",
+      "sha256": "c10d2b470d85e242fe26871931b22cd2caf3dfb69299e938d80fac0ca042feea"
+    },
+    {
+      "file": "default/react-router.config.ts",
+      "sha256": "70d833e61c94c6ae4ea8d5bb74946a1eebd2409738fc4915519cdf7198e32587"
+    },
+    {
+      "file": "default/tsconfig.json",
+      "sha256": "304799ae6147425deb94b09e7a00f1728d3b74b6327b3df542fb5552df52cc9e"
+    },
+    {
+      "file": "default/vite.config.ts",
+      "sha256": "c8525c5190472d27aabe7fda54e23d662096f0e50f06e9a6da7ea792d37de76c"
+    },
+    {
+      "file": "node-custom-server/.dockerignore",
+      "sha256": "01c6b28cc1b8b8e63b232925685ea81fe5b200a0bba896934a87bf0da33cdb4d"
+    },
+    {
+      "file": "node-custom-server/.gitignore",
+      "sha256": "cebb3a0b720190118c83f64fe2a2164b6935314d77914ae80e0f0cf165d686c8"
+    },
+    {
+      "file": "node-custom-server/Dockerfile",
+      "sha256": "675fff249895856d5c57db8d007c7f03e4d2400c4dcc42fb5589fbcf3d1a4644"
+    },
+    {
+      "file": "node-custom-server/README.md",
+      "sha256": "9d7598dfc717a5a7931ede557769a547e0064763a89c9a83e94c9bf1b95d05d8"
+    },
+    {
+      "file": "node-custom-server/app/app.css",
+      "sha256": "6eb8cc0f863d95186809c795e2b002bd38fb09ba747192506ff73692b29e7611"
+    },
+    {
+      "file": "node-custom-server/app/context.ts",
+      "sha256": "173a122b1e82f819a4bc6d3783dacfb6727aaa66944852233084a4811ebd134f"
+    },
+    {
+      "file": "node-custom-server/app/root.tsx",
+      "sha256": "da108f06484304a845d5067f66cfe279af63e996a6381fc69cc33ed83488dd4e"
+    },
+    {
+      "file": "node-custom-server/app/routes.ts",
+      "sha256": "027f4134a3cf7a6ead9844c9e2472e9ab6e3b58445029cc3af6dec7c4c360a09"
+    },
+    {
+      "file": "node-custom-server/app/routes/home.tsx",
+      "sha256": "3e26b590d78b0ae7387842289383211ba9733ab0b3a059d77bd92d3b437c366c"
+    },
+    {
+      "file": "node-custom-server/app/welcome/logo-dark.svg",
+      "sha256": "a67acd1399fc04d770b46890f0c5aec63993b8e62bab44f390786d337105e925"
+    },
+    {
+      "file": "node-custom-server/app/welcome/logo-light.svg",
+      "sha256": "c00c3464aee8b5fe75a97ae0e90e79fdf6fa3e0d4b6945e113cad8282b8fb0f4"
+    },
+    {
+      "file": "node-custom-server/app/welcome/welcome.tsx",
+      "sha256": "fb232fa04128a04e85cef25f9e5c0b561f1bb719062d483b121e026d753a7920"
+    },
+    {
+      "file": "node-custom-server/package.json",
+      "sha256": "333d436be9d9af68a8b9d013c6c7b7a816e8b3d4653d3732b177b864bffffdd4"
+    },
+    {
+      "file": "node-custom-server/public/favicon.ico",
+      "sha256": "c10d2b470d85e242fe26871931b22cd2caf3dfb69299e938d80fac0ca042feea"
+    },
+    {
+      "file": "node-custom-server/react-router.config.ts",
+      "sha256": "70d833e61c94c6ae4ea8d5bb74946a1eebd2409738fc4915519cdf7198e32587"
+    },
+    {
+      "file": "node-custom-server/server.js",
+      "sha256": "3ce39982a210cd25969b2e10d70051bf7583ada1259eb412a69d54219d892315"
+    },
+    {
+      "file": "node-custom-server/server/app.ts",
+      "sha256": "0547f728df7c12537cfbc971e8cc86739d382d5560451ae3f86779820629db7b"
+    },
+    {
+      "file": "node-custom-server/tsconfig.json",
+      "sha256": "aeafe1ad669ac47363746e61344221881f2bbf787695a6bfa590108d8321c376"
+    },
+    {
+      "file": "node-custom-server/tsconfig.node.json",
+      "sha256": "6b225a6ad97ed23a12ce0cd50f7beecf80c11aa72295d5979c9279e0924b6acc"
+    },
+    {
+      "file": "node-custom-server/tsconfig.vite.json",
+      "sha256": "a528ea3b49a7d2d03b76326ea3fa5181cc89c3f68d94a7af448d5553c3edf24e"
+    },
+    {
+      "file": "node-custom-server/vite.config.ts",
+      "sha256": "d60d3185da561ec5c469dd1ab02a64b22f1f471c929a8235d57a179fda2a7263"
+    },
+    {
+      "file": "pnpm-lock.yaml",
+      "sha256": "48b93a7c88f3df4d50f7c119d3db3e6226c1bddae69a5e017adcec966923c9ee"
+    },
+    {
+      "file": "pnpm-workspace.yaml",
+      "sha256": "6a112072cc3927518ed5c2e5d4c84584f2b5e228ab38b77383ea4c2f3aed8949"
+    },
+    {
+      "file": "unstable_rsc-data-mode-vite/.gitignore",
+      "sha256": "acacc87513152ce13e59f79fb18f35ba7c77d5e37853a8f203627ebe4a5843e9"
+    },
+    {
+      "file": "unstable_rsc-data-mode-vite/README.md",
+      "sha256": "2951cab4d11274ca3bfe1e7c0103507705c91285c2b6ffa9b8673aa2efb2e129"
+    },
+    {
+      "file": "unstable_rsc-data-mode-vite/package.json",
+      "sha256": "9ac6ca208dcd36b01917c70fee32890818414b38500cd6204e52cb31f0777db9"
+    },
+    {
+      "file": "unstable_rsc-data-mode-vite/public/favicon.ico",
+      "sha256": "c10d2b470d85e242fe26871931b22cd2caf3dfb69299e938d80fac0ca042feea"
+    },
+    {
+      "file": "unstable_rsc-data-mode-vite/server.js",
+      "sha256": "42a046703cc75a42e3fc7e691973279e545dfc59625c5b63c4145bbb8f9e8155"
+    },
+    {
+      "file": "unstable_rsc-data-mode-vite/src/entry.browser.tsx",
+      "sha256": "de3d470f30240d128a9c6c1a57468aa5e43181a71cefcde9e56b167e68720a62"
+    },
+    {
+      "file": "unstable_rsc-data-mode-vite/src/entry.rsc.tsx",
+      "sha256": "770a9ab14afeb8099276f0f3e0d78c46cb39f9d308f220f2f2065355d60cf061"
+    },
+    {
+      "file": "unstable_rsc-data-mode-vite/src/entry.ssr.tsx",
+      "sha256": "909a581857b91042158879c384a156de86568128419cd424c57b2ef4aef91f07"
+    },
+    {
+      "file": "unstable_rsc-data-mode-vite/src/routes/about/route.tsx",
+      "sha256": "637c492b3da2e7127d3169f66b6cbac66d84a1865466c6477315d56cf0707555"
+    },
+    {
+      "file": "unstable_rsc-data-mode-vite/src/routes/config.ts",
+      "sha256": "b2ba677352453330e3d805849bb2296645b194bd99559bc3ba3d28f8d3ec59c3"
+    },
+    {
+      "file": "unstable_rsc-data-mode-vite/src/routes/home/route.tsx",
+      "sha256": "38502a99daf7314f0830dda8a416127c316485ddb2068b716a4c1fa7f0691b5a"
+    },
+    {
+      "file": "unstable_rsc-data-mode-vite/src/routes/root/client.tsx",
+      "sha256": "a764109a7932cec4c6638ebf0929d381c541de962f2a37c3d8a822b7ab338b9b"
+    },
+    {
+      "file": "unstable_rsc-data-mode-vite/src/routes/root/route.tsx",
+      "sha256": "9abf6dfe000323859ac0f0f5a6f5c4c74d22b7c9faf716725de71c02bb663baa"
+    },
+    {
+      "file": "unstable_rsc-data-mode-vite/src/routes/root/styles.css",
+      "sha256": "3e1ad2fa7d8e13a8bf0d385657ecfbc401418064e69f386c8d9612925f233bfa"
+    },
+    {
+      "file": "unstable_rsc-data-mode-vite/tsconfig.json",
+      "sha256": "b9b9e88f7d02d5f06bb8fd3cc63a15ae38343f2c2d27387b2f0192955839d893"
+    },
+    {
+      "file": "unstable_rsc-data-mode-vite/vite.config.ts",
+      "sha256": "77b5243fb21ea30af010eddebe0be7a7b0ae9e58cf7ddc6508d8bc689e918f6c"
+    },
+    {
+      "file": "unstable_rsc-framework-mode/.gitignore",
+      "sha256": "45a7c0a27373af75e831844447479f64a05dcc648b5da6829c5e0fae9b665a83"
+    },
+    {
+      "file": "unstable_rsc-framework-mode/README.md",
+      "sha256": "ff16321fed1beb5a3fe2400823f232c66912e1d5880227d6bc4c3e258033f28c"
+    },
+    {
+      "file": "unstable_rsc-framework-mode/app/app.css",
+      "sha256": "6eb8cc0f863d95186809c795e2b002bd38fb09ba747192506ff73692b29e7611"
+    },
+    {
+      "file": "unstable_rsc-framework-mode/app/root.tsx",
+      "sha256": "5a3321d47590be8fcee6b75828ef29995ab172e89148f6623eeca9c142efd629"
+    },
+    {
+      "file": "unstable_rsc-framework-mode/app/routes.ts",
+      "sha256": "027f4134a3cf7a6ead9844c9e2472e9ab6e3b58445029cc3af6dec7c4c360a09"
+    },
+    {
+      "file": "unstable_rsc-framework-mode/app/routes/home.tsx",
+      "sha256": "d9ccc6b699332cf2d892b153b209926e48cbc531a05e4ae9c7deb7494f3ac55a"
+    },
+    {
+      "file": "unstable_rsc-framework-mode/app/welcome/logo-dark.svg",
+      "sha256": "a67acd1399fc04d770b46890f0c5aec63993b8e62bab44f390786d337105e925"
+    },
+    {
+      "file": "unstable_rsc-framework-mode/app/welcome/logo-light.svg",
+      "sha256": "c00c3464aee8b5fe75a97ae0e90e79fdf6fa3e0d4b6945e113cad8282b8fb0f4"
+    },
+    {
+      "file": "unstable_rsc-framework-mode/app/welcome/welcome.tsx",
+      "sha256": "0bbd7bac51928e1ab136bcdc40037df1bd495e003746872de6dfcb9815714ae5"
+    },
+    {
+      "file": "unstable_rsc-framework-mode/package.json",
+      "sha256": "71283fd8eb27c8420bd64fa331cdb6cd3420f39e03573219bdd79dc0932ebf8d"
+    },
+    {
+      "file": "unstable_rsc-framework-mode/public/favicon.ico",
+      "sha256": "c10d2b470d85e242fe26871931b22cd2caf3dfb69299e938d80fac0ca042feea"
+    },
+    {
+      "file": "unstable_rsc-framework-mode/react-router.config.ts",
+      "sha256": "6058997ced04d73b53ea539fb48ba5ee4db26c0b3bf13e44d17186b465dda83f"
+    },
+    {
+      "file": "unstable_rsc-framework-mode/tsconfig.json",
+      "sha256": "4d2c6a575fdc65113e4c283c60dab0a0a4f5ea5e30fc8f6469ef1ceac405f174"
+    },
+    {
+      "file": "unstable_rsc-framework-mode/vite.config.ts",
+      "sha256": "2269162e40f6bf206ebaac4ad6a001cd3f92f3b7adec0975c9f4c88bea2cfc4f"
+    }
+  ]
+}

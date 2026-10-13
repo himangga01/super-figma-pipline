@@ -1,0 +1,53 @@
+{
+  "schemaVersion": 1,
+  "at": "2026-10-13T07:45:01.901Z",
+  "sourceHash": "sha256:303de5d1904d11c1fb89bdf80951900e375ac4325ea6cfc932f39ebee2785732",
+  "entries": [
+    {
+      "path": "upstream-lock.json",
+      "before": "0fcacdcb855e001b273fcbdcfaf0a2f0dc00867bc89537a061795d0f74f637fb",
+      "after": "8cd20321548bcfd1170c0ee26f5807f175e4ea64bbdee70fbb7db3ad4db0fc03"
+    },
+    {
+      "path": "vendor-map.json",
+      "before": "b3275c7d8b997d1cfe723d97594659f77d7b4361b824a790bcfdd7ff762589bd",
+      "after": "b3275c7d8b997d1cfe723d97594659f77d7b4361b824a790bcfdd7ff762589bd"
+    },
+    {
+      "path": "vendor-rules.json",
+      "before": "389126f5781b4cc8ee5502aa0c837f18e1748fa128c47e4052fa91f6aae7fc88",
+      "after": "5e6bfd983fa59422327387b905f770437162802f7576e2fbc31e250931f6920b"
+    },
+    {
+      "path": "capabilities/change-manifests/task-review-2026-10-10.json",
+      "before": "cdb2e949804bda216270dae63b736b1fc21190e8256168f7ddc8bc917d0390c7",
+      "after": "60c5ee25653a9bf93158121c3b9f2f031c8680bf71d45a203f54a6fab1ce4b8d"
+    },
+    {
+      "path": "capabilities/task-review-2026-10-10-authority-classes.json",
+      "before": "1fd5cf6369752bd6d1b7791d87fdc0a0aaff4102806eb1fb2420ad54d3ced8d6",
+      "after": "d5b873e3d65668f49dfe13f30fee190ae273b6db2d45377def3fd92399f5c46a"
+    },
+    {
+      "path": "capabilities/reconciliations/review-2026-10-10-vite-fixture-tracking-2026-10-13.json",
+      "before": null,
+      "after": "c7ea9dda1afd68c185e6ff93fa590659728a4a4c922d652f7bcde80798b91441"
+    },
+    {
+      "path": "capabilities/reconciliations/review-2026-10-10-vite-fixture-exact-ignore-2026-10-13.json",
+      "before": null,
+      "after": "4db1c01ccda1b957b0806dfc06ed950855b4e6350b490b8b93260dc508200f7d"
+    }
+  ],
+  "semanticChanges": 276,
+  "derivedAuthorities": 4,
+  "ownerIndexBaseline": "ecc1808ab3e14fa2e8c233ae1fc1c91e0a33b5b2e383a7270f1bc3068997e675",
+  "ownerIndexUnchangedByReconciliation": true,
+  "fixtureResources": 2,
+  "ignoreAddedLines": 8,
+  "wholeRerun": false,
+  "portalJourneys": 1,
+  "wholePassed": false,
+  "runtimeReplaced": false,
+  "officialLive": "deferred-by-owner"
+}

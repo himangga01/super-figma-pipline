@@ -1,0 +1,46 @@
+{
+  "schemaVersion": 1,
+  "kind": "exact-two-file-r52-main-native-integration",
+  "at": "2026-10-13T07:31:00.312Z",
+  "reviewedManifestHash": "c43347be3712cd636350aa805560dc079f8bc074d015222cdb266d080def2dae",
+  "sourceBaseline": "sha256:47df7f52577b5ec4dd2a232205cfbef9021aa9306d8873543e40d6eb046e446c",
+  "targeted": {
+    "reportPath": ".worktrees/_cache/r52-independent-review-20261013/service/packages/mcp/.worktrees/_cache/r52-independent-review-20261013/targeted-report.json",
+    "sha256": "7a575f0674b83d0f5e46a7e9863f7cd05dace8ca86e97a97dc2c5d06faca522d",
+    "passed": 3,
+    "failed": 0,
+    "filtered": 10,
+    "exitCode": 0,
+    "reportedUnhandledErrors": 0
+  },
+  "writes": [
+    {
+      "path": "service/packages/mcp/src/portal/react-router-compiler-evidence.ts",
+      "beforeHash": "12348c8f6a4b19b3cbb00b2039e1f9f955a4626495a7d334f1d9c3a0cf4d443e",
+      "afterHash": "595f0ec5810511d63948c02265a347a15169ff62b9b00344fd69edb53f3a5bea",
+      "backup": ".worktrees/_cache/r52-independent-review-20261013/integration-before/0.before"
+    },
+    {
+      "path": ".worktrees/baseline/service/packages/mcp/src/portal/react-router-compiler-evidence.ts",
+      "beforeHash": "12348c8f6a4b19b3cbb00b2039e1f9f955a4626495a7d334f1d9c3a0cf4d443e",
+      "afterHash": "595f0ec5810511d63948c02265a347a15169ff62b9b00344fd69edb53f3a5bea",
+      "backup": ".worktrees/_cache/r52-independent-review-20261013/integration-before/1.before"
+    },
+    {
+      "path": "service/packages/mcp/test/portal/react-router-compiler-evidence.test.ts",
+      "beforeHash": "41e89bf79e8137a5ddbb813bdc368873c0df9e64b825293625bfde1342022b38",
+      "afterHash": "6d9d2266ad1c33c6f8f5274403d32e606f3ca0c9985d0f8a7f9d196fc3222025",
+      "backup": ".worktrees/_cache/r52-independent-review-20261013/integration-before/2.before"
+    },
+    {
+      "path": ".worktrees/baseline/service/packages/mcp/test/portal/react-router-compiler-evidence.test.ts",
+      "beforeHash": "41e89bf79e8137a5ddbb813bdc368873c0df9e64b825293625bfde1342022b38",
+      "afterHash": "6d9d2266ad1c33c6f8f5274403d32e606f3ca0c9985d0f8a7f9d196fc3222025",
+      "backup": ".worktrees/_cache/r52-independent-review-20261013/integration-before/3.before"
+    }
+  ],
+  "status": "integrated",
+  "wholePassed": false,
+  "atomicRollback": false,
+  "completedAt": "2026-10-13T07:31:00.320Z"
+}

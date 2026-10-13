@@ -1,0 +1,35 @@
+{
+  "version": 1,
+  "at": "2026-10-13T05:22:49.598Z",
+  "priorSource": "sha256:f8d76e71e491a1df5f5a3b468c705dab8e6645a5e3476e93d07d2f90e8fccf4a",
+  "manifestHash": "3d5e93c84a41b4c1342ec0e59a0331bfa5d10ce7d10f989ba96fddea69626c19",
+  "file": {
+    "path": "packages/mcp/test/portal/preview-native-contours.test.ts",
+    "before": "76f84fc168d443397c44198cc8ac6c2c1bee0b75e514843670dfe1de215f20ba",
+    "after": "3b3fd32e7adfe35dd9286decaf18a8c32d52d512161e6840074637b9338df93a",
+    "bytes": 17450
+  },
+  "originalFourAssertionsByteIdentical": true,
+  "independent": {
+    "passed": 5,
+    "failed": 0,
+    "skipped": 0,
+    "runnerExitCode": 0,
+    "reportSha256": "aa1021ec6c4a77071cd11b41e5d6cad2f1a2d5866bd36a5d1c06253517b33393"
+  },
+  "causalOriginal": {
+    "passed": 1,
+    "filtered": 3,
+    "exitCode": 1,
+    "unhandledEmitter": "denied-CONNECT-socket",
+    "code": "ECONNRESET",
+    "errorListeners": 0,
+    "JSONSuccessIsNotExitStatus": true
+  },
+  "historicalWholeSocketProven": false,
+  "testOnly": true,
+  "productionSourceChanged": false,
+  "ownerIndexUnchanged": true,
+  "newWholePassed": false,
+  "runtimeReplaced": false
+}

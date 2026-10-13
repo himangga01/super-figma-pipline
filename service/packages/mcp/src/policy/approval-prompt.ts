@@ -63,7 +63,7 @@ const summarizeEffect = (effect: InvocationEffectV1): string => {
     case 'owned-process-stop':
       return 'owned-process-stop:portal-run-only';
     case 'external-browser-read':
-      return `existing-chrome-read:attach-only:scripter:${effect.urlArg}`;
+      return `existing-chrome-read:attach-only:${effect.collector ?? 'scripter'}:${effect.urlArg}`;
     case 'server-evidence-write':
       return `server-evidence-write:${effect.evidenceKind}:${effect.writeMode}`;
   }

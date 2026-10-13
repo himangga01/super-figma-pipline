@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "date": "2026-10-13",
+  "kind": "provenance-argument-setup-failure",
+  "code": "SERVICE_FORK_INDEX_INVALID",
+  "missingRepositoryServicePrefix": true,
+  "refusedBeforeAuthorityUpdate": true,
+  "correctedIndexPath": "service/capabilities/change-manifests/task-review-2026-10-10.json",
+  "originalOwnerIndexPreserved": true,
+  "whole": false
+}

@@ -1,0 +1,129 @@
+{
+  "allowedSuites": [],
+  "unknownAllowedSuites": [],
+  "skippedSuites": [],
+  "blockedSuites": [],
+  "skipped": [
+    {
+      "file": "packages/mcp/test/e2e/process-lifecycle.test.ts",
+      "test": "process lifecycle (built dist) a leader that holds the port but stops answering names it, wakes it, and is a follower again — without anyone killing anything",
+      "status": "skipped",
+      "suite": null
+    },
+    {
+      "file": "packages/mcp/test/election/leader-lock.test.ts",
+      "test": "leader lock: the real OS probe reads a live process, and its start time agrees with the lock format",
+      "status": "skipped",
+      "suite": null
+    },
+    {
+      "file": "packages/mcp/test/election/leader-lock.test.ts",
+      "test": "leader lock: the real OS probe sees a suspended process as stopped, and SIGCONT brings it back",
+      "status": "skipped",
+      "suite": null
+    },
+    {
+      "file": "packages/mcp/test/election/leader-lock.test.ts",
+      "test": "leader lock: the real OS probe is undefined for a pid that no longer exists",
+      "status": "skipped",
+      "suite": null
+    },
+    {
+      "file": "packages/mcp/test/election/leader-lock.test.ts",
+      "test": "leader lock: the real OS probe refuses to probe or signal pid 0",
+      "status": "skipped",
+      "suite": null
+    },
+    {
+      "file": "packages/mcp/test/election/leader-lock.test.ts",
+      "test": "leader lock: the real OS probe refuses to probe or signal pid -1",
+      "status": "skipped",
+      "suite": null
+    },
+    {
+      "file": "packages/mcp/test/election/leader-lock.test.ts",
+      "test": "leader lock: the real OS probe refuses to probe or signal pid 1.5",
+      "status": "skipped",
+      "suite": null
+    },
+    {
+      "file": "packages/mcp/test/election/leader-lock.test.ts",
+      "test": "leader lock: the real OS probe refuses to probe or signal pid NaN",
+      "status": "skipped",
+      "suite": null
+    },
+    {
+      "file": "packages/mcp/test/election/leader-lock.test.ts",
+      "test": "leader lock: the real OS probe identifies this very process end-to-end, through the real probe",
+      "status": "skipped",
+      "suite": null
+    },
+    {
+      "file": "packages/mcp/test/fs/operation-evidence-artifact-store.test.ts",
+      "test": "operation evidence result artifact store reads the cleanup marker through the retained operation directory after a pathname replacement",
+      "status": "skipped",
+      "suite": null
+    },
+    {
+      "file": "packages/mcp/test/fs/runtime-paths.test.ts",
+      "test": "owner-only state permissions rejects broad Unix mode bits and enforces 0700 directories plus 0600 files",
+      "status": "skipped",
+      "suite": null
+    },
+    {
+      "file": "packages/mcp/test/fs/windows-directory-lease-broker.test.ts",
+      "test": "real Windows directory lease broker soaks 1,000 sequential leases on a Korean-named directory",
+      "status": "skipped",
+      "suite": null
+    },
+    {
+      "file": "packages/mcp/test/fs/workspace-config-store.test.ts",
+      "test": "secure owner-state prerequisite blocks an existing 0755 state directory until the bound authority explicitly hardens it",
+      "status": "skipped",
+      "suite": null
+    },
+    {
+      "file": "packages/mcp/test/fs/workspace-config-store.test.ts",
+      "test": "secure owner-state prerequisite rejects a configured file after its mode is widened to 0644",
+      "status": "skipped",
+      "suite": null
+    },
+    {
+      "file": "packages/mcp/test/fs/workspace-config-store.test.ts",
+      "test": "checksummed atomic config writes the config with Unix mode 0600",
+      "status": "skipped",
+      "suite": null
+    },
+    {
+      "file": "packages/mcp/test/fs/workspace-policy.test.ts",
+      "test": "platform boundary inspection rejects a nested Linux bind mount hidden behind an in-root lexical alias",
+      "status": "skipped",
+      "suite": null
+    },
+    {
+      "file": "packages/mcp/test/fs/workspace-policy.test.ts",
+      "test": "generic containment assertion accepts an existing Unix link whose real path remains inside the workspace",
+      "status": "skipped",
+      "suite": null
+    },
+    {
+      "file": "packages/mcp/test/network/remote-domain-config.test.ts",
+      "test": "durable remote domain state fails closed when the persisted file mode is widened",
+      "status": "skipped",
+      "suite": null
+    },
+    {
+      "file": "packages/mcp/test/portal/native-artifacts.test.ts",
+      "test": "provisions and builds the actual locked React/Vite preset with a generated configuration cache",
+      "status": "skipped",
+      "suite": null
+    },
+    {
+      "file": "packages/mcp/test/portal/source-inventory.test.ts",
+      "test": "reports case collisions on case-sensitive filesystems",
+      "status": "skipped",
+      "suite": null
+    }
+  ],
+  "scopeProblems": []
+}

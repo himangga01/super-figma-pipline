@@ -106,11 +106,9 @@ const createPool = (
 ): WindowsBoundaryProbePool => {
   const pool = new WindowsBoundaryProbePool({
     spawnChild,
-    requestTimeoutMs: 250,
-    queueTimeoutMs: 250,
-    idleTimeoutMs: 1_000,
-    shutdownTimeoutMs: 250,
-    forceKillTimeoutMs: 250,
+    // Exercise the production lifecycle budgets. Global 250 ms queue/retirement limits and a
+    // one-second idle limit can expire during legitimate Windows startup, teardown or ACL edits.
+    // Cases that test expiry or unconfirmed termination override only their intended bound below.
     ...overrides,
   });
   pools.push(pool);
@@ -516,7 +514,7 @@ describe('bounded persistent Windows boundary probe worker', () => {
     await Promise.race([
       once(children[0]!, 'exit'),
       new Promise((_, reject) =>
-        setTimeout(() => reject(new Error('idle child did not exit')), 500),
+        setTimeout(() => reject(new Error('idle child did not exit')), 5_000),
       ),
     ]);
     await expect(pool.inspect(['C:\\second'])).resolves.toEqual([

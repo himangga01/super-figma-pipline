@@ -1,0 +1,1119 @@
+
+ RUN  v4.1.11 C:/2026_project/super-figma-pipline/.worktrees/baseline/service
+
+ ✓ |cli| test/control-client-http.test.ts (14 tests) 11162ms
+   ✓ keeps a dispatched operation through bounded typed authorization-busy polls  2665ms
+   ✓ still cancels on untyped monitoring failures and after the bounded busy window  2020ms
+   ✓ slows read-only monitoring after the initial window to bound daemon authorization load  5821ms
+   ✓ recovers one reset during read-only operation polling without cancelling or repeating a tool  313ms
+ ✓ |cli| test/scripter-ui.test.ts (3 tests) 3177ms
+   ✓ recognizes the pinned plugin with the open search entry point  1090ms
+   ✓ recognizes the pinned plugin with the actions search entry point  1050ms
+   ✓ recognizes the pinned plugin with the main-menu search entry point  1037ms
+ ✓ |cli| test/scripter-catalogs.test.ts (24 tests) 1501ms
+   ✓ keeps a first pass that exhausts its call budget incomplete while still reobserving it  463ms
+   ✓ keeps an oversized first pass incomplete under its original byte limit  359ms
+ ✓ |cli| test/admin-commands.test.ts (14 tests) 1006ms
+   ✓ prepares a native profile without requesting a nonce and exposes no protected environment values  720ms
+ ✓ |cli| test/browser-session-reconnect.test.ts (1 test) 1207ms
+   ✓ reattaches to restarted installed Chrome through fresh discovery without restarting the owner  1206ms
+ ✓ |cli| test/project-inspector.test.ts (1 test) 509ms
+     ✓ returns code evidence and joins captured components and variables against that repository  508ms
+ ✓ |cli| test/portal-commands.test.ts (8 tests) 447ms
+   ✓ copies a supplied design into a hash-bound input artifact without marking it live  425ms
+ ✓ |cli| test/browser-observation.test.ts (5 tests) 510ms
+ ✓ |cli| test/figma-web-export.test.ts (1 test) 573ms
+   ✓ captures native web exports after immediate URL revocation and restores browser hooks  572ms
+ ✓ |cli| test/capture-assets.test.ts (8 tests) 553ms
+   ✓ completes an aggregate larger than 101 MB through bounded 64 MB batches  440ms
+ ✓ |cli| test/browser-session.test.ts (20 tests) 320ms
+ ✓ |cli| test/scripter-reader.test.ts (13 tests) 173ms
+ ✓ |cli| test/asset-program.test.ts (9 tests) 108ms
+ ✓ |cli| test/recipe-scene-compositions.test.ts (7 tests) 57ms
+ ✓ |cli| test/browser-source-open.test.ts (13 tests) 73ms
+ ✓ |cli| test/text-segment-capture.test.ts (30 tests) 61ms
+ ✓ |cli| test/style-recipe-model.test.ts (6 tests) 59ms
+ ✓ |cli| test/recipe-export-model.test.ts (4 tests) 28ms
+ ✓ |cli| test/recipe-compositions.test.ts (4 tests) 42ms
+ ✓ |cli| test/recipe-helpers.test.ts (7 tests) 32ms
+ ✓ |cli| test/official-figma-mcp.test.ts (6 tests) 29ms
+ ✓ |cli| test/catalog-recipe.test.ts (4 tests) 22ms
+ ✓ |cli| test/recipe-design-system.test.ts (6 tests) 25ms
+ ✓ |cli| test/figma-native-nodes.test.ts (12 tests) 13ms
+ ✓ |cli| test/figma-native-reactions.test.ts (16 tests) 11ms
+ ✓ |cli| test/recipe-retention-client.test.ts (8 tests) 11ms
+ ✓ |cli| test/chrome-endpoint.test.ts (3 tests) 10ms
+ ✓ |cli| test/desktop-reader.test.ts (6 tests) 8ms
+ ✓ |cli| test/figma-native-text-layout.test.ts (3 tests) 7ms
+ ✓ |cli| test/figma-native-layout.test.ts (15 tests) 8ms
+ ✓ |cli| test/figma-native-document.test.ts (3 tests) 6ms
+ ✓ |cli| test/figma-native-metadata.test.ts (6 tests) 5ms
+ ✓ |cli| test/figma-native-components.test.ts (3 tests) 6ms
+ ✓ |cli| test/figma-native-styles.test.ts (4 tests) 5ms
+ ✓ |cli| test/figma-native-assets.test.ts (1 test) 3ms
+ ✓ |cli| test/figma-native-effects.test.ts (9 tests) 3ms
+ ✓ |cli| test/figma-native-paints.test.ts (2 tests) 3ms
+ ✓ |cli| test/figma-native-geometry.test.ts (4 tests) 4ms
+ ✓ |cli| test/figma-native-vector-network.test.ts (2 tests) 3ms
+ ✓ |cli| test/figma-native-text-properties.test.ts (3 tests) 3ms
+ ✓ |cli| test/figma-native-font-ranges.test.ts (2 tests) 3ms
+ ✓ |ir| test/canonical-json.test.ts (2 tests) 92ms
+ ✓ |ir| test/snapshot-v1.test.ts (5 tests) 15ms
+ ✓ |ir| test/grounding-graph.test.ts (1 test) 11ms
+ ✓ |ir| test/portal-completion.test.ts (1 test) 8ms
+ ✓ |ir| test/capture-freshness.test.ts (5 tests) 8ms
+ ✓ |ir| test/portal-candidate.test.ts (2 tests) 6ms
+ ✓ |ir| test/inspection-v1.test.ts (1 test) 5ms
+ ✓ |ir| test/portal-completion.characterization.test.ts (1 test) 4ms
+ ✓ |mcp| test/portal/native-artifacts.test.ts (18 tests | 1 skipped) 59509ms
+   ✓ maps a stored windows-directory-lease-v1 authority to a typed re-prepare error  607ms
+   ✓ records and verifies producer outputs before dependent commands and acceptance  6366ms
+   ✓ rejects change of provisioned artifacts by an assertion  6265ms
+   ✓ rejects add of provisioned artifacts by an assertion  6524ms
+   ✓ rejects remove of provisioned artifacts by an assertion  6274ms
+   ✓ does not publish a provisioning receipt or run assertions after failed installation  3361ms
+   ✓ rejects loader flags, unbound external entrypoints and pre-existing unbound dependencies  1010ms
+   ✓ executes actual offline npm provisioning followed by build and assertion with receipts  18485ms
+   ✓ binds a declared Vite-style generated cache separately from installed dependencies  9268ms
+ ✓ |cli| test/recipe-runner.test.ts (47 tests) 205157ms
+   ✓ runs concrete canonical writes with real HTTP credentials, approval, durable receipts, retained bytes and final readback  5802ms
+   ✓ uses the real default server retention protocol for original and fresh internal read intents  24938ms
+   ✓ denied primitive preserves earlier outcomes and cannot feed a dependent write  1444ms
+   ✓ recovers the original completed write after checkpoint failure without duplicate mutation  4163ms
+   ✓ reads results while another registration is legacy-unbound or unavailable (LC-2, T08)  4020ms
+   ✓ refuses to read results from an unavailable recipe workspace (LC-2, T08)  412ms
+   ✓ wrong owner and source preimage cannot dispatch writes  398ms
+   ✓ rejects absent captured result proof  383ms
+   ✓ final readback failure remains a failure after successful command receipts  3626ms
+   ✓ cancellation stops dependent dispatch and persists partial outcomes  1878ms
+   ✓ changed source preimage fails before the first write  388ms
+   ✓ corrupt result bytes never supply a dependent create ID  1466ms
+   ✓ wrong receipt input binding fails despite a serverVerified flag  403ms
+   ✓ unknown pre-dispatch outcome resumes inspection only and never allocates another write  908ms
+   ✓ concurrent same-intent clients cannot duplicate writes  3991ms
+   ✓ loss of a held result prevents subsequent dependent mutation  1850ms
+   ✓ active cancellation persists its original operation for reconciliation and stops future writes  1486ms
+   ✓ wrong input target binding cannot proceed past source inspection  379ms
+   ✓ wrong authentication session cannot proceed past source inspection  367ms
+   ✓ rejects changed source after the initial checkpoint in the same execution  806ms
+   ✓ rejects changed source after restarting from the initial checkpoint  817ms
+   ✓ completed resume requires new canonical readback and rejects stale final state  4709ms
+   ✓ an unrelated source preimage cannot authorize a literal target outside its subtree  415ms
+   ✓ creation under an unobserved literal parent is rejected before an effect  398ms
+   ✓ a covered literal child is guarded against between-step edits  784ms
+   ✓ a planned literal child rename changes the exact guarded tree and completes  2523ms
+   ✓ crash after a committed create before its post-read reconciles only the planned new subtree  4087ms
+   ✓ a changed source after a committed create stops the next mutation on resume  2400ms
+   ✓ an unexpected produced value cannot become its own approved postimage  1801ms
+   ✓ actual canonical clone handler appends after all siblings and recovery never duplicates it  2689ms
+   ✓ known auto-layout parent transitions are rejected before creating an unmodeled own change  385ms
+   ✓ a later unobserved literal mutation invalidates coverage before earlier effects  380ms
+   ✓ retains valid opaque step identifier later rename unchanged through the real default protocol  15002ms
+   ✓ retains valid opaque step identifier xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx unchanged through the real default protocol  15014ms
+   ✓ retains valid opaque step identifier 가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가 unchanged through the real default protocol  14981ms
+   ✓ executes a compiled adjacent clone through actual handlers and retains its original unchanged  33738ms
+   ✓ executes an exact rename composition while preserving slash hierarchy and other node values  4315ms
+   ✓ retained catalog execution uses actual modes and values, recovers the original create, and freshly checks completed resume  31942ms
+   ✓ retained catalog guards block an unrelated edit after a committed collection before the next variable  9402ms
+owned reservations completed: 32
+owned reservations completed: 64
+owned reservations completed: 96
+owned reservations completed: 128
+ ✓ |mcp| test/portal/native-lifecycle-archive.test.ts (9 tests) 141705ms
+   ✓ requires exact owner and reviewed receipt, preserves dependent attempts, then verifies receipts after physical reclamation  2240ms
+   ✓ keeps an unknown missing directory charged instead of treating it as no effects  1171ms
+   ✓ routes actual native archival through the exact reviewed owner nonce and rejects altered or replayed approval  1608ms
+   ✓ rejects exhausted signed archive accounting before deleting any owned bytes  1222ms
+   ✓ resumes actual child interruption at afterArchiveIntent without dropping the active capacity charge  3343ms
+   ✓ resumes actual child interruption at afterUnlink without dropping the active capacity charge  3377ms
+   ✓ reuses the actual 128-attempt admission capacity after reviewed physical reclamation  128410ms
+completed owner preparations: 33
+ ✓ |mcp| test/portal/native-work.test.ts (41 tests) 301270ms
+   ✓ cancels source application between files and preserves the durable partial result  3871ms
+   ✓ recovers the exact signed output creation after a real child exits at intent  4445ms
+   ✓ recovers the exact signed output creation after a real child exits at identity-bound  5634ms
+   ✓ recovers the exact signed output creation after a real child exits at published  4448ms
+   ✓ recovers the exact signed output creation after a real child exits at target-identity  4479ms
+   ✓ proves a fresh rejected apply has no source effects and keeps its journal absent  1449ms
+   ✓ uses the admitted effect budget after the generation deadline expires  1357ms
+   ✓ proves cancelled admission before a fresh apply has no effects  1337ms
+   ✓ proves expired admission before a fresh apply has no effects  1342ms
+   ✓ keeps prior signed partial apply proof when a later invocation is cancelled before admission  1351ms
+   ✓ executes an owner-bound native assertion in a separate work copy and keeps incomplete acceptance blocked  9004ms
+   ✓ publishes hash-bound files once and refuses to overwrite a later user edit during reconciliation  3561ms
+   ✓ refuses target publication without complete acceptance and preserves an existing output collision  2016ms
+   ✓ stages all material legacy inputs while omitting excluded metadata and credentials  13815ms
+   ✓ blocks change of an original included input after planning  6389ms
+   ✓ blocks add of an original included input after planning  6266ms
+   ✓ blocks remove of an original included input after planning  6106ms
+   ✓ rejects an untouched actual target change while native validation is paused  15779ms
+   ✓ rejects an untouched actual target add while native validation is paused  15460ms
+   ✓ rejects an untouched actual target remove while native validation is paused  15992ms
+   ✓ retains a partial journal and rejects continuation after an untouched baseline change  6886ms
+   ✓ reconciles journal intent against an actual preimage  7503ms
+   ✓ reconciles journal intent against an actual postimage  7407ms
+   ✓ keeps signed legacy profiles and apply records inspectable without granting current execution  3672ms
+   ✓ recovers a current signed intent after native CAS is quarantined  7446ms
+   ✓ recovers a current signed intent after native CAS is published-linked  8432ms
+   ✓ binds a newly created target identity and rejects a same-byte directory replacement  3046ms
+   ✓ accounts verified recovery backups separately from a material tree near the source byte cap  18852ms
+   ✓ reports a replacement-row user edit as conflict while preserving its retained backup  7193ms
+   ✓ prepares owner-scoped artifact authority and rejects stale approval and missing consumption  1977ms
+   ✓ binds daemon-injected browser and effective configuration before approval  2236ms
+   ✓ prepares the actual installed validator bundle and pnpm-backed transitive packages  7447ms
+   ✓ refuses previously source-versioned acceptance without separate artifact authority  2314ms
+   ✓ keeps a failed unasserted native step from authorizing completion  12184ms
+   ✓ retains failed native feedback: source-unavailable  8509ms
+   ✓ retains failed native feedback: command-failed  11648ms
+   ✓ rechecks an admitted applied target after a suspended freshness capture: unchanged  17925ms
+   ✓ rechecks an admitted applied target after a suspended freshness capture: changed  17289ms
+   ✓ rejects a validator dependency replacement without changing its entrypoint  1768ms
+   ✓ executes the actual bound validator import through native module evidence  20767ms
+   ✓ public portal_cancel settles a native validation still waiting in the executor queue  2582ms
+completed global preparations: 65
+completed global preparations: 97
+completed global preparations: 129
+ ✓ |mcp| test/portal/core-preparation.test.ts (30 tests) 115534ms
+   ✓ executes all seven core derivations and reads signed pages after restart  1380ms
+   ✓ archives only owner-approved unpinned preparations, retains signed receipt identities and fences the original intent  2521ms
+   ✓ keeps interrupted core reductions charged and resumes only matching signed archive markers  2201ms
+   ✓ resumes a real child exit after physical core reduction before the signed progress pointer  3500ms
+   ✓ routes actual core archival through a review-bound owner nonce without permitting another owner or replay  1725ms
+   ✓ uses the current signed revision after the server guard settles terminal dependencies, invalidating old review approval  2159ms
+   ✓ rejects exhausted archive accounting before replacing any current core input or page  825ms
+   ✓ charges all physical signed archive metadata and replaces every large evidence record with a bounded marker  1635ms
+   ✓ reclaims actual preparation capacity beyond 32 distinct owner intents and 128 globally  79946ms
+   ✓ rejects wrong owners, missing mandatory recipes, stale contract and source substitutions  559ms
+   ✓ reserves before publishing and never frees retained capacity on cancellation  608ms
+   ✓ serializes separate manager instances and adopts identical orphan result publication  769ms
+   ✓ detects altered page bytes even after an earlier ready checkpoint  616ms
+   ✓ retains blocked material and prohibits dependency adoption until every result is ready  1320ms
+   ✓ archives a new preparation cancelled before its first output using its persisted empty publication authority  949ms
+   ✓ archives the actual interrupted core-pages publication prefix before freeing capacity  1129ms
+   ✓ archives the actual interrupted core-results publication prefix before freeing capacity  1219ms
+   ✓ keeps an actual child-crash publication temp charged for cancelled canonical outputs and preserves unrelated record temps  3117ms
+   ✓ keeps an actual child-crash publication temp charged for ready canonical outputs and preserves unrelated record temps  4545ms
+   ✓ never rebinds an admitted context to different core inputs  561ms
+   ✓ recovers interruption after core-inputs publication without adding reservations  587ms
+   ✓ recovers interruption after core-publications publication without adding reservations  602ms
+   ✓ recovers interruption after core-preparations publication without adding reservations  581ms
+   ✓ recovers interruption after core-pages publication without adding reservations  661ms
+   ✓ binds an intent at capacity reservation before any input or preparation publication  521ms
+   ✓ recovers legacy reservation bindings only from matching signed preparation and input records  692ms
+ ✓ |mcp| test/portal/preview-native.test.ts (1 test) 102172ms
+   ✓ executes a prepared owned worker through NativeWork and ignores forged stdout reports  102130ms
+ ✓ |mcp| test/portal/native-module-fence.test.ts (28 tests) 62514ms
+   ✓ blocks changed unbound transitive code through eval  3749ms
+   ✓ blocks changed unbound transitive code through project-script  3253ms
+   ✓ blocks changed unbound transitive code through relative-external-entry  3268ms
+   ✓ blocks changed unbound transitive code through aliased-require  3276ms
+   ✓ blocks changed unbound transitive code through package-escape  3410ms
+   ✓ retains producer-bound module bytes consumed and deleted during the same command  3412ms
+   ✓ propagates consumed module authority into ordinary Node children and workers  3482ms
+   ✓ rejects an unbound module in a child even when its parent ignores the child failure  3339ms
+   ✓ rejects custom runtime hook registration even when the program catches the error  3286ms
+   ✓ preserves module evidence when spawn replaces environment or execArgv defaults  3413ms
+   ✓ preserves module evidence when fork replaces environment or execArgv defaults  4538ms
+   ✓ preserves module evidence when worker replaces environment or execArgv defaults  3490ms
+   ✓ blocks unbound child code when spawn replaces environment or execArgv defaults  3358ms
+   ✓ blocks unbound child code when fork replaces environment or execArgv defaults  3321ms
+   ✓ blocks unbound child code when worker replaces environment or execArgv defaults  3317ms
+   ✓ rejects a child custom preload before its code can execute  3270ms
+   ✓ rejects altered manual compilation against __filename  3322ms
+   ✓ rejects altered manual compilation against "[eval]-wrapper"  3278ms
+ ✓ |mcp| test/portal/native-environment.test.ts (26 tests) 55798ms
+   ✓ canonical SQLite identity survives creation and rejects aliases and hardlinks  503ms
+   ✓ provisions real SQLite and retains durable data across a reconstructed lifecycle  960ms
+   ✓ keeps a shared database quarantined across restart when broker stop proof is missing  864ms
+   ✓ broker waits for persisted permission, drains a descendant, and retains a signed stop receipt  3485ms
+   ✓ releases only after real broker tree-stop proof for failed commands  3439ms
+   ✓ releases only after real broker tree-stop proof for timeout commands  3659ms
+   ✓ releases only after real broker tree-stop proof for cancelled commands  3474ms
+   ✓ releases only after real broker tree-stop proof for before-permit commands  3393ms
+   ✓ releases only after real broker tree-stop proof for parent-eof commands  3491ms
+   ✓ releases only after real broker tree-stop proof for exit-race-1 commands  3536ms
+   ✓ releases only after real broker tree-stop proof for exit-race-2 commands  3490ms
+   ✓ releases only after real broker tree-stop proof for exit-race-3 commands  4336ms
+   ✓ rejects modified admission bodies and same-path owned directory swaps  2301ms
+   ✓ reconciles only exact inspected receipts with already durable stop evidence  762ms
+   ✓ queues canonical shared databases, cancels only a waiter, and lets an independent database progress  1462ms
+   ✓ recovers a published directory from its durable staged identity after final identity persistence is interrupted  706ms
+   ✓ persists the full supported 32-command lifecycle beyond 64 CAS generations  3635ms
+   ✓ keeps lost real broker stop evidence quarantined across manager reconstruction  2281ms
+   ✓ a durable cleanup claim prevents a cross-manager launch during filesystem verification  1269ms
+   ✓ a launch paused before CAS cannot reopen a cross-manager released attempt  739ms
+   ✓ owner reconciliation rejects a live attempt even between stopped commands  861ms
+   ✓ reconciles an interrupted claim release with exact revision and closed execution proof  1605ms
+   ✓ broker exit waits for durable stop receipt acknowledgment  3920ms
+   ✓ a permitted cross-manager launch wins over a stale finisher before cleanup CAS  854ms
+   ✓ reconciliation rejects a changed inspected revision before claiming cleanup  748ms
+ ✓ |mcp| test/portal/native-work.characterization.test.ts (4 tests) 15083ms
+     ✓ round trips a ready observation profile through CLI file review, nonce confirmation and signed registration without executing commands  4108ms
+     ✓ preserves compiled recipe use through JSON and reaches its actual consumption gate  2562ms
+     ✓ records a required failed consumption check when preparation has no verified proof  8410ms
+ ✓ |mcp| test/portal/coordinator.test.ts (31 tests) 69356ms
+   ✓ preserves large original image sets within 96 MiB and rejects excess candidate bytes  2950ms
+   ✓ returns evidence without a lease for a draft operational blueprint and starts its confirmed replacement  3188ms
+   ✓ preserves reconciliation after cancelling an uncertain partial source result  1131ms
+   ✓ cancels a reserved validation before native work is registered  1366ms
+   ✓ resolves C1 to C4, retains the known URL and fences submissions by session/lease/context  1808ms
+   ✓ keeps status/cancel available if the source workspace is unavailable, without cross-owner access  1131ms
+   ✓ retains full legacy scope and rejects target directory replacement after planning  1255ms
+   ✓ rejects a changed candidate after validation admission without executing its profile  1618ms
+   ✓ inspects signed legacy waiting-agent records but fences current work  1268ms
+   ✓ inspects signed legacy candidate-ready records but fences current work  1239ms
+   ✓ inspects signed legacy outcome-unknown records but fences current work  1173ms
+   ✓ inspects signed legacy completed records but fences current work  1167ms
+   ✓ rejects unknown future signed authority with a stable error  1026ms
+   ✓ delivers distinct qualified byte-inventory evidence and explicitly refuses binary text and excluded credentials  2949ms
+   ✓ inspects legacy partial recovery without mutating or promoting historical authority  1143ms
+   ✓ uses qualified web to API to database closure and excludes a proven unrelated jobs package  3917ms
+   ✓ requires qualified selectors for identical roots in distinct references  4671ms
+   ✓ blocks unproven routing before a lease and admits only exact semantic review with all services retained  4449ms
+   ✓ keeps an unknown interaction unresolved despite confirmed prose until an exact workflow decision exists  2332ms
+   ✓ fences old graph interpretation despite current byte authority while preserving status  1141ms
+   ✓ pages large collection and selected style catalogs through the actual coordinator result contract  1341ms
+   ✓ keeps document persistence, form failures and source integration evidence while a local dashboard stays read-only  4272ms
+   ✓ requires qualified source evidence for reference pattern reuse and rejects unselected siblings  4319ms
+   ✓ preserves diagnostic completeness with 512 uncertainties and returns a bounded draft  3731ms
+   ✓ preserves diagnostic completeness with 513 uncertainties and returns a bounded draft  3702ms
+   ✓ uses auxiliary authentication evidence only when imported by runtime code: false  2072ms
+   ✓ uses auxiliary authentication evidence only when imported by runtime code: true  2119ms
+   ✓ retains observed C4 form error states when refinement includes workflow: false  4900ms
+   ✓ retains observed C4 form error states when refinement includes workflow: true  1909ms
+ ✓ |mcp| test/portal/native-lifecycle-creation.test.ts (14 tests) 46641ms
+   ✓ preserves a foreign creation collision without blocking unrelated environment admission  1518ms
+   ✓ does not reconcile a live process whose creation is paused  2574ms
+   ✓ verifies a retained version-1 attempt with no new directory-creation fields  2486ms
+   ✓ reconciles real child interruption: 'root' / 'afterIntentPersist'  7830ms
+   ✓ reconciles real child interruption: 'root' / 'afterMkdir'  8328ms
+   ✓ reconciles real child interruption: 'root' / 'afterIdentityPersist'  4835ms
+   ✓ reconciles real child interruption: 'root' / 'afterPublish'  2201ms
+   ✓ reconciles real child interruption: 'root' / 'afterPublishedPersist'  2216ms
+   ✓ reconciles real child interruption: 'child' / 'afterIntentPersist'  2726ms
+   ✓ reconciles real child interruption: 'child' / 'afterMkdir'  2243ms
+   ✓ reconciles real child interruption: 'child' / 'afterIdentityPersist'  2831ms
+   ✓ reconciles real child interruption: 'child' / 'afterPublish'  2768ms
+   ✓ reconciles real child interruption: 'child' / 'afterPublishedPersist'  2798ms
+   ✓ does not poison unrelated admission when creation identity persistence is interrupted  1222ms
+ ✓ |mcp| test/portal/native-runner.test.ts (13 tests) 29612ms
+   ✓ binds the reviewed command separately from the actual guarded launch argv  5969ms
+   ✓ executes a native profile with filtered environment and explicit isolation limits  3377ms
+   ✓ provides existing Windows known folders beneath the owned private USERPROFILE  3288ms
+   ✓ invalidates success if a command changes its reviewed script closure  3255ms
+   ✓ refuses a changed executable and does not continue after a failed check  3659ms
+   ✓ terminates the owned native process on timeout  591ms
+   ✓ supports owner cancellation while a native step is active  1093ms
+   ✓ finishes when a root exits while a descendant holds inherited output pipes  3362ms
+   ✓ preserves empty, quoted, Unicode and trailing-backslash arguments through the native broker  3348ms
+   ✓ bounds noisy output and refuses Docker, implicit shells and loader injection  1046ms
+ ✓ |mcp| test/portal/coordinator-recovery.test.ts (15 tests) 22352ms
+   ✓ completed applied validation releases exact plan and run core dependencies at the native acceptance report seam  2730ms
+   ✓ production executor queues resume against active validation while cancellation preserves its fence  1540ms
+   ✓ rejects a queued resume whose lease epoch changed after admission  1319ms
+   ✓ production executor rejects operation replay with a different retained resume fence  1295ms
+   ✓ preserves an already retained conflict fence when publication returns a proved result  1264ms
+   ✓ retains the single recovery attempt budget across repeated rejected validation  2114ms
+   ✓ finishes admitted publication after generation expiry using its retained effect horizon  1460ms
+   ✓ resume-none cannot erase a durable cancellation awaiting its owning operation  1253ms
+   ✓ records an honest apply outcome for pre-effect-rejected disposition  1413ms
+   ✓ records an honest apply outcome for dispatched-outcome-unknown disposition  1202ms
+   ✓ records an honest apply outcome for partial-or-committed disposition  1231ms
+   ✓ records an honest apply outcome for undefined disposition  1229ms
+   ✓ owner resume preserves published work after generation expiry with a bounded recovery admission  1204ms
+   ✓ admits bounded owner applied validation after generation expiry and never renews the recovery horizon  1780ms
+   ✓ cancellation settles a proved pre-effect apply rejection without a nonexistent recovery journal  1318ms
+SFP_PREVIEW_REPORT:{"browser":"chrome","browserVersion":"155.0.8059.39","textRendering":{"requestedLcdText":false,"requestedFontHinting":"none"},"deviceScaleFactor":1,"locale":"en-US","timezone":"UTC","screens":[{"id":"blue","passed":true,"failures":[],"viewport":{"width":100,"height":100},"captureSelector":null,"ratio":0,"strictRatio":0,"comparisonMode":"rgba-v1","oracleHash":"sha256:a37a1cb4a053381e43488b48d817c17e9e73f8fcca9a422a9d01a5debb504e12","actualHash":"sha256:dec0b83fe83a609ff055b58dd5f54c842862eb78669173d6f08c001b82756fae","diffHash":"sha256:5dc0b9e768035905340fe63f8963f6cb7cc4947ad2bd63de1b4c22f973bf89d6","actualPath":".sfp-native-preview/blue.actual.png","diffPath":".sfp-native-preview/blue.diff.png","accessibilityCoverage":"basic-dom-and-configured-keyboard-workflows"}],"assets":[]}
+SFP_PREVIEW_REPORT:{"browser":"chrome","browserVersion":"155.0.8059.39","textRendering":{"requestedLcdText":false,"requestedFontHinting":"none"},"deviceScaleFactor":1,"locale":"en-US","timezone":"UTC","screens":[{"id":"red","passed":false,"failures":["VISUAL_MISMATCH"],"viewport":{"width":100,"height":100},"captureSelector":null,"ratio":1,"strictRatio":1,"comparisonMode":"rgba-v1","oracleHash":"sha256:a37a1cb4a053381e43488b48d817c17e9e73f8fcca9a422a9d01a5debb504e12","actualHash":"sha256:820905622a1763b5effd5155c41d4376ef7b02ec219a328061aa454b99ff6b18","diffHash":"sha256:cb4ff6e95be9d1d9a2126fe28deff80c624a9aa4987e1d287e5234e17190b164","actualPath":".sfp-native-preview/red.actual.png","diffPath":".sfp-native-preview/red.diff.png","accessibilityCoverage":"basic-dom-and-configured-keyboard-workflows"}],"assets":[]}
+SFP_PREVIEW_REPORT:{"browser":"chrome","browserVersion":"155.0.8059.39","textRendering":{"requestedLcdText":false,"requestedFontHinting":"none"},"deviceScaleFactor":1,"locale":"en-US","timezone":"UTC","screens":[{"id":"component","passed":true,"failures":[],"viewport":{"width":200,"height":200},"captureSelector":"#tile","ratio":0,"strictRatio":0,"comparisonMode":"rgba-v1","oracleHash":"sha256:93d2c2d76cd144c761ac14da7fffc65798c9590a235c7e97a7ad6a15cac3bb65","actualHash":"sha256:72f156fc224920a303778cc0313c9839aafa6e9c61cdb62bd68aa2e9679d50b5","diffHash":"sha256:e8572eb2786ab8de171f032e019120efc33ad70ca6ce587f64f124595afc590e","actualPath":".sfp-native-preview/component.actual.png","diffPath":".sfp-native-preview/component.diff.png","accessibilityCoverage":"basic-dom-and-configured-keyboard-workflows"}],"assets":[{"nodeId":"2:1","oracleHash":"sha256:b6855ce51e9128801edb44f68dbf061856932218e5983fac4a1f084498b6db03","actualHash":"sha256:b6855ce51e9128801edb44f68dbf061856932218e5983fac4a1f084498b6db03","actualPath":"copied-panel.png"}]}
+ ✓ |mcp| test/portal/preview.test.ts (4 tests) 21548ms
+   ✓ checks explicit contained text without relaxing exact text assertions in Chrome  18515ms
+   ✓ renders an owned local fixture in Chrome and rejects a real visual mismatch  1943ms
+   ✓ captures a small real component in its hover state without shrinking the browser viewport  1076ms
+ ✓ |mcp| test/portal/core-coordinator.test.ts (9 tests) 17034ms
+   ✓ prepares required core results before publishing blueprint and renews without derivation  2734ms
+   ✓ requires exact page declarations and invalidates them when submitted source changes  2045ms
+   ✓ never issues a current coding lease from a legacy plan without recipe authority  1023ms
+   ✓ rejects a changed retained page before lease renewal  1211ms
+   ✓ resumes an interrupted plan using its immutable captured bytes and required results  1149ms
+   ✓ refuses a new source context under an interrupted existing plan intent  2252ms
+   ✓ retains one-character source ownership through confirmed workflow admission and lease freshness  5247ms
+   ✓ releases only the cancelled plan/run dependencies while retaining signed evidence  1251ms
+ ✓ |mcp| test/portal/preview-consumption.test.ts (14 tests) 19470ms
+   ✓ restores document and nested scroll positions after property observation  1287ms
+   ✓ restores document and nested scroll positions after failed-image observation  1261ms
+   ✓ rejects an observation if a page scroll handler prevents restoring the original viewport  1062ms
+   ✓ observes real scoped properties, source modes and opacity despite poisoned page globals  1312ms
+   ✓ proves inherited and local CSS variable influence, rejects unused declarations and restores inline state  1385ms
+   ✓ checks bytes actually delivered to a visible image and background rather than a copied unused asset  1217ms
+   ✓ accepts bounded base64 and percent data images and rejects a background painted outside its box  1136ms
+   ✓ does not relabel a visible image from a later different hidden response at the same URL  1005ms
+   ✓ requires actual after-action state, qualified row hashes and visible component association  1061ms
+   ✓ runs the complete approved batch in real preview and omits consumption proof when no batch exists  4436ms
+   ✓ retains real failed screenshot and diff evidence for the owned worker without accepting the preview  1874ms
+   ✓ does not claim an unavailable first font or a covered/unrelated component as consumed  1030ms
+   ✓ observes normal and italic font-style and proves its live CSS variable dependency  1346ms
+SFP_PREVIEW_REPORT:{"manifestHash":"sha256:96cf5540cf8c1bffa2202bcffa2cce43c43165a48f7195322c00b07ecdce4417","browser":"chrome","browserVersion":"155.0.8059.39","textRendering":{"requestedLcdText":false,"requestedFontHinting":"none"},"deviceScaleFactor":1,"locale":"en-US","timezone":"UTC","screens":[{"id":"root-0","passed":true,"failures":[],"viewport":{"width":100,"height":100},"observation":{"id":"root-0","captureFingerprint":"sha256:423228e13f49f42f2ded9fd9fe5eb5eb038b3758a4ea8410dd87a927d05ff2ff","scopeHash":"sha256:e4afeca7477d38c61c8631e33c2d2bc916c7f3358c4ad79f4518494225e63e71","rootNodeId":"1:1","route":"/","state":"source:1:1","viewport":{"width":100,"height":100},"deviceScaleFactor":1,"assertionIds":[],"oracleHash":"sha256:050e173e8e2be280a7aebc50e84641fa86153a7f754f4e457c8e8eda8132a788"},"interactionReports":[],"workflowReports":[{"requirementId":"email-form","passed":true,"executedActions":2}],"captureSelector":null,"ratio":0,"strictRatio":0,"comparisonMode":"rgba-v1","oracleHash":"sha256:050e173e8e2be280a7aebc50e84641fa86153a7f754f4e457c8e8eda8132a788","actualHash":"sha256:f0945e56603d8cc812626b9815fd07a918453142e90cc43903812a2804698421","diffHash":"sha256:050e173e8e2be280a7aebc50e84641fa86153a7f754f4e457c8e8eda8132a788","actualPath":".sfp-native-preview/root-0.actual.png","diffPath":".sfp-native-preview/root-0.diff.png","accessibilityCoverage":"basic-dom-and-configured-keyboard-workflows"}],"assets":[]}
+SFP_PREVIEW_REPORT:{"manifestHash":"sha256:96cf5540cf8c1bffa2202bcffa2cce43c43165a48f7195322c00b07ecdce4417","browser":"chrome","browserVersion":"155.0.8059.39","textRendering":{"requestedLcdText":false,"requestedFontHinting":"none"},"deviceScaleFactor":1,"locale":"en-US","timezone":"UTC","screens":[{"id":"root-0","passed":false,"failures":["WORKFLOW_STATE_CHANGE_NOT_OBSERVED"],"viewport":{"width":100,"height":100},"observation":{"id":"root-0","captureFingerprint":"sha256:423228e13f49f42f2ded9fd9fe5eb5eb038b3758a4ea8410dd87a927d05ff2ff","scopeHash":"sha256:e4afeca7477d38c61c8631e33c2d2bc916c7f3358c4ad79f4518494225e63e71","rootNodeId":"1:1","route":"/","state":"source:1:1","viewport":{"width":100,"height":100},"deviceScaleFactor":1,"assertionIds":[],"oracleHash":"sha256:050e173e8e2be280a7aebc50e84641fa86153a7f754f4e457c8e8eda8132a788"},"interactionReports":[],"workflowReports":[{"requirementId":"email-form","passed":false,"executedActions":2}],"captureSelector":null,"ratio":0,"strictRatio":0,"comparisonMode":"rgba-v1","oracleHash":"sha256:050e173e8e2be280a7aebc50e84641fa86153a7f754f4e457c8e8eda8132a788","actualHash":"sha256:f0945e56603d8cc812626b9815fd07a918453142e90cc43903812a2804698421","diffHash":"sha256:050e173e8e2be280a7aebc50e84641fa86153a7f754f4e457c8e8eda8132a788","actualPath":".sfp-native-preview/root-0.actual.png","diffPath":".sfp-native-preview/root-0.diff.png","accessibilityCoverage":"basic-dom-and-configured-keyboard-workflows"}],"assets":[]}
+SFP_PREVIEW_REPORT:{"manifestHash":"sha256:122363631f86440e492debbed1e97fef71bfe5a179610d57ad75c80fcf160615","browser":"chrome","browserVersion":"155.0.8059.39","textRendering":{"requestedLcdText":false,"requestedFontHinting":"none"},"deviceScaleFactor":1,"locale":"en-US","timezone":"UTC","screens":[{"id":"root-0","passed":true,"failures":[],"viewport":{"width":100,"height":100},"observation":{"id":"root-0","captureFingerprint":"sha256:c79b0ab3160218f1263921ac50ca802c58ac3e514ad095d06bf1bed36f4c87a6","scopeHash":"sha256:3c8cfe65c22e2eb749679f6482746d11e2d1a25ede4ab413072f97cb86a4a88a","rootNodeId":"1:1","route":"/","state":"source:1:1","viewport":{"width":100,"height":100},"deviceScaleFactor":1,"assertionIds":["sha256:572e25ef9f8baffceab0dba4ca2db2acf243554370e4888234a158cc319bf4ff"],"oracleHash":"sha256:050e173e8e2be280a7aebc50e84641fa86153a7f754f4e457c8e8eda8132a788"},"interactionReports":[{"assertionId":"sha256:572e25ef9f8baffceab0dba4ca2db2acf243554370e4888234a158cc319bf4ff","sourceNodeId":"1:2","destinationNodeId":"1:3","passed":true,"temporal":{"easing":"linear","direction":null,"durationMs":300,"observedMs":300,"animatedProperties":["opacity"]},"reason":null}],"workflowReports":[],"captureSelector":null,"ratio":0,"strictRatio":0,"comparisonMode":"rgba-v1","oracleHash":"sha256:050e173e8e2be280a7aebc50e84641fa86153a7f754f4e457c8e8eda8132a788","actualHash":"sha256:f0945e56603d8cc812626b9815fd07a918453142e90cc43903812a2804698421","diffHash":"sha256:050e173e8e2be280a7aebc50e84641fa86153a7f754f4e457c8e8eda8132a788","actualPath":".sfp-native-preview/root-0.actual.png","diffPath":".sfp-native-preview/root-0.diff.png","accessibilityCoverage":"basic-dom-and-configured-keyboard-workflows"}],"assets":[]}
+SFP_PREVIEW_REPORT:{"manifestHash":"sha256:122363631f86440e492debbed1e97fef71bfe5a179610d57ad75c80fcf160615","browser":"chrome","browserVersion":"155.0.8059.39","textRendering":{"requestedLcdText":false,"requestedFontHinting":"none"},"deviceScaleFactor":1,"locale":"en-US","timezone":"UTC","screens":[{"id":"root-0","passed":false,"failures":["REQUIRED_INTERACTION_FAILED"],"viewport":{"width":100,"height":100},"observation":{"id":"root-0","captureFingerprint":"sha256:c79b0ab3160218f1263921ac50ca802c58ac3e514ad095d06bf1bed36f4c87a6","scopeHash":"sha256:3c8cfe65c22e2eb749679f6482746d11e2d1a25ede4ab413072f97cb86a4a88a","rootNodeId":"1:1","route":"/","state":"source:1:1","viewport":{"width":100,"height":100},"deviceScaleFactor":1,"assertionIds":["sha256:572e25ef9f8baffceab0dba4ca2db2acf243554370e4888234a158cc319bf4ff"],"oracleHash":"sha256:050e173e8e2be280a7aebc50e84641fa86153a7f754f4e457c8e8eda8132a788"},"interactionReports":[{"assertionId":"sha256:572e25ef9f8baffceab0dba4ca2db2acf243554370e4888234a158cc319bf4ff","sourceNodeId":"1:2","destinationNodeId":"1:3","passed":false,"temporal":null,"reason":"INTERACTION_TEMPORAL_OBSERVATION_REQUIRED"}],"workflowReports":[],"captureSelector":null,"ratio":0,"strictRatio":0,"comparisonMode":"rgba-v1","oracleHash":"sha256:050e173e8e2be280a7aebc50e84641fa86153a7f754f4e457c8e8eda8132a788","actualHash":"sha256:f0945e56603d8cc812626b9815fd07a918453142e90cc43903812a2804698421","diffHash":"sha256:050e173e8e2be280a7aebc50e84641fa86153a7f754f4e457c8e8eda8132a788","actualPath":".sfp-native-preview/root-0.actual.png","diffPath":".sfp-native-preview/root-0.diff.png","accessibilityCoverage":"basic-dom-and-configured-keyboard-workflows"}],"assets":[]}
+SFP_PREVIEW_REPORT:{"manifestHash":"sha256:11f4b9483bb090d8af932961d9f46d4df9155d61809f74551004b718103356e2","browser":"chrome","browserVersion":"155.0.8059.39","textRendering":{"requestedLcdText":false,"requestedFontHinting":"none"},"deviceScaleFactor":1,"locale":"en-US","timezone":"UTC","screens":[{"id":"root-0","passed":true,"failures":[],"viewport":{"width":100,"height":100},"observation":{"id":"root-0","captureFingerprint":"sha256:dbe5847dd75846498686a009218d1733a97b5a1263f118f876d1dd82fb30d831","scopeHash":"sha256:e92f0a15680cc788c44bd4627ba3dd18f169f65465a18aaaef58a90f0f4d6f7d","rootNodeId":"1:1","route":"/","state":"source:1:1","viewport":{"width":100,"height":100},"deviceScaleFactor":1,"assertionIds":["sha256:79c33dcae1312601dd94515fe587db290e93e659a40656b6b655872ace3029a7"],"oracleHash":"sha256:050e173e8e2be280a7aebc50e84641fa86153a7f754f4e457c8e8eda8132a788"},"interactionReports":[{"assertionId":"sha256:79c33dcae1312601dd94515fe587db290e93e659a40656b6b655872ace3029a7","sourceNodeId":"1:2","destinationNodeId":null,"passed":true,"temporal":null,"reason":null}],"workflowReports":[],"captureSelector":null,"ratio":0,"strictRatio":0,"comparisonMode":"rgba-v1","oracleHash":"sha256:050e173e8e2be280a7aebc50e84641fa86153a7f754f4e457c8e8eda8132a788","actualHash":"sha256:f0945e56603d8cc812626b9815fd07a918453142e90cc43903812a2804698421","diffHash":"sha256:050e173e8e2be280a7aebc50e84641fa86153a7f754f4e457c8e8eda8132a788","actualPath":".sfp-native-preview/root-0.actual.png","diffPath":".sfp-native-preview/root-0.diff.png","accessibilityCoverage":"basic-dom-and-configured-keyboard-workflows"}],"assets":[]}
+SFP_PREVIEW_REPORT:{"manifestHash":"sha256:410d42eba2a17f53667b66f53e9432ea599c0fbebaf51df9ed0125e183b38805","browser":"chrome","browserVersion":"155.0.8059.39","textRendering":{"requestedLcdText":false,"requestedFontHinting":"none"},"deviceScaleFactor":1,"locale":"en-US","timezone":"UTC","screens":[{"id":"root-0","passed":true,"failures":[],"viewport":{"width":100,"height":100},"observation":{"id":"root-0","captureFingerprint":"sha256:2616beec3c3178829a9a913f26fc1aeeb1805a2e2f49c83ecd06aaa512d057c4","scopeHash":"sha256:f3433bea803c723821a7308e0b4488aa5d9d5e07803ecc6caed53e9dc832501a","rootNodeId":"1:1","route":"/","state":"source:1:1","viewport":{"width":100,"height":100},"deviceScaleFactor":1,"assertionIds":["sha256:ebe0a9d64ac63d7e05d78b6853f2d1be776f28862e223d7ad15af0fb5194f46b"],"oracleHash":"sha256:050e173e8e2be280a7aebc50e84641fa86153a7f754f4e457c8e8eda8132a788"},"interactionReports":[{"assertionId":"sha256:ebe0a9d64ac63d7e05d78b6853f2d1be776f28862e223d7ad15af0fb5194f46b","sourceNodeId":"1:2","destinationNodeId":"1:3","passed":true,"temporal":null,"reason":null}],"workflowReports":[],"captureSelector":null,"ratio":0,"strictRatio":0,"comparisonMode":"rgba-v1","oracleHash":"sha256:050e173e8e2be280a7aebc50e84641fa86153a7f754f4e457c8e8eda8132a788","actualHash":"sha256:f0945e56603d8cc812626b9815fd07a918453142e90cc43903812a2804698421","diffHash":"sha256:050e173e8e2be280a7aebc50e84641fa86153a7f754f4e457c8e8eda8132a788","actualPath":".sfp-native-preview/root-0.actual.png","diffPath":".sfp-native-preview/root-0.diff.png","accessibilityCoverage":"basic-dom-and-configured-keyboard-workflows"}],"assets":[]}
+ ✓ |mcp| test/portal/operational-native.test.ts (2 tests) 17961ms
+   ✓ executes real native API/data/auth behavior for legacy while refusing frontend-incomplete portal admission  9512ms
+   ✓ executes real native API/data/auth behavior for new-reference while refusing frontend-incomplete portal admission  8448ms
+SFP_PREVIEW_REPORT:{"manifestHash":"sha256:1957e663036dfad741c83be67e3d7c33cf8714eb0470faac5194db09b509b6a2","browser":"chrome","browserVersion":"155.0.8059.39","textRendering":{"requestedLcdText":false,"requestedFontHinting":"none"},"deviceScaleFactor":1,"locale":"en-US","timezone":"UTC","screens":[{"id":"root-0","passed":true,"failures":[],"viewport":{"width":100,"height":100},"observation":{"id":"root-0","captureFingerprint":"sha256:81256a231d16b744631e17d4030402d165ccea15db7d561a32d8f1470fdd07f0","scopeHash":"sha256:1006ba2929d803632e42c881da14b2d7e252ad8a7c38ced2bf2a1afaafd32735","rootNodeId":"1:1","route":"/","state":"source:1:1","viewport":{"width":100,"height":100},"deviceScaleFactor":1,"assertionIds":["sha256:9130025d9d484ef4a191b85c188d356de48064b8570471365676e73c3b0f090f"],"oracleHash":"sha256:050e173e8e2be280a7aebc50e84641fa86153a7f754f4e457c8e8eda8132a788"},"interactionReports":[{"assertionId":"sha256:9130025d9d484ef4a191b85c188d356de48064b8570471365676e73c3b0f090f","sourceNodeId":"1:2","destinationNodeId":null,"passed":true,"temporal":null,"reason":null}],"workflowReports":[],"captureSelector":null,"ratio":0,"strictRatio":0,"comparisonMode":"rgba-v1","oracleHash":"sha256:050e173e8e2be280a7aebc50e84641fa86153a7f754f4e457c8e8eda8132a788","actualHash":"sha256:f0945e56603d8cc812626b9815fd07a918453142e90cc43903812a2804698421","diffHash":"sha256:050e173e8e2be280a7aebc50e84641fa86153a7f754f4e457c8e8eda8132a788","actualPath":".sfp-native-preview/root-0.actual.png","diffPath":".sfp-native-preview/root-0.diff.png","accessibilityCoverage":"basic-dom-and-configured-keyboard-workflows"},{"id":"root-1","passed":true,"failures":[],"viewport":{"width":100,"height":100},"observation":{"id":"root-1","captureFingerprint":"sha256:81256a231d16b744631e17d4030402d165ccea15db7d561a32d8f1470fdd07f0","scopeHash":"sha256:1006ba2929d803632e42c881da14b2d7e252ad8a7c38ced2bf2a1afaafd32735","rootNodeId":"2:1","route":"/1","state":"source:2:1","viewport":{"width":100,"height":100},"deviceScaleFactor":1,"assertionIds":[],"oracleHash":"sha256:050e173e8e2be280a7aebc50e84641fa86153a7f754f4e457c8e8eda8132a788"},"interactionReports":[],"workflowReports":[],"captureSelector":null,"ratio":0,"strictRatio":0,"comparisonMode":"rgba-v1","oracleHash":"sha256:050e173e8e2be280a7aebc50e84641fa86153a7f754f4e457c8e8eda8132a788","actualHash":"sha256:f0945e56603d8cc812626b9815fd07a918453142e90cc43903812a2804698421","diffHash":"sha256:050e173e8e2be280a7aebc50e84641fa86153a7f754f4e457c8e8eda8132a788","actualPath":".sfp-native-preview/root-1.actual.png","diffPath":".sfp-native-preview/root-1.diff.png","accessibilityCoverage":"basic-dom-and-configured-keyboard-workflows"}],"assets":[]}
+SFP_PREVIEW_REPORT:{"manifestHash":"sha256:122363631f86440e492debbed1e97fef71bfe5a179610d57ad75c80fcf160615","browser":"chrome","browserVersion":"155.0.8059.39","textRendering":{"requestedLcdText":false,"requestedFontHinting":"none"},"deviceScaleFactor":1,"locale":"en-US","timezone":"UTC","screens":[{"id":"root-0","passed":false,"failures":["REQUIRED_INTERACTION_FAILED"],"viewport":{"width":100,"height":100},"observation":{"id":"root-0","captureFingerprint":"sha256:c79b0ab3160218f1263921ac50ca802c58ac3e514ad095d06bf1bed36f4c87a6","scopeHash":"sha256:3c8cfe65c22e2eb749679f6482746d11e2d1a25ede4ab413072f97cb86a4a88a","rootNodeId":"1:1","route":"/","state":"source:1:1","viewport":{"width":100,"height":100},"deviceScaleFactor":1,"assertionIds":["sha256:572e25ef9f8baffceab0dba4ca2db2acf243554370e4888234a158cc319bf4ff"],"oracleHash":"sha256:050e173e8e2be280a7aebc50e84641fa86153a7f754f4e457c8e8eda8132a788"},"interactionReports":[{"assertionId":"sha256:572e25ef9f8baffceab0dba4ca2db2acf243554370e4888234a158cc319bf4ff","sourceNodeId":"1:2","destinationNodeId":"1:3","passed":false,"temporal":null,"reason":"INTERACTION_TEMPORAL_OBSERVATION_REQUIRED"}],"workflowReports":[],"captureSelector":null,"ratio":0,"strictRatio":0,"comparisonMode":"rgba-v1","oracleHash":"sha256:050e173e8e2be280a7aebc50e84641fa86153a7f754f4e457c8e8eda8132a788","actualHash":"sha256:f0945e56603d8cc812626b9815fd07a918453142e90cc43903812a2804698421","diffHash":"sha256:050e173e8e2be280a7aebc50e84641fa86153a7f754f4e457c8e8eda8132a788","actualPath":".sfp-native-preview/root-0.actual.png","diffPath":".sfp-native-preview/root-0.diff.png","accessibilityCoverage":"basic-dom-and-configured-keyboard-workflows"}],"assets":[]}
+ ✓ |mcp| test/portal/preview-interactions.test.ts (4 tests) 15360ms
+   ✓ observes source-linked form state changes and rejects unchanged decorative assertions  3526ms
+   ✓ requires measured visible motion separately from reduced-motion still screenshots  3953ms
+   ✓ executes source-bound close, change-state and back actions against actual local state  5908ms
+   ✓ rejects candidate-written window motion data without actual animation  1972ms
+ ✓ |mcp| test/portal/preview-lease.test.ts (2 tests) 15138ms
+   ✓ refuses altered PowerShell lease scripts, flags and executables before child launch  11062ms
+   ✓ admits the exact v2 lease spawn inside the fence and leases a Korean directory  4076ms
+ ✓ |mcp| test/portal/consumption-input.test.ts (6 tests) 13723ms
+   ✓ loads only actual owner-bound required pages and declared signed candidate bytes  2576ms
+   ✓ carries public owner selection through all recipe results and consumption without merging reactions on one node  2461ms
+   ✓ refuses a changed declaration even if its signed container and declaration hash are valid  1555ms
+   ✓ rehashes actual stored content and never trusts its declared hash alone  1397ms
+   ✓ does not count copied runtime rows as catalog export proof  1369ms
+   ✓ reads unchanged eligible legacy files without requiring them to be submitted again  4365ms
+ ✓ |mcp| test/portal/core-recipes.test.ts (44 tests) 12033ms
+   ✓ pages more than 4096 actual mode rows without dropping records and rejects tampered pages  1032ms
+   ✓ uses canonical mappings from actual bounded source bytes, retaining source-qualified collisions and overrides  2104ms
+   ✓ pages canonical component membership without dropping repeated instances or accepting missing members  2457ms
+   ✓ bounds sparse variable-mode expansion without discarding the retained observed values  848ms
+   ✓ qualifies same-path references in one global batch and rejects omitted or reordered members  313ms
+   ✓ full-root byte failures and canonical mapping discovery limits stay hard failures  1841ms
+   ✓ unsupported Vue runtime stays unresolved or reviewed with conservative closure instead of silently narrowing it  311ms
+ ❯ |mcp| test/fs/windows-boundary-probe-worker.test.ts (23 tests | 5 failed) 21063ms
+     ✓ loads native ACL commands despite an incompatible inherited module path  1576ms
+     × reuses one real PowerShell worker while freshly inspecting every request 1115ms
+     ✓ shares one worker across fresh boundary and ACL reads after an ACL mutation  958ms
+     × rejects an invalid ACL response (missing-sddl) and retires its worker 523ms
+     ✓ rejects an invalid ACL response (wrong-count) and retires its worker  451ms
+     ✓ rejects an invalid ACL response (wrong-path) and retires its worker 105ms
+     ✓ rejects an invalid ACL response (wrong-owner) and retires its worker  461ms
+     ✓ rejects an invalid ACL response (oversized-sddl) and retires its worker 250ms
+     × serializes mixed boundary and ACL requests through the same bounded queue 799ms
+     ✓ lets queued requests wait out a cold start slower than the request budget  8496ms
+     ✓ sends ASCII-only requests and returns exact non-ASCII paths 54ms
+     ✓ inspects Korean, NFD and surrogate-pair directories through the real worker  489ms
+     ✓ rejects malformed output, retires the child, and recovers on the next request 273ms
+     ✓ rejects a JSON null response, retires the child, and recovers without an uncaught exception  1261ms
+     ✓ keeps a healthy worker after a bounded probe error response 53ms
+     × bounds hang failure, awaits retirement, and starts a healthy replacement 454ms
+     ✓ bounds exit failure, awaits retirement, and starts a healthy replacement 249ms
+     × serializes requests and expires queued work at its own deadline 949ms
+     ✓ rejects requests above the pending and command byte caps without hanging  404ms
+     ✓ observes the response rejection while a real pipe write is blocked by backpressure  404ms
+     ✓ waits for an asynchronously invalidated idle worker to exit before replacement  1534ms
+     ✓ retains startup ownership and blocks replacement when termination cannot be confirmed 61ms
+     ✓ ends an idle worker and lazily replaces it for later work 142ms
+ ✓ |mcp| test/network/remote-domain-config.test.ts (43 tests | 1 skipped) 11891ms
+     ✓ rejects a non-principal actor before consuming authorization  1832ms
+     ✓ does not consume authorization for invalid, duplicate, missing, or over-cap mutations  7318ms
+     ✓ retains both inodes when an external process swaps the created temp before permission verification  412ms
+     ✓ admits at most 4,096 directory entries including the live authority lock  1480ms
+SFP_PREVIEW_REPORT:{"manifestHash":"sha256:e9c4ca0ac3b702fb6f60f03d03f4992a7e67afb51edd6aaee4a3508065bfdfee","browser":"chrome","browserVersion":"155.0.8059.39","textRendering":{"requestedLcdText":false,"requestedFontHinting":"none"},"deviceScaleFactor":1,"locale":"en-US","timezone":"UTC","screens":[{"id":"screen-0","passed":true,"failures":[],"viewport":{"width":100,"height":100},"observation":{"id":"screen-0","captureFingerprint":"sha256:d2a51591587a0c65386a3d05b2dfd49490adc29efede9de856f029726b960a19","scopeHash":"sha256:7333828dc3df2a5a666d8f5d72783c18b402b217f047b09dcbbefd8424625f7e","rootNodeId":"1:1","route":"/0","state":"source:1:1","viewport":{"width":100,"height":100},"deviceScaleFactor":1,"assertionIds":[],"oracleHash":"sha256:050e173e8e2be280a7aebc50e84641fa86153a7f754f4e457c8e8eda8132a788"},"interactionReports":[],"workflowReports":[],"captureSelector":null,"ratio":0,"strictRatio":0,"comparisonMode":"rgba-v1","oracleHash":"sha256:050e173e8e2be280a7aebc50e84641fa86153a7f754f4e457c8e8eda8132a788","actualHash":"sha256:f0945e56603d8cc812626b9815fd07a918453142e90cc43903812a2804698421","diffHash":"sha256:050e173e8e2be280a7aebc50e84641fa86153a7f754f4e457c8e8eda8132a788","actualPath":".sfp-native-preview/screen-0.actual.png","diffPath":".sfp-native-preview/screen-0.diff.png","accessibilityCoverage":"basic-dom-and-configured-keyboard-workflows"},{"id":"screen-1","passed":true,"failures":[],"viewport":{"width":100,"height":100},"observation":{"id":"screen-1","captureFingerprint":"sha256:d2a51591587a0c65386a3d05b2dfd49490adc29efede9de856f029726b960a19","scopeHash":"sha256:7333828dc3df2a5a666d8f5d72783c18b402b217f047b09dcbbefd8424625f7e","rootNodeId":"2:1","route":"/1","state":"source:2:1","viewport":{"width":100,"height":100},"deviceScaleFactor":1,"assertionIds":[],"oracleHash":"sha256:050e173e8e2be280a7aebc50e84641fa86153a7f754f4e457c8e8eda8132a788"},"interactionReports":[],"workflowReports":[],"captureSelector":null,"ratio":0,"strictRatio":0,"comparisonMode":"rgba-v1","oracleHash":"sha256:050e173e8e2be280a7aebc50e84641fa86153a7f754f4e457c8e8eda8132a788","actualHash":"sha256:f0945e56603d8cc812626b9815fd07a918453142e90cc43903812a2804698421","diffHash":"sha256:050e173e8e2be280a7aebc50e84641fa86153a7f754f4e457c8e8eda8132a788","actualPath":".sfp-native-preview/screen-1.actual.png","diffPath":".sfp-native-preview/screen-1.diff.png","accessibilityCoverage":"basic-dom-and-configured-keyboard-workflows"}],"assets":[]}
+SFP_PREVIEW_REPORT:{"manifestHash":"sha256:6a83fff8497847e9f95ca6517d5d2e833ac6b54a033cf7c72884838d8f80f230","browser":"chrome","browserVersion":"155.0.8059.39","textRendering":{"requestedLcdText":false,"requestedFontHinting":"none"},"deviceScaleFactor":1,"locale":"en-US","timezone":"UTC","screens":[{"id":"screen-0","passed":true,"failures":[],"viewport":{"width":100,"height":100},"observation":{"id":"screen-0","captureFingerprint":"sha256:9e962127daf378a284aecba13f6c205914230ef2d0b1717af039cdde345aee6c","scopeHash":"sha256:18d6ba7dcf11ec8a091785ed95c848c708c1a2046bddf07495768596e0fc6782","rootNodeId":"1:1","route":"/0","state":"source:1:1","viewport":{"width":100,"height":100},"deviceScaleFactor":1,"assertionIds":["sha256:58da63710d0ad8b9d262cd66cb00358b3d19291448a4697c76ccceaf8159fe0b"],"oracleHash":"sha256:050e173e8e2be280a7aebc50e84641fa86153a7f754f4e457c8e8eda8132a788"},"interactionReports":[{"assertionId":"sha256:58da63710d0ad8b9d262cd66cb00358b3d19291448a4697c76ccceaf8159fe0b","sourceNodeId":"1:2","destinationNodeId":"2:1","passed":true,"temporal":null,"reason":null}],"workflowReports":[],"captureSelector":null,"ratio":0,"strictRatio":0,"comparisonMode":"rgba-v1","oracleHash":"sha256:050e173e8e2be280a7aebc50e84641fa86153a7f754f4e457c8e8eda8132a788","actualHash":"sha256:f0945e56603d8cc812626b9815fd07a918453142e90cc43903812a2804698421","diffHash":"sha256:050e173e8e2be280a7aebc50e84641fa86153a7f754f4e457c8e8eda8132a788","actualPath":".sfp-native-preview/screen-0.actual.png","diffPath":".sfp-native-preview/screen-0.diff.png","accessibilityCoverage":"basic-dom-and-configured-keyboard-workflows"},{"id":"screen-1","passed":true,"failures":[],"viewport":{"width":100,"height":100},"observation":{"id":"screen-1","captureFingerprint":"sha256:9e962127daf378a284aecba13f6c205914230ef2d0b1717af039cdde345aee6c","scopeHash":"sha256:18d6ba7dcf11ec8a091785ed95c848c708c1a2046bddf07495768596e0fc6782","rootNodeId":"2:1","route":"/1","state":"source:2:1","viewport":{"width":100,"height":100},"deviceScaleFactor":1,"assertionIds":[],"oracleHash":"sha256:050e173e8e2be280a7aebc50e84641fa86153a7f754f4e457c8e8eda8132a788"},"interactionReports":[],"workflowReports":[],"captureSelector":null,"ratio":0,"strictRatio":0,"comparisonMode":"rgba-v1","oracleHash":"sha256:050e173e8e2be280a7aebc50e84641fa86153a7f754f4e457c8e8eda8132a788","actualHash":"sha256:f0945e56603d8cc812626b9815fd07a918453142e90cc43903812a2804698421","diffHash":"sha256:050e173e8e2be280a7aebc50e84641fa86153a7f754f4e457c8e8eda8132a788","actualPath":".sfp-native-preview/screen-1.actual.png","diffPath":".sfp-native-preview/screen-1.diff.png","accessibilityCoverage":"basic-dom-and-configured-keyboard-workflows"}],"assets":[]}
+SFP_PREVIEW_REPORT:{"manifestHash":"sha256:6a83fff8497847e9f95ca6517d5d2e833ac6b54a033cf7c72884838d8f80f230","browser":"chrome","browserVersion":"155.0.8059.39","textRendering":{"requestedLcdText":false,"requestedFontHinting":"none"},"deviceScaleFactor":1,"locale":"en-US","timezone":"UTC","screens":[{"id":"screen-0","passed":false,"failures":["REQUIRED_INTERACTION_FAILED"],"viewport":{"width":100,"height":100},"observation":{"id":"screen-0","captureFingerprint":"sha256:9e962127daf378a284aecba13f6c205914230ef2d0b1717af039cdde345aee6c","scopeHash":"sha256:18d6ba7dcf11ec8a091785ed95c848c708c1a2046bddf07495768596e0fc6782","rootNodeId":"1:1","route":"/0","state":"source:1:1","viewport":{"width":100,"height":100},"deviceScaleFactor":1,"assertionIds":["sha256:58da63710d0ad8b9d262cd66cb00358b3d19291448a4697c76ccceaf8159fe0b"],"oracleHash":"sha256:050e173e8e2be280a7aebc50e84641fa86153a7f754f4e457c8e8eda8132a788"},"interactionReports":[{"assertionId":"sha256:58da63710d0ad8b9d262cd66cb00358b3d19291448a4697c76ccceaf8159fe0b","sourceNodeId":"1:2","destinationNodeId":"2:1","passed":false,"temporal":null,"reason":"page.$: Error: INTERACTION_SOURCE_NOT_VISIBLE\n    at visible (eval at eval (:6939:24), <anonymous>:84:612)\n    at Object.query (eval at eval (:6939:24), <anonymous>:89:48)\n    at Object.queryAll (eval at eval (:6939:24), <anonymous>:97:43)\n    at InjectedScript._queryEngineAll (<anonymous>:7059:49)\n    at InjectedScript.querySelectorAll (<anonymous>:7046:30)\n    at eval (eval at evaluate (:311:30), <anonymous>:2:42)\n    at UtilityScript.evaluate (<anonymous>:313:16)\n    at UtilityScript.<anonymous> (<anonym"}],"workflowReports":[],"captureSelector":null,"ratio":0,"strictRatio":0,"comparisonMode":"rgba-v1","oracleHash":"sha256:050e173e8e2be280a7aebc50e84641fa86153a7f754f4e457c8e8eda8132a788","actualHash":"sha256:f0945e56603d8cc812626b9815fd07a918453142e90cc43903812a2804698421","diffHash":"sha256:050e173e8e2be280a7aebc50e84641fa86153a7f754f4e457c8e8eda8132a788","actualPath":".sfp-native-preview/screen-0.actual.png","diffPath":".sfp-native-preview/screen-0.diff.png","accessibilityCoverage":"basic-dom-and-configured-keyboard-workflows"},{"id":"screen-1","passed":true,"failures":[],"viewport":{"width":100,"height":100},"observation":{"id":"screen-1","captureFingerprint":"sha256:9e962127daf378a284aecba13f6c205914230ef2d0b1717af039cdde345aee6c","scopeHash":"sha256:18d6ba7dcf11ec8a091785ed95c848c708c1a2046bddf07495768596e0fc6782","rootNodeId":"2:1","route":"/1","state":"source:2:1","viewport":{"width":100,"height":100},"deviceScaleFactor":1,"assertionIds":[],"oracleHash":"sha256:050e173e8e2be280a7aebc50e84641fa86153a7f754f4e457c8e8eda8132a788"},"interactionReports":[],"workflowReports":[],"captureSelector":null,"ratio":0,"strictRatio":0,"comparisonMode":"rgba-v1","oracleHash":"sha256:050e173e8e2be280a7aebc50e84641fa86153a7f754f4e457c8e8eda8132a788","actualHash":"sha256:f0945e56603d8cc812626b9815fd07a918453142e90cc43903812a2804698421","diffHash":"sha256:050e173e8e2be280a7aebc50e84641fa86153a7f754f4e457c8e8eda8132a788","actualPath":".sfp-native-preview/screen-1.actual.png","diffPath":".sfp-native-preview/screen-1.diff.png","accessibilityCoverage":"basic-dom-and-configured-keyboard-workflows"}],"assets":[]}
+SFP_PREVIEW_REPORT:{"manifestHash":"sha256:3041dc02d0cceea0fe600b8075d362ee83b3368b42a6ca8edb6a28b8faf7fccd","browser":"chrome","browserVersion":"155.0.8059.39","textRendering":{"requestedLcdText":false,"requestedFontHinting":"none"},"deviceScaleFactor":1,"locale":"en-US","timezone":"UTC","screens":[{"id":"frame","passed":true,"failures":[],"viewport":{"width":100,"height":100},"observation":{"id":"frame","captureFingerprint":"sha256:55fe49f1886a909b9461c6bb630e56f7d88388b3b948b16411640e0e3e7b5068","scopeHash":"sha256:102d0733cb16186d00f75829a1444bab8776ab18cd0d4b1441a8bd6e8577c61f","rootNodeId":"2:1","route":"/","state":"source:2:1","viewport":{"width":100,"height":100},"deviceScaleFactor":1,"assertionIds":[],"oracleHash":"sha256:050e173e8e2be280a7aebc50e84641fa86153a7f754f4e457c8e8eda8132a788"},"interactionReports":[],"workflowReports":[],"captureSelector":null,"ratio":0,"strictRatio":0,"comparisonMode":"rgba-v1","oracleHash":"sha256:050e173e8e2be280a7aebc50e84641fa86153a7f754f4e457c8e8eda8132a788","actualHash":"sha256:f0945e56603d8cc812626b9815fd07a918453142e90cc43903812a2804698421","diffHash":"sha256:050e173e8e2be280a7aebc50e84641fa86153a7f754f4e457c8e8eda8132a788","actualPath":".sfp-native-preview/frame.actual.png","diffPath":".sfp-native-preview/frame.diff.png","accessibilityCoverage":"basic-dom-and-configured-keyboard-workflows"}],"assets":[{"nodeId":"1:1","oracleHash":"sha256:050e173e8e2be280a7aebc50e84641fa86153a7f754f4e457c8e8eda8132a788","actualHash":"sha256:050e173e8e2be280a7aebc50e84641fa86153a7f754f4e457c8e8eda8132a788","actualPath":"primitive.png"}]}
+ ✓ |mcp| test/portal/observation-manifest.test.ts (4 tests) 9491ms
+   ✓ binds the comparison mode before Chrome execution and rechecks both reported ratios  2531ms
+   ✓ requires two executions for two equal-byte roots; rejects duplicates and wrong root/route/state/viewport/assertions  1677ms
+   ✓ executes captured navigation even when caller action arrays are empty; hidden unused controls fail  4328ms
+   ✓ keeps the primitive copy exception source-bound and disallows a primitive with a reaction  953ms
+ ✓ |mcp| test/election/election.test.ts (24 tests) 9911ms
+     ✓ stays a follower until the threshold, then declares the conflict  1061ms
+     ✓ resets the count when the leader answers again, so intermittent stalls never trip it  1498ms
+     ✓ names the holding process in the message when the lock can be proved  1056ms
+     ✓ sends SIGCONT when the holder is suspended, and says so  1051ms
+     ✓ falls back to the anonymous message when the holder cannot be proved  1032ms
+     ✓ recovers to follower the moment the leader answers again, and drops the diagnosis  1058ms
+     ✓ identifies the holder on the cold-start path too  463ms
+     ✓ a busy leader defers the handoff (challenger retries on later ticks)  1513ms
+ ✓ |mcp| test/portal/capture-flow.test.ts (6 tests) 7417ms
+   ✓ exposes a safe unclassified capture boundary for an older capture port error  799ms
+   ✓ hands server-captured values and a png asset to the agent by immutable identity  1678ms
+   ✓ hands server-captured values and a svg asset to the agent by immutable identity  1446ms
+   ✓ imports the 5242881 byte original through an artifact reference without model inline bytes  1596ms
+   ✓ imports the 16777216 byte original through an artifact reference without model inline bytes  1897ms
+ ✓ |mcp| test/fs/atomic-file.test.ts (23 tests) 6803ms
+     ✓ publishes the first evidence mutex through the retained evidence-root capability  480ms
+     ✓ recovers an actual child crash at replace prepared-temp-fsync idempotently  1363ms
+     ✓ recovers an actual child crash at replace quarantine-rename-before-dir-fsync idempotently  1352ms
+     ✓ serializes one canonical path across independent child processes  858ms
+     ✓ recovers a child crash at the prepared-before-publish lock publication boundary without exposing partial owner bytes  357ms
+     ✓ recovers a child crash at the published-before-owner-entry lock publication boundary without exposing partial owner bytes  1468ms
+     ✓ never steals a live child owner while waiting on the same canonical path  563ms
+ ✓ |mcp| test/fs/runtime-paths.test.ts (42 tests | 1 skipped) 3369ms
+     ✓ rejects a state directory with inherited broad ACL  386ms
+     ✓ pins the host Security module when inherited module search paths contain a look-alike  1356ms
+     ✓ runs the fixed PowerShell probes against a Korean-named state root  1349ms
+ ✓ |mcp| test/portal/archive-eligibility.test.ts (5 tests) 6789ms
+   ✓ pins active attempts and rejects missing or mismatched signed run authority  2181ms
+   ✓ rereads reachability only after obtaining the production run and execution fence  1086ms
+   ✓ allows closed history but keeps partial application pinned under cancellation  1054ms
+   ✓ allows a zero-write legacy journal that retains its original target directory identity  1071ms
+   ✓ recovers only terminal signed plan/run dependencies before reviewing current archival proof  1395ms
+ ✓ |mcp| test/portal/recipe-evidence-hold.test.ts (19 tests) 6153ms
+   ✓ durably holds before dispatch and verifies actual canonical executor evidence and bytes  1313ms
+   ✓ reserves capacity before effects, tightens to actual bytes and never evicts a held dependency  427ms
+   ✓ serializes cross-manager capacity and compaction with no check-then-hold window  363ms
+   ✓ routes real HTTP hold/verify/release through the canonical admitted service executor  879ms
+   ✓ recovers held expired tombstones and all evidence stores while purging only unheld rows under the live snapshot  568ms
+   ✓ preserves old small bindings but accounts their full bound before any new hold  387ms
+   ✓ captures and verifies a result exactly at the service byte ceiling  305ms
+ ✓ |mcp| test/security/pairing.test.ts (37 tests) 6368ms
+     ✓ bounds monotonic revision GC across thousands of failed mutations and restart  4435ms
+     ✓ keeps the revision directory bounded across repeated crashes immediately after publication  345ms
+ ✓ |mcp| test/portal/core-source.characterization.test.ts (4 tests) 5129ms
+   ✓ SA-1 regression: 33 import statements give a full 32-row sample and an exact count, not truncation  623ms
+   ✓ SA-1 regression: core recipe preparation maps a source with 33 import statements, and an unread input still blocks  975ms
+   ✓ SA-1 regression: a 200-file React application is sampled with exact counts and is not truncated  1036ms
+   ✓ SA-1 regression: the 200-file React application maps without a pattern issue and map-design is ready  2493ms
+ ✓ |mcp| test/portal/store.characterization.test.ts (2 tests) 4527ms
+   ✓ OPS-2 regression: the 65th signed PortalStore update succeeds with obsolete generations reclaimed  2514ms
+   ✓ retains the default AtomicFileStore recovery budget until a caller authorizes obsolete-generation reclamation  2012ms
+ ✓ |mcp| test/portal/capture-plane.test.ts (7 tests) 4524ms
+   ✓ executes desktop capture through canonical plane, validated runtime and signed plan  2008ms
+   ✓ executes chrome capture through canonical plane, validated runtime and signed plan  829ms
+   ✓ resumes a reserved failed plan through a new canonical operation and current session admission  1628ms
+ ✓ |mcp| test/portal/service-graph.test.ts (14 tests) 4619ms
+   ✓ keeps binary files with semantic extensions out of text evidence  452ms
+   ✓ binds every nonexcluded source byte independently of semantic parse coverage  724ms
+   ✓ retains graph diagnostic loss state with 512 lexical source files  1582ms
+   ✓ retains graph diagnostic loss state with 513 lexical source files  1515ms
+ ✓ |mcp| test/portal/service-graph.characterization.test.ts (3 tests) 4963ms
+   ✓ SA-2 regression: lockfiles of any size are byte-bound, hash-only inventory members  581ms
+   ✓ SA-2 regression: a 900 KB lockfile plus 800 imports aggregates evidence without a limit issue  4077ms
+   ✓ SA-2 regression: large data files are hash-only while required sources keep the text budget  303ms
+ ✓ |mcp| test/portal/capture-native.test.ts (3 tests) 4289ms
+   ✓ rejects missing freshness admission before profile/native/browser effects  2220ms
+   ✓ rejects wrong-file freshness admission before profile/native/browser effects  1053ms
+   ✓ rejects wrong-collector freshness admission before profile/native/browser effects  1015ms
+ ✓ |mcp| test/fs/atomic-file.remediation.test.ts (13 tests) 5006ms
+   ✓ reclaims obsolete owned generations under a one-row budget across more than 64 replacements  1524ms
+   ✓ recovers a real child crash at afterReplaceCleanupIntentFsync from the durable intent  1504ms
+   ✓ recovers a real child crash at afterReplaceRetainedUnlinkFsync from the durable intent  1501ms
+ ✓ |mcp| test/portal/store.test.ts (5 tests) 4339ms
+   ✓ migrates authentic historical signed generations at their previous capacity limit  2211ms
+   ✓ updates signed owner state beyond 64 generations without retaining obsolete records  1950ms
+ ✓ |mcp| test/tools/local-tools.test.ts (9 tests) 4416ms
+     ✓ analyzes the directory it is given  436ms
+     ✓ falls back to the server cwd when rootDir is omitted  2037ms
+     ✓ requires an argument object, which is what its only caller passes  1881ms
+ ✓ |mcp| test/fs/windows-directory-lease-broker.test.ts (41 tests | 1 skipped) 4153ms
+     ✓ uses the startup budget for READY and the request budget for requests  428ms
+     ✓ retires an idle broker after its idle budget but never while a lease is held  388ms
+     ✓ terminates and awaits the child on a late acquire response so no lease can leak  306ms
+     ✓ does not spawn a replacement broker until the failed child has exited  354ms
+     ✓ acquires and releases Korean, NFD, surrogate and over-260-character directories  443ms
+     ✓ answers a malformed request line with an error and keeps serving the next request  461ms
+ ✓ |mcp| test/fs/operation-evidence-artifact-store.test.ts (55 tests | 1 skipped) 4005ms
+     ✓ creates no lock, directory, or result outside the workspace on first-use child replacement  817ms
+     ✓ keeps an external-process parent swap outside every marker and artifact create use  317ms
+ ✓ |mcp| test/portal/core-lifecycle.test.ts (6 tests) 3604ms
+   ✓ prepares real seven-core bindings and reads exact page work items after restart  1510ms
+   ✓ binds every work page declaration and invalidates changed file references  969ms
+   ✓ retains dependencies and revalidates tampered pages before renewal-style reads  946ms
+ ✓ |mcp| test/execution/native-evidence-artifact-port.test.ts (35 tests) 3530ms
+     ✓ preserves edited metadata during before-rename cleanup without deleting exported assets  1037ms
+     ✓ shares one exact 4096-entry root-and-child inventory across both orphan stores  1634ms
+ ✓ |mcp| test/portal/native-directory-creation.test.ts (12 tests) 3149ms
+   ✓ the Windows handle publication refuses an existing foreign file  490ms
+   ✓ the Windows handle publication refuses an existing foreign empty-directory  422ms
+   ✓ binds identity and parent sync before final publication  948ms
+   ✓ recovers a moved final inode after its published record write fails  412ms
+   ✓ publishes through an actual long Korean parent path  404ms
+   ✓ reads historical identity proof without granting an old program new effects  394ms
+ ✓ |mcp| test/execution/operation-evidence-receipt.test.ts (24 tests) 2295ms
+     ✓ rejects versioned cleanup rows that do not continue their pending intent  528ms
+ ✓ |mcp| test/portal/source-inventory.test.ts (24 tests | 1 skipped) 2790ms
+   ✓ binds required local CSS imports inside generated directories without indexing unrelated output  474ms
+   ✓ enforces actual native default file and aggregate boundaries on raw asset bytes  346ms
+   ✓ records generated-output directories as hashed exclusions and names an NFD path while the scan continues (SVC-8)  1767ms
+ ✓ |mcp| test/control/admin-audit.test.ts (45 tests) 1809ms
+ ✓ |mcp| test/portal/capture-coherence.test.ts (10 tests) 2392ms
+   ✓ retries the whole attempt when a same-ID property changes during export  854ms
+ ✓ |mcp| test/execution/operation-executor.test.ts (32 tests) 2584ms
+     ✓ recovers repeated crashes after evidence reservation fsync without leaking capacity or rerunning  452ms
+     ✓ settles an ordinary durable queued reservation before generic restart failure and releases capacity  312ms
+     ✓ preserves reservation-owned queued recovery across every pre-runtime fsync boundary  315ms
+ ✓ |mcp| test/execution/retention-sweep.test.ts (10 tests) 1404ms
+     ✓ gives done for an unregistered workspace, deferred for an unavailable one, and a terminal versioned quarantine row for repeated failure, after which the cleanup log still truncates  487ms
+     ✓ gives done for a registered, available workspace whose .sfp folder, and so the target file, is missing  844ms
+ ✓ |mcp| test/relay/relay.test.ts (39 tests) 2335ms
+     ✓ persists a real dispatched relay timeout as unknown and fences late-result retries  364ms
+     ✓ plugin responding to $ping keeps connection alive past timeout window  317ms
+     ✓ defers the heartbeat timeout while a request is in-flight (busy ≠ dead)  317ms
+ ✓ |mcp| test/portal/capture-continuation.test.ts (2 tests) 1870ms
+   ✓ continues beyond 256 assets without exporting the completed prefix again  1836ms
+ ✓ |mcp| test/security/follower-transport.test.ts (74 tests) 2230ms
+     ✓ enforces the 4096-slot record boundary with authenticated truncation  475ms
+     ✓ enforces the 4097-slot record boundary with authenticated truncation  503ms
+ ✓ |mcp| test/execution/operation-evidence-receipt.characterization.test.ts (3 tests) 1484ms
+     ✓ LC-1 regression (T09): expired snapshot and grounding-graph evidence drains through the production cleanup without throwing, detaches the evidence and drains the later harmless intent too  1093ms
+     ✓ LC-1 regression (T09): the retention sweep drains a 31-day-old snapshot receipt whose .sfp folder was deleted, and tool calls keep working  388ms
+ ✓ |mcp| test/tools/token-map.test.ts (15 tests) 805ms
+     ✓ detects the v4 @theme source, maps Primary/500, flags the unmatched token  468ms
+ ✓ |mcp| test/portal/design-evidence.test.ts (11 tests) 1401ms
+   ✓ returns a verified original-copy reference for a 5242881-byte captured asset  472ms
+   ✓ pages original Figma values without discarding hierarchy, layout, paints or typography  418ms
+ ✓ |mcp| test/portal/desktop-capture.test.ts (10 tests) 1661ms
+   ✓ captures through compiled plugin handlers and signed coherent storage with distinct child actions  757ms
+ ✓ |mcp| test/mapping-consumers.test.ts (13 tests) 1605ms
+     ✓ Chrome inspection, Desktop tools and persisted graph preserve IDs, values, styles, sibling modes and APIs  597ms
+     ✓ all consumers read the same versioned override and reject source, type, mode and code drift  305ms
+ ✓ |mcp| test/portal/capture-session.test.ts (13 tests) 1597ms
+   ✓ categorizes a assets failure at its exact boundary  464ms
+ ✓ |mcp| test/portal/native-owned-chrome-cleanup.test.ts (19 tests) 1487ms
+ ✓ |mcp| test/execution/identity-bootstrap-coordinator.test.ts (1 test) 1075ms
+     ✓ journals a system operation, signs the local URL binding, and returns a one-use reauthentication ticket  1074ms
+ ✓ |mcp| test/election/leader-endpoints.test.ts (28 tests) 1621ms
+     ✓ defers while a relay request is in flight  1007ms
+ ✓ |mcp| test/fs/repo-walk.test.ts (19 tests) 864ms
+     ✓ scans a gitfile worktree without following its external gitdir pointer  435ms
+ ✓ |mcp| test/fs/workspace-config-store.test.ts (42 tests | 3 skipped) 1102ms
+     ✓ blocks an inherited broad state DACL until the bound authority explicitly hardens it  455ms
+ ✓ |mcp| test/tokens/load.test.ts (38 tests) 1102ms
+     ✓ includes imported generated CSS tokens even when the entry declares its own properties  439ms
+ ✓ |mcp| test/portal/design-normalization.test.ts (44 tests) 1073ms
+     ✓ enforces catalog and raw byte limits without claiming omitted values complete  353ms
+     ✓ bounds aggregate alias resolution work across nodes, not just each alias chain  673ms
+ ✓ |mcp| test/snapshot/service-operations.test.ts (1 test) 932ms
+     ✓ captures, checks native evidence, and refreshes stale code without reading Figma again  932ms
+ ✓ |mcp| test/portal/interaction-evidence.test.ts (9 tests) 732ms
+   ✓ retains a reviewed incidental unsupported action without blocking the required action  508ms
+ ✓ |mcp| test/fs/local-tool-boundary.test.ts (15 tests) 819ms
+     ✓ rejects an ancestor swap after validation but before opening a walked directory  432ms
+ ✓ |mcp| test/network/import-image-runtime.test.ts (16 tests) 906ms
+ ✓ |mcp| test/profile/profile.test.ts (59 tests) 601ms
+     ✓ profiles the injected reader root rather than the raw root argument  444ms
+ ✓ |mcp| test/fs/workspace-policy.test.ts (37 tests | 2 skipped) 704ms
+     ✓ resolves an existing output directory and workspace root as directories, not overwrite files  364ms
+ ✓ |mcp| test/execution/egress-manifest-store.test.ts (13 tests) 884ms
+ ✓ |mcp| test/portal/source-authority.test.ts (4 tests) 547ms
+   ✓ requires complete byte closure for loader.mts  476ms
+ ✓ |mcp| test/portal/capture-reexport.test.ts (10 tests) 644ms
+   ✓ verifies real capture files and rejects changed source facts, bytes and cancellation  518ms
+ ✓ |mcp| test/portal/capture-descriptor.test.ts (4 tests) 573ms
+   ✓ validates current descriptors but compares fresh observations semantically rather than original attempt identity  497ms
+ ✓ |mcp| test/tools/component-map.test.ts (5 tests) 593ms
+     ✓ maps Button to the scanned component and flags Tooltip unmapped  465ms
+ ✓ |mcp| test/scan/scan.test.ts (73 tests) 506ms
+     ✓ finds components across heterogeneous folders and skips node_modules + vendor  438ms
+ ✓ |mcp| test/fs/owned-tree-reclamation.test.ts (4 tests) 540ms
+   ✓ resumes a durable deletion intent after unlink while preserving the exact review identity  468ms
+ ✓ |mcp| test/portal/preview-feedback.test.ts (5 tests) 603ms
+   ✓ retains authenticated failed comparison references and both image hashes  487ms
+ ✓ |mcp| test/portal/capture-admission.test.ts (11 tests) 470ms
+   ✓ uses the actual signed owner document binding for a no-Dev-Mode Desktop and rejects tampering  461ms
+ ✓ |mcp| test/tokens/token-index.test.ts (17 tests) 493ms
+     ✓ builds the index from a plain CSS-variables project and caches until the file changes  460ms
+ ✓ |mcp| test/tokens/repo-scss.test.ts (3 tests) 482ms
+     ✓ pools Sass variables and CSS custom properties with repo-relative provenance  465ms
+ ✓ |mcp| test/tokens/generated-tokens.test.ts (7 tests) 486ms
+     ✓ uses RepoReader for generated output traversal instead of a raw fdir crawl  430ms
+ ✓ |mcp| test/tokens/repo-css.test.ts (4 tests) 470ms
+     ✓ pools custom properties across hand-authored CSS, skipping vendored dirs and prop-less files  445ms
+ ✓ |mcp| test/icons/repo-icons.test.ts (8 tests) 463ms
+     ✓ walks .svg files and reads each color contract, skipping node_modules  444ms
+ ✓ |mcp| test/tools/design-diff.test.ts (12 tests) 343ms
+ ✓ |mcp| test/execution/operation-journal.test.ts (32 tests) 578ms
+ ✓ |mcp| test/execution/admission-wait.test.ts (2 tests) 601ms
+   ✓ bounds memory and polling while durable admission is delayed  600ms
+ ✓ |mcp| test/portal/chrome-transport.test.ts (18 tests) 525ms
+ ✓ |mcp| test/execution/egress-finalizer.test.ts (11 tests) 523ms
+     ✓ recovers a matching prepared receipt/finalizer as succeeded after a durable generation fence  315ms
+ ✓ |mcp| test/election/follower.test.ts (19 tests) 545ms
+     ✓ sendRpc still honours its own budget when no abort signal is given  316ms
+ ✓ |mcp| test/network/remote-image-fetcher.test.ts (107 tests) 410ms
+ ✓ |mcp| test/execution/execution-plane-lifecycle.test.ts (23 tests) 331ms
+ ✓ |mcp| test/no-binary-sources.test.ts (1 test) 207ms
+ ✓ |mcp| test/portal/preview-channel.test.ts (4 tests) 338ms
+ ✓ |mcp| test/portal/preview-listener.test.ts (2 tests) 193ms
+ ✓ |mcp| test/scan/sfc-blocks.test.ts (41 tests) 182ms
+ ✓ |mcp| test/portal/service-connections.test.ts (25 tests) 149ms
+ ✓ |mcp| test/plugin-contract.test.ts (7 tests) 141ms
+ ✓ |mcp| test/tools/design-context-guard.test.ts (27 tests) 102ms
+ ✓ |mcp| test/execution/progress-framing.test.ts (7 tests) 128ms
+ ✓ |mcp| test/execution/completed-result-replay.test.ts (5 tests) 121ms
+ ✓ |mcp| test/dispatch.test.ts (17 tests) 122ms
+ ✓ |mcp| test/security/control-auth.test.ts (19 tests) 108ms
+ ✓ |mcp| test/profile/utility-first-single-source.test.ts (2 tests) 110ms
+ ✓ |mcp| test/election/node.test.ts (13 tests) 148ms
+ ✓ |mcp| test/fs/workspace-config-store.characterization.test.ts (3 tests) 92ms
+ ✓ |mcp| test/execution/workspace-endpoints.test.ts (6 tests) 100ms
+ ✓ |mcp| test/security/request-limits.test.ts (16 tests) 97ms
+ ✓ |mcp| test/control/egress-control.test.ts (3 tests) 105ms
+ ✓ |mcp| test/execution/follower-invocation-client.test.ts (17 tests) 82ms
+ ✓ |mcp| test/portal/module-resolution.test.ts (20 tests) 66ms
+ ✓ |mcp| test/security/pna.test.ts (29 tests) 71ms
+ ✓ |mcp| test/official-figma-mcp.test.ts (19 tests) 39ms
+ ✓ |mcp| test/security/token-rotation.test.ts (9 tests) 72ms
+ ✓ |mcp| test/execution/progress-transport.test.ts (12 tests) 52ms
+ ✓ |mcp| test/tools/save-screenshots.test.ts (11 tests) 36ms
+ ✓ |mcp| test/fs/shared-dependency-boundary.test.ts (3 tests) 57ms
+ ✓ |mcp| test/election/control-route-registry.test.ts (4 tests) 52ms
+ ✓ |mcp| test/control/control-router.test.ts (88 tests) 43ms
+ ✓ |mcp| test/portal/source-guard.test.ts (14 tests) 47ms
+ ✓ |mcp| test/policy/result-egress-policy.test.ts (14 tests) 43ms
+ ✓ |mcp| test/policy/egress-config.test.ts (6 tests) 45ms
+ ✓ |mcp| test/portal/recipe-definitions.test.ts (11 tests) 38ms
+ ✓ |mcp| test/portal/preview-comparison.test.ts (2 tests) 27ms
+ ✓ |mcp| test/execution/runtime-authority.test.ts (5 tests) 34ms
+ ✓ |mcp| test/tools/save-image-fills.test.ts (11 tests) 38ms
+ ✓ |mcp| test/election/leader-lock.test.ts (41 tests | 8 skipped) 36ms
+ ✓ |mcp| test/portal/native-lock-provisioning.test.ts (5 tests) 40ms
+ ✓ |mcp| test/tools/export-pdf.test.ts (8 tests) 35ms
+ ✓ |mcp| test/tools/export-video.test.ts (9 tests) 35ms
+ ✓ |mcp| test/portal/consumption-components.test.ts (10 tests) 22ms
+ ✓ |mcp| test/portal/consumption-receipt.test.ts (12 tests) 25ms
+ ✓ |mcp| test/execution/action-nonce.test.ts (9 tests) 27ms
+ ✓ |mcp| test/portal/workflow-requirements.test.ts (21 tests) 29ms
+ ✓ |mcp| test/fs/workspace-registration-atomicity.test.ts (5 tests) 30ms
+ ✓ |mcp| test/tools/binary-payload.test.ts (7 tests) 17ms
+ ✓ |mcp| test/tools/safe-union.test.ts (7 tests) 23ms
+ ✓ |mcp| test/tools/import-image.test.ts (5 tests) 13ms
+ ✓ |mcp| test/portal/recipe-artifact-readback.test.ts (2 tests) 27ms
+ ✓ |mcp| test/portal/canonical-paragraphs.test.ts (4 tests) 16ms
+ ✓ |mcp| test/fs/workspace-usage-guard.test.ts (1 test) 18ms
+ ✓ |mcp| test/execution/operation-id.test.ts (4 tests) 17ms
+ ✓ |mcp| test/tokens/js-config.test.ts (49 tests) 11ms
+ ✓ |mcp| test/execution/boundary-limits.test.ts (8 tests) 15ms
+ ✓ |mcp| test/tools/get-screenshot.test.ts (16 tests) 16ms
+ ✓ |mcp| test/policy/operation-policy.test.ts (17 tests) 13ms
+ ✓ |mcp| test/execution/approval-broker.test.ts (5 tests) 12ms
+ ✓ |mcp| test/network/dns-pinning.test.ts (55 tests) 14ms
+ ✓ |mcp| test/execution/follower-stream.test.ts (5 tests) 12ms
+ ✓ |mcp| test/join/token-map.test.ts (47 tests) 13ms
+ ✓ |mcp| test/execution/mcp-selector-synthesis.test.ts (25 tests) 10ms
+ ✓ |mcp| test/tokens/tokens.test.ts (19 tests) 6ms
+ ✓ |mcp| test/join/icon-map.test.ts (13 tests) 7ms
+ ✓ |mcp| test/control/operation-evidence.test.ts (3 tests) 9ms
+ ✓ |mcp| test/tools/skew-notice.test.ts (12 tests) 7ms
+ ✓ |mcp| test/execution/resource-queue.test.ts (11 tests) 10ms
+ ✓ |mcp| test/tools/result-validation.test.ts (7 tests) 9ms
+ ✓ |mcp| test/join/component-map.test.ts (32 tests) 8ms
+ ✓ |mcp| test/tools/motion-schemas.test.ts (11 tests) 8ms
+ ✓ |mcp| test/set-annotations.test.ts (2 tests) 6ms
+ ✓ |mcp| test/tools/write-tools.test.ts (13 tests) 5ms
+ ✓ |mcp| test/fs/workspace-registration-resolver.test.ts (2 tests) 9ms
+ ✓ |mcp| test/tokens/css-scan.test.ts (37 tests) 7ms
+ ✓ |mcp| test/execution/operation-resolution.test.ts (3 tests) 6ms
+ ✓ |mcp| test/execution/invocation-boundary.test.ts (18 tests) 7ms
+ ✓ |mcp| test/execution/no-direct-relay.test.ts (3 tests) 6ms
+ ✓ |mcp| test/profile/styling-cascade.test.ts (23 tests) 5ms
+ ✓ |mcp| test/tokens/figma-tokens.test.ts (14 tests) 5ms
+ ✓ |mcp| test/join/status.test.ts (4 tests) 7ms
+ ✓ |mcp| test/local-access.test.ts (17 tests) 4ms
+ ✓ |mcp| test/tools/read-tools.test.ts (13 tests) 4ms
+ ✓ |mcp| test/execution/approval-plugin-port.test.ts (1 test) 5ms
+ ✓ |mcp| test/execution/plugin-progress-adapter.test.ts (2 tests) 4ms
+ ✓ |mcp| test/node-id.test.ts (16 tests) 5ms
+ ✓ |mcp| test/diff/design-diff.test.ts (10 tests) 5ms
+ ✓ |mcp| test/lifecycle.test.ts (13 tests) 5ms
+ ✓ |mcp| test/execution/policy-context.test.ts (5 tests) 5ms
+ ✓ |mcp| test/join/casefold.test.ts (5 tests) 3ms
+ ✓ |mcp| test/portal/capture-failure.test.ts (4 tests) 5ms
+ ✓ |mcp| test/execution/file-queue.test.ts (7 tests) 7ms
+ ✓ |mcp| test/execution/operation-evidence-projector.test.ts (2 tests) 4ms
+ ✓ |mcp| test/execution/egress-policy.test.ts (3 tests) 4ms
+ ✓ |mcp| test/prompts/registry.test.ts (5 tests) 3ms
+ ✓ |mcp| test/tools/ping.test.ts (9 tests) 5ms
+ ✓ |mcp| test/portal/consumption-values.test.ts (6 tests) 4ms
+ ✓ |mcp| test/tools/layout-tier-coverage.test.ts (3 tests) 3ms
+ ✓ |mcp| test/control/control-status.test.ts (1 test) 4ms
+ ✓ |mcp| test/execution/mcp-workspace-binding.test.ts (2 tests) 4ms
+ ✓ |mcp| test/execution/control-tool-call.test.ts (1 test) 4ms
+ ✓ |mcp| test/relay/session.test.ts (2 tests) 3ms
+ ✓ |mcp| test/execution/service-operation-registry.test.ts (2 tests) 3ms
+ ✓ |mcp| test/execution/service-operation-name.test.ts (11 tests) 3ms
+ ✓ |mcp| test/mapping-parity.test.ts (2 tests) 3ms
+ ✓ |mcp| test/portal/chrome-runtime.test.ts (10 tests) 3ms
+ ✓ |mcp| test/execution/target-resolution.test.ts (3 tests) 3ms
+ ✓ |mcp| test/execution/target-requirement.test.ts (3 tests) 3ms
+ ✓ |mcp| test/execution/approval-routing-matrix.test.ts (2 tests) 2ms
+ ✓ |mcp| test/tools/get-selection.test.ts (3 tests) 2ms
+ ✓ |mcp| test/prompts/prompt-tool-names.test.ts (2 tests) 3ms
+ ✓ |mcp| test/tools/get-document.test.ts (3 tests) 2ms
+ ✓ |plugin| test/auth/resume-rotation.test.ts (13 tests) 331ms
+ ✓ |plugin| test/sandbox/startup.test.ts (1 test) 566ms
+   ✓ starts without browser globals and serves reads after the UI seeds identity  565ms
+ ✓ |plugin| test/relay/client.test.ts (45 tests) 1371ms
+ ✓ |plugin| test/panel.test.ts (15 tests) 112ms
+ ✓ |plugin| test/components/tab-activity-row.test.ts (29 tests) 68ms
+ ✓ |plugin| test/components/pairing-flow.test.ts (23 tests) 126ms
+ ✓ |plugin| test/components/tab-panels.test.ts (22 tests) 59ms
+ ✓ |plugin| test/auth/pair-exchange.test.ts (12 tests) 93ms
+ ✓ |plugin| test/sandbox/tool-bridge.test.ts (9 tests) 58ms
+ ✓ |plugin| test/components/ui-primitives.test.ts (16 tests) 39ms
+ ✓ |plugin| test/components/panel-chrome.test.ts (6 tests) 36ms
+ ✓ |plugin| test/components/ui-payload-block.test.ts (9 tests) 32ms
+ ✓ |plugin| test/composables/use-relay-session.test.ts (29 tests) 29ms
+ ✓ |plugin| test/components/panel-status.test.ts (7 tests) 26ms
+ ✓ |plugin| test/components/panel-tabs.test.ts (5 tests) 22ms
+ ✓ |plugin| test/dispatcher.test.ts (10 tests) 20ms
+ ✓ |plugin| test/handlers/get-design-context.test.ts (33 tests) 20ms
+ ✓ |plugin| test/serializer.test.ts (90 tests) 19ms
+ ✓ |plugin| test/relay/payload.test.ts (6 tests) 20ms
+ ✓ |plugin| test/handlers/batch.test.ts (36 tests) 18ms
+ ✓ |plugin| test/handlers/get-styles.test.ts (10 tests) 28ms
+ ✓ |plugin| test/handlers/set-reactions.test.ts (12 tests) 16ms
+ ✓ |plugin| test/components/panel-background-button.test.ts (2 tests) 13ms
+ ✓ |plugin| test/components/panel-footer.test.ts (4 tests) 15ms
+ ✓ |plugin| test/sandbox/mutation-cancellation.test.ts (15 tests) 27ms
+ ✓ |plugin| test/handlers/set-annotations.test.ts (16 tests) 18ms
+ ✓ |plugin| test/mutation.test.ts (6 tests) 11ms
+ ✓ |plugin| test/handlers/get-fonts.test.ts (6 tests) 10ms
+ ✓ |plugin| test/relay/diagnostics.test.ts (5 tests) 10ms
+ ✓ |plugin| test/handlers/create-variable.test.ts (11 tests) 12ms
+ ✓ |plugin| test/handlers/set-text-range.test.ts (12 tests) 10ms
+ ✓ |plugin| test/protocol/bridge.test.ts (15 tests) 8ms
+ ✓ |plugin| test/composables/use-approvals.test.ts (3 tests) 7ms
+ ✓ |plugin| test/handlers/bindings.test.ts (12 tests) 9ms
+ ✓ |plugin| test/handlers/get-reactions.test.ts (5 tests) 6ms
+ ✓ |plugin| test/sandbox/messaging.test.ts (8 tests) 7ms
+ ✓ |plugin| test/handlers/set-variable-value.test.ts (9 tests) 6ms
+ ✓ |plugin| test/reveal.test.ts (15 tests) 7ms
+ ✓ |plugin| test/handlers/component-property.test.ts (14 tests) 8ms
+ ✓ |plugin| test/handlers/set-auto-layout.test.ts (9 tests) 5ms
+ ✓ |plugin| test/handlers/import-library-variable.test.ts (2 tests) 5ms
+ ✓ |plugin| test/identity-bootstrap.test.ts (1 test) 7ms
+ ✓ |plugin| test/handlers/get-screenshot.test.ts (14 tests) 7ms
+ ✓ |plugin| test/handlers/save-image-fills.test.ts (8 tests) 5ms
+ ✓ |plugin| test/protocol/progress-cancel.test.ts (2 tests) 5ms
+ ✓ |plugin| test/handlers/set-text-properties.test.ts (7 tests) 6ms
+ ✓ |plugin| test/relay/node-ids.test.ts (12 tests) 4ms
+ ✓ |plugin| test/handlers/set-fills.test.ts (5 tests) 7ms
+ ✓ |plugin| test/handlers/create-component.test.ts (3 tests) 5ms
+ ✓ |plugin| test/handlers/create-text-style.test.ts (12 tests) 7ms
+ ✓ |plugin| test/handlers/update-text-style.test.ts (7 tests) 6ms
+ ✓ |plugin| test/handlers/group-nodes.test.ts (2 tests) 4ms
+ ✓ |plugin| test/handlers/create-text.test.ts (2 tests) 4ms
+ ✓ |plugin| test/relay/state.test.ts (13 tests) 6ms
+ ✓ |plugin| test/handlers/combine-as-variants.test.ts (3 tests) 5ms
+ ✓ |plugin| test/handlers/bind-variable-to-node.test.ts (4 tests) 5ms
+ ✓ |plugin| test/handlers/bind-variable-to-paint.test.ts (5 tests) 6ms
+ ✓ |plugin| test/handlers/add-variable-mode.test.ts (4 tests) 4ms
+ ✓ |plugin| test/handlers/swap-component.test.ts (4 tests) 4ms
+ ✓ |plugin| test/file-identity.test.ts (6 tests) 6ms
+ ✓ |plugin| test/file-identity-bootstrap-hello.test.ts (2 tests) 4ms
+ ✓ |plugin| test/variable-binding-coverage.test.ts (2 tests) 5ms
+ ✓ |plugin| test/handlers/create-ellipse.test.ts (2 tests) 4ms
+ ✓ |plugin| test/handlers/import-image.test.ts (4 tests) 6ms
+ ✓ |plugin| test/handlers/get-node-motion.test.ts (6 tests) 4ms
+ ✓ |plugin| test/relay/bootstrap.test.ts (4 tests) 4ms
+ ✓ |plugin| test/handlers/create-variable-collection.test.ts (6 tests) 5ms
+ ✓ |plugin| test/handlers/search-nodes.test.ts (6 tests) 4ms
+ ✓ |plugin| test/handlers/navigate-to-page.test.ts (2 tests) 5ms
+ ✓ |plugin| test/handlers/create-instance.test.ts (4 tests) 5ms
+ ✓ |plugin| test/handlers/get-selection.test.ts (3 tests) 4ms
+ ✓ |plugin| test/handlers/remove-reactions.test.ts (3 tests) 4ms
+ ✓ |plugin| test/handlers/get-nodes-info.test.ts (3 tests) 4ms
+ ✓ |plugin| test/handlers/delete-page.test.ts (3 tests) 3ms
+ ✓ |plugin| test/handlers/export-pdf.test.ts (5 tests) 4ms
+ ✓ |plugin| test/handlers/delete-variable.test.ts (2 tests) 3ms
+ ✓ |plugin| test/handlers/scan-nodes-by-types.test.ts (2 tests) 3ms
+ ✓ |plugin| test/handlers/find-replace-text.test.ts (3 tests) 4ms
+ ✓ |plugin| test/handlers/lock-nodes.test.ts (3 tests) 3ms
+ ✓ |plugin| test/handlers/set-layout-props.test.ts (9 tests) 5ms
+ ✓ |plugin| test/handlers/set-mask.test.ts (3 tests) 3ms
+ ✓ |plugin| test/handlers/create-paint-style.test.ts (4 tests) 4ms
+ ✓ |plugin| test/protocol/panel-control.test.ts (14 tests) 4ms
+ ✓ |plugin| test/handlers/create-rectangle.test.ts (2 tests) 4ms
+ ✓ |plugin| test/handlers/import-svg.test.ts (3 tests) 5ms
+ ✓ |plugin| test/handlers/rename-page.test.ts (2 tests) 4ms
+ ✓ |plugin| test/handlers/set-position.test.ts (6 tests) 5ms
+ ✓ |plugin| test/handlers/export-video.test.ts (7 tests) 5ms
+ ✓ |plugin| test/handlers/get-document.test.ts (3 tests) 4ms
+ ✓ |plugin| test/idempotency.test.ts (10 tests) 5ms
+ ✓ |plugin| test/handlers/detach-instance.test.ts (2 tests) 4ms
+ ✓ |plugin| test/handlers/set-corner-radius.test.ts (5 tests) 4ms
+ ✓ |plugin| test/composables/use-panel-window.test.ts (8 tests) 4ms
+ ✓ |plugin| test/handlers/resize-nodes.test.ts (2 tests) 4ms
+ ✓ |plugin| test/handlers/create-effect-style.test.ts (4 tests) 4ms
+ ✓ |plugin| test/handlers/reorder-nodes.test.ts (2 tests) 4ms
+ ✓ |plugin| test/handlers/set-effects.test.ts (3 tests) 3ms
+ ✓ |plugin| test/handlers/set-layout-grids.test.ts (6 tests) 4ms
+ ✓ |plugin| test/handlers/set-text.test.ts (3 tests) 5ms
+ ✓ |plugin| test/handlers/create-frame.test.ts (3 tests) 4ms
+ ✓ |plugin| test/handlers/set-strokes.test.ts (5 tests) 4ms
+ ✓ |plugin| test/handlers/get-local-components.test.ts (4 tests) 4ms
+ ✓ |plugin| test/protocol/editor-context.test.ts (10 tests) 4ms
+ ✓ |plugin| test/handlers/get-component-api.test.ts (5 tests) 5ms
+ ✓ |plugin| test/handlers/scan-text-nodes.test.ts (2 tests) 3ms
+ ✓ |plugin| test/handlers/create-section.test.ts (1 test) 3ms
+ ✓ |plugin| test/handlers/create-grid-style.test.ts (4 tests) 4ms
+ ✓ |plugin| test/handlers/delete-nodes.test.ts (3 tests) 4ms
+ ✓ |plugin| test/handlers/set-blend-mode.test.ts (2 tests) 3ms
+ ✓ |plugin| test/handlers/get-node.test.ts (4 tests) 4ms
+ ✓ |plugin| test/handlers/get-variable-defs.test.ts (5 tests) 4ms
+ ✓ |plugin| test/handlers/apply-style-to-node.test.ts (2 tests) 4ms
+ ✓ |plugin| test/handlers/update-effect-style.test.ts (3 tests) 4ms
+ ✓ |plugin| test/handlers/ungroup-nodes.test.ts (2 tests) 4ms
+ ✓ |plugin| test/handlers/get-annotations.test.ts (6 tests) 5ms
+ ✓ |plugin| test/traverse.test.ts (8 tests) 4ms
+ ✓ |plugin| test/handlers/move-nodes.test.ts (2 tests) 4ms
+ ✓ |plugin| test/handlers/clone-node.test.ts (2 tests) 4ms
+ ✓ |plugin| test/handlers/set-arc.test.ts (3 tests) 3ms
+ ✓ |plugin| test/handlers/rename-node.test.ts (2 tests) 3ms
+ ✓ |plugin| test/handlers/update-paint-style.test.ts (4 tests) 4ms
+ ✓ |plugin| test/handlers/set-opacity.test.ts (2 tests) 4ms
+ ✓ |plugin| test/handlers/rotate-nodes.test.ts (2 tests) 4ms
+ ✓ |plugin| test/handlers/reparent-nodes.test.ts (3 tests) 5ms
+ ✓ |plugin| test/handlers/set-instance-properties.test.ts (3 tests) 4ms
+ ✓ |plugin| test/sandbox/commands.test.ts (8 tests) 4ms
+ ✓ |plugin| test/lib/format.test.ts (11 tests) 4ms
+ ✓ |plugin| test/handlers/set-visible.test.ts (2 tests) 3ms
+ ✓ |plugin| test/handlers/delete-style.test.ts (2 tests) 3ms
+ ✓ |plugin| test/handlers/set-variable-code-syntax.test.ts (4 tests) 4ms
+ ✓ |plugin| test/handlers/rename-variable.test.ts (2 tests) 3ms
+ ✓ |plugin| test/handlers/get-pages.test.ts (2 tests) 3ms
+ ✓ |plugin| test/handlers/delete-variable-collection.test.ts (2 tests) 3ms
+ ✓ |plugin| test/handlers/list-files.test.ts (2 tests) 2ms
+ ✓ |plugin| test/handlers/batch-rename-nodes.test.ts (2 tests) 3ms
+ ✓ |plugin| test/handlers/projection-coverage.test.ts (4 tests) 2ms
+ ✓ |plugin| test/handlers/add-page.test.ts (2 tests) 2ms
+ ✓ |plugin| test/handlers/get-metadata.test.ts (3 tests) 3ms
+ ✓ |plugin| test/handlers/set-constraints.test.ts (2 tests) 3ms
+ ✓ |plugin| test/handlers/get-viewport.test.ts (1 test) 2ms
+ ✓ |root| test/service-fork-lineage.test.ts (25 tests) 18513ms
+     ✓ reconciles reviewed package projections and root scripts without dropping lifecycle authority  1378ms
+     ✓ reconciles committed drift only under the exact reviewed authority: accepted  1084ms
+     ✓ reconciles committed drift only under the exact reviewed authority: prior-claim  812ms
+     ✓ reconciles committed drift only under the exact reviewed authority: baseline  797ms
+     ✓ reconciles committed drift only under the exact reviewed authority: accepted-hash  806ms
+     ✓ reconciles committed drift only under the exact reviewed authority: out-of-scope  798ms
+     ✓ reconciles committed drift only under the exact reviewed authority: record-edit  704ms
+     ✓ reconciles committed drift only under the exact reviewed authority: extra-field  779ms
+     ✓ reconciles committed drift only under the exact reviewed authority: source-edit  799ms
+     ✓ preserves an independent upstream-lock.json edit after derivation before staging  534ms
+     ✓ preserves an independent vendor-map.json edit after derivation before staging  519ms
+     ✓ preserves an independent vendor-rules.json edit after derivation before staging  546ms
+     ✓ moves one edited copy row to protected service-fork lineage without overwriting it  582ms
+     ✓ records a staged rename as one move lineage and transfers every authority class  1307ms
+     ✓ keeps a deleted upstream-copy destination excluded with an exact delete tombstone  602ms
+     ✓ rejects a declared move unless the cache contains its exact D old plus A new pair  603ms
+     ✓ rejects a move pair with a duplicated service prefix before lineage lookup  652ms
+     ✓ rejects a declared move destination already claimed by a service hash authority  609ms
+     ✓ rejects an unpaired added blob already claimed by upstream authority  560ms
+     ✓ refreshes a reviewed ordinary A after a prior partial updater recorded older bytes  668ms
+     ✓ refreshes a reviewed non-managed serviceFiles-only A after a partial updater run  660ms
+     ✓ rejects a non-managed partial-run A with inconsistent extra rules-service-owned claim  656ms
+     ✓ rejects a non-managed partial-run A with inconsistent extra service-owned-file claim  635ms
+     ✓ recovers a crash between authority renames and converges to one coherent transaction  726ms
+     ✓ reuses a fully fsynced transaction pointer temporary after a pre-publication crash  694ms
+ ✓ |root| test/change-manifest.test.ts (7 tests) 6897ms
+     ✓ preserves an independent upstream-lock.json edit while registering a generated manifest  503ms
+     ✓ preserves an independent vendor-rules.json edit while registering a generated manifest  500ms
+     ✓ 7A writes index-blob rows, verifies the exact union, and rejects an unstaged service edit  1505ms
+     ✓ review-2026-09-05 writes index-blob rows, verifies the exact union, and rejects an unstaged service edit  1361ms
+     ✓ accepts an unchanged vendor-map authority but still rejects a changed unstaged one  1320ms
+     ✓ preserves and verifies explicit UTF-8-sorted D+A move pairs  1267ms
+     ✓ rejects a declared move pair when cached D+A status is incomplete  439ms
+ ✓ |root| test/source-check-attempt.test.ts (4 tests) 5892ms
+   ✓ publishes current failure for typecheck while preserving the successful attempt and its logs  1342ms
+   ✓ publishes current failure for artifacts while preserving the successful attempt and its logs  1379ms
+   ✓ publishes current failure for source-change while preserving the successful attempt and its logs  1704ms
+   ✓ publishes current failure for scope-change while preserving the successful attempt and its logs  1465ms
+ ✓ |root| test/package-artifacts-hermetic.test.ts (2 tests) 2956ms
+     ✓ keeps archives byte-identical and prompts nothing under a hostile git configuration  2953ms
+ ✓ |root| test/declare-test-scope.test.ts (1 test) 1567ms
+   ✓ independently declares skipped, todo and runnable registrations without executing test bodies  1566ms
+ ✓ |root| test/test-skip-census.test.ts (14 tests) 2341ms
+     ✓ fails the command line on a blocked required suite and passes when it is allowed  2130ms
+ ✓ |root| test/archive-command.test.ts (1 test) 162ms
+ ✓ |root| test/spawn-hygiene.test.ts (2 tests) 552ms
+     ✓ hides every child process window in service scripts and tests  550ms
+ ✓ |root| test/authority-class-transition.test.ts (1 test) 577ms
+     ✓ refreshes service-owned source hashes without inventing service-fork lineage  576ms
+ ✓ |root| test/task-8a-direct-fs-importers.test.ts (6 tests) 536ms
+     ✓ proves every ledger row had the legacy import at the pinned RED base and has none after migration  366ms
+ ✓ |root| test/build-identity.test.ts (7 tests) 565ms
+     ✓ starts the packaged entry when a healthy daemon reports a stale identity  412ms
+ ✓ |root| test/contract-drift.test.ts (1 test) 132ms
+ ✓ |root| test/source-fingerprint.test.ts (1 test) 225ms
+ ✓ |root| test/tool-contract.test.ts (16 tests) 63ms
+ ✓ |root| test/package-manager-entry.test.ts (5 tests) 34ms
+ ✓ |root| test/tool-registry.test.ts (6 tests) 20ms
+ ✓ |root| test/check-test-report.test.ts (16 tests) 8ms
+ ✓ |root| test/service-fork-schema.test.ts (22 tests) 7ms
+ ✓ |root| test/upstream-parity.test.ts (1 test) 5ms
+ ✓ |root| test/bootstrap.test.ts (2 tests) 4ms
+ ✓ |root| test/docs-sync.test.ts (2 tests) 3ms
+ ✓ |shared| test/portal-recipes.test.ts (9 tests) 108ms
+ ✓ |shared| test/serialized-node.test.ts (18 tests) 17ms
+ ✓ |shared| test/design-observation.test.ts (6 tests) 17ms
+ ✓ |shared| test/core-recipe-pages.test.ts (3 tests) 8ms
+ ✓ |shared| test/portal.test.ts (5 tests) 8ms
+ ✓ |shared| test/design-context-dedupe.test.ts (21 tests) 10ms
+ ✓ |shared| test/heartbeat.test.ts (5 tests) 6ms
+ ✓ |shared| test/envelope.test.ts (6 tests) 6ms
+ ✓ |shared| test/control-schema.test.ts (5 tests) 7ms
+ ✓ |shared| test/codec.test.ts (5 tests) 6ms
+ ✓ |shared| test/version.test.ts (14 tests) 5ms
+ ✓ |shared| test/file-identity-hash.test.ts (4 tests) 3ms
+ ✓ |shared| test/tool-budgets.test.ts (3 tests) 4ms
+ ✓ |root| test/vendor-upstreams.test.ts (67 tests) 101779ms
+     ✓ regenerates raw Figwright allowances from copy and service-owned destinations  12754ms
+     ✓ removes a previous managed destination when its mapped bytes are unchanged  12148ms
+     ✓ rejects a locally modified obsolete destination without changing the file or map  1609ms
+     ✓ preserves service-owned lifecycle scripts and excludes the upstream-only clean command  1603ms
+     ✓ rejects an unregistered file inside a managed root in --offline mode  1676ms
+     ✓ rejects an unregistered file inside a managed root in --with-upstreams mode  1508ms
+     ✓ rejects an unknown top-level lock key from the checked-in v2 schema  1070ms
+     ✓ rejects a service-fork origin commit that differs from its pinned upstream offline  1220ms
+     ✓ rejects unsafe nested authority paths and unknown row keys offline  1140ms
+     ✓ rederives fork origin fields from the parent HEAD authorities offline  6713ms
+     ✓ rejects a mutation to 'root package version'  1178ms
+     ✓ rejects a mutation to 'root TypeScript devDependency'  1121ms
+     ✓ rejects a mutation to 'MCP build script'  1083ms
+     ✓ rejects a mutation to 'MCP exports absence'  1276ms
+     ✓ rejects a mutation to 'MCP ws dependency'  1165ms
+     ✓ rejects a mutation to 'MCP optionalDependencies absence'  1067ms
+     ✓ rejects a mutation to 'plugin peerDependencies absence'  1069ms
+     ✓ rejects a mutation to 'shared integration exports'  1094ms
+     ✓ rejects a mutation to 'Task 4 runtime path authority'  1094ms
+     ✓ rejects a mutation to 'Task 4 bound state-permissions author…'  1109ms
+     ✓ rejects a mutation to 'Task 4 canonical workspace-boundary a…'  1163ms
+     ✓ rejects a mutation to 'Task 5 dynamic operation-policy autho…'  1045ms
+     ✓ rejects a mutation to 'Task 5 persisted egress-config author…'  1071ms
+     ✓ rejects a mutation to 'Task 5 fail-closed result-egress auth…'  1117ms
+     ✓ rejects a mutation to 'Task 5 exact image-source schema auth…'  1069ms
+     ✓ rejects a mutation to 'Task 5 exact image-source plugin auth…'  1019ms
+     ✓ rejects a mutation to 'Task 5 normalized component-key schem…'  1104ms
+     ✓ rejects a mutation to 'Task 5 normalized component-key plugi…'  1020ms
+     ✓ rejects a mutation to 'Task 6 product identity authority'  1011ms
+     ✓ rejects a mutation to 'Task 6 unknown-role authority'  1087ms
+     ✓ rejects a mutation to 'Task 6 follower bearer authority'  1066ms
+     ✓ rejects a mutation to 'Task 6 closed Origin authority'  1013ms
+     ✓ rejects a mutation to 'Task 6 pairing HMAC authority'  1096ms
+     ✓ rejects a mutation to 'Task 6 request limit authority'  1053ms
+     ✓ rejects a mutation to 'Task 6 PNA response authority'  1048ms
+     ✓ rejects a mutation to 'Task 6 WebSocket path authority'  1026ms
+     ✓ rejects a mutation to 'Task 6 process auth wiring authority'  1026ms
+     ✓ rejects a mutation to 'Task 6 atomic pairing revision author…'  1061ms
+     ✓ rejects a mutation to 'Task 6 atomic pairing key authority'  1089ms
+     ✓ rejects a mutation to 'Task 6 bounded pairing revision autho…'  1018ms
+     ✓ rejects a mutation to 'Task 6 terminal-aware hello commit au…'  1077ms
+     ✓ rejects a mutation to 'Task 6 pre-publication revision bound…'  1022ms
+     ✓ rejects a mutation to 'Task 6 live key initializer ownership…'  1020ms
+     ✓ rejects a mutation to 'Task 6 bounded key temporary authority'  1087ms
+     ✓ rejects a mutation to 'Task 6.1 strict follower ping identit…'  1091ms
+     ✓ rejects a mutation to 'Task 6.1 encrypted follower channel a…'  1054ms
+     ✓ rejects a mutation to 'Task 6.1 authenticated record respons…'  995ms
+     ✓ rejects a mutation to 'Task 6.1 follower response key separa…'  1022ms
+     ✓ rejects a mutation to 'Task 6.1 process-stable MCP session a…'  1000ms
+     ✓ rejects a mutation to 'Task 6.1 bounded record count authori…'  1039ms
+     ✓ rejects a mutation to 'Task 6.1 final-first overlap authority'  1059ms
+     ✓ rejects a mutation to 'Task 6.1 aborted backpressure authori…'  1028ms
+     ✓ rejects a mutation to 'Task 6.1 authenticated leader protoco…'  990ms
+     ✓ rejects a mutation to 'Task 6.1 request cap-before-copy auth…'  1020ms
+     ✓ rejects a mutation to 'Task 6.1 frozen control route authori…'  1008ms
+     ✓ rejects a mutation to 'Task 6.1 literal control root authori…'  1115ms
+     ✓ rejects a mutation to 'Task 6.1 final entry breach authority'  1072ms
+     ✓ rejects a mutation to 'Task 6 one-use follower challenge aut…'  1014ms
+     ✓ rejects a mutation to 'Task 6 hello recovery binding authori…'  1000ms
+     ✓ rejects a mutation to 'Task 6 identity-aware session cleanup…'  1015ms
+     ✓ rejects a mutation to 'Task 6 zero pending-frame retention a…'  994ms
+     ✓ rejects a mutation to 'Task 6 inline image cap authority'  1093ms
+     ✓ rejects a mutation to 'Task 6 native binary cap authority'  1062ms
+     ✓ rejects a mutation to 'Task 6 pre-write video cap authority'  998ms
+     ✓ rejects a mutation to 'Task 6 unread-body authority'  989ms
+     ✓ rejects a mutation to 'pnpm lockfile bytes'  1017ms
+     ✓ rejects a mutation to 'npm hygiene configuration'  998ms
+ ✓ |mcp-e2e| test/e2e/mcp-wire.test.ts (23 tests) 26244ms
+     ✓ warns on a real tools/call when the connected plugin is out of date  2969ms
+     ✓ explains a METHOD_NOT_FOUND from an out-of-date plugin instead of leaving it bare  2915ms
+     ✓ leaves a real tools/call alone when the plugin is current  2915ms
+     ✓ turns a real MCP request abort into one Relay cancel and one durable unknown terminal  2945ms
+     ✓ cancels a real follower-role MCP call through the matching authenticated authority  4597ms
+     ✓ still serves a client that opens with the oldest supported protocol revision  1749ms
+     ✓ serves the 2026-07-28 revision to a client that claims it  1779ms
+     ✓ exits cleanly when the client goes away mid-session  2862ms
+ ✓ |mcp-e2e| test/e2e/packed-operation-evidence.test.ts (25 tests) 11695ms
+     ✓ keeps 'save_screenshots' output portable through real write, projection, and native manifest IO  641ms
+     ✓ issues, verifies, executes, descriptor-rereads, and fsyncs the exact production 297905-byte manifest  6615ms
+     ✓ cancels during the 201326592-byte production reread with no manifest or success receipt  3669ms
+     ✓ rejects invalid persisted native manifest serializer-manifest299837 without unlink  442ms
+ ✓ |mcp-e2e| test/e2e/process-lifecycle.test.ts (4 tests | 1 skipped) 10234ms
+     ✓ exits cleanly when stdin reaches EOF during startup  1572ms
+     ✓ leader exits promptly on stdin EOF and a live follower takes over the port  4807ms
+     ✓ exits and frees the port when the transport dies under it, and a follower takes over  3855ms
+ ✓ |mcp-e2e| test/e2e/retention-startup.test.ts (1 test) 3789ms
+     ✓ starts the leader over a 31-day-old snapshot cleanup intent whose .sfp folder was deleted, serves /control/status and a tool call, and ends the intent done  3788ms
+ ✓ |mcp-e2e| test/e2e/read-tools.test.ts (20 tests) 90ms
+ ✓ |mcp-e2e| test/e2e/ping.test.ts (3 tests) 65ms
+ ✓ |mcp-e2e| test/e2e/get-document.test.ts (2 tests) 41ms
+ ✓ |mcp-e2e| test/e2e/get-selection.test.ts (2 tests) 37ms
+
+ Test Files  1 failed | 434 passed (435)
+      Tests  5 failed | 4808 passed | 20 skipped (4833)
+   Start at  22:02:37
+   Duration  1025.44s (transform 12.17s, setup 0ms, import 92.46s, tests 1786.30s, environment 10.20s)
+
+JSON report written to C:/2026_project/super-figma-pipline/.worktrees/baseline/service/artifacts/source-checks/6570006a-8e11-4271-a3d5-bdc7a6beaa9e/vitest-report.json
+[ELIFECYCLE] Test failed. See above for more details.
+$ vitest run --exclude "test/artifact-contents.test.ts"
+stderr | test/browser-source-open.test.ts > distinguishes accepted Chrome connections that time out during Playwright initialization
+[chrome] initialization incomplete { sent: 1, received: 0, pendingMethods: [], pendingResets: 0 }
+
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 5 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |mcp| test/fs/windows-boundary-probe-worker.test.ts > bounded persistent Windows boundary probe worker > reuses one real PowerShell worker while freshly inspecting every request
+ FAIL  |mcp| test/fs/windows-boundary-probe-worker.test.ts > bounded persistent Windows boundary probe worker > serializes mixed boundary and ACL requests through the same bounded queue
+ FAIL  |mcp| test/fs/windows-boundary-probe-worker.test.ts > bounded persistent Windows boundary probe worker > serializes requests and expires queued work at its own deadline
+Error: Windows boundary worker termination could not be confirmed
+ ❯ probeError src/fs/windows-boundary-probe-worker.ts:154:17
+    152|
+    153| const probeError = (code: string, message: string, cause?: unknown): E…
+    154|   Object.assign(new Error(message, cause === undefined ? undefined : {…
+       |                 ^
+    155|
+    156| // Capacity outcomes of the serialized probe worker: the inspected sta…
+ ❯ WindowsBoundaryProbeWorker.terminate src/fs/windows-boundary-probe-worker.ts:607:13
+ ❯ WindowsBoundaryProbeWorker.close src/fs/windows-boundary-probe-worker.ts:631:5
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/5]⎯
+
+ FAIL  |mcp| test/fs/windows-boundary-probe-worker.test.ts > bounded persistent Windows boundary probe worker > rejects an invalid ACL response (missing-sddl) and retires its worker
+AssertionError: promise rejected "Error: Windows boundary request expired i… { code: '…' }" instead of resolving
+ ❯ test/fs/windows-boundary-probe-worker.test.ts:230:48
+    228|         code: 'WINDOWS_BOUNDARY_PROTOCOL_INVALID',
+    229|       });
+    230|       await expect(pool.inspect(['C:\\state'])).resolves.toEqual([
+       |                                                ^
+    231|         { path: 'C:\\state', attributes: 16 },
+    232|       ]);
+
+Caused by: Error: Windows boundary request expired in the queue
+ ❯ probeError src/fs/windows-boundary-probe-worker.ts:154:17
+ ❯ Timeout._onTimeout src/fs/windows-boundary-probe-worker.ts:755:13
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
+Serialized Error: { code: 'WINDOWS_BOUNDARY_QUEUE_TIMEOUT' }
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/5]⎯
+
+ FAIL  |mcp| test/fs/windows-boundary-probe-worker.test.ts > bounded persistent Windows boundary probe worker > bounds hang failure, awaits retirement, and starts a healthy replacement
+AssertionError: promise rejected "Error: Windows boundary request expired i… { code: '…' }" instead of resolving
+ ❯ test/fs/windows-boundary-probe-worker.test.ts:372:49
+    370|         code: mode === 'hang' ? 'WINDOWS_BOUNDARY_TIMEOUT' : 'WINDOWS_…
+    371|       });
+    372|       await expect(pool.inspect(['C:\\second'])).resolves.toEqual([
+       |                                                 ^
+    373|         { path: 'C:\\second', attributes: 16 },
+    374|       ]);
+
+Caused by: Error: Windows boundary request expired in the queue
+ ❯ probeError src/fs/windows-boundary-probe-worker.ts:154:17
+ ❯ Timeout._onTimeout src/fs/windows-boundary-probe-worker.ts:755:13
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
+Serialized Error: { code: 'WINDOWS_BOUNDARY_QUEUE_TIMEOUT' }
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/5]⎯
+

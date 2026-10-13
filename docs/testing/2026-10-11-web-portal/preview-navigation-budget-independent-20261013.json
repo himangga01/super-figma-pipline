@@ -1,0 +1,68 @@
+{
+  "schema": "preview-navigation-budget-independent.v1",
+  "closedAt": "2026-10-13T11:56:46.309Z",
+  "decision": "approved-exact-candidate",
+  "blockingFindings": [],
+  "candidateManifestSha256": "e94fa3061b64656a6572ba8bdb1ae10abda8753a5282e619a2ffd09846890c6b",
+  "sourceBaseline": "303de5d1904d11c1fb89bdf80951900e375ac4325ea6cfc932f39ebee2785732",
+  "head": "22517932dc9b2cb974c177ec4eacb84d4b16e254",
+  "files": [
+    {
+      "path": "packages/mcp/src/portal/preview.ts",
+      "beforeSha256": "55f5d5be1af3fd79ba47ce452044b4542a6b0d958bf965c5d0072ea07e371718",
+      "afterSha256": "58eac8fb765ed34799d86a431fb7cef39131bcbd5870b97d076b81d76f158f37",
+      "bytes": 32332
+    },
+    {
+      "path": "packages/mcp/test/portal/preview-interactions.test.ts",
+      "beforeSha256": "bbe858504b334bb8ebcd88d1c866d9e6d0c3e08aad6f8f77e7e8ae16d9f60125",
+      "afterSha256": "da7dbb42c129bf1408331e71cdf8e13a2a971bea0abe5530fc50e7a1ab68ef0d",
+      "bytes": 14460
+    }
+  ],
+  "verification": {
+    "passed": 2,
+    "failed": 0,
+    "filtered": 4,
+    "exitCode": 0,
+    "vitestVersion": "4.1.11",
+    "chromeVersionObservedInServiceReport": "155.0.8059.39",
+    "rawReportSha256": "13b84155ac6a31fed65c7c67d5a628a69e0b4d1bd75f566f12cb72fa312c93af",
+    "command": "node C:/2026_project/super-figma-pipline/.worktrees/baseline/service/node_modules/vitest/vitest.mjs run --config review.config.mjs --project mcp -t 'uses the existing navigation budget for a real delayed workflow reload|keeps a real stalled workflow reload bounded by the caller abort signal' preview-interactions.test.ts --reporter=verbose --reporter=json --outputFile.json=targeted-report.json",
+    "cases": [
+      {
+        "name": "uses the existing navigation budget for a real delayed workflow reload",
+        "durationMs": 8368.2893,
+        "status": "passed"
+      },
+      {
+        "name": "keeps a real stalled workflow reload bounded by the caller abort signal",
+        "durationMs": 3566.535,
+        "status": "passed"
+      }
+    ]
+  },
+  "closedReadback": {
+    "baselineEntriesPerCopy": 1357,
+    "mainNativeUnchanged": true,
+    "regularReviewCopyExactTwoFileDelta": true,
+    "indexSha256": "ecc1808ab3e14fa2e8c233ae1fc1c91e0a33b5b2e383a7270f1bc3068997e675",
+    "indexUnchanged": true
+  },
+  "preservedLimits": {
+    "initialNavigationMs": 30000,
+    "workflowNavigationMs": 30000,
+    "contextActionTimeoutMs": 5000,
+    "localCombinedAbortCeilingMs": 300000,
+    "callerAbortMs": 3500,
+    "runDeadlineChanged": false,
+    "sourceChromeOrQaApiActions": false,
+    "authorStaticsNotRepeated": true,
+    "fullSuite": false,
+    "integration": false,
+    "deployment": false,
+    "liveCddAcceptance": false,
+    "sameOwnerWindowsIsNotOsSandbox": true
+  },
+  "continuation": "Root may integrate exact bytes at the verified phase boundary. Actual runtime repair requires normal source-bound QA replacement and service validation; no bare compiled swap or deadline reset."
+}

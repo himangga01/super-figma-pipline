@@ -121,10 +121,10 @@ describe('test skip census', () => {
     const launchers: string[] = [];
     for (const entry of testFiles) {
       const path = join(entry.parentPath, entry.name);
-      if (!entry.isFile() || !entry.name.endsWith('.test.ts') || /node_modules/u.test(path))
+      if (!entry.isFile() || !/\.test\.(?:ts|mjs)$/u.test(entry.name) || /node_modules/u.test(path))
         continue;
       if (
-        /\bchromium\.launch(?:PersistentContext)?\s*\(|\bassertNativePortalPreview\s*\(|chromeExecutable:\s*googleChromeExecutable\s*\(/u.test(
+        /\bchromium\.launch(?:PersistentContext)?\s*\(|\bassertNativePortalPreview\s*\(|chromeExecutable:\s*googleChromeExecutable\s*\(|['"]web\/tests\/(?:chrome|approval)-check\.mjs['"]/u.test(
           await readFile(path, 'utf8'),
         )
       )

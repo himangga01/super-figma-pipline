@@ -1,0 +1,93 @@
+{
+  "schema": "no-core-r2-independent-review.v1",
+  "closedAt": "2026-10-13T11:25:39.503Z",
+  "timezone": "Asia/Seoul",
+  "decision": "approved-exact-candidate",
+  "blockingFindings": [],
+  "candidateManifestSha256": "97b219177b9d705ea122dde1e42004b74c5df607290c20f7e1966ee17255fcb2",
+  "sourceBaseline": "303de5d1904d11c1fb89bdf80951900e375ac4325ea6cfc932f39ebee2785732",
+  "head": "22517932dc9b2cb974c177ec4eacb84d4b16e254",
+  "baseManifestSha256": "50ebbc7e50b162e9d873d56f52518a91c5277dfef84de51ad81ae19a32d21021",
+  "baselineFiles": 1357,
+  "files": [
+    {
+      "path": "packages/portal/src/bridge.ts",
+      "beforeSha256": "5e729885279e81964144f450c59fd56747282541d0ad90d2a76b6f5ac93ce5b2",
+      "afterSha256": "ab7008aea8646ade1eff75bb03b5e5c755656662e815dc1775185528ea94b9e2",
+      "bytes": 39176
+    },
+    {
+      "path": "packages/portal/test/backend.test.ts",
+      "beforeSha256": "e788e7330434cadbc28bad0179b5fe7dfa7fa57bfc0a80501406280d1cc7355a",
+      "afterSha256": "2b47f7e3c843b47cb19ea4eb20038de330c90d80602c58499842e62d116538ac",
+      "bytes": 71637
+    }
+  ],
+  "verification": {
+    "command": "node C:/2026_project/super-figma-pipline/.worktrees/baseline/service/node_modules/vitest/vitest.mjs run --config review.config.mjs --project portal -t 'no-Core original plan inspection' backend.test.ts --reporter=verbose --reporter=json --outputFile.json=targeted-report.json",
+    "workingDirectory": "C:\\2026_project\\super-figma-pipline\\.worktrees\\_cache\\no-core-r2-independent-review-20261013",
+    "vitestVersion": "4.1.11",
+    "exitCode": 0,
+    "passed": 4,
+    "failed": 0,
+    "filtered": 67,
+    "rawReportSha256": "8007dd0855dcd70c798f0b0719875133fbca659133422e902beac918f10a5728",
+    "rawReportRelativePath": ".worktrees/_cache/no-core-r2-independent-review-20261013/service/targeted-report.json",
+    "cases": [
+      {
+        "name": "no-Core original plan inspection refreshes a no-Core pre-dispatch rejection without replay and permits only a fresh run",
+        "status": "passed",
+        "durationMs": 66.89559999999994
+      },
+      {
+        "name": "no-Core original plan inspection keeps no-Core generic, foreign, missing and incomplete evidence fenced",
+        "status": "passed",
+        "durationMs": 385.7662
+      },
+      {
+        "name": "no-Core original plan inspection keeps no-Core inspection exclusive and rejects late proof after cancellation or close",
+        "status": "passed",
+        "durationMs": 72.80220000000008
+      },
+      {
+        "name": "no-Core original plan inspection retains the no-Core unknown fence and history when atomic disposition persistence fails",
+        "status": "passed",
+        "durationMs": 63.78710000000001
+      }
+    ]
+  },
+  "closedReadbacks": {
+    "mainManifestEntriesMatch": true,
+    "nativeManifestEntriesMatch": true,
+    "reviewManifestEntriesMatchExpectedTwoFileDelta": true,
+    "indexSha256": "ecc1808ab3e14fa2e8c233ae1fc1c91e0a33b5b2e383a7270f1bc3068997e675",
+    "indexUnchanged": true
+  },
+  "reviewedBoundaries": [
+    "Strict full OperationRecordSchema and exact original operation/workspace/tool/name; settled pre-egress rejection only.",
+    "Read-only inspection retains unknown snapshot before classification.",
+    "Current store transaction checks active signal, abort, close, unknown state, operation/workspace identity and no service run.",
+    "Disposition event, classification and unresolved-fence clear share one serialized rename-backed store update.",
+    "Existing active-slot, four-operation and workflow-start fences remain applicable.",
+    "HTTP Refresh remains necessary cleanup under activity capacity; this was static inspection only in the independent run."
+  ],
+  "limits": {
+    "authorTypeLintFormatNotRerun": true,
+    "staleFieldMutationCheckedStatically": true,
+    "activityCapacityCheckedStatically": true,
+    "authenticatedJournalResponseIsFixture": true,
+    "crashPowerLossDurabilityNotTested": true,
+    "sameOwnerWindowsIsNotOsSandbox": true,
+    "dependencyReadsFromNativeOnly": true,
+    "installs": false,
+    "builds": false,
+    "wholeSuite": false,
+    "sourceIntegration": false,
+    "deployment": false,
+    "liveRecovery": false,
+    "chromeOrApiWrites": false,
+    "officialMcpLive": "owner-deferred",
+    "finalEcommerce": "owner-skipped"
+  },
+  "continuation": "Root may integrate exactly these frozen bytes at its reviewed boundary and bind subsequent targeted/release evidence. Actual authenticated original-operation recovery requires deployed source and the sole authorized controller."
+}

@@ -102,7 +102,11 @@ const hasVariableData = (value: unknown, ownOnly: boolean, depth = 0): boolean =
   return Object.entries(value).some(
     ([key, item]) =>
       !(ownOnly && depth === 0 && FOREIGN_KEYS.has(key)) &&
-      (VARIABLE_KEY.test(key) || hasVariableData(item, ownOnly, depth + 1)),
+      // Paint.stopsVar is ColorStopVar[] in the native schema. Zero rows contain no binding.
+      // All other markers and nonempty/malformed stop arrays remain conservative.
+      ((VARIABLE_KEY.test(key) &&
+        !(key === 'stopsVar' && Array.isArray(item) && item.length === 0)) ||
+        hasVariableData(item, ownOnly, depth + 1)),
   );
 };
 

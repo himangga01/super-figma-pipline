@@ -1,0 +1,62 @@
+{
+  "schemaVersion": 1,
+  "at": "2026-10-13T18:20:03.886Z",
+  "sourceHash": "sha256:d722c32152149464c961c660622a95e3da603eb00f291e28b15c024507bcd87d",
+  "codeInputs": [
+    {
+      "path": "packages/cli/src/figma-page-reader.ts",
+      "sha256": "daeb45dee99dbff9a09cc2f49c7c635c2cd44d310216b6d34782d61008ad5f4a"
+    },
+    {
+      "path": "packages/cli/test/figma-page-identity-diagnostics.test.ts",
+      "sha256": "41c0f6bb259be4663d83211cede8218d87d8ab3299e35162d2619a4dca119cdc"
+    },
+    {
+      "path": "packages/mcp/src/portal/native-work.ts",
+      "sha256": "d4b50bb1f626ba3b21968cd6872f2ac989e83e511dec0321652b5301d641bbc5"
+    },
+    {
+      "path": "packages/mcp/src/portal/react-router-compiler-evidence.ts",
+      "sha256": "da6b2efb21772fa7b01bce3a353da61169f147651bff3f64a82e5c45e48290f0"
+    },
+    {
+      "path": "packages/mcp/test/portal/react-router-compiler-evidence.test.ts",
+      "sha256": "684d073c9fb949c15bb2d8cf3621ebc5bdc13581052c858f720fc32da60bbab2"
+    },
+    {
+      "path": "packages/mcp/test/portal/source-refresh-diagnostic.test.ts",
+      "sha256": "0eb0aa3d6965c13f79b03bb1d1dfcb63b9eb1b91f5ab3978c7547d5938d4eb21"
+    },
+    {
+      "path": "packages/portal/src/bridge.ts",
+      "sha256": "23eaae954eb16bb4bff335b6a3c82f5fbc2c3bd142eab8d01ca0b42c03c88ace"
+    },
+    {
+      "path": "packages/portal/test/backend.test.ts",
+      "sha256": "e1e8a5ec7968ac3ab4c4edba27dfceb0262d6554a5c4493755f984667015ff3a"
+    }
+  ],
+  "whole": false,
+  "reason": "Prior producer format batch failed; final affected files checked after the recorded test formatting repair. Passing types and functional cases are not repeated.",
+  "results": [
+    {
+      "name": "changed-format",
+      "exitCode": 0,
+      "signal": null,
+      "elapsedMs": 143,
+      "args": [
+        "--check",
+        "packages/cli/src/figma-page-reader.ts",
+        "packages/cli/test/figma-page-identity-diagnostics.test.ts",
+        "packages/mcp/src/portal/native-work.ts",
+        "packages/mcp/src/portal/react-router-compiler-evidence.ts",
+        "packages/mcp/test/portal/react-router-compiler-evidence.test.ts",
+        "packages/mcp/test/portal/source-refresh-diagnostic.test.ts",
+        "packages/portal/src/bridge.ts",
+        "packages/portal/test/backend.test.ts"
+      ],
+      "logPath": ".worktrees/baseline/service/.cache/final-d722-eight-format-20261014.txt",
+      "logSha256": "ac7e0405adf2952daac9c84355d0c5baefa49df57f8c0fb5552a496df90fee79"
+    }
+  ]
+}

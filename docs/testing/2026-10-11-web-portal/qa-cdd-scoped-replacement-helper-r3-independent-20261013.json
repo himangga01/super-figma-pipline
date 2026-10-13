@@ -1,0 +1,107 @@
+{
+  "schema": "qa-cdd-scoped-helper-r3-independent.v1",
+  "closedAt": "2026-10-13T12:54:21.585Z",
+  "decision": "conditionally-approved-exact-r3-helper-logic",
+  "frozenManifestSha256": "37be8e2acf11bcf13f753324e1f22af97c696a1f54f5d5d54bce4ec304102155",
+  "runtimeManifestSha256": "8e917d23e2b0884870371d2c8166edd31bf220efd67597232a7349425cbb1d26",
+  "runtimeFiles": [
+    {
+      "path": "replacement.mjs",
+      "sha256": "ba94a3a84180c21e39f3379055e6198c7f24bb480c3fd03a8c3758361e1b105b"
+    },
+    {
+      "path": "scoped-gates.mjs",
+      "sha256": "f93e46ea20abb0a86c850ce9c92a7eecf9cb1f57cbcf9deeaf62e600821da06c"
+    },
+    {
+      "path": "start-owned.ps1",
+      "sha256": "8776cbe2943e7f770d4eabc47b5cb39cdbde0b0b0f0696b84f4493213e3e4111"
+    },
+    {
+      "path": "stop-owned.ps1",
+      "sha256": "0b5a4472a73f753f9cd1188b6364ee01f9d149f01064a9571b2b8bfd0972ffc1"
+    },
+    {
+      "path": "current-retained-state-private.json",
+      "sha256": "2357439824f4058ecf5cbebafa8ad8dc613d708535d9c950bbaa2b4bbe4e72b8"
+    }
+  ],
+  "blockingFindings": [],
+  "preservedR2ApprovalSha256": "0a3508690428780174ef18db17fb0d342ffafb9c89208e4aec73c326b77dd32e",
+  "preservedR2ApprovalUnchanged": true,
+  "preservedR2FailedSealReceiptSha256": "92e5919ae695472d7c8bdd3998afa041cabbf0868a1e073b4eeeba41256350e5",
+  "failedSeal": {
+    "outcome": "failed-before-publication",
+    "sealPublished": false,
+    "configPublished": false,
+    "intentCreated": false,
+    "serverEffects": false,
+    "policyEffects": false,
+    "sourceListCopied": true,
+    "verifiedReceiptBytesOnly": true
+  },
+  "reviewedDelta": {
+    "baselineOnlyAddedHistoricalGrant": true,
+    "allOtherRetainedObjectsDeepEqual": true,
+    "replacementOnlyChangedBaselineHashLiteral": true,
+    "scopedGatesStartStopUnchanged": true,
+    "historicalBaselineSha256": "4c5452a95ce88d8241ccce91745c1153301f365a0985d2a34a41d905e3ad75da",
+    "historicalGrant": {
+      "configuredAt": "2026-10-12T23:00:48.660Z",
+      "expiresAt": "2026-10-13T07:00:48.660Z",
+      "fileHash": "01773157b0c30fe511f81811b6b62cea24647770ba5f61f14769d943ca2f39f1"
+    },
+    "actualGrantRemainsSeparatelyObservedByUnchangedSealer": true
+  },
+  "reusedSourceList": {
+    "sha256": "902ec88a321a23bb9a63158a8b8b115a9aa4935a5cef698693c621480b977b32",
+    "matchesPreservedR2Bytes": true,
+    "noUnknownOperationReplay": true
+  },
+  "retainedCounts": {
+    "portalRuns": 12,
+    "workflows": 8,
+    "coreRuns": 11,
+    "unknownJobs": 2,
+    "retiredNativeAttempts": 2
+  },
+  "verification": {
+    "concreteReason": "Actual R2 seal failure exposed omitted grant metadata; R3 adds that metadata and updates its bound hash. Only the newly added grant-data fixture executes.",
+    "command": "node --test grant-history-r3.test.mjs",
+    "tests": 1,
+    "passed": 1,
+    "failed": 0,
+    "cancelled": 0,
+    "skipped": 0,
+    "exitCode": 0,
+    "durationMs": 69.0623,
+    "rawOutputSha256": "02beb013ebae757bb2da97875ee3e320cb062ab822e8375772e9958ba8ac66ba",
+    "testSourceSha256": "7f35fe32ea71d0ecd6767f72b8485cd7e64695bc489bf66fe92c6a0c22f589ae",
+    "priorEightAndOneCasesNotRepeated": true,
+    "verifiedFrozenMembersAtClose": 17,
+    "fixtureAdjustment": "Only copied TOOL constant redirects immutable baseline read to regular owned R3 fixture. No validation logic change.",
+    "fixtureOriginalReplacementSha256": "ba94a3a84180c21e39f3379055e6198c7f24bb480c3fd03a8c3758361e1b105b",
+    "fixtureRedirectedReplacementSha256": "93373f6a06b7df424af2b13073ada6e61debf7814d855a2a01ecc849f0c3905f",
+    "currentGrantFixtureNamespaceAndEgressHashSynthetic": true
+  },
+  "conditions": [
+    "Keep Root selected source/report/source-list/build/archive/artifact evidence unchanged and honestly bound; no source/gate/build or whole rerun is justified by helper metadata.",
+    "Sole controller performs a fresh actual same-state grant observation/seal and publishes a config bound to this exact R3 runtime manifest.",
+    "Then require exact 303d/ff198 old-runtime/process preflight, one exclusive new intent, stopped backup and complete new-runtime/retention postchecks.",
+    "Preserve original grants, unknowns, failure receipts, candidate/lease/run deadlines and retired issuers. The expired 21:11:52.593 KST CDD deadline must not be renewed."
+  ],
+  "limits": {
+    "noHelperMode": true,
+    "noLiveReadOrEffect": true,
+    "noPolicyWrite": true,
+    "noGrantCopyIntoFreshState": true,
+    "noDeadlineReset": true,
+    "noSourceOrGateRerun": true,
+    "noFullSuite": true,
+    "noDeploymentOrCddAcceptance": true,
+    "actualSealSuccessNotInferred": true,
+    "sameOwnerWindowsIsNotOsSandbox": true,
+    "noSecretValuesOrPrivateHandlesPublished": true
+  },
+  "indexSha256": "ecc1808ab3e14fa2e8c233ae1fc1c91e0a33b5b2e383a7270f1bc3068997e675"
+}

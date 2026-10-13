@@ -24,6 +24,7 @@ import {
   type PortalAcceptance,
   type PortalLayer,
   type PortalToolName,
+  type PortalSourcePreparationResult,
   type WorkspacePolicy,
 } from '@sfp/shared';
 import { z } from 'zod';
@@ -32,6 +33,7 @@ import { parseFigmaTarget } from '../../../cli/src/figma-url.js';
 import { RepoReader } from '../fs/repo-walk.js';
 import { resolvePortalAuthority, type PortalAuthority } from './authority.js';
 import { PortalCaptureError } from './capture-failure.js';
+import type { PortalSourceRequest } from './capture-source-admission.js';
 import { portalContentBytes, type PortalFileContent } from './content.js';
 import {
   PortalCapturedDesignSchema,
@@ -44,9 +46,12 @@ import {
 import { readPortalAssets, readPortalDesignPage } from './design-evidence.js';
 import { normalizePortalDesign } from './design-normalization.js';
 import { derivePortalInteractionContract } from './interaction-evidence.js';
+import type { PortalNativeContourAcquisitionPort } from './native-contours.js';
+import { readPortalNativeGeometry, assertPortalNativeGeometryBinding } from './native-geometry.js';
 import { portalRunStateResource, withPortalApplyDisposition } from './native-resources.js';
 import { PortalStoredValidationSchema } from './native-work.js';
 import { requirePortalInventory } from './profile-closure.js';
+import type { ReactRouterCompilerEvidence } from './react-router-compiler-evidence.js';
 import {
   PortalCoreLifecycle,
   coreDeclarationsHash,
@@ -62,7 +67,7 @@ import {
   coverPortalWorkflows,
 } from './service-selection.js';
 import { assertFrontendSource } from './source-guard.js';
-import { classifyPortalSourceBytes } from './source-inventory.js';
+import { classifyPortalSourceBytes, collectPortalSourceInventory } from './source-inventory.js';
 import { PortalStore, portalError } from './store.js';
 import { analyzePortalWorkflows, type PortalWorkflowSourceHint } from './workflow-requirements.js';
 
@@ -83,6 +88,23 @@ export interface PortalExecution {
   signal: AbortSignal;
 }
 export interface PortalWorkPort {
+  hasPendingSourcePreparation?(runId: string): boolean;
+  prepareSource?(
+    plan: PortalPlan,
+    run: PortalRun,
+    profileId: string,
+    sourceId: string,
+    deadlineAt: number,
+    authority: PortalAuthority,
+    signal: AbortSignal,
+  ): Promise<PortalSourcePreparationResult>;
+  sourceCompilerEvidence?(
+    ownerId: string,
+    sourceId: string,
+    sourceInventoryHash: string,
+    signal?: AbortSignal,
+    workspaceId?: string,
+  ): Promise<ReactRouterCompilerEvidence | undefined>;
   prepareValidation?(
     plan: PortalPlan,
     run: PortalRun,
@@ -159,7 +181,7 @@ const redactSource = (source: string) =>
 export class PortalCoordinator {
   private readonly operations = new Map<
     string,
-    { controller: AbortController; done: Promise<unknown> }
+    { controller: AbortController; done: Promise<unknown>; sourcePreparation?: boolean }
   >();
   constructor(
     private readonly store: PortalStore,
@@ -172,6 +194,7 @@ export class PortalCoordinator {
       runId: string,
     ) => Promise<void>,
     private readonly recipes?: PortalCoreLifecycle,
+    private readonly nativeContourAcquisition?: PortalNativeContourAcquisitionPort,
   ) {}
   private async plan(id: string, actor: string): Promise<PortalPlan> {
     const plan = await this.store.get('plans', id, PortalPlanSchema);
@@ -187,19 +210,33 @@ export class PortalCoordinator {
     name: PortalToolName,
     input: unknown,
     actor: Readonly<ActorContext>,
-  ): Promise<{ source: 'chrome' | 'desktop'; url: string } | null> {
+  ): Promise<PortalSourceRequest | null> {
     const args = PORTAL_INPUT_SCHEMAS[name].parse(input);
     if (name === 'portal_plan') {
       const request = PortalPlanArgsSchema.parse(args);
       return !request.design.artifactPath || request.design.freshness === 'require-live'
-        ? { source: request.design.source, url: request.design.url }
+        ? {
+            source: request.design.source,
+            url: request.design.url,
+            ...(request.design.collector ? { collector: request.design.collector } : {}),
+            ...(request.design.officialEndpoint
+              ? { officialEndpoint: request.design.officialEndpoint }
+              : {}),
+          }
         : null;
     }
     if (name !== 'portal_validate') return null;
     const run = await this.run((args as { runId: string }).runId, actor.actorId);
     const plan = await this.plan(run.planId, actor.actorId);
     return plan.request.design.freshness === 'require-live'
-      ? { source: plan.request.design.source, url: plan.design.url }
+      ? {
+          source: plan.request.design.source,
+          url: plan.design.url,
+          ...(plan.request.design.collector ? { collector: plan.request.design.collector } : {}),
+          ...(plan.request.design.officialEndpoint
+            ? { officialEndpoint: plan.request.design.officialEndpoint }
+            : {}),
+        }
       : null;
   }
   private async recipeEvidence(
@@ -243,6 +280,9 @@ export class PortalCoordinator {
       plan.design.artifactHash !== plan.design.capture.rawHash ||
       plan.design.assetManifestHash !== plan.design.capture.assetManifestHash ||
       plan.request.design.source !== plan.design.capture.source.kind ||
+      (plan.request.design.source === 'chrome' &&
+        (plan.request.design.collector ?? 'scripter') !==
+          (plan.design.capture.source.collector ?? 'scripter')) ||
       parseFigmaTarget(plan.design.url).url !== plan.design.capture.source.url
     )
       throw portalError('PORTAL_CAPTURE_EVIDENCE_CHANGED');
@@ -283,6 +323,13 @@ export class PortalCoordinator {
     const id = plan?.workspaceId ?? workspaceId;
     if (!id) throw portalError('WORKSPACE_REQUIRED');
     if (workspaceId !== null && workspaceId !== id) throw portalError('PORTAL_WORKSPACE_MISMATCH');
+    if (
+      ['portal_next', 'portal_submit'].includes(name) &&
+      (this.work.hasPendingSourcePreparation?.((args as { runId: string }).runId) ||
+        this.operations.get(actor.actorId + ':' + (args as { runId: string }).runId)
+          ?.sourcePreparation)
+    )
+      throw portalError('PORTAL_NATIVE_RUN_BUSY');
     const controlRequest = plan?.request ?? PortalPlanArgsSchema.parse(args);
     const { resumePlanId, ...originalRequest } = controlRequest;
     const request = PortalPlanArgsSchema.parse(originalRequest),
@@ -316,14 +363,17 @@ export class PortalCoordinator {
       !(name === 'portal_resume' && 'reconcile' in args && args.reconcile === 'inspect')
     ) {
       assertCurrentPortalSourceAuthority(plan);
-      if (!['portal_start', 'portal_next'].includes(name)) {
+      if (!['portal_start', 'portal_next', 'portal_prepare_source'].includes(name)) {
         await this.assertCapture(plan);
         await this.assertCore(
           plan,
           'runId' in args ? await this.run(args.runId, actor.actorId) : undefined,
         );
       }
-      assertCurrentPortalAnalysis(plan, !['portal_start', 'portal_next'].includes(name));
+      assertCurrentPortalAnalysis(
+        plan,
+        !['portal_start', 'portal_next', 'portal_prepare_source'].includes(name),
+      );
     }
     const authority = await resolvePortalAuthority(
       this.policy,
@@ -343,12 +393,12 @@ export class PortalCoordinator {
         ? authority.resource
         : {
             kind:
-              name === 'portal_validate'
+              name === 'portal_validate' || name === 'portal_prepare_source'
                 ? 'process'
                 : name === 'portal_status' || name === 'portal_cancel'
                   ? 'control'
                   : 'run',
-            key: `portal:${name === 'portal_validate' ? 'process' : name === 'portal_status' || name === 'portal_cancel' ? 'control' : 'run'}:${runId}`,
+            key: `portal:${name === 'portal_validate' || name === 'portal_prepare_source' ? 'process' : name === 'portal_status' || name === 'portal_cancel' ? 'control' : 'run'}:${runId}`,
           };
     if (name === 'portal_validate' || name === 'portal_apply' || name === 'portal_resume')
       authority.candidateHash = (await this.run(runId, actor.actorId)).candidateHash;
@@ -402,14 +452,18 @@ export class PortalCoordinator {
   }
   execute(name: PortalToolName, input: unknown, execution: PortalExecution): Promise<unknown> {
     const args = PORTAL_INPUT_SCHEMAS[name].parse(input);
-    const owned = name === 'portal_validate' || name === 'portal_apply' || name === 'portal_resume';
+    const owned =
+      name === 'portal_validate' ||
+      name === 'portal_apply' ||
+      name === 'portal_resume' ||
+      name === 'portal_prepare_source';
     if (!owned) return this.executeReserved(name, input, execution);
     const key = `${execution.actor.actorId}:${(args as { runId: string }).runId}`;
     if (this.operations.has(key)) return Promise.reject(portalError('PORTAL_NATIVE_RUN_BUSY'));
     const controller = new AbortController();
     const scoped = { ...execution, signal: AbortSignal.any([execution.signal, controller.signal]) };
     const done = Promise.resolve().then(() => this.executeReserved(name, input, scoped));
-    const reservation = { controller, done };
+    const reservation = { controller, done, sourcePreparation: name === 'portal_prepare_source' };
     this.operations.set(key, reservation);
     return done.finally(() => {
       if (this.operations.get(key) === reservation) this.operations.delete(key);
@@ -422,6 +476,14 @@ export class PortalCoordinator {
   ): Promise<unknown> {
     execution.signal.throwIfAborted();
     const args = PORTAL_INPUT_SCHEMAS[name].parse(input);
+    if (['portal_next', 'portal_submit'].includes(name)) {
+      const current = await this.run((args as { runId: string }).runId, execution.actor.actorId);
+      if (
+        this.work.hasPendingSourcePreparation?.(current.runId) ||
+        this.operations.get(execution.actor.actorId + ':' + current.runId)?.sourcePreparation
+      )
+        throw portalError('PORTAL_NATIVE_RUN_BUSY');
+    }
     if (name === 'portal_plan') return this.createPlan(PortalPlanArgsSchema.parse(args), execution);
     if (name !== 'portal_cancel' && name !== 'portal_status') {
       const planId =
@@ -434,7 +496,7 @@ export class PortalCoordinator {
         PORTAL_INPUT_SCHEMAS.portal_resume.parse(args).reconcile === 'inspect';
       if (!inspect) {
         assertCurrentPortalSourceAuthority(plan);
-        if (!['portal_start', 'portal_next'].includes(name)) {
+        if (!['portal_start', 'portal_next', 'portal_prepare_source'].includes(name)) {
           await this.assertCapture(plan);
           await this.assertCore(
             plan,
@@ -449,6 +511,12 @@ export class PortalCoordinator {
     execution.signal.throwIfAborted();
     if (name === 'portal_start') return this.start((args as { planId: string }).planId, execution);
     const runId = (args as { runId: string }).runId;
+    if (
+      ['portal_next', 'portal_submit'].includes(name) &&
+      (this.work.hasPendingSourcePreparation?.(runId) ||
+        this.operations.get(execution.actor.actorId + ':' + runId)?.sourcePreparation)
+    )
+      throw portalError('PORTAL_NATIVE_RUN_BUSY');
     if (name === 'portal_status') {
       const run = await this.run(runId, execution.actor.actorId);
       const query = PORTAL_INPUT_SCHEMAS.portal_status.parse(args).recipes;
@@ -460,6 +528,29 @@ export class PortalCoordinator {
       return this.next(PORTAL_INPUT_SCHEMAS.portal_next.parse(args), execution);
     if (name === 'portal_submit')
       return this.submit(PORTAL_INPUT_SCHEMAS.portal_submit.parse(args), execution);
+    if (name === 'portal_prepare_source') {
+      if (!this.work.prepareSource) throw portalError('PORTAL_COMPILER_RUNTIME_REQUIRED');
+      const preparation = PORTAL_INPUT_SCHEMAS.portal_prepare_source.parse(args),
+        run = await this.run(runId, execution.actor.actorId),
+        plan = await this.plan(run.planId, execution.actor.actorId);
+      if (preparation.deadlineAt > run.deadlineAt || preparation.deadlineAt <= this.now())
+        throw portalError('PORTAL_BUDGET_EXHAUSTED');
+      if (
+        !['needs-input', 'blocked', 'waiting-agent'].includes(run.state) ||
+        run.candidateHash ||
+        run.lease
+      )
+        throw portalError('PORTAL_COMPILER_RUN_STATE_REJECTED');
+      return this.work.prepareSource(
+        plan,
+        run,
+        preparation.profileId,
+        preparation.sourceId,
+        preparation.deadlineAt,
+        execution.authority,
+        execution.signal,
+      );
+    }
     if (name === 'portal_validate') {
       const validation = PORTAL_INPUT_SCHEMAS.portal_validate.parse(args);
       return this.validate(runId, validation.target, execution, validation.profileId);
@@ -670,21 +761,45 @@ export class PortalCoordinator {
     if (choice.strategy !== 'legacy-portal' && exists !== null)
       throw portalError('PORTAL_NEW_TARGET_EXISTS');
     const profiles: PortalPlan['profiles'] = [];
+    const compilerEvidence = new Map<string, ReactRouterCompilerEvidence>();
     const issues: string[] = [];
     if (choice.strategy === 'legacy-portal' && request.stack !== 'auto')
       throw portalError('PORTAL_LEGACY_STACK_OVERRIDE_UNSUPPORTED');
     for (const root of authority.roots) {
       if (root.role === 'target' && choice.strategy !== 'legacy-portal') continue;
       // eslint-disable-next-line no-await-in-loop -- bounded independent role-specific readers
-      const graph = await analyzeServiceGraph(
-        new RepoReader({
-          rootDir: root.path,
-          workspaceId: root.workspaceId,
-          workspacePolicy: this.policy,
-          signal: execution.signal,
-        }),
-        qualifiedPortalSourceId({ ...root, canonicalPath: root.path }),
+      const reader = new RepoReader({
+        rootDir: root.path,
+        workspaceId: root.workspaceId,
+        workspacePolicy: this.policy,
+        signal: execution.signal,
+      });
+      const sourceId = qualifiedPortalSourceId({ ...root, canonicalPath: root.path });
+      const inventory = await collectPortalSourceInventory(reader);
+      const compiler = await this.work.sourceCompilerEvidence?.(
+        actor.actorId,
+        sourceId,
+        inventory.hash,
+        execution.signal,
+        authority.workspaceId,
       );
+      if (compiler) compilerEvidence.set(sourceId, compiler);
+      const graph = await analyzeServiceGraph(
+        reader,
+        sourceId,
+        compiler ? { reactRouterCompilerEvidence: compiler } : {},
+      );
+      if (
+        compiler &&
+        (await this.work.sourceCompilerEvidence?.(
+          actor.actorId,
+          sourceId,
+          inventory.hash,
+          execution.signal,
+          authority.workspaceId,
+        )) !== compiler
+      )
+        throw portalError('PORTAL_COMPILER_EVIDENCE_REQUIRED');
       profiles.push({
         workspaceId: root.workspaceId,
         rootPath: root.rootPath,
@@ -749,13 +864,16 @@ export class PortalCoordinator {
       if (!design.complete) issues.push('DESIGN_ARTIFACT_PARTIAL_OR_UNSUPPORTED');
     }
     if (
-      this.capture &&
+      (this.capture || execution.capture) &&
       (!request.design.artifactPath || request.design.freshness === 'require-live')
     ) {
       let captureFinished = false;
       let captureStageStarted = Date.now();
       try {
-        const capture = execution.capture ?? this.capture;
+        const grant = execution.authority.captureSource;
+        const capture =
+          execution.capture ??
+          (grant?.kind === 'chrome' && grant.collector !== 'page-api' ? this.capture : undefined);
         if (!capture || !execution.authority.captureSource)
           throw portalError('PORTAL_CAPTURE_ADMISSION_REQUIRED');
         const retainedCapture = await this.store.get('designs', planId, PortalCapturedDesignSchema);
@@ -960,9 +1078,15 @@ export class PortalCoordinator {
     const workflowCoverage = coverPortalWorkflows(
       workflowAnalysis,
       requirements,
-      request.workflowDecisions,
+      // A failed/partial collection cannot bind decisions from a previous complete analysis.
+      // Retain them in the request, but expose the original capture diagnostic before rebinding.
+      design.complete ? request.workflowDecisions : [],
       selectedInteractions,
     );
+    if (!design.complete && request.workflowDecisions.length) {
+      workflowCoverage.complete = false;
+      workflowCoverage.issues.push('WORKFLOW_DECISIONS_REQUIRE_COMPLETE_CAPTURE');
+    }
     const blueprintIssues = issues.filter(
       issue =>
         issue.startsWith('WORKFLOW_BLUEPRINT_REQUIRED:') ||
@@ -1058,17 +1182,26 @@ export class PortalCoordinator {
     if (resumePlanId && (!storedCapture || !design.capture || !design.complete))
       throw portalError('PORTAL_CORE_RESUME_CAPTURE_CHANGED');
     plan.coreRecipes =
-      storedCapture && design.capture && design.complete && this.recipes
+      storedCapture &&
+      design.capture &&
+      design.complete &&
+      this.recipes &&
+      serviceSelection.complete
         ? await this.recipes.preparePlan(
             plan,
             storedCapture,
             authority,
             this.policy,
             execution.signal,
+            compilerEvidence,
           )
         : unavailableCoreBinding(
             coreRequirementsHash(plan),
-            !this.recipes ? 'PORTAL_CORE_RUNTIME_REQUIRED' : 'PORTAL_CAPTURE_CURRENT_REQUIRED',
+            !this.recipes
+              ? 'PORTAL_CORE_RUNTIME_REQUIRED'
+              : !serviceSelection.complete
+                ? 'PORTAL_SOURCE_ANALYSIS_INCOMPLETE'
+                : 'PORTAL_CAPTURE_CURRENT_REQUIRED',
           );
     plan.blueprintHash = contentHash('sfp-portal-blueprint-v2', {
       contextHash: plan.contextHash,
@@ -1277,26 +1410,38 @@ export class PortalCoordinator {
     const { runId, leaseId } = args;
     const before = await this.run(runId, execution.actor.actorId);
     const plan = await this.plan(before.planId, execution.actor.actorId);
-    const [evidence, designEvidence, assets, validationEvidence, recipes] = await Promise.all([
-      this.evidence(plan, execution.authority, args.evidence),
-      readPortalDesignPage(
-        plan,
-        this.policy,
-        args.designOffset,
-        args.designLimit,
-        execution.signal,
-        this.store,
-        args.tokenOffset,
-        {
-          collectionOffset: args.collectionOffset,
-          styleOffset: args.styleOffset,
-          ...(args.styleFamily ? { styleFamily: args.styleFamily } : {}),
-        },
-      ),
-      readPortalAssets(plan, this.store, args.assetOffset, args.assetIds, execution.signal),
-      this.validationEvidence(before),
-      this.recipeEvidence(plan, before, args.recipes),
-    ]);
+    const [evidence, designEvidence, assets, validationEvidence, recipes, nativeGeometry] =
+      await Promise.all([
+        this.evidence(plan, execution.authority, args.evidence),
+        readPortalDesignPage(
+          plan,
+          this.policy,
+          args.designOffset,
+          args.designLimit,
+          execution.signal,
+          this.store,
+          args.tokenOffset,
+          {
+            collectionOffset: args.collectionOffset,
+            styleOffset: args.styleOffset,
+            ...(args.styleFamily ? { styleFamily: args.styleFamily } : {}),
+          },
+        ),
+        readPortalAssets(plan, this.store, args.assetOffset, args.assetIds, execution.signal),
+        this.validationEvidence(before),
+        this.recipeEvidence(plan, before, args.recipes),
+        args.nativeGeometry === undefined
+          ? Promise.resolve(undefined)
+          : readPortalNativeGeometry(
+              this.store,
+              this.nativeContourAcquisition,
+              plan,
+              before,
+              args.nativeGeometry,
+              execution.signal,
+              this.now,
+            ),
+      ]);
     if (plan.design.capture && plan.design.complete) await this.assertCapture(plan);
     if (plan.coreRecipes?.status === 'ready' && before.state !== 'needs-input') {
       // The bounded view already revalidated all signed results/pages for this binding.
@@ -1308,20 +1453,15 @@ export class PortalCoordinator {
         throw portalError('PORTAL_CORE_BINDING_CHANGED');
       await this.recipes!.assertSourcesCurrent(plan, this.policy, execution.signal);
     }
+    if (nativeGeometry)
+      await assertPortalNativeGeometryBinding(
+        this.store,
+        nativeGeometry.binding,
+        execution.signal,
+        this.now,
+      );
     const run = await this.mutate(runId, execution, value => {
-      if (
-        value.state === 'needs-input' ||
-        plan.coreRecipes?.status !== 'ready' ||
-        !plan.design.capture ||
-        !plan.design.complete
-      ) {
-        value.state = 'needs-input';
-        value.lease = null;
-        if (!plan.coreRecipes && !value.issues.includes('PORTAL_CORE_REPLAN_REQUIRED'))
-          value.issues = [...value.issues.slice(0, 511), 'PORTAL_CORE_REPLAN_REQUIRED'];
-        return value;
-      }
-      assertCurrentPortalAnalysis(plan);
+      if (execution.signal.aborted) throw portalError('OPERATION_CANCELLED');
       if (
         terminal.has(value.state) ||
         [
@@ -1335,6 +1475,27 @@ export class PortalCoordinator {
       )
         throw portalError('PORTAL_STATE_NOT_CLAIMABLE');
       if (this.now() >= value.deadlineAt) throw portalError('PORTAL_BUDGET_EXHAUSTED');
+      if (nativeGeometry) {
+        this.assertRunSnapshot(value, before);
+        if (
+          contentHash('sfp-native-geometry-run-snapshot-v1', value) !==
+          contentHash('sfp-native-geometry-run-snapshot-v1', before)
+        )
+          throw portalError('PORTAL_RUN_SUPERSEDED');
+      }
+      if (
+        value.state === 'needs-input' ||
+        plan.coreRecipes?.status !== 'ready' ||
+        !plan.design.capture ||
+        !plan.design.complete
+      ) {
+        value.state = 'needs-input';
+        value.lease = null;
+        if (!plan.coreRecipes && !value.issues.includes('PORTAL_CORE_REPLAN_REQUIRED'))
+          value.issues = [...value.issues.slice(0, 511), 'PORTAL_CORE_REPLAN_REQUIRED'];
+        return value;
+      }
+      assertCurrentPortalAnalysis(plan);
       if (value.lease && value.lease.expiresAt > this.now()) {
         if (
           value.lease.id !== leaseId ||
@@ -1357,8 +1518,16 @@ export class PortalCoordinator {
       value.state = 'generating';
       return value;
     });
+    if (nativeGeometry)
+      await assertPortalNativeGeometryBinding(
+        this.store,
+        nativeGeometry.binding,
+        execution.signal,
+        this.now,
+      );
     return {
       ...publicRun(run),
+      ...(nativeGeometry ? { nativeGeometry } : {}),
       recipes,
       lease:
         run.lease === null

@@ -1,0 +1,306 @@
+{
+  "schemaVersion": 1,
+  "kind": "sanitized-original-test-report-summary",
+  "originalPath": ".worktrees/_cache/no-core-public-inspection-20261014/targeted-report.json",
+  "originalSha256": "9a392295cc137ea8bf316532b5d7c481f6a90e6328cc70787105a4c1bd358590",
+  "originalSuccess": true,
+  "numTotalTests": 73,
+  "numPassedTests": 2,
+  "numFailedTests": 0,
+  "numPendingTests": 71,
+  "assertions": [
+    {
+      "name": "no-Core original plan inspection accepts canonical retained pre-egress tombstone proof without replay or record defaults",
+      "status": "passed"
+    },
+    {
+      "name": "no-Core original plan inspection keeps canonical retained pre-egress tombstone proof foreign, generic, sparse or expired fenced",
+      "status": "passed"
+    },
+    {
+      "name": "no-Core original plan inspection refreshes a no-Core pre-dispatch rejection without replay and permits only a fresh run",
+      "status": "skipped"
+    },
+    {
+      "name": "no-Core original plan inspection keeps no-Core generic, foreign, missing and incomplete evidence fenced",
+      "status": "skipped"
+    },
+    {
+      "name": "no-Core original plan inspection keeps no-Core inspection exclusive and rejects late proof after cancellation or close",
+      "status": "skipped"
+    },
+    {
+      "name": "no-Core original plan inspection retains the no-Core unknown fence and history when atomic disposition persistence fails",
+      "status": "skipped"
+    },
+    {
+      "name": "waits for the portal-owned Chrome cleanup before invoking the HTTP close callback",
+      "status": "skipped"
+    },
+    {
+      "name": "reports an owned Chrome cleanup failure instead of a clean HTTP server shutdown",
+      "status": "skipped"
+    },
+    {
+      "name": "workflow persistence and executable topology migrates version-one data without losing workflows and keeps activity changes cursor-visible",
+      "status": "skipped"
+    },
+    {
+      "name": "workflow persistence and executable topology retains every activity at capacity, rejects new records, and permits pending record settlement",
+      "status": "skipped"
+    },
+    {
+      "name": "workflow persistence and executable topology recovers pending server audit outcomes as unknown without replay",
+      "status": "skipped"
+    },
+    {
+      "name": "workflow persistence and executable topology coalesces repeated unverified rejection metadata without retaining request contents",
+      "status": "skipped"
+    },
+    {
+      "name": "workflow persistence and executable topology preserves edits across reopen and rejects stale revisions",
+      "status": "skipped"
+    },
+    {
+      "name": "workflow persistence and executable topology rejects cycles, duplicate node IDs, missing required stages, and unsupported edges",
+      "status": "skipped"
+    },
+    {
+      "name": "workflow persistence and executable topology rejects unsafe target paths and forged official endpoints before saving",
+      "status": "skipped"
+    },
+    {
+      "name": "public service bridge records changed service state observed on refresh and coalesces unchanged connection polls",
+      "status": "skipped"
+    },
+    {
+      "name": "public service bridge reports not-requested Chrome readiness separately from healthy service without exposing status authority",
+      "status": "skipped"
+    },
+    {
+      "name": "public service bridge reports awaiting-browser Chrome readiness separately from healthy service without exposing status authority",
+      "status": "skipped"
+    },
+    {
+      "name": "public service bridge reports initializing Chrome readiness separately from healthy service without exposing status authority",
+      "status": "skipped"
+    },
+    {
+      "name": "public service bridge reports connected Chrome readiness separately from healthy service without exposing status authority",
+      "status": "skipped"
+    },
+    {
+      "name": "public service bridge reports unavailable Chrome readiness separately from healthy service without exposing status authority",
+      "status": "skipped"
+    },
+    {
+      "name": "public service bridge does not infer Chrome readiness from health when the public status read fails",
+      "status": "skipped"
+    },
+    {
+      "name": "public service bridge keeps disconnected bootstrap and unsupported workspace registration explicit",
+      "status": "skipped"
+    },
+    {
+      "name": "public service bridge does not present a changed registered folder as a successful available registration",
+      "status": "skipped"
+    },
+    {
+      "name": "public service bridge keeps an unknown mutation fenced after a late approve decision",
+      "status": "skipped"
+    },
+    {
+      "name": "public service bridge keeps an unknown mutation fenced after a late reject decision",
+      "status": "skipped"
+    },
+    {
+      "name": "public service bridge preserves completed state after a late approve decision",
+      "status": "skipped"
+    },
+    {
+      "name": "public service bridge preserves completed state after a late reject decision",
+      "status": "skipped"
+    },
+    {
+      "name": "public service bridge reserves the four-operation capacity before concurrent workspace lookups",
+      "status": "skipped"
+    },
+    {
+      "name": "public service bridge does not let a late decision overwrite a newer operation awaiting its own approval",
+      "status": "skipped"
+    },
+    {
+      "name": "public service bridge releases reserved capacity after a workspace failure",
+      "status": "skipped"
+    },
+    {
+      "name": "public service bridge releases reserved capacity after a persistence failure",
+      "status": "skipped"
+    },
+    {
+      "name": "public service bridge releases reserved capacity after a launch failure",
+      "status": "skipped"
+    },
+    {
+      "name": "public service bridge enforces the four-operation capacity for actions on separate ready runs",
+      "status": "skipped"
+    },
+    {
+      "name": "public service bridge shows a failed Figma capture instead of completed source for the live needs-input case",
+      "status": "skipped"
+    },
+    {
+      "name": "public service bridge derives source state from complete live capture with unresolved business workflow",
+      "status": "skipped"
+    },
+    {
+      "name": "public service bridge derives source state from complete but unverified live capture",
+      "status": "skipped"
+    },
+    {
+      "name": "public service bridge derives source state from explicitly allowed complete pinned capture",
+      "status": "skipped"
+    },
+    {
+      "name": "public service bridge derives source state from incomplete live-verified data",
+      "status": "skipped"
+    },
+    {
+      "name": "public service bridge reads retained portal_next blueprint design evidence without treating missing metadata as a capture",
+      "status": "skipped"
+    },
+    {
+      "name": "public service bridge accepts completed status only after the original operation is proven terminal",
+      "status": "skipped"
+    },
+    {
+      "name": "public service bridge persists the unresolved mutation across inspection and server restart",
+      "status": "skipped"
+    },
+    {
+      "name": "public service bridge keeps a missing original operation ID fenced across refresh and inspection",
+      "status": "skipped"
+    },
+    {
+      "name": "public service bridge keeps unknown mutation fenced when successful refresh reports ready-to-apply without original disposition",
+      "status": "skipped"
+    },
+    {
+      "name": "public service bridge keeps unknown mutation fenced when successful refresh reports completed without original disposition",
+      "status": "skipped"
+    },
+    {
+      "name": "public service bridge requires correlated original operation proof: missing",
+      "status": "skipped"
+    },
+    {
+      "name": "public service bridge requires correlated original operation proof: pending",
+      "status": "skipped"
+    },
+    {
+      "name": "public service bridge requires correlated original operation proof: foreign ID",
+      "status": "skipped"
+    },
+    {
+      "name": "public service bridge requires correlated original operation proof: foreign workspace",
+      "status": "skipped"
+    },
+    {
+      "name": "public service bridge requires correlated original operation proof: wrong operation",
+      "status": "skipped"
+    },
+    {
+      "name": "public service bridge requires correlated original operation proof: malformed",
+      "status": "skipped"
+    },
+    {
+      "name": "public service bridge requires correlated original operation proof: unknown",
+      "status": "skipped"
+    },
+    {
+      "name": "public service bridge requires correlated original operation proof: abandoned",
+      "status": "skipped"
+    },
+    {
+      "name": "public service bridge requires correlated original operation proof: confirmed applied",
+      "status": "skipped"
+    },
+    {
+      "name": "public service bridge requires correlated original operation proof: confirmed not applied",
+      "status": "skipped"
+    },
+    {
+      "name": "public service bridge fences dispatched apply with CONTROL_AUTH_BUSY until an authoritative outcome exists",
+      "status": "skipped"
+    },
+    {
+      "name": "public service bridge fences dispatched apply with UNEXPECTED_SERVICE_FAILURE until an authoritative outcome exists",
+      "status": "skipped"
+    },
+    {
+      "name": "public service bridge records a correlated authoritative terminal failure without inventing completion",
+      "status": "skipped"
+    },
+    {
+      "name": "public service bridge keeps applied validation outstanding for service state applied-awaiting-validation",
+      "status": "skipped"
+    },
+    {
+      "name": "public service bridge keeps applied validation outstanding for service state validating-applied",
+      "status": "skipped"
+    },
+    {
+      "name": "public service bridge preserves unknown outcome fencing when an explicit status read fails",
+      "status": "skipped"
+    },
+    {
+      "name": "public service bridge restores interrupted runs as unknown without replay and retains their graph revision",
+      "status": "skipped"
+    },
+    {
+      "name": "public service bridge uses the saved validation node profile and never displays cancelled nodes as active",
+      "status": "skipped"
+    },
+    {
+      "name": "public service bridge refuses a service response belonging to a different run",
+      "status": "skipped"
+    },
+    {
+      "name": "public service bridge uses captured plan and binds revision without claiming generation completion",
+      "status": "skipped"
+    },
+    {
+      "name": "public service bridge retains uncertain dispatched outcomes and prevents automatic replay",
+      "status": "skipped"
+    },
+    {
+      "name": "public service bridge keeps service approval scoped to the operation that requested it",
+      "status": "skipped"
+    },
+    {
+      "name": "local same-origin HTTP boundary blocks new effects at activity capacity but keeps unknown-outcome inspection available with a visible warning",
+      "status": "skipped"
+    },
+    {
+      "name": "local same-origin HTTP boundary reports durable audit failure before workspace effects without claiming logged success",
+      "status": "skipped"
+    },
+    {
+      "name": "local same-origin HTTP boundary reports durable audit failure after workspace effects without claiming logged success",
+      "status": "skipped"
+    },
+    {
+      "name": "local same-origin HTTP boundary persists separate UI intent and authoritative workflow outcomes without raw headers or text",
+      "status": "skipped"
+    },
+    {
+      "name": "local same-origin HTTP boundary registers only an explicit local workspace through the guarded closed endpoint and reports safe errors",
+      "status": "skipped"
+    },
+    {
+      "name": "local same-origin HTTP boundary serves bootstrap without login and fences Host, Origin, CSRF, unknown routes, and oversized bodies",
+      "status": "skipped"
+    }
+  ],
+  "limits": "Original raw report remains local-only; stacks/source snippets/actor-state omitted. Summary cannot issue authority or convert a failed full report to pass."
+}

@@ -1,0 +1,19 @@
+{
+  "schemaVersion": 1,
+  "attemptId": "8c686c85-b675-42d5-9402-9f5d163af0cb",
+  "status": "failed",
+  "sourceHash": "sha256:8426e6797d055d417a74fc95e3ea084b11fbf29a197eed95d8250190b0d18a52",
+  "failedAt": "2026-10-10T12:58:42.054Z",
+  "checks": [
+    {
+      "name": "typecheck",
+      "exitCode": 2,
+      "elapsedMs": 31215,
+      "logSha256": "4f478ae4f227e41a46511117043bf0be24055877259606c2e309619d6e9d9703"
+    }
+  ],
+  "error": "SOURCE_CHECK_FAILED:typecheck",
+  "realFigmaValidated": false,
+  "targetServiceValidated": false,
+  "remoteCiValidated": false
+}

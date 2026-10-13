@@ -12,6 +12,7 @@ import {
 } from '@sfp/shared';
 import { z } from 'zod';
 
+import { diagnose } from '../diagnostics.js';
 import {
   withRetainedDirectoryChain,
   withRetainedDirectoryDescendantChain,
@@ -43,6 +44,11 @@ import {
 import { createNativePreviewChannel, type NativePreviewReceipt } from './preview-channel.js';
 import { NATIVE_PREVIEW_BOOTSTRAP } from './preview-worker.js';
 import { NativePreviewSchema } from './preview.js';
+import {
+  compilerCommandDiagnostics,
+  reactRouterCompilerUsesProvisionedModules,
+} from './react-router-compiler-evidence.js';
+import { reactRouterCompilerAllowsIconOutput } from './react-router-compiler-evidence.js';
 import { collectPortalSourceInventory } from './source-inventory.js';
 import { portalError } from './store.js';
 import { windowsJobCommand, windowsJobProgramHash } from './windows-job.js';
@@ -63,6 +69,8 @@ export const NativeCommandSchema = z
       })
       .strict()
       .optional(),
+    moduleLoader: z.literal('tailwindcss-node-esm-cache-v1').optional(),
+    moduleResolver: z.literal('vite-import-meta-resolve-v1').optional(),
     id: z.string().regex(/^[a-z][a-z0-9-]{0,63}$/u),
     executable: z.string().min(1).max(2048),
     executableHash: PortalHashSchema,
@@ -160,6 +168,74 @@ export interface NativeRunResult {
   artifactAuthorityHash: string;
   outputReceipts: NativeOutputReceipt[];
 }
+interface IssuedNativeRunBinding {
+  runId: string;
+  root: string;
+  sourceHash: string;
+  profileHash: string;
+  deadlineAt: number;
+  resultHash: string;
+}
+const issuedRuns = new WeakMap<object, IssuedNativeRunBinding>();
+const issuedOutputs = new WeakMap<
+  object,
+  { hash: string; runId: string; root: string; profileHash: string }
+>();
+export const issuedNativeOutputReceipt = (receipt: NativeOutputReceipt): boolean =>
+  issuedOutputs.get(receipt)?.hash === contentHash('sfp-native-output-issued-v1', receipt);
+/** Internal phase admission, never a caller flag or a serialized receipt. */
+export const hasCompletedReactRouterCompilerProvisioner = (
+  runId: string,
+  profile: NativeProfile,
+  root: string,
+  receipts: NativeOutputReceipt[],
+  commandId: string,
+): boolean => {
+  if (!reactRouterCompilerUsesProvisionedModules(profile, commandId)) return false;
+  const producer = profile.commands.find(command => command.id === 'compiler-dependencies');
+  if (!producer || !profile.artifactAuthority) return false;
+  const profileHash = contentHash('sfp-native-profile-v1', profile);
+  return receipts.some(receipt => {
+    const issued = issuedOutputs.get(receipt);
+    return (
+      issued !== undefined &&
+      issuedNativeOutputReceipt(receipt) &&
+      issued.runId === runId &&
+      issued.root === resolve(root) &&
+      issued.profileHash === profileHash &&
+      receipt.path === 'compiler-workspace' &&
+      receipt.kind === 'provisioned-dependencies' &&
+      receipt.inventory.root === resolve(root, receipt.path) &&
+      receipt.producerCommandId === producer.id &&
+      receipt.commandHash === contentHash('sfp-native-command-v1', producer) &&
+      receipt.inputAuthorityHash ===
+        contentHash('sfp-native-artifact-authority-v1', profile.artifactAuthority)
+    );
+  });
+};
+/** Process-local producer identity. Serialized/copied records are never execution authority. */
+export const issuedNativeRunBinding = (
+  result: NativeRunResult,
+  profile: NativeProfile,
+  directory: string,
+  runId: string,
+): Readonly<IssuedNativeRunBinding> | null => {
+  const binding = issuedRuns.get(result);
+  if (!binding) return null;
+  try {
+    if (
+      binding.runId !== runId ||
+      binding.root !== resolve(directory) ||
+      binding.sourceHash !== profile.sourceHash ||
+      binding.profileHash !== contentHash('sfp-native-profile-v1', profile) ||
+      binding.resultHash !== contentHash('sfp-issued-native-result-v1', result)
+    )
+      return null;
+    return Object.freeze({ ...binding });
+  } catch {
+    return null;
+  }
+};
 const inside = (root: string, path: string): boolean => {
   const part = relative(root, path);
   return part === '' || (!isAbsolute(part) && part !== '..' && !part.startsWith(`..${sep}`));
@@ -225,6 +301,110 @@ export class NativePortalRunner {
   private readonly active = new Map<string, ActiveCommand>();
   private readonly running = new Set<string>();
   private readonly cancelled = new Set<string>();
+  private readonly commandObservers = new Map<
+    string,
+    {
+      retired: boolean;
+      binding: Readonly<{ runId: string; profileHash: string; deadlineAt: number }>;
+      observe: (
+        value: ReturnType<typeof compilerCommandDiagnostics> & {
+          phase: 'command-returned' | 'module-evidence-collected';
+          nativeCompletion: false;
+          commandHash: string;
+        },
+        scope: Readonly<{ isCurrent: () => boolean }>,
+      ) => Promise<void>;
+    }
+  >();
+
+  /** Internal diagnostics only. No serialized result or observer grants native authority. */
+  observeCommandDiagnostics(
+    binding: Readonly<{ runId: string; profileHash: string; deadlineAt: number }>,
+    observe: (
+      value: ReturnType<typeof compilerCommandDiagnostics> & {
+        phase: 'command-returned' | 'module-evidence-collected';
+        nativeCompletion: false;
+        commandHash: string;
+      },
+      scope: Readonly<{ isCurrent: () => boolean }>,
+    ) => Promise<void>,
+  ): () => void {
+    if (this.commandObservers.has(binding.runId))
+      throw portalError('PORTAL_NATIVE_DIAGNOSTIC_OBSERVER_BUSY');
+    const entry = { binding: Object.freeze({ ...binding }), observe, retired: false };
+    this.commandObservers.set(binding.runId, entry);
+    return () => {
+      entry.retired = true;
+      if (this.commandObservers.get(binding.runId) === entry)
+        this.commandObservers.delete(binding.runId);
+    };
+  }
+
+  private async reportCommand(
+    runId: string,
+    profile: NativeProfile,
+    result: NativeCommandResult,
+    deadlineAt: number,
+    signal: AbortSignal,
+    phase: 'command-returned' | 'module-evidence-collected',
+  ): Promise<void> {
+    const entry = this.commandObservers.get(runId);
+    if (
+      !entry ||
+      entry.binding.profileHash !== contentHash('sfp-native-profile-v1', profile) ||
+      entry.binding.deadlineAt !== deadlineAt
+    )
+      return;
+    const scope = Object.freeze({
+      isCurrent: () =>
+        !entry.retired &&
+        this.commandObservers.get(runId) === entry &&
+        !signal.aborted &&
+        Date.now() < deadlineAt,
+    });
+    const done = Promise.resolve()
+      .then(() => {
+        if (!scope.isCurrent()) return;
+        return entry.observe(
+          Object.freeze({
+            ...compilerCommandDiagnostics(result),
+            phase,
+            commandHash: result.commandHash,
+            nativeCompletion: false as const,
+          }),
+          scope,
+        );
+      })
+      .catch(error => {
+        diagnose(
+          'portal.native.diagnostics-write-failed',
+          { runId, phase: 'cleanup', outcome: 'failed' },
+          error,
+          'error',
+        );
+      });
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    let onAbort: (() => void) | undefined;
+    try {
+      const interrupted = new Promise<'unconfirmed'>(resolveWait => {
+        onAbort = () => resolveWait('unconfirmed');
+        signal.addEventListener('abort', onAbort, { once: true });
+        if (signal.aborted) onAbort();
+        timer = setTimeout(onAbort, Math.max(0, Math.min(2000, deadlineAt - Date.now())));
+      });
+      const outcome = await Promise.race([done.then(() => 'settled' as const), interrupted]);
+      if (outcome === 'unconfirmed')
+        diagnose(
+          'portal.native.diagnostics-write-unconfirmed',
+          { runId, phase: 'cleanup', outcome: 'unknown' },
+          undefined,
+          'warn',
+        );
+    } finally {
+      clearTimeout(timer);
+      if (onAbort) signal.removeEventListener('abort', onAbort);
+    }
+  }
 
   async cancel(runId: string): Promise<void> {
     if (!this.running.has(runId)) return;
@@ -287,7 +467,8 @@ export class NativePortalRunner {
             return (
               other.kind !== 'provisioned-dependencies' ||
               output.kind !== 'generated-output' ||
-              path.slice(otherPath.length + 1).includes('/') ||
+              (path.slice(otherPath.length + 1).split('/').length > 4 &&
+                !reactRouterCompilerAllowsIconOutput(input, output.path, other.path)) ||
               outputOwner.get(other.path)! >= outputOwner.get(output.path)!
             );
           return false;
@@ -364,8 +545,17 @@ export class NativePortalRunner {
         if (remaining <= 0) throw portalError('PORTAL_BUDGET_EXHAUSTED');
         // eslint-disable-next-line no-await-in-loop -- check the complete reviewed script/configuration closure before each command
         await this.verifyClosure(root, profile, signal);
-        await verifyNativeArtifactAuthority(profile, signal);
-        await verifyNativeOutputReceipts(root, outputReceipts, signal);
+        const compilerInputsInsideFence = hasCompletedReactRouterCompilerProvisioner(
+          runId,
+          input,
+          root,
+          outputReceipts,
+          command.id,
+        );
+        if (!compilerInputsInsideFence) {
+          await verifyNativeArtifactAuthority(profile, signal);
+          await verifyNativeOutputReceipts(root, outputReceipts, signal);
+        }
         await verifyNativeWorkingMembership(
           root,
           profile,
@@ -414,6 +604,8 @@ export class NativePortalRunner {
           outputReceipts,
           privateHome,
           signal,
+          input,
+          runId,
         );
         if (deadlineAt <= Date.now()) throw portalError('PORTAL_BUDGET_EXHAUSTED');
         // eslint-disable-next-line no-await-in-loop -- ordered profile steps may depend on prior build or migration results
@@ -456,6 +648,7 @@ export class NativePortalRunner {
           );
           result.launchCommandHash = result.commandHash;
           result.commandHash = contentHash('sfp-native-command-v1', command);
+          await this.reportCommand(runId, input, result, deadlineAt, signal, 'command-returned');
           if (previewChannel) {
             try {
               result.previewReceipt = await previewChannel.finish();
@@ -470,6 +663,14 @@ export class NativePortalRunner {
         }
         const moduleEvidence = await moduleFence.collectEvidence(result.status === 'passed');
         if (moduleEvidence) result.moduleEvidence = moduleEvidence;
+        await this.reportCommand(
+          runId,
+          input,
+          result,
+          deadlineAt,
+          signal,
+          'module-evidence-collected',
+        );
         results.push(result);
         if (result.status !== 'passed') break;
         await this.verifyClosure(root, profile, signal);
@@ -499,7 +700,7 @@ export class NativePortalRunner {
               )
             )
               throw portalError('PORTAL_OUTPUT_ALREADY_EXISTS');
-          outputReceipts.push({
+          const receipt: NativeOutputReceipt = {
             generatedChildren,
             producerCommandId: command.id,
             commandHash: result.commandHash,
@@ -516,7 +717,14 @@ export class NativePortalRunner {
               profile.artifactAuthority,
             ),
             exitCode: 0,
+          };
+          issuedOutputs.set(receipt, {
+            hash: contentHash('sfp-native-output-issued-v1', receipt),
+            runId,
+            root,
+            profileHash: contentHash('sfp-native-profile-v1', input),
           });
+          outputReceipts.push(receipt);
         }
       }
       for (const result of results)
@@ -539,7 +747,7 @@ export class NativePortalRunner {
         privateHome,
         signal,
       );
-      return {
+      const result: NativeRunResult = {
         artifactAuthorityHash: contentHash(
           'sfp-native-artifact-authority-v1',
           profile.artifactAuthority,
@@ -553,6 +761,15 @@ export class NativePortalRunner {
         hostPlatform: process.platform,
         commands: results,
       };
+      issuedRuns.set(result, {
+        runId,
+        root,
+        sourceHash,
+        profileHash: result.profileHash,
+        deadlineAt,
+        resultHash: contentHash('sfp-issued-native-result-v1', result),
+      });
+      return result;
     } finally {
       this.running.delete(runId);
       this.cancelled.delete(runId);

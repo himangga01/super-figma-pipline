@@ -1,0 +1,32 @@
+{
+  "schemaVersion": 1,
+  "at": "2026-10-13T10:24:38.880Z",
+  "kind": "root-independent-r60-targeted-review",
+  "sourceBaseline": "sha256:303de5d1904d11c1fb89bdf80951900e375ac4325ea6cfc932f39ebee2785732",
+  "manifestHash": "0b8a2f4d0ca62f1e3898f74a77e4b70e0e1845d40416f16cd67300be70f32d9f",
+  "targeted": {
+    "passed": 3,
+    "failed": 0,
+    "filtered": 17,
+    "exitCode": 0,
+    "reportedUnhandledErrors": 0,
+    "reportPath": ".worktrees/_cache/root-r60-independent-review-20261013/targeted-report.json",
+    "reportSha256": "2826319fbf879fa73393f057e96ff951d0e018b94d615a3f5c70f5d12ea3f869"
+  },
+  "checks": [
+    {
+      "path": "packages/mcp/src/portal/react-router-compiler-evidence.ts",
+      "candidateHash": "44b1952686603dd056faea33803c65a985e7b41230b5b04ad434ab69ac2065c8",
+      "mainNativePreimage": "595f0ec5810511d63948c02265a347a15169ff62b9b00344fd69edb53f3a5bea"
+    },
+    {
+      "path": "packages/mcp/test/portal/react-router-compiler-evidence.test.ts",
+      "candidateHash": "fb2ef781c20c20d1f2b5ee5148448239829188a8b05f3c18fd6c0f4d982305f8",
+      "mainNativePreimage": "6d9d2266ad1c33c6f8f5274403d32e606f3ca0c9985d0f8a7f9d196fc3222025"
+    }
+  ],
+  "whole": false,
+  "nativeProof": false,
+  "integration": false,
+  "liveAcceptance": false
+}

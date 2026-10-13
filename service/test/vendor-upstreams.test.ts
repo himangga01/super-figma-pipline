@@ -21,7 +21,11 @@ const copyServiceFixture = async (): Promise<{ repositoryRoot: string; serviceRo
     filter: source => {
       const path = relative(serviceRoot, source);
       const segments = path.split(sep);
-      return !segments.some(segment => ['coverage', 'dist', 'node_modules'].includes(segment));
+      // Historical reports and local inspection caches are not vendor source inputs. Copying them
+      // makes fixture cost grow with each verification run and can outlive the test's deadline.
+      return !segments.some(segment =>
+        ['coverage', 'dist', 'node_modules', '.cache', 'artifacts'].includes(segment),
+      );
     },
   });
 
@@ -62,7 +66,8 @@ const runCopyOnly = (fixtureService: string): ReturnType<typeof spawnSync> =>
       cwd: dirname(fixtureService),
       encoding: 'utf8',
       env: hermeticGitEnvironment(),
-      timeout: 30_000,
+      // Full allowance regeneration reads every pinned upstream source through real Git.
+      timeout: 90_000,
       windowsHide: true,
     },
   );
@@ -114,7 +119,7 @@ describe('vendor upstream reconciliation', () => {
       }),
     );
     expect(await readFile(serviceOwned, 'utf8')).toContain('@figwright/custom-fixture');
-  }, 30_000);
+  }, 120_000);
 
   it('removes a previous managed destination when its mapped bytes are unchanged', async () => {
     const fixture = await copyServiceFixture();
@@ -130,7 +135,7 @@ describe('vendor upstream reconciliation', () => {
       await readFile(join(fixture.serviceRoot, 'vendor-map.json'), 'utf8'),
     ) as { files: Array<{ destination: string | null }> };
     expect(vendorMap.files.some(row => row.destination === OBSOLETE_COPY_PATH)).toBe(false);
-  }, 30_000);
+  }, 120_000);
 
   it('rejects a locally modified obsolete destination without changing the file or map', async () => {
     const fixture = await copyServiceFixture();

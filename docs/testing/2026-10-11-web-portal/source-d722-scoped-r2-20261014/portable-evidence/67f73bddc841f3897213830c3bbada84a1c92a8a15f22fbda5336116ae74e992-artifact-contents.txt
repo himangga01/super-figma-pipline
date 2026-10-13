@@ -1,0 +1,13 @@
+
+ RUN  v4.1.11 C:/2026_project/super-figma-pipline/.worktrees/baseline/service
+
+ ✓ |root| test/artifact-contents.test.ts (1 test) 4465ms
+   ✓ verifies the actual four archives, contained files and portable portal startup  4464ms
+
+ Test Files  1 passed (1)
+      Tests  1 passed (1)
+   Start at  03:17:17
+   Duration  4.62s (transform 16ms, setup 0ms, import 26ms, tests 4.47s, environment 0ms)
+
+JSON report written to C:/2026_project/super-figma-pipline/.worktrees/baseline/service/artifacts/focused-checks/909b0e47-957c-4178-b50c-662deedc37e5/vitest-report.json
+

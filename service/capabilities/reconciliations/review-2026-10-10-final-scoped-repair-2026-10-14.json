@@ -1,0 +1,145 @@
+{
+  "schemaVersion": 1,
+  "slice": "review-2026-10-10",
+  "baseline": {
+    "headCommit": "22517932dc9b2cb974c177ec4eacb84d4b16e254",
+    "authoritySha256": {
+      "upstream-lock.json": "91180657c8938af63da45d467a0a8f499e0f97022857707108838fa41b16cbef",
+      "vendor-map.json": "b3275c7d8b997d1cfe723d97594659f77d7b4361b824a790bcfdd7ff762589bd",
+      "vendor-rules.json": "e61302d99b0567e6451f69cdf48d2aaefc28826f1cd48ba486193147303e25ae"
+    }
+  },
+  "entries": [
+    {
+      "path": "capabilities/task-review-2026-10-10-authority-classes.json",
+      "sha256": "2170e91698cff07f3608129854922f0e4026f11c86cc0032ab7f4bd8b9ad5dd7",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "9efc2ff51ab0c5eefa2df559210f67a29fcb6333d1444324ded96f088766c935"
+        },
+        {
+          "class": "protected",
+          "sha256": "9efc2ff51ab0c5eefa2df559210f67a29fcb6333d1444324ded96f088766c935"
+        }
+      ],
+      "reason": "Reconcile reviewed canonical retained pre-egress No-Core recovery, normal-path safe source identity diagnostics, guarded test cleanup, and separately reviewed final producer changes. Register the current normally generated diagnostics catalog. Preserve byte/source/issuer guards, runtime-import denial, original deadlines, unknown outcomes and the owner index. Actual graph, live recovery and frontend acceptance remain unproven; no whole rerun."
+    },
+    {
+      "path": "packages/cli/src/figma-page-reader.ts",
+      "sha256": "daeb45dee99dbff9a09cc2f49c7c635c2cd44d310216b6d34782d61008ad5f4a",
+      "priorClaims": [
+        {
+          "class": "protected",
+          "sha256": "f346bb9781c7bd44392821529dee9db9b2a70fb2ae35c1a1600bc07f8981ccd0"
+        }
+      ],
+      "reason": "Reconcile reviewed canonical retained pre-egress No-Core recovery, normal-path safe source identity diagnostics, guarded test cleanup, and separately reviewed final producer changes. Register the current normally generated diagnostics catalog. Preserve byte/source/issuer guards, runtime-import denial, original deadlines, unknown outcomes and the owner index. Actual graph, live recovery and frontend acceptance remain unproven; no whole rerun."
+    },
+    {
+      "path": "packages/cli/test/figma-page-identity-diagnostics.test.ts",
+      "sha256": "41c0f6bb259be4663d83211cede8218d87d8ab3299e35162d2619a4dca119cdc",
+      "priorClaims": [],
+      "reason": "Reconcile reviewed canonical retained pre-egress No-Core recovery, normal-path safe source identity diagnostics, guarded test cleanup, and separately reviewed final producer changes. Register the current normally generated diagnostics catalog. Preserve byte/source/issuer guards, runtime-import denial, original deadlines, unknown outcomes and the owner index. Actual graph, live recovery and frontend acceptance remain unproven; no whole rerun."
+    },
+    {
+      "path": "packages/mcp/src/diagnostics-catalog.ts",
+      "sha256": "19ab236e3e969996da9b49dbd75c72bc7535f73c636113a2dc7a4aefde241753",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "4c4d0ba72588b0e8ba25e3fbfd12eac8e5a31006ce8ff0a0b6bb48de2bef197e"
+        },
+        {
+          "class": "protected",
+          "sha256": "4c4d0ba72588b0e8ba25e3fbfd12eac8e5a31006ce8ff0a0b6bb48de2bef197e"
+        }
+      ],
+      "reason": "Reconcile reviewed canonical retained pre-egress No-Core recovery, normal-path safe source identity diagnostics, guarded test cleanup, and separately reviewed final producer changes. Register the current normally generated diagnostics catalog. Preserve byte/source/issuer guards, runtime-import denial, original deadlines, unknown outcomes and the owner index. Actual graph, live recovery and frontend acceptance remain unproven; no whole rerun."
+    },
+    {
+      "path": "packages/mcp/src/portal/native-work.ts",
+      "sha256": "d4b50bb1f626ba3b21968cd6872f2ac989e83e511dec0321652b5301d641bbc5",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "ea1829c2196b44e4272bcbb105d2de678707246d3713ac137c853a3d05cd41cf"
+        },
+        {
+          "class": "protected",
+          "sha256": "ea1829c2196b44e4272bcbb105d2de678707246d3713ac137c853a3d05cd41cf"
+        }
+      ],
+      "reason": "Reconcile reviewed canonical retained pre-egress No-Core recovery, normal-path safe source identity diagnostics, guarded test cleanup, and separately reviewed final producer changes. Register the current normally generated diagnostics catalog. Preserve byte/source/issuer guards, runtime-import denial, original deadlines, unknown outcomes and the owner index. Actual graph, live recovery and frontend acceptance remain unproven; no whole rerun."
+    },
+    {
+      "path": "packages/mcp/src/portal/react-router-compiler-evidence.ts",
+      "sha256": "da6b2efb21772fa7b01bce3a353da61169f147651bff3f64a82e5c45e48290f0",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "44b1952686603dd056faea33803c65a985e7b41230b5b04ad434ab69ac2065c8"
+        },
+        {
+          "class": "protected",
+          "sha256": "44b1952686603dd056faea33803c65a985e7b41230b5b04ad434ab69ac2065c8"
+        }
+      ],
+      "reason": "Reconcile reviewed canonical retained pre-egress No-Core recovery, normal-path safe source identity diagnostics, guarded test cleanup, and separately reviewed final producer changes. Register the current normally generated diagnostics catalog. Preserve byte/source/issuer guards, runtime-import denial, original deadlines, unknown outcomes and the owner index. Actual graph, live recovery and frontend acceptance remain unproven; no whole rerun."
+    },
+    {
+      "path": "packages/mcp/test/portal/react-router-compiler-evidence.test.ts",
+      "sha256": "684d073c9fb949c15bb2d8cf3621ebc5bdc13581052c858f720fc32da60bbab2",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "fb2ef781c20c20d1f2b5ee5148448239829188a8b05f3c18fd6c0f4d982305f8"
+        },
+        {
+          "class": "protected",
+          "sha256": "fb2ef781c20c20d1f2b5ee5148448239829188a8b05f3c18fd6c0f4d982305f8"
+        }
+      ],
+      "reason": "Reconcile reviewed canonical retained pre-egress No-Core recovery, normal-path safe source identity diagnostics, guarded test cleanup, and separately reviewed final producer changes. Register the current normally generated diagnostics catalog. Preserve byte/source/issuer guards, runtime-import denial, original deadlines, unknown outcomes and the owner index. Actual graph, live recovery and frontend acceptance remain unproven; no whole rerun."
+    },
+    {
+      "path": "packages/mcp/test/portal/source-refresh-diagnostic.test.ts",
+      "sha256": "0eb0aa3d6965c13f79b03bb1d1dfcb63b9eb1b91f5ab3978c7547d5938d4eb21",
+      "priorClaims": [],
+      "reason": "Reconcile reviewed canonical retained pre-egress No-Core recovery, normal-path safe source identity diagnostics, guarded test cleanup, and separately reviewed final producer changes. Register the current normally generated diagnostics catalog. Preserve byte/source/issuer guards, runtime-import denial, original deadlines, unknown outcomes and the owner index. Actual graph, live recovery and frontend acceptance remain unproven; no whole rerun."
+    },
+    {
+      "path": "packages/portal/package.json",
+      "sha256": "ddb99eafe979d2319697f9bde91d01c4b3f4cf7f3e2a2baccfcb06ceff7767c8",
+      "priorClaims": [
+        {
+          "class": "protected",
+          "sha256": "ddb99eafe979d2319697f9bde91d01c4b3f4cf7f3e2a2baccfcb06ceff7767c8"
+        }
+      ],
+      "reason": "Reconcile reviewed canonical retained pre-egress No-Core recovery, normal-path safe source identity diagnostics, guarded test cleanup, and separately reviewed final producer changes. Register the current normally generated diagnostics catalog. Preserve byte/source/issuer guards, runtime-import denial, original deadlines, unknown outcomes and the owner index. Actual graph, live recovery and frontend acceptance remain unproven; no whole rerun."
+    },
+    {
+      "path": "packages/portal/src/bridge.ts",
+      "sha256": "23eaae954eb16bb4bff335b6a3c82f5fbc2c3bd142eab8d01ca0b42c03c88ace",
+      "priorClaims": [
+        {
+          "class": "protected",
+          "sha256": "ab7008aea8646ade1eff75bb03b5e5c755656662e815dc1775185528ea94b9e2"
+        }
+      ],
+      "reason": "Reconcile reviewed canonical retained pre-egress No-Core recovery, normal-path safe source identity diagnostics, guarded test cleanup, and separately reviewed final producer changes. Register the current normally generated diagnostics catalog. Preserve byte/source/issuer guards, runtime-import denial, original deadlines, unknown outcomes and the owner index. Actual graph, live recovery and frontend acceptance remain unproven; no whole rerun."
+    },
+    {
+      "path": "packages/portal/test/backend.test.ts",
+      "sha256": "e1e8a5ec7968ac3ab4c4edba27dfceb0262d6554a5c4493755f984667015ff3a",
+      "priorClaims": [
+        {
+          "class": "protected",
+          "sha256": "2b47f7e3c843b47cb19ea4eb20038de330c90d80602c58499842e62d116538ac"
+        }
+      ],
+      "reason": "Reconcile reviewed canonical retained pre-egress No-Core recovery, normal-path safe source identity diagnostics, guarded test cleanup, and separately reviewed final producer changes. Register the current normally generated diagnostics catalog. Preserve byte/source/issuer guards, runtime-import denial, original deadlines, unknown outcomes and the owner index. Actual graph, live recovery and frontend acceptance remain unproven; no whole rerun."
+    }
+  ]
+}

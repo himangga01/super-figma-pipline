@@ -1,0 +1,122 @@
+{
+  "schemaVersion": 1,
+  "at": "2026-10-13T17:59:55.558Z",
+  "kind": "final-reviewed-change-statics",
+  "sourceHash": "sha256:195ba986e0ea9ec4e7624b4cae581a553c15ea486428ddc340b0eb1a0c4a6ba4",
+  "codeInputs": [
+    {
+      "path": "packages/portal/src/bridge.ts",
+      "sha256": "23eaae954eb16bb4bff335b6a3c82f5fbc2c3bd142eab8d01ca0b42c03c88ace"
+    },
+    {
+      "path": "packages/portal/test/backend.test.ts",
+      "sha256": "e1e8a5ec7968ac3ab4c4edba27dfceb0262d6554a5c4493755f984667015ff3a"
+    },
+    {
+      "path": "packages/cli/src/figma-page-reader.ts",
+      "sha256": "daeb45dee99dbff9a09cc2f49c7c635c2cd44d310216b6d34782d61008ad5f4a"
+    },
+    {
+      "path": "packages/mcp/src/portal/native-work.ts",
+      "sha256": "d4b50bb1f626ba3b21968cd6872f2ac989e83e511dec0321652b5301d641bbc5"
+    },
+    {
+      "path": "packages/cli/test/figma-page-identity-diagnostics.test.ts",
+      "sha256": "41c0f6bb259be4663d83211cede8218d87d8ab3299e35162d2619a4dca119cdc"
+    },
+    {
+      "path": "packages/mcp/test/portal/source-refresh-diagnostic.test.ts",
+      "sha256": "33353d65bf4e42c8c8e61e0b8908b8325e1ba4fd8f2f52b15df053d70692efd8"
+    }
+  ],
+  "packages": [
+    "cli",
+    "mcp",
+    "portal"
+  ],
+  "ownerIndexHash": "ecc1808ab3e14fa2e8c233ae1fc1c91e0a33b5b2e383a7270f1bc3068997e675",
+  "ownerIndexUnchanged": true,
+  "whole": false,
+  "status": "failed",
+  "results": [
+    {
+      "name": "cli-types",
+      "exitCode": 0,
+      "signal": null,
+      "elapsedMs": 12714,
+      "args": [
+        "-p",
+        "packages/cli/tsconfig.json",
+        "--noEmit",
+        "--incremental",
+        "false"
+      ],
+      "logPath": "C:\\2026_project\\super-figma-pipline\\.worktrees\\baseline\\service\\.cache\\final-statics-aa768484-f79e-4e19-96df-f0877f8a1787\\cli-types.txt",
+      "logSha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b"
+    },
+    {
+      "name": "mcp-types",
+      "exitCode": 0,
+      "signal": null,
+      "elapsedMs": 17363,
+      "args": [
+        "-p",
+        "packages/mcp/tsconfig.json",
+        "--noEmit",
+        "--incremental",
+        "false"
+      ],
+      "logPath": "C:\\2026_project\\super-figma-pipline\\.worktrees\\baseline\\service\\.cache\\final-statics-aa768484-f79e-4e19-96df-f0877f8a1787\\mcp-types.txt",
+      "logSha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b"
+    },
+    {
+      "name": "portal-types",
+      "exitCode": 0,
+      "signal": null,
+      "elapsedMs": 12244,
+      "args": [
+        "-p",
+        "packages/portal/tsconfig.json",
+        "--noEmit",
+        "--incremental",
+        "false"
+      ],
+      "logPath": "C:\\2026_project\\super-figma-pipline\\.worktrees\\baseline\\service\\.cache\\final-statics-aa768484-f79e-4e19-96df-f0877f8a1787\\portal-types.txt",
+      "logSha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b"
+    },
+    {
+      "name": "changed-lint",
+      "exitCode": 1,
+      "signal": null,
+      "elapsedMs": 742,
+      "args": [
+        "--deny-warnings",
+        "packages/portal/src/bridge.ts",
+        "packages/portal/test/backend.test.ts",
+        "packages/cli/src/figma-page-reader.ts",
+        "packages/mcp/src/portal/native-work.ts",
+        "packages/cli/test/figma-page-identity-diagnostics.test.ts",
+        "packages/mcp/test/portal/source-refresh-diagnostic.test.ts"
+      ],
+      "logPath": "C:\\2026_project\\super-figma-pipline\\.worktrees\\baseline\\service\\.cache\\final-statics-aa768484-f79e-4e19-96df-f0877f8a1787\\changed-lint.txt",
+      "logSha256": "eb1a865909621240bc54dd4d0311026864ebf2b418928cfdec53359b19acdf29"
+    },
+    {
+      "name": "changed-format",
+      "exitCode": 0,
+      "signal": null,
+      "elapsedMs": 221,
+      "args": [
+        "--check",
+        "packages/portal/src/bridge.ts",
+        "packages/portal/test/backend.test.ts",
+        "packages/cli/src/figma-page-reader.ts",
+        "packages/mcp/src/portal/native-work.ts",
+        "packages/cli/test/figma-page-identity-diagnostics.test.ts",
+        "packages/mcp/test/portal/source-refresh-diagnostic.test.ts"
+      ],
+      "logPath": "C:\\2026_project\\super-figma-pipline\\.worktrees\\baseline\\service\\.cache\\final-statics-aa768484-f79e-4e19-96df-f0877f8a1787\\changed-format.txt",
+      "logSha256": "00a85b10e5f88979f8b1ad3b0e8a28bd37d41bb53d63545ce4a998281910f3a0"
+    }
+  ]
+}

@@ -1,0 +1,51 @@
+{
+  "version": 1,
+  "files": [
+    {
+      "path": "replacement-continuation.mjs",
+      "sha256": "f7e1fe2532976b3868c27ff6334bffc88f27d271e07f75055a0a59f6a9a3e5b7"
+    },
+    {
+      "path": "inventory-links.mjs",
+      "sha256": "1a5d31373c33a422a7a13a95b0ecd94c54bfcd23ed999d1afdf5e02eef33eeeb"
+    },
+    {
+      "path": "scoped-gates.mjs",
+      "sha256": "bdd7995867aca9f7d2457274ee4debdfa01218f1287d10d2be168c137142b558"
+    }
+  ],
+  "failedParentIntentSha256": "19d0a2b22790ab018440b32a0268eee54cdae2c9d844e81da37a15b6aff2555c",
+  "originalHelperSha256": "1673c7ce4d2a5c689c17fe4e02671bdcc5297a0f5d7cfea405837b81001ba696",
+  "linkClosureSha256": "85a5509942dd317a38b68bb5f45ff7c48c52d0d2ce95da545d9a0055db017a94",
+  "classifiedLinksSha256": "0fd53bac7419f4d5428fb4e388e578503ede7ba20f2696eeba42679c28580aba",
+  "runtimeExecuted": false,
+  "tests": [
+    {
+      "scope": "exact Windows relative directory symbolic-link copy and destination mapping plus regular file bytes; unknown link/raw/identity changes rejected",
+      "passed": 1,
+      "failed": 0,
+      "positiveOnlyRerun": true
+    },
+    {
+      "scope": "failed intent phase/code/replay/new-parent negatives and policy absolute/outside/classification rejection",
+      "passed": 1,
+      "failed": 0,
+      "repeated": false
+    },
+    {
+      "scope": "new classification binding and type/attribute/dev/ino/raw/canonical/partial-set negatives",
+      "passed": 1,
+      "failed": 0,
+      "priorPassedCasesRepeated": false
+    }
+  ],
+  "preservedFailure": "Initial fixture slash expectation differed from Windows readlink separator normalization; actual symlink creation succeeded, fixture fixed, failed positive only rerun",
+  "privacy": "Existing recursive ACL check runs before backup symbolic links are created; mapped link targets stay in the inherited private backup tree",
+  "protection": "Same-owner exact path/hash/link identity guards; no OS sandbox or cross-file atomicity",
+  "readOnlyPreflight": "preflight-stopped-only verifies same failed/stopped/source/grant/link/full-regular inventory boundary before any output mutation; stdout only",
+  "previousFreezeSha256": "d0aa62d0cb60dfb3f22fe8a9ecc2faf01a9e80ddeaf982600d038e05695c411c",
+  "independentCorrections": [
+    "Restore per-file held destination identity plus sync durability after exclusive copy",
+    "Consume exact classified670 Directory SymbolicLink rows and bind raw/dev/ino/canonical hashes"
+  ]
+}

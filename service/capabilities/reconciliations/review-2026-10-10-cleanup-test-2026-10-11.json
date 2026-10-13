@@ -1,0 +1,44 @@
+{
+  "schemaVersion": 1,
+  "slice": "review-2026-10-10",
+  "baseline": {
+    "headCommit": "22517932dc9b2cb974c177ec4eacb84d4b16e254",
+    "authoritySha256": {
+      "upstream-lock.json": "4d075931a3249674241db46aa550bfdb04b3cea1551265f8017e8480b15564b9",
+      "vendor-map.json": "b3275c7d8b997d1cfe723d97594659f77d7b4361b824a790bcfdd7ff762589bd",
+      "vendor-rules.json": "357647c8a49e5da91ac455d384740fe34c7636182d8a5b22a0d78148943af39c"
+    }
+  },
+  "entries": [
+    {
+      "path": "capabilities/task-review-2026-10-10-authority-classes.json",
+      "sha256": "c26bf75a10e04c0f0ea4c4cb11eb0c479d44dcebcb214e8dd31c478bac03f7d6",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "ab5da8f2066cf34976ef4a629bb2420ad324a87577b5cd42bc92aadd7d25890d"
+        },
+        {
+          "class": "protected",
+          "sha256": "ab5da8f2066cf34976ef4a629bb2420ad324a87577b5cd42bc92aadd7d25890d"
+        }
+      ],
+      "reason": "Align the existing cleanup-boundary regression with the deliberately introduced PORTAL_CAPTURE_CLEANUP_UNCONFIRMED error, preserving exact stage, error-cause and private-data redaction checks. The whole run exposed one stale generic-code expectation among 4996 passes; both related files now pass 21 cases. No runtime production change. Preserve failed whole evidence and require a new complete check."
+    },
+    {
+      "path": "packages/mcp/test/portal/capture-session.test.ts",
+      "sha256": "23eb46d6db1489936fdd3eecba375873ca1c999765887c5ee9c5fae25913ed0b",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "3bc8c791787125a50ba561eea40f3b0f60b14df5e3d8edfba159aad553d77a25"
+        },
+        {
+          "class": "protected",
+          "sha256": "3bc8c791787125a50ba561eea40f3b0f60b14df5e3d8edfba159aad553d77a25"
+        }
+      ],
+      "reason": "Align the existing cleanup-boundary regression with the deliberately introduced PORTAL_CAPTURE_CLEANUP_UNCONFIRMED error, preserving exact stage, error-cause and private-data redaction checks. The whole run exposed one stale generic-code expectation among 4996 passes; both related files now pass 21 cases. No runtime production change. Preserve failed whole evidence and require a new complete check."
+    }
+  ]
+}

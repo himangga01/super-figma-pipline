@@ -1,0 +1,97 @@
+{
+  "at": "2026-10-11T14:52:24.725Z",
+  "sourceHash": "sha256:e2f01b851c46d80fa7891b3557a7375e35bdf07c551df4273e65b3cc1590700b",
+  "tests": 5268,
+  "passed": 5239,
+  "failed": 9,
+  "pending": 20,
+  "success": false,
+  "failures": [
+    {
+      "file": "packages/cli/test/browser-session-reconnect.test.ts",
+      "test": "discovers an authorized replacement source page on a retained healthy Chrome connection"
+    },
+    {
+      "file": "packages/cli/test/browser-session.test.ts",
+      "test": "existing Chrome only refreshes only the local view after its source disappears and retains the approved transport"
+    },
+    {
+      "file": "packages/cli/test/browser-session.test.ts",
+      "test": "existing Chrome only does not replace a disappeared source while an acquisition still owns its session"
+    },
+    {
+      "file": "packages/cli/test/browser-session.test.ts",
+      "test": "existing Chrome only preserves cancellation and the supplied connection bound during replacement discovery"
+    },
+    {
+      "file": "packages/cli/test/browser-session.test.ts",
+      "test": "existing Chrome only does not retarget an active source acquisition"
+    },
+    {
+      "file": "test/portal-artifact-startup.test.ts",
+      "test": "packages and starts portal with extracted CLI/MCP and all public web assets without a build or install"
+    },
+    {
+      "file": "test/portal-artifact-startup.test.ts",
+      "test": "rejects a missing web asset despite matching archive/checksum receipts"
+    },
+    {
+      "file": "test/portal-artifact-startup.test.ts",
+      "test": "rejects a CLI archive without the real public ControlClient export"
+    },
+    {
+      "file": "test/test-skip-census.test.ts",
+      "test": "test skip census keeps the required-suite registry in step with the tests that launch Chrome"
+    }
+  ],
+  "artifacts": {
+    "build.txt": {
+      "sha256": "cc68d565c207d7e96351bd2a6c684e70e56d2ffc478930ab712824ba7bbb3aea",
+      "bytes": 6686
+    },
+    "contracts.txt": {
+      "sha256": "e0bfbf48403f68e16703a91e6e46175e37a156e2868b6a047243c43e9c6aee51",
+      "bytes": 53
+    },
+    "format.txt": {
+      "sha256": "f0aa9faaf546eca69ef1a9b4e60d4a8ae315cbf4062acf50f8d084e6a1274754",
+      "bytes": 116
+    },
+    "knip.txt": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "lint.txt": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "report.json": {
+      "sha256": "fe9b5acc47b685c6334dc986653d09176aa814c803decfc8848fa75188aa8d89",
+      "bytes": 1754
+    },
+    "test-ledger.txt": {
+      "sha256": "518becc702773afa8c450f5aecaef1306d35b5df4085c8983927ee3c95342b06",
+      "bytes": 2194
+    },
+    "test-scope.json": {
+      "sha256": "32b5e5feec51e23d8b9dbbbb1bd4054c25a48c1b4cdb2c1d8f9c4904022d54aa",
+      "bytes": 585415
+    },
+    "test-skips.json": {
+      "sha256": "0005620de44c5a9aa1be376afdb4fb60dddf3e0c1e73f58f83d41509be4a4084",
+      "bytes": 4851
+    },
+    "test.txt": {
+      "sha256": "d3cd1a8485cd0efbbcefa095d4dfbeadd1431f735b0510a24456b44b1d2801e2",
+      "bytes": 129294
+    },
+    "typecheck.txt": {
+      "sha256": "d2d95c551cd3d7c9ce656c890d8d76c8bdeccd590679e5521da75dafcecd693d",
+      "bytes": 551
+    },
+    "vitest-report.json": {
+      "sha256": "90915c4abf86733c1a97ea7d33a75461c1ed681d94e09fd799ccea2dcba1144c",
+      "bytes": 1763006
+    }
+  }
+}

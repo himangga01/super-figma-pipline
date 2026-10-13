@@ -1,0 +1,21 @@
+{
+  "schemaVersion": 1,
+  "kind": "normalized-actual-main-preimages-author-freeze-preserved",
+  "authorManifest": {
+    "path": ".worktrees/_cache/c2-c3-implementation-20261014/c3-graph-repair/frozen-test-style-delta-r3.json",
+    "sha256": "ac263e9479138c505cf273682d66957909d21e1e456459e27dedc1d4233352b5"
+  },
+  "actualIntegration": {
+    "path": "docs/testing/2026-10-11-web-portal/c3-test-style-integration-20261014.json",
+    "sha256": "410d9de58971121786688fb2e1159535ca66fa113f2a558ec7837addc89732b0"
+  },
+  "files": [
+    {
+      "path": "packages/mcp/test/portal/react-router-compiler-evidence.test.ts",
+      "beforeSha256": "62fc8c6891ac08a4a24f3672a6991f45fa5514f039a4d07d882102f8949cc4a9",
+      "afterSha256": "684d073c9fb949c15bb2d8cf3621ebc5bdc13581052c858f720fc32da60bbab2",
+      "bytes": 36350
+    }
+  ],
+  "reason": "Final style-only supersession; original functional reports remain preserved and were not rerun"
+}

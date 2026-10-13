@@ -1,0 +1,43 @@
+:root {
+  font:
+    16px/1.6 system-ui,
+    sans-serif;
+  color: #172033;
+  background: #f5f7fb;
+}
+body {
+  margin: 0;
+}
+main {
+  max-width: 700px;
+  margin: 5vh auto;
+  padding: 30px;
+  background: #fff;
+  border: 1px solid #d8dfeb;
+  border-radius: 14px;
+}
+button {
+  font: inherit;
+  padding: 10px 16px;
+  margin: 8px 8px 8px 0;
+  border: 1px solid #bac7dc;
+  border-radius: 8px;
+  cursor: pointer;
+}
+button:disabled {
+  opacity: 0.55;
+  cursor: default;
+}
+a {
+  color: #2445b8;
+}
+#figma-consent-status {
+  padding: 12px;
+  background: #edf2ff;
+}
+@media (max-width: 760px) {
+  main {
+    margin: 12px;
+    padding: 20px;
+  }
+}

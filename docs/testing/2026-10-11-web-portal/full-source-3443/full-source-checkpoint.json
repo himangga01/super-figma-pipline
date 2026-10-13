@@ -1,0 +1,117 @@
+{
+  "recordedAt": "2026-10-11T16:17:03.361Z",
+  "attemptId": "442c1de3-d50c-4b2b-97a8-5d303b71bfb1",
+  "status": "local-source-verified",
+  "source": {
+    "main": "sha256:34438b61c97077cbeed2fbfb3c1ce564ef5176ba3df4506f7d17d0de0874464c",
+    "workingCopy": "sha256:34438b61c97077cbeed2fbfb3c1ce564ef5176ba3df4506f7d17d0de0874464c"
+  },
+  "checks": [
+    {
+      "name": "typecheck",
+      "exitCode": 0,
+      "elapsedMs": 36178
+    },
+    {
+      "name": "lint",
+      "exitCode": 0,
+      "elapsedMs": 1098
+    },
+    {
+      "name": "format",
+      "exitCode": 0,
+      "elapsedMs": 1822
+    },
+    {
+      "name": "knip",
+      "exitCode": 0,
+      "elapsedMs": 6456
+    },
+    {
+      "name": "contracts",
+      "exitCode": 0,
+      "elapsedMs": 1310
+    },
+    {
+      "name": "build",
+      "exitCode": 0,
+      "elapsedMs": 6791
+    },
+    {
+      "name": "test",
+      "exitCode": 0,
+      "elapsedMs": 1193981
+    },
+    {
+      "name": "test-ledger",
+      "exitCode": 0,
+      "elapsedMs": 908
+    },
+    {
+      "name": "provenance",
+      "exitCode": 0,
+      "elapsedMs": 503
+    },
+    {
+      "name": "graph-memory",
+      "exitCode": 0,
+      "elapsedMs": 3226
+    },
+    {
+      "name": "sbom",
+      "exitCode": 0,
+      "elapsedMs": 804
+    },
+    {
+      "name": "notices",
+      "exitCode": 0,
+      "elapsedMs": 930
+    },
+    {
+      "name": "package",
+      "exitCode": 0,
+      "elapsedMs": 2481
+    },
+    {
+      "name": "checksums",
+      "exitCode": 0,
+      "elapsedMs": 84
+    },
+    {
+      "name": "artifacts",
+      "exitCode": 0,
+      "elapsedMs": 4807
+    },
+    {
+      "name": "isolated-runtime",
+      "exitCode": 0,
+      "elapsedMs": 18127
+    }
+  ],
+  "tests": {
+    "files": 460,
+    "total": 5303,
+    "passed": 5283,
+    "failed": 0,
+    "skipped": 20
+  },
+  "requiredChrome": {
+    "files": 13,
+    "tests": 99,
+    "passed": 99,
+    "skipped": 0
+  },
+  "skipCensus": {
+    "allowedSuites": [],
+    "blockedSuites": [],
+    "sameNamesAsPreviousFailedRun": true
+  },
+  "knownDefects": {
+    "ledger": "test/known-failures.json",
+    "total": 0,
+    "byOwner": {}
+  },
+  "realFigmaValidated": false,
+  "targetServiceValidated": false,
+  "remoteCiValidated": false
+}

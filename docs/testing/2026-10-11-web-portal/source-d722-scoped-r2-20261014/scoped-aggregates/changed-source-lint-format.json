@@ -1,0 +1,19 @@
+{
+  "schemaVersion": 1,
+  "name": "changed-source-lint-format",
+  "releaseId": "1fb30463-ea9c-446d-88fe-bd750b6c28d6",
+  "finalSourceHash": "sha256:d722c32152149464c961c660622a95e3da603eb00f291e28b15c024507bcd87d",
+  "status": "passed",
+  "sourceBinding": "reviewed-exact-files",
+  "evidence": {
+    "receipt": {
+      "path": ".worktrees/_cache/final-scoped-publication-preparation-20261014/final-static-aggregate-d722-r2-20261014.json",
+      "sha256": "ca61b6fdf29c9a266d1e040de9679bbb8fb7e3c63b2b51627831794851dd5d09"
+    },
+    "scope": "Actual selected lint/format command scopes with exact current file identities and explicit historical supersessions; failed batches remain failed; no whole repository rerun"
+  },
+  "ownerEcommerce": "skipped",
+  "officialMcpLive": "deferred",
+  "wholePassed": false,
+  "liveAcceptance": false
+}

@@ -89,6 +89,7 @@ describe('normalizeIdArgs', () => {
       variableId: 'VariableID:1:23',
       componentKey: 'a1b2c3d4',
       propertyId: 'Show Icon#12:5',
+      sourceId: '1-2',
     };
     expect(normalizeIdArgs(args)).toBe(args); // untouched, same reference
   });
@@ -125,6 +126,7 @@ describe('normalizeIdArgs', () => {
       'runId', // signed portal run identity
       'leaseId', // session-bound portal coding lease
       'profileId', // owner-reviewed native execution profile
+      'sourceId', // source inventory identity, not a Figma canvas node
       'assetIds', // numeric indices in a captured portal asset manifest
     ]);
     const covered = new Set<string>([...STRING_ID_FIELDS, 'nodeIds']);

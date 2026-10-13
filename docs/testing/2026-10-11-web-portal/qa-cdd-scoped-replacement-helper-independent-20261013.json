@@ -1,0 +1,173 @@
+{
+  "schema": "qa-cdd-scoped-helper-independent.v2",
+  "closedAt": "2026-10-13T12:26:22.128Z",
+  "decision": "conditionally-approved-exact-r2-helper-logic",
+  "frozenManifestSha256": "94ee1aa8da146d7788f66f3fa88038c7fdfb2921862ffcf9ba53cc53e55e5317",
+  "runtimeManifestSha256": "320c8665018aefbe2bce26358bad52feb5df5dad041dfc257def5c69d2618164",
+  "runtimeFiles": [
+    {
+      "path": "replacement.mjs",
+      "sha256": "37530db9f512867e1d052be7e7047389d2a47d2076bdd03e52a76c23fcbb79fa"
+    },
+    {
+      "path": "scoped-gates.mjs",
+      "sha256": "f93e46ea20abb0a86c850ce9c92a7eecf9cb1f57cbcf9deeaf62e600821da06c"
+    },
+    {
+      "path": "start-owned.ps1",
+      "sha256": "8776cbe2943e7f770d4eabc47b5cb39cdbde0b0b0f0696b84f4493213e3e4111"
+    },
+    {
+      "path": "stop-owned.ps1",
+      "sha256": "0b5a4472a73f753f9cd1188b6364ee01f9d149f01064a9571b2b8bfd0972ffc1"
+    },
+    {
+      "path": "current-retained-state-private.json",
+      "sha256": "102c67a0c0c0812ec77a909360e9ef0d95cc275d13448e55fc7cf692088657d8"
+    }
+  ],
+  "blockingFindings": [],
+  "preservedR1": {
+    "schema": "qa-cdd-scoped-helper-independent.v1",
+    "recordedAt": "2026-10-13T12:24:37.996Z",
+    "decision": "rejected-r1-awaiting-current-runtime-binding-r2",
+    "frozenManifestSha256": "f351ef767fafc65797057ca1c3228cd4e4a5fd5259f0a993f1f49b60a0e76f85",
+    "runtimeManifestSha256": "62db2f9bf98719295cb14de6b6555e62719fac368bda3a7ad8de9ed4a523b966",
+    "runtimeFiles": [
+      {
+        "path": "replacement.mjs",
+        "sha256": "8b0ba6a7bf5fe043d8eeb41a8050f7be11f3004eefe943d68bf17b153ea92aac"
+      },
+      {
+        "path": "scoped-gates.mjs",
+        "sha256": "f93e46ea20abb0a86c850ce9c92a7eecf9cb1f57cbcf9deeaf62e600821da06c"
+      },
+      {
+        "path": "start-owned.ps1",
+        "sha256": "8776cbe2943e7f770d4eabc47b5cb39cdbde0b0b0f0696b84f4493213e3e4111"
+      },
+      {
+        "path": "stop-owned.ps1",
+        "sha256": "0b5a4472a73f753f9cd1188b6364ee01f9d149f01064a9571b2b8bfd0972ffc1"
+      },
+      {
+        "path": "current-retained-state-private.json",
+        "sha256": "102c67a0c0c0812ec77a909360e9ef0d95cc275d13448e55fc7cf692088657d8"
+      }
+    ],
+    "blockingFindings": [
+      {
+        "code": "CURRENT_OLD_RUNTIME_BINDING_REQUIRED",
+        "summary": "Old clientRead records status without expected-build comparison. Pinned historical runtime.json is a476 evidence, not the current 303d release. Pin the exact current replacement receipt and assert its source/build/parent tuples against observed old status before stopping."
+      }
+    ],
+    "controllerSuppliedCurrentReceipt": {
+      "sha256": "ac666d68e197558da77471fe73eb64a49086ea6cfb1274402d9276264afe69bd",
+      "sourceHash": "sha256:303de5d1904d11c1fb89bdf80951900e375ac4325ea6cfc932f39ebee2785732",
+      "buildId": 1791202532000,
+      "buildIdentityHash": "sha256:ff198de511a397495e98379c2f241bedf0332d6d7ba85c2a8c6bca3468465187",
+      "independentlyReadFromQa": false
+    },
+    "verification": {
+      "command": "node --test changed-retention.test.mjs",
+      "workingDirectory": ".worktrees/_cache/qa-cdd-helper-independent-20261013/fixture",
+      "tests": 8,
+      "passed": 8,
+      "failed": 0,
+      "cancelled": 0,
+      "skipped": 0,
+      "exitCode": 0,
+      "durationMs": 171.4093,
+      "testSha256": "fbfef72bc3ed1e4bd0834f35a46422e9902dee8e63ecbff3aca9412a9fc600d7",
+      "fixtureAdjustment": "Only TOOL constant redirects immutable baseline reads into this regular owned fixture directory; no runtime algorithm changes. Original five runtime hashes verified independently.",
+      "fixtureOriginalReplacementSha256": "8b0ba6a7bf5fe043d8eeb41a8050f7be11f3004eefe943d68bf17b153ea92aac",
+      "fixtureRedirectedReplacementSha256": "96ea3c819cfc9d606199e1143824735c76c95285b9d70f3889f3de31e25349ff"
+    },
+    "retainedCounts": {
+      "portalRuns": 12,
+      "workflows": 8,
+      "coreRuns": 11,
+      "unknownJobs": 2,
+      "retiredNativeAttempts": 2
+    },
+    "oldQaParents": [
+      {
+        "pid": 31832,
+        "startedAt": 1791878320636,
+        "port": 3059
+      },
+      {
+        "pid": 22000,
+        "startedAt": 1791878388334,
+        "port": 4315
+      }
+    ],
+    "protectedSurfaces": {
+      "primaryDaemonPid": 7460,
+      "primaryPortalPid": 27636,
+      "sourceChromePid": 2072,
+      "retainedChromePid": 9932
+    },
+    "limits": {
+      "noHelperMode": true,
+      "noSealOrConfiguration": true,
+      "noPreflight": true,
+      "noIntentOrStoppedBackup": true,
+      "noLiveReadsOrWrites": true,
+      "noChromeOrGrantChanges": true,
+      "noFullSuite": true,
+      "noDeployment": true,
+      "noLiveAcceptance": true,
+      "sameOwnerWindowsIsNotOsSandbox": true,
+      "finalGatesPending": true
+    },
+    "indexSha256": "ecc1808ab3e14fa2e8c233ae1fc1c91e0a33b5b2e383a7270f1bc3068997e675"
+  },
+  "currentRuntimeBinding": {
+    "receiptSha256": "ac666d68e197558da77471fe73eb64a49086ea6cfb1274402d9276264afe69bd",
+    "expectedSourceHash": "sha256:303de5d1904d11c1fb89bdf80951900e375ac4325ea6cfc932f39ebee2785732",
+    "expectedBuildId": 1791202532000,
+    "expectedBuildIdentityHash": "sha256:ff198de511a397495e98379c2f241bedf0332d6d7ba85c2a8c6bca3468465187",
+    "implementedPrivateReceiptAndObservedStatusCheck": true,
+    "actualPreflightNotExecutedByReviewer": true
+  },
+  "verification": {
+    "r1ChangedCasesPassed": 8,
+    "r1CohortNotRepeatedForR2": true,
+    "r2Command": "node --test old-build-r2.test.mjs",
+    "r2ChangedCasesPassed": 1,
+    "r2Failed": 0,
+    "r2Cancelled": 0,
+    "r2Skipped": 0,
+    "r2ExitCode": 0,
+    "r2DurationMs": 71.8042,
+    "r2RawOutputSha256": "d713fc2a4865c0d1aedd3907e0e9fc92fbd2e4585ced0cf8893fce4e7e1b776a",
+    "r2TestSourceSha256": "3e6304d723d8a99db0a0ba034ce8a847dcc4ef9e8bf6ffdae6b47e7460c594dc",
+    "fixtureAdjustment": "Only TOOL constant redirects immutable baseline read to regular owned R2 fixture; no validation algorithm change.",
+    "fixtureOriginalReplacementSha256": "37530db9f512867e1d052be7e7047389d2a47d2076bdd03e52a76c23fcbb79fa",
+    "fixtureRedirectedReplacementSha256": "608529595ddd7e713b55e09bde092ba236579e60e1f4525f3e2ea4b860c18982",
+    "verifiedFrozenMembersAtClose": 14
+  },
+  "conditions": [
+    "Root binds actual final selected source/report/check receipts/build/archive/artifact evidence; no whole pass is fabricated or required.",
+    "Sole controller freshly observes and seals the same-state actual grant, publishes an approved immutable configuration and performs exact physical/authenticated preflight.",
+    "The exact current old receipt/source/build/process cohort must pass; historical a476 receipt remains preservation-only.",
+    "Execution uses one exclusive new intent, confirmed stopped-state immutable backup and all new listener/source/build/retention postchecks.",
+    "Original candidates, unknowns, native retirement records, grants and expired 21:11:52.593 KST CDD deadline stay preserved; fresh ordinary profiles/context only."
+  ],
+  "limits": {
+    "noHelperMode": true,
+    "noSealOrConfiguration": true,
+    "noPreflight": true,
+    "noIntentOrStoppedBackup": true,
+    "noLiveReadsOrWrites": true,
+    "noChromeOrGrantChanges": true,
+    "noFullSuite": true,
+    "noDeployment": true,
+    "noLiveAcceptance": true,
+    "noSecretValuesOrPrivateHandlesPublished": true,
+    "sameOwnerWindowsIsNotOsSandbox": true,
+    "actualFinalGateInputsNotCertifiedByReviewer": true
+  },
+  "indexSha256": "ecc1808ab3e14fa2e8c233ae1fc1c91e0a33b5b2e383a7270f1bc3068997e675"
+}

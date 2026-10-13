@@ -1,0 +1,167 @@
+{
+  "schemaVersion": 1,
+  "slice": "review-2026-10-10",
+  "baseline": {
+    "headCommit": "22517932dc9b2cb974c177ec4eacb84d4b16e254",
+    "authoritySha256": {
+      "upstream-lock.json": "8cd20321548bcfd1170c0ee26f5807f175e4ea64bbdee70fbb7db3ad4db0fc03",
+      "vendor-map.json": "b3275c7d8b997d1cfe723d97594659f77d7b4361b824a790bcfdd7ff762589bd",
+      "vendor-rules.json": "5e6bfd983fa59422327387b905f770437162802f7576e2fbc31e250931f6920b"
+    }
+  },
+  "entries": [
+    {
+      "path": "capabilities/task-review-2026-10-10-authority-classes.json",
+      "sha256": "9efc2ff51ab0c5eefa2df559210f67a29fcb6333d1444324ded96f088766c935",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "d5b873e3d65668f49dfe13f30fee190ae273b6db2d45377def3fd92399f5c46a"
+        },
+        {
+          "class": "protected",
+          "sha256": "d5b873e3d65668f49dfe13f30fee190ae273b6db2d45377def3fd92399f5c46a"
+        }
+      ],
+      "reason": "Integrate independently reviewed R60 compiler observation compatibility, atomic No-Core pre-dispatch recovery, R65 protected type-only route resolution, and consistent existing preview navigation budgets. Update only the derived diagnostic label catalog. Preserve byte/source/issuer guards, runtime-import denial, original deadlines, unknown outcomes and the owner index. Actual graph, live recovery and frontend acceptance remain unproven; no whole rerun."
+    },
+    {
+      "path": "packages/mcp/src/diagnostics-catalog.ts",
+      "sha256": "4c4d0ba72588b0e8ba25e3fbfd12eac8e5a31006ce8ff0a0b6bb48de2bef197e",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "e3d89bb25c38af68554d1d2a04ca441161ce83ad8d3c2addda8e8553e9ddc405"
+        },
+        {
+          "class": "protected",
+          "sha256": "e3d89bb25c38af68554d1d2a04ca441161ce83ad8d3c2addda8e8553e9ddc405"
+        }
+      ],
+      "reason": "Integrate independently reviewed R60 compiler observation compatibility, atomic No-Core pre-dispatch recovery, R65 protected type-only route resolution, and consistent existing preview navigation budgets. Update only the derived diagnostic label catalog. Preserve byte/source/issuer guards, runtime-import denial, original deadlines, unknown outcomes and the owner index. Actual graph, live recovery and frontend acceptance remain unproven; no whole rerun."
+    },
+    {
+      "path": "packages/mcp/src/portal/module-resolution.ts",
+      "sha256": "2358e3d2fa16b28d086c600e1b947c3da579ff1f7485cb93649024c8b0dd85ef",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "0eba03f98f2c48c2ee299bcbf708ce1111b8b40f28d6300aaff5d88ed0c25f70"
+        },
+        {
+          "class": "protected",
+          "sha256": "0eba03f98f2c48c2ee299bcbf708ce1111b8b40f28d6300aaff5d88ed0c25f70"
+        }
+      ],
+      "reason": "Integrate independently reviewed R60 compiler observation compatibility, atomic No-Core pre-dispatch recovery, R65 protected type-only route resolution, and consistent existing preview navigation budgets. Update only the derived diagnostic label catalog. Preserve byte/source/issuer guards, runtime-import denial, original deadlines, unknown outcomes and the owner index. Actual graph, live recovery and frontend acceptance remain unproven; no whole rerun."
+    },
+    {
+      "path": "packages/mcp/src/portal/preview.ts",
+      "sha256": "58eac8fb765ed34799d86a431fb7cef39131bcbd5870b97d076b81d76f158f37",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "55f5d5be1af3fd79ba47ce452044b4542a6b0d958bf965c5d0072ea07e371718"
+        },
+        {
+          "class": "protected",
+          "sha256": "55f5d5be1af3fd79ba47ce452044b4542a6b0d958bf965c5d0072ea07e371718"
+        }
+      ],
+      "reason": "Integrate independently reviewed R60 compiler observation compatibility, atomic No-Core pre-dispatch recovery, R65 protected type-only route resolution, and consistent existing preview navigation budgets. Update only the derived diagnostic label catalog. Preserve byte/source/issuer guards, runtime-import denial, original deadlines, unknown outcomes and the owner index. Actual graph, live recovery and frontend acceptance remain unproven; no whole rerun."
+    },
+    {
+      "path": "packages/mcp/src/portal/react-router-compiler-evidence.ts",
+      "sha256": "44b1952686603dd056faea33803c65a985e7b41230b5b04ad434ab69ac2065c8",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "595f0ec5810511d63948c02265a347a15169ff62b9b00344fd69edb53f3a5bea"
+        },
+        {
+          "class": "protected",
+          "sha256": "595f0ec5810511d63948c02265a347a15169ff62b9b00344fd69edb53f3a5bea"
+        }
+      ],
+      "reason": "Integrate independently reviewed R60 compiler observation compatibility, atomic No-Core pre-dispatch recovery, R65 protected type-only route resolution, and consistent existing preview navigation budgets. Update only the derived diagnostic label catalog. Preserve byte/source/issuer guards, runtime-import denial, original deadlines, unknown outcomes and the owner index. Actual graph, live recovery and frontend acceptance remain unproven; no whole rerun."
+    },
+    {
+      "path": "packages/mcp/test/portal/module-resolution.test.ts",
+      "sha256": "fab4f3b951e951342c2c39cba72e6264226acc8ed30b295282678419f0e436c6",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "ca7de6c9afc1c6018e9a1762d95d45e42d5e5f8b86b11f936a96a8e4355418ed"
+        },
+        {
+          "class": "protected",
+          "sha256": "ca7de6c9afc1c6018e9a1762d95d45e42d5e5f8b86b11f936a96a8e4355418ed"
+        }
+      ],
+      "reason": "Integrate independently reviewed R60 compiler observation compatibility, atomic No-Core pre-dispatch recovery, R65 protected type-only route resolution, and consistent existing preview navigation budgets. Update only the derived diagnostic label catalog. Preserve byte/source/issuer guards, runtime-import denial, original deadlines, unknown outcomes and the owner index. Actual graph, live recovery and frontend acceptance remain unproven; no whole rerun."
+    },
+    {
+      "path": "packages/mcp/test/portal/preview-interactions.test.ts",
+      "sha256": "da7dbb42c129bf1408331e71cdf8e13a2a971bea0abe5530fc50e7a1ab68ef0d",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "bbe858504b334bb8ebcd88d1c866d9e6d0c3e08aad6f8f77e7e8ae16d9f60125"
+        },
+        {
+          "class": "protected",
+          "sha256": "bbe858504b334bb8ebcd88d1c866d9e6d0c3e08aad6f8f77e7e8ae16d9f60125"
+        }
+      ],
+      "reason": "Integrate independently reviewed R60 compiler observation compatibility, atomic No-Core pre-dispatch recovery, R65 protected type-only route resolution, and consistent existing preview navigation budgets. Update only the derived diagnostic label catalog. Preserve byte/source/issuer guards, runtime-import denial, original deadlines, unknown outcomes and the owner index. Actual graph, live recovery and frontend acceptance remain unproven; no whole rerun."
+    },
+    {
+      "path": "packages/mcp/test/portal/react-router-compiler-evidence.test.ts",
+      "sha256": "fb2ef781c20c20d1f2b5ee5148448239829188a8b05f3c18fd6c0f4d982305f8",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "6d9d2266ad1c33c6f8f5274403d32e606f3ca0c9985d0f8a7f9d196fc3222025"
+        },
+        {
+          "class": "protected",
+          "sha256": "6d9d2266ad1c33c6f8f5274403d32e606f3ca0c9985d0f8a7f9d196fc3222025"
+        }
+      ],
+      "reason": "Integrate independently reviewed R60 compiler observation compatibility, atomic No-Core pre-dispatch recovery, R65 protected type-only route resolution, and consistent existing preview navigation budgets. Update only the derived diagnostic label catalog. Preserve byte/source/issuer guards, runtime-import denial, original deadlines, unknown outcomes and the owner index. Actual graph, live recovery and frontend acceptance remain unproven; no whole rerun."
+    },
+    {
+      "path": "packages/portal/package.json",
+      "sha256": "ddb99eafe979d2319697f9bde91d01c4b3f4cf7f3e2a2baccfcb06ceff7767c8",
+      "priorClaims": [
+        {
+          "class": "protected",
+          "sha256": "ddb99eafe979d2319697f9bde91d01c4b3f4cf7f3e2a2baccfcb06ceff7767c8"
+        }
+      ],
+      "reason": "Integrate independently reviewed R60 compiler observation compatibility, atomic No-Core pre-dispatch recovery, R65 protected type-only route resolution, and consistent existing preview navigation budgets. Update only the derived diagnostic label catalog. Preserve byte/source/issuer guards, runtime-import denial, original deadlines, unknown outcomes and the owner index. Actual graph, live recovery and frontend acceptance remain unproven; no whole rerun."
+    },
+    {
+      "path": "packages/portal/src/bridge.ts",
+      "sha256": "ab7008aea8646ade1eff75bb03b5e5c755656662e815dc1775185528ea94b9e2",
+      "priorClaims": [
+        {
+          "class": "protected",
+          "sha256": "5e729885279e81964144f450c59fd56747282541d0ad90d2a76b6f5ac93ce5b2"
+        }
+      ],
+      "reason": "Integrate independently reviewed R60 compiler observation compatibility, atomic No-Core pre-dispatch recovery, R65 protected type-only route resolution, and consistent existing preview navigation budgets. Update only the derived diagnostic label catalog. Preserve byte/source/issuer guards, runtime-import denial, original deadlines, unknown outcomes and the owner index. Actual graph, live recovery and frontend acceptance remain unproven; no whole rerun."
+    },
+    {
+      "path": "packages/portal/test/backend.test.ts",
+      "sha256": "2b47f7e3c843b47cb19ea4eb20038de330c90d80602c58499842e62d116538ac",
+      "priorClaims": [
+        {
+          "class": "protected",
+          "sha256": "e788e7330434cadbc28bad0179b5fe7dfa7fa57bfc0a80501406280d1cc7355a"
+        }
+      ],
+      "reason": "Integrate independently reviewed R60 compiler observation compatibility, atomic No-Core pre-dispatch recovery, R65 protected type-only route resolution, and consistent existing preview navigation budgets. Update only the derived diagnostic label catalog. Preserve byte/source/issuer guards, runtime-import denial, original deadlines, unknown outcomes and the owner index. Actual graph, live recovery and frontend acceptance remain unproven; no whole rerun."
+    }
+  ]
+}

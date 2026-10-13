@@ -1,0 +1,46 @@
+{
+  "schemaVersion": 1,
+  "at": "2026-10-13T22:59:46.565Z",
+  "kind": "generated-route-alias-runtime-guard-r70-provenance-sync",
+  "sourceHash": "sha256:e96f37b95100645fcfbb8317683c655556219ef920d8c8adf85968914cb2b0f5",
+  "entries": [
+    {
+      "path": "upstream-lock.json",
+      "beforeHash": "fb1633f070644eda257eba18b0a0a64e6792adb990d00ab5f3af0323633dbef8",
+      "afterHash": "3a7722ec81908d05333da8be36e65dfe57d1b4d7de36050977acf2545cd8545d"
+    },
+    {
+      "path": "vendor-map.json",
+      "beforeHash": "b3275c7d8b997d1cfe723d97594659f77d7b4361b824a790bcfdd7ff762589bd",
+      "afterHash": "b3275c7d8b997d1cfe723d97594659f77d7b4361b824a790bcfdd7ff762589bd"
+    },
+    {
+      "path": "vendor-rules.json",
+      "beforeHash": "ec7cb8664658230799f79eaf9bf7a7a3f3fb2b3f21560c21e79af97d2adf0de9",
+      "afterHash": "fa6e5bc16fdad481c00d2364b8af21413d96d001b496604ef5fb25c585e1be28"
+    },
+    {
+      "path": "capabilities/change-manifests/task-review-2026-10-10.json",
+      "beforeHash": "98d477aa65bf822ec5138a355a6456958b451a5e9496db1824b1e58f480a2536",
+      "afterHash": "829f4c366e12739c48eb077a7c8d47f359ff12e262601dee4a95867c552e65b8"
+    },
+    {
+      "path": "capabilities/task-review-2026-10-10-authority-classes.json",
+      "beforeHash": "21692da126ade2ab0cde2588d3dcd232e2d5d11b80466f4c60a18e346fd00e88",
+      "afterHash": "f481c63a4f04085161d77684eb47eab750f5ca80b0d679769f180187936cfb6d"
+    },
+    {
+      "path": "capabilities/reconciliations/review-2026-10-10-generated-route-alias-guard-2026-10-14.json",
+      "beforeHash": null,
+      "afterHash": "938f775233ca0036376ddc8b526fae65cbad585243d89d5944897961351ef3fa"
+    }
+  ],
+  "shadowIndex": ".worktrees/baseline/service/.cache/review-20261014-r70.index",
+  "semanticChanges": 287,
+  "derivedAuthorities": 4,
+  "ownerIndexHash": "ecc1808ab3e14fa2e8c233ae1fc1c91e0a33b5b2e383a7270f1bc3068997e675",
+  "ownerIndexUnchanged": true,
+  "whole": false,
+  "runtimeReplaced": false,
+  "liveAcceptance": false
+}

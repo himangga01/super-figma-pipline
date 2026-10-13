@@ -1,0 +1,18 @@
+{
+  "recordedAt": "2026-10-13T02:35:24.971Z",
+  "path": "service/packages/portal/README.md",
+  "before": "3947ca88ee66de2ad68a95f1fe593162c22c508b928c4a786d9a76d7e80695a3",
+  "after": "bd2ad737feb715337a0d5318230bb114df10c610dfbdad542843a3c31eba126f",
+  "sourceCounts": {
+    "mcpTools": 129,
+    "cliFeatures": 65
+  },
+  "manifestHash": "4ebd28b2535211b8b70f1768af2f37fbb9a8316841cb210ee7482d8399bc1b6a",
+  "sourceSchemaChecks": 1,
+  "documentedJsonChecks": 1,
+  "actualRepositoryFormatting": true,
+  "runtimeDeployment": false,
+  "completeJourneys": 0,
+  "officialLive": "owner-deferred",
+  "c2InventoryRefreshPending": true
+}

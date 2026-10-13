@@ -1,0 +1,58 @@
+{
+  "version": 1,
+  "at": "2026-10-13T07:28:47.794Z",
+  "sourceHash": "sha256:47df7f52577b5ec4dd2a232205cfbef9021aa9306d8873543e40d6eb046e446c",
+  "entries": [
+    {
+      "path": "upstream-lock.json",
+      "before": "1ecd46c69314cfdece8f406ebd2e589de5a587c7c419762010570671bdbeecd4",
+      "after": "e28fba5add7d99cb0d77c778d798b0c01cf89b167158a42d6276cf55f51750b1"
+    },
+    {
+      "path": "vendor-map.json",
+      "before": "b3275c7d8b997d1cfe723d97594659f77d7b4361b824a790bcfdd7ff762589bd",
+      "after": "b3275c7d8b997d1cfe723d97594659f77d7b4361b824a790bcfdd7ff762589bd"
+    },
+    {
+      "path": "vendor-rules.json",
+      "before": "de6e56d726ed51a2c3048ec4a03e5d149c08ee086fc5c1dd3fe32d62f306bff3",
+      "after": "1e8434cafb6793bc19010b1f75cb7669ee20b77151ada4e32a9bb1a0ff8bf15d"
+    },
+    {
+      "path": "capabilities/change-manifests/task-review-2026-10-10.json",
+      "before": "b4c8a42d124b9d1d31c115b8bf513fd0a81282fb1ee83aca993e52e37afb372a",
+      "after": "bbea1a589a178ef8bb5ce9f4d640811ca4ee834e4590e2f7d34a180c2d2caa45"
+    },
+    {
+      "path": "capabilities/task-review-2026-10-10-authority-classes.json",
+      "before": "dc8caf41414e3ec1366deba984247a444a0c4ee296d06ef8864f545916696c85",
+      "after": "b3460371b2399fe7949d2b740c796af41d98e73202f9144cb72fdfc7f7177799"
+    },
+    {
+      "path": "capabilities/reconciliations/review-2026-10-10-fast-reviewed-35-2026-10-13.json",
+      "before": null,
+      "after": "dbb1ab47f6b207559c10c2fdb919d9eddd666e38eb93ace106fe64b34f39ce13"
+    }
+  ],
+  "semanticChanges": 270,
+  "derivedAuthorities": 4,
+  "ownerIndexBaseline": "ecc1808ab3e14fa2e8c233ae1fc1c91e0a33b5b2e383a7270f1bc3068997e675",
+  "ownerIndexUnchangedByReconciliation": true,
+  "independentPrecision": {
+    "passed": 56,
+    "failed": 0,
+    "unchangedPlatformSkip": 1
+  },
+  "independentC2": {
+    "revised": 105,
+    "observer": 4,
+    "http": 8,
+    "failed": 0,
+    "skipped": 0
+  },
+  "wholeRerun": false,
+  "portalJourneys": 1,
+  "wholePassed": false,
+  "runtimeReplaced": false,
+  "officialLive": "deferred-by-owner"
+}

@@ -1,0 +1,86 @@
+{
+  "schemaVersion": 1,
+  "kind": "sanitized-original-test-report-summary",
+  "originalPath": ".worktrees/_cache/c2-c3-implementation-20261014/c2-package-config-members-repair-r1/changed-package-member-positive-r2.json",
+  "originalSha256": "28c96c3fa425fafc1dd9ff511a01d7661f98a9d1f65d6433df0312f82658e4b2",
+  "originalSuccess": true,
+  "numTotalTests": 18,
+  "numPassedTests": 1,
+  "numFailedTests": 0,
+  "numPendingTests": 17,
+  "assertions": [
+    {
+      "name": "binds admitted package configurations as configuration members without changing source inventory",
+      "status": "passed"
+    },
+    {
+      "name": "denies unadmitted changed-source changed-inventory and changed-byte package configurations",
+      "status": "skipped"
+    },
+    {
+      "name": "requires explicit package config admission and binds captured configs without expanding source inventory",
+      "status": "skipped"
+    },
+    {
+      "name": "keeps binary files with semantic extensions out of text evidence",
+      "status": "skipped"
+    },
+    {
+      "name": "binds every nonexcluded source byte independently of semantic parse coverage",
+      "status": "skipped"
+    },
+    {
+      "name": "records Git, dependency, runtime and credential exclusions without opening their content",
+      "status": "skipped"
+    },
+    {
+      "name": "never treats truncated source coverage as a reviewable lexical warning",
+      "status": "skipped"
+    },
+    {
+      "name": "finds frontend, real server routes, data/auth dependencies and migrations across a monorepo",
+      "status": "skipped"
+    },
+    {
+      "name": "consumes resolved source modules and configuration as cross-service dependency evidence",
+      "status": "skipped"
+    },
+    {
+      "name": "never promotes a dynamic module or declared external package into resolved local completeness",
+      "status": "skipped"
+    },
+    {
+      "name": "connects explicit local dependency targets without linking a same-name workspace fixture",
+      "status": "skipped"
+    },
+    {
+      "name": "retains graph diagnostic loss state with 512 lexical source files",
+      "status": "skipped"
+    },
+    {
+      "name": "retains graph diagnostic loss state with 513 lexical source files",
+      "status": "skipped"
+    },
+    {
+      "name": "assigns one-character service roots and deeper children before the whole-root fallback",
+      "status": "skipped"
+    },
+    {
+      "name": "decodes a UTF-8 BOM tolerantly while binding and comparing the raw bytes (SA-3)",
+      "status": "skipped"
+    },
+    {
+      "name": "reports an import of an excluded generated-output or credential input as an explicit issue (SVC-8)",
+      "status": "skipped"
+    },
+    {
+      "name": "aggregates connection evidence rows per service, module key and kind (SA-2)",
+      "status": "skipped"
+    },
+    {
+      "name": "retains a native reference Dockerfile as configuration without treating it as unsupported executable source",
+      "status": "skipped"
+    }
+  ],
+  "limits": "Original raw report remains local-only; stacks/source snippets/actor-state omitted. Summary cannot issue authority or convert a failed full report to pass."
+}

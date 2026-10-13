@@ -1,0 +1,29 @@
+{
+  "at": "2026-10-12T01:20:03.573Z",
+  "sourceHash": "sha256:f0dc149a95da3bc7f8e52aecb094362d6e0166ae69e4ba29946a393e90f220c8",
+  "sameChromePid": 9932,
+  "sameTab": true,
+  "origin": "http://127.0.0.1:4310",
+  "jobs": [
+    {
+      "id": "c6b19ac1-c233-437d-8ce8-35607d5284f1",
+      "status": "succeeded",
+      "errorCode": null,
+      "bytes": 247,
+      "outputHash": "sha256:a385bd5adaf642a187f71b0c5a0942f9bb54a32b28decdae507a15127172475c",
+      "elapsedMs": 731
+    },
+    {
+      "id": "9b1d92c9-deed-4f41-a70d-b6ed12d0a739",
+      "status": "succeeded",
+      "errorCode": null,
+      "bytes": 247,
+      "outputHash": "sha256:a385bd5adaf642a187f71b0c5a0942f9bb54a32b28decdae507a15127172475c",
+      "elapsedMs": 743
+    }
+  ],
+  "passed": true,
+  "serviceAvailable": true,
+  "privateEvidenceFolder": ".worktrees/_cache/primary-restart-20261012/chrome-1791768002640",
+  "fullFigmaAcceptance": false
+}

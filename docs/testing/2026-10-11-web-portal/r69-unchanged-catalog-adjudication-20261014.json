@@ -1,0 +1,24 @@
+{
+  "schemaVersion": 1,
+  "at": "2026-10-13T21:20:44.675Z",
+  "kind": "read-only-adjudication-of-normal-unchanged-diagnostic-generation",
+  "status": "verified-no-semantic-source-change",
+  "sourceHash": "sha256:1790a1dc140343d8f0982ff5a83083cdbea99834f21f20ed88c5d95e17e006f3",
+  "catalogSha256": "19ab236e3e969996da9b49dbd75c72bc7535f73c636113a2dc7a4aefde241753",
+  "ownerIndexHash": "ecc1808ab3e14fa2e8c233ae1fc1c91e0a33b5b2e383a7270f1bc3068997e675",
+  "originalFailedReceiptSha256": "d0b7054c7aa9276038b7396f9679e9e787f1f46915be475c5eef5cdc8bf04671",
+  "generatorCommand": {
+    "exitCode": 0,
+    "elapsedMs": 4178,
+    "logSha256": "a19a6d7c9b30bd6b925c2c2e90e4d42e361986c5107ac795addbe5641d1a3d49",
+    "summary": "Updated diagnostics catalog (1982 codes, 464 modules, 339 labels)"
+  },
+  "generatorReexecuted": false,
+  "mainWrites": 0,
+  "nativeGeneratorPreviouslyWroteIdenticalBytes": true,
+  "code": "ROOT_CHANGED_HASH_ASSUMPTION_WAS_TOO_STRICT",
+  "reason": "The normal generator collects quoted code labels. This template-prefixed graph issue did not change its generated inventory. Normal generation succeeded; the wrapper incorrectly required a different digest. No catalog coverage beyond the normal generator is inferred.",
+  "whole": false,
+  "liveAcceptance": false,
+  "runtimeDeployed": false
+}

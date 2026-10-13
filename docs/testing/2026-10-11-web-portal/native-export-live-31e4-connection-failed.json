@@ -1,0 +1,37 @@
+{
+  "at": "2026-10-12T02:02:30.567Z",
+  "sourceHash": "sha256:31e47b614fbc093b160d562e7b4107a4c1ad473965237b086f100663bb4f5ef5",
+  "sameChromePid": 9932,
+  "sameTab": true,
+  "origin": "http://127.0.0.1:4315",
+  "jobs": [
+    {
+      "name": "workspace.add",
+      "id": "52703c43-3521-4971-b69a-68dbc09f0898",
+      "status": "succeeded",
+      "errorCode": null,
+      "bytes": 54,
+      "outputHash": "sha256:9e218014a950093315bf27a2202f084d5efc1cd3411a495522aceba7d3c104bb",
+      "elapsedMs": 955
+    },
+    {
+      "name": "chrome.export",
+      "id": "fa9b8cbc-2d60-4412-a5b1-a6adb4f6b0e5",
+      "status": "unknown",
+      "errorCode": "CHROME_CONNECTION_REQUIRED",
+      "bytes": null,
+      "outputHash": null,
+      "elapsedMs": 180209
+    }
+  ],
+  "passed": false,
+  "frontendAccepted": false,
+  "error": {
+    "message": "Expected values to be strictly equal:\n+ actual - expected\n\n+ 'unknown'\n- 'succeeded'\n",
+    "locations": []
+  },
+  "privateEvidenceFolder": ".worktrees/_cache/portal-cdd-export-repair-20261012/live-1791770550566",
+  "wholeCheckPending": true,
+  "nativeExportPreflightReached": false,
+  "originalUnknownJobsResolved": false
+}

@@ -1,0 +1,19 @@
+{
+  "schemaVersion": 1,
+  "kind": "preserved-pre-admission-source-proof-setup-failure",
+  "sourceEpoch": "sha256:a28fbf9263536110c90a972a1cf97e2e7039d710fbe1532588476989e415ab5e",
+  "phase": "setup",
+  "code": "STATE_WORKSPACE_OVERLAP",
+  "codeHash": "be7300720e755229539d5d6425dd56835c2f91ad3e0ac79193f2ebd9bca60db3",
+  "messageHash": "af1b32a68b329657afd0576927283d43a113cf0b178562e81a44aedd4db69b96",
+  "runtimeCalls": 0,
+  "compilerCalls": 0,
+  "exitCode": 1,
+  "originalIntentBudgetMs": 3600000,
+  "runCreated": false,
+  "listenerCreated": false,
+  "nativeAdmission": false,
+  "oldIntentOrAuthorityReplayed": false,
+  "diagnosis": "Correct workspace/state overlap guard rejected private state underneath registered parent",
+  "nextAttempt": "Fresh reviewed R2 state in a separate owned sibling directory"
+}

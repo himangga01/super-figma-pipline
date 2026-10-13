@@ -21,6 +21,7 @@ const GENERATED_OUTPUT_DIRECTORIES = new Set([
   '__pycache__',
   '.turbo',
   '.cache',
+  '.react-router',
 ]);
 /** Credential locations, as any path segment: key stores, cloud CLI state and secret mounts. */
 const CREDENTIAL_LOCATION = /^(?:\.ssh|\.aws|\.azure|\.gnupg|secrets)$/u;

@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 1,
+  "at": "2026-10-13T11:02:45.141Z",
+  "kind": "current-controller-journey-report-copy",
+  "path": "docs/testing/2026-10-11-web-portal/cdd-current-public-journeys-20261013.md",
+  "beforeHash": "3ec6a19c9c9c6431c0ac476628144d35e2b607e95aa933898dc80725a1efaa27",
+  "afterHash": "2056b98ba7d031e06308d175021c86a710213f548219f2652ec1cf5c80db7b0b",
+  "backup": ".worktrees/_cache/r60-main-integration-preparation-20261013/journey-before-2002/before.md",
+  "ownerIndexUnchanged": true,
+  "liveActions": 0,
+  "completeAcceptanceInferred": false
+}

@@ -128,7 +128,11 @@ export interface NativeArtifactObservation {
 export const inventoryNativeArtifact = async (
   rootInput: string,
   signal?: AbortSignal,
-  limits = { entries: 100000, bytes: 2_147_483_648, fileBytes: 536_870_912 },
+  limits: { entries: number; bytes: number; fileBytes: number; fileConcurrency?: number } = {
+    entries: 100000,
+    bytes: 2_147_483_648,
+    fileBytes: 536_870_912,
+  },
   generatedChildren: string[] = [],
   observation?: NativeArtifactObservation,
 ): Promise<NativeArtifactInventory> => {
@@ -138,69 +142,46 @@ export const inventoryNativeArtifact = async (
   const initial = await lstat(root, { bigint: true });
   if (initial.isSymbolicLink() || (!initial.isFile() && !initial.isDirectory()))
     throw portalError('PORTAL_ARTIFACT_INVALID');
+  const concurrency = limits.fileConcurrency ?? 8;
+  if (!Number.isInteger(concurrency) || concurrency < 1 || concurrency > 8)
+    throw portalError('PORTAL_ARTIFACT_LIMIT');
   const digest = createHash('sha256');
   let entries = 0,
     bytes = 0,
-    files = 0;
-  const add = (value: unknown) => {
-    const encoded = JSON.stringify(value);
-    digest.update(`${Buffer.byteLength(encoded)}:`);
-    digest.update(encoded);
+    files = 0,
+    failed = false,
+    failure: unknown,
+    cleanupUnknown = false;
+  const records: unknown[] = [];
+  const fileObservations: Array<{
+    index: number;
+    value: NativeArtifactObservation['files'][number];
+  }> = [];
+  const directories: Array<{ path: string; metadata: typeof initial }> = [];
+  const pending = new Set<Promise<void>>();
+  const active = () => {
+    if (failed) throw failure;
+    signal?.throwIfAborted();
+  };
+  const fail = (error: unknown) => {
+    if (!failed) {
+      failed = true;
+      failure = error;
+    }
   };
   for (const path of generatedChildren) PortalPathSchema.parse(path);
   if (generatedChildren.length > 512) throw portalError('PORTAL_ARTIFACT_LIMIT');
-  if (generatedChildren.length) add(['generated-children', generatedChildren.toSorted()]);
-  const walk = async (path: string): Promise<void> => {
-    signal?.throwIfAborted();
-    if (++entries > limits.entries) throw portalError('PORTAL_ARTIFACT_LIMIT');
-    const stat = await lstat(path, { bigint: true }),
-      part = relative(root, path).replaceAll('\\', '/');
-    if (generatedChildren.includes(part)) return;
-    if (path === root && identity(stat) !== identity(initial))
-      throw portalError('PORTAL_ARTIFACT_CHANGED');
-    if (stat.isSymbolicLink()) {
-      const target = await realpath(path);
-      if (!initial.isDirectory() || !contains(root, target))
-        throw portalError('PORTAL_ARTIFACT_LINK_OUTSIDE_ROOT');
-      const link = await readlink(path),
-        targetStat = await lstat(target, { bigint: true });
-      const afterLink = await lstat(path, { bigint: true });
-      if (
-        identity(afterLink) !== identity(stat) ||
-        afterLink.mtimeNs !== stat.mtimeNs ||
-        afterLink.ctimeNs !== stat.ctimeNs ||
-        (await realpath(path)) !== target ||
-        (await readlink(path)) !== link
-      )
-        throw portalError('PORTAL_ARTIFACT_CHANGED');
-      add(['link', part, identity(stat), link, relative(root, target), identity(targetStat)]);
-      return;
-    }
-    if (stat.isDirectory()) {
-      const children = (await readdir(path)).toSorted();
-      if (
-        new Set(children.map(name => name.normalize('NFC').toLowerCase())).size !== children.length
-      )
-        throw portalError('PORTAL_ARTIFACT_PATH_ALIAS');
-      add(['directory', part, identity(stat)]);
-      observation?.directories.push({ path, identity: identity(stat) });
-      for (const child of children) await walk(join(path, child));
-      const after = await lstat(path, { bigint: true });
-      if (
-        identity(after) !== identity(stat) ||
-        after.mtimeNs !== stat.mtimeNs ||
-        after.ctimeNs !== stat.ctimeNs
-      )
-        throw portalError('PORTAL_ARTIFACT_CHANGED');
-      return;
-    }
-    if (!stat.isFile() || stat.nlink < 1n) throw portalError('PORTAL_ARTIFACT_UNSUPPORTED_FILE');
-    bytes += Number(stat.size);
-    files++;
-    if (stat.size > BigInt(limits.fileBytes) || bytes > limits.bytes)
-      throw portalError('PORTAL_ARTIFACT_LIMIT');
+  if (generatedChildren.length) records.push(['generated-children', generatedChildren.toSorted()]);
+  const readInventoryFile = async (
+    path: string,
+    part: string,
+    stat: typeof initial,
+    index: number,
+  ) => {
+    active();
     const handle = await open(path, 'r');
     try {
+      active();
       const held = await handle.stat({ bigint: true });
       if (
         identity(held) !== identity(stat) ||
@@ -214,7 +195,7 @@ export const inventoryNativeArtifact = async (
         buffer = Buffer.alloc(65536);
       let position = 0;
       while (position < Number(held.size)) {
-        signal?.throwIfAborted();
+        active();
         const read = await handle.read(
           buffer,
           0,
@@ -225,6 +206,7 @@ export const inventoryNativeArtifact = async (
         hash.update(buffer.subarray(0, read.bytesRead));
         position += read.bytesRead;
       }
+      active();
       const after = await lstat(path, { bigint: true });
       if (
         identity(after) !== identity(held) ||
@@ -235,19 +217,140 @@ export const inventoryNativeArtifact = async (
       )
         throw portalError('PORTAL_ARTIFACT_CHANGED');
       const fileDigest = hash.digest('hex');
-      add(['file', part, identity(held), Number(held.size), String(held.nlink), fileDigest]);
-      observation?.files.push({
-        path,
-        identity: identity(held),
-        hash: `sha256:${fileDigest}`,
-        bytes: Number(held.size),
-        links: String(held.nlink),
+      records[index] = [
+        'file',
+        part,
+        identity(held),
+        Number(held.size),
+        String(held.nlink),
+        fileDigest,
+      ];
+      fileObservations.push({
+        index,
+        value: {
+          path,
+          identity: identity(held),
+          hash: 'sha256:' + fileDigest,
+          bytes: Number(held.size),
+          links: String(held.nlink),
+        },
       });
     } finally {
-      await handle.close();
+      try {
+        await handle.close();
+      } catch {
+        cleanupUnknown = true;
+        fail(portalError('PORTAL_NATIVE_CLEANUP_UNKNOWN'));
+      }
     }
   };
-  await walk(root);
+  const schedule = async (path: string, part: string, stat: typeof initial, index: number) => {
+    while (pending.size >= concurrency) {
+      await Promise.race(pending);
+      active();
+    }
+    active();
+    let task: Promise<void>;
+    task = readInventoryFile(path, part, stat, index)
+      .catch(fail)
+      .finally(() => {
+        pending.delete(task);
+      });
+    pending.add(task);
+  };
+  const walk = async (path: string): Promise<void> => {
+    active();
+    if (++entries > limits.entries) throw portalError('PORTAL_ARTIFACT_LIMIT');
+    const stat = await lstat(path, { bigint: true }),
+      part = relative(root, path).replaceAll('\\', '/');
+    active();
+    if (generatedChildren.includes(part)) return;
+    if (path === root && identity(stat) !== identity(initial))
+      throw portalError('PORTAL_ARTIFACT_CHANGED');
+    if (stat.isSymbolicLink()) {
+      const target = await realpath(path);
+      if (!initial.isDirectory() || !contains(root, target))
+        throw portalError('PORTAL_ARTIFACT_LINK_OUTSIDE_ROOT');
+      const link = await readlink(path),
+        targetStat = await lstat(target, { bigint: true }),
+        afterLink = await lstat(path, { bigint: true });
+      active();
+      if (
+        identity(afterLink) !== identity(stat) ||
+        afterLink.mtimeNs !== stat.mtimeNs ||
+        afterLink.ctimeNs !== stat.ctimeNs ||
+        (await realpath(path)) !== target ||
+        (await readlink(path)) !== link
+      )
+        throw portalError('PORTAL_ARTIFACT_CHANGED');
+      records.push([
+        'link',
+        part,
+        identity(stat),
+        link,
+        relative(root, target),
+        identity(targetStat),
+      ]);
+      return;
+    }
+    if (stat.isDirectory()) {
+      const children = (await readdir(path)).toSorted();
+      active();
+      if (
+        new Set(children.map(name => name.normalize('NFC').toLowerCase())).size !== children.length
+      )
+        throw portalError('PORTAL_ARTIFACT_PATH_ALIAS');
+      records.push(['directory', part, identity(stat)]);
+      directories.push({ path, metadata: stat });
+      for (const child of children) {
+        active();
+        await walk(join(path, child));
+      }
+      return;
+    }
+    if (!stat.isFile() || stat.nlink < 1n) throw portalError('PORTAL_ARTIFACT_UNSUPPORTED_FILE');
+    bytes += Number(stat.size);
+    files++;
+    if (stat.size > BigInt(limits.fileBytes) || bytes > limits.bytes)
+      throw portalError('PORTAL_ARTIFACT_LIMIT');
+    const index = records.length;
+    records.push(null);
+    await schedule(path, part, stat, index);
+  };
+  try {
+    await walk(root);
+  } catch (error) {
+    fail(error);
+  } finally {
+    await Promise.allSettled(pending);
+  }
+  if (cleanupUnknown) throw portalError('PORTAL_NATIVE_CLEANUP_UNKNOWN');
+  active();
+  // Check every directory after all issued child reads settle, including the complete root window.
+  for (const directory of directories) {
+    active();
+    const after = await lstat(directory.path, { bigint: true }),
+      stat = directory.metadata;
+    if (
+      identity(after) !== identity(stat) ||
+      after.mtimeNs !== stat.mtimeNs ||
+      after.ctimeNs !== stat.ctimeNs
+    )
+      throw portalError('PORTAL_ARTIFACT_CHANGED');
+  }
+  active();
+  for (const value of records) {
+    const encoded = JSON.stringify(value);
+    digest.update(Buffer.byteLength(encoded) + ':');
+    digest.update(encoded);
+  }
+  active();
+  if (observation) {
+    for (const row of fileObservations.toSorted((a, b) => a.index - b.index))
+      observation.files.push(row.value);
+    for (const row of directories)
+      observation.directories.push({ path: row.path, identity: identity(row.metadata) });
+  }
   return {
     root,
     identity: identity(initial),

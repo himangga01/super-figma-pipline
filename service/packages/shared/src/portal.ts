@@ -1,5 +1,12 @@
 import { z } from 'zod';
 
+import { PortalLayerSchema, PortalPathSchema } from './portal-base.js';
+import {
+  PortalNativeGeometryRequestSchema,
+  PortalNativeGeometryPageSchema,
+} from './portal-native-geometry.js';
+export { PortalLayerSchema, PortalPathSchema, type PortalLayer } from './portal-base.js';
+
 import {
   PortalCorePlanBindingSchema,
   PortalCoreDeclarationBatchSchema,
@@ -17,6 +24,8 @@ export * from './portal-observations.js';
 
 import {
   PortalCaptureSourceSchema,
+  PortalChromeCollectorSchema,
+  OfficialFigmaEndpointSchema,
   PortalCaptureDescriptorSchema,
   PortalCaptureReexportProofSchema,
   type PortalCaptureGrant,
@@ -32,6 +41,7 @@ export const PORTAL_TOOL_NAMES = [
   'portal_submit',
   'portal_apply',
   'portal_validate',
+  'portal_prepare_source',
   'portal_status',
   'portal_resume',
   'portal_cancel',
@@ -40,42 +50,9 @@ export type PortalToolName = (typeof PORTAL_TOOL_NAMES)[number];
 export const PortalCaseSchema = z.enum(['new', 'legacy', 'new-reference', 'new-blank']);
 export const PortalStrategySchema = z.enum(['legacy-portal', 'reference-portal', 'blank-frontend']);
 export const PortalScopeSchema = z.enum(['operational-portal', 'frontend-only']);
-export const PortalLayerSchema = z.enum([
-  'frontend',
-  'backend',
-  'api',
-  'database',
-  'authentication',
-  'authorization',
-  'jobs',
-  'storage',
-  'integration',
-  'configuration',
-]);
-export type PortalLayer = z.infer<typeof PortalLayerSchema>;
 export const PortalHashSchema = z.string().regex(/^sha256:[0-9a-f]{64}$/u);
 export const PortalIdSchema = z.string().regex(/^sfp_portal1_[a-f0-9]{32}$/u);
 export const PortalWorkspaceSchema = z.string().uuid();
-export const PortalPathSchema = z
-  .string()
-  .min(1)
-  .max(2048)
-  .refine(
-    path =>
-      !path.startsWith('/') &&
-      !/[\\:]/u.test(path) &&
-      !Array.from(path).some(
-        character => character.charCodeAt(0) < 32 || character.charCodeAt(0) === 127,
-      ) &&
-      path.split('/').every(part => part !== '' && part !== '.' && part !== '..') &&
-      !path
-        .split('/')
-        .some(
-          part =>
-            /[. ]$/u.test(part) || /^(?:con|prn|aux|nul|com[1-9]|lpt[1-9])(?:\.|$)/iu.test(part),
-        ),
-    'Use a portable relative path without aliases or reserved names',
-  );
 const RelativeRootSchema = z.union([z.literal('.'), PortalPathSchema]);
 const ReferenceSchema = z
   .object({
@@ -88,11 +65,19 @@ const DesignSchema = z
   .object({
     url: z.url().default(DEFAULT_PORTAL_DESIGN_URL),
     source: PortalCaptureSourceSchema.default('chrome'),
+    collector: PortalChromeCollectorSchema.optional(),
+    officialEndpoint: OfficialFigmaEndpointSchema.optional(),
     artifactPath: PortalPathSchema.optional(),
     artifactHash: PortalHashSchema.optional(),
     freshness: z.enum(['require-live', 'allow-pinned']).default('require-live'),
   })
-  .strict();
+  .strict()
+  .refine(value => value.source === 'official-mcp' || value.officialEndpoint === undefined, {
+    message: 'PORTAL_OFFICIAL_ENDPOINT_SOURCE_REQUIRED',
+  })
+  .refine(value => value.source === 'chrome' || value.collector === undefined, {
+    message: 'PORTAL_CHROME_COLLECTOR_SOURCE_REQUIRED',
+  });
 export const PortalRequirementSchema = z
   .object({
     id: z.string().min(1).max(128),
@@ -529,6 +514,8 @@ export type PortalSourceInventory = z.infer<typeof PortalSourceInventorySchema>;
 export const ServiceGraphProfileSchema = z
   .object({
     schemaVersion: z.literal(1),
+    // Metadata identifies required process-owned compiler proof; it is never proof itself.
+    compilerEvidenceHash: PortalHashSchema.optional(),
     rootPath: RelativeRootSchema,
     sourceHash: PortalHashSchema,
     // Historical semantic graphs have no byte authority inventory; never synthesize one.
@@ -795,6 +782,7 @@ export const PortalStatusArgsSchema = PortalRunArgsSchema.extend({
   recipes: PortalRecipeReadArgsSchema.optional(),
 }).strict();
 export const PortalNextArgsSchema = PortalRunArgsSchema.extend({
+  nativeGeometry: PortalNativeGeometryRequestSchema.optional(),
   recipes: PortalRecipeReadArgsSchema.optional(),
   tokenOffset: z.number().int().min(0).max(100_000).default(0),
   collectionOffset: z.number().int().min(0).max(100_000).default(0),
@@ -858,6 +846,11 @@ export const PortalValidateArgsSchema = PortalRunArgsSchema.extend({
     .regex(/^[a-z][a-z0-9-]{0,63}$/u)
     .default('node-frontend'),
 }).strict();
+export const PortalPrepareSourceArgsSchema = PortalRunArgsSchema.extend({
+  profileId: z.string().regex(/^[a-z][a-z0-9-]{0,63}$/u),
+  sourceId: PortalHashSchema,
+  deadlineAt: z.number().int().nonnegative().max(Number.MAX_SAFE_INTEGER),
+}).strict();
 export const PORTAL_INPUT_SCHEMAS = {
   portal_plan: PortalPlanArgsSchema,
   portal_start: PortalStartArgsSchema,
@@ -865,6 +858,7 @@ export const PORTAL_INPUT_SCHEMAS = {
   portal_submit: PortalSubmitArgsSchema,
   portal_apply: PortalRunArgsSchema,
   portal_validate: PortalValidateArgsSchema,
+  portal_prepare_source: PortalPrepareSourceArgsSchema,
   portal_status: PortalStatusArgsSchema,
   portal_resume: PortalResumeArgsSchema,
   portal_cancel: PortalRunArgsSchema,
@@ -910,10 +904,36 @@ export const PortalCaptureFailureSchema = z
     ]),
     code: z.enum([
       'DESIGN_CAPTURE_FAILED',
+      'FIGMA_MCP_AUTH_REQUIRED',
+      'FIGMA_MCP_CAPTURE_UNSUPPORTED',
+      'FIGMA_MCP_TOOL_FAILED',
+      'FIGMA_MCP_INPUT_UNSUPPORTED',
+      'FIGMA_MCP_FILE_IDENTITY_UNVERIFIED',
+      'FIGMA_MCP_SCOPE_MISMATCH',
+      'FIGMA_MCP_TARGET_REQUIRED',
+      'FIGMA_MCP_RESULT_UNSUPPORTED',
+      'FIGMA_MCP_RESULT_LIMIT',
+      'FIGMA_MCP_TOOL_LIST_INCOMPLETE',
+      'FIGMA_MCP_DESTINATION_REJECTED',
+      'FIGMA_MCP_REDIRECT_REJECTED',
+      'FIGMA_MCP_SESSION_CLOSED',
+      'FIGMA_MCP_OAUTH_ENV_REQUIRED',
+      'FIGMA_MCP_DEADLINE_EXCEEDED',
+      'PORTAL_CAPTURE_COHERENCE_BUDGET',
       'PORTAL_CAPTURE_TARGET_CHANGED',
       'PORTAL_CAPTURE_SOURCE_MISMATCH',
       'PORTAL_CAPTURE_SCOPE_MISMATCH',
       'PORTAL_CAPTURE_COLLECTOR_MISMATCH',
+      'PORTAL_CAPTURE_COLLECTOR_UNAVAILABLE',
+      'PORTAL_CAPTURE_CLEANUP_UNCONFIRMED',
+      'FIGMA_PAGE_API_UNAVAILABLE',
+      'FIGMA_PAGE_IDENTITY_CHANGED',
+      'FIGMA_PAGE_SCOPE_CHANGED',
+      'FIGMA_PAGE_SOURCE_CHANGED',
+      'FIGMA_PAGE_READ_FAILED',
+      'FIGMA_PAGE_READ_TIMEOUT',
+      'FIGMA_PAGE_TARGET_REQUIRED',
+      'FIGMA_PAGE_DEADLINE_INVALID',
       'PORTAL_CAPTURE_CONTENT_CHANGED',
       'PORTAL_CAPTURE_CURRENT_REQUIRED',
       'PORTAL_CAPTURE_ASSET_CHANGED',
@@ -1058,6 +1078,7 @@ export const PortalRunResultSchema = z
   .strict();
 export const PortalNextResultSchema = PortalRunResultSchema.omit({ lease: true })
   .extend({
+    nativeGeometry: PortalNativeGeometryPageSchema.optional(),
     validationEvidence: z
       .object({
         sourceHash: PortalHashSchema,
@@ -1231,6 +1252,21 @@ export const PortalNextResultSchema = PortalRunResultSchema.omit({ lease: true }
       .max(16),
   })
   .strict();
+export const PortalSourcePreparationResultSchema = z
+  .object({
+    schemaVersion: z.literal(1),
+    preparationId: PortalHashSchema,
+    sourceId: PortalHashSchema,
+    sourceInventoryHash: PortalHashSchema,
+    compilerEvidenceHash: PortalHashSchema,
+    status: z.literal('ready'),
+    sourcePreparationOnly: z.literal(true),
+    requiresReplan: z.literal(true),
+    authorityExpiresOnRestart: z.literal(true),
+    generatedFiles: z.number().int().nonnegative().max(5000),
+  })
+  .strict();
+export type PortalSourcePreparationResult = z.infer<typeof PortalSourcePreparationResultSchema>;
 export const PORTAL_RESULT_SCHEMAS = {
   portal_plan: PortalPlanResultSchema,
   portal_start: PortalRunResultSchema,
@@ -1238,6 +1274,7 @@ export const PORTAL_RESULT_SCHEMAS = {
   portal_submit: PortalRunResultSchema,
   portal_apply: PortalRunResultSchema,
   portal_validate: PortalRunResultSchema,
+  portal_prepare_source: PortalSourcePreparationResultSchema,
   portal_status: PortalRunResultSchema,
   portal_resume: PortalRunResultSchema,
   portal_cancel: PortalRunResultSchema,

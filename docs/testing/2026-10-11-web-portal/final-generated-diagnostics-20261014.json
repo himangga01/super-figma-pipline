@@ -1,0 +1,13 @@
+{
+    "schemaVersion":  1,
+    "at":  "2026-10-13T18:08:48.1053872Z",
+    "kind":  "final-normal-generated-diagnostics",
+    "path":  "packages/mcp/src/diagnostics-catalog.ts",
+    "beforeHash":  "4c4d0ba72588b0e8ba25e3fbfd12eac8e5a31006ce8ff0a0b6bb48de2bef197e",
+    "afterHash":  "19ab236e3e969996da9b49dbd75c72bc7535f73c636113a2dc7a4aefde241753",
+    "codes":  1982,
+    "modules":  464,
+    "labels":  339,
+    "runtimeReplaced":  false,
+    "whole":  false
+}

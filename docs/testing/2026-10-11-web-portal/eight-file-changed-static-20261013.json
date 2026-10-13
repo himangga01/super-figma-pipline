@@ -1,0 +1,206 @@
+{
+  "schemaVersion": 1,
+  "kind": "eight-file-native-changed-static-checks",
+  "status": "passed-scoped-checks",
+  "closedAt": "2026-10-13T12:16:12.076Z",
+  "integrationSourceHash": "sha256:7ae88cfdd8343e83e8872d0edd3a0d82d31f253b20169f55328e1d4c8d66c6d7",
+  "integrationReceiptSha256": "137706cd3586b8937c761e1e4a60ed928a821aa231ed2007632049cdd5e157f0",
+  "workingDirectory": ".worktrees/baseline/service",
+  "initialFullSource": {
+    "main": "sha256:7ae88cfdd8343e83e8872d0edd3a0d82d31f253b20169f55328e1d4c8d66c6d7",
+    "native": "sha256:7ae88cfdd8343e83e8872d0edd3a0d82d31f253b20169f55328e1d4c8d66c6d7"
+  },
+  "typecheckFullSourceStart": {
+    "main": "sha256:882813e862ac862c12c433646c950e3c657969a80902982a2f3752c799bb0bc2",
+    "native": "sha256:bdf5a5b9515394b82510df810d14f8b0e60e30fdb04a3724d101f9c12ad7f4de"
+  },
+  "actualFullSourceEnd": {
+    "main": "sha256:6f87f836d872a4ba8ab49533f6447a7c921adb6b8af3dae75ddd6241e8b8a1cb",
+    "native": "sha256:bdf5a5b9515394b82510df810d14f8b0e60e30fdb04a3724d101f9c12ad7f4de"
+  },
+  "fullFingerprintFrozen": false,
+  "concurrentRootAuthorityMetadataUpdates": true,
+  "checkedEightCodeFilesUnchanged": true,
+  "checkedEightConfigsUnchanged": true,
+  "finalDerivedCatalog": {
+    "path": "packages/mcp/src/diagnostics-catalog.ts",
+    "sha256": "4c4d0ba72588b0e8ba25e3fbfd12eac8e5a31006ce8ff0a0b6bb48de2bef197e",
+    "afterSha256": "4c4d0ba72588b0e8ba25e3fbfd12eac8e5a31006ce8ff0a0b6bb48de2bef197e",
+    "mainNativeEqual": true
+  },
+  "codeInputs": [
+    {
+      "path": "packages/mcp/src/portal/react-router-compiler-evidence.ts",
+      "sha256": "44b1952686603dd056faea33803c65a985e7b41230b5b04ad434ab69ac2065c8",
+      "afterSha256": "44b1952686603dd056faea33803c65a985e7b41230b5b04ad434ab69ac2065c8"
+    },
+    {
+      "path": "packages/mcp/test/portal/react-router-compiler-evidence.test.ts",
+      "sha256": "fb2ef781c20c20d1f2b5ee5148448239829188a8b05f3c18fd6c0f4d982305f8",
+      "afterSha256": "fb2ef781c20c20d1f2b5ee5148448239829188a8b05f3c18fd6c0f4d982305f8"
+    },
+    {
+      "path": "packages/portal/src/bridge.ts",
+      "sha256": "ab7008aea8646ade1eff75bb03b5e5c755656662e815dc1775185528ea94b9e2",
+      "afterSha256": "ab7008aea8646ade1eff75bb03b5e5c755656662e815dc1775185528ea94b9e2"
+    },
+    {
+      "path": "packages/portal/test/backend.test.ts",
+      "sha256": "2b47f7e3c843b47cb19ea4eb20038de330c90d80602c58499842e62d116538ac",
+      "afterSha256": "2b47f7e3c843b47cb19ea4eb20038de330c90d80602c58499842e62d116538ac"
+    },
+    {
+      "path": "packages/mcp/src/portal/preview.ts",
+      "sha256": "58eac8fb765ed34799d86a431fb7cef39131bcbd5870b97d076b81d76f158f37",
+      "afterSha256": "58eac8fb765ed34799d86a431fb7cef39131bcbd5870b97d076b81d76f158f37"
+    },
+    {
+      "path": "packages/mcp/test/portal/preview-interactions.test.ts",
+      "sha256": "da7dbb42c129bf1408331e71cdf8e13a2a971bea0abe5530fc50e7a1ab68ef0d",
+      "afterSha256": "da7dbb42c129bf1408331e71cdf8e13a2a971bea0abe5530fc50e7a1ab68ef0d"
+    },
+    {
+      "path": "packages/mcp/src/portal/module-resolution.ts",
+      "sha256": "2358e3d2fa16b28d086c600e1b947c3da579ff1f7485cb93649024c8b0dd85ef",
+      "afterSha256": "2358e3d2fa16b28d086c600e1b947c3da579ff1f7485cb93649024c8b0dd85ef"
+    },
+    {
+      "path": "packages/mcp/test/portal/module-resolution.test.ts",
+      "sha256": "fab4f3b951e951342c2c39cba72e6264226acc8ed30b295282678419f0e436c6",
+      "afterSha256": "fab4f3b951e951342c2c39cba72e6264226acc8ed30b295282678419f0e436c6"
+    }
+  ],
+  "configInputs": [
+    {
+      "path": "tsconfig.json",
+      "sha256": "9666bbf28472841bcb3603dc3a548798ae5edb251fff06c1731ef8755fe43240",
+      "afterSha256": "9666bbf28472841bcb3603dc3a548798ae5edb251fff06c1731ef8755fe43240"
+    },
+    {
+      "path": "tsconfig.base.json",
+      "sha256": "fc3f0de37f4eb01ddab21e77985f3704361e1ed8fdb137245deb386418d7de4f",
+      "afterSha256": "fc3f0de37f4eb01ddab21e77985f3704361e1ed8fdb137245deb386418d7de4f"
+    },
+    {
+      "path": "packages/mcp/package.json",
+      "sha256": "1c47e19a5bc5f421288a9880e9ae9fcdd04a9606b80d4e705bcf88f2685caed3",
+      "afterSha256": "1c47e19a5bc5f421288a9880e9ae9fcdd04a9606b80d4e705bcf88f2685caed3"
+    },
+    {
+      "path": "packages/mcp/tsconfig.json",
+      "sha256": "8c3c22065b32aaf16d93def1c65c4c1574bf9503730351a5354c0dee301a004d",
+      "afterSha256": "8c3c22065b32aaf16d93def1c65c4c1574bf9503730351a5354c0dee301a004d"
+    },
+    {
+      "path": "packages/portal/package.json",
+      "sha256": "ddb99eafe979d2319697f9bde91d01c4b3f4cf7f3e2a2baccfcb06ceff7767c8",
+      "afterSha256": "ddb99eafe979d2319697f9bde91d01c4b3f4cf7f3e2a2baccfcb06ceff7767c8"
+    },
+    {
+      "path": "packages/portal/tsconfig.json",
+      "sha256": "b90d29ce9f4a18aa601f5de55a91b6f611060db01b80dfb6642955c9b4e13715",
+      "afterSha256": "b90d29ce9f4a18aa601f5de55a91b6f611060db01b80dfb6642955c9b4e13715"
+    },
+    {
+      "path": ".oxlintrc.json",
+      "sha256": "812900f6b3bd6530adf3d5eb7303189ade21cc17d3a090749bd5e68b44a68b68",
+      "afterSha256": "812900f6b3bd6530adf3d5eb7303189ade21cc17d3a090749bd5e68b44a68b68"
+    },
+    {
+      "path": ".oxfmtrc.json",
+      "sha256": "ddd75d251e375886940f6cb449f035034915f528031b7d64b99881f7ba4f7538",
+      "afterSha256": "ddd75d251e375886940f6cb449f035034915f528031b7d64b99881f7ba4f7538"
+    }
+  ],
+  "versions": {
+    "node": "24.21.0",
+    "corepack": "0.36.0",
+    "pnpm": "11.24.0",
+    "typescript": "6.0.3",
+    "oxlint": "1.80.0",
+    "oxfmt": "0.65.0"
+  },
+  "environment": {
+    "pathPrepend": ".worktrees/_cache/bin;.worktrees/baseline/service/node_modules/.bin;C:/Program Files/nodejs",
+    "pnpmShim": ".worktrees/_cache/bin/pnpm.ps1",
+    "corepackHome": "USERPROFILE/AppData/Local/node/corepack",
+    "corepackEnableNetwork": "0",
+    "install": false
+  },
+  "checks": [
+    {
+      "command": "pnpm --filter @sfp/mcp typecheck",
+      "exitCode": 0,
+      "stdoutSha256": "70685b4df7789c854b9e1ceab7d78a6d0f9a0831c11eb0010b7b5fdbe0e50c39",
+      "stdout": "$ tsc --noEmit -p tsconfig.json\n",
+      "executable": "pnpm",
+      "arguments": [
+        "--filter",
+        "@sfp/mcp",
+        "typecheck"
+      ]
+    },
+    {
+      "command": "pnpm --filter @sfp/portal typecheck",
+      "exitCode": 0,
+      "stdoutSha256": "70685b4df7789c854b9e1ceab7d78a6d0f9a0831c11eb0010b7b5fdbe0e50c39",
+      "stdout": "$ tsc --noEmit -p tsconfig.json\n",
+      "executable": "pnpm",
+      "arguments": [
+        "--filter",
+        "@sfp/portal",
+        "typecheck"
+      ]
+    },
+    {
+      "command": "oxlint --config .oxlintrc.json 'packages/mcp/src/portal/react-router-compiler-evidence.ts' 'packages/mcp/test/portal/react-router-compiler-evidence.test.ts' 'packages/portal/src/bridge.ts' 'packages/portal/test/backend.test.ts' 'packages/mcp/src/portal/preview.ts' 'packages/mcp/test/portal/preview-interactions.test.ts' 'packages/mcp/src/portal/module-resolution.ts' 'packages/mcp/test/portal/module-resolution.test.ts'",
+      "exitCode": 0,
+      "stdoutSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout": "",
+      "executable": "node_modules/.bin/oxlint.CMD",
+      "arguments": [
+        "--config",
+        ".oxlintrc.json",
+        "packages/mcp/src/portal/react-router-compiler-evidence.ts",
+        "packages/mcp/test/portal/react-router-compiler-evidence.test.ts",
+        "packages/portal/src/bridge.ts",
+        "packages/portal/test/backend.test.ts",
+        "packages/mcp/src/portal/preview.ts",
+        "packages/mcp/test/portal/preview-interactions.test.ts",
+        "packages/mcp/src/portal/module-resolution.ts",
+        "packages/mcp/test/portal/module-resolution.test.ts"
+      ]
+    },
+    {
+      "command": "oxfmt --config .oxfmtrc.json --check 'packages/mcp/src/portal/react-router-compiler-evidence.ts' 'packages/mcp/test/portal/react-router-compiler-evidence.test.ts' 'packages/portal/src/bridge.ts' 'packages/portal/test/backend.test.ts' 'packages/mcp/src/portal/preview.ts' 'packages/mcp/test/portal/preview-interactions.test.ts' 'packages/mcp/src/portal/module-resolution.ts' 'packages/mcp/test/portal/module-resolution.test.ts'",
+      "exitCode": 0,
+      "stdoutSha256": "34b326fd08f883fc960a66b5a5cbfc0608167ec536c742604a6b470dfdd641ca",
+      "stdout": "Checking formatting...\n\nAll matched files use the correct format.\nFinished in 11ms on 8 files using 12 threads.\n",
+      "executable": "node_modules/.bin/oxfmt.CMD",
+      "arguments": [
+        "--config",
+        ".oxfmtrc.json",
+        "--check",
+        "packages/mcp/src/portal/react-router-compiler-evidence.ts",
+        "packages/mcp/test/portal/react-router-compiler-evidence.test.ts",
+        "packages/portal/src/bridge.ts",
+        "packages/portal/test/backend.test.ts",
+        "packages/mcp/src/portal/preview.ts",
+        "packages/mcp/test/portal/preview-interactions.test.ts",
+        "packages/mcp/src/portal/module-resolution.ts",
+        "packages/mcp/test/portal/module-resolution.test.ts"
+      ]
+    }
+  ],
+  "sourceMutation": false,
+  "generatedMetadataMutationByThisAgent": false,
+  "build": false,
+  "cliTypecheck": false,
+  "fullRegression": false,
+  "whole": false,
+  "targetedFixturesRepeated": false,
+  "qaApi": false,
+  "chrome": false,
+  "gitMutation": false,
+  "fullC2C3Acceptance": false
+}

@@ -269,6 +269,7 @@ describe('Public prepared-profile transport', () => {
       catalogs: [],
       reviews: [],
     };
+    if (!draft.recipeUse) throw Error('Acceptance fixture requires recipe use');
     const blocked = await work.prepareProfile(draft);
     expect(
       blocked.recipeUse!.prepared!.requirements.every(

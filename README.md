@@ -4,7 +4,7 @@
 
 A local Figma-to-application pipeline that collects design facts through Chrome and Playwright, supports Figma's official MCP servers, analyzes service code, and helps a coding agent implement the target application.
 
-**Status: development in progress, updated October 5, 2026.** Capture, the independent native Chrome reader, official MCP reads, source analysis, portal orchestration and Chrome validation have implementations and focused tests. A C4 frontend for one design has passed the full Chrome/Scripter generation and application flow. Full acceptance across all four cases, the final eCommerce acceptance and final release verification remain unfinished. See [current progress](#current-progress-and-remaining-work), the [current service analysis](docs/service-analysis.md), and the [handoff for continuing on another PC](docs/handoff/another-pc-2026-10-05.md).
+**Status: development in progress, updated October 14, 2026.** The login-free web portal exposes the public CLI and MCP tool catalog, workflow settings, connections, operations, results, activities and user guidance. Current CDD generation passed six native commands, three visual/accessibility screens, four source workflows and all1,749 design-consumption observations. Its live design refresh failed, so the current candidate remains unapplied. Actual C2/C3 implementation and full-case checks, final integration and main publication remain unfinished. The owner excluded collector comparison and the final eCommerce test from this completion and deferred official-MCP live acceptance. Those exclusions are not passing tests. See [current progress](docs/analysis/progress-2026-10-12.md), [service analysis](docs/service-analysis.md), [the release checklist](docs/testing/2026-10-11-web-portal/final-release-checklist-20261014.md) and [portal guidance](docs/portal-user-guide.md). Earlier successful applications remain dated historical evidence.
 
 ## How it works
 
@@ -55,13 +55,15 @@ node packages/cli/dist/index.mjs tools list
 
 For an MCP client, use `node` with the absolute path to `service/packages/mcp/dist/index.mjs`. See the [service README](service/README.md) for portal planning, Desktop setup, and validation commands.
 
+The login-free service web portal is available after building. With the daemon running, execute `corepack pnpm portal:start` from `service/`, then open `http://127.0.0.1:4310` in Google Chrome. It provides workflow editing, saved settings, live stages, approvals and service actions. See [web portal setup and current execution limits](service/README.md#service-web-portal). Local source and package checks have passed; live Figma acceptance remains incomplete, and the interface does not include its own background coding model.
+
 To continue the current work on another machine, follow the [another-PC handoff](docs/handoff/another-pc-2026-10-05.md). It covers the separate validation copy, the service state that Git does not carry, the expected source fingerprint, and the first whole check still owed.
 
 ## Read the supplied Figma design
 
-Open [the sample eCommerce design](https://www.figma.com/design/4IBhv1d8hEclifZQrOYxHS?node-id=0-1) in Chrome and sign in with an account that can access the file. Enable remote debugging at `chrome://inspect/#remote-debugging` and accept Chrome's connection prompt when shown.
+For the current CDD workflow, open [the CDD design](https://www.figma.com/design/ly06O8jAcrd7oWmwhz5Vr6?node-id=1378-120) in Chrome with an account that can access it. The examples below retain the earlier eCommerce input as setup documentation; its final test is currently owner-skipped. Enable remote debugging at `chrome://inspect/#remote-debugging` and accept Chrome's connection prompt when shown.
 
-The Chrome route uses external Playwright and the Scripter plugin, not the built-in GPT browser. The current CLI attaches to an open tab; Scripter must be available for the account/file. Chrome's native debugging permission prompt requires user interaction and cannot be accepted through the not-yet-authorized Playwright connection.
+The service attaches to an open Chrome tab through its own Playwright/CDP path. Independent page-api collection does not invoke Scripter; the separate Scripter collector requires that plugin for the account/file. Native document export is another independent acquisition capability. Chrome's debugging permission prompt requires user interaction before that connection can control a page.
 
 From `service/`, after building:
 
@@ -87,7 +89,9 @@ For the requested atomic-design file, the [October 2 comparison](docs/testing/20
 
 ## Current progress and remaining work
 
-State on October 5, 2026, at `main`. The service source fingerprint is `sha256:eb9c2c5c...`, after the review-finding repairs and native metadata fields recorded in [the findings and metadata record](docs/testing/2026-10-05-findings-and-metadata/README.md).
+Current remaining work is the CDD live freshness/guarded application gate, complete applicable C2/C3 workflows, and final reviewed integration/main commit-push. The owner requires these by October14,08:00KST, with no whole regression repeat or repeated passing checks. See [the current checklist](docs/testing/2026-10-11-web-portal/final-release-checklist-20261014.md). Official-only MCP support is implemented; its live verification is deferred. Independent collector comparison and final eCommerce testing are excluded from this completion.
+
+The following October5 snapshot and its original work list are historical evidence, superseded for current execution by [AGENTS](AGENTS.md). State was at `main`, service fingerprint `sha256:eb9c2c5c...`, after the repairs recorded in [the findings and metadata record](docs/testing/2026-10-05-findings-and-metadata/README.md).
 
 | Area | State | Evidence |
 | --- | --- | --- |
@@ -100,7 +104,7 @@ State on October 5, 2026, at `main`. The service source fingerprint is `sha256:e
 
 These are local and live evidence records, not release acceptance.
 
-Remaining work, in order:
+Historical remaining work recorded on October5, preserved without reactivation:
 
 1. Run the whole check for the current source.
 2. Decide the official MCP path (plan or seat, remote OAuth within the quota, or record it as blocked). Then allow an official MCP read to produce its own frontend; the portal source schema currently admits only Chrome and Desktop sources.

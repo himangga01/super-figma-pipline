@@ -9,6 +9,7 @@ import pixelmatch from 'pixelmatch';
 import { chromium, type Page } from 'playwright';
 import { z } from 'zod';
 
+import { waitLogically } from '../../../cli/src/logical-wait.js';
 import {
   PortalConsumptionBatchSchema,
   PortalConsumptionReportSchema,
@@ -25,6 +26,7 @@ import {
   withRetainedDirectoryChain,
 } from '../fs/atomic-file.js';
 import { googleChromeExecutable } from './chrome-runtime.js';
+import { auditPortalControlNames } from './preview-accessibility.js';
 import {
   PortalConsumptionResources,
   consumptionBatchHash,
@@ -343,12 +345,54 @@ export const NativePreviewSchema = z
       ctx.addIssue({ code: 'custom', message: 'Duplicate preview screen ID' });
   });
 
+/** Settle the actual current HTML images without granting another operation budget. */
+async function settlePreviewImages(
+  page: Page,
+  signal: AbortSignal,
+  deadlineAt: number,
+): Promise<boolean> {
+  signal.throwIfAborted();
+  const remaining = Math.min(5000, deadlineAt - Date.now());
+  if (remaining <= 0) throw portalError('PORTAL_PREVIEW_DEADLINE_EXCEEDED');
+  const timeout = new AbortController();
+  const timer = setTimeout(
+    () => timeout.abort(portalError('PORTAL_PREVIEW_IMAGE_TIMEOUT')),
+    remaining,
+  );
+  const bounded = AbortSignal.any([signal, timeout.signal]);
+  try {
+    for (;;) {
+      bounded.throwIfAborted();
+      const settled = await waitLogically(
+        page.evaluate(`(async () => {
+        const images=[...document.images];
+        await Promise.all(images.map(image=>image.decode().catch(()=>{})));
+        const current=[...document.images];
+        return current.length===images.length&&current.every((image,index)=>image===images[index]&&image.complete);
+      })()`),
+        bounded,
+      );
+      signal.throwIfAborted();
+      bounded.throwIfAborted();
+      if (settled) return true;
+    }
+  } catch (error) {
+    signal.throwIfAborted();
+    if (Date.now() >= deadlineAt) throw portalError('PORTAL_PREVIEW_DEADLINE_EXCEEDED');
+    if (timeout.signal.aborted) return false;
+    throw error;
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
 /** Call from a reviewed native validation harness after starting its real application. */
 export const assertNativePortalPreview = async (
   input: unknown,
   signal?: AbortSignal,
   options: { emitReport?: boolean; retainFailedReport?: boolean } = {},
 ) => {
+  const deadlineAt = Date.now() + 300000;
   signal = signal
     ? AbortSignal.any([signal, AbortSignal.timeout(300000)])
     : AbortSignal.timeout(300000);
@@ -472,6 +516,12 @@ export const assertNativePortalPreview = async (
         await runActions(page, screen.beforeActions, failures);
         if (new URL(page.url()).origin !== new URL(spec.baseUrl).origin)
           throw portalError('PORTAL_PREVIEW_ORIGIN_MISMATCH');
+        const auditControlNames = async () => {
+          for (const issue of await auditPortalControlNames(page, { signal }))
+            if (!failures.includes(issue)) failures.push(issue);
+        };
+        // Preserve the captured source state's result even if later journeys change its language.
+        await auditControlNames();
         if (expected) {
           if (
             new URL(page.url()).pathname + new URL(page.url()).search + new URL(page.url()).hash !==
@@ -523,6 +573,7 @@ export const assertNativePortalPreview = async (
           { createMissing: true },
         );
         await runActions(page, screen.actions, failures);
+        if (screen.actions.length) await auditControlNames();
         const interactionReports =
           expected && spec.interactionContract && spec.manifest
             ? await executePortalInteractions(
@@ -532,6 +583,7 @@ export const assertNativePortalPreview = async (
                 expected,
               )
             : [];
+        if (interactionReports.length) await auditControlNames();
         const workflowReports = [];
         for (const workflow of screen.workflowAssertions) {
           const source = spec.interactionContract?.workflows.find(
@@ -554,7 +606,10 @@ export const assertNativePortalPreview = async (
             if (!match || !source.nodeIds.includes(match[1]!))
               throw portalError('PORTAL_PREVIEW_WORKFLOW_SOURCE_REQUIRED');
           }
-          await page.goto(new URL(screen.path, spec.baseUrl).href, { waitUntil: 'networkidle' });
+          await page.goto(new URL(screen.path, spec.baseUrl).href, {
+            waitUntil: 'networkidle',
+            timeout: 30_000,
+          });
           const stateActions = workflow.actions.filter(action =>
             ['text', 'contains-text', 'visible', 'hidden', 'focused'].includes(action.kind),
           );
@@ -579,6 +634,7 @@ export const assertNativePortalPreview = async (
           const beforeStates = await observeStates();
           const issues: string[] = [];
           await runActions(page, workflow.actions, issues, expected.rootNodeId);
+          await auditControlNames();
           if (JSON.stringify(beforeStates) === JSON.stringify(await observeStates()))
             issues.push('WORKFLOW_STATE_CHANGE_NOT_OBSERVED');
           workflowReports.push({
@@ -601,10 +657,14 @@ export const assertNativePortalPreview = async (
           retainConsumption(observed);
           if (observed.some(value => !value.passed)) failures.push('PORTAL_CONSUMPTION_FAILED');
         }
+        // A workflow may have navigated and rendered text before its new images finish loading.
+        // A decode failure is settled, not accepted: the unchanged audit below still rejects it.
+        if (!(await settlePreviewImages(page, signal, deadlineAt)))
+          failures.push('IMAGE_LOAD_TIMEOUT');
         // This is an explicit basic audit; a project's full accessibility suite belongs in its profile too.
         // eslint-disable-next-line no-await-in-loop -- report concrete DOM defects after interactions
         const accessibility = (await page.evaluate(
-          `(() => { const issues=[]; if(!document.documentElement.lang) issues.push('MISSING_LANGUAGE'); if(!document.title.trim()) issues.push('MISSING_TITLE'); for(const image of document.images) { if(!image.hasAttribute('alt')) issues.push('IMAGE_ALT_MISSING'); if(!image.complete||image.naturalWidth===0) issues.push('BROKEN_IMAGE'); } for(const element of document.querySelectorAll('input:not([type=hidden]):not([type=submit]):not([type=button]),select,textarea')) if(!element.labels?.length&&!element.getAttribute('aria-label')&&!element.getAttribute('aria-labelledby')) issues.push('CONTROL_LABEL_MISSING'); for(const element of document.querySelectorAll('button,[role=button],a[href]')) if(!element.textContent.trim()&&!element.getAttribute('aria-label')&&!element.getAttribute('title')&&!element.querySelector('img[alt]')) issues.push('CONTROL_NAME_MISSING'); if(document.documentElement.scrollWidth>innerWidth+1) issues.push('HORIZONTAL_OVERFLOW'); return issues; })()`,
+          `(() => { const issues=[]; if(!document.documentElement.lang) issues.push('MISSING_LANGUAGE'); if(!document.title.trim()) issues.push('MISSING_TITLE'); for(const image of document.images) { if(!image.hasAttribute('alt')) issues.push('IMAGE_ALT_MISSING'); if(!image.complete||image.naturalWidth===0) issues.push('BROKEN_IMAGE'); } if(document.documentElement.scrollWidth>innerWidth+1) issues.push('HORIZONTAL_OVERFLOW'); return issues; })()`,
         )) as string[];
         failures.push(...accessibility);
         if (!comparison.sameDimensions || comparison.ratio > screen.maxDifferenceRatio)
@@ -626,7 +686,8 @@ export const assertNativePortalPreview = async (
           diffPath: comparison.diff
             ? `${spec.outputDirectory ?? '.sfp-native-preview'}/${screen.id}.diff.png`
             : null,
-          accessibilityCoverage: 'basic-dom-and-configured-keyboard-workflows',
+          accessibilityCoverage:
+            'basic-dom-and-chrome-ax-control-names-and-configured-keyboard-workflows',
         });
       } finally {
         // eslint-disable-next-line no-await-in-loop -- close only this owned validation context

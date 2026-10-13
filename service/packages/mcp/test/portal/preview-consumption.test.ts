@@ -62,7 +62,11 @@ const batch = (checks: PortalConsumptionCheck[]) =>
     candidateHash: hash,
     checks,
   });
-const fixture = async (html: string, assets: Record<string, Buffer> = {}) => {
+const fixture = async (
+  html: string,
+  assets: Record<string, Buffer> = {},
+  signal = new AbortController().signal,
+) => {
   const server = createServer((request, response) => {
     const asset = assets[request.url ?? ''];
     response.writeHead(asset || request.url === '/' ? 200 : 404, {
@@ -91,7 +95,7 @@ const fixture = async (html: string, assets: Record<string, Buffer> = {}) => {
   });
   cleanups.unshift(() => browser.close());
   const page = await context.newPage(),
-    resources = new PortalConsumptionResources(url, new AbortController().signal);
+    resources = new PortalConsumptionResources(url, signal);
   await context.route('**/*', route => resources.handle(route));
   await page.goto(url, { waitUntil: 'networkidle' });
   return {
@@ -108,6 +112,235 @@ const fixture = async (html: string, assets: Record<string, Buffer> = {}) => {
       ),
   };
 };
+it('observes an exposed overflow descendant when its source root box is above the viewport without relaxing hidden or scope guards', async () => {
+  const f = await fixture(`<!doctype html><html><style>
+    body{margin:0;height:2400px}main{position:relative;width:200px;height:200px;overflow:visible}
+    .target{position:absolute;left:20px;top:1600px;width:60px;height:60px;color:red;pointer-events:none}
+    #hidden-parent{opacity:0}#hidden{top:1700px}#covered{top:1800px}
+    #cover{position:absolute;left:20px;top:1800px;width:60px;height:60px;background:blue;z-index:10}
+    #foreign{position:absolute;top:2000px;width:60px;height:60px;color:red}
+  </style><body><main data-sfp-root="1:1"><div id="target" class="target">Target</div><div id="hidden-parent"><div id="hidden" class="target">Hidden</div></div><div id="covered" class="target">Covered</div></main><div id="cover"></div><main data-sfp-root="2:2"><div id="foreign">Foreign</div></main></body></html>`);
+  const expectation = {
+    kind: 'property' as const,
+    property: 'color' as const,
+    value: { kind: 'color' as const, value: [1, 0, 0, 1] as [number, number, number, number] },
+  };
+  const before = await f.page.screenshot();
+  const rows = await f.observe(
+    ['target', 'hidden', 'covered', 'foreign'].map(id => check(id, '#' + id, expectation)),
+  );
+  expect(rows.map(row => [row.checkId, row.passed])).toEqual([
+    ['target', true],
+    ['hidden', false],
+    ['covered', false],
+    ['foreign', false],
+  ]);
+  expect(rows[1]?.reason).toBe('PORTAL_CONSUMPTION_ELEMENT_HIDDEN');
+  expect(rows[2]?.reason).toBe('PORTAL_CONSUMPTION_ELEMENT_HIDDEN');
+  expect(rows[3]?.reason).toBe('PORTAL_CONSUMPTION_SCOPE_MISMATCH');
+  expect(await f.page.evaluate('scrollY')).toBe(0);
+  expect(await f.page.screenshot()).toEqual(before);
+  await f.page.evaluate(
+    `document.body.insertAdjacentHTML('beforeend','<main id="duplicate-root" data-sfp-root="1:1"></main>')`,
+  );
+  expect((await f.observe([check('duplicate-root', '#target', expectation)]))[0]?.reason).toBe(
+    'PORTAL_CONSUMPTION_SCOPE_MISMATCH',
+  );
+  await f.page.evaluate(
+    `document.querySelector('#duplicate-root').remove();document.body.insertAdjacentHTML('beforeend','<div id="target"></div>')`,
+  );
+  expect((await f.observe([check('duplicate-target', '#target', expectation)]))[0]?.reason).toBe(
+    'PORTAL_CONSUMPTION_SCOPE_MISMATCH',
+  );
+}, 30000);
+
+it.each([
+  {
+    name: 'overflow clip',
+    rootStyle: 'overflow:clip',
+    nested: false,
+    cover: false,
+    top: 1600,
+    passed: false,
+  },
+  {
+    name: 'clip path',
+    rootStyle: 'clip-path:inset(0)',
+    nested: false,
+    cover: false,
+    top: 1600,
+    passed: false,
+  },
+  {
+    name: 'nested clipping ancestor',
+    rootStyle: 'overflow:visible',
+    nested: true,
+    cover: false,
+    top: 1600,
+    passed: false,
+  },
+  {
+    name: 'exposed inside clip path',
+    rootStyle: 'clip-path:inset(0)',
+    nested: false,
+    cover: false,
+    top: 50,
+    passed: true,
+  },
+  {
+    name: 'pointer-events-none occluding sibling',
+    rootStyle: 'overflow:visible',
+    nested: false,
+    cover: true,
+    top: 1600,
+    passed: false,
+  },
+])(
+  'requires native painted exposure for a pointer-events-none target: $name',
+  async scenario => {
+    const f = await fixture(
+      `<!doctype html><html><style>body{margin:0;height:2400px}main{position:relative;width:200px;height:200px;${scenario.rootStyle}}#target{position:absolute;left:20px;top:${scenario.top}px;width:60px;height:60px;color:red;pointer-events:none}#clip{position:relative;width:200px;height:200px;overflow:clip}#cover{position:absolute;left:20px;top:1600px;width:60px;height:60px;background:blue;z-index:100;pointer-events:none}</style><body><main data-sfp-root="1:1">${scenario.nested ? '<div id="clip">' : ''}<div id="target">Target</div>${scenario.nested ? '</div>' : ''}</main>${scenario.cover ? '<div id="cover"></div>' : ''}</body></html>`,
+    );
+    const style = await f.page.locator('#target').getAttribute('style');
+    const before = await f.page.screenshot();
+    const rows = await f.observe([
+      check('clip-proof', '#target', {
+        kind: 'property',
+        property: 'color',
+        value: { kind: 'color', value: [1, 0, 0, 1] },
+      }),
+    ]);
+    expect(rows[0]?.passed).toBe(scenario.passed);
+    expect(rows[0]?.reason).toBe(scenario.passed ? null : 'PORTAL_CONSUMPTION_ELEMENT_HIDDEN');
+    expect(await f.page.locator('#target').getAttribute('style')).toBe(style);
+    expect(await f.page.evaluate('scrollY')).toBe(0);
+    expect(await f.page.screenshot()).toEqual(before);
+  },
+  30000,
+);
+
+it.each(['cancel', 'timeout'] as const)(
+  'restores scroll and refuses an unavailable native exposure proof after %s',
+  async mode => {
+    const controller = new AbortController();
+    const f = await fixture(
+      '<!doctype html><body style="margin:0;height:2400px"><main data-sfp-root="1:1" style="height:200px;width:200px"><div id="target" style="position:absolute;left:20px;top:1600px;width:60px;height:60px;color:red;pointer-events:none">Target</div></main></body>',
+      {},
+      controller.signal,
+    );
+    const context = f.page.context(),
+      originalFactory = context.newCDPSession.bind(context);
+    let release: (() => void) | undefined,
+      hits = 0,
+      detached = 0;
+    context.newCDPSession = async () => {
+      const session = await originalFactory(f.page),
+        originalSend = session.send.bind(session),
+        originalDetach = session.detach.bind(session);
+      session.send = ((
+        method: Parameters<typeof session.send>[0],
+        params: Parameters<typeof session.send>[1],
+      ) => {
+        if (method === 'DOM.getNodeForLocation') {
+          hits++;
+          if (mode === 'cancel') controller.abort(new Error('original-consumption-cancelled'));
+          return new Promise<never>((_resolve, reject) => {
+            release = () => reject(new Error('owned-late-exposure-response'));
+          });
+        }
+        return originalSend(method, params);
+      }) as typeof session.send;
+      session.detach = async () => {
+        detached++;
+        await originalDetach();
+      };
+      return session;
+    };
+    try {
+      const pending = f.observe([
+        check('proof-unavailable', '#target', {
+          kind: 'property',
+          property: 'color',
+          value: { kind: 'color', value: [1, 0, 0, 1] },
+        }),
+      ]);
+      const outcome = await pending.then(
+        rows => ({ kind: 'result', passed: rows[0]?.passed }),
+        (error: Error) => ({ kind: 'error', message: error.message }),
+      );
+      expect(outcome).toEqual(
+        mode === 'cancel'
+          ? { kind: 'error', message: 'original-consumption-cancelled' }
+          : { kind: 'result', passed: false },
+      );
+      expect(hits).toBe(1);
+      expect(detached).toBe(1);
+      expect(await f.page.evaluate('scrollY')).toBe(0);
+    } finally {
+      release?.();
+    }
+  },
+  30000,
+);
+
+it.each(['native-hit', 'scroll-restore', 'root-rebind', 'after-action-state'] as const)(
+  'rechecks original source identity after the asynchronous %s boundary',
+  async boundary => {
+    const f = await fixture(
+      '<!doctype html><body style="margin:0;height:2400px"><main id="source" data-sfp-root="1:1" data-sfp-state="accepted" style="height:200px;width:200px"><div id="target" style="position:absolute;left:20px;top:1600px;width:60px;height:60px;color:red;pointer-events:none">Target</div></main><main id="foreign" data-sfp-root="2:2" style="position:absolute;left:0;top:0;height:200px;width:200px"></main></body>',
+    );
+    if (boundary === 'scroll-restore') {
+      await f.page.evaluate(
+        `(()=>{let scrolled=false;addEventListener('scroll',()=>{if(scrollY>0)scrolled=true;else if(scrolled)document.querySelector('#foreign').append(document.querySelector('#target'));});})()`,
+      );
+    } else {
+      const context = f.page.context(),
+        factory = context.newCDPSession.bind(context);
+      let queries = 0;
+      context.newCDPSession = async () => {
+        const session = await factory(f.page),
+          send = session.send.bind(session);
+        session.send = (async (
+          method: Parameters<typeof session.send>[0],
+          params: Parameters<typeof session.send>[1],
+        ) => {
+          if (method === 'DOM.querySelectorAll' && ++queries === 2) {
+            await f.page.evaluate(
+              boundary === 'after-action-state'
+                ? `document.querySelector('#source').setAttribute('data-sfp-state','changed')`
+                : boundary === 'root-rebind'
+                  ? `document.querySelector('#source').setAttribute('data-sfp-root','3:3');document.body.insertAdjacentHTML('beforeend','<main data-sfp-root="1:1"></main>')`
+                  : `document.querySelector('#foreign').append(document.querySelector('#target'))`,
+            );
+          }
+          return send(method, params);
+        }) as typeof session.send;
+        return session;
+      };
+    }
+    const value: PortalConsumptionCheck = check('async-identity', '#target', {
+      kind: 'property',
+      property: 'color',
+      value: { kind: 'color', value: [1, 0, 0, 1] },
+    });
+    if (boundary === 'after-action-state') {
+      value.phase = 'after-actions';
+      value.state = 'accepted';
+      value.expectedHash = consumptionCheckHash(value);
+    }
+    const rows = await observePortalConsumption(
+      f.page,
+      batch([value]),
+      { rootNodeId: '1:1', route: '/', state: 'source:1:1' },
+      value.phase,
+      f.resources,
+    );
+    expect(rows[0]).toMatchObject({ passed: false, reason: 'PORTAL_CONSUMPTION_STATE_CHANGED' });
+    expect(await f.page.evaluate('scrollY')).toBe(0);
+  },
+  30000,
+);
+
 it.each(['property', 'failed-image'] as const)(
   'restores document and nested scroll positions after %s observation',
   async kind => {

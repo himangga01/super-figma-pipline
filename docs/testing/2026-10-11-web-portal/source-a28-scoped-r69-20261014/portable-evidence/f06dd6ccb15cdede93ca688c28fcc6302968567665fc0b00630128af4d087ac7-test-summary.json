@@ -1,0 +1,198 @@
+{
+  "schemaVersion": 1,
+  "kind": "sanitized-original-test-report-summary",
+  "originalPath": ".worktrees/_cache/service-selection-pattern-20261014/after.json",
+  "originalSha256": "f06dd6ccb15cdede93ca688c28fcc6302968567665fc0b00630128af4d087ac7",
+  "originalSuccess": true,
+  "numTotalTests": 46,
+  "numPassedTests": 2,
+  "numFailedTests": 0,
+  "numPendingTests": 44,
+  "assertions": [
+    {
+      "name": "internally selects core recipes and never omits captured roots when the caller supplies a subset",
+      "status": "skipped"
+    },
+    {
+      "name": "distinguishes proved empty catalogs from missing APIs and produces C4 construction obligations",
+      "status": "skipped"
+    },
+    {
+      "name": "produces equal Chrome/Desktop token semantics while retaining distinct source observation hashes",
+      "status": "skipped"
+    },
+    {
+      "name": "retains timing, easing, aliases, multiple actual mode IDs and unsupported future material",
+      "status": "skipped"
+    },
+    {
+      "name": "does not guess cross-collection aliases by mode name or silently resolve material conflicts",
+      "status": "skipped"
+    },
+    {
+      "name": "exports styles-only color tokens and retains gradient/image/effect/grid material instead of empty success",
+      "status": "skipped"
+    },
+    {
+      "name": "audits raw paints and text runs by actual material, preserving opacity and duplicate-style ambiguity",
+      "status": "skipped"
+    },
+    {
+      "name": "verifies actual asset bytes and keeps distinct root usages even when PNG hashes match",
+      "status": "skipped"
+    },
+    {
+      "name": "turns source reactions into required assertions and blocks missing destinations and unknown actions",
+      "status": "skipped"
+    },
+    {
+      "name": "pages more than 4096 actual mode rows without dropping records and rejects tampered pages",
+      "status": "skipped"
+    },
+    {
+      "name": "rejects mutated normalized evidence and forged source capsules",
+      "status": "skipped"
+    },
+    {
+      "name": "uses canonical mappings from actual bounded source bytes, retaining source-qualified collisions and overrides",
+      "status": "skipped"
+    },
+    {
+      "name": "gives same-source same-name component mappings distinct stable review obligations",
+      "status": "skipped"
+    },
+    {
+      "name": "retains deterministic source-bound page and manifest hashes without claiming runtime use",
+      "status": "skipped"
+    },
+    {
+      "name": "keeps historical manifests readable but rejects the prior derivation identity for adoption",
+      "status": "skipped"
+    },
+    {
+      "name": "recounts page obligations/issues and checks material hashes before result-store adoption",
+      "status": "skipped"
+    },
+    {
+      "name": "preserves actual verified and stale mapping override status from the canonical adapter",
+      "status": "skipped"
+    },
+    {
+      "name": "rejects source bytes changed between complete inventory and actual canonical analysis",
+      "status": "skipped"
+    },
+    {
+      "name": "pages canonical component membership without dropping repeated instances or accepting missing members",
+      "status": "skipped"
+    },
+    {
+      "name": "requires missing operational layers for a frontend-only reference while keeping C4 frontend-only",
+      "status": "skipped"
+    },
+    {
+      "name": "bounds sparse variable-mode expansion without discarding the retained observed values",
+      "status": "skipped"
+    },
+    {
+      "name": "does not export a bound paint style as one unconditional default-mode color",
+      "status": "skipped"
+    },
+    {
+      "name": "keeps image-fill and vector usage separate from root exports and verifies their exact bytes",
+      "status": "skipped"
+    },
+    {
+      "name": "retains non-array mixed style material as unresolved instead of a proved empty audit",
+      "status": "skipped"
+    },
+    {
+      "name": "retains every source candidate for an exact review of the produced pattern-route diagnostic",
+      "status": "passed"
+    },
+    {
+      "name": "keeps pattern-route reviews exact and preserves unused-review and hard-failure guards",
+      "status": "passed"
+    },
+    {
+      "name": "preserves qualified frontend closure, full byte inventory and scoped canonical mapping candidates",
+      "status": "skipped"
+    },
+    {
+      "name": "whole-root default remains explicit and retains all services rather than pretending a narrower selection",
+      "status": "skipped"
+    },
+    {
+      "name": "retains related runtime and configuration dependencies while excluding an unrelated sibling",
+      "status": "skipped"
+    },
+    {
+      "name": "derives selected React extensions and tokens instead of the excluded Angular root profile",
+      "status": "skipped"
+    },
+    {
+      "name": "rebases a selected token config and retains its full-root relative import dependency",
+      "status": "skipped"
+    },
+    {
+      "name": "honors exact admitted Node HTTP semantic reviews while retaining raw diagnostics and review bindings",
+      "status": "skipped"
+    },
+    {
+      "name": "rejects stale, wrong-offset and wrong-source semantic reviews instead of accepting a caller completion claim",
+      "status": "skipped"
+    },
+    {
+      "name": "qualifies same-path references in one global batch and rejects omitted or reordered members",
+      "status": "skipped"
+    },
+    {
+      "name": "hard syntax errors cannot be waived by a review or replaced by a complete flag",
+      "status": "skipped"
+    },
+    {
+      "name": "full-root byte failures and canonical mapping discovery limits stay hard failures",
+      "status": "skipped"
+    },
+    {
+      "name": "unsupported imported-theme values remain unmapped obligations without a guessed token",
+      "status": "skipped"
+    },
+    {
+      "name": "unsupported Vue runtime stays unresolved or reviewed with conservative closure instead of silently narrowing it",
+      "status": "skipped"
+    },
+    {
+      "name": "truncated semantic diagnostics stay blocked even when every retained diagnostic has an exact review",
+      "status": "skipped"
+    },
+    {
+      "name": "a semantic review cannot cross a global source index in same-path references",
+      "status": "skipped"
+    },
+    {
+      "name": "typed source context pages reject altered selection identity even with recalculated page envelopes",
+      "status": "skipped"
+    },
+    {
+      "name": "retains a related backend dependency instead of constructing an already selected backend layer",
+      "status": "skipped"
+    },
+    {
+      "name": "missing source context cannot be hidden by recalculating page counts and hashes",
+      "status": "skipped"
+    },
+    {
+      "name": "selected source and pattern size limits remain blocked with their original diagnostics",
+      "status": "skipped"
+    },
+    {
+      "name": "bounds source review inputs before reading getters or recursive context material",
+      "status": "skipped"
+    },
+    {
+      "name": "maps a one-character selected root without absorbing its nested or sibling services",
+      "status": "skipped"
+    }
+  ],
+  "limits": "Original raw report remains local-only; stacks/source snippets/actor-state omitted. Summary cannot issue authority or convert a failed full report to pass."
+}

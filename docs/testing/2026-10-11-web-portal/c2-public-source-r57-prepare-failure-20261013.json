@@ -1,0 +1,47 @@
+{
+  "schemaVersion": 1,
+  "revision": "R57",
+  "proofId": "33775cad-12e8-445c-a63b-e619eb701d58",
+  "isolatedCandidate": true,
+  "preflightPassed": true,
+  "sourceBudgetDeclaredMs": 900000,
+  "sourceRequestNotCreated": true,
+  "actualPhase": "public-profile-prepare",
+  "publicCode": "PORTAL_PROFILE_PREPARATION_FAILED",
+  "runtimeCalls": 0,
+  "compilerCalls": 0,
+  "nativeAttemptNotCreated": true,
+  "shutdown": {
+    "pid": 32472,
+    "outcome": "port-released",
+    "at": 1791882600383,
+    "gracefulBrowserCleanupClaimed": false
+  },
+  "physical": {
+    "at": 1791882729080,
+    "rootPid": 32472,
+    "exactRootAbsent": true,
+    "directDescendantsAbsent": true,
+    "noObservedNativeChildren": true,
+    "noUniversalOrRemoteCleanupClaim": true
+  },
+  "schemaDiagnosis": {
+    "kind": "pure-service-native-command-schema-probe",
+    "noRunnerInvocation": true,
+    "utf16Chars": 9020,
+    "utf8Bytes": 9020,
+    "status": "failed",
+    "issues": [
+      {
+        "code": "too_big",
+        "path": [
+          "args",
+          1
+        ],
+        "maximum": 8192
+      }
+    ]
+  },
+  "diagnosisLimit": "Actual public preparation row had genericcode; the exact emitted template independently fails the actual current service schema.",
+  "completeCaseAcceptance": false
+}

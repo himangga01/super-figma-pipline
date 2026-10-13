@@ -737,7 +737,7 @@
           "schemaHash": "68ff28308abeab7c5c933bdda6eb8af4685be8d283b930cf94c26b5da7c4c1fe"
         }
       ],
-      "targetContractHash": "4e643a24208e3e5200ab120536942e7e0a765fe4c23e318ad140cd9de612690a",
+      "targetContractHash": "319481f3234e938d46ebbd0f265394ff543475849dc4b60a5a2f1b37ff3a062c",
       "disposition": "native",
       "registration": "advertised",
       "availability": ["server"],
@@ -2794,10 +2794,10 @@
       "sourceContracts": [
         {
           "source": "super-figma-pipeline",
-          "schemaHash": "6c3d00acf7a2c8d67467c45ef3d2872ac4043a597ad3671b5c1892692125f804"
+          "schemaHash": "57a976aa15040d1a60cfc9aa7bcacf5c6cad79cb031b021b800cd25566c468e5"
         }
       ],
-      "targetContractHash": "1d7ab91ce53886b01c729ec9c46e04d7b6bf498da32aa2b96f0579f3f20a2496",
+      "targetContractHash": "44a11758a54b9a91a250be04ef4de680927f05f3910c072900dffb4e55aa9388",
       "disposition": "adapter",
       "registration": "advertised",
       "availability": ["registered-workspace", "authenticated-owner"],
@@ -2816,7 +2816,7 @@
           "schemaHash": "c405d38b4b44164ae727bef89354e65dc63d4f2007d89e812641166a658aa68e"
         }
       ],
-      "targetContractHash": "92a16cdb2540aab8a082823a75fffc93cabb676ba907a60512c20d914941ddb3",
+      "targetContractHash": "871f34e44f6e4d780f797e6ded8c9ddd9f397f0e57d0c15e3033ba9628dca32c",
       "disposition": "adapter",
       "registration": "advertised",
       "availability": ["registered-workspace", "authenticated-owner"],
@@ -2832,10 +2832,10 @@
       "sourceContracts": [
         {
           "source": "super-figma-pipeline",
-          "schemaHash": "67338fa38cd6bcd944ca13e9a9e218f441ded5edc6ee6128135e14866b297893"
+          "schemaHash": "a2d4a94cce70925d551f6d303d3eddbc46cf6f6e62e6705b30e373162eb54d7f"
         }
       ],
-      "targetContractHash": "e730f090bfccb72e93dc263f93a394adfd9153e4d91fa5329b114a51aff4af3d",
+      "targetContractHash": "55ea8a259c75021a262544dbb8d494a4ac31f6f031afb10312f4c2eef494141e",
       "disposition": "adapter",
       "registration": "advertised",
       "availability": ["registered-workspace", "authenticated-owner"],
@@ -2854,7 +2854,7 @@
           "schemaHash": "a11f9fd25b6cc706f5a9ed39dac1fc2a2525d94894cc17d40d40faddfd0b25c5"
         }
       ],
-      "targetContractHash": "269268dfd66a874a77bc32775b17117a84e4cc99f94ed38cc57f4d0c5eae0d4c",
+      "targetContractHash": "8ac26f20f3c053e9d526954ff46c22af2bb2351011beeed84b303c1dd76da3be",
       "disposition": "adapter",
       "registration": "advertised",
       "availability": ["registered-workspace", "authenticated-owner"],
@@ -2873,7 +2873,7 @@
           "schemaHash": "3a62b8bb9ff1cd7bc298c94f70ab776c6ed6c5abed2b50bc8ddb923254b1400a"
         }
       ],
-      "targetContractHash": "07f09047c76a39d83a05b258439f62c580aab6755b1540ef9b872e5075da6a30",
+      "targetContractHash": "84afc26bf4a4576d716a783568f0b7e8add92bb374f273c7dc8294d31c4d1c6a",
       "disposition": "adapter",
       "registration": "advertised",
       "availability": [
@@ -2896,7 +2896,7 @@
           "schemaHash": "0b3a47befbc98a6e2313481f0965b586eef63a132a041dab75705a4834a1cc27"
         }
       ],
-      "targetContractHash": "f1685d58be398cff42903f9f9ef77cfb4ff77bd0802e0e5e876d58b715b6ee89",
+      "targetContractHash": "4729aaf035b7132ec59dd9ee8c7db5ff3f8ea4bd3cc8513e06c76cdee3afb28a",
       "disposition": "adapter",
       "registration": "advertised",
       "availability": [
@@ -2920,7 +2920,7 @@
           "schemaHash": "2500ed2a0aa9df2e3c768a88b1e2693457f7a05322c61ffa3304dda35158e055"
         }
       ],
-      "targetContractHash": "786dcc3d98a23af58247a01387862e2c5e0becdc0b6c224f4f5bec635322804a",
+      "targetContractHash": "f1299eefb6d3ec22d4186629d46426498401a72d102c05bf8f0551f337c8e138",
       "disposition": "adapter",
       "registration": "advertised",
       "availability": ["registered-workspace", "authenticated-owner"],
@@ -2939,7 +2939,7 @@
           "schemaHash": "803ff6e81b35ddf953c7ced8d1a56f45832386d8d2fc230a4bd8895c14a9c5b6"
         }
       ],
-      "targetContractHash": "751110a112c7c636c062ccdb613578076634f5328b040af8f6936a12aac0fa9c",
+      "targetContractHash": "9f319afc411171d9d0d8e572958c6e47b9674c95602a8666ebf3ac144d17cbde",
       "disposition": "adapter",
       "registration": "advertised",
       "availability": ["registered-workspace", "authenticated-owner"],
@@ -2958,7 +2958,7 @@
           "schemaHash": "3a62b8bb9ff1cd7bc298c94f70ab776c6ed6c5abed2b50bc8ddb923254b1400a"
         }
       ],
-      "targetContractHash": "07f09047c76a39d83a05b258439f62c580aab6755b1540ef9b872e5075da6a30",
+      "targetContractHash": "84afc26bf4a4576d716a783568f0b7e8add92bb374f273c7dc8294d31c4d1c6a",
       "disposition": "adapter",
       "registration": "advertised",
       "availability": ["registered-workspace", "authenticated-owner"],
@@ -2979,7 +2979,7 @@
           "schemaHash": "60319cf2a48f6639b94f962e90b67e3fe4b82302161a9b5d837c1973a0ec909b"
         }
       ],
-      "targetContractHash": "11f5e0265e93d1ccd159385373e175cc4debc2ca7741b912208cc854e6986830",
+      "targetContractHash": "7db6b77789975666be476c652e732afe73b61913002d3097d6f341beced78404",
       "disposition": "native",
       "registration": "advertised",
       "availability": ["connected-plugin"],
@@ -3028,6 +3028,25 @@
       "implementation": "packages/plugin/src/handlers/set-annotations.ts",
       "test": "packages/plugin/test/handlers/set-annotations.test.ts",
       "policyId": "tool:set_annotations:v1"
+    },
+    {
+      "name": "portal_prepare_source",
+      "sourceRefs": ["super-figma-pipeline:packages/shared/src/portal.ts#portal_prepare_source"],
+      "sourceContracts": [
+        {
+          "source": "super-figma-pipeline",
+          "schemaHash": "68a249a1c8c91a66fa628d13984d3e1308595a8e40ef02a8006baaab5ba1d9b1"
+        }
+      ],
+      "targetContractHash": "712a9da9e9ecc402be7b827ddd5c2380fb8d9ff91796125dc498b68b69ce21b6",
+      "disposition": "adapter",
+      "registration": "advertised",
+      "availability": ["registered-workspace", "authenticated-owner"],
+      "investment": "active",
+      "implementationStatus": "implemented",
+      "implementation": "packages/mcp/src/portal/coordinator.ts",
+      "test": "packages/mcp/test/portal/coordinator.test.ts",
+      "policyId": "tool:portal_prepare_source:v1"
     }
   ],
   "sourceSurfaces": {

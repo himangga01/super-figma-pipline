@@ -3,9 +3,9 @@
   "dataLicense": "CC0-1.0",
   "SPDXID": "SPDXRef-DOCUMENT",
   "name": "Super Figma Pipeline installed production dependency inventory",
-  "documentNamespace": "https://super-figma-pipeline.local/spdx/1e304bcc7e9935f013f2195737406ee679c5a112f5dcf02b21cc462b97dab7d8",
+  "documentNamespace": "https://super-figma-pipeline.local/spdx/495333d1af84cb634c20df2063e38bfda1754cd80f2c8ea1aa183e4ae438d1b6",
   "creationInfo": {
-    "created": "2026-09-27T14:52:28.000Z",
+    "created": "2026-10-05T12:15:32.000Z",
     "creators": ["Tool: sfp-generate-sbom"]
   },
   "documentComment": "Installed production dependencies, including bundled plugin/CLI dependencies. Platform optional packages absent on this builder are not represented. Exact resolution is pinned by pnpm-lock.yaml.",
@@ -187,6 +187,16 @@
       "downloadLocation": "NOASSERTION",
       "filesAnalyzed": false,
       "licenseDeclared": "NOASSERTION",
+      "licenseConcluded": "NOASSERTION",
+      "copyrightText": "NOASSERTION"
+    },
+    {
+      "SPDXID": "SPDXRef-93d852c25f0b0de0e0b4da30",
+      "name": "@sfp/portal",
+      "versionInfo": "0.1.0",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "licenseDeclared": "MIT",
       "licenseConcluded": "NOASSERTION",
       "copyrightText": "NOASSERTION"
     },
@@ -751,6 +761,11 @@
       "spdxElementId": "SPDXRef-DOCUMENT",
       "relationshipType": "DESCRIBES",
       "relatedSpdxElement": "SPDXRef-b68777b07e8d3e92a8b23f53"
+    },
+    {
+      "spdxElementId": "SPDXRef-DOCUMENT",
+      "relationshipType": "DESCRIBES",
+      "relatedSpdxElement": "SPDXRef-93d852c25f0b0de0e0b4da30"
     },
     {
       "spdxElementId": "SPDXRef-DOCUMENT",

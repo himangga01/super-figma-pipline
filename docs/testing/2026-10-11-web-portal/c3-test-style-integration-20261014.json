@@ -1,0 +1,37 @@
+{
+  "schemaVersion": 1,
+  "kind": "reviewed-c3-test-style-only-integration",
+  "at": "2026-10-13T18:13:38.136Z",
+  "baselineSource": "sha256:15c074bf124393877d75f73278dad7b9b2033c9fac58a5f0b89bdb83b122d4fa",
+  "manifestHash": "ac263e9479138c505cf273682d66957909d21e1e456459e27dedc1d4233352b5",
+  "indexHash": "ecc1808ab3e14fa2e8c233ae1fc1c91e0a33b5b2e383a7270f1bc3068997e675",
+  "attempts": [
+    {
+      "path": "service/packages/mcp/test/portal/react-router-compiler-evidence.test.ts",
+      "beforeHash": "62fc8c6891ac08a4a24f3672a6991f45fa5514f039a4d07d882102f8949cc4a9",
+      "afterHash": "684d073c9fb949c15bb2d8cf3621ebc5bdc13581052c858f720fc32da60bbab2",
+      "status": "verified",
+      "mutationStarted": true,
+      "intentAt": "2026-10-13T18:13:38.143Z",
+      "verifiedAt": "2026-10-13T18:13:38.149Z",
+      "observedHash": "684d073c9fb949c15bb2d8cf3621ebc5bdc13581052c858f720fc32da60bbab2"
+    },
+    {
+      "path": ".worktrees/baseline/service/packages/mcp/test/portal/react-router-compiler-evidence.test.ts",
+      "beforeHash": "62fc8c6891ac08a4a24f3672a6991f45fa5514f039a4d07d882102f8949cc4a9",
+      "afterHash": "684d073c9fb949c15bb2d8cf3621ebc5bdc13581052c858f720fc32da60bbab2",
+      "status": "verified",
+      "mutationStarted": true,
+      "intentAt": "2026-10-13T18:13:38.154Z",
+      "verifiedAt": "2026-10-13T18:13:38.160Z",
+      "observedHash": "684d073c9fb949c15bb2d8cf3621ebc5bdc13581052c858f720fc32da60bbab2"
+    }
+  ],
+  "status": "integrated",
+  "sourceIntegrated": true,
+  "runtimeDeployed": false,
+  "testsRepeated": false,
+  "automaticReplayAllowed": false,
+  "sourceHash": "sha256:81c92584c08c5bd6c2d8c0beeb7972e3f70e10eecb8d16fddd79c43d4a68eae8",
+  "completedAt": "2026-10-13T18:13:38.819Z"
+}

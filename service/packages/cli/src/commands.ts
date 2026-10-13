@@ -1,12 +1,18 @@
-import { resolve } from 'node:path';
+import { resolve, dirname } from 'node:path';
 import { setTimeout as delay } from 'node:timers/promises';
 import { parseArgs } from 'node:util';
 
 import { readFileWithinLimit } from '../../mcp/src/fs/atomic-file.js';
 import { runAdminCommand } from './admin-commands.js';
 import { createCaptureFolder, writeCapture, writeInspection } from './artifacts.js';
-import { openChromeSession, observeFigmaPage } from './browser-session.js';
-import { captureBrowserAssets, type CapturedAsset } from './capture-assets.js';
+import {
+  openChromeSession,
+  observeFigmaPage,
+  probeFigmaWebRuntime,
+  type ChromeSessionOwner,
+} from './browser-session.js';
+import { captureBrowserAssets, captureDesignAssets, type CapturedAsset } from './capture-assets.js';
+import { compareCaptureFacts, verifyCaptureAssets } from './capture-fact-comparison.js';
 import { retainChromeFailure } from './chrome-diagnostics.js';
 import { ControlClient } from './control-client.js';
 import { assertDesktopTarget, readDesktopDesign } from './desktop-reader.js';
@@ -14,8 +20,12 @@ import { compareNativeImageAssets } from './figma-native-assets.js';
 import { decodeFigmaNativeDocument, selectFigmaNativeNodes } from './figma-native-document.js';
 import { normalizeFigmaNativeNodes, compareFigmaCaptureNodes } from './figma-native-nodes.js';
 import { normalizeFigmaNativeStyles, compareFigmaStyleCatalogs } from './figma-native-styles.js';
+import { readFigmaPageSnapshot, readFigmaPageAsset } from './figma-page-reader.js';
 import { parseFigmaTarget } from './figma-url.js';
+import { copyFigmaWebAsset } from './figma-web-copy.js';
 import { exportFigmaWebDocument } from './figma-web-export.js';
+import type { LocalCaptureExecution } from './local-capture-execution.js';
+import { waitLogically } from './logical-wait.js';
 import { runOfficialFigmaMcpCommand } from './official-figma-mcp-command.js';
 import { prepareDesktopPlugin } from './plugin-bootstrap.js';
 import { runPortalPlanCommand } from './portal-commands.js';
@@ -34,13 +44,19 @@ export const parseCommand = (args: string[]) =>
       workspace: { type: 'string' },
       out: { type: 'string' },
       input: { type: 'string' },
+      format: { type: 'string' },
       reference: { type: 'string' },
       'reference-assets': { type: 'string' },
+      'input-assets': { type: 'string' },
+      'input-root': { type: 'string' },
+      'reference-root': { type: 'string' },
       cdp: { type: 'string' },
       open: { type: 'boolean', default: false },
       'allow-model-data': { type: 'boolean', default: false },
       scripter: { type: 'boolean', default: true },
       'ui-only': { type: 'boolean', default: false },
+      'probe-runtime': { type: 'boolean', default: false },
+      'page-api': { type: 'boolean', default: false },
       wait: { type: 'string', default: '300' },
       depth: { type: 'string', default: '40' },
       'max-nodes': { type: 'string', default: '2000' },
@@ -57,14 +73,44 @@ const seconds = (value: string | undefined): number => {
   return n;
 };
 
-export const runCommand = async (args: string[], emit: (value: unknown) => void): Promise<void> => {
-  if (await runOfficialFigmaMcpCommand(args, emit)) return;
-  if (await runPortalPlanCommand(args, emit)) return;
-  if (await runAdminCommand(args, emit)) return;
+const readComparisonJson = async (path: string) =>
+  JSON.parse((await readFileWithinLimit(resolve(path), 16_777_216)).toString('utf8')) as unknown;
+
+export const runCommand = async (
+  args: string[],
+  emit: (value: unknown) => void,
+  options: {
+    client?: ControlClient;
+    signal?: AbortSignal;
+    allowServerStart?: boolean;
+    chromeSessionOwner?: ChromeSessionOwner;
+    captureExecution?: LocalCaptureExecution;
+  } = {},
+): Promise<void> => {
+  options.signal?.throwIfAborted();
+  if (await runOfficialFigmaMcpCommand(args, emit, options)) return;
+  if (await runPortalPlanCommand(args, emit, options)) return;
+  if (await runAdminCommand(args, emit, options)) return;
   const parsed = parseCommand(args);
   const command = parsed.positionals[0] ?? 'help';
   const opts = parsed.values;
   const precise = opts.scripter === true && !opts['ui-only'];
+  if (
+    opts['page-api'] &&
+    (command !== 'chrome-inspect' ||
+      opts['ui-only'] ||
+      !opts.url ||
+      !parseFigmaTarget(opts.url).nodeId ||
+      (opts['node-id'] !== undefined && opts['node-id'] !== parseFigmaTarget(opts.url).nodeId))
+  )
+    throw new Error('FIGMA_PAGE_API_ARGUMENTS_REQUIRED');
+  if (opts['probe-runtime'] && (command !== 'chrome-inspect' || !opts['ui-only']))
+    throw new Error('FIGMA_WEB_RUNTIME_PROBE_REQUIRES_UI_ONLY');
+  if (
+    command === 'chrome-copy' &&
+    (!opts.url || !parseFigmaTarget(opts.url).nodeId || !['svg', 'png'].includes(opts.format ?? ''))
+  )
+    throw new Error('FIGMA_WEB_COPY_ARGUMENTS_REQUIRED: provide a node URL and --format svg|png');
   if (precise && ['chrome-inspect', 'connect'].includes(command))
     BrowserReadQuerySchema.parse({
       nodeId: opts['node-id'] ?? null,
@@ -77,12 +123,17 @@ export const runCommand = async (args: string[], emit: (value: unknown) => void)
         'connect --url <figma-url> --allow-model-data [--workspace <path>] [--keep-open]',
         'desktop-prepare: prepare the bundled local Figma Desktop development plugin for manual import',
         'chrome-inspect --url <figma-url> [--open] [--workspace <path>] [--cdp http://127.0.0.1:9222] [--scripter] [--out <folder>]: --max-nodes is a 1..2000 per-query batch limit; snapshots continue across batches',
+        'chrome-inspect --url <figma-url> --ui-only --probe-runtime: report page API availability only; does not establish design capture',
+        'chrome-inspect --url <figma-node-url> --page-api [--out <folder>]: read and export through the page runtime without Scripter',
         'chrome-open --url <figma-url>: open a missing Figma tab through Playwright in the existing authorized Chrome',
         'chrome-tabs --url <figma-url>',
         'chrome-export --url <figma-url> [--open] [--out <folder>]: collect a native Figma Web document without Scripter',
+        'chrome-copy --url <figma-node-url> --format svg|png [--out <folder>]: collect the selected node through Figma Web Copy as without Scripter',
         'chrome-decode --input <document.fig> --url <figma-url> [--out <folder>]: inspect native document structure; does not establish live capture',
         'chrome-compare --input <document.fig> --reference <design.json> --url <figma-url> [--reference-assets <assets.json>] [--out <folder>]',
+        'chrome-compare-reads --input <design.json> --reference <design.json> [--input-assets <assets.json> --reference-assets <assets.json>] [--input-root <capture-folder> --reference-root <capture-folder>] [--out <folder>]: compare all recorded facts and verified asset bytes',
         'figma-mcp config|probe|read [--endpoint <official-url>] [--url <figma-node-url>] [--tool <read-tool>] [--oauth-token-env <name>]',
+        'figma-mcp auth status|configure|start|cancel|logout|refresh: daemon-owned, session-only OAuth; writes require --provider-instance-id, --configuration-generation, --auth-generation; start/refresh require --deadline-at; configure accepts only environment names and installed contract references; start prints safe portal consent instructions only',
         'status',
         'tools list | tools call <name> --args <JSON> [--workspace <path>] [--yes]',
         'workspace list|add|remove|default; egress status|allow|reset|audit; network list|add|remove',
@@ -91,14 +142,19 @@ export const runCommand = async (args: string[], emit: (value: unknown) => void)
         'grounding refresh --args <JSON> --workspace-id <id> [--yes]',
         'portal plan --args-file <request.json> --workspace <path> [--figma-session <id> | --figma-file-hash <hash> for retained Desktop]; portal run|next|status|cancel|resume <id>',
         'portal submit <id> --args-file <candidate.json>; portal profile --args-file <native-profile.json> [--yes]',
+        'portal profile-status <preparation-id> | --args {planId,requestId?,requestHash?}; portal profile-result <id>; portal profile-cancel <id> --yes',
+        'portal prepare-source <run-id> --args-file <bound-source-preparation.json> (reviewed source profile only; replan afterward)',
         'portal validate|apply <id> --args <JSON> [--yes]',
       ],
     });
     return;
   }
-  const client = new ControlClient();
+  const client = options.client ?? new ControlClient();
   if (command === 'desktop-prepare') {
-    const server = await ensureLocalServer(client);
+    const server = await ensureLocalServer(client, {
+      allowStart: options.allowServerStart,
+      signal: options.signal,
+    });
     try {
       const manifest = await prepareDesktopPlugin(client);
       emit({
@@ -112,6 +168,35 @@ export const runCommand = async (args: string[], emit: (value: unknown) => void)
     } finally {
       await server.close();
     }
+    return;
+  }
+  if (command === 'chrome-compare-reads') {
+    if (!opts.input || !opts.reference) throw new Error('CAPTURE_COMPARISON_INPUT_REQUIRED');
+    if (Boolean(opts['input-assets']) !== Boolean(opts['reference-assets']))
+      throw new Error('CAPTURE_COMPARISON_ASSETS_REQUIRED');
+    const actual = await readComparisonJson(opts.input),
+      reference = await readComparisonJson(opts.reference);
+    const actualAssets = opts['input-assets']
+      ? await verifyCaptureAssets(
+          await readComparisonJson(opts['input-assets']),
+          resolve(opts['input-root'] ?? dirname(opts['input-assets'])),
+        )
+      : undefined;
+    const referenceAssets = opts['reference-assets']
+      ? await verifyCaptureAssets(
+          await readComparisonJson(opts['reference-assets']),
+          resolve(opts['reference-root'] ?? dirname(opts['reference-assets'])),
+        )
+      : undefined;
+    const report = compareCaptureFacts(actual, reference, actualAssets, referenceAssets);
+    const target = parseFigmaTarget((actual as { requestedUrl: string }).requestedUrl);
+    const folder = await createCaptureFolder(
+      opts.out ?? resolve('.sfp/inspections'),
+      target.fileKey,
+    );
+    await writeCapture(folder, 'capture-comparison.json', report);
+    const { differences: _differences, ...summary } = report;
+    emit({ status: 'read-facts-compared', folder, ...summary });
     return;
   }
   if (command === 'chrome-decode' || command === 'chrome-compare') {
@@ -230,19 +315,31 @@ export const runCommand = async (args: string[], emit: (value: unknown) => void)
     return;
   }
   if (
-    !['connect', 'chrome-inspect', 'chrome-tabs', 'chrome-open', 'chrome-export'].includes(command)
+    ![
+      'connect',
+      'chrome-inspect',
+      'chrome-tabs',
+      'chrome-open',
+      'chrome-export',
+      'chrome-copy',
+    ].includes(command)
   )
     throw new Error('COMMAND_UNKNOWN');
   const deadline = Date.now() + seconds(opts.wait) * 1_000;
   if (command === 'connect') {
     if (opts.url === undefined) throw new Error('FIGMA_URL_REQUIRED');
     const target = parseFigmaTarget(opts.url);
-    const server = await ensureLocalServer(client);
+    const server = await ensureLocalServer(client, {
+      allowStart: options.allowServerStart,
+      signal: options.signal,
+    });
     const controller = new AbortController();
     const stopped = () => controller.signal.aborted;
     const stop = () => {
       controller.abort();
     };
+    options.signal?.addEventListener('abort', stop, { once: true });
+    if (options.signal?.aborted) stop();
     process.once('SIGINT', stop);
     process.once('SIGTERM', stop);
     try {
@@ -364,11 +461,16 @@ export const runCommand = async (args: string[], emit: (value: unknown) => void)
     } finally {
       process.removeListener('SIGINT', stop);
       process.removeListener('SIGTERM', stop);
+      options.signal?.removeEventListener('abort', stop);
       await server.close();
     }
     return;
   }
-  const session = await openChromeSession({
+  const chromeOptions = {
+    ...(command === 'chrome-copy' ||
+    (command === 'chrome-open' && opts.url && parseFigmaTarget(opts.url).nodeId)
+      ? { selectNode: true }
+      : {}),
     ...(opts.url === undefined ? {} : { url: opts.url }),
     ...(opts.cdp === undefined ? {} : { cdp: opts.cdp }),
     connectionTimeoutMs: Math.min(seconds(opts.wait) * 1_000, 300_000),
@@ -376,14 +478,66 @@ export const runCommand = async (args: string[], emit: (value: unknown) => void)
     (['chrome-inspect', 'chrome-export'].includes(command) && opts.open)
       ? { openIfMissing: true }
       : {}),
-  });
+  };
+  options.captureExecution?.progress('connecting');
+  // Opening/selecting intent can be issued by the retained transport before CDP completes.
+  if (chromeOptions.openIfMissing || chromeOptions.selectNode)
+    options.captureExecution?.beforeEffect();
+  const trackedChromeOptions = {
+    ...chromeOptions,
+    beforeSourceEffect: () => options.captureExecution?.beforeEffect(),
+  };
+  const session = await (options.chromeSessionOwner
+    ? options.chromeSessionOwner.open(trackedChromeOptions, options.signal)
+    : openChromeSession(trackedChromeOptions, options.signal));
+  options.captureExecution?.progress('source-selected');
   const target = session.target;
+  const sourceWork = <T>(pending: Promise<T>, cleanup = false) =>
+    typeof options.chromeSessionOwner?.trackCaptureWork === 'function'
+      ? options.chromeSessionOwner.trackCaptureWork(
+          pending,
+          cleanup,
+          options.captureExecution?.executionId,
+        )
+      : pending;
+  const sourceUnconfirmed = () =>
+    options.chromeSessionOwner?.markCaptureUnconfirmed(options.captureExecution?.executionId);
   const chromeController = new AbortController();
   const cancelChrome = () => chromeController.abort(new Error('CHROME_CAPTURE_CANCELLED'));
+  options.signal?.addEventListener('abort', cancelChrome, { once: true });
+  if (options.signal?.aborted) cancelChrome();
   process.once('SIGINT', cancelChrome);
   process.once('SIGTERM', cancelChrome);
   let lastStatus = '';
   try {
+    chromeController.signal.throwIfAborted();
+    if (command === 'chrome-open') {
+      if (Date.now() >= deadline) throw new Error('FIGMA_EDITOR_NOT_READY');
+      options.captureExecution?.beforeEffect();
+      const current = parseFigmaTarget(session.page.url());
+      if (target.nodeId && current.nodeId !== target.nodeId) {
+        await sourceWork(
+          session.page.goto(target.url, {
+            waitUntil: 'domcontentloaded',
+            timeout: Math.max(1, Math.min(30_000, deadline - Date.now())),
+          }),
+        );
+      }
+      await waitLogically(
+        sourceWork(session.page.bringToFront()),
+        AbortSignal.any([
+          chromeController.signal,
+          AbortSignal.timeout(Math.max(1, deadline - Date.now())),
+        ]),
+      );
+      chromeController.signal.throwIfAborted();
+    }
+    if (command === 'chrome-copy') {
+      await session.page.goto(target.url, {
+        waitUntil: 'domcontentloaded',
+        timeout: Math.max(1, Math.min(30_000, deadline - Date.now())),
+      });
+    }
     emit({
       status: 'attached-existing-chrome',
       cdpEndpoint: session.cdpEndpoint,
@@ -394,7 +548,10 @@ export const runCommand = async (args: string[], emit: (value: unknown) => void)
     while (Date.now() < deadline) {
       chromeController.signal.throwIfAborted();
       // eslint-disable-next-line no-await-in-loop -- observe readiness without filling authentication forms
-      const observation = await observeFigmaPage(session.page, target);
+      const observation = await observeFigmaPage(session.page, target, {
+        deadlineAt: deadline,
+        signal: chromeController.signal,
+      });
       if (observation.status !== lastStatus) {
         emit({
           status: observation.status,
@@ -405,6 +562,8 @@ export const runCommand = async (args: string[], emit: (value: unknown) => void)
       }
       if (observation.status === 'access-required') throw new Error('FIGMA_ACCESS_REQUIRED');
       if (observation.status === 'ready' || (observation.status === 'guest-preview' && !precise)) {
+        options.captureExecution?.beforeEffect();
+        options.captureExecution?.progress('capture-started');
         // eslint-disable-next-line no-await-in-loop -- a capture has one terminal publication
         const folder = await createCaptureFolder(
           opts.out ?? resolve('.sfp/inspections'),
@@ -414,13 +573,55 @@ export const runCommand = async (args: string[], emit: (value: unknown) => void)
         const screenshot = await session.page.screenshot({ type: 'png' });
         // eslint-disable-next-line no-await-in-loop -- capture order records which surface produced the image
         await writeCapture(folder, 'viewport.png', screenshot);
+        const runtimeProbe = opts['probe-runtime']
+          ? // eslint-disable-next-line no-await-in-loop -- probe only this selected source after readiness
+            await probeFigmaWebRuntime(session.page, target, {
+              deadlineAt: deadline,
+              signal: chromeController.signal,
+            })
+          : undefined;
         // eslint-disable-next-line no-await-in-loop -- capture order is deterministic
-        await writeCapture(folder, 'observation.json', observation);
+        await writeCapture(
+          folder,
+          'observation.json',
+          runtimeProbe ? { ...observation, runtimeProbe } : observation,
+        );
+        if (command === 'chrome-copy') {
+          // eslint-disable-next-line no-await-in-loop -- one explicit selected-node UI copy
+          const copied = await copyFigmaWebAsset(
+            session.page,
+            target,
+            opts.format as 'svg' | 'png',
+            folder,
+            {
+              deadlineAt: deadline,
+              signal: chromeController.signal,
+              sourceWork,
+            },
+          );
+          emit({
+            status: 'asset-copied',
+            folder,
+            source: copied.source,
+            nodeId: copied.nodeId,
+            format: copied.format,
+            path: copied.path,
+            bytes: copied.bytes,
+            sha256: copied.sha256,
+            width: copied.width,
+            height: copied.height,
+            fullAssetAcceptance: copied.fullAssetAcceptance,
+            selectionBinding: copied.selectionBinding,
+          });
+          return;
+        }
         if (command === 'chrome-export') {
+          options.captureExecution?.progress('exporting');
           // eslint-disable-next-line no-await-in-loop -- one selected source export after readiness
           const exported = await exportFigmaWebDocument(session.page, target, folder, {
             deadlineAt: deadline,
             signal: chromeController.signal,
+            sourceWork,
           });
           emit({ status: 'document-exported', folder, ...exported });
           return;
@@ -431,25 +632,43 @@ export const runCommand = async (args: string[], emit: (value: unknown) => void)
         if (precise) {
           try {
             // eslint-disable-next-line no-await-in-loop -- precision capture is a bounded sequence of read-only scopes
-            const design = await readScripterSnapshot(
-              session.page,
-              target,
-              {
-                nodeId: opts['node-id'] ?? target.nodeId,
-                depth: Number(opts.depth),
-                maxNodes: Number(opts['max-nodes']),
-              },
-              { deadlineAt: deadline, signal: chromeController.signal },
+            const design = await sourceWork(
+              (opts['page-api'] ? readFigmaPageSnapshot : readScripterSnapshot)(
+                session.page,
+                target,
+                {
+                  nodeId: opts['node-id'] ?? target.nodeId,
+                  depth: Number(opts.depth),
+                  maxNodes: Number(opts['max-nodes']),
+                },
+                {
+                  deadlineAt: deadline,
+                  signal: chromeController.signal,
+                  sourceWork,
+                  sourceUnconfirmed,
+                },
+              ),
+              !opts['page-api'],
             );
             truncated = design.truncated;
             capturedPageId = design.pageId;
             emit({ status: 'collecting-assets', nodeCount: design.nodeCount });
-            // eslint-disable-next-line no-await-in-loop -- export assets from the exact already observed file
-            assets = await captureBrowserAssets(session.page, target, design.nodes, folder, {
+            const assetOptions = {
               deadlineAt: deadline,
               signal: chromeController.signal,
+              sourceWork,
+              sourceUnconfirmed,
               renderingComplete: !design.truncated,
-            });
+            };
+            // eslint-disable-next-line no-await-in-loop -- export assets from the exact already observed file through the chosen collector
+            assets = await (opts['page-api']
+              ? captureDesignAssets(
+                  design.nodes,
+                  folder,
+                  query => readFigmaPageAsset(session.page, target, query, assetOptions),
+                  assetOptions,
+                )
+              : captureBrowserAssets(session.page, target, design.nodes, folder, assetOptions));
             // eslint-disable-next-line no-await-in-loop -- retain pending/unavailable assets too
             await writeCapture(folder, 'assets.json', assets);
             if (opts.workspace !== undefined) {
@@ -482,7 +701,11 @@ export const runCommand = async (args: string[], emit: (value: unknown) => void)
         await writeInspection(
           folder,
           {
-            source: precise ? 'chrome-scripter' : 'chrome-ui',
+            source: precise
+              ? opts['page-api']
+                ? 'chrome-page-api'
+                : 'chrome-scripter'
+              : 'chrome-ui',
             target: {
               fileKey: target.fileKey,
               requestedUrl: target.url,
@@ -517,7 +740,11 @@ export const runCommand = async (args: string[], emit: (value: unknown) => void)
           folder,
           exactDesignValues: precise,
           truncated,
-          source: precise ? 'figma-plugin-api-via-scripter' : 'playwright-chrome-ui',
+          source: precise
+            ? opts['page-api']
+              ? 'figma-web-page-api'
+              : 'figma-plugin-api-via-scripter'
+            : 'playwright-chrome-ui',
         });
         if (opts['keep-open']) {
           // eslint-disable-next-line no-await-in-loop -- explicitly requested connection lifetime
@@ -535,14 +762,28 @@ export const runCommand = async (args: string[], emit: (value: unknown) => void)
       // eslint-disable-next-line no-await-in-loop -- observe the existing tab without changing authentication
       await delay(1_000);
     }
-    throw new Error(
+    const readinessError = new Error(
       lastStatus === 'login-required' || lastStatus === 'guest-preview'
         ? 'FIGMA_LOGIN_REQUIRED: sign in inside the existing Figma tab'
         : 'FIGMA_EDITOR_NOT_READY',
     );
+    options.captureExecution?.beforeEffect();
+    const failureFolder = await createCaptureFolder(
+      opts.out ?? resolve('.sfp/inspections'),
+      target.fileKey,
+    );
+    await retainChromeFailure(session.page, failureFolder, readinessError);
+    emit({
+      status: 'partial',
+      folder: failureFolder,
+      exactDesignValues: false,
+      error: readinessError.message,
+    });
+    throw readinessError;
   } finally {
     process.removeListener('SIGINT', cancelChrome);
     process.removeListener('SIGTERM', cancelChrome);
+    options.signal?.removeEventListener('abort', cancelChrome);
     await session.close();
   }
 };

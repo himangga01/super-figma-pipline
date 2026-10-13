@@ -1,0 +1,22 @@
+{
+  "at": "2026-10-11T18:25:19.830Z",
+  "sourceHash": "sha256:f0dc149a95da3bc7f8e52aecb094362d6e0166ae69e4ba29946a393e90f220c8",
+  "sameTab": true,
+  "scope": "two actual sequential portal Chrome tab reads; not capture or frontend acceptance",
+  "nativeApprovalAutomated": false,
+  "jobs": [
+    {
+      "jobId": "d9f5fa70-7e3d-41d4-ac30-1e32d067d68f",
+      "status": "failed",
+      "errorCode": "CHROME_CONNECTION_REQUIRED",
+      "outputBytes": null,
+      "outputHash": null,
+      "elapsedMs": 180188
+    }
+  ],
+  "passed": false,
+  "error": {
+    "message": "Expected values to be strictly equal:\n+ actual - expected\n\n+ 'failed'\n- 'succeeded'\n",
+    "locations": []
+  }
+}

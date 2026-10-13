@@ -1,0 +1,20 @@
+{
+  "schemaVersion": 1,
+  "date": "2026-10-14",
+  "kind": "published-assembler-relative-import-correction",
+  "path": "examples/portal-cases/assemble-case-capsules.mjs",
+  "beforeSha256": "cff9f29834de3233b5ed0dbd2c8708ed62f5f561c63651cddba0169153ea267f",
+  "afterSha256": "272b4cdf1243c763520f39e6166b8e54aa540e65355fa39fe6005ed6b811e099",
+  "change": "Two imports use the published shared-design directory instead of the author's private preparation layout.",
+  "verification": {
+    "command": "node --experimental-transform-types --disable-warning=ExperimentalWarning --input-type=module -e import-public-assembler",
+    "exitCode": 0,
+    "moduleImported": true,
+    "materializationExecuted": false,
+    "serviceCalls": false,
+    "oldPassingCasesRepeated": false
+  },
+  "authorFreezeChanged": false,
+  "serviceSourceChanged": false,
+  "caseAcceptance": false
+}

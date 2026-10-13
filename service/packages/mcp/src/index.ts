@@ -36,6 +36,9 @@ import {
   createEgressAdminAuditTransactions,
   createEgressControl,
 } from './control/egress-endpoints.js';
+import { createFigmaOAuthHandoffHttpHandler } from './control/figma-oauth-handoff.js';
+import { FigmaOAuthProvider } from './control/figma-oauth-provider.js';
+import { createFigmaMcpSettingsEndpoint } from './control/figma-settings-endpoint.js';
 import { createGroundingEndpoint } from './control/grounding-endpoints.js';
 import { registerIdentityRoutes } from './control/identity-endpoints.js';
 import { createNetworkDomainEndpoints } from './control/network-domain-endpoints.js';
@@ -43,6 +46,7 @@ import { createOperationEndpoints } from './control/operation-endpoints.js';
 import { createOperationEvidenceEndpoint } from './control/operation-evidence-endpoint.js';
 import {
   registerTask7ControlRoutes,
+  registerFigmaMcpSettingsRoutes,
   registerTask8BNetworkRoutes,
   registerSnapshotControlRoutes,
 } from './control/route-registry.js';
@@ -55,6 +59,7 @@ import { createSnapshotEndpoint } from './control/snapshot-endpoints.js';
 import { createControlStatusEndpoint } from './control/status-endpoint.js';
 import { createToolCallEndpoint } from './control/tool-call-endpoint.js';
 import { createWorkspaceEndpoints } from './control/workspace-endpoints.js';
+import { Diagnostics } from './diagnostics.js';
 import { ControlRouteRegistry as LeaderControlRouteRegistry } from './election/control-route-registry.js';
 import { Election } from './election/election.js';
 import { Follower } from './election/follower.js';
@@ -123,6 +128,7 @@ import {
   createCorePreparationArchivePolicy,
 } from './portal/archive-eligibility.js';
 import { preparePortalCaptureAuthority } from './portal/capture-admission-runtime.js';
+import { StoredNativeContourAcquisition } from './portal/capture-native-supplement.js';
 import { createPortalCaptureRuntime } from './portal/capture-runtime.js';
 import {
   createPortalBindingResolver,
@@ -210,6 +216,7 @@ const envPort = Number(process.env.FIGWRIGHT_PORT);
 const PORT = Number.isInteger(envPort) && envPort > 0 && envPort < 65_536 ? envPort : DEFAULT_PORT;
 
 const stateRoot = resolveDefaultStateRoot();
+const diagnostics = new Diagnostics(stateRoot, 'daemon');
 const statePermissions = createStatePermissions(stateRoot);
 await statePermissions.ensureSecure(stateRoot);
 await statePermissions.verifySecure(stateRoot);
@@ -697,9 +704,22 @@ const initializeLeaderRuntime = async (resources: LeaderResources): Promise<Lead
           code: 'LEADER_GENERATION_CLOSED',
         });
     });
-    const portalCapture = new ExistingChromeDesignCapture(stateRoot, statePermissions, portalStore);
+    const portalCapture = new ExistingChromeDesignCapture(
+      stateRoot,
+      statePermissions,
+      portalStore,
+      {
+        nativeContourSupplement: true,
+        nativeContourUnavailable: 'retain-primary',
+      },
+    );
     const chromeExecutable = googleChromeExecutable();
     const executionQueue = new FileExecutionQueue();
+    const nativeContourAcquisition = new StoredNativeContourAcquisition(
+      stateRoot,
+      statePermissions,
+      portalStore,
+    );
     const portalWork = new PortalNativeWork({
       stateRoot,
       leaderGeneration: generation,
@@ -707,6 +727,8 @@ const initializeLeaderRuntime = async (resources: LeaderResources): Promise<Lead
       policy: workspacePolicy,
       permissions: statePermissions,
       designCapture: portalCapture,
+      // Profile preparation reads protected source evidence without starting a browser operation.
+      nativeContourAcquisition,
       validatorModuleUrl: new URL('./portal-validation.mjs', import.meta.url).href,
       ...(chromeExecutable ? { chromeExecutable } : {}),
       environmentArchivePolicy: createNativeAttemptArchivePolicy({
@@ -735,6 +757,7 @@ const initializeLeaderRuntime = async (resources: LeaderResources): Promise<Lead
       portalCapture,
       (actor, runId) => executor.cancelPendingPortalRun(actor, runId),
       portalRecipes,
+      nativeContourAcquisition,
     );
     const remoteDomains = new RemoteDomainConfigStore({
       stateRoot,
@@ -980,11 +1003,19 @@ const initializeLeaderRuntime = async (resources: LeaderResources): Promise<Lead
         sessions: sessionBindings,
       }),
     };
+    const officialFigmaOAuth = await FigmaOAuthProvider.open({
+      stateRoot,
+      permissions: statePermissions,
+      ownerActorId,
+    });
+    const officialFigmaSettings = createFigmaMcpSettingsEndpoint({ oauth: officialFigmaOAuth });
     const captureRuntime = createPortalCaptureRuntime({
       stateRoot,
       permissions: statePermissions,
       store: portalStore,
       chrome: portalCapture,
+      pageApi: portalCapture.pageApiCapture,
+      officialMcp: officialFigmaSettings.connection,
       admission: captureAdmission,
     });
     const runtimes = createBoundRuntimeRegistry(
@@ -1122,6 +1153,7 @@ const initializeLeaderRuntime = async (resources: LeaderResources): Promise<Lead
         resources.executionPlane?.cancel(principal, input) ?? Promise.resolve(),
     });
     const typedControlRouter = new AuthenticatedControlRouter();
+    registerFigmaMcpSettingsRoutes(typedControlRouter, officialFigmaSettings);
     registerTask7ControlRoutes(typedControlRouter, {
       status: createControlStatusEndpoint({
         browserConnection: () => portalCapture.connectionState(),
@@ -1247,22 +1279,29 @@ const initializeLeaderRuntime = async (resources: LeaderResources): Promise<Lead
       createPortalProfilePreparationEndpoint({ store: portalStore, work: portalWork }),
     );
     typedControlRouter.freeze();
-    const controlHandler = createControlHttpHandler({
+    const principalForControlRequest = async (request: import('node:http').IncomingMessage) => {
+      const authorization = request.headers.authorization;
+      const credential =
+        typeof authorization === 'string' && authorization.startsWith('Bearer ')
+          ? authorization.slice('Bearer '.length)
+          : '';
+      return Object.freeze({
+        actorId: ownerActorId,
+        authSessionId: deriveControlAuthSession(ownerPrincipalKey, credential, generation),
+        entryPath: 'control' as const,
+      });
+    };
+    const typedControlHandler = createControlHttpHandler({
       router: typedControlRouter,
-      principalForRequest: async request => {
-        const authorization = request.headers.authorization;
-        const credential =
-          typeof authorization === 'string' && authorization.startsWith('Bearer ')
-            ? authorization.slice('Bearer '.length)
-            : '';
-        return Object.freeze({
-          actorId: ownerActorId,
-          authSessionId: deriveControlAuthSession(ownerPrincipalKey, credential, generation),
-          entryPath: 'control' as const,
-        });
-      },
+      principalForRequest: principalForControlRequest,
       log,
     });
+    const handoffControlHandler = createFigmaOAuthHandoffHttpHandler({
+      provider: officialFigmaOAuth,
+      principalForRequest: principalForControlRequest,
+    });
+    const controlHandler: ReturnType<typeof createControlHttpHandler> = async (request, response) =>
+      (await handoffControlHandler(request, response)) || typedControlHandler(request, response);
     const mcpAdapter = new McpInvocationAdapter({
       role: 'leader',
       resolveWorkspaceId: () => workspaceBinding.resolveRequiredForMcpSession(mcpSession),
@@ -1322,6 +1361,7 @@ const initializeLeaderRuntime = async (resources: LeaderResources): Promise<Lead
       retentionSchedule,
       executor,
       close: async () => {
+        await officialFigmaOAuth.close();
         await portalCapture.close();
         await portalWork.close();
         resources.relay.setDocumentBindingHandler(null);
@@ -1374,6 +1414,7 @@ node.onRoleChange(role => {
         leaderGeneration: res.generation.generation,
       });
       currentDetach = attachLeaderEndpoints(res.http, {
+        diagnostics,
         relay: res.relay,
         serverVersion: SERVER_VERSION,
         buildId: BUILD_ID,
@@ -1408,6 +1449,7 @@ node.onRoleChange(role => {
 });
 
 await election.start();
+diagnostics.record('daemon.ready', { buildId: BUILD_ID });
 
 type ToolHandlerContext = ServerContext;
 type ToolHandler = (
@@ -1656,7 +1698,9 @@ const shutdown = async (): Promise<void> => {
   await stdio?.close().catch(() => {});
   election.stop();
   await node.stop();
-  process.exit(0);
+  diagnostics.record('daemon.stopped', { buildId: BUILD_ID });
+  const flushed = await diagnostics.flush();
+  process.exit(flushed ? 0 : 1);
 };
 // Exit on SIGINT/SIGTERM, on stdin EOF, and on the transport dying under us. stdin closes when the
 // client that spawned us goes away (including a crash that sends no signal); without this the

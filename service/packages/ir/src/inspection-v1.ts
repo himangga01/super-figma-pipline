@@ -15,7 +15,7 @@ export const InspectionV1Schema = z
   .object({
     schemaVersion: z.literal(1),
     kind: z.literal('sfp-inspection'),
-    source: z.enum(['desktop-plugin', 'chrome-scripter', 'chrome-ui']),
+    source: z.enum(['desktop-plugin', 'chrome-scripter', 'chrome-page-api', 'chrome-ui']),
     target: z
       .object({
         fileKey: z.string().min(10).max(128),

@@ -1,0 +1,22 @@
+{
+  "schemaVersion": 1,
+  "name": "changed-source-types",
+  "releaseId": "03c80519-d773-4cc7-bfa3-1b416151544f",
+  "finalSourceHash": "sha256:303de5d1904d11c1fb89bdf80951900e375ac4325ea6cfc932f39ebee2785732",
+  "status": "passed",
+  "sourceBinding": "reviewed-exact-files",
+  "evidence": {
+    "prior": {
+      "path": "docs/testing/2026-10-11-web-portal/fast-changed-statics-20261013.json",
+      "sha256": "69dc2359e881d2536d3c77edbb0771830435a2c2e01efc525ca9146bf711a06f"
+    },
+    "r52": {
+      "path": "docs/testing/2026-10-11-web-portal/c2-legacy-ssr-r52-statics-20261013.json",
+      "sha256": "f5f993475c5775ba1e809e2bfcd7a3b96482fa3e683b51c8e52b62ec3bda6258"
+    },
+    "oldSourceHash": "sha256:334ec00e04927207fc46a2604fe25028f38f47f49ea9e06998d73494f0859276",
+    "scope": "Earlier MCP/CLI/portal type checks plus exact R52 MCP delta; reviewed exact files, not final full-source type acceptance"
+  },
+  "wholePassed": false,
+  "liveAcceptance": false
+}

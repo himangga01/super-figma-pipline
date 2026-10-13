@@ -1,0 +1,54 @@
+{
+  "schemaVersion": 1,
+  "kind": "portable-unexecuted-stopped-continuation-code-index",
+  "recordedDate": "2026-10-14 Asia/Seoul",
+  "selectedSource": "sha256:d722c32152149464c961c660622a95e3da603eb00f291e28b15c024507bcd87d",
+  "files": [
+    {
+      "path": "replacement-continuation.mjs",
+      "sha256": "f7e1fe2532976b3868c27ff6334bffc88f27d271e07f75055a0a59f6a9a3e5b7",
+      "kind": "exact-reviewed-code-copy",
+      "runtimeExecuted": false
+    },
+    {
+      "path": "inventory-links.mjs",
+      "sha256": "1a5d31373c33a422a7a13a95b0ecd94c54bfcd23ed999d1afdf5e02eef33eeeb",
+      "kind": "exact-reviewed-code-copy",
+      "runtimeExecuted": false
+    },
+    {
+      "path": "scoped-gates.mjs",
+      "sha256": "bdd7995867aca9f7d2457274ee4debdfa01218f1287d10d2be168c137142b558",
+      "kind": "exact-reviewed-code-copy",
+      "runtimeExecuted": false
+    },
+    {
+      "path": "continuation-freeze.json",
+      "sha256": "00b79b5ca1fd14f1a2510c32274ac3670b63e6877ad34aa24b9ccb1ffd8f1a16",
+      "kind": "exact-freeze-copy"
+    }
+  ],
+  "localOnlyAuthorityInputs": [
+    {
+      "kind": "failed original intent",
+      "sha256": "19d0a2b22790ab018440b32a0268eee54cdae2c9d844e81da37a15b6aff2555c"
+    },
+    {
+      "kind": "exact refused-link closure670",
+      "sha256": "85a5509942dd317a38b68bb5f45ff7c48c52d0d2ce95da545d9a0055db017a94"
+    },
+    {
+      "kind": "classified Windows directory symbolic-link proof670",
+      "sha256": "0fd53bac7419f4d5428fb4e388e578503ede7ba20f2696eeba42679c28580aba"
+    }
+  ],
+  "claims": {
+    "codePrepared": true,
+    "independentPreflightReviewApproved": true,
+    "actualPreflightProvedByThisCopy": false,
+    "runtimeStartedByThisCopy": false,
+    "rawAuthorityOrCredentialsCopied": false,
+    "linksReplayedOrChanged": false
+  },
+  "limits": "The code requires exact protected original R4 runtime/helper records on the owner PC. Git copies do not reconstruct, renew or substitute that authority. Only the sole controller may run the authorized mode after Root review."
+}

@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 1,
+  "attemptId": "289d68fa-aba0-4d6b-aaa7-ef5863e78672",
+  "status": "failed",
+  "sourceHash": "sha256:4602f3d863f9bb52006ddb9cee23bc3a742898558415e330814b8c8bc278165e",
+  "failedAt": "2026-10-11T13:06:27.396Z",
+  "checks": [],
+  "error": "TEST_SCOPE_DECLARATION_FAILED: invalid or duplicate scope file: packages/mcp/test/control/figma-settings-endpoint.test.ts; invalid or duplicate scope file: packages/portal/test/figma-settings.test.ts; undeclared report file: packages/mcp/test/control/figma-settings-endpoint.test.ts; undeclared report file: packages/portal/test/figma-settings.test.ts",
+  "realFigmaValidated": false,
+  "targetServiceValidated": false,
+  "remoteCiValidated": false
+}

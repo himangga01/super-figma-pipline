@@ -1,0 +1,36 @@
+{
+  "schemaVersion": 1,
+  "kind": "diagnostic-cleanup-r3-only-integration",
+  "at": "2026-10-13T18:01:48.787Z",
+  "baselineSource": "sha256:195ba986e0ea9ec4e7624b4cae581a553c15ea486428ddc340b0eb1a0c4a6ba4",
+  "manifestHash": "615e7e9e6dc8afbf03454163307f8d9bc7888b80305e5b64d67bf01f46b218a1",
+  "indexHash": "ecc1808ab3e14fa2e8c233ae1fc1c91e0a33b5b2e383a7270f1bc3068997e675",
+  "attempts": [
+    {
+      "path": "service/packages/mcp/test/portal/source-refresh-diagnostic.test.ts",
+      "beforeHash": "33353d65bf4e42c8c8e61e0b8908b8325e1ba4fd8f2f52b15df053d70692efd8",
+      "afterHash": "0eb0aa3d6965c13f79b03bb1d1dfcb63b9eb1b91f5ab3978c7547d5938d4eb21",
+      "status": "verified",
+      "mutationStarted": true,
+      "intentAt": "2026-10-13T18:01:48.793Z",
+      "verifiedAt": "2026-10-13T18:01:48.800Z",
+      "observedHash": "0eb0aa3d6965c13f79b03bb1d1dfcb63b9eb1b91f5ab3978c7547d5938d4eb21"
+    },
+    {
+      "path": ".worktrees/baseline/service/packages/mcp/test/portal/source-refresh-diagnostic.test.ts",
+      "beforeHash": "33353d65bf4e42c8c8e61e0b8908b8325e1ba4fd8f2f52b15df053d70692efd8",
+      "afterHash": "0eb0aa3d6965c13f79b03bb1d1dfcb63b9eb1b91f5ab3978c7547d5938d4eb21",
+      "status": "verified",
+      "mutationStarted": true,
+      "intentAt": "2026-10-13T18:01:48.806Z",
+      "verifiedAt": "2026-10-13T18:01:48.813Z",
+      "observedHash": "0eb0aa3d6965c13f79b03bb1d1dfcb63b9eb1b91f5ab3978c7547d5938d4eb21"
+    }
+  ],
+  "sourceIntegrated": true,
+  "runtimeDeployed": false,
+  "testsRepeated": false,
+  "status": "integrated",
+  "sourceHash": "sha256:ab36034ff27bca4f3df6783d46ccf86b99d541976d4655e6c2f4e7beed1c5f81",
+  "completedAt": "2026-10-13T18:01:49.567Z"
+}

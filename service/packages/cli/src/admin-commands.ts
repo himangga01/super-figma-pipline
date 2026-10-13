@@ -1,6 +1,7 @@
-import { randomBytes } from 'node:crypto';
+import { randomBytes, randomUUID } from 'node:crypto';
 import { mkdir, open, readFile, realpath } from 'node:fs/promises';
 import { dirname, join, resolve } from 'node:path';
+import { setTimeout as delay } from 'node:timers/promises';
 import { parseArgs } from 'node:util';
 
 import { contentHash, GroundingRefreshArgsSchema, SnapshotCaptureArgsSchema } from '@sfp/ir';
@@ -11,6 +12,11 @@ import {
   PortalNativeRegistrationSchema,
   PortalPreparedNativeProfileSchema,
 } from '../../mcp/src/portal/native-work.js';
+import {
+  ProfilePreparationStatusSchema,
+  ProfilePreparationQuerySchema,
+  ProfilePreparationIdSchema,
+} from '../../mcp/src/portal/profile-preparation.js';
 import { createStatePermissions } from '../../mcp/src/security/state-permissions.js';
 import { ALL_TOOL_SPECS } from '../../mcp/src/tools/registry.js';
 import { ControlClient } from './control-client.js';
@@ -45,10 +51,34 @@ const commands = new Set([
   'grounding',
   'portal',
 ]);
+const uncertainAcknowledgement = (error: unknown) => {
+  try {
+    const value = error as { code?: unknown; status?: unknown; name?: unknown };
+    return (
+      value.status === undefined &&
+      (value.name === 'TimeoutError' ||
+        value.name === 'AbortError' ||
+        value.name === 'SyntaxError' ||
+        ['ECONNRESET', 'EPIPE', 'ETIMEDOUT', 'UND_ERR_SOCKET', 'UND_ERR_HEADERS_TIMEOUT'].includes(
+          String(value.code),
+        ))
+    );
+  } catch {
+    return false;
+  }
+};
 export const runAdminCommand = async (
   args: string[],
   emit: (value: unknown) => void,
+  options: {
+    client?: ControlClient;
+    signal?: AbortSignal;
+    deadlineAt?: number;
+    cancelSourceProfile?: (id: string, deadlineAt: number) => Promise<unknown>;
+  } = {},
 ): Promise<boolean> => {
+  const requestStartedAt = Date.now();
+
   if (!commands.has(args[0] ?? '')) return false;
   const parsed = parseArgs({
     args,
@@ -107,7 +137,8 @@ export const runAdminCommand = async (
     throw commandError('Choose --workspace or --workspace-id');
   if (opts.session !== undefined && opts.target !== undefined)
     throw commandError('Choose --session or --target');
-  const client = new ControlClient();
+  const client = options.client ?? new ControlClient();
+  options.signal?.throwIfAborted();
   const nonce = async (
     name: Parameters<typeof hashActionRequest>[0],
     semantic: unknown,
@@ -124,6 +155,123 @@ export const runAdminCommand = async (
     emit({ pairCode: await client.pairCode() });
     return true;
   }
+  const sourceDeadline = () => {
+    const seconds = Number(opts.timeout);
+    if (!Number.isSafeInteger(seconds) || seconds <= 0 || seconds > 3600)
+      throw commandError('Source profile timeout must be 1..3600 seconds');
+    return Math.min(
+      requestStartedAt + seconds * 1000,
+      options.deadlineAt ?? Number.MAX_SAFE_INTEGER,
+    );
+  };
+  /* eslint-disable no-await-in-loop -- sequential status polling preserves the same bounded job and original deadline */
+  const waitSourceProfile = async (
+    first: unknown,
+    wanted: 'ready' | 'registered',
+    originalDeadline: number,
+  ) => {
+    let status = ProfilePreparationStatusSchema.parse(first);
+    const id = status.preparationId,
+      deadline = Math.min(
+        originalDeadline,
+        wanted === 'ready'
+          ? status.preparationDeadlineAt
+          : (status.registrationDeadlineAt ?? originalDeadline),
+      );
+    try {
+      for (;;) {
+        options.signal?.throwIfAborted();
+        if (Date.now() >= deadline)
+          throw Object.assign(new Error('PORTAL_BUDGET_EXHAUSTED'), {
+            code: 'PORTAL_BUDGET_EXHAUSTED',
+          });
+        if (status.status === wanted && status.issuerAvailable && !status.producerPending)
+          return wanted === 'ready'
+            ? await client.request(
+                '/control/portal/profile-preparations/' + id + '/result',
+                'GET',
+                undefined,
+                {
+                  ...(options.signal ? { signal: options.signal } : {}),
+                  timeoutMs: Math.min(5000, deadline - Date.now()),
+                },
+              )
+            : status.registration;
+        if (
+          ['failed', 'unknown'].includes(status.status) ||
+          (!status.producerPending && !status.issuerAvailable)
+        )
+          throw Object.assign(
+            new Error(status.errorCode ?? 'PORTAL_PROFILE_PREPARATION_ISSUER_UNAVAILABLE'),
+            { code: status.errorCode ?? 'PORTAL_PROFILE_PREPARATION_ISSUER_UNAVAILABLE' },
+          );
+        await delay(250, undefined, options.signal ? { signal: options.signal } : {});
+        status = ProfilePreparationStatusSchema.parse(
+          await client.request('/control/portal/profile-preparations/' + id, 'GET', undefined, {
+            ...(options.signal ? { signal: options.signal } : {}),
+            timeoutMs: Math.min(5000, Math.max(1, deadline - Date.now())),
+          }),
+        );
+      }
+    } catch (error) {
+      if (options.signal?.aborted || Date.now() >= deadline) {
+        await (
+          options.cancelSourceProfile
+            ? options.cancelSourceProfile(id, deadline)
+            : client.request(
+                '/control/portal/profile-preparations/' + id + '/cancel',
+                'POST',
+                {},
+                { timeoutMs: Math.max(1, Math.min(3000, deadline - Date.now())) },
+              )
+        ).catch(() => undefined);
+      }
+      throw error;
+    }
+  };
+  if (command === 'portal' && action === 'profile-status') {
+    const selector = ProfilePreparationQuerySchema.parse(
+      value ? { preparationId: value } : await jsonArgs(opts),
+    );
+    const query = new URLSearchParams(
+      Object.entries(selector).filter((entry): entry is [string, string] => entry[1] !== undefined),
+    );
+    emit(
+      await client.request(
+        '/control/portal/profile-preparations?' + query.toString(),
+        'GET',
+        undefined,
+        { ...(options.signal ? { signal: options.signal } : {}), timeoutMs: 5000 },
+      ),
+    );
+    return true;
+  }
+  if (command === 'portal' && action === 'profile-result') {
+    if (!value) throw commandError('portal profile-result <preparation-id>');
+    ProfilePreparationIdSchema.parse({ preparationId: value });
+    emit(
+      await client.request(
+        '/control/portal/profile-preparations/' + value + '/result',
+        'GET',
+        undefined,
+        { ...(options.signal ? { signal: options.signal } : {}), timeoutMs: 5000 },
+      ),
+    );
+    return true;
+  }
+  if (command === 'portal' && action === 'profile-cancel') {
+    if (!opts.yes || !value) throw commandError('portal profile-cancel <preparation-id> --yes');
+    ProfilePreparationIdSchema.parse({ preparationId: value });
+    emit(
+      await client.request(
+        '/control/portal/profile-preparations/' + value + '/cancel',
+        'POST',
+        {},
+        { ...(options.signal ? { signal: options.signal } : {}), timeoutMs: 5000 },
+      ),
+    );
+    return true;
+  }
   if (command === 'portal' && action === 'profile') {
     if (value !== undefined)
       throw commandError('portal profile --args-file <reviewed-native-profile.json> --yes');
@@ -137,22 +285,84 @@ export const runAdminCommand = async (
       );
       if (resolve(dirname(preparedFile)).toLowerCase() !== resolve(folder).toLowerCase())
         throw commandError(`--prepared-file must be directly inside ${folder}`);
-      const prepared = PortalPreparedNativeProfileSchema.parse(
-        await client.request('/control/portal/profiles/prepare', 'POST', profile),
-      );
+      const deadlineAt = sourceDeadline();
+      let response: unknown;
+      if (profile.purpose === 'source-preparation') {
+        const body = { profile, deadlineAt, requestId: randomUUID() },
+          requestHash = contentHash('sfp-profile-preparation-request-v1', body);
+        try {
+          response = await client.request('/control/portal/profiles/prepare', 'POST', body, {
+            ...(options.signal ? { signal: options.signal } : {}),
+            timeoutMs: Math.min(10000, Math.max(1, deadlineAt - Date.now())),
+          });
+        } catch (error) {
+          options.signal?.throwIfAborted();
+          if (!uncertainAcknowledgement(error)) throw error;
+          const rows = await client.request<unknown[]>(
+            '/control/portal/profile-preparations?' +
+              new URLSearchParams({
+                planId: profile.planId,
+                requestId: body.requestId,
+                requestHash,
+              }),
+            'GET',
+            undefined,
+            {
+              ...(options.signal ? { signal: options.signal } : {}),
+              timeoutMs: Math.min(5000, Math.max(1, deadlineAt - Date.now())),
+            },
+          );
+          if (rows.length !== 1) throw error;
+          response = rows[0];
+        }
+        const acknowledged = ProfilePreparationStatusSchema.parse(response);
+        if (
+          acknowledged.requestId !== body.requestId ||
+          acknowledged.requestHash !== requestHash ||
+          acknowledged.planId !== profile.planId ||
+          acknowledged.contextHash !== profile.contextHash ||
+          acknowledged.profileId !== profile.native.id
+        )
+          throw Object.assign(Error('PORTAL_PROFILE_PREPARATION_CHANGED'), {
+            code: 'PORTAL_PROFILE_PREPARATION_CHANGED',
+          });
+        response = await waitSourceProfile(acknowledged, 'ready', deadlineAt);
+      } else
+        response = await client.request(
+          '/control/portal/profiles/prepare',
+          'POST',
+          profile,
+          options.signal ? { signal: options.signal } : {},
+        );
+      const prepared = PortalPreparedNativeProfileSchema.parse(response);
+      const assertSourcePublication = () => {
+        if (profile.purpose !== 'source-preparation') return;
+        options.signal?.throwIfAborted();
+        if (
+          Date.now() >=
+          Math.min(deadlineAt, prepared.sourcePreparation?.issuerDeadlineAt ?? deadlineAt)
+        )
+          throw Object.assign(Error('PORTAL_BUDGET_EXHAUSTED'), {
+            code: 'PORTAL_BUDGET_EXHAUSTED',
+          });
+      };
+      assertSourcePublication();
       const permissions = createStatePermissions(client.stateRoot);
       await permissions.verifySecure(client.stateRoot);
       await mkdir(folder, { mode: 0o700 }).catch(error => {
         if ((error as NodeJS.ErrnoException).code !== 'EEXIST') throw error;
       });
       await permissions.ensureSecure(folder);
+      assertSourcePublication();
       const file = await open(preparedFile, 'wx', 0o600);
       try {
         // Apply/verify owner permissions before any protected configuration is written.
         await permissions.ensureSecure(preparedFile);
         await permissions.verifySecure(preparedFile);
+        assertSourcePublication();
         await file.writeFile(`${JSON.stringify(prepared, null, 2)}\n`, 'utf8');
         await file.sync();
+        assertSourcePublication();
         const identity = await permissions.inspectSecure(preparedFile);
         const held = await file.stat({ bigint: true });
         if (identity.key !== `${held.dev}:${held.ino}:${held.birthtimeNs}`)
@@ -160,6 +370,7 @@ export const runAdminCommand = async (
       } finally {
         await file.close();
       }
+      assertSourcePublication();
       emit({
         status: 'review-required',
         preparedFile,
@@ -180,6 +391,8 @@ export const runAdminCommand = async (
           ),
         },
         profileId: prepared.native.id,
+        purpose: prepared.purpose ?? 'acceptance',
+        sourcePreparationOnly: prepared.purpose === 'source-preparation',
         planId: prepared.planId,
         sourceHash: prepared.native.sourceHash,
         executionMode: 'native-working-copy',
@@ -193,10 +406,12 @@ export const runAdminCommand = async (
           allowLifecycleScripts: step.allowLifecycleScripts,
         })),
         environmentNames: Object.keys(prepared.native.environment),
-        consumption: prepared.recipeUse.prepared,
+        consumption: prepared.recipeUse?.prepared,
         observationManifest: prepared.observationManifest,
         instruction:
-          'Review the complete prepared file, including commands, environment, source closure, observations and recipe use. Register that exact file using portal profile --args-file <preparedFile> --yes. Registration does not run commands.',
+          prepared.purpose === 'source-preparation'
+            ? 'Review the complete source-purpose prepared file, including exact commands, package context, importer/lock/configuration and source/artifact hashes. Register that exact file using portal profile --args-file <preparedFile> --yes. Registration does not execute it. Run portal prepare-source under the original run deadline, then create a fresh plan. This provides compiler evidence only; capture, workflow confirmation, coding lease and acceptance are still required.'
+            : 'Review the complete prepared file, including commands, environment, source closure, observations and recipe use. Register that exact file using portal profile --args-file <preparedFile> --yes. Registration does not run commands.',
       });
       return true;
     }
@@ -209,12 +424,46 @@ export const runAdminCommand = async (
       planId: profile.planId,
       profileHash: contentHash('sfp-portal-profile-request-v1', profile),
     };
-    emit(
-      await client.request('/control/portal/profiles', 'POST', {
-        profile,
-        actionNonce: await nonce('portal.profile.register', semantic),
-      }),
-    );
+    const actionNonce = await nonce('portal.profile.register', semantic);
+    if (profile.purpose === 'source-preparation') {
+      const deadlineAt = sourceDeadline();
+      let response: unknown;
+      try {
+        response = await client.request(
+          '/control/portal/profiles',
+          'POST',
+          { profile, actionNonce, deadlineAt },
+          {
+            ...(options.signal ? { signal: options.signal } : {}),
+            timeoutMs: Math.min(10000, Math.max(1, deadlineAt - Date.now())),
+          },
+        );
+      } catch (error) {
+        options.signal?.throwIfAborted();
+        if (!uncertainAcknowledgement(error)) throw error;
+        const row = await client.request(
+          '/control/portal/profile-preparations/' + profile.sourcePreparation!.preparationId,
+          'GET',
+          undefined,
+          {
+            ...(options.signal ? { signal: options.signal } : {}),
+            timeoutMs: Math.min(5000, Math.max(1, deadlineAt - Date.now())),
+          },
+        );
+        const status = ProfilePreparationStatusSchema.parse(row);
+        if (!['registering', 'registered', 'unknown'].includes(status.status)) throw error;
+        response = row;
+      }
+      emit(await waitSourceProfile(response, 'registered', deadlineAt));
+    } else
+      emit(
+        await client.request(
+          '/control/portal/profiles',
+          'POST',
+          { profile, actionNonce },
+          options.signal ? { signal: options.signal } : {},
+        ),
+      );
     return true;
   }
   if (
@@ -373,7 +622,7 @@ export const runAdminCommand = async (
   }
   const toolName =
     command === 'portal' && action !== undefined
-      ? `portal_${action === 'run' ? 'start' : action}`
+      ? `portal_${action === 'run' ? 'start' : action === 'prepare-source' ? 'prepare_source' : action}`
       : command === 'tool'
         ? action
         : command === 'tools' && action === 'call'
@@ -437,13 +686,23 @@ export const runAdminCommand = async (
       await client.invoke({
         name,
         kind: spec === undefined ? 'service' : 'tool',
-        args: input,
+        args:
+          name === 'portal_prepare_source'
+            ? {
+                ...(input as Record<string, unknown>),
+                deadlineAt: Math.min(
+                  Number((input as { deadlineAt: number }).deadlineAt),
+                  requestStartedAt + seconds * 1000,
+                  options.deadlineAt ?? Number.MAX_SAFE_INTEGER,
+                ),
+              }
+            : input,
         workspaceId,
         targetSelector,
         approve: opts.yes,
         captureResult: opts['capture-result'],
         timeoutMs: seconds * 1000,
-        signal: controller.signal,
+        signal: options.signal ?? controller.signal,
         emit,
         ...(opts['operation-id'] === undefined ? {} : { operationId: opts['operation-id'] }),
       }),

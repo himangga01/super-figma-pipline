@@ -1,0 +1,279 @@
+{
+  "at": "2026-10-12T14:27:03.168Z",
+  "baseline": "sha256:4b11eac461e23d44a6c6373ff4fce9e74391b4ae1c04ac75f3f6b623591236b5",
+  "sourceHash": "sha256:b595c2368590cc54f643b0090f32baaa9b263131fd55a74c27c8b8f113cfe05a",
+  "files": [
+    {
+      "path": "packages/mcp/src/official-figma-oauth.ts",
+      "before": null,
+      "after": "c5f91dca14205d8e5c7a522ab33a32a8c605bedec355b5ca2c0a6e66dd617e34",
+      "scope": "engine"
+    },
+    {
+      "path": "packages/mcp/test/official-figma-oauth.test.ts",
+      "before": null,
+      "after": "9d6552b39bc1cd12f182be589f515f4939554504300888539c650f16ff8b489d",
+      "scope": "engine"
+    },
+    {
+      "path": "packages/mcp/src/control/figma-oauth-callback.ts",
+      "before": null,
+      "after": "aa1fcd9db89a9d77b26b4e36d31d7db868d9be58cb6a625b8e91f740470d7597",
+      "scope": "daemon"
+    },
+    {
+      "path": "packages/mcp/src/control/figma-oauth-contract.ts",
+      "before": null,
+      "after": "b46deab1f5cb5b15988f07a1b9229559fb7857421ec3736036558d5aa9181006",
+      "scope": "daemon"
+    },
+    {
+      "path": "packages/mcp/src/control/figma-oauth-handoff.ts",
+      "before": null,
+      "after": "f47591eb2cd2124f3c6db3746bf9c416481333e7b823c7479fe8994b5bb09b41",
+      "scope": "daemon"
+    },
+    {
+      "path": "packages/mcp/src/control/figma-oauth-metadata.ts",
+      "before": null,
+      "after": "1cd0f7adffb5c6b993c470ef480f0488b5d6b3cd8129a471e266c128fa9a9a5c",
+      "scope": "daemon"
+    },
+    {
+      "path": "packages/mcp/src/control/figma-oauth-provider.ts",
+      "before": null,
+      "after": "af12be3b799ec8dd5a654441ad5665d28d3dac6c4aeb02ea82abf5703826ef2d",
+      "scope": "daemon"
+    },
+    {
+      "path": "packages/mcp/src/control/figma-oauth-state.ts",
+      "before": null,
+      "after": "700196f42b51018cbd587143f9569a944a47b6e6aeb70ca1dce88e18387a6e38",
+      "scope": "daemon"
+    },
+    {
+      "path": "packages/mcp/src/control/figma-settings-endpoint.ts",
+      "before": "747c31c5317e8cb920eb09cec20d833bce72b2fa44663680d75a06b401fa32c4",
+      "after": "2a3e766744e56b3088a84364f34f2218ec3fd536257a2c96ac8bb7183de7da5c",
+      "scope": "daemon"
+    },
+    {
+      "path": "packages/mcp/src/control/route-registry.ts",
+      "before": "724cf1fb3fe36076abf8346ffe157a720978e1a8137b27f642cc807483fde26e",
+      "after": "9ab919bbe51b1c335cee135dc14f7a2d2e8b75acf842d6e903073795538cf73b",
+      "scope": "daemon"
+    },
+    {
+      "path": "packages/mcp/src/index.ts",
+      "before": "4b53e76d7098cdeea2b9133763f8cce1d1fee467c25caf32b16e88ee163cacd8",
+      "after": "74ac932dbbdc00bc9e1225289faf206022b0fe0b6e09d22a60b4b1f1ad36a2de",
+      "scope": "daemon"
+    },
+    {
+      "path": "packages/mcp/src/official-figma-mcp.ts",
+      "before": "d5a4e2cf07e373ff3e3081299c646d1262a7e6310ea35919da9db583e0ef6820",
+      "after": "ae1fc1050fcf5a8911b587281fa5ddc636f1165e54f6331fc70995770d1ff2f3",
+      "scope": "daemon"
+    },
+    {
+      "path": "packages/mcp/test/control/figma-oauth-provider.test.ts",
+      "before": null,
+      "after": "ea86456ee36035da34187b362136f40bcab43b8244a3f0dbc8132d5fec57a484",
+      "scope": "daemon"
+    },
+    {
+      "path": "packages/cli/src/control-client.ts",
+      "before": "3f6818b0f685060bf639e30418347bce0fcd9501cdea30639ee7fdf230fbc20e",
+      "after": "3ef2b249980a8d6796a06638e3b11537e88f67948af200c76db60b03ea4e6dc2",
+      "scope": "relay"
+    },
+    {
+      "path": "packages/cli/test/control-client-oauth-handoff.test.ts",
+      "before": null,
+      "after": "0ca33212f4505a7b089054b434f9878dd0e5e0027f8bd1c5aed90bd95e8a99bf",
+      "scope": "relay"
+    },
+    {
+      "path": "packages/portal/src/server.ts",
+      "before": "3196dbefedaa3c67293ee81a583dd76827e0c16fd6e84acf511f1820946cc594",
+      "after": "1bd438d4bffc1fe0f4fa8db800a57e0033af099ac9f49e792fae5f0f5f835ce2",
+      "scope": "relay"
+    },
+    {
+      "path": "packages/portal/src/control.ts",
+      "before": "decf556b34e21d5ad7048b26088f468121793834ad8bed07a71f54d336bd097e",
+      "after": "d7623e55517a393ac19ea9aec13f1147af597be6cfd016458b7ea674888cfb18",
+      "scope": "relay"
+    },
+    {
+      "path": "packages/portal/src/bridge.ts",
+      "before": "56db66aaef06b09f184f72728a2a5123c20c1e9581a0323995c6ab81b3cb999d",
+      "after": "5e729885279e81964144f450c59fd56747282541d0ad90d2a76b6f5ac93ce5b2",
+      "scope": "relay"
+    },
+    {
+      "path": "packages/portal/src/figma-settings.ts",
+      "before": "0e2a4f9612dfdefbdbe7dc615f239f96476de9bab1f2cbb7d57c5d82b628ac90",
+      "after": "c5ebe016937ac62a3940846897c707192ff2d835499d2682867c3875b764b8ea",
+      "scope": "relay"
+    },
+    {
+      "path": "packages/portal/src/contract.ts",
+      "before": "0a77805d3a9332c966948f411ee47bb1afd4929aa852a673f993f80c571bd1e3",
+      "after": "093c1d201aeadc83d157a1770f2e826686ca8db2a2e188b375c95809314d8e84",
+      "scope": "relay"
+    },
+    {
+      "path": "packages/portal/test/figma-oauth-relay.test.ts",
+      "before": null,
+      "after": "d00590cde1379a17e8f524dd0b6e9713c2e07d0ae294ab8d195094f0630aff0b",
+      "scope": "relay"
+    },
+    {
+      "path": "packages/portal/web/figma-settings.js",
+      "before": "6dbce11c8e74d6f083bc0bcf62ae4d6de895901fd2d3baa5a567a0e1b18b5643",
+      "after": "00a6349b3c16da3b31cab8e32da0dde5cc5764724abd1d9fd01fb9f4cbb66575",
+      "scope": "ui"
+    },
+    {
+      "path": "packages/portal/web/api.js",
+      "before": "839d093685ba0c0d56072d7ec679357cd2dc9a3d4096ee50a17bca57a14bb9e5",
+      "after": "4b608fcde06ebb2e2a8bf2d3bda7ba682a3a72920b8762ce55db8f6390b05102",
+      "scope": "ui"
+    },
+    {
+      "path": "packages/portal/web/figma-auth-public.js",
+      "before": null,
+      "after": "37c224301b981a75ea0eb59755142199372de6bf5ec9b8b5671bb365631056f9",
+      "scope": "ui"
+    },
+    {
+      "path": "packages/portal/web/figma-auth-consent.html",
+      "before": null,
+      "after": "a517ebb46e30626d50ab7562b459e209a8d93d617370fd367524bba7319f4eea",
+      "scope": "ui"
+    },
+    {
+      "path": "packages/portal/web/figma-auth-consent.js",
+      "before": null,
+      "after": "cfa0bd18655247a3dcaff6520b250bfd329484d857be7b94a077428416d01b0c",
+      "scope": "ui"
+    },
+    {
+      "path": "packages/portal/web/figma-auth-consent.css",
+      "before": null,
+      "after": "92936bf38172f7af6875e8be212882ff6a7db8eceb186306ced37a347e6abc73",
+      "scope": "ui"
+    },
+    {
+      "path": "packages/portal/web/service-functions.js",
+      "before": "757065688ec43b2acf519cb5b8073554a18865e458813c6762322bbd0efc2a51",
+      "after": "36c0d05f81dcc63db109eaff6a6bc0239e797d85624f90dce95cf91a503c0e19",
+      "scope": "ui"
+    },
+    {
+      "path": "packages/portal/web/tests/official-oauth-settings.test.mjs",
+      "before": null,
+      "after": "29ed09255609f04e0dc09d8412a009a17f65d099bd37caa06429bac6020c9379",
+      "scope": "ui"
+    },
+    {
+      "path": "packages/portal/web/tests/service-job-approval-pointer.test.mjs",
+      "before": null,
+      "after": "dff63cabdb36c6f1f14388d29e513801ce11c5cad45d380312767a9260c01dac",
+      "scope": "ui"
+    },
+    {
+      "path": "packages/portal/web/tests/local-capture-progress.test.mjs",
+      "before": "0ccb220881a776f52cf9803eec4f2e0b009749d9ba1da01c176c31bcc24bdc13",
+      "after": "dea8ed68928a2c88bea448e5ee83bb942abed46f6bb98ccaf2090ea7492805fe",
+      "scope": "ui"
+    },
+    {
+      "path": "packages/cli/src/official-figma-mcp-command.ts",
+      "before": "fba46756261a5cf7ebd798d9b998d4cb4e885baef293ee0fb3c833832e7f06dd",
+      "after": "d129f1e6a536c2e2045472bdb7db73ad01296b7fda9599d2e8a4023cefddafe9",
+      "scope": "ui"
+    },
+    {
+      "path": "packages/cli/src/service-functions.ts",
+      "before": "1df07a9fa0b8213e043660ab6d44d2d6f16561781348af21218fc18905fa7f92",
+      "after": "5e979e50b00a2cfc2bdbc60f016020a4c2c098e028721efcea42f3698f10113f",
+      "scope": "ui"
+    },
+    {
+      "path": "packages/cli/src/commands.ts",
+      "before": "4ef01f26d4abb4decb070e86deb01b16ea715e672b1cbb5f8266d6ef5661ee5b",
+      "after": "335a807e57092b40851b1c351af74228971721531d47e349407e3ff371b458ad",
+      "scope": "ui"
+    },
+    {
+      "path": "packages/cli/test/official-figma-mcp-auth.test.ts",
+      "before": null,
+      "after": "31d12be4451480fc852c0c6dd313d3f95bee14419c5df5b068352a8c9ade98db",
+      "scope": "ui"
+    },
+    {
+      "path": "packages/cli/test/service-functions.test.ts",
+      "before": "61144d951c9accb56fcd09ee7088ca7ef57ddefbf8edc4b4d7f3f1c50d71ac28",
+      "after": "2c6b5c6956ab4862b997a7ff54e0c7cb83f1a7a9c030c5c5ad05eb3b0b5da1f6",
+      "scope": "ui"
+    },
+    {
+      "path": "packages/cli/test/official-figma-mcp.test.ts",
+      "before": "9a48e7343804b234763ac60fa269f853e1767835a43309844291c14f544059a8",
+      "after": "bd090eb43a4d4a8fddf67fad20594f4024fa88078e769c85355fc8f1f0f5c2ca",
+      "scope": "ui"
+    },
+    {
+      "path": "packages/portal/package.json",
+      "before": "117b1e02db6798bf9197e722fd615f3519e6cc841ed37d4210e3eef47d91912b",
+      "after": "ddb99eafe979d2319697f9bde91d01c4b3f4cf7f3e2a2baccfcb06ceff7767c8",
+      "scope": "packaging"
+    },
+    {
+      "path": "scripts/verify-artifacts.mjs",
+      "before": "f830be1f4b2a98992fa0baa66a7339ba96af2d6f026d7c76ecb97eb50d8fa86f",
+      "after": "256ea98d106af460404c2e45c30aa7a67e5c25f18de29f47a51278351ef47360",
+      "scope": "packaging"
+    },
+    {
+      "path": "test/portal-artifact-startup.test.ts",
+      "before": "79bea84da156a81ce54ae342d26e2c1b45c6241aa1c5fa5d1cf921f7229cbdfd",
+      "after": "7b31555201ebfe1b8ba817ff9102693f70eefc4faac10c9a44c6f034b0a7f55a",
+      "scope": "packaging"
+    }
+  ],
+  "manifests": [
+    {
+      "scope": "engine",
+      "sha256": "f533af57855cf27d44fb7cba28f9ede327f1ead88c6c4f4a52c6079a8b5ad453"
+    },
+    {
+      "scope": "daemon",
+      "sha256": "4e305e019d0c4fb87e1943d410afb7b0b8dc75ab189ebcc6dacd9a3e0d8474dd"
+    },
+    {
+      "scope": "relay",
+      "sha256": "c2e91af7753aa25d5bf4563b33a22bd025b188b809cde987cc38275753fcaecf"
+    },
+    {
+      "scope": "ui",
+      "sha256": "a07566ba819eca4f4e8cbfca5fd2d45b4382c26fc619a3ed8f90d493064d1cfe"
+    },
+    {
+      "scope": "packaging",
+      "sha256": "adb742f0c1806990e5f2331d25542ee60aa68a9c3a7ef2a27f4a06822ca6fca6"
+    }
+  ],
+  "ownerIndex": "a99e5dd36982d74373d779448068a8449189b133e54cd673b13be2c2c356b2a9",
+  "alreadyOverlaid": [
+    "packages/portal/web/service-functions.js",
+    "packages/portal/web/tests/local-capture-progress.test.mjs"
+  ],
+  "officialLiveVerification": "deferred by owner",
+  "compiledRuntimeReplaced": false,
+  "provenanceReconciliationOwed": true,
+  "wholeCheckOwed": true,
+  "completeFrontendAccepted": false
+}

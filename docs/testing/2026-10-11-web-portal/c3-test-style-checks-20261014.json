@@ -1,0 +1,22 @@
+{
+  "schemaVersion": 1,
+  "at": "2026-10-13T18:14:06.706Z",
+  "file": "packages/mcp/test/portal/react-router-compiler-evidence.test.ts",
+  "sha256": "684d073c9fb949c15bb2d8cf3621ebc5bdc13581052c858f720fc32da60bbab2",
+  "reason": "Only prior failing new test lint and format rechecked after import/sort/assertion/style correction",
+  "checks": [
+    {
+      "name": "lint",
+      "exitCode": 0,
+      "outputHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "format",
+      "exitCode": 0,
+      "outputHash": "ef93c7b1136d81e42353c7e63300ec09ba60802c5ee167224ab053c474ceec2c"
+    }
+  ],
+  "typesRepeated": false,
+  "functionalAssertionsRepeated": false,
+  "whole": false
+}

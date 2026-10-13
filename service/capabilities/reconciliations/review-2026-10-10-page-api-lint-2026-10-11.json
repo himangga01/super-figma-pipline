@@ -1,0 +1,44 @@
+{
+  "schemaVersion": 1,
+  "slice": "review-2026-10-10",
+  "baseline": {
+    "headCommit": "22517932dc9b2cb974c177ec4eacb84d4b16e254",
+    "authoritySha256": {
+      "upstream-lock.json": "f6f06fe1230940455439fc0deb6163b8af23f365e46b5b0d46c85eee97f00fba",
+      "vendor-map.json": "b3275c7d8b997d1cfe723d97594659f77d7b4361b824a790bcfdd7ff762589bd",
+      "vendor-rules.json": "c0dfdd5af2cee9830b96e0778df3a83e394f65eef45941531e2f1475eab50c8d"
+    }
+  },
+  "entries": [
+    {
+      "path": "capabilities/task-review-2026-10-10-authority-classes.json",
+      "sha256": "ab5da8f2066cf34976ef4a629bb2420ad324a87577b5cd42bc92aadd7d25890d",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "ad17896341ff20c9d0e9669914b7160c37d12c610fa380368c9b562cf1078179"
+        },
+        {
+          "class": "protected",
+          "sha256": "ad17896341ff20c9d0e9669914b7160c37d12c610fa380368c9b562cf1078179"
+        }
+      ],
+      "reason": "Add explicit callback returns to the page-API cleanup regressions for the repository lint rule. Runtime production behavior is unchanged. The affected eight-case suite, both source typechecks, and all 24 owned paths lint/format pass; preserve prior integration evidence and require the next whole checkpoint."
+    },
+    {
+      "path": "packages/mcp/test/portal/page-api-flow.test.ts",
+      "sha256": "44bf0b671d5945503bfb4c03b65fe98a2911173bed9fd0bf9652b219ffc48c47",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "095cf75120cf84b32a8b813429ea0715422108704d6edc6a3121295e404e2b0e"
+        },
+        {
+          "class": "protected",
+          "sha256": "095cf75120cf84b32a8b813429ea0715422108704d6edc6a3121295e404e2b0e"
+        }
+      ],
+      "reason": "Add explicit callback returns to the page-API cleanup regressions for the repository lint rule. Runtime production behavior is unchanged. The affected eight-case suite, both source typechecks, and all 24 owned paths lint/format pass; preserve prior integration evidence and require the next whole checkpoint."
+    }
+  ]
+}

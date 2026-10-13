@@ -1,0 +1,35 @@
+{
+  "schemaVersion": 1,
+  "mode": "focused",
+  "runId": "0aa69b71-ca03-4578-9650-75eeee6677d7",
+  "declaredAt": "2026-10-11T18:46:51.590Z",
+  "sourceHash": "sha256:f0dc149a95da3bc7f8e52aecb094362d6e0166ae69e4ba29946a393e90f220c8",
+  "command": [
+    "pnpm",
+    "exec",
+    "vitest",
+    "run",
+    "test/artifact-contents.test.ts"
+  ],
+  "collectionCommand": [
+    "node",
+    "scripts/collect-test-registrations.mjs",
+    "--file",
+    "test/artifact-contents.test.ts"
+  ],
+  "toolchain": {
+    "node": "v24.21.0",
+    "platform": "win32",
+    "architecture": "x64",
+    "nodeSha256": "ba4e6d110e8c1592a1ecd390f6b05f3da124b13871a5be62b341a07a853c6c32",
+    "pnpmSha256": "ab0e1ca4f3f3059571b8fc7a7efffe010b719644268eb3b3c6a2a36649b2fa9e"
+  },
+  "files": [
+    {
+      "path": "test/artifact-contents.test.ts",
+      "tests": [
+        "verifies the actual four archives, contained files and portable portal startup"
+      ]
+    }
+  ]
+}

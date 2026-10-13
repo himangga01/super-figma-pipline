@@ -1,0 +1,21 @@
+{
+  "schemaVersion": 1,
+  "name": "diagnostics-contracts",
+  "releaseId": "1fb30463-ea9c-446d-88fe-bd750b6c28d6",
+  "finalSourceHash": "sha256:d722c32152149464c961c660622a95e3da603eb00f291e28b15c024507bcd87d",
+  "status": "passed",
+  "sourceBinding": "current-source",
+  "evidence": {
+    "receipt": {
+      "path": "docs/testing/2026-10-11-web-portal/final-d722-generated-checks-20261014.json",
+      "sha256": "5b77e3cff33dae790cfde70429c5d6462a105fd0e24fa3a8265322369389c7e0"
+    },
+    "diagnosticsCatalogHash": "19ab236e3e969996da9b49dbd75c72bc7535f73c636113a2dc7a4aefde241753",
+    "scope": "Current diagnostics check passed; public contracts retain historical closed unchanged-schema evidence, no contracts rerun or new current-source contracts claim",
+    "contractsRerun": false
+  },
+  "ownerEcommerce": "skipped",
+  "officialMcpLive": "deferred",
+  "wholePassed": false,
+  "liveAcceptance": false
+}

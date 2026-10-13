@@ -118,7 +118,232 @@ const fixture = async () => {
   return { root, service, path, base, changed };
 };
 
+const workspaceMembershipFixture = async (mode: string) => {
+  const setup = await fixture();
+  git(setup.root, 'commit', '-m', 'source');
+  const portalPath = 'packages/portal/package.json';
+  const retainedUpdate = mode.startsWith('retained-update');
+  const priorPortalText = JSON.stringify({
+    name: '@sfp/portal',
+    version: '0.1.0',
+    files: ['dist', 'web/app.js'],
+  });
+  const portalText = JSON.stringify({
+    name:
+      mode === 'duplicate' || mode === 'path-rename'
+        ? '@sfp/mcp'
+        : mode === 'malformed'
+          ? null
+          : mode === 'retained-update-name'
+            ? '@sfp/renamed'
+            : '@sfp/portal',
+    version: '0.1.0',
+    ...(retainedUpdate
+      ? {
+          files: [
+            'dist',
+            'web/app.js',
+            'web/figma-settings.js',
+            'web/service-functions.js',
+            'web/schema-form.js',
+          ],
+        }
+      : {}),
+  });
+  const lockPath = join(setup.service, 'upstream-lock.json');
+  const lock = JSON.parse(await readFile(lockPath, 'utf8'));
+  lock.rootAuthority = {
+    packageManager: 'pnpm@11.24.0',
+    nodeEngine: '>=24 <25',
+    scripts: {},
+    workspacePackageNames:
+      mode === 'retained-update-ambiguous'
+        ? ['@sfp/mcp', '@sfp/portal', '@sfp/second']
+        : mode === 'retained-protected-add' || retainedUpdate
+          ? ['@sfp/mcp', '@sfp/portal']
+          : ['@sfp/mcp'],
+    knipWorkspaces: [],
+  };
+  if (mode === 'protected-add' || mode === 'retained-protected-add')
+    lock.serviceFiles.push({ path: portalPath, sha256: sha256(portalText) });
+  if (retainedUpdate)
+    lock.serviceFiles.push({
+      path: mode === 'retained-update-path' ? 'packages/prior/package.json' : portalPath,
+      sha256: sha256(priorPortalText),
+    });
+  if (mode === 'retained-update-ambiguous')
+    lock.serviceFiles.push({
+      path: 'packages/second/package.json',
+      sha256: sha256(JSON.stringify({ name: '@sfp/second' })),
+    });
+  await writeFile(lockPath, JSON.stringify(lock));
+  await writeFile(
+    join(setup.service, 'packages/mcp/package.json'),
+    JSON.stringify({ name: '@sfp/mcp' }),
+  );
+  if (mode === 'unreviewed-existing') {
+    await mkdir(join(setup.service, 'packages/other'), { recursive: true });
+    await writeFile(
+      join(setup.service, 'packages/other/package.json'),
+      JSON.stringify({ name: '@sfp/unreviewed-existing' }),
+    );
+  }
+  if (mode === 'committed-existing') {
+    await mkdir(join(setup.service, 'packages/portal'), { recursive: true });
+    await writeFile(join(setup.service, portalPath), portalText);
+  }
+  git(setup.root, 'add', '.');
+  git(setup.root, 'commit', '-m', 'workspace authority baseline');
+  await mkdir(join(setup.service, 'packages/portal'), { recursive: true });
+  await writeFile(join(setup.service, portalPath), portalText);
+  git(setup.root, 'add', `service/${portalPath}`);
+  if (mode === 'retained-update-collision') {
+    await mkdir(join(setup.service, 'packages/collision'), { recursive: true });
+    await writeFile(
+      join(setup.service, 'packages/collision/package.json'),
+      JSON.stringify({ name: '@sfp/portal' }),
+    );
+    git(setup.root, 'add', 'service/packages/collision/package.json');
+  }
+  if (mode === 'unreviewed-add') {
+    await mkdir(join(setup.service, 'packages/other'), { recursive: true });
+    await writeFile(
+      join(setup.service, 'packages/other/package.json'),
+      JSON.stringify({ name: '@sfp/unreviewed-add' }),
+    );
+    git(setup.root, 'add', 'service/packages/other/package.json');
+  }
+  if (mode === 'path-rename') git(setup.root, 'rm', 'service/packages/mcp/package.json');
+  const paths = [portalPath];
+  if (mode === 'rename') {
+    await writeFile(
+      join(setup.service, 'packages/mcp/package.json'),
+      JSON.stringify({ name: '@sfp/renamed' }),
+    );
+    git(setup.root, 'add', 'service/packages/mcp/package.json');
+    paths.unshift('packages/mcp/package.json');
+  }
+  const record = 'capabilities/reconciliations/task-7a.json';
+  await mkdir(join(setup.service, 'capabilities/reconciliations'), { recursive: true });
+  await writeFile(
+    join(setup.service, record),
+    JSON.stringify({
+      schemaVersion: 1,
+      slice: '7A',
+      baseline: {
+        headCommit: git(setup.root, 'rev-parse', 'HEAD').stdout.trim(),
+        authoritySha256: Object.fromEntries(
+          await Promise.all(
+            ['upstream-lock.json', 'vendor-map.json', 'vendor-rules.json'].map(async path => [
+              path,
+              sha256(await readFile(join(setup.service, path), 'utf8')),
+            ]),
+          ),
+        ),
+      },
+      entries: await Promise.all(
+        paths.map(async path => ({
+          path,
+          sha256: sha256(await readFile(join(setup.service, path), 'utf8')),
+          reason: 'Explicitly reviewed workspace manifest',
+          priorClaims: lock.serviceFiles
+            .filter((entry: { path: string }) => entry.path === path)
+            .map((entry: { sha256: string }) => ({
+              class: 'protected',
+              sha256: mode === 'retained-update-prior-hash' ? '0'.repeat(64) : entry.sha256,
+            })),
+        })),
+      ),
+    }),
+  );
+  const staged = git(setup.root, 'diff', '--cached', '--name-only')
+    .stdout.trim()
+    .split('\n')
+    .filter(Boolean);
+  await writeFile(
+    join(setup.service, 'capabilities/task-7a-authority-classes.json'),
+    JSON.stringify({
+      schemaVersion: 1,
+      slice: '7A',
+      allowedPaths: [
+        ...new Set([
+          ...staged,
+          ...paths.map(path => `service/${path}`),
+          `service/${record}`,
+          'service/capabilities/task-7a-authority-classes.json',
+        ]),
+      ],
+    }),
+  );
+  git(setup.root, 'add', 'service/capabilities');
+  if (mode === 'source-drift' || mode === 'index-drift') {
+    await writeFile(join(setup.service, portalPath), JSON.stringify({ name: '@sfp/drift' }));
+    if (mode === 'index-drift') {
+      git(setup.root, 'add', `service/${portalPath}`);
+      await writeFile(join(setup.service, portalPath), portalText);
+    }
+  }
+  const originalLock = await readFile(lockPath, 'utf8');
+  const result = spawnSync(
+    process.execPath,
+    [
+      sourceScript,
+      '--slice',
+      '7A',
+      '--index',
+      'service/capabilities/change-manifests/task-7a.json',
+      '--reconcile',
+      `service/${record}`,
+    ],
+    {
+      cwd: setup.root,
+      encoding: 'utf8',
+      windowsHide: true,
+      env: hermeticGitEnvironment({ ...process.env, SFP_REPOSITORY_ROOT: setup.root }),
+    },
+  );
+  return { setup, result, originalLock };
+};
+
 describe('service-fork lineage updater', () => {
+  it.each([
+    'new',
+    'protected-add',
+    'unreviewed-existing',
+    'unreviewed-add',
+    'retained-protected-add',
+    'retained-update',
+  ])('derives only explicitly reviewed new workspace names: %s', async mode => {
+    const { setup, result } = await workspaceMembershipFixture(mode);
+    expect({ status: result.status, stderr: result.stderr }).toEqual({ status: 0, stderr: '' });
+    const lock = JSON.parse(await readFile(join(setup.service, 'upstream-lock.json'), 'utf8'));
+    expect(lock.rootAuthority.workspacePackageNames).toEqual(['@sfp/mcp', '@sfp/portal']);
+  });
+
+  it.each([
+    'rename',
+    'path-rename',
+    'duplicate',
+    'malformed',
+    'committed-existing',
+    'source-drift',
+    'index-drift',
+    'retained-update-name',
+    'retained-update-path',
+    'retained-update-prior-hash',
+    'retained-update-collision',
+    'retained-update-ambiguous',
+  ])('keeps ambiguous workspace membership and review drift blocking: %s', async mode => {
+    const { setup, result, originalLock } = await workspaceMembershipFixture(mode);
+    expect(result.status).toBe(1);
+    expect(result.stderr).toContain(
+      mode.endsWith('drift') || mode === 'retained-update-prior-hash'
+        ? 'SERVICE_FORK_RECONCILIATION_CONFLICT'
+        : 'SERVICE_FORK_WORKSPACE_MEMBERSHIP_INVALID',
+    );
+    expect(await readFile(join(setup.service, 'upstream-lock.json'), 'utf8')).toBe(originalLock);
+  });
+
   it('reconciles reviewed package projections and root scripts without dropping lifecycle authority', async () => {
     const setup = await fixture();
     git(setup.root, 'commit', '-m', 'source');

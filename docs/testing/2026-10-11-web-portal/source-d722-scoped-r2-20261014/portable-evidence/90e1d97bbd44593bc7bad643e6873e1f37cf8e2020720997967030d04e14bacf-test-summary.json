@@ -1,0 +1,241 @@
+{
+  "kind": "sanitized-original-test-report-summary",
+  "originalPath": ".worktrees/_cache/native-supplement-url-root-review-20261013/root-artifact-precision.json",
+  "originalSha256": "90e1d97bbd44593bc7bad643e6873e1f37cf8e2020720997967030d04e14bacf",
+  "originalSuccess": true,
+  "numTotalTests": 57,
+  "numPassedTests": 56,
+  "numFailedTests": 0,
+  "numPendingTests": 1,
+  "assertions": [
+    {
+      "name": "operation evidence result artifact store rejects mismatched retained exact identity at the actual private artifact commit check",
+      "status": "passed"
+    },
+    {
+      "name": "operation evidence result artifact store distinguishes exact artifact identity data above the safe number range",
+      "status": "passed"
+    },
+    {
+      "name": "operation evidence result artifact store creates no lock, directory, or result outside the workspace on first-use child replacement",
+      "status": "passed"
+    },
+    {
+      "name": "operation evidence result artifact store keeps an external-process parent swap outside every marker and artifact create use",
+      "status": "passed"
+    },
+    {
+      "name": "operation evidence result artifact store cleans only the retained result descendant when the evidence-root child is replaced",
+      "status": "passed"
+    },
+    {
+      "name": "operation evidence result artifact store reads the cleanup marker through the retained operation directory after a pathname replacement",
+      "status": "skipped"
+    },
+    {
+      "name": "operation evidence result artifact store releases the cleanup directory chain when its post-open hook fails",
+      "status": "passed"
+    },
+    {
+      "name": "operation evidence result artifact store releases a Windows directory lease on every post-acquire validation failure",
+      "status": "passed"
+    },
+    {
+      "name": "operation evidence result artifact store creates nothing outside the retained evidence root during result cleanup replacement",
+      "status": "passed"
+    },
+    {
+      "name": "operation evidence result artifact store creates nothing outside the retained evidence root during result discovery replacement",
+      "status": "passed"
+    },
+    {
+      "name": "operation evidence result artifact store writes canonical redacted bytes create-new and verifies the returned digest",
+      "status": "passed"
+    },
+    {
+      "name": "operation evidence result artifact store fails before writing when preflight reports an existing capture path",
+      "status": "passed"
+    },
+    {
+      "name": "operation evidence result artifact store classifies a post-preflight create-new winner as a capture race and preserves foreign bytes",
+      "status": "passed"
+    },
+    {
+      "name": "operation evidence result artifact store synchronously removes an expired linked artifact only after fixed-path and digest verification",
+      "status": "passed"
+    },
+    {
+      "name": "operation evidence result artifact store deletes the verified marker quarantine under the default platform policy",
+      "status": "passed"
+    },
+    {
+      "name": "operation evidence result artifact store treats a verifiably missing operation directory as already removed (T09, LC-1)",
+      "status": "passed"
+    },
+    {
+      "name": "operation evidence result artifact store recovers a receipt cleanup crash after removeLinked and durably completes the intent",
+      "status": "passed"
+    },
+    {
+      "name": "operation evidence result artifact store recovers process death after marker-retained fsync from deterministic cleanup state",
+      "status": "passed"
+    },
+    {
+      "name": "operation evidence result artifact store recovers process death after artifact-quarantined fsync from deterministic cleanup state",
+      "status": "passed"
+    },
+    {
+      "name": "operation evidence result artifact store recovers process death after artifact-unlinked fsync from deterministic cleanup state",
+      "status": "passed"
+    },
+    {
+      "name": "operation evidence result artifact store preserves a replacement installed during the artifact-quarantine async window across restart",
+      "status": "passed"
+    },
+    {
+      "name": "operation evidence result artifact store serializes orphan publication under the retained authority and never leaves cap plus one",
+      "status": "passed"
+    },
+    {
+      "name": "operation evidence result artifact store bounds sparse root enumeration before materialization and stays ready across restart",
+      "status": "passed"
+    },
+    {
+      "name": "operation evidence result artifact store bounds sparse child enumeration before materialization and stays ready across restart",
+      "status": "passed"
+    },
+    {
+      "name": "operation evidence result artifact store enforces the global retained-marker row cap before publishing another residue",
+      "status": "passed"
+    },
+    {
+      "name": "operation evidence result artifact store enforces the global retained-marker byte cap at cap plus one",
+      "status": "passed"
+    },
+    {
+      "name": "operation evidence result artifact store fails closed for contradictory fixed-plus-retained marker namespace state",
+      "status": "passed"
+    },
+    {
+      "name": "operation evidence result artifact store fails closed for contradictory fixed-plus-malformed-retained marker namespace state",
+      "status": "passed"
+    },
+    {
+      "name": "operation evidence result artifact store unlinks the verified marker quarantine under held-handle Windows policy",
+      "status": "passed"
+    },
+    {
+      "name": "operation evidence result artifact store fails closed when discovery finds more than one recognized retained marker quarantine",
+      "status": "passed"
+    },
+    {
+      "name": "operation evidence result artifact store fails orphan cleanup closed when bytes changed and preserves the path for manual repair",
+      "status": "passed"
+    },
+    {
+      "name": "operation evidence result artifact store refuses linked cleanup when a foreign hardlink alias exists",
+      "status": "passed"
+    },
+    {
+      "name": "operation evidence result artifact store preserves a pathname replacement that races verified cleanup",
+      "status": "passed"
+    },
+    {
+      "name": "operation evidence result artifact store verifies and quarantines the linked cleanup marker for foreign-bytes before unlinking it",
+      "status": "passed"
+    },
+    {
+      "name": "operation evidence result artifact store verifies and quarantines the linked cleanup marker for hardlink before unlinking it",
+      "status": "passed"
+    },
+    {
+      "name": "operation evidence result artifact store verifies and quarantines the linked cleanup marker for path-replacement before unlinking it",
+      "status": "passed"
+    },
+    {
+      "name": "operation evidence result artifact store verifies and quarantines the linked cleanup marker for parent-replacement before unlinking it",
+      "status": "passed"
+    },
+    {
+      "name": "operation evidence result artifact store preserves a linked marker when its same-inode parent moves outside the workspace behind a junction",
+      "status": "passed"
+    },
+    {
+      "name": "operation evidence result artifact store rechecks the same-inode parent synchronously at the latest marker precommit point",
+      "status": "passed"
+    },
+    {
+      "name": "operation evidence result artifact store fails closed after post-quarantine parent relocation for restore",
+      "status": "passed"
+    },
+    {
+      "name": "operation evidence result artifact store fails closed after post-quarantine parent relocation for replacement-winner",
+      "status": "passed"
+    },
+    {
+      "name": "operation evidence result artifact store discovers and removes a crash orphan only after proving no receipt or finalizer link",
+      "status": "passed"
+    },
+    {
+      "name": "operation evidence result artifact store safely drains a verified marker-only crash orphan when the artifact was never published",
+      "status": "passed"
+    },
+    {
+      "name": "operation evidence result artifact store preserves a replacement marker that wins during the asynchronous absence proof",
+      "status": "passed"
+    },
+    {
+      "name": "operation evidence result artifact store holds the marker parent identity across the asynchronous absence proof",
+      "status": "passed"
+    },
+    {
+      "name": "operation evidence result artifact store fails closed and preserves a marker-only orphan reached through a hardlink",
+      "status": "passed"
+    },
+    {
+      "name": "operation evidence result artifact store fails closed and preserves a marker-only orphan reached through a symlink",
+      "status": "passed"
+    },
+    {
+      "name": "operation evidence result artifact store does not traverse a marker-only operation directory replaced by a junction",
+      "status": "passed"
+    },
+    {
+      "name": "operation evidence result artifact store deletes verified result marker and artifact quarantines and remains idempotent",
+      "status": "passed"
+    },
+    {
+      "name": "operation evidence result artifact store returns a typed manual-cleanup state for a non-missing evidence-root policy failure",
+      "status": "passed"
+    },
+    {
+      "name": "operation evidence result artifact store returns bounded manual-cleanup for malformed fixed marker JSON and preserves it",
+      "status": "passed"
+    },
+    {
+      "name": "operation evidence result artifact store turns valid JSON with the wrong marker shape into typed manual cleanup: null\n",
+      "status": "passed"
+    },
+    {
+      "name": "operation evidence result artifact store turns valid JSON with the wrong marker shape into typed manual cleanup: []\n",
+      "status": "passed"
+    },
+    {
+      "name": "operation evidence result artifact store turns valid JSON with the wrong marker shape into typed manual cleanup: {}\n",
+      "status": "passed"
+    },
+    {
+      "name": "operation evidence result artifact store charges retained result artifact bytes as well as marker bytes to the global cap",
+      "status": "passed"
+    },
+    {
+      "name": "operation evidence result artifact store uses one truthful scan counter across retained pre-scan and orphan processing",
+      "status": "passed"
+    },
+    {
+      "name": "rejects an oversized captured artifact before filesystem or workspace authority use",
+      "status": "passed"
+    }
+  ],
+  "scope": "Sanitized summary only; original raw report remains local-only, and original failures/filtered cases are preserved"
+}

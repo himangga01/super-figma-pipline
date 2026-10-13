@@ -1,0 +1,50 @@
+{
+  "at": "2026-10-12T16:32:13.739Z",
+  "source": "sha256:276acbd0db383d3a6c315260dfa551e3af208dae8a42e861d516eceb7252813f",
+  "entries": [
+    {
+      "path": "upstream-lock.json",
+      "before": "820800ba8864f6b6b273a4a05537ce5c4aaccc5869b6f4c70eb1532f9e489cf1",
+      "after": "f992cfad28c4493a80d9f66228f281e42751280277b1ec3ea889c0591e71b7c4"
+    },
+    {
+      "path": "vendor-map.json",
+      "before": "b3275c7d8b997d1cfe723d97594659f77d7b4361b824a790bcfdd7ff762589bd",
+      "after": "b3275c7d8b997d1cfe723d97594659f77d7b4361b824a790bcfdd7ff762589bd"
+    },
+    {
+      "path": "vendor-rules.json",
+      "before": "db6eb554845f69503a3f6b7750f611b2097c0f8b5b658ac61d704546ed5a731c",
+      "after": "0f91198db6556d8d4009ceac41ddb17f35e7b9b28c0039ab77c47879917f4875"
+    },
+    {
+      "path": "capabilities/change-manifests/task-review-2026-10-10.json",
+      "before": "bf4079d4e9abc81a42b09639fb959c95b9056c0129203fd8545e2df11bb81344",
+      "after": "05b40354adc8f67a431c9d4933113b7119f3210169482e21fa1c1d63e87960ea"
+    },
+    {
+      "path": "capabilities/task-review-2026-10-10-authority-classes.json",
+      "before": "763f6ddb5d9efdbbbccb193299fcc45a36100af4a4bfdd9690a165db20392784",
+      "after": "1d42d7b8a0af5aee2e058f142e94eba4731435f83c1f70bb2958ddce3a069c3f"
+    },
+    {
+      "path": "capabilities/reconciliations/review-2026-10-10-consent-entry-and-oauth-schema-knip-2026-10-13.json",
+      "before": null,
+      "after": "b50f775c6794aa62030cd51006d22ce52d428faddedf5089aad7ec2ed10c44dc"
+    }
+  ],
+  "ownerIndexUnchanged": true,
+  "stagedChanges": 212,
+  "derivedAuthorities": 4,
+  "knip": {
+    "exitCode": 0,
+    "issues": []
+  },
+  "independentFocusedTests": {
+    "passed": 84,
+    "failed": 0,
+    "reportSha256": "4c6e30340b3192e059e1f85846ff912fa8d95c9c0b3379512f95adc57393292c"
+  },
+  "wholePassed": false,
+  "runtimeReplaced": false
+}

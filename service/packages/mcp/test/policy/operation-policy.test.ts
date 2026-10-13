@@ -59,6 +59,39 @@ const parsedBatch = (
   spec('batch').inputSchema.parse({ ops }) as Readonly<Record<string, unknown>>;
 
 describe('baseline operation policy authority', () => {
+  it.each(['portal_plan', 'portal_validate'])(
+    'classifies %s page API capture as admitted Chrome access',
+    name => {
+      const value = effects(
+        name,
+        { design: { source: 'chrome', collector: 'scripter' } },
+        { ...context, portalCaptureSource: 'chrome', portalCaptureCollector: 'page-api' },
+      );
+      expect(value).toContainEqual(
+        expect.objectContaining({
+          type: 'external-browser-read',
+          collector: 'page-api',
+          attachOnly: true,
+        }),
+      );
+      expect(types(value)).not.toContain('network');
+      expect(types(value)).not.toContain('figma-read');
+    },
+  );
+  it.each(['portal_plan', 'portal_validate'])(
+    'classifies %s official MCP reads without a Chrome attach effect',
+    name => {
+      const value = effects(
+        name,
+        { design: { source: 'official-mcp' } },
+        { ...context, portalCaptureSource: 'official-mcp' },
+      );
+      expect(types(value)).toContain('figma-read');
+      expect(types(value)).toContain('network');
+      expect(types(value)).not.toContain('external-browser-read');
+      expect(operationPolicyFor(name).approvalFor(value, context)).toBe('explicit-user');
+    },
+  );
   it('has exactly one named policy for each registered tool', () => {
     // Derived from the registry rather than a hand-kept list of every tool name, so a new tool
     // needs its policy (checked here) but no second copy of the tool list.
@@ -394,8 +427,27 @@ describe('baseline operation policy authority', () => {
     expect(operationPolicyFor('navigate_to_page').concurrency).toBe('file-write');
     expect(operationPolicyFor('export_video').concurrency).toBe('exclusive-heavy');
     expect(
-      Object.values(OPERATION_POLICIES).filter(policy => policy.concurrency === 'exclusive-heavy'),
-    ).toHaveLength(11);
+      new Set(
+        Object.values(OPERATION_POLICIES)
+          .filter(policy => policy.concurrency === 'exclusive-heavy')
+          .map(policy => policy.toolName),
+      ),
+    ).toEqual(
+      new Set([
+        'export_video',
+        'export_frames_to_pdf',
+        'export_tokens',
+        'portal_plan',
+        'portal_start',
+        'portal_next',
+        'portal_submit',
+        'portal_apply',
+        'portal_validate',
+        'portal_resume',
+        'portal_cancel',
+        'portal_prepare_source',
+      ]),
+    );
   });
 
   it('requires an approved workspace for filesystem effects but not Figma-only calls', () => {

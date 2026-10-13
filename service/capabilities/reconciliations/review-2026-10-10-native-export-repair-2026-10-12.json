@@ -1,0 +1,77 @@
+{
+  "schemaVersion": 1,
+  "slice": "review-2026-10-10",
+  "baseline": {
+    "headCommit": "22517932dc9b2cb974c177ec4eacb84d4b16e254",
+    "authoritySha256": {
+      "upstream-lock.json": "1297bd49b8137a248247661c09682c85fc12849ece20ffc190f064234b10ab0d",
+      "vendor-map.json": "b3275c7d8b997d1cfe723d97594659f77d7b4361b824a790bcfdd7ff762589bd",
+      "vendor-rules.json": "cdabed6c1dbb71bd7f58b2e74d2f483ce3a0bb78b132db624ea42e89560741a6"
+    }
+  },
+  "entries": [
+    {
+      "path": "capabilities/task-review-2026-10-10-authority-classes.json",
+      "sha256": "1206a25939aa5c9dcea76538f24cff646835380b801f34957c57ab973098b5e0",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "fb45e178b2511fc3cb9e2d452068c2618bc12687386fffd88f4b6802e8aad129"
+        },
+        {
+          "class": "protected",
+          "sha256": "fb45e178b2511fc3cb9e2d452068c2618bc12687386fffd88f4b6802e8aad129"
+        }
+      ],
+      "reason": "Handle only the observed Figma Dev Mode upgrade dialog before native export, with exact scoped Design Mode activation, original file/deadline/cancellation checks and pre-hook failure guards. Preserve unknown jobs, source distinctions and issued-click uncertainty. Fifteen native tests and four independent Chrome probes passed; require fresh whole and real acquisition checks."
+    },
+    {
+      "path": "packages/cli/src/figma-web-export.ts",
+      "sha256": "4b07cd47ae159abf9f3f6bba819865553b248aab61196fb749916e25ecc31998",
+      "priorClaims": [
+        {
+          "class": "protected",
+          "sha256": "7a26c6a98c3e54deb7fff429d760716330eed6fbfbf4d40b4c37e09a721f227e"
+        }
+      ],
+      "reason": "Handle only the observed Figma Dev Mode upgrade dialog before native export, with exact scoped Design Mode activation, original file/deadline/cancellation checks and pre-hook failure guards. Preserve unknown jobs, source distinctions and issued-click uncertainty. Fifteen native tests and four independent Chrome probes passed; require fresh whole and real acquisition checks."
+    },
+    {
+      "path": "packages/cli/test/figma-web-export.test.ts",
+      "sha256": "0365ba6a2d67bb25f8bdf0c44f73b72a6307af19e3b0c858eb7ae55c90191dc5",
+      "priorClaims": [
+        {
+          "class": "protected",
+          "sha256": "a17f2b751a94a47fedff680219c9b3df46ca0babb1baf2b6884d9eac9615aaa1"
+        }
+      ],
+      "reason": "Handle only the observed Figma Dev Mode upgrade dialog before native export, with exact scoped Design Mode activation, original file/deadline/cancellation checks and pre-hook failure guards. Preserve unknown jobs, source distinctions and issued-click uncertainty. Fifteen native tests and four independent Chrome probes passed; require fresh whole and real acquisition checks."
+    },
+    {
+      "path": "packages/mcp/src/diagnostics-catalog.ts",
+      "sha256": "b6c636fa40c73fb054cb9d2fb9ae4ef1546a8736e4167973aec1e5e85a6560fc",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "dc4e5d0bfd87e5652d3e709d79eb0878628e671c4d561e9e0ea007457b683ee1"
+        },
+        {
+          "class": "protected",
+          "sha256": "dc4e5d0bfd87e5652d3e709d79eb0878628e671c4d561e9e0ea007457b683ee1"
+        }
+      ],
+      "reason": "Handle only the observed Figma Dev Mode upgrade dialog before native export, with exact scoped Design Mode activation, original file/deadline/cancellation checks and pre-hook failure guards. Preserve unknown jobs, source distinctions and issued-click uncertainty. Fifteen native tests and four independent Chrome probes passed; require fresh whole and real acquisition checks."
+    },
+    {
+      "path": "packages/portal/package.json",
+      "sha256": "117b1e02db6798bf9197e722fd615f3519e6cc841ed37d4210e3eef47d91912b",
+      "priorClaims": [
+        {
+          "class": "protected",
+          "sha256": "117b1e02db6798bf9197e722fd615f3519e6cc841ed37d4210e3eef47d91912b"
+        }
+      ],
+      "reason": "Handle only the observed Figma Dev Mode upgrade dialog before native export, with exact scoped Design Mode activation, original file/deadline/cancellation checks and pre-hook failure guards. Preserve unknown jobs, source distinctions and issued-click uncertainty. Fifteen native tests and four independent Chrome probes passed; require fresh whole and real acquisition checks."
+    }
+  ]
+}

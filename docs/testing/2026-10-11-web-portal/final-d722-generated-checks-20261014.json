@@ -1,0 +1,35 @@
+{
+  "schemaVersion": 1,
+  "at": "2026-10-13T18:17:40.059Z",
+  "kind": "final-generated-diagnostics-and-provenance",
+  "sourceHash": "sha256:d722c32152149464c961c660622a95e3da603eb00f291e28b15c024507bcd87d",
+  "whole": false,
+  "results": [
+    {
+      "name": "diagnostics",
+      "args": [
+        "--experimental-transform-types",
+        "--disable-warning=ExperimentalWarning",
+        "scripts/update-diagnostics-catalog.mjs",
+        "--check"
+      ],
+      "exitCode": 0,
+      "elapsedMs": 1578,
+      "logPath": ".worktrees/baseline/service/.cache/final-d722-diagnostics-20261014.txt",
+      "logSha256": "3e0bf68769ad0658196dcf4a733f6a63ae2d8d96f8f161ae51bb2f38230b4f82"
+    },
+    {
+      "name": "offline-provenance",
+      "args": [
+        "scripts/verify-upstream-lock.mjs",
+        "--offline"
+      ],
+      "exitCode": 0,
+      "elapsedMs": 548,
+      "logPath": ".worktrees/baseline/service/.cache/final-d722-offline-provenance-20261014.txt",
+      "logSha256": "f0a48513082a12df030f05efb95680f5f0ac17a9c36b675d97521e76f6f13378"
+    }
+  ],
+  "contractsRerun": false,
+  "contractsScope": "Historical closed public schema contracts retained; no public contract declaration changed in this delta"
+}

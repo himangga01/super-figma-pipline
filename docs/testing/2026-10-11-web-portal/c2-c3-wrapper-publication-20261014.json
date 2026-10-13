@@ -1,0 +1,86 @@
+{
+  "at": "2026-10-13T16:43:27.466Z",
+  "kind": "reviewed-native-wrapper-source-publication",
+  "sourceEpoch": "6f87f836d872a4ba8ab49533f6447a7c921adb6b8af3dae75ddd6241e8b8a1cb",
+  "manifestSha256": "5c8bd50b81ede31eb26ed1821128bb6ee85fa35d381f6c8b27b85f1e707d8910",
+  "files": [
+    {
+      "path": "examples/portal-cases/native-case-entry.mjs",
+      "bytes": 12717,
+      "sha256": "8f4ff2b1d46f4380060681e3f1aa5639ce490722e776fc8bf78014ea5ec74c26"
+    },
+    {
+      "path": "examples/portal-cases/migrate-case.mjs",
+      "bytes": 1217,
+      "sha256": "b8b97109a0163725b520217cbc508881971038a2a9e9ccc3bb520657424b4fd4"
+    },
+    {
+      "path": "examples/portal-cases/standalone-native-profile.mjs",
+      "bytes": 7100,
+      "sha256": "c7d0eecb9469bef9cae1d161bc1e6cf18542f478a546deb8ba66ad20fea5ca45"
+    },
+    {
+      "path": "examples/portal-cases/c2-epic/index.ts",
+      "bytes": 559,
+      "sha256": "f0a109e7f31ac97ffaec0fbdc199d5e3959831506e27c0750c0534dab03f3c9a"
+    },
+    {
+      "path": "examples/portal-cases/c2-epic/server/native-environment.ts",
+      "bytes": 1047,
+      "sha256": "c850f43f2c6a119c0ab390d5dc90ba6ac86e10dc6049259d00de6135ba758a0b"
+    },
+    {
+      "path": "examples/portal-cases/c3-workspace/backend/acceptance/http-negatives.mjs",
+      "bytes": 3436,
+      "sha256": "9e72b731c1b00321d0e28e416d287872a381d8ce3b9f8607b4efb792395b1bd6"
+    },
+    {
+      "path": "examples/portal-cases/provision-case.mjs",
+      "bytes": 2371,
+      "sha256": "366cab5279ca720a03577680c4ba778856d8dc6c76f679fb7c042787641eb310"
+    },
+    {
+      "path": "examples/portal-cases/compile-case.mjs",
+      "bytes": 2467,
+      "sha256": "dee5f07672021420121cd42f5dbee6c58b208c6cb4900d0313f1b0b66ce07aa4"
+    },
+    {
+      "path": "examples/portal-cases/serve-case.mjs",
+      "bytes": 510,
+      "sha256": "61d4261e217647e2ea9b94cd1bf77faa73bb83bc4af487cefbfaafef42400d92"
+    },
+    {
+      "path": "examples/portal-cases/case-plan-inputs.mjs",
+      "bytes": 7402,
+      "sha256": "211228af3644452e32ec72e20041e970daa7bd35767f66c6f3c359d2d870c413"
+    }
+  ],
+  "schemaFixtureOnly": {
+    "at": "2026-10-13T16:40:20.553Z",
+    "reason": "New actual dependency provisioning/CWD/grouped compiler/output declarations changed registration input",
+    "scope": "new-native-profile-schema-shape-r2-only",
+    "fixtureOnly": true,
+    "registered": false,
+    "commandsExecuted": false,
+    "ChromeLaunched": false,
+    "publicAuthorityClaimed": false,
+    "checks": [
+      {
+        "caseId": "c2",
+        "parsed": true,
+        "commands": 5,
+        "fixtureOnly": true
+      },
+      {
+        "caseId": "c3",
+        "parsed": true,
+        "commands": 5,
+        "fixtureOnly": true
+      }
+    ]
+  },
+  "privateStateIncluded": false,
+  "serviceSourceChanged": false,
+  "nativeExecuted": false,
+  "caseAccepted": false
+}

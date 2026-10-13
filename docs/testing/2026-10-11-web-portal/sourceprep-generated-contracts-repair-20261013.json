@@ -1,0 +1,25 @@
+{
+  "at": "2026-10-13T00:16:16.565Z",
+  "files": [
+    {
+      "path": "capabilities/union-manifest.json",
+      "before": "990a1ac118fd0741aa109be809df1a15c82ec3e6711036bfacaeda288dfe498a",
+      "after": "d9428e7ce1ac9159d7424b4d82562901692d5189cfd8dcbd60f5ca8b9227b95d"
+    },
+    {
+      "path": "README.md",
+      "before": "b241e8dfc555b8e5980375e723488a99baaf13ddc9ba0ac1395b04c63f22ee7c",
+      "after": "4ccb48d0475443c20127482cd9bf2f5da599107fea4d3784f1dc434ba3a581ae"
+    },
+    {
+      "path": "packages/mcp/README.md",
+      "before": "760298dd5ec71a1518c3081b20b9721e4237829f63c17c7401220d23d22daa22",
+      "after": "7f5d0502fbd455f00b6572c05b6bdfdf9bdeb7f4d63b753542008efc663f7c93"
+    }
+  ],
+  "scope": "Generated union tool row and two README tool-count blocks; exact contracts check passed",
+  "failedWhole": "45f6e04d-e729-4878-ba99-5577be7c9894",
+  "failedSource": "sha256:37f8bda582dc850cb19517a6696ede81cdaf80543cd492d9582d714c06bb6019",
+  "failedReportSha256": "f518bf002b8bb1d411ee934754e3053adca02a12d7b7450e97b0879a47238a49",
+  "wholePassed": false
+}

@@ -1,0 +1,28 @@
+{
+  "schemaVersion": 1,
+  "kind": "actual-public-cdd-native-approval-block",
+  "recordedAt": "2026-10-13T20:21:03.049Z",
+  "sourceHash": "sha256:d722c32152149464c961c660622a95e3da603eb00f291e28b15c024507bcd87d",
+  "publicRunId": "bea71fc7-6527-4b69-96ed-a901f85f09ac",
+  "coreRunId": "sfp_portal1_0b79fe0c9883415686b1fec7fa117063",
+  "status": "awaiting-input",
+  "coreState": "needs-input",
+  "sourceComplete": false,
+  "liveVerified": false,
+  "captureFailure": {
+    "code": "DESIGN_CAPTURE_FAILED",
+    "elapsedMs": 300010,
+    "stage": "connection",
+    "type": "timeout-error"
+  },
+  "originalDeadlineAt": 1791926259646,
+  "observedBrowserConnection": "awaiting-browser",
+  "nativeApprovalPendingObserved": true,
+  "nativeApprovalAutomated": false,
+  "operationReplayed": false,
+  "deadlineReset": false,
+  "newWindowCreated": false,
+  "completePortalJourneys": 0,
+  "latestPublicResponseHash": "d185de8234e90617c86dd832623f1c141f206b91025e15e503913071cf7c4e1c",
+  "helperOutcome": "ERR_ASSERTION after actual incomplete source response"
+}

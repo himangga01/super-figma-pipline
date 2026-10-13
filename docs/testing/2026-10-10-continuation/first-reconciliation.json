@@ -1,0 +1,92 @@
+{
+  "schemaVersion": 1,
+  "slice": "review-2026-10-10",
+  "baseline": {
+    "headCommit": "22517932dc9b2cb974c177ec4eacb84d4b16e254",
+    "authoritySha256": {
+      "upstream-lock.json": "3d2573030133e4ebbb6a20f922bf2900bef9402287bb27f9e0c59a311a48c561",
+      "vendor-map.json": "b3275c7d8b997d1cfe723d97594659f77d7b4361b824a790bcfdd7ff762589bd",
+      "vendor-rules.json": "610ea7b83139d755a0c2b265b65061c8f29f3952026627b884cd80a2edd7a352"
+    }
+  },
+  "entries": [
+    {
+      "path": "capabilities/task-review-2026-10-10-authority-classes.json",
+      "sha256": "97d50a797009d5fb6d5f3171d7be1d5b09d5b0917a903f866656ceff9723f700",
+      "priorClaims": [],
+      "reason": "Add independently decoded component and variant facts while retaining unknown keys and defaults. Repair Windows archive tool selection with a reproduced GNU-tar PATH failure. Keep source fixtures free of generated caches and bound Windows verification concurrency without changing test scope or admission checks."
+    },
+    {
+      "path": "packages/cli/src/figma-native-components.ts",
+      "sha256": "a19fe85cde6fbc3c5f7c29923db19b2509344fbe227bad19eacfa12c09e36957",
+      "priorClaims": [],
+      "reason": "Add independently decoded component and variant facts while retaining unknown keys and defaults. Repair Windows archive tool selection with a reproduced GNU-tar PATH failure. Keep source fixtures free of generated caches and bound Windows verification concurrency without changing test scope or admission checks."
+    },
+    {
+      "path": "packages/cli/src/figma-native-nodes.ts",
+      "sha256": "bef3eb99decfc751d05b51625eb80cc9824f9d6f46373c686e0935bc09a202ee",
+      "priorClaims": [
+        {
+          "class": "protected",
+          "sha256": "2be779f42871f69d851c1baff9e81aa986d55cb14d224d24229ccd9c0f44f5c3"
+        }
+      ],
+      "reason": "Add independently decoded component and variant facts while retaining unknown keys and defaults. Repair Windows archive tool selection with a reproduced GNU-tar PATH failure. Keep source fixtures free of generated caches and bound Windows verification concurrency without changing test scope or admission checks."
+    },
+    {
+      "path": "packages/cli/test/figma-native-components.test.ts",
+      "sha256": "52806d048d5842e1b2a3a33c36f27445488718cad6d12c5bc4871dbf6e4829a7",
+      "priorClaims": [],
+      "reason": "Add independently decoded component and variant facts while retaining unknown keys and defaults. Repair Windows archive tool selection with a reproduced GNU-tar PATH failure. Keep source fixtures free of generated caches and bound Windows verification concurrency without changing test scope or admission checks."
+    },
+    {
+      "path": "scripts/archive-command.mjs",
+      "sha256": "4345719f829e062b6a43d10836004b59a3b23f2cb5d86b3b041a21186bbcaf66",
+      "priorClaims": [],
+      "reason": "Add independently decoded component and variant facts while retaining unknown keys and defaults. Repair Windows archive tool selection with a reproduced GNU-tar PATH failure. Keep source fixtures free of generated caches and bound Windows verification concurrency without changing test scope or admission checks."
+    },
+    {
+      "path": "scripts/verify-artifacts.mjs",
+      "sha256": "76afb3983d61e1c4715c6247e8e32bac05ec12ae5cbf84575e4f362c36780d22",
+      "priorClaims": [
+        {
+          "class": "protected",
+          "sha256": "456751bbaaa4b639e97454fb1076b53009c3748685dd33442d9f6a75ac5c4ad5"
+        }
+      ],
+      "reason": "Add independently decoded component and variant facts while retaining unknown keys and defaults. Repair Windows archive tool selection with a reproduced GNU-tar PATH failure. Keep source fixtures free of generated caches and bound Windows verification concurrency without changing test scope or admission checks."
+    },
+    {
+      "path": "test/archive-command.test.ts",
+      "sha256": "24db5b3e9ad889eef5201d8d911399622d9d2856453f0533d610c52eeb8f4a58",
+      "priorClaims": [],
+      "reason": "Add independently decoded component and variant facts while retaining unknown keys and defaults. Repair Windows archive tool selection with a reproduced GNU-tar PATH failure. Keep source fixtures free of generated caches and bound Windows verification concurrency without changing test scope or admission checks."
+    },
+    {
+      "path": "test/vendor-upstreams.test.ts",
+      "sha256": "b5901d7fc4fd0ac06724c6087e49bd449f3a6fd8e1fe2018c13edcc8b2cf9b16",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "ef445c4f446ef010c92b113f3bbb28d6f9772fd39c7580d7e7cda54f40940869"
+        },
+        {
+          "class": "protected",
+          "sha256": "ef445c4f446ef010c92b113f3bbb28d6f9772fd39c7580d7e7cda54f40940869"
+        }
+      ],
+      "reason": "Add independently decoded component and variant facts while retaining unknown keys and defaults. Repair Windows archive tool selection with a reproduced GNU-tar PATH failure. Keep source fixtures free of generated caches and bound Windows verification concurrency without changing test scope or admission checks."
+    },
+    {
+      "path": "vitest.config.ts",
+      "sha256": "22eccb4967c064b14ece823dc0f7d362ba93e8af7e87fca212132811e8c9be5f",
+      "priorClaims": [
+        {
+          "class": "protected",
+          "sha256": "2120b90d76a7cd91156d78241a7bf69a20dc53c892213bd6cd54c57068007f8e"
+        }
+      ],
+      "reason": "Add independently decoded component and variant facts while retaining unknown keys and defaults. Repair Windows archive tool selection with a reproduced GNU-tar PATH failure. Keep source fixtures free of generated caches and bound Windows verification concurrency without changing test scope or admission checks."
+    }
+  ]
+}

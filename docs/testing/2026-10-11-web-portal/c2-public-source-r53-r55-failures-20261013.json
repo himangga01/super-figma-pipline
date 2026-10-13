@@ -1,0 +1,203 @@
+{
+  "schemaVersion": 1,
+  "date": "2026-10-13",
+  "scope": "Sanitized source-only compiler proof failures; not portal case or Chrome acceptance",
+  "originalR51FailedAndR25UnknownPreserved": true,
+  "runs": [
+    {
+      "revision": "R53",
+      "proofId": "3612d83e-9415-457f-b143-7137f9cb5da0",
+      "candidateOnly": true,
+      "syntheticDesign": true,
+      "completeCaseAcceptance": false,
+      "preflightPassed": false,
+      "preflightLimit": "Two test-only fixture files absent; wrapper continued after native exit1. Root approved already-started proof only after production/bundle verification.",
+      "originalBudget": {
+        "runDeadlineAt": 1791880686320,
+        "requestStartedAt": 1791877659024,
+        "deadlineAt": 1791878559024,
+        "probe": false
+      },
+      "publicOutcome": "failed",
+      "publicCode": "PORTAL_COMPILER_PRODUCER_FAILED",
+      "journalStatuses": [
+        "failed"
+      ],
+      "commands": [
+        {
+          "id": "compiler-dependencies",
+          "status": "passed",
+          "exitCode": 0,
+          "durationMs": 54179,
+          "cleanup": "finished",
+          "outputBytes": 28,
+          "outputHash": "sha256:f037bea517f88210ca04c7ad7a61753db8f94b66d9fcc8fba530c78c041ad833",
+          "moduleEvidenceHash": "sha256:a3f3c4877d4514c36005aec95d8b62d9b741195c0cbf5a80affb49792c1636a7",
+          "moduleEvidencePresent": true
+        },
+        {
+          "id": "react-router-compiler",
+          "status": "failed",
+          "exitCode": 1,
+          "durationMs": 24336,
+          "cleanup": "finished",
+          "outputBytes": 38350,
+          "outputHash": "sha256:51a966e9061dd563161b778a49d25cf6629e17d65be6e12e38209c82be0a6549",
+          "moduleEvidenceHash": "sha256:fdbf8e8f9755f0b0ac7f82be7c5e5aa02d412e64d43001625271f72ae740031c",
+          "reportedPhase": "ssr-build",
+          "reportedCause": "PORTAL_COMPILER_LEGACY_CONTEXT_UNSUPPORTED",
+          "reportedCode": "unclassified",
+          "reportedMessageHash": "b180b0d7c89f6efc9a6837ea33c8642984ec99d0070a4299b6980e3b1350329c",
+          "reportedPlugin": "unclassified",
+          "reportedHook": "unclassified",
+          "reportedModule": "unclassified",
+          "reportedPluginHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "reportedHookHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "reportedModuleHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "reportedMarkerOnly": true,
+          "moduleEvidencePresent": true
+        }
+      ],
+      "outputs": [
+        {
+          "path": "compiler-workspace",
+          "kind": "provisioned-dependencies"
+        }
+      ],
+      "shutdown": {
+        "at": 1791878199924,
+        "outcome": "port-released",
+        "sourceElapsedMs": 540900,
+        "remainingMs": 359100
+      },
+      "physical": {
+        "rootPid": 41544,
+        "exactRootAbsent": true,
+        "observedChildrenCount": 4,
+        "exactObservedChildrenAbsent": true,
+        "noUniversalOrRemoteCleanupClaim": true
+      },
+      "telemetryLimit": "Individual compound guard values unobserved.",
+      "receiptHashes": [
+        {
+          "file": "original-budget.json",
+          "sha256": "d6d0671128c67a2715d99662103a513d28c9b7d701c2412fa872933875df9b48"
+        },
+        {
+          "file": "native-result-projection.json",
+          "sha256": "866dd4eba9d8f46d038ef8a04f1c4f0581f7d3aac073ea38056f58db819744f0"
+        },
+        {
+          "file": "journal-final.json",
+          "sha256": "40516ef87b0a7ec69f07b246a293c60d95b116d954f141f41f88eda349d44c12"
+        },
+        {
+          "file": "shutdown.json",
+          "sha256": "fa6f9f8cde1611a14d2d400a467ec4bd7e5d5aae013f951bf6c27b88f4b44ca0"
+        },
+        {
+          "file": "physical-retirement.json",
+          "sha256": "cb37435665b0e73d48cdf6b94c7b9b7f032d40e136b78d7b9dd962751d505bad"
+        }
+      ]
+    },
+    {
+      "revision": "R55",
+      "proofId": "6633d5b7-b6ae-4624-a424-58513d3b2729",
+      "candidateOnly": true,
+      "syntheticDesign": true,
+      "completeCaseAcceptance": false,
+      "preflightPassed": true,
+      "preflightLimit": null,
+      "originalBudget": {
+        "runDeadlineAt": 1791883434387,
+        "requestStartedAt": 1791880270013,
+        "deadlineAt": 1791881170013,
+        "probe": false
+      },
+      "publicOutcome": "failed",
+      "publicCode": "PORTAL_COMPILER_PRODUCER_FAILED",
+      "journalStatuses": [
+        "failed"
+      ],
+      "commands": [
+        {
+          "id": "compiler-dependencies",
+          "status": "passed",
+          "exitCode": 0,
+          "durationMs": 39860,
+          "cleanup": "finished",
+          "outputBytes": 28,
+          "outputHash": "sha256:f037bea517f88210ca04c7ad7a61753db8f94b66d9fcc8fba530c78c041ad833",
+          "moduleEvidenceHash": "sha256:5aed344c0603be01f062d3244fcf0941893a07a71aefe6a7dccad0c910e6434e",
+          "moduleEvidencePresent": true
+        },
+        {
+          "id": "react-router-compiler",
+          "status": "failed",
+          "exitCode": 1,
+          "durationMs": 20012,
+          "cleanup": "finished",
+          "outputBytes": 41285,
+          "outputHash": "sha256:cc0f942de3ca7f3e6490ae81d59a87c8aceef59bd507ca023b3d9d11265c69ae",
+          "moduleEvidenceHash": "sha256:d7297d41569e1c0e27de64e7a8ee59586f5adb4ebdc94a5057265777aad44c6f",
+          "reportedPhase": "ssr-build",
+          "reportedCause": "unclassified",
+          "reportedCode": "PLUGIN_ERROR",
+          "reportedMessageHash": "f59d78ce58c6e97c489ad70641cc1c51c08fc8471121a9a6fe607a01154e4df1",
+          "reportedPlugin": "sfp:react-router-source",
+          "reportedHook": "transform",
+          "reportedModule": "app/styles/tailwind.css?url",
+          "reportedPluginHash": "bd42c859c5a02a23fdae77dfdbc84d489c29294467ed027e40eee6ad8900e1ff",
+          "reportedHookHash": "aa214ea38326805d95661c3ad1643cc07f88e2bae0438ac0448a66d93335ca6e",
+          "reportedModuleHash": "1a0811de235e030847ea053748c06972b641fbf29862ec9739863a3b66ec4db2",
+          "reportedContextGuard": "none",
+          "reportedMarkerOnly": true,
+          "moduleEvidencePresent": true
+        }
+      ],
+      "outputs": [
+        {
+          "path": "compiler-workspace",
+          "kind": "provisioned-dependencies"
+        }
+      ],
+      "shutdown": {
+        "at": 1791880692654,
+        "outcome": "port-released",
+        "sourceElapsedMs": 422641,
+        "remainingMs": 477359
+      },
+      "physical": {
+        "rootPid": 45472,
+        "exactRootAbsent": true,
+        "observedChildrenCount": 8,
+        "exactObservedChildrenAbsent": true,
+        "noUniversalOrRemoteCleanupClaim": true
+      },
+      "telemetryLimit": "CSS code byte size/prior-count/same-code hash unobserved; module/plugin/hook and contextGuard captured.",
+      "receiptHashes": [
+        {
+          "file": "original-budget.json",
+          "sha256": "07674cb8b7d02524de0e0038afc556b504e90843bdb2849b9519f4af0dce2876"
+        },
+        {
+          "file": "native-result-projection.json",
+          "sha256": "96e0947586f14bf3f6d6882d3c7cff4e506a05f9ced4eeeeba978a35dfd9adcf"
+        },
+        {
+          "file": "journal-final.json",
+          "sha256": "40516ef87b0a7ec69f07b246a293c60d95b116d954f141f41f88eda349d44c12"
+        },
+        {
+          "file": "shutdown.json",
+          "sha256": "580300b2926f9ca9b8e0415acca0e7f3593e3f68a8e857c379efe5f7410d89bf"
+        },
+        {
+          "file": "physical-retirement.json",
+          "sha256": "2547c39a58517d3989ec15ab24fcbee34c99454f6d5501cbbf012b4ba6f60e87"
+        }
+      ]
+    }
+  ]
+}

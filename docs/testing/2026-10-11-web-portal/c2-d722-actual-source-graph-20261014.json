@@ -1,0 +1,747 @@
+{
+  "schemaVersion": 1,
+  "recordedAt": "2026-10-13T20:49:44.201Z",
+  "sourceHash": "sha256:d722c32152149464c961c660622a95e3da603eb00f291e28b15c024507bcd87d",
+  "originPlanId": "sfp_portal1_b75c68bcea9839a9c62b8ab77d534959",
+  "newPlanId": "sfp_portal1_61d8b7c2be78e1f155799bf7cf974d7e",
+  "workspaceId": "02db0cc2-a41c-49f7-89f9-79ba314cde72",
+  "sourceId": "sha256:d55507cd6f2ab6f19e54a9bd65e21bf758b9158ea8c228d3e2ce2ca3c908180f",
+  "profileId": "case-source-4f122cd6-07fb-47f1-b8f0-6d24e5f7da87",
+  "compilerEvidenceHash": "sha256:53a2e6acfa8e19231ca669c38ce7d2bf5fc61eb7d977cda34c91565eab93f111",
+  "graphCompilerEvidenceHash": "sha256:53a2e6acfa8e19231ca669c38ce7d2bf5fc61eb7d977cda34c91565eab93f111",
+  "generatedFiles": 235,
+  "originalDeadlineAt": 1791926498078,
+  "commands": [
+    {
+      "id": "compiler-dependencies",
+      "status": "passed",
+      "exitCode": 0,
+      "durationMs": 50488
+    },
+    {
+      "id": "react-router-compiler",
+      "status": "passed",
+      "exitCode": 0,
+      "durationMs": 20185
+    }
+  ],
+  "sourceResultSha256": "fa5b887b1a53054dbb5c24c9a46ff3bfecf4eb302c24d467d27e63960132d2bf",
+  "storedPlanSha256": "8c0066d3860716be87a022e8868abbb8f4df2a65c27c20126da50a844fe08320",
+  "sourceInventoryComplete": true,
+  "graphIncomplete": true,
+  "lexicalReviewable": true,
+  "issuesTruncated": false,
+  "graphIssueCodes": [],
+  "connectionIssues": [
+    {
+      "code": "CONFIGURATION_SOURCE_MISSING",
+      "evidence": {
+        "path": "app/components/ui/icon.tsx",
+        "hash": "sha256:8594792f62f0d743a36a759d11ec89a0e50c768e0fd3320032c8e5a3ddd8be0d",
+        "offset": 120
+      }
+    },
+    {
+      "code": "CONFIGURATION_SOURCE_MISSING",
+      "evidence": {
+        "path": "app/routes/resources/images.tsx",
+        "hash": "sha256:e1cd219aee78ef9ab87e3f6689c6d4756bdc31520d6c2f49c5e8ffc46ff23b10",
+        "offset": 281
+      }
+    },
+    {
+      "code": "CONFIGURATION_SOURCE_MISSING",
+      "evidence": {
+        "path": "app/routes/resources/images.tsx",
+        "hash": "sha256:e1cd219aee78ef9ab87e3f6689c6d4756bdc31520d6c2f49c5e8ffc46ff23b10",
+        "offset": 281
+      }
+    },
+    {
+      "code": "CONFIGURATION_SOURCE_MISSING",
+      "evidence": {
+        "path": "app/routes/settings/profile/_layout.tsx",
+        "hash": "sha256:48d2b5c957a5ff4756b2f0bb16a36461a1970ec59b5d8ba9c6e5e393ae2fa8a4",
+        "offset": 495
+      }
+    },
+    {
+      "code": "CONFIGURATION_SOURCE_MISSING",
+      "evidence": {
+        "path": "app/routes/settings/profile/_layout.tsx",
+        "hash": "sha256:48d2b5c957a5ff4756b2f0bb16a36461a1970ec59b5d8ba9c6e5e393ae2fa8a4",
+        "offset": 495
+      }
+    },
+    {
+      "code": "UNSUPPORTED_CHAINED_HTTP",
+      "evidence": {
+        "path": "app/components/progress-bar.tsx",
+        "hash": "sha256:8bf6fb4bba6e5e5fd4a77816bae8c88004296a9dae9a1861af3c300ea0853f79",
+        "offset": 659
+      }
+    },
+    {
+      "code": "UNKNOWN_HTTP_RECEIVER",
+      "evidence": {
+        "path": "app/routes/_auth/auth.$provider/index.ts",
+        "hash": "sha256:9915eb4a415adbe549afdf4033b647aa4175e6f49f60e4067929501752a3a25e",
+        "offset": 884
+      }
+    },
+    {
+      "code": "UNKNOWN_HTTP_RECEIVER",
+      "evidence": {
+        "path": "app/routes/_auth/login.server.ts",
+        "hash": "sha256:18674ea5a4dcdfe82a3b88d5471856862a338015834929fd6408fc661e343d84",
+        "offset": 2812
+      }
+    },
+    {
+      "code": "UNKNOWN_HTTP_RECEIVER",
+      "evidence": {
+        "path": "app/routes/_auth/login.server.ts",
+        "hash": "sha256:18674ea5a4dcdfe82a3b88d5471856862a338015834929fd6408fc661e343d84",
+        "offset": 2957
+      }
+    },
+    {
+      "code": "UNKNOWN_HTTP_RECEIVER",
+      "evidence": {
+        "path": "app/routes/_auth/login.server.ts",
+        "hash": "sha256:18674ea5a4dcdfe82a3b88d5471856862a338015834929fd6408fc661e343d84",
+        "offset": 5144
+      }
+    },
+    {
+      "code": "UNSUPPORTED_CHAINED_HTTP",
+      "evidence": {
+        "path": "app/routes/_auth/login.tsx",
+        "hash": "sha256:d9a3c9032e624593c511d0c228773fcd9ea56d48afa2dbfe858e1011934fafed",
+        "offset": 7857
+      }
+    },
+    {
+      "code": "UNKNOWN_HTTP_RECEIVER",
+      "evidence": {
+        "path": "app/routes/_auth/onboarding/$provider.tsx",
+        "hash": "sha256:a34e67fb99eea73d7872c0171eb72cd27d37cf548d6e5b203906cbcd0d9774b4",
+        "offset": 1900
+      }
+    },
+    {
+      "code": "UNKNOWN_HTTP_RECEIVER",
+      "evidence": {
+        "path": "app/routes/_auth/onboarding/$provider.tsx",
+        "hash": "sha256:a34e67fb99eea73d7872c0171eb72cd27d37cf548d6e5b203906cbcd0d9774b4",
+        "offset": 1966
+      }
+    },
+    {
+      "code": "UNKNOWN_HTTP_RECEIVER",
+      "evidence": {
+        "path": "app/routes/_auth/onboarding/$provider.tsx",
+        "hash": "sha256:a34e67fb99eea73d7872c0171eb72cd27d37cf548d6e5b203906cbcd0d9774b4",
+        "offset": 2595
+      }
+    },
+    {
+      "code": "UNSUPPORTED_CHAINED_HTTP",
+      "evidence": {
+        "path": "app/routes/_auth/onboarding/$provider.tsx",
+        "hash": "sha256:a34e67fb99eea73d7872c0171eb72cd27d37cf548d6e5b203906cbcd0d9774b4",
+        "offset": 3145
+      }
+    },
+    {
+      "code": "UNKNOWN_HTTP_RECEIVER",
+      "evidence": {
+        "path": "app/routes/_auth/onboarding/index.tsx",
+        "hash": "sha256:6137f77a32d1283f880fd37b61ea3edc7463aab2aa31eb651a7de290a724f113",
+        "offset": 1837
+      }
+    },
+    {
+      "code": "UNSUPPORTED_CHAINED_HTTP",
+      "evidence": {
+        "path": "app/routes/_auth/onboarding/index.tsx",
+        "hash": "sha256:6137f77a32d1283f880fd37b61ea3edc7463aab2aa31eb651a7de290a724f113",
+        "offset": 2393
+      }
+    },
+    {
+      "code": "UNKNOWN_HTTP_RECEIVER",
+      "evidence": {
+        "path": "app/routes/_auth/reset-password.tsx",
+        "hash": "sha256:054cb908538cd89a3e2c6fbc5c4e61f7245cf52f6b8fb540990bcd7ad62fba45",
+        "offset": 1275
+      }
+    },
+    {
+      "code": "UNKNOWN_HTTP_RECEIVER",
+      "evidence": {
+        "path": "app/routes/admin/cache/index.tsx",
+        "hash": "sha256:8f1e4e75fffa00ca41c77325d5482a1c21a51f92647750933f67043c4943ef65",
+        "offset": 1980
+      }
+    },
+    {
+      "code": "UNKNOWN_HTTP_RECEIVER",
+      "evidence": {
+        "path": "app/routes/admin/cache/index.tsx",
+        "hash": "sha256:8f1e4e75fffa00ca41c77325d5482a1c21a51f92647750933f67043c4943ef65",
+        "offset": 2078
+      }
+    },
+    {
+      "code": "UNKNOWN_HTTP_RECEIVER",
+      "evidence": {
+        "path": "app/routes/admin/cache/index.tsx",
+        "hash": "sha256:8f1e4e75fffa00ca41c77325d5482a1c21a51f92647750933f67043c4943ef65",
+        "offset": 2137
+      }
+    },
+    {
+      "code": "DYNAMIC_OR_PATTERN_ROUTE",
+      "evidence": {
+        "path": "app/routes/admin/cache/sqlite.server.ts",
+        "hash": "sha256:7f67da101c0cd85c9b108894f7d600d6b9d378fde5331ea454d26a184eaee53a",
+        "offset": 723
+      }
+    },
+    {
+      "code": "DYNAMIC_OR_PATTERN_ROUTE",
+      "evidence": {
+        "path": "app/routes/resources/healthcheck.tsx",
+        "hash": "sha256:c9b7b5ad9d68cc3af6f04b70b3ebb51d714a9ab0d2fac104e54d5fc1bc0ec3aa",
+        "offset": 687
+      }
+    },
+    {
+      "code": "UNSUPPORTED_CHAINED_HTTP",
+      "evidence": {
+        "path": "app/routes/settings/profile/_layout.tsx",
+        "hash": "sha256:48d2b5c957a5ff4756b2f0bb16a36461a1970ec59b5d8ba9c6e5e393ae2fa8a4",
+        "offset": 1326
+      }
+    },
+    {
+      "code": "UNKNOWN_HTTP_RECEIVER",
+      "evidence": {
+        "path": "app/routes/settings/profile/change-email.server.tsx",
+        "hash": "sha256:1376f11e390d7788665b2063f11d14f32bb3dd0be5368ec9141d22f089f3d948",
+        "offset": 906
+      }
+    },
+    {
+      "code": "UNKNOWN_HTTP_RECEIVER",
+      "evidence": {
+        "path": "app/routes/settings/profile/connections.tsx",
+        "hash": "sha256:b9c770ecd7b98e621cc461f622bd204797c2a665585626f49b6c18c5d2fc50f0",
+        "offset": 3065
+      }
+    },
+    {
+      "code": "UNKNOWN_HTTP_RECEIVER",
+      "evidence": {
+        "path": "app/routes/settings/profile/connections.tsx",
+        "hash": "sha256:b9c770ecd7b98e621cc461f622bd204797c2a665585626f49b6c18c5d2fc50f0",
+        "offset": 3302
+      }
+    },
+    {
+      "code": "UNKNOWN_HTTP_RECEIVER",
+      "evidence": {
+        "path": "app/routes/settings/profile/index.tsx",
+        "hash": "sha256:f96421f0f25b484aff77f4287985ed5b12751a3858c83732e06251fe3144d8da",
+        "offset": 2616
+      }
+    },
+    {
+      "code": "UNKNOWN_HTTP_RECEIVER",
+      "evidence": {
+        "path": "app/routes/settings/profile/index.tsx",
+        "hash": "sha256:f96421f0f25b484aff77f4287985ed5b12751a3858c83732e06251fe3144d8da",
+        "offset": 8026
+      }
+    },
+    {
+      "code": "UNKNOWN_HTTP_RECEIVER",
+      "evidence": {
+        "path": "app/routes/settings/profile/passkeys.tsx",
+        "hash": "sha256:fc5128cbaf0cd828bcc79f569ac09c0b48ad3a20fdbc4fc3508902fe553a4579",
+        "offset": 1067
+      }
+    },
+    {
+      "code": "UNKNOWN_HTTP_RECEIVER",
+      "evidence": {
+        "path": "app/routes/settings/profile/passkeys.tsx",
+        "hash": "sha256:fc5128cbaf0cd828bcc79f569ac09c0b48ad3a20fdbc4fc3508902fe553a4579",
+        "offset": 1142
+      }
+    },
+    {
+      "code": "UNKNOWN_HTTP_RECEIVER",
+      "evidence": {
+        "path": "app/utils/auth.server.ts",
+        "hash": "sha256:1a3ef5f8b84596b5e47be85c7ed2101d2a40ae73139291d2e261de7dcbb9fd93",
+        "offset": 1021
+      }
+    },
+    {
+      "code": "UNKNOWN_HTTP_RECEIVER",
+      "evidence": {
+        "path": "app/utils/auth.server.ts",
+        "hash": "sha256:1a3ef5f8b84596b5e47be85c7ed2101d2a40ae73139291d2e261de7dcbb9fd93",
+        "offset": 1242
+      }
+    },
+    {
+      "code": "UNKNOWN_HTTP_RECEIVER",
+      "evidence": {
+        "path": "app/utils/auth.server.ts",
+        "hash": "sha256:1a3ef5f8b84596b5e47be85c7ed2101d2a40ae73139291d2e261de7dcbb9fd93",
+        "offset": 5275
+      }
+    },
+    {
+      "code": "DYNAMIC_OR_PATTERN_ROUTE",
+      "evidence": {
+        "path": "app/utils/auth.server.ts",
+        "hash": "sha256:1a3ef5f8b84596b5e47be85c7ed2101d2a40ae73139291d2e261de7dcbb9fd93",
+        "offset": 6971
+      }
+    },
+    {
+      "code": "UNSUPPORTED_CHAINED_HTTP",
+      "evidence": {
+        "path": "app/utils/auth.server.ts",
+        "hash": "sha256:1a3ef5f8b84596b5e47be85c7ed2101d2a40ae73139291d2e261de7dcbb9fd93",
+        "offset": 7166
+      }
+    },
+    {
+      "code": "UNKNOWN_HTTP_RECEIVER",
+      "evidence": {
+        "path": "app/utils/cache.server.ts",
+        "hash": "sha256:4637b2a18a410dce8a0a2405e97d7184f1ddb8f3895a0d2193d1af07c1a1f082",
+        "offset": 2346
+      }
+    },
+    {
+      "code": "UNKNOWN_HTTP_RECEIVER",
+      "evidence": {
+        "path": "app/utils/cache.server.ts",
+        "hash": "sha256:4637b2a18a410dce8a0a2405e97d7184f1ddb8f3895a0d2193d1af07c1a1f082",
+        "offset": 2379
+      }
+    },
+    {
+      "code": "UNKNOWN_HTTP_RECEIVER",
+      "evidence": {
+        "path": "app/utils/cache.server.ts",
+        "hash": "sha256:4637b2a18a410dce8a0a2405e97d7184f1ddb8f3895a0d2193d1af07c1a1f082",
+        "offset": 3811
+      }
+    },
+    {
+      "code": "UNSUPPORTED_CHAINED_HTTP",
+      "evidence": {
+        "path": "app/utils/cache.server.ts",
+        "hash": "sha256:4637b2a18a410dce8a0a2405e97d7184f1ddb8f3895a0d2193d1af07c1a1f082",
+        "offset": 5499
+      }
+    },
+    {
+      "code": "UNKNOWN_HTTP_RECEIVER",
+      "evidence": {
+        "path": "app/utils/cache.server.ts",
+        "hash": "sha256:4637b2a18a410dce8a0a2405e97d7184f1ddb8f3895a0d2193d1af07c1a1f082",
+        "offset": 5499
+      }
+    },
+    {
+      "code": "UNSUPPORTED_CHAINED_HTTP",
+      "evidence": {
+        "path": "app/utils/cache.server.ts",
+        "hash": "sha256:4637b2a18a410dce8a0a2405e97d7184f1ddb8f3895a0d2193d1af07c1a1f082",
+        "offset": 5712
+      }
+    },
+    {
+      "code": "UNKNOWN_HTTP_RECEIVER",
+      "evidence": {
+        "path": "app/utils/cache.server.ts",
+        "hash": "sha256:4637b2a18a410dce8a0a2405e97d7184f1ddb8f3895a0d2193d1af07c1a1f082",
+        "offset": 5712
+      }
+    },
+    {
+      "code": "UNKNOWN_HTTP_RECEIVER",
+      "evidence": {
+        "path": "app/utils/headers.server.ts",
+        "hash": "sha256:c0c84d74f7c784ba05b5001b7dd6cdbfb4d83e21c78eed424145da652dd659cf",
+        "offset": 1297
+      }
+    },
+    {
+      "code": "DYNAMIC_OR_PATTERN_ROUTE",
+      "evidence": {
+        "path": "app/utils/misc.tsx",
+        "hash": "sha256:9164f762d8df44725cca1ab5ffb7e5a717e97277feb54220e5bd657d67a3bca2",
+        "offset": 9235
+      }
+    },
+    {
+      "code": "DYNAMIC_OR_PATTERN_ROUTE",
+      "evidence": {
+        "path": "app/utils/providers/github.server.ts",
+        "hash": "sha256:9a54117771c88d5fd30025422dce78edb0143ac63efbd704cec56f0d2d30fdad",
+        "offset": 3470
+      }
+    },
+    {
+      "code": "DYNAMIC_OR_PATTERN_ROUTE",
+      "evidence": {
+        "path": "app/utils/storage.server.ts",
+        "hash": "sha256:b4e11d3427b2e0a44403d4216e8d613865ef200fa249e7b25e3b09e894ce6eb6",
+        "offset": 603
+      }
+    },
+    {
+      "code": "UNKNOWN_HTTP_RECEIVER",
+      "evidence": {
+        "path": "app/utils/timing.server.ts",
+        "hash": "sha256:9ea090fb2358f4ee18930bdee3cfaa674e6b61c4c64600eeadc3c590c7f40827",
+        "offset": 2121
+      }
+    },
+    {
+      "code": "UNKNOWN_HTTP_RECEIVER",
+      "evidence": {
+        "path": "app/utils/toast.server.ts",
+        "hash": "sha256:2b87ca8f2addcd4259302f7ab4a6c443b96aecb10520423c46e85b242e547e11",
+        "offset": 1541
+      }
+    },
+    {
+      "code": "UNSUPPORTED_RUNTIME_SOURCE",
+      "evidence": {
+        "path": "other/Dockerfile.dockerignore",
+        "hash": "sha256:548459600fa4b2c392d19dce0801012107be23f5de9228ff8f198911d76af51d",
+        "offset": 0
+      }
+    },
+    {
+      "code": "UNRESOLVED_MOUNT",
+      "evidence": {
+        "path": "server/app.ts",
+        "hash": "sha256:cddded41748a24da109257c5ed6e13d1ba5b0117cd834801ae25a3e2f4e4f637",
+        "offset": 341
+      }
+    },
+    {
+      "code": "UNRESOLVED_MOUNT",
+      "evidence": {
+        "path": "server/index.ts",
+        "hash": "sha256:bd891c7ffa30a88c8821f33821e2f794717fdfaf1e8af7bb11dc263cd0eddab0",
+        "offset": 1102
+      }
+    },
+    {
+      "code": "DYNAMIC_OR_PATTERN_ROUTE",
+      "evidence": {
+        "path": "server/index.ts",
+        "hash": "sha256:bd891c7ffa30a88c8821f33821e2f794717fdfaf1e8af7bb11dc263cd0eddab0",
+        "offset": 1497
+      }
+    },
+    {
+      "code": "UNRESOLVED_MOUNT",
+      "evidence": {
+        "path": "server/index.ts",
+        "hash": "sha256:bd891c7ffa30a88c8821f33821e2f794717fdfaf1e8af7bb11dc263cd0eddab0",
+        "offset": 1770
+      }
+    },
+    {
+      "code": "UNRESOLVED_MOUNT",
+      "evidence": {
+        "path": "server/index.ts",
+        "hash": "sha256:bd891c7ffa30a88c8821f33821e2f794717fdfaf1e8af7bb11dc263cd0eddab0",
+        "offset": 1933
+      }
+    },
+    {
+      "code": "DYNAMIC_OR_PATTERN_ROUTE",
+      "evidence": {
+        "path": "server/index.ts",
+        "hash": "sha256:bd891c7ffa30a88c8821f33821e2f794717fdfaf1e8af7bb11dc263cd0eddab0",
+        "offset": 2083
+      }
+    },
+    {
+      "code": "UNRESOLVED_MOUNT",
+      "evidence": {
+        "path": "server/index.ts",
+        "hash": "sha256:bd891c7ffa30a88c8821f33821e2f794717fdfaf1e8af7bb11dc263cd0eddab0",
+        "offset": 2478
+      }
+    },
+    {
+      "code": "UNRESOLVED_MOUNT",
+      "evidence": {
+        "path": "server/index.ts",
+        "hash": "sha256:bd891c7ffa30a88c8821f33821e2f794717fdfaf1e8af7bb11dc263cd0eddab0",
+        "offset": 3909
+      }
+    },
+    {
+      "code": "UNRESOLVED_MOUNT",
+      "evidence": {
+        "path": "server/index.ts",
+        "hash": "sha256:bd891c7ffa30a88c8821f33821e2f794717fdfaf1e8af7bb11dc263cd0eddab0",
+        "offset": 4640
+      }
+    },
+    {
+      "code": "UNRESOLVED_MOUNT",
+      "evidence": {
+        "path": "server/index.ts",
+        "hash": "sha256:bd891c7ffa30a88c8821f33821e2f794717fdfaf1e8af7bb11dc263cd0eddab0",
+        "offset": 5069
+      }
+    },
+    {
+      "code": "UNRESOLVED_MOUNT",
+      "evidence": {
+        "path": "server/index.ts",
+        "hash": "sha256:bd891c7ffa30a88c8821f33821e2f794717fdfaf1e8af7bb11dc263cd0eddab0",
+        "offset": 5106
+      }
+    },
+    {
+      "code": "UNRESOLVED_MOUNT",
+      "evidence": {
+        "path": "server/index.ts",
+        "hash": "sha256:bd891c7ffa30a88c8821f33821e2f794717fdfaf1e8af7bb11dc263cd0eddab0",
+        "offset": 5549
+      }
+    },
+    {
+      "code": "UNRESOLVED_MOUNT",
+      "evidence": {
+        "path": "server/index.ts",
+        "hash": "sha256:bd891c7ffa30a88c8821f33821e2f794717fdfaf1e8af7bb11dc263cd0eddab0",
+        "offset": 5813
+      }
+    },
+    {
+      "code": "UNRESOLVED_MOUNT",
+      "evidence": {
+        "path": "server/index.ts",
+        "hash": "sha256:bd891c7ffa30a88c8821f33821e2f794717fdfaf1e8af7bb11dc263cd0eddab0",
+        "offset": 5873
+      }
+    },
+    {
+      "code": "UNSUPPORTED_CHAINED_HTTP",
+      "evidence": {
+        "path": "tests/db-utils.ts",
+        "hash": "sha256:9e0db58787ca1c7628eaffc1d8a964a5448f919c9393d46cec49dfba14b5c7b7",
+        "offset": 318
+      }
+    },
+    {
+      "code": "UNSUPPORTED_CHAINED_HTTP",
+      "evidence": {
+        "path": "tests/db-utils.ts",
+        "hash": "sha256:9e0db58787ca1c7628eaffc1d8a964a5448f919c9393d46cec49dfba14b5c7b7",
+        "offset": 318
+      }
+    },
+    {
+      "code": "UNSUPPORTED_CHAINED_HTTP",
+      "evidence": {
+        "path": "tests/db-utils.ts",
+        "hash": "sha256:9e0db58787ca1c7628eaffc1d8a964a5448f919c9393d46cec49dfba14b5c7b7",
+        "offset": 318
+      }
+    },
+    {
+      "code": "UNKNOWN_HTTP_RECEIVER",
+      "evidence": {
+        "path": "tests/mocks/github.ts",
+        "hash": "sha256:904591a08ba64f4a0f0eec435f7f6748aac2cf0cfc0442a40e9ca3e1f2a4daec",
+        "offset": 3702
+      }
+    },
+    {
+      "code": "PROVIDER_UNRESOLVED",
+      "evidence": {
+        "path": "app/routes/_auth/login.tsx",
+        "hash": "sha256:d9a3c9032e624593c511d0c228773fcd9ea56d48afa2dbfe858e1011934fafed",
+        "offset": 7219
+      }
+    },
+    {
+      "code": "PROVIDER_UNRESOLVED",
+      "evidence": {
+        "path": "app/routes/_auth/login.tsx",
+        "hash": "sha256:d9a3c9032e624593c511d0c228773fcd9ea56d48afa2dbfe858e1011934fafed",
+        "offset": 7635
+      }
+    },
+    {
+      "code": "PROVIDER_UNRESOLVED",
+      "evidence": {
+        "path": "app/routes/settings/profile/passkeys.tsx",
+        "hash": "sha256:fc5128cbaf0cd828bcc79f569ac09c0b48ad3a20fdbc4fc3508902fe553a4579",
+        "offset": 2747
+      }
+    },
+    {
+      "code": "PROVIDER_UNRESOLVED",
+      "evidence": {
+        "path": "app/routes/settings/profile/passkeys.tsx",
+        "hash": "sha256:fc5128cbaf0cd828bcc79f569ac09c0b48ad3a20fdbc4fc3508902fe553a4579",
+        "offset": 3023
+      }
+    },
+    {
+      "code": "PROVIDER_UNRESOLVED",
+      "evidence": {
+        "path": "app/utils/email.server.ts",
+        "hash": "sha256:3dcdb8e9218daa0d408dea5119522049742001abcb1c33ecd7db36bdbf4b1e83",
+        "offset": 1346
+      }
+    },
+    {
+      "code": "PROVIDER_UNRESOLVED",
+      "evidence": {
+        "path": "app/utils/providers/github.server.ts",
+        "hash": "sha256:9a54117771c88d5fd30025422dce78edb0143ac63efbd704cec56f0d2d30fdad",
+        "offset": 1957
+      }
+    },
+    {
+      "code": "PROVIDER_UNRESOLVED",
+      "evidence": {
+        "path": "app/utils/providers/github.server.ts",
+        "hash": "sha256:9a54117771c88d5fd30025422dce78edb0143ac63efbd704cec56f0d2d30fdad",
+        "offset": 2318
+      }
+    },
+    {
+      "code": "PROVIDER_UNRESOLVED",
+      "evidence": {
+        "path": "remix.init/index.mjs",
+        "hash": "sha256:3ffd70b80620c0ce2fecba29f4c31a3b2434788b17713eefea7c2fc870e56341",
+        "offset": 634
+      }
+    },
+    {
+      "code": "PROVIDER_UNRESOLVED",
+      "evidence": {
+        "path": "remix.init/index.mjs",
+        "hash": "sha256:3ffd70b80620c0ce2fecba29f4c31a3b2434788b17713eefea7c2fc870e56341",
+        "offset": 10711
+      }
+    }
+  ],
+  "serviceSelectionComplete": false,
+  "serviceSelectionIssueCodes": [
+    "SERVICE_ANALYSIS_UNRESOLVED",
+    "SERVICE_ANALYSIS_UNRESOLVED",
+    "SERVICE_ANALYSIS_UNRESOLVED",
+    "SERVICE_ANALYSIS_UNRESOLVED",
+    "SERVICE_ANALYSIS_UNRESOLVED",
+    "SERVICE_ANALYSIS_UNRESOLVED",
+    "SERVICE_ANALYSIS_UNRESOLVED",
+    "SERVICE_ANALYSIS_UNRESOLVED",
+    "SERVICE_ANALYSIS_UNRESOLVED",
+    "SERVICE_ANALYSIS_UNRESOLVED",
+    "SERVICE_ANALYSIS_UNRESOLVED",
+    "SERVICE_ANALYSIS_UNRESOLVED",
+    "SERVICE_ANALYSIS_UNRESOLVED",
+    "SERVICE_ANALYSIS_UNRESOLVED",
+    "SERVICE_ANALYSIS_UNRESOLVED",
+    "SERVICE_ANALYSIS_UNRESOLVED",
+    "SERVICE_ANALYSIS_UNRESOLVED",
+    "SERVICE_ANALYSIS_UNRESOLVED",
+    "SERVICE_ANALYSIS_UNRESOLVED",
+    "SERVICE_ANALYSIS_UNRESOLVED",
+    "SERVICE_ANALYSIS_UNRESOLVED",
+    "SERVICE_ANALYSIS_UNRESOLVED",
+    "SERVICE_ANALYSIS_UNRESOLVED",
+    "SERVICE_ANALYSIS_UNRESOLVED",
+    "SERVICE_ANALYSIS_UNRESOLVED",
+    "SERVICE_ANALYSIS_UNRESOLVED",
+    "SERVICE_ANALYSIS_UNRESOLVED",
+    "SERVICE_ANALYSIS_UNRESOLVED",
+    "SERVICE_ANALYSIS_UNRESOLVED",
+    "SERVICE_ANALYSIS_UNRESOLVED",
+    "SERVICE_ANALYSIS_UNRESOLVED",
+    "SERVICE_ANALYSIS_UNRESOLVED",
+    "SERVICE_ANALYSIS_UNRESOLVED",
+    "SERVICE_ANALYSIS_UNRESOLVED",
+    "SERVICE_ANALYSIS_UNRESOLVED",
+    "SERVICE_ANALYSIS_UNRESOLVED",
+    "SERVICE_ANALYSIS_UNRESOLVED",
+    "SERVICE_ANALYSIS_UNRESOLVED",
+    "SERVICE_ANALYSIS_UNRESOLVED",
+    "SERVICE_ANALYSIS_UNRESOLVED",
+    "SERVICE_ANALYSIS_UNRESOLVED",
+    "SERVICE_ANALYSIS_UNRESOLVED",
+    "SERVICE_ANALYSIS_UNRESOLVED",
+    "SERVICE_ANALYSIS_UNRESOLVED",
+    "SERVICE_ANALYSIS_UNRESOLVED",
+    "SERVICE_ANALYSIS_UNRESOLVED",
+    "SERVICE_ANALYSIS_UNRESOLVED",
+    "SERVICE_ANALYSIS_UNRESOLVED",
+    "SERVICE_ANALYSIS_UNRESOLVED",
+    "SERVICE_ANALYSIS_UNRESOLVED",
+    "SERVICE_ANALYSIS_UNRESOLVED",
+    "SERVICE_ANALYSIS_UNRESOLVED",
+    "SERVICE_ANALYSIS_UNRESOLVED",
+    "SERVICE_ANALYSIS_UNRESOLVED",
+    "SERVICE_ANALYSIS_UNRESOLVED",
+    "SERVICE_ANALYSIS_UNRESOLVED",
+    "SERVICE_ANALYSIS_UNRESOLVED",
+    "SERVICE_ANALYSIS_UNRESOLVED",
+    "SERVICE_ANALYSIS_UNRESOLVED",
+    "SERVICE_ANALYSIS_UNRESOLVED",
+    "SERVICE_ANALYSIS_UNRESOLVED",
+    "SERVICE_ANALYSIS_UNRESOLVED",
+    "SERVICE_ANALYSIS_UNRESOLVED",
+    "SERVICE_ANALYSIS_UNRESOLVED",
+    "SERVICE_ANALYSIS_UNRESOLVED",
+    "SERVICE_ANALYSIS_UNRESOLVED",
+    "SERVICE_ANALYSIS_UNRESOLVED",
+    "SERVICE_ANALYSIS_UNRESOLVED",
+    "SERVICE_ANALYSIS_UNRESOLVED",
+    "SERVICE_ANALYSIS_UNRESOLVED",
+    "SERVICE_ANALYSIS_UNRESOLVED",
+    "SERVICE_ANALYSIS_UNRESOLVED",
+    "SERVICE_ANALYSIS_UNRESOLVED",
+    "SERVICE_ANALYSIS_UNRESOLVED",
+    "SERVICE_ANALYSIS_UNRESOLVED",
+    "SERVICE_ANALYSIS_UNRESOLVED",
+    "SERVICE_ANALYSIS_UNRESOLVED"
+  ],
+  "currentVerifiedConservativeReviewCount": 0,
+  "genuinePublicSourcePreparation": true,
+  "genuineFreshGraphConsumption": true,
+  "syntheticDesign": true,
+  "sourcePreparationOnly": true,
+  "designComplete": false,
+  "designLiveVerified": false,
+  "caseAcceptance": false,
+  "application": false,
+  "limitations": [
+    "The current source inventory and generated-module resolution passed, but 77 source connection issues still prevent complete service selection.",
+    "Pinned synthetic input is not live design or asset authority.",
+    "Actual own design generation, backend journeys, validation, guarded application and applied freshness remain required."
+  ]
+}

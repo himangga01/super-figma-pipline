@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "at": "2026-10-13T12:12:11.466Z",
+  "kind": "generated-diagnostics-after-eight-file-integration",
+  "commandArgs": [
+    "--experimental-transform-types",
+    "--disable-warning=ExperimentalWarning",
+    "scripts/update-diagnostics-catalog.mjs"
+  ],
+  "path": "packages/mcp/src/diagnostics-catalog.ts",
+  "beforeHash": "e3d89bb25c38af68554d1d2a04ca441161ce83ad8d3c2addda8e8553e9ddc405",
+  "afterHash": "4c4d0ba72588b0e8ba25e3fbfd12eac8e5a31006ce8ff0a0b6bb48de2bef197e",
+  "sourceChanged": true,
+  "ownerIndexUnchanged": true,
+  "whole": false,
+  "runtimeReplaced": false
+}

@@ -1,0 +1,94 @@
+{
+  "schemaVersion": 1,
+  "at": "2026-10-13T17:35:40.808Z",
+  "kind": "reviewed-reusable-case-renderer-publication",
+  "manifestHash": "80133005c3fa9d7be820e7f0c2eaf68acc46329b8eb1af76d17c43cf00600cd5",
+  "status": "published",
+  "files": [
+    {
+      "path": "examples/portal-cases/c2-epic/design-extension/app/components/cdd/case-contract.ts",
+      "source": "case-assembly-preparation/c2/app/components/cdd/case-contract.ts",
+      "sha256": "751be880958e0dfc8f4f7744c59cd7961aa60409ea183236caff69204d601329",
+      "bytes": 1021
+    },
+    {
+      "path": "examples/portal-cases/c2-epic/design-extension/app/components/cdd/CurrentLegacyDesign.tsx",
+      "source": "case-assembly-preparation/c2/app/components/cdd/CurrentLegacyDesign.tsx",
+      "sha256": "95f40a52d9ba4c7894e9552fbbda037259ca9df1b6dfc0a588484832ee6646a8",
+      "bytes": 302
+    },
+    {
+      "path": "examples/portal-cases/c2-epic/design-extension/app/components/cdd/LegacyLandingActions.tsx",
+      "source": "case-assembly-preparation/c2/app/components/cdd/LegacyLandingActions.tsx",
+      "sha256": "a53766a56d51e80559c258a77b6f17ab0801a191e15a332617aecc3214297db1",
+      "bytes": 1308
+    },
+    {
+      "path": "examples/portal-cases/c2-epic/design-extension/app/root.tsx",
+      "source": "case-assembly-preparation/c2/app/root.tsx",
+      "sha256": "96d7beaff1bd82a93afbd9cd111b981d2095011600ec5394113660e8aeee5860",
+      "bytes": 7993
+    },
+    {
+      "path": "examples/portal-cases/c2-epic/design-extension/app/routes/resources+/own-notes.ts",
+      "source": "case-assembly-preparation/c2/app/routes/resources+/own-notes.ts",
+      "sha256": "cf927e299decea8911e0afd2a449704913af411a407e599bffe876174909957d",
+      "bytes": 612
+    },
+    {
+      "path": "examples/portal-cases/c2-epic/design-extension/app/routes/_marketing/index.tsx",
+      "source": "case-assembly-preparation/c2/app/routes/_marketing/index.tsx",
+      "sha256": "219bee47fa85abace7e4ba3128054adb5b7dc5c231f31b729bf08f0a20c8faa1",
+      "bytes": 552
+    },
+    {
+      "path": "examples/portal-cases/shared-design/case-scene.css",
+      "source": "case-assembly-preparation/shared/case-scene.css",
+      "sha256": "23c2f1e81dd9118d9be871c2b5d57338e90b0f1c35b9c9924e08938eddb53436",
+      "bytes": 836
+    },
+    {
+      "path": "examples/portal-cases/shared-design/CaseScene.tsx",
+      "source": "case-assembly-preparation/shared/CaseScene.tsx",
+      "sha256": "a62201137e47e38cc11948ed7883fc4d212fe0a61c496b73a7773b3cd8d6ece3",
+      "bytes": 13085
+    },
+    {
+      "path": "examples/portal-cases/shared-design/composition.ts",
+      "source": "case-assembly-preparation/shared/composition.ts",
+      "sha256": "df36ac7cc6296754e46b370ffdaa001a0b3feb90c5080e46336e009c8aac3746",
+      "bytes": 3851
+    },
+    {
+      "path": "examples/portal-cases/shared-design/facts.ts",
+      "source": "case-assembly-preparation/shared/facts.ts",
+      "sha256": "efba0e3347bc4d67029941133a68715690eb26486e195cc18bb9cd14e0f80cf2",
+      "bytes": 4449
+    },
+    {
+      "path": "examples/portal-cases/shared-design/style.ts",
+      "source": "case-assembly-preparation/shared/style.ts",
+      "sha256": "68d518b2d9d46862a5c3c3730b3cc753e507b75c35c84bccb387a10cc2ef5291",
+      "bytes": 2895
+    },
+    {
+      "path": "examples/portal-cases/shared-design/types.ts",
+      "source": "case-assembly-preparation/shared/types.ts",
+      "sha256": "b518c3adf7122897ed921d75329a498acd45acf0a15828924e8c6b5ac3b53abb",
+      "bytes": 2616
+    },
+    {
+      "path": "examples/portal-cases/source-profile-input.mjs",
+      "source": "source-profile-input.mjs",
+      "sha256": "ce2653f17115a637c3acedd7bb0f7dcda5458d0873be1005bf3f745e05cade03",
+      "bytes": 1916
+    }
+  ],
+  "actualCaseAcceptance": false,
+  "liveActions": false,
+  "sourceIntegratedIntoCaseTarget": false,
+  "serviceSourceChanged": false,
+  "atomicAcrossFiles": false,
+  "automaticReplayAllowed": false,
+  "completedAt": "2026-10-13T17:35:40.839Z"
+}

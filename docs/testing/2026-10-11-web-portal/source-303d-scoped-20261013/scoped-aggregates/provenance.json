@@ -1,0 +1,21 @@
+{
+  "schemaVersion": 1,
+  "name": "provenance",
+  "releaseId": "03c80519-d773-4cc7-bfa3-1b416151544f",
+  "finalSourceHash": "sha256:303de5d1904d11c1fb89bdf80951900e375ac4325ea6cfc932f39ebee2785732",
+  "status": "passed",
+  "sourceBinding": "current-source",
+  "evidence": {
+    "receipt": {
+      "path": "docs/testing/2026-10-11-web-portal/final-scoped-generated-checks-20261013.json",
+      "sha256": "02972df47b13c31b51d0352b0a84929dfc621de52461596bbe0dec9c4c6deac5"
+    },
+    "registration": {
+      "path": "docs/testing/2026-10-11-web-portal/vite7-fixture-r29-provenance-20261013.json",
+      "sha256": "09147b953c06df4b461129c2a5b74578dcc5cab80c19fa331e4c506d776fa677"
+    },
+    "historicalFailedChecksPreserved": true
+  },
+  "wholePassed": false,
+  "liveAcceptance": false
+}

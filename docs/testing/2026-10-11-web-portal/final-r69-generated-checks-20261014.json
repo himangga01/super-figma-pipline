@@ -1,0 +1,42 @@
+{
+  "schemaVersion": 1,
+  "at": "2026-10-13T21:25:03.161Z",
+  "kind": "final-generated-diagnostics-and-provenance",
+  "sourceHash": "sha256:a28fbf9263536110c90a972a1cf97e2e7039d710fbe1532588476989e415ab5e",
+  "ownerIndexHash": "ecc1808ab3e14fa2e8c233ae1fc1c91e0a33b5b2e383a7270f1bc3068997e675",
+  "ownerIndexUnchanged": true,
+  "whole": false,
+  "results": [
+    {
+      "name": "diagnostics",
+      "args": [
+        "--experimental-transform-types",
+        "--disable-warning=ExperimentalWarning",
+        "scripts/update-diagnostics-catalog.mjs",
+        "--check"
+      ],
+      "exitCode": 0,
+      "signal": null,
+      "elapsedMs": 1580,
+      "logPath": ".worktrees/baseline/service/.cache/final-generated-r69-ab6acd94-1657-4843-b32e-3339b1c61ae3/diagnostics.txt",
+      "logSha256": "9b30f914b11e9087edf811866342d629b99dd3a8a903f2d7db3dca5f40bd5508"
+    },
+    {
+      "name": "offline-provenance",
+      "args": [
+        "scripts/verify-upstream-lock.mjs",
+        "--offline"
+      ],
+      "exitCode": 0,
+      "signal": null,
+      "elapsedMs": 550,
+      "logPath": ".worktrees/baseline/service/.cache/final-generated-r69-ab6acd94-1657-4843-b32e-3339b1c61ae3/offline-provenance.txt",
+      "logSha256": "d95c3ffe22d6af5049f905a7b0b79671451964964361bf9f5c6bfbfababb096c"
+    }
+  ],
+  "status": "passed",
+  "contractsRerun": false,
+  "contractsScope": "No public schema declaration changed in the reviewed source-selection and configuration-member delta; historical closed coverage is retained",
+  "runtimeReplaced": false,
+  "liveAcceptance": false
+}

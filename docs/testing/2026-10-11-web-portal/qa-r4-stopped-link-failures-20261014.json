@@ -1,0 +1,55 @@
+{
+  "schemaVersion": 1,
+  "recordedAt": "2026-10-13T18:57:58.686Z",
+  "sourceOnDisk": "sha256:d722c32152149464c961c660622a95e3da603eb00f291e28b15c024507bcd87d",
+  "incomingBuild": "sha256:7632acd6e38c4887b44325ef6cb1439f55170bdb7452ce3985aae3eb629cb1d1",
+  "r4": {
+    "status": "failed",
+    "previousPhase": "old-stopped",
+    "failedAt": "2026-10-13T18:32:51.626Z",
+    "errorCode": "INVENTORY_LINK_REFUSED",
+    "failedIntentSha256": "19d0a2b22790ab018440b32a0268eee54cdae2c9d844e81da37a15b6aff2555c",
+    "automaticReplayAllowed": false,
+    "oldDaemonRetired": true,
+    "oldPortalRetired": true,
+    "newRuntimeStarted": false,
+    "backupComplete": false
+  },
+  "linkDiagnosis": {
+    "count": 670,
+    "type": "relative directory SymbolicLink",
+    "absoluteTargets": 0,
+    "allTargetsInsideSameCompilerWorkspace": true,
+    "dependencyRootCounts": {
+      "node_modules": 648,
+      "source/node_modules": 22
+    },
+    "classifiedReceiptSha256": "0fd53bac7419f4d5428fb4e388e578503ede7ba20f2696eeba42679c28580aba",
+    "nonFollowingEnumerationEntries": 89262,
+    "enumerationIsSeparateFromPreflight": true
+  },
+  "continuationR2": {
+    "status": "failed",
+    "zeroWrite": true,
+    "errorCode": "INVENTORY_BOUND",
+    "messageHash": "0226a644b7b365b1e6a32788d2536a867ac47b7d04ee4f72a1d5de1cfd0daa48",
+    "originalLimits": {
+      "inventoryMs": 120000,
+      "entries": 250000
+    },
+    "actualTotalElapsedMs": null,
+    "actualInventoryElapsedMs": null,
+    "actualEntriesAtFailure": null,
+    "specificBoundCause": "unobserved",
+    "intentCreated": false,
+    "helperReplayed": false
+  },
+  "sourceChromeRetained": true,
+  "portalChromeRetained": true,
+  "primaryRuntimeUntouched": true,
+  "sourceTransportRetired": true,
+  "nativeApprovalRequested": false,
+  "sourceCapture": false,
+  "replacementPassed": false,
+  "fullAcceptance": false
+}

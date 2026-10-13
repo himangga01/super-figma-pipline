@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 1,
+  "attemptId": "87e13974-81f3-451c-a014-98987d9e0083",
+  "status": "failed",
+  "sourceHash": "sha256:ce6fdc2dcba4d29f2741507fe0d38c021b961cbb1f19b1ec83c2a618329d735f",
+  "failedAt": "2026-10-11T17:15:38.381Z",
+  "checks": [],
+  "error": "TEST_SCOPE_DECLARATION_FAILED: invalid or duplicate scope file: packages/cli/test/chrome-endpoint.test.ts; undeclared report file: packages/cli/test/chrome-endpoint.test.ts",
+  "realFigmaValidated": false,
+  "targetServiceValidated": false,
+  "remoteCiValidated": false
+}

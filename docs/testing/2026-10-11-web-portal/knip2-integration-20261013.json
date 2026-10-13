@@ -1,0 +1,29 @@
+{
+  "at": "2026-10-12T16:27:50.437Z",
+  "before": "sha256:398e26cdf683d8b8a3a25b9ac3f2eaeb9612eb5f9134ccdb5856800685249e16",
+  "after": "sha256:e69e49dee6387355d2da57174a19f7ce690e4337ac7910645f1051142ea6b3cf",
+  "manifestSha256": "e812898ccadbbc1d6158f014f98ffde90da6d2c4e2ca3a7ea4e1fdd21b8c8a4d",
+  "files": [
+    {
+      "path": "knip.json",
+      "before": "da0d85126c80728acd465ef1bc540f9fa207e50c4c5f0b6c865daae52e3745b2",
+      "after": "07407991f9d2c29e8908d3794ec727365e36c8e27022c750d79ff4b23e2335c9",
+      "bytes": 868
+    },
+    {
+      "path": "packages/mcp/src/control/figma-oauth-contract.ts",
+      "before": "b46deab1f5cb5b15988f07a1b9229559fb7857421ec3736036558d5aa9181006",
+      "after": "4e748ba03778e1a4f554889ba6be105c6686335e0bf402d248aae5ba92e8017a",
+      "bytes": 4603
+    }
+  ],
+  "review": {
+    "staticEntryVerified": true,
+    "entryChangeOnly": true,
+    "unusedTypeConsumersObserved": false,
+    "agentEvidenceRehashed": true
+  },
+  "ownerIndexUnchanged": true,
+  "wholeCheckPassed": false,
+  "liveRuntimeReplaced": false
+}

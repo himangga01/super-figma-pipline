@@ -1,0 +1,27 @@
+{
+  "schemaVersion": 1,
+  "kind": "normalized-actual-main-preimages-author-freeze-preserved",
+  "authorManifest": {
+    "path": ".worktrees/_cache/c2-c3-implementation-20261014/c3-graph-repair/frozen-compiler-route-type-repair-r2.json",
+    "sha256": "a1c708cd3eacee0eac0ad8e9e3aa7c11b972befb5edbfd2f52f0eb478c484790"
+  },
+  "actualIntegration": {
+    "path": "docs/testing/2026-10-11-web-portal/c3-generated-types-integration-20261014.json",
+    "sha256": "b709a99bc41b1121addd77463d76655a1e9c0359b24d7708fe14c4df1feba60c"
+  },
+  "files": [
+    {
+      "path": "packages/mcp/src/portal/react-router-compiler-evidence.ts",
+      "beforeSha256": "44b1952686603dd056faea33803c65a985e7b41230b5b04ad434ab69ac2065c8",
+      "afterSha256": "da6b2efb21772fa7b01bce3a353da61169f147651bff3f64a82e5c45e48290f0",
+      "bytes": 60448
+    },
+    {
+      "path": "packages/mcp/test/portal/react-router-compiler-evidence.test.ts",
+      "beforeSha256": "fb2ef781c20c20d1f2b5ee5148448239829188a8b05f3c18fd6c0f4d982305f8",
+      "afterSha256": "62fc8c6891ac08a4a24f3672a6991f45fa5514f039a4d07d882102f8949cc4a9",
+      "bytes": 36003
+    }
+  ],
+  "reason": "Author lineage before hashes are not Main preimages; normalize only from exact actual integration attempts without altering author freeze"
+}

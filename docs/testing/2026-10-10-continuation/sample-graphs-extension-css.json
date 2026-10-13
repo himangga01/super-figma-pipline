@@ -1,0 +1,154 @@
+{
+    "recordedAt":  "2026-10-11T06:54:13.280Z",
+    "moduleResolutionHash":  "sha256:d639289cff625c2f3745c9f2a77ed253657ee245b81ac14f2c1372ac5c1c1dcb",
+    "status":  "actual-generated-input-source-preparation-only",
+    "portalAccepted":  false,
+    "applicationStarted":  false,
+    "c3ReferenceSourcePreserved":  true,
+    "originalChanged":  [
+
+                        ],
+    "samples":  [
+                    {
+                        "case":  "C2",
+                        "root":  ".worktrees\\_cache\\portal-case-samples-20261010\\epic-legacy",
+                        "elapsedMs":  6941,
+                        "files":  334,
+                        "inventoryComplete":  true,
+                        "incomplete":  true,
+                        "lexicalReviewable":  false,
+                        "issueCount":  4,
+                        "issues":  [
+                                       "CONFIG_EXTENDS_UNSUPPORTED:tsconfig.json",
+                                       "MODULE_UNRESOLVED:server/app.ts:439:unsupported-module-specifier",
+                                       "MODULE_UNRESOLVED:server/app.ts:541:unsupported-module-specifier",
+                                       "MODULE_UNRESOLVED:server/index.ts:5887:nonliteral-module"
+                                   ],
+                        "generatedMembers":  83,
+                        "generatedArtifactInventoryHash":  "9d107cebe1462039e0746b1d8d88d7a0fa98715f3f3cf3f1d42c68167a4ad996",
+                        "generatedRouteTypeFiles":  52,
+                        "unresolvedModules":  [
+                                                  {
+                                                      "from":  "server/app.ts",
+                                                      "offset":  439,
+                                                      "kind":  "dynamic-import",
+                                                      "specifier":  "virtual:react-router/server-build",
+                                                      "status":  "unresolved",
+                                                      "reason":  "unsupported-module-specifier",
+                                                      "targets":  [
+
+                                                                  ],
+                                                      "configuration":  [
+
+                                                                        ]
+                                                  },
+                                                  {
+                                                      "from":  "server/app.ts",
+                                                      "offset":  541,
+                                                      "kind":  "dynamic-import",
+                                                      "specifier":  "virtual:react-router/server-build",
+                                                      "status":  "unresolved",
+                                                      "reason":  "unsupported-module-specifier",
+                                                      "targets":  [
+
+                                                                  ],
+                                                      "configuration":  [
+
+                                                                        ]
+                                                  },
+                                                  {
+                                                      "from":  "server/index.ts",
+                                                      "offset":  5887,
+                                                      "kind":  "dynamic-import",
+                                                      "specifier":  null,
+                                                      "status":  "unresolved",
+                                                      "reason":  "nonliteral-module",
+                                                      "targets":  [
+
+                                                                  ],
+                                                      "configuration":  [
+
+                                                                        ]
+                                                  }
+                                              ],
+                        "connectionIssueCounts":  {
+                                                      "MODULE_ANALYSIS_INCOMPLETE":  1,
+                                                      "MODULE_UNRESOLVED":  3,
+                                                      "UNSUPPORTED_CHAINED_HTTP":  11,
+                                                      "UNKNOWN_HTTP_RECEIVER":  31,
+                                                      "DYNAMIC_OR_PATTERN_ROUTE":  8,
+                                                      "UNSUPPORTED_RUNTIME_SOURCE":  2,
+                                                      "UNRESOLVED_MOUNT":  12,
+                                                      "PROVIDER_UNRESOLVED":  9
+                                                  }
+                    },
+                    {
+                        "case":  "C3",
+                        "root":  ".worktrees\\_cache\\portal-case-samples-20261010\\react-router-owned\\node-custom-server",
+                        "elapsedMs":  392,
+                        "files":  20,
+                        "inventoryComplete":  true,
+                        "incomplete":  true,
+                        "lexicalReviewable":  false,
+                        "issueCount":  3,
+                        "issues":  [
+                                       "MODULE_UNRESOLVED:react-router.config.ts:0:config-project-source-unassigned",
+                                       "MODULE_UNRESOLVED:server.js:1290:nonliteral-module",
+                                       "MODULE_UNRESOLVED:server/app.ts:294:unsupported-module-specifier"
+                                   ],
+                        "generatedMembers":  4,
+                        "generatedArtifactInventoryHash":  "10ea9976932f55c698131c2cceee34f81104ba49e10aad4410a4943b864c1eec",
+                        "generatedRouteTypeFiles":  4,
+                        "unresolvedModules":  [
+                                                  {
+                                                      "from":  "react-router.config.ts",
+                                                      "offset":  0,
+                                                      "kind":  "import",
+                                                      "specifier":  "@react-router/dev/config",
+                                                      "status":  "unresolved",
+                                                      "reason":  "config-project-source-unassigned",
+                                                      "targets":  [
+
+                                                                  ],
+                                                      "configuration":  [
+                                                                            "tsconfig.json"
+                                                                        ]
+                                                  },
+                                                  {
+                                                      "from":  "server.js",
+                                                      "offset":  1290,
+                                                      "kind":  "dynamic-import",
+                                                      "specifier":  null,
+                                                      "status":  "unresolved",
+                                                      "reason":  "nonliteral-module",
+                                                      "targets":  [
+
+                                                                  ],
+                                                      "configuration":  [
+
+                                                                        ]
+                                                  },
+                                                  {
+                                                      "from":  "server/app.ts",
+                                                      "offset":  294,
+                                                      "kind":  "dynamic-import",
+                                                      "specifier":  "virtual:react-router/server-build",
+                                                      "status":  "unresolved",
+                                                      "reason":  "unsupported-module-specifier",
+                                                      "targets":  [
+
+                                                                  ],
+                                                      "configuration":  [
+
+                                                                        ]
+                                                  }
+                                              ],
+                        "connectionIssueCounts":  {
+                                                      "MODULE_ANALYSIS_INCOMPLETE":  1,
+                                                      "MODULE_UNRESOLVED":  3,
+                                                      "UNSUPPORTED_RUNTIME_SOURCE":  1,
+                                                      "UNRESOLVED_MOUNT":  8
+                                                  }
+                    }
+                ]
+}

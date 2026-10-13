@@ -1,0 +1,60 @@
+{
+  "version": 1,
+  "at": "2026-10-13T02:38:45.354Z",
+  "kind": "read-only-preserved-R10-pure-admission-validator-diagnosis",
+  "referenceHashes": {
+    "entry-failed-snapshot.ts": "fc4e637e119e3d6bd32fba08b52b1416145765d833c1065baed5a007e0069ca4",
+    "bundle-failed-snapshot.mjs": "b13d5f422fb6ae4b17eb51573ec77ccc2984d5cdd2144b951c2aeaeba4ac9ad3",
+    "process-anchor.json": "bec2c7c16079c3216dd8966629b341de6575acd7bf4a1cccd1bbfd02f65af8d8",
+    "http-profile-contract.json": "2a454ef192865840c67d2bfe519d953fee55dcbee81c19f688bd0715f4892ab3",
+    "native-prepared-profile.json": "e8eab8e656f0ef888d0ebc52bac9e773a1a5f3d0bb0df1c84634cd2f39d76105",
+    "termination-preflight.json": "0434b3ce283520cf7550ce8475b40dd88517009db697c21a221c2fa915e0512a",
+    "termination-observation.json": "12574d76b19c6244a56208e5164478539bd94d23d35d923f5f0c268697bf66ad"
+  },
+  "planeSourceHash": "a12a18873d9773060bd74390b4f256d9b2793fe4858b7d3be75caa921eb05f23",
+  "extractedTargetValidatorHash": "2a00285836435101cc78e4807cb565c5a897d16e4e6cb8eb2025114cf5025f9d",
+  "extractedConsentValidatorHash": "f60e51acec535aee3b779e280e9b157e29a2630c50f1dfa4b52972eddd118447",
+  "executedCases": 5,
+  "passed": 5,
+  "outcomes": [
+    {
+      "name": "preserved-wrapper-null-target-before-consent",
+      "threw": true,
+      "errorName": "TypeError",
+      "code": null,
+      "messageHash": "3ca8f8cabfb56229146bb571d3ae4c4a24b1fb33285c3e3a464689bedb601b9e"
+    },
+    {
+      "name": "after-valid-none-target-four-class-local-trusted-still-invalid",
+      "threw": true,
+      "errorName": "Error",
+      "code": "INVOCATION_CONSENT_INVALID",
+      "messageHash": "ee607e3d197055c88532aa7898e4a22c2712546f9758e5e2e2ffd5b8fb4787ed"
+    }
+  ],
+  "profileTransport": {
+    "status": "passed",
+    "preparedFileBytes": 62220,
+    "originalRunDeadline": 1791861134881
+  },
+  "terminationObservationKeys": [
+    "at",
+    "nodeAbsent",
+    "observedDescendantCount",
+    "remainingObservedPidCount",
+    "gracefulCleanupProven",
+    "originalAttemptOutcome"
+  ],
+  "originalPublicErrorCode": null,
+  "originalToolRequestId": null,
+  "originalErrorAndRequestPersisted": false,
+  "originalPublicAdmissionObserved": false,
+  "originalCompilerOutcome": "unknown-after-direct-fallback-and-owned-termination",
+  "compilerDispatches": 0,
+  "privateHttp": 0,
+  "sourceActions": 0,
+  "originalHelperExecuted": false,
+  "movingCandidateExecuted": false,
+  "actualPublicAdmissionReplayed": false,
+  "limits": "Only frozen pure validators were extracted and executed. The complete plane/HTTP/CLI/native operation was not run. Original missing error/request cannot be reconstructed from this later test."
+}

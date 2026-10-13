@@ -1,0 +1,66 @@
+{
+  "schemaVersion": 1,
+  "at": "2026-10-13T18:11:17.085Z",
+  "kind": "final-reviewed-change-statics",
+  "sourceHash": "sha256:15c074bf124393877d75f73278dad7b9b2033c9fac58a5f0b89bdb83b122d4fa",
+  "codeInputs": [
+    {
+      "path": "packages/mcp/src/portal/react-router-compiler-evidence.ts",
+      "sha256": "da6b2efb21772fa7b01bce3a353da61169f147651bff3f64a82e5c45e48290f0"
+    },
+    {
+      "path": "packages/mcp/test/portal/react-router-compiler-evidence.test.ts",
+      "sha256": "62fc8c6891ac08a4a24f3672a6991f45fa5514f039a4d07d882102f8949cc4a9"
+    }
+  ],
+  "packages": [
+    "mcp"
+  ],
+  "ownerIndexHash": "ecc1808ab3e14fa2e8c233ae1fc1c91e0a33b5b2e383a7270f1bc3068997e675",
+  "ownerIndexUnchanged": true,
+  "whole": false,
+  "status": "failed",
+  "results": [
+    {
+      "name": "mcp-types",
+      "exitCode": 0,
+      "signal": null,
+      "elapsedMs": 12643,
+      "args": [
+        "-p",
+        "packages/mcp/tsconfig.json",
+        "--noEmit",
+        "--incremental",
+        "false"
+      ],
+      "logPath": "C:\\2026_project\\super-figma-pipline\\.worktrees\\baseline\\service\\.cache\\final-statics-4c3b4ba3-0464-4826-a51b-f007e2a7b8fe\\mcp-types.txt",
+      "logSha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b"
+    },
+    {
+      "name": "changed-lint",
+      "exitCode": 1,
+      "signal": null,
+      "elapsedMs": 121,
+      "args": [
+        "--deny-warnings",
+        "packages/mcp/src/portal/react-router-compiler-evidence.ts",
+        "packages/mcp/test/portal/react-router-compiler-evidence.test.ts"
+      ],
+      "logPath": "C:\\2026_project\\super-figma-pipline\\.worktrees\\baseline\\service\\.cache\\final-statics-4c3b4ba3-0464-4826-a51b-f007e2a7b8fe\\changed-lint.txt",
+      "logSha256": "2631814c51d69c80ff59532faac012f88abe5cd2d1d21d3632b81d9f17099cd5"
+    },
+    {
+      "name": "changed-format",
+      "exitCode": 1,
+      "signal": null,
+      "elapsedMs": 165,
+      "args": [
+        "--check",
+        "packages/mcp/src/portal/react-router-compiler-evidence.ts",
+        "packages/mcp/test/portal/react-router-compiler-evidence.test.ts"
+      ],
+      "logPath": "C:\\2026_project\\super-figma-pipline\\.worktrees\\baseline\\service\\.cache\\final-statics-4c3b4ba3-0464-4826-a51b-f007e2a7b8fe\\changed-format.txt",
+      "logSha256": "03a2d2a80803c2d3295119e5e0826e800d4feb921c586b29d5d55a3138a27569"
+    }
+  ]
+}

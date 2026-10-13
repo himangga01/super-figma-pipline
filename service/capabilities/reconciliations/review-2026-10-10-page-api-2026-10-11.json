@@ -1,0 +1,525 @@
+{
+  "schemaVersion": 1,
+  "slice": "review-2026-10-10",
+  "baseline": {
+    "headCommit": "22517932dc9b2cb974c177ec4eacb84d4b16e254",
+    "authoritySha256": {
+      "upstream-lock.json": "0bade7f513f291618c839045a31c22aa2f5609e8aa474e740611634d653c03fe",
+      "vendor-map.json": "b3275c7d8b997d1cfe723d97594659f77d7b4361b824a790bcfdd7ff762589bd",
+      "vendor-rules.json": "daeca066d0463a9faed75972579e3ddcbd2dd5497e2e37e778fadee67993eb48"
+    }
+  },
+  "entries": [
+    {
+      "path": "README.md",
+      "sha256": "036f5c814a4b9996f76c4ad02c66dadb938226e6461080a27231fa3b81bb654d",
+      "priorClaims": [
+        {
+          "class": "fork",
+          "sha256": "93cda7e49850806a72af5c3bb2af791c9625552acd592afa19465173af4c4f9e"
+        },
+        {
+          "class": "managed",
+          "sha256": "93cda7e49850806a72af5c3bb2af791c9625552acd592afa19465173af4c4f9e"
+        },
+        {
+          "class": "protected",
+          "sha256": "93cda7e49850806a72af5c3bb2af791c9625552acd592afa19465173af4c4f9e"
+        }
+      ],
+      "reason": "Add independent Chrome page-API reads/exports, explicit collector admission and freshness, exact fact/file comparison, empty-variable metadata and TSX compiler handling. Preserve unverified Vite plugin gaps. Independent review rechecked scope, cancellation, cleanup and resolver repairs. CDD standalone facts and assets match separate Scripter evidence; public portal/frontend and official live acceptance remain pending."
+    },
+    {
+      "path": "capabilities/task-review-2026-10-10-authority-classes.json",
+      "sha256": "ad17896341ff20c9d0e9669914b7160c37d12c610fa380368c9b562cf1078179",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "07fda0b799f27832c430df254d17b2f4c10a90a51224bd4fc7a57bb4f978a777"
+        },
+        {
+          "class": "protected",
+          "sha256": "07fda0b799f27832c430df254d17b2f4c10a90a51224bd4fc7a57bb4f978a777"
+        }
+      ],
+      "reason": "Add independent Chrome page-API reads/exports, explicit collector admission and freshness, exact fact/file comparison, empty-variable metadata and TSX compiler handling. Preserve unverified Vite plugin gaps. Independent review rechecked scope, cancellation, cleanup and resolver repairs. CDD standalone facts and assets match separate Scripter evidence; public portal/frontend and official live acceptance remain pending."
+    },
+    {
+      "path": "capabilities/union-manifest.json",
+      "sha256": "990a1ac118fd0741aa109be809df1a15c82ec3e6711036bfacaeda288dfe498a",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "0a317088925a69b933c8338bd1da53cb1de2281d320519ca451c5aaa731a719d"
+        },
+        {
+          "class": "protected",
+          "sha256": "0a317088925a69b933c8338bd1da53cb1de2281d320519ca451c5aaa731a719d"
+        }
+      ],
+      "reason": "Add independent Chrome page-API reads/exports, explicit collector admission and freshness, exact fact/file comparison, empty-variable metadata and TSX compiler handling. Preserve unverified Vite plugin gaps. Independent review rechecked scope, cancellation, cleanup and resolver repairs. CDD standalone facts and assets match separate Scripter evidence; public portal/frontend and official live acceptance remain pending."
+    },
+    {
+      "path": "packages/cli/src/browser-session.ts",
+      "sha256": "f0d7e86bbdd81a1489f906c9c2d43fd00b27483866d7a6ce9bd4e24285261024",
+      "priorClaims": [
+        {
+          "class": "protected",
+          "sha256": "a1a2453dd5d40a1d714f4fd078534eeb9760814bee883aff790dd7211dc9996a"
+        }
+      ],
+      "reason": "Add independent Chrome page-API reads/exports, explicit collector admission and freshness, exact fact/file comparison, empty-variable metadata and TSX compiler handling. Preserve unverified Vite plugin gaps. Independent review rechecked scope, cancellation, cleanup and resolver repairs. CDD standalone facts and assets match separate Scripter evidence; public portal/frontend and official live acceptance remain pending."
+    },
+    {
+      "path": "packages/cli/src/capture-fact-comparison.ts",
+      "sha256": "787ce9c74c4ec2c8c86f65cefb4a3b109ffc7329699b2313b50e8bd18f75cce1",
+      "priorClaims": [],
+      "reason": "Add independent Chrome page-API reads/exports, explicit collector admission and freshness, exact fact/file comparison, empty-variable metadata and TSX compiler handling. Preserve unverified Vite plugin gaps. Independent review rechecked scope, cancellation, cleanup and resolver repairs. CDD standalone facts and assets match separate Scripter evidence; public portal/frontend and official live acceptance remain pending."
+    },
+    {
+      "path": "packages/cli/src/commands.ts",
+      "sha256": "a727c8eefc675b8c87f020903681053804f875fa59b79e285ee7025a2e982747",
+      "priorClaims": [
+        {
+          "class": "protected",
+          "sha256": "fb1ca72eeb33011d1db3df912915667e9a9f58d0a25cf301ef36ec6832d94dde"
+        }
+      ],
+      "reason": "Add independent Chrome page-API reads/exports, explicit collector admission and freshness, exact fact/file comparison, empty-variable metadata and TSX compiler handling. Preserve unverified Vite plugin gaps. Independent review rechecked scope, cancellation, cleanup and resolver repairs. CDD standalone facts and assets match separate Scripter evidence; public portal/frontend and official live acceptance remain pending."
+    },
+    {
+      "path": "packages/cli/src/figma-native-metadata.ts",
+      "sha256": "b1f813586ae945ef4af40afefaeb442358cc9760dcf43a189b516ef69ce83c81",
+      "priorClaims": [
+        {
+          "class": "protected",
+          "sha256": "d294d85a85f0a69036c0f41eb4a4f6cc5b2a328b3f4151f70a06f67361bd2f75"
+        }
+      ],
+      "reason": "Add independent Chrome page-API reads/exports, explicit collector admission and freshness, exact fact/file comparison, empty-variable metadata and TSX compiler handling. Preserve unverified Vite plugin gaps. Independent review rechecked scope, cancellation, cleanup and resolver repairs. CDD standalone facts and assets match separate Scripter evidence; public portal/frontend and official live acceptance remain pending."
+    },
+    {
+      "path": "packages/cli/src/figma-page-reader.ts",
+      "sha256": "f346bb9781c7bd44392821529dee9db9b2a70fb2ae35c1a1600bc07f8981ccd0",
+      "priorClaims": [],
+      "reason": "Add independent Chrome page-API reads/exports, explicit collector admission and freshness, exact fact/file comparison, empty-variable metadata and TSX compiler handling. Preserve unverified Vite plugin gaps. Independent review rechecked scope, cancellation, cleanup and resolver repairs. CDD standalone facts and assets match separate Scripter evidence; public portal/frontend and official live acceptance remain pending."
+    },
+    {
+      "path": "packages/cli/test/browser-observation-bounds.test.ts",
+      "sha256": "388d3e5235b41209364473007c1ac770a83425b8526c8f92b021ed83fd81f2ae",
+      "priorClaims": [],
+      "reason": "Add independent Chrome page-API reads/exports, explicit collector admission and freshness, exact fact/file comparison, empty-variable metadata and TSX compiler handling. Preserve unverified Vite plugin gaps. Independent review rechecked scope, cancellation, cleanup and resolver repairs. CDD standalone facts and assets match separate Scripter evidence; public portal/frontend and official live acceptance remain pending."
+    },
+    {
+      "path": "packages/cli/test/browser-observation.test.ts",
+      "sha256": "36c78b6c4ef60b2a47528613340d227138ba17406791cf258c2f90f49d7227a9",
+      "priorClaims": [
+        {
+          "class": "protected",
+          "sha256": "db6a83d3d2e7561a8daacc21175d5390368f8a1761e38c13d609596f8331609c"
+        }
+      ],
+      "reason": "Add independent Chrome page-API reads/exports, explicit collector admission and freshness, exact fact/file comparison, empty-variable metadata and TSX compiler handling. Preserve unverified Vite plugin gaps. Independent review rechecked scope, cancellation, cleanup and resolver repairs. CDD standalone facts and assets match separate Scripter evidence; public portal/frontend and official live acceptance remain pending."
+    },
+    {
+      "path": "packages/cli/test/browser-source-open.test.ts",
+      "sha256": "31d4b147c3aebdc4c892eb4ab616f21e7260741b81d30c5ad4ff636303c76e30",
+      "priorClaims": [
+        {
+          "class": "protected",
+          "sha256": "de222974657ba5e1178e91d058a8e2acb67b7445372eaef55e56ca4e8fa4e432"
+        }
+      ],
+      "reason": "Add independent Chrome page-API reads/exports, explicit collector admission and freshness, exact fact/file comparison, empty-variable metadata and TSX compiler handling. Preserve unverified Vite plugin gaps. Independent review rechecked scope, cancellation, cleanup and resolver repairs. CDD standalone facts and assets match separate Scripter evidence; public portal/frontend and official live acceptance remain pending."
+    },
+    {
+      "path": "packages/cli/test/capture-fact-comparison.test.ts",
+      "sha256": "a182fc17174722aae35633b3135c4addac275af61ac0ba0524784d2f44ab2906",
+      "priorClaims": [],
+      "reason": "Add independent Chrome page-API reads/exports, explicit collector admission and freshness, exact fact/file comparison, empty-variable metadata and TSX compiler handling. Preserve unverified Vite plugin gaps. Independent review rechecked scope, cancellation, cleanup and resolver repairs. CDD standalone facts and assets match separate Scripter evidence; public portal/frontend and official live acceptance remain pending."
+    },
+    {
+      "path": "packages/cli/test/figma-native-metadata.test.ts",
+      "sha256": "e095dae2a41274d3ca097a6ee9b5e4888fa5478275a375c6291a4a16c02623c9",
+      "priorClaims": [
+        {
+          "class": "protected",
+          "sha256": "ccfedbb8da6c1e22c8fbb239d62725d8a3496071d4fae3dacb7c9a5dba0c04e9"
+        }
+      ],
+      "reason": "Add independent Chrome page-API reads/exports, explicit collector admission and freshness, exact fact/file comparison, empty-variable metadata and TSX compiler handling. Preserve unverified Vite plugin gaps. Independent review rechecked scope, cancellation, cleanup and resolver repairs. CDD standalone facts and assets match separate Scripter evidence; public portal/frontend and official live acceptance remain pending."
+    },
+    {
+      "path": "packages/cli/test/figma-page-reader.test.ts",
+      "sha256": "71486bc06de9389631e2fcb9a06e814ccda4274e81b2c6a7d879ff334c8d9e98",
+      "priorClaims": [],
+      "reason": "Add independent Chrome page-API reads/exports, explicit collector admission and freshness, exact fact/file comparison, empty-variable metadata and TSX compiler handling. Preserve unverified Vite plugin gaps. Independent review rechecked scope, cancellation, cleanup and resolver repairs. CDD standalone facts and assets match separate Scripter evidence; public portal/frontend and official live acceptance remain pending."
+    },
+    {
+      "path": "packages/ir/src/inspection-v1.ts",
+      "sha256": "b484f161d436540d2ca2c36abb8ce5f83e8fbdaa67390d957b50560a9cbf719e",
+      "priorClaims": [
+        {
+          "class": "protected",
+          "sha256": "2ad01dd6f8bbb8a84e8e014e748d64e704828b743c49a1ba60fdca4a0622343e"
+        }
+      ],
+      "reason": "Add independent Chrome page-API reads/exports, explicit collector admission and freshness, exact fact/file comparison, empty-variable metadata and TSX compiler handling. Preserve unverified Vite plugin gaps. Independent review rechecked scope, cancellation, cleanup and resolver repairs. CDD standalone facts and assets match separate Scripter evidence; public portal/frontend and official live acceptance remain pending."
+    },
+    {
+      "path": "packages/ir/test/inspection-v1.test.ts",
+      "sha256": "26ca4d809bb63201cdded547a68466be968068bd35c66de45303d5e8e157d734",
+      "priorClaims": [
+        {
+          "class": "protected",
+          "sha256": "ee66748b8460f16178fc2c8ba3c76d450fbf53fe2ed483112254d03567c99c65"
+        }
+      ],
+      "reason": "Add independent Chrome page-API reads/exports, explicit collector admission and freshness, exact fact/file comparison, empty-variable metadata and TSX compiler handling. Preserve unverified Vite plugin gaps. Independent review rechecked scope, cancellation, cleanup and resolver repairs. CDD standalone facts and assets match separate Scripter evidence; public portal/frontend and official live acceptance remain pending."
+    },
+    {
+      "path": "packages/mcp/src/execution/execution-plane.ts",
+      "sha256": "a12a18873d9773060bd74390b4f256d9b2793fe4858b7d3be75caa921eb05f23",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "93a21d4183a7c54a6503d138b8595ecb05ef5d45a5200df6b1c2983a6bd6b506"
+        },
+        {
+          "class": "protected",
+          "sha256": "93a21d4183a7c54a6503d138b8595ecb05ef5d45a5200df6b1c2983a6bd6b506"
+        }
+      ],
+      "reason": "Add independent Chrome page-API reads/exports, explicit collector admission and freshness, exact fact/file comparison, empty-variable metadata and TSX compiler handling. Preserve unverified Vite plugin gaps. Independent review rechecked scope, cancellation, cleanup and resolver repairs. CDD standalone facts and assets match separate Scripter evidence; public portal/frontend and official live acceptance remain pending."
+    },
+    {
+      "path": "packages/mcp/src/index.ts",
+      "sha256": "4d1b9e2b4cb898815522c4189d16b2193d8b00f45aa651d8e80112bd089c5606",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "0d3d70edaafb00a8b1616f9668a357b9b5e5d4a7f6c3928c3ced49bd9848e207"
+        },
+        {
+          "class": "protected",
+          "sha256": "0d3d70edaafb00a8b1616f9668a357b9b5e5d4a7f6c3928c3ced49bd9848e207"
+        }
+      ],
+      "reason": "Add independent Chrome page-API reads/exports, explicit collector admission and freshness, exact fact/file comparison, empty-variable metadata and TSX compiler handling. Preserve unverified Vite plugin gaps. Independent review rechecked scope, cancellation, cleanup and resolver repairs. CDD standalone facts and assets match separate Scripter evidence; public portal/frontend and official live acceptance remain pending."
+    },
+    {
+      "path": "packages/mcp/src/policy/approval-prompt.ts",
+      "sha256": "5b2e033c5cfacc8bee82e80096c3249f4b080f2d992324e2b21783283800d18a",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "a3d3077765e1a52be7da26d3880568a8a1e6edbaac162a6d785f14ecec2c3c3d"
+        },
+        {
+          "class": "protected",
+          "sha256": "a3d3077765e1a52be7da26d3880568a8a1e6edbaac162a6d785f14ecec2c3c3d"
+        }
+      ],
+      "reason": "Add independent Chrome page-API reads/exports, explicit collector admission and freshness, exact fact/file comparison, empty-variable metadata and TSX compiler handling. Preserve unverified Vite plugin gaps. Independent review rechecked scope, cancellation, cleanup and resolver repairs. CDD standalone facts and assets match separate Scripter evidence; public portal/frontend and official live acceptance remain pending."
+    },
+    {
+      "path": "packages/mcp/src/policy/operation-policy.ts",
+      "sha256": "2a9e0ccfc4b3adef4ec770e5d955c9d963c6f0c5620a33b63e13690ff1907486",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "1d2f69faef6e09e677d52ad0d4aea991108ece8b36701fbd157c44b5a761d7fc"
+        },
+        {
+          "class": "protected",
+          "sha256": "1d2f69faef6e09e677d52ad0d4aea991108ece8b36701fbd157c44b5a761d7fc"
+        }
+      ],
+      "reason": "Add independent Chrome page-API reads/exports, explicit collector admission and freshness, exact fact/file comparison, empty-variable metadata and TSX compiler handling. Preserve unverified Vite plugin gaps. Independent review rechecked scope, cancellation, cleanup and resolver repairs. CDD standalone facts and assets match separate Scripter evidence; public portal/frontend and official live acceptance remain pending."
+    },
+    {
+      "path": "packages/mcp/src/portal/capture-runtime.ts",
+      "sha256": "9741134f5d4bc8eda78b7b376be6082c73b2ae429819e9d396578d52797003c3",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "fecb1925ce4bfb303c0886b901ce8d099cc5f4003fbe6c72f6ab26601f00ec33"
+        },
+        {
+          "class": "protected",
+          "sha256": "fecb1925ce4bfb303c0886b901ce8d099cc5f4003fbe6c72f6ab26601f00ec33"
+        }
+      ],
+      "reason": "Add independent Chrome page-API reads/exports, explicit collector admission and freshness, exact fact/file comparison, empty-variable metadata and TSX compiler handling. Preserve unverified Vite plugin gaps. Independent review rechecked scope, cancellation, cleanup and resolver repairs. CDD standalone facts and assets match separate Scripter evidence; public portal/frontend and official live acceptance remain pending."
+    },
+    {
+      "path": "packages/mcp/src/portal/capture-source-admission.ts",
+      "sha256": "10f869ab80a6d78c8c37a9d3dc307328f7d88b6c9f44dc5a51deebcf5a4d8098",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "11783a42158fe370b1526d9f2d248cd62f5c982ad32e3299753b6b72f9666ca5"
+        },
+        {
+          "class": "protected",
+          "sha256": "11783a42158fe370b1526d9f2d248cd62f5c982ad32e3299753b6b72f9666ca5"
+        }
+      ],
+      "reason": "Add independent Chrome page-API reads/exports, explicit collector admission and freshness, exact fact/file comparison, empty-variable metadata and TSX compiler handling. Preserve unverified Vite plugin gaps. Independent review rechecked scope, cancellation, cleanup and resolver repairs. CDD standalone facts and assets match separate Scripter evidence; public portal/frontend and official live acceptance remain pending."
+    },
+    {
+      "path": "packages/mcp/src/portal/coordinator.ts",
+      "sha256": "58c98cf628cad386ac437cf1c4ebdbd906a80e63a2ec837944582fce477a0f17",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "029807ae11b2ab40a584dd3fdfa8a3918b61e587ee94bc531ad9dc48b189dfa6"
+        },
+        {
+          "class": "protected",
+          "sha256": "029807ae11b2ab40a584dd3fdfa8a3918b61e587ee94bc531ad9dc48b189dfa6"
+        }
+      ],
+      "reason": "Add independent Chrome page-API reads/exports, explicit collector admission and freshness, exact fact/file comparison, empty-variable metadata and TSX compiler handling. Preserve unverified Vite plugin gaps. Independent review rechecked scope, cancellation, cleanup and resolver repairs. CDD standalone facts and assets match separate Scripter evidence; public portal/frontend and official live acceptance remain pending."
+    },
+    {
+      "path": "packages/mcp/src/portal/design-capture.ts",
+      "sha256": "0db6ee493563dff2b0f34de47fcf7d6c3ececc4065c4a4caf60adb89a5f48c26",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "c42afb09ab4c502242f0ff2ce1456944ceb5e44ab243b9acf41ae67cbdb86f1a"
+        },
+        {
+          "class": "protected",
+          "sha256": "c42afb09ab4c502242f0ff2ce1456944ceb5e44ab243b9acf41ae67cbdb86f1a"
+        }
+      ],
+      "reason": "Add independent Chrome page-API reads/exports, explicit collector admission and freshness, exact fact/file comparison, empty-variable metadata and TSX compiler handling. Preserve unverified Vite plugin gaps. Independent review rechecked scope, cancellation, cleanup and resolver repairs. CDD standalone facts and assets match separate Scripter evidence; public portal/frontend and official live acceptance remain pending."
+    },
+    {
+      "path": "packages/mcp/src/portal/design-normalization.ts",
+      "sha256": "c6d008fe6cd7900ecec8400d037ebb5a58ffd9aa24e73c81e0bf10d81af37a3b",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "7dafe55fa67c9453fcd5668aa3d2ccfc65d1c661d1e5bbdb332e268e00fe6b89"
+        },
+        {
+          "class": "protected",
+          "sha256": "7dafe55fa67c9453fcd5668aa3d2ccfc65d1c661d1e5bbdb332e268e00fe6b89"
+        }
+      ],
+      "reason": "Add independent Chrome page-API reads/exports, explicit collector admission and freshness, exact fact/file comparison, empty-variable metadata and TSX compiler handling. Preserve unverified Vite plugin gaps. Independent review rechecked scope, cancellation, cleanup and resolver repairs. CDD standalone facts and assets match separate Scripter evidence; public portal/frontend and official live acceptance remain pending."
+    },
+    {
+      "path": "packages/mcp/src/portal/module-resolution.ts",
+      "sha256": "8c00795ce9aa6fb6aa4bf87e592df039b0ea28b42703527a38608414d0c8ebdb",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "76d9e47741e7c5cb8c24415543b841b2fcbf45df22db6122601ed605a3e0b023"
+        },
+        {
+          "class": "protected",
+          "sha256": "76d9e47741e7c5cb8c24415543b841b2fcbf45df22db6122601ed605a3e0b023"
+        }
+      ],
+      "reason": "Add independent Chrome page-API reads/exports, explicit collector admission and freshness, exact fact/file comparison, empty-variable metadata and TSX compiler handling. Preserve unverified Vite plugin gaps. Independent review rechecked scope, cancellation, cleanup and resolver repairs. CDD standalone facts and assets match separate Scripter evidence; public portal/frontend and official live acceptance remain pending."
+    },
+    {
+      "path": "packages/mcp/src/portal/native-work.ts",
+      "sha256": "d0592bb58da1f9e31c7ba2a04fc83226bf28010de7251f8858fcfc3e3b592727",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "dea4947572ee25079ed2abbba2e7d3ea356072bc212aa430dc28b2a508700862"
+        },
+        {
+          "class": "protected",
+          "sha256": "dea4947572ee25079ed2abbba2e7d3ea356072bc212aa430dc28b2a508700862"
+        }
+      ],
+      "reason": "Add independent Chrome page-API reads/exports, explicit collector admission and freshness, exact fact/file comparison, empty-variable metadata and TSX compiler handling. Preserve unverified Vite plugin gaps. Independent review rechecked scope, cancellation, cleanup and resolver repairs. CDD standalone facts and assets match separate Scripter evidence; public portal/frontend and official live acceptance remain pending."
+    },
+    {
+      "path": "packages/mcp/test/policy/operation-policy.test.ts",
+      "sha256": "d3bb14cc254cce70539c8a6244d2160b72d70f063ae93b69cd08d3c83eff9e07",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "ae2c112c24430fcc982500eee0c3b6858f8c7d6d7427a5f055b9e224d7ccd063"
+        },
+        {
+          "class": "protected",
+          "sha256": "ae2c112c24430fcc982500eee0c3b6858f8c7d6d7427a5f055b9e224d7ccd063"
+        }
+      ],
+      "reason": "Add independent Chrome page-API reads/exports, explicit collector admission and freshness, exact fact/file comparison, empty-variable metadata and TSX compiler handling. Preserve unverified Vite plugin gaps. Independent review rechecked scope, cancellation, cleanup and resolver repairs. CDD standalone facts and assets match separate Scripter evidence; public portal/frontend and official live acceptance remain pending."
+    },
+    {
+      "path": "packages/mcp/test/portal/capture-plane.test.ts",
+      "sha256": "147a75fe7dec1d9554755f5d46c7b187ea220db0f9e847edee19800df93eaca3",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "2feded936ce05beb40774e72a90f5fe5dd6a4d82f5f5444285f688a67f9427e8"
+        },
+        {
+          "class": "protected",
+          "sha256": "2feded936ce05beb40774e72a90f5fe5dd6a4d82f5f5444285f688a67f9427e8"
+        }
+      ],
+      "reason": "Add independent Chrome page-API reads/exports, explicit collector admission and freshness, exact fact/file comparison, empty-variable metadata and TSX compiler handling. Preserve unverified Vite plugin gaps. Independent review rechecked scope, cancellation, cleanup and resolver repairs. CDD standalone facts and assets match separate Scripter evidence; public portal/frontend and official live acceptance remain pending."
+    },
+    {
+      "path": "packages/mcp/test/portal/module-resolution.test.ts",
+      "sha256": "92967d1c37b351fa6218379007400bd6dca693f8906ac4322a8c1bff12c1ff38",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "26ed8b847056b2feb5684d07049c7377553409b631eeae9ed360db0bd31f9a9b"
+        },
+        {
+          "class": "protected",
+          "sha256": "26ed8b847056b2feb5684d07049c7377553409b631eeae9ed360db0bd31f9a9b"
+        }
+      ],
+      "reason": "Add independent Chrome page-API reads/exports, explicit collector admission and freshness, exact fact/file comparison, empty-variable metadata and TSX compiler handling. Preserve unverified Vite plugin gaps. Independent review rechecked scope, cancellation, cleanup and resolver repairs. CDD standalone facts and assets match separate Scripter evidence; public portal/frontend and official live acceptance remain pending."
+    },
+    {
+      "path": "packages/mcp/test/portal/native-work.test.ts",
+      "sha256": "0d12374852a3de5cd1a990a8ea8a57fc798dbe3da47765b6ec3f3cb447e318bc",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "acc9940fe31c8e35b30319db0b4bbbfe771850a528278c7a7c9b45d8de58d4b7"
+        },
+        {
+          "class": "protected",
+          "sha256": "acc9940fe31c8e35b30319db0b4bbbfe771850a528278c7a7c9b45d8de58d4b7"
+        }
+      ],
+      "reason": "Add independent Chrome page-API reads/exports, explicit collector admission and freshness, exact fact/file comparison, empty-variable metadata and TSX compiler handling. Preserve unverified Vite plugin gaps. Independent review rechecked scope, cancellation, cleanup and resolver repairs. CDD standalone facts and assets match separate Scripter evidence; public portal/frontend and official live acceptance remain pending."
+    },
+    {
+      "path": "packages/mcp/test/portal/page-api-admission.test.ts",
+      "sha256": "5bf5ea1b3bd64cc81b350f436529b28d43aea397977022e46df1748f44d4c2d9",
+      "priorClaims": [],
+      "reason": "Add independent Chrome page-API reads/exports, explicit collector admission and freshness, exact fact/file comparison, empty-variable metadata and TSX compiler handling. Preserve unverified Vite plugin gaps. Independent review rechecked scope, cancellation, cleanup and resolver repairs. CDD standalone facts and assets match separate Scripter evidence; public portal/frontend and official live acceptance remain pending."
+    },
+    {
+      "path": "packages/mcp/test/portal/page-api-fixture.ts",
+      "sha256": "ba2b2212497697a804674eaab0b3b39ea8e610dcf6a318714d686ea24b7c24bd",
+      "priorClaims": [],
+      "reason": "Add independent Chrome page-API reads/exports, explicit collector admission and freshness, exact fact/file comparison, empty-variable metadata and TSX compiler handling. Preserve unverified Vite plugin gaps. Independent review rechecked scope, cancellation, cleanup and resolver repairs. CDD standalone facts and assets match separate Scripter evidence; public portal/frontend and official live acceptance remain pending."
+    },
+    {
+      "path": "packages/mcp/test/portal/page-api-flow.test.ts",
+      "sha256": "095cf75120cf84b32a8b813429ea0715422108704d6edc6a3121295e404e2b0e",
+      "priorClaims": [],
+      "reason": "Add independent Chrome page-API reads/exports, explicit collector admission and freshness, exact fact/file comparison, empty-variable metadata and TSX compiler handling. Preserve unverified Vite plugin gaps. Independent review rechecked scope, cancellation, cleanup and resolver repairs. CDD standalone facts and assets match separate Scripter evidence; public portal/frontend and official live acceptance remain pending."
+    },
+    {
+      "path": "packages/shared/src/design-observation.ts",
+      "sha256": "ade7ee53d97f46b11e8e3d73e24b1d6a5eda8284bb0855e9325ef4d8bae62d04",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "08f7c416745543457dc6f8ce50ec4acfa4427f189080c2b935ba4b460474a8fe"
+        },
+        {
+          "class": "protected",
+          "sha256": "08f7c416745543457dc6f8ce50ec4acfa4427f189080c2b935ba4b460474a8fe"
+        }
+      ],
+      "reason": "Add independent Chrome page-API reads/exports, explicit collector admission and freshness, exact fact/file comparison, empty-variable metadata and TSX compiler handling. Preserve unverified Vite plugin gaps. Independent review rechecked scope, cancellation, cleanup and resolver repairs. CDD standalone facts and assets match separate Scripter evidence; public portal/frontend and official live acceptance remain pending."
+    },
+    {
+      "path": "packages/shared/src/figma-capture-query.ts",
+      "sha256": "b7dda43f293e6ffb006bb25a3c78a70164376300eb99067500602c6a46b3fbe5",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "03701c8426676e3aa022eb304c0d4fb6c730ac31250fce9b1215a169b487885c"
+        },
+        {
+          "class": "protected",
+          "sha256": "03701c8426676e3aa022eb304c0d4fb6c730ac31250fce9b1215a169b487885c"
+        }
+      ],
+      "reason": "Add independent Chrome page-API reads/exports, explicit collector admission and freshness, exact fact/file comparison, empty-variable metadata and TSX compiler handling. Preserve unverified Vite plugin gaps. Independent review rechecked scope, cancellation, cleanup and resolver repairs. CDD standalone facts and assets match separate Scripter evidence; public portal/frontend and official live acceptance remain pending."
+    },
+    {
+      "path": "packages/shared/src/figma-capture-read.ts",
+      "sha256": "a1e78a4d3a2b05f36886f233d79f2af1031df83f1cd2a0228038075268ba4772",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "5c00133e6c958dc16eb35b3feb4714577239ccb70e0639627f31c480a95b9a2c"
+        },
+        {
+          "class": "protected",
+          "sha256": "5c00133e6c958dc16eb35b3feb4714577239ccb70e0639627f31c480a95b9a2c"
+        }
+      ],
+      "reason": "Add independent Chrome page-API reads/exports, explicit collector admission and freshness, exact fact/file comparison, empty-variable metadata and TSX compiler handling. Preserve unverified Vite plugin gaps. Independent review rechecked scope, cancellation, cleanup and resolver repairs. CDD standalone facts and assets match separate Scripter evidence; public portal/frontend and official live acceptance remain pending."
+    },
+    {
+      "path": "packages/shared/src/operations.ts",
+      "sha256": "7ad0f4b964e8b60c0c4e68e4095177a5b6d3ca6f6a72a592242826e971246646",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "7af602a3cd8ffd64649309b193cbe304c58e06be6912d2b7061919e344004f65"
+        },
+        {
+          "class": "protected",
+          "sha256": "7af602a3cd8ffd64649309b193cbe304c58e06be6912d2b7061919e344004f65"
+        }
+      ],
+      "reason": "Add independent Chrome page-API reads/exports, explicit collector admission and freshness, exact fact/file comparison, empty-variable metadata and TSX compiler handling. Preserve unverified Vite plugin gaps. Independent review rechecked scope, cancellation, cleanup and resolver repairs. CDD standalone facts and assets match separate Scripter evidence; public portal/frontend and official live acceptance remain pending."
+    },
+    {
+      "path": "packages/shared/src/portal-capture-source.ts",
+      "sha256": "f063433f26b592ddd891fc6458a38086b669b4cb22b647f8339b187f7a4f9597",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "8c6d27c9ebea8b3538e2ac8ad8d02415eed6fe99167f6fc51e9c93be7a8f510b"
+        },
+        {
+          "class": "protected",
+          "sha256": "8c6d27c9ebea8b3538e2ac8ad8d02415eed6fe99167f6fc51e9c93be7a8f510b"
+        }
+      ],
+      "reason": "Add independent Chrome page-API reads/exports, explicit collector admission and freshness, exact fact/file comparison, empty-variable metadata and TSX compiler handling. Preserve unverified Vite plugin gaps. Independent review rechecked scope, cancellation, cleanup and resolver repairs. CDD standalone facts and assets match separate Scripter evidence; public portal/frontend and official live acceptance remain pending."
+    },
+    {
+      "path": "packages/shared/src/portal.ts",
+      "sha256": "99e52c0b69d5705c1c95882af6f84d584eb4607545b176ba25f1577e2a4a636a",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "44a5f5488a2ad6b89bdd6c27b329b2b70220733a98edcc8f5248298fad11a0f0"
+        },
+        {
+          "class": "protected",
+          "sha256": "44a5f5488a2ad6b89bdd6c27b329b2b70220733a98edcc8f5248298fad11a0f0"
+        }
+      ],
+      "reason": "Add independent Chrome page-API reads/exports, explicit collector admission and freshness, exact fact/file comparison, empty-variable metadata and TSX compiler handling. Preserve unverified Vite plugin gaps. Independent review rechecked scope, cancellation, cleanup and resolver repairs. CDD standalone facts and assets match separate Scripter evidence; public portal/frontend and official live acceptance remain pending."
+    },
+    {
+      "path": "scripts/test-skip-census.mjs",
+      "sha256": "1652937ce00b7701ca29de6fbfbf308622d81a7ae7ba34829a29f5f8d941a90b",
+      "priorClaims": [
+        {
+          "class": "protected",
+          "sha256": "cea38902671d8da6596f2f9c44233f4289175e6e607eaafe252b107031d37938"
+        }
+      ],
+      "reason": "Add independent Chrome page-API reads/exports, explicit collector admission and freshness, exact fact/file comparison, empty-variable metadata and TSX compiler handling. Preserve unverified Vite plugin gaps. Independent review rechecked scope, cancellation, cleanup and resolver repairs. CDD standalone facts and assets match separate Scripter evidence; public portal/frontend and official live acceptance remain pending."
+    }
+  ]
+}

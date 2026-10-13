@@ -1,0 +1,517 @@
+{
+  "schemaVersion": 1,
+  "slice": "review-2026-10-10",
+  "baseline": {
+    "headCommit": "22517932dc9b2cb974c177ec4eacb84d4b16e254",
+    "authoritySha256": {
+      "upstream-lock.json": "85700b9eb516378c4e669b5b5b12cb31d7b656f38d57380265f6dce0643ba205",
+      "vendor-map.json": "b3275c7d8b997d1cfe723d97594659f77d7b4361b824a790bcfdd7ff762589bd",
+      "vendor-rules.json": "843a2b1d733353b552c308d1c7d77b2b787d9a792f402f4eccce06ca2398f470"
+    }
+  },
+  "entries": [
+    {
+      "path": "capabilities/task-review-2026-10-10-authority-classes.json",
+      "sha256": "982b72109ddd40f95ef6924cb1816e5e72676218c18255cf9b0c8dfe3dd37aac",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "83ef8259a9b6b368ba1cba43004a8d7670f8c84b3d81baa6d0faf3a53faaab36"
+        },
+        {
+          "class": "protected",
+          "sha256": "83ef8259a9b6b368ba1cba43004a8d7670f8c84b3d81baa6d0faf3a53faaab36"
+        }
+      ],
+      "reason": "Expose 128 registered tools and 58 overlapping public CLI paths through fixed portal bindings, typed forms, explicit approvals, retained operation IDs, recovery, private outputs, official MCP settings and activity logs. Preserve the existing Chrome tab. Repair reviewed nonce, Desktop retention, import-cycle and portable-type defects. Retain failed live traces and require current-source whole/artifact checks and actual frontend acceptance."
+    },
+    {
+      "path": "knip.json",
+      "sha256": "da0d85126c80728acd465ef1bc540f9fa207e50c4c5f0b6c865daae52e3745b2",
+      "priorClaims": [
+        {
+          "class": "protected",
+          "sha256": "05828d92643184d4c9dfc412f224449d3860a5fc63c43351cce49253eaaf416f"
+        }
+      ],
+      "reason": "Expose 128 registered tools and 58 overlapping public CLI paths through fixed portal bindings, typed forms, explicit approvals, retained operation IDs, recovery, private outputs, official MCP settings and activity logs. Preserve the existing Chrome tab. Repair reviewed nonce, Desktop retention, import-cycle and portable-type defects. Retain failed live traces and require current-source whole/artifact checks and actual frontend acceptance."
+    },
+    {
+      "path": "packages/cli/src/admin-commands.ts",
+      "sha256": "5e0e4053f1bb26a21b1c6f270f898b959258d13ec1736c26324d5539dce810ef",
+      "priorClaims": [
+        {
+          "class": "protected",
+          "sha256": "28586c11b50421c2c8bca459e551a81ff84f19938eedab151df61601b07d3fe5"
+        }
+      ],
+      "reason": "Expose 128 registered tools and 58 overlapping public CLI paths through fixed portal bindings, typed forms, explicit approvals, retained operation IDs, recovery, private outputs, official MCP settings and activity logs. Preserve the existing Chrome tab. Repair reviewed nonce, Desktop retention, import-cycle and portable-type defects. Retain failed live traces and require current-source whole/artifact checks and actual frontend acceptance."
+    },
+    {
+      "path": "packages/cli/src/browser-session.ts",
+      "sha256": "45e0b75729740c563e98a83a807ea0d687698362e364704dc0caf5245b56e97f",
+      "priorClaims": [
+        {
+          "class": "protected",
+          "sha256": "bcb847671d664491d412fd33ce0c36db3fa3a8dbcd37ff448560d9c2e7545896"
+        }
+      ],
+      "reason": "Expose 128 registered tools and 58 overlapping public CLI paths through fixed portal bindings, typed forms, explicit approvals, retained operation IDs, recovery, private outputs, official MCP settings and activity logs. Preserve the existing Chrome tab. Repair reviewed nonce, Desktop retention, import-cycle and portable-type defects. Retain failed live traces and require current-source whole/artifact checks and actual frontend acceptance."
+    },
+    {
+      "path": "packages/cli/src/commands.ts",
+      "sha256": "74cdeb89eb100eaec58caa8bbd80acbe437bf46e3eb3a16909b78861340eff1a",
+      "priorClaims": [
+        {
+          "class": "protected",
+          "sha256": "a727c8eefc675b8c87f020903681053804f875fa59b79e285ee7025a2e982747"
+        }
+      ],
+      "reason": "Expose 128 registered tools and 58 overlapping public CLI paths through fixed portal bindings, typed forms, explicit approvals, retained operation IDs, recovery, private outputs, official MCP settings and activity logs. Preserve the existing Chrome tab. Repair reviewed nonce, Desktop retention, import-cycle and portable-type defects. Retain failed live traces and require current-source whole/artifact checks and actual frontend acceptance."
+    },
+    {
+      "path": "packages/cli/src/control-client.ts",
+      "sha256": "c727417ce960c32c426749efc511df70b36411e71240309b94d108dfd3ba00d6",
+      "priorClaims": [
+        {
+          "class": "protected",
+          "sha256": "5c3f70e0f4389f0fb2b4a23bf524b591cb9ec67439492d87dc8d027f87c80081"
+        }
+      ],
+      "reason": "Expose 128 registered tools and 58 overlapping public CLI paths through fixed portal bindings, typed forms, explicit approvals, retained operation IDs, recovery, private outputs, official MCP settings and activity logs. Preserve the existing Chrome tab. Repair reviewed nonce, Desktop retention, import-cycle and portable-type defects. Retain failed live traces and require current-source whole/artifact checks and actual frontend acceptance."
+    },
+    {
+      "path": "packages/cli/src/library.ts",
+      "sha256": "703a5f2ce21a22f9dfc7f08780421831d03a1dae6679ff51a36690168472b52a",
+      "priorClaims": [
+        {
+          "class": "protected",
+          "sha256": "11074dc11965472a995ebfa3c8b08dda1108f826edfbf777e789362b03b60c36"
+        }
+      ],
+      "reason": "Expose 128 registered tools and 58 overlapping public CLI paths through fixed portal bindings, typed forms, explicit approvals, retained operation IDs, recovery, private outputs, official MCP settings and activity logs. Preserve the existing Chrome tab. Repair reviewed nonce, Desktop retention, import-cycle and portable-type defects. Retain failed live traces and require current-source whole/artifact checks and actual frontend acceptance."
+    },
+    {
+      "path": "packages/cli/src/portal-commands.ts",
+      "sha256": "c1ef11ce93e28d28027564456855e49c4eb09ee36329e4d5c9a39cfb983b1113",
+      "priorClaims": [
+        {
+          "class": "protected",
+          "sha256": "46ace49f1e342c027af1b71223ffb15f3e1216c35352dce23008ca895a052133"
+        }
+      ],
+      "reason": "Expose 128 registered tools and 58 overlapping public CLI paths through fixed portal bindings, typed forms, explicit approvals, retained operation IDs, recovery, private outputs, official MCP settings and activity logs. Preserve the existing Chrome tab. Repair reviewed nonce, Desktop retention, import-cycle and portable-type defects. Retain failed live traces and require current-source whole/artifact checks and actual frontend acceptance."
+    },
+    {
+      "path": "packages/cli/src/server-session.ts",
+      "sha256": "7dad75c4a581cbf41178716f0ee9356ecc5f0f09d0b0cdf5983a70d80142a5ab",
+      "priorClaims": [
+        {
+          "class": "protected",
+          "sha256": "6a99228c04ac82c72ddd118904b0b277bebb22dc8bcd902f105425e76996e529"
+        }
+      ],
+      "reason": "Expose 128 registered tools and 58 overlapping public CLI paths through fixed portal bindings, typed forms, explicit approvals, retained operation IDs, recovery, private outputs, official MCP settings and activity logs. Preserve the existing Chrome tab. Repair reviewed nonce, Desktop retention, import-cycle and portable-type defects. Retain failed live traces and require current-source whole/artifact checks and actual frontend acceptance."
+    },
+    {
+      "path": "packages/cli/src/service-functions.ts",
+      "sha256": "e0c957acaa72319b33ae283074a978825770596f3c875e0cb4b1d2f9107f19bf",
+      "priorClaims": [],
+      "reason": "Expose 128 registered tools and 58 overlapping public CLI paths through fixed portal bindings, typed forms, explicit approvals, retained operation IDs, recovery, private outputs, official MCP settings and activity logs. Preserve the existing Chrome tab. Repair reviewed nonce, Desktop retention, import-cycle and portable-type defects. Retain failed live traces and require current-source whole/artifact checks and actual frontend acceptance."
+    },
+    {
+      "path": "packages/cli/src/service-tool-catalog.ts",
+      "sha256": "bd5889dc589313207f10af146010165e88420844b40877c2e616496d97142a77",
+      "priorClaims": [],
+      "reason": "Expose 128 registered tools and 58 overlapping public CLI paths through fixed portal bindings, typed forms, explicit approvals, retained operation IDs, recovery, private outputs, official MCP settings and activity logs. Preserve the existing Chrome tab. Repair reviewed nonce, Desktop retention, import-cycle and portable-type defects. Retain failed live traces and require current-source whole/artifact checks and actual frontend acceptance."
+    },
+    {
+      "path": "packages/cli/test/bound-server-session.test.ts",
+      "sha256": "ec5de6679d1be54e8ce55617c9f50a9b8d01972738e67c6bde058506db6522a2",
+      "priorClaims": [],
+      "reason": "Expose 128 registered tools and 58 overlapping public CLI paths through fixed portal bindings, typed forms, explicit approvals, retained operation IDs, recovery, private outputs, official MCP settings and activity logs. Preserve the existing Chrome tab. Repair reviewed nonce, Desktop retention, import-cycle and portable-type defects. Retain failed live traces and require current-source whole/artifact checks and actual frontend acceptance."
+    },
+    {
+      "path": "packages/cli/test/browser-runtime-probe.test.ts",
+      "sha256": "7b589effded5fdef41221f3051ccf91e9585cd113ebee26a605552f6aa8e688b",
+      "priorClaims": [],
+      "reason": "Expose 128 registered tools and 58 overlapping public CLI paths through fixed portal bindings, typed forms, explicit approvals, retained operation IDs, recovery, private outputs, official MCP settings and activity logs. Preserve the existing Chrome tab. Repair reviewed nonce, Desktop retention, import-cycle and portable-type defects. Retain failed live traces and require current-source whole/artifact checks and actual frontend acceptance."
+    },
+    {
+      "path": "packages/cli/test/control-client-http.test.ts",
+      "sha256": "839ca69369c2d9f4efda293a403d4881958af2144e9f2fcb8b26d98a56e11c53",
+      "priorClaims": [
+        {
+          "class": "protected",
+          "sha256": "6b4560137bca64386166ad49df7856f6c4f55454cfb4a31cdade47bc85a2f617"
+        }
+      ],
+      "reason": "Expose 128 registered tools and 58 overlapping public CLI paths through fixed portal bindings, typed forms, explicit approvals, retained operation IDs, recovery, private outputs, official MCP settings and activity logs. Preserve the existing Chrome tab. Repair reviewed nonce, Desktop retention, import-cycle and portable-type defects. Retain failed live traces and require current-source whole/artifact checks and actual frontend acceptance."
+    },
+    {
+      "path": "packages/cli/test/desktop-feature-invocation.test.ts",
+      "sha256": "67b20d60a9e90e5bc55ca33c29b79d08902b091c42f78bb2bc08af8755c45295",
+      "priorClaims": [],
+      "reason": "Expose 128 registered tools and 58 overlapping public CLI paths through fixed portal bindings, typed forms, explicit approvals, retained operation IDs, recovery, private outputs, official MCP settings and activity logs. Preserve the existing Chrome tab. Repair reviewed nonce, Desktop retention, import-cycle and portable-type defects. Retain failed live traces and require current-source whole/artifact checks and actual frontend acceptance."
+    },
+    {
+      "path": "packages/cli/test/service-functions.test.ts",
+      "sha256": "61144d951c9accb56fcd09ee7088ca7ef57ddefbf8edc4b4d7f3f1c50d71ac28",
+      "priorClaims": [],
+      "reason": "Expose 128 registered tools and 58 overlapping public CLI paths through fixed portal bindings, typed forms, explicit approvals, retained operation IDs, recovery, private outputs, official MCP settings and activity logs. Preserve the existing Chrome tab. Repair reviewed nonce, Desktop retention, import-cycle and portable-type defects. Retain failed live traces and require current-source whole/artifact checks and actual frontend acceptance."
+    },
+    {
+      "path": "packages/cli/test/service-tool-catalog.test.ts",
+      "sha256": "7961e23b844faf1cb964ba99054c4e77cfca44c9f0e574db64be27a9a1b850fb",
+      "priorClaims": [],
+      "reason": "Expose 128 registered tools and 58 overlapping public CLI paths through fixed portal bindings, typed forms, explicit approvals, retained operation IDs, recovery, private outputs, official MCP settings and activity logs. Preserve the existing Chrome tab. Repair reviewed nonce, Desktop retention, import-cycle and portable-type defects. Retain failed live traces and require current-source whole/artifact checks and actual frontend acceptance."
+    },
+    {
+      "path": "packages/mcp/src/control/figma-settings-endpoint.ts",
+      "sha256": "747c31c5317e8cb920eb09cec20d833bce72b2fa44663680d75a06b401fa32c4",
+      "priorClaims": [],
+      "reason": "Expose 128 registered tools and 58 overlapping public CLI paths through fixed portal bindings, typed forms, explicit approvals, retained operation IDs, recovery, private outputs, official MCP settings and activity logs. Preserve the existing Chrome tab. Repair reviewed nonce, Desktop retention, import-cycle and portable-type defects. Retain failed live traces and require current-source whole/artifact checks and actual frontend acceptance."
+    },
+    {
+      "path": "packages/mcp/src/control/route-registry.ts",
+      "sha256": "724cf1fb3fe36076abf8346ffe157a720978e1a8137b27f642cc807483fde26e",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "2a9c0e31f03994ad4b1bc9e76ca8af41a2892916ec940e300d2c097648985754"
+        },
+        {
+          "class": "protected",
+          "sha256": "2a9c0e31f03994ad4b1bc9e76ca8af41a2892916ec940e300d2c097648985754"
+        }
+      ],
+      "reason": "Expose 128 registered tools and 58 overlapping public CLI paths through fixed portal bindings, typed forms, explicit approvals, retained operation IDs, recovery, private outputs, official MCP settings and activity logs. Preserve the existing Chrome tab. Repair reviewed nonce, Desktop retention, import-cycle and portable-type defects. Retain failed live traces and require current-source whole/artifact checks and actual frontend acceptance."
+    },
+    {
+      "path": "packages/mcp/src/index.ts",
+      "sha256": "e4f6da78b480879d381e029e2535129513829756ef161f6e8e9e36cb792ba4c3",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "4d1b9e2b4cb898815522c4189d16b2193d8b00f45aa651d8e80112bd089c5606"
+        },
+        {
+          "class": "protected",
+          "sha256": "4d1b9e2b4cb898815522c4189d16b2193d8b00f45aa651d8e80112bd089c5606"
+        }
+      ],
+      "reason": "Expose 128 registered tools and 58 overlapping public CLI paths through fixed portal bindings, typed forms, explicit approvals, retained operation IDs, recovery, private outputs, official MCP settings and activity logs. Preserve the existing Chrome tab. Repair reviewed nonce, Desktop retention, import-cycle and portable-type defects. Retain failed live traces and require current-source whole/artifact checks and actual frontend acceptance."
+    },
+    {
+      "path": "packages/mcp/test/control/figma-settings-endpoint.test.ts",
+      "sha256": "6b5457835df60189b17ef89bc00589f5b800bd8cdbe564d6fe22383872288757",
+      "priorClaims": [],
+      "reason": "Expose 128 registered tools and 58 overlapping public CLI paths through fixed portal bindings, typed forms, explicit approvals, retained operation IDs, recovery, private outputs, official MCP settings and activity logs. Preserve the existing Chrome tab. Repair reviewed nonce, Desktop retention, import-cycle and portable-type defects. Retain failed live traces and require current-source whole/artifact checks and actual frontend acceptance."
+    },
+    {
+      "path": "packages/portal/package.json",
+      "sha256": "e7694b340e0fa0968b85713307561ee84731961b36a1bd78136ce91e99964719",
+      "priorClaims": [
+        {
+          "class": "protected",
+          "sha256": "b24e512457d928850cca601504e7fe5c4f9fe0f1d32ccd7d37b5145e4eca5fcb"
+        }
+      ],
+      "reason": "Expose 128 registered tools and 58 overlapping public CLI paths through fixed portal bindings, typed forms, explicit approvals, retained operation IDs, recovery, private outputs, official MCP settings and activity logs. Preserve the existing Chrome tab. Repair reviewed nonce, Desktop retention, import-cycle and portable-type defects. Retain failed live traces and require current-source whole/artifact checks and actual frontend acceptance."
+    },
+    {
+      "path": "packages/portal/src/bridge.ts",
+      "sha256": "2497b28f32adfd41cfc93c896187d67d2a4c50a740423e0e210e9e6b81faf0fe",
+      "priorClaims": [
+        {
+          "class": "protected",
+          "sha256": "15447d4c0a45cad7f2d16969e49415a57347fac4f3a66a06844334ae3712061e"
+        }
+      ],
+      "reason": "Expose 128 registered tools and 58 overlapping public CLI paths through fixed portal bindings, typed forms, explicit approvals, retained operation IDs, recovery, private outputs, official MCP settings and activity logs. Preserve the existing Chrome tab. Repair reviewed nonce, Desktop retention, import-cycle and portable-type defects. Retain failed live traces and require current-source whole/artifact checks and actual frontend acceptance."
+    },
+    {
+      "path": "packages/portal/src/contract.ts",
+      "sha256": "ad67a4d7bfef0d0ddfd237863f756f533eef92d57d02083c027bef99ea8479b6",
+      "priorClaims": [
+        {
+          "class": "protected",
+          "sha256": "046b0335ef0c0a64f0ef5fc730cd6b00222524f702a520b87ebf373006a285bd"
+        }
+      ],
+      "reason": "Expose 128 registered tools and 58 overlapping public CLI paths through fixed portal bindings, typed forms, explicit approvals, retained operation IDs, recovery, private outputs, official MCP settings and activity logs. Preserve the existing Chrome tab. Repair reviewed nonce, Desktop retention, import-cycle and portable-type defects. Retain failed live traces and require current-source whole/artifact checks and actual frontend acceptance."
+    },
+    {
+      "path": "packages/portal/src/control.ts",
+      "sha256": "a0fe970a35f1e259db15e35467d564008be72f74e6a7957ff4acad20b8cbb8b8",
+      "priorClaims": [
+        {
+          "class": "protected",
+          "sha256": "1c946916f47c2fddb15f5423c8bb9057e9578832a42afb7235e3ba643f9906c2"
+        }
+      ],
+      "reason": "Expose 128 registered tools and 58 overlapping public CLI paths through fixed portal bindings, typed forms, explicit approvals, retained operation IDs, recovery, private outputs, official MCP settings and activity logs. Preserve the existing Chrome tab. Repair reviewed nonce, Desktop retention, import-cycle and portable-type defects. Retain failed live traces and require current-source whole/artifact checks and actual frontend acceptance."
+    },
+    {
+      "path": "packages/portal/src/figma-settings.ts",
+      "sha256": "0e2a4f9612dfdefbdbe7dc615f239f96476de9bab1f2cbb7d57c5d82b628ac90",
+      "priorClaims": [],
+      "reason": "Expose 128 registered tools and 58 overlapping public CLI paths through fixed portal bindings, typed forms, explicit approvals, retained operation IDs, recovery, private outputs, official MCP settings and activity logs. Preserve the existing Chrome tab. Repair reviewed nonce, Desktop retention, import-cycle and portable-type defects. Retain failed live traces and require current-source whole/artifact checks and actual frontend acceptance."
+    },
+    {
+      "path": "packages/portal/src/server.ts",
+      "sha256": "692263a807d76a258e3393cd0719313e6ef58b989fb84d792599b4e63261d8d6",
+      "priorClaims": [
+        {
+          "class": "protected",
+          "sha256": "ab10030f84c0bdf7fffac04cba98140157316b0aba5b9e8840b90f8a23382700"
+        }
+      ],
+      "reason": "Expose 128 registered tools and 58 overlapping public CLI paths through fixed portal bindings, typed forms, explicit approvals, retained operation IDs, recovery, private outputs, official MCP settings and activity logs. Preserve the existing Chrome tab. Repair reviewed nonce, Desktop retention, import-cycle and portable-type defects. Retain failed live traces and require current-source whole/artifact checks and actual frontend acceptance."
+    },
+    {
+      "path": "packages/portal/src/service-jobs.ts",
+      "sha256": "4ffb817ee3739ba6893ce6886a95b6aef3176adf4619e76e713a29340ab254d1",
+      "priorClaims": [],
+      "reason": "Expose 128 registered tools and 58 overlapping public CLI paths through fixed portal bindings, typed forms, explicit approvals, retained operation IDs, recovery, private outputs, official MCP settings and activity logs. Preserve the existing Chrome tab. Repair reviewed nonce, Desktop retention, import-cycle and portable-type defects. Retain failed live traces and require current-source whole/artifact checks and actual frontend acceptance."
+    },
+    {
+      "path": "packages/portal/src/store.ts",
+      "sha256": "d6fcade97b2dc47c4942acb49de4ea2142b13a593aeb1aaab32bb94483af4d28",
+      "priorClaims": [
+        {
+          "class": "protected",
+          "sha256": "d0b48571e254c4fcf15d490bb59ed2878067ff57291b14edbe3195f6b572e21c"
+        }
+      ],
+      "reason": "Expose 128 registered tools and 58 overlapping public CLI paths through fixed portal bindings, typed forms, explicit approvals, retained operation IDs, recovery, private outputs, official MCP settings and activity logs. Preserve the existing Chrome tab. Repair reviewed nonce, Desktop retention, import-cycle and portable-type defects. Retain failed live traces and require current-source whole/artifact checks and actual frontend acceptance."
+    },
+    {
+      "path": "packages/portal/test/backend.test.ts",
+      "sha256": "a73c333c06bd98ffaa97827e87d9d0a2c4d58344c6c08e4fc7d5a8039cab2aaf",
+      "priorClaims": [
+        {
+          "class": "protected",
+          "sha256": "a61f319354b17c378eecafa481045a6c07070efc6905c3ee5c85f44145af782e"
+        }
+      ],
+      "reason": "Expose 128 registered tools and 58 overlapping public CLI paths through fixed portal bindings, typed forms, explicit approvals, retained operation IDs, recovery, private outputs, official MCP settings and activity logs. Preserve the existing Chrome tab. Repair reviewed nonce, Desktop retention, import-cycle and portable-type defects. Retain failed live traces and require current-source whole/artifact checks and actual frontend acceptance."
+    },
+    {
+      "path": "packages/portal/test/figma-settings.test.ts",
+      "sha256": "ea286946b74e1419298a8321a9410169f754a553f760f6e6daa61c8ca49c2ff3",
+      "priorClaims": [],
+      "reason": "Expose 128 registered tools and 58 overlapping public CLI paths through fixed portal bindings, typed forms, explicit approvals, retained operation IDs, recovery, private outputs, official MCP settings and activity logs. Preserve the existing Chrome tab. Repair reviewed nonce, Desktop retention, import-cycle and portable-type defects. Retain failed live traces and require current-source whole/artifact checks and actual frontend acceptance."
+    },
+    {
+      "path": "packages/portal/test/service-control.test.ts",
+      "sha256": "375b611602f9afb13df44e3f9152716766c441a0d3711466013d92fc11bf2917",
+      "priorClaims": [],
+      "reason": "Expose 128 registered tools and 58 overlapping public CLI paths through fixed portal bindings, typed forms, explicit approvals, retained operation IDs, recovery, private outputs, official MCP settings and activity logs. Preserve the existing Chrome tab. Repair reviewed nonce, Desktop retention, import-cycle and portable-type defects. Retain failed live traces and require current-source whole/artifact checks and actual frontend acceptance."
+    },
+    {
+      "path": "packages/portal/test/service-jobs.test.ts",
+      "sha256": "329f76a25fbc131616b8bc2fe3401d65cb7d90774122e4891c763592c88a7f52",
+      "priorClaims": [],
+      "reason": "Expose 128 registered tools and 58 overlapping public CLI paths through fixed portal bindings, typed forms, explicit approvals, retained operation IDs, recovery, private outputs, official MCP settings and activity logs. Preserve the existing Chrome tab. Repair reviewed nonce, Desktop retention, import-cycle and portable-type defects. Retain failed live traces and require current-source whole/artifact checks and actual frontend acceptance."
+    },
+    {
+      "path": "packages/portal/web/api.js",
+      "sha256": "ca48afaa74f8cd025cadc898ed8a71c73c3b072c5d8c4947843f23d9a2354605",
+      "priorClaims": [
+        {
+          "class": "protected",
+          "sha256": "dc87696501913a7af8d9e1e26a298a3368179c36b814734a4880fed0c46fc3de"
+        }
+      ],
+      "reason": "Expose 128 registered tools and 58 overlapping public CLI paths through fixed portal bindings, typed forms, explicit approvals, retained operation IDs, recovery, private outputs, official MCP settings and activity logs. Preserve the existing Chrome tab. Repair reviewed nonce, Desktop retention, import-cycle and portable-type defects. Retain failed live traces and require current-source whole/artifact checks and actual frontend acceptance."
+    },
+    {
+      "path": "packages/portal/web/app.js",
+      "sha256": "59857d5724e82a6f26201432e1cd18a430a2d9b55a39c47328433c843114033c",
+      "priorClaims": [
+        {
+          "class": "protected",
+          "sha256": "dc75a442c0e3d6958b4d7f9cc26e92c1b2298b218b2f9f0cef93bf7ea5f72b92"
+        }
+      ],
+      "reason": "Expose 128 registered tools and 58 overlapping public CLI paths through fixed portal bindings, typed forms, explicit approvals, retained operation IDs, recovery, private outputs, official MCP settings and activity logs. Preserve the existing Chrome tab. Repair reviewed nonce, Desktop retention, import-cycle and portable-type defects. Retain failed live traces and require current-source whole/artifact checks and actual frontend acceptance."
+    },
+    {
+      "path": "packages/portal/web/figma-settings.js",
+      "sha256": "6dbce11c8e74d6f083bc0bcf62ae4d6de895901fd2d3baa5a567a0e1b18b5643",
+      "priorClaims": [],
+      "reason": "Expose 128 registered tools and 58 overlapping public CLI paths through fixed portal bindings, typed forms, explicit approvals, retained operation IDs, recovery, private outputs, official MCP settings and activity logs. Preserve the existing Chrome tab. Repair reviewed nonce, Desktop retention, import-cycle and portable-type defects. Retain failed live traces and require current-source whole/artifact checks and actual frontend acceptance."
+    },
+    {
+      "path": "packages/portal/web/index.html",
+      "sha256": "412a66ea1bca0396e3105f37635ad7973510b657e2549aac1337d03f2dfcd690",
+      "priorClaims": [
+        {
+          "class": "protected",
+          "sha256": "b38508ff4d6d5fbbcc31c7f8a55ed6bb4ac9c983936e036d25dec0e309d56384"
+        }
+      ],
+      "reason": "Expose 128 registered tools and 58 overlapping public CLI paths through fixed portal bindings, typed forms, explicit approvals, retained operation IDs, recovery, private outputs, official MCP settings and activity logs. Preserve the existing Chrome tab. Repair reviewed nonce, Desktop retention, import-cycle and portable-type defects. Retain failed live traces and require current-source whole/artifact checks and actual frontend acceptance."
+    },
+    {
+      "path": "packages/portal/web/model.js",
+      "sha256": "4be8488eb188ec799c4264aa78596dd8dd005173d185ff0ba831bad3b11190b4",
+      "priorClaims": [
+        {
+          "class": "protected",
+          "sha256": "baa72ccd8395298036c5964e51e5599e36724d588b8f4bf47c1de75825f8790c"
+        }
+      ],
+      "reason": "Expose 128 registered tools and 58 overlapping public CLI paths through fixed portal bindings, typed forms, explicit approvals, retained operation IDs, recovery, private outputs, official MCP settings and activity logs. Preserve the existing Chrome tab. Repair reviewed nonce, Desktop retention, import-cycle and portable-type defects. Retain failed live traces and require current-source whole/artifact checks and actual frontend acceptance."
+    },
+    {
+      "path": "packages/portal/web/schema-form.js",
+      "sha256": "f2d65468647aa10e92d86cff7b357439b35dd65d9b4d1b491d693201969ba8ea",
+      "priorClaims": [],
+      "reason": "Expose 128 registered tools and 58 overlapping public CLI paths through fixed portal bindings, typed forms, explicit approvals, retained operation IDs, recovery, private outputs, official MCP settings and activity logs. Preserve the existing Chrome tab. Repair reviewed nonce, Desktop retention, import-cycle and portable-type defects. Retain failed live traces and require current-source whole/artifact checks and actual frontend acceptance."
+    },
+    {
+      "path": "packages/portal/web/service-functions.js",
+      "sha256": "b88a19d84fd8cea8de71973c1207bf422d239f483c50c8d6b278d2bd2c341b6b",
+      "priorClaims": [],
+      "reason": "Expose 128 registered tools and 58 overlapping public CLI paths through fixed portal bindings, typed forms, explicit approvals, retained operation IDs, recovery, private outputs, official MCP settings and activity logs. Preserve the existing Chrome tab. Repair reviewed nonce, Desktop retention, import-cycle and portable-type defects. Retain failed live traces and require current-source whole/artifact checks and actual frontend acceptance."
+    },
+    {
+      "path": "packages/portal/web/styles.css",
+      "sha256": "47267a7738904f221ad77e0d1d18463d7b268a310735ab026388cbd8d8262b8a",
+      "priorClaims": [
+        {
+          "class": "protected",
+          "sha256": "26a7e560eb87391d1a4bf4085efbb3c82e2fbd91391053f9e53d4b3ba2083a38"
+        }
+      ],
+      "reason": "Expose 128 registered tools and 58 overlapping public CLI paths through fixed portal bindings, typed forms, explicit approvals, retained operation IDs, recovery, private outputs, official MCP settings and activity logs. Preserve the existing Chrome tab. Repair reviewed nonce, Desktop retention, import-cycle and portable-type defects. Retain failed live traces and require current-source whole/artifact checks and actual frontend acceptance."
+    },
+    {
+      "path": "packages/portal/web/tests/api.test.mjs",
+      "sha256": "293fa2d08fed0c03318bbbb973f76f57143ce875256916fcf2ae41fb8ab5ef0f",
+      "priorClaims": [
+        {
+          "class": "protected",
+          "sha256": "41614ffac61ad5b8af0b56c7e226f536f179915537988d1b917aa9a9dbc42762"
+        }
+      ],
+      "reason": "Expose 128 registered tools and 58 overlapping public CLI paths through fixed portal bindings, typed forms, explicit approvals, retained operation IDs, recovery, private outputs, official MCP settings and activity logs. Preserve the existing Chrome tab. Repair reviewed nonce, Desktop retention, import-cycle and portable-type defects. Retain failed live traces and require current-source whole/artifact checks and actual frontend acceptance."
+    },
+    {
+      "path": "packages/portal/web/tests/live-usage-check.mjs",
+      "sha256": "ae469a6553c8be630041d7bb7e7f3e71512f82c3663a399a0b95d6502185a855",
+      "priorClaims": [],
+      "reason": "Expose 128 registered tools and 58 overlapping public CLI paths through fixed portal bindings, typed forms, explicit approvals, retained operation IDs, recovery, private outputs, official MCP settings and activity logs. Preserve the existing Chrome tab. Repair reviewed nonce, Desktop retention, import-cycle and portable-type defects. Retain failed live traces and require current-source whole/artifact checks and actual frontend acceptance."
+    },
+    {
+      "path": "packages/portal/web/tests/live-usage-check.test.mjs",
+      "sha256": "9007b04733b6a14e6b239aeb9f4d2873f9c7f283ed8506297ed8911a62a0a6e3",
+      "priorClaims": [],
+      "reason": "Expose 128 registered tools and 58 overlapping public CLI paths through fixed portal bindings, typed forms, explicit approvals, retained operation IDs, recovery, private outputs, official MCP settings and activity logs. Preserve the existing Chrome tab. Repair reviewed nonce, Desktop retention, import-cycle and portable-type defects. Retain failed live traces and require current-source whole/artifact checks and actual frontend acceptance."
+    },
+    {
+      "path": "packages/portal/web/tests/model.test.mjs",
+      "sha256": "cf5176d70c1534d55909daa6db93bb54a20819b409c9d679564684776c2eee29",
+      "priorClaims": [
+        {
+          "class": "protected",
+          "sha256": "a5856040d47cb945f364b422f052e060b94df05aeea73e58279680be8d21fbf8"
+        }
+      ],
+      "reason": "Expose 128 registered tools and 58 overlapping public CLI paths through fixed portal bindings, typed forms, explicit approvals, retained operation IDs, recovery, private outputs, official MCP settings and activity logs. Preserve the existing Chrome tab. Repair reviewed nonce, Desktop retention, import-cycle and portable-type defects. Retain failed live traces and require current-source whole/artifact checks and actual frontend acceptance."
+    },
+    {
+      "path": "packages/portal/web/tests/owned-chrome-session.mjs",
+      "sha256": "ec46f6e6743247b369795cef5b30e6d63cdff654ec509a92581ca896a8aa417d",
+      "priorClaims": [],
+      "reason": "Expose 128 registered tools and 58 overlapping public CLI paths through fixed portal bindings, typed forms, explicit approvals, retained operation IDs, recovery, private outputs, official MCP settings and activity logs. Preserve the existing Chrome tab. Repair reviewed nonce, Desktop retention, import-cycle and portable-type defects. Retain failed live traces and require current-source whole/artifact checks and actual frontend acceptance."
+    },
+    {
+      "path": "packages/portal/web/tests/schema-form.test.mjs",
+      "sha256": "717e277b575641c50be99d4cb13cc4f4cb3df4bbeee878c60bcce76a038dea52",
+      "priorClaims": [],
+      "reason": "Expose 128 registered tools and 58 overlapping public CLI paths through fixed portal bindings, typed forms, explicit approvals, retained operation IDs, recovery, private outputs, official MCP settings and activity logs. Preserve the existing Chrome tab. Repair reviewed nonce, Desktop retention, import-cycle and portable-type defects. Retain failed live traces and require current-source whole/artifact checks and actual frontend acceptance."
+    },
+    {
+      "path": "packages/shared/src/portal-base.ts",
+      "sha256": "c58941fa7cb7c68abac05003aeae00e5188ed1a76bf1c42b9942c67bc0fe5d2d",
+      "priorClaims": [],
+      "reason": "Expose 128 registered tools and 58 overlapping public CLI paths through fixed portal bindings, typed forms, explicit approvals, retained operation IDs, recovery, private outputs, official MCP settings and activity logs. Preserve the existing Chrome tab. Repair reviewed nonce, Desktop retention, import-cycle and portable-type defects. Retain failed live traces and require current-source whole/artifact checks and actual frontend acceptance."
+    },
+    {
+      "path": "packages/shared/src/portal-recipes.ts",
+      "sha256": "7acfc69e8555e974045bd206b2c96b4d789be22a134632cf3f1d251989b1bd64",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "86b0a629f14f92fb3da91ceecf2e0d1fe451b0941f12fce8d28288c9471bcf3c"
+        },
+        {
+          "class": "protected",
+          "sha256": "86b0a629f14f92fb3da91ceecf2e0d1fe451b0941f12fce8d28288c9471bcf3c"
+        }
+      ],
+      "reason": "Expose 128 registered tools and 58 overlapping public CLI paths through fixed portal bindings, typed forms, explicit approvals, retained operation IDs, recovery, private outputs, official MCP settings and activity logs. Preserve the existing Chrome tab. Repair reviewed nonce, Desktop retention, import-cycle and portable-type defects. Retain failed live traces and require current-source whole/artifact checks and actual frontend acceptance."
+    },
+    {
+      "path": "packages/shared/src/portal.ts",
+      "sha256": "0706a4f77a9116efef1ff434e13292b128138666d4b4045da9dea295f042b2d4",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "99e52c0b69d5705c1c95882af6f84d584eb4607545b176ba25f1577e2a4a636a"
+        },
+        {
+          "class": "protected",
+          "sha256": "99e52c0b69d5705c1c95882af6f84d584eb4607545b176ba25f1577e2a4a636a"
+        }
+      ],
+      "reason": "Expose 128 registered tools and 58 overlapping public CLI paths through fixed portal bindings, typed forms, explicit approvals, retained operation IDs, recovery, private outputs, official MCP settings and activity logs. Preserve the existing Chrome tab. Repair reviewed nonce, Desktop retention, import-cycle and portable-type defects. Retain failed live traces and require current-source whole/artifact checks and actual frontend acceptance."
+    },
+    {
+      "path": "packages/shared/test/portal-import-order.test.ts",
+      "sha256": "e884d622e99fec85725ed54de10d9177de036ebd0ceaa757629af61f974f82ef",
+      "priorClaims": [],
+      "reason": "Expose 128 registered tools and 58 overlapping public CLI paths through fixed portal bindings, typed forms, explicit approvals, retained operation IDs, recovery, private outputs, official MCP settings and activity logs. Preserve the existing Chrome tab. Repair reviewed nonce, Desktop retention, import-cycle and portable-type defects. Retain failed live traces and require current-source whole/artifact checks and actual frontend acceptance."
+    },
+    {
+      "path": "scripts/update-service-forks.mjs",
+      "sha256": "1e42d79ced118c7b1a7f2e0303c021371268c96c4b5a2605d4e349d54d85775a",
+      "priorClaims": [
+        {
+          "class": "protected",
+          "sha256": "3a767d13dd766db0ed2e948de220571962920563393ebbd39afa6d9f15535777"
+        }
+      ],
+      "reason": "Expose 128 registered tools and 58 overlapping public CLI paths through fixed portal bindings, typed forms, explicit approvals, retained operation IDs, recovery, private outputs, official MCP settings and activity logs. Preserve the existing Chrome tab. Repair reviewed nonce, Desktop retention, import-cycle and portable-type defects. Retain failed live traces and require current-source whole/artifact checks and actual frontend acceptance."
+    },
+    {
+      "path": "scripts/verify-artifacts.mjs",
+      "sha256": "2ace729849a3f7f6c54a1e71eea6ea59b5ebeb6a60b271dc5bde9315284e74a8",
+      "priorClaims": [
+        {
+          "class": "protected",
+          "sha256": "8b1b3b3b1717dac547cc15fede9b9e5f12a02e35561235146476101f74edd0df"
+        }
+      ],
+      "reason": "Expose 128 registered tools and 58 overlapping public CLI paths through fixed portal bindings, typed forms, explicit approvals, retained operation IDs, recovery, private outputs, official MCP settings and activity logs. Preserve the existing Chrome tab. Repair reviewed nonce, Desktop retention, import-cycle and portable-type defects. Retain failed live traces and require current-source whole/artifact checks and actual frontend acceptance."
+    },
+    {
+      "path": "test/service-fork-lineage.test.ts",
+      "sha256": "c2d131a35dbb95adb77067849eab59c044db6220069d7e966bf6f09b9db8d759",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "747ffd6190ff8dfcd1ed6165f4599577b710db3ae5aa42149e6675c3c92c448f"
+        },
+        {
+          "class": "protected",
+          "sha256": "747ffd6190ff8dfcd1ed6165f4599577b710db3ae5aa42149e6675c3c92c448f"
+        }
+      ],
+      "reason": "Expose 128 registered tools and 58 overlapping public CLI paths through fixed portal bindings, typed forms, explicit approvals, retained operation IDs, recovery, private outputs, official MCP settings and activity logs. Preserve the existing Chrome tab. Repair reviewed nonce, Desktop retention, import-cycle and portable-type defects. Retain failed live traces and require current-source whole/artifact checks and actual frontend acceptance."
+    }
+  ]
+}

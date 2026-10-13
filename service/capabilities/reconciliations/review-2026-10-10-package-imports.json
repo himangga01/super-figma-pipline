@@ -1,0 +1,59 @@
+{
+  "schemaVersion": 1,
+  "slice": "review-2026-10-10",
+  "baseline": {
+    "headCommit": "22517932dc9b2cb974c177ec4eacb84d4b16e254",
+    "authoritySha256": {
+      "upstream-lock.json": "089a7567c797c911e758199c347fc2c16211d392dacb355e0ac27ce4c2605a19",
+      "vendor-map.json": "b3275c7d8b997d1cfe723d97594659f77d7b4361b824a790bcfdd7ff762589bd",
+      "vendor-rules.json": "420d7acd4839a94132e253b3ef978086b467ac2675125fe9199e5a57f3de5be8"
+    }
+  },
+  "entries": [
+    {
+      "path": "capabilities/task-review-2026-10-10-authority-classes.json",
+      "sha256": "4fe90a87b34f27ecd8e217e6d7436ddd216dc11cc172dc3bcad061ddf44dbf33",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "db0e75292e7a1d6065e2c98f66ede53a75e0836e43fc639f4e2ebe57fb2c7bd2"
+        },
+        {
+          "class": "protected",
+          "sha256": "db0e75292e7a1d6065e2c98f66ede53a75e0836e43fc639f4e2ebe57fb2c7bd2"
+        }
+      ],
+      "reason": "Resolve verified local package imports, exact and wildcard keys and conditional source branches, while retaining manifest evidence. Block package-boundary inheritance, traversal, encoded or external targets and conflicting TypeScript aliases. Eight regressions failed first; 50 related tests pass. The real C2 sample analysis drops from 431 to 59 issues without claiming complete analysis."
+    },
+    {
+      "path": "packages/mcp/src/portal/module-resolution.ts",
+      "sha256": "2cd3b8510ae9ad71542720086db42841eee4b307579243b75ac148d313ce517e",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "5dace21f5c8d6b780309337f50d856031c0aeeef90d4fd154a2d483f2869d2cf"
+        },
+        {
+          "class": "protected",
+          "sha256": "5dace21f5c8d6b780309337f50d856031c0aeeef90d4fd154a2d483f2869d2cf"
+        }
+      ],
+      "reason": "Resolve verified local package imports, exact and wildcard keys and conditional source branches, while retaining manifest evidence. Block package-boundary inheritance, traversal, encoded or external targets and conflicting TypeScript aliases. Eight regressions failed first; 50 related tests pass. The real C2 sample analysis drops from 431 to 59 issues without claiming complete analysis."
+    },
+    {
+      "path": "packages/mcp/test/portal/module-resolution.test.ts",
+      "sha256": "99d8dfc7792dd5cd0e5bee5e53453ee8934eb06de42b1632607308875fc38bc2",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "56f79ffd3879f1278986174f88ad1307f899535d6f0a3e6855cba2e7c8452d9b"
+        },
+        {
+          "class": "protected",
+          "sha256": "56f79ffd3879f1278986174f88ad1307f899535d6f0a3e6855cba2e7c8452d9b"
+        }
+      ],
+      "reason": "Resolve verified local package imports, exact and wildcard keys and conditional source branches, while retaining manifest evidence. Block package-boundary inheritance, traversal, encoded or external targets and conflicting TypeScript aliases. Eight regressions failed first; 50 related tests pass. The real C2 sample analysis drops from 431 to 59 issues without claiming complete analysis."
+    }
+  ]
+}

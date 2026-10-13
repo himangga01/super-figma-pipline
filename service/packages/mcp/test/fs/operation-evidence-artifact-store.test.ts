@@ -6,6 +6,7 @@ import {
   lstat,
   mkdir,
   mkdtemp,
+  open,
   readFile,
   readdir,
   realpath,
@@ -67,6 +68,58 @@ const realWorkspaceAuthority = async (root: string) => {
 };
 
 describe('operation evidence result artifact store', () => {
+  it('rejects mismatched retained exact identity at the actual private artifact commit check', async () => {
+    const root = await mkdtemp(join(tmpdir(), 'sfp-artifact-exact-identity-'));
+    roots.push(root);
+    const path = join(root, 'artifact.json');
+    const bytes = Buffer.from('{"fixture":true}', 'utf8');
+    await writeFile(path, bytes);
+    const handle = await open(path, 'r');
+    try {
+      const identity = await handle.stat();
+      const exact = await handle.stat({ bigint: true });
+      const store = new OperationEvidenceArtifactStore({
+        workspacePolicy: {} as WorkspacePolicy,
+        atomicFiles: new AtomicFileStore(),
+      });
+      const commit = Reflect.get(store, 'artifactAtAuthorityMatchesSync') as (
+        input: unknown,
+      ) => boolean;
+      const input = {
+        path,
+        verified: {
+          handle,
+          identity,
+          exactIdentity: { dev: exact.dev, ino: exact.ino + 1n },
+        },
+        artifact: { artifactDigest64: createHash('sha256').update(bytes).digest('hex') },
+      };
+      expect(commit.call(store, input)).toBe(false);
+      input.verified.exactIdentity.ino = exact.ino;
+      expect(commit.call(store, input)).toBe(true);
+      await expect(readFile(path)).resolves.toEqual(bytes);
+    } finally {
+      await handle.close();
+    }
+  });
+
+  it('distinguishes exact artifact identity data above the safe number range', () => {
+    const store = new OperationEvidenceArtifactStore({
+      workspacePolicy: {} as WorkspacePolicy,
+      atomicFiles: new AtomicFileStore(),
+    });
+    const compare = Reflect.get(store, 'artifactExactIdentityMatches') as (
+      left: { dev: bigint; ino: bigint },
+      right: { dev: bigint; ino: bigint },
+    ) => boolean;
+    const lower = { dev: 1n, ino: 9_007_199_254_740_992n };
+    const upper = { dev: 1n, ino: lower.ino + 1n };
+    expect(Number(lower.ino)).toBe(Number(upper.ino));
+    expect(compare.call(store, lower, upper)).toBe(false);
+    expect(compare.call(store, lower, { ...lower })).toBe(true);
+    expect(compare.call(store, lower, { ...lower, dev: 2n })).toBe(false);
+  });
+
   it('creates no lock, directory, or result outside the workspace on first-use child replacement', async () => {
     const sandbox = await mkdtemp(join(tmpdir(), 'sfp-result-first-mutex-authority-'));
     roots.push(sandbox);

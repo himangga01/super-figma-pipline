@@ -1,0 +1,111 @@
+{
+  "schemaVersion": 1,
+  "slice": "review-2026-10-10",
+  "baseline": {
+    "headCommit": "22517932dc9b2cb974c177ec4eacb84d4b16e254",
+    "authoritySha256": {
+      "upstream-lock.json": "87161196534a46bdd5b36d4817ebaa844af924755f4742ef783137cfa705b3e1",
+      "vendor-map.json": "b3275c7d8b997d1cfe723d97594659f77d7b4361b824a790bcfdd7ff762589bd",
+      "vendor-rules.json": "a1665a8077b038b7751e0a618d17087ac9a0b1086a5a85f6806a0256f6241f02"
+    }
+  },
+  "entries": [
+    {
+      "path": "capabilities/task-review-2026-10-10-authority-classes.json",
+      "sha256": "83ef8259a9b6b368ba1cba43004a8d7670f8c84b3d81baa6d0faf3a53faaab36",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "c9b5518a35e26edf29125a2f44c29e9025b0c772ee3d6b326f450112056efe15"
+        },
+        {
+          "class": "protected",
+          "sha256": "c9b5518a35e26edf29125a2f44c29e9025b0c772ee3d6b326f450112056efe15"
+        }
+      ],
+      "reason": "Complete explicitly reviewed new-workspace provenance and preserve capture diagnostics when decisions cannot bind to incomplete evidence. The portal name derives only from bound staged additions; unreviewed, renamed, malformed and duplicate manifests remain rejected. Incomplete capture admits no decisions or coding lease; complete stale decisions still fail. Preserve previous failed gates and require new whole/artifact checks."
+    },
+    {
+      "path": "packages/mcp/src/portal/coordinator.ts",
+      "sha256": "8c0cf3f0f93acd3bba25487833c0a51075233bc551b609c5d0eb94c68ebf87c9",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "58c98cf628cad386ac437cf1c4ebdbd906a80e63a2ec837944582fce477a0f17"
+        },
+        {
+          "class": "protected",
+          "sha256": "58c98cf628cad386ac437cf1c4ebdbd906a80e63a2ec837944582fce477a0f17"
+        }
+      ],
+      "reason": "Complete explicitly reviewed new-workspace provenance and preserve capture diagnostics when decisions cannot bind to incomplete evidence. The portal name derives only from bound staged additions; unreviewed, renamed, malformed and duplicate manifests remain rejected. Incomplete capture admits no decisions or coding lease; complete stale decisions still fail. Preserve previous failed gates and require new whole/artifact checks."
+    },
+    {
+      "path": "packages/mcp/test/portal/coordinator.test.ts",
+      "sha256": "687dcaeaad5b8419744e0dd9aee5024f55a756e500d0e14f87a0fc4bd5fe56ac",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "f3e521e3ecfacdbee33f6c5585375180cb60d4a0027e419020d9168497f52568"
+        },
+        {
+          "class": "protected",
+          "sha256": "f3e521e3ecfacdbee33f6c5585375180cb60d4a0027e419020d9168497f52568"
+        }
+      ],
+      "reason": "Complete explicitly reviewed new-workspace provenance and preserve capture diagnostics when decisions cannot bind to incomplete evidence. The portal name derives only from bound staged additions; unreviewed, renamed, malformed and duplicate manifests remain rejected. Incomplete capture admits no decisions or coding lease; complete stale decisions still fail. Preserve previous failed gates and require new whole/artifact checks."
+    },
+    {
+      "path": "packages/portal/package.json",
+      "sha256": "b24e512457d928850cca601504e7fe5c4f9fe0f1d32ccd7d37b5145e4eca5fcb",
+      "priorClaims": [
+        {
+          "class": "protected",
+          "sha256": "b24e512457d928850cca601504e7fe5c4f9fe0f1d32ccd7d37b5145e4eca5fcb"
+        }
+      ],
+      "reason": "Complete explicitly reviewed new-workspace provenance and preserve capture diagnostics when decisions cannot bind to incomplete evidence. The portal name derives only from bound staged additions; unreviewed, renamed, malformed and duplicate manifests remain rejected. Incomplete capture admits no decisions or coding lease; complete stale decisions still fail. Preserve previous failed gates and require new whole/artifact checks."
+    },
+    {
+      "path": "scripts/update-service-forks.mjs",
+      "sha256": "3a767d13dd766db0ed2e948de220571962920563393ebbd39afa6d9f15535777",
+      "priorClaims": [
+        {
+          "class": "protected",
+          "sha256": "d0a78019640ca716291c20a911c38d5180da06f181e95395d0a2ca71d83a5824"
+        }
+      ],
+      "reason": "Complete explicitly reviewed new-workspace provenance and preserve capture diagnostics when decisions cannot bind to incomplete evidence. The portal name derives only from bound staged additions; unreviewed, renamed, malformed and duplicate manifests remain rejected. Incomplete capture admits no decisions or coding lease; complete stale decisions still fail. Preserve previous failed gates and require new whole/artifact checks."
+    },
+    {
+      "path": "test/service-fork-lineage.test.ts",
+      "sha256": "747ffd6190ff8dfcd1ed6165f4599577b710db3ae5aa42149e6675c3c92c448f",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "cd5a42dd3ff60caa5cee7e65333b2d2269aab9cdec5c089e60f734293e31d93e"
+        },
+        {
+          "class": "protected",
+          "sha256": "cd5a42dd3ff60caa5cee7e65333b2d2269aab9cdec5c089e60f734293e31d93e"
+        }
+      ],
+      "reason": "Complete explicitly reviewed new-workspace provenance and preserve capture diagnostics when decisions cannot bind to incomplete evidence. The portal name derives only from bound staged additions; unreviewed, renamed, malformed and duplicate manifests remain rejected. Incomplete capture admits no decisions or coding lease; complete stale decisions still fail. Preserve previous failed gates and require new whole/artifact checks."
+    },
+    {
+      "path": "test/test-skip-census.test.ts",
+      "sha256": "7fb711267f6d9e9f1bbf77aa22529b5e1a0aaff746da25c422aab70829554aab",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "d513da9676094d49ae36b121d754c9472a8831169f2c6c211151b2af11a106db"
+        },
+        {
+          "class": "protected",
+          "sha256": "d513da9676094d49ae36b121d754c9472a8831169f2c6c211151b2af11a106db"
+        }
+      ],
+      "reason": "Complete explicitly reviewed new-workspace provenance and preserve capture diagnostics when decisions cannot bind to incomplete evidence. The portal name derives only from bound staged additions; unreviewed, renamed, malformed and duplicate manifests remain rejected. Incomplete capture admits no decisions or coding lease; complete stale decisions still fail. Preserve previous failed gates and require new whole/artifact checks."
+    }
+  ]
+}

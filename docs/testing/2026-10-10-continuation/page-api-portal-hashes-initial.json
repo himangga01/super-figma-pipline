@@ -1,0 +1,27 @@
+{
+  "recordedAt": "2026-10-11T07:08:22.142Z",
+  "root": "C:/2026_project/super-figma-pipline/.worktrees/baseline/service",
+  "kind": "owned-page-api-portal-slice",
+  "count": 18,
+  "hash": "sha256:6183e44bf4f9c5d82e96869b63c56f321e8a56bb853d12f3a73fdf8d8d644ed3",
+  "files": [
+    { "path": "packages/shared/src/portal.ts", "sha256": "sha256:c60bb7f54ec924341fc56ea843588ebb913b549d2fcbe2e4137762fe3ad2251f" },
+    { "path": "packages/shared/src/portal-capture-source.ts", "sha256": "sha256:f063433f26b592ddd891fc6458a38086b669b4cb22b647f8339b187f7a4f9597" },
+    { "path": "packages/shared/src/operations.ts", "sha256": "sha256:7ad0f4b964e8b60c0c4e68e4095177a5b6d3ca6f6a72a592242826e971246646" },
+    { "path": "packages/mcp/src/portal/capture-source-admission.ts", "sha256": "sha256:10f869ab80a6d78c8c37a9d3dc307328f7d88b6c9f44dc5a51deebcf5a4d8098" },
+    { "path": "packages/mcp/src/portal/capture-runtime.ts", "sha256": "sha256:9741134f5d4bc8eda78b7b376be6082c73b2ae429819e9d396578d52797003c3" },
+    { "path": "packages/mcp/src/portal/design-capture.ts", "sha256": "sha256:fa249e77d198e4989273f685219f6844a828563923d56905291c2285c138563b" },
+    { "path": "packages/mcp/src/portal/coordinator.ts", "sha256": "sha256:58c98cf628cad386ac437cf1c4ebdbd906a80e63a2ec837944582fce477a0f17" },
+    { "path": "packages/mcp/src/portal/native-work.ts", "sha256": "sha256:d0592bb58da1f9e31c7ba2a04fc83226bf28010de7251f8858fcfc3e3b592727" },
+    { "path": "packages/mcp/src/index.ts", "sha256": "sha256:4d1b9e2b4cb898815522c4189d16b2193d8b00f45aa651d8e80112bd089c5606" },
+    { "path": "packages/mcp/src/execution/execution-plane.ts", "sha256": "sha256:a12a18873d9773060bd74390b4f256d9b2793fe4858b7d3be75caa921eb05f23" },
+    { "path": "packages/mcp/src/policy/operation-policy.ts", "sha256": "sha256:2a9e0ccfc4b3adef4ec770e5d955c9d963c6f0c5620a33b63e13690ff1907486" },
+    { "path": "packages/mcp/src/policy/approval-prompt.ts", "sha256": "sha256:5b2e033c5cfacc8bee82e80096c3249f4b080f2d992324e2b21783283800d18a" },
+    { "path": "packages/mcp/test/portal/page-api-admission.test.ts", "sha256": "sha256:5bf5ea1b3bd64cc81b350f436529b28d43aea397977022e46df1748f44d4c2d9" },
+    { "path": "packages/mcp/test/portal/page-api-fixture.ts", "sha256": "sha256:ba2b2212497697a804674eaab0b3b39ea8e610dcf6a318714d686ea24b7c24bd" },
+    { "path": "packages/mcp/test/portal/page-api-flow.test.ts", "sha256": "sha256:85252d10f0ab13098817fb1b44b74f4f82066780afd16b787e571ca41cb98ed5" },
+    { "path": "packages/mcp/test/portal/capture-plane.test.ts", "sha256": "sha256:147a75fe7dec1d9554755f5d46c7b187ea220db0f9e847edee19800df93eaca3" },
+    { "path": "packages/mcp/test/portal/native-work.test.ts", "sha256": "sha256:0d12374852a3de5cd1a990a8ea8a57fc798dbe3da47765b6ec3f3cb447e318bc" },
+    { "path": "packages/mcp/test/policy/operation-policy.test.ts", "sha256": "sha256:d3bb14cc254cce70539c8a6244d2160b72d70f063ae93b69cd08d3c83eff9e07" }
+  ]
+}

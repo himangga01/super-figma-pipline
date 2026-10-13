@@ -1,0 +1,62 @@
+{
+  "schemaVersion": 1,
+  "slice": "review-2026-10-10",
+  "baseline": {
+    "headCommit": "22517932dc9b2cb974c177ec4eacb84d4b16e254",
+    "authoritySha256": {
+      "upstream-lock.json": "781071a2a14e22e24658a4cc4d5a8359a24edcf309a3e8115d6c7b256ae687ce",
+      "vendor-map.json": "b3275c7d8b997d1cfe723d97594659f77d7b4361b824a790bcfdd7ff762589bd",
+      "vendor-rules.json": "35019ea128a0213571320e631a2cb713bbfadd191e0cc2858d596d16c024d13a"
+    }
+  },
+  "entries": [
+    {
+      "path": "capabilities/task-review-2026-10-10-authority-classes.json",
+      "sha256": "0e4782dfb8b11e43bedc65044c80623b4f50e111b949859d615b83e0a9fd35bd",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "da3c303a584cba4234c9e572f1cc9c02d03f58868f97a0678083c72c959f4c37"
+        },
+        {
+          "class": "protected",
+          "sha256": "da3c303a584cba4234c9e572f1cc9c02d03f58868f97a0678083c72c959f4c37"
+        }
+      ],
+      "reason": "Repair actual nonce-only DELETE framing for the closed egress-reset, workspace-remove and workspace-default-clear routes, preserving existing network deletion. Send the exact nonce in its supported header with no body, reject malformed or extra input, and never retry a mutation. Preserve unknown jobs, stopped QA policy state, original deadlines and owner index; require independent HTTP review, current-source whole/artifact checks and actual distinct-state portal verification."
+    },
+    {
+      "path": "packages/cli/src/control-client.ts",
+      "sha256": "3577ac95a9c0f79f2c20d9c0d690da3b75f59be7c245c874d20d915f797ddd76",
+      "priorClaims": [
+        {
+          "class": "protected",
+          "sha256": "c727417ce960c32c426749efc511df70b36411e71240309b94d108dfd3ba00d6"
+        }
+      ],
+      "reason": "Repair actual nonce-only DELETE framing for the closed egress-reset, workspace-remove and workspace-default-clear routes, preserving existing network deletion. Send the exact nonce in its supported header with no body, reject malformed or extra input, and never retry a mutation. Preserve unknown jobs, stopped QA policy state, original deadlines and owner index; require independent HTTP review, current-source whole/artifact checks and actual distinct-state portal verification."
+    },
+    {
+      "path": "packages/cli/test/control-client-http.test.ts",
+      "sha256": "843d160d62044c3e04efc04cb8742857051a89c2c1637743b590e88acaee405e",
+      "priorClaims": [
+        {
+          "class": "protected",
+          "sha256": "839ca69369c2d9f4efda293a403d4881958af2144e9f2fcb8b26d98a56e11c53"
+        }
+      ],
+      "reason": "Repair actual nonce-only DELETE framing for the closed egress-reset, workspace-remove and workspace-default-clear routes, preserving existing network deletion. Send the exact nonce in its supported header with no body, reject malformed or extra input, and never retry a mutation. Preserve unknown jobs, stopped QA policy state, original deadlines and owner index; require independent HTTP review, current-source whole/artifact checks and actual distinct-state portal verification."
+    },
+    {
+      "path": "packages/portal/package.json",
+      "sha256": "e7694b340e0fa0968b85713307561ee84731961b36a1bd78136ce91e99964719",
+      "priorClaims": [
+        {
+          "class": "protected",
+          "sha256": "e7694b340e0fa0968b85713307561ee84731961b36a1bd78136ce91e99964719"
+        }
+      ],
+      "reason": "Repair actual nonce-only DELETE framing for the closed egress-reset, workspace-remove and workspace-default-clear routes, preserving existing network deletion. Send the exact nonce in its supported header with no body, reject malformed or extra input, and never retry a mutation. Preserve unknown jobs, stopped QA policy state, original deadlines and owner index; require independent HTTP review, current-source whole/artifact checks and actual distinct-state portal verification."
+    }
+  ]
+}

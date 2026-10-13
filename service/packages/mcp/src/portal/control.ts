@@ -15,6 +15,13 @@ import {
   type PortalNativeWork,
 } from './native-work.js';
 import { assertPortalProfileClosure } from './profile-closure.js';
+import {
+  profilePreparations,
+  ProfilePreparationBeginSchema,
+  ProfilePreparationStatusSchema,
+  ProfilePreparationIdSchema,
+  ProfilePreparationQuerySchema,
+} from './profile-preparation.js';
 import type { CorePreparations } from './recipes/core-preparation.js';
 import { type PortalStore, portalError } from './store.js';
 
@@ -22,6 +29,7 @@ const RequestSchema = z
   .object({
     profile: PortalPreparedNativeProfileSchema,
     actionNonce: z.string().regex(/^sfp_an1_[A-Za-z0-9_-]{43}$/u),
+    deadlineAt: z.number().int().positive().optional(),
   })
   .strict();
 const ResultSchema = z
@@ -36,7 +44,7 @@ const ResultSchema = z
 export const createPortalProfileEndpoint =
   (dependencies: { store: PortalStore; work: PortalNativeWork; nonces: ActionNonceStore }) =>
   async (actor: Readonly<ActorContext>, input: unknown, signal: Readonly<{ aborted: boolean }>) => {
-    const { profile, actionNonce } = RequestSchema.parse(input);
+    const { profile, actionNonce, deadlineAt } = RequestSchema.parse(input);
     const active = () => {
       if (signal.aborted) throw portalError('OPERATION_CANCELLED');
     };
@@ -45,6 +53,43 @@ export const createPortalProfileEndpoint =
     if (!plan || plan.ownerId !== actor.actorId) throw portalError('PORTAL_PLAN_NOT_FOUND');
     const run = await dependencies.store.get('runs', profile.planId, PortalRunSchema);
     if (!run || run.ownerId !== actor.actorId) throw portalError('PORTAL_RUN_NOT_FOUND');
+    if (profile.purpose === 'source-preparation') {
+      if (deadlineAt === undefined)
+        throw portalError('PORTAL_PROFILE_PREPARATION_DEADLINE_REQUIRED');
+      const requestHash = hashActionRequest('portal.profile.register', {
+        planId: profile.planId,
+        profileHash: contentHash('sfp-portal-profile-request-v1', profile),
+      });
+      const owned = { ...profile, ownerId: actor.actorId };
+      await dependencies.nonces.consumeCas(
+        actor,
+        actionNonce,
+        'portal.profile.register',
+        requestHash,
+        async () => {
+          active();
+          const job = await profilePreparations(dependencies.store, dependencies.work).status(
+            actor,
+            profile.sourcePreparation!.preparationId!,
+          );
+          if (
+            !job.issuerAvailable ||
+            job.status !== 'ready' ||
+            job.planId !== profile.planId ||
+            job.contextHash !== profile.contextHash ||
+            job.preparedHash !== contentHash('sfp-prepared-profile-v2', owned)
+          )
+            throw portalError('PORTAL_PROFILE_PREPARATION_ISSUER_UNAVAILABLE');
+        },
+      );
+      active();
+      return profilePreparations(dependencies.store, dependencies.work).register(
+        actor,
+        owned,
+        deadlineAt,
+        signal,
+      );
+    }
     if (plan.contextHash !== profile.contextHash || run.candidateHash !== profile.native.sourceHash)
       throw portalError('PORTAL_PROFILE_SOURCE_CHANGED');
     assertCurrentPortalSourceAuthority(plan, run, profile, profile.native);
@@ -76,9 +121,38 @@ export const createPortalProfileEndpoint =
       executionMode: 'native-working-copy' as const,
     };
   };
-export const createPortalProfilePreparationEndpoint =
-  (dependencies: { store: PortalStore; work: PortalNativeWork }) =>
-  async (actor: Readonly<ActorContext>, input: unknown, signal: Readonly<{ aborted: boolean }>) => {
+type ProfilePreparationEndpoint = {
+  (
+    actor: Readonly<ActorContext>,
+    input: z.infer<typeof PortalNativeRegistrationSchema>,
+    signal: Readonly<{ aborted: boolean }>,
+  ): Promise<z.infer<typeof PortalPreparedNativeProfileSchema>>;
+  (
+    actor: Readonly<ActorContext>,
+    input: z.infer<typeof ProfilePreparationBeginSchema>,
+    signal: Readonly<{ aborted: boolean }>,
+  ): Promise<z.infer<typeof ProfilePreparationStatusSchema>>;
+  (
+    actor: Readonly<ActorContext>,
+    input: unknown,
+    signal: Readonly<{ aborted: boolean }>,
+  ): Promise<
+    | z.infer<typeof PortalPreparedNativeProfileSchema>
+    | z.infer<typeof ProfilePreparationStatusSchema>
+  >;
+};
+export const createPortalProfilePreparationEndpoint = (dependencies: {
+  store: PortalStore;
+  work: PortalNativeWork;
+}) => {
+  const jobs = profilePreparations(dependencies.store, dependencies.work);
+  const prepare = async (
+    actor: Readonly<ActorContext>,
+    input: unknown,
+    signal: Readonly<{ aborted: boolean }>,
+  ) => {
+    if (ProfilePreparationBeginSchema.safeParse(input).success)
+      return jobs.begin(actor, input, signal);
     const profile = PortalNativeRegistrationSchema.parse(input);
     if (signal.aborted) throw portalError('OPERATION_CANCELLED');
     const plan = await dependencies.store.get('plans', profile.planId, PortalPlanSchema);
@@ -89,11 +163,24 @@ export const createPortalProfilePreparationEndpoint =
     if (plan.contextHash !== profile.contextHash || run.candidateHash !== profile.native.sourceHash)
       throw portalError('PORTAL_PROFILE_SOURCE_CHANGED');
     assertPortalProfileClosure(plan, run, profile.native);
+    if (profile.purpose === 'source-preparation')
+      throw portalError('PORTAL_PROFILE_PREPARATION_DEADLINE_REQUIRED');
     const prepared = await dependencies.work.prepareProfile({ ...profile, ownerId: actor.actorId });
     if (signal.aborted) throw portalError('OPERATION_CANCELLED');
     const { ownerId: _ownerId, ...publicProfile } = prepared;
     return PortalPreparedNativeProfileSchema.parse(publicProfile);
   };
+  return Object.assign(prepare as ProfilePreparationEndpoint, {
+    status: (actor: Readonly<ActorContext>, input: z.infer<typeof ProfilePreparationIdSchema>) =>
+      jobs.status(actor, input.preparationId),
+    list: (actor: Readonly<ActorContext>, input: z.infer<typeof ProfilePreparationQuerySchema>) =>
+      jobs.list(actor, input),
+    result: (actor: Readonly<ActorContext>, input: z.infer<typeof ProfilePreparationIdSchema>) =>
+      jobs.result(actor, input.preparationId),
+    cancel: (actor: Readonly<ActorContext>, input: z.infer<typeof ProfilePreparationIdSchema>) =>
+      jobs.cancel(actor, input.preparationId),
+  });
+};
 export const registerPortalControlRoutes = (
   router: AuthenticatedControlRouter,
   endpoint: ReturnType<typeof createPortalProfileEndpoint>,
@@ -105,17 +192,55 @@ export const registerPortalControlRoutes = (
       method: 'POST',
       path: '/control/portal/profiles/prepare',
       routeClass: 'admin',
-      inputSchema: PortalNativeRegistrationSchema,
-      outputSchema: PortalPreparedNativeProfileSchema,
+      inputSchema: z.union([PortalNativeRegistrationSchema, ProfilePreparationBeginSchema]),
+      outputSchema: z.union([PortalPreparedNativeProfileSchema, ProfilePreparationStatusSchema]),
       handle: prepare,
     });
+  if (prepare) {
+    router.register({
+      id: 'portal.profile.preparation-list',
+      method: 'GET',
+      path: '/control/portal/profile-preparations',
+      routeClass: 'admin',
+      inputSchema: ProfilePreparationQuerySchema,
+      outputSchema: z.array(ProfilePreparationStatusSchema).max(64),
+      handle: prepare.list,
+    });
+    router.register({
+      id: 'portal.profile.preparation-status',
+      method: 'GET',
+      path: '/control/portal/profile-preparations/:preparationId',
+      routeClass: 'admin',
+      inputSchema: ProfilePreparationIdSchema,
+      outputSchema: ProfilePreparationStatusSchema,
+      handle: prepare.status,
+    });
+    router.register({
+      id: 'portal.profile.preparation-result',
+      method: 'GET',
+      path: '/control/portal/profile-preparations/:preparationId/result',
+      routeClass: 'admin',
+      inputSchema: ProfilePreparationIdSchema,
+      outputSchema: PortalPreparedNativeProfileSchema,
+      handle: prepare.result,
+    });
+    router.register({
+      id: 'portal.profile.preparation-cancel',
+      method: 'POST',
+      path: '/control/portal/profile-preparations/:preparationId/cancel',
+      routeClass: 'admin',
+      inputSchema: ProfilePreparationIdSchema,
+      outputSchema: ProfilePreparationStatusSchema,
+      handle: prepare.cancel,
+    });
+  }
   router.register({
     id: 'portal.profile.register',
     method: 'POST',
     path: '/control/portal/profiles',
     routeClass: 'admin',
     inputSchema: RequestSchema,
-    outputSchema: ResultSchema,
+    outputSchema: z.union([ResultSchema, ProfilePreparationStatusSchema]),
     handle: endpoint,
   });
 };

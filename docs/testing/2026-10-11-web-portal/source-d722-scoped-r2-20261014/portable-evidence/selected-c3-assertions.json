@@ -1,0 +1,27 @@
+{
+  "schemaVersion": 1,
+  "kind": "sanitized-selected-c3-changed-assertions",
+  "passed": 2,
+  "scope": "Two selected changed assertions from distinct original reports; R3 negative failure and R4 filtered cases preserved; cleanup-only final test changes not rerun",
+  "reports": [
+    {
+      "path": ".worktrees/_cache/c2-c3-implementation-20261014/c3-graph-repair/changed-compiler-tests-r3.json",
+      "sha256": "24879ae24d1e903bcc0728d927b36f1e2b60a421d25b6568fffcbc8ba2510474",
+      "passedAssertionNames": [
+        "retains bounded non-Epic generated root and home types in the compiler namespace"
+      ],
+      "originalReportSuccess": false,
+      "originalFailedTests": 1
+    },
+    {
+      "path": ".worktrees/_cache/c2-c3-implementation-20261014/c3-graph-repair/changed-compiler-tests-r4.json",
+      "sha256": "48713e580ac02efdf5583cedd5485c1ec2b676296912eac7ef5ba6a3634444f1",
+      "passedAssertionNames": [
+        "denies absent or foreign-linked generated type output without issuing compiler authority"
+      ],
+      "originalReportSuccess": true,
+      "originalFailedTests": 0
+    }
+  ],
+  "claims": "Exactly two selected named assertions passed in distinct original reports. The failed R3 report remains failed. No clean full report or new compiler/case acceptance is claimed."
+}

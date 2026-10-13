@@ -1,0 +1,201 @@
+{
+  "recordedAt": "2026-10-13T01:44:04.054Z",
+  "sourceHash": "sha256:db69ea3b1fa4363176712640af1a7e733706ce09542406fe18fc84b6c81f2f0a",
+  "wholeAttempt": "38001901-20ed-45f9-8b9f-6d0730090734",
+  "helperManifestHash": "7e3562796725e20836348940fa3b7c00d5e4294e329b61af345bc9e336e3463c",
+  "filesystemGatesPassed": true,
+  "closureFiles": 45,
+  "closure": [
+    {
+      "path": "artifacts/artifact-manifest.v1.json",
+      "sha256": "c7c0971afa19e1a3d9135290db6913bd0238203ec7303f1cd04db87156cccfd2"
+    },
+    {
+      "path": "artifacts\\cli.tgz",
+      "sha256": "f0d29f8d62c349044ab75f054e8f3d96055d6bb70ba48a9041560f7f878d46b1"
+    },
+    {
+      "path": "artifacts\\mcp.tgz",
+      "sha256": "ef9697e48fe4a966ef4edf99697651a134a336e8e712122b19901f1bb06a7da8"
+    },
+    {
+      "path": "artifacts\\plugin.zip",
+      "sha256": "08d56c2670eb2fd9ac93b43bc27352d6f7f92c7c6d590cfe21052be660904f19"
+    },
+    {
+      "path": "artifacts\\portal.tgz",
+      "sha256": "10b41ae5aaaf9c00a1524daf95228c4c942a7c389a3e2170a1c025f350de294b"
+    },
+    {
+      "path": "packages/cli/dist/commands-BYt-j5Ry.mjs",
+      "sha256": "4579995ca302b30ccf4ce8676d53c972e6274428ba929a73deb651800c5e0bf7"
+    },
+    {
+      "path": "packages/cli/dist/index.mjs",
+      "sha256": "c7ffe5db3c802782f3fbf5ec71baf33aed5ba3bc9e63c3a4518ce9f7bc87e68e"
+    },
+    {
+      "path": "packages/cli/dist/library.mjs",
+      "sha256": "ba4e24e23efcf82ad93c42d94177820a3fc88186287c69b36ac9400d42e42191"
+    },
+    {
+      "path": "packages/cli/package.json",
+      "sha256": "552908a2020466cb0f1cef393f41084707cdf1122b2880446d345b05c07f0628"
+    },
+    {
+      "path": "packages/mcp/dist/build-info.json",
+      "sha256": "5867c2f03068b1903794d0aff8cc31a5a1a8362cd3a053d9cda8bce44ed2b73a"
+    },
+    {
+      "path": "packages/mcp/dist/daemon-entry.mjs",
+      "sha256": "e3a58bd2118f08b01e71b62d845a62c561fef0ff05e44d33b327a2593bb0464c"
+    },
+    {
+      "path": "packages/mcp/dist/index.mjs",
+      "sha256": "83c6f80c4844725b57cb17845410b5a9989101d4c6c173f782d6d42c6d36c73c"
+    },
+    {
+      "path": "packages/mcp/dist/native-artifacts-3rabIc1X.mjs",
+      "sha256": "e108d2277b0c857061ce17dbfa834b516ac2117dce9a94b8deb00f246f97fa03"
+    },
+    {
+      "path": "packages/mcp/dist/native-artifacts-5NZ4Doxi.mjs",
+      "sha256": "af9bc0c49d1f94257441832e8d7137947c0d50e6968882d40d23edf471388d90"
+    },
+    {
+      "path": "packages/mcp/dist/native-module-fence-B3lUAXn3.mjs",
+      "sha256": "5dfc6fcbd771f9ba280d0d40c46fe85567d243a0d95d02999a5896b9999833cd"
+    },
+    {
+      "path": "packages/mcp/dist/native-module-fence-miTlwKrv.mjs",
+      "sha256": "3982066350ccc20385f2bdda1f0a9aecc4e39d70e314b21d6d60cdd7b542e245"
+    },
+    {
+      "path": "packages/mcp/dist/native-runner-DDodPFjx.mjs",
+      "sha256": "f836a306f2fae8db67656901631de32b1226c529634054251c76b705f80c3453"
+    },
+    {
+      "path": "packages/mcp/dist/native-runner-DZQA9ZW1.mjs",
+      "sha256": "876e4a10727ff37c8cddff36fa1f82f12faf0942013d5aa0dd187391d0e81c8d"
+    },
+    {
+      "path": "packages/mcp/dist/operation-evidence-projector-Bv0dlKR1.mjs",
+      "sha256": "a573362fa690cba4ed36b376b3c6d192aeabdad5a2044355a1aedba1abd3fd7b"
+    },
+    {
+      "path": "packages/mcp/dist/operation-evidence-projector-D0RWKEBm.mjs",
+      "sha256": "7a7e7aaf8f80096491aaaed7be6fa69e74fdda7f01f145d4cf25967db3d89192"
+    },
+    {
+      "path": "packages/mcp/dist/portal-validation.mjs",
+      "sha256": "06fd1fef086d3ecb5dacb9cd5b201e2bc68230487366c176220a63614be4c93a"
+    },
+    {
+      "path": "packages/mcp/dist/preview-listener-BadUOK2f.mjs",
+      "sha256": "44436354a0cbaa191c38eda2ce19b7c10625822f7c243c578f54df95946989f6"
+    },
+    {
+      "path": "packages/mcp/dist/preview-worker-Cv7c9C0F.mjs",
+      "sha256": "68596b30f08e390b20b2d935aa27c4432ded7f11ab5b21d40d53bef4f560c8ab"
+    },
+    {
+      "path": "packages/mcp/dist/runtime-mode-CtV2_UhM.mjs",
+      "sha256": "cbbef87c27503d74ff4dddff1b845fa75e8fd34c7aa3468e275e22eeed185c5f"
+    },
+    {
+      "path": "packages/mcp/dist/src-AnFFxE_O.mjs",
+      "sha256": "353ebb87a75d99989102321042605ae839347a384260ebc7b0a174401b85e1f2"
+    },
+    {
+      "path": "packages/mcp/dist/src-D-TRdwRJ.mjs",
+      "sha256": "b3ad9ce9484f2c84345754350301aac68cbafc304b50675bf2c9363fc2c9ba3f"
+    },
+    {
+      "path": "packages/mcp/dist/src-xNd7v38m.mjs",
+      "sha256": "24d6254d95de1fc71a0181af8209326658feeadda492d08875f3cf615963328e"
+    },
+    {
+      "path": "packages/mcp/package.json",
+      "sha256": "1c47e19a5bc5f421288a9880e9ae9fcdd04a9606b80d4e705bcf88f2685caed3"
+    },
+    {
+      "path": "packages/plugin/dist/code.js",
+      "sha256": "a9c96a78acc718650b8782fa178e21d9375d992850273c6d26c58fa901395507"
+    },
+    {
+      "path": "packages/plugin/dist/index.html",
+      "sha256": "b4ff827223e5716e2fad1055295d002cb4a4aa315fa6fa3742ec36b35fcd4110"
+    },
+    {
+      "path": "packages/plugin/manifest.json",
+      "sha256": "d658e7e382bb503adba766dce6698d1d853466601a97f0266926ab2fc093665f"
+    },
+    {
+      "path": "packages/portal/dist/index.mjs",
+      "sha256": "6cc3f6ce46a811e9ad040e9719983f4867f08152675b9b104d053abd013897fa"
+    },
+    {
+      "path": "packages/portal/package.json",
+      "sha256": "ddb99eafe979d2319697f9bde91d01c4b3f4cf7f3e2a2baccfcb06ceff7767c8"
+    },
+    {
+      "path": "packages/portal/web/api.js",
+      "sha256": "4b608fcde06ebb2e2a8bf2d3bda7ba682a3a72920b8762ce55db8f6390b05102"
+    },
+    {
+      "path": "packages/portal/web/app.js",
+      "sha256": "fe9e1257b0001dc09425637d3849fede9270bbdb85bc895ec068cf6ef06585e3"
+    },
+    {
+      "path": "packages/portal/web/figma-auth-consent.css",
+      "sha256": "92936bf38172f7af6875e8be212882ff6a7db8eceb186306ced37a347e6abc73"
+    },
+    {
+      "path": "packages/portal/web/figma-auth-consent.html",
+      "sha256": "a517ebb46e30626d50ab7562b459e209a8d93d617370fd367524bba7319f4eea"
+    },
+    {
+      "path": "packages/portal/web/figma-auth-consent.js",
+      "sha256": "cfa0bd18655247a3dcaff6520b250bfd329484d857be7b94a077428416d01b0c"
+    },
+    {
+      "path": "packages/portal/web/figma-auth-public.js",
+      "sha256": "37c224301b981a75ea0eb59755142199372de6bf5ec9b8b5671bb365631056f9"
+    },
+    {
+      "path": "packages/portal/web/figma-settings.js",
+      "sha256": "00a6349b3c16da3b31cab8e32da0dde5cc5764724abd1d9fd01fb9f4cbb66575"
+    },
+    {
+      "path": "packages/portal/web/index.html",
+      "sha256": "412a66ea1bca0396e3105f37635ad7973510b657e2549aac1337d03f2dfcd690"
+    },
+    {
+      "path": "packages/portal/web/model.js",
+      "sha256": "4be8488eb188ec799c4264aa78596dd8dd005173d185ff0ba831bad3b11190b4"
+    },
+    {
+      "path": "packages/portal/web/schema-form.js",
+      "sha256": "9d1b1d073824327e8e6206d76981e23cdbc9e980f2511542c81aed2a3600693d"
+    },
+    {
+      "path": "packages/portal/web/service-functions.js",
+      "sha256": "36c0d05f81dcc63db109eaff6a6bc0239e797d85624f90dce95cf91a503c0e19"
+    },
+    {
+      "path": "packages/portal/web/styles.css",
+      "sha256": "47267a7738904f221ad77e0d1d18463d7b268a310735ab026388cbd8d8262b8a"
+    }
+  ],
+  "tests": {
+    "passed": 22,
+    "failed": 0,
+    "skipped": 0
+  },
+  "modeInvoked": false,
+  "intentCreated": false,
+  "serviceHttpCalled": false,
+  "chromeControlled": false,
+  "processesChanged": false,
+  "deploymentAuthorized": false
+}

@@ -1,0 +1,35 @@
+{
+  "schemaVersion": 1,
+  "mode": "focused",
+  "runId": "9e55a43e-1d09-4993-9351-6ab8a78064ac",
+  "declaredAt": "2026-10-11T06:16:42.882Z",
+  "sourceHash": "sha256:18525cdc247a1a314f02496edb563f0a0b629ca6f098aa554ae5e7f729bb2ee3",
+  "command": [
+    "pnpm",
+    "exec",
+    "vitest",
+    "run",
+    "test/artifact-contents.test.ts"
+  ],
+  "collectionCommand": [
+    "node",
+    "scripts/collect-test-registrations.mjs",
+    "--file",
+    "test/artifact-contents.test.ts"
+  ],
+  "toolchain": {
+    "node": "v24.21.0",
+    "platform": "win32",
+    "architecture": "x64",
+    "nodeSha256": "ba4e6d110e8c1592a1ecd390f6b05f3da124b13871a5be62b341a07a853c6c32",
+    "pnpmSha256": "ab0e1ca4f3f3059571b8fc7a7efffe010b719644268eb3b3c6a2a36649b2fa9e"
+  },
+  "files": [
+    {
+      "path": "test/artifact-contents.test.ts",
+      "tests": [
+        "verifies the actual three archives and every contained file"
+      ]
+    }
+  ]
+}

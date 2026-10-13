@@ -1,0 +1,23 @@
+{
+  "schemaVersion": 1,
+  "at": "2026-10-13T18:41:45.278Z",
+  "kind": "reviewed-candidate-glue-publication",
+  "failedFirstPublication": "Source changed before second file; only exact BoundCaseDesign had been written, verified and preserved",
+  "files": [
+    {
+      "path": "examples/portal-cases/shared-design/BoundCaseDesign.tsx",
+      "sha256": "251b06a9eeab7bc24a7ba73d9b01b52601dd5585b8810403cebbaf59f5766e5e"
+    },
+    {
+      "path": "examples/portal-cases/compose-case-candidate.mjs",
+      "sha256": "379535b76a0b2370aba5163e3d07ee37d408e4ff8015abefae279a590bd71999"
+    },
+    {
+      "path": "examples/portal-cases/derive-case-controls.mjs",
+      "sha256": "316458443760d7b9e80ef4ca614944819f10d5f6532f27c26470b2db69add7fa"
+    }
+  ],
+  "serviceSourceChanged": false,
+  "actualInputsExecuted": false,
+  "caseAcceptance": false
+}

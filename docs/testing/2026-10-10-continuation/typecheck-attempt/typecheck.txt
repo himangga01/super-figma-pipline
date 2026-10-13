@@ -1,0 +1,22 @@
+Scope: 5 of 6 workspace projects
+packages/shared typecheck$ tsc --noEmit -p tsconfig.json
+packages/shared typecheck: Done
+packages/ir typecheck$ tsc --noEmit -p tsconfig.json
+packages/plugin typecheck$ vue-tsc --noEmit -p tsconfig.json
+packages/ir typecheck: Done
+packages/plugin typecheck: Done
+packages/mcp typecheck$ tsc --noEmit -p tsconfig.json
+packages/mcp typecheck: Done
+packages/cli typecheck$ tsc --noEmit -p tsconfig.json
+packages/cli typecheck: Done
+test/vendor-upstreams.test.ts(111,27): error TS2769: No overload matches this call.
+  Overload 1 of 2, '(actual: number | null, message?: string | undefined): Assertion<number | null>', gave the following error.
+    Argument of type 'string | NonSharedBuffer' is not assignable to parameter of type 'string | undefined'.
+      Type 'NonSharedBuffer' is not assignable to type 'string'.
+  Overload 2 of 2, '(val: any, message?: string | undefined): Assertion', gave the following error.
+    Argument of type 'string | NonSharedBuffer' is not assignable to parameter of type 'string | undefined'.
+      Type 'NonSharedBuffer' is not assignable to type 'string'.
+[ELIFECYCLE] Command failed with exit code 2.
+[ELIFECYCLE] Command failed with exit code 2.
+$ pnpm -r run typecheck && pnpm run typecheck:tools
+$ tsc -p tsconfig.tools.json

@@ -1,0 +1,23 @@
+{
+  "schemaVersion": 1,
+  "name": "build-package",
+  "releaseId": "5b1c8abd-9bd3-4e81-b5ef-125d0b4d287c",
+  "finalSourceHash": "sha256:6f87f836d872a4ba8ab49533f6447a7c921adb6b8af3dae75ddd6241e8b8a1cb",
+  "status": "passed",
+  "sourceBinding": "current-source",
+  "evidence": {
+    "receipt": {
+      "path": "docs/testing/2026-10-11-web-portal/source-6f87-scoped-20261013/build-package-scoped-receipt.json",
+      "sha256": "5bc138bb88eb55adfbeaff3d7f54931318d9e0bea6092cebcca6f9bd2803bca9"
+    },
+    "artifact": {
+      "path": "docs/testing/2026-10-11-web-portal/source-6f87-scoped-20261013/artifact-contents-checkpoint.json",
+      "sha256": "9576f1716f4dbc1423305100c2b23c159e6485594897287f34adb19b1c069ceb"
+    },
+    "actualFourArchivesVerified": true
+  },
+  "ownerEcommerce": "skipped",
+  "officialMcpLive": "deferred",
+  "wholePassed": false,
+  "liveAcceptance": false
+}

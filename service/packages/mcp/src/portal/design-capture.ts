@@ -20,22 +20,27 @@ import { z } from 'zod';
 
 import { AssetQuerySchema } from '../../../cli/src/asset-program.js';
 import { ExistingChromeConnection, observeFigmaPage } from '../../../cli/src/browser-session.js';
-import { captureBrowserAssets } from '../../../cli/src/capture-assets.js';
+import { captureBrowserAssets, captureDesignAssets } from '../../../cli/src/capture-assets.js';
 import { retainChromeFailure } from '../../../cli/src/chrome-diagnostics.js';
+import { readFigmaPageSnapshot, readFigmaPageAsset } from '../../../cli/src/figma-page-reader.js';
 import type { FigmaTarget } from '../../../cli/src/figma-url.js';
 import { parseFigmaTarget } from '../../../cli/src/figma-url.js';
+import { exportFigmaWebDocument } from '../../../cli/src/figma-web-export.js';
 import { waitLogically } from '../../../cli/src/logical-wait.js';
 import { readScripterSnapshot } from '../../../cli/src/snapshot-reader.js';
 import {
   PortalCaptureDescriptorSchema,
   PortalCaptureGrantSchema,
+  OfficialFigmaEndpointSchema,
   type PortalCaptureDescriptor,
   type PortalCaptureGrant,
+  type PortalChromeCollector,
 } from '../../../shared/src/portal-capture-source.js';
 import { withRetainedDirectoryChain } from '../fs/atomic-file.js';
 import { RepoReader } from '../fs/repo-walk.js';
 import type { BoundStatePermissions } from '../security/state-permissions.js';
 import { PortalCaptureError } from './capture-failure.js';
+import { publishNativeContourSupplement } from './capture-native-supplement.js';
 import { normalizeDesignObservation, planDesignImageReferences } from './design-normalization.js';
 import { portalError, type PortalStore } from './store.js';
 
@@ -69,8 +74,28 @@ export const desktopCollectorProvenance = {
   documentEpoch: 'unavailable',
   coherenceLimit: 'ordered-read-ABA-and-post-read-changes-unobservable',
 } as const;
+export const chromePageApiCollectorProvenance = {
+  collector: 'existing-chrome-page-api-v1',
+  fileBasis: 'runtime-file-key-and-validated-tab-url',
+  sessionBasis: 'service-page-object',
+  generationBasis: 'collector-attempt',
+  documentEpoch: 'unavailable',
+  coherenceLimit: 'ordered-read-ABA-and-post-read-changes-unobservable',
+} as const;
+export const officialMcpCollectorProvenance = {
+  collector: 'official-mcp-fixed-plugin-read-v1',
+  fileBasis: 'runtime-file-key',
+  sessionBasis: 'official-mcp-client-session',
+  generationBasis: 'collector-attempt',
+  documentEpoch: 'unavailable',
+  coherenceLimit: 'ordered-read-ABA-and-post-read-changes-unobservable',
+} as const;
 const provenanceSchema = <
-  T extends typeof chromeCollectorProvenance | typeof desktopCollectorProvenance,
+  T extends
+    | typeof chromeCollectorProvenance
+    | typeof desktopCollectorProvenance
+    | typeof officialMcpCollectorProvenance
+    | typeof chromePageApiCollectorProvenance,
 >(
   value: T,
 ) =>
@@ -87,6 +112,10 @@ const provenanceSchema = <
 const CollectorProvenanceSchema = z.union([
   provenanceSchema(chromeCollectorProvenance),
   provenanceSchema(desktopCollectorProvenance),
+  provenanceSchema(chromePageApiCollectorProvenance),
+  provenanceSchema(officialMcpCollectorProvenance).extend({
+    endpoint: OfficialFigmaEndpointSchema,
+  }),
 ]);
 export type PortalCollectorProvenance = z.infer<typeof CollectorProvenanceSchema>;
 export const PortalCapturedDesignSchema = z
@@ -179,6 +208,15 @@ export function requireCurrentPortalCapture(captured: PortalCapturedDesign): voi
     JSON.parse(captured.raw),
     captured.collectorEvidence,
   );
+  const observedSource =
+    captured.collectorProvenance!.collector === chromePageApiCollectorProvenance.collector
+      ? 'chrome-page-api'
+      : captured.collectorProvenance!.collector === chromeCollectorProvenance.collector
+        ? 'chrome'
+        : captured.collectorProvenance!.collector === desktopCollectorProvenance.collector
+          ? 'desktop'
+          : 'official-mcp';
+  if (observation.source !== observedSource) throw portalError('PORTAL_CAPTURE_COLLECTOR_MISMATCH');
   if (
     observation.contentHash !== captured.contentFingerprint ||
     observation.coherence.status !== 'observed' ||
@@ -232,6 +270,10 @@ const captureFingerprints = (
 export interface PortalDesignCapturePort {
   capture(planId: string, url: string, signal: AbortSignal): Promise<PortalCapturedDesign>;
 }
+type NativeSupplementOptions = {
+  nativeContourSupplement?: boolean;
+  nativeContourUnavailable?: 'fail' | 'retain-primary';
+};
 export const portalDesignFingerprint = (captured: PortalCapturedDesign): string => {
   if (captured.captureVersion === 2) return portalDesignVersionFingerprint(captured);
   const value = JSON.parse(captured.raw) as Record<string, unknown>;
@@ -263,10 +305,14 @@ export interface PortalCaptureSession {
     folder: string,
     options: Parameters<typeof captureBrowserAssets>[4],
   ): ReturnType<typeof captureBrowserAssets>;
+  nativeExport?(
+    folder: string,
+    options: { signal: AbortSignal; deadlineAt: number },
+  ): ReturnType<typeof exportFigmaWebDocument>;
   close(): Promise<void>;
 }
 export interface PortalCaptureTransport {
-  open(url: string, signal: AbortSignal): Promise<PortalCaptureSession>;
+  open(url: string, signal: AbortSignal, deadlineAt?: number): Promise<PortalCaptureSession>;
   close(): Promise<void>;
 }
 /** Same bounded coherence/asset persistence for admitted Desktop and retained Chrome transports. */
@@ -278,7 +324,11 @@ export class CoherentDesignCapture implements PortalDesignCapturePort {
     private readonly permissions: BoundStatePermissions,
     private readonly transport: PortalCaptureTransport,
     private readonly store?: PortalStore,
-  ) {}
+    private readonly options: NativeSupplementOptions = {},
+  ) {
+    if (options.nativeContourSupplement && !store)
+      throw portalError('PORTAL_CAPTURE_NATIVE_SUPPLEMENT_STORE_REQUIRED');
+  }
   async close(): Promise<void> {
     this.lifetime.abort(portalError('OPERATION_CANCELLED'));
     await this.transport.close();
@@ -302,19 +352,31 @@ export class CoherentDesignCapture implements PortalDesignCapturePort {
     signal: AbortSignal,
   ): Promise<PortalCapturedDesign> {
     signal.throwIfAborted();
+    const deadlineAt = Date.now() + 300_000;
+    const assertActive = () => {
+      signal.throwIfAborted();
+      if (Date.now() >= deadlineAt) throw portalError('PORTAL_CAPTURE_COHERENCE_BUDGET');
+    };
     let stage: PortalCaptureFailure['stage'] = 'connection';
     let startedAt = Date.now();
     const enter = (next: PortalCaptureFailure['stage']) => {
-      signal.throwIfAborted();
+      assertActive();
       stage = next;
       startedAt = Date.now();
     };
     let session: PortalCaptureSession | undefined;
     let primaryFailure = false;
     let captured: PortalCapturedDesign | undefined;
+    let nativeSupplement:
+      | {
+          exported: Awaited<ReturnType<typeof exportFigmaWebDocument>>;
+          beforeContentHash: string;
+          afterContentHash: string;
+        }
+      | undefined;
     let cleanupFailure: PortalCaptureError | undefined;
     try {
-      session = await this.transport.open(url, signal);
+      session = await this.transport.open(url, signal, deadlineAt);
       enter('readiness');
       await session.ready();
       enter('state-preparation');
@@ -333,11 +395,19 @@ export class CoherentDesignCapture implements PortalDesignCapturePort {
           },
           { createMissing: true },
         );
-      const deadlineAt = Date.now() + 300_000;
       const target = parseFigmaTarget(url);
       if (session.target.nodeId !== target.nodeId || session.target.fileKey !== target.fileKey)
         throw portalError('PORTAL_CHROME_DESIGN_CHANGED');
-      const progressId = contentHash('sfp-portal-capture-progress-v1', target.url).slice(7);
+      const progressId = (
+        session.provenance.collector === officialMcpCollectorProvenance.collector
+          ? contentHash('sfp-portal-official-mcp-capture-progress-v1', {
+              url: target.url,
+              provenance: session.provenance,
+            })
+          : session.provenance.collector === chromePageApiCollectorProvenance.collector
+            ? contentHash('sfp-portal-chrome-page-api-capture-progress-v1', target.url)
+            : contentHash('sfp-portal-capture-progress-v1', target.url)
+      ).slice(7);
       enter('checkpoint-read');
       const old = await this.store?.get('capture-progress', progressId, PortalCapturedDesignSchema);
       // Checkpoints are inspection history. Every attempt exports fresh visual observations.
@@ -350,6 +420,7 @@ export class CoherentDesignCapture implements PortalDesignCapturePort {
         try {
           enter('snapshot');
           const snapshot = await session.read({ signal, deadlineAt, diagnosticsFolder: folder });
+          assertActive();
           const raw = JSON.stringify(snapshot);
           const before = normalizeDesignObservation(snapshot);
           const attemptId = randomUUID();
@@ -377,6 +448,7 @@ export class CoherentDesignCapture implements PortalDesignCapturePort {
             limit: 'ordered-read-ABA-and-post-read-changes-unobservable',
             capturedAt: new Date().toISOString(),
           });
+          assertActive();
           await this.store?.create(
             'capture-attempts',
             attemptId,
@@ -424,6 +496,7 @@ export class CoherentDesignCapture implements PortalDesignCapturePort {
           );
           if (retainedAttemptBytes > PORTAL_CAPTURE_LIMITS.assetBytes)
             throw portalError('PORTAL_CAPTURE_ASSET_LIMIT');
+          assertActive();
           await this.store?.update(
             'capture-attempts',
             attemptId,
@@ -434,16 +507,60 @@ export class CoherentDesignCapture implements PortalDesignCapturePort {
               outcome: 'assets-exported' as const,
             }),
           );
+          let nativeExport: Awaited<ReturnType<typeof exportFigmaWebDocument>> | undefined;
+          if (this.options.nativeContourSupplement) {
+            if (
+              !session.nativeExport ||
+              (session.provenance.collector !== chromeCollectorProvenance.collector &&
+                session.provenance.collector !== chromePageApiCollectorProvenance.collector)
+            )
+              throw portalError('PORTAL_CAPTURE_NATIVE_SUPPLEMENT_REQUIRED');
+            enter('assets');
+            let unavailable = false;
+            try {
+              nativeExport = await session.nativeExport(folder, { signal, deadlineAt });
+            } catch (cause) {
+              assertActive();
+              // Only a confirmed disabled Save action may leave the primary collector usable.
+              // Timeouts, wrong targets, cancellation and uncertain cleanup remain failures.
+              if (
+                this.options.nativeContourUnavailable !== 'retain-primary' ||
+                !(cause instanceof Error) ||
+                cause.message !== 'FIGMA_WEB_EXPORT_UNAVAILABLE'
+              )
+                throw cause;
+              unavailable = true;
+            }
+            assertActive();
+            if (!unavailable && !nativeExport)
+              throw portalError('PORTAL_CAPTURE_NATIVE_SUPPLEMENT_REQUIRED');
+            if (nativeExport) {
+              if (
+                !Number.isSafeInteger(nativeExport.bytes) ||
+                nativeExport.bytes < 12 ||
+                nativeExport.bytes > 134_217_728
+              )
+                throw portalError('PORTAL_CAPTURE_NATIVE_SUPPLEMENT_REQUIRED');
+              retainedAttemptBytes += nativeExport.bytes;
+              if (retainedAttemptBytes > PORTAL_CAPTURE_LIMITS.assetBytes)
+                throw portalError('PORTAL_CAPTURE_ASSET_LIMIT');
+              await this.permissions.ensureSecure(join(folder, 'document.fig'));
+              await this.permissions.verifySecure(join(folder, 'document.fig'));
+            }
+            assertActive();
+          }
           enter('snapshot');
           const afterSnapshot = await session.read({
             signal,
             deadlineAt,
             diagnosticsFolder: folder,
           });
+          assertActive();
           const after = normalizeDesignObservation(afterSnapshot);
           const changed =
             before.contentHash !== after.contentHash ||
             snapshot.observation?.contentHash !== afterSnapshot.observation?.contentHash;
+          assertActive();
           await this.store?.update(
             'capture-attempts',
             attemptId,
@@ -561,6 +678,12 @@ export class CoherentDesignCapture implements PortalDesignCapturePort {
               assets.every(asset => asset.status === 'captured'),
             liveVerified: true,
           });
+          if (nativeExport)
+            nativeSupplement = {
+              exported: nativeExport,
+              beforeContentHash: before.contentHash,
+              afterContentHash: after.contentHash,
+            };
           break;
         } catch (error) {
           signal.throwIfAborted();
@@ -574,6 +697,7 @@ export class CoherentDesignCapture implements PortalDesignCapturePort {
         }
       }
       if (!result) throw portalError('PORTAL_CAPTURE_COHERENCE_BUDGET');
+      assertActive();
       if (this.store) {
         enter('checkpoint-publication');
         if (old)
@@ -591,6 +715,7 @@ export class CoherentDesignCapture implements PortalDesignCapturePort {
             PortalCapturedDesignSchema,
           );
       }
+      assertActive();
       captured = result;
     } catch (cause) {
       primaryFailure = true;
@@ -606,6 +731,27 @@ export class CoherentDesignCapture implements PortalDesignCapturePort {
       }
     }
     if (cleanupFailure) throw cleanupFailure;
+    assertActive();
+    if (nativeSupplement && captured!.complete) {
+      const publicationStartedAt = Date.now();
+      try {
+        await publishNativeContourSupplement({
+          stateRoot: this.stateRoot,
+          permissions: this.permissions,
+          store: this.store!,
+          planId,
+          url,
+          captured: captured!,
+          ...nativeSupplement,
+          signal,
+          deadlineAt,
+        });
+        assertActive();
+      } catch (cause) {
+        signal.throwIfAborted();
+        throw new PortalCaptureError('checkpoint-publication', cause, publicationStartedAt);
+      }
+    }
     return captured!;
   }
 }
@@ -613,16 +759,78 @@ export class CoherentDesignCapture implements PortalDesignCapturePort {
 /** External Playwright/Scripter retains the selected existing Chrome page. */
 export class ExistingChromeDesignCapture extends CoherentDesignCapture {
   private readonly chromeConnection: ExistingChromeConnection;
-  constructor(stateRoot: string, permissions: BoundStatePermissions, store?: PortalStore) {
+  readonly pageApiCapture: CoherentDesignCapture;
+  constructor(
+    stateRoot: string,
+    permissions: BoundStatePermissions,
+    store?: PortalStore,
+    configuration: NativeSupplementOptions = {},
+  ) {
     const chrome = new ExistingChromeConnection();
+    const unsettledClosures = new Set<Promise<void>>();
+    const nativeWork = new Set<Promise<unknown>>();
+    let nativeCleanupFailure = false;
+    const assertReleased = () => {
+      if (unsettledClosures.size || nativeWork.size || nativeCleanupFailure)
+        throw portalError('PORTAL_CAPTURE_CLEANUP_UNCONFIRMED');
+    };
+    const closeSession = async (session: { close(): Promise<void> }, deadlineAt: number) => {
+      const pending = Promise.resolve().then(() => session.close());
+      unsettledClosures.add(pending);
+      // Only confirmed success clears the fence. A rejected detach remains unconfirmed.
+      void pending.then(
+        () => unsettledClosures.delete(pending),
+        () => {},
+      );
+      const remaining = Math.min(5_000, deadlineAt - Date.now());
+      if (remaining <= 0) throw portalError('PORTAL_CAPTURE_CLEANUP_UNCONFIRMED');
+      try {
+        await waitLogically(pending, AbortSignal.timeout(remaining));
+      } catch {
+        throw portalError('PORTAL_CAPTURE_CLEANUP_UNCONFIRMED');
+      }
+    };
     const ids = new WeakMap<object, string>();
+    const trackNative = <T>(pending: Promise<T>, cleanup = false): Promise<T> => {
+      nativeWork.add(pending);
+      void pending.then(
+        () => nativeWork.delete(pending),
+        () => {
+          nativeWork.delete(pending);
+          if (cleanup) nativeCleanupFailure = true;
+        },
+      );
+      return pending;
+    };
+    const nativeExportFor =
+      (session: {
+        page: Parameters<typeof exportFigmaWebDocument>[0];
+        target: Readonly<FigmaTarget>;
+      }) =>
+      (folder: string, captureOptions: { signal: AbortSignal; deadlineAt: number }) =>
+        trackNative(
+          exportFigmaWebDocument(session.page, session.target, folder, {
+            ...captureOptions,
+            sourceWork: trackNative,
+          }),
+        );
+    const closeAfterNative = async (session: { close(): Promise<void> }, deadlineAt: number) => {
+      const unconfirmed = nativeWork.size > 0 || nativeCleanupFailure;
+      await closeSession(session, deadlineAt);
+      if (unconfirmed || nativeWork.size || nativeCleanupFailure)
+        throw portalError('PORTAL_CAPTURE_CLEANUP_UNCONFIRMED');
+    };
     super(
       stateRoot,
       permissions,
       {
         close: () => chrome.close(),
-        open: async (url, signal) => {
-          const session = await chrome.open({ url }, signal);
+        open: async (url, signal, deadlineAt = Date.now() + 300_000) => {
+          assertReleased();
+          const remaining = deadlineAt - Date.now();
+          if (remaining <= 0) throw portalError('PORTAL_CAPTURE_COHERENCE_BUDGET');
+          const boundedSignal = AbortSignal.any([signal, AbortSignal.timeout(remaining)]);
+          const session = await chrome.open({ url }, boundedSignal);
           let id = ids.get(session.page);
           if (!id) {
             id = 'collector-page:' + randomUUID();
@@ -635,8 +843,20 @@ export class ExistingChromeDesignCapture extends CoherentDesignCapture {
             bindingMethod: 'file-key',
             provenance: chromeCollectorProvenance,
             ready: async () => {
-              if ((await observeFigmaPage(session.page, session.target)).status !== 'ready')
+              boundedSignal.throwIfAborted();
+              if (
+                (
+                  await waitLogically(
+                    observeFigmaPage(session.page, session.target, {
+                      signal: boundedSignal,
+                      deadlineAt,
+                    }),
+                    boundedSignal,
+                  )
+                ).status !== 'ready'
+              )
                 throw portalError('PORTAL_CHROME_DESIGN_CHANGED');
+              boundedSignal.throwIfAborted();
             },
             read: async options => {
               try {
@@ -654,13 +874,90 @@ export class ExistingChromeDesignCapture extends CoherentDesignCapture {
             },
             assets: (nodes, folder, options) =>
               captureBrowserAssets(session.page, session.target, nodes, folder, options),
-            close: () => session.close(),
+            ...(configuration.nativeContourSupplement
+              ? { nativeExport: nativeExportFor(session) }
+              : {}),
+            close: () => closeAfterNative(session, deadlineAt),
           };
         },
       },
       store,
+      configuration,
     );
     this.chromeConnection = chrome;
+    const pageApiIds = new WeakMap<object, string>();
+    this.pageApiCapture = new CoherentDesignCapture(
+      stateRoot,
+      permissions,
+      {
+        // The existing Chrome owner closes this shared connection once after both ports abort.
+        close: async () => {},
+        open: async (url, signal, deadlineAt = Date.now() + 300_000) => {
+          assertReleased();
+          const remaining = deadlineAt - Date.now();
+          if (remaining <= 0) throw portalError('PORTAL_CAPTURE_COHERENCE_BUDGET');
+          const boundedSignal = AbortSignal.any([signal, AbortSignal.timeout(remaining)]);
+          const session = await chrome.open({ url }, boundedSignal);
+          let id = pageApiIds.get(session.page);
+          if (!id) {
+            id = 'collector-page-api:' + randomUUID();
+            pageApiIds.set(session.page, id);
+          }
+          return {
+            target: session.target,
+            sessionId: id,
+            generation: 'collector-attempt:' + randomUUID(),
+            bindingMethod: 'file-key',
+            provenance: chromePageApiCollectorProvenance,
+            ready: async () => {
+              boundedSignal.throwIfAborted();
+              if (
+                (
+                  await waitLogically(
+                    observeFigmaPage(session.page, session.target, {
+                      signal: boundedSignal,
+                      deadlineAt,
+                    }),
+                    boundedSignal,
+                  )
+                ).status !== 'ready'
+              )
+                throw portalError('PORTAL_CHROME_DESIGN_CHANGED');
+              boundedSignal.throwIfAborted();
+            },
+            read: options =>
+              readFigmaPageSnapshot(
+                session.page,
+                session.target,
+                {
+                  nodeId: session.target.nodeId,
+                  depth: 40,
+                  maxNodes: 2000,
+                },
+                options,
+              ),
+            assets: (nodes, folder, options) =>
+              captureDesignAssets(
+                nodes,
+                folder,
+                query => readFigmaPageAsset(session.page, session.target, query, options),
+                options,
+              ),
+            ...(configuration.nativeContourSupplement
+              ? { nativeExport: nativeExportFor(session) }
+              : {}),
+            close: () => closeAfterNative(session, deadlineAt),
+          };
+        },
+      },
+      store,
+      configuration,
+    );
+  }
+  override async close(): Promise<void> {
+    const results = await Promise.allSettled([this.pageApiCapture.close(), super.close()]);
+    const failed = results.find(result => result.status === 'rejected');
+    if (failed?.status === 'rejected') throw failed.reason;
   }
   connectionState() {
     return this.chromeConnection.state();
@@ -669,12 +966,19 @@ export class ExistingChromeDesignCapture extends CoherentDesignCapture {
 
 export function describePortalCapture(
   captured: PortalCapturedDesign,
-  source: { kind: 'chrome' | 'desktop'; url: string },
+  source: {
+    kind: PortalCaptureGrant['kind'];
+    url: string;
+    collector?: PortalChromeCollector | undefined;
+  },
   grant?: PortalCaptureGrant,
 ): PortalCaptureDescriptor {
   requireCurrentPortalCapture(captured);
   const target = parseFigmaTarget(source.url),
     binding = captured.collectorEvidence!.sourceBinding;
+  const collector = source.collector ?? (grant?.kind === 'chrome' ? grant.collector : undefined);
+  if (source.kind !== 'chrome' && collector !== undefined)
+    throw portalError('PORTAL_CAPTURE_COLLECTOR_MISMATCH');
   if (
     binding.status !== 'observed' ||
     binding.fileIdentityHash !== contentHash('sfp-figma-file-v1', target.fileKey)
@@ -690,7 +994,11 @@ export function describePortalCapture(
     captured.collectorProvenance!.collector !==
     (source.kind === 'desktop'
       ? desktopCollectorProvenance.collector
-      : chromeCollectorProvenance.collector)
+      : source.kind === 'official-mcp'
+        ? officialMcpCollectorProvenance.collector
+        : collector === 'page-api'
+          ? chromePageApiCollectorProvenance.collector
+          : chromeCollectorProvenance.collector)
   )
     throw portalError('PORTAL_CAPTURE_COLLECTOR_MISMATCH');
   const admission =
@@ -704,6 +1012,7 @@ export function describePortalCapture(
           url: target.url,
           fileKeyHash: canonicalFileIdentityHash({ kind: 'figma-file-key', value: target.fileKey }),
           requestedNodeId: target.nodeId,
+          ...(collector ? { collector } : {}),
         })
       : undefined);
   if (
@@ -715,6 +1024,18 @@ export function describePortalCapture(
       canonicalFileIdentityHash({ kind: 'figma-file-key', value: target.fileKey })
   )
     throw portalError('PORTAL_CAPTURE_ADMISSION_REQUIRED');
+  if (
+    admission.kind === 'chrome' &&
+    (admission.collector ?? 'scripter') !== (collector ?? 'scripter')
+  )
+    throw portalError('PORTAL_CAPTURE_COLLECTOR_MISMATCH');
+  if (
+    admission.kind === 'official-mcp' &&
+    (captured.collectorProvenance?.collector !== officialMcpCollectorProvenance.collector ||
+      !('endpoint' in captured.collectorProvenance) ||
+      captured.collectorProvenance.endpoint !== admission.endpoint)
+  )
+    throw portalError('PORTAL_CAPTURE_TARGET_CHANGED');
   if (
     admission.kind === 'desktop' &&
     (admission.sessionId !== binding.sessionId ||
@@ -739,6 +1060,7 @@ export function describePortalCapture(
     designFingerprint: portalDesignFingerprint(captured),
     source: {
       kind: source.kind,
+      ...(source.kind === 'chrome' && collector ? { collector } : {}),
       url: target.url,
       fileKeyHash: canonicalFileIdentityHash({ kind: 'figma-file-key', value: target.fileKey }),
       requestedNodeId: target.nodeId,

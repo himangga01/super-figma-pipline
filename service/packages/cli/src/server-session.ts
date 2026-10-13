@@ -18,7 +18,9 @@ export const runtimePaths = async () => {
 
 export const ensureLocalServer = async (
   client: ControlClient,
+  options: { allowStart?: boolean | undefined; signal?: AbortSignal | undefined } = {},
 ): Promise<Readonly<{ owned: boolean; close(): Promise<void> }>> => {
+  options.signal?.throwIfAborted();
   const { entry, buildInfo } = await runtimePaths();
   await access(entry);
   const expected = JSON.parse(await readFile(buildInfo, 'utf8')) as { identity?: string };
@@ -27,6 +29,11 @@ export const ensureLocalServer = async (
   const matches = async () =>
     (await client.health()) && (await client.status()).buildIdentityHash === expected.identity;
   if (await matches()) return { owned: false, close: async () => undefined };
+  options.signal?.throwIfAborted();
+  if (options.allowStart === false)
+    throw Object.assign(new Error('BOUND_SERVER_BUILD_UNAVAILABLE'), {
+      code: 'BOUND_SERVER_BUILD_UNAVAILABLE',
+    });
   const child: ChildProcess = spawn(process.execPath, [entry], {
     stdio: ['pipe', 'ignore', 'pipe'],
     windowsHide: true,

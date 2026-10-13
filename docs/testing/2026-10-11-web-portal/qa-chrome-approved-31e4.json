@@ -1,0 +1,31 @@
+{
+  "at": "2026-10-12T03:57:07.786Z",
+  "sourceHash": "sha256:31e47b614fbc093b160d562e7b4107a4c1ad473965237b086f100663bb4f5ef5",
+  "sameChromePid": 9932,
+  "sameTab": true,
+  "origin": "http://127.0.0.1:4315",
+  "jobs": [
+    {
+      "id": "05e26523-4eb7-42c1-8774-d19746fe23ad",
+      "status": "succeeded",
+      "errorCode": null,
+      "bytes": 268,
+      "outputHash": "sha256:8348fcd7ff0b01e52fd94e01b87400c3efea8516aecff1e5c81ab370b8e173a2",
+      "elapsedMs": 1912
+    },
+    {
+      "id": "a8697604-e586-48be-80ad-262576af1716",
+      "status": "succeeded",
+      "errorCode": null,
+      "bytes": 268,
+      "outputHash": "sha256:8348fcd7ff0b01e52fd94e01b87400c3efea8516aecff1e5c81ab370b8e173a2",
+      "elapsedMs": 1943
+    }
+  ],
+  "passed": true,
+  "serviceAvailable": true,
+  "privateEvidenceFolder": ".worktrees/_cache/portal-cdd-export-repair-20261012/chrome-approved-1791777426766",
+  "fullCaptureAccepted": false,
+  "originalUnknownResolved": false,
+  "modelDataPermissionRenewed": false
+}

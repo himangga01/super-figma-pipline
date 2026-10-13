@@ -1,0 +1,45 @@
+{
+  "reportedAt": "2026-10-13T01:22:00+09:00",
+  "baseline": {
+    "branch": "main",
+    "head": "22517932dc9b2cb974c177ec4eacb84d4b16e254",
+    "mainSourceFingerprint": "sha256:398e26cdf683d8b8a3a25b9ac3f2eaeb9612eb5f9134ccdb5856800685249e16",
+    "nativeSourceFingerprint": "sha256:398e26cdf683d8b8a3a25b9ac3f2eaeb9612eb5f9134ccdb5856800685249e16",
+    "ownerIndexSha256": "a99e5dd36982d74373d779448068a8449189b133e54cd673b13be2c2c356b2a9",
+    "commitOrPushPerformed": false
+  },
+  "wholeCheck": {
+    "attemptId": "962a023d-fe48-4956-a4b6-0cf5e41eb6c7",
+    "status": "failed",
+    "reportSha256": "19e463f3447d5fef5eeb4a56f6b9baa3c0fce6fcfe8db43b586ad6f0e5362007",
+    "updatedAt": "2026-10-12T16:16:36.904Z",
+    "registeredTestFiles": 475,
+    "completedChecks": [
+      { "name": "typecheck", "exitCode": 0 },
+      { "name": "lint", "exitCode": 0 },
+      { "name": "format", "exitCode": 0 },
+      { "name": "knip", "exitCode": 1 }
+    ],
+    "testGateExecuted": false,
+    "findings": [
+      "Standalone figma-auth-consent.js is absent from static entry discovery",
+      "Five exported OAuth input types have no consumers",
+      "OAuth start and refresh schemas are reported as duplicate exports"
+    ],
+    "waived": false
+  },
+  "acceptance": {
+    "officialFigmaMcpLive": "deferred-by-owner",
+    "cddVisualDiagnostic": "independently-passed-bounded-diagnostic",
+    "freshCddGuardedApplication": "not-executed",
+    "completePortalJourneys": { "required": 3, "completed": 0 },
+    "c2C3CompleteServiceCases": "pending",
+    "finalChromeEcommerce": "pending-after-cdd"
+  },
+  "limits": [
+    "An engineering progress estimate does not establish release readiness",
+    "QA backend processes still have earlier a476 compiled code loaded",
+    "Source contour diagnostic acceptance is distinct from public semantic and application acceptance",
+    "Native validation shares the Windows user and is not an OS/process sandbox"
+  ]
+}

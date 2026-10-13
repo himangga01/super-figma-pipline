@@ -1,0 +1,55 @@
+{
+  "schemaVersion": 1,
+  "recordedAt": "2026-10-13T21:38:07.247Z",
+  "kind": "service-owned-read-only-retained-runtime-after-new-disk-build",
+  "priorRuntimeEvidenceHash": "d8d49b5e4bada440d750f3f49dcc2c3b1b2567a52c25fe45784727797c7bf4a8",
+  "processBindings": [
+    {
+      "pid": 41920,
+      "startedAt": 1791922116470,
+      "commandHash": "5ccf93669310bd2b91c40eefc316af33789224efa60aa91a5655eaa8ee79ce1f",
+      "port": 3059
+    },
+    {
+      "pid": 18448,
+      "startedAt": 1791922185752,
+      "commandHash": "f8c8cec83e151dff0a43c87e13be26793eae9228783c4f61d7706ad868d48737",
+      "port": 4315
+    }
+  ],
+  "originalProcessTuplesMatchedBeforeAndAfter": true,
+  "listenersMatched": true,
+  "daemonHealth": true,
+  "daemonStatus": {
+    "buildId": 1791202532000,
+    "buildIdentityHash": "sha256:7632acd6e38c4887b44325ef6cb1439f55170bdb7452ce3985aae3eb629cb1d1",
+    "role": "leader"
+  },
+  "portalHealth": {
+    "httpStatus": 200,
+    "available": true,
+    "reportedBuildId": null,
+    "reportedBuildIdentityHash": null
+  },
+  "diskBuild": {
+    "buildInfoSha256": "d035917afc3f09884e617c03c6330fc82c8e94cb9860ea411d83790c122df57b",
+    "buildId": 1791202532000,
+    "identity": "sha256:0c4fdb2053dd39e6ef75518e2102eb25340e01f361db8976dfee883d3dd57889"
+  },
+  "knownLoadedRuntimeSourceHash": "sha256:d722c32152149464c961c660622a95e3da603eb00f291e28b15c024507bcd87d",
+  "knownLoadedRuntimeBuildIdentity": "sha256:7632acd6e38c4887b44325ef6cb1439f55170bdb7452ce3985aae3eb629cb1d1",
+  "daemonReportedIdentityMatchesPriorReceipt": true,
+  "daemonReportedIdentityMatchesCurrentDisk": false,
+  "newDeploymentEstablished": false,
+  "statusFieldsAloneEstablishDeployment": false,
+  "qaStateChanged": false,
+  "sourceChromeAction": false,
+  "portalChromeAction": false,
+  "nativeApprovalAction": false,
+  "processRestart": false,
+  "limitations": [
+    "The running process identity remains anchored to its earlier verified deployment.",
+    "Status may expose cached or disk-derived metadata; it does not prove that a new daemon program was loaded.",
+    "Only status/health and exact process/listener reads were performed; no Source transport or browser readiness probe occurred."
+  ]
+}

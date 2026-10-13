@@ -1,0 +1,186 @@
+{
+  "schemaVersion": 1,
+  "slice": "review-2026-10-10",
+  "baseline": {
+    "headCommit": "22517932dc9b2cb974c177ec4eacb84d4b16e254",
+    "authoritySha256": {
+      "upstream-lock.json": "a7b60bda00d020ea9580239ff2333fa29f2995701b36525bcafb2e5a6f1fac83",
+      "vendor-map.json": "b3275c7d8b997d1cfe723d97594659f77d7b4361b824a790bcfdd7ff762589bd",
+      "vendor-rules.json": "18c317a65d4d69dfd3dc89beb12397402bc91ab7eab6d4a5c69807da331fa026"
+    }
+  },
+  "entries": [
+    {
+      "path": "capabilities/task-review-2026-10-10-authority-classes.json",
+      "sha256": "84d7169815863169a66255ad0361fd1da490e9bb1b4d6e689b0114a4e04e1f42",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "1ca35c78569b58a20f8c71d67621266045503e05e1cd94328dc1bc9e4c8778a3"
+        },
+        {
+          "class": "protected",
+          "sha256": "1ca35c78569b58a20f8c71d67621266045503e05e1cd94328dc1bc9e4c8778a3"
+        }
+      ],
+      "reason": "Expose bounded fresh native geometry through existing portal_next with protected lookup, exact capture/run bindings and mandatory image/text disclosure. R1 race failures remain preserved; independently reviewed R2 passes both unchanged races and full121 cases. Share one supplier in production; refresh8 diagnostics/2modules, portal_next contract hashes and English guidance. Types/lint/format/Knip pass. No live acceptance or deadline reset; fresh whole/artifact/runtime gates remain required."
+    },
+    {
+      "path": "capabilities/union-manifest.json",
+      "sha256": "2d48f4159b2fb6fda5607491e2c389f74b575e2adc4e04bc88aca98ac926bb39",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "d9428e7ce1ac9159d7424b4d82562901692d5189cfd8dcbd60f5ca8b9227b95d"
+        },
+        {
+          "class": "protected",
+          "sha256": "d9428e7ce1ac9159d7424b4d82562901692d5189cfd8dcbd60f5ca8b9227b95d"
+        }
+      ],
+      "reason": "Expose bounded fresh native geometry through existing portal_next with protected lookup, exact capture/run bindings and mandatory image/text disclosure. R1 race failures remain preserved; independently reviewed R2 passes both unchanged races and full121 cases. Share one supplier in production; refresh8 diagnostics/2modules, portal_next contract hashes and English guidance. Types/lint/format/Knip pass. No live acceptance or deadline reset; fresh whole/artifact/runtime gates remain required."
+    },
+    {
+      "path": "packages/mcp/src/diagnostics-catalog.ts",
+      "sha256": "834b1d13ade4dabb9d8d8be1fcfaa047ff82f96d23333c8a80c4dca5234685ce",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "cfe145463e0eb5ce45a9e306cef5f7b0c2356d69c82afcff6d5af667b1e72a94"
+        },
+        {
+          "class": "protected",
+          "sha256": "cfe145463e0eb5ce45a9e306cef5f7b0c2356d69c82afcff6d5af667b1e72a94"
+        }
+      ],
+      "reason": "Expose bounded fresh native geometry through existing portal_next with protected lookup, exact capture/run bindings and mandatory image/text disclosure. R1 race failures remain preserved; independently reviewed R2 passes both unchanged races and full121 cases. Share one supplier in production; refresh8 diagnostics/2modules, portal_next contract hashes and English guidance. Types/lint/format/Knip pass. No live acceptance or deadline reset; fresh whole/artifact/runtime gates remain required."
+    },
+    {
+      "path": "packages/mcp/src/index.ts",
+      "sha256": "433dcaa63d4f096aea3efe3e1d61c5a92f929ab569a152fbfda9f599e2d4a722",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "a1ac55dc67da5c9345a7b1dcf66a5d856f625707ebd544b896727006411f324b"
+        },
+        {
+          "class": "protected",
+          "sha256": "a1ac55dc67da5c9345a7b1dcf66a5d856f625707ebd544b896727006411f324b"
+        }
+      ],
+      "reason": "Expose bounded fresh native geometry through existing portal_next with protected lookup, exact capture/run bindings and mandatory image/text disclosure. R1 race failures remain preserved; independently reviewed R2 passes both unchanged races and full121 cases. Share one supplier in production; refresh8 diagnostics/2modules, portal_next contract hashes and English guidance. Types/lint/format/Knip pass. No live acceptance or deadline reset; fresh whole/artifact/runtime gates remain required."
+    },
+    {
+      "path": "packages/mcp/src/policy/result-egress-policy.ts",
+      "sha256": "f6a85257d432db63b112da8c3567dae55cbac069281c49fc8c7f848a17441604",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "26cf2c823c03b05b0342669e17d017b5c356a2bffc9ca60c263fad7fc27447e1"
+        },
+        {
+          "class": "protected",
+          "sha256": "26cf2c823c03b05b0342669e17d017b5c356a2bffc9ca60c263fad7fc27447e1"
+        }
+      ],
+      "reason": "Expose bounded fresh native geometry through existing portal_next with protected lookup, exact capture/run bindings and mandatory image/text disclosure. R1 race failures remain preserved; independently reviewed R2 passes both unchanged races and full121 cases. Share one supplier in production; refresh8 diagnostics/2modules, portal_next contract hashes and English guidance. Types/lint/format/Knip pass. No live acceptance or deadline reset; fresh whole/artifact/runtime gates remain required."
+    },
+    {
+      "path": "packages/mcp/src/portal/coordinator.ts",
+      "sha256": "11847bfaa1804cd6015acbd4ee26e470117fd563a7cbdde6b59f17abcc079dbd",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "c697d81af1625570a328d9402a47988dbb886df25d5a2cd2f88534fe6b1524aa"
+        },
+        {
+          "class": "protected",
+          "sha256": "c697d81af1625570a328d9402a47988dbb886df25d5a2cd2f88534fe6b1524aa"
+        }
+      ],
+      "reason": "Expose bounded fresh native geometry through existing portal_next with protected lookup, exact capture/run bindings and mandatory image/text disclosure. R1 race failures remain preserved; independently reviewed R2 passes both unchanged races and full121 cases. Share one supplier in production; refresh8 diagnostics/2modules, portal_next contract hashes and English guidance. Types/lint/format/Knip pass. No live acceptance or deadline reset; fresh whole/artifact/runtime gates remain required."
+    },
+    {
+      "path": "packages/mcp/src/portal/native-contours.ts",
+      "sha256": "a047fbd0a98edb2fb759507dcb4d487b38ab18c2306dab1ed7866d5ac09ae828",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "316df137173a4e951c385d2a95c6ffb368ffa127016b0582d414f6f2ac20927c"
+        },
+        {
+          "class": "protected",
+          "sha256": "316df137173a4e951c385d2a95c6ffb368ffa127016b0582d414f6f2ac20927c"
+        }
+      ],
+      "reason": "Expose bounded fresh native geometry through existing portal_next with protected lookup, exact capture/run bindings and mandatory image/text disclosure. R1 race failures remain preserved; independently reviewed R2 passes both unchanged races and full121 cases. Share one supplier in production; refresh8 diagnostics/2modules, portal_next contract hashes and English guidance. Types/lint/format/Knip pass. No live acceptance or deadline reset; fresh whole/artifact/runtime gates remain required."
+    },
+    {
+      "path": "packages/mcp/src/portal/native-geometry.ts",
+      "sha256": "a8645d1f9c96a69766a06a46e75b432fe68d05db3f66420fe3f5871d3666e0ea",
+      "priorClaims": [],
+      "reason": "Expose bounded fresh native geometry through existing portal_next with protected lookup, exact capture/run bindings and mandatory image/text disclosure. R1 race failures remain preserved; independently reviewed R2 passes both unchanged races and full121 cases. Share one supplier in production; refresh8 diagnostics/2modules, portal_next contract hashes and English guidance. Types/lint/format/Knip pass. No live acceptance or deadline reset; fresh whole/artifact/runtime gates remain required."
+    },
+    {
+      "path": "packages/mcp/test/portal/native-geometry-http.test.ts",
+      "sha256": "94ab5a7c9d57dad81e69caa8644559dd41cbbdee50b9ab586fc777f40a9fa5a8",
+      "priorClaims": [],
+      "reason": "Expose bounded fresh native geometry through existing portal_next with protected lookup, exact capture/run bindings and mandatory image/text disclosure. R1 race failures remain preserved; independently reviewed R2 passes both unchanged races and full121 cases. Share one supplier in production; refresh8 diagnostics/2modules, portal_next contract hashes and English guidance. Types/lint/format/Knip pass. No live acceptance or deadline reset; fresh whole/artifact/runtime gates remain required."
+    },
+    {
+      "path": "packages/mcp/test/portal/native-geometry.test.ts",
+      "sha256": "8869c8a20a2a902402637062900e8a1d3905d5dbc0a30ab1bcbaca085bc64bcc",
+      "priorClaims": [],
+      "reason": "Expose bounded fresh native geometry through existing portal_next with protected lookup, exact capture/run bindings and mandatory image/text disclosure. R1 race failures remain preserved; independently reviewed R2 passes both unchanged races and full121 cases. Share one supplier in production; refresh8 diagnostics/2modules, portal_next contract hashes and English guidance. Types/lint/format/Knip pass. No live acceptance or deadline reset; fresh whole/artifact/runtime gates remain required."
+    },
+    {
+      "path": "packages/portal/README.md",
+      "sha256": "bd2ad737feb715337a0d5318230bb114df10c610dfbdad542843a3c31eba126f",
+      "priorClaims": [
+        {
+          "class": "protected",
+          "sha256": "3947ca88ee66de2ad68a95f1fe593162c22c508b928c4a786d9a76d7e80695a3"
+        }
+      ],
+      "reason": "Expose bounded fresh native geometry through existing portal_next with protected lookup, exact capture/run bindings and mandatory image/text disclosure. R1 race failures remain preserved; independently reviewed R2 passes both unchanged races and full121 cases. Share one supplier in production; refresh8 diagnostics/2modules, portal_next contract hashes and English guidance. Types/lint/format/Knip pass. No live acceptance or deadline reset; fresh whole/artifact/runtime gates remain required."
+    },
+    {
+      "path": "packages/portal/package.json",
+      "sha256": "ddb99eafe979d2319697f9bde91d01c4b3f4cf7f3e2a2baccfcb06ceff7767c8",
+      "priorClaims": [
+        {
+          "class": "protected",
+          "sha256": "ddb99eafe979d2319697f9bde91d01c4b3f4cf7f3e2a2baccfcb06ceff7767c8"
+        }
+      ],
+      "reason": "Expose bounded fresh native geometry through existing portal_next with protected lookup, exact capture/run bindings and mandatory image/text disclosure. R1 race failures remain preserved; independently reviewed R2 passes both unchanged races and full121 cases. Share one supplier in production; refresh8 diagnostics/2modules, portal_next contract hashes and English guidance. Types/lint/format/Knip pass. No live acceptance or deadline reset; fresh whole/artifact/runtime gates remain required."
+    },
+    {
+      "path": "packages/shared/src/portal-native-geometry.ts",
+      "sha256": "7b942815be23e6def99a4eccbc4d96ac86f0f036553c1f9a0127be1698b74091",
+      "priorClaims": [],
+      "reason": "Expose bounded fresh native geometry through existing portal_next with protected lookup, exact capture/run bindings and mandatory image/text disclosure. R1 race failures remain preserved; independently reviewed R2 passes both unchanged races and full121 cases. Share one supplier in production; refresh8 diagnostics/2modules, portal_next contract hashes and English guidance. Types/lint/format/Knip pass. No live acceptance or deadline reset; fresh whole/artifact/runtime gates remain required."
+    },
+    {
+      "path": "packages/shared/src/portal.ts",
+      "sha256": "9078c049ccc92ce3720876e418ac6456513bc455962dd285420bacbd03d255e3",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "bc44489007514abf4ed30e7341ef3788b58deb9f5e685a491adf0883880ae2aa"
+        },
+        {
+          "class": "protected",
+          "sha256": "bc44489007514abf4ed30e7341ef3788b58deb9f5e685a491adf0883880ae2aa"
+        }
+      ],
+      "reason": "Expose bounded fresh native geometry through existing portal_next with protected lookup, exact capture/run bindings and mandatory image/text disclosure. R1 race failures remain preserved; independently reviewed R2 passes both unchanged races and full121 cases. Share one supplier in production; refresh8 diagnostics/2modules, portal_next contract hashes and English guidance. Types/lint/format/Knip pass. No live acceptance or deadline reset; fresh whole/artifact/runtime gates remain required."
+    },
+    {
+      "path": "packages/shared/test/portal-native-geometry.test.ts",
+      "sha256": "8c1641e69570a2a0c47e5a086771c7a13823fc698f4f25279d4e7bec71fff355",
+      "priorClaims": [],
+      "reason": "Expose bounded fresh native geometry through existing portal_next with protected lookup, exact capture/run bindings and mandatory image/text disclosure. R1 race failures remain preserved; independently reviewed R2 passes both unchanged races and full121 cases. Share one supplier in production; refresh8 diagnostics/2modules, portal_next contract hashes and English guidance. Types/lint/format/Knip pass. No live acceptance or deadline reset; fresh whole/artifact/runtime gates remain required."
+    }
+  ]
+}

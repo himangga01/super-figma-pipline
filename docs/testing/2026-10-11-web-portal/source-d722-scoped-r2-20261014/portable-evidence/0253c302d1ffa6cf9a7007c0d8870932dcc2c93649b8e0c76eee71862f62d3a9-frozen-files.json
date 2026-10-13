@@ -1,0 +1,38 @@
+{
+  "revision": "R65",
+  "status": "frozen-candidate-not-deployed",
+  "mainSourceHash": "sha256:303de5d1904d11c1fb89bdf80951900e375ac4325ea6cfc932f39ebee2785732",
+  "preservedR60OverlaySha256": "0b8a2f4d0ca62f1e3898f74a77e4b70e0e1845d40416f16cd67300be70f32d9f",
+  "actualR64LimitedReceiptSha256": "53fa354df5f022592599074d9b345a3a74dd141ad2bdb4423e4e972a3bc04f26",
+  "files": [
+    {
+      "path": "packages/mcp/src/portal/module-resolution.ts",
+      "beforeSha256": "0eba03f98f2c48c2ee299bcbf708ce1111b8b40f28d6300aaff5d88ed0c25f70",
+      "afterSha256": "2358e3d2fa16b28d086c600e1b947c3da579ff1f7485cb93649024c8b0dd85ef"
+    },
+    {
+      "path": "packages/mcp/test/portal/module-resolution.test.ts",
+      "beforeSha256": "ca7de6c9afc1c6018e9a1762d95d45e42d5e5f8b86b11f936a96a8e4355418ed",
+      "afterSha256": "fab4f3b951e951342c2c39cba72e6264226acc8ed30b295282678419f0e436c6"
+    }
+  ],
+  "patch": {
+    "path": "candidate.patch",
+    "sha256": "c244fbaf8ea4af75ce7b3740b784097227464f29be501905325dbfe9b51d3c33"
+  },
+  "targetedTests": {
+    "path": "route-types-final.json",
+    "sha256": "257d7b0354977a7c87b9a69a335f2bc2be885b83f0ea3f33f0605a5ac7f78a20",
+    "regex": "protected React Router route types",
+    "passed": 3,
+    "failed": 0,
+    "filtered": 110
+  },
+  "verificationSha256": "b0dfd4c0245efd2e7ba8b347ae109904d04b87934ae47177bd5d6c4a763aa855",
+  "typeReceiptSha256": "bfd2d277a407903c99a05bf86d838b8143b030dc2ad4bbd0bfe6cb1091635347",
+  "configSha256": "f1e5d9290300234076f15d81ce914b6b8ac66eeab3d1769ae0c56daecafe56f7",
+  "noRuntimeImportRelaxation": true,
+  "noTypeBytesCopiedToSource": true,
+  "noNewEvidenceIssuer": true,
+  "noNativeOrHttpProof": true
+}

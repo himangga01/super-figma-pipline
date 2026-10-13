@@ -1,0 +1,10 @@
+{
+  "at": "2026-10-13T16:48:34.862Z",
+  "path": "examples/portal-cases/case-plan-inputs.mjs",
+  "beforeSha256": "211228af3644452e32ec72e20041e970daa7bd35767f66c6f3c359d2d870c413",
+  "afterSha256": "6c895c4b600d52287652650b8e3dec75abfaacdee8f9817ef4ea16a36508c2f2",
+  "change": "Explicit page-api collector for both actual cases",
+  "serviceSourceChanged": false,
+  "testsRepeated": false,
+  "caseAccepted": false
+}

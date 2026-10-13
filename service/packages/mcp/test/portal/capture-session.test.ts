@@ -127,7 +127,10 @@ it.each([
       new AbortController().signal,
     )
     .catch(error => error);
-  expect(result.diagnostic).toMatchObject({ stage, code: 'DESIGN_CAPTURE_FAILED' });
+  expect(result.diagnostic).toMatchObject({
+    stage,
+    code: stage === 'cleanup' ? 'PORTAL_CAPTURE_CLEANUP_UNCONFIRMED' : 'DESIGN_CAPTURE_FAILED',
+  });
   expect(result.cause).toBeInstanceOf(Error);
   expect(result.diagnostic).toMatchObject(
     stage === 'schema'

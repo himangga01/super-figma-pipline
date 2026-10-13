@@ -1,0 +1,18 @@
+{
+  "schemaVersion": 1,
+  "kind": "sanitized-original-test-report-summary",
+  "originalPath": ".worktrees/baseline/service/artifacts/focused-checks/cc33ef96-152a-455d-9601-84815f926d87/vitest-report.json",
+  "originalSha256": "6fbba22342f2339a28bd85d14362a2faa91e6494ab007406ea24d173a946c3af",
+  "originalSuccess": true,
+  "numTotalTests": 1,
+  "numPassedTests": 1,
+  "numFailedTests": 0,
+  "numPendingTests": 0,
+  "assertions": [
+    {
+      "name": "verifies the actual four archives, contained files and portable portal startup",
+      "status": "passed"
+    }
+  ],
+  "limits": "Original raw report remains local-only; stacks/source snippets/actor-state omitted. Summary cannot issue authority or convert a failed full report to pass."
+}

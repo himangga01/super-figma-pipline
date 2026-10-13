@@ -1,0 +1,986 @@
+﻿{
+    "recordedAt":  "2026-10-11T05:34:05.126Z",
+    "baselineBeforeParallelEdits":  "sha256:f975a5773d14a744fe4b2429255b58dad3d5c22c9fbe8145e5d654f250d85d9d",
+    "moduleResolutionHash":  "sha256:76d9e47741e7c5cb8c24415543b841b2fcbf45df22db6122601ed605a3e0b023",
+    "status":  "source-analysis-preparation-only",
+    "portalAccepted":  false,
+    "samples":  [
+                    {
+                        "case":  "C2",
+                        "root":  ".worktrees\\_cache\\portal-case-samples-20261010\\epic-legacy",
+                        "elapsedMs":  4020,
+                        "incomplete":  true,
+                        "lexicalReviewable":  false,
+                        "files":  281,
+                        "issueCount":  58,
+                        "issues":  [
+                                       "CONFIG_EXTENDS_UNSUPPORTED:tsconfig.json",
+                                       "MODULE_UNRESOLVED:app/components/ui/icon.tsx:81:module-target-missing",
+                                       "MODULE_UNRESOLVED:app/root.tsx:1026:loader-query-unsupported",
+                                       "MODULE_UNRESOLVED:app/root.tsx:258:module-target-missing",
+                                       "MODULE_UNRESOLVED:app/routes/_auth/auth.$provider/callback.test.ts:1006:module-target-missing",
+                                       "MODULE_UNRESOLVED:app/routes/_auth/auth.$provider/callback.ts:963:module-target-missing",
+                                       "MODULE_UNRESOLVED:app/routes/_auth/auth.$provider/index.ts:370:module-target-missing",
+                                       "MODULE_UNRESOLVED:app/routes/_auth/forgot-password.test.ts:352:module-target-missing",
+                                       "MODULE_UNRESOLVED:app/routes/_auth/forgot-password.tsx:843:module-target-missing",
+                                       "MODULE_UNRESOLVED:app/routes/_auth/login.tsx:1183:module-target-missing",
+                                       "MODULE_UNRESOLVED:app/routes/_auth/logout.tsx:93:module-target-missing",
+                                       "MODULE_UNRESOLVED:app/routes/_auth/onboarding/$provider.tsx:1102:module-target-missing",
+                                       "MODULE_UNRESOLVED:app/routes/_auth/onboarding/index.tsx:1156:module-target-missing",
+                                       "MODULE_UNRESOLVED:app/routes/_auth/reset-password.test.ts:487:module-target-missing",
+                                       "MODULE_UNRESOLVED:app/routes/_auth/reset-password.tsx:773:module-target-missing",
+                                       "MODULE_UNRESOLVED:app/routes/_auth/signup.tsx:1036:module-target-missing",
+                                       "MODULE_UNRESOLVED:app/routes/_auth/verify.test.ts:776:module-target-missing",
+                                       "MODULE_UNRESOLVED:app/routes/_auth/verify.test.ts:869:module-target-missing",
+                                       "MODULE_UNRESOLVED:app/routes/_auth/verify.tsx:711:module-target-missing",
+                                       "MODULE_UNRESOLVED:app/routes/_auth/webauthn/authentication.ts:283:module-target-missing",
+                                       "MODULE_UNRESOLVED:app/routes/_auth/webauthn/registration.ts:282:module-target-missing",
+                                       "MODULE_UNRESOLVED:app/routes/_marketing/index.tsx:202:module-target-missing",
+                                       "MODULE_UNRESOLVED:app/routes/_seo/robots[.]txt.ts:109:module-target-missing",
+                                       "MODULE_UNRESOLVED:app/routes/_seo/sitemap[.]xml.ts:107:module-target-missing",
+                                       "MODULE_UNRESOLVED:app/routes/admin/cache/index.tsx:802:module-target-missing",
+                                       "MODULE_UNRESOLVED:app/routes/admin/cache/lru.$cacheKey.ts:288:module-target-missing",
+                                       "MODULE_UNRESOLVED:app/routes/admin/cache/sqlite.$cacheKey.ts:285:module-target-missing",
+                                       "MODULE_UNRESOLVED:app/routes/admin/cache/sqlite.server.ts:214:module-target-missing",
+                                       "MODULE_UNRESOLVED:app/routes/me.tsx:158:module-target-missing",
+                                       "MODULE_UNRESOLVED:app/routes/resources/download-user-data.tsx:191:module-target-missing",
+                                       "MODULE_UNRESOLVED:app/routes/resources/healthcheck.tsx:132:module-target-missing",
+                                       "MODULE_UNRESOLVED:app/routes/resources/images.tsx:281:module-target-missing",
+                                       "MODULE_UNRESOLVED:app/routes/resources/theme-switch.test.ts:135:module-target-missing",
+                                       "MODULE_UNRESOLVED:app/routes/resources/theme-switch.tsx:657:module-target-missing",
+                                       "MODULE_UNRESOLVED:app/routes/settings/profile/_layout.tsx:495:module-target-missing",
+                                       "MODULE_UNRESOLVED:app/routes/settings/profile/change-email.tsx:914:module-target-missing",
+                                       "MODULE_UNRESOLVED:app/routes/settings/profile/connections.tsx:949:module-target-missing",
+                                       "MODULE_UNRESOLVED:app/routes/settings/profile/index.tsx:1004:module-target-missing",
+                                       "MODULE_UNRESOLVED:app/routes/settings/profile/passkeys.tsx:438:module-target-missing",
+                                       "MODULE_UNRESOLVED:app/routes/settings/profile/password.tsx:876:module-target-missing",
+                                       "MODULE_UNRESOLVED:app/routes/settings/profile/password_.create.tsx:783:module-target-missing",
+                                       "MODULE_UNRESOLVED:app/routes/settings/profile/photo.tsx:937:module-target-missing",
+                                       "MODULE_UNRESOLVED:app/routes/settings/profile/two-factor/disable.tsx:592:module-target-missing",
+                                       "MODULE_UNRESOLVED:app/routes/settings/profile/two-factor/index.tsx:401:module-target-missing",
+                                       "MODULE_UNRESOLVED:app/routes/settings/profile/two-factor/verify.tsx:939:module-target-missing",
+                                       "MODULE_UNRESOLVED:app/routes/users/$username/index.tsx:580:module-target-missing",
+                                       "MODULE_UNRESOLVED:app/routes/users/$username/notes/$noteId.tsx:1145:module-target-missing",
+                                       "MODULE_UNRESOLVED:app/routes/users/$username/notes/$noteId.tsx:1195:module-target-missing",
+                                       "MODULE_UNRESOLVED:app/routes/users/$username/notes/$noteId_.edit.tsx:297:module-target-missing",
+                                       "MODULE_UNRESOLVED:app/routes/users/$username/notes/+shared/note-editor.tsx:954:module-target-missing",
+                                       "MODULE_UNRESOLVED:app/routes/users/$username/notes/_layout.tsx:436:module-target-missing",
+                                       "MODULE_UNRESOLVED:app/routes/users/$username/notes/index.tsx:0:module-target-missing",
+                                       "MODULE_UNRESOLVED:app/routes/users/$username/notes/index.tsx:64:module-target-missing",
+                                       "MODULE_UNRESOLVED:app/routes/users/$username/notes/new.tsx:115:module-target-missing",
+                                       "MODULE_UNRESOLVED:app/routes/users/index.tsx:452:module-target-missing",
+                                       "MODULE_UNRESOLVED:server/app.ts:439:unsupported-module-specifier",
+                                       "MODULE_UNRESOLVED:server/app.ts:541:unsupported-module-specifier",
+                                       "MODULE_UNRESOLVED:server/index.ts:5887:nonliteral-module"
+                                   ],
+                        "inventoryComplete":  true,
+                        "connectionIssueCounts":  {
+                                                      "MODULE_ANALYSIS_INCOMPLETE":  1,
+                                                      "MODULE_UNRESOLVED":  51,
+                                                      "UNSUPPORTED_CHAINED_HTTP":  11,
+                                                      "UNKNOWN_HTTP_RECEIVER":  31,
+                                                      "DYNAMIC_OR_PATTERN_ROUTE":  8,
+                                                      "UNSUPPORTED_RUNTIME_SOURCE":  2,
+                                                      "UNRESOLVED_MOUNT":  12,
+                                                      "PROVIDER_UNRESOLVED":  9
+                                                  },
+                        "unresolvedModules":  [
+                                                  {
+                                                      "from":  "app/components/ui/icon.tsx",
+                                                      "offset":  81,
+                                                      "kind":  "import",
+                                                      "specifier":  "./icons/sprite.svg",
+                                                      "status":  "unresolved",
+                                                      "reason":  "module-target-missing",
+                                                      "targets":  [
+
+                                                                  ],
+                                                      "configuration":  [
+                                                                            "tsconfig.json"
+                                                                        ]
+                                                  },
+                                                  {
+                                                      "from":  "app/root.tsx",
+                                                      "offset":  258,
+                                                      "kind":  "import",
+                                                      "specifier":  "./+types/root.ts",
+                                                      "status":  "unresolved",
+                                                      "reason":  "module-target-missing",
+                                                      "targets":  [
+
+                                                                  ],
+                                                      "configuration":  [
+                                                                            "tsconfig.json"
+                                                                        ]
+                                                  },
+                                                  {
+                                                      "from":  "app/root.tsx",
+                                                      "offset":  1026,
+                                                      "kind":  "import",
+                                                      "specifier":  "./styles/tailwind.css?url",
+                                                      "status":  "unresolved",
+                                                      "reason":  "loader-query-unsupported",
+                                                      "targets":  [
+
+                                                                  ],
+                                                      "configuration":  [
+
+                                                                        ]
+                                                  },
+                                                  {
+                                                      "from":  "app/routes/_auth/auth.$provider/callback.test.ts",
+                                                      "offset":  1006,
+                                                      "kind":  "import",
+                                                      "specifier":  "./+types/callback.ts",
+                                                      "status":  "unresolved",
+                                                      "reason":  "module-target-missing",
+                                                      "targets":  [
+
+                                                                  ],
+                                                      "configuration":  [
+                                                                            "tsconfig.json"
+                                                                        ]
+                                                  },
+                                                  {
+                                                      "from":  "app/routes/_auth/auth.$provider/callback.ts",
+                                                      "offset":  963,
+                                                      "kind":  "import",
+                                                      "specifier":  "./+types/callback.ts",
+                                                      "status":  "unresolved",
+                                                      "reason":  "module-target-missing",
+                                                      "targets":  [
+
+                                                                  ],
+                                                      "configuration":  [
+                                                                            "tsconfig.json"
+                                                                        ]
+                                                  },
+                                                  {
+                                                      "from":  "app/routes/_auth/auth.$provider/index.ts",
+                                                      "offset":  370,
+                                                      "kind":  "import",
+                                                      "specifier":  "./+types/index.ts",
+                                                      "status":  "unresolved",
+                                                      "reason":  "module-target-missing",
+                                                      "targets":  [
+
+                                                                  ],
+                                                      "configuration":  [
+                                                                            "tsconfig.json"
+                                                                        ]
+                                                  },
+                                                  {
+                                                      "from":  "app/routes/_auth/forgot-password.test.ts",
+                                                      "offset":  352,
+                                                      "kind":  "import",
+                                                      "specifier":  "./+types/forgot-password.ts",
+                                                      "status":  "unresolved",
+                                                      "reason":  "module-target-missing",
+                                                      "targets":  [
+
+                                                                  ],
+                                                      "configuration":  [
+                                                                            "tsconfig.json"
+                                                                        ]
+                                                  },
+                                                  {
+                                                      "from":  "app/routes/_auth/forgot-password.tsx",
+                                                      "offset":  843,
+                                                      "kind":  "import",
+                                                      "specifier":  "./+types/forgot-password.ts",
+                                                      "status":  "unresolved",
+                                                      "reason":  "module-target-missing",
+                                                      "targets":  [
+
+                                                                  ],
+                                                      "configuration":  [
+                                                                            "tsconfig.json"
+                                                                        ]
+                                                  },
+                                                  {
+                                                      "from":  "app/routes/_auth/login.tsx",
+                                                      "offset":  1183,
+                                                      "kind":  "import",
+                                                      "specifier":  "./+types/login.ts",
+                                                      "status":  "unresolved",
+                                                      "reason":  "module-target-missing",
+                                                      "targets":  [
+
+                                                                  ],
+                                                      "configuration":  [
+                                                                            "tsconfig.json"
+                                                                        ]
+                                                  },
+                                                  {
+                                                      "from":  "app/routes/_auth/logout.tsx",
+                                                      "offset":  93,
+                                                      "kind":  "import",
+                                                      "specifier":  "./+types/logout.ts",
+                                                      "status":  "unresolved",
+                                                      "reason":  "module-target-missing",
+                                                      "targets":  [
+
+                                                                  ],
+                                                      "configuration":  [
+                                                                            "tsconfig.json"
+                                                                        ]
+                                                  },
+                                                  {
+                                                      "from":  "app/routes/_auth/onboarding/$provider.tsx",
+                                                      "offset":  1102,
+                                                      "kind":  "import",
+                                                      "specifier":  "./+types/$provider.ts",
+                                                      "status":  "unresolved",
+                                                      "reason":  "module-target-missing",
+                                                      "targets":  [
+
+                                                                  ],
+                                                      "configuration":  [
+                                                                            "tsconfig.json"
+                                                                        ]
+                                                  },
+                                                  {
+                                                      "from":  "app/routes/_auth/onboarding/index.tsx",
+                                                      "offset":  1156,
+                                                      "kind":  "import",
+                                                      "specifier":  "./+types/index.ts",
+                                                      "status":  "unresolved",
+                                                      "reason":  "module-target-missing",
+                                                      "targets":  [
+
+                                                                  ],
+                                                      "configuration":  [
+                                                                            "tsconfig.json"
+                                                                        ]
+                                                  },
+                                                  {
+                                                      "from":  "app/routes/_auth/reset-password.test.ts",
+                                                      "offset":  487,
+                                                      "kind":  "import",
+                                                      "specifier":  "./+types/reset-password.ts",
+                                                      "status":  "unresolved",
+                                                      "reason":  "module-target-missing",
+                                                      "targets":  [
+
+                                                                  ],
+                                                      "configuration":  [
+                                                                            "tsconfig.json"
+                                                                        ]
+                                                  },
+                                                  {
+                                                      "from":  "app/routes/_auth/reset-password.tsx",
+                                                      "offset":  773,
+                                                      "kind":  "import",
+                                                      "specifier":  "./+types/reset-password.ts",
+                                                      "status":  "unresolved",
+                                                      "reason":  "module-target-missing",
+                                                      "targets":  [
+
+                                                                  ],
+                                                      "configuration":  [
+                                                                            "tsconfig.json"
+                                                                        ]
+                                                  },
+                                                  {
+                                                      "from":  "app/routes/_auth/signup.tsx",
+                                                      "offset":  1036,
+                                                      "kind":  "import",
+                                                      "specifier":  "./+types/signup.ts",
+                                                      "status":  "unresolved",
+                                                      "reason":  "module-target-missing",
+                                                      "targets":  [
+
+                                                                  ],
+                                                      "configuration":  [
+                                                                            "tsconfig.json"
+                                                                        ]
+                                                  },
+                                                  {
+                                                      "from":  "app/routes/_auth/verify.test.ts",
+                                                      "offset":  776,
+                                                      "kind":  "import",
+                                                      "specifier":  "../settings/profile/+types/change-email.ts",
+                                                      "status":  "unresolved",
+                                                      "reason":  "module-target-missing",
+                                                      "targets":  [
+
+                                                                  ],
+                                                      "configuration":  [
+                                                                            "tsconfig.json"
+                                                                        ]
+                                                  },
+                                                  {
+                                                      "from":  "app/routes/_auth/verify.test.ts",
+                                                      "offset":  869,
+                                                      "kind":  "import",
+                                                      "specifier":  "./+types/verify.ts",
+                                                      "status":  "unresolved",
+                                                      "reason":  "module-target-missing",
+                                                      "targets":  [
+
+                                                                  ],
+                                                      "configuration":  [
+                                                                            "tsconfig.json"
+                                                                        ]
+                                                  },
+                                                  {
+                                                      "from":  "app/routes/_auth/verify.tsx",
+                                                      "offset":  711,
+                                                      "kind":  "import",
+                                                      "specifier":  "./+types/verify.ts",
+                                                      "status":  "unresolved",
+                                                      "reason":  "module-target-missing",
+                                                      "targets":  [
+
+                                                                  ],
+                                                      "configuration":  [
+                                                                            "tsconfig.json"
+                                                                        ]
+                                                  },
+                                                  {
+                                                      "from":  "app/routes/_auth/webauthn/authentication.ts",
+                                                      "offset":  283,
+                                                      "kind":  "import",
+                                                      "specifier":  "./+types/authentication.ts",
+                                                      "status":  "unresolved",
+                                                      "reason":  "module-target-missing",
+                                                      "targets":  [
+
+                                                                  ],
+                                                      "configuration":  [
+                                                                            "tsconfig.json"
+                                                                        ]
+                                                  },
+                                                  {
+                                                      "from":  "app/routes/_auth/webauthn/registration.ts",
+                                                      "offset":  282,
+                                                      "kind":  "import",
+                                                      "specifier":  "./+types/registration.ts",
+                                                      "status":  "unresolved",
+                                                      "reason":  "module-target-missing",
+                                                      "targets":  [
+
+                                                                  ],
+                                                      "configuration":  [
+                                                                            "tsconfig.json"
+                                                                        ]
+                                                  },
+                                                  {
+                                                      "from":  "app/routes/_marketing/index.tsx",
+                                                      "offset":  202,
+                                                      "kind":  "import",
+                                                      "specifier":  "./+types/index.ts",
+                                                      "status":  "unresolved",
+                                                      "reason":  "module-target-missing",
+                                                      "targets":  [
+
+                                                                  ],
+                                                      "configuration":  [
+                                                                            "tsconfig.json"
+                                                                        ]
+                                                  },
+                                                  {
+                                                      "from":  "app/routes/_seo/robots[.]txt.ts",
+                                                      "offset":  109,
+                                                      "kind":  "import",
+                                                      "specifier":  "./+types/robots[.]txt.ts",
+                                                      "status":  "unresolved",
+                                                      "reason":  "module-target-missing",
+                                                      "targets":  [
+
+                                                                  ],
+                                                      "configuration":  [
+                                                                            "tsconfig.json"
+                                                                        ]
+                                                  },
+                                                  {
+                                                      "from":  "app/routes/_seo/sitemap[.]xml.ts",
+                                                      "offset":  107,
+                                                      "kind":  "import",
+                                                      "specifier":  "./+types/sitemap[.]xml.ts",
+                                                      "status":  "unresolved",
+                                                      "reason":  "module-target-missing",
+                                                      "targets":  [
+
+                                                                  ],
+                                                      "configuration":  [
+                                                                            "tsconfig.json"
+                                                                        ]
+                                                  },
+                                                  {
+                                                      "from":  "app/routes/admin/cache/index.tsx",
+                                                      "offset":  802,
+                                                      "kind":  "import",
+                                                      "specifier":  "./+types/index.ts",
+                                                      "status":  "unresolved",
+                                                      "reason":  "module-target-missing",
+                                                      "targets":  [
+
+                                                                  ],
+                                                      "configuration":  [
+                                                                            "tsconfig.json"
+                                                                        ]
+                                                  },
+                                                  {
+                                                      "from":  "app/routes/admin/cache/lru.$cacheKey.ts",
+                                                      "offset":  288,
+                                                      "kind":  "import",
+                                                      "specifier":  "./+types/lru.$cacheKey.ts",
+                                                      "status":  "unresolved",
+                                                      "reason":  "module-target-missing",
+                                                      "targets":  [
+
+                                                                  ],
+                                                      "configuration":  [
+                                                                            "tsconfig.json"
+                                                                        ]
+                                                  },
+                                                  {
+                                                      "from":  "app/routes/admin/cache/sqlite.$cacheKey.ts",
+                                                      "offset":  285,
+                                                      "kind":  "import",
+                                                      "specifier":  "./+types/sqlite.$cacheKey.ts",
+                                                      "status":  "unresolved",
+                                                      "reason":  "module-target-missing",
+                                                      "targets":  [
+
+                                                                  ],
+                                                      "configuration":  [
+                                                                            "tsconfig.json"
+                                                                        ]
+                                                  },
+                                                  {
+                                                      "from":  "app/routes/admin/cache/sqlite.server.ts",
+                                                      "offset":  214,
+                                                      "kind":  "import",
+                                                      "specifier":  "./+types/sqlite.ts",
+                                                      "status":  "unresolved",
+                                                      "reason":  "module-target-missing",
+                                                      "targets":  [
+
+                                                                  ],
+                                                      "configuration":  [
+                                                                            "tsconfig.json"
+                                                                        ]
+                                                  },
+                                                  {
+                                                      "from":  "app/routes/me.tsx",
+                                                      "offset":  158,
+                                                      "kind":  "import",
+                                                      "specifier":  "./+types/me.ts",
+                                                      "status":  "unresolved",
+                                                      "reason":  "module-target-missing",
+                                                      "targets":  [
+
+                                                                  ],
+                                                      "configuration":  [
+                                                                            "tsconfig.json"
+                                                                        ]
+                                                  },
+                                                  {
+                                                      "from":  "app/routes/resources/download-user-data.tsx",
+                                                      "offset":  191,
+                                                      "kind":  "import",
+                                                      "specifier":  "./+types/download-user-data.ts",
+                                                      "status":  "unresolved",
+                                                      "reason":  "module-target-missing",
+                                                      "targets":  [
+
+                                                                  ],
+                                                      "configuration":  [
+                                                                            "tsconfig.json"
+                                                                        ]
+                                                  },
+                                                  {
+                                                      "from":  "app/routes/resources/healthcheck.tsx",
+                                                      "offset":  132,
+                                                      "kind":  "import",
+                                                      "specifier":  "./+types/healthcheck.ts",
+                                                      "status":  "unresolved",
+                                                      "reason":  "module-target-missing",
+                                                      "targets":  [
+
+                                                                  ],
+                                                      "configuration":  [
+                                                                            "tsconfig.json"
+                                                                        ]
+                                                  },
+                                                  {
+                                                      "from":  "app/routes/resources/images.tsx",
+                                                      "offset":  281,
+                                                      "kind":  "import",
+                                                      "specifier":  "./+types/images",
+                                                      "status":  "unresolved",
+                                                      "reason":  "module-target-missing",
+                                                      "targets":  [
+
+                                                                  ],
+                                                      "configuration":  [
+                                                                            "tsconfig.json"
+                                                                        ]
+                                                  },
+                                                  {
+                                                      "from":  "app/routes/resources/theme-switch.test.ts",
+                                                      "offset":  135,
+                                                      "kind":  "import",
+                                                      "specifier":  "./+types/theme-switch.ts",
+                                                      "status":  "unresolved",
+                                                      "reason":  "module-target-missing",
+                                                      "targets":  [
+
+                                                                  ],
+                                                      "configuration":  [
+                                                                            "tsconfig.json"
+                                                                        ]
+                                                  },
+                                                  {
+                                                      "from":  "app/routes/resources/theme-switch.tsx",
+                                                      "offset":  657,
+                                                      "kind":  "import",
+                                                      "specifier":  "./+types/theme-switch.ts",
+                                                      "status":  "unresolved",
+                                                      "reason":  "module-target-missing",
+                                                      "targets":  [
+
+                                                                  ],
+                                                      "configuration":  [
+                                                                            "tsconfig.json"
+                                                                        ]
+                                                  },
+                                                  {
+                                                      "from":  "app/routes/settings/profile/_layout.tsx",
+                                                      "offset":  495,
+                                                      "kind":  "import",
+                                                      "specifier":  "./+types/_layout.tsx",
+                                                      "status":  "unresolved",
+                                                      "reason":  "module-target-missing",
+                                                      "targets":  [
+
+                                                                  ],
+                                                      "configuration":  [
+                                                                            "tsconfig.json"
+                                                                        ]
+                                                  },
+                                                  {
+                                                      "from":  "app/routes/settings/profile/change-email.tsx",
+                                                      "offset":  914,
+                                                      "kind":  "import",
+                                                      "specifier":  "./+types/change-email.ts",
+                                                      "status":  "unresolved",
+                                                      "reason":  "module-target-missing",
+                                                      "targets":  [
+
+                                                                  ],
+                                                      "configuration":  [
+                                                                            "tsconfig.json"
+                                                                        ]
+                                                  },
+                                                  {
+                                                      "from":  "app/routes/settings/profile/connections.tsx",
+                                                      "offset":  949,
+                                                      "kind":  "import",
+                                                      "specifier":  "./+types/connections.ts",
+                                                      "status":  "unresolved",
+                                                      "reason":  "module-target-missing",
+                                                      "targets":  [
+
+                                                                  ],
+                                                      "configuration":  [
+                                                                            "tsconfig.json"
+                                                                        ]
+                                                  },
+                                                  {
+                                                      "from":  "app/routes/settings/profile/index.tsx",
+                                                      "offset":  1004,
+                                                      "kind":  "import",
+                                                      "specifier":  "./+types/index.ts",
+                                                      "status":  "unresolved",
+                                                      "reason":  "module-target-missing",
+                                                      "targets":  [
+
+                                                                  ],
+                                                      "configuration":  [
+                                                                            "tsconfig.json"
+                                                                        ]
+                                                  },
+                                                  {
+                                                      "from":  "app/routes/settings/profile/passkeys.tsx",
+                                                      "offset":  438,
+                                                      "kind":  "import",
+                                                      "specifier":  "./+types/passkeys.ts",
+                                                      "status":  "unresolved",
+                                                      "reason":  "module-target-missing",
+                                                      "targets":  [
+
+                                                                  ],
+                                                      "configuration":  [
+                                                                            "tsconfig.json"
+                                                                        ]
+                                                  },
+                                                  {
+                                                      "from":  "app/routes/settings/profile/password.tsx",
+                                                      "offset":  876,
+                                                      "kind":  "import",
+                                                      "specifier":  "./+types/password.ts",
+                                                      "status":  "unresolved",
+                                                      "reason":  "module-target-missing",
+                                                      "targets":  [
+
+                                                                  ],
+                                                      "configuration":  [
+                                                                            "tsconfig.json"
+                                                                        ]
+                                                  },
+                                                  {
+                                                      "from":  "app/routes/settings/profile/password_.create.tsx",
+                                                      "offset":  783,
+                                                      "kind":  "import",
+                                                      "specifier":  "./+types/password_.create.ts",
+                                                      "status":  "unresolved",
+                                                      "reason":  "module-target-missing",
+                                                      "targets":  [
+
+                                                                  ],
+                                                      "configuration":  [
+                                                                            "tsconfig.json"
+                                                                        ]
+                                                  },
+                                                  {
+                                                      "from":  "app/routes/settings/profile/photo.tsx",
+                                                      "offset":  937,
+                                                      "kind":  "import",
+                                                      "specifier":  "./+types/photo.ts",
+                                                      "status":  "unresolved",
+                                                      "reason":  "module-target-missing",
+                                                      "targets":  [
+
+                                                                  ],
+                                                      "configuration":  [
+                                                                            "tsconfig.json"
+                                                                        ]
+                                                  },
+                                                  {
+                                                      "from":  "app/routes/settings/profile/two-factor/disable.tsx",
+                                                      "offset":  592,
+                                                      "kind":  "import",
+                                                      "specifier":  "./+types/disable.ts",
+                                                      "status":  "unresolved",
+                                                      "reason":  "module-target-missing",
+                                                      "targets":  [
+
+                                                                  ],
+                                                      "configuration":  [
+                                                                            "tsconfig.json"
+                                                                        ]
+                                                  },
+                                                  {
+                                                      "from":  "app/routes/settings/profile/two-factor/index.tsx",
+                                                      "offset":  401,
+                                                      "kind":  "import",
+                                                      "specifier":  "./+types/index.ts",
+                                                      "status":  "unresolved",
+                                                      "reason":  "module-target-missing",
+                                                      "targets":  [
+
+                                                                  ],
+                                                      "configuration":  [
+                                                                            "tsconfig.json"
+                                                                        ]
+                                                  },
+                                                  {
+                                                      "from":  "app/routes/settings/profile/two-factor/verify.tsx",
+                                                      "offset":  939,
+                                                      "kind":  "import",
+                                                      "specifier":  "./+types/verify.ts",
+                                                      "status":  "unresolved",
+                                                      "reason":  "module-target-missing",
+                                                      "targets":  [
+
+                                                                  ],
+                                                      "configuration":  [
+                                                                            "tsconfig.json"
+                                                                        ]
+                                                  },
+                                                  {
+                                                      "from":  "app/routes/users/$username/index.tsx",
+                                                      "offset":  580,
+                                                      "kind":  "import",
+                                                      "specifier":  "./+types/index.ts",
+                                                      "status":  "unresolved",
+                                                      "reason":  "module-target-missing",
+                                                      "targets":  [
+
+                                                                  ],
+                                                      "configuration":  [
+                                                                            "tsconfig.json"
+                                                                        ]
+                                                  },
+                                                  {
+                                                      "from":  "app/routes/users/$username/notes/$noteId.tsx",
+                                                      "offset":  1145,
+                                                      "kind":  "import",
+                                                      "specifier":  "./+types/$noteId.ts",
+                                                      "status":  "unresolved",
+                                                      "reason":  "module-target-missing",
+                                                      "targets":  [
+
+                                                                  ],
+                                                      "configuration":  [
+                                                                            "tsconfig.json"
+                                                                        ]
+                                                  },
+                                                  {
+                                                      "from":  "app/routes/users/$username/notes/$noteId.tsx",
+                                                      "offset":  1195,
+                                                      "kind":  "import",
+                                                      "specifier":  "./+types/_layout.ts",
+                                                      "status":  "unresolved",
+                                                      "reason":  "module-target-missing",
+                                                      "targets":  [
+
+                                                                  ],
+                                                      "configuration":  [
+                                                                            "tsconfig.json"
+                                                                        ]
+                                                  },
+                                                  {
+                                                      "from":  "app/routes/users/$username/notes/$noteId_.edit.tsx",
+                                                      "offset":  297,
+                                                      "kind":  "import",
+                                                      "specifier":  "./+types/$noteId_.edit.ts",
+                                                      "status":  "unresolved",
+                                                      "reason":  "module-target-missing",
+                                                      "targets":  [
+
+                                                                  ],
+                                                      "configuration":  [
+                                                                            "tsconfig.json"
+                                                                        ]
+                                                  },
+                                                  {
+                                                      "from":  "app/routes/users/$username/notes/+shared/note-editor.tsx",
+                                                      "offset":  954,
+                                                      "kind":  "import",
+                                                      "specifier":  "../+types/$noteId_.edit.ts",
+                                                      "status":  "unresolved",
+                                                      "reason":  "module-target-missing",
+                                                      "targets":  [
+
+                                                                  ],
+                                                      "configuration":  [
+                                                                            "tsconfig.json"
+                                                                        ]
+                                                  },
+                                                  {
+                                                      "from":  "app/routes/users/$username/notes/_layout.tsx",
+                                                      "offset":  436,
+                                                      "kind":  "import",
+                                                      "specifier":  "./+types/_layout.ts",
+                                                      "status":  "unresolved",
+                                                      "reason":  "module-target-missing",
+                                                      "targets":  [
+
+                                                                  ],
+                                                      "configuration":  [
+                                                                            "tsconfig.json"
+                                                                        ]
+                                                  },
+                                                  {
+                                                      "from":  "app/routes/users/$username/notes/index.tsx",
+                                                      "offset":  0,
+                                                      "kind":  "import",
+                                                      "specifier":  "./+types/_layout.ts",
+                                                      "status":  "unresolved",
+                                                      "reason":  "module-target-missing",
+                                                      "targets":  [
+
+                                                                  ],
+                                                      "configuration":  [
+                                                                            "tsconfig.json"
+                                                                        ]
+                                                  },
+                                                  {
+                                                      "from":  "app/routes/users/$username/notes/index.tsx",
+                                                      "offset":  64,
+                                                      "kind":  "import",
+                                                      "specifier":  "./+types/index.ts",
+                                                      "status":  "unresolved",
+                                                      "reason":  "module-target-missing",
+                                                      "targets":  [
+
+                                                                  ],
+                                                      "configuration":  [
+                                                                            "tsconfig.json"
+                                                                        ]
+                                                  },
+                                                  {
+                                                      "from":  "app/routes/users/$username/notes/new.tsx",
+                                                      "offset":  115,
+                                                      "kind":  "import",
+                                                      "specifier":  "./+types/new.ts",
+                                                      "status":  "unresolved",
+                                                      "reason":  "module-target-missing",
+                                                      "targets":  [
+
+                                                                  ],
+                                                      "configuration":  [
+                                                                            "tsconfig.json"
+                                                                        ]
+                                                  },
+                                                  {
+                                                      "from":  "app/routes/users/index.tsx",
+                                                      "offset":  452,
+                                                      "kind":  "import",
+                                                      "specifier":  "./+types/index.ts",
+                                                      "status":  "unresolved",
+                                                      "reason":  "module-target-missing",
+                                                      "targets":  [
+
+                                                                  ],
+                                                      "configuration":  [
+                                                                            "tsconfig.json"
+                                                                        ]
+                                                  },
+                                                  {
+                                                      "from":  "server/app.ts",
+                                                      "offset":  439,
+                                                      "kind":  "dynamic-import",
+                                                      "specifier":  "virtual:react-router/server-build",
+                                                      "status":  "unresolved",
+                                                      "reason":  "unsupported-module-specifier",
+                                                      "targets":  [
+
+                                                                  ],
+                                                      "configuration":  [
+
+                                                                        ]
+                                                  },
+                                                  {
+                                                      "from":  "server/app.ts",
+                                                      "offset":  541,
+                                                      "kind":  "dynamic-import",
+                                                      "specifier":  "virtual:react-router/server-build",
+                                                      "status":  "unresolved",
+                                                      "reason":  "unsupported-module-specifier",
+                                                      "targets":  [
+
+                                                                  ],
+                                                      "configuration":  [
+
+                                                                        ]
+                                                  },
+                                                  {
+                                                      "from":  "server/index.ts",
+                                                      "offset":  5887,
+                                                      "kind":  "dynamic-import",
+                                                      "specifier":  null,
+                                                      "status":  "unresolved",
+                                                      "reason":  "nonliteral-module",
+                                                      "targets":  [
+
+                                                                  ],
+                                                      "configuration":  [
+
+                                                                        ]
+                                                  }
+                                              ]
+                    },
+                    {
+                        "case":  "C3",
+                        "root":  ".worktrees\\_cache\\oss-samples-20261010\\react-router-templates\\node-custom-server",
+                        "elapsedMs":  177,
+                        "incomplete":  true,
+                        "lexicalReviewable":  false,
+                        "files":  16,
+                        "issueCount":  5,
+                        "issues":  [
+                                       "MODULE_UNRESOLVED:app/root.tsx:125:module-target-missing",
+                                       "MODULE_UNRESOLVED:app/routes/home.tsx:56:module-target-missing",
+                                       "MODULE_UNRESOLVED:react-router.config.ts:0:config-project-source-unassigned",
+                                       "MODULE_UNRESOLVED:server.js:1290:nonliteral-module",
+                                       "MODULE_UNRESOLVED:server/app.ts:294:unsupported-module-specifier"
+                                   ],
+                        "inventoryComplete":  true,
+                        "connectionIssueCounts":  {
+                                                      "MODULE_ANALYSIS_INCOMPLETE":  1,
+                                                      "MODULE_UNRESOLVED":  5,
+                                                      "UNSUPPORTED_RUNTIME_SOURCE":  1,
+                                                      "UNRESOLVED_MOUNT":  8
+                                                  },
+                        "unresolvedModules":  [
+                                                  {
+                                                      "from":  "app/root.tsx",
+                                                      "offset":  125,
+                                                      "kind":  "import",
+                                                      "specifier":  "./+types/root",
+                                                      "status":  "unresolved",
+                                                      "reason":  "module-target-missing",
+                                                      "targets":  [
+
+                                                                  ],
+                                                      "configuration":  [
+                                                                            "tsconfig.json",
+                                                                            "tsconfig.vite.json"
+                                                                        ]
+                                                  },
+                                                  {
+                                                      "from":  "app/routes/home.tsx",
+                                                      "offset":  56,
+                                                      "kind":  "import",
+                                                      "specifier":  "./+types/home",
+                                                      "status":  "unresolved",
+                                                      "reason":  "module-target-missing",
+                                                      "targets":  [
+
+                                                                  ],
+                                                      "configuration":  [
+                                                                            "tsconfig.json",
+                                                                            "tsconfig.vite.json"
+                                                                        ]
+                                                  },
+                                                  {
+                                                      "from":  "react-router.config.ts",
+                                                      "offset":  0,
+                                                      "kind":  "import",
+                                                      "specifier":  "@react-router/dev/config",
+                                                      "status":  "unresolved",
+                                                      "reason":  "config-project-source-unassigned",
+                                                      "targets":  [
+
+                                                                  ],
+                                                      "configuration":  [
+                                                                            "tsconfig.json"
+                                                                        ]
+                                                  },
+                                                  {
+                                                      "from":  "server.js",
+                                                      "offset":  1290,
+                                                      "kind":  "dynamic-import",
+                                                      "specifier":  null,
+                                                      "status":  "unresolved",
+                                                      "reason":  "nonliteral-module",
+                                                      "targets":  [
+
+                                                                  ],
+                                                      "configuration":  [
+
+                                                                        ]
+                                                  },
+                                                  {
+                                                      "from":  "server/app.ts",
+                                                      "offset":  294,
+                                                      "kind":  "dynamic-import",
+                                                      "specifier":  "virtual:react-router/server-build",
+                                                      "status":  "unresolved",
+                                                      "reason":  "unsupported-module-specifier",
+                                                      "targets":  [
+
+                                                                  ],
+                                                      "configuration":  [
+
+                                                                        ]
+                                                  }
+                                              ]
+                    }
+                ]
+}

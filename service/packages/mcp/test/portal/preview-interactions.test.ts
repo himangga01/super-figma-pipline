@@ -137,6 +137,98 @@ it('observes source-linked form state changes and rejects unchanged decorative a
     'PORTAL_PREVIEW_FAILED',
   );
 }, 30000);
+
+const delayedWorkflow = async (delayMs: number) => {
+  const f = await setup(
+    [
+      {
+        id: '1:1',
+        type: 'FRAME',
+        width: 100,
+        height: 100,
+        children: [
+          { id: '1:2', type: 'RECTANGLE', width: 10, height: 10 },
+          { id: '1:3', type: 'TEXT', width: 10, height: 10 },
+        ],
+      },
+    ],
+    [
+      {
+        id: 'email-form',
+        description: 'Submit an email form',
+        layers: ['frontend'],
+        required: true,
+      },
+    ],
+  );
+  let navigations = 0;
+  const pending = new Set<ReturnType<typeof setTimeout>>();
+  const server = createServer((request, response) => {
+    if (request.url !== '/') {
+      response.writeHead(404).end();
+      return;
+    }
+    navigations++;
+    const reply = () => {
+      response.setHeader('content-type', 'text/html');
+      response.end(
+        `<html lang="en"><head><title>Form</title><style>body{margin:0;background:white}input{position:absolute;width:10px;height:10px;border:0;background:white;color:white;padding:0}output{color:white;font-size:8px}</style></head><body><main data-sfp-root="1:1" style="width:100px;height:100px"><input data-sfp-node="1:2" aria-label="Email" oninput="document.querySelector('output').textContent=this.value"><output data-sfp-node="1:3"></output></main></body></html>`,
+      );
+    };
+    if (navigations === 1) reply();
+    else {
+      const timer = setTimeout(() => {
+        pending.delete(timer);
+        reply();
+      }, delayMs);
+      pending.add(timer);
+    }
+  });
+  await new Promise<void>(done => server.listen(0, '127.0.0.1', done));
+  cleanups.unshift(async () => {
+    for (const timer of pending) clearTimeout(timer);
+    server.closeAllConnections();
+    await new Promise<void>(done => server.close(() => done()));
+  });
+  const address = server.address();
+  if (!address || typeof address === 'string') throw Error('ADDRESS');
+  const spec = {
+    root: f.workspaceRoot,
+    baseUrl: `http://127.0.0.1:${address.port}`,
+    manifest: f.manifest,
+    interactionContract: f.contract,
+    screens: [
+      {
+        ...f.screen,
+        workflowAssertions: [
+          {
+            requirementId: 'email-form',
+            actions: [
+              { kind: 'fill', selector: '[data-sfp-node="1:2"]', value: 'test@example.test' },
+              { kind: 'text', selector: '[data-sfp-node="1:3"]', value: 'test@example.test' },
+            ],
+          },
+        ],
+      },
+    ],
+  };
+  return { spec, navigations: () => navigations };
+};
+it('uses the existing navigation budget for a real delayed workflow reload', async () => {
+  const f = await delayedWorkflow(6200);
+  const result = await assertNativePortalPreview(f.spec);
+  expect(f.navigations()).toBe(2);
+  expect((result.screens[0] as any).workflowReports[0].passed).toBe(true);
+}, 30000);
+it('keeps a real stalled workflow reload bounded by the caller abort signal', async () => {
+  const f = await delayedWorkflow(20000);
+  const signal = AbortSignal.timeout(3500),
+    started = Date.now();
+  await expect(assertNativePortalPreview(f.spec, signal)).rejects.toThrow(/closed|abort|timeout/iu);
+  expect(signal.aborted).toBe(true);
+  expect(f.navigations()).toBe(2);
+  expect(Date.now() - started).toBeLessThan(8000);
+}, 12000);
 it('requires measured visible motion separately from reduced-motion still screenshots', async () => {
   const f = await setup([
     {

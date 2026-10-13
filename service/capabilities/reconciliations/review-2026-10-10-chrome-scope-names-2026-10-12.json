@@ -1,0 +1,51 @@
+{
+  "schemaVersion": 1,
+  "slice": "review-2026-10-10",
+  "baseline": {
+    "headCommit": "22517932dc9b2cb974c177ec4eacb84d4b16e254",
+    "authoritySha256": {
+      "upstream-lock.json": "ab11481d612d96f2da0ea4c2c281a75f7a367b2a5ab4e6bf767dbbe484634755",
+      "vendor-map.json": "b3275c7d8b997d1cfe723d97594659f77d7b4361b824a790bcfdd7ff762589bd",
+      "vendor-rules.json": "c239965c8ddfc52eb3414caa6f398aa39f9b5a49e445851581f8b1e25e313bc7"
+    }
+  },
+  "entries": [
+    {
+      "path": "capabilities/task-review-2026-10-10-authority-classes.json",
+      "sha256": "baf2b9caec002d79dd96bf55f5d19cfd3b4475272a2f1280bedb0d76e340726f",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "0262205b1c4168eba1ff4686c4b7945366a27162cc3d8269bd526c5c2dfbf308"
+        },
+        {
+          "class": "protected",
+          "sha256": "0262205b1c4168eba1ff4686c4b7945366a27162cc3d8269bd526c5c2dfbf308"
+        }
+      ],
+      "reason": "Give each existing malformed HTTP Chrome discovery parameter case a unique indexed test title so the unchanged whole-check scope collector can bind all three cases. Preserve test inputs, assertions, production behavior and the original failed ce6fdc whole report. Require a fresh source-bound whole check after the one-line test repair; retain Chrome authorization, unknown jobs, source provenance and the owner Git index."
+    },
+    {
+      "path": "packages/cli/test/chrome-endpoint.test.ts",
+      "sha256": "9886324e87224ba16b36a5474437957eec4766c9a67c72f18573a29b55fe6e6b",
+      "priorClaims": [
+        {
+          "class": "protected",
+          "sha256": "8eea0cca0e928e952ad510f7a4d0df704ad358af1f6d62711b0ba301e87103e0"
+        }
+      ],
+      "reason": "Give each existing malformed HTTP Chrome discovery parameter case a unique indexed test title so the unchanged whole-check scope collector can bind all three cases. Preserve test inputs, assertions, production behavior and the original failed ce6fdc whole report. Require a fresh source-bound whole check after the one-line test repair; retain Chrome authorization, unknown jobs, source provenance and the owner Git index."
+    },
+    {
+      "path": "packages/portal/package.json",
+      "sha256": "117b1e02db6798bf9197e722fd615f3519e6cc841ed37d4210e3eef47d91912b",
+      "priorClaims": [
+        {
+          "class": "protected",
+          "sha256": "117b1e02db6798bf9197e722fd615f3519e6cc841ed37d4210e3eef47d91912b"
+        }
+      ],
+      "reason": "Give each existing malformed HTTP Chrome discovery parameter case a unique indexed test title so the unchanged whole-check scope collector can bind all three cases. Preserve test inputs, assertions, production behavior and the original failed ce6fdc whole report. Require a fresh source-bound whole check after the one-line test repair; retain Chrome authorization, unknown jobs, source provenance and the owner Git index."
+    }
+  ]
+}

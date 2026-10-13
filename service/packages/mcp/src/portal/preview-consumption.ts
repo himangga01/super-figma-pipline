@@ -4,8 +4,9 @@ import { setTimeout as delay } from 'node:timers/promises';
 
 import { contentHash, storedChecksum } from '@sfp/ir';
 import { selectors } from 'playwright';
-import type { Page, Route } from 'playwright';
+import type { CDPSession, Page, Route } from 'playwright';
 
+import { waitLogically } from '../../../cli/src/logical-wait.js';
 import {
   PortalConsumptionBatchSchema,
   PortalConsumptionActualSchema,
@@ -15,6 +16,8 @@ import {
   type PortalConsumptionObservation,
   type PortalConsumptionActual,
 } from '../../../shared/src/portal-consumption.js';
+import { matchesNativeContours } from './native-contours.js';
+import { observeNativeContours } from './preview-native-contours.js';
 import { matchesConsumptionValue } from './recipes/consumption-values.js';
 
 type SourceScope = { rootNodeId: string; route: string; state: string };
@@ -52,6 +55,9 @@ export class PortalConsumptionResources {
   ) {}
   assertActive() {
     this.signal.throwIfAborted();
+  }
+  observationSignal() {
+    return AbortSignal.any([this.signal, AbortSignal.timeout(2000)]);
   }
   assertPageOrigin(page: Page) {
     if (new URL(page.url()).origin !== this.origin)
@@ -211,12 +217,15 @@ const blank = (kind: PortalConsumptionActual['kind']): PortalConsumptionActual =
   dependency: null,
 });
 /** Plain browser values only. Expectations remain in the approved server spec, not page globals. */
-const OBSERVE_BODY = ` const roots=document.querySelectorAll('[data-sfp-root='+JSON.stringify(input.rootId)+']'),matches=document.querySelectorAll(input.selector);
+const OBSERVE_BODY = ` const rootSelector='[data-sfp-root='+JSON.stringify(input.rootId)+']',roots=document.querySelectorAll(rootSelector),matches=document.querySelectorAll(input.selector);
  if(roots.length!==1||matches.length!==1||!roots[0].contains(matches[0]))throw Error('PORTAL_CONSUMPTION_SCOPE_MISMATCH');
  const root=roots[0],element=matches[0];if(['IFRAME','FRAME'].includes(element.tagName))throw Error('PORTAL_CONSUMPTION_IFRAME_UNSUPPORTED');if(!elementIds.has(element))elementIds.set(element,documentId+'-'+(++elementSequence));const elementIdentity=elementIds.get(element);if(input.phase==='after-actions'&&root.getAttribute('data-sfp-state')!==input.state)throw Error('PORTAL_CONSUMPTION_STATE_MISMATCH');
- const exposed=target=>{for(let at=target;at;at=at.parentElement){const style=getComputedStyle(at);if(style.display==='none'||style.visibility==='hidden'||Number(style.opacity)===0)return false}const box=target.getBoundingClientRect();if(box.width<=0||box.height<=0)return false;const x=Math.max(0,Math.min(innerWidth-1,box.x+box.width/2)),y=Math.max(0,Math.min(innerHeight-1,box.y+box.height/2));const hit=document.elementFromPoint(x,y);return !!hit&&(hit===target||target.contains(hit)||(getComputedStyle(target).pointerEvents==='none'&&hit.contains(target)))};
- return preserveScroll(element,async()=>{
- element.scrollIntoView({block:'nearest',inline:'nearest',behavior:'instant'});if(!exposed(root)||!exposed(element))throw Error('PORTAL_CONSUMPTION_ELEMENT_HIDDEN');
+ const identityIntact=()=>element.isConnected&&root.isConnected&&root.contains(element)&&document.querySelectorAll(rootSelector).length===1&&document.querySelector(rootSelector)===root&&document.querySelectorAll(input.selector).length===1&&document.querySelector(input.selector)===element&&elementIds.get(element)===elementIdentity&&(input.phase!=='after-actions'||root.getAttribute('data-sfp-state')===input.state);
+ const exposed=async target=>{for(let at=target;at;at=at.parentElement){const style=getComputedStyle(at);if(style.display==='none'||style.visibility==='hidden'||Number(style.opacity)===0)return false}const box=target.getBoundingClientRect();if(box.width<=0||box.height<=0)return false;const x=Math.max(0,Math.min(innerWidth-1,box.x+box.width/2)),y=Math.max(0,Math.min(innerHeight-1,box.y+box.height/2));const hit=document.elementFromPoint(x,y);if(!hit)return false;if(hit===target||target.contains(hit))return true;if(getComputedStyle(target).pointerEvents!=='none'||!hit.contains(target))return false;return nativeExposure(input.jobId,{x:Math.floor(x),y:Math.floor(y),selector:input.selector});};
+ const observed=await preserveScroll(element,async()=>{
+ // A visible overflow descendant can paint beyond its source root's own box. The target's
+ // exposure check still verifies every ancestor style and its actual hit-test; scope was bound above.
+ element.scrollIntoView({block:'nearest',inline:'nearest',behavior:'instant'});if(!await exposed(element))throw Error('PORTAL_CONSUMPTION_ELEMENT_HIDDEN');if(!identityIntact())throw Error('PORTAL_CONSUMPTION_STATE_CHANGED');
  const expected=input.expectation,style=getComputedStyle(element);let value=null,resourceUrl=null,fontAvailable=null,sourceNodeId=null;
  if(expected.kind==='property'){
   value=expected.property==='textContent'?element.textContent:style.getPropertyValue(expected.property);if(value===null||value.length>16384)throw Error('PORTAL_CONSUMPTION_VALUE_LIMIT');
@@ -244,8 +253,10 @@ const OBSERVE_BODY = ` const roots=document.querySelectorAll('[data-sfp-root='+J
    if((!repeatX&&(originX+x+width<=clipX||originX+x>=clipX+clipW))||(!repeatY&&(originY+y+height<=clipY||originY+y>=clipY+clipH)))throw Error('PORTAL_CONSUMPTION_BACKGROUND_EMPTY');}
   if(!resourceUrl||resourceUrl.length>25165824||(!resourceUrl.startsWith('data:')&&resourceUrl.length>4096))throw Error('PORTAL_CONSUMPTION_RESOURCE_LIMIT');
  }
- if(!element.isConnected||!root.contains(element)||document.querySelectorAll(input.selector).length!==1||document.querySelector(input.selector)!==element||!exposed(element))throw Error('PORTAL_CONSUMPTION_STATE_CHANGED');
- return {value,resourceUrl,fontAvailable,sourceNodeId,elementIdentity};});`;
+ if(!identityIntact()||!await exposed(element)||!identityIntact())throw Error('PORTAL_CONSUMPTION_STATE_CHANGED');
+ return {value,resourceUrl,fontAvailable,sourceNodeId,elementIdentity};});
+ // Scroll restoration awaits queued page handlers. Rebind again after that boundary before publication.
+ if(!identityIntact())throw Error('PORTAL_CONSUMPTION_STATE_CHANGED');return observed;`;
 // Synchronize Chrome's lazy CSSOM attribute serialization before removing an originally absent
 // inline style, so observation restores its absence rather than leaving style="" behind.
 const PROBE_BODY = ` const root=document.querySelector('[data-sfp-root='+JSON.stringify(input.rootId)+']'),element=document.querySelector(input.selector);if(!root||!element||!root.contains(element)||elementIds.get(element)!==input.elementIdentity)throw Error('PORTAL_CONSUMPTION_SCOPE_MISMATCH');
@@ -279,6 +290,9 @@ const VISIBLE_BODY = `const values=document.querySelectorAll(input.selector);if(
 const selectorEngineName = 'sfpconsumption' + randomUUID().replaceAll('-', '');
 const ENGINE_SOURCE = `(() => {
  const jobs=new Map(),motions=new Map(),elementIds=new WeakMap();let elementSequence=0;const documentId=String(Date.now())+'-'+String(Math.random());
+ // Native Chrome hit-testing can include pointer-events:none without altering page styles.
+ // Keep the scroll transaction open until that exact exposure request settles or times out.
+ const nativeExposure=(id,point)=>new Promise(resolve=>{const entry=jobs.get(id);if(!entry){resolve(false);return}const finish=value=>{clearTimeout(timer);if(entry.exposure?.finish===finish)entry.exposure=null;resolve(value)};const timer=setTimeout(()=>finish(false),2000);entry.exposure={point,finish};});
  // Inspection may reveal offscreen content, but must preserve the screenshot/action viewport.
  // Keep this in the isolated world so page scripts cannot replace the DOM methods or snapshot.
  const preserveScroll=async(element,read)=>{
@@ -310,9 +324,10 @@ const ENGINE_SOURCE = `(() => {
   if(input.op==='motion-start'){if(motions.size>=16||motions.has(input.id))throw Error('INTERACTION_MOTION_OBSERVATION_LIMIT');motions.set(input.id,motionStart(input.args));return result({value:true});}
   if(input.op==='motion-finish'){const motion=motions.get(input.id);if(!motion)throw Error('INTERACTION_MOTION_OBSERVATION_MISSING');motions.delete(input.id);return result({value:motion.finish()});}
   if(input.op==='observe'||input.op==='probe'){
-   if(jobs.size>=16||jobs.has(input.id))throw Error('PORTAL_CONSUMPTION_JOB_LIMIT');const entry={done:false};jobs.set(input.id,entry);(input.op==='observe'?observe:probe)(input.args).then(value=>{entry.done=true;entry.value=value},error=>{entry.done=true;entry.error=String(error.message)});return result({pending:true});
+   if(jobs.size>=16||jobs.has(input.id))throw Error('PORTAL_CONSUMPTION_JOB_LIMIT');const entry={done:false};jobs.set(input.id,entry);(input.op==='observe'?observe:probe)({...input.args,jobId:input.id}).then(value=>{entry.done=true;entry.value=value},error=>{entry.done=true;entry.error=String(error.message)});return result({pending:true});
   }
-  if(input.op==='poll'){const entry=jobs.get(input.id);if(!entry)throw Error('PORTAL_CONSUMPTION_JOB_MISSING');if(!entry.done)return result({pending:true});jobs.delete(input.id);return result(entry.error?{error:entry.error}:{value:entry.value});}
+  if(input.op==='exposure-result'){const entry=jobs.get(input.id);entry?.exposure?.finish(input.passed===true);return result({pending:true});}
+  if(input.op==='poll'){const entry=jobs.get(input.id);if(!entry)throw Error('PORTAL_CONSUMPTION_JOB_MISSING');if(!entry.done)return result({pending:true,...(entry.exposure?{exposure:entry.exposure.point}:{})});jobs.delete(input.id);return result(entry.error?{error:entry.error}:{value:entry.value});}
   throw Error('PORTAL_CONSUMPTION_OPERATION_UNSUPPORTED');
  },queryAll(root,encoded){const node=this.query(root,encoded);return node?[node]:[]}};
 })()`;
@@ -333,18 +348,99 @@ const queryIsolated = async (page: Page, input: unknown) => {
   try {
     const text = await handle.getAttribute('data-sfp-result');
     if (!text || text.length > 26000000) throw Error('PORTAL_CONSUMPTION_VALUE_LIMIT');
-    return JSON.parse(text) as { pending?: boolean; value?: unknown; error?: string };
+    return JSON.parse(text) as {
+      pending?: boolean;
+      value?: unknown;
+      error?: string;
+      exposure?: { x: number; y: number; selector: string };
+    };
   } finally {
     await handle.dispose();
   }
 };
-const isolated = async (page: Page, op: 'observe' | 'probe', args: unknown) => {
+class NativeExposureProof {
+  private session: CDPSession | undefined;
+  constructor(
+    private readonly page: Page,
+    private readonly resources: PortalConsumptionResources,
+  ) {}
+  async check(point: { x: number; y: number; selector: string }): Promise<boolean> {
+    const signal = this.resources.observationSignal();
+    try {
+      this.resources.assertPageOrigin(this.page);
+      if (!this.session)
+        this.session = await waitLogically(
+          this.page.context().newCDPSession(this.page),
+          signal,
+          late => waitLogically(late.detach(), AbortSignal.timeout(1000)),
+        );
+      signal.throwIfAborted();
+      const session = this.session;
+      const document = await waitLogically(session.send('DOM.getDocument', { depth: 0 }), signal);
+      const matches = await waitLogically(
+        session.send('DOM.querySelectorAll', {
+          nodeId: document.root.nodeId,
+          selector: point.selector,
+        }),
+        signal,
+      );
+      if (matches.nodeIds.length !== 1) return false;
+      const target = await waitLogically(
+        session.send('DOM.describeNode', { nodeId: matches.nodeIds[0]!, depth: -1, pierce: true }),
+        signal,
+      );
+      const layout = await waitLogically(session.send('Page.getLayoutMetrics'), signal);
+      const hit = await waitLogically(
+        session.send('DOM.getNodeForLocation', {
+          x: Math.floor(point.x + layout.cssVisualViewport.pageX),
+          y: Math.floor(point.y + layout.cssVisualViewport.pageY),
+          includeUserAgentShadowDOM: true,
+          ignorePointerEventsNone: true,
+        }),
+        signal,
+      );
+      this.resources.assertPageOrigin(this.page);
+      signal.throwIfAborted();
+      const pending = [target.node];
+      let count = 0;
+      while (pending.length) {
+        const node = pending.pop()!;
+        if (++count > 50000) return false;
+        if (node.backendNodeId === hit.backendNodeId) return true;
+        pending.push(...(node.children ?? []), ...(node.shadowRoots ?? []));
+      }
+      return false;
+    } catch {
+      // An unavailable/expired native proof never falls back to ancestor hit-testing.
+      return false;
+    }
+  }
+  async close() {
+    try {
+      if (this.session) await waitLogically(this.session.detach(), AbortSignal.timeout(1000));
+    } catch {
+      this.resources.assertActive();
+      throw Error('PORTAL_CONSUMPTION_EXPOSURE_CLEANUP_UNCONFIRMED');
+    }
+    this.resources.assertActive();
+  }
+}
+const isolated = async (
+  page: Page,
+  op: 'observe' | 'probe',
+  args: unknown,
+  exposure?: NativeExposureProof,
+) => {
   const id = randomUUID();
   await queryIsolated(page, { id, op, args });
   for (let attempt = 0; attempt < 100; attempt++) {
     const result = await queryIsolated(page, { id, op: 'poll' });
     if (result.error) throw Error(result.error);
     if (!result.pending) return result.value;
+    if (result.exposure) {
+      const passed = exposure ? await exposure.check(result.exposure) : false;
+      await queryIsolated(page, { id, op: 'exposure-result', passed });
+    }
     await delay(25);
   }
   throw Error('PORTAL_CONSUMPTION_OBSERVER_TIMEOUT');
@@ -353,26 +449,32 @@ const observeElement = (
   page: Page,
   check: PortalConsumptionCheck,
   phase: 'source' | 'after-actions',
+  exposure: NativeExposureProof,
 ) =>
-  isolated(page, 'observe', {
-    selector: check.selector,
-    rootId: check.rootNodeId,
-    phase,
-    state: check.state,
-    expectation:
-      check.expectation.kind === 'property'
-        ? {
-            kind: 'property',
-            property: check.expectation.property,
-            value:
-              check.expectation.value.kind === 'font'
-                ? check.expectation.value
-                : { kind: check.expectation.value.kind },
-          }
-        : check.expectation.kind === 'asset'
-          ? { kind: 'asset', usage: check.expectation.usage }
-          : { kind: 'component' },
-  }) as Promise<{
+  isolated(
+    page,
+    'observe',
+    {
+      selector: check.selector,
+      rootId: check.rootNodeId,
+      phase,
+      state: check.state,
+      expectation:
+        check.expectation.kind === 'property'
+          ? {
+              kind: 'property',
+              property: check.expectation.property,
+              value:
+                check.expectation.value.kind === 'font'
+                  ? check.expectation.value
+                  : { kind: check.expectation.value.kind },
+            }
+          : check.expectation.kind === 'asset'
+            ? { kind: 'asset', usage: check.expectation.usage }
+            : { kind: 'component' },
+    },
+    exposure,
+  ) as Promise<{
     value: string | null;
     resourceUrl: string | null;
     fontAvailable: boolean | null;
@@ -421,102 +523,129 @@ export async function observePortalConsumption(
 ): Promise<PortalConsumptionObservation[]> {
   const batch = PortalConsumptionBatchSchema.parse(batchInput),
     observations: PortalConsumptionObservation[] = [];
+  const exposure = new NativeExposureProof(page, resources);
   let observationBytes = 0;
-  for (const check of batch.checks.filter(
-    value => value.rootNodeId === scope.rootNodeId && value.phase === phase,
-  )) {
-    resources.assertActive();
-    let actual: PortalConsumptionActual | null = null,
-      reason: string | null = null,
-      passed = false;
-    try {
-      resources.assertPageOrigin(page);
-      if (consumptionCheckHash(check) !== check.expectedHash)
-        throw Error('PORTAL_CONSUMPTION_EXPECTATION_CHANGED');
-      const url = new URL(page.url());
-      if (
-        url.pathname + url.search + url.hash !== check.route ||
-        (phase === 'source' && (check.route !== scope.route || check.state !== scope.state))
-      )
-        throw Error('PORTAL_CONSUMPTION_STATE_MISMATCH');
-      const read = await observeElement(page, check, phase);
-      actual = Object.assign(blank(check.expectation.kind), {
-        value: read.value,
-        fontAvailable: read.fontAvailable,
-        sourceNodeId: read.sourceNodeId,
-      });
-      if (check.expectation.kind === 'property') {
-        if (
-          read.value === null ||
-          !matchesConsumptionValue(
-            check.expectation.value,
-            read.value,
-            check.expectation.property,
-          ) ||
-          (check.expectation.value.kind === 'font' && !read.fontAvailable)
-        )
-          throw Error('PORTAL_CONSUMPTION_PROPERTY_MISMATCH');
-        if (check.expectation.cssVariable) {
-          const sentinel = sentinelFor(check);
-          if (sentinel === null) throw Error('PORTAL_CONSUMPTION_CSS_VARIABLE_UNSUPPORTED');
-          actual.dependency = await probeVariable(page, check, sentinel, read.elementIdentity);
-          if (!actual.dependency) throw Error('PORTAL_CONSUMPTION_CSS_VARIABLE_UNUSED');
-        }
-      } else if (check.expectation.kind === 'asset') {
-        if (!read.resourceUrl) throw Error('PORTAL_CONSUMPTION_RESOURCE_NOT_PROVEN');
-        const resource = await resources.resolve(page, read.resourceUrl);
-        actual.resourceHash = resource.hash;
-        actual.resourceBytes = resource.bytes;
-        actual.resourceUrl = read.resourceUrl.startsWith('data:')
-          ? 'data:' + resource.hash
-          : read.resourceUrl;
-        if (resource.hash !== check.expectation.hash || resource.bytes !== check.expectation.bytes)
-          throw Error('PORTAL_CONSUMPTION_RESOURCE_MISMATCH');
-      } else if (read.sourceNodeId !== check.expectation.sourceNodeId)
-        throw Error('PORTAL_CONSUMPTION_COMPONENT_ASSOCIATION_MISMATCH');
-      if (
-        check.expectation.kind === 'asset' ||
-        (check.expectation.kind === 'property' && check.expectation.cssVariable)
-      ) {
-        const current = await observeElement(page, check, phase);
-        if (
-          current.elementIdentity !== read.elementIdentity ||
-          current.value !== read.value ||
-          current.resourceUrl !== read.resourceUrl
-        )
-          throw Error('PORTAL_CONSUMPTION_STATE_CHANGED');
-      }
-      resources.assertPageOrigin(page);
-      const currentUrl = new URL(page.url());
-      if (currentUrl.pathname + currentUrl.search + currentUrl.hash !== check.route)
-        throw Error('PORTAL_CONSUMPTION_STATE_CHANGED');
-      actual = PortalConsumptionActualSchema.parse(actual);
-      passed = true;
-    } catch (error) {
+  try {
+    for (const check of batch.checks.filter(
+      value => value.rootNodeId === scope.rootNodeId && value.phase === phase,
+    )) {
       resources.assertActive();
-      if (page.isClosed()) throw error;
-      const message = error instanceof Error ? error.message : '';
-      if (
-        message.includes('PORTAL_CONSUMPTION_RESTORE_FAILED') ||
-        message.includes('PORTAL_CONSUMPTION_OBSERVER_TIMEOUT')
-      )
-        throw error;
-      reason =
-        /PORTAL_CONSUMPTION_[A-Z_]+/u.exec(message)?.[0] ?? 'PORTAL_CONSUMPTION_OBSERVATION_FAILED';
+      let actual: PortalConsumptionActual | null = null,
+        reason: string | null = null,
+        passed = false;
+      try {
+        resources.assertPageOrigin(page);
+        if (consumptionCheckHash(check) !== check.expectedHash)
+          throw Error('PORTAL_CONSUMPTION_EXPECTATION_CHANGED');
+        const url = new URL(page.url());
+        if (
+          url.pathname + url.search + url.hash !== check.route ||
+          (phase === 'source' && (check.route !== scope.route || check.state !== scope.state))
+        )
+          throw Error('PORTAL_CONSUMPTION_STATE_MISMATCH');
+        const read = await observeElement(page, check, phase, exposure);
+        actual = Object.assign(blank(check.expectation.kind), {
+          value: read.value,
+          fontAvailable: read.fontAvailable,
+          sourceNodeId: read.sourceNodeId,
+        });
+        if (check.expectation.kind === 'property') {
+          if (
+            read.value === null ||
+            !matchesConsumptionValue(
+              check.expectation.value,
+              read.value,
+              check.expectation.property,
+            ) ||
+            (check.expectation.value.kind === 'font' && !read.fontAvailable)
+          )
+            throw Error('PORTAL_CONSUMPTION_PROPERTY_MISMATCH');
+          if (check.expectation.cssVariable) {
+            const sentinel = sentinelFor(check);
+            if (sentinel === null) throw Error('PORTAL_CONSUMPTION_CSS_VARIABLE_UNSUPPORTED');
+            actual.dependency = await probeVariable(page, check, sentinel, read.elementIdentity);
+            if (!actual.dependency) throw Error('PORTAL_CONSUMPTION_CSS_VARIABLE_UNUSED');
+          }
+        } else if (check.expectation.kind === 'asset') {
+          if (!read.resourceUrl) throw Error('PORTAL_CONSUMPTION_RESOURCE_NOT_PROVEN');
+          const resource = await resources.resolve(page, read.resourceUrl);
+          actual.resourceHash = resource.hash;
+          actual.resourceBytes = resource.bytes;
+          actual.resourceUrl = read.resourceUrl.startsWith('data:')
+            ? 'data:' + resource.hash
+            : read.resourceUrl;
+          if (
+            resource.hash !== check.expectation.hash ||
+            resource.bytes !== check.expectation.bytes
+          )
+            throw Error('PORTAL_CONSUMPTION_RESOURCE_MISMATCH');
+        } else if (check.expectation.kind === 'native-contour') {
+          actual.nativeContour = await observeNativeContours(page, {
+            selector: check.selector,
+            rootNodeId: check.rootNodeId,
+            nodeId: check.expectation.nodeId,
+          });
+          if (!matchesNativeContours(check.expectation, actual.nativeContour))
+            throw Error('PORTAL_CONSUMPTION_NATIVE_CONTOUR_MISMATCH');
+          const current = await observeElement(page, check, phase, exposure);
+          if (current.elementIdentity !== read.elementIdentity)
+            throw Error('PORTAL_CONSUMPTION_STATE_CHANGED');
+          const repeated = await observeNativeContours(page, {
+            selector: check.selector,
+            rootNodeId: check.rootNodeId,
+            nodeId: check.expectation.nodeId,
+          });
+          if (JSON.stringify(repeated) !== JSON.stringify(actual.nativeContour))
+            throw Error('PORTAL_CONSUMPTION_STATE_CHANGED');
+        } else if (read.sourceNodeId !== check.expectation.sourceNodeId)
+          throw Error('PORTAL_CONSUMPTION_COMPONENT_ASSOCIATION_MISMATCH');
+        if (
+          check.expectation.kind === 'asset' ||
+          (check.expectation.kind === 'property' && check.expectation.cssVariable)
+        ) {
+          const current = await observeElement(page, check, phase, exposure);
+          if (
+            current.elementIdentity !== read.elementIdentity ||
+            current.value !== read.value ||
+            current.resourceUrl !== read.resourceUrl
+          )
+            throw Error('PORTAL_CONSUMPTION_STATE_CHANGED');
+        }
+        resources.assertPageOrigin(page);
+        const currentUrl = new URL(page.url());
+        if (currentUrl.pathname + currentUrl.search + currentUrl.hash !== check.route)
+          throw Error('PORTAL_CONSUMPTION_STATE_CHANGED');
+        actual = PortalConsumptionActualSchema.parse(actual);
+        passed = true;
+      } catch (error) {
+        resources.assertActive();
+        if (page.isClosed()) throw error;
+        const message = error instanceof Error ? error.message : '';
+        if (
+          message.includes('PORTAL_CONSUMPTION_RESTORE_FAILED') ||
+          message.includes('PORTAL_CONSUMPTION_OBSERVER_TIMEOUT')
+        )
+          throw error;
+        reason =
+          /PORTAL_CONSUMPTION_[A-Z_]+/u.exec(message)?.[0] ??
+          'PORTAL_CONSUMPTION_OBSERVATION_FAILED';
+      }
+      const { expectation: _expectation, selector: _selector, ...binding } = check;
+      const observation = PortalConsumptionObservationSchema.parse({
+        ...binding,
+        actual,
+        actualHash: contentHash('sfp-portal-consumption-actual-v1', actual),
+        passed,
+        reason,
+      });
+      observationBytes += Buffer.byteLength(JSON.stringify(observation));
+      if (observationBytes > 4194304) throw Error('PORTAL_CONSUMPTION_REPORT_CAPACITY');
+      observations.push(observation);
     }
-    const { expectation: _expectation, selector: _selector, ...binding } = check;
-    const observation = PortalConsumptionObservationSchema.parse({
-      ...binding,
-      actual,
-      actualHash: contentHash('sfp-portal-consumption-actual-v1', actual),
-      passed,
-      reason,
-    });
-    observationBytes += Buffer.byteLength(JSON.stringify(observation));
-    if (observationBytes > 4194304) throw Error('PORTAL_CONSUMPTION_REPORT_CAPACITY');
-    observations.push(observation);
+    return observations;
+  } finally {
+    await exposure.close();
   }
-  return observations;
 }
 
 export const assertIsolatedPortalSourceVisible = async (

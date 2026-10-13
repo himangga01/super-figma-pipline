@@ -1,0 +1,34 @@
+{
+  "schemaVersion": 1,
+  "date": "2026-10-14",
+  "timezone": "Asia/Seoul",
+  "kind": "native-chrome-approval-control-capability-probe",
+  "latestOwnerAuthorization": "The absent owner explicitly authorized native Chrome approval clicks. This is limited to approval handling; service capture and acceptance remain service-owned.",
+  "tools": {
+    "skill": "computer-use:computer-use",
+    "runtime": "node_repl",
+    "package": "@oai/sky",
+    "packageInitializationSucceeded": true,
+    "nativeBackendConnected": false,
+    "listAppsAttempts": 3,
+    "retryDelayMs": 2000,
+    "error": "Computer Use native pipe is unavailable: failed to connect native pipe: 지정된 파일을 찾을 수 없습니다. (os error 2)"
+  },
+  "targetWindowsReturned": 0,
+  "screenshotsCaptured": 0,
+  "inputActions": 0,
+  "nativeApprovalsClicked": 0,
+  "securitySettingsChanged": false,
+  "serviceSourceOperationRetried": false,
+  "liveAcceptance": false,
+  "continuationRecheck": {
+    "date": "2026-10-14",
+    "after": "Verified QA restoration and final R70 source/build-component closure",
+    "reason": "Recheck the unresolved native capability after the serving runtime changed; no passing service test was repeated.",
+    "result": "The supported SDK still reports the missing native pipe with os error 2.",
+    "inputActions": 0,
+    "serviceCaptureRetried": false
+  },
+  "correction": "The earlier assertion that no native control API was present was incomplete. A supported SDK exists, but its actual native backend is unavailable in this session. Import success did not establish working desktop control.",
+  "continuation": "Keep existing Chrome windows and service state. Continue independent code and source-only validation. Do not claim approval or connection without an actual observed successful action and service-owned connection proof."
+}

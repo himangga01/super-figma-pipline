@@ -1,0 +1,25 @@
+{
+  "schemaVersion": 1,
+  "kind": "normal-public-same-state-model-grant",
+  "at": "2026-10-13T07:21:10.231Z",
+  "jobId": "fa9fc495-2f89-4ce2-a03a-1f9edfccc30f",
+  "status": "succeeded",
+  "feature": "egress.allow",
+  "configuredAt": "2026-10-13T07:21:06.181Z",
+  "expiresAt": "2026-10-13T15:21:06.181Z",
+  "allowedClasses": [
+    "public",
+    "project-code",
+    "design-text",
+    "design-image"
+  ],
+  "egressHash": "513fb8a54728c5402ee87852c0e0e35ed9552b2b49192821180a4efc148dafcd",
+  "grantJobRowHash": "a3fa044cbe530b543cd98ec4b8564e8e53a57e30a6315342af07e7adbe2ce4d5",
+  "originalGrantHash": "01773157b0c30fe511f81811b6b62cea24647770ba5f61f14769d943ca2f39f1",
+  "originalDeadlinesPreserved": true,
+  "unknownRowsPreserved": true,
+  "namespaceCopied": false,
+  "browserSecurityAutomated": false,
+  "replacementModeInvoked": false,
+  "sourceCapture": false
+}

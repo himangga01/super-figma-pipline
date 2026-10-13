@@ -1,0 +1,33 @@
+{
+  "schemaVersion": 1,
+  "kind": "current-scoped-CDD-original-source-attempt",
+  "recordedAt": "2026-10-13T08:13:09.034Z",
+  "sourceHash": "sha256:303de5d1904d11c1fb89bdf80951900e375ac4325ea6cfc932f39ebee2785732",
+  "publicRunId": "5b71229b-61e2-4819-8097-69c9e2594ddb",
+  "coreRunId": "sfp_portal1_91906c079586161fe7eea96ec4d8ddae",
+  "workspaceId": "3f03d528-c6b8-41da-8d97-fc7e701bac72",
+  "workflowId": "034e5195-bd4c-453a-a797-de7146e5eb34",
+  "workflowRevision": 1,
+  "beganAt": "2026-10-13T08:03:57.693Z",
+  "endedAt": "2026-10-13T08:09:11.571Z",
+  "status": "awaiting-input",
+  "coreState": "needs-input",
+  "originalDeadlineAt": 1791882546345,
+  "coreRecordHash": "13de42dafceaaeb43a8382a8505d30d34b91fa418b51a259f8992d1a04832def",
+  "errorCodes": [
+    "PORTAL_CAPTURE_CURRENT_REQUIRED"
+  ],
+  "functionalChecksPassed": true,
+  "captureAccepted": false,
+  "fullGenerationAccepted": false,
+  "leasePresent": false,
+  "candidatePresent": false,
+  "appliedPresent": false,
+  "observedBrowserConnection": "awaiting-browser",
+  "connectionObservedAt": "2026-10-13T08:09:26.260Z",
+  "originalBudgetReset": false,
+  "unknownReplayed": false,
+  "nativeApprovalAutomated": false,
+  "completeJourneys": 0,
+  "requiredJourneys": 1
+}

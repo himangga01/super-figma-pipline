@@ -1,0 +1,104 @@
+{
+  "schemaVersion": 1,
+  "kind": "scoped-source-release",
+  "releaseId": "30c8d969-324c-45dd-9215-911b8f0cb9a6",
+  "recordedAt": "2026-10-13T21:34:51.658Z",
+  "sourceHash": "sha256:a28fbf9263536110c90a972a1cf97e2e7039d710fbe1532588476989e415ab5e",
+  "fingerprintAlgorithm": "source-fingerprint-v2",
+  "ownerScope": {
+    "wholeRerun": false,
+    "portalJourneys": 1,
+    "officialMcpLive": "deferred"
+  },
+  "previousWhole": {
+    "attemptId": "8f4753c4-e895-4751-9346-f8a6e8fb6cbb",
+    "status": "failed",
+    "reportSha256": "d1e152d5ac793e890ff9742c3999a3c17f3a5a8117396c8bae78212e1c410752"
+  },
+  "checks": [
+    {
+      "name": "reviewed-35-integration",
+      "kind": "actual-scoped-evidence-aggregate",
+      "receiptPath": "docs/testing/2026-10-11-web-portal/source-a28-scoped-r69-20261014/scoped-aggregates/reviewed-35-integration.json",
+      "sha256": "65520033b139612f324d7d284588f62335d215515d69895689d876546879c2e7",
+      "sourceBinding": "reviewed-exact-files",
+      "status": "passed"
+    },
+    {
+      "name": "artifact-precision-targeted",
+      "kind": "actual-scoped-evidence-aggregate",
+      "receiptPath": "docs/testing/2026-10-11-web-portal/source-a28-scoped-r69-20261014/scoped-aggregates/artifact-precision-targeted.json",
+      "sha256": "c457b51dee1adb855eac92ffff254235a2a98c06e93be55db7d38d4b78c3eda8",
+      "sourceBinding": "reviewed-exact-files",
+      "status": "passed"
+    },
+    {
+      "name": "c2-r50-targeted",
+      "kind": "actual-scoped-evidence-aggregate",
+      "receiptPath": "docs/testing/2026-10-11-web-portal/source-a28-scoped-r69-20261014/scoped-aggregates/c2-r50-targeted.json",
+      "sha256": "ae501aceed060be9927ec498b64fb26465e05c98c71ec8f29107e25394e22463",
+      "sourceBinding": "reviewed-exact-files",
+      "status": "passed"
+    },
+    {
+      "name": "changed-source-types",
+      "kind": "actual-scoped-evidence-aggregate",
+      "receiptPath": "docs/testing/2026-10-11-web-portal/source-a28-scoped-r69-20261014/scoped-aggregates/changed-source-types.json",
+      "sha256": "6e5eac006dd28224dd0f8e85b91d11dd5a3bebac53b6e35cb21f17483df234fa",
+      "sourceBinding": "reviewed-exact-files",
+      "status": "passed"
+    },
+    {
+      "name": "changed-source-lint-format",
+      "kind": "actual-scoped-evidence-aggregate",
+      "receiptPath": "docs/testing/2026-10-11-web-portal/source-a28-scoped-r69-20261014/scoped-aggregates/changed-source-lint-format.json",
+      "sha256": "647eb4b67bb03692a645156ac8dd0dd55fcb3c9545df9b7a00eb1d178ee85975",
+      "sourceBinding": "reviewed-exact-files",
+      "status": "passed"
+    },
+    {
+      "name": "diagnostics-contracts",
+      "kind": "actual-scoped-evidence-aggregate",
+      "receiptPath": "docs/testing/2026-10-11-web-portal/source-a28-scoped-r69-20261014/scoped-aggregates/diagnostics-contracts.json",
+      "sha256": "14198203c7283410bf53d0afc60aac2de29d6610161498e6b3cc70066904c498",
+      "sourceBinding": "current-source",
+      "status": "passed"
+    },
+    {
+      "name": "provenance",
+      "kind": "actual-scoped-evidence-aggregate",
+      "receiptPath": "docs/testing/2026-10-11-web-portal/source-a28-scoped-r69-20261014/scoped-aggregates/provenance.json",
+      "sha256": "826508118267d9c36617cee09c6a6eef602a2a4ff88885cdbdf8ac3a84a94f1f",
+      "sourceBinding": "current-source",
+      "status": "passed"
+    },
+    {
+      "name": "build-package",
+      "kind": "actual-scoped-evidence-aggregate",
+      "receiptPath": "docs/testing/2026-10-11-web-portal/source-a28-scoped-r69-20261014/scoped-aggregates/build-package.json",
+      "sha256": "a32cb62d991d810986bed0cf859aa67cf5bda1da7db2ecf25fa1f5a88554d995",
+      "sourceBinding": "current-source",
+      "status": "passed"
+    }
+  ],
+  "build": {
+    "buildInfoPath": ".worktrees/baseline/service/packages/mcp/dist/build-info.json",
+    "sha256": "d035917afc3f09884e617c03c6330fc82c8e94cb9860ea411d83790c122df57b",
+    "buildId": 1791202532000,
+    "identity": "sha256:0c4fdb2053dd39e6ef75518e2102eb25340e01f361db8976dfee883d3dd57889"
+  },
+  "package": {
+    "manifestPath": ".worktrees/baseline/service/artifacts/artifact-manifest.v1.json",
+    "sha256": "19bf1dc8af4a9e4c086dce9d8040839c0560937ad8adbe358556c81be0ed9f0b"
+  },
+  "artifact": {
+    "checkpointPath": "docs/testing/2026-10-11-web-portal/source-a28-scoped-r69-20261014/artifact-contents-checkpoint.json",
+    "sha256": "2561c6371eb193621cf51c3023ddb18e986f03e2d20f14c1a414b81e99e1b059"
+  },
+  "limitations": {
+    "wholePassed": false,
+    "historicalRaceCauseProven": false,
+    "c2PublicPositive": false,
+    "liveAcceptance": false
+  }
+}

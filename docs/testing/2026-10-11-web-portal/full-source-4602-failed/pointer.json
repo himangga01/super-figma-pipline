@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "attemptId": "289d68fa-aba0-4d6b-aaa7-ef5863e78672",
+  "status": "failed",
+  "sourceHash": "sha256:4602f3d863f9bb52006ddb9cee23bc3a742898558415e330814b8c8bc278165e",
+  "folder": "source-checks/289d68fa-aba0-4d6b-aaa7-ef5863e78672",
+  "report": "source-checks/289d68fa-aba0-4d6b-aaa7-ef5863e78672/report.json",
+  "reportSha256": "a3a9f777295062ffa840136b4a03984c01f0dc50e92c6cc174e7c145bbfddf5b",
+  "updatedAt": "2026-10-11T13:06:27.398Z"
+}

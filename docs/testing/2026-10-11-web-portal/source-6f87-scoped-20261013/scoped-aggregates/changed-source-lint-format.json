@@ -1,0 +1,19 @@
+{
+  "schemaVersion": 1,
+  "name": "changed-source-lint-format",
+  "releaseId": "5b1c8abd-9bd3-4e81-b5ef-125d0b4d287c",
+  "finalSourceHash": "sha256:6f87f836d872a4ba8ab49533f6447a7c921adb6b8af3dae75ddd6241e8b8a1cb",
+  "status": "passed",
+  "sourceBinding": "reviewed-exact-files",
+  "evidence": {
+    "receipt": {
+      "path": "docs/testing/2026-10-11-web-portal/eight-file-changed-static-20261013.json",
+      "sha256": "1f552f9bf7f4cd3e04919d17666140b3682299b2b3bfc75ee270daae1d985c05"
+    },
+    "scope": "Exact eight changed files and stable lint/format configurations; not full repository acceptance"
+  },
+  "ownerEcommerce": "skipped",
+  "officialMcpLive": "deferred",
+  "wholePassed": false,
+  "liveAcceptance": false
+}

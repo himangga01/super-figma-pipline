@@ -1,0 +1,67 @@
+{
+  "schemaVersion": 1,
+  "kind": "owned-only-r70-code-and-mcp-build-closure",
+  "sourceHash": "sha256:e96f37b95100645fcfbb8317683c655556219ef920d8c8adf85968914cb2b0f5",
+  "metadata": [
+    {
+      "path": "upstream-lock.json",
+      "sha256": "3a7722ec81908d05333da8be36e65dfe57d1b4d7de36050977acf2545cd8545d"
+    },
+    {
+      "path": "vendor-map.json",
+      "sha256": "b3275c7d8b997d1cfe723d97594659f77d7b4361b824a790bcfdd7ff762589bd"
+    },
+    {
+      "path": "vendor-rules.json",
+      "sha256": "fa6e5bc16fdad481c00d2364b8af21413d96d001b496604ef5fb25c585e1be28"
+    },
+    {
+      "path": "capabilities/change-manifests/task-review-2026-10-10.json",
+      "sha256": "829f4c366e12739c48eb077a7c8d47f359ff12e262601dee4a95867c552e65b8"
+    },
+    {
+      "path": "capabilities/task-review-2026-10-10-authority-classes.json",
+      "sha256": "f481c63a4f04085161d77684eb47eab750f5ca80b0d679769f180187936cfb6d"
+    },
+    {
+      "path": "capabilities/reconciliations/review-2026-10-10-generated-route-alias-guard-2026-10-14.json",
+      "sha256": "938f775233ca0036376ddc8b526fae65cbad585243d89d5944897961351ef3fa"
+    }
+  ],
+  "results": [
+    {
+      "name": "r70-owned-offline-provenance",
+      "args": [
+        "scripts/verify-upstream-lock.mjs",
+        "--offline"
+      ],
+      "exitCode": 0,
+      "signal": null,
+      "elapsedMs": 456,
+      "logPath": ".worktrees/_cache/generated-route-alias-runtime-guard-20261014/r70-owned-offline-provenance.log",
+      "logSha256": "d95c3ffe22d6af5049f905a7b0b79671451964964361bf9f5c6bfbfababb096c"
+    },
+    {
+      "name": "r70-owned-diagnostics",
+      "args": [
+        "--experimental-transform-types",
+        "--disable-warning=ExperimentalWarning",
+        "scripts/update-diagnostics-catalog.mjs",
+        "--check"
+      ],
+      "exitCode": 1,
+      "signal": null,
+      "elapsedMs": 1720,
+      "logPath": ".worktrees/_cache/generated-route-alias-runtime-guard-20261014/r70-owned-diagnostics.log",
+      "logSha256": "1c1f796d72ff7c68c2c5082aebe5408b43a39b6403426f72f8aaeb12831c4885"
+    }
+  ],
+  "buildInfo": null,
+  "artifacts": [],
+  "sourceEpoch": 1791202532,
+  "fullPackageBuild": false,
+  "whole": false,
+  "runtimeReplaced": false,
+  "qaDistModified": false,
+  "functionalTestsRepeated": false
+}

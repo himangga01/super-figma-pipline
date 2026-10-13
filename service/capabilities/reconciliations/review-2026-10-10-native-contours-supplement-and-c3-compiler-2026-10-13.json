@@ -1,0 +1,632 @@
+{
+  "schemaVersion": 1,
+  "slice": "review-2026-10-10",
+  "baseline": {
+    "headCommit": "22517932dc9b2cb974c177ec4eacb84d4b16e254",
+    "authoritySha256": {
+      "upstream-lock.json": "f992cfad28c4493a80d9f66228f281e42751280277b1ec3ea889c0591e71b7c4",
+      "vendor-map.json": "b3275c7d8b997d1cfe723d97594659f77d7b4361b824a790bcfdd7ff762589bd",
+      "vendor-rules.json": "0f91198db6556d8d4009ceac41ddb17f35e7b9b28c0039ab77c47879917f4875"
+    }
+  },
+  "entries": [
+    {
+      "path": "capabilities/task-review-2026-10-10-authority-classes.json",
+      "sha256": "764ad40b1a788600d802c38e8b69be10ab0a21b83c8b6a8cc4b3b2e1130661dc",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "1d42d7b8a0af5aee2e058f142e94eba4731435f83c1f70bb2958ddce3a069c3f"
+        },
+        {
+          "class": "protected",
+          "sha256": "1d42d7b8a0af5aee2e058f142e94eba4731435f83c1f70bb2958ddce3a069c3f"
+        }
+      ],
+      "reason": "Integrate independently reviewed contour R3, protected supplement R2, optional disabled-download policy and lookup-only wiring, C3 source preparation R3, catalog/type fixes, required Chrome census and guides. Preserve failed evidence, original deadlines/unknown outcomes, official-live deferral and owner index. Focused/source checks passed; whole/artifact/live application remain required. C2 adapter stays separate."
+    },
+    {
+      "path": "packages/cli/src/admin-commands.ts",
+      "sha256": "443405131b610349d9554435fc31ce7848ef95b8495ae6911bb219f3bb0ceb9d",
+      "priorClaims": [
+        {
+          "class": "protected",
+          "sha256": "5e0e4053f1bb26a21b1c6f270f898b959258d13ec1736c26324d5539dce810ef"
+        }
+      ],
+      "reason": "Integrate independently reviewed contour R3, protected supplement R2, optional disabled-download policy and lookup-only wiring, C3 source preparation R3, catalog/type fixes, required Chrome census and guides. Preserve failed evidence, original deadlines/unknown outcomes, official-live deferral and owner index. Focused/source checks passed; whole/artifact/live application remain required. C2 adapter stays separate."
+    },
+    {
+      "path": "packages/cli/src/commands.ts",
+      "sha256": "91bda67f13db4b2642d0df406fd78fecb11787015c177a383b64d5473c94cbf8",
+      "priorClaims": [
+        {
+          "class": "protected",
+          "sha256": "4ee2ab4d09a02671c257839137c570ecba9b0d061a48c5737d4e952bbb94dadd"
+        }
+      ],
+      "reason": "Integrate independently reviewed contour R3, protected supplement R2, optional disabled-download policy and lookup-only wiring, C3 source preparation R3, catalog/type fixes, required Chrome census and guides. Preserve failed evidence, original deadlines/unknown outcomes, official-live deferral and owner index. Focused/source checks passed; whole/artifact/live application remain required. C2 adapter stays separate."
+    },
+    {
+      "path": "packages/cli/src/figma-native-nodes.ts",
+      "sha256": "038162f60bb11b237f122bb4ff3f79fcc0a0dc7e671fd80d7b5459c0a19d401f",
+      "priorClaims": [
+        {
+          "class": "protected",
+          "sha256": "4307b1bb3ef050d482a8179eb9db059116683cd253211b34a5dd86eed08d1f01"
+        }
+      ],
+      "reason": "Integrate independently reviewed contour R3, protected supplement R2, optional disabled-download policy and lookup-only wiring, C3 source preparation R3, catalog/type fixes, required Chrome census and guides. Preserve failed evidence, original deadlines/unknown outcomes, official-live deferral and owner index. Focused/source checks passed; whole/artifact/live application remain required. C2 adapter stays separate."
+    },
+    {
+      "path": "packages/cli/src/figma-web-export.ts",
+      "sha256": "2374462137a7e3856cbb1b364ef17084d763bb274975051acc3a7aee75a01457",
+      "priorClaims": [
+        {
+          "class": "protected",
+          "sha256": "f47dbf2c5e482f358fb88912726b36feba1edaf98c9ed194d3fd39cbfca78970"
+        }
+      ],
+      "reason": "Integrate independently reviewed contour R3, protected supplement R2, optional disabled-download policy and lookup-only wiring, C3 source preparation R3, catalog/type fixes, required Chrome census and guides. Preserve failed evidence, original deadlines/unknown outcomes, official-live deferral and owner index. Focused/source checks passed; whole/artifact/live application remain required. C2 adapter stays separate."
+    },
+    {
+      "path": "packages/cli/src/service-functions.ts",
+      "sha256": "65b322eed8692e28a81015f7450d2d4b0f6651f4e7d52bb7183ada665d884246",
+      "priorClaims": [
+        {
+          "class": "protected",
+          "sha256": "5e979e50b00a2cfc2bdbc60f016020a4c2c098e028721efcea42f3698f10113f"
+        }
+      ],
+      "reason": "Integrate independently reviewed contour R3, protected supplement R2, optional disabled-download policy and lookup-only wiring, C3 source preparation R3, catalog/type fixes, required Chrome census and guides. Preserve failed evidence, original deadlines/unknown outcomes, official-live deferral and owner index. Focused/source checks passed; whole/artifact/live application remain required. C2 adapter stays separate."
+    },
+    {
+      "path": "packages/cli/test/admin-commands.test.ts",
+      "sha256": "8dda757b4939fb79aa4550b1feb9d049ce7d17945ae78b9a04b37afaf8eeee6a",
+      "priorClaims": [
+        {
+          "class": "protected",
+          "sha256": "0b94ea8bdc76c56a911be8ebbd74c28e0c7aff345f79109f46d4ee5f112a7937"
+        }
+      ],
+      "reason": "Integrate independently reviewed contour R3, protected supplement R2, optional disabled-download policy and lookup-only wiring, C3 source preparation R3, catalog/type fixes, required Chrome census and guides. Preserve failed evidence, original deadlines/unknown outcomes, official-live deferral and owner index. Focused/source checks passed; whole/artifact/live application remain required. C2 adapter stays separate."
+    },
+    {
+      "path": "packages/cli/test/figma-native-text-observer.test.ts",
+      "sha256": "d0a9914e592357bd4580d8bab958e9ff13379e60f0cbfc7e4ecce5ba55f9cb85",
+      "priorClaims": [],
+      "reason": "Integrate independently reviewed contour R3, protected supplement R2, optional disabled-download policy and lookup-only wiring, C3 source preparation R3, catalog/type fixes, required Chrome census and guides. Preserve failed evidence, original deadlines/unknown outcomes, official-live deferral and owner index. Focused/source checks passed; whole/artifact/live application remain required. C2 adapter stays separate."
+    },
+    {
+      "path": "packages/cli/test/figma-web-export.test.ts",
+      "sha256": "c40f351b5566386e5fbfbe13e842a35f4d0de12ce239bc186e839247f08039ea",
+      "priorClaims": [
+        {
+          "class": "protected",
+          "sha256": "0365ba6a2d67bb25f8bdf0c44f73b72a6307af19e3b0c858eb7ae55c90191dc5"
+        }
+      ],
+      "reason": "Integrate independently reviewed contour R3, protected supplement R2, optional disabled-download policy and lookup-only wiring, C3 source preparation R3, catalog/type fixes, required Chrome census and guides. Preserve failed evidence, original deadlines/unknown outcomes, official-live deferral and owner index. Focused/source checks passed; whole/artifact/live application remain required. C2 adapter stays separate."
+    },
+    {
+      "path": "packages/cli/test/service-functions.test.ts",
+      "sha256": "5be2bdbb27bac82421307763cb5254e36cf81d3f78b0bf902a9b86fd4e7e5bd3",
+      "priorClaims": [
+        {
+          "class": "protected",
+          "sha256": "2c6b5c6956ab4862b997a7ff54e0c7cb83f1a7a9c030c5c5ad05eb3b0b5da1f6"
+        }
+      ],
+      "reason": "Integrate independently reviewed contour R3, protected supplement R2, optional disabled-download policy and lookup-only wiring, C3 source preparation R3, catalog/type fixes, required Chrome census and guides. Preserve failed evidence, original deadlines/unknown outcomes, official-live deferral and owner index. Focused/source checks passed; whole/artifact/live application remain required. C2 adapter stays separate."
+    },
+    {
+      "path": "packages/mcp/src/diagnostics-catalog.ts",
+      "sha256": "cfe145463e0eb5ce45a9e306cef5f7b0c2356d69c82afcff6d5af667b1e72a94",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "43854fa6cbc59afdeb2ab0464205e0c5ad429829488a6117ef0ff98b4a3d2432"
+        },
+        {
+          "class": "protected",
+          "sha256": "43854fa6cbc59afdeb2ab0464205e0c5ad429829488a6117ef0ff98b4a3d2432"
+        }
+      ],
+      "reason": "Integrate independently reviewed contour R3, protected supplement R2, optional disabled-download policy and lookup-only wiring, C3 source preparation R3, catalog/type fixes, required Chrome census and guides. Preserve failed evidence, original deadlines/unknown outcomes, official-live deferral and owner index. Focused/source checks passed; whole/artifact/live application remain required. C2 adapter stays separate."
+    },
+    {
+      "path": "packages/mcp/src/index.ts",
+      "sha256": "a1ac55dc67da5c9345a7b1dcf66a5d856f625707ebd544b896727006411f324b",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "74ac932dbbdc00bc9e1225289faf206022b0fe0b6e09d22a60b4b1f1ad36a2de"
+        },
+        {
+          "class": "protected",
+          "sha256": "74ac932dbbdc00bc9e1225289faf206022b0fe0b6e09d22a60b4b1f1ad36a2de"
+        }
+      ],
+      "reason": "Integrate independently reviewed contour R3, protected supplement R2, optional disabled-download policy and lookup-only wiring, C3 source preparation R3, catalog/type fixes, required Chrome census and guides. Preserve failed evidence, original deadlines/unknown outcomes, official-live deferral and owner index. Focused/source checks passed; whole/artifact/live application remain required. C2 adapter stays separate."
+    },
+    {
+      "path": "packages/mcp/src/portal/capture-native-supplement.ts",
+      "sha256": "253535a2a8203a31614869b17aa14c48ec98f5b9aab393048351170fd8a09898",
+      "priorClaims": [],
+      "reason": "Integrate independently reviewed contour R3, protected supplement R2, optional disabled-download policy and lookup-only wiring, C3 source preparation R3, catalog/type fixes, required Chrome census and guides. Preserve failed evidence, original deadlines/unknown outcomes, official-live deferral and owner index. Focused/source checks passed; whole/artifact/live application remain required. C2 adapter stays separate."
+    },
+    {
+      "path": "packages/mcp/src/portal/coordinator.ts",
+      "sha256": "c697d81af1625570a328d9402a47988dbb886df25d5a2cd2f88534fe6b1524aa",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "8c0cf3f0f93acd3bba25487833c0a51075233bc551b609c5d0eb94c68ebf87c9"
+        },
+        {
+          "class": "protected",
+          "sha256": "8c0cf3f0f93acd3bba25487833c0a51075233bc551b609c5d0eb94c68ebf87c9"
+        }
+      ],
+      "reason": "Integrate independently reviewed contour R3, protected supplement R2, optional disabled-download policy and lookup-only wiring, C3 source preparation R3, catalog/type fixes, required Chrome census and guides. Preserve failed evidence, original deadlines/unknown outcomes, official-live deferral and owner index. Focused/source checks passed; whole/artifact/live application remain required. C2 adapter stays separate."
+    },
+    {
+      "path": "packages/mcp/src/portal/design-capture.ts",
+      "sha256": "6278899c421059366780405fd801143981e9e377b38b9a86d58c983a0853ce57",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "0db6ee493563dff2b0f34de47fcf7d6c3ececc4065c4a4caf60adb89a5f48c26"
+        },
+        {
+          "class": "protected",
+          "sha256": "0db6ee493563dff2b0f34de47fcf7d6c3ececc4065c4a4caf60adb89a5f48c26"
+        }
+      ],
+      "reason": "Integrate independently reviewed contour R3, protected supplement R2, optional disabled-download policy and lookup-only wiring, C3 source preparation R3, catalog/type fixes, required Chrome census and guides. Preserve failed evidence, original deadlines/unknown outcomes, official-live deferral and owner index. Focused/source checks passed; whole/artifact/live application remain required. C2 adapter stays separate."
+    },
+    {
+      "path": "packages/mcp/src/portal/module-resolution.ts",
+      "sha256": "0eba03f98f2c48c2ee299bcbf708ce1111b8b40f28d6300aaff5d88ed0c25f70",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "fcebd307eb4f2c7b2aa25600918f80c028b72313b9b9f8fbf04d6389232c38e7"
+        },
+        {
+          "class": "protected",
+          "sha256": "fcebd307eb4f2c7b2aa25600918f80c028b72313b9b9f8fbf04d6389232c38e7"
+        }
+      ],
+      "reason": "Integrate independently reviewed contour R3, protected supplement R2, optional disabled-download policy and lookup-only wiring, C3 source preparation R3, catalog/type fixes, required Chrome census and guides. Preserve failed evidence, original deadlines/unknown outcomes, official-live deferral and owner index. Focused/source checks passed; whole/artifact/live application remain required. C2 adapter stays separate."
+    },
+    {
+      "path": "packages/mcp/src/portal/native-contours.ts",
+      "sha256": "316df137173a4e951c385d2a95c6ffb368ffa127016b0582d414f6f2ac20927c",
+      "priorClaims": [],
+      "reason": "Integrate independently reviewed contour R3, protected supplement R2, optional disabled-download policy and lookup-only wiring, C3 source preparation R3, catalog/type fixes, required Chrome census and guides. Preserve failed evidence, original deadlines/unknown outcomes, official-live deferral and owner index. Focused/source checks passed; whole/artifact/live application remain required. C2 adapter stays separate."
+    },
+    {
+      "path": "packages/mcp/src/portal/native-module-fence-source.ts",
+      "sha256": "a5297abc323d748a480a7e5e2741f19b644a4232d6471aa280a7b0b4b7d72dcd",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "262a13ec13bc2ab89165c7d06c1b7c28c194fbc201d877c447379ecfabd451ee"
+        },
+        {
+          "class": "protected",
+          "sha256": "262a13ec13bc2ab89165c7d06c1b7c28c194fbc201d877c447379ecfabd451ee"
+        }
+      ],
+      "reason": "Integrate independently reviewed contour R3, protected supplement R2, optional disabled-download policy and lookup-only wiring, C3 source preparation R3, catalog/type fixes, required Chrome census and guides. Preserve failed evidence, original deadlines/unknown outcomes, official-live deferral and owner index. Focused/source checks passed; whole/artifact/live application remain required. C2 adapter stays separate."
+    },
+    {
+      "path": "packages/mcp/src/portal/native-module-fence.ts",
+      "sha256": "75cb1d7338581f17d87f7e305d88c892e21abb714742dce286a264179d6488cd",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "277256620d5bf2056bf10071f6f3ec727d45d7ddcfbffbf9e1f534ce9ffdd2df"
+        },
+        {
+          "class": "protected",
+          "sha256": "277256620d5bf2056bf10071f6f3ec727d45d7ddcfbffbf9e1f534ce9ffdd2df"
+        }
+      ],
+      "reason": "Integrate independently reviewed contour R3, protected supplement R2, optional disabled-download policy and lookup-only wiring, C3 source preparation R3, catalog/type fixes, required Chrome census and guides. Preserve failed evidence, original deadlines/unknown outcomes, official-live deferral and owner index. Focused/source checks passed; whole/artifact/live application remain required. C2 adapter stays separate."
+    },
+    {
+      "path": "packages/mcp/src/portal/native-runner.ts",
+      "sha256": "a11fd737d016ef977703e4b7c32bace3934dea975d62e6b5d28bf18a180ab3c0",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "5e5f60e3f3d67c96f5b0918fd1d7082e67630d659ebcb9330316e20744f9be72"
+        },
+        {
+          "class": "protected",
+          "sha256": "5e5f60e3f3d67c96f5b0918fd1d7082e67630d659ebcb9330316e20744f9be72"
+        }
+      ],
+      "reason": "Integrate independently reviewed contour R3, protected supplement R2, optional disabled-download policy and lookup-only wiring, C3 source preparation R3, catalog/type fixes, required Chrome census and guides. Preserve failed evidence, original deadlines/unknown outcomes, official-live deferral and owner index. Focused/source checks passed; whole/artifact/live application remain required. C2 adapter stays separate."
+    },
+    {
+      "path": "packages/mcp/src/portal/native-work.ts",
+      "sha256": "3d2c566380ee4e54f5a801990d83df87c754db69cc69e5e88f422c2ec0dbf61a",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "d0592bb58da1f9e31c7ba2a04fc83226bf28010de7251f8858fcfc3e3b592727"
+        },
+        {
+          "class": "protected",
+          "sha256": "d0592bb58da1f9e31c7ba2a04fc83226bf28010de7251f8858fcfc3e3b592727"
+        }
+      ],
+      "reason": "Integrate independently reviewed contour R3, protected supplement R2, optional disabled-download policy and lookup-only wiring, C3 source preparation R3, catalog/type fixes, required Chrome census and guides. Preserve failed evidence, original deadlines/unknown outcomes, official-live deferral and owner index. Focused/source checks passed; whole/artifact/live application remain required. C2 adapter stays separate."
+    },
+    {
+      "path": "packages/mcp/src/portal/preview-consumption.ts",
+      "sha256": "3bb8c015c7590060ecf68aa1ee691467ce2fad958598dcd04abaaa52d620a5ae",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "225a65c7aa968b276ec3d0ad2c38ef792aa6d78f72ff420edb383feef2bb675f"
+        },
+        {
+          "class": "protected",
+          "sha256": "225a65c7aa968b276ec3d0ad2c38ef792aa6d78f72ff420edb383feef2bb675f"
+        }
+      ],
+      "reason": "Integrate independently reviewed contour R3, protected supplement R2, optional disabled-download policy and lookup-only wiring, C3 source preparation R3, catalog/type fixes, required Chrome census and guides. Preserve failed evidence, original deadlines/unknown outcomes, official-live deferral and owner index. Focused/source checks passed; whole/artifact/live application remain required. C2 adapter stays separate."
+    },
+    {
+      "path": "packages/mcp/src/portal/preview-native-contours.ts",
+      "sha256": "93eb96c53c7f85f9625912a1c23b5877f6ce21aacb055bdee0b6a7e7456b0f3c",
+      "priorClaims": [],
+      "reason": "Integrate independently reviewed contour R3, protected supplement R2, optional disabled-download policy and lookup-only wiring, C3 source preparation R3, catalog/type fixes, required Chrome census and guides. Preserve failed evidence, original deadlines/unknown outcomes, official-live deferral and owner index. Focused/source checks passed; whole/artifact/live application remain required. C2 adapter stays separate."
+    },
+    {
+      "path": "packages/mcp/src/portal/react-router-compiler-evidence.ts",
+      "sha256": "c17c1a3bc0d37c6ef32c9feb0d1360c5b38abcc84e8e9fdbe298f1481b5ea12d",
+      "priorClaims": [],
+      "reason": "Integrate independently reviewed contour R3, protected supplement R2, optional disabled-download policy and lookup-only wiring, C3 source preparation R3, catalog/type fixes, required Chrome census and guides. Preserve failed evidence, original deadlines/unknown outcomes, official-live deferral and owner index. Focused/source checks passed; whole/artifact/live application remain required. C2 adapter stays separate."
+    },
+    {
+      "path": "packages/mcp/src/portal/recipes/consumption-input.ts",
+      "sha256": "4a62262fb16d62ef84fb3740192b2e511d45161f223bd2b2e238dd79f2627977",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "25224b3de4a8ae1f8eea99031920839948454d943870c902d005bf8e04f8d7f1"
+        },
+        {
+          "class": "protected",
+          "sha256": "25224b3de4a8ae1f8eea99031920839948454d943870c902d005bf8e04f8d7f1"
+        }
+      ],
+      "reason": "Integrate independently reviewed contour R3, protected supplement R2, optional disabled-download policy and lookup-only wiring, C3 source preparation R3, catalog/type fixes, required Chrome census and guides. Preserve failed evidence, original deadlines/unknown outcomes, official-live deferral and owner index. Focused/source checks passed; whole/artifact/live application remain required. C2 adapter stays separate."
+    },
+    {
+      "path": "packages/mcp/src/portal/recipes/core-consumption.ts",
+      "sha256": "b14046b8da5cf713f1910474edc9652f482f082babe8ebaf781bd8a19a9ae0f2",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "e5a74d39f9c8ef3c6a8e1a794b45966f568fd61413f6e06417eff23c62a30dd6"
+        },
+        {
+          "class": "protected",
+          "sha256": "e5a74d39f9c8ef3c6a8e1a794b45966f568fd61413f6e06417eff23c62a30dd6"
+        }
+      ],
+      "reason": "Integrate independently reviewed contour R3, protected supplement R2, optional disabled-download policy and lookup-only wiring, C3 source preparation R3, catalog/type fixes, required Chrome census and guides. Preserve failed evidence, original deadlines/unknown outcomes, official-live deferral and owner index. Focused/source checks passed; whole/artifact/live application remain required. C2 adapter stays separate."
+    },
+    {
+      "path": "packages/mcp/src/portal/recipes/core-lifecycle.ts",
+      "sha256": "120846345085b8080d7d6ec01e94f7a2c74823e2ef28e7d58ce675e88c22390b",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "690858ebe3b057be595bcb3b4263a8daacbffbef6c2e3b2d3861a8677e21d35e"
+        },
+        {
+          "class": "protected",
+          "sha256": "690858ebe3b057be595bcb3b4263a8daacbffbef6c2e3b2d3861a8677e21d35e"
+        }
+      ],
+      "reason": "Integrate independently reviewed contour R3, protected supplement R2, optional disabled-download policy and lookup-only wiring, C3 source preparation R3, catalog/type fixes, required Chrome census and guides. Preserve failed evidence, original deadlines/unknown outcomes, official-live deferral and owner index. Focused/source checks passed; whole/artifact/live application remain required. C2 adapter stays separate."
+    },
+    {
+      "path": "packages/mcp/src/portal/recipes/core-source.ts",
+      "sha256": "d0c7df63fcd9cff210e0db257d37b3938ffdf3e9c5800bc25eb28d271b37ad67",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "ed8eba6e98d31f3ff75034c61c17f6f2832e835873ab920afad94f97a44aabf2"
+        },
+        {
+          "class": "protected",
+          "sha256": "ed8eba6e98d31f3ff75034c61c17f6f2832e835873ab920afad94f97a44aabf2"
+        }
+      ],
+      "reason": "Integrate independently reviewed contour R3, protected supplement R2, optional disabled-download policy and lookup-only wiring, C3 source preparation R3, catalog/type fixes, required Chrome census and guides. Preserve failed evidence, original deadlines/unknown outcomes, official-live deferral and owner index. Focused/source checks passed; whole/artifact/live application remain required. C2 adapter stays separate."
+    },
+    {
+      "path": "packages/mcp/src/portal/service-graph.ts",
+      "sha256": "92c0deeead1a0c65135079d28b209eeac407717011c4ce9714705b822969e430",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "1042e728abf21edee6ebc35cc0245ad582965981db06632ab07eb9d1602017ec"
+        },
+        {
+          "class": "protected",
+          "sha256": "1042e728abf21edee6ebc35cc0245ad582965981db06632ab07eb9d1602017ec"
+        }
+      ],
+      "reason": "Integrate independently reviewed contour R3, protected supplement R2, optional disabled-download policy and lookup-only wiring, C3 source preparation R3, catalog/type fixes, required Chrome census and guides. Preserve failed evidence, original deadlines/unknown outcomes, official-live deferral and owner index. Focused/source checks passed; whole/artifact/live application remain required. C2 adapter stays separate."
+    },
+    {
+      "path": "packages/mcp/src/tools/portal.ts",
+      "sha256": "27a9b3ae44052da839b0c15df8c26f8648a25877152434f4dfb3cee68b276b00",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "251eb4b9ac5cf05de9cfb99261338dbf5b9c5bcba8848ccb6c980aed400a32ac"
+        },
+        {
+          "class": "protected",
+          "sha256": "251eb4b9ac5cf05de9cfb99261338dbf5b9c5bcba8848ccb6c980aed400a32ac"
+        }
+      ],
+      "reason": "Integrate independently reviewed contour R3, protected supplement R2, optional disabled-download policy and lookup-only wiring, C3 source preparation R3, catalog/type fixes, required Chrome census and guides. Preserve failed evidence, original deadlines/unknown outcomes, official-live deferral and owner index. Focused/source checks passed; whole/artifact/live application remain required. C2 adapter stays separate."
+    },
+    {
+      "path": "packages/mcp/test/portal/capture-coherence.test.ts",
+      "sha256": "2bdd186338eae1b3f7aa2e8cfa8c81572d5bee90a498fdb1b5da7fbdb02bb2ab",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "e602ea2902939ca1b628eaa4872cfdac3d1c68d1509289b9c69139893224436e"
+        },
+        {
+          "class": "protected",
+          "sha256": "e602ea2902939ca1b628eaa4872cfdac3d1c68d1509289b9c69139893224436e"
+        }
+      ],
+      "reason": "Integrate independently reviewed contour R3, protected supplement R2, optional disabled-download policy and lookup-only wiring, C3 source preparation R3, catalog/type fixes, required Chrome census and guides. Preserve failed evidence, original deadlines/unknown outcomes, official-live deferral and owner index. Focused/source checks passed; whole/artifact/live application remain required. C2 adapter stays separate."
+    },
+    {
+      "path": "packages/mcp/test/portal/capture-native-supplement.test.ts",
+      "sha256": "02362d84aea8ce22a0a788ca0da49114a5dc71ac00888830444d86fee6021d97",
+      "priorClaims": [],
+      "reason": "Integrate independently reviewed contour R3, protected supplement R2, optional disabled-download policy and lookup-only wiring, C3 source preparation R3, catalog/type fixes, required Chrome census and guides. Preserve failed evidence, original deadlines/unknown outcomes, official-live deferral and owner index. Focused/source checks passed; whole/artifact/live application remain required. C2 adapter stays separate."
+    },
+    {
+      "path": "packages/mcp/test/portal/core-lifecycle.test.ts",
+      "sha256": "4431eaa033140e8ec412504a62433739dff030e9925c14ed189023765fbc86a1",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "ce7bfa9575f9068c610f74a034858cace4b4785261f15be663168bade3facf1e"
+        },
+        {
+          "class": "protected",
+          "sha256": "ce7bfa9575f9068c610f74a034858cace4b4785261f15be663168bade3facf1e"
+        }
+      ],
+      "reason": "Integrate independently reviewed contour R3, protected supplement R2, optional disabled-download policy and lookup-only wiring, C3 source preparation R3, catalog/type fixes, required Chrome census and guides. Preserve failed evidence, original deadlines/unknown outcomes, official-live deferral and owner index. Focused/source checks passed; whole/artifact/live application remain required. C2 adapter stays separate."
+    },
+    {
+      "path": "packages/mcp/test/portal/module-resolution.test.ts",
+      "sha256": "ca7de6c9afc1c6018e9a1762d95d45e42d5e5f8b86b11f936a96a8e4355418ed",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "94f8ab700f1f00cdf20ef93a74287821b96ac4dcd8687010fe55ebbf1fe301bd"
+        },
+        {
+          "class": "protected",
+          "sha256": "94f8ab700f1f00cdf20ef93a74287821b96ac4dcd8687010fe55ebbf1fe301bd"
+        }
+      ],
+      "reason": "Integrate independently reviewed contour R3, protected supplement R2, optional disabled-download policy and lookup-only wiring, C3 source preparation R3, catalog/type fixes, required Chrome census and guides. Preserve failed evidence, original deadlines/unknown outcomes, official-live deferral and owner index. Focused/source checks passed; whole/artifact/live application remain required. C2 adapter stays separate."
+    },
+    {
+      "path": "packages/mcp/test/portal/native-contours.test.ts",
+      "sha256": "6810b2f1fd0b591160d3edbcfbe862c898b9ae263a61ecda188772d2c33d04e6",
+      "priorClaims": [],
+      "reason": "Integrate independently reviewed contour R3, protected supplement R2, optional disabled-download policy and lookup-only wiring, C3 source preparation R3, catalog/type fixes, required Chrome census and guides. Preserve failed evidence, original deadlines/unknown outcomes, official-live deferral and owner index. Focused/source checks passed; whole/artifact/live application remain required. C2 adapter stays separate."
+    },
+    {
+      "path": "packages/mcp/test/portal/native-module-fence.test.ts",
+      "sha256": "7f75cd768db5164f056e407b74967105d320ff921e46b1663cee520c207aa2be",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "06a3cde66dd00962e03968eafafa4a1817dd6864ea39c75d7709001bbe18c181"
+        },
+        {
+          "class": "protected",
+          "sha256": "06a3cde66dd00962e03968eafafa4a1817dd6864ea39c75d7709001bbe18c181"
+        }
+      ],
+      "reason": "Integrate independently reviewed contour R3, protected supplement R2, optional disabled-download policy and lookup-only wiring, C3 source preparation R3, catalog/type fixes, required Chrome census and guides. Preserve failed evidence, original deadlines/unknown outcomes, official-live deferral and owner index. Focused/source checks passed; whole/artifact/live application remain required. C2 adapter stays separate."
+    },
+    {
+      "path": "packages/mcp/test/portal/native-runner.test.ts",
+      "sha256": "003869837bcc84c855a2005185709afecf467c5501fe0a50a5eefb0c4f9cb3d9",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "9e0d3bc3804f47b8ac75fa8568b5f81fdbd41309cd23b80a558b0a50ce4dd31e"
+        },
+        {
+          "class": "protected",
+          "sha256": "9e0d3bc3804f47b8ac75fa8568b5f81fdbd41309cd23b80a558b0a50ce4dd31e"
+        }
+      ],
+      "reason": "Integrate independently reviewed contour R3, protected supplement R2, optional disabled-download policy and lookup-only wiring, C3 source preparation R3, catalog/type fixes, required Chrome census and guides. Preserve failed evidence, original deadlines/unknown outcomes, official-live deferral and owner index. Focused/source checks passed; whole/artifact/live application remain required. C2 adapter stays separate."
+    },
+    {
+      "path": "packages/mcp/test/portal/native-work.characterization.test.ts",
+      "sha256": "a7146d4b2b75f99cc19ca2f33dce95d80fa7a6a828664be00a8136037e9fe0e5",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "166851b7ce7d77130183c3cbf37db608ccfd9a65bad14d22cdd92ded4452553f"
+        },
+        {
+          "class": "protected",
+          "sha256": "166851b7ce7d77130183c3cbf37db608ccfd9a65bad14d22cdd92ded4452553f"
+        }
+      ],
+      "reason": "Integrate independently reviewed contour R3, protected supplement R2, optional disabled-download policy and lookup-only wiring, C3 source preparation R3, catalog/type fixes, required Chrome census and guides. Preserve failed evidence, original deadlines/unknown outcomes, official-live deferral and owner index. Focused/source checks passed; whole/artifact/live application remain required. C2 adapter stays separate."
+    },
+    {
+      "path": "packages/mcp/test/portal/preview-native-contours.test.ts",
+      "sha256": "76f84fc168d443397c44198cc8ac6c2c1bee0b75e514843670dfe1de215f20ba",
+      "priorClaims": [],
+      "reason": "Integrate independently reviewed contour R3, protected supplement R2, optional disabled-download policy and lookup-only wiring, C3 source preparation R3, catalog/type fixes, required Chrome census and guides. Preserve failed evidence, original deadlines/unknown outcomes, official-live deferral and owner index. Focused/source checks passed; whole/artifact/live application remain required. C2 adapter stays separate."
+    },
+    {
+      "path": "packages/mcp/test/portal/react-router-compiler-evidence.test.ts",
+      "sha256": "607746733b0cc1f08ae2cb83269b4b29e28c13c8998c9fbff7aa92b488333ed9",
+      "priorClaims": [],
+      "reason": "Integrate independently reviewed contour R3, protected supplement R2, optional disabled-download policy and lookup-only wiring, C3 source preparation R3, catalog/type fixes, required Chrome census and guides. Preserve failed evidence, original deadlines/unknown outcomes, official-live deferral and owner index. Focused/source checks passed; whole/artifact/live application remain required. C2 adapter stays separate."
+    },
+    {
+      "path": "packages/mcp/test/portal/service-graph.test.ts",
+      "sha256": "1d7ffde27e28beb59da91172b06e2d2a137d2b815a0a340f2972ad329dd6d9cc",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "ac9d4495e463811513ff0ec26f978fa90be01e7e1005cd73aaac4b2c24cfc05d"
+        },
+        {
+          "class": "protected",
+          "sha256": "ac9d4495e463811513ff0ec26f978fa90be01e7e1005cd73aaac4b2c24cfc05d"
+        }
+      ],
+      "reason": "Integrate independently reviewed contour R3, protected supplement R2, optional disabled-download policy and lookup-only wiring, C3 source preparation R3, catalog/type fixes, required Chrome census and guides. Preserve failed evidence, original deadlines/unknown outcomes, official-live deferral and owner index. Focused/source checks passed; whole/artifact/live application remain required. C2 adapter stays separate."
+    },
+    {
+      "path": "packages/mcp/test/portal/source-preparation.test.ts",
+      "sha256": "78e9ab27954110d9cd394d9987713ac9b0c4de116f08d2d3659349337a803128",
+      "priorClaims": [],
+      "reason": "Integrate independently reviewed contour R3, protected supplement R2, optional disabled-download policy and lookup-only wiring, C3 source preparation R3, catalog/type fixes, required Chrome census and guides. Preserve failed evidence, original deadlines/unknown outcomes, official-live deferral and owner index. Focused/source checks passed; whole/artifact/live application remain required. C2 adapter stays separate."
+    },
+    {
+      "path": "packages/portal/README.md",
+      "sha256": "4daa8089444c7c38134518d2899743b7374aa1cdc9270bf0b3c3c0b360e56583",
+      "priorClaims": [
+        {
+          "class": "protected",
+          "sha256": "d4c577314fc7c595f6d1c18ff0ced21fb511a65a13fb8e3489f8823cb33d7900"
+        }
+      ],
+      "reason": "Integrate independently reviewed contour R3, protected supplement R2, optional disabled-download policy and lookup-only wiring, C3 source preparation R3, catalog/type fixes, required Chrome census and guides. Preserve failed evidence, original deadlines/unknown outcomes, official-live deferral and owner index. Focused/source checks passed; whole/artifact/live application remain required. C2 adapter stays separate."
+    },
+    {
+      "path": "packages/portal/package.json",
+      "sha256": "ddb99eafe979d2319697f9bde91d01c4b3f4cf7f3e2a2baccfcb06ceff7767c8",
+      "priorClaims": [
+        {
+          "class": "protected",
+          "sha256": "ddb99eafe979d2319697f9bde91d01c4b3f4cf7f3e2a2baccfcb06ceff7767c8"
+        }
+      ],
+      "reason": "Integrate independently reviewed contour R3, protected supplement R2, optional disabled-download policy and lookup-only wiring, C3 source preparation R3, catalog/type fixes, required Chrome census and guides. Preserve failed evidence, original deadlines/unknown outcomes, official-live deferral and owner index. Focused/source checks passed; whole/artifact/live application remain required. C2 adapter stays separate."
+    },
+    {
+      "path": "packages/portal/test/service-control.test.ts",
+      "sha256": "cfe65a413ce05ead343e4f19ff351a6bacca3d2c72d93ebc2d7dfee9c1162a04",
+      "priorClaims": [
+        {
+          "class": "protected",
+          "sha256": "1c7e2b01f36737538068513db3a4bc5ca477b835a19710a8b3552053b5142e86"
+        }
+      ],
+      "reason": "Integrate independently reviewed contour R3, protected supplement R2, optional disabled-download policy and lookup-only wiring, C3 source preparation R3, catalog/type fixes, required Chrome census and guides. Preserve failed evidence, original deadlines/unknown outcomes, official-live deferral and owner index. Focused/source checks passed; whole/artifact/live application remain required. C2 adapter stays separate."
+    },
+    {
+      "path": "packages/shared/src/portal-consumption.ts",
+      "sha256": "0ec80342cc2f6b927f7b2904198410f5278ac894d2fb4dabb5180edbb11219e5",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "05abcb86384b044c60a27bea2ec2343ad03c3ea1bb72d709aa402213e4f4a3e9"
+        },
+        {
+          "class": "protected",
+          "sha256": "05abcb86384b044c60a27bea2ec2343ad03c3ea1bb72d709aa402213e4f4a3e9"
+        }
+      ],
+      "reason": "Integrate independently reviewed contour R3, protected supplement R2, optional disabled-download policy and lookup-only wiring, C3 source preparation R3, catalog/type fixes, required Chrome census and guides. Preserve failed evidence, original deadlines/unknown outcomes, official-live deferral and owner index. Focused/source checks passed; whole/artifact/live application remain required. C2 adapter stays separate."
+    },
+    {
+      "path": "packages/shared/src/portal-native-contours.ts",
+      "sha256": "9ef5c0666b17f432e278a3d31ccba55924b18019fa809a5489d200085137f7a2",
+      "priorClaims": [],
+      "reason": "Integrate independently reviewed contour R3, protected supplement R2, optional disabled-download policy and lookup-only wiring, C3 source preparation R3, catalog/type fixes, required Chrome census and guides. Preserve failed evidence, original deadlines/unknown outcomes, official-live deferral and owner index. Focused/source checks passed; whole/artifact/live application remain required. C2 adapter stays separate."
+    },
+    {
+      "path": "packages/shared/src/portal-recipe-use.ts",
+      "sha256": "a08ea8a2a2286e61ac16051a20959c8f7e122f05960910075a88d5b849d9c594",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "9064bc5c7ef32edf223d262fa833cac73aaa35fc63a61f2933fecf044b56f44d"
+        },
+        {
+          "class": "protected",
+          "sha256": "9064bc5c7ef32edf223d262fa833cac73aaa35fc63a61f2933fecf044b56f44d"
+        }
+      ],
+      "reason": "Integrate independently reviewed contour R3, protected supplement R2, optional disabled-download policy and lookup-only wiring, C3 source preparation R3, catalog/type fixes, required Chrome census and guides. Preserve failed evidence, original deadlines/unknown outcomes, official-live deferral and owner index. Focused/source checks passed; whole/artifact/live application remain required. C2 adapter stays separate."
+    },
+    {
+      "path": "packages/shared/src/portal.ts",
+      "sha256": "bc44489007514abf4ed30e7341ef3788b58deb9f5e685a491adf0883880ae2aa",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "0706a4f77a9116efef1ff434e13292b128138666d4b4045da9dea295f042b2d4"
+        },
+        {
+          "class": "protected",
+          "sha256": "0706a4f77a9116efef1ff434e13292b128138666d4b4045da9dea295f042b2d4"
+        }
+      ],
+      "reason": "Integrate independently reviewed contour R3, protected supplement R2, optional disabled-download policy and lookup-only wiring, C3 source preparation R3, catalog/type fixes, required Chrome census and guides. Preserve failed evidence, original deadlines/unknown outcomes, official-live deferral and owner index. Focused/source checks passed; whole/artifact/live application remain required. C2 adapter stays separate."
+    },
+    {
+      "path": "packages/shared/test/portal.test.ts",
+      "sha256": "c84eecede7ba8c24693ae89216c0b2fb6c4685ddb84018e8b999ea64558fc19c",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "efe06d7db6c7425732a97bcad5e663d09fe5345531806927907d4a957f41b3b9"
+        },
+        {
+          "class": "protected",
+          "sha256": "efe06d7db6c7425732a97bcad5e663d09fe5345531806927907d4a957f41b3b9"
+        }
+      ],
+      "reason": "Integrate independently reviewed contour R3, protected supplement R2, optional disabled-download policy and lookup-only wiring, C3 source preparation R3, catalog/type fixes, required Chrome census and guides. Preserve failed evidence, original deadlines/unknown outcomes, official-live deferral and owner index. Focused/source checks passed; whole/artifact/live application remain required. C2 adapter stays separate."
+    },
+    {
+      "path": "scripts/test-skip-census.mjs",
+      "sha256": "8e3f73dbfc00c1c8efd59a48f422be9e95be9258e2e262996feb4c770ef514c3",
+      "priorClaims": [
+        {
+          "class": "protected",
+          "sha256": "9a26ccf5a315b40c6be087adb5d5497b60b3b2330cbc77a97bc6bccf0fc64c83"
+        }
+      ],
+      "reason": "Integrate independently reviewed contour R3, protected supplement R2, optional disabled-download policy and lookup-only wiring, C3 source preparation R3, catalog/type fixes, required Chrome census and guides. Preserve failed evidence, original deadlines/unknown outcomes, official-live deferral and owner index. Focused/source checks passed; whole/artifact/live application remain required. C2 adapter stays separate."
+    }
+  ]
+}

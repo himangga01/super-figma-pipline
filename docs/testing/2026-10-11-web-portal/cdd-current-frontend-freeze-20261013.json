@@ -1,0 +1,31 @@
+{
+  "schemaVersion": 1,
+  "kind": "root-current-frontend-freeze-inspection",
+  "at": "2026-10-13T10:52:27.729Z",
+  "sourceRuntimeHash": "sha256:303de5d1904d11c1fb89bdf80951900e375ac4325ea6cfc932f39ebee2785732",
+  "manifestHash": "bc6e0d566e2183313600a3da0c313b91b1dad11944dc64302668b042efcebb42",
+  "filesVerified": 37,
+  "totalBytes": 2389598,
+  "maximumFileBytes": 389697,
+  "typecheckReported": {
+    "compilerVersion": "5.9.3",
+    "declaredNativeCompilerVersion": "5.9.2",
+    "sourceFiles": 8,
+    "diagnostics": 0,
+    "receiptHash": "sha256:423754949e2eb18f6ff64e67a2b40c94d397472318419e4bd444e7135c87c9e1"
+  },
+  "rootPngUiProxiesReported": false,
+  "currentBinding": {
+    "contextHash": "sha256:fbf36e51c4e6d4be33ff87ab59d1af74a85d9e6d4f00cc37cff9bc7e011c4562",
+    "blueprintHash": "sha256:4fd74d56228a1390b19bb0b04d26aaca4a1df449f54fb69e4195978a807940e2",
+    "captureRawHash": "sha256:420358cd2abb821a53b2d13883175daed4f8506d17cf76f0c3c4ce9f0f6ece17",
+    "captureFingerprint": "sha256:120997d824e99b21d52b9811f6106d7d5d6744a32b76b059765dfd3ddfdcbe84",
+    "materializationHash": "sha256:ad86a071de283f7700d39894ddd2aa53fff3b79c6fe399ac9caab1888d663a99",
+    "documentHash": "sha256:2f8d77fbcdb90430ac9476dd1e36f4001c498f427d3d85d98a6f9a26afa6f67d",
+    "geometryBindingHash": "sha256:627119786606f8b76d12567365414edc55ae2799b54cbe78538ba20fd0ea5b9a"
+  },
+  "submissionAccepted": false,
+  "nativeProfileAccepted": false,
+  "serviceAcceptance": false,
+  "scope": "Read-only file freeze inspection; not an executed service acceptance step."
+}

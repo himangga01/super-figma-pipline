@@ -1,0 +1,55 @@
+{
+  "schemaVersion": 1,
+  "kind": "owned-only-r70-code-and-mcp-build-closure-r2",
+  "sourceHash": "sha256:e96f37b95100645fcfbb8317683c655556219ef920d8c8adf85968914cb2b0f5",
+  "previousReceiptSha256": "42efdf3f94320d58d24266fe1d0e0b2bcb37f29be7e55e83a50831eaae061f01",
+  "failedSetupReason": "Owned portal node_modules was missing @sfp/shared; added only own portal dependency junction before retrying failed diagnostics.",
+  "offlineProvenanceRepeated": false,
+  "offlineProvenance": {
+    "name": "r70-owned-offline-provenance",
+    "args": [
+      "scripts/verify-upstream-lock.mjs",
+      "--offline"
+    ],
+    "exitCode": 0,
+    "signal": null,
+    "elapsedMs": 456,
+    "logPath": ".worktrees/_cache/generated-route-alias-runtime-guard-20261014/r70-owned-offline-provenance.log",
+    "logSha256": "d95c3ffe22d6af5049f905a7b0b79671451964964361bf9f5c6bfbfababb096c"
+  },
+  "results": [
+    {
+      "name": "r70-owned-diagnostics-r2",
+      "args": [
+        "--experimental-transform-types",
+        "--disable-warning=ExperimentalWarning",
+        "scripts/update-diagnostics-catalog.mjs",
+        "--check"
+      ],
+      "exitCode": 0,
+      "signal": null,
+      "elapsedMs": 1580,
+      "logPath": ".worktrees/_cache/generated-route-alias-runtime-guard-20261014/r70-owned-diagnostics-r2.log",
+      "logSha256": "9b30f914b11e9087edf811866342d629b99dd3a8a903f2d7db3dca5f40bd5508"
+    },
+    {
+      "name": "r70-owned-mcp-build",
+      "args": [
+        "scripts/build-server.mjs"
+      ],
+      "exitCode": 1,
+      "signal": null,
+      "elapsedMs": 830,
+      "logPath": ".worktrees/_cache/generated-route-alias-runtime-guard-20261014/r70-owned-mcp-build.log",
+      "logSha256": "e7b8b06ad496ca1f1aac25801c56e585dfdd43b81f9760a644d1bac427ad5621"
+    }
+  ],
+  "buildInfo": null,
+  "artifacts": [],
+  "sourceEpoch": 1791202532,
+  "fullPackageBuild": false,
+  "whole": false,
+  "qaDistModified": false,
+  "runtimeReplaced": false,
+  "functionalTestsRepeated": false
+}

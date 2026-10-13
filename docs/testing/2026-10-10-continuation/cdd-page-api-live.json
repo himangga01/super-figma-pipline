@@ -1,0 +1,45 @@
+{
+  "recordedAt": "2026-10-11T07:26:15.157Z",
+  "publishedCommit": "22517932dc9b2cb974c177ec4eacb84d4b16e254",
+  "previousWholeSource": "sha256:18525cdc247a1a314f02496edb563f0a0b629ca6f098aa554ae5e7f729bb2ee3",
+  "captureReaderSha256": "sha256:31b782db811c835c51b012e227bbe022e032c82c98bfda7fe5b4a2c51cb9af3d",
+  "comparisonSourceSha256": "sha256:787ce9c74c4ec2c8c86f65cefb4a3b109ffc7329699b2313b50e8bd18f75cce1",
+  "actualFolder": "C:\\2026_project\\super-figma-pipline\\.worktrees\\_cache\\cdd-page-api-20261011-r2\\ly06O8jAcrd7oWmwhz5Vr6-1791700676330-554c8671",
+  "referenceFolder": "C:\\2026_project\\super-figma-pipline\\.worktrees\\_cache\\cdd-service-context-20261011-prep-r4",
+  "comparisonFile": "C:\\2026_project\\super-figma-pipline\\.worktrees\\_cache\\cdd-page-api-comparison-20261011-r4\\ly06O8jAcrd7oWmwhz5Vr6-1791703515215-c1d237e8\\capture-comparison.json",
+  "rawFiles": [
+    {
+      "kind": "actual-design",
+      "sha256": "sha256:422538c4f36d824db202aebeda9490de1407499711e00b3b9063e56448fa32f9",
+      "bytes": 874451
+    },
+    {
+      "kind": "actual-assets",
+      "sha256": "sha256:82c5773ae49d1b75f721e8f87c1846f586c22c44f67d5bfb41c1f53f3d53fb22",
+      "bytes": 5747
+    },
+    {
+      "kind": "reference-design",
+      "sha256": "sha256:a886ebdf4a60d331d575deeae4ae2c0c299df9f03001dacc4bbec2f03e7603c4",
+      "bytes": 874189
+    },
+    {
+      "kind": "reference-assets",
+      "sha256": "sha256:53f649b7af115a7218759cfe809a16b87edaf994a000d5408d9efda3de6d8771",
+      "bytes": 7172
+    },
+    {
+      "kind": "comparison",
+      "sha256": "sha256:03be7a6fc7426854ab439c0000a72fac480283ae80ac9c13c20b6f51fbe1e42c",
+      "bytes": 1372
+    }
+  ],
+  "assetsByKind": {
+    "png": 3,
+    "image": 10,
+    "svg": 12
+  },
+  "portalAccepted": false,
+  "frontendGenerated": false,
+  "limits": "Service-owned independent page-runtime capture and same-scope fact/file comparison only. No Scripter invocation or reference-value copying supplied the actual capture. Captures were separately timed and are not atomic; public capture admission and frontend acceptance remain separate."
+}

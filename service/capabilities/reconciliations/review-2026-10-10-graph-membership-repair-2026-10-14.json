@@ -1,0 +1,100 @@
+{
+  "schemaVersion": 1,
+  "slice": "review-2026-10-10",
+  "baseline": {
+    "headCommit": "22517932dc9b2cb974c177ec4eacb84d4b16e254",
+    "authoritySha256": {
+      "upstream-lock.json": "f5464318e08befb7d1c37ade87a5b106693ac331e08ce9fdc43fac3d5d917389",
+      "vendor-map.json": "b3275c7d8b997d1cfe723d97594659f77d7b4361b824a790bcfdd7ff762589bd",
+      "vendor-rules.json": "03562b4245af04a0196572a9fcba1978e53bb815faa0fd8347f1df7251a0e9f2"
+    }
+  },
+  "entries": [
+    {
+      "path": "capabilities/task-review-2026-10-10-authority-classes.json",
+      "sha256": "21692da126ade2ab0cde2588d3dcd232e2d5d11b80466f4c60a18e346fd00e88",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "930319d03baa411fea5299df76ace3ccb7603cf499f1ca7739c652b44002a61d"
+        },
+        {
+          "class": "protected",
+          "sha256": "930319d03baa411fea5299df76ace3ccb7603cf499f1ca7739c652b44002a61d"
+        }
+      ],
+      "reason": "Register reviewed package-configuration source membership and dynamic-route diagnostic tagging. Preserve source/compiler/issuer/deadline guards, unknown outcomes and prior history. Bounded graph selection is separate from full program closure and live acceptance. No whole rerun; preserve the owner index."
+    },
+    {
+      "path": "packages/mcp/src/portal/service-graph.ts",
+      "sha256": "e3a725707655e699e987b41e1c342a9c119c428a802963f5624f0eb9c4d10f7c",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "ec6a6f1a6c36873b64aa701ae2b4b1caf67f051bf090d4da3c8b47d745b6e43e"
+        },
+        {
+          "class": "protected",
+          "sha256": "ec6a6f1a6c36873b64aa701ae2b4b1caf67f051bf090d4da3c8b47d745b6e43e"
+        }
+      ],
+      "reason": "Register reviewed package-configuration source membership and dynamic-route diagnostic tagging. Preserve source/compiler/issuer/deadline guards, unknown outcomes and prior history. Bounded graph selection is separate from full program closure and live acceptance. No whole rerun; preserve the owner index."
+    },
+    {
+      "path": "packages/mcp/src/portal/service-selection.ts",
+      "sha256": "4c8ec77c46972434c9ea4f5e445f7aa2b89d442d52a129adefd499faa915e20f",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "14c2c50facfb41c82802df43572221c69be75b7e1f85ad48d3abbaa5ea5a2d1c"
+        },
+        {
+          "class": "protected",
+          "sha256": "14c2c50facfb41c82802df43572221c69be75b7e1f85ad48d3abbaa5ea5a2d1c"
+        }
+      ],
+      "reason": "Register reviewed package-configuration source membership and dynamic-route diagnostic tagging. Preserve source/compiler/issuer/deadline guards, unknown outcomes and prior history. Bounded graph selection is separate from full program closure and live acceptance. No whole rerun; preserve the owner index."
+    },
+    {
+      "path": "packages/mcp/test/portal/core-recipes.test.ts",
+      "sha256": "42746c63cc8fb7d98135c9339cd6dcd3ac2c2374ad8588a6c73ac146eeaef3e1",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "4829b6b2457cdd4841aae4e373f20150c2345491e74d6a1ccf345e8df3a29b3c"
+        },
+        {
+          "class": "protected",
+          "sha256": "4829b6b2457cdd4841aae4e373f20150c2345491e74d6a1ccf345e8df3a29b3c"
+        }
+      ],
+      "reason": "Register reviewed package-configuration source membership and dynamic-route diagnostic tagging. Preserve source/compiler/issuer/deadline guards, unknown outcomes and prior history. Bounded graph selection is separate from full program closure and live acceptance. No whole rerun; preserve the owner index."
+    },
+    {
+      "path": "packages/mcp/test/portal/service-graph.test.ts",
+      "sha256": "a4d238f8053115a687c5c045eee3fb9ed8995ed50cda19d2a55d5955c6be3bc8",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "1d7ffde27e28beb59da91172b06e2d2a137d2b815a0a340f2972ad329dd6d9cc"
+        },
+        {
+          "class": "protected",
+          "sha256": "1d7ffde27e28beb59da91172b06e2d2a137d2b815a0a340f2972ad329dd6d9cc"
+        }
+      ],
+      "reason": "Register reviewed package-configuration source membership and dynamic-route diagnostic tagging. Preserve source/compiler/issuer/deadline guards, unknown outcomes and prior history. Bounded graph selection is separate from full program closure and live acceptance. No whole rerun; preserve the owner index."
+    },
+    {
+      "path": "packages/portal/package.json",
+      "sha256": "ddb99eafe979d2319697f9bde91d01c4b3f4cf7f3e2a2baccfcb06ceff7767c8",
+      "priorClaims": [
+        {
+          "class": "protected",
+          "sha256": "ddb99eafe979d2319697f9bde91d01c4b3f4cf7f3e2a2baccfcb06ceff7767c8"
+        }
+      ],
+      "reason": "Register reviewed package-configuration source membership and dynamic-route diagnostic tagging. Preserve source/compiler/issuer/deadline guards, unknown outcomes and prior history. Bounded graph selection is separate from full program closure and live acceptance. No whole rerun; preserve the owner index."
+    }
+  ]
+}

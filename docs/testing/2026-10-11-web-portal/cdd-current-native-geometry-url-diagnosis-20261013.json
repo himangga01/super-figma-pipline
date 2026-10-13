@@ -1,0 +1,35 @@
+{
+  "version": 1,
+  "at": "2026-10-13T04:22:10.905Z",
+  "diagnosisOnly": true,
+  "publicAcceptance": false,
+  "candidateFeed": false,
+  "sourceHash": "sha256:ca964193b989acf154ff769490f5732d7e028fe2e2d5a01b06f7edf1571fd84a",
+  "privateSourceFiles": 455,
+  "sourceDelta": {
+    "module": "packages/mcp/src/portal/capture-native-supplement.ts",
+    "beforeHash": "253535a2a8203a31614869b17aa14c48ec98f5b9aab393048351170fd8a09898",
+    "afterHash": "4fad40f8b2290da577ce08e144944cadd93a85a34830566404de788331feaa1b",
+    "change": "Only compare the already validated canonical Figma target URL instead of raw plan URL spelling."
+  },
+  "originalDiagnosticReceiptHash": "901cfe331d0855895bdd10b00b07bc62aaf8f161daee5bf612511e9f4634dbe9",
+  "canonicalExperimentReceiptHash": "8720451243f7d1efae81f9275985df48a5e357e7daeb6fe861bcc96dd574b9b8",
+  "earliestOriginalFailure": {
+    "stage": "supplier",
+    "code": "PORTAL_CONSUMPTION_NATIVE_SOURCE_UNPROVEN"
+  },
+  "canonicalExperiment": {
+    "signatureVerified": true,
+    "supplierPassed": true,
+    "normalizerNodes": 192,
+    "derivedNodes": 72,
+    "resources": 438,
+    "glyphs": 1594,
+    "pageRows": 32
+  },
+  "mainNativeSourceChanged": false,
+  "liveStateChanged": false,
+  "chromeConnectedByDiagnosis": false,
+  "leaseAcquired": false,
+  "geometryPayloadSaved": false
+}

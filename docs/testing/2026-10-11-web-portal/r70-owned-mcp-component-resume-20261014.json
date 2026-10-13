@@ -1,0 +1,112 @@
+{
+  "schemaVersion": 1,
+  "kind": "owned-mcp-build-component-resume",
+  "sourceHash": "sha256:e96f37b95100645fcfbb8317683c655556219ef920d8c8adf85968914cb2b0f5",
+  "priorFailedReceiptSha256": "d6bab545e4f50b6df734c23cb99287c1328921068bdfa489d6280a560d2b1fd8",
+  "reason": "Completed bundle preserved; retry only failed package pack/publint then build-info generation from unchanged build-server components.",
+  "bundleRepeated": false,
+  "completedBundleCount": 16,
+  "artifacts": [
+    {
+      "path": "packages/mcp/dist/daemon-entry.mjs",
+      "sha256": "e3a58bd2118f08b01e71b62d845a62c561fef0ff05e44d33b327a2593bb0464c",
+      "bytes": 377
+    },
+    {
+      "path": "packages/mcp/dist/index.mjs",
+      "sha256": "f4ca81756cd1a596fed2e29264aa1a406e1f8af050ea87f8fe20595c444580d8",
+      "bytes": 2320049
+    },
+    {
+      "path": "packages/mcp/dist/native-artifacts-DpNzGNn3.mjs",
+      "sha256": "b7bd3f72de0d6f1e94daf14b1dbb98d0b383ff3eb95d48e85ef9566b4ef8601f",
+      "bytes": 766
+    },
+    {
+      "path": "packages/mcp/dist/native-artifacts-gnuoEIZC.mjs",
+      "sha256": "e8566c67c207f639240498a727376931618e24b32aa4cd5a98c35e2b973037ef",
+      "bytes": 60873
+    },
+    {
+      "path": "packages/mcp/dist/native-module-fence-BKiJtvhD.mjs",
+      "sha256": "808c8f1100e772b8d3a8862f47d273f34a4c29e7e829b166c3c592486d0393e4",
+      "bytes": 242726
+    },
+    {
+      "path": "packages/mcp/dist/native-module-fence-CPzCMd28.mjs",
+      "sha256": "aa361b7884eb325ce62e74be21f03ed2220e8b0b58c194038b34cdbfc6a414f8",
+      "bytes": 200
+    },
+    {
+      "path": "packages/mcp/dist/native-runner-e8FYJMvk.mjs",
+      "sha256": "ecae5955f53a38ae2c6b15f9fed5de0c50412b574fd0cf810df1b919ec555622",
+      "bytes": 477
+    },
+    {
+      "path": "packages/mcp/dist/operation-evidence-projector-BA4rGTlk.mjs",
+      "sha256": "463eda7dd95024c0fc89e274ff267062f35ca46a84a3255dfff7a5513a05ed1d",
+      "bytes": 5821
+    },
+    {
+      "path": "packages/mcp/dist/operation-evidence-projector-C_GmGLUB.mjs",
+      "sha256": "cbbe4c631878a18a1257547fe76f0f0f969a4f8f5f9924abdc53af089cd7feb3",
+      "bytes": 156
+    },
+    {
+      "path": "packages/mcp/dist/portal-validation.mjs",
+      "sha256": "c258c4026eeb420b27f3cffd7267a877b81cfb25a2422a8506f8b6a4aea2907e",
+      "bytes": 2566
+    },
+    {
+      "path": "packages/mcp/dist/preview-listener-CwhThN2f.mjs",
+      "sha256": "2c3b4201916cc61423f72e4396ec91bccefadc446a5503285a6adc1790cb1bf5",
+      "bytes": 155271
+    },
+    {
+      "path": "packages/mcp/dist/preview-worker-BtVmG-YH.mjs",
+      "sha256": "25a46c42e536110ac778cadf2bbf5b20c5c5d1395b80ec9401afe918cdf228c5",
+      "bytes": 277344
+    },
+    {
+      "path": "packages/mcp/dist/runtime-mode-CtV2_UhM.mjs",
+      "sha256": "cbbef87c27503d74ff4dddff1b845fa75e8fd34c7aa3468e275e22eeed185c5f",
+      "bytes": 223
+    },
+    {
+      "path": "packages/mcp/dist/src-BjGhm5Jv.mjs",
+      "sha256": "4289206ed2b6b804422342bec8844af59df67136b18cd642b0ee959b1ff2e4a5",
+      "bytes": 53555
+    },
+    {
+      "path": "packages/mcp/dist/src-CDtwoT4v.mjs",
+      "sha256": "6f0f3e913f0f3f18a11205114dfc4a7c6e46a384149d7e84ecef76613cdcb8e5",
+      "bytes": 170
+    },
+    {
+      "path": "packages/mcp/dist/src-fCNxwrC_.mjs",
+      "sha256": "63979e5d8821eb6f6a526009945f2c0f02c60b196fa2893a411704dbcfd72a57",
+      "bytes": 260107
+    }
+  ],
+  "pack": {
+    "exitCode": 0,
+    "logSha256": "3ee40caf71968d0d8d38f3e7af0c61fa10f4a836aaea4ce7c55d0f78203c68fb",
+    "tarballSha256": "c683d85477c3484196cbc024f79ab0730455bafdf7bd805a19dac629e80c9a11",
+    "tarballBytes": 826329
+  },
+  "publint": {
+    "messages": [],
+    "errors": 0
+  },
+  "buildInfo": {
+    "schemaVersion": 1,
+    "buildId": 1791202532000,
+    "identity": "sha256:cf241705ac5ff3d6493bfaf25a3a5dc212d1724777247a6fb4a8042d924eb5a8"
+  },
+  "buildInfoSha256": "0cb79035f197655cf63bfa9745c324b3160e85350705160d1655c71d994e8e7b",
+  "whole": false,
+  "fullPackageBuild": false,
+  "qaDistModified": false,
+  "runtimeReplaced": false,
+  "closedChecksRepeated": false
+}

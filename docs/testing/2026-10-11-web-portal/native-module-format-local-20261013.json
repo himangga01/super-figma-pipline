@@ -1,0 +1,121 @@
+{
+  "schema": "native-module-format-analysis-evidence.v1",
+  "closedAt": "2026-10-13T11:35:17.366Z",
+  "decision": "profile-only-explicit-tsc-js-recommended",
+  "actualEvidence": {
+    "controller": "official_oauth_backend_sol",
+    "controllerSuppliedManifest": ".worktrees/_cache/native-tsc-format-diag-20261013/manifest.json",
+    "manifestSha256": "fe0c9a19846b907d9d70c0847a34707c5e41f0e2f846676e65138eaa8d36b479",
+    "actualOriginalFormatObserved": false,
+    "controllerConfirmedExecutableHashMatches": true,
+    "controllerReportedExecutionClosed": true,
+    "controllerReportedOwnedNativePidsAbsent": true
+  },
+  "localProbe": {
+    "schema": "native-module-format-local-probe.v1",
+    "at": "2026-10-13T11:33:57.219Z",
+    "sourceBaseline": "303de5d1904d11c1fb89bdf80951900e375ac4325ea6cfc932f39ebee2785732",
+    "sourceHookHash": "sha256:a5297abc323d748a480a7e5e2741f19b644a4232d6471aa280a7b0b4b7d72dcd",
+    "actualManifestHash": "sha256:fe0c9a19846b907d9d70c0847a34707c5e41f0e2f846676e65138eaa8d36b479",
+    "nodeVersion": "v24.21.0",
+    "nodeExecutableHash": "sha256:ba4e6d110e8c1592a1ecd390f6b05f3da124b13871a5be62b341a07a853c6c32",
+    "dependencyVersion": "5.9.2",
+    "inputs": [
+      {
+        "path": "bin/tsc",
+        "bytes": 45,
+        "hash": "sha256:8d5fa5bd883fec0979fc2004f1fe1d99aef40570155d550eadc0b03b55513bf0"
+      },
+      {
+        "path": "lib/tsc.js",
+        "bytes": 267,
+        "hash": "sha256:2cffde0b8c6760dfb0b5b0382bbb7e00ba6a8b2d981b9205b256a700a481d983"
+      },
+      {
+        "path": "lib/_tsc.js",
+        "bytes": 6211917,
+        "hash": "sha256:a040f97c9d0223f64c8ebc380c5e48eb7945f1142f7c1dc9c3ec4acdb6c1c613"
+      },
+      {
+        "path": "package.json",
+        "bytes": 3620,
+        "hash": "sha256:5a0bb7f286c4b3f1413a42c05f902311b161f70e5f52d9da10490443bfd595a3"
+      }
+    ],
+    "outcomes": [
+      {
+        "id": "original-extensionless",
+        "nodeExitCode": 1,
+        "entry": "bin/tsc",
+        "entryHash": "sha256:8d5fa5bd883fec0979fc2004f1fe1d99aef40570155d550eadc0b03b55513bf0",
+        "traceHash": "sha256:1fa1d6233952d788c6e8b3c12ad49ce36e67bad60d6a6ab1e62597f99e88aaf6",
+        "formatDiagnostics": [],
+        "violations": [
+          "PORTAL_NATIVE_MODULE_FORMAT_UNSUPPORTED"
+        ],
+        "stdout": null
+      },
+      {
+        "id": "diagnostic-extensionless",
+        "nodeExitCode": 1,
+        "entry": "bin/tsc",
+        "entryHash": "sha256:8d5fa5bd883fec0979fc2004f1fe1d99aef40570155d550eadc0b03b55513bf0",
+        "traceHash": "sha256:389fc226447ae6b727725bd7faeac7722f195bb5dcb1a34da108edb158c27bfc",
+        "formatDiagnostics": [
+          {
+            "kind": "format-diagnostic",
+            "format": "undefined",
+            "extension": "",
+            "pathHash": "sha256:50a01220ea4094f3563681c4dc7e5a0526872d0075dc10a8f1a1b461f02cdc3a",
+            "sourceHash": "sha256:8d5fa5bd883fec0979fc2004f1fe1d99aef40570155d550eadc0b03b55513bf0"
+          }
+        ],
+        "violations": [
+          "PORTAL_NATIVE_MODULE_FORMAT_UNSUPPORTED"
+        ],
+        "stdout": null
+      },
+      {
+        "id": "original-explicit-js",
+        "nodeExitCode": 0,
+        "entry": "lib/tsc.js",
+        "entryHash": "sha256:2cffde0b8c6760dfb0b5b0382bbb7e00ba6a8b2d981b9205b256a700a481d983",
+        "traceHash": "sha256:ad8e1cb31ae2677deb98f29b6ef65f6ccea238abb468dc477de09302a595408c",
+        "formatDiagnostics": [],
+        "violations": [],
+        "stdout": "Version 5.9.2"
+      }
+    ],
+    "assertionsPassed": 3,
+    "diagnosticOnly": "One diagnostic record is appended before the unchanged original rejection. No accepted format or byte/source/producer guard is changed.",
+    "limits": "Local production-preload fixture uses the exact authenticated offending launcher bytes, but this is not actual QA runtime execution or original-operation recovery. Same-owner Windows is not an OS sandbox."
+  },
+  "localProbeSha256": "ca09ba84074cd25e750d63972028a7788d00b782182e4eb4ebfa31d714b2854b",
+  "command": "node .worktrees/_cache/native-module-format-independent-20261013/probe.mjs --actual",
+  "exitCode": 0,
+  "closedReadback": {
+    "manifestEntriesCheckedPerCopy": 1357,
+    "mainNativeAndRegularReviewCopyUnchanged": true,
+    "indexSha256": "ecc1808ab3e14fa2e8c233ae1fc1c91e0a33b5b2e383a7270f1bc3068997e675"
+  },
+  "proposedRepair": {
+    "profileOnly": true,
+    "oldEntry": "node_modules/typescript/bin/tsc",
+    "newEntry": "node_modules/typescript/lib/tsc.js",
+    "argumentsPreserved": [
+      "--noEmit"
+    ],
+    "moduleFenceAcceptanceUnchanged": true,
+    "newNormalProfilePreparationRequired": true
+  },
+  "limits": {
+    "noQaReadsOrWritesByReviewer": true,
+    "noChromeApiActionsByReviewer": true,
+    "noServiceSourceChanges": true,
+    "noIntegration": true,
+    "noFullSuite": true,
+    "actualNoEmitExecution": false,
+    "powerLossDurabilityNotTested": true,
+    "sameOwnerWindowsIsNotOsSandbox": true
+  }
+}

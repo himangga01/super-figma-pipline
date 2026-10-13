@@ -1,6 +1,10 @@
 import { expect, it } from 'vitest';
 
-import { nativeMetadataProperties } from '../src/figma-native-metadata.js';
+import {
+  nativeDocumentHasVariables,
+  nativeMetadataProperties,
+} from '../src/figma-native-metadata.js';
+import { normalizeFigmaNativeNodes } from '../src/figma-native-nodes.js';
 
 const key = 'a'.repeat(40);
 const read = (
@@ -8,6 +12,111 @@ const read = (
   type: string,
   context: { parentIsGrid?: boolean; variables?: boolean } = {},
 ) => nativeMetadataProperties(node, type, { parentIsGrid: false, variables: false, ...context });
+
+it('treats an observed empty native gradient-stop binding array as no variable binding', () => {
+  const node = {
+    type: 'ROUNDED_RECTANGLE',
+    fillPaints: [{ type: 'GRADIENT_LINEAR', stopsVar: [] }],
+  };
+  const variables = nativeDocumentHasVariables([node]);
+  expect(variables).toBe(false);
+  const result = read(node, 'RECTANGLE', { variables });
+  expect(result.values).toMatchObject({
+    boundVariables: {},
+    explicitVariableModes: {},
+    resolvedVariableModes: {},
+  });
+  expect(result.unknown).not.toContain('boundVariables');
+  expect(result.unknown).not.toContain('resolvedVariableModes');
+});
+
+it.each([
+  { label: 'null stop bindings', paint: { stopsVar: null } },
+  { label: 'object stop bindings', paint: { stopsVar: {} } },
+  { label: 'malformed nonempty stop bindings', paint: { stopsVar: [{}] } },
+  { label: 'nonempty stop alias', paint: { stopsVar: [{ position: 0, colorVar: { value: {} } }] } },
+  { label: 'another actual marker', paint: { stopsVar: [], opacityVar: { value: {} } } },
+  { label: 'another malformed marker', paint: { stopsVar: [], colorVar: null } },
+  { label: 'future empty array marker', paint: { stopsVar: [], futureVar: [] } },
+  { label: 'unobserved mode map', paint: { stopsVar: [], variableModeBySetMap: { entries: [] } } },
+])('preserves unknown bindings and modes for $label', ({ paint }) => {
+  const node = { type: 'ROUNDED_RECTANGLE', fillPaints: [{ type: 'GRADIENT_LINEAR', ...paint }] };
+  const variables = nativeDocumentHasVariables([node]);
+  expect(variables).toBe(true);
+  const result = read(node, 'RECTANGLE', { variables });
+  expect(result.values).not.toHaveProperty('boundVariables');
+  expect(result.values).not.toHaveProperty('resolvedVariableModes');
+  expect(result.unknown).toEqual(
+    expect.arrayContaining(['boundVariables', 'resolvedVariableModes']),
+  );
+});
+
+it.each(['VARIABLE', 'VARIABLE_SET'])(
+  'retains unknown resolved modes when a %s record exists elsewhere',
+  type => {
+    const node = { fillPaints: [{ type: 'GRADIENT_LINEAR', stopsVar: [] }] };
+    const variables = nativeDocumentHasVariables([node, { type }]);
+    expect(variables).toBe(true);
+    const result = read(node, 'RECTANGLE', { variables });
+    expect(result.values).toMatchObject({ boundVariables: {} });
+    expect(result.unknown).toContain('resolvedVariableModes');
+  },
+);
+
+it('preserves native instance expansion and descendant binding ownership for gradient markers', () => {
+  const guid = (sessionID: number, localID: number) => ({ sessionID, localID });
+  const gradient = { type: 'GRADIENT_LINEAR', stopsVar: [] };
+  const instance: Record<string, unknown> = {
+    guid: guid(1, 1),
+    parentIndex: { guid: guid(0, 1) },
+    type: 'INSTANCE',
+    name: 'Instance',
+    symbolData: { symbolID: guid(2, 1) },
+  };
+  const message = {
+    nodeChanges: [
+      { guid: guid(0, 1), type: 'CANVAS', name: 'Page' },
+      { guid: guid(2, 1), type: 'SYMBOL', name: 'Master', fillPaints: [gradient] },
+      {
+        guid: guid(2, 2),
+        parentIndex: { guid: guid(2, 1) },
+        type: 'ROUNDED_RECTANGLE',
+        name: 'Child',
+        fillPaints: [gradient],
+      },
+      instance,
+    ],
+  };
+  const plain = normalizeFigmaNativeNodes(message, '0:1');
+  expect(plain.nodes[0]).toMatchObject({
+    id: '1:1',
+    boundVariables: {},
+    resolvedVariableModes: {},
+    children: [{ id: 'I1:1;2:2', boundVariables: {}, resolvedVariableModes: {} }],
+  });
+  expect(plain.nodes[0]?.nativeUnknownFields).toContain('mainComponent');
+  instance.symbolData = {
+    symbolID: guid(2, 1),
+    symbolOverrides: [
+      {
+        guidPath: { guids: [guid(2, 2)] },
+        fillPaints: [{ ...gradient, stopsVar: [{ colorVar: { value: {} } }] }],
+      },
+    ],
+  };
+  const bound = normalizeFigmaNativeNodes(message, '0:1');
+  expect(bound.nodes[0]).toMatchObject({
+    boundVariables: {},
+    nativeUnknownFields: expect.arrayContaining(['resolvedVariableModes']),
+    children: [
+      {
+        id: 'I1:1;2:2',
+        nativeUnknownFields: expect.arrayContaining(['boundVariables', 'resolvedVariableModes']),
+      },
+    ],
+  });
+  expect(bound.complete).toBe(false);
+});
 
 it('maps imported style references to Plugin API style IDs and leaves local styles unknown', () => {
   const imported = read(

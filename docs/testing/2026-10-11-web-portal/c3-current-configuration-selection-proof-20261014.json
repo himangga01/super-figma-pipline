@@ -1,0 +1,46 @@
+{
+  "schemaVersion": 1,
+  "at": "2026-10-13T20:40:42.195Z",
+  "kind": "isolated-source-only-public-native-compiler-and-fresh-plan",
+  "sourceEpoch": "sha256:98951f61446ee19454d9d51a22b7d71cad50aabb976352d38854e5d1e71e84b1",
+  "bundleSha256": "05f66903c2d534897b8a4e490de4550a77597cfc5721852c29f28a4d83756a64",
+  "pinnedInputs": 352,
+  "originalSourceBudgetMs": 3600000,
+  "resultSha256": "a0462be0e1bd82d71bb06fa0b1ec548a8b70d1dc711d79c60d7aaa63b3dce600",
+  "compilerEvidenceHash": "sha256:f512ead7bd3c6495da7b59caa51dd6ddb3688517fc800be59b5fad75d73bae71",
+  "generatedFiles": 17,
+  "publicJournalStatus": "succeeded",
+  "publicPlanJournalStatus": "succeeded",
+  "compilerEvidenceConsumed": true,
+  "serviceSelectionComplete": true,
+  "reviewedMounts": 8,
+  "moduleGraphIssues": [],
+  "graphIncomplete": true,
+  "graphLexicalReviewable": true,
+  "fullGraphClosure": false,
+  "originalRunUnchanged": true,
+  "nativeCommandStatuses": [
+    {
+      "id": "compiler-dependencies",
+      "status": "passed",
+      "exitCode": 0,
+      "moduleEvidencePresent": true
+    },
+    {
+      "id": "react-router-compiler",
+      "status": "passed",
+      "exitCode": 0,
+      "moduleEvidencePresent": true
+    }
+  ],
+  "shutdown": "port-released",
+  "processExitCode": 0,
+  "previousStateOrAuthorityCopied": false,
+  "QAAccess": false,
+  "ChromeAccess": false,
+  "syntheticIncompleteDesign": true,
+  "actualDesignCapture": false,
+  "codingLease": false,
+  "fullCaseAcceptance": false,
+  "osSandboxClaimed": false
+}

@@ -35,6 +35,7 @@ it('extends the Figwright baseline with the safe union', () => {
       'portal_status',
       'portal_resume',
       'portal_cancel',
+      'portal_prepare_source',
       'doctor',
       'export_tokens',
       'export_frames_to_pdf',

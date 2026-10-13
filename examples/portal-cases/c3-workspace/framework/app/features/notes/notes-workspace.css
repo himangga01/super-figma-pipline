@@ -1,0 +1,23 @@
+.notes-workspace { color: #172033; background: #fff; font: 1rem/1.5 system-ui, sans-serif; max-width: 72rem; margin: 2rem auto; padding: 1.5rem; border: 1px solid #d9e0eb; border-radius: .75rem; }
+.notes-workspace * { box-sizing: border-box; }
+.notes-heading { display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap; }
+.notes-heading div, .notes-actions { display: flex; align-items: center; gap: .75rem; flex-wrap: wrap; }
+.notes-workspace h2 { margin: 0; font-size: 1.5rem; }
+.notes-workspace button { font: inherit; cursor: pointer; padding: .5rem .85rem; border: 1px solid #a9b9d1; border-radius: .4rem; background: #f5f8fc; color: #172033; }
+.notes-workspace button[type=submit] { background: #2457c5; border-color: #2457c5; color: #fff; }
+.notes-workspace button:disabled { opacity: .65; cursor: wait; }
+.notes-workspace :focus-visible { outline: 3px solid #2457c5; outline-offset: 3px; }
+.notes-workspace [role=alert] { color: #9b1c2a; padding: .7rem; background: #fff1f2; }
+.notes-status { min-height: 1.5rem; }
+.notes-login, .notes-editor { display: grid; gap: .6rem; align-content: start; }
+.notes-login { max-width: 28rem; }
+.notes-workspace input, .notes-workspace textarea { width: 100%; min-width: 0; font: inherit; color: inherit; background: #fff; padding: .65rem; border: 1px solid #a9b9d1; border-radius: .4rem; }
+.notes-workspace textarea { min-height: 12rem; resize: vertical; }
+.notes-columns { display: grid; grid-template-columns: minmax(12rem, 1fr) minmax(0, 2fr); gap: 1.5rem; }
+.notes-columns ul { list-style: none; padding: 0; }
+.notes-columns li { margin: .4rem 0; }
+.notes-columns li button { width: 100%; text-align: start; overflow-wrap: anywhere; }
+.notes-columns [aria-current=true] { border-color: #2457c5; background: #eaf0ff; }
+.notes-delete-confirmation { border: 1px solid #dc9da5; border-radius: .4rem; padding: .8rem; }
+.notes-delete-confirmation button { margin-inline-end: .5rem; }
+@media (max-width: 640px) { .notes-workspace { margin: 1rem; padding: 1rem; } .notes-columns { grid-template-columns: 1fr; } }

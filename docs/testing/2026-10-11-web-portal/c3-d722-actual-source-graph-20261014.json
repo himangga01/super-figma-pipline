@@ -1,0 +1,136 @@
+{
+  "schemaVersion": 1,
+  "recordedAt": "2026-10-13T20:24:18.892Z",
+  "sourceHash": "sha256:d722c32152149464c961c660622a95e3da603eb00f291e28b15c024507bcd87d",
+  "originPlanId": "sfp_portal1_f49031240452cebf83d605d9f8ba9531",
+  "newPlanId": "sfp_portal1_40fe1add374a6125f12f4dc0a52ea534",
+  "workspaceId": "2b01b5cf-8338-4f64-8121-be7dc72e947c",
+  "sourceId": "sha256:c4def4604fb156d7dcf0dadd9624f95e4ea663a4edd20053036405cee4716b3f",
+  "profileId": "case-source-9e71dc6e-185a-4cd9-9ce6-92a6e7d8bcd0",
+  "compilerEvidenceHash": "sha256:7f1a0629922caed04b56752bd3f3f71aaa8d854ede3452d6ad59d24815614485",
+  "graphCompilerEvidenceHash": "sha256:7f1a0629922caed04b56752bd3f3f71aaa8d854ede3452d6ad59d24815614485",
+  "generatedFiles": 17,
+  "originalDeadlineAt": 1791926289742,
+  "commands": [
+    {
+      "id": "compiler-dependencies",
+      "status": "passed",
+      "exitCode": 0,
+      "durationMs": 11295
+    },
+    {
+      "id": "react-router-compiler",
+      "status": "passed",
+      "exitCode": 0,
+      "durationMs": 7288
+    }
+  ],
+  "sourceResultSha256": "17d630aed7773e9e0de30585e8f7ef6237bc9fbbd6595f39fbf3edf6fcf05307",
+  "storedPlanSha256": "934a5a35764312308539984730e94329168e9c3c3464d03633f41c02d85c313a",
+  "sourceInventoryComplete": true,
+  "graphIncomplete": true,
+  "lexicalReviewable": true,
+  "issuesTruncated": false,
+  "graphIssueCodes": [],
+  "connectionIssues": [
+    {
+      "code": "CONFIGURATION_SOURCE_MISSING",
+      "evidence": {
+        "path": "app/root.tsx",
+        "hash": "sha256:da108f06484304a845d5067f66cfe279af63e996a6381fc69cc33ed83488dd4e",
+        "offset": 125
+      }
+    },
+    {
+      "code": "CONFIGURATION_SOURCE_MISSING",
+      "evidence": {
+        "path": "app/routes/home.tsx",
+        "hash": "sha256:3e26b590d78b0ae7387842289383211ba9733ab0b3a059d77bd92d3b437c366c",
+        "offset": 56
+      }
+    },
+    {
+      "code": "UNRESOLVED_MOUNT",
+      "evidence": {
+        "path": "server.js",
+        "hash": "sha256:0cee5b26560d640a769eac2d9629d3692daa590724cd5bb326acba6535841992",
+        "offset": 356
+      }
+    },
+    {
+      "code": "UNRESOLVED_MOUNT",
+      "evidence": {
+        "path": "server.js",
+        "hash": "sha256:0cee5b26560d640a769eac2d9629d3692daa590724cd5bb326acba6535841992",
+        "offset": 624
+      }
+    },
+    {
+      "code": "UNRESOLVED_MOUNT",
+      "evidence": {
+        "path": "server.js",
+        "hash": "sha256:0cee5b26560d640a769eac2d9629d3692daa590724cd5bb326acba6535841992",
+        "offset": 663
+      }
+    },
+    {
+      "code": "UNRESOLVED_MOUNT",
+      "evidence": {
+        "path": "server.js",
+        "hash": "sha256:0cee5b26560d640a769eac2d9629d3692daa590724cd5bb326acba6535841992",
+        "offset": 1073
+      }
+    },
+    {
+      "code": "UNRESOLVED_MOUNT",
+      "evidence": {
+        "path": "server.js",
+        "hash": "sha256:0cee5b26560d640a769eac2d9629d3692daa590724cd5bb326acba6535841992",
+        "offset": 1186
+      }
+    },
+    {
+      "code": "UNRESOLVED_MOUNT",
+      "evidence": {
+        "path": "server.js",
+        "hash": "sha256:0cee5b26560d640a769eac2d9629d3692daa590724cd5bb326acba6535841992",
+        "offset": 1214
+      }
+    },
+    {
+      "code": "UNRESOLVED_MOUNT",
+      "evidence": {
+        "path": "server.js",
+        "hash": "sha256:0cee5b26560d640a769eac2d9629d3692daa590724cd5bb326acba6535841992",
+        "offset": 1276
+      }
+    },
+    {
+      "code": "UNRESOLVED_MOUNT",
+      "evidence": {
+        "path": "server/app.ts",
+        "hash": "sha256:38ccc286c38804340616c16afec333ef656cf6bb2f4ef4e9be413a40baeea5db",
+        "offset": 270
+      }
+    }
+  ],
+  "serviceSelectionComplete": false,
+  "serviceSelectionIssueCodes": [
+    "SERVICE_ANALYSIS_UNRESOLVED",
+    "SERVICE_ANALYSIS_UNRESOLVED"
+  ],
+  "currentVerifiedConservativeReviewCount": 8,
+  "genuinePublicSourcePreparation": true,
+  "genuineFreshGraphConsumption": true,
+  "syntheticDesign": true,
+  "sourcePreparationOnly": true,
+  "designComplete": false,
+  "designLiveVerified": false,
+  "caseAcceptance": false,
+  "application": false,
+  "limitations": [
+    "The current source inventory and generated-module resolution passed, but two configuration connections still prevent complete service selection.",
+    "Pinned synthetic input is not live design or asset authority.",
+    "Actual own design generation, backend journeys, validation, guarded application and applied freshness remain required."
+  ]
+}

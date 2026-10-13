@@ -471,3 +471,55 @@ it('renders unsafe paths with an injective escape that is itself a portable path
   expect(escapePortalSourcePath('src/app.ts')).toBe('src/app.ts');
   expect(escapePortalSourcePath('src/%41.ts')).not.toBe(escapePortalSourcePath('src/A.ts'));
 });
+
+it('records private Epic dotenv exclusions without reading or copying their bytes', async () => {
+  const root = await repository({
+    '.env': 'OWNED_SECRET_CANARY',
+    '.env.local': 'OWNED_OTHER_SECRET_CANARY',
+    'app.ts': 'export const source=true;',
+    '.env.example': 'ONLY_ENVIRONMENT_NAMES=',
+  });
+  const touched: string[] = [];
+  const reader = new RepoReader({
+    rootDir: root,
+    beforeFileOpen: async p => {
+      touched.push(p);
+      if (p === '.env' || p === '.env.local') throw Error('SECRET_MUST_NOT_BE_READ');
+    },
+  });
+  const inventory = await collectPortalSourceInventory(reader);
+  expect(inventory.complete).toBe(true);
+  expect(inventory.files.map(x => x.path)).toEqual(['.env.example', 'app.ts']);
+  expect(inventory.exclusions.filter(x => x.reason === 'credentials').map(x => x.path)).toEqual([
+    '.env',
+    '.env.local',
+  ]);
+  expect(touched).not.toContain('.env');
+  expect(touched).not.toContain('.env.local');
+  expect(JSON.stringify(inventory)).not.toContain('OWNED_SECRET_CANARY');
+});
+
+it('excludes prior React Router typegen before any byte read and preserves ordinary route source', async () => {
+  const root = await repository({
+    '.react-router/types/app/+types/root.ts': 'OUTSIDE_BUILD_PROOF_CANARY',
+    'app/root.tsx': 'export default null;',
+  });
+  const reads: string[] = [];
+  const inventory = await collectPortalSourceInventory(
+    new RepoReader({
+      rootDir: root,
+      beforeFileOpen: async p => {
+        reads.push(p);
+        if (p.startsWith('.react-router/')) throw Error('OUTSIDE_BUILD_PROOF_MUST_NOT_BE_READ');
+      },
+    }),
+  );
+  expect(inventory.complete).toBe(true);
+  expect(inventory.exclusions).toContainEqual({
+    path: '.react-router',
+    kind: 'directory',
+    reason: 'generated-output',
+  });
+  expect(inventory.files.map(x => x.path)).toEqual(['app/root.tsx']);
+  expect(reads.some(x => x.startsWith('.react-router/'))).toBe(false);
+});

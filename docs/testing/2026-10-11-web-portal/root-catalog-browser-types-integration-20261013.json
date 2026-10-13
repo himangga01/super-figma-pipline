@@ -1,0 +1,30 @@
+{
+  "at": "2026-10-12T22:49:56.663Z",
+  "files": [
+    {
+      "path": "packages/portal/test/service-control.test.ts",
+      "before": "1c7e2b01f36737538068513db3a4bc5ca477b835a19710a8b3552053b5142e86",
+      "after": "cfe65a413ce05ead343e4f19ff351a6bacca3d2c72d93ebc2d7dfee9c1162a04"
+    },
+    {
+      "path": "packages/cli/src/figma-web-export.ts",
+      "before": "f47dbf2c5e482f358fb88912726b36feba1edaf98c9ed194d3fd39cbfca78970",
+      "after": "2374462137a7e3856cbb1b364ef17084d763bb274975051acc3a7aee75a01457"
+    }
+  ],
+  "test": {
+    "beforeFailed": 1,
+    "afterPassed": 14,
+    "afterFailed": 0,
+    "redReceipt": "1432cd159a31cc892f55f022b946aa5d0ec45a6ec097dadc003c930a593b3ec4",
+    "greenReceipt": "a411ec89dfa538f84cdfe14026383b778aff9f5c33565d81bea201a776d8c02c"
+  },
+  "browserTypeBridge": {
+    "moduleLocal": true,
+    "runtimeByteIdentical": true,
+    "emittedRuntimeSha256": "32721276ecb4c123fbfde47993aeafb0dce714f7705923976c3823bb51beeee6"
+  },
+  "ownerIndexUnchanged": true,
+  "wholePassed": false,
+  "runtimeReplaced": false
+}

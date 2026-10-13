@@ -1,0 +1,54 @@
+{
+  "schemaVersion": 1,
+  "at": "2026-10-13T20:59:49.640Z",
+  "purpose": "Exact privately admitted package configuration members for connection provenance",
+  "files": [
+    {
+      "path": "packages/mcp/src/portal/service-graph.ts",
+      "beforeSha256": "ec6a6f1a6c36873b64aa701ae2b4b1caf67f051bf090d4da3c8b47d745b6e43e",
+      "afterSha256": "e3a725707655e699e987b41e1c342a9c119c428a802963f5624f0eb9c4d10f7c",
+      "bytes": 32165
+    },
+    {
+      "path": "packages/mcp/test/portal/service-graph.test.ts",
+      "beforeSha256": "1d7ffde27e28beb59da91172b06e2d2a137d2b815a0a340f2972ad329dd6d9cc",
+      "afterSha256": "a4d238f8053115a687c5c045eee3fb9ed8995ed50cda19d2a55d5955c6be3bc8",
+      "bytes": 29514
+    }
+  ],
+  "checks": {
+    "passed": 2,
+    "reports": [
+      {
+        "path": "changed-package-member-tests.json",
+        "sha256": "95509c28993c5301134ac2e4d65e17c8eb6af4bce1926ed767d1d3539c7432c3",
+        "passedAssertionNames": [
+          "denies unadmitted changed-source changed-inventory and changed-byte package configurations"
+        ],
+        "originalReportSuccess": false,
+        "originalFailedTests": 1,
+        "filtered": 16
+      },
+      {
+        "path": "changed-package-member-positive-r2.json",
+        "sha256": "28c96c3fa425fafc1dd9ff511a01d7661f98a9d1f65d6433df0312f82658e4b2",
+        "passedAssertionNames": [
+          "binds admitted package configurations as configuration members without changing source inventory"
+        ],
+        "originalReportSuccess": true,
+        "originalFailedTests": 0,
+        "filtered": 17
+      }
+    ],
+    "fullSuite": false,
+    "nativeOrCaseAcceptance": false,
+    "passingCasesRepeated": false,
+    "lint": "passed two changed files",
+    "format": "passed before failed-positive-only rerun"
+  },
+  "sourceInventoryUnchanged": true,
+  "opaqueAdmissionRequired": true,
+  "sourceConfigMissingWaived": false,
+  "originalFailedReportPreserved": true,
+  "runtimeAndDeadlineGuardsUnchanged": true
+}

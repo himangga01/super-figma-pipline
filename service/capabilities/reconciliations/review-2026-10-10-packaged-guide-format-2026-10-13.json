@@ -1,0 +1,51 @@
+{
+  "schemaVersion": 1,
+  "slice": "review-2026-10-10",
+  "baseline": {
+    "headCommit": "22517932dc9b2cb974c177ec4eacb84d4b16e254",
+    "authoritySha256": {
+      "upstream-lock.json": "00fd50b2a506587621401780ecf96f7e15f5ce57bb6ac2db2efe4503b2484bc3",
+      "vendor-map.json": "b3275c7d8b997d1cfe723d97594659f77d7b4361b824a790bcfdd7ff762589bd",
+      "vendor-rules.json": "4981f573bf146fd8855a2fd10c0aafbb807a6a9420149799b2fa6ed749674021"
+    }
+  },
+  "entries": [
+    {
+      "path": "capabilities/task-review-2026-10-10-authority-classes.json",
+      "sha256": "aa66dae23ab3a937a9efcfdbc25ea645a2094495fd23f77d747c876b80bb73f4",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "764ad40b1a788600d802c38e8b69be10ab0a21b83c8b6a8cc4b3b2e1130661dc"
+        },
+        {
+          "class": "protected",
+          "sha256": "764ad40b1a788600d802c38e8b69be10ab0a21b83c8b6a8cc4b3b2e1130661dc"
+        }
+      ],
+      "reason": "Format only the newly packaged English portal guide after exact whole c062 failed its format gate. Preserve verified129MCP/65CLI descriptions, source-only preparation limits, all source/runtime behavior, failed whole evidence and unchanged owner index. Scoped format passed; fresh whole/artifact and live acceptance remain required."
+    },
+    {
+      "path": "packages/portal/README.md",
+      "sha256": "3947ca88ee66de2ad68a95f1fe593162c22c508b928c4a786d9a76d7e80695a3",
+      "priorClaims": [
+        {
+          "class": "protected",
+          "sha256": "4daa8089444c7c38134518d2899743b7374aa1cdc9270bf0b3c3c0b360e56583"
+        }
+      ],
+      "reason": "Format only the newly packaged English portal guide after exact whole c062 failed its format gate. Preserve verified129MCP/65CLI descriptions, source-only preparation limits, all source/runtime behavior, failed whole evidence and unchanged owner index. Scoped format passed; fresh whole/artifact and live acceptance remain required."
+    },
+    {
+      "path": "packages/portal/package.json",
+      "sha256": "ddb99eafe979d2319697f9bde91d01c4b3f4cf7f3e2a2baccfcb06ceff7767c8",
+      "priorClaims": [
+        {
+          "class": "protected",
+          "sha256": "ddb99eafe979d2319697f9bde91d01c4b3f4cf7f3e2a2baccfcb06ceff7767c8"
+        }
+      ],
+      "reason": "Format only the newly packaged English portal guide after exact whole c062 failed its format gate. Preserve verified129MCP/65CLI descriptions, source-only preparation limits, all source/runtime behavior, failed whole evidence and unchanged owner index. Scoped format passed; fresh whole/artifact and live acceptance remain required."
+    }
+  ]
+}

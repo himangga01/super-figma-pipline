@@ -1,0 +1,44 @@
+{
+  "schemaVersion": 1,
+  "slice": "review-2026-10-10",
+  "baseline": {
+    "headCommit": "22517932dc9b2cb974c177ec4eacb84d4b16e254",
+    "authoritySha256": {
+      "upstream-lock.json": "a608cefa3b62d970557c18d0f34d96d907eba387c973429f0d26102efea46456",
+      "vendor-map.json": "b3275c7d8b997d1cfe723d97594659f77d7b4361b824a790bcfdd7ff762589bd",
+      "vendor-rules.json": "e44439cdf0bcc1e76381a025347502d38754912e06bae1e728499b8b12f6a141"
+    }
+  },
+  "entries": [
+    {
+      "path": "capabilities/task-review-2026-10-10-authority-classes.json",
+      "sha256": "852a89c50a9b5eb2252298de0fa166a2628c9b1f1544700399e3dc5982ef3428",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "1bc28ac3d4d9f788f2af01f3a08604ed5703689829218cf24f11911ffe972272"
+        },
+        {
+          "class": "protected",
+          "sha256": "1bc28ac3d4d9f788f2af01f3a08604ed5703689829218cf24f11911ffe972272"
+        }
+      ],
+      "reason": "Exercise production Windows probe lifecycle budgets in non-timing fixtures instead of global 250 ms queue and retirement deadlines and a one-second idle deadline. Explicit timeout and unconfirmed-termination cases retain their bounds and assertions. Existing cases failed first and all 23 pass after the fixture correction."
+    },
+    {
+      "path": "packages/mcp/test/fs/windows-boundary-probe-worker.test.ts",
+      "sha256": "f0a7a07d7d0587b8098a139ac1d6663112e9643ed3b8a64133cf989e987fd9ae",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "21e1555289c20712f09a29199c1f07867ca8e091908eff98afa313221957f9c8"
+        },
+        {
+          "class": "protected",
+          "sha256": "21e1555289c20712f09a29199c1f07867ca8e091908eff98afa313221957f9c8"
+        }
+      ],
+      "reason": "Exercise production Windows probe lifecycle budgets in non-timing fixtures instead of global 250 ms queue and retirement deadlines and a one-second idle deadline. Explicit timeout and unconfirmed-termination cases retain their bounds and assertions. Existing cases failed first and all 23 pass after the fixture correction."
+    }
+  ]
+}

@@ -1,0 +1,60 @@
+{
+  "schemaVersion": 1,
+  "kind": "reviewed-c3-generated-type-config-classification-integration",
+  "at": "2026-10-13T20:30:48.947Z",
+  "baselineSource": "sha256:d722c32152149464c961c660622a95e3da603eb00f291e28b15c024507bcd87d",
+  "indexHash": "ecc1808ab3e14fa2e8c233ae1fc1c91e0a33b5b2e383a7270f1bc3068997e675",
+  "manifestHash": "bd08344ec69fdb265a5d454d0031ea2d00d2b6f5d8572806262921444c1a9781",
+  "approvalPath": "docs/testing/2026-10-11-web-portal/c3-configuration-provenance-review-20261014.md",
+  "approvalHash": "fc4f70d30641cd6736b15b1b7020be0990cccbca20db4782abb2e1d85b7acb50",
+  "attempts": [
+    {
+      "path": "service/packages/mcp/src/portal/module-resolution.ts",
+      "beforeHash": "2358e3d2fa16b28d086c600e1b947c3da579ff1f7485cb93649024c8b0dd85ef",
+      "afterHash": "bb63d231502c716409dffd731c7e17078ba2fcd8f361711b322dd4e6072144bd",
+      "status": "verified",
+      "mutationStarted": true,
+      "intentAt": "2026-10-13T20:30:48.955Z",
+      "verifiedAt": "2026-10-13T20:30:48.961Z",
+      "observedHash": "bb63d231502c716409dffd731c7e17078ba2fcd8f361711b322dd4e6072144bd"
+    },
+    {
+      "path": ".worktrees/baseline/service/packages/mcp/src/portal/module-resolution.ts",
+      "beforeHash": "2358e3d2fa16b28d086c600e1b947c3da579ff1f7485cb93649024c8b0dd85ef",
+      "afterHash": "bb63d231502c716409dffd731c7e17078ba2fcd8f361711b322dd4e6072144bd",
+      "status": "verified",
+      "mutationStarted": true,
+      "intentAt": "2026-10-13T20:30:48.966Z",
+      "verifiedAt": "2026-10-13T20:30:48.973Z",
+      "observedHash": "bb63d231502c716409dffd731c7e17078ba2fcd8f361711b322dd4e6072144bd"
+    },
+    {
+      "path": "service/packages/mcp/test/portal/module-resolution.test.ts",
+      "beforeHash": "fab4f3b951e951342c2c39cba72e6264226acc8ed30b295282678419f0e436c6",
+      "afterHash": "fb442e930b793a7673a4e04232cd5f36b7fd8b68c6bd847846a4a3241e6d7538",
+      "status": "verified",
+      "mutationStarted": true,
+      "intentAt": "2026-10-13T20:30:48.976Z",
+      "verifiedAt": "2026-10-13T20:30:48.983Z",
+      "observedHash": "fb442e930b793a7673a4e04232cd5f36b7fd8b68c6bd847846a4a3241e6d7538"
+    },
+    {
+      "path": ".worktrees/baseline/service/packages/mcp/test/portal/module-resolution.test.ts",
+      "beforeHash": "fab4f3b951e951342c2c39cba72e6264226acc8ed30b295282678419f0e436c6",
+      "afterHash": "fb442e930b793a7673a4e04232cd5f36b7fd8b68c6bd847846a4a3241e6d7538",
+      "status": "verified",
+      "mutationStarted": true,
+      "intentAt": "2026-10-13T20:30:48.987Z",
+      "verifiedAt": "2026-10-13T20:30:48.994Z",
+      "observedHash": "fb442e930b793a7673a4e04232cd5f36b7fd8b68c6bd847846a4a3241e6d7538"
+    }
+  ],
+  "status": "integrated",
+  "sourceIntegrated": true,
+  "runtimeDeployed": false,
+  "distChanged": false,
+  "liveAcceptance": false,
+  "automaticReplayAllowed": false,
+  "sourceHash": "sha256:98951f61446ee19454d9d51a22b7d71cad50aabb976352d38854e5d1e71e84b1",
+  "completedAt": "2026-10-13T20:30:49.764Z"
+}

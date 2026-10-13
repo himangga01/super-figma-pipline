@@ -1,0 +1,15 @@
+{
+  "at": "2026-10-12T14:43:28.222Z",
+  "sourceHash": "sha256:c00eb2add4411a6177ffa4fbd4c22f231fd1a5f2ac06c02924426473dfad4042",
+  "metadataFiles": [
+    "upstream-lock.json",
+    "vendor-map.json",
+    "vendor-rules.json",
+    "capabilities/task-review-2026-10-10-authority-classes.json",
+    "capabilities/change-manifests/task-review-2026-10-10.json",
+    "capabilities/reconciliations/review-2026-10-10-portal-auth-approval-package-2026-10-12.json"
+  ],
+  "ownerIndex": "a99e5dd36982d74373d779448068a8449189b133e54cd673b13be2c2c356b2a9",
+  "officialLiveVerification": "deferred by owner",
+  "wholeCheckOwed": true
+}

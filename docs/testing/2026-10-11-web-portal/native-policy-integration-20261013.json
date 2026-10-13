@@ -1,0 +1,39 @@
+{
+  "at": "2026-10-12T23:54:18.754Z",
+  "before": "sha256:20fd73fad1cdfdaced87be68a8c5fa4da090d7b3e52ce14274742d5f5bace57e",
+  "after": "sha256:213acbf4d43369d5f30856121406359c5047e2e319e1b8581f2a19d28d991a65",
+  "manifestSha256": "2143aa6eee816ad50a98b365e0d0440c3b154410ea0e3d7d470d6e3d73233c84",
+  "files": [
+    {
+      "path": "packages/mcp/src/portal/design-capture.ts",
+      "before": "42d22b1d300455de81aec494df4a713262450fc838172ec4bc4911f1cb21dbe7",
+      "after": "6278899c421059366780405fd801143981e9e377b38b9a86d58c983a0853ce57",
+      "bytes": 44446
+    },
+    {
+      "path": "packages/mcp/test/portal/capture-coherence.test.ts",
+      "before": "afb9a9922216328f54eb2f87cc33bd0bcf7113e66e3fbe1a8e74f57da02e31e7",
+      "after": "2bdd186338eae1b3f7aa2e8cfa8c81572d5bee90a498fdb1b5da7fbdb02bb2ab",
+      "bytes": 20226
+    },
+    {
+      "path": "packages/cli/test/figma-web-export.test.ts",
+      "before": "0365ba6a2d67bb25f8bdf0c44f73b72a6307af19e3b0c858eb7ae55c90191dc5",
+      "after": "c40f351b5566386e5fbfbe13e842a35f4d0de12ce239bc186e839247f08039ea",
+      "bytes": 22087
+    },
+    {
+      "path": "packages/mcp/src/index.ts",
+      "before": "74ac932dbbdc00bc9e1225289faf206022b0fe0b6e09d22a60b4b1f1ad36a2de",
+      "after": "a1ac55dc67da5c9345a7b1dcf66a5d856f625707ebd544b896727006411f324b",
+      "bytes": 70859
+    }
+  ],
+  "ownerIndexUnchanged": true,
+  "productionIndexWired": true,
+  "nativeContourLookupOnly": true,
+  "knownDisabledNativeKeepsPrimary": true,
+  "wholePassed": false,
+  "runtimeReplaced": false,
+  "liveCapture": false
+}

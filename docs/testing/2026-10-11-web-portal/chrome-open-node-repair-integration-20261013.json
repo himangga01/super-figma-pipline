@@ -1,0 +1,27 @@
+{
+  "at": "2026-10-12T15:48:58.839Z",
+  "files": [
+    {
+      "path": "packages/cli/src/commands.ts",
+      "beforeSha256": "335a807e57092b40851b1c351af74228971721531d47e349407e3ff371b458ad",
+      "afterSha256": "4ee2ab4d09a02671c257839137c570ecba9b0d061a48c5737d4e952bbb94dadd"
+    },
+    {
+      "path": "packages/cli/test/browser-source-open.test.ts",
+      "beforeSha256": "31d4b147c3aebdc4c892eb4ab616f21e7260741b81d30c5ad4ff636303c76e30",
+      "afterSha256": "269c22d37e882b4ae1765fe3fc176d430e7df69713bfadc4ae74670731d6b92a"
+    }
+  ],
+  "tests": {
+    "passed": 19,
+    "failed": 0,
+    "skipped": 0
+  },
+  "lint": "passed",
+  "format": "passed",
+  "cliTypecheck": "blocked by separately identified execFile test-mock namespace type, repaired overlay independently passes",
+  "actualObservedBug": "chrome.open requested1378:120 returnedexistingnode1:37",
+  "wholeCheckOwed": true,
+  "compiledRuntimeReplaced": false,
+  "originalUnknownReplayed": false
+}

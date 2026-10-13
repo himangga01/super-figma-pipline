@@ -1,0 +1,85 @@
+{
+  "schemaVersion": 1,
+  "revision": "R60",
+  "at": "2026-10-13T10:19:29.270Z",
+  "scope": "Two-file actual pinned Epic Vite CSS placeholder decoder compatibility",
+  "mainBaseline": "sha256:303de5d1904d11c1fb89bdf80951900e375ac4325ea6cfc932f39ebee2785732",
+  "previousCandidate": {
+    "path": "freeze-r58/frozen-files.json",
+    "sha256": "274508d904dd01debe7afae0994376e4fb56f3b99aecd5165dac13b11d49120e"
+  },
+  "files": [
+    {
+      "path": "packages/mcp/src/portal/react-router-compiler-evidence.ts",
+      "previousCandidateSha256": "c4425386948662ab2ad725fb85ee104f2af69d7e72537da5bb0d3351078cc13d",
+      "currentMainBeforeSha256": "595f0ec5810511d63948c02265a347a15169ff62b9b00344fd69edb53f3a5bea",
+      "afterSha256": "44b1952686603dd056faea33803c65a985e7b41230b5b04ad434ab69ac2065c8"
+    },
+    {
+      "path": "packages/mcp/test/portal/react-router-compiler-evidence.test.ts",
+      "previousCandidateSha256": "d785a86aad1e9e8f3a63becf7e383034d91c1b4520c759946e4b229a8fd2a495",
+      "currentMainBeforeSha256": "6d9d2266ad1c33c6f8f5274403d32e606f3ca0c9985d0f8a7f9d196fc3222025",
+      "afterSha256": "fb2ef781c20c20d1f2b5ee5148448239829188a8b05f3c18fd6c0f4d982305f8"
+    }
+  ],
+  "receipts": [
+    {
+      "path": "css-decoder-r60-red.json",
+      "sha256": "d0bd1c6610dfbb3a963d083356e2b55d0a32c2c72cee727d527e30ff2cc21fe0"
+    },
+    {
+      "path": "css-decoder-r60-green1.json",
+      "sha256": "6cda1455e952d109bbbf0d49e5bf5f7bd4447e74233ee33caa98f344757c2e33"
+    },
+    {
+      "path": "css-decoder-r60-final.json",
+      "sha256": "2fe412fafcf58704c1dbc09af13f948c4259f6e37a1ca1049513d511b60d5162"
+    },
+    {
+      "path": "types-r60-failure1.json",
+      "sha256": "227a6205b34c8cfa0deaa726dd2604d8e3c849f741ef12afdc2e2580fd2952b6"
+    },
+    {
+      "path": "types-r60-two-entry.json",
+      "sha256": "e1628c9b47388896440209ec5015cc59a8fd9179ed1e09dc340492712ed310a1"
+    },
+    {
+      "path": "review-r54.config.mjs",
+      "sha256": "5ef8a5a46dac567cdb5583e98487b2ef484dd1c72087eb8c758ce762e116b518"
+    }
+  ],
+  "verification": {
+    "passed": 3,
+    "failed": 0,
+    "filtered": 17,
+    "typeClosureFiles": 456,
+    "typeDiagnostics": 0,
+    "lint": "passed",
+    "format": "passed"
+  },
+  "contract": {
+    "oldLiteralExportRetained": true,
+    "twoStatementReviewedEpicOnly": true,
+    "zeroImportBindings": true,
+    "exactOwnedCssTransformOnly": true,
+    "strictHexUtf8RoundTrip": true,
+    "decodedTokenEqualsImport": true,
+    "actualClientManifestKeyAndSrc": true,
+    "exactOneMatchingEntry": true,
+    "assetPathPatternAndOwnedNoLinks": true,
+    "nonemptyAssetAndHash": true,
+    "privateSourceProfileRunModuleAllReceiptGatesRetained": true,
+    "smallIssuedBuildReceiptRecheckedAfterRead": true,
+    "rawObservedCodeUnchanged": true,
+    "bootstrapUnchanged7942": true,
+    "argumentCapUnchanged8192": true,
+    "noExpectedExportConstructed": true,
+    "testSeamCannotIssueEvidence": true
+  },
+  "limits": [
+    "Controlled fixtures reproduce actual R59 producer grammar, not a new native execution",
+    "Real compiler/output authority remains mandatory only in capture; pure exported reader has no issuance authority",
+    "No current Main/native/live/Chrome change or new public proof",
+    "Old R59 both-command-pass/public-fail remains preserved"
+  ]
+}

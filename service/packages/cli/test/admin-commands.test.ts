@@ -520,3 +520,115 @@ it('preserves explicit session selection for Desktop portal validation', async (
     expect.objectContaining({ targetSelector: { kind: 'session', sessionId: session } }),
   );
 });
+
+it('reports reviewed source-purpose preparation without claiming capture or executing its compiler', async () => {
+  const directory = await mkdtemp(join(tmpdir(), 'sfp-source-profile-review-'));
+  try {
+    await profileState(directory);
+    const raw = {
+      ...nativeProfileFixture(),
+      purpose: 'source-preparation',
+      sourcePreparation: { sourceId: 'sha256:' + 'c'.repeat(64), packageContextRoot: directory },
+    };
+    const prepared = {
+      ...raw,
+      preparedContractVersion: 2,
+      native: {
+        ...raw.native,
+        artifactAuthority: {
+          version: 1,
+          configurationHash: 'sha256:' + 'a'.repeat(64),
+          commandHash: 'sha256:' + 'b'.repeat(64),
+          artifacts: [],
+          executables: [],
+        },
+      },
+    };
+    const id = '123e4567-e89b-42d3-a456-426614174001',
+      deadlineAt = Date.now() + 50000;
+    const status = {
+      schemaVersion: 1,
+      preparationId: id,
+      ownerId: 'actor1_fixture',
+      workspaceId: '123e4567-e89b-42d3-a456-426614174000',
+      planId: raw.planId,
+      contextHash: raw.contextHash,
+      sourceId: raw.sourcePreparation.sourceId,
+      profileId: raw.native.id,
+      requestHash: 'sha256:' + 'd'.repeat(64),
+      preparedHash: 'sha256:' + 'e'.repeat(64),
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+      preparationDeadlineAt: deadlineAt,
+      registrationDeadlineAt: null,
+      issuerDeadlineAt: deadlineAt,
+      status: 'ready',
+      producerPending: false,
+      errorCode: null,
+      registration: null,
+      issuerAvailable: true,
+    };
+    const request = vi
+      .spyOn(ControlClient.prototype, 'request')
+      .mockImplementation(async (path, _method, body) =>
+        path.endsWith('/result')
+          ? prepared
+          : {
+              ...status,
+              requestId: (body as { requestId: string }).requestId,
+              requestHash: contentHash('sfp-profile-preparation-request-v1', body),
+            },
+      );
+    const emit = vi.fn<(value: unknown) => void>();
+    await runAdminCommand(['portal', 'profile', '--args', JSON.stringify(raw)], emit, {
+      deadlineAt,
+    });
+    expect(request.mock.calls.map(c => c[0])).toEqual([
+      '/control/portal/profiles/prepare',
+      '/control/portal/profile-preparations/' + id + '/result',
+    ]);
+    expect(request.mock.calls[0]?.[2]).toMatchObject({ profile: raw, deadlineAt });
+    const result = emit.mock.calls[0]![0] as {
+      purpose: string;
+      sourcePreparationOnly: boolean;
+      instruction: string;
+      preparedFile: string;
+    };
+    expect(result.purpose).toBe('source-preparation');
+    expect(result.sourcePreparationOnly).toBe(true);
+    expect(result.instruction).toContain('compiler evidence only');
+    expect(result.instruction).toContain(
+      'capture, workflow confirmation, coding lease and acceptance are still required',
+    );
+    expect(JSON.parse(await readFile(result.preparedFile, 'utf8'))).toMatchObject({
+      purpose: 'source-preparation',
+      sourcePreparation: raw.sourcePreparation,
+    });
+  } finally {
+    await rm(directory, { recursive: true, force: true });
+  }
+}, 60000);
+
+it('reads a retained source selector from an arguments file and rejects traversal before network', async () => {
+  const folder = await mkdtemp(join(tmpdir(), 'sfp-source-selector-'));
+  try {
+    const file = join(folder, 'selector.json'),
+      selector = {
+        planId: 'sfp_portal1_' + 'a'.repeat(32),
+        requestId: '123e4567-e89b-42d3-a456-426614174000',
+      };
+    await writeFile(file, JSON.stringify(selector));
+    const request = vi.spyOn(ControlClient.prototype, 'request').mockResolvedValue([]);
+    await runAdminCommand(['portal', 'profile-status', '--args-file', file], () => {});
+    expect(request.mock.calls[0]?.[0]).toBe(
+      '/control/portal/profile-preparations?' + new URLSearchParams(selector),
+    );
+    request.mockClear();
+    await expect(
+      runAdminCommand(['portal', 'profile-result', '../other'], () => {}),
+    ).rejects.toBeInstanceOf(Error);
+    expect(request).not.toHaveBeenCalled();
+  } finally {
+    await rm(folder, { recursive: true, force: true });
+  }
+});

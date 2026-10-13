@@ -1,19 +1,23 @@
 import type { RuntimeExecutionScope, ProgressReporter } from '@sfp/shared';
 
 import { parseFigmaTarget } from '../../../cli/src/figma-url.js';
+import type { OfficialFigmaConnectionOptions } from '../official-figma-mcp.js';
 import type { BoundStatePermissions } from '../security/state-permissions.js';
 import type { PinnedPluginRuntimePort, RuntimeActionContext } from '../tools/runtime-registry.js';
 import type { PortalCaptureAdmissionPorts } from './capture-source-admission.js';
 import { revalidatePortalCaptureGrant } from './capture-source-admission.js';
 import type { PortalDesignCapturePort } from './design-capture.js';
 import { createDesktopDesignCapture } from './desktop-capture.js';
+import { createOfficialMcpDesignCapture } from './official-mcp-capture.js';
 import { portalError, type PortalStore } from './store.js';
 export function createPortalCaptureRuntime(dependencies: {
   stateRoot: string;
   permissions: BoundStatePermissions;
   store: PortalStore;
   chrome: PortalDesignCapturePort;
+  pageApi?: PortalDesignCapturePort;
   admission: PortalCaptureAdmissionPorts;
+  officialMcp?: OfficialFigmaConnectionOptions;
 }) {
   return async (
     scope: RuntimeExecutionScope,
@@ -26,6 +30,16 @@ export function createPortalCaptureRuntime(dependencies: {
     const revalidate = () =>
       revalidatePortalCaptureGrant(grant, scope.target, dependencies.admission);
     await revalidate();
+    if (grant.kind === 'official-mcp') {
+      const capture = createOfficialMcpDesignCapture(
+        dependencies.stateRoot,
+        dependencies.permissions,
+        dependencies.store,
+        grant,
+        dependencies.officialMcp,
+      );
+      return { capture, close: () => capture.close() };
+    }
     if (grant.kind === 'desktop') {
       const capture = createDesktopDesignCapture(
         dependencies.stateRoot,
@@ -41,7 +55,10 @@ export function createPortalCaptureRuntime(dependencies: {
           throw portalError('PORTAL_CAPTURE_SOURCE_MISMATCH');
         signal.throwIfAborted();
         await revalidate();
-        return dependencies.chrome.capture(planId, url, signal);
+        const selected =
+          grant.collector === 'page-api' ? dependencies.pageApi : dependencies.chrome;
+        if (!selected) throw portalError('PORTAL_CAPTURE_COLLECTOR_UNAVAILABLE');
+        return selected.capture(planId, url, signal);
       },
     };
     return { capture, close: async () => {} };

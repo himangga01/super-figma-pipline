@@ -1,0 +1,60 @@
+{
+  "schemaVersion": 1,
+  "kind": "reviewed-c2-explicit-generated-type-suffix-integration",
+  "at": "2026-10-13T20:45:31.509Z",
+  "baselineSource": "sha256:98951f61446ee19454d9d51a22b7d71cad50aabb976352d38854e5d1e71e84b1",
+  "indexHash": "ecc1808ab3e14fa2e8c233ae1fc1c91e0a33b5b2e383a7270f1bc3068997e675",
+  "manifestHash": "2a1cfd82299fe52ea0eaaa8cc13de336d68dadeff91a7096bd36539c31801d06",
+  "approvalPath": "docs/testing/2026-10-11-web-portal/c2-explicit-route-type-review-20261014.md",
+  "approvalHash": "9b3c46f2313a02b19da6fea97cbc41e373686807f1043b4090b6dbe8f53336bc",
+  "attempts": [
+    {
+      "path": "service/packages/mcp/src/portal/module-resolution.ts",
+      "beforeHash": "bb63d231502c716409dffd731c7e17078ba2fcd8f361711b322dd4e6072144bd",
+      "afterHash": "e9b07c18cc5b1ea17a6778cc7c0dd8be76a2d75168460364c4e28535c1e89250",
+      "status": "verified",
+      "mutationStarted": true,
+      "intentAt": "2026-10-13T20:45:31.518Z",
+      "verifiedAt": "2026-10-13T20:45:31.527Z",
+      "observedHash": "e9b07c18cc5b1ea17a6778cc7c0dd8be76a2d75168460364c4e28535c1e89250"
+    },
+    {
+      "path": ".worktrees/baseline/service/packages/mcp/src/portal/module-resolution.ts",
+      "beforeHash": "bb63d231502c716409dffd731c7e17078ba2fcd8f361711b322dd4e6072144bd",
+      "afterHash": "e9b07c18cc5b1ea17a6778cc7c0dd8be76a2d75168460364c4e28535c1e89250",
+      "status": "verified",
+      "mutationStarted": true,
+      "intentAt": "2026-10-13T20:45:31.532Z",
+      "verifiedAt": "2026-10-13T20:45:31.540Z",
+      "observedHash": "e9b07c18cc5b1ea17a6778cc7c0dd8be76a2d75168460364c4e28535c1e89250"
+    },
+    {
+      "path": "service/packages/mcp/test/portal/module-resolution.test.ts",
+      "beforeHash": "fb442e930b793a7673a4e04232cd5f36b7fd8b68c6bd847846a4a3241e6d7538",
+      "afterHash": "2efc994f88c057aebb7373837512289adace0f2d31d1ba5e4e0ed495a8315c15",
+      "status": "verified",
+      "mutationStarted": true,
+      "intentAt": "2026-10-13T20:45:31.545Z",
+      "verifiedAt": "2026-10-13T20:45:31.553Z",
+      "observedHash": "2efc994f88c057aebb7373837512289adace0f2d31d1ba5e4e0ed495a8315c15"
+    },
+    {
+      "path": ".worktrees/baseline/service/packages/mcp/test/portal/module-resolution.test.ts",
+      "beforeHash": "fb442e930b793a7673a4e04232cd5f36b7fd8b68c6bd847846a4a3241e6d7538",
+      "afterHash": "2efc994f88c057aebb7373837512289adace0f2d31d1ba5e4e0ed495a8315c15",
+      "status": "verified",
+      "mutationStarted": true,
+      "intentAt": "2026-10-13T20:45:31.559Z",
+      "verifiedAt": "2026-10-13T20:45:31.567Z",
+      "observedHash": "2efc994f88c057aebb7373837512289adace0f2d31d1ba5e4e0ed495a8315c15"
+    }
+  ],
+  "status": "integrated",
+  "sourceIntegrated": true,
+  "runtimeDeployed": false,
+  "distChanged": false,
+  "liveAcceptance": false,
+  "automaticReplayAllowed": false,
+  "sourceHash": "sha256:d17485f0b84f2a9adbb6ef40acf0280507ad40e2617ca7001b142731bc2dfd80",
+  "completedAt": "2026-10-13T20:45:32.317Z"
+}

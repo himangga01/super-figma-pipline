@@ -1,6 +1,7 @@
-import { mkdtemp, mkdir, writeFile, rm } from 'node:fs/promises';
+import assert from 'node:assert/strict';
+import { mkdtemp, mkdir, writeFile, rm, realpath, lstat } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
-import { join } from 'node:path';
+import { join, resolve, dirname, basename } from 'node:path';
 
 import { storedChecksum, contentHash, canonicalJson } from '@sfp/ir';
 import {
@@ -928,6 +929,167 @@ const workspaceFiles = {
   'jobs/main.ts': "import express from 'express';const app=express();app.get('/jobs',()=>{});",
   'jobs/Button.tsx': 'export function Button(){return <button>Jobs</button>}',
 };
+const patternRouteRoots: Array<{
+  path: string;
+  canonical: string;
+  parent: string;
+  dev: bigint;
+  ino: bigint;
+}> = [];
+const comparablePatternPath = (path: string) => resolve(path).toLowerCase();
+async function patternRouteRepository(extra: Record<string, string>) {
+  const parent = await realpath(tmpdir());
+  const path = await mkdtemp(join(parent, 'sfp-core-recipes-'));
+  const canonical = await realpath(path);
+  const identity = await lstat(path, { bigint: true });
+  assert.equal(comparablePatternPath(dirname(path)), comparablePatternPath(parent));
+  assert.equal(comparablePatternPath(dirname(canonical)), comparablePatternPath(parent));
+  assert.equal(comparablePatternPath(canonical), comparablePatternPath(path));
+  assert(basename(path).startsWith('sfp-core-recipes-'));
+  assert(identity.isDirectory() && !identity.isSymbolicLink());
+  patternRouteRoots.push({ path, canonical, parent, dev: identity.dev, ino: identity.ino });
+  const files = {
+    'package.json': JSON.stringify({ name: 'core-fixture', dependencies: { react: '19.2.8' } }),
+    'src/Button.tsx': 'export function Button() { return <button>Save</button>; }',
+    'src/tokens.css': ':root { --primary: #ff0000; }',
+    ...extra,
+  };
+  for (const [name, content] of Object.entries(files)) {
+    const target = join(path, name);
+    await mkdir(join(target, '..'), { recursive: true });
+    await writeFile(target, content);
+  }
+  return new RepoReader({ rootDir: path });
+}
+afterEach(async () => {
+  for (const fixtureRoot of patternRouteRoots.splice(0)) {
+    const canonical = await realpath(fixtureRoot.path);
+    const identity = await lstat(fixtureRoot.path, { bigint: true });
+    assert.equal(
+      comparablePatternPath(await realpath(tmpdir())),
+      comparablePatternPath(fixtureRoot.parent),
+    );
+    assert.equal(
+      comparablePatternPath(dirname(fixtureRoot.path)),
+      comparablePatternPath(fixtureRoot.parent),
+    );
+    assert.equal(
+      comparablePatternPath(dirname(canonical)),
+      comparablePatternPath(fixtureRoot.parent),
+    );
+    assert.equal(comparablePatternPath(canonical), comparablePatternPath(fixtureRoot.canonical));
+    assert(basename(fixtureRoot.path).startsWith('sfp-core-recipes-'));
+    assert(identity.isDirectory() && !identity.isSymbolicLink());
+    assert.equal(identity.dev, fixtureRoot.dev);
+    assert.equal(identity.ino, fixtureRoot.ino);
+    await rm(fixtureRoot.path, { recursive: true, force: true });
+  }
+});
+it('retains every source candidate for an exact review of the produced pattern-route diagnostic', async () => {
+  const reader = await patternRouteRepository({
+    ...workspaceFiles,
+    'jobs/main.ts':
+      "import express from 'express';const app=express();app.get('/jobs/:jobId',()=>{});",
+  });
+  const graph = await analyzeServiceGraph(reader, hash);
+  const diagnostic = graph.connections!.issues.find(
+    issue => issue.code === 'DYNAMIC_OR_PATTERN_ROUTE',
+  )!;
+  expect(diagnostic).toBeDefined();
+  expect(graph.incomplete).toBe(true);
+  const evidence = diagnostic.evidence!;
+  const review = {
+    sourceId: graph.sourceId!,
+    sourceIndex: 0,
+    path: evidence.path,
+    hash: evidence.hash,
+    offset: evidence.offset,
+    issue: diagnostic.code,
+    decision: 'retain-conservative-closure' as const,
+    layers: ['backend' as const],
+    conclusion:
+      'Retain every source candidate for the exact parameterized route; infer no endpoint.',
+  };
+  const selection = selectPortalServices([{ graph }], {
+    services: ['web'],
+    sourceReviews: [review],
+  });
+  expect(selection.complete).toBe(true);
+  expect(selection.selected.map(item => item.rootPath)).toEqual(['web']);
+  expect(selection.closure.map(item => item.rootPath).toSorted()).toEqual(
+    graph.services.map(service => service.rootPath).toSorted(),
+  );
+  expect(selection.connections).toEqual([graph.connections]);
+  expect(selection.reviews).toEqual([review]);
+  expect(graph.incomplete).toBe(true);
+  expect(graph.connections!.issues).toContainEqual(diagnostic);
+});
+it('keeps pattern-route reviews exact and preserves unused-review and hard-failure guards', async () => {
+  const reader = await patternRouteRepository({
+    ...workspaceFiles,
+    'jobs/main.ts':
+      "import express from 'express';const app=express();app.get('/jobs/:jobId',()=>{});",
+  });
+  const graph = await analyzeServiceGraph(reader, hash);
+  const diagnostic = graph.connections!.issues.find(
+    issue => issue.code === 'DYNAMIC_OR_PATTERN_ROUTE',
+  )!;
+  expect(diagnostic).toBeDefined();
+  const evidence = diagnostic.evidence!;
+  const review = {
+    sourceId: graph.sourceId!,
+    sourceIndex: 0,
+    path: evidence.path,
+    hash: evidence.hash,
+    offset: evidence.offset,
+    issue: diagnostic.code,
+    decision: 'retain-conservative-closure' as const,
+    layers: ['backend' as const],
+    conclusion: 'Retain all candidates while preserving the exact current diagnostic binding.',
+  };
+  for (const changed of [
+    { sourceId: `sha256:${'b'.repeat(64)}` as const },
+    { sourceIndex: 1 },
+    { path: 'web/Button.tsx' },
+    { hash: `sha256:${'b'.repeat(64)}` as const },
+    { offset: evidence.offset + 1 },
+    { issue: 'DYNAMIC_ROUTE' },
+  ])
+    expect(() =>
+      selectPortalServices([{ graph }], {
+        services: ['web'],
+        sourceReviews: [{ ...review, ...changed }],
+      }),
+    ).toThrow('PORTAL_SOURCE_REVIEW_NOT_BOUND');
+  expect(() =>
+    selectPortalServices([{ graph }], {
+      services: ['web'],
+      sourceReviews: [review, { ...review }],
+    }),
+  ).toThrow('PORTAL_SOURCE_REVIEW_NOT_BOUND');
+  const limited = {
+    ...graph,
+    sourceInventory: { ...graph.sourceInventory!, complete: false },
+    issuesTruncated: true,
+    connections: { ...graph.connections!, issuesTruncated: true },
+  };
+  const blocked = selectPortalServices([{ graph: limited }], {
+    services: ['web'],
+    sourceReviews: [review],
+  });
+  expect(blocked.complete).toBe(false);
+  expect(blocked.issues.some(issue => issue.startsWith('SOURCE_INVENTORY_INCOMPLETE:'))).toBe(true);
+  expect(blocked.issues.some(issue => issue.startsWith('SERVICE_DIAGNOSTICS_TRUNCATED:'))).toBe(
+    true,
+  );
+  for (const issue of ['AST_ERRORS', 'FILE_TOO_LARGE'])
+    expect(() =>
+      selectPortalServices([{ graph: { ...graph, issues: [issue + ':' + evidence.path] } }], {
+        services: ['web'],
+        sourceReviews: [review, { ...review, offset: 0, issue }],
+      }),
+    ).toThrow('PORTAL_SOURCE_REVIEW_NOT_BOUND');
+});
 it('preserves qualified frontend closure, full byte inventory and scoped canonical mapping candidates', async () => {
   const observation = componentObservation(),
     reader = await repository({

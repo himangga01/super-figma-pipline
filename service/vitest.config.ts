@@ -11,7 +11,7 @@ export default defineConfig({
     ...(jsonReport ? { reporters: ['default', 'json'], outputFile: { json: jsonReport } } : {}),
     // Windows integration fixtures start real ACL/lease helper processes. CPU-count parallelism
     // can exhaust their deadlines even though each fixture passes in isolation.
-    ...(process.platform === 'win32' ? { maxWorkers: 4 } : {}),
+    ...(process.platform === 'win32' ? { maxWorkers: 2 } : {}),
     projects: [
       'packages/*/vitest.config.ts',
       {

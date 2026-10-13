@@ -16,6 +16,11 @@ import { portalContentBytes } from '../content.js';
 import { PortalCapturedDesignSchema, assertPortalCaptureDescriptor } from '../design-capture.js';
 import { normalizeDesignObservation } from '../design-normalization.js';
 import { derivePortalInteractionContract } from '../interaction-evidence.js';
+import {
+  deriveNativeContours,
+  type PortalNativeContourAcquisitionPort,
+  type PreparedNativeContours,
+} from '../native-contours.js';
 import { PortalStore, portalError } from '../store.js';
 import { coreDeclarationsHash, PortalCoreLifecycle } from './core-lifecycle.js';
 import { coreHash } from './core-source.js';
@@ -42,6 +47,7 @@ export async function loadCoreConsumptionInput(
     store: PortalStore;
     lifecycle: PortalCoreLifecycle;
     policy: WorkspacePolicy;
+    nativeContourAcquisition?: PortalNativeContourAcquisitionPort;
     /** Trusted NativeWork guard: signed apply journal, actual target identity and complete bytes. */
     verifyAppliedTarget?(plan: PortalPlan, run: PortalRun, signal: AbortSignal): Promise<void>;
   },
@@ -50,6 +56,7 @@ export async function loadCoreConsumptionInput(
     planId: string;
     candidateHash: string;
     target?: 'candidate' | 'applied';
+    nativeContourNodeIds?: readonly string[];
   },
   signal?: AbortSignal,
 ) {
@@ -238,6 +245,42 @@ export async function loadCoreConsumptionInput(
   )
     throw portalError('PORTAL_CONSUMPTION_CANDIDATE_CHANGED');
   signal?.throwIfAborted();
+  let nativeContours: PreparedNativeContours | undefined;
+  let nativeContourFailure: string | undefined;
+  if (request.nativeContourNodeIds?.length) {
+    if (!dependencies.nativeContourAcquisition)
+      nativeContourFailure = 'PORTAL_CONSUMPTION_NATIVE_AUTHORITY_REQUIRED';
+    else {
+      const capture = plan.design.capture;
+      if (!capture) throw portalError('PORTAL_CONSUMPTION_CAPTURE_REQUIRED');
+      const contourRequest = {
+        ownerId: plan.ownerId,
+        workspaceId: plan.workspaceId,
+        planId: plan.planId,
+        capture,
+        primaryCapturedAt: captured.capturedAt,
+        deadlineAt: run.nativeBudget?.effect?.deadlineAt ?? run.deadlineAt,
+      };
+      const activeSignal = signal ?? new AbortController().signal;
+      activeSignal.throwIfAborted();
+      const capsule = await dependencies.nativeContourAcquisition.read(
+        contourRequest,
+        activeSignal,
+      );
+      activeSignal.throwIfAborted();
+      nativeContours = deriveNativeContours(contourRequest, capsule, observation);
+      const after = await dependencies.store.get('runs', request.planId, PortalRunSchema);
+      if (
+        !after ||
+        after.ownerId !== run.ownerId ||
+        after.state === 'cancelled' ||
+        after.candidateHash !== run.candidateHash ||
+        after.coreDeclarationsHash !== run.coreDeclarationsHash ||
+        canonicalJson(after.coreRecipes) !== canonicalJson(run.coreRecipes)
+      )
+        throw portalError('PORTAL_CONSUMPTION_CANDIDATE_CHANGED');
+    }
+  }
   return {
     plan,
     run,
@@ -245,6 +288,8 @@ export async function loadCoreConsumptionInput(
     observation,
     pages,
     files,
+    nativeContours,
+    nativeContourFailure,
     materialHash: contentHash('sfp-core-consumption-material-v1', {
       contextHash: plan.coreRecipes.contextHash,
       blueprintHash: plan.blueprintHash,
@@ -256,6 +301,14 @@ export async function loadCoreConsumptionInput(
         workItemId: page.workItemId,
       })),
       files: [...files].map(([path, file]) => ({ path, hash: file.hash })),
+      ...(nativeContours
+        ? {
+            nativeContours: {
+              documentHash: nativeContours.documentHash,
+              captureFingerprint: nativeContours.captureFingerprint,
+            },
+          }
+        : {}),
     }),
   };
 }

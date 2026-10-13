@@ -167,6 +167,32 @@ public static class SfpRetainedDirectoryLease {
         int code = Marshal.GetLastWin32Error();
         throw new Win32Exception(code, "GetFileInformationByHandle failed: " + code.ToString(CultureInfo.InvariantCulture));
       }
+      // Metadata-only handles preserve the existing directory behavior, but do not deny regular
+      // file rename on Windows. Reopen regular files for read access before path-based ACL work.
+      // Compare both handles before returning so this step cannot switch to a replacement inode.
+      const uint FILE_ATTRIBUTE_DIRECTORY = 0x00000010;
+      const uint GENERIC_READ = 0x80000000;
+      if ((information.FileAttributes & FILE_ATTRIBUTE_DIRECTORY) == 0) {
+        SafeFileHandle guarded = CreateFileW(
+          ExtendedPath(path), GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE,
+          IntPtr.Zero, OPEN_EXISTING,
+          FILE_FLAG_BACKUP_SEMANTICS | FILE_FLAG_OPEN_REPARSE_POINT, IntPtr.Zero);
+        if (guarded.IsInvalid) {
+          int code = Marshal.GetLastWin32Error(); guarded.Dispose();
+          throw new Win32Exception(code, "regular file lease failed: " + code.ToString(CultureInfo.InvariantCulture));
+        }
+        try {
+          SfpByHandleFileInformation guardedInformation;
+          if (!GetFileInformationByHandle(guarded, out guardedInformation))
+            throw new Win32Exception(Marshal.GetLastWin32Error(), "regular file lease identity unavailable");
+          if (information.VolumeSerialNumber != guardedInformation.VolumeSerialNumber ||
+              information.FileIndexHigh != guardedInformation.FileIndexHigh ||
+              information.FileIndexLow != guardedInformation.FileIndexLow ||
+              (guardedInformation.FileAttributes & FILE_ATTRIBUTE_DIRECTORY) != 0)
+            throw new InvalidOperationException("regular file lease identity changed");
+          handle.Dispose(); handle = guarded; information = guardedInformation;
+        } catch { guarded.Dispose(); throw; }
+      }
       ulong index = ((ulong)information.FileIndexHigh << 32) | information.FileIndexLow;
       SfpDirectoryLease lease = new SfpDirectoryLease();
       lease.Handle = handle;

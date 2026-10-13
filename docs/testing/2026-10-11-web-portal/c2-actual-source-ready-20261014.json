@@ -1,0 +1,42 @@
+{
+  "schemaVersion": 1,
+  "recordedAt": "2026-10-13T17:52:57.410Z",
+  "sourceHash": "sha256:6f87f836d872a4ba8ab49533f6447a7c921adb6b8af3dae75ddd6241e8b8a1cb",
+  "workspaceId": "1e165b1b-655b-4f42-a9e1-5097b50ef7f8",
+  "runId": "sfp_portal1_00144bfb51c6cfeb32d9018b1dfe2592",
+  "profileId": "case-source-472b8365-e961-4962-a35f-b3397a3eb4d4",
+  "sourceId": "sha256:10682923988d87f884d675e19f867434a36fa699f8ebedf6aff6d53db421abab",
+  "sourceInventoryHash": "sha256:850df77a6aa70da7b4b749ca7a091e273ca9a1bc43b53ef9a86f79b9f86e6f0a",
+  "compilerEvidenceHash": "sha256:908fa85acb06687c653b422529559a471dbab2a42b6bdb04050c8c8cd21c046a",
+  "generatedFiles": 235,
+  "originalDeadlineAt": 1791914021356,
+  "resultSha256": "be4187f0d8802b94fc6d41f74f43a66541f5d8d7bd60c5eae6b8e9e5ac77a9fa",
+  "journalSha256": "f0e4d3da61f0c0073a4b452e77bd7bed8aa54bd017719c5497728bdf76f9f71c",
+  "journalStatus": "succeeded",
+  "commands": [
+    {
+      "id": "compiler-dependencies",
+      "status": "passed",
+      "exitCode": 0,
+      "cleanup": "finished",
+      "durationMs": 49574
+    },
+    {
+      "id": "react-router-compiler",
+      "status": "passed",
+      "exitCode": 0,
+      "cleanup": "finished",
+      "durationMs": 23355
+    }
+  ],
+  "sourcePreparationOnly": true,
+  "requiresNewPlan": true,
+  "authorityExpiresOnRestart": true,
+  "caseAcceptance": false,
+  "designComplete": false,
+  "application": false,
+  "limitations": [
+    "The earlier helper printed evidenceAvailable=false because it checked compilerEvidence instead of compilerEvidenceHash.",
+    "Ready result does not establish successful fresh graph consumption or complete C2 acceptance."
+  ]
+}

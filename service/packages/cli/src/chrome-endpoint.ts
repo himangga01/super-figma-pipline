@@ -1,6 +1,86 @@
 import { lstat, open } from 'node:fs/promises';
+import { get } from 'node:http';
 import { homedir } from 'node:os';
 import { isAbsolute, join } from 'node:path';
+
+import { assertLoopbackCdp } from './figma-url.js';
+
+const connectionRequired = () =>
+  Object.assign(
+    new Error(
+      'CHROME_CONNECTION_REQUIRED: enable remote debugging in the existing Google Chrome session, or provide its loopback --cdp endpoint or SFP_CHROME_USER_DATA_DIR',
+    ),
+    { code: 'CHROME_CONNECTION_REQUIRED' },
+  );
+const invalidEndpoint = () =>
+  Object.assign(new Error('CHROME_CDP_INVALID: use a loopback Chrome debugging endpoint'), {
+    code: 'CHROME_CDP_INVALID',
+  });
+const validatedEndpoint = (input: string) => {
+  try {
+    return assertLoopbackCdp(input);
+  } catch {
+    throw invalidEndpoint();
+  }
+};
+
+/** Resolve only Chrome's loopback HTTP discovery route before the retained WebSocket relay. */
+export const resolveChromeWebSocketEndpoint = async (
+  input: string,
+  options: { timeoutMs?: number; signal?: AbortSignal } = {},
+): Promise<string> => {
+  options.signal?.throwIfAborted();
+  const url = new URL(validatedEndpoint(input));
+  if (url.protocol === 'ws:') return url.href;
+  if (!url.pathname.endsWith('/')) url.pathname += '/';
+  url.pathname += 'json/version/';
+  const timeoutMs = Math.max(1, Math.min(options.timeoutMs ?? 60_000, 60_000));
+  const bytes = await new Promise<Buffer>((resolve, reject) => {
+    const request = get(url, { signal: options.signal }, response => {
+      if (response.statusCode !== 200) {
+        response.resume();
+        reject(connectionRequired());
+        request.destroy();
+        return;
+      }
+      const chunks: Buffer[] = [];
+      let length = 0;
+      response.on('data', (chunk: Buffer) => {
+        length += chunk.length;
+        if (length > 4096) {
+          reject(invalidEndpoint());
+          request.destroy();
+        } else chunks.push(chunk);
+      });
+      response.on('end', () => resolve(Buffer.concat(chunks)));
+      response.on('error', () =>
+        reject(options.signal?.aborted ? options.signal.reason : connectionRequired()),
+      );
+    });
+    const timer = setTimeout(() => request.destroy(connectionRequired()), timeoutMs);
+    request.on('close', () => clearTimeout(timer));
+    request.on('error', () =>
+      reject(options.signal?.aborted ? options.signal.reason : connectionRequired()),
+    );
+  });
+  options.signal?.throwIfAborted();
+  let result: unknown;
+  try {
+    result = JSON.parse(bytes.toString('utf8'));
+  } catch {
+    throw invalidEndpoint();
+  }
+  if (
+    !result ||
+    typeof result !== 'object' ||
+    !('webSocketDebuggerUrl' in result) ||
+    typeof result.webSocketDebuggerUrl !== 'string'
+  )
+    throw invalidEndpoint();
+  const endpoint = validatedEndpoint(result.webSocketDebuggerUrl);
+  if (!endpoint.startsWith('ws:')) throw invalidEndpoint();
+  return endpoint;
+};
 
 /** Read only Chrome's small discovery record; never read/copy cookies or launch a browser. */
 export const resolveExistingChromeEndpoint = async (
@@ -24,7 +104,7 @@ export const resolveExistingChromeEndpoint = async (
         : platform === 'linux'
           ? join(environment.XDG_CONFIG_HOME ?? join(homeDirectory, '.config'), 'google-chrome')
           : null);
-  if (!directory) return 'chrome';
+  if (!directory) throw connectionRequired();
   if (!isAbsolute(directory))
     throw new Error('CHROME_CDP_RECORD_INVALID: Chrome data directory must be absolute');
   const path = join(directory, 'DevToolsActivePort');
@@ -32,7 +112,7 @@ export const resolveExistingChromeEndpoint = async (
     if (error.code === 'ENOENT') return null;
     throw error;
   });
-  if (!before) return 'chrome';
+  if (!before) throw connectionRequired();
   if (before.isSymbolicLink() || !before.isFile() || before.size > 4096n)
     throw new Error('CHROME_CDP_RECORD_INVALID: invalid Chrome debugging discovery record');
   const handle = await open(path, 'r');

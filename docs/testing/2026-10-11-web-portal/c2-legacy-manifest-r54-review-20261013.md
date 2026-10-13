@@ -1,0 +1,50 @@
+# C2 R54 legacy manifest equivalence: independent review
+
+Date: October 13, 2026, Asia/Seoul, 17:14 KST. Verdict: **Approve the exact two-file R54 candidate.** No actionable defect was found in the bounded delta. This review performs no integration and does not establish a genuine public compiler positive or complete portal acceptance.
+
+## Source and read-before evidence
+
+Read [AGENTS](../../../AGENTS.md), the shared analysis policy, [R52 review/guard diagnosis](c2-legacy-ssr-r52-review-20261013.md), the author freeze and actual pinned Vite implementation. Root retains Main/native source `sha256:303de5d1904d11c1fb89bdf80951900e375ac4325ea6cfc932f39ebee2785732` during live QA/CDD; product source was not changed here. Root owns the later source/release boundary and integration authorization. Native Chrome approval remains manual; official-MCP live remains deferred.
+
+Frozen manifest `.worktrees/_cache/c2-compiler-support-20261013/freeze-r54/frozen-files.json` SHA-256: `8b696cb3c1e1b4cb35bc48238544ea897dcacc6e26004a9b04013d0417f25e95`. Independently verified both immutable candidate files and all four current Main/native R52 preimages:
+
+| File under service | Current preimage | Reviewed R54 |
+| --- | --- | --- |
+| `packages/mcp/src/portal/react-router-compiler-evidence.ts` | `595f0ec5810511d63948c02265a347a15169ff62b9b00344fd69edb53f3a5bea` | `13e95c62b1542220d5056b206fe662568197043bcf0cac9cba836c28ba57ae77` |
+| `packages/mcp/test/portal/react-router-compiler-evidence.test.ts` | `6d9d2266ad1c33c6f8f5274403d32e606f3ca0c9985d0f8a7f9d196fc3222025` | `015a867096b65a51bda8377d61dcfb2ef874f16b26b3ea1c080ba114e8ffccf6` |
+
+Pinned actual Vite version is 7.3.1. Its entry hash `8b142bd1231a46bf2cad4c05b3f76de5b183064ee771b9934fbaffb70b914652` and config implementation hash `c5d2cb692f24bb9d9de7dbd0b86506f1dada18c362aaa7c5a05d460870ced734` independently match the freeze. R54 tests import that real pinned merge function through a private explicit entry setting; they do not manufacture a cloned manifest instead of invoking Vite.
+
+## Implemented behavior and findings
+
+R54 replaces the R52 reference-equality requirement with a closed manifest-data snapshot. It captures the original genuine client manifest before resolving the same reviewed SSR configuration, then requires both the current original manifest and returned resolved manifest to match that snapshot. Thus legitimate Vite merge clones can pass while config-hook mutation of either input or returned data rejects.
+
+The serializer admits only a routes-only top-level plain/null-prototype object, a route-ID record with root, and route records with at most the six known fields. Own property descriptors prevent invoking field getters. Symbols, nonplain prototypes, unknown fields, arrays/functions/nonprimitive values and absent required ID/file facts reject. Route IDs and field values have string limits; node and byte accounting remains bounded at 10,000 nodes/one MiB across the fixed three-level shape. Sorted own keys and null-prototype projections avoid key-order/reference differences and special-property assignment. Optional undefined fields normalize consistently with their absent form; required ID/file values cannot disappear. This is a bounded data-equivalence check for the admitted legacy manifest, not a new manifest producer.
+
+Original client context injection, exact reviewed configuration, true SSR, expected server directory, genuine resolved build/SSR resolution options and Environment-API/version guard remain intact. Existing source/module/physical-producer fences, authority branding, deadlines and caps are unchanged. No new manifest or future flag is injected. Diagnostic `contextGuard` labels are limited to five fixed values and remain explicitly reported, non-authoritative markers; no route data or raw error labels are exposed by the projection.
+
+## Independently executed targeted checks
+
+Created a regular current-source copy with 1,357 service files, replaced only the two copied paths with immutable R54, and used a private read-only native dependency adapter. Frozen test predicates were unchanged. Ran only the author's exact filter `accepts actual installed Vite|rejects changed or unsupported manifest|keeps Environment API`: **three passed, zero failed, eleven name-filtered**, process exit zero and no reported unhandled error. The filter covers genuine merge cloning, original/resolved mutation, getters/symbols/unknown/nonplain/array/string/node/byte denials and unchanged SSR/directory/Environment-API guards. It does not execute a real configuration/SSR/native build.
+
+Independent test report SHA-256: `3e8c0be3bbc3d19e03b7e640f8ec3767459afeb7d37ac86ff611655b5c5ead9e`, retained at `.worktrees/_cache/r54-independent-review-20261013/targeted-report.json`. Post-run hashing confirms both copied/frozen files unchanged and all four Main/native paths still at their original R52 preimages. The posthash receipt is retained in the same owned directory. No full fourteen-case file, earlier cohort, whole pipeline, native/public workload, dependency install, product build, live state/Chrome action, source write, staging or commit was performed.
+
+Inspected author fail-before receipt: one unchanged guard case passed, the two changed cases failed, eleven were filtered. These failures exercised the actual pinned merge and the old guard; the author after-result is three passes. Author no-emit checked 456 closure files with zero diagnostics, and scoped lint/format passed. The author honestly transcribed an overwritten initial type-only import failure in a separate observation; it is not represented as a preserved original receipt or a production failure.
+
+## Acceptance limits and continuation
+
+R53's SSR `PORTAL_COMPILER_LEGACY_CONTEXT_UNSUPPORTED` failure and physical settlement remain preserved. Its individual compound predicate values were not captured, so this repair addresses the established real-merge incompatibility without asserting exclusive historical causation. R51's `PLUGIN_ERROR` remains separately unresolved, and R25 remains unknown with original deadlines. No new public compiler proof was executed in this review.
+
+Root may choose a later explicit combined integration/release boundary after this source approval and required genuine compiler evidence. Keep the current live source frozen until that boundary, preserve failed/unknown receipts, and retain the owner's one-portal-journey/two-design-scope/deferred-official-MCP distinction. The regular review copy shares Windows filesystem/process privileges and is not an OS/process sandbox. Actual compiler and portal outcomes belong in the canonical service/progress and execution records rather than being inferred from these three tests.
+
+## R55 read-only orchestration diagnosis
+
+Root/author report R55 returned a genuine failed result in 422,641 ms before its original 900-second deadline and completed physical settlement. The new closed SSR marker has `contextGuard=none`, `PLUGIN_ERROR`, plugin `sfp:react-router-source`, hook `transform` and module `app/styles/tailwind.css?url`. The audit rejects that CSS observation when its code exceeds 65,536 bytes or the retained CSS observation list is already nonempty. Actual individual byte/count values were not captured, so this diagnosis does not assign an exclusive rejection branch. It does not reinterpret R51/R53 failures or any unknown outcome.
+
+Independent read-only inspection of actual pinned Vite 7.3.1 identifies a concrete duplicate-SSR risk in the existing orchestration. In `config.js` line 33870, `createBuilder(inlineConfig, useLegacyBuilder=false)` defaults to the multi-environment builder. At line 33910, that mode creates every resolved environment. Its `buildApp` runs plugin/config callbacks and, at line 33897, falls back to building all environments if they are all still unbuilt. `resolveConfig` provides client and SSR environments for this build. React Router's future-Environment-API false branch at plugin lines 3653–3687 returns legacy build options rather than its combined client/server builder callback; the combined callback exists only under the true flag.
+
+Consequently, the current legacy call to default `createBuilder` followed by `builder.buildApp()` can already traverse an SSR environment/audit transform before the separate explicit `vite.build` SSR call. The same retained audit closure could collect a CSS URL module in that first pass and reject its second occurrence later. This is supported control-flow analysis, not proof that this happened in the actual R55 process. Other buildApp plugins can affect fallback, and the missing individual CSS observations remain a verification limit.
+
+Minimum compatible proposal: select the supported `createBuilder(..., true)` legacy-builder argument only in the already-admitted legacy lane. With the initial non-SSR build, pinned Vite sets up only its client environment. Retain `buildApp` and its plugin callbacks, assert the genuine first builder is client-only, then perform the existing genuine same-config/context/options SSR build exactly once. The actual pinned declaration accepts the second argument (`boolean|null`). The alternative `builder.build(builder.environments.client)` directly chooses the environment but bypasses buildApp callbacks, so it needs stronger compatibility justification. The combined Environment API lane should continue using the default builder and its framework callback.
+
+Do not relax the CSS64-KiB or single-observation guard, accept inconsistent duplicates, reset observed data to conceal an earlier SSR pass, manufacture observations, alter future flags or increase deadlines. Before another long public proof, review the exact candidate and establish its client-only orchestration with a bounded supported-API regression; no native rerun is required merely to identify this source control flow. This reviewer executed no test, builder/config/build call, native request, source edit, live state/Chrome action or integration. Main/runtime303d remains frozen while the independent candidate and current portal work stay separate.

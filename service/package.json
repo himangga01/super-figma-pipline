@@ -14,6 +14,8 @@
     "knip:fix": "knip --fix",
     "lint": "oxlint --deny-warnings .",
     "lint:fix": "oxlint --fix .",
+    "portal:start": "pnpm --filter @sfp/portal start",
+    "portal:test": "vitest run --project portal",
     "test": "vitest run --exclude \"test/artifact-contents.test.ts\"",
     "test:artifacts": "vitest run test/artifact-contents.test.ts",
     "test:check-report": "node scripts/check-test-report.mjs",

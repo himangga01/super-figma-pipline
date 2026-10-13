@@ -1,0 +1,47 @@
+{
+  "at": "2026-10-12T04:36:37.726Z",
+  "baseline": "sha256:31e47b614fbc093b160d562e7b4107a4c1ad473965237b086f100663bb4f5ef5",
+  "sourceHash": "sha256:a476a925b0304a9ce8b02d199228f2d80f9e6eb99c342c2569e2ceefa91c4230",
+  "mainNativeMatch": true,
+  "ownerIndex": "a99e5dd36982d74373d779448068a8449189b133e54cd673b13be2c2c356b2a9",
+  "reviewIndex": ".cache/review-20261011-r15.index",
+  "closedCatalog": {
+    "codes": 1868,
+    "modules": 448,
+    "labels": 289
+  },
+  "records": [
+    {
+      "path": "upstream-lock.json",
+      "before": "9615dcee99b8b774452900448e631a09b3435cf625f86d610d618efc41132b12",
+      "after": "6c18e7bdad786874d5b0c574f27b2b50529008d63602ff4d51c2ed5ea5a7d140"
+    },
+    {
+      "path": "vendor-map.json",
+      "before": "b3275c7d8b997d1cfe723d97594659f77d7b4361b824a790bcfdd7ff762589bd",
+      "after": "b3275c7d8b997d1cfe723d97594659f77d7b4361b824a790bcfdd7ff762589bd"
+    },
+    {
+      "path": "vendor-rules.json",
+      "before": "3a8238f342cf38101f487d4245846ab7cabbdf39ed5f4d8319e13743055b2f1c",
+      "after": "8fd6f072f87ede15cb63085740205d4738189beba94b5f0fbd05c58f3e24a6e8"
+    },
+    {
+      "path": "capabilities/task-review-2026-10-10-authority-classes.json",
+      "before": "1206a25939aa5c9dcea76538f24cff646835380b801f34957c57ab973098b5e0",
+      "after": "ba5cdb1a96af6b3aab7ea64eb021e0166a4babd31f8500dca5233656fe5d123d"
+    },
+    {
+      "path": "capabilities/change-manifests/task-review-2026-10-10.json",
+      "before": "ea451197f16e49eef36b201ab17f0d312d565d930364931ddceb5e46d317bed4",
+      "after": "6e8d4bf06fa1f02108749fe6a5ff17274ae7ddbbafca15e4340f0c47e280130f"
+    },
+    {
+      "path": "capabilities/reconciliations/review-2026-10-10-local-recovery-and-evidence-2026-10-12.json",
+      "before": null,
+      "after": "383b7b3e0dd17f53ec690a83994f81157e876a0092fca84cb4d59c2f6e1ecd8c"
+    }
+  ],
+  "wholeCheckPassed": false,
+  "realFigmaAcceptance": false
+}

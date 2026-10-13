@@ -1,0 +1,70 @@
+{
+  "schemaVersion": 1,
+  "slice": "review-2026-10-10",
+  "baseline": {
+    "headCommit": "22517932dc9b2cb974c177ec4eacb84d4b16e254",
+    "authoritySha256": {
+      "upstream-lock.json": "e28fba5add7d99cb0d77c778d798b0c01cf89b167158a42d6276cf55f51750b1",
+      "vendor-map.json": "b3275c7d8b997d1cfe723d97594659f77d7b4361b824a790bcfdd7ff762589bd",
+      "vendor-rules.json": "1e8434cafb6793bc19010b1f75cb7669ee20b77151ada4e32a9bb1a0ff8bf15d"
+    }
+  },
+  "entries": [
+    {
+      "path": "capabilities/task-review-2026-10-10-authority-classes.json",
+      "sha256": "1fd5cf6369752bd6d1b7791d87fdc0a0aaff4102806eb1fb2420ad54d3ced8d6",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "b3460371b2399fe7949d2b740c796af41d98e73202f9144cb72fdfc7f7177799"
+        },
+        {
+          "class": "protected",
+          "sha256": "b3460371b2399fe7949d2b740c796af41d98e73202f9144cb72fdfc7f7177799"
+        }
+      ],
+      "reason": "Integrate independently reviewed exact two-file R52 React Router legacy SSR context/manifest and safe closed plugin diagnostics. Three changed cases pass independently with ten filtered; all exact preimages and final hashes match. Retain original timers, physical fences, failed R51 compiler evidence and unknown R25. Preserve prior R50 and artifact precision review. No whole rerun; one complete portal journey remains owed. Actual compiler and live acceptance are separate."
+    },
+    {
+      "path": "packages/mcp/src/portal/react-router-compiler-evidence.ts",
+      "sha256": "595f0ec5810511d63948c02265a347a15169ff62b9b00344fd69edb53f3a5bea",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "12348c8f6a4b19b3cbb00b2039e1f9f955a4626495a7d334f1d9c3a0cf4d443e"
+        },
+        {
+          "class": "protected",
+          "sha256": "12348c8f6a4b19b3cbb00b2039e1f9f955a4626495a7d334f1d9c3a0cf4d443e"
+        }
+      ],
+      "reason": "Integrate independently reviewed exact two-file R52 React Router legacy SSR context/manifest and safe closed plugin diagnostics. Three changed cases pass independently with ten filtered; all exact preimages and final hashes match. Retain original timers, physical fences, failed R51 compiler evidence and unknown R25. Preserve prior R50 and artifact precision review. No whole rerun; one complete portal journey remains owed. Actual compiler and live acceptance are separate."
+    },
+    {
+      "path": "packages/mcp/test/portal/react-router-compiler-evidence.test.ts",
+      "sha256": "6d9d2266ad1c33c6f8f5274403d32e606f3ca0c9985d0f8a7f9d196fc3222025",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "41e89bf79e8137a5ddbb813bdc368873c0df9e64b825293625bfde1342022b38"
+        },
+        {
+          "class": "protected",
+          "sha256": "41e89bf79e8137a5ddbb813bdc368873c0df9e64b825293625bfde1342022b38"
+        }
+      ],
+      "reason": "Integrate independently reviewed exact two-file R52 React Router legacy SSR context/manifest and safe closed plugin diagnostics. Three changed cases pass independently with ten filtered; all exact preimages and final hashes match. Retain original timers, physical fences, failed R51 compiler evidence and unknown R25. Preserve prior R50 and artifact precision review. No whole rerun; one complete portal journey remains owed. Actual compiler and live acceptance are separate."
+    },
+    {
+      "path": "packages/portal/package.json",
+      "sha256": "ddb99eafe979d2319697f9bde91d01c4b3f4cf7f3e2a2baccfcb06ceff7767c8",
+      "priorClaims": [
+        {
+          "class": "protected",
+          "sha256": "ddb99eafe979d2319697f9bde91d01c4b3f4cf7f3e2a2baccfcb06ceff7767c8"
+        }
+      ],
+      "reason": "Integrate independently reviewed exact two-file R52 React Router legacy SSR context/manifest and safe closed plugin diagnostics. Three changed cases pass independently with ten filtered; all exact preimages and final hashes match. Retain original timers, physical fences, failed R51 compiler evidence and unknown R25. Preserve prior R50 and artifact precision review. No whole rerun; one complete portal journey remains owed. Actual compiler and live acceptance are separate."
+    }
+  ]
+}

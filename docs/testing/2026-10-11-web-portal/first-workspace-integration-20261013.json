@@ -1,0 +1,34 @@
+{
+  "at": "2026-10-12T15:52:18.458Z",
+  "beforeSource": "sha256:45647572ab9b637bab47479e7097c054df34898ea0b0e94dd02bd9ff01c2326f",
+  "sourceHash": "sha256:ffeaee71691eae2af26e9cf0ec3d0571451e91364a011d5814021574d9937a64",
+  "files": [
+    {
+      "path": "packages/portal/web/app.js",
+      "before": "61842fbf00d44dca7fa0a0a76c495914dc15ce8b2ba16965d7141781512e350a",
+      "after": "fe9e1257b0001dc09425637d3849fede9270bbdb85bc895ec068cf6ef06585e3",
+      "bytes": 105054
+    },
+    {
+      "path": "packages/portal/web/tests/first-workspace-setup.test.mjs",
+      "before": null,
+      "after": "b3588fcbb3cb88bf10e6ac054b78d744e045e9c219aceae2fd9da20ba38dd948",
+      "bytes": 9131
+    },
+    {
+      "path": "packages/cli/test/bound-server-session.test.ts",
+      "before": "e79e921d15a157e2b041a83bbbe5edd8f8ab27adc62469bd362b17a92c97f614",
+      "after": "f4c892eeab7ffc68347d1e3a09d776ffbba79205a6911ec0bf354e0d7d907d9a",
+      "bytes": 2087
+    }
+  ],
+  "ownerIndex": "a99e5dd36982d74373d779448068a8449189b133e54cd673b13be2c2c356b2a9",
+  "focusedTests": 26,
+  "focusedFailed": 0,
+  "existingBrowserChecks": 14,
+  "cliTypecheckOverlayFiles": 944,
+  "cliTypecheckDiagnostics": 0,
+  "actualThreeFrontendJourneys": 0,
+  "compiledRuntimeReplaced": false,
+  "wholeCheckOwed": true
+}

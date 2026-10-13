@@ -1,0 +1,187 @@
+{
+  "recordedAt": "2026-10-12T00:35:44.311Z",
+  "sourceHash": "sha256:f0dc149a95da3bc7f8e52aecb094362d6e0166ae69e4ba29946a393e90f220c8",
+  "ownerApproval": "Explicit owner approval on October 12 after the earlier primary restart rejection",
+  "runtime": {
+    "controlPort": 3055,
+    "portalPort": 4310,
+    "daemonPid": 7460,
+    "daemonCreated": 1791764383322,
+    "portalPid": 27636,
+    "portalCreated": 1791764388627
+  },
+  "backup": {
+    "complete": true,
+    "files": 42022,
+    "bytes": 5534365192,
+    "links": 0,
+    "noLinksFollowed": true,
+    "root": "C:\\2026_project\\super-figma-pipline\\.worktrees\\_cache\\cdd-native-appdata\\SuperFigmaPipeline\\handoff-primary-f0dc-20261012",
+    "preparedAuthorityRestored": false
+  },
+  "preservation": {
+    "at": "2026-10-12T00:24:29.296Z",
+    "sourceHash": "sha256:f0dc149a95da3bc7f8e52aecb094362d6e0166ae69e4ba29946a393e90f220c8",
+    "passed": true,
+    "workflows": 10,
+    "runs": 10,
+    "preservedRunStatuses": true,
+    "operations": 353,
+    "unknownCount": 3,
+    "unknownHashes": [
+      "a9698a995204fbc0dfe67de1f3d3bbcf2c53fd5ca592716d7a648dd8dd4418c7",
+      "d0e53fd25a1ec1f3c99d7e7bc3e47f67989ecada9bebd1529c37619d240af65d",
+      "da02c9ff92f4baadb201d228e0a5a3ead8fca4a4318711887d2f05c1c2002657"
+    ],
+    "egressExpired": true,
+    "egressBytesUnchanged": true,
+    "serviceCatalog": {
+      "tools": 128,
+      "features": 58
+    },
+    "diagnostics": {
+      "enabled": true,
+      "level": "debug",
+      "location": "diagnostics/portal.jsonl",
+      "written": 985,
+      "pending": 1,
+      "dropped": 0,
+      "writeFailures": 0,
+      "flushTimeouts": 0,
+      "preWriteRetries": 0,
+      "recoveredWrites": 0,
+      "maxBytes": 1048576,
+      "retainedFiles": 4
+    }
+  },
+  "logging": {
+    "at": "2026-10-12T00:33:49.010Z",
+    "sourceHash": "sha256:f0dc149a95da3bc7f8e52aecb094362d6e0166ae69e4ba29946a393e90f220c8",
+    "sameChromeTab": true,
+    "scope": "Actual primary portal and BE logging; source Chrome failure recorded separately",
+    "jobs": [
+      {
+        "id": "9275bc17-032b-43a0-9b5d-e86f69b9b94c",
+        "type": "feature",
+        "name": "status",
+        "status": "succeeded",
+        "errorCode": null,
+        "requestId": "500b8290-2c1a-4a06-8036-4f6dd02e6b80"
+      },
+      {
+        "id": "9bb8360c-b389-4c43-9d7d-cdb642a54955",
+        "type": "tool",
+        "name": "doctor",
+        "status": "failed",
+        "errorCode": "EGRESS_CONFIG_REQUIRED",
+        "requestId": "f3eaf7a7-3130-493b-bb43-bd57b8132c43"
+      }
+    ],
+    "passed": true,
+    "initialDiagnostics": {
+      "enabled": true,
+      "level": "debug",
+      "location": "diagnostics/portal.jsonl",
+      "written": 1712,
+      "pending": 1,
+      "dropped": 0,
+      "writeFailures": 0,
+      "flushTimeouts": 0,
+      "preWriteRetries": 0,
+      "recoveredWrites": 0,
+      "maxBytes": 1048576,
+      "retainedFiles": 4
+    },
+    "rejectedRequestId": "ad8ebf6b-e75f-4c28-ba51-6042288efcf3",
+    "finalDiagnostics": {
+      "enabled": true,
+      "level": "debug",
+      "location": "diagnostics/portal.jsonl",
+      "written": 1785,
+      "pending": 1,
+      "dropped": 0,
+      "writeFailures": 0,
+      "flushTimeouts": 0,
+      "preWriteRetries": 0,
+      "recoveredWrites": 0,
+      "maxBytes": 1048576,
+      "retainedFiles": 4
+    },
+    "files": {
+      "portal": [
+        {
+          "name": "portal.jsonl",
+          "bytes": 434977,
+          "sha256": "104d2bc66f3c44b38a4c77c7983f2a2b4d7954ae22223b04d766097868edca76"
+        }
+      ],
+      "daemon": [
+        {
+          "name": "daemon.jsonl",
+          "bytes": 39009,
+          "sha256": "d1d1044299fc323b764a833359e4b48cb0e126e0e6f01b98b416dac3070bbb6f"
+        }
+      ]
+    },
+    "correlation": {
+      "jobId": "9275bc17-032b-43a0-9b5d-e86f69b9b94c",
+      "portalRequestId": "500b8290-2c1a-4a06-8036-4f6dd02e6b80",
+      "daemonRequestIds": [
+        "449d1d05-74df-4d12-ad50-be5c47197eee"
+      ]
+    },
+    "failure": {
+      "jobId": "9bb8360c-b389-4c43-9d7d-cdb642a54955",
+      "knownCode": "EGRESS_CONFIG_REQUIRED",
+      "causeCount": 1,
+      "stackLocations": [
+        {
+          "module": "commands.mjs",
+          "chunkHash": "sha256:9285b8fcde64b8206915f0c4c5f982f69a04fb7ea09da2b5b0dc26d9e277eb64",
+          "line": 52017,
+          "column": 41
+        }
+      ]
+    },
+    "privateValuesAbsent": true
+  },
+  "chrome": {
+    "at": "2026-10-12T00:21:36.669Z",
+    "sourceHash": "sha256:f0dc149a95da3bc7f8e52aecb094362d6e0166ae69e4ba29946a393e90f220c8",
+    "sameChromePid": 9932,
+    "sameTab": true,
+    "origin": "http://127.0.0.1:4310",
+    "jobs": [
+      {
+        "id": "f1722c2b-661d-4b3f-aaa5-8a5a1f962dd0",
+        "status": "failed",
+        "errorCode": "CHROME_CONNECTION_REQUIRED",
+        "bytes": null,
+        "outputHash": null,
+        "elapsedMs": 300307
+      }
+    ],
+    "passed": false,
+    "serviceAvailable": true,
+    "error": {
+      "message": "Expected values to be strictly equal:\n+ actual - expected\n\n+ 'failed'\n- 'succeeded'\n",
+      "locations": []
+    }
+  },
+  "official": {
+    "at": "2026-10-12T00:35:10.072Z",
+    "sourceHash": "sha256:f0dc149a95da3bc7f8e52aecb094362d6e0166ae69e4ba29946a393e90f220c8",
+    "sameTab": true,
+    "serviceOwnedIntegration": true,
+    "configurationChanged": false,
+    "probeCompleted": true,
+    "fullCapture": false,
+    "requestId": "d86cd282-a343-46f2-b17c-4967e4a9b32a",
+    "result": {
+      "status": "auth-required",
+      "code": "FIGMA_MCP_AUTH_REQUIRED",
+      "readyForCaptureAttempt": false,
+      "programCaptureSupported": false
+    }
+  }
+}

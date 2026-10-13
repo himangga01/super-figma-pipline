@@ -30,10 +30,44 @@ const forbidden = new Set([
   'Page.reload',
 ]);
 
+function sameFileNodeSelection(current: string, requested: string): boolean {
+  try {
+    const source = new URL(current),
+      target = new URL(requested);
+    const path = /^\/(?:design|file)\/([A-Za-z0-9]{10,128})(?:\/[^/]*)?\/?$/u;
+    const sourceKey = path.exec(source.pathname)?.[1],
+      targetKey = path.exec(target.pathname)?.[1];
+    const node = target.searchParams.get('node-id')?.replace(/^(\d+)-(\d+)$/u, '$1:$2');
+    return (
+      sourceKey !== undefined &&
+      sourceKey === targetKey &&
+      [source, target].every(
+        url =>
+          url.protocol === 'https:' &&
+          ['www.figma.com', 'figma.com'].includes(url.hostname) &&
+          !url.port &&
+          !url.username &&
+          !url.password,
+      ) &&
+      !target.hash &&
+      [...target.searchParams.keys()].join(',') === 'node-id' &&
+      node !== undefined &&
+      node.length <= 512 &&
+      /^I?\d+:\d+(?:;I?\d+:\d+)*$/u.test(node)
+    );
+  } catch {
+    return false;
+  }
+}
+
 /** Keep the Chrome permission handshake independent of a single Playwright caller's timeout. */
 export const createRetainedChromeTransport = async (
   remoteEndpoint: string,
-  scope?: { matchesTarget(url: string): boolean; missingTargetUrl?(): string | null },
+  scope?: {
+    matchesTarget(url: string): boolean;
+    missingTargetUrl?(): string | null;
+    selectedNodeUrl?(): string | null;
+  },
 ): Promise<RetainedChromeTransport> => {
   const url = new URL(remoteEndpoint);
   if (
@@ -181,6 +215,13 @@ export const createRetainedChromeTransport = async (
           return;
         }
         if (closed) return;
+        if (message.method === 'Target.detachedFromTarget') {
+          const sessionId = (message.params as { sessionId?: unknown } | undefined)?.sessionId;
+          if (typeof sessionId === 'string') {
+            ownedAttachments.delete(sessionId);
+            sourceNavigations.delete(sessionId);
+          }
+        }
         if (typeof message.id === 'number') {
           if (resets.delete(message.id)) {
             if (message.error) fail();
@@ -321,12 +362,23 @@ export const createRetainedChromeTransport = async (
               );
               return;
             }
+            const selectedNodeUrl = scope?.selectedNodeUrl?.();
+            if (selectedNodeUrl && !sameFileNodeSelection(targets[0]!.url!, selectedNodeUrl)) {
+              client.send(
+                JSON.stringify({
+                  id: request.originalId,
+                  error: { code: -32000, message: 'FIGMA_NODE_SELECTION_INVALID' },
+                }),
+              );
+              return;
+            }
             const id = ++sequence;
             pending.set(id, {
               owner: client,
               originalId: request.originalId,
               method: 'Target.attachToTarget',
               scopedRoot: true,
+              ...(selectedNodeUrl ? { scopedNavigationUrl: selectedNodeUrl } : {}),
             });
             sent++;
             remote!.send(

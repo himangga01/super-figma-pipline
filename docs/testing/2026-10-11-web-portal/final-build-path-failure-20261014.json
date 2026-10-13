@@ -1,0 +1,31 @@
+{
+  "schemaVersion": 1,
+  "kind": "scoped-build-package-artifact-evidence",
+  "releaseId": "43f2951b-6b72-4be3-a1bb-fda09194ece7",
+  "runId": "06659883-20ea-44dc-afe5-1939119dbac9",
+  "recordedAt": "2026-10-13T18:16:33.544Z",
+  "sourceHash": "sha256:d722c32152149464c961c660622a95e3da603eb00f291e28b15c024507bcd87d",
+  "sourceEpoch": 1791202532,
+  "wholePassed": false,
+  "liveAcceptance": false,
+  "status": "failed",
+  "commands": [
+    {
+      "name": "build",
+      "executable": "C:\\Program Files\\nodejs\\node.exe",
+      "args": [
+        "C:\\Program Files\\nodejs\\node_modules\\corepack\\dist\\pnpm.js",
+        "build"
+      ],
+      "startedAt": "2026-10-13T18:16:34.269Z",
+      "elapsedMs": 516,
+      "exitCode": 1,
+      "signal": null,
+      "killed": false,
+      "logPath": ".worktrees/baseline/service/artifacts/focused-checks/06659883-20ea-44dc-afe5-1939119dbac9/build.txt",
+      "logSha256": "8876830eed139e22f9e6b6f3a4310a06c25dea458e46ecc6f79cd5c386e78e14"
+    }
+  ],
+  "error": "SCOPED_COMMAND_FAILED:build",
+  "completedAt": "2026-10-13T18:16:34.787Z"
+}

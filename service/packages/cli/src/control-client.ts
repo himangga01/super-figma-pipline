@@ -1,6 +1,8 @@
+import { execFile } from 'node:child_process';
 import { createHash, randomBytes } from 'node:crypto';
 import { realpath } from 'node:fs/promises';
 import { request as httpRequest, type IncomingMessage } from 'node:http';
+import { promisify } from 'node:util';
 
 import {
   ControlStatusV1Schema,
@@ -12,6 +14,15 @@ import {
   type ToolName,
 } from '@sfp/shared';
 
+import {
+  FigmaOAuthCodeSchema,
+  FigmaOAuthHandoffInputSchema,
+  figmaOAuthError,
+  parseFigmaOAuth,
+  type FigmaOAuthCode,
+} from '../../mcp/src/control/figma-oauth-contract.js';
+import { diagnose, diagnosticHeaders } from '../../mcp/src/diagnostics.js';
+import { readLeaderLock } from '../../mcp/src/election/leader-lock.js';
 import { isTransientStateProbeFailure } from '../../mcp/src/fs/windows-boundary-probe-worker.js';
 import { resolveDefaultStateRoot } from '../../mcp/src/runtime-paths.js';
 import { createFollowerAuth } from '../../mcp/src/security/follower-auth.js';
@@ -29,12 +40,13 @@ const transientMonitoringFailure = (error: unknown): boolean =>
 const readResponse = async (
   response: IncomingMessage,
   budget: { bytes: number },
+  maximum = 33_554_432,
 ): Promise<string> => {
   const chunks: Uint8Array[] = [];
   for await (const chunk of response) {
     const data = Buffer.from(chunk);
     budget.bytes += data.byteLength;
-    if (budget.bytes > 33_554_432) {
+    if (budget.bytes > maximum) {
       response.destroy();
       throw new Error('CONTROL_RESPONSE_TOO_LARGE');
     }
@@ -43,12 +55,116 @@ const readResponse = async (
   return new TextDecoder('utf-8', { fatal: true }).decode(Buffer.concat(chunks));
 };
 
+interface HandoffOwner {
+  pid: number;
+  processStartedAt: number;
+  leaderGeneration: string;
+}
+const runIdentityProbe = promisify(execFile);
+const handoffOwner = async (port: number): Promise<HandoffOwner> => {
+  const note = readLeaderLock(port);
+  if (process.platform !== 'win32' || !note?.leaderGeneration)
+    throw figmaOAuthError('FIGMA_MCP_OAUTH_HANDOFF_UNAVAILABLE');
+  const script = String.raw`$ErrorActionPreference='Stop'
+$expectedPid=[int]$env:SFP_OAUTH_RELAY_PID
+$expectedStart=[long]$env:SFP_OAUTH_RELAY_START
+$port=[int]$env:SFP_OAUTH_RELAY_PORT
+$p=Get-CimInstance Win32_Process -Filter ('ProcessId = '+$expectedPid)
+if($null -eq $p -or [Math]::Abs(([DateTimeOffset]$p.CreationDate).ToUnixTimeMilliseconds()-$expectedStart) -gt 2000){throw 'Daemon identity unavailable'}
+if($p.ExecutablePath -ne $env:SFP_OAUTH_RELAY_NODE -or $p.CommandLine -notmatch 'packages[\\/]mcp[\\/]dist[\\/](?:daemon-entry|index)\.mjs'){throw 'Daemon entry unavailable'}
+$listeners=@(Get-NetTCPConnection -State Listen -ErrorAction Stop | Where-Object LocalPort -eq $port)
+if($listeners.Count -ne 1 -or $listeners[0].OwningProcess -ne $expectedPid -or $listeners[0].LocalAddress -ne '127.0.0.1'){throw 'Daemon listener unavailable'}
+Write-Output 'OWNED_DAEMON_VERIFIED'`;
+  try {
+    const result = await runIdentityProbe(
+      'C:/Windows/System32/WindowsPowerShell/v1.0/powershell.exe',
+      [
+        '-NoLogo',
+        '-NoProfile',
+        '-NonInteractive',
+        '-EncodedCommand',
+        Buffer.from(script, 'utf16le').toString('base64'),
+      ],
+      {
+        windowsHide: true,
+        timeout: 5000,
+        maxBuffer: 4096,
+        env: {
+          ...process.env,
+          SFP_OAUTH_RELAY_PID: String(note.pid),
+          SFP_OAUTH_RELAY_START: String(note.processStartedAt),
+          SFP_OAUTH_RELAY_PORT: String(port),
+          SFP_OAUTH_RELAY_NODE: process.execPath,
+        },
+      },
+    );
+    if (result.stdout.trim() !== 'OWNED_DAEMON_VERIFIED') throw new Error('identity');
+  } catch {
+    throw figmaOAuthError('FIGMA_MCP_OAUTH_HANDOFF_UNAVAILABLE');
+  }
+  return {
+    pid: note.pid,
+    processStartedAt: note.processStartedAt,
+    leaderGeneration: note.leaderGeneration,
+  };
+};
+const consentLocation = (raw: string | undefined): URL => {
+  try {
+    if (!raw || Buffer.byteLength(raw) > 8192) throw new Error('location');
+    const url = new URL(raw);
+    const fields = [
+      'client_id',
+      'redirect_uri',
+      'response_type',
+      'scope',
+      'state',
+      'code_challenge',
+      'code_challenge_method',
+      'resource',
+    ];
+    if (
+      url.origin !== 'https://www.figma.com' ||
+      url.pathname !== '/oauth/mcp' ||
+      url.username ||
+      url.password ||
+      url.hash ||
+      [...url.searchParams.keys()].some(key => !fields.includes(key)) ||
+      fields.some(key => url.searchParams.getAll(key).length !== 1) ||
+      url.searchParams.get('resource') !== 'https://mcp.figma.com/mcp' ||
+      url.searchParams.get('scope') !== 'mcp:connect' ||
+      url.searchParams.get('response_type') !== 'code' ||
+      url.searchParams.get('code_challenge_method') !== 'S256' ||
+      !/^[A-Za-z0-9_-]{43}$/u.test(url.searchParams.get('state') ?? '') ||
+      !/^[A-Za-z0-9_-]{43}$/u.test(url.searchParams.get('code_challenge') ?? '') ||
+      // eslint-disable-next-line no-control-regex -- reject private material containing controls before navigation
+      !/^[^\s\u0000-\u001f\u007f]{1,512}$/u.test(url.searchParams.get('client_id') ?? '')
+    )
+      throw new Error('location');
+    const redirect = new URL(url.searchParams.get('redirect_uri')!);
+    if (
+      redirect.protocol !== 'http:' ||
+      !['127.0.0.1', '[::1]'].includes(redirect.hostname) ||
+      !redirect.port ||
+      redirect.username ||
+      redirect.password ||
+      redirect.search ||
+      redirect.hash ||
+      redirect.pathname === '/'
+    )
+      throw new Error('redirect');
+    return url;
+  } catch {
+    throw figmaOAuthError('FIGMA_MCP_OAUTH_DESTINATION_REJECTED');
+  }
+};
+
 export class ControlClient {
   readonly stateRoot: string;
   readonly baseUrl: string;
   private readonly expectedCredentialHash: string | undefined;
   private readonly monitoringGraceMs: number;
   private readonly monitoringSteadyAfterMs: number;
+  private readonly handoffOwnerProof: (port: number) => Promise<HandoffOwner>;
   constructor(
     options: {
       stateRoot?: string;
@@ -56,11 +172,14 @@ export class ControlClient {
       expectedCredentialHash?: string;
       monitoringGraceMs?: number;
       monitoringSteadyAfterMs?: number;
+      /** Trusted host/testing seam; never populated from public request data. */
+      handoffOwnerProof?: (port: number) => Promise<HandoffOwner>;
     } = {},
   ) {
     this.expectedCredentialHash = options.expectedCredentialHash;
     this.monitoringGraceMs = options.monitoringGraceMs ?? 60_000;
     this.monitoringSteadyAfterMs = options.monitoringSteadyAfterMs ?? 5_000;
+    this.handoffOwnerProof = options.handoffOwnerProof ?? handoffOwner;
     this.stateRoot = options.stateRoot ?? resolveDefaultStateRoot();
     this.baseUrl = `http://127.0.0.1:${options.port ?? 3055}`;
   }
@@ -93,9 +212,37 @@ export class ControlClient {
     path: string,
     method = 'GET',
     body?: unknown,
-    options: { signal?: AbortSignal; timeoutMs?: number } = {},
+    options: { signal?: AbortSignal; timeoutMs?: number; beforeRequest?: () => Promise<void> } = {},
   ): Promise<T> {
+    diagnose('control.client-start', { route: path, method }, undefined, 'debug');
     if (!path.startsWith('/control/')) throw new Error('CONTROL_PATH_INVALID');
+    const domainDeletion =
+      method === 'DELETE' && /^\/control\/network\/domains\/[^/?]+$/u.test(path);
+    const nonceOnlyDeletion =
+      domainDeletion ||
+      (method === 'DELETE' &&
+        (path === '/control/egress' ||
+          path === '/control/workspaces/default' ||
+          /^\/control\/workspaces\/[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/u.test(
+            path,
+          )));
+    let actionNonce: string | undefined;
+    if (nonceOnlyDeletion) {
+      if (
+        !body ||
+        typeof body !== 'object' ||
+        Array.isArray(body) ||
+        Object.keys(body).length !== 1 ||
+        !Object.hasOwn(body, 'actionNonce') ||
+        !('actionNonce' in body) ||
+        typeof body.actionNonce !== 'string' ||
+        !/^sfp_an1_[A-Za-z0-9_-]{43}$/u.test(body.actionNonce)
+      )
+        throw new Error(
+          domainDeletion ? 'CONTROL_NETWORK_DELETE_NONCE_INVALID' : 'CONTROL_DELETE_NONCE_INVALID',
+        );
+      actionNonce = body.actionNonce;
+    }
     const permissions = createStatePermissions(this.stateRoot);
     await permissions.verifySecure(this.stateRoot);
     const auth = await createFollowerAuth({ stateRoot: this.stateRoot, permissions });
@@ -117,6 +264,9 @@ export class ControlClient {
     // A transient read reset must not cancel a still-running tool. Mutations are never replayed.
     for (let attempt = 0; ; attempt++) {
       try {
+        // eslint-disable-next-line no-await-in-loop -- admission is rechecked before each permitted read retry or the sole mutation
+        await options.beforeRequest?.();
+        signal.throwIfAborted();
         // Native HTTP honors this operation's original budget across the single read retry.
         // eslint-disable-next-line no-await-in-loop -- bounded retry of read-only transport resets
         const response = await new Promise<IncomingMessage>((resolveResponse, reject) => {
@@ -126,19 +276,28 @@ export class ControlClient {
               method,
               signal,
               headers: {
+                ...diagnosticHeaders(),
                 authorization: credential.value,
                 'x-sfp-leader-generation': credential.generation,
                 'content-type': 'application/json',
+                ...(actionNonce === undefined ? {} : { 'x-sfp-action-nonce': actionNonce }),
               },
             },
             resolveResponse,
           );
           request.once('error', reject);
-          request.end(body === undefined ? undefined : JSON.stringify(body));
+          request.end(nonceOnlyDeletion || body === undefined ? undefined : JSON.stringify(body));
         });
         // eslint-disable-next-line no-await-in-loop -- separate response bytes under one cumulative budget
         const text = await readResponse(response, responseBudget);
         const status = response.statusCode ?? 500;
+        diagnose('control.client-response', {
+          route: path,
+          method,
+          status,
+          attempt,
+          daemonRequestId: response.headers['x-sfp-request-id'],
+        });
         if (status < 200 || status >= 300) {
           let code = 'CONTROL_REQUEST_FAILED';
           try {
@@ -151,10 +310,17 @@ export class ControlClient {
           throw Object.assign(new Error(`${code} (${status})`), {
             code,
             status,
+            diagnosticRequestId: response.headers['x-sfp-request-id'],
           });
         }
         return (text.length === 0 ? undefined : JSON.parse(text)) as T;
       } catch (error) {
+        diagnose(
+          'control.client-error',
+          { route: path, method, attempt, errorCode: (error as { code?: unknown } | null)?.code },
+          error,
+          'error',
+        );
         if (
           attempt !== 0 ||
           method !== 'GET' ||
@@ -169,6 +335,132 @@ export class ControlClient {
   }
   async status() {
     return ControlStatusV1Schema.parse(await this.request('/control/status'));
+  }
+  /** Private owner navigation only. The URL is delivered once, never returned as a JSON value. */
+  async officialFigmaOAuthHandoff(
+    raw: unknown,
+    deliverLocation: (location: URL) => void,
+    options: { signal?: AbortSignal; timeoutMs?: number; beforeRequest?: () => Promise<void> } = {},
+  ): Promise<void> {
+    let response: IncomingMessage | undefined;
+    let signal: AbortSignal | undefined;
+    try {
+      const timeout = options.timeoutMs ?? 10000;
+      if (!Number.isSafeInteger(timeout) || timeout <= 0 || timeout > 20000)
+        throw figmaOAuthError('FIGMA_MCP_OAUTH_INPUT_INVALID');
+      signal = AbortSignal.any([
+        AbortSignal.timeout(timeout),
+        ...(options.signal ? [options.signal] : []),
+      ]);
+      signal.throwIfAborted();
+      const input = parseFigmaOAuth(FigmaOAuthHandoffInputSchema, raw);
+      const endpoint = new URL(this.baseUrl),
+        port = Number(endpoint.port);
+      if (
+        this.baseUrl !== `http://127.0.0.1:${port}` ||
+        !Number.isInteger(port) ||
+        port < 1024 ||
+        port > 65535 ||
+        typeof deliverLocation !== 'function'
+      )
+        throw figmaOAuthError('FIGMA_MCP_OAUTH_HANDOFF_UNAVAILABLE');
+      const owner = await this.handoffOwnerProof(port);
+      const permissions = createStatePermissions(this.stateRoot);
+      await permissions.verifySecure(this.stateRoot);
+      const credential = await (
+        await createFollowerAuth({ stateRoot: this.stateRoot, permissions })
+      ).authorization('control');
+      if (!credential || credential.generation !== owner.leaderGeneration)
+        throw figmaOAuthError('FIGMA_MCP_OAUTH_BINDING_MISMATCH');
+      const hash = createHash('sha256')
+        .update('sfp-control-continuity-v1\0')
+        .update(credential.generation)
+        .update('\0')
+        .update(credential.value)
+        .digest('hex');
+      if (this.expectedCredentialHash !== undefined && hash !== this.expectedCredentialHash)
+        throw figmaOAuthError('FIGMA_MCP_OAUTH_BINDING_MISMATCH');
+      const stillOwned = await this.handoffOwnerProof(port);
+      if (JSON.stringify(stillOwned) !== JSON.stringify(owner))
+        throw figmaOAuthError('FIGMA_MCP_OAUTH_BINDING_MISMATCH');
+      signal.throwIfAborted();
+      await options.beforeRequest?.();
+      signal.throwIfAborted();
+      // Admission may await local state. Rebind physical ownership after that wait
+      // before creating the credential-bearing socket; this remains a bounded snapshot.
+      if (JSON.stringify(await this.handoffOwnerProof(port)) !== JSON.stringify(owner))
+        throw figmaOAuthError('FIGMA_MCP_OAUTH_BINDING_MISMATCH');
+      signal.throwIfAborted();
+      response = await new Promise<IncomingMessage>((resolveResponse, reject) => {
+        const request = httpRequest(
+          `${this.baseUrl}/control/figma-mcp/auth/handoff`,
+          {
+            method: 'POST',
+            signal,
+            headers: {
+              authorization: credential.value,
+              'x-sfp-leader-generation': credential.generation,
+              'content-type': 'application/json',
+            },
+          },
+          resolveResponse,
+        );
+        request.once('error', reject);
+        request.end(JSON.stringify(input));
+      });
+      const body = await readResponse(response, { bytes: 0 }, 8192);
+      if (response.statusCode !== 303) {
+        let code: FigmaOAuthCode = 'FIGMA_MCP_OAUTH_HANDOFF_FAILED';
+        try {
+          const parsed = FigmaOAuthCodeSchema.safeParse(JSON.parse(body).code);
+          if (parsed.success) code = parsed.data;
+        } catch {
+          /* Opaque failure. */
+        }
+        throw figmaOAuthError(code);
+      }
+      if (
+        body !== '' ||
+        response.rawHeaders.filter(
+          (value, index) => index % 2 === 0 && value.toLowerCase() === 'location',
+        ).length !== 1
+      )
+        throw figmaOAuthError('FIGMA_MCP_OAUTH_RESPONSE_REJECTED');
+      const location = consentLocation(response.headers.location);
+      if (JSON.stringify(await this.handoffOwnerProof(port)) !== JSON.stringify(owner))
+        throw figmaOAuthError('FIGMA_MCP_OAUTH_BINDING_MISMATCH');
+      signal.throwIfAborted();
+      deliverLocation(location);
+    } catch (error) {
+      let code: FigmaOAuthCode | undefined;
+      let admissionCode: 'RUN_OUTCOME_UNKNOWN' | 'SERVICE_JOB_OUTCOME_UNKNOWN' | undefined;
+      try {
+        const rawCode = (error as { code?: unknown } | null)?.code;
+        if (rawCode === 'RUN_OUTCOME_UNKNOWN' || rawCode === 'SERVICE_JOB_OUTCOME_UNKNOWN')
+          admissionCode = rawCode;
+        const parsed = FigmaOAuthCodeSchema.safeParse(rawCode);
+        if (parsed.success) code = parsed.data;
+      } catch {
+        /* Untrusted error access stays opaque. */
+      }
+      if (admissionCode) {
+        const admission = Object.assign(new Error(admissionCode), {
+          code: admissionCode,
+          name: 'Error',
+        });
+        Object.defineProperty(admission, 'stack', {
+          value: admission.stack,
+          writable: false,
+          configurable: false,
+        });
+        throw Object.freeze(admission);
+      }
+      throw figmaOAuthError(
+        code ?? (signal?.aborted ? 'FIGMA_MCP_OAUTH_CANCELLED' : 'FIGMA_MCP_OAUTH_HANDOFF_FAILED'),
+      );
+    } finally {
+      response?.destroy();
+    }
   }
   async issueOperationId(): Promise<string> {
     const result = await this.request<{ operationId: string }>('/control/operations', 'POST');
@@ -461,19 +753,17 @@ export class ControlClient {
       'icon_map',
     ];
     if (!reads.includes(toolName)) throw new Error('AUTOMATION_READ_ONLY');
-    return this.request('/control/tools/call', 'POST', {
-      version: 1,
+    return this.invoke({
+      name: toolName,
+      kind: 'tool',
+      args: rawArgs,
+      workspaceId,
+      targetSelector: ['analyze_project', 'scan_components'].includes(toolName)
+        ? { kind: 'none' }
+        : { kind: 'session', sessionId },
       captureResult: false,
-      invocation: {
-        version: 1,
-        requestId: `sfp_req1_${randomBytes(16).toString('base64url')}`,
-        toolName,
-        rawArgs,
-        workspaceId,
-        targetSelector: ['analyze_project', 'scan_components'].includes(toolName)
-          ? { kind: 'none' }
-          : { kind: 'session', sessionId },
-      },
+      approve: false,
+      emit: () => undefined,
     });
   }
 }

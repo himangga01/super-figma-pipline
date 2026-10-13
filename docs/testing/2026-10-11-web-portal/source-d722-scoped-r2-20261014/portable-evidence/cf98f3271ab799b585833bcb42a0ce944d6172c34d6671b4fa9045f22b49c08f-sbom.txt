@@ -1,0 +1,2 @@
+SBOM: 66 installed production packages
+

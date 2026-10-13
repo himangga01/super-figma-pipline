@@ -7,6 +7,7 @@ import { afterEach, expect, it, vi } from 'vitest';
 import { z } from 'zod';
 
 import { RepoReader } from '../../src/fs/repo-walk.js';
+import { PortalCaptureError } from '../../src/portal/capture-failure.js';
 import { PortalCoordinator, type PortalWorkPort } from '../../src/portal/coordinator.js';
 import { PortalCoreLifecycle } from '../../src/portal/recipes/core-lifecycle.js';
 import { CorePreparations } from '../../src/portal/recipes/core-preparation.js';
@@ -718,6 +719,48 @@ it('keeps an unknown interaction unresolved despite confirmed prose until an exa
     }),
   ).rejects.toMatchObject({ code: 'PORTAL_WORKFLOW_DECISION_NOT_BOUND' });
 });
+it.each(['failed', 'partial'] as const)(
+  'preserves %s capture diagnostics without admitting supplied workflow decisions or a coding lease',
+  async mode => {
+    const failure = new PortalCaptureError(
+      'connection',
+      Error('CHROME_CONNECTION_REQUIRED'),
+      Date.now(),
+    );
+    const value = await setup(undefined, () => {
+      if (mode === 'failed') throw failure;
+    });
+    if (mode === 'partial') value.capture.captured.complete = false;
+    const decisions = [
+      {
+        analysisHash: storedChecksum('prior-complete-analysis'),
+        evidenceId: storedChecksum('prior-evidence'),
+        requirementIds: ['portal-experience'],
+        decision: 'implement',
+        rationale: 'Prior confirmed decision cannot authorize a failed or partial new capture',
+      },
+    ];
+    const plan = await value.invoke('portal_plan', {
+      case: 'new-blank',
+      workflowDecisions: decisions,
+    });
+    expect(plan.design.complete).toBe(false);
+    expect(plan.design.capture).toBeUndefined();
+    expect(plan.design.captureFailure?.code ?? null).toBe(mode === 'failed' ? failure.code : null);
+    expect(plan.design.captureFailure?.stage ?? null).toBe(mode === 'failed' ? 'connection' : null);
+    expect(plan.issues).toContain(mode === 'failed' ? failure.code : 'DESIGN_CAPTURE_PARTIAL');
+    expect(plan.workflowCoverage).toMatchObject({ complete: false, decisions: [] });
+    expect(plan.workflowCoverage.issues).toContain('WORKFLOW_DECISIONS_REQUIRE_COMPLETE_CAPTURE');
+    expect(
+      (await value.store.get('plans', plan.planId, PortalPlanSchema))!.request.workflowDecisions,
+    ).toEqual(decisions);
+    expect((await value.invoke('portal_start', { planId: plan.planId })).state).toBe('needs-input');
+    expect(await value.invoke('portal_next', { runId: plan.planId })).toMatchObject({
+      lease: null,
+      generationAttempts: 0,
+    });
+  },
+);
 it('fences old graph interpretation despite current byte authority while preserving status', async () => {
   const value = await setup();
   const planned = await value.invoke('portal_plan', { case: 'new-blank' });

@@ -1,11 +1,23 @@
 type Row = Record<string, unknown>;
 const object = (value: unknown): Row =>
   value !== null && typeof value === 'object' && !Array.isArray(value) ? (value as Row) : {};
-const scale = (original: number, actual: number) =>
-  original === 0 ? (actual === 0 ? 1 : null) : Math.fround(actual / original);
+const scale = (original: number, actual: number, precise: boolean) =>
+  original === 0
+    ? actual === 0
+      ? 1
+      : null
+    : precise
+      ? actual / original
+      : Math.fround(actual / original);
 
 /** Decode bounded, unstyled native vector loops when no cached fill path was exported. */
-export function readNativeVectorGeometry(input: unknown, blobs: unknown, targetSize: unknown) {
+export function readNativeVectorGeometry(
+  input: unknown,
+  blobs: unknown,
+  targetSize: unknown,
+  mode: 'fill' | 'paths' = 'fill',
+) {
+  const pathsMode = mode === 'paths';
   const vector = object(input),
     normalized = object(vector.normalizedSize),
     size = object(targetSize);
@@ -85,18 +97,38 @@ export function readNativeVectorGeometry(input: unknown, blobs: unknown, targetS
     )
   )
     return null;
-  const sx = scale(Number(normalized.x), Number(size.x)),
-    sy = scale(Number(normalized.y), Number(size.y));
+  const sx = scale(Number(normalized.x), Number(size.x), pathsMode),
+    sy = scale(Number(normalized.y), Number(size.y), pathsMode);
   if (sx === null || sy === null || !Number.isFinite(sx) || !Number.isFinite(sy)) return null;
   const point = (index: number, dx = 0, dy = 0) => {
     const vertex = vertices[index]!;
-    const x = Math.fround(Math.fround(vertex.x + dx) * sx),
-      y = Math.fround(Math.fround(vertex.y + dy) * sy);
+    const x = pathsMode ? (vertex.x + dx) * sx : Math.fround(Math.fround(vertex.x + dx) * sx),
+      y = pathsMode ? (vertex.y + dy) * sy : Math.fround(Math.fround(vertex.y + dy) * sy);
     if (!Number.isFinite(x) || !Number.isFinite(y))
       throw new Error('FIGMA_NATIVE_VECTOR_NETWORK_INVALID');
     return `${x} ${y}`;
   };
   const result: Array<{ windingRule: string; data: string }> = [];
+  const used = new Set<number>();
+  const coincident = (a: number, b: number) =>
+    vertices[a]!.x === vertices[b]!.x && vertices[a]!.y === vertices[b]!.y;
+  const step = (index: number, current: number) => {
+    const segment = segments[index]!;
+    const forward = segment.start === current;
+    if (!forward && segment.end !== current) return null;
+    const end = forward ? segment.end : segment.start;
+    const tx1 = forward ? segment.tx1 : segment.tx2,
+      ty1 = forward ? segment.ty1 : segment.ty2;
+    const tx2 = forward ? segment.tx2 : segment.tx1,
+      ty2 = forward ? segment.ty2 : segment.ty1;
+    return {
+      end,
+      command:
+        tx1 === 0 && ty1 === 0 && tx2 === 0 && ty2 === 0
+          ? 'L' + point(end)
+          : 'C' + point(current, tx1, ty1) + ' ' + point(end, tx2, ty2) + ' ' + point(end),
+    };
+  };
   for (const region of regions) {
     const paths: string[] = [];
     for (const loop of region.loops) {
@@ -105,24 +137,16 @@ export function readNativeVectorGeometry(input: unknown, blobs: unknown, targetS
         next = loop.length > 1 ? segments[loop[1]!] : undefined;
       let current = first.start;
       if (next && next.start !== first.end && next.end !== first.end) current = first.end;
+      const initial = current;
       const commands = ['M' + point(current)];
       for (const index of loop) {
-        const segment = segments[index]!;
-        const forward = segment.start === current;
-        if (!forward && segment.end !== current) return null;
-        const end = forward ? segment.end : segment.start;
-        const tx1 = forward ? segment.tx1 : segment.tx2,
-          ty1 = forward ? segment.ty1 : segment.ty2;
-        const tx2 = forward ? segment.tx2 : segment.tx1,
-          ty2 = forward ? segment.ty2 : segment.ty1;
-        commands.push(
-          tx1 === 0 && ty1 === 0 && tx2 === 0 && ty2 === 0
-            ? 'L' + point(end)
-            : 'C' + point(current, tx1, ty1) + ' ' + point(end, tx2, ty2) + ' ' + point(end),
-        );
-        current = end;
+        const edge = step(index, current);
+        if (!edge) return null;
+        used.add(index);
+        commands.push(edge.command);
+        current = edge.end;
       }
-      commands.push('Z');
+      if (!pathsMode || coincident(current, initial)) commands.push('Z');
       paths.push(commands.join(' '));
     }
     if (paths.length)
@@ -130,6 +154,44 @@ export function readNativeVectorGeometry(input: unknown, blobs: unknown, targetS
         windingRule: region.winding === 0 ? 'EVENODD' : 'NONZERO',
         data: paths.join(' '),
       });
+  }
+  if (pathsMode) {
+    // Segments outside a fill region remain stroke-only paths, including branching arrows.
+    const adjacent = new Map<number, number[]>();
+    segments.forEach((segment, index) => {
+      if (used.has(index)) return;
+      for (const vertex of new Set([segment.start, segment.end])) {
+        const incident = adjacent.get(vertex) ?? [];
+        incident.push(index);
+        adjacent.set(vertex, incident);
+      }
+    });
+    const unfilled: string[] = [];
+    const trace = (initial: number, first: number) => {
+      const commands = ['M' + point(initial)];
+      let current = initial,
+        index = first;
+      while (!used.has(index)) {
+        used.add(index);
+        const next = step(index, current)!;
+        commands.push(next.command);
+        current = next.end;
+        const incident = adjacent.get(current)!;
+        if (incident.length !== 2) break;
+        const pending = incident.find(candidate => !used.has(candidate));
+        if (pending === undefined) break;
+        index = pending;
+      }
+      if (coincident(current, initial)) commands.push('Z');
+      unfilled.push(commands.join(' '));
+    };
+    for (const [vertex, incident] of [...adjacent].toSorted((a, b) => a[0] - b[0]))
+      if (incident.length !== 2)
+        for (const index of incident) if (!used.has(index)) trace(vertex, index);
+    segments.forEach((segment, index) => {
+      if (!used.has(index)) trace(segment.start, index);
+    });
+    if (unfilled.length) result.push({ windingRule: 'NONE', data: unfilled.join(' ') });
   }
   return result;
 }

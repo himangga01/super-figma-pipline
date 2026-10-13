@@ -15,6 +15,7 @@ import {
   PortalRecipeUseSchema,
   type PortalRecipeUse,
 } from '../../../../shared/src/portal-recipe-use.js';
+import { requirePreparedNativeContours, matchesNativeContours } from '../native-contours.js';
 import type { NativeCommand } from '../native-runner.js';
 import { isPrimitivePortalAsset } from '../observation-manifest.js';
 import { consumptionCheckHash, consumptionBatchHash } from '../preview-consumption.js';
@@ -97,6 +98,7 @@ export function compileCoreConsumption(
     usedCatalogs = new Set<string>(),
     usedReviews = new Set<number>(),
     usedVariables = new Set<string>();
+  const usedContours = new Set<string>();
   const reviewBindings = new Map<number, string>();
   const addRequirement = (page: ConsumptionPage, row: Row, code: string, detail = code) => {
     if (requirements.length >= 4096) throw portalError('PORTAL_CONSUMPTION_REQUIREMENT_LIMIT');
@@ -498,6 +500,37 @@ export function compileCoreConsumption(
       if (scope) {
         const values = node.properties,
           type = String(values.type);
+        const contourDeclared =
+          use.nativeContours?.some(value => value.nodeId === node.id) === true;
+        if (contourDeclared) {
+          usedContours.add(node.id);
+          if (type !== 'TEXT') addRequirement(page, row, 'PORTAL_CONSUMPTION_NATIVE_TEXT_REQUIRED');
+          else {
+            try {
+              const source = requirePreparedNativeContours(input.nativeContours);
+              const expectation = source.records.get(node.id);
+              if (
+                !expectation ||
+                source.captureFingerprint !== input.plan.design.capture?.designFingerprint
+              )
+                throw portalError('PORTAL_CONSUMPTION_NATIVE_SOURCE_UNPROVEN');
+              emit(page, row, entry, scope, expectation);
+              proof(entry, 'native-contour-source', {
+                documentHash: source.documentHash,
+                captureFingerprint: source.captureFingerprint,
+                nodeId: node.id,
+                charactersHash: expectation.charactersHash,
+                fonts: expectation.fonts,
+                nominalFontSize: expectation.nominalFontSize,
+                paintedFontSizes: expectation.paintedFontSizes,
+                representation: 'native-contour',
+                fontCssProvesPaintedGeometry: false,
+              });
+            } catch (cause) {
+              addRequirement(page, row, input.nativeContourFailure ?? safeCode(cause));
+            }
+          }
+        }
         for (const property of [
           'width',
           'height',
@@ -521,6 +554,8 @@ export function compileCoreConsumption(
           'characters',
         ]) {
           if (values[property] === undefined) continue;
+          if (contourDeclared && ['fontSize', 'fontWeight', 'characters'].includes(property))
+            continue;
           const css = sourceBindingProperty(property, type),
             value = sourceBindingValue(property, values[property], type);
           if (css && value && PortalConsumptionPropertySchema.safeParse(css).success)
@@ -530,7 +565,11 @@ export function compileCoreConsumption(
               value,
             });
         }
-        if (object(values.fontName) && typeof values.fontName.family === 'string') {
+        if (
+          !contourDeclared &&
+          object(values.fontName) &&
+          typeof values.fontName.family === 'string'
+        ) {
           emit(page, row, entry, scope, {
             kind: 'property',
             property: 'font-family',
@@ -568,6 +607,7 @@ export function compileCoreConsumption(
           ['lineHeight', 'line-height'],
           ['letterSpacing', 'letter-spacing'],
         ] as const) {
+          if (contourDeclared) continue;
           const metric = values[source];
           if (!object(metric)) continue;
           if (metric.unit === 'AUTO' && source === 'lineHeight')
@@ -593,7 +633,7 @@ export function compileCoreConsumption(
             });
           } else addRequirement(page, row, 'PORTAL_CONSUMPTION_TEXT_METRIC_UNSUPPORTED');
         }
-        if (!['VECTOR', 'BOOLEAN_OPERATION'].includes(type)) {
+        if (!contourDeclared && !['VECTOR', 'BOOLEAN_OPERATION'].includes(type)) {
           const fill = sourceSolidPaint(values.fills);
           if (fill)
             emit(page, row, entry, scope, {
@@ -633,6 +673,45 @@ export function compileCoreConsumption(
       const scope = scopeFor(page, row, row.nodeId, entry),
         node = nodes.get(row.nodeId);
       if (scope && node) {
+        if (
+          use.nativeContours?.some(value => value.nodeId === node.id) &&
+          [
+            'fills',
+            'strokes',
+            'effects',
+            'fontName',
+            'fontSize',
+            'fontWeight',
+            'fontStyle',
+            'lineHeight',
+            'letterSpacing',
+            'textDecoration',
+          ].includes(row.property)
+        ) {
+          usedContours.add(node.id);
+          try {
+            const source = requirePreparedNativeContours(input.nativeContours),
+              expectation = source.records.get(node.id);
+            if (
+              !expectation ||
+              source.captureFingerprint !== input.plan.design.capture?.designFingerprint
+            )
+              throw portalError('PORTAL_CONSUMPTION_NATIVE_SOURCE_UNPROVEN');
+            emit(page, row, entry, scope, expectation);
+            proof(entry, 'native-contour-material', {
+              nodeId: node.id,
+              sourceHash: row.material.hash,
+              property: row.property,
+              documentHash: source.documentHash,
+              nominalFontSize: expectation.nominalFontSize,
+              paintedFontSizes: expectation.paintedFontSizes,
+              fontCssProvesPaintedGeometry: false,
+            });
+          } catch (cause) {
+            addRequirement(page, row, input.nativeContourFailure ?? safeCode(cause));
+          }
+          continue;
+        }
         const material = object(row.material.value) ? row.material.value : null;
         const candidate = material?.actual ?? material?.value ?? material;
         const value = sourceSolidPaint(candidate);
@@ -815,6 +894,7 @@ export function compileCoreConsumption(
     if (!usedReviews.has(index)) throw portalError('PORTAL_CONSUMPTION_REVIEW_NOT_BOUND');
   if (
     use.targets.some(value => !usedTargets.has(value.nodeId)) ||
+    use.nativeContours?.some(value => !usedContours.has(value.nodeId)) ||
     use.components.some(value => !usedComponents.has(key(value.resultId, value.rowId))) ||
     use.assets.some(value => !usedAssets.has(JSON.stringify([value.nodeId, value.property]))) ||
     use.catalogs.some(value => !usedCatalogs.has(key(value.resultId, value.rowId))) ||
@@ -942,6 +1022,9 @@ export function verifyConsumptionObservations(
         !actual.resourceUrl
       )
         throw portalError('PORTAL_CONSUMPTION_ASSET_MISMATCH');
+    } else if (check.expectation.kind === 'native-contour') {
+      if (!actual.nativeContour || !matchesNativeContours(check.expectation, actual.nativeContour))
+        throw portalError('PORTAL_CONSUMPTION_NATIVE_CONTOUR_MISMATCH');
     } else if (actual.sourceNodeId !== check.expectation.sourceNodeId)
       throw portalError('PORTAL_CONSUMPTION_COMPONENT_UNOBSERVED');
     result.set(check.checkId, observed);

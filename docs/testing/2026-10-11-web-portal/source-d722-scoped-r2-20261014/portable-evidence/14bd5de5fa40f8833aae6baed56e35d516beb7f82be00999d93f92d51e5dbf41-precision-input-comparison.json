@@ -1,0 +1,329 @@
+{
+  "status": "actual-readonly-comparison",
+  "reviewRootRelative": ".worktrees/_cache/native-supplement-url-root-review-20261013/work/service",
+  "mode": "static-local-import-closure-including-shared-ir",
+  "runtimeExecuted": false,
+  "rows": [
+    {
+      "path": "packages/mcp/test/fs/operation-evidence-artifact-store.test.ts",
+      "reviewSha256": "c97c9f50f05d4742e1419ac9f9632b5d6aa9dba983921f0f23897b3da085b1df",
+      "mainSha256": "c97c9f50f05d4742e1419ac9f9632b5d6aa9dba983921f0f23897b3da085b1df",
+      "nativeSha256": "c97c9f50f05d4742e1419ac9f9632b5d6aa9dba983921f0f23897b3da085b1df"
+    },
+    {
+      "path": "packages/mcp/src/security/state-permissions.ts",
+      "reviewSha256": "60e1a218a82a9efa012c1b3b009cfa6ce161749d75ae29d505296f59a7e3df93",
+      "mainSha256": "60e1a218a82a9efa012c1b3b009cfa6ce161749d75ae29d505296f59a7e3df93",
+      "nativeSha256": "60e1a218a82a9efa012c1b3b009cfa6ce161749d75ae29d505296f59a7e3df93"
+    },
+    {
+      "path": "packages/mcp/src/runtime-paths.ts",
+      "reviewSha256": "5a6f107d570f36a0f71b45b9863a2e35c9922f9818d7827724814d6ab405f48a",
+      "mainSha256": "5a6f107d570f36a0f71b45b9863a2e35c9922f9818d7827724814d6ab405f48a",
+      "nativeSha256": "5a6f107d570f36a0f71b45b9863a2e35c9922f9818d7827724814d6ab405f48a"
+    },
+    {
+      "path": "packages/shared/src/index.ts",
+      "reviewSha256": "f3218e27172dc5d38e02f01f67d2977e8c1b316094ecf61245876a5001e07e69",
+      "mainSha256": "f3218e27172dc5d38e02f01f67d2977e8c1b316094ecf61245876a5001e07e69",
+      "nativeSha256": "f3218e27172dc5d38e02f01f67d2977e8c1b316094ecf61245876a5001e07e69"
+    },
+    {
+      "path": "packages/shared/src/annotation-write.ts",
+      "reviewSha256": "7900bac2b0e00ff8b09f58975edf8d87f4c29801ae7f6a2154249a4a63ea6802",
+      "mainSha256": "7900bac2b0e00ff8b09f58975edf8d87f4c29801ae7f6a2154249a4a63ea6802",
+      "nativeSha256": "7900bac2b0e00ff8b09f58975edf8d87f4c29801ae7f6a2154249a4a63ea6802"
+    },
+    {
+      "path": "packages/shared/src/design-observation.ts",
+      "reviewSha256": "ade7ee53d97f46b11e8e3d73e24b1d6a5eda8284bb0855e9325ef4d8bae62d04",
+      "mainSha256": "ade7ee53d97f46b11e8e3d73e24b1d6a5eda8284bb0855e9325ef4d8bae62d04",
+      "nativeSha256": "ade7ee53d97f46b11e8e3d73e24b1d6a5eda8284bb0855e9325ef4d8bae62d04"
+    },
+    {
+      "path": "packages/shared/src/project-profile.ts",
+      "reviewSha256": "c3867e83747d5649caabc8d399710d1de6360cf77c4144ce2b27ccaf03abe962",
+      "mainSha256": "c3867e83747d5649caabc8d399710d1de6360cf77c4144ce2b27ccaf03abe962",
+      "nativeSha256": "c3867e83747d5649caabc8d399710d1de6360cf77c4144ce2b27ccaf03abe962"
+    },
+    {
+      "path": "packages/shared/src/project-conventions.ts",
+      "reviewSha256": "0871b9d429378d1d1986bc03bace90e16a6304504bb9b0d39781240c1a9ea8d7",
+      "mainSha256": "0871b9d429378d1d1986bc03bace90e16a6304504bb9b0d39781240c1a9ea8d7",
+      "nativeSha256": "0871b9d429378d1d1986bc03bace90e16a6304504bb9b0d39781240c1a9ea8d7"
+    },
+    {
+      "path": "packages/shared/src/portal-recipes.ts",
+      "reviewSha256": "7acfc69e8555e974045bd206b2c96b4d789be22a134632cf3f1d251989b1bd64",
+      "mainSha256": "7acfc69e8555e974045bd206b2c96b4d789be22a134632cf3f1d251989b1bd64",
+      "nativeSha256": "7acfc69e8555e974045bd206b2c96b4d789be22a134632cf3f1d251989b1bd64"
+    },
+    {
+      "path": "packages/shared/src/portal-base.ts",
+      "reviewSha256": "c58941fa7cb7c68abac05003aeae00e5188ed1a76bf1c42b9942c67bc0fe5d2d",
+      "mainSha256": "c58941fa7cb7c68abac05003aeae00e5188ed1a76bf1c42b9942c67bc0fe5d2d",
+      "nativeSha256": "c58941fa7cb7c68abac05003aeae00e5188ed1a76bf1c42b9942c67bc0fe5d2d"
+    },
+    {
+      "path": "packages/shared/src/portal-core-limits.ts",
+      "reviewSha256": "b0d4d6f906d3cf2fc6e69635b2e97c6437c501a43d946cd3381340632a49600a",
+      "mainSha256": "b0d4d6f906d3cf2fc6e69635b2e97c6437c501a43d946cd3381340632a49600a",
+      "nativeSha256": "b0d4d6f906d3cf2fc6e69635b2e97c6437c501a43d946cd3381340632a49600a"
+    },
+    {
+      "path": "packages/shared/src/portal.ts",
+      "reviewSha256": "9078c049ccc92ce3720876e418ac6456513bc455962dd285420bacbd03d255e3",
+      "mainSha256": "9078c049ccc92ce3720876e418ac6456513bc455962dd285420bacbd03d255e3",
+      "nativeSha256": "9078c049ccc92ce3720876e418ac6456513bc455962dd285420bacbd03d255e3"
+    },
+    {
+      "path": "packages/shared/src/portal-capture-source.ts",
+      "reviewSha256": "f063433f26b592ddd891fc6458a38086b669b4cb22b647f8339b187f7a4f9597",
+      "mainSha256": "f063433f26b592ddd891fc6458a38086b669b4cb22b647f8339b187f7a4f9597",
+      "nativeSha256": "f063433f26b592ddd891fc6458a38086b669b4cb22b647f8339b187f7a4f9597"
+    },
+    {
+      "path": "packages/shared/src/portal-observations.ts",
+      "reviewSha256": "ef040d682695e1081d9e2683ccb7da96b5c432f55c5adb34ca1317018cb0b357",
+      "mainSha256": "ef040d682695e1081d9e2683ccb7da96b5c432f55c5adb34ca1317018cb0b357",
+      "nativeSha256": "ef040d682695e1081d9e2683ccb7da96b5c432f55c5adb34ca1317018cb0b357"
+    },
+    {
+      "path": "packages/shared/src/portal-core-lifecycle.ts",
+      "reviewSha256": "a3abf3ffa4f1f9509af87d7ea92b98871fdd1006d95f1b5d8c7791cd0bb67503",
+      "mainSha256": "a3abf3ffa4f1f9509af87d7ea92b98871fdd1006d95f1b5d8c7791cd0bb67503",
+      "nativeSha256": "a3abf3ffa4f1f9509af87d7ea92b98871fdd1006d95f1b5d8c7791cd0bb67503"
+    },
+    {
+      "path": "packages/shared/src/portal-native-geometry.ts",
+      "reviewSha256": "7b942815be23e6def99a4eccbc4d96ac86f0f036553c1f9a0127be1698b74091",
+      "mainSha256": "7b942815be23e6def99a4eccbc4d96ac86f0f036553c1f9a0127be1698b74091",
+      "nativeSha256": "7b942815be23e6def99a4eccbc4d96ac86f0f036553c1f9a0127be1698b74091"
+    },
+    {
+      "path": "packages/shared/src/portal-native-contours.ts",
+      "reviewSha256": "9ef5c0666b17f432e278a3d31ccba55924b18019fa809a5489d200085137f7a2",
+      "mainSha256": "9ef5c0666b17f432e278a3d31ccba55924b18019fa809a5489d200085137f7a2",
+      "nativeSha256": "9ef5c0666b17f432e278a3d31ccba55924b18019fa809a5489d200085137f7a2"
+    },
+    {
+      "path": "packages/shared/src/union-tools.ts",
+      "reviewSha256": "a6261e018a4cf6edb49d2b41ddd887aaa3f54196221072d574a6b2c77229549d",
+      "mainSha256": "a6261e018a4cf6edb49d2b41ddd887aaa3f54196221072d574a6b2c77229549d",
+      "nativeSha256": "a6261e018a4cf6edb49d2b41ddd887aaa3f54196221072d574a6b2c77229549d"
+    },
+    {
+      "path": "packages/shared/src/writes.ts",
+      "reviewSha256": "516677ee42e38f2548d55a410c0b1fe81b49eee8a32a393c6f4bb2c0ad629ec2",
+      "mainSha256": "516677ee42e38f2548d55a410c0b1fe81b49eee8a32a393c6f4bb2c0ad629ec2",
+      "nativeSha256": "516677ee42e38f2548d55a410c0b1fe81b49eee8a32a393c6f4bb2c0ad629ec2"
+    },
+    {
+      "path": "packages/shared/src/version.ts",
+      "reviewSha256": "7f3916efdaf6c4fbace5287242fb8bd2fa8d323826d8da23ac3dc9b292885521",
+      "mainSha256": "7f3916efdaf6c4fbace5287242fb8bd2fa8d323826d8da23ac3dc9b292885521",
+      "nativeSha256": "7f3916efdaf6c4fbace5287242fb8bd2fa8d323826d8da23ac3dc9b292885521"
+    },
+    {
+      "path": "packages/shared/src/variables.ts",
+      "reviewSha256": "0363347104b58247579f5914c08c595d669065563cda71f802dc626d4d6994d8",
+      "mainSha256": "0363347104b58247579f5914c08c595d669065563cda71f802dc626d4d6994d8",
+      "nativeSha256": "0363347104b58247579f5914c08c595d669065563cda71f802dc626d4d6994d8"
+    },
+    {
+      "path": "packages/shared/src/serialized-node.ts",
+      "reviewSha256": "eb65fa5f416ca5d0567d8ce08849445f499aff797723dfb6fd5496baf040b173",
+      "mainSha256": "eb65fa5f416ca5d0567d8ce08849445f499aff797723dfb6fd5496baf040b173",
+      "nativeSha256": "eb65fa5f416ca5d0567d8ce08849445f499aff797723dfb6fd5496baf040b173"
+    },
+    {
+      "path": "packages/shared/src/tool-budgets.ts",
+      "reviewSha256": "7df74e54927d964f1362e5f6448536e33985c5e4f7bab6f930b62b8ef077d899",
+      "mainSha256": "7df74e54927d964f1362e5f6448536e33985c5e4f7bab6f930b62b8ef077d899",
+      "nativeSha256": "7df74e54927d964f1362e5f6448536e33985c5e4f7bab6f930b62b8ef077d899"
+    },
+    {
+      "path": "packages/shared/src/styles.ts",
+      "reviewSha256": "921aae6a4745b99b503eb69c7e882264bbe8d9296e8691e7e7e1e69282a1a655",
+      "mainSha256": "921aae6a4745b99b503eb69c7e882264bbe8d9296e8691e7e7e1e69282a1a655",
+      "nativeSha256": "921aae6a4745b99b503eb69c7e882264bbe8d9296e8691e7e7e1e69282a1a655"
+    },
+    {
+      "path": "packages/shared/src/design-context.ts",
+      "reviewSha256": "02891bfad17a407a44e2fe18c9705bfbe3aa3005a2dca32e186c957bb1afbec5",
+      "mainSha256": "02891bfad17a407a44e2fe18c9705bfbe3aa3005a2dca32e186c957bb1afbec5",
+      "nativeSha256": "02891bfad17a407a44e2fe18c9705bfbe3aa3005a2dca32e186c957bb1afbec5"
+    },
+    {
+      "path": "packages/shared/src/design-context-dedupe.ts",
+      "reviewSha256": "55347af2630416f80bc8544f0baf6867946660ca02ad93d35f7074df879b5187",
+      "mainSha256": "55347af2630416f80bc8544f0baf6867946660ca02ad93d35f7074df879b5187",
+      "nativeSha256": "55347af2630416f80bc8544f0baf6867946660ca02ad93d35f7074df879b5187"
+    },
+    {
+      "path": "packages/shared/src/service-operations.ts",
+      "reviewSha256": "bf50f788e380f4c0377a7dc94e13caa155cbea55e16c206cab327054e8656ad6",
+      "mainSha256": "bf50f788e380f4c0377a7dc94e13caa155cbea55e16c206cab327054e8656ad6",
+      "nativeSha256": "bf50f788e380f4c0377a7dc94e13caa155cbea55e16c206cab327054e8656ad6"
+    },
+    {
+      "path": "packages/shared/src/operations.ts",
+      "reviewSha256": "7ad0f4b964e8b60c0c4e68e4095177a5b6d3ca6f6a72a592242826e971246646",
+      "mainSha256": "7ad0f4b964e8b60c0c4e68e4095177a5b6d3ca6f6a72a592242826e971246646",
+      "nativeSha256": "7ad0f4b964e8b60c0c4e68e4095177a5b6d3ca6f6a72a592242826e971246646"
+    },
+    {
+      "path": "packages/shared/src/invocation.ts",
+      "reviewSha256": "65106c20c060a8e948958154938add56f303cd5c9dd4fbfadf2a6490f1920476",
+      "mainSha256": "65106c20c060a8e948958154938add56f303cd5c9dd4fbfadf2a6490f1920476",
+      "nativeSha256": "65106c20c060a8e948958154938add56f303cd5c9dd4fbfadf2a6490f1920476"
+    },
+    {
+      "path": "packages/shared/src/auth.ts",
+      "reviewSha256": "f3f458bfaf3b527638f46c974691304c011ac021192acb2bea1dd486f5013f51",
+      "mainSha256": "f3f458bfaf3b527638f46c974691304c011ac021192acb2bea1dd486f5013f51",
+      "nativeSha256": "f3f458bfaf3b527638f46c974691304c011ac021192acb2bea1dd486f5013f51"
+    },
+    {
+      "path": "packages/shared/src/egress.ts",
+      "reviewSha256": "a2e1ebd792fcac211f2d7b2c274302179a06ddd9bc724684eb3bb050a4b4eb23",
+      "mainSha256": "a2e1ebd792fcac211f2d7b2c274302179a06ddd9bc724684eb3bb050a4b4eb23",
+      "nativeSha256": "a2e1ebd792fcac211f2d7b2c274302179a06ddd9bc724684eb3bb050a4b4eb23"
+    },
+    {
+      "path": "packages/shared/src/progress.ts",
+      "reviewSha256": "d769483f67f9f6fa1234c3e0d60374b8fd2a983d2eec8d398fe16ad1d55c8621",
+      "mainSha256": "d769483f67f9f6fa1234c3e0d60374b8fd2a983d2eec8d398fe16ad1d55c8621",
+      "nativeSha256": "d769483f67f9f6fa1234c3e0d60374b8fd2a983d2eec8d398fe16ad1d55c8621"
+    },
+    {
+      "path": "packages/shared/src/control.ts",
+      "reviewSha256": "8762c71cbe847c5cf1e9ddfc7fa38f4e0afa5170178384e11cb781ec4855c2d0",
+      "mainSha256": "8762c71cbe847c5cf1e9ddfc7fa38f4e0afa5170178384e11cb781ec4855c2d0",
+      "nativeSha256": "8762c71cbe847c5cf1e9ddfc7fa38f4e0afa5170178384e11cb781ec4855c2d0"
+    },
+    {
+      "path": "packages/shared/src/rpc.ts",
+      "reviewSha256": "eda7928f4e22bd8f6f07afb1f6f47e26e085f763ee43065d19b940fed94f4ee6",
+      "mainSha256": "eda7928f4e22bd8f6f07afb1f6f47e26e085f763ee43065d19b940fed94f4ee6",
+      "nativeSha256": "eda7928f4e22bd8f6f07afb1f6f47e26e085f763ee43065d19b940fed94f4ee6"
+    },
+    {
+      "path": "packages/shared/src/queries.ts",
+      "reviewSha256": "a53b50e99e04b55ef620c7ae827fc6d93eb7dd0d37a5f2fbb6a602573df6ebaa",
+      "mainSha256": "a53b50e99e04b55ef620c7ae827fc6d93eb7dd0d37a5f2fbb6a602573df6ebaa",
+      "nativeSha256": "a53b50e99e04b55ef620c7ae827fc6d93eb7dd0d37a5f2fbb6a602573df6ebaa"
+    },
+    {
+      "path": "packages/shared/src/protocol.ts",
+      "reviewSha256": "1b31416c86e7211cdc0a806fc1cf1701c60f884f2c7b3483c58218aee9d60550",
+      "mainSha256": "1b31416c86e7211cdc0a806fc1cf1701c60f884f2c7b3483c58218aee9d60550",
+      "nativeSha256": "1b31416c86e7211cdc0a806fc1cf1701c60f884f2c7b3483c58218aee9d60550"
+    },
+    {
+      "path": "packages/shared/src/heartbeat.ts",
+      "reviewSha256": "a6c81ebd6979b39690501b84edc70e59475f07a21bae822d618f32c5d9c710b9",
+      "mainSha256": "a6c81ebd6979b39690501b84edc70e59475f07a21bae822d618f32c5d9c710b9",
+      "nativeSha256": "a6c81ebd6979b39690501b84edc70e59475f07a21bae822d618f32c5d9c710b9"
+    },
+    {
+      "path": "packages/shared/src/envelope.ts",
+      "reviewSha256": "61f54a1b61008e90bd3574905c4897ef319c592ded10b1a4d0e4f178c14d1c29",
+      "mainSha256": "61f54a1b61008e90bd3574905c4897ef319c592ded10b1a4d0e4f178c14d1c29",
+      "nativeSha256": "61f54a1b61008e90bd3574905c4897ef319c592ded10b1a4d0e4f178c14d1c29"
+    },
+    {
+      "path": "packages/shared/src/document-binding.ts",
+      "reviewSha256": "f71e6dfd6f2ffedb6a210f8e90d3d420a3ec9504f6528bb77f1503304d8cca96",
+      "mainSha256": "f71e6dfd6f2ffedb6a210f8e90d3d420a3ec9504f6528bb77f1503304d8cca96",
+      "nativeSha256": "f71e6dfd6f2ffedb6a210f8e90d3d420a3ec9504f6528bb77f1503304d8cca96"
+    },
+    {
+      "path": "packages/shared/src/config.ts",
+      "reviewSha256": "1c6d17fde55a2444788bae7b782ea24bd866b570e74f0992ecee3f2c2b0cff3c",
+      "mainSha256": "1c6d17fde55a2444788bae7b782ea24bd866b570e74f0992ecee3f2c2b0cff3c",
+      "nativeSha256": "1c6d17fde55a2444788bae7b782ea24bd866b570e74f0992ecee3f2c2b0cff3c"
+    },
+    {
+      "path": "packages/shared/src/components.ts",
+      "reviewSha256": "03d8e5ee4580e1e0caa3f5d68b3c0036dd53e660056eb6065e2b1f7e23806fd5",
+      "mainSha256": "03d8e5ee4580e1e0caa3f5d68b3c0036dd53e660056eb6065e2b1f7e23806fd5",
+      "nativeSha256": "03d8e5ee4580e1e0caa3f5d68b3c0036dd53e660056eb6065e2b1f7e23806fd5"
+    },
+    {
+      "path": "packages/shared/src/approval.ts",
+      "reviewSha256": "c7ff83337f6983507210d717fa03694a0d13e878e9ba4e2df300775ff5cbf61f",
+      "mainSha256": "c7ff83337f6983507210d717fa03694a0d13e878e9ba4e2df300775ff5cbf61f",
+      "nativeSha256": "c7ff83337f6983507210d717fa03694a0d13e878e9ba4e2df300775ff5cbf61f"
+    },
+    {
+      "path": "packages/shared/src/action-nonce.ts",
+      "reviewSha256": "3f8f3c67761fba7e9c998600c9a38c018952f0115bf3fe4990c92ff50d46ee5f",
+      "mainSha256": "3f8f3c67761fba7e9c998600c9a38c018952f0115bf3fe4990c92ff50d46ee5f",
+      "nativeSha256": "3f8f3c67761fba7e9c998600c9a38c018952f0115bf3fe4990c92ff50d46ee5f"
+    },
+    {
+      "path": "packages/shared/src/codec.ts",
+      "reviewSha256": "3d949fe636c3a3d50f174bab8889ecd33338307808944450c5ed675e89342a1a",
+      "mainSha256": "3d949fe636c3a3d50f174bab8889ecd33338307808944450c5ed675e89342a1a",
+      "nativeSha256": "3d949fe636c3a3d50f174bab8889ecd33338307808944450c5ed675e89342a1a"
+    },
+    {
+      "path": "packages/mcp/src/fs/windows-boundary-probe-worker.ts",
+      "reviewSha256": "81a216eb68b216c3920c4ad14db903771c31c341134099030b025e0f71aed9ba",
+      "mainSha256": "81a216eb68b216c3920c4ad14db903771c31c341134099030b025e0f71aed9ba",
+      "nativeSha256": "81a216eb68b216c3920c4ad14db903771c31c341134099030b025e0f71aed9ba"
+    },
+    {
+      "path": "packages/mcp/src/fs/workspace-policy.ts",
+      "reviewSha256": "f414dbb77dd6534f68e88ed527b1a158123556244c183852a14c08a550246455",
+      "mainSha256": "f414dbb77dd6534f68e88ed527b1a158123556244c183852a14c08a550246455",
+      "nativeSha256": "f414dbb77dd6534f68e88ed527b1a158123556244c183852a14c08a550246455"
+    },
+    {
+      "path": "packages/mcp/src/fs/workspace-config-store.ts",
+      "reviewSha256": "d0fd591b9ede533bab3710906d495ed58df23400020c15ab9702b59f4ee55cdf",
+      "mainSha256": "d0fd591b9ede533bab3710906d495ed58df23400020c15ab9702b59f4ee55cdf",
+      "nativeSha256": "d0fd591b9ede533bab3710906d495ed58df23400020c15ab9702b59f4ee55cdf"
+    },
+    {
+      "path": "packages/mcp/src/fs/workspace-registration-resolver.ts",
+      "reviewSha256": "c3f013e234bcd63d821d47abcc498bb7127c49318df6ecf2fa59f9a883460018",
+      "mainSha256": "c3f013e234bcd63d821d47abcc498bb7127c49318df6ecf2fa59f9a883460018",
+      "nativeSha256": "c3f013e234bcd63d821d47abcc498bb7127c49318df6ecf2fa59f9a883460018"
+    },
+    {
+      "path": "packages/mcp/src/fs/operation-evidence-artifact-store.ts",
+      "reviewSha256": "0df6a134c87125c4fc02a9b0ff02564b9650a11b2999b129b49f645f05c10369",
+      "mainSha256": "0df6a134c87125c4fc02a9b0ff02564b9650a11b2999b129b49f645f05c10369",
+      "nativeSha256": "0df6a134c87125c4fc02a9b0ff02564b9650a11b2999b129b49f645f05c10369"
+    },
+    {
+      "path": "packages/mcp/src/fs/evidence-retention-authority.ts",
+      "reviewSha256": "bcca7fbf07429e48df1f81572b21812d4ef43d25550e3c50b0057b26cdd4b9f1",
+      "mainSha256": "bcca7fbf07429e48df1f81572b21812d4ef43d25550e3c50b0057b26cdd4b9f1",
+      "nativeSha256": "bcca7fbf07429e48df1f81572b21812d4ef43d25550e3c50b0057b26cdd4b9f1"
+    },
+    {
+      "path": "packages/mcp/src/fs/atomic-file.ts",
+      "reviewSha256": "f5f25f079c4c3dc823c32069164d26a1b55fb4d4f8712ea85b17096b1e893a70",
+      "mainSha256": "f5f25f079c4c3dc823c32069164d26a1b55fb4d4f8712ea85b17096b1e893a70",
+      "nativeSha256": "f5f25f079c4c3dc823c32069164d26a1b55fb4d4f8712ea85b17096b1e893a70"
+    },
+    {
+      "path": "packages/mcp/src/fs/windows-directory-lease-broker.ts",
+      "reviewSha256": "20034dc2fc8c0f08021f5ac81e0445c509bb78e2755d5ee97beab5205adfa4ac",
+      "mainSha256": "20034dc2fc8c0f08021f5ac81e0445c509bb78e2755d5ee97beab5205adfa4ac",
+      "nativeSha256": "20034dc2fc8c0f08021f5ac81e0445c509bb78e2755d5ee97beab5205adfa4ac"
+    },
+    {
+      "path": "packages/mcp/src/execution/operation-evidence-receipt-store.ts",
+      "reviewSha256": "5940bff514e7c600225e5daa954ca4bfe8efdfded841f9b8249261babf81bc09",
+      "mainSha256": "5940bff514e7c600225e5daa954ca4bfe8efdfded841f9b8249261babf81bc09",
+      "nativeSha256": "5940bff514e7c600225e5daa954ca4bfe8efdfded841f9b8249261babf81bc09"
+    }
+  ],
+  "unchangedCount": 53,
+  "changedCount": 0,
+  "fullRuntimeDependencyClosureClaimed": false
+}

@@ -1,0 +1,182 @@
+{
+  "schemaVersion": 1,
+  "publishedAt": "2026-10-12T04:45:56.331Z",
+  "sourceHash": "sha256:31e47b614fbc093b160d562e7b4107a4c1ad473965237b086f100663bb4f5ef5",
+  "scope": "Three actual same-tab portal and backend logging rounds on compiled 31e4. These are not complete frontend-generation journeys or a476 deployment verification.",
+  "bounds": {
+    "sameVisibleChromeTab": true,
+    "browserPid": 9932,
+    "portalPort": 4315,
+    "daemonPort": 3059,
+    "actualFsRetryInduced": false,
+    "figmaCaptureAccepted": false,
+    "frontendAcceptance": false
+  },
+  "rounds": [
+    {
+      "round": "1791772216929",
+      "at": "2026-10-12T02:30:16.949Z",
+      "privateReceiptSha256": "52b87d8271c3d44612e8beb8f7890a9b2014aa5fddf3f7ddde82f91b18e2475b",
+      "sameChromeTab": true,
+      "passed": true,
+      "jobs": [
+        {
+          "id": "eaa77aca-a9e9-43d8-b7e4-ae3d9c565c24",
+          "type": "feature",
+          "name": "status",
+          "status": "succeeded",
+          "errorCode": null,
+          "requestId": "8e23c691-4dd0-47df-830b-ef336011fea6"
+        },
+        {
+          "id": "657b10ea-4592-4fe1-970a-e0a6fbe3d30b",
+          "type": "tool",
+          "name": "doctor",
+          "status": "failed",
+          "errorCode": "EGRESS_CONFIG_REQUIRED",
+          "requestId": "25f521ca-588d-48eb-b4da-bc371a458cb8"
+        }
+      ],
+      "initialDiagnostics": {
+        "enabled": true,
+        "level": "debug",
+        "location": "diagnostics/portal.jsonl",
+        "written": 913,
+        "pending": 1,
+        "dropped": 0,
+        "writeFailures": 0,
+        "flushTimeouts": 0,
+        "preWriteRetries": 0,
+        "recoveredWrites": 0,
+        "maxBytes": 1048576,
+        "retainedFiles": 4
+      },
+      "finalDiagnostics": {
+        "enabled": true,
+        "level": "debug",
+        "location": "diagnostics/portal.jsonl",
+        "written": 986,
+        "pending": 1,
+        "dropped": 0,
+        "writeFailures": 0,
+        "flushTimeouts": 0,
+        "preWriteRetries": 0,
+        "recoveredWrites": 0,
+        "maxBytes": 1048576,
+        "retainedFiles": 4
+      },
+      "expectedFailureCode": "EGRESS_CONFIG_REQUIRED",
+      "privateValuesAbsent": true
+    },
+    {
+      "round": "1791772220895",
+      "at": "2026-10-12T02:30:20.919Z",
+      "privateReceiptSha256": "00166f11257b2fa018b174b0a1674afab0b36349c23c869432d6e6c7e1f1b9cb",
+      "sameChromeTab": true,
+      "passed": true,
+      "jobs": [
+        {
+          "id": "12208716-8ee6-4259-9b5e-08f8cb13e150",
+          "type": "feature",
+          "name": "status",
+          "status": "succeeded",
+          "errorCode": null,
+          "requestId": "d3e0d163-18d9-44d9-807f-f220a800563b"
+        },
+        {
+          "id": "9309fbe0-35f5-4516-99da-c6e274b99891",
+          "type": "tool",
+          "name": "doctor",
+          "status": "failed",
+          "errorCode": "EGRESS_CONFIG_REQUIRED",
+          "requestId": "92d8af3c-9b7f-4a00-a6fe-cfac302b512b"
+        }
+      ],
+      "initialDiagnostics": {
+        "enabled": true,
+        "level": "debug",
+        "location": "diagnostics/portal.jsonl",
+        "written": 1014,
+        "pending": 1,
+        "dropped": 0,
+        "writeFailures": 0,
+        "flushTimeouts": 0,
+        "preWriteRetries": 0,
+        "recoveredWrites": 0,
+        "maxBytes": 1048576,
+        "retainedFiles": 4
+      },
+      "finalDiagnostics": {
+        "enabled": true,
+        "level": "debug",
+        "location": "diagnostics/portal.jsonl",
+        "written": 1087,
+        "pending": 1,
+        "dropped": 0,
+        "writeFailures": 0,
+        "flushTimeouts": 0,
+        "preWriteRetries": 0,
+        "recoveredWrites": 0,
+        "maxBytes": 1048576,
+        "retainedFiles": 4
+      },
+      "expectedFailureCode": "EGRESS_CONFIG_REQUIRED",
+      "privateValuesAbsent": true
+    },
+    {
+      "round": "1791772224013",
+      "at": "2026-10-12T02:30:24.033Z",
+      "privateReceiptSha256": "c9fe1d759a0b4847335b59eca488f259f1e729ac77dba938eb7e18072075dda8",
+      "sameChromeTab": true,
+      "passed": true,
+      "jobs": [
+        {
+          "id": "c6e7720c-d03e-435d-a015-2234ad4f00b1",
+          "type": "feature",
+          "name": "status",
+          "status": "succeeded",
+          "errorCode": null,
+          "requestId": "2155cfd0-d422-420a-ac5c-53d5187431dc"
+        },
+        {
+          "id": "5c38c108-97fe-4cb5-8a9e-e26b2fc8ecd1",
+          "type": "tool",
+          "name": "doctor",
+          "status": "failed",
+          "errorCode": "EGRESS_CONFIG_REQUIRED",
+          "requestId": "deb0fe4d-0d40-42c0-86d2-febfa22659c2"
+        }
+      ],
+      "initialDiagnostics": {
+        "enabled": true,
+        "level": "debug",
+        "location": "diagnostics/portal.jsonl",
+        "written": 1115,
+        "pending": 1,
+        "dropped": 0,
+        "writeFailures": 0,
+        "flushTimeouts": 0,
+        "preWriteRetries": 0,
+        "recoveredWrites": 0,
+        "maxBytes": 1048576,
+        "retainedFiles": 4
+      },
+      "finalDiagnostics": {
+        "enabled": true,
+        "level": "debug",
+        "location": "diagnostics/portal.jsonl",
+        "written": 1188,
+        "pending": 1,
+        "dropped": 0,
+        "writeFailures": 0,
+        "flushTimeouts": 0,
+        "preWriteRetries": 0,
+        "recoveredWrites": 0,
+        "maxBytes": 1048576,
+        "retainedFiles": 4
+      },
+      "expectedFailureCode": "EGRESS_CONFIG_REQUIRED",
+      "privateValuesAbsent": true
+    }
+  ]
+}

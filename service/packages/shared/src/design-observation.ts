@@ -269,7 +269,7 @@ export const DesignInteractionObservationSchema = z.strictObject({
 const ObservationShape = z
   .strictObject({
     observationVersion: z.literal(1),
-    source: z.enum(['chrome', 'desktop']),
+    source: z.enum(['chrome', 'desktop', 'official-mcp', 'chrome-page-api']),
     authority: z.enum(['legacy-unverified', 'collector-observed']),
     contentHash: hash,
     raw: record.refine(value => isBoundedDesignJson(value), 'DESIGN_OBSERVATION_RAW_LIMIT'),

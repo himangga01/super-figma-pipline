@@ -1,0 +1,296 @@
+{
+  "diagnosticsContracts": {
+    "path": "docs/testing/2026-10-11-web-portal/final-r69-generated-checks-20261014.json",
+    "sha256": "eac3b7561531195c053b9e421774e7250d82d0a552f848c8c531676d3049d999",
+    "requiredCommands": [
+      "diagnostics"
+    ]
+  },
+  "provenance": {
+    "path": "docs/testing/2026-10-11-web-portal/final-r69-generated-checks-20261014.json",
+    "sha256": "eac3b7561531195c053b9e421774e7250d82d0a552f848c8c531676d3049d999",
+    "requiredCommands": [
+      "offline-provenance"
+    ]
+  },
+  "provenanceRegistration": {
+    "path": "docs/testing/2026-10-11-web-portal/final-scoped-r69-provenance-20261014.json",
+    "sha256": "e12bfabaae2e9fbbe8c954f19eb05c178761e84e4597a83b2c85022e92685bb9"
+  },
+  "provenanceCommands": {
+    "path": ".worktrees/baseline/service/.cache/final-r69-provenance-commands.json",
+    "sha256": "06c979ad2d05b2e089c5c96f15ae1737d51f4ce10bda3786c923f13562175717"
+  },
+  "diagnosticsCatalogHash": "19ab236e3e969996da9b49dbd75c72bc7535f73c636113a2dc7a4aefde241753",
+  "buildReceiptSha256": "5c36ee18fe2bab88cff72710f188b6f3a262750adf3ae565c2ad27e71cac983c",
+  "eightIntegration": {
+    "path": ".worktrees/_cache/eight-file-integration-preparation-20261013/eight-file-integration-execution-r1/integration-receipt.json",
+    "sha256": "137706cd3586b8937c761e1e4a60ed928a821aa231ed2007632049cdd5e157f0"
+  },
+  "independentApprovals": [
+    {
+      "path": "docs/testing/2026-10-11-web-portal/c2-css-decoder-r60-independent-20261013.json",
+      "sha256": "ed83ea9d43b9e7f7c3d697dc18644f010a4f314308976934ecb626f2d8d7e28e",
+      "manifestSha256": "0b8a2f4d0ca62f1e3898f74a77e4b70e0e1845d40416f16cd67300be70f32d9f",
+      "passed": 3
+    },
+    {
+      "path": "docs/testing/2026-10-11-web-portal/no-core-plan-recovery-r2-independent-20261013.json",
+      "sha256": "097ff7fdb9a2debeb695e6fbd57943eb4b3fd7b8d9272743fb115829e3adc278",
+      "manifestSha256": "97b219177b9d705ea122dde1e42004b74c5df607290c20f7e1966ee17255fcb2",
+      "passed": 4
+    },
+    {
+      "path": "docs/testing/2026-10-11-web-portal/c2-route-type-r65-independent-20261013.json",
+      "sha256": "52fc6ad402b1c6ed4558d9bac1dd9ca817d6e670d86050e088ac69ef53443320",
+      "manifestSha256": "0253c302d1ffa6cf9a7007c0d8870932dcc2c93649b8e0c76eee71862f62d3a9",
+      "passed": 3
+    },
+    {
+      "path": "docs/testing/2026-10-11-web-portal/preview-navigation-budget-independent-20261013.json",
+      "sha256": "9e22768b061c2370b29c7386eeb4dc34b9b70e1b153e0a9b31f0c9dc5eb9911a",
+      "manifestSha256": "e94fa3061b64656a6572ba8bdb1ae10abda8753a5282e619a2ffd09846890c6b",
+      "passed": 2
+    }
+  ],
+  "changedStatics": {
+    "path": ".worktrees/_cache/r69-scoped-publication-preparation-20261014/final-r69-static-reuse-14files-a28.json",
+    "sha256": "3d808ab23b7eecaaa8f8536465cb0a71ae642752e6b17b1bc20d436df0da7b9a"
+  },
+  "precisionInputs": {
+    "path": ".worktrees/_cache/source6f87-publication-preparation-20261013/precision-input-comparison.json",
+    "sha256": "14bd5de5fa40f8833aae6baed56e35d516beb7f82be00999d93f92d51e5dbf41"
+  },
+  "qaGates": {
+    "path": ".worktrees/baseline/service/.cache/qa-cdd-scoped-release-20261013/scoped-gates.mjs",
+    "sha256": "f93e46ea20abb0a86c850ce9c92a7eecf9cb1f57cbcf9deeaf62e600821da06c"
+  },
+  "ownerIndexHash": "ecc1808ab3e14fa2e8c233ae1fc1c91e0a33b5b2e383a7270f1bc3068997e675",
+  "reviewedDeltas": [
+    {
+      "manifest": {
+        "path": ".worktrees/_cache/no-core-public-inspection-20261014/freeze/frozen-files.json",
+        "sha256": "5f0b524767e23929148ac990b1d1773a02617e9cd161ae56f7f0fd8b15da2194"
+      },
+      "approval": {
+        "path": "docs/testing/2026-10-11-web-portal/no-core-public-inspection-independent-20261014.md",
+        "sha256": "39c3d553044f45e117c4443b0909481274ee354825c8dd638c13da390c57c246"
+      },
+      "integration": {
+        "path": ".worktrees/_cache/no-core-public-inspection-integration-preparation-20261014/execution-r1/integration-receipt.json",
+        "sha256": "d95082480cfaf187b3be40407a67c3c7916c2429515601b34bbbe994e9994b83"
+      },
+      "tests": {
+        "path": ".worktrees/_cache/no-core-public-inspection-20261014/targeted-report.json",
+        "sha256": "9a392295cc137ea8bf316532b5d7c481f6a90e6328cc70787105a4c1bd358590",
+        "passed": 2
+      },
+      "fileCount": 2
+    },
+    {
+      "manifest": {
+        "path": ".worktrees/_cache/source-identity-phase-diagnostics-20261014/freeze-r2/frozen-files.json",
+        "sha256": "6c9ede4b418d69d19602ae40c8d72afd09e1396f289f8f83d719a9d7778f7cc7"
+      },
+      "approval": {
+        "path": "docs/testing/2026-10-11-web-portal/source-identity-diagnostics-r2-approval-20261014.md",
+        "sha256": "cdd87b69878fe0865851a7a23cb1b1079857adb2f75be86b7e7673b618d4ea48"
+      },
+      "integration": {
+        "path": ".worktrees/_cache/source-diagnostic-integration-20261014/integration-receipt.json",
+        "sha256": "19cd346f78f40ee3d3b8f4eeabb6d97d7f296a63f71343b25f75ba2e2370591e"
+      },
+      "tests": {
+        "path": ".worktrees/_cache/source-identity-phase-diagnostics-20261014/targeted-report.json",
+        "sha256": "32e681b5cd1b5c5d9944bc2b953b6c7f7bc4e4aeaacb41afb24df2e98272f895",
+        "passed": 3
+      },
+      "fileCount": 4
+    },
+    {
+      "manifest": {
+        "path": ".worktrees/_cache/source-identity-phase-diagnostics-20261014/freeze-r3/frozen-files.json",
+        "sha256": "615e7e9e6dc8afbf03454163307f8d9bc7888b80305e5b64d67bf01f46b218a1"
+      },
+      "approval": {
+        "path": "docs/testing/2026-10-11-web-portal/diagnostic-cleanup-r3-integration-20261014.json",
+        "sha256": "f0b410d20248e8f7d99191592c75ca6cb8300a8e33219328e365c94fb4b6225e"
+      },
+      "integration": {
+        "path": "docs/testing/2026-10-11-web-portal/diagnostic-cleanup-r3-integration-20261014.json",
+        "sha256": "f0b410d20248e8f7d99191592c75ca6cb8300a8e33219328e365c94fb4b6225e"
+      },
+      "tests": null,
+      "fileCount": 1
+    },
+    {
+      "manifest": {
+        "path": ".worktrees/_cache/final-scoped-publication-preparation-20261014/c3-r2-normalized-actual-main-preimages.json",
+        "sha256": "946a10d211dc27519aa0d5d7668518aafea66d6a752902a849e32856669c0196"
+      },
+      "approval": {
+        "path": "docs/testing/2026-10-11-web-portal/c3-generated-route-type-review-20261014.md",
+        "sha256": "d524c4671b9af992cb7801374baad96bae700e39cf7963503b06139b1b2b07d8"
+      },
+      "integration": {
+        "path": "docs/testing/2026-10-11-web-portal/c3-generated-types-integration-20261014.json",
+        "sha256": "b709a99bc41b1121addd77463d76655a1e9c0359b24d7708fe14c4df1feba60c"
+      },
+      "tests": {
+        "passed": 2,
+        "scope": "Two selected changed assertions from distinct original reports; R3 negative failure and R4 filtered cases preserved; cleanup-only final test changes not rerun",
+        "reports": [
+          {
+            "path": ".worktrees/_cache/c2-c3-implementation-20261014/c3-graph-repair/changed-compiler-tests-r3.json",
+            "sha256": "24879ae24d1e903bcc0728d927b36f1e2b60a421d25b6568fffcbc8ba2510474",
+            "passedAssertionNames": [
+              "retains bounded non-Epic generated root and home types in the compiler namespace"
+            ],
+            "originalReportSuccess": false,
+            "originalFailedTests": 1
+          },
+          {
+            "path": ".worktrees/_cache/c2-c3-implementation-20261014/c3-graph-repair/changed-compiler-tests-r4.json",
+            "sha256": "48713e580ac02efdf5583cedd5485c1ec2b676296912eac7ef5ba6a3634444f1",
+            "passedAssertionNames": [
+              "denies absent or foreign-linked generated type output without issuing compiler authority"
+            ],
+            "originalReportSuccess": true,
+            "originalFailedTests": 0
+          }
+        ]
+      },
+      "fileCount": 2
+    },
+    {
+      "manifest": {
+        "path": ".worktrees/_cache/final-scoped-publication-preparation-20261014/c3-test-style-normalized-actual-main-preimages.json",
+        "sha256": "e1be41e5105522137034eff574f9fb8764d2215433c9548d7dbd01dd6cf36dfa"
+      },
+      "approval": {
+        "path": "docs/testing/2026-10-11-web-portal/c3-test-style-integration-20261014.json",
+        "sha256": "410d9de58971121786688fb2e1159535ca66fa113f2a558ec7837addc89732b0"
+      },
+      "integration": {
+        "path": "docs/testing/2026-10-11-web-portal/c3-test-style-integration-20261014.json",
+        "sha256": "410d9de58971121786688fb2e1159535ca66fa113f2a558ec7837addc89732b0"
+      },
+      "tests": null,
+      "fileCount": 1
+    },
+    {
+      "manifest": {
+        "path": ".worktrees/_cache/r68-scoped-publication-preparation-20261014/c3-config-normalized-actual-main-preimages.json",
+        "sha256": "bd57622c6134c25c6319ee41cccf983a55f026941b18d7f375a196e2726fc449"
+      },
+      "approval": {
+        "path": "docs/testing/2026-10-11-web-portal/c3-configuration-provenance-review-20261014.md",
+        "sha256": "fc4f70d30641cd6736b15b1b7020be0990cccbca20db4782abb2e1d85b7acb50"
+      },
+      "integration": {
+        "path": "docs/testing/2026-10-11-web-portal/c3-config-provenance-integration-20261014.json",
+        "sha256": "21e93d924a4c5ff81638b4d74e5ddabc22b0693190e517b77b32b1133948a5ad"
+      },
+      "tests": {
+        "path": ".worktrees/_cache/c2-c3-implementation-20261014/c3-configuration-provenance-repair/changed-configuration-tests.json",
+        "sha256": "1139f623885d2cba8fc158b6ae9cbecdc6ea70540a842c6538b961768f2575aa",
+        "passed": 2,
+        "filtered": 113,
+        "fullSuite": false,
+        "scope": "Exactly two new configuration-to-connection cases;113 historical cases filtered; admission spy is synthetic"
+      },
+      "fileCount": 2
+    },
+    {
+      "manifest": {
+        "path": ".worktrees/_cache/r68-scoped-publication-preparation-r2-20261014/c2-explicit-normalized-actual-main-preimages.json",
+        "sha256": "f40d8ec26db1b5b130b27bdfdce70b1b316893eb88713e82bd9171d0b5a560c5"
+      },
+      "approval": {
+        "path": "docs/testing/2026-10-11-web-portal/c2-explicit-route-type-review-20261014.md",
+        "sha256": "9b3c46f2313a02b19da6fea97cbc41e373686807f1043b4090b6dbe8f53336bc"
+      },
+      "integration": {
+        "path": "docs/testing/2026-10-11-web-portal/c2-explicit-route-type-integration-20261014.json",
+        "sha256": "5b50a2658749c9381643870ad82aec135c295e8bc7a9e83577009530acb3a655"
+      },
+      "tests": {
+        "path": ".worktrees/_cache/c2-c3-implementation-20261014/c2-explicit-route-type-repair-r1/changed-explicit-ts-tests-r2.json",
+        "sha256": "0342d9351174111ceb9a65a501cedf41b074c34b69c332a4e1bec9a036773916",
+        "passed": 2,
+        "filtered": 115,
+        "fullSuite": false,
+        "scope": "Selected new explicit-ts resolution cases only; earlier failure and filtered historical tests remain preserved"
+      },
+      "fileCount": 2
+    },
+    {
+      "manifest": {
+        "path": ".worktrees/_cache/r69-scoped-publication-preparation-20261014/stage8-package-config-normalized.json",
+        "sha256": "898d94e44ccf99a68098f9ddf2c4ab371e91abfdd024b2f7ca1d23c2c9360d59"
+      },
+      "approval": {
+        "path": "docs/testing/2026-10-11-web-portal/c2-package-config-members-review-20261014.md",
+        "sha256": "798fa2c112e251dea774539a2421f725c4472c26c1f3f2507e79f126cd91a1ba"
+      },
+      "integration": {
+        "path": "docs/testing/2026-10-11-web-portal/c2-package-config-members-integration-20261014.json",
+        "sha256": "025da3ae11ac825276e9bbc4baf03fbc5e45ae64e92b661855317ce70d9811f9"
+      },
+      "tests": {
+        "passed": 2,
+        "scope": "Two selected package-member assertions in distinct original reports; the first global failure and17/16filtered cases remain preserved; synthetic admission cannot issue native authority",
+        "reports": [
+          {
+            "path": ".worktrees/_cache/c2-c3-implementation-20261014/c2-package-config-members-repair-r1/changed-package-member-tests.json",
+            "sha256": "95509c28993c5301134ac2e4d65e17c8eb6af4bce1926ed767d1d3539c7432c3",
+            "passedAssertionNames": [
+              "denies unadmitted changed-source changed-inventory and changed-byte package configurations"
+            ],
+            "originalReportSuccess": false,
+            "originalFailedTests": 1,
+            "filtered": 16
+          },
+          {
+            "path": ".worktrees/_cache/c2-c3-implementation-20261014/c2-package-config-members-repair-r1/changed-package-member-positive-r2.json",
+            "sha256": "28c96c3fa425fafc1dd9ff511a01d7661f98a9d1f65d6433df0312f82658e4b2",
+            "passedAssertionNames": [
+              "binds admitted package configurations as configuration members without changing source inventory"
+            ],
+            "originalReportSuccess": true,
+            "originalFailedTests": 0,
+            "filtered": 17
+          }
+        ]
+      },
+      "fileCount": 2
+    },
+    {
+      "manifest": {
+        "path": ".worktrees/_cache/r69-scoped-publication-preparation-20261014/stage9-selection-R3-normalized.json",
+        "sha256": "ca1ca1e4e98ddef46d9c8ca9f7d896e1cc13178702afa2898a0d2f39d9dded4a"
+      },
+      "approval": {
+        "path": "docs/testing/2026-10-11-web-portal/c2-pattern-route-root-review-20261014.md",
+        "sha256": "83e3443050317557e68b7841859903204cea4f4b60ee4193e775819d605f243c"
+      },
+      "integration": {
+        "path": "docs/testing/2026-10-11-web-portal/c2-pattern-route-integration-20261014.json",
+        "sha256": "d8c259b8dd6392186634496228937021e7f1ff8731344eda87d56858f797c6b3"
+      },
+      "tests": {
+        "path": ".worktrees/_cache/service-selection-pattern-20261014/after.json",
+        "sha256": "f06dd6ccb15cdede93ca688c28fcc6302968567665fc0b00630128af4d087ac7",
+        "passed": 2,
+        "filtered": 44,
+        "fullSuite": false,
+        "scope": "Two produced-pattern-tag assertions passed before guard-only fixture cleanup revision3; assertion bodies unchanged,44historical cases filtered, no pass replay"
+      },
+      "fileCount": 2
+    }
+  ],
+  "registrationCounts": {
+    "semanticChanges": 285,
+    "derivedAuthorities": 4
+  }
+}

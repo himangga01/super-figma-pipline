@@ -1,0 +1,18 @@
+{
+    "completedRequests":  33,
+    "pid":  36468,
+    "execSessionId":  54209,
+    "originalDeadlineAt":  1791893512593,
+    "chromeStopped":  false,
+    "processAbsent":  true,
+    "commandHash":  "227c95d097ddf52b09958a8784ba5077adc62ebcb782acfe8570f61475ecbbf9",
+    "startedAt":  1791891355766,
+    "portalCancelInvoked":  false,
+    "graceful":  false,
+    "exitZeroClaimed":  false,
+    "at":  "2026-10-13T12:02:24.8889427+00:00",
+    "qaServerStopped":  false,
+    "schemaVersion":  1,
+    "termination":  "controlled-owned-process-stop",
+    "pendingRpcCount":  0
+}

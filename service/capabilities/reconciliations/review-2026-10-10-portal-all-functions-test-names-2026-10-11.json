@@ -1,0 +1,66 @@
+{
+  "schemaVersion": 1,
+  "slice": "review-2026-10-10",
+  "baseline": {
+    "headCommit": "22517932dc9b2cb974c177ec4eacb84d4b16e254",
+    "authoritySha256": {
+      "upstream-lock.json": "2ce89ef9338c89d728c6cd04e0fea13511da84476149939878bf017706cb10fb",
+      "vendor-map.json": "b3275c7d8b997d1cfe723d97594659f77d7b4361b824a790bcfdd7ff762589bd",
+      "vendor-rules.json": "c205988f1278513f3dfa99891e43cccaf1d33f9549aee2d011bd3ef2ebdc00a4"
+    }
+  },
+  "entries": [
+    {
+      "path": "capabilities/task-review-2026-10-10-authority-classes.json",
+      "sha256": "524394407bb3970940ea06345e263cafc212521c7909b50f1df9d10faf2325b3",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "982b72109ddd40f95ef6924cb1816e5e72676218c18255cf9b0c8dfe3dd37aac"
+        },
+        {
+          "class": "protected",
+          "sha256": "982b72109ddd40f95ef6924cb1816e5e72676218c18255cf9b0c8dfe3dd37aac"
+        }
+      ],
+      "reason": "Disambiguate three parameterized test groups after the whole-check test-scope gate correctly rejected duplicate registered names. Add case-index suffixes only. Preserve product behavior and the unchanged scope checker; retain the failed whole attempt and require fresh full collection and whole verification."
+    },
+    {
+      "path": "packages/mcp/test/control/figma-settings-endpoint.test.ts",
+      "sha256": "7e6ee58b12dd832781c0c52eecbbc7d18c8726933b22d6f620be95c2fc770666",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "6b5457835df60189b17ef89bc00589f5b800bd8cdbe564d6fe22383872288757"
+        },
+        {
+          "class": "protected",
+          "sha256": "6b5457835df60189b17ef89bc00589f5b800bd8cdbe564d6fe22383872288757"
+        }
+      ],
+      "reason": "Disambiguate three parameterized test groups after the whole-check test-scope gate correctly rejected duplicate registered names. Add case-index suffixes only. Preserve product behavior and the unchanged scope checker; retain the failed whole attempt and require fresh full collection and whole verification."
+    },
+    {
+      "path": "packages/portal/package.json",
+      "sha256": "e7694b340e0fa0968b85713307561ee84731961b36a1bd78136ce91e99964719",
+      "priorClaims": [
+        {
+          "class": "protected",
+          "sha256": "e7694b340e0fa0968b85713307561ee84731961b36a1bd78136ce91e99964719"
+        }
+      ],
+      "reason": "Disambiguate three parameterized test groups after the whole-check test-scope gate correctly rejected duplicate registered names. Add case-index suffixes only. Preserve product behavior and the unchanged scope checker; retain the failed whole attempt and require fresh full collection and whole verification."
+    },
+    {
+      "path": "packages/portal/test/figma-settings.test.ts",
+      "sha256": "155589ddcad8ffc74eeec81e4f7aee64dd45fc56f17918dfc6bfc85fb90b0101",
+      "priorClaims": [
+        {
+          "class": "protected",
+          "sha256": "ea286946b74e1419298a8321a9410169f754a553f760f6e6daa61c8ca49c2ff3"
+        }
+      ],
+      "reason": "Disambiguate three parameterized test groups after the whole-check test-scope gate correctly rejected duplicate registered names. Add case-index suffixes only. Preserve product behavior and the unchanged scope checker; retain the failed whole attempt and require fresh full collection and whole verification."
+    }
+  ]
+}

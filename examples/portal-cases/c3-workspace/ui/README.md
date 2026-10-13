@@ -1,0 +1,7 @@
+# Server-backed C3 workspace UI
+
+This independently authored React component connects the C3 local server/data layer to an actual user interface. It does not change the active C4 frontend-only candidate or the existing C2 Epic handlers.
+
+Copy the reviewed current `c3-backend/client.mjs` implementation next to `NotesWorkspace.jsx` as `notes-client.mjs`. Add these implementation files only through the C3 candidate's genuine coding lease. Import and render `<NotesWorkspace locale={locale} />` on the confirmed workspace route, keeping the CDD design route and source bindings separate. Mount the owned notes handler before the independently generated same-origin server's frontend handler. Supply actual admitted database/listener resources; create synthetic users through the owned acceptance provisioning rather than hardcoded UI credentials.
+
+The component performs real session, password login, owner-scoped note creation/read/edit/delete and logout requests. It retains passwords only in memory until submission and persists no private data in local storage. It handles loading, errors, expired sessions, duplicate submission, responsive layout, keyboard focus and deletion confirmation. React escapes user text. The API client controls same-origin credentials and CSRF headers. Code existence does not establish service profile registration, Chrome frontend acceptance, guarded application or applied freshness.

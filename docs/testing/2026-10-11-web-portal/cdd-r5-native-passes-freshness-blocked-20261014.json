@@ -1,0 +1,140 @@
+{
+  "schemaVersion": 1,
+  "recordedAt": "2026-10-13T17:26:32.152Z",
+  "sourceHash": "sha256:6f87f836d872a4ba8ab49533f6447a7c921adb6b8af3dae75ddd6241e8b8a1cb",
+  "publicRunId": "9942c28a-6624-44a5-9e1e-dc9a42d2bc4a",
+  "coreRunId": "sfp_portal1_3af845f7c67e49e387ff8975eb18d4d8",
+  "candidateHash": "sha256:78faba3a8c691e7219cfec6e4cff1159b975994ac51947e727f060c68ef28479",
+  "state": "blocked",
+  "originalDeadlineAt": 1791912480455,
+  "nativeChecks": [
+    {
+      "id": "frontend-types",
+      "status": "passed"
+    },
+    {
+      "id": "frontend-independence",
+      "status": "passed"
+    },
+    {
+      "id": "frontend-build",
+      "status": "passed"
+    },
+    {
+      "id": "visual-guide",
+      "status": "passed"
+    },
+    {
+      "id": "accessibility-guide",
+      "status": "passed"
+    },
+    {
+      "id": "visual-mobile",
+      "status": "passed"
+    },
+    {
+      "id": "accessibility-mobile",
+      "status": "passed"
+    },
+    {
+      "id": "visual-desktop",
+      "status": "passed"
+    },
+    {
+      "id": "accessibility-desktop",
+      "status": "passed"
+    },
+    {
+      "id": "journey-figma-account-session",
+      "status": "passed"
+    },
+    {
+      "id": "journey-language-selection",
+      "status": "passed"
+    },
+    {
+      "id": "journey-registration-demo",
+      "status": "passed"
+    },
+    {
+      "id": "journey-frontend-presentation",
+      "status": "passed"
+    },
+    {
+      "id": "native-command-sequence",
+      "status": "passed",
+      "reason": "Every approved native command must execute successfully."
+    },
+    {
+      "id": "native-source-scope",
+      "status": "passed"
+    },
+    {
+      "id": "native-design-freshness",
+      "status": "failed",
+      "reason": "PORTAL_LIVE_DESIGN_REFRESH_FAILED"
+    },
+    {
+      "id": "core-consumption",
+      "status": "passed"
+    }
+  ],
+  "sixNativeCommandsPassed": true,
+  "consumption": {
+    "observed": 1749,
+    "failed": 0
+  },
+  "screens": [
+    {
+      "id": "guide",
+      "passed": true,
+      "differenceRatio": 0.0003030883103624298,
+      "comparisonMode": "pixelmatch-7.2-v1",
+      "workflowReports": []
+    },
+    {
+      "id": "mobile",
+      "passed": true,
+      "differenceRatio": 0.007595227213823749,
+      "comparisonMode": "pixelmatch-7.2-v1",
+      "workflowReports": []
+    },
+    {
+      "id": "desktop",
+      "passed": true,
+      "differenceRatio": 0.003055894427016769,
+      "comparisonMode": "pixelmatch-7.2-v1",
+      "workflowReports": [
+        {
+          "executedActions": 2,
+          "passed": true,
+          "requirementId": "figma-account-session"
+        },
+        {
+          "executedActions": 10,
+          "passed": true,
+          "requirementId": "language-selection"
+        },
+        {
+          "executedActions": 3,
+          "passed": true,
+          "requirementId": "registration-demo"
+        },
+        {
+          "executedActions": 2,
+          "passed": true,
+          "requirementId": "frontend-presentation"
+        }
+      ]
+    }
+  ],
+  "unchangedMaximumPixelRatio": 0.01,
+  "application": false,
+  "fullGenerationAccepted": false,
+  "completePortalJourneys": 0,
+  "requiredPortalJourneys": 1,
+  "remainingBlocker": "PORTAL_LIVE_DESIGN_REFRESH_FAILED",
+  "officialMcpLive": "owner-deferred",
+  "eCommerce": "owner-skipped",
+  "collectorParity": "owner-excluded"
+}

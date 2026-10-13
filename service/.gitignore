@@ -1,5 +1,13 @@
 node_modules
 dist
+!/packages/mcp/test/portal/fixtures/vite7-resolver/dist/
+/packages/mcp/test/portal/fixtures/vite7-resolver/dist/*
+!/packages/mcp/test/portal/fixtures/vite7-resolver/dist/node/
+/packages/mcp/test/portal/fixtures/vite7-resolver/dist/node/*
+!/packages/mcp/test/portal/fixtures/vite7-resolver/dist/node/chunks/
+/packages/mcp/test/portal/fixtures/vite7-resolver/dist/node/chunks/*
+!/packages/mcp/test/portal/fixtures/vite7-resolver/dist/node/chunks/config.js.txt
+!/packages/mcp/test/portal/fixtures/vite7-resolver/dist/node/module-runner.js.txt
 build/
 coverage/
 .sfp

@@ -1,0 +1,4 @@
+Vitest report: 1 files, 1 tests: 1 passed, 0 failed, 0 skipped; 0 failed suites without a failed test.
+Known failures matched: 0 of 0 ledger entries.
+Result: PASS
+

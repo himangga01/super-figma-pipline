@@ -1,0 +1,70 @@
+{
+  "schemaVersion": 1,
+  "slice": "review-2026-10-10",
+  "baseline": {
+    "headCommit": "22517932dc9b2cb974c177ec4eacb84d4b16e254",
+    "authoritySha256": {
+      "upstream-lock.json": "3189e90b5205183d6d3b6880dfafee2d8b209f3eca577d19c3a10d2958236627",
+      "vendor-map.json": "b3275c7d8b997d1cfe723d97594659f77d7b4361b824a790bcfdd7ff762589bd",
+      "vendor-rules.json": "c82a646ab0b05c7368a9f76e18e63a1d0a317eaf4d3597f387e6129f1a6a4b2d"
+    }
+  },
+  "entries": [
+    {
+      "path": "capabilities/task-review-2026-10-10-authority-classes.json",
+      "sha256": "930319d03baa411fea5299df76ace3ccb7603cf499f1ca7739c652b44002a61d",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "2170e91698cff07f3608129854922f0e4026f11c86cc0032ab7f4bd8b9ad5dd7"
+        },
+        {
+          "class": "protected",
+          "sha256": "2170e91698cff07f3608129854922f0e4026f11c86cc0032ab7f4bd8b9ad5dd7"
+        }
+      ],
+      "reason": "Reconcile the independently reviewed generated-type configuration classification and explicit .ts suffix corrections with their exact ordered integrations. Retain the genuine bounded98951 C3 selection as separate source-bound evidence. Preserve prior R67 history, unchanged diagnostic labels, original deadlines, unknown outcomes and the currently compiled runtime until active C2 work settles. This reconciliation does not establish full graph closure or live case acceptance. Preserve byte/source/issuer guards, runtime-import denial, original deadlines, unknown outcomes and the owner index. No whole rerun, new full graph closure or complete live case acceptance is claimed by this reconciliation."
+    },
+    {
+      "path": "packages/mcp/src/portal/module-resolution.ts",
+      "sha256": "e9b07c18cc5b1ea17a6778cc7c0dd8be76a2d75168460364c4e28535c1e89250",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "2358e3d2fa16b28d086c600e1b947c3da579ff1f7485cb93649024c8b0dd85ef"
+        },
+        {
+          "class": "protected",
+          "sha256": "2358e3d2fa16b28d086c600e1b947c3da579ff1f7485cb93649024c8b0dd85ef"
+        }
+      ],
+      "reason": "Reconcile the independently reviewed generated-type configuration classification and explicit .ts suffix corrections with their exact ordered integrations. Retain the genuine bounded98951 C3 selection as separate source-bound evidence. Preserve prior R67 history, unchanged diagnostic labels, original deadlines, unknown outcomes and the currently compiled runtime until active C2 work settles. This reconciliation does not establish full graph closure or live case acceptance. Preserve byte/source/issuer guards, runtime-import denial, original deadlines, unknown outcomes and the owner index. No whole rerun, new full graph closure or complete live case acceptance is claimed by this reconciliation."
+    },
+    {
+      "path": "packages/mcp/test/portal/module-resolution.test.ts",
+      "sha256": "2efc994f88c057aebb7373837512289adace0f2d31d1ba5e4e0ed495a8315c15",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "fab4f3b951e951342c2c39cba72e6264226acc8ed30b295282678419f0e436c6"
+        },
+        {
+          "class": "protected",
+          "sha256": "fab4f3b951e951342c2c39cba72e6264226acc8ed30b295282678419f0e436c6"
+        }
+      ],
+      "reason": "Reconcile the independently reviewed generated-type configuration classification and explicit .ts suffix corrections with their exact ordered integrations. Retain the genuine bounded98951 C3 selection as separate source-bound evidence. Preserve prior R67 history, unchanged diagnostic labels, original deadlines, unknown outcomes and the currently compiled runtime until active C2 work settles. This reconciliation does not establish full graph closure or live case acceptance. Preserve byte/source/issuer guards, runtime-import denial, original deadlines, unknown outcomes and the owner index. No whole rerun, new full graph closure or complete live case acceptance is claimed by this reconciliation."
+    },
+    {
+      "path": "packages/portal/package.json",
+      "sha256": "ddb99eafe979d2319697f9bde91d01c4b3f4cf7f3e2a2baccfcb06ceff7767c8",
+      "priorClaims": [
+        {
+          "class": "protected",
+          "sha256": "ddb99eafe979d2319697f9bde91d01c4b3f4cf7f3e2a2baccfcb06ceff7767c8"
+        }
+      ],
+      "reason": "Reconcile the independently reviewed generated-type configuration classification and explicit .ts suffix corrections with their exact ordered integrations. Retain the genuine bounded98951 C3 selection as separate source-bound evidence. Preserve prior R67 history, unchanged diagnostic labels, original deadlines, unknown outcomes and the currently compiled runtime until active C2 work settles. This reconciliation does not establish full graph closure or live case acceptance. Preserve byte/source/issuer guards, runtime-import denial, original deadlines, unknown outcomes and the owner index. No whole rerun, new full graph closure or complete live case acceptance is claimed by this reconciliation."
+    }
+  ]
+}

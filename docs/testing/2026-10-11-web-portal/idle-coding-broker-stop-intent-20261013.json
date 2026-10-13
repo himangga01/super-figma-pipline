@@ -1,0 +1,12 @@
+{
+  "at": "2026-10-12T23:56:33.351Z",
+  "requests": 16,
+  "responses": 16,
+  "pendingRequest": false,
+  "leaseOriginalExpiryElapsed": true,
+  "stopMarkerCreated": true,
+  "runCancelled": false,
+  "deadlineReset": false,
+  "sourceOperationReplayed": false,
+  "processExitVerified": false
+}

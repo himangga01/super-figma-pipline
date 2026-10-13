@@ -13,6 +13,8 @@ const descriptions: Record<PortalToolName, string> = {
     'Submit bounded actual candidate source files under the coding lease. Exact original hashes are required for replacements. This stores a candidate; it does not modify the target repository.',
   portal_validate:
     'Validate a candidate or applied portal using an owner-reviewed native execution profile in a separate work copy. Docker is prohibited. Native execution uses the owner account and is not an OS sandbox. Missing profiles or required acceptance evidence keep the run incomplete.',
+  portal_prepare_source:
+    'Execute an explicitly reviewed source-preparation profile in a fresh owned work copy. Bind the current registered reference source and original run deadline. Retain genuine compiler output for a fresh plan; this does not capture Figma, create a coding lease, submit/apply a candidate or complete a portal. Authority expires on daemon restart.',
   portal_apply:
     'Apply a fully validated candidate only to its approved target, using exact preimage hashes and durable write intents. Reference repositories remain read-only. Completion additionally requires validation of the applied result.',
   portal_status:

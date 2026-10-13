@@ -1,0 +1,109 @@
+{
+  "schemaVersion": 1,
+  "attemptId": "a95898c8-fbee-4067-8e70-3162706d7422",
+  "status": "failed",
+  "sourceHash": "sha256:31e47b614fbc093b160d562e7b4107a4c1ad473965237b086f100663bb4f5ef5",
+  "failedAt": "2026-10-12T02:17:09.964Z",
+  "checks": [
+    {
+      "name": "typecheck",
+      "exitCode": 0,
+      "elapsedMs": 37744,
+      "logSha256": "d2d95c551cd3d7c9ce656c890d8d76c8bdeccd590679e5521da75dafcecd693d"
+    },
+    {
+      "name": "lint",
+      "exitCode": 0,
+      "elapsedMs": 1703,
+      "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "format",
+      "exitCode": 0,
+      "elapsedMs": 2012,
+      "logSha256": "fbe6600bb13f64f953d4ac34811a432bb2cfd4a79e4ef7e554b7017dc9a1c24f"
+    },
+    {
+      "name": "knip",
+      "exitCode": 0,
+      "elapsedMs": 8529,
+      "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "contracts",
+      "exitCode": 0,
+      "elapsedMs": 1321,
+      "logSha256": "e0bfbf48403f68e16703a91e6e46175e37a156e2868b6a047243c43e9c6aee51"
+    },
+    {
+      "name": "build",
+      "exitCode": 0,
+      "elapsedMs": 7720,
+      "logSha256": "37a31d5157a340adf55672247c683188fe308d2b704002a839a2127eccb34223"
+    },
+    {
+      "name": "test",
+      "exitCode": 0,
+      "elapsedMs": 1123269,
+      "logSha256": "cb469d8911d60b19a33e7ff202e335d3a890fe5c72d2bd37a21319b0999c9b2f"
+    },
+    {
+      "name": "test-ledger",
+      "exitCode": 0,
+      "elapsedMs": 784,
+      "logSha256": "e0c3c8bae607805c2b76a9185275de24309aef0fbc0c950cb3cb24d5f3ab37a6"
+    },
+    {
+      "name": "provenance",
+      "exitCode": 0,
+      "elapsedMs": 502,
+      "logSha256": "f0a48513082a12df030f05efb95680f5f0ac17a9c36b675d97521e76f6f13378"
+    },
+    {
+      "name": "graph-memory",
+      "exitCode": 0,
+      "elapsedMs": 2937,
+      "logSha256": "b8eff6fec54c676220d7c9fc535ba996f1677f4da28bc487e2f42d225ec2e258"
+    },
+    {
+      "name": "sbom",
+      "exitCode": 0,
+      "elapsedMs": 710,
+      "logSha256": "b8af3021ada6ece5ce2d21b7e1660c3410a8cd4f5827d8fbd857521223a68246"
+    },
+    {
+      "name": "notices",
+      "exitCode": 0,
+      "elapsedMs": 852,
+      "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "package",
+      "exitCode": 0,
+      "elapsedMs": 2230,
+      "logSha256": "e01eb0631ace7babca3f2260f2386458f341ed89cc955dc5e7ed8caa06d37f77"
+    },
+    {
+      "name": "checksums",
+      "exitCode": 0,
+      "elapsedMs": 110,
+      "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "artifacts",
+      "exitCode": 0,
+      "elapsedMs": 4580,
+      "logSha256": "5ded1dca797ce6e95a8d34c9f112b3abe27a6091e2bcfaecd1b6df01b43c3bbf"
+    },
+    {
+      "name": "isolated-runtime",
+      "exitCode": 0,
+      "elapsedMs": 14292,
+      "logSha256": "5141959ddd5851b52df77d22bb9ee5510a0de3a9fa45476b6cc01e52f24da8f5"
+    }
+  ],
+  "error": "SOURCE_CHANGED_DURING_VERIFICATION",
+  "realFigmaValidated": false,
+  "targetServiceValidated": false,
+  "remoteCiValidated": false
+}
