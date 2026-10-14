@@ -118,11 +118,11 @@ async function seedFresh() {
       if (!permission) { const id = fixtureId + '-' + action + '-' + entity + '-' + access; db.prepare('INSERT INTO Permission(id,action,entity,access,description,createdAt,updatedAt) VALUES(?,?,?,?,?,?,?)').run(id, action, entity, access, 'Synthetic acceptance permission', now, now); permission = { id }; }
       for (const role of ['admin', ...(access === 'own' ? ['user'] : [])]) db.prepare('INSERT OR IGNORE INTO _PermissionToRole(A,B) VALUES(?,?)').run(permission.id, roleIds[role]);
     }
-    for (const kind of ['owner', 'other', 'noRole']) {
+    for (const kind of ['owner', 'other', 'noRole', 'admin']) {
       const username = kind.toLowerCase() + fixtureId.slice(0, 10), id = fixtureId + '-' + kind;
       db.prepare('INSERT INTO User(id,email,username,name,createdAt,updatedAt) VALUES(?,?,?,?,?,?)').run(id, username + '@example.invalid', username, 'Synthetic acceptance account', now, now);
       db.prepare('INSERT INTO Password(hash,userId) VALUES(?,?)').run(bcrypt.hashSync(password, 10), id);
-      if (kind !== 'noRole') db.prepare('INSERT INTO _RoleToUser(A,B) VALUES(?,?)').run(roleIds.user, id);
+      if (kind !== 'noRole') db.prepare('INSERT INTO _RoleToUser(A,B) VALUES(?,?)').run(kind === 'admin' ? roleIds.admin : roleIds.user, id);
       accounts[kind] = { username, password };
     }
     db.prepare('INSERT INTO Note(id,title,content,createdAt,updatedAt,ownerId) VALUES(?,?,?,?,?,?)').run(fixtureId + '-baseline-note', 'Original acceptance note', 'Preserved synthetic row', now, now, fixtureId + '-owner');

@@ -1,0 +1,269 @@
+{
+  "schemaVersion": 1,
+  "kind": "owned-current-e96-deployment-cohort-components",
+  "sourceHash": "sha256:e96f37b95100645fcfbb8317683c655556219ef920d8c8adf85968914cb2b0f5",
+  "buildIdentity": "sha256:cf241705ac5ff3d6493bfaf25a3a5dc212d1724777247a6fb4a8042d924eb5a8",
+  "epoch": 1791202532,
+  "mcpReusedReceiptSha256": "8abe94c572a0b4fbce78a751b8e4ce95d68a17de9e4d6fca3ac5ce528ea2db42",
+  "mcpRebundled": false,
+  "results": [
+    {
+      "name": "e96-portal-build",
+      "args": [
+        "C:\\2026_project\\super-figma-pipline\\.worktrees\\_cache\\generated-route-alias-runtime-guard-20261014\\service\\packages\\portal\\node_modules\\tsdown\\dist\\run.mjs"
+      ],
+      "exitCode": 0,
+      "signal": null,
+      "elapsedMs": 463,
+      "logPath": ".worktrees/_cache/generated-route-alias-runtime-guard-20261014/e96-portal-build.log",
+      "logSha256": "618b2bc9de736b2613421501bf25e06216e9f8fcb0a291e9b315b0bec780a7ab"
+    },
+    {
+      "name": "e96-plugin-main",
+      "args": [
+        "C:\\2026_project\\super-figma-pipline\\.worktrees\\_cache\\generated-route-alias-runtime-guard-20261014\\service\\packages\\plugin\\node_modules\\vite\\bin\\vite.js",
+        "build",
+        "--config",
+        "vite.config.main.ts"
+      ],
+      "exitCode": 0,
+      "signal": null,
+      "elapsedMs": 627,
+      "logPath": ".worktrees/_cache/generated-route-alias-runtime-guard-20261014/e96-plugin-main.log",
+      "logSha256": "bc2e9b0c2a4d00ca9b740229a468e3df68fc5d9fced630dbcfbf4e77ba39cbde"
+    },
+    {
+      "name": "e96-cli-build",
+      "args": [
+        "C:\\2026_project\\super-figma-pipline\\.worktrees\\_cache\\generated-route-alias-runtime-guard-20261014\\service\\packages\\cli\\node_modules\\tsdown\\dist\\run.mjs"
+      ],
+      "exitCode": 0,
+      "signal": null,
+      "elapsedMs": 1768,
+      "logPath": ".worktrees/_cache/generated-route-alias-runtime-guard-20261014/e96-cli-build.log",
+      "logSha256": "3d060c80298c4b729ae46848bca4e7403735f18d0c2f0f3b70f6b9d1611a2adf"
+    },
+    {
+      "name": "e96-plugin-ui",
+      "args": [
+        "C:\\2026_project\\super-figma-pipline\\.worktrees\\_cache\\generated-route-alias-runtime-guard-20261014\\service\\packages\\plugin\\node_modules\\vite\\bin\\vite.js",
+        "build",
+        "--config",
+        "vite.config.ts"
+      ],
+      "exitCode": 0,
+      "signal": null,
+      "elapsedMs": 3925,
+      "logPath": ".worktrees/_cache/generated-route-alias-runtime-guard-20261014/e96-plugin-ui.log",
+      "logSha256": "d6aaea3b2673811e2763b6d05afb221b4859851d1686ad71a19bb4f64f5c00da"
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "packages/mcp/dist/build-info.json",
+      "bytes": 129,
+      "sha256": "0cb79035f197655cf63bfa9745c324b3160e85350705160d1655c71d994e8e7b"
+    },
+    {
+      "path": "packages/mcp/dist/daemon-entry.mjs",
+      "bytes": 377,
+      "sha256": "e3a58bd2118f08b01e71b62d845a62c561fef0ff05e44d33b327a2593bb0464c"
+    },
+    {
+      "path": "packages/mcp/dist/index.mjs",
+      "bytes": 2320049,
+      "sha256": "f4ca81756cd1a596fed2e29264aa1a406e1f8af050ea87f8fe20595c444580d8"
+    },
+    {
+      "path": "packages/mcp/dist/native-artifacts-DpNzGNn3.mjs",
+      "bytes": 766,
+      "sha256": "b7bd3f72de0d6f1e94daf14b1dbb98d0b383ff3eb95d48e85ef9566b4ef8601f"
+    },
+    {
+      "path": "packages/mcp/dist/native-artifacts-gnuoEIZC.mjs",
+      "bytes": 60873,
+      "sha256": "e8566c67c207f639240498a727376931618e24b32aa4cd5a98c35e2b973037ef"
+    },
+    {
+      "path": "packages/mcp/dist/native-module-fence-BKiJtvhD.mjs",
+      "bytes": 242726,
+      "sha256": "808c8f1100e772b8d3a8862f47d273f34a4c29e7e829b166c3c592486d0393e4"
+    },
+    {
+      "path": "packages/mcp/dist/native-module-fence-CPzCMd28.mjs",
+      "bytes": 200,
+      "sha256": "aa361b7884eb325ce62e74be21f03ed2220e8b0b58c194038b34cdbfc6a414f8"
+    },
+    {
+      "path": "packages/mcp/dist/native-runner-e8FYJMvk.mjs",
+      "bytes": 477,
+      "sha256": "ecae5955f53a38ae2c6b15f9fed5de0c50412b574fd0cf810df1b919ec555622"
+    },
+    {
+      "path": "packages/mcp/dist/operation-evidence-projector-BA4rGTlk.mjs",
+      "bytes": 5821,
+      "sha256": "463eda7dd95024c0fc89e274ff267062f35ca46a84a3255dfff7a5513a05ed1d"
+    },
+    {
+      "path": "packages/mcp/dist/operation-evidence-projector-C_GmGLUB.mjs",
+      "bytes": 156,
+      "sha256": "cbbe4c631878a18a1257547fe76f0f0f969a4f8f5f9924abdc53af089cd7feb3"
+    },
+    {
+      "path": "packages/mcp/dist/portal-validation.mjs",
+      "bytes": 2566,
+      "sha256": "c258c4026eeb420b27f3cffd7267a877b81cfb25a2422a8506f8b6a4aea2907e"
+    },
+    {
+      "path": "packages/mcp/dist/preview-listener-CwhThN2f.mjs",
+      "bytes": 155271,
+      "sha256": "2c3b4201916cc61423f72e4396ec91bccefadc446a5503285a6adc1790cb1bf5"
+    },
+    {
+      "path": "packages/mcp/dist/preview-worker-BtVmG-YH.mjs",
+      "bytes": 277344,
+      "sha256": "25a46c42e536110ac778cadf2bbf5b20c5c5d1395b80ec9401afe918cdf228c5"
+    },
+    {
+      "path": "packages/mcp/dist/runtime-mode-CtV2_UhM.mjs",
+      "bytes": 223,
+      "sha256": "cbbef87c27503d74ff4dddff1b845fa75e8fd34c7aa3468e275e22eeed185c5f"
+    },
+    {
+      "path": "packages/mcp/dist/src-BjGhm5Jv.mjs",
+      "bytes": 53555,
+      "sha256": "4289206ed2b6b804422342bec8844af59df67136b18cd642b0ee959b1ff2e4a5"
+    },
+    {
+      "path": "packages/mcp/dist/src-CDtwoT4v.mjs",
+      "bytes": 170,
+      "sha256": "6f0f3e913f0f3f18a11205114dfc4a7c6e46a384149d7e84ecef76613cdcb8e5"
+    },
+    {
+      "path": "packages/mcp/dist/src-fCNxwrC_.mjs",
+      "bytes": 260107,
+      "sha256": "63979e5d8821eb6f6a526009945f2c0f02c60b196fa2893a411704dbcfd72a57"
+    },
+    {
+      "path": "packages/cli/dist/commands-CoRgDfTn.mjs",
+      "bytes": 2685835,
+      "sha256": "1135da9eabb73174ac5431080e6efcadfe61ce0f2ec1f5df53403d8689e527b4"
+    },
+    {
+      "path": "packages/cli/dist/index.mjs",
+      "bytes": 504,
+      "sha256": "cb7dfd8d55f3c0dac49489897c6e3cd6a612df93e697b77b0d60b6dfa162611e"
+    },
+    {
+      "path": "packages/cli/dist/library.mjs",
+      "bytes": 25799,
+      "sha256": "b2f4e70fdb9ccd3fd55b2eaace6b6f9b36b22d35cf6abfff8affcadba8c88d06"
+    },
+    {
+      "path": "packages/cli/dist/native-module-fence-BFPplLfL.mjs",
+      "bytes": 200,
+      "sha256": "084fa8b315d6e2e4b18ee2f2abe1dc5dd1be481d85762624cb9de979c5a3293d"
+    },
+    {
+      "path": "packages/cli/dist/native-module-fence-C6AswvOg.mjs",
+      "bytes": 913715,
+      "sha256": "fb2257c8adb340c82ffc526313d21f1723ca5ead34cfe05221232a704ab92c60"
+    },
+    {
+      "path": "packages/cli/dist/native-runner-DEtRZ_HI.mjs",
+      "bytes": 477,
+      "sha256": "1c9b397ab916e9087b9f4e76767d97b0bac2ac2a1852115618b4d7a9f7910b99"
+    },
+    {
+      "path": "packages/cli/dist/rolldown-runtime-CQi-gXI4.mjs",
+      "bytes": 1948,
+      "sha256": "744959ecc7a01f8ef9b5fa40db62dc5e8cd04368bd39a9e686849727457c2891"
+    },
+    {
+      "path": "packages/portal/dist/index.mjs",
+      "bytes": 443784,
+      "sha256": "5f8fe4e02edbc887ee533096c97953af86f32121899f61c9d0d868fd22368822"
+    },
+    {
+      "path": "packages/plugin/dist/code.js",
+      "bytes": 355337,
+      "sha256": "7ab84788b2adf32b44e48908c6f54d075b61ffdd629096e39d0f386312badd20"
+    },
+    {
+      "path": "packages/plugin/dist/index.html",
+      "bytes": 383091,
+      "sha256": "801ecd7020f0015547ab246fbc25c27fcbc7f70901cee46f026eee20605f804b"
+    },
+    {
+      "path": "packages/portal/web/api.js",
+      "bytes": 4536,
+      "sha256": "4b608fcde06ebb2e2a8bf2d3bda7ba682a3a72920b8762ce55db8f6390b05102"
+    },
+    {
+      "path": "packages/portal/web/app.js",
+      "bytes": 105054,
+      "sha256": "fe9e1257b0001dc09425637d3849fede9270bbdb85bc895ec068cf6ef06585e3"
+    },
+    {
+      "path": "packages/portal/web/figma-auth-consent.css",
+      "bytes": 630,
+      "sha256": "92936bf38172f7af6875e8be212882ff6a7db8eceb186306ced37a347e6abc73"
+    },
+    {
+      "path": "packages/portal/web/figma-auth-consent.html",
+      "bytes": 2207,
+      "sha256": "a517ebb46e30626d50ab7562b459e209a8d93d617370fd367524bba7319f4eea"
+    },
+    {
+      "path": "packages/portal/web/figma-auth-consent.js",
+      "bytes": 4565,
+      "sha256": "cfa0bd18655247a3dcaff6520b250bfd329484d857be7b94a077428416d01b0c"
+    },
+    {
+      "path": "packages/portal/web/figma-auth-public.js",
+      "bytes": 8111,
+      "sha256": "37c224301b981a75ea0eb59755142199372de6bf5ec9b8b5671bb365631056f9"
+    },
+    {
+      "path": "packages/portal/web/figma-settings.js",
+      "bytes": 19373,
+      "sha256": "00a6349b3c16da3b31cab8e32da0dde5cc5764724abd1d9fd01fb9f4cbb66575"
+    },
+    {
+      "path": "packages/portal/web/index.html",
+      "bytes": 1340,
+      "sha256": "412a66ea1bca0396e3105f37635ad7973510b657e2549aac1337d03f2dfcd690"
+    },
+    {
+      "path": "packages/portal/web/model.js",
+      "bytes": 21878,
+      "sha256": "4be8488eb188ec799c4264aa78596dd8dd005173d185ff0ba831bad3b11190b4"
+    },
+    {
+      "path": "packages/portal/web/schema-form.js",
+      "bytes": 22793,
+      "sha256": "9d1b1d073824327e8e6206d76981e23cdbc9e980f2511542c81aed2a3600693d"
+    },
+    {
+      "path": "packages/portal/web/service-functions.js",
+      "bytes": 28592,
+      "sha256": "36c0d05f81dcc63db109eaff6a6bc0239e797d85624f90dce95cf91a503c0e19"
+    },
+    {
+      "path": "packages/portal/web/styles.css",
+      "bytes": 29240,
+      "sha256": "47267a7738904f221ad77e0d1d18463d7b268a310735ab026388cbd8d8262b8a"
+    },
+    {
+      "path": "packages/plugin/manifest.json",
+      "bytes": 529,
+      "sha256": "d658e7e382bb503adba766dce6698d1d853466601a97f0266926ab2fc093665f"
+    }
+  ],
+  "workspaceRuntimeAliases": "Owned CLI and portal @sfp aliases resolve to owned cohort packages; third-party dependencies link to existing native toolchain.",
+  "status": "passed",
+  "qaDistModified": false,
+  "runtimeReplaced": false,
+  "whole": false,
+  "liveAcceptance": false
+}

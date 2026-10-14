@@ -32,7 +32,7 @@ export async function createActualCasePlanInputs({ caseId, legacyRoot, implement
   }
   if (caseId !== 'c3' || !/^[0-9a-f-]{36}$/u.test(referenceWorkspaceId ?? '') || !newTargetPath || !implementationRoot) throw Error('Actual registered reference and genuinely new C3 target required');
   const source = async path => path + ':' + digest(await readFile(join(implementationRoot, path)));
-  const store = await source('c3-backend/store.mjs'), handlers = await source('c3-backend/handler.mjs'), server = await source('c3-backend/integration/server.js');
+  const store = await source('c3-workspace/framework/server/notes/store.ts'), handlers = await source('c3-workspace/framework/server/notes/handler.ts'), server = await source('c3-workspace/framework/server.js');
   const front = ['frontend', 'configuration'], data = ['frontend', 'backend', 'api', 'database', 'configuration'], auth = ['frontend', 'backend', 'api', 'authentication', 'authorization', 'database'];
   return { case: 'new-reference', stack: 'react-vite', targetPath: newTargetPath, references: [{ workspaceId: referenceWorkspaceId, rootPath: referenceRootPath, role: 'primary' }], design, requirements: [
     requirement('c3-design-portal', 'Independently generate the current CDD1378:120 portal and its applicable interactions; add the operational notes workspace default using real same-origin services.', front,

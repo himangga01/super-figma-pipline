@@ -1,5 +1,7 @@
 # Repository instructions
 
+- Latest October 14 continuation: the owner requested completing the included remaining work by **12:00 KST**, prioritizing Chrome approval, implementation and minimal affected checks. Use disjoint SOL delegates and keep one live controller. The current controller is `chrome_runtime`; Root owns integration and canonical report updates. Reuse passing checks and keep documentation to concise updates in the existing reports. Main publication `e87cedc` is already present locally and remotely; verify new changes separately. This deadline does not renew any historical run, operation or grant.
+
 - On October14 after the deadline report, the owner explicitly requested committing and pushing the current code to `main`. This supersedes the earlier acceptance-before-Git condition for this snapshot. Preserve unfinished acceptance/deployment and historical failure evidence without claiming completion. Read [the current-source publication record](docs/analysis/git-publication-20261014.md); use normal commit/push, exclude private/runtime state and verify the actual remote ref. Old ECC owner-index pins become historical after authorized staging and must not be reused to replay consumed helpers.
 
 - Write every new or edited Markdown document in English, including headings, tables, comments, and examples that are explanatory prose.

@@ -17,7 +17,7 @@ export async function runEpicJourney({ origin, databasePath, browser, assertOwne
   const url = new URL(origin);
   assert.equal(url.hostname, '127.0.0.1'); assert.equal(url.protocol, 'http:'); assert.equal(url.origin, origin);
   assert.ok(databasePath && browser && assertOwnedListener && restartOwned);
-  for (const key of ['owner', 'other', 'noRole']) assert.ok(accounts[key]?.username && accounts[key]?.password);
+  for (const key of ['owner', 'other', 'noRole', 'admin']) assert.ok(accounts[key]?.username && accounts[key]?.password);
   const baseline = snapshot(databasePath), checks = [], contexts = [];
   const record = id => checks.push({ id, passed: true });
   const owned = async () => { await assertOwnedListener(); };
@@ -30,7 +30,7 @@ export async function runEpicJourney({ origin, databasePath, browser, assertOwne
     assert.ok(path.startsWith('/') && !path.startsWith('//')); await owned();
     const cookies = (await ctx.cookies()).filter(c => c.domain === '127.0.0.1' && path.startsWith(c.path));
     const headers = { cookie: cookies.map(c => c.name + '=' + c.value).join(';') };
-    if (method !== 'GET') headers.origin = originHeader;
+    if (method !== 'GET' && originHeader !== null) headers.origin = originHeader;
     let body;
     if (form) { body = new URLSearchParams(form); headers['content-type'] = 'application/x-www-form-urlencoded'; }
     if (multipart) { body = new FormData(); for (const [key, value] of Object.entries(multipart)) body.set(key, value); }
@@ -46,13 +46,13 @@ export async function runEpicJourney({ origin, databasePath, browser, assertOwne
   }
   const ownerRoot = '/users/' + encodeURIComponent(accounts.owner.username) + '/notes';
   try {
-    const anonymous = await context(), owner = await context(), other = await context(), noRole = await context();
+    const anonymous = await context(), owner = await context(), other = await context(), noRole = await context(), admin = await context();
     const anon = await request(anonymous, ownerRoot + '/new'); assert.equal(anon.status, 302); assert.match(anon.headers.get('location'), /\/login/u); record('epic-anonymous-write-denied');
     const wrong = await anonymous.newPage(); await wrong.goto(origin + '/login');
     await wrong.locator('input[name=username]').fill(accounts.owner.username); await wrong.locator('input[name=password]').fill('synthetic-definitely-wrong-password');
     await wrong.locator('form#login-form button[type=submit]').click(); await wrong.getByText('Invalid username or password', { exact: true }).waitFor();
     assert.equal(new URL(wrong.url()).pathname, '/login'); record('epic-wrong-password-denied');
-    const page = await login(owner, accounts.owner); await login(other, accounts.other); await login(noRole, accounts.noRole); record('epic-real-password-session-login');
+    const page = await login(owner, accounts.owner); await login(other, accounts.other); await login(noRole, accounts.noRole); await login(admin, accounts.admin); record('epic-real-password-session-login');
     await page.goto(origin + ownerRoot + '/new');
     await page.locator('input[name=title]').fill('Acceptance transient note'); await page.locator('textarea[name=content]').fill('Acceptance content');
     await page.locator('button[form="note-editor"][type="submit"]').click();
@@ -67,10 +67,19 @@ export async function runEpicJourney({ origin, databasePath, browser, assertOwne
     assert.equal((await request(owner, '/admin/cache')).status, 403); record('epic-nonadmin-denied');
     assert.equal((await request(owner, path + '/edit', { method: 'POST', multipart: { id, title: '', content: 'invalid' } })).status, 400); record('epic-invalid-input-denied');
     assert.equal((await request(owner, path, { method: 'POST', originHeader: 'https://foreign.invalid', form: { intent: 'delete-note', noteId: id } })).status, 403); record('epic-cross-origin-csrf-denied');
+    assert.equal((await request(owner, path, { method: 'POST', originHeader: null, form: { intent: 'delete-note', noteId: id } })).status, 403); record('epic-missing-origin-denied');
     assert.equal((await request(owner, '/logout', { method: 'POST', originHeader: 'https://foreign.invalid', form: {} })).status, 403); record('epic-cross-origin-logout-denied');
     await restartOwned(); await owned();
     const reread = await request(owner, path); assert.equal(reread.status, 200); assert.ok(reread.text.includes('Acceptance persisted edit')); record('epic-real-restart-persistence');
     assert.equal((await request(owner, path, { method: 'POST', form: { intent: 'delete-note', noteId: id } })).status, 302); record('epic-owner-delete');
+    await page.goto(origin + ownerRoot + '/new');
+    await page.locator('input[name=title]').fill('Acceptance admin transient note'); await page.locator('textarea[name=content]').fill('Delete through actual delete:any permission');
+    await page.locator('button[form="note-editor"][type="submit"]').click();
+    await page.waitForURL(next => next.pathname.startsWith(ownerRoot + '/') && !next.pathname.endsWith('/new'), { timeout: 10000 });
+    const adminNotePath = new URL(page.url()).pathname, adminNoteId = adminNotePath.split('/').at(-1);
+    assert.ok(adminNoteId && adminNoteId !== 'new');
+    assert.equal((await request(admin, adminNotePath, { method: 'POST', form: { intent: 'delete-note', noteId: adminNoteId } })).status, 302);
+    assert.equal((await request(owner, adminNotePath)).status, 404); record('epic-admin-delete-any-owner-note');
     // Direct fetch intentionally retains the old cookie to test server-side revocation.
     assert.equal((await request(owner, '/logout', { method: 'POST', form: {} })).status, 302);
     assert.equal((await request(owner, ownerRoot + '/new')).status, 302); record('epic-logout-revokes-session');

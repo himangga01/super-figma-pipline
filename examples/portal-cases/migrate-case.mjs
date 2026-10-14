@@ -5,7 +5,8 @@ if (!process.env.SFP_NATIVE_MODULE_POLICY || !process.env.SFP_NATIVE_MODULE_POLI
 try { await lstat(join(process.cwd(), '.env')); throw Error('Nonexample environment file forbidden'); } catch (error) { if (error.code !== 'ENOENT') throw error; }
 const env = { ...process.env, DATABASE_URL: 'file:' + process.env.DATABASE_PATH.replaceAll('\\', '/'), PRISMA_HIDE_UPDATE_MESSAGE: '1', CHECKPOINT_DISABLE: '1' };
 const child = spawn(process.execPath, ['node_modules/prisma/build/index.js', 'migrate', 'deploy', '--schema', 'prisma/schema.prisma'], { cwd: process.cwd(), env, shell: false, windowsHide: true, stdio: ['ignore', 'pipe', 'pipe'] });
-let bytes = 0;
-for (const stream of [child.stdout, child.stderr]) stream.on('data', chunk => { bytes += chunk.length; if (bytes > 1048576) { child.kill('SIGTERM'); process.exitCode = 1; } });
-child.once('error', () => { process.exitCode = 1; });
-child.once('exit', code => { process.exitCode = code ?? 1; });
+let bytes = 0, rejected = false;
+for (const stream of [child.stdout, child.stderr]) stream.on('data', chunk => { bytes += chunk.length; if (bytes > 1048576) { rejected = true; child.kill('SIGTERM'); process.exitCode = 1; } });
+child.once('error', () => { rejected = true; process.exitCode = 1; });
+// Streams can still deliver buffered output after exit, so finalize after both close.
+child.once('close', (code, signal) => { process.exitCode = !rejected && code === 0 && signal === null ? 0 : 1; });

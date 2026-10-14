@@ -1,0 +1,79 @@
+{
+  "schemaVersion": 1,
+  "date": "2026-10-14",
+  "timezone": "Asia/Seoul",
+  "baseline": "e87cedcb5c536bd4e1afb447927f2ac465ca133c",
+  "serviceSourceHash": "sha256:e96f37b95100645fcfbb8317683c655556219ef920d8c8adf85968914cb2b0f5",
+  "scope": "Seven authored case implementation and native harness fixes for the owner requested noon continuation",
+  "files": [
+    {
+      "path": "examples/portal-cases/case-plan-inputs.mjs",
+      "sha256": "sha256:133aeb225eb4b3d27abdcfd02c27c7b56e2d1300cc5132b68f8809cae3436e95"
+    },
+    {
+      "path": "examples/portal-cases/compile-case.mjs",
+      "sha256": "sha256:be9ecde8ca5c5eebf7f59f4fa977b2512f6db78bdf6c0ed5d2dd79dc5889c3de"
+    },
+    {
+      "path": "examples/portal-cases/migrate-case.mjs",
+      "sha256": "sha256:f4b42e7304f84ef120a436170b1337a52737523aac6939003e9d30fdfe66b83d"
+    },
+    {
+      "path": "examples/portal-cases/native-case-entry.mjs",
+      "sha256": "sha256:a83a642452250d76e4a92c2f6ba3e7cc00059d20422ea9df2e0307beab929dd9"
+    },
+    {
+      "path": "examples/portal-cases/c2-epic/epic-journey.mjs",
+      "sha256": "sha256:2a90c20e59ac3741798446f1e4ad71114f6bf2ee2ff702d2fa79277a9dd082e4"
+    },
+    {
+      "path": "examples/portal-cases/c3-workspace/framework/app/features/notes/NotesWorkspace.tsx",
+      "sha256": "sha256:7ab9828b82064590b7947292b19ebd6c884ecdd66d2cb2ce615fb4c767726b06"
+    },
+    {
+      "path": "examples/portal-cases/c3-workspace/ui/NotesWorkspace.jsx",
+      "sha256": "sha256:7f2168ca8274f578ebeb5598ab6b16ed6312ca952c6ffa35cf423b01bdc5de78"
+    }
+  ],
+  "changes": [
+    "Read real typed C3 framework paths when constructing a normal case plan",
+    "Finalize compiler and migration results only after output streams close; retain overflow and signal failure",
+    "Seed a genuine synthetic Epic admin and exercise delete:any plus missing-Origin denial",
+    "Preserve server acknowledged session and note writes after failed list refresh; disable logout until initial session readiness"
+  ],
+  "verification": {
+    "backendTargetedGroups": [
+      "c3-plan-reads-actual-typed-framework-hashes",
+      "migration-child-success-settlement",
+      "migration-child-failure-settlement",
+      "migration-child-overflow-settlement",
+      "compiler-complete-stream-success-settlement",
+      "compiler-complete-stream-overflow-settlement",
+      "five-changed-files-syntax"
+    ],
+    "backendPassed": true,
+    "syntheticChildFixtures": true,
+    "frontendComponentChecks": 10,
+    "frontendPassed": true,
+    "affectedStrictTypecheckExitCode": 0,
+    "baselineFrontendFailure": "acknowledged session remains usable after bootstrap list failure",
+    "changedFrontendRerunReason": "After adopting session before initial list completion, disable logout until readiness settles to prevent a user mutation invalidating bootstrap while leaving readiness permanently false. Added a deferred-list assertion and reran only these changed components.",
+    "rootSevenFileDiffReviewed": true,
+    "independentCrossReview": "Frontend and backend authors read the other disjoint changed files; no actionable finding.",
+    "changedDiffCheckPassed": true
+  },
+  "limits": {
+    "wholeSuiteExecuted": false,
+    "unchangedPassedChecksRepeated": false,
+    "serviceCapturePerformedByThisCodeReview": false,
+    "actualCaseCandidateGenerated": false,
+    "newAdminNativeJourneyExecuted": false,
+    "guardedApplicationAccepted": false,
+    "fullCaseAccepted": false,
+    "filesystemIsolation": "Separate working copies under the same Windows account; no OS sandbox claimed"
+  },
+  "privateSourceReceipts": [
+    ".worktrees/_cache/case-backend-1200-20261014/component-96b5NX/receipt.json",
+    ".worktrees/_cache/case-frontend-recovery-20261014/frontend-recovery-receipt.json"
+  ]
+}

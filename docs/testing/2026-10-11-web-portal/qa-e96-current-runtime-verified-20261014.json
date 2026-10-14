@@ -1,0 +1,64 @@
+{
+  "schemaVersion": 1,
+  "kind": "current-e96-runtime-preservation-readonly-closure",
+  "recordedAt": "2026-10-14T00:36:01.529Z",
+  "sourceHash": "sha256:e96f37b95100645fcfbb8317683c655556219ef920d8c8adf85968914cb2b0f5",
+  "buildIdentity": "sha256:cf241705ac5ff3d6493bfaf25a3a5dc212d1724777247a6fb4a8042d924eb5a8",
+  "daemon": {
+    "pid": 27132,
+    "startedAt": 1791937788305,
+    "port": 3059,
+    "entry": "daemon",
+    "commandHash": "d3e0c6d99c06bf097c734b698582d4f4942e4436257067414097e39d7dcee25f"
+  },
+  "portal": {
+    "pid": 27512,
+    "startedAt": 1791937796594,
+    "port": 4315,
+    "entry": "portal",
+    "commandHash": "c4f9502ab78a086143d72570967a6234a570d6fa02e28319699c470950261bc6"
+  },
+  "retainedProcesses": [
+    {
+      "pid": 7460,
+      "startedAt": 1791764383322,
+      "port": 3055,
+      "commandHash": "5ccf93669310bd2b91c40eefc316af33789224efa60aa91a5655eaa8ee79ce1f"
+    },
+    {
+      "pid": 27636,
+      "startedAt": 1791764388627,
+      "port": 4310,
+      "commandHash": "f8c8cec83e151dff0a43c87e13be26793eae9228783c4f61d7706ad868d48737"
+    },
+    {
+      "pid": 9932,
+      "startedAt": 1791721736935,
+      "commandHash": "84b95ad976434d78ba3fba44fe268252e86c3f9dc5ceba9c3171d8f87ee4a096"
+    },
+    {
+      "pid": 37872,
+      "startedAt": 1791937076270,
+      "commandHash": "c1dff3cd48c80078d909ec16116795b12fa3d7a93474ad0c9bd8941632ec4db5"
+    }
+  ],
+  "runtimeProofSha256": "150567cbc70bcb2309da1a4e424224893af25591ca0e416788aea08625a00c2d",
+  "journalProofSha256": "868882c246294b413dc4264fe8050d77d0e14580f833a1f7f3b64564fd3f4f7c",
+  "nonJournalCriticalExactCurrentPathAndByteCount": 207,
+  "criticalBackupFiles": 231,
+  "entirePortalAndServiceJobsExactlyPreserved": true,
+  "numericNewPortalLockOwnerVerified": true,
+  "logicalJournalsEqual": true,
+  "egressRecords": 470,
+  "evidenceRecords": 235,
+  "logicalJournalHash": "f7deccaedfcee896a0b950857a4a239e7697177d2b67d956f19f0e612b0ea85a",
+  "originalFailedRuntimeIntentHash": "482a9e3a9a098cd12ea4793bf72a238418abf20e3ea05867c15d60d98a9061a2",
+  "originalFailedHelpersPreserved": true,
+  "grantExpiresAt": "2026-10-14T08:08:32.003Z",
+  "nativeQaDistModified": false,
+  "stopOrStartInvoked": false,
+  "originalStateOrBackupWritten": false,
+  "whole": false,
+  "fullEightCommandRelease": false,
+  "liveAcceptance": false
+}

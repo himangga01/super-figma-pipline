@@ -1,0 +1,27 @@
+{
+  "schemaVersion": 1,
+  "kind": "existing-service-source-connection-readonly-diagnosis",
+  "date": "2026-10-14",
+  "daemonPid": 27132,
+  "sourceChromePid": 37872,
+  "portalChromePid": 9932,
+  "buildIdentity": "sha256:cf241705ac5ff3d6493bfaf25a3a5dc212d1724777247a6fb4a8042d924eb5a8",
+  "normalSourceDiscovery": {
+    "updatedAt": "2026-10-14T00:18:43.344Z",
+    "sha256": "f88785c424757d5017c46fe1c959db1ea911377e04cd22624120c5f802ddc8fd",
+    "listenerOwnedByExpectedSourceChrome": true,
+    "existingDaemonTcpConnectionEstablished": true,
+    "matchingReciprocalSourceTcpConnection": true
+  },
+  "spawnConfiguration": "The reviewed direct spawn supplied the same Unicode-safe normal USERPROFILE Chrome data directory used by the successful standalone service R3 attachment.",
+  "browserConnection": "awaiting-browser",
+  "implementedStateMeaning": "The retained WebSocket exists but is not OPEN. The service preserves its one native permission handshake without a handshake timeout until approval or shutdown.",
+  "wrongProfileOrStaleListenerDetected": false,
+  "nativePromptVisibilityObserved": false,
+  "additionalCdpClientOpened": false,
+  "nativeToolRetried": false,
+  "browserSettingsChanged": false,
+  "sourceOperationReplayed": false,
+  "captureAccepted": false,
+  "limits": "The operating-system socket pairing and service state confirm the correct existing source endpoint. They do not prove a visible native prompt, manual approval, WebSocket readiness or complete Figma capture."
+}

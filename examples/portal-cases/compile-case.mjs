@@ -14,14 +14,14 @@ for (const args of [[cli, 'typegen', '--mode', 'development'], ['node_modules/ty
     let bytes = 0, stdout = '', stderr = '';
     child.stdout.on('data', chunk => { bytes += chunk.length; if (bytes <= 1048576) stdout += chunk; else child.kill('SIGTERM'); });
     child.stderr.on('data', chunk => { bytes += chunk.length; if (bytes <= 1048576) stderr += chunk; else child.kill('SIGTERM'); });
-    child.once('error', reject); child.once('exit', async (code, signal) => {
+    child.once('error', reject); child.once('close', async (code, signal) => {
       try {
         const locations = [...(stdout + '\n' + stderr).matchAll(/^(.{1,512})\((\d+),(\d+)\): error (TS\d+):/gmu)].slice(0, 128).map(match => ({ path: match[1], line: Number(match[2]), column: Number(match[3]), code: match[4] }));
         const receipt = { stage: name, code, signal, outputBytes: bytes, stdoutHash: createHash('sha256').update(stdout).digest('hex'), stderrHash: createHash('sha256').update(stderr).digest('hex'), locations };
         // Full bounded compiler logs stay in declared private generated output, never public docs.
         await writeFile(join(diagnostics, name + '.private.json'), JSON.stringify({ ...receipt, stdout, stderr }) + '\n', { flag: 'wx' });
         console.log(JSON.stringify({ ...receipt, privateReceipt: 'compiler-diagnostics/' + name + '.private.json' }));
-        if (code === 0 && bytes <= 1048576) done(); else reject(Error('Actual ' + name + ' compiler command failed; inspect private receipt'));
+        if (code === 0 && signal === null && bytes <= 1048576) done(); else reject(Error('Actual ' + name + ' compiler command failed; inspect private receipt'));
       } catch (error) { reject(error); }
     });
   });

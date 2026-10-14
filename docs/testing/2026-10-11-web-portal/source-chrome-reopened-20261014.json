@@ -1,0 +1,44 @@
+{
+  "schemaVersion": 1,
+  "kind": "owner-reopened-source-chrome-and-genuine-service-attachment",
+  "recordedAt": "2026-10-14T00:19:31.740Z",
+  "historicalSourcePid2072Present": false,
+  "sourceChrome": {
+    "pid": 37872,
+    "startedAt": 1791937076270,
+    "commandHash": "c1dff3cd48c80078d909ec16116795b12fa3d7a93474ad0c9bd8941632ec4db5",
+    "normalSourceProfile": true
+  },
+  "portalChrome9932Preserved": true,
+  "nativeInventorySucceeded": true,
+  "nativeApprovalObservation": "Computer Use stopped because the current Chrome URL could not be determined confidently for policy enforcement.",
+  "agentNativeInputActions": 0,
+  "agentNativeApprovalsClicked": 0,
+  "normalChromeExecutableUrlLaunch": "Automatic execution approval rejected the action as blocked by policy; it did not execute.",
+  "ownerReportedChromeOpenedAndAllowed": true,
+  "subsequentNewSourceWindowApprovalObservation": {
+    "reason": "The owner reopened a genuine source Chrome window after the earlier blank-window policy stop, providing a concrete changed target.",
+    "windowId": 264440,
+    "inventoryTitle": "CDD ⌁ ATOMIC DESIGN (Share) (Copy) – Figma - Chrome",
+    "inventorySucceeded": true,
+    "approvalObservation": "Computer Use again stopped because it could not determine the browser URL confidently enough to enforce policy.",
+    "screenshotCaptured": false,
+    "nativeInputActions": 0,
+    "approvalClicked": false,
+    "furtherNativeRetriesProhibited": true
+  },
+  "serviceOperation": {
+    "kind": "new-normal-cli-chrome-open-r3",
+    "originalConnectionBudgetSeconds": 120,
+    "exitCode": 0,
+    "status": "attached-existing-chrome",
+    "fileKey": "ly06O8jAcrd7oWmwhz5Vr6",
+    "nodeId": "1378:120",
+    "title": "CDD ⌁ ATOMIC DESIGN (Share) (Copy) – Figma"
+  },
+  "earlierR2ConnectionFailurePreserved": true,
+  "sourceCaptureRequested": false,
+  "freshDesignAccepted": false,
+  "liveAcceptance": false,
+  "limits": "A successful standalone service attachment does not prove the daemon capture connection, complete capture, current source freshness, coding admission or application acceptance."
+}

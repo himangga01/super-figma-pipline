@@ -53,6 +53,8 @@ export function NotesWorkspace({ locale = 'ko', client: suppliedClient }: Props)
     (async () => {
       try {
         const session = await client.session();
+        if (current !== sequence.current) return;
+        setUser(session.user);
         const nextNotes = session.user ? validNotes(await client.list()) : [];
         if (current !== sequence.current) return;
         setUser(session.user); setNotes(nextNotes);
@@ -70,6 +72,8 @@ export function NotesWorkspace({ locale = 'ko', client: suppliedClient }: Props)
     setPassword('');
     execute(async active => {
       const session = await client.login(username.trim(), attemptedPassword);
+      if (!active()) return;
+      setUser(session.user); setNotes([]); setDraft(blank);
       const nextNotes = validNotes(await client.list());
       if (active()) { setUser(session.user); setNotes(nextNotes); setDraft(blank); }
     });
@@ -80,6 +84,10 @@ export function NotesWorkspace({ locale = 'ko', client: suppliedClient }: Props)
     const submitted = { ...draft, title: draft.title.trim() };
     execute(async active => {
       const result = submitted.id ? await client.update(submitted.id, submitted.title, submitted.content) : await client.create(submitted.title, submitted.content);
+      if (!active()) return;
+      // Retain the acknowledged server ID even if refreshing the list fails.
+      setDraft(result.note);
+      setNotes(previous => [result.note, ...previous.filter(note => note.id !== result.note.id)]);
       const nextNotes = validNotes(await client.list());
       if (active()) { setDraft(result.note); setNotes(nextNotes); setNotice(copy.saved); }
     });
@@ -89,13 +97,16 @@ export function NotesWorkspace({ locale = 'ko', client: suppliedClient }: Props)
     const id = deleting.id;
     execute(async active => {
       await client.remove(id);
+      if (!active()) return;
+      setDeleting(null); setNotes(previous => previous.filter(note => note.id !== id));
+      if (draft.id === id) setDraft(blank);
       const nextNotes = validNotes(await client.list());
       if (active()) { setDeleting(null); setNotes(nextNotes); if (draft.id === id) setDraft(blank); setNotice(copy.deleted); titleInput.current?.focus(); }
     });
   }
 
   return <section className="notes-workspace" data-testid="notes-workspace" aria-labelledby="notes-heading" aria-busy={busy}>
-    <header className="notes-heading"><h2 id="notes-heading">{copy.heading}</h2>{user && <div><span>{copy.account}: {user.username}</span><button type="button" disabled={busy} data-testid="notes-logout" onClick={() => execute(async active => { await client.logout(); if (active()) clearPrivateState(); })}>{copy.signOut}</button></div>}</header>
+    <header className="notes-heading"><h2 id="notes-heading">{copy.heading}</h2>{user && <div><span>{copy.account}: {user.username}</span><button type="button" disabled={busy || !ready} data-testid="notes-logout" onClick={() => execute(async active => { await client.logout(); if (active()) clearPrivateState(); })}>{copy.signOut}</button></div>}</header>
     {error && <p ref={alert} tabIndex={-1} role="alert" data-testid="notes-error">{error}</p>}
     <p className="notes-status" role="status" aria-live="polite">{busy ? copy.busy : notice}</p>
     {!ready ? <p>{copy.loading}</p> : !user ? <form onSubmit={signIn} className="notes-login" aria-label={copy.signIn}>

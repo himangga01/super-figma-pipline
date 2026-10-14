@@ -1,5 +1,11 @@
 # C2/C3 continuation plan
 
+## Noon implementation continuation, October 14, 2026
+
+Main `e87cedc` is published; service source remains `e96` and the actual QA runtime now serves its owned `cf24` artifacts after a separately verified state-preservation proof. The owner set 12:00 KST as the new completion target. [The seven-file code receipt](../testing/2026-10-11-web-portal/deadline-1200-code-delta-20261014.json) records the repaired C3 constructor paths, complete child-output finalization, actual C2 admin/missing-Origin harness coverage and C3 acknowledged-state recovery. Minimal changed checks and independent cross-review passed; the new native journeys remain unexecuted.
+
+Current case source roots were rechecked against retained pins without changing the registry. C2/C3 assembly helpers and current code pins are ready for genuine case-specific public facts and coding contexts. Fresh CDD collection returned incomplete after its original browser-connection wait; a real Allow handshake remains pending. No expired issuer, lease, run or captured facts have been reused as current authority. Complete generation, native candidate acceptance, guarded application and applied freshness remain open. Read [the current service report](../service-analysis.md) before further operations; preserve original failures and keep tests limited to affected mandatory gates.
+
 ## Guard integration and bounded build closed, October 14, 2026, 08:08 KST
 
 The bare/nested generated-route alias finding is repaired and independently reviewed. Exact two-file integration passed after runtime preservation settled; R70 reconciliation/all five commands/six metadata syncs established Main/native sourcee96f37b95100645fcfbb8317683c655556219ef920d8c8adf85968914cb2b0f5,287 semantic changes/four authorities and unchanged owner index. Actual-reader-shaped targeted assertions, affected MCP types and lint/format pass. The changed nested-alias assertion alone was rerun; the unchanged second pass remains closed.

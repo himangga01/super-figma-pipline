@@ -1,0 +1,32 @@
+{
+  "schemaVersion": 1,
+  "kind": "new-e96-public-cdd-plan-incomplete-source-outcome",
+  "date": "2026-10-14",
+  "sourceHash": "sha256:e96f37b95100645fcfbb8317683c655556219ef920d8c8adf85968914cb2b0f5",
+  "buildIdentity": "sha256:cf241705ac5ff3d6493bfaf25a3a5dc212d1724777247a6fb4a8042d924eb5a8",
+  "workspaceId": "58351a0a-bfa4-4bc3-bd0f-632e6ed70154",
+  "planId": "sfp_portal1_9a21afcdf013604e33b09c74b57f43ff",
+  "dispatchedAt": "2026-10-14T00:36:42.980Z",
+  "originalSourceOperationBudgetMs": 1800000,
+  "captureFailure": {
+    "code": "DESIGN_CAPTURE_FAILED",
+    "stage": "connection",
+    "type": "timeout-error",
+    "elapsedMs": 300006
+  },
+  "complete": false,
+  "liveVerified": false,
+  "captureArtifactHash": null,
+  "assetManifestHash": null,
+  "publicPlanResultSha256": "b6bf80e274ecbed7e809604e49d805080175638b7a75fe7645cc49692947f778",
+  "latestDaemonBrowserConnection": "awaiting-browser",
+  "nativePromptObservedByAgent": false,
+  "nativeApprovalClickedByAgent": false,
+  "codingLeaseObtained": false,
+  "portalStartRequested": false,
+  "applicationAttempted": false,
+  "originalDeadlinesChanged": false,
+  "operationReplayed": false,
+  "liveAcceptance": false,
+  "limits": "The public plan call returned an incomplete plan. Its successful transport is not a successful capture. The retained connection may still accept manual owner approval, but only actual service readiness can qualify a separate new source request."
+}
