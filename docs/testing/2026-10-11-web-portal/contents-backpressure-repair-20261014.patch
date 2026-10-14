@@ -1,0 +1,76 @@
+diff --git a/service/packages/mcp/src/portal/coordinator.ts b/service/packages/mcp/src/portal/coordinator.ts
+index e0db64e..809d3e6 100644
+--- a/service/packages/mcp/src/portal/coordinator.ts
++++ b/service/packages/mcp/src/portal/coordinator.ts
+@@ -1791,13 +1791,21 @@ export class PortalCoordinator {
+     return publicRun(result);
+   }
+   private async contents(run: PortalRun) {
+-    return Promise.all(
+-      run.files.map(async file => {
+-        const value = await this.store.get('contents', file.contentHash.slice(7), contentSchema);
+-        if (!value || value.hash !== file.contentHash) throw portalError('PORTAL_CONTENT_MISSING');
+-        return { path: file.path, content: value.content, encoding: value.encoding };
+-      }),
+-    );
++    const contents: Array<{ path: string; content: string; encoding: 'utf8' | 'base64' }> = [];
++    // Store reads share the bounded Windows ACL worker. Drain each batch before error settlement.
++    for (let offset = 0; offset < run.files.length; offset += 8) {
++      const results = await Promise.allSettled(
++        run.files.slice(offset, offset + 8).map(async file => {
++          const value = await this.store.get('contents', file.contentHash.slice(7), contentSchema);
++          if (!value || value.hash !== file.contentHash) throw portalError('PORTAL_CONTENT_MISSING');
++          return { path: file.path, content: value.content, encoding: value.encoding };
++        }),
++      );
++      const failure = results.find(result => result.status === 'rejected');
++      if (failure?.status === 'rejected') throw failure.reason;
++      for (const result of results) if (result.status === 'fulfilled') contents.push(result.value);
++    }
++    return contents;
+   }
+   private async validationEvidence(run: PortalRun) {
+     const report = run.validation ?? run.lastValidation;
+diff --git a/service/packages/mcp/test/portal/contents-backpressure.test.ts b/service/packages/mcp/test/portal/contents-backpressure.test.ts
+new file mode 100644
+--- /dev/null
++++ b/service/packages/mcp/test/portal/contents-backpressure.test.ts
+@@ -0,0 +1,38 @@
++import { expect, it } from 'vitest';
++import { PortalCoordinator } from '../../src/portal/coordinator.js';
++import type { PortalRun } from '@sfp/ir';
++
++const contents = PortalCoordinator.prototype as unknown as {
++  contents: (run: PortalRun) => Promise<Array<{ path: string; content: string; encoding: string }>>;
++};
++const run = (count: number) => ({
++  files: Array.from({ length: count }, (_, index) => ({
++    path: `file-${index}.txt`, contentHash: 'sha256:' + index.toString(16).padStart(64, '0'),
++  })),
++}) as unknown as PortalRun;
++
++it('reads actual-sized 75 and larger 100 file candidates below the 64 pending ACL cap in stable order', async () => {
++  for (const count of [75, 100]) {
++    let active = 0, maximum = 0;
++    const store = { get: async (_kind: string, key: string) => {
++      active++; maximum = Math.max(maximum, active);
++      if (active > 64) throw Error('WINDOWS_BOUNDARY_QUEUE_FULL');
++      await new Promise<void>(resolve => setTimeout(resolve, 1)); active--;
++      return { hash: 'sha256:' + key, content: key, encoding: 'utf8' as const };
++    } };
++    const result = await contents.contents.call({ store }, run(count));
++    expect(result.map(file => file.path)).toEqual(run(count).files.map(file => file.path));
++    expect(result).toHaveLength(count); expect(maximum).toBeLessThanOrEqual(8); expect(active).toBe(0);
++  }
++});
++it('drains the failing batch before propagating the original failure and never starts later reads', async () => {
++  const failure = Error('STATE_ACL_COMMAND_FAILED'); let active = 0, started = 0;
++  const store = { get: async (_kind: string, key: string) => {
++    active++; started++;
++    if (Number.parseInt(key, 16) === 0) { active--; throw failure; }
++    await new Promise<void>(resolve => setTimeout(resolve, 5)); active--;
++    return { hash: 'sha256:' + key, content: key, encoding: 'utf8' as const };
++  } };
++  await expect(contents.contents.call({ store }, run(100))).rejects.toBe(failure);
++  expect(active).toBe(0); expect(started).toBe(8);
++});

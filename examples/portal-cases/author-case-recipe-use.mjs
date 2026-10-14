@@ -1,10 +1,33 @@
 import assert from 'node:assert/strict';
 
+/** Derive real named source-component exports and their exact current member consumers. */
+export function deriveCurrentCaseComponentBindings(pages) {
+  const components = [], members = {}, byMapping = new Map(), exports = new Set();
+  for (const page of pages) for (const row of page.rows) if (row.kind === 'mapping' && row.mappingKind === 'component') {
+    assert(typeof row.mappingId === 'string' && row.mappingId && row.material?.value?.figmaComponentName === row.mappingId);
+    const stem = row.mappingId.split(/[^A-Za-z0-9]+/u).filter(Boolean).map(word => word[0].toUpperCase() + word.slice(1)).join('');
+    const exportName = 'Source' + stem + '_' + row.id.slice(-8);
+    assert(/^[A-Za-z][A-Za-z0-9_]*$/u.test(exportName) && !exports.has(exportName)); exports.add(exportName);
+    const binding = { resultId: page.item.resultId, rowId: row.id, componentPath: 'app/design/current-source-components.tsx', exportName, consumerPath: 'app/design/current-source-component-bindings.tsx' };
+    components.push({ ...binding, sourceName: row.mappingId }); byMapping.set(page.item.resultId + '/' + row.id, binding);
+  }
+  for (const page of pages) for (const row of page.rows) if (row.kind === 'mapping-member') {
+    const binding = byMapping.get(page.item.resultId + '/' + row.mappingRowId);
+    if (!binding) continue; // Token/icon association remains producer-verified, not a component export.
+    const value = row.material?.value, nodeId = typeof value === 'string' ? value : value?.nodeId;
+    assert(typeof nodeId === 'string' && nodeId && !Object.hasOwn(members, nodeId));
+    members[nodeId] = { exportName: binding.exportName, props: typeof value === 'object' ? value.props ?? {} : {} };
+  }
+  return { components, members };
+}
+
 /** Computational port of the reviewed current public authoring helper. No prepared authority is emitted. */
 export function authorCurrentCaseRecipeUse({ pages, nodes, nativeNodes, views, catalogs, composition, reviewRationales }) {
   const byId = new Map(nodes.map(node => [node.id, node])), reviews = new Map();
   const capturedRootIds = new Set(Object.values(views).map(view => view.rootId));
   const recipeUse = { version: 1, targets: [], nativeContours: nativeNodes.map(node => ({ nodeId: node.nodeId, representation: 'native-contour' })), components: [], cssVariables: [], assets: [], catalogs: [], reviews: [] };
+  const sourceComponents = deriveCurrentCaseComponentBindings(pages);
+  recipeUse.components = sourceComponents.components.map(({ sourceName, ...binding }) => binding);
   const rect = value => value && ['x', 'y', 'width', 'height'].every(key => Number.isFinite(value[key])) && value.width > 0 && value.height > 0 ? value : null;
   function hidden(node) {
     const rendered = rect(node.properties.absoluteRenderBounds), seen = new Set();
@@ -28,12 +51,23 @@ export function authorCurrentCaseRecipeUse({ pages, nodes, nativeNodes, views, c
       if (inactive) review(page.item, row, 'inactive');
       else {
         assert(node, 'Actual asset row requires current captured node');
-        assert(row.property === 'vector' || row.property === 'fills' || /^\/fills\/\d+$/u.test(row.property), 'Explicit current asset property mapping required');
+        const vectorMaterial = row.property === 'vector-material' && row.query?.kind === 'svg' && row.query.nodeId === node.id && ['VECTOR', 'BOOLEAN_OPERATION'].includes(node.properties.type);
+        assert(vectorMaterial || row.property === 'vector' || row.property === 'fills' || /^\/fills\/\d+$/u.test(row.property), 'Explicit current asset property mapping required');
         recipeUse.assets.push({ nodeId: row.nodeId, property: row.property, usage: composition.heroes.includes(node.id) || composition.videos.includes(node.id) ? 'background-image' : 'img' });
       }
     } else if (['style', 'collection', 'variable', 'token-export'].includes(row.kind)) {
       const catalog = catalogs.find(value => value.resultId === page.item.resultId && value.rowIds.includes(row.id));
       assert(catalog, 'Exact current catalog row missing'); recipeUse.catalogs.push({ resultId: page.item.resultId, rowId: row.id, path: 'public/' + catalog.path });
+    } else if (row.kind === 'source-context') {
+      const value = row.context, member = value?.members?.[value.sourceIndex];
+      assert(value?.mode === 'qualified' && value.complete === true && Number.isSafeInteger(value.sourceIndex) && value.sourceIndex >= 0 && value.sourceIndex <= 8 && Array.isArray(value.issues) && value.issues.length === 0 && member?.sourceId === value.sourceId);
+      for (const field of ['contextHash', 'selectionHash', 'effectivePathsHash', 'requestHash', 'reviewsHash']) assert(/^sha256:[a-f0-9]{64}$/u.test(value[field]));
+      for (const field of ['graphHash', 'inventoryHash', 'rootIdentityHash', 'sourceId']) assert(/^sha256:[a-f0-9]{64}$/u.test(member[field]));
+      // The service alone verifies this qualified context against its actual current plan graph.
+    } else if (row.kind === 'mapping') review(page.item, row, row.mappingKind === 'token' ? 'material' : 'component');
+    else if (row.kind === 'mapping-member') {
+      const value = row.material?.value, nodeId = typeof value === 'string' ? value : value?.nodeId;
+      assert(typeof nodeId === 'string' && byId.has(nodeId), 'Actual current mapping member node required');
     } else if (row.kind === 'strategy') review(page.item, row, 'strategy');
     else if (row.kind === 'obligation') { if (['implement-root', 'construct-component', 'construct-icon'].includes(row.obligation.kind) && node) { if (inactive) review(page.item, row, 'inactive'); } else review(page.item, row, 'strategy'); }
     else if (!['scope', 'asset'].includes(row.kind)) throw Error('Unsupported own current recipe row: ' + row.kind);

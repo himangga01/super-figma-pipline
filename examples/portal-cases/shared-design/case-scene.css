@@ -6,3 +6,5 @@
 .case-captured-control:focus-visible { outline: 2px solid #245dd6; outline-offset: 3px; z-index: 20; }
 .case-placeholder-art { pointer-events: none; }
 .case-email-control { pointer-events: auto; position: absolute; width: 100%; height: 100%; background: transparent; border: 0; border-radius: inherit; color: inherit; font: inherit; }
+.case-language-select { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; }
+.case-captured-node:has(> .case-language-select:focus-visible) { outline: 2px solid #245dd6; outline-offset: 3px; }

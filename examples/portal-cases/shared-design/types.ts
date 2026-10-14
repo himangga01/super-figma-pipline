@@ -1,4 +1,5 @@
 import type { CSSProperties, ReactNode } from 'react';
+export type SourceComponentRenderer = (node: CapturedNode, children: ReactNode) => ReactNode;
 
 export type Color = { r: number; g: number; b: number; a?: number };
 export type Paint = { type: string; visible?: boolean; color?: Color; opacity?: number; imageHash?: string; scaleMode?: string; gradientTransform?: number[][]; gradientStops?: { color: Color; position: number }[] };

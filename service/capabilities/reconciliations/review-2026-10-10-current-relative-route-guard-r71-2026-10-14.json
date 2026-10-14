@@ -1,0 +1,50 @@
+{
+  "schemaVersion": 1,
+  "slice": "review-2026-10-10",
+  "baseline": {
+    "headCommit": "7cccbdbe710740350ec3782264a227d97e807f46",
+    "authoritySha256": {
+      "upstream-lock.json": "3a7722ec81908d05333da8be36e65dfe57d1b4d7de36050977acf2545cd8545d",
+      "vendor-map.json": "b3275c7d8b997d1cfe723d97594659f77d7b4361b824a790bcfdd7ff762589bd",
+      "vendor-rules.json": "fa6e5bc16fdad481c00d2364b8af21413d96d001b496604ef5fb25c585e1be28"
+    }
+  },
+  "entries": [
+    {
+      "path": "capabilities/task-review-2026-10-10-authority-classes.json",
+      "sha256": "1891ca941486d68575b1d08bbe51d57ccf346be2c64f77ab4e2611ca3b1b6f6d",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "f481c63a4f04085161d77684eb47eab750f5ca80b0d679769f180187936cfb6d"
+        },
+        {
+          "class": "protected",
+          "sha256": "f481c63a4f04085161d77684eb47eab750f5ca80b0d679769f180187936cfb6d"
+        }
+      ],
+      "reason": "Register the actual C2 eight generated-route type-only dotted and sibling path repair. Preserve admitted current compiler, rootDirs/origin, exact member/case ambiguity and runtime/bare alias denial; reject root escape. Bounded new matcher checks pass, not full case or whole acceptance. Original expired issuers/deadlines and historical outcomes remain unchanged."
+    },
+    {
+      "path": "packages/mcp/src/portal/module-resolution.ts",
+      "sha256": "c6946eb1b8d547748fedd7181ac10fd4b9d3d52d1644e99b671479bcaae1a1e4",
+      "priorClaims": [
+        {
+          "class": "managed",
+          "sha256": "3b96c00ef17fb0d74ca437be20fc291b73c145ec549d61727a77a698687a63c6"
+        },
+        {
+          "class": "protected",
+          "sha256": "3b96c00ef17fb0d74ca437be20fc291b73c145ec549d61727a77a698687a63c6"
+        }
+      ],
+      "reason": "Register the actual C2 eight generated-route type-only dotted and sibling path repair. Preserve admitted current compiler, rootDirs/origin, exact member/case ambiguity and runtime/bare alias denial; reject root escape. Bounded new matcher checks pass, not full case or whole acceptance. Original expired issuers/deadlines and historical outcomes remain unchanged."
+    },
+    {
+      "path": "packages/mcp/test/portal/generated-route-relative-forms.test.ts",
+      "sha256": "0252f2ce2712c38ff26f0f19c87ec63e95c3ac01f24186049f22e428f0423133",
+      "priorClaims": [],
+      "reason": "Register the actual C2 eight generated-route type-only dotted and sibling path repair. Preserve admitted current compiler, rootDirs/origin, exact member/case ambiguity and runtime/bare alias denial; reject root escape. Bounded new matcher checks pass, not full case or whole acceptance. Original expired issuers/deadlines and historical outcomes remain unchanged."
+    }
+  ]
+}

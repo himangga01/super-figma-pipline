@@ -1096,7 +1096,10 @@ export const resolvePortalModules = (
         compiler &&
         origin === '.' &&
         roots.includes('.react-router/types') &&
-        /^\.\/\+types\/[A-Za-z0-9_$()[\]-]+(?:\.tsx?)?$/u.test(specifier)
+        safe(target) &&
+        /^\.{1,2}\/(?:[A-Za-z0-9_$()[\]-]+\/)*\+types\/[A-Za-z0-9_$()[\]-]+(?:\.[A-Za-z0-9_$()[\]-]+)*$/u.test(
+          specifier,
+        )
       ) {
         const typedTarget = target.endsWith('.ts')
           ? target

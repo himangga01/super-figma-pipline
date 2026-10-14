@@ -4,7 +4,7 @@ import { createHash } from 'node:crypto';
 import assert from 'node:assert/strict';
 import { indexFacts } from './shared-design/facts.ts';
 import { composeSourceLayers } from './shared-design/composition.ts';
-import { authorCurrentCaseRecipeUse } from './author-case-recipe-use.mjs';
+import { authorCurrentCaseRecipeUse, deriveCurrentCaseComponentBindings } from './author-case-recipe-use.mjs';
 const digest = bytes => 'sha256:' + createHash('sha256').update(bytes).digest('hex');
 const jsonHash = value => digest(Buffer.from(JSON.stringify(value)));
 const hash = /^sha256:[a-f0-9]{64}$/u;
@@ -42,7 +42,7 @@ export async function assembleOwnCaseCapsules({ expected, inputs, ownedOutputPar
   assert.equal(design.contextHash, expected.contextHash);
   assert.equal(design.blueprintHash, expected.blueprintHash);
   assert.equal(blueprint.contextHash, expected.contextHash); assert.equal(blueprint.blueprintHash, expected.blueprintHash);
-  assert.deepEqual(design.capture, expected.designCapture);
+  assert.deepEqual(blueprint.design.capture, expected.designCapture);
   assert.deepEqual(material.binding, expected.materialBinding);
   assert.equal(material.binding.deadlineAt, expected.originalDeadlineAt);
   assert.equal(material.binding.planId, expected.planId);
@@ -62,7 +62,25 @@ export async function assembleOwnCaseCapsules({ expected, inputs, ownedOutputPar
     const required = pages.binding.requiredResults.find(row => row.resultId === page.item.resultId);
     assert(required && required.resultHash === page.item.resultHash && required.recipeId === page.item.recipeId, 'Current recipe continuation belongs to required results');
   }
-  assert(pages.binding.requiredResults.every(row => pages.pages.some(page => page.item.resultId === row.resultId && page.item.resultHash === row.resultHash)), 'All current required recipe results present');
+  const zeroResults = [];
+  if (inputs.zeroResult) {
+    const zero = await read('zeroResult');
+    assert.equal(zero.planId, expected.planId); assert.equal(zero.runId, expected.planId);
+    assert.deepEqual(zero.recipes.binding, pages.binding, 'Current zero-result recipe binding changed');
+    assert.equal(zero.recipes.page, null, 'Zero-result export must have no fabricated page');
+    const result = zero.recipes.results.find(row => row.resultId === zero.recipes.selectedResultId);
+    assert(result && result.status === 'succeeded' && result.pages === 0 && result.issues === 0 && result.obligations === 0, 'Only genuine succeeded empty result can have no work page');
+    assert(pages.binding.requiredResults.some(row => row.resultId === result.resultId && row.resultHash === result.resultHash && row.recipeId === result.recipeId));
+    assert(!pages.pages.some(page => page.item.resultId === result.resultId));
+    assert(!zero.recipes.workItems.some(item => item.resultId === result.resultId));
+    zeroResults.push({ recipeId: result.recipeId, resultId: result.resultId, resultHash: result.resultHash, pages: 0, obligations: 0, issues: 0, status: result.status, sourceInput: sourceInputs.zeroResult });
+  }
+  assert(pages.binding.requiredResults.every(row => pages.pages.some(page => page.item.resultId === row.resultId && page.item.resultHash === row.resultHash) || zeroResults.some(result => result.resultId === row.resultId && result.resultHash === row.resultHash)), 'All current required recipe results present or independently proven empty');
+  for (const page of pages.pages) for (const row of page.rows) if (row.kind === 'source-context') {
+    const source = blueprint.services[row.context.sourceIndex];
+    assert(source && source.sourceId === row.context.sourceId && source.sourceIndex === row.context.sourceIndex, 'Current qualified source context must match this own case source');
+    assert.equal(row.context.selectionHash, blueprint.selectedClosure.hash, 'Current qualified source selection changed');
+  }
   assert(hash.test(pages.binding?.bindingHash) && hash.test(pages.binding?.contextHash));
   const evidence = new Set(blueprint.workflowCoverage.evidence.map(row => row.id));
   const decisions = ui.workflow?.plan?.workflowDecisions;
@@ -156,8 +174,9 @@ export async function assembleOwnCaseCapsules({ expected, inputs, ownedOutputPar
   add('public/current-facts.json', JSON.stringify(facts));
   add('current-case-design.json', JSON.stringify({ binding, responsiveBreakpoint, composition, views, sourceOracles: oracles, coreCatalogs: catalogs }, null, 2));
   const recipeUse = authorCurrentCaseRecipeUse({ pages: pages.pages, nodes, nativeNodes: material.nodes, views, catalogs, composition, reviewRationales });
+  add('current-source-component-bindings.json', JSON.stringify(deriveCurrentCaseComponentBindings(pages.pages), null, 2));
   add('recipe-use-input.json', JSON.stringify(recipeUse, null, 2));
-  const manifest = { schemaVersion: 1, kind: 'own-case-current-capsule-materialization', sourceRuntimeHash: expected.sourceRuntimeHash, binding, files: pending.map(row => ({ path: row.path, bytes: row.bytes.length, sha256: digest(row.bytes), encoding: /\.(?:png|gif|jpe?g|woff2?)$/u.test(row.path) ? 'base64' : 'utf8' })), assetReferences: references, sourceInputHashes: sourceInputs, rootPngUiProxies: false, oldDataOrAssetsCopied: false, leaseOrAuthCopied: false, serviceAcceptance: false, preparedCoreConsumptionClaim: false };
+  const manifest = { schemaVersion: 1, kind: 'own-case-current-capsule-materialization', sourceRuntimeHash: expected.sourceRuntimeHash, binding, files: pending.map(row => ({ path: row.path, bytes: row.bytes.length, sha256: digest(row.bytes), encoding: /\.(?:png|gif|jpe?g|woff2?)$/u.test(row.path) ? 'base64' : 'utf8' })), assetReferences: references, sourceInputHashes: sourceInputs, zeroResults, rootPngUiProxies: false, oldDataOrAssetsCopied: false, leaseOrAuthCopied: false, serviceAcceptance: false, preparedCoreConsumptionClaim: false };
   // Validate everything before creating the owned output. Captured oracles are metadata only, never UI.
   assert(Date.now() < expected.originalDeadlineAt, 'Original own-case deadline expired during materialization');
   await mkdir(output); for (const row of pending) { await mkdir(join(output, row.path, '..'), { recursive: true }); await writeFile(join(output, row.path), row.bytes, { flag: 'wx' }); }

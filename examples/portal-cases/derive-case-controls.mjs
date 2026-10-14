@@ -4,11 +4,12 @@ import assert from 'node:assert/strict';
 export function deriveCurrentCaseLandingControls(nodes) {
   const byId = new Map(nodes.map(node => [node.id, node]));
   const descendants = node => [node, ...node.childIds.flatMap(id => descendants(byId.get(id)))];
-  const controls = { signIn: [], home: [], forms: [], submits: [], emails: {} };
+  const controls = { signIn: [], home: [], forms: [], submits: [], emails: {}, languages: [] };
   for (const node of nodes) {
     const name = node.properties.name ?? '';
     if (/button/iu.test(name) && descendants(node).some(child => child.properties.type === 'TEXT' && /^(?:로그인|sign\s*in)$/iu.test(child.properties.characters?.trim() ?? ''))) controls.signIn.push(node.id);
     if (/logo/iu.test(name)) controls.home.push(node.id);
+    if (/^select$/iu.test(name.trim())) controls.languages.push(node.id);
     if (/button/iu.test(name) && /arrow/iu.test(name)) controls.submits.push(node.id);
     if (/input/iu.test(name)) {
       const texts = node.childIds.map(id => byId.get(id)).filter(child => child.properties.type === 'TEXT');
@@ -20,6 +21,7 @@ export function deriveCurrentCaseLandingControls(nodes) {
     return true;
   });
   controls.signIn = outermost(controls.signIn); controls.home = outermost(controls.home); controls.submits = outermost(controls.submits);
+  controls.languages = outermost(controls.languages);
   for (const input of Object.keys(controls.emails)) {
     let at = byId.get(input)?.parentId ? byId.get(byId.get(input).parentId) : undefined;
     const seen = new Set();

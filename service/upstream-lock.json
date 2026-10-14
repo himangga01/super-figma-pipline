@@ -86,7 +86,7 @@
       },
       {
         "path": "capabilities/change-manifests/task-review-2026-10-10.json",
-        "sha256": "829f4c366e12739c48eb077a7c8d47f359ff12e262601dee4a95867c552e65b8"
+        "sha256": "b27ab3aa9f4584b64428c5c77e1cb1799a1d3de710553b34e447c871907170e9"
       },
       {
         "path": "capabilities/figmosha-feature-map.json",
@@ -215,6 +215,10 @@
       {
         "path": "capabilities/reconciliations/review-2026-10-10-consent-entry-and-oauth-schema-knip-2026-10-13.json",
         "sha256": "b50f775c6794aa62030cd51006d22ce52d428faddedf5089aad7ec2ed10c44dc"
+      },
+      {
+        "path": "capabilities/reconciliations/review-2026-10-10-current-relative-route-guard-r71-2026-10-14.json",
+        "sha256": "0b29a4bdeac40c9b9826ba83d44b67ece034f1923d848129208ed020e8c76ed8"
       },
       {
         "path": "capabilities/reconciliations/review-2026-10-10-diagnostics-chrome-2026-10-12.json",
@@ -422,7 +426,7 @@
       },
       {
         "path": "capabilities/task-review-2026-10-10-authority-classes.json",
-        "sha256": "f481c63a4f04085161d77684eb47eab750f5ca80b0d679769f180187936cfb6d"
+        "sha256": "1891ca941486d68575b1d08bbe51d57ccf346be2c64f77ab4e2611ca3b1b6f6d"
       },
       {
         "path": "capabilities/union-manifest.json",
@@ -878,7 +882,7 @@
       },
       {
         "path": "packages/mcp/src/portal/module-resolution.ts",
-        "sha256": "3b96c00ef17fb0d74ca437be20fc291b73c145ec549d61727a77a698687a63c6"
+        "sha256": "c6946eb1b8d547748fedd7181ac10fd4b9d3d52d1644e99b671479bcaae1a1e4"
       },
       {
         "path": "packages/mcp/src/portal/native-artifacts.ts",
@@ -2259,6 +2263,10 @@
       {
         "path": "packages/mcp/test/portal/generated-route-alias-runtime.test.ts",
         "sha256": "f8b46a075c4e372542fb2675aafed661d65003777fb631cd083f3a6dd59c93a0"
+      },
+      {
+        "path": "packages/mcp/test/portal/generated-route-relative-forms.test.ts",
+        "sha256": "0252f2ce2712c38ff26f0f19c87ec63e95c3ac01f24186049f22e428f0423133"
       },
       {
         "path": "packages/mcp/test/portal/interaction-evidence.test.ts",
@@ -3653,7 +3661,7 @@
     },
     {
       "path": "capabilities/change-manifests/task-review-2026-10-10.json",
-      "sha256": "829f4c366e12739c48eb077a7c8d47f359ff12e262601dee4a95867c552e65b8"
+      "sha256": "b27ab3aa9f4584b64428c5c77e1cb1799a1d3de710553b34e447c871907170e9"
     },
     {
       "path": "capabilities/figmosha-feature-map.json",
@@ -3782,6 +3790,10 @@
     {
       "path": "capabilities/reconciliations/review-2026-10-10-consent-entry-and-oauth-schema-knip-2026-10-13.json",
       "sha256": "b50f775c6794aa62030cd51006d22ce52d428faddedf5089aad7ec2ed10c44dc"
+    },
+    {
+      "path": "capabilities/reconciliations/review-2026-10-10-current-relative-route-guard-r71-2026-10-14.json",
+      "sha256": "0b29a4bdeac40c9b9826ba83d44b67ece034f1923d848129208ed020e8c76ed8"
     },
     {
       "path": "capabilities/reconciliations/review-2026-10-10-diagnostics-chrome-2026-10-12.json",
@@ -3989,7 +4001,7 @@
     },
     {
       "path": "capabilities/task-review-2026-10-10-authority-classes.json",
-      "sha256": "f481c63a4f04085161d77684eb47eab750f5ca80b0d679769f180187936cfb6d"
+      "sha256": "1891ca941486d68575b1d08bbe51d57ccf346be2c64f77ab4e2611ca3b1b6f6d"
     },
     {
       "path": "capabilities/union-manifest.json",
@@ -4957,7 +4969,7 @@
     },
     {
       "path": "packages/mcp/src/portal/module-resolution.ts",
-      "sha256": "3b96c00ef17fb0d74ca437be20fc291b73c145ec549d61727a77a698687a63c6"
+      "sha256": "c6946eb1b8d547748fedd7181ac10fd4b9d3d52d1644e99b671479bcaae1a1e4"
     },
     {
       "path": "packages/mcp/src/portal/native-artifacts.ts",
@@ -6338,6 +6350,10 @@
     {
       "path": "packages/mcp/test/portal/generated-route-alias-runtime.test.ts",
       "sha256": "f8b46a075c4e372542fb2675aafed661d65003777fb631cd083f3a6dd59c93a0"
+    },
+    {
+      "path": "packages/mcp/test/portal/generated-route-relative-forms.test.ts",
+      "sha256": "0252f2ce2712c38ff26f0f19c87ec63e95c3ac01f24186049f22e428f0423133"
     },
     {
       "path": "packages/mcp/test/portal/interaction-evidence.test.ts",
@@ -8005,7 +8021,7 @@
     },
     {
       "path": "vendor-rules.json",
-      "sha256": "fa6e5bc16fdad481c00d2364b8af21413d96d001b496604ef5fb25c585e1be28"
+      "sha256": "fec38d5d19510eadc20620fc3e91df0a6d9b09d9ac958b9fe6af6db3edf7ee2c"
     },
     {
       "path": "vitest.config.ts",

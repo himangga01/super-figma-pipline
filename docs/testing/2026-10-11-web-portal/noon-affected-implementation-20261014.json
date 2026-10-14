@@ -1,0 +1,90 @@
+{
+  "schemaVersion": 1,
+  "kind": "noon-affected-implementation-checks",
+  "recordedAt": "2026-10-14T02:42:40.5373787Z",
+  "sourceBaseline": "7cccbdbe710740350ec3782264a227d97e807f46",
+  "files": [
+    {
+      "path": "examples/portal-cases/assemble-case-capsules.mjs",
+      "sha256": "sha256:ef28288b9f0acf61d96d06b3a538a19ce91019440eb8d475e6431116a4afd7c2"
+    },
+    {
+      "path": "examples/portal-cases/author-case-recipe-use.mjs",
+      "sha256": "sha256:94e1856c085b76f48748915cbbe7f74e6ec54aac45ab9e93b2f05ebcfec5c5d2"
+    },
+    {
+      "path": "examples/portal-cases/compose-case-candidate.mjs",
+      "sha256": "sha256:04fa5c1b92a7c6bd84aa4ca104c69e7362a94517ca410f595d982ffde4ed633a"
+    },
+    {
+      "path": "examples/portal-cases/derive-case-controls.mjs",
+      "sha256": "sha256:b2f534fa9f3c0e50722b43f9b1499e3b804687e9ba0037b02af421563c9cf4fd"
+    },
+    {
+      "path": "examples/portal-cases/shared-design/BoundCaseDesign.tsx",
+      "sha256": "sha256:65208bf42ba584aaaf982500110310ae6622d5c000418eb435cbbc99315e9553"
+    },
+    {
+      "path": "examples/portal-cases/shared-design/CaseScene.tsx",
+      "sha256": "sha256:4677ae482ed4288c4e994bf70b406999dfca05cc03d5093104e60b579621cc3e"
+    },
+    {
+      "path": "examples/portal-cases/shared-design/case-scene.css",
+      "sha256": "sha256:1b9efdf8198328f96c809ea5b82eda5cd2440e58b4c36c5e55c2c8695d9cdff1"
+    },
+    {
+      "path": "examples/portal-cases/shared-design/types.ts",
+      "sha256": "sha256:999e5f377e41f2af3947d4348994b2fc7f705504591327a323757d2ba49b008f"
+    },
+    {
+      "path": "examples/portal-cases/shared-design/locale.ts",
+      "sha256": "sha256:1c600122b414835a5464e34f22ef061744240a8d80448dbf0eb020e7f13b7e3d"
+    },
+    {
+      "path": "examples/portal-cases/standalone-native-profile.mjs",
+      "sha256": "sha256:f762668c00ea1eebf4cb89e9a5bf69a01f5b8aa5dde69cdd33765abbdd80970b"
+    },
+    {
+      "path": "service/packages/mcp/src/portal/module-resolution.ts",
+      "sha256": "sha256:c6946eb1b8d547748fedd7181ac10fd4b9d3d52d1644e99b671479bcaae1a1e4"
+    },
+    {
+      "path": "service/packages/mcp/test/portal/generated-route-relative-forms.test.ts",
+      "sha256": "sha256:0252f2ce2712c38ff26f0f19c87ec63e95c3ac01f24186049f22e428f0423133"
+    }
+  ],
+  "checks": [
+    "Actual current capture guard: two new rejection groups passed; genuine CDD materialization and actual applied acceptance passed separately.",
+    "Actual vector-material guard: two new rejection groups passed; current source-node matching required.",
+    "Public native constructor: one three-assertion output-schema group passed; public owner omitted.",
+    "Current locale: five changed DOM assertions and affected shared strict noEmit typing passed.",
+    "Current source component glue: affected strict typing and changed generator syntax passed; current C3 assembly/submission is separate.",
+    "C2 route matcher: eight actual producer forms passed; changed denial group passed without repeating the closed positive group.",
+    "Final C2 affected MCP noEmit typecheck passed in separate source copy after correcting missing package dependency junctions.",
+    "Final C2 two-file lint and formatting passed after removing only extra assertion-message arguments and formatting."
+  ],
+  "failuresPreserved": [
+    "Initial isolated route fixture setup executed zero assertions.",
+    "Initial negative fixture incorrectly included an unrelated generic generated-module alias; only the corrected negative group was rerun.",
+    "Initial affected typecheck failed because other packages lacked dependency junctions; the retry adds read-only dependency links only.",
+    "Initial lint rejected two-argument expect hints; formatting check also failed. Only those failed static checks were repeated."
+  ],
+  "protection": "Separate regular source copy; installed dependencies shared through junctions and used read-only; same-account controls with no OS/network sandbox.",
+  "closedPassingChecksRepeated": false,
+  "whole": false,
+  "compilerAuthorityIssuedByFixtures": false,
+  "servingSource": "e96f37b9",
+  "servingBuild": "cf241705",
+  "newCodeDeployed": false,
+  "liveC2Complete": false,
+  "liveC3Complete": false,
+  "cddAcceptance": "docs/testing/2026-10-11-web-portal/cdd-e96-current-applied-acceptance-20261014.json",
+  "limits": "This receipt binds source implementation and bounded checks. CDD is completed through its separate actual applied receipt. Current C3 native/application is pending, and fresh C2 release/compiler/selection/application are pending.",
+  "finalSourceReview": {
+    "reviewedAt": "2026-10-14T02:57:06.7440535Z",
+    "reviewer": "Independent SOL frontend delegate",
+    "scope": "Read-only final matcher and targeted test hashes c6946eb1/0252f2ce",
+    "actionableFindings": 0,
+    "newTestsOrSourceWrites": false
+  }
+}

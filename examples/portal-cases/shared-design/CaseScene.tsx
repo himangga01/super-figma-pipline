@@ -4,7 +4,7 @@ import { normalizeGlyphPath } from './facts';
 import { cssColor, gradient, nodeStyle, textStyle } from './style';
 import { sourceBackdrop } from './composition';
 import type { Composition } from './composition';
-import type { CapturedAsset, CapturedNode, ControlRenderer, IndexedFacts, Paint } from './types';
+import type { CapturedAsset, CapturedNode, ControlRenderer, IndexedFacts, Paint, SourceComponentRenderer } from './types';
 import './case-scene.css';
 
 type DecodedFrame = { image: CanvasImageSource & { close(): void } };
@@ -69,7 +69,7 @@ export function CapturedText({ node, facts }: { node: CapturedNode; facts: Index
   </svg>;
 }
 
-export function SceneNode({ id, facts, composition, renderControl, isRoot = false }: { id: string; facts: IndexedFacts; composition: Composition; renderControl: ControlRenderer; isRoot?: boolean }) {
+export function SceneNode({ id, facts, composition, renderControl, wrapNode, isRoot = false }: { id: string; facts: IndexedFacts; composition: Composition; renderControl: ControlRenderer; wrapNode?: SourceComponentRenderer; isRoot?: boolean }) {
   const node = facts.nodeIndex[id];
   if (!node) throw Error('OWN_CASE_NODE_REQUIRED');
   const p = node.properties;
@@ -85,9 +85,9 @@ export function SceneNode({ id, facts, composition, renderControl, isRoot = fals
     if (!p.absoluteBoundingBox || !receiver.properties.absoluteBoundingBox) throw Error('OWN_CASE_COMPOSITE_BOUNDS_REQUIRED');
     style.left = p.absoluteBoundingBox.x - receiver.properties.absoluteBoundingBox.x; style.top = p.absoluteBoundingBox.y - receiver.properties.absoluteBoundingBox.y;
   }
-  const children = composition.children[id].map(child => <SceneNode key={child} id={child} facts={facts} composition={composition} renderControl={renderControl} />);
+  const children = composition.children[id].map(child => <SceneNode key={child} id={child} facts={facts} composition={composition} renderControl={renderControl} wrapNode={wrapNode} />);
   const control = renderControl({ node, style, children });
-  if (control !== undefined) return <>{control}</>;
+  if (control !== undefined) return <>{wrapNode ? wrapNode(node, control) : control}</>;
   const common = { 'data-sfp-node': id, 'data-sfp-root': isRoot ? id : undefined, 'data-sfp-type': p.type, 'data-source-name': p.name, className: 'case-captured-node' };
   if (p.type === 'TEXT') return <span {...common} style={style}><CapturedText node={node} facts={facts} /></span>;
   if (p.type === 'VECTOR') { const asset = facts.vectorAssets[id]; if (!asset) throw Error('OWN_CASE_VECTOR_REQUIRED'); return <img {...common} style={{ ...style, backgroundColor: 'transparent' }} src={'/' + asset.path} data-sfp-vector={id} alt="" draggable={false} />; }
@@ -110,11 +110,12 @@ export function SceneNode({ id, facts, composition, renderControl, isRoot = fals
     }
   }
   const Tag = isRoot ? 'main' : 'div';
-  return <Tag {...common} style={style}><PaintLayers node={node} facts={facts} />{children}</Tag>;
+  const element = <Tag {...common} style={style}><PaintLayers node={node} facts={facts} />{children}</Tag>;
+  return <>{wrapNode ? wrapNode(node, element) : element}</>;
 }
 
 /** Responsive rules and current roots are supplied by the actual case design binding. */
-export function CaseScene({ facts, composition, desktopView, mobileView, breakpoint, fixedView, renderControl }: { facts: IndexedFacts; composition: Composition; desktopView: string; mobileView: string; breakpoint: number; fixedView?: string; renderControl: ControlRenderer }) {
+export function CaseScene({ facts, composition, desktopView, mobileView, breakpoint, fixedView, renderControl, wrapNode }: { facts: IndexedFacts; composition: Composition; desktopView: string; mobileView: string; breakpoint: number; fixedView?: string; renderControl: ControlRenderer; wrapNode?: SourceComponentRenderer }) {
   const [width, setWidth] = useState<number | null>(null);
   const ref = useRef<HTMLDivElement | null>(null), [ready, setReady] = useState(false);
   useEffect(() => { const listener = () => setWidth(window.innerWidth); listener(); window.addEventListener('resize', listener); return () => window.removeEventListener('resize', listener); }, []);
@@ -134,7 +135,7 @@ export function CaseScene({ facts, composition, desktopView, mobileView, breakpo
   const scale = fixedView || width === null ? 1 : Math.min(1, width / scene.width);
   const wrapper: CSSProperties = { width: scene.width * scale, height: scene.contentHeight * scale, position: 'relative', margin: '0 auto' };
   return <div ref={ref} className="case-scene" data-case={facts.binding.caseId} data-plan-id={facts.binding.planId} data-view={view} data-own-current-facts="true" data-current-facts-ready={String(ready)}>
-    <div style={wrapper} data-source-root-wrapper={scene.rootId}><div style={{ transform: `scale(${scale})`, transformOrigin: 'top left', width: scene.width }}><SceneNode key={view} id={scene.rootId} facts={facts} composition={composition} renderControl={renderControl} isRoot /></div></div>
+    <div style={wrapper} data-source-root-wrapper={scene.rootId}><div style={{ transform: `scale(${scale})`, transformOrigin: 'top left', width: scene.width }}><SceneNode key={view} id={scene.rootId} facts={facts} composition={composition} renderControl={renderControl} wrapNode={wrapNode} isRoot /></div></div>
   </div>;
 }
 

@@ -1,0 +1,44 @@
+{
+  "schemaVersion": 1,
+  "recordedAt": "2026-10-14T03:34:43.147Z",
+  "kind": "reviewed-unintegrated-contents-backpressure-patch",
+  "serviceBaseline": "sha256:5f04867c60a7d1fa8b0e1cf6cbb79c750d96ff2ae84e450046737fcc1acfa075",
+  "patch": "docs/testing/2026-10-11-web-portal/contents-backpressure-repair-20261014.patch",
+  "patchSha256": "0cf5224dbce2469cd3dcf9c6f57f8b83ed72183c665c845cdc50e863fb30f1bc",
+  "dryApplyCheck": "passed",
+  "source": {
+    "path": "service/packages/mcp/src/portal/coordinator.ts",
+    "beforeSha256": "97be904a81a1873e19160c47e79abffc22bcbc9a19db47253498c4a125d66f39",
+    "afterSha256": "28080e939a8822650121fa194411861d9628648ac9616037828e8f97d99d1b8d"
+  },
+  "test": {
+    "path": "service/packages/mcp/test/portal/contents-backpressure.test.ts",
+    "sha256": "8f0b3f3450e6938f50854cac0e9e6fa027c0d13a413c47cfc68c1aef3baee863"
+  },
+  "checks": {
+    "targetedGroups": 2,
+    "failed": 0,
+    "actualSizedCandidates": [
+      75,
+      100
+    ],
+    "maximumReadsPerInvocation": 8,
+    "failureBatchDrained": true,
+    "originalFailureIdentityPreserved": true,
+    "noLaterReadsAfterFailure": true
+  },
+  "targetedReportSha256": "11f06bb9511831d7a2453d6e14be6018fc2ab9f406b0fda99dae8c19b8d6db00",
+  "independentReview": {
+    "actionableFindings": 0,
+    "sourceWrites": false,
+    "additionalTests": false
+  },
+  "finalTypeOnlyFixtureCorrection": "The executed groups precede an erased type-import/cast correction. Runtime meaning is unchanged; no passed groups were repeated.",
+  "limits": "Per-invocation bound, not a global scheduler. Computational fixture results do not establish actual Windows or service acceptance. Historical STATE_ACL_COMMAND_FAILED is preserved; the original inner queue error was not retained.",
+  "integratedIntoMain": false,
+  "built": false,
+  "deployed": false,
+  "whole": false,
+  "nativeAcceptance": false,
+  "next": "Apply the patch after baseline verification; run affected typing/lint/format, new source reconciliation and MCP/CLI build. Use fresh service authority and normal recovery; never reset the failed run by editing state."
+}

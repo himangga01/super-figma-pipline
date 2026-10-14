@@ -6,7 +6,7 @@ const hash = /^sha256:[a-f0-9]{64}$/u;
 const bootstrap = 'const pipe=process.env.SFP_NATIVE_PREVIEW_PIPE,token=process.env.SFP_NATIVE_PREVIEW_TOKEN;delete process.env.SFP_NATIVE_PREVIEW_PIPE;delete process.env.SFP_NATIVE_PREVIEW_TOKEN;import(process.env.SFP_PORTAL_VALIDATOR_URL).then(m=>m.runNativePreviewWorker({pipe,token})).catch(e=>{process.stderr.write(String(e.code||e.message));process.exitCode=1})';
 
 /** Return actual raw registration input. Service preparation supplies immutable artifact/grant authority. */
-export async function createNativeCaseProfile({ caseId, root, ownerId, planId, contextHash, sourceHash, closure, nodeExecutable, chromeExecutable, externalArtifacts, previewSpec, requirementIds, sourceReviews = [], recipeUse, port, notesRoute = '/notes', dependencySharedRoot, dependencyLocalRoot }) {
+export async function createNativeCaseProfile({ caseId, root, ownerId, planId, contextHash, sourceHash, closure, nodeExecutable, chromeExecutable, externalArtifacts, previewSpec, requirementIds, sourceReviews = [], recipeUse, port, notesRoute = '/notes', dependencySharedRoot, dependencyLocalRoot, includeOwner = false }) {
   if (!['c2', 'c3'].includes(caseId) || !ownerId || !planId || !hash.test(contextHash) || !hash.test(sourceHash) || !Array.isArray(closure) || !closure.length || !Array.isArray(externalArtifacts) || !externalArtifacts.length) throw Error('Actual current registration and artifact bindings required');
   if (!isAbsolute(nodeExecutable) || !isAbsolute(chromeExecutable) || !Number.isInteger(port) || port < 1024 || port > 65535) throw Error('Actual executable and owned loopback port required');
   if (!previewSpec?.manifest || !previewSpec?.interactionContract || new URL(previewSpec.baseUrl).origin !== 'http://127.0.0.1:' + port) throw Error('Actual source-bound service preview manifest/contract required');
@@ -33,7 +33,7 @@ export async function createNativeCaseProfile({ caseId, root, ownerId, planId, c
   const inner = command => ({ ...command, cwd: prefix });
   const assertion = (commandId, kind, requirementIds) => ({ commandId, check: { id: caseId + '-' + kind, kind, requirementIds, required: true } });
   return {
-    schemaVersion: 1, sourceAuthorityVersion: 2, ownerId, planId, contextHash, purpose: 'acceptance', sourceReviews,
+    schemaVersion: 1, sourceAuthorityVersion: 2, ...(includeOwner ? { ownerId } : {}), planId, contextHash, purpose: 'acceptance', sourceReviews,
     native: {
       schemaVersion: 1, sourceAuthorityVersion: 2, id: caseId + '-native-' + randomUUID(), executionMode: 'native-working-copy', environmentKind: 'disposable-test', sourceHash, closure,
       resources: [{ id: caseId + '-app-data', provider: 'owned-sqlite', binding: 'DATABASE_PATH', actions: ['read', 'write', 'create'] }, ...(c2 ? [{ id: 'c2-cache-data', provider: 'owned-sqlite', binding: 'CACHE_DATABASE_PATH', actions: ['read', 'write', 'create'] }] : [])],

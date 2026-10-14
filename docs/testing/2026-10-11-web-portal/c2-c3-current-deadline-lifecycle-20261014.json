@@ -1,0 +1,99 @@
+{
+  "kind": "actual-c2-c3-current-deadline-lifecycle",
+  "recordedAt": "2026-10-14T03:28:38.669Z",
+  "ownerCompletionDeadline": "2026-10-14T12:30:00+09:00",
+  "cddClosedAndNotRepeated": true,
+  "c2": {
+    "sourceHash": "sha256:5f04867c60a7d1fa8b0e1cf6cbb79c750d96ff2ae84e450046737fcc1acfa075",
+    "buildIdentity": "sha256:fd4729a42584bfc24c5828319a4b9e8efa336e47263d0303cf8e768e77724d53",
+    "daemon": {
+      "pid": 36652,
+      "commandHash": "d3e0c6d99c06bf097c734b698582d4f4942e4436257067414097e39d7dcee25f",
+      "startedAt": 1791948214065,
+      "executable": "C:\\Program Files\\nodejs\\node.exe"
+    },
+    "port": 3061,
+    "freshNamespace": true,
+    "priorStatePolicyOrIssuerCopied": false,
+    "releaseSealed": false,
+    "normalFreshModelGrant": {
+      "classes": [
+        "public",
+        "project-code",
+        "design-text",
+        "design-image"
+      ],
+      "expiresAt": "2026-10-14T11:25:02.004Z"
+    },
+    "actualWorkspaceId": "15a305a5-39bc-4391-ba0e-6677c24b9049",
+    "sourcePlanOrCompilerStarted": false,
+    "liveCaseAcceptance": false
+  },
+  "c3": {
+    "runningSourceHash": "sha256:e96f37b95100645fcfbb8317683c655556219ef920d8c8adf85968914cb2b0f5",
+    "runningBuildIdentity": "sha256:cf241705ac5ff3d6493bfaf25a3a5dc212d1724777247a6fb4a8042d924eb5a8",
+    "sourcePreparationPlanId": "sfp_portal1_9b24285c85d7df8aed1b0c5fb347c5a2",
+    "sourceOriginalDeadlineAt": 1791949567160,
+    "sourceNativeStatus": "ready",
+    "sourceGeneratedFiles": 17,
+    "compilerEvidenceHash": "sha256:4d93e804c767fa504e42fab6fefbc1294f01ea8f27878fdae61ca2ec1cf7af02",
+    "qualifiedPlanId": "sfp_portal1_c081cc398b8433b5d858d2c97de20835",
+    "qualifiedOriginalDeadlineAt": 1791950266169,
+    "candidateHash": "sha256:0af72e9ceedaac09ea2b391dd9157908f20784c9fed7061b4156fb5e763df2d0",
+    "candidateFiles": 75,
+    "coreDeclarations": 8,
+    "nativeProfileId": "c3-native-0727fe05-d215-4edd-84eb-31c5b5567e27",
+    "nativePreparation": "passed",
+    "normalNativeRegistration": "passed",
+    "consumption": {
+      "status": "ready",
+      "pages": 8,
+      "rows": 1195,
+      "checks": 1747
+    },
+    "nativeValidation": {
+      "status": "failed",
+      "errorCode": "STATE_ACL_COMMAND_FAILED",
+      "settledAt": "2026-10-14T03:10:13.088Z",
+      "environmentAttemptCreated": false,
+      "commandAcceptanceExecuted": false,
+      "coordinatorState": "validating-candidate"
+    },
+    "targetPath": "generated-portal-r5",
+    "targetAbsentAtReadOnlyObservation": true,
+    "appliedHash": null,
+    "applicationAcceptance": false,
+    "earlierAeePreparedFailure": {
+      "errorCode": "PORTAL_COMPILER_EVIDENCE_EXPIRED",
+      "oldCompilerEvidence": "02dee17bdb2eb6b77f5aa896fcec7fa15c51df89fd78a5ff13336d9a03c2f133",
+      "oldSourceOriginalDeadlineAt": 1791944554641,
+      "oldCandidateHash": "sha256:b39020304780bb37e5e2788da7c9a0bd7abbb5d7c3ddb246a4c1ff3894d49c46",
+      "outcomePreserved": true
+    },
+    "capacityDiagnosis": {
+      "implementedRead": "coordinator.contents uses unbounded Promise.all over candidate files",
+      "actualCandidateFiles": 75,
+      "fixedWindowsProbeMaxPending": 64,
+      "innerHistoricalCauseNotRecorded": true,
+      "structuralCauseEstablished": true,
+      "separateCurrentReadOnlyAclProbePassed": true,
+      "productionFixAndActualAcceptancePending": true
+    }
+  },
+  "preserved": {
+    "qaDaemonPid": 27132,
+    "qaPortalPid": 27512,
+    "sourceChromePid": 37872,
+    "portalChromePid": 9932,
+    "primaryUntouched": true,
+    "failedOperationsAndOriginalDeadlinesPreserved": true,
+    "automaticReplay": false
+  },
+  "privateEvidenceHashes": {
+    "newRuntime": "49d46ea608967ec9cf9c8c2b3afeef039b5e31f4ca3542cbbac3ef6bfe047c83",
+    "sourceNative": "6e4c0ed8316381a248d726fc8a01df9c26038fbe2959bb9d98ec3f434803c9d1",
+    "candidate": "1b2a03dc21e7a9e499b95d7c3f60cd2aa2a96f4735b99efd52d096be969fa357",
+    "nativeFailureRecord": "403c136f61429904a920581e0386b90ab15264332bde25b27548868edb6e1bbb",
+    "postFailureStatus": "921bc4fc6f1de347160e1ffc2997ff45a1f3bd36d50d0610ba4266b705e2e534"
+  }
+}

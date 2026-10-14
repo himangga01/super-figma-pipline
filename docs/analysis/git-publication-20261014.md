@@ -1,5 +1,11 @@
 # Current-source Main publication
 
+## Owner-requested noon wrap snapshot
+
+The owner requested wrapping work and preserving detailed prioritized tasks for continuation. This snapshot starts from Main `7cccbdbe710740350ec3782264a227d97e807f46` and includes reviewed case helper/rendering changes, the C2 route matcher/test, R71 source metadata, safe actual CDD/C2/C3 evidence and [the detailed handoff](../handoff/2026-10-14-deadline-continuation.md). Current service fingerprint is `5f04867c60a7d1fa8b0e1cf6cbb79c750d96ff2ae84e450046737fcc1acfa075`. The reviewed contents backpressure repair is stored as a portable patch and receipt; it is not applied to Main or serving binaries. No private state, grant/capsule/session, captured data, database, dependency directory or archive binary is included.
+
+Normal Main commit/push remains authorized despite unfinished C2/C3 acceptance. CDD is completed; C3 validation failed on state ACL checks and remains unapplied; new independent R71 daemon preparation is not C2 acceptance. The12:30 complete outcome was not met. Record actual publication in Git history and verify the remote ref; publication does not change those acceptance limits or authorize replaying old helpers. The latest handoff, service analysis and AGENTS supersede the dated baselines below.
+
 Date: October 14, 2026 (Asia/Seoul).
 
 The owner explicitly requested committing and pushing the current code to `main`.

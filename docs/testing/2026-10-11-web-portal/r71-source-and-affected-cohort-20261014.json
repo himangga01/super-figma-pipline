@@ -1,0 +1,323 @@
+{
+  "schemaVersion": 1,
+  "recordedAt": "2026-10-14T03:35:56.3363079Z",
+  "kind": "current-r71-source-and-affected-cohort",
+  "sourceHash": "sha256:5f04867c60a7d1fa8b0e1cf6cbb79c750d96ff2ae84e450046737fcc1acfa075",
+  "buildInfo": {
+    "schemaVersion": 1,
+    "buildId": 1791202532000,
+    "identity": "sha256:fd4729a42584bfc24c5828319a4b9e8efa336e47263d0303cf8e768e77724d53"
+  },
+  "mainMetadataIntegrated": true,
+  "sourceFingerprintIndependentlyMatched": true,
+  "frozenSourcePreimagesVerified": 1366,
+  "metadata": [
+    {
+      "path": "capabilities/task-review-2026-10-10-authority-classes.json",
+      "beforeSha256": "f481c63a4f04085161d77684eb47eab750f5ca80b0d679769f180187936cfb6d",
+      "afterSha256": "1891ca941486d68575b1d08bbe51d57ccf346be2c64f77ab4e2611ca3b1b6f6d",
+      "bytes": 19302
+    },
+    {
+      "path": "capabilities/reconciliations/review-2026-10-10-current-relative-route-guard-r71-2026-10-14.json",
+      "beforeSha256": null,
+      "afterSha256": "0b29a4bdeac40c9b9826ba83d44b67ece034f1923d848129208ed020e8c76ed8",
+      "bytes": 2772
+    },
+    {
+      "path": "upstream-lock.json",
+      "beforeSha256": "3a7722ec81908d05333da8be36e65dfe57d1b4d7de36050977acf2545cd8545d",
+      "afterSha256": "a1cad4615822dd2402c28f1f857f9f272d27e1b53d9bf20825f651741d367e78",
+      "bytes": 450085
+    },
+    {
+      "path": "vendor-map.json",
+      "beforeSha256": "b3275c7d8b997d1cfe723d97594659f77d7b4361b824a790bcfdd7ff762589bd",
+      "afterSha256": "b3275c7d8b997d1cfe723d97594659f77d7b4361b824a790bcfdd7ff762589bd",
+      "bytes": 115907
+    },
+    {
+      "path": "vendor-rules.json",
+      "beforeSha256": "fa6e5bc16fdad481c00d2364b8af21413d96d001b496604ef5fb25c585e1be28",
+      "afterSha256": "fec38d5d19510eadc20620fc3e91df0a6d9b09d9ac958b9fe6af6db3edf7ee2c",
+      "bytes": 92756
+    },
+    {
+      "path": "capabilities/change-manifests/task-review-2026-10-10.json",
+      "beforeSha256": "829f4c366e12739c48eb077a7c8d47f359ff12e262601dee4a95867c552e65b8",
+      "afterSha256": "b27ab3aa9f4584b64428c5c77e1cb1799a1d3de710553b34e447c871907170e9",
+      "bytes": 1105
+    }
+  ],
+  "commands": [
+    {
+      "id": "affected-mcp-bundle-buildinfo-and-publint",
+      "exitCode": 0,
+      "bundles": 16
+    },
+    {
+      "id": "affected-cli-bundle-and-publint",
+      "exitCode": 0,
+      "bundles": 7
+    },
+    {
+      "id": "affected-mcp-cli-archives",
+      "exitCode": 0
+    }
+  ],
+  "reconciliationCommandsPassed": 6,
+  "artifacts": [
+    {
+      "path": "packages/cli/dist/commands-CuHKdvkt.mjs",
+      "bytes": 2604446,
+      "sha256": "c5410c96692c5b3c3e9b15bb57e2b7e8748426ead3566d9443e2e28f4189203d"
+    },
+    {
+      "path": "packages/cli/dist/index.mjs",
+      "bytes": 504,
+      "sha256": "6a5efba713e5ac32147c701e21068475d9e521a0237ea904fbf6e512526aefe0"
+    },
+    {
+      "path": "packages/cli/dist/library.mjs",
+      "bytes": 25802,
+      "sha256": "c02defd6b25a90d1b293729a29314f216c56599b082d61b32d3c0d4a2d5a7980"
+    },
+    {
+      "path": "packages/cli/dist/native-module-fence-ChbLvPJk.mjs",
+      "bytes": 916857,
+      "sha256": "bda5d022952b39ab2e12dc47606a4b5280b4875fe51b961cb9fd9ab988aef2dd"
+    },
+    {
+      "path": "packages/cli/dist/native-module-fence-CxUlzO_W.mjs",
+      "bytes": 200,
+      "sha256": "8de733633a02afa107e758a4454543c200df63e337bdc690afe70156f4812ff7"
+    },
+    {
+      "path": "packages/cli/dist/native-runner-DTRW2luu.mjs",
+      "bytes": 477,
+      "sha256": "30594ea4598525889aedb73f405781ee7b1a59a19e4a085a92e7ba30b0e26f51"
+    },
+    {
+      "path": "packages/cli/dist/rolldown-runtime-CQi-gXI4.mjs",
+      "bytes": 1948,
+      "sha256": "744959ecc7a01f8ef9b5fa40db62dc5e8cd04368bd39a9e686849727457c2891"
+    },
+    {
+      "path": "packages/mcp/dist/build-info.json",
+      "bytes": 129,
+      "sha256": "ecec0cee74930911372a3b26cc9290105b452cb8b9ddb9fb1dc4b35f7cc1794f"
+    },
+    {
+      "path": "packages/mcp/dist/daemon-entry.mjs",
+      "bytes": 377,
+      "sha256": "e3a58bd2118f08b01e71b62d845a62c561fef0ff05e44d33b327a2593bb0464c"
+    },
+    {
+      "path": "packages/mcp/dist/index.mjs",
+      "bytes": 2320119,
+      "sha256": "343b730475a8b975807f41c4ca734c6005b6ad2811e063dcbafce7e6cfb5d0df"
+    },
+    {
+      "path": "packages/mcp/dist/native-artifacts-CV1gVici.mjs",
+      "bytes": 766,
+      "sha256": "08873b306604026cdf64d81f362ac5229b03e3d4fa3fd2d387c0eda230d78ced"
+    },
+    {
+      "path": "packages/mcp/dist/native-artifacts-Dnwa2sF7.mjs",
+      "bytes": 60873,
+      "sha256": "c75d4ef365f83025bd41b6b1f5329c79dd3e0a960dc2e011b4313a50c897c539"
+    },
+    {
+      "path": "packages/mcp/dist/native-module-fence-02x94vuQ.mjs",
+      "bytes": 242726,
+      "sha256": "b0bd4d83ce78305850fc3d7d18d8e5d4878b6374514ff493770b6ad718e853f9"
+    },
+    {
+      "path": "packages/mcp/dist/native-module-fence-DsnsuuC0.mjs",
+      "bytes": 200,
+      "sha256": "2b8b2d2079d19c76844f4bad8669271b6f582e1749e3781589d3eae974b1a903"
+    },
+    {
+      "path": "packages/mcp/dist/native-runner-BQ1H7915.mjs",
+      "bytes": 477,
+      "sha256": "d4c8d035e5075a2fac1670f75bccc3655185db35104b42c751d5f54f8f00ad95"
+    },
+    {
+      "path": "packages/mcp/dist/operation-evidence-projector-Br6qAuWz.mjs",
+      "bytes": 5821,
+      "sha256": "128979d52c9fc1a0200b2cbdd7c7716a0a244b78f113fed64792abf20265f28d"
+    },
+    {
+      "path": "packages/mcp/dist/operation-evidence-projector-CqRHvTD9.mjs",
+      "bytes": 156,
+      "sha256": "5fe798bf211507408d75f04a0c431df52356c40e3fc2a37431b5dba429a06ad8"
+    },
+    {
+      "path": "packages/mcp/dist/portal-validation.mjs",
+      "bytes": 2566,
+      "sha256": "6b7d59c018224ec2dee5c423bbe9bda0e687850735a630bf9eb16f0d46932f04"
+    },
+    {
+      "path": "packages/mcp/dist/preview-listener-D2rXtHYh.mjs",
+      "bytes": 155271,
+      "sha256": "f4b94e9dd5bd336d94d1de4cf33c0e3db2c8d5d6ae5938f6b2fd170fd550bbd1"
+    },
+    {
+      "path": "packages/mcp/dist/preview-worker-giTTc56e.mjs",
+      "bytes": 277344,
+      "sha256": "a0a3e7e442531da598923437ebe5d3db00417bf245364abb9eacce3a26d93e0d"
+    },
+    {
+      "path": "packages/mcp/dist/runtime-mode-CtV2_UhM.mjs",
+      "bytes": 223,
+      "sha256": "cbbef87c27503d74ff4dddff1b845fa75e8fd34c7aa3468e275e22eeed185c5f"
+    },
+    {
+      "path": "packages/mcp/dist/src-BP064HU5.mjs",
+      "bytes": 53585,
+      "sha256": "08cda35a129d3f7be5476f829673fc5b22a9ffee760e5eb01a305e38865a47a6"
+    },
+    {
+      "path": "packages/mcp/dist/src-CydUVzXg.mjs",
+      "bytes": 260218,
+      "sha256": "7f43ed5c3c1bb42571c35c332250bb97548c66f39ae1e9a40db57c48968ac658"
+    },
+    {
+      "path": "packages/mcp/dist/src-ZKILZLV6.mjs",
+      "bytes": 170,
+      "sha256": "bf5f37267c06864c89bb6e16353dd7e7b13b70029d83a37aa635139f5213ef1d"
+    },
+    {
+      "path": "packages/plugin/dist/code.js",
+      "bytes": 355337,
+      "sha256": "7ab84788b2adf32b44e48908c6f54d075b61ffdd629096e39d0f386312badd20"
+    },
+    {
+      "path": "packages/plugin/dist/index.html",
+      "bytes": 383091,
+      "sha256": "801ecd7020f0015547ab246fbc25c27fcbc7f70901cee46f026eee20605f804b"
+    },
+    {
+      "path": "packages/plugin/manifest.json",
+      "bytes": 529,
+      "sha256": "d658e7e382bb503adba766dce6698d1d853466601a97f0266926ab2fc093665f"
+    },
+    {
+      "path": "packages/portal/dist/index.mjs",
+      "bytes": 443784,
+      "sha256": "5f8fe4e02edbc887ee533096c97953af86f32121899f61c9d0d868fd22368822"
+    },
+    {
+      "path": "packages/portal/web/api.js",
+      "bytes": 4536,
+      "sha256": "4b608fcde06ebb2e2a8bf2d3bda7ba682a3a72920b8762ce55db8f6390b05102"
+    },
+    {
+      "path": "packages/portal/web/app.js",
+      "bytes": 105054,
+      "sha256": "fe9e1257b0001dc09425637d3849fede9270bbdb85bc895ec068cf6ef06585e3"
+    },
+    {
+      "path": "packages/portal/web/figma-auth-consent.css",
+      "bytes": 630,
+      "sha256": "92936bf38172f7af6875e8be212882ff6a7db8eceb186306ced37a347e6abc73"
+    },
+    {
+      "path": "packages/portal/web/figma-auth-consent.html",
+      "bytes": 2207,
+      "sha256": "a517ebb46e30626d50ab7562b459e209a8d93d617370fd367524bba7319f4eea"
+    },
+    {
+      "path": "packages/portal/web/figma-auth-consent.js",
+      "bytes": 4565,
+      "sha256": "cfa0bd18655247a3dcaff6520b250bfd329484d857be7b94a077428416d01b0c"
+    },
+    {
+      "path": "packages/portal/web/figma-auth-public.js",
+      "bytes": 8111,
+      "sha256": "37c224301b981a75ea0eb59755142199372de6bf5ec9b8b5671bb365631056f9"
+    },
+    {
+      "path": "packages/portal/web/figma-settings.js",
+      "bytes": 19373,
+      "sha256": "00a6349b3c16da3b31cab8e32da0dde5cc5764724abd1d9fd01fb9f4cbb66575"
+    },
+    {
+      "path": "packages/portal/web/index.html",
+      "bytes": 1340,
+      "sha256": "412a66ea1bca0396e3105f37635ad7973510b657e2549aac1337d03f2dfcd690"
+    },
+    {
+      "path": "packages/portal/web/model.js",
+      "bytes": 21878,
+      "sha256": "4be8488eb188ec799c4264aa78596dd8dd005173d185ff0ba831bad3b11190b4"
+    },
+    {
+      "path": "packages/portal/web/schema-form.js",
+      "bytes": 22793,
+      "sha256": "9d1b1d073824327e8e6206d76981e23cdbc9e980f2511542c81aed2a3600693d"
+    },
+    {
+      "path": "packages/portal/web/service-functions.js",
+      "bytes": 28592,
+      "sha256": "36c0d05f81dcc63db109eaff6a6bc0239e797d85624f90dce95cf91a503c0e19"
+    },
+    {
+      "path": "packages/portal/web/styles.css",
+      "bytes": 29240,
+      "sha256": "47267a7738904f221ad77e0d1d18463d7b268a310735ab026388cbd8d8262b8a"
+    }
+  ],
+  "archives": [
+    {
+      "name": "mcp.tgz",
+      "sha256": "988e6c07cef5c7119df5cf73b67168732dcc30dcec37eda3f3a811b3070a257d",
+      "bytes": 1097545,
+      "source": "new-affected-source"
+    },
+    {
+      "name": "cli.tgz",
+      "sha256": "f93da33c7653c45e5f73eb516d7ecbf61940cf88b9e09406fa7640bfeda33d9a",
+      "bytes": 946529,
+      "source": "new-affected-source"
+    },
+    {
+      "name": "plugin.zip",
+      "sha256": "012486b5887792093e8d457746a8964f79ce995b137ee391cf3b06cd132cb1ac",
+      "bytes": 276576,
+      "source": "exact-old-e96-bytes"
+    },
+    {
+      "name": "portal.tgz",
+      "sha256": "e840c969020cf69fabd9b4eec8319100e21b0fc462dca0858c75d39e893e2ae4",
+      "bytes": 244909,
+      "source": "exact-old-e96-bytes"
+    }
+  ],
+  "archiveManifestHash": "359a0f7afad38887007326d64f76ea080465c332a6cbe3f58d5c10b4774c290f",
+  "archiveByteChecks": [
+    {
+      "archive": "mcp.tgz",
+      "actualExtractedMembersMatch": true,
+      "members": 32,
+      "sha256": "988e6c07cef5c7119df5cf73b67168732dcc30dcec37eda3f3a811b3070a257d"
+    },
+    {
+      "archive": "cli.tgz",
+      "actualExtractedMembersMatch": true,
+      "members": 19,
+      "sha256": "f93da33c7653c45e5f73eb516d7ecbf61940cf88b9e09406fa7640bfeda33d9a"
+    }
+  ],
+  "reusedSourceHash": "sha256:e96f37b95100645fcfbb8317683c655556219ef920d8c8adf85968914cb2b0f5",
+  "reusedBuildIdentity": "sha256:cf241705ac5ff3d6493bfaf25a3a5dc212d1724777247a6fb4a8042d924eb5a8",
+  "portalOrPluginRebuilt": false,
+  "releaseSealed": false,
+  "whole": false,
+  "qaRuntimeReplaced": false,
+  "newDisjointRuntime": "See c2-c3-current-deadline-lifecycle-20261014.json; daemon36652/3061 serves this cohort.",
+  "backpressureRepairIntegrated": false,
+  "liveC2Acceptance": false,
+  "liveC3Acceptance": false,
+  "originalOwnedReceiptSha256": "f056bcd4cac086bf4ea22e86e95741132574e3b1ae872f16f8e26766a98f4cf5"
+}

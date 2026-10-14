@@ -1,0 +1,199 @@
+{
+  "schemaVersion": 1,
+  "kind": "current-cdd-source-to-applied-frontend-acceptance",
+  "recordedAt": "2026-10-14T02:23:55.225Z",
+  "sourceHash": "sha256:e96f37b95100645fcfbb8317683c655556219ef920d8c8adf85968914cb2b0f5",
+  "buildIdentity": "sha256:cf241705ac5ff3d6493bfaf25a3a5dc212d1724777247a6fb4a8042d924eb5a8",
+  "planId": "sfp_portal1_63eb7b52784b2f0ef057ad9a5d361f95",
+  "runId": "sfp_portal1_63eb7b52784b2f0ef057ad9a5d361f95",
+  "workspaceId": "58351a0a-bfa4-4bc3-bd0f-632e6ed70154",
+  "candidateHash": "sha256:0073a47d604bdd8bb18b581a12df646a501a3c9f68775dd2d8bf85fd6bc89bad",
+  "appliedHash": "sha256:0073a47d604bdd8bb18b581a12df646a501a3c9f68775dd2d8bf85fd6bc89bad",
+  "submittedFiles": 43,
+  "coreDeclarations": 7,
+  "originalRunDeadlineAt": 1791943939872,
+  "runDeadlineUnchanged": true,
+  "actualNativeBudget": {
+    "effect": {
+      "attempts": 2,
+      "deadlineAt": 1791945520674
+    },
+    "version": 1
+  },
+  "originalApplyOutcomePreserved": true,
+  "applyState": "applied-awaiting-validation",
+  "state": "completed",
+  "issues": [],
+  "candidate": {
+    "state": "ready-to-apply",
+    "checks": [
+      {
+        "id": "frontend-types",
+        "status": "passed"
+      },
+      {
+        "id": "frontend-independence",
+        "status": "passed"
+      },
+      {
+        "id": "frontend-build",
+        "status": "passed"
+      },
+      {
+        "id": "visual-guide",
+        "status": "passed"
+      },
+      {
+        "id": "accessibility-guide",
+        "status": "passed"
+      },
+      {
+        "id": "visual-mobile",
+        "status": "passed"
+      },
+      {
+        "id": "accessibility-mobile",
+        "status": "passed"
+      },
+      {
+        "id": "visual-desktop",
+        "status": "passed"
+      },
+      {
+        "id": "accessibility-desktop",
+        "status": "passed"
+      },
+      {
+        "id": "journey-figma-account-session",
+        "status": "passed"
+      },
+      {
+        "id": "journey-language-selection",
+        "status": "passed"
+      },
+      {
+        "id": "journey-registration-demo",
+        "status": "passed"
+      },
+      {
+        "id": "journey-frontend-presentation",
+        "status": "passed"
+      },
+      {
+        "id": "native-command-sequence",
+        "status": "passed"
+      },
+      {
+        "id": "native-source-scope",
+        "status": "passed"
+      },
+      {
+        "id": "native-design-freshness",
+        "status": "passed"
+      },
+      {
+        "id": "core-consumption",
+        "status": "passed"
+      }
+    ],
+    "liveDesignVerified": true,
+    "runtimeVerified": true
+  },
+  "applied": {
+    "checks": [
+      {
+        "id": "frontend-types",
+        "status": "passed"
+      },
+      {
+        "id": "frontend-independence",
+        "status": "passed"
+      },
+      {
+        "id": "frontend-build",
+        "status": "passed"
+      },
+      {
+        "id": "visual-guide",
+        "status": "passed"
+      },
+      {
+        "id": "accessibility-guide",
+        "status": "passed"
+      },
+      {
+        "id": "visual-mobile",
+        "status": "passed"
+      },
+      {
+        "id": "accessibility-mobile",
+        "status": "passed"
+      },
+      {
+        "id": "visual-desktop",
+        "status": "passed"
+      },
+      {
+        "id": "accessibility-desktop",
+        "status": "passed"
+      },
+      {
+        "id": "journey-figma-account-session",
+        "status": "passed"
+      },
+      {
+        "id": "journey-language-selection",
+        "status": "passed"
+      },
+      {
+        "id": "journey-registration-demo",
+        "status": "passed"
+      },
+      {
+        "id": "journey-frontend-presentation",
+        "status": "passed"
+      },
+      {
+        "id": "native-command-sequence",
+        "status": "passed"
+      },
+      {
+        "id": "native-source-scope",
+        "status": "passed"
+      },
+      {
+        "id": "native-design-freshness",
+        "status": "passed"
+      },
+      {
+        "id": "core-consumption",
+        "status": "passed"
+      }
+    ],
+    "liveDesignVerified": true,
+    "runtimeVerified": true,
+    "nativeEnvironment": {
+      "attemptId": "025b8d5e6c8c6f726133d358361e8e7543c760f05665d0b82d948c0240cd7fc8",
+      "disposition": "retained-artifact",
+      "executionHash": "sha256:b153b83af4f5cac54250a64cde16b02649f0bdb89016300b061f12f7b50fde77",
+      "receiptHash": "sha256:1854485fbaa887e75bc7060b4c2fc8eda795d76db2537df3d5ce43a7412e684c",
+      "target": "applied",
+      "version": 1
+    }
+  },
+  "sourceCounts": {
+    "designNodes": 192,
+    "nativeResources": 438,
+    "nativeTextNodes": 72,
+    "glyphPlacements": 1594,
+    "assets": 25
+  },
+  "cddCompleteJourney": 1,
+  "c2Complete": false,
+  "c3Complete": false,
+  "whole": false,
+  "independentCollectorComparison": false,
+  "officialMcpLive": false,
+  "ecommerceFinal": false,
+  "limits": "The applied check was a distinct normal service admission against the already applied target after the original coding-run deadline. The existing effect budget remained unchanged; no original deadline or expired issuer was renewed. This establishes the CDD frontend-only case, not full C2/C3 or excluded/deferred work."
+}
